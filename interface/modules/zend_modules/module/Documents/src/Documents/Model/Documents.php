@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Documents/src/Documents/Model/Documents.php
  *
@@ -11,10 +12,10 @@
 
 namespace Documents\Model;
 
-use Zend\InputFilter\Factory as InputFactory;
-use Zend\InputFilter\InputFilter;
-use Zend\InputFilter\InputFilterAwareInterface;
-use Zend\InputFilter\InputFilterInterface;
+use Laminas\InputFilter\Factory as InputFactory;
+use Laminas\InputFilter\InputFilter;
+use Laminas\InputFilter\InputFilterAwareInterface;
+use Laminas\InputFilter\InputFilterInterface;
 
 class Documents implements InputFilterAwareInterface
 {

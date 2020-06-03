@@ -1,4 +1,5 @@
 <?php
+
 ////////////////////////////////////////////////////////////////////
 // Form:    Intakeverslag - Autosave
 // Package: Report of First visit - Dutch specific form
@@ -59,12 +60,12 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
                   $_POST["alcohol"], $_POST["drugs"], $_POST["roken"], $_POST["medicatie"], $_POST["familieanamnese"], $_POST["indruk_observaties"], $_POST["beschrijvende_conclusie"], $_POST["behandelvoorstel"],
                   $newid));
 
-//echo "lalalalal id=$newid, sql=$strSql<br>";
+//echo "lalalalal id=$newid, sql=$strSql<br />";
 } else {
     $newid = formSubmit("form_intakeverslag", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Psychiatric Intake", $newid, "intakeverslag", $pid, $userauthorized);
 
-    //echo "debug :: insert<br>";
+    //echo "debug :: insert<br />";
 }
 
 

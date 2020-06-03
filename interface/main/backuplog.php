@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  backuplog.php
  *
@@ -21,13 +22,13 @@ if (php_sapi_name() !== 'cli') {
 }
 
 require_once("$argv[1]/library/sqlconf.php");
-$backuptime=date("Ymd_His");
+$backuptime = date("Ymd_His");
 $BACKUP_EVENTLOG_DIR = $argv[2] . "/emr_eventlog_backup";
 if (!file_exists($BACKUP_EVENTLOG_DIR)) {
     mkdir($BACKUP_EVENTLOG_DIR);
     chmod($BACKUP_EVENTLOG_DIR, 0777);
 }
 
-$BACKUP_EVENTLOG_DIR=$BACKUP_EVENTLOG_DIR.'/eventlog_'.$backuptime.'.sql';
-$cmd = escapeshellcmd($argv[1].'/interface/main/backuplog.sh') . ' ' . escapeshellarg($sqlconf["login"]) . ' ' . escapeshellarg($sqlconf["pass"]) . ' ' . escapeshellarg($sqlconf["dbase"]) . ' ' . escapeshellarg($BACKUP_EVENTLOG_DIR) . ' ' . escapeshellarg($sqlconf["host"]) . ' ' . escapeshellarg($sqlconf["port"]);
+$BACKUP_EVENTLOG_DIR = $BACKUP_EVENTLOG_DIR . '/eventlog_' . $backuptime . '.sql';
+$cmd = escapeshellcmd($argv[1] . '/interface/main/backuplog.sh') . ' ' . escapeshellarg($sqlconf["login"]) . ' ' . escapeshellarg($sqlconf["pass"]) . ' ' . escapeshellarg($sqlconf["dbase"]) . ' ' . escapeshellarg($BACKUP_EVENTLOG_DIR) . ' ' . escapeshellarg($sqlconf["host"]) . ' ' . escapeshellarg($sqlconf["port"]);
 system($cmd);

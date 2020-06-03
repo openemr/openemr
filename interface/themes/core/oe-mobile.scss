@@ -1,34 +1,43 @@
 /* customized settings to make OpenEMR mobile friendly*/
 /*for Smartphones*/
+
 @media only screen and (max-width: 400px) {
-    h1{
-        font-size: 30px;
-    }
-    h2{
-        font-size: 24px;
-    }
-    h3{
-        font-size: 18px;
-    }
-    h4{
-        font-size: 14px;
-    }
-    h5{
-        font-size: 12px;
-    }
-    h6{
-        font-size: 10px;
-    }
-    #oe-nav-ul.tabNav li {
-        font-size: .8em
-    }
+  h1 {
+    @include font-size("30px !important");
+  }
+
+  h2 {
+    @include font-size("24px !important");
+  }
+
+  h3 {
+    @include font-size("18px !important");
+  }
+
+  h4 {
+    @include font-size("14px !important");
+  }
+
+  h5 {
+    @include font-size("12px !important");
+  }
+
+  h6 {
+    @include font-size("10px !important");
+  }
+
+  #oe-nav-ul.tabNav li {
+    @include font-size("0.8rem !important");
+  }
 }
+
 /*Dashboard navbar styling for tablets*/
 @media only screen and (max-width: 1024px) {
-    .navbar-nav {
-        font-size: 14px !important;
-    }
-    .nav>li>a {
-        padding: 15px 8px;
-    }
+  .navbar-nav {
+    @include font-size("14px !important");
+  }
+
+  .nav > li > a {
+    padding: 15px 8px;
+  }
 }

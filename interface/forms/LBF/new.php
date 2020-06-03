@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LBF form.
  *
@@ -11,8 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
@@ -23,6 +23,7 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once("$srcdir/FeeSheetHtml.class.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -129,9 +130,9 @@ if ($lobj['grp_diags']) {
 }
 
 // Check access control.
-if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
-    $auth_aco_write = acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write');
-    $auth_aco_addonly = acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'addonly');
+if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
+    $auth_aco_write = AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1], '', 'write');
+    $auth_aco_addonly = AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1], '', 'addonly');
     // echo "\n<!-- '$auth_aco_write' '$auth_aco_addonly' -->\n"; // debugging
     if (!$auth_aco_write && !($auth_aco_addonly && !$formid)) {
         die(xlt('Access denied'));
@@ -211,7 +212,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             if ($source == 'H') {
                 $new = array($field_id => $value);
                 updateHistoryData($pid, $new);
-            } else if (strpos($field_id, 'em_') === 0) {
+            } elseif (strpos($field_id, 'em_') === 0) {
                 $field_id = substr($field_id, 3);
                 $new = array($field_id => $value);
                 updateEmployerData($pid, $new);
@@ -224,7 +225,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             }
 
             continue;
-        } else if ($source == 'E') {
+        } elseif ($source == 'E') {
             // Save to shared_attributes. Can't delete entries for empty fields because with the P option
             // it's important to know when a current empty value overrides a previous value.
             sqlStatement(
@@ -234,7 +235,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 array($pid, $visitid, $field_id, $_SESSION['authUserID'], $value)
             );
             continue;
-        } else if ($source == 'V') {
+        } elseif ($source == 'V') {
             // Save to form_encounter.
             $esc_field_id = escape_sql_column_name($field_id, array('form_encounter'));
             sqlStatement(
@@ -365,6 +366,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
     <!-- LiterallyCanvas support -->
     <?php echo lbf_canvas_head(); ?>
+    <?php echo signer_head(); ?>
 
     <script language="JavaScript">
 
@@ -420,6 +422,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
@@ -427,6 +431,44 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datepicker-past').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datetimepicker-past').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datepicker-future').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+                <?php $datetimepicker_maxDate = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datetimepicker-future').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+                <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
@@ -734,7 +776,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:#ffffff'";
+    echo " style='background-color:var(--white)'";
                       } ?>>
 <div class='container'>
     <?php
@@ -756,7 +798,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
     <div class="container-responsive">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h3>
                         <?php echo text($formtitle) . " " . xlt('for') . ' ';
@@ -770,13 +812,13 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         array($formname, $formid)
                     );
                     $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
-                    $form_provider_id = empty($firow['provider_id']) ? 0 : intval($firow['provider_id']);
+                    $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
 
                     // Provider selector.
                     echo "&nbsp;&nbsp;";
                     echo xlt('Provider') . ": ";
                     // TBD: Refactor this function out of the FeeSheetHTML class as that is not the best place for it.
-                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $form_provider_id);
+                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $default);
 
                     // If appropriate build a drop-down selector of issues of this type for this patient.
                     // We skip this if in an issue form tab because removing and adding visit form tabs is
@@ -908,7 +950,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                             if (!empty($tmp['encounter'])) {
                                 $currvalue = lbf_current_value($frow, $tmp['form_id'], $tmp['encounter']);
                             }
-                        } else if ($source == 'E') {
+                        } elseif ($source == 'E') {
                             // Visit attribute, get most recent value as of this visit.
                             // Even if the form already exists for this visit it may have a readonly value that only
                             // exists in a previous visit and was created from a different form.
@@ -977,7 +1019,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     // If group name is blank, no checkbox or div.
                     if (strlen($gname)) {
                         echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
-                            "onclick='return divclick(this," . attr_js('div_'.$group_seq) . ");'";
+                            "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
                         if ($display_style == 'block') {
                             echo " checked";
                         }
@@ -1040,7 +1082,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     }
                     if (isOption($edit_options, 'RS')) {
                         echo " <tr class='RS'>";
-                    } else if (isOption($edit_options, 'RO')) {
+                    } elseif (isOption($edit_options, 'RO')) {
                         echo " <tr class='RO'>";
                     } else {
                         echo " <tr>";
@@ -1469,9 +1511,9 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             } // End Diagnoses Section
 
             ?>
-            <br>
+            <br />
 
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="btn-group">
 
                     <?php
@@ -1483,7 +1525,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                             echo "&nbsp;&nbsp;";
                         }
                         ?>
-                        <button type="submit" class="btn btn-default btn-save" name="bn_save"
+                        <button type="submit" class="btn btn-secondary btn-save" name="bn_save"
                                 value="<?php echo xla('Save'); ?>">
                             <?php echo xlt('Save'); ?>
                         </button>
@@ -1509,7 +1551,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
                             if ($form_is_graphable) {
                                 ?>
-                                <button type='button' class="btn btn-default btn-graph"
+                                <button type='button' class="btn btn-secondary btn-graph"
                                         onclick="top.restoreSession();location='../../patient_file/encounter/trend_form.php?formname=<?php echo attr_url($formname); ?>'">
                                     <?php echo xlt('Show Graph') ?>
                                 </button>
@@ -1526,7 +1568,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         <?php
                     } elseif (!$from_lbf_edit) { // $from_trend_form is true but lbf edit doesn't want button
                         ?>
-                        <button type='button' class="btn btn-default btn-back" onclick='window.history.back();'>
+                        <button type='button' class="btn btn-secondary btn-back" onclick='window.history.back();'>
                             <?php echo xlt('Back') ?>
                         </button>
                         <?php

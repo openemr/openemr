@@ -1,4 +1,5 @@
 <?php
+
 /**
  * library/FeeSheetHtml.class.php
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "/FeeSheet.class.php");
 require_once(dirname(__FILE__) . "/api.inc");
@@ -115,9 +115,11 @@ class FeeSheetHtml extends FeeSheet
                     }
                 } else {
                     $has_inventory = sellDrug($drug_id, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
-                    if (((strlen($default) == 0 && $lrow['is_default']) ||
-                       (strlen($default)  > 0 && $lrow['option_id'] == $default)) &&
-                      ($is_sold || $has_inventory)) {
+                    if (
+                        ((strlen($default) == 0 && $lrow['is_default']) ||
+                        (strlen($default)  > 0 && $lrow['option_id'] == $default)) &&
+                        ($is_sold || $has_inventory)
+                    ) {
                         $s .= " selected";
                     } else {
                         // Disable this warehouse option if not selected and has no inventory.
@@ -160,12 +162,33 @@ class FeeSheetHtml extends FeeSheet
             "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
             array($pr_id, $pr_selector)
         );
+        $standardPrice = 0;
         while ($lrow = sqlFetchArray($lres)) {
             $price = empty($lrow['pr_price']) ? 0 : $lrow['pr_price'];
+
+            // if percent-based pricing is enabled...
+            if ($GLOBALS['enable_percent_pricing']) {
+                // Set standardPrice as the first price level (sorted by seq)
+                if ($standardPrice === 0) {
+                    $standardPrice = $price;
+                }
+
+                // If price level notes contains a percentage,
+                // calculate price as percentage of standard price
+                $notes = $lrow['notes'];
+                if (!empty($notes) && strpos($notes, '%') > -1) {
+                    $percent = intval(str_replace('%', '', $notes));
+                    if ($percent > 0) {
+                        $price = $standardPrice * ((100 - $percent) / 100);
+                    }
+                }
+            }
+
             $s .= "<option value='" . attr($lrow['option_id']) . "'";
             $s .= " id='prc_$price'";
-            if ((strlen($default) == 0 && $lrow['is_default'] && !$disabled) ||
-              (strlen($default)  > 0 && $lrow['option_id'] == $default)
+            if (
+                (strlen($default) == 0 && $lrow['is_default'] && !$disabled) ||
+                (strlen($default)  > 0 && $lrow['option_id'] == $default)
             ) {
                 $s .= " selected";
             }

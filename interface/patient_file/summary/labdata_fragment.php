@@ -1,4 +1,5 @@
 <?php
+
 /**
  * labdata_fragment.php
  *
@@ -11,7 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -22,7 +22,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 ?>
 <div id='labdata' style='margin-top: 3px; margin-left: 10px; margin-right: 10px'><!--outer div-->
-<br>
+<br />
 <?php
 //retrieve most recent set of labdata.
 $spell = "SELECT procedure_report.date_collected AS thedate, " .
@@ -33,7 +33,7 @@ $spell = "SELECT procedure_report.date_collected AS thedate, " .
             "JOIN procedure_order_code ON procedure_order.procedure_order_id = procedure_order_code.procedure_order_id " .
             "WHERE procedure_order.patient_id = ? " .
             "ORDER BY procedure_report.date_collected DESC ";
-$result=sqlQuery($spell, array($pid));
+$result = sqlQuery($spell, array($pid));
 
 if (!$result) { //If there are no lab data recorded
     ?>
@@ -48,7 +48,7 @@ if (!$result) { //If there are no lab data recorded
   </b>
   <br />
     <?php
-    echo xlt('Procedure') . ": " . text($result['theprocedure']) . " (" . text($result['thedate']) . ")<br>";
+    echo xlt('Procedure') . ": " . text($result['theprocedure']) . " (" . text($result['thedate']) . ")<br />";
     echo xlt('Encounter') . ": <a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr_url($result['theencounter']) . "' target='RBot'>" . text($result['theencounter']) . "</a>";
     ?>
   <br />

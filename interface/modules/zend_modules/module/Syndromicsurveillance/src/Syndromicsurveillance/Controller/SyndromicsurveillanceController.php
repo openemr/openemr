@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Controller/SyndromicsurveillanceController.php
  *
@@ -8,11 +9,12 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Syndromicsurveillance\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\View\Model\JsonModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
 
 class SyndromicsurveillanceController extends AbstractActionController
@@ -26,7 +28,7 @@ class SyndromicsurveillanceController extends AbstractActionController
 
     public function __construct(\Syndromicsurveillance\Model\SyndromicsurveillanceTable $table)
     {
-        $this->listenerObject   = new Listener;
+        $this->listenerObject   = new Listener();
         $this->syndromicsurveillanceTable = $table;
     }
 
@@ -41,7 +43,7 @@ class SyndromicsurveillanceController extends AbstractActionController
     public function indexAction()
     {
         $date_display_format = $GLOBALS['date_display_format'];
-        $default_from_date = date('Y-m-d', strtotime(date('Ymd')) - (86400*7));
+        $default_from_date = date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
         $default_to_date = date('Y-m-d');  // be inclusive of today.
         $request        = $this->getRequest();
         $this->search   = $request->getPost('search', null);
@@ -53,7 +55,7 @@ class SyndromicsurveillanceController extends AbstractActionController
         $results        = $request->getPost('form_results', 100);
         $results        = ($results > 0) ? $results : 100;
         $current_page   = $request->getPost('form_current_page', 1);
-        $end            = $current_page*$results;
+        $end            = $current_page * $results;
         $start          = ($end - $results);
         $new_search     = $request->getPost('form_new_search', null);
         $form_sl_no     = $request->getPost('form_sl_no', 0);
@@ -78,7 +80,7 @@ class SyndromicsurveillanceController extends AbstractActionController
             $count = $request->getPost('form_count', $this->getSyndromicsurveillanceTable()->fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end, 1));
         }
 
-        $totalpages     = ceil($count/$results);
+        $totalpages     = ceil($count / $results);
 
         $params['res_count']    = $count;
         $params['total_pages']  = $totalpages;
@@ -97,7 +99,7 @@ class SyndromicsurveillanceController extends AbstractActionController
             'result'        => $search_result,
             'form_data'     => $params,
             'table_obj'     => $this->getSyndromicsurveillanceTable(),
-            'listenerObject'=> $this->listenerObject,
+            'listenerObject' => $this->listenerObject,
             'commonplugin'  => $this->CommonPlugin(),
         ));
         return $view;

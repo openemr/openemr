@@ -79,13 +79,14 @@
         <delete dir="${dir.vendor}/symfony/process/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/translation/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/yaml/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/twig/twig/doc" verbose="true"/>
+        <delete dir="${dir.vendor}/twig/twig/test" verbose="true"/>
         <delete dir="${dir.vendor}/yubico/u2flib-server/examples" verbose="true"/>
         <delete dir="${dir.vendor}/yubico/u2flib-server/tests" verbose="true"/>
     </target>
 
 
     <target name="clean-assets-dir">
-        <delete dir="${dir.assets}/anythingslider/demos" verbose="true"/>
         <delete dir="${dir.assets}/flot/examples" verbose="true"/>
         <delete dir="${dir.assets}/jquery-datetimepicker/tests" verbose="true"/>
         <delete dir="${dir.assets}/numeral/tests" verbose="true"/>

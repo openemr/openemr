@@ -1,31 +1,28 @@
 <?php
+
 /**
  * patient_data.php
  *
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+
+    <?php Header::setupHeader(['datetime-picker', 'opener', 'common']); ?>
+
 <SCRIPT LANGUAGE="JavaScript">
 
 function validate(f) {
@@ -60,7 +57,7 @@ function submitme() {
  }
 }
 
-$(document).ready(function(){
+$(function () {
   $("#cancel").click(function() {
       dlgclose();
   });
@@ -83,7 +80,7 @@ $(document).ready(function(){
 <?php
 
 // Ensure user is authorized
-if (!acl_check('patients', 'med')) {
+if (!AclMain::aclCheckCore('patients', 'med')) {
     echo "<p>(" . xlt('Not authorized') . ")</p>\n";
     echo "</body>\n</html>\n";
     exit();
@@ -149,14 +146,14 @@ if (isset($entryID)) {
 ?>
 <table cellspacing='0' cellpadding='0' border='0'>
 <tr>
-<td><span class="title"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
-" - " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item); ?></span>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="javascript:submitme();" class="css_button"><span><?php echo xlt('Save'); ?></span></a></td>
-<td><a href="#" id="cancel" class="css_button large_button"><span class='css_button_span large_button_span'><?php echo xlt('Cancel'); ?></span></a></td>
+<td><span class="title"><?php echo generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category) .
+" - " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $item); ?></span>&nbsp;&nbsp;&nbsp;</td>
+<td><a href="javascript:submitme();" class="btn btn-primary btn-lg"><?php echo xlt('Save'); ?></a></td>
+<td><a href="#" id="cancel" class="btn btn-secondary btn-lg"><?php echo xlt('Cancel'); ?></a></td>
 </tr>
 </table>
 
-<br>
+<br />
 <form action='patient_data.php' name='patient_data' method='post' onsubmit='return top.restoreSession()'>
   <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
@@ -173,7 +170,7 @@ if (isset($entryID)) {
     echo "<tr><td class='required'>";
     echo xlt('Completed');
     echo ":</td><td class='text'>";
-    generate_form_field(array('data_type'=>1,'field_id'=>'complete','list_id'=>'yesno','empty_title'=>'SKIP'), ($form_complete) ? $form_complete : "YES");
+    generate_form_field(array('data_type' => 1,'field_id' => 'complete','list_id' => 'yesno','empty_title' => 'SKIP'), ($form_complete) ? $form_complete : "YES");
     echo "</td></tr>";
 
     echo "<tr><td class='bold'>";
@@ -204,7 +201,7 @@ $res = sqlStatement("SELECT `id`, `date`, `complete`, `result` " .
   "ORDER BY `date` DESC", array($category,$item,$pid));
 ?>
 <hr />
-<br>
+<br />
 <div>
 <?php
 if (sqlNumRows($res) >= 1) { //display table ?>
@@ -231,7 +228,7 @@ if (sqlNumRows($res) >= 1) { //display table ?>
             attr_url($category) . "&item=" .
             attr_url($item) . "&entryID=" .
             attr_url($row['id']) .
-            "' onclick='top.restoreSession()' class='css_button_small'>" .
+            "' onclick='top.restoreSession()' class='btn btn-primary btn-sm'>" .
             "<span>" . xlt('Edit') . "</span></a>" .
             "</td>";
         }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This class has various billing functions for posting charges and payments.
  *
@@ -14,7 +15,6 @@
 namespace OpenEMR\Billing;
 
 require_once(dirname(__FILE__) . "/../../library/patient.inc");
-require_once(dirname(__FILE__) . "/../../library/invoice_summary.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 
@@ -35,13 +35,13 @@ class SLEOB
         if ($acount == 2) {
             $pid = $atmp[0];
             $encounter = $atmp[1];
-        } else if ($acount == 3) {
+        } elseif ($acount == 3) {
             $pid = $atmp[0];
             $brow = sqlQuery("SELECT encounter FROM billing WHERE " .
                 "pid = '$pid' AND encounter = ? AND activity = 1", array($atmp[1]));
 
             $encounter = $brow['encounter'];
-        } else if ($acount == 1) {
+        } elseif ($acount == 1) {
             $pres = sqlStatement("SELECT pid FROM patient_data WHERE " .
                 "lname LIKE ? AND " .
                 "fname LIKE ? " .
@@ -94,7 +94,7 @@ class SLEOB
             "payer_id,user_id,closed,reference,check_date,pay_total,post_to_date,deposit_date,patient_id,payment_type,adjustment_code,payment_method " .
             ") VALUES (?, ?, 0, ?, ?, ?, ? ,?, 0, 'insurance', 'insurance_payment', 'electronic')";
         if ($debug) {
-            echo text($query) . "<br>\n";
+            echo text($query) . "<br />\n";
         } else {
             $sessionId = sqlInsert($query, array($payer_id, $_SESSION['authUserID'], 'ePay - ' . $check_number, $check_date, $pay_total, $post_to_date, $deposit_date));
             return $sessionId;
@@ -213,7 +213,7 @@ class SLEOB
         $tmp = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
         $value = $tmp[$payer_type];
         $query = "SELECT provider FROM insurance_data WHERE " .
-            "pid = ? AND type = ? AND date <= ? " .
+            "pid = ? AND type = ? AND (date <= ? OR date IS NULL) " .
             "ORDER BY date DESC LIMIT 1";
         $nprow = sqlQuery($query, array($patient_id, $value, $date_of_service));
         if (empty($nprow)) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Application/Module.php
  *
@@ -9,13 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace Application;
 
 use Application\Model\ApplicationTable;
 use Application\Model\SendtoTable;
-use Zend\Mvc\ModuleRouteListener;
-use Zend\Mvc\MvcEvent;
+use Laminas\Mvc\ModuleRouteListener;
+use Laminas\Mvc\MvcEvent;
 use Application\Listener\ModuleMenuSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -54,7 +54,7 @@ class Module
     public function getAutoloaderConfig()
     {
         return array(
-        'Zend\Loader\StandardAutoloader' => array(
+        'Laminas\Loader\StandardAutoloader' => array(
             'namespaces' => array(
                 __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
             ),

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php
  *
@@ -11,8 +12,8 @@
 
 namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Application\Listener\Listener;
 
 class SendtoController extends AbstractActionController
@@ -23,7 +24,7 @@ class SendtoController extends AbstractActionController
 
     public function __construct(\Application\Model\ApplicationTable $applicationTable, \Application\Model\SendtoTable $sendToTable)
     {
-        $this->listenerObject   = new Listener;
+        $this->listenerObject   = new Listener();
         $this->applicationTable = $applicationTable;
         $this->sendtoTable = $sendToTable;
     }
@@ -75,8 +76,8 @@ class SendtoController extends AbstractActionController
                 echo $components;
                 break;
             case 'send_fax':
-                $x=ob_get_level();
-                for (; $x>0; $x--) {
+                $x = ob_get_level();
+                for (; $x > 0; $x--) {
                     ob_end_clean();
                 }
 
@@ -93,13 +94,13 @@ class SendtoController extends AbstractActionController
                 $req_list   = $this->getRequest()->getPost('req_list', null);
                 if ($req_list == "facility") {
                     $facility = $this->getSendtoTable()->getFacility();
-                    echo "<option value=''>-".$this->listenerObject->z_xlt("Select")."-</option>";
+                    echo "<option value=''>-" . $this->listenerObject->z_xlt("Select") . "-</option>";
                     foreach ($facility as $fac_query_result) {
-                        echo "<option value='".$this->escapeHtml($fac_query_result['fax'])."' >".$fac_query_result['name']."</option>";
+                        echo "<option value='" . $this->escapeHtml($fac_query_result['fax']) . "' >" . $fac_query_result['name'] . "</option>";
                     }
                 } else {
                     $users = $this->getSendtoTable()->getUsers($req_list);
-                    echo "<option value=''>-".$this->listenerObject->z_xlt("Select")."-</option>";
+                    echo "<option value=''>-" . $this->listenerObject->z_xlt("Select") . "-</option>";
                     foreach ($users as $user) {
                         if ($user['ab_option'] == 3) {
                             $displayName = $user['organization'];
@@ -107,7 +108,7 @@ class SendtoController extends AbstractActionController
                             $displayName = $user['fname'] . ' ' . $user['mname'] . ' ' . $user['lname'];
                         }
 
-                        echo "<option value='".$this->escapeHtml($user['fax'])."' >".$displayName."</option>";
+                        echo "<option value='" . $this->escapeHtml($user['fax']) . "' >" . $displayName . "</option>";
                     }
                 }
                 break;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Document Template Management Module.
  *
@@ -6,19 +7,21 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2013-2014 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
 }
 
@@ -128,97 +131,101 @@ if (!empty($_POST['bn_upload'])) {
 
 ?>
 <html>
+   <head>
+      <title><?php echo xlt('Document Template Management'); ?></title>
+      <?php Header::setupHeader(); ?>
+      <style>
+         .dehead {
+           color: var(--black);
+           font-family: sans-serif;
+           font-size: 0.8125rem;
+           font-weight:bold;
+         }
+         .detail {
+           color: var(--black);
+           font-family: sans-serif;
+           font-size: 0.8125rem;
+           font-weight: normal;
+         }
+      </style>
+   </head>
+   <body class="body_top">
+   <div class="container">
+      <form method='post' action='manage_document_templates.php' enctype='multipart/form-data'
+         onsubmit='return top.restoreSession()'>
+         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <h2 class="text-center"><?php echo xlt('Document Template Management'); ?></h2>
+            <div class="row">
+            <div class="col-6">
+               <div class="mx-auto mt-3">
+                  <div class="card">
+                     <h5 class="card-header"><?php echo xlt('Upload a Template'); ?></h5>
+                     <div class="card-body">
+                        <div class="custom-file">
+                           <input type="hidden" name="MAX_FILE_SIZE" value="250000000" />
+                           <input type="file" name="form_file" size="40" class="custom-file-input" id="customFile" />
+                           <label class="custom-file-label" for="customFile"><?php echo xlt('Choose file'); ?></label>
+                        </div>
+                        <div class="input-group mt-3">
+                          <label for="form_dest_filename"><?php echo xlt('Destination Filename'); ?>:</label>
+                          <input type='text' class="form-control" name='form_dest_filename' id='form_dest_filename' size='30' />
+                          <div class="input-group-append">
+                            <input type='submit' class="btn btn-primary" name='bn_upload' value='<?php echo xla('Upload') ?>' />
+                          </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-6">
+               <div class="mx-auto mt-3">
+                  <div class="card">
+                     <h5 class="card-header"><?php echo xlt('Download or Delete a Template'); ?></h5>
+                     <div class="card-body">
+                        <select class="form-control" name='form_filename'>
+                        <?php
+                        // Generate an <option> for each existing file.
+                        if (file_exists($templatedir)) {
+                            $dh = opendir($templatedir);
+                        } else {
+                            $dh = false;
+                        }
+                        if ($dh) {
+                            $templateslist = array();
+                            while (false !== ($sfname = readdir($dh))) {
+                                if (substr($sfname, 0, 1) == '.') {
+                                    continue;
+                                }
 
-<head>
-<title><?php echo xlt('Document Template Management'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+                                $templateslist[$sfname] = $sfname;
+                            }
 
-<style type="text/css">
- .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
-</style>
-
-</head>
-
-<body class="body_top">
-<form method='post' action='manage_document_templates.php' enctype='multipart/form-data'
- onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-<center>
-
-<h2><?php echo xlt('Document Template Management'); ?></h2>
-
-<p>
-<table border='1' width='95%'>
-
- <tr bgcolor='#dddddd' class='dehead'>
-  <td align='center'><?php echo xlt('Upload a Template'); ?></td>
- </tr>
-
- <tr>
-  <td valign='top' class='detail' style='padding:10pt;' nowrap>
-    <?php echo xlt('Source File'); ?>:
-   <input type="hidden" name="MAX_FILE_SIZE" value="250000000" />
-   <input type="file" name="form_file" size="40" />&nbsp;
-    <?php echo xlt('Destination Filename'); ?>:
-   <input type='text' name='form_dest_filename' size='30' />
-   &nbsp;
-   <input type='submit' name='bn_upload' value='<?php echo xla('Upload') ?>' />
-  </td>
- </tr>
-
-</table>
-</p>
-
-<p>
-<table border='1' width='95%'>
-
- <tr bgcolor='#dddddd' class='dehead'>
-  <td align='center'><?php echo xlt('Download or Delete a Template'); ?></td>
- </tr>
-
- <tr>
-  <td valign='top' class='detail' style='padding:10pt;' nowrap>
-   <select name='form_filename'>
-<?php
-// Generate an <option> for each existing file.
-if (file_exists($templatedir)) {
-    $dh = opendir($templatedir);
-} else {
-    $dh = false;
-}
-if ($dh) {
-    $templateslist = array();
-    while (false !== ($sfname = readdir($dh))) {
-        if (substr($sfname, 0, 1) == '.') {
-            continue;
-        }
-
-        $templateslist[$sfname] = $sfname;
-    }
-
-    closedir($dh);
-    ksort($templateslist);
-    foreach ($templateslist as $sfname) {
-        echo "    <option value='" . attr($sfname) . "'";
-        echo ">" . text($sfname) . "</option>\n";
-    }
-}
-?>
-   </select>
-   &nbsp;
-   <input type='submit' name='bn_download' value='<?php echo xla('Download') ?>' />
-   &nbsp;
-   <input type='submit' name='bn_delete' value='<?php echo xla('Delete') ?>' />
-  </td>
- </tr>
-
-</table>
-</p>
-
-</center>
-
-</form>
-</body>
+                            closedir($dh);
+                            ksort($templateslist);
+                            foreach ($templateslist as $sfname) {
+                                echo "    <option value='" . attr($sfname) . "'";
+                                echo ">" . text($sfname) . "</option>\n";
+                            }
+                        }
+                        ?>
+                        </select>
+                        <div class="mt-3">
+                           <input type='submit' class="btn btn-success" name='bn_download' value='<?php echo xla('Download') ?>' />
+                           <input type='submit' class="btn btn-danger" name='bn_delete' value='<?php echo xla('Delete') ?>' />
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+          </div>
+      </form>
+      </div>
+      <script>
+      //dislpay file name
+        $(".custom-file-input").on("change", function() {
+        var fileName = $(this).val().split("\\").pop();
+        $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+        </script>
+   </body>
 </html>

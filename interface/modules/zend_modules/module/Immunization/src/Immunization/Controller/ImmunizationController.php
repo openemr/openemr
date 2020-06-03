@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php
  *
@@ -8,12 +9,12 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Immunization\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\View\Model\JsonModel;
-
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\View\Model\JsonModel;
 use Immunization\Form\ImmunizationForm;
 use Application\Listener\Listener;
 
@@ -28,12 +29,12 @@ class ImmunizationController extends AbstractActionController
     public function __construct(\Immunization\Model\ImmunizationTable $table)
     {
         $this->immunizationTable = $table;
-        $this->listenerObject   = new Listener;
+        $this->listenerObject   = new Listener();
     }
 
     /**
     * Index Page
-    * @return \Zend\View\Model\ViewModel
+    * @return \Laminas\View\Model\ViewModel
     */
     public function indexAction()
     {
@@ -44,7 +45,7 @@ class ImmunizationController extends AbstractActionController
         $data            =   $request->getPost();
         $isFormRefresh   =   'true';
         $form_code       =   isset($data['codes']) ? $data['codes'] : array();
-        $from_date       =   $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400*7));
+        $from_date       =   $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
         $to_date         =   $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
         $form_get_hl7    =   '';
         $patient_id      =   $request->getPost('patient_id', null);
@@ -52,7 +53,7 @@ class ImmunizationController extends AbstractActionController
         $results         =   $request->getPost('form_results', 100);
         $results         =   ($results > 0) ? $results : 100;
         $current_page    =   $request->getPost('form_current_page', 1);
-        $end             =   $current_page*$results;
+        $end             =   $current_page * $results;
         $start           =   ($end - $results);
         $new_search      = $request->getPost('form_new_search', null);
         //end pagination
@@ -112,7 +113,7 @@ class ImmunizationController extends AbstractActionController
             }
         }
 
-        $totalpages     = ceil($count/$results);
+        $totalpages     = ceil($count / $results);
         $details        = $this->getImmunizationTable()->immunizedPatientDetails($params);
         $rows = array();
         foreach ($details as $row) {
@@ -175,7 +176,7 @@ class ImmunizationController extends AbstractActionController
         $data       = $request->getPost();
         if (isset($data['hl7button'])) {
             $form_code        =   isset($data['codes']) ? $data['codes'] : array();
-            $from_date       =   $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400*7));
+            $from_date       =   $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
             $to_date         =   $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
             $form_get_hl7     =   'true';
             $patient_id       =   $request->getPost('patient_id', null);
@@ -183,7 +184,7 @@ class ImmunizationController extends AbstractActionController
             $results          =   $request->getPost('form_results', 100);
             $results          =   ($results > 0) ? $results : 100;
             $current_page     =   $request->getPost('form_current_page', 1);
-            $end              =   $current_page*$results;
+            $end              =   $current_page * $results;
             $start            =   ($end - $results);
             $new_search     = $request->getPost('form_new_search', null);
             //endpagination
@@ -242,7 +243,7 @@ class ImmunizationController extends AbstractActionController
                 }
             }
 
-            $totalpages     = ceil($count/$results);
+            $totalpages     = ceil($count / $results);
 
             $details        = $this->getImmunizationTable()->immunizedPatientDetails($params);
             $rows = array();
@@ -254,10 +255,10 @@ class ImmunizationController extends AbstractActionController
             $nowdate    = date('YmdHis');
             $now        = date('YmdGi');
             $now1       = date('Y-m-d G:i');
-            $filename   = "imm_reg_". $now . ".hl7";
+            $filename   = "imm_reg_" . $now . ".hl7";
 
             // GENERATE HL7 FILE
-            if ($form_get_hl7==='true') {
+            if ($form_get_hl7 === 'true') {
                 $content = '';
                 $patient_id = '';
                 foreach ($rows as $r) {
@@ -271,7 +272,7 @@ class ImmunizationController extends AbstractActionController
                     $guardiansname          = '';
 
                     if ($r['patientid'] != $patient_id) {
-                        $content .= "MSH|^~\&|OPENEMR|" .$r['facility_code']."||NIST Test Iz Reg|$nowdate||".
+                        $content .= "MSH|^~\&|OPENEMR|" . $r['facility_code'] . "||NIST Test Iz Reg|$nowdate||" .
                         "VXU^V04^VXU_V04|OPENEMR-110316102457117|P|2.5.1|||AL|ER" .
                         "$D" ;
                         $race_code            = $this->getImmunizationTable()->getNotes($r['race'], 'race');
@@ -279,69 +280,69 @@ class ImmunizationController extends AbstractActionController
                         $ethnicity_code       = $this->getImmunizationTable()->getNotes($r['ethnicity'], 'ethnicity');
                         $ethnicity_title      = $this->CommonPlugin()->getListtitle('ethnicity', $r['ethnicity']);
                         $guardianarray        = explode(' ', $r['guardiansname']);
-                        $guardianname         = $guardianarray[1].'^'.$guardianarray[0];
-                        if ($r['sex']==='Male') {
+                        $guardianname         = $guardianarray[1] . '^' . $guardianarray[0];
+                        if ($r['sex'] === 'Male') {
                             $r['sex'] = 'M';
                         }
 
-                        if ($r['sex']==='Female') {
+                        if ($r['sex'] === 'Female') {
                             $r['sex'] = 'F';
                         }
 
-                        if ($r['status']==='married') {
+                        if ($r['status'] === 'married') {
                             $r['status'] = 'M';
                         }
 
-                        if ($r['status']==='single') {
+                        if ($r['status'] === 'single') {
                             $r['status'] = 'S';
                         }
 
-                        if ($r['status']==='divorced') {
+                        if ($r['status'] === 'divorced') {
                             $r['status'] = 'D';
                         }
 
-                        if ($r['status']==='widowed') {
+                        if ($r['status'] === 'widowed') {
                             $r['status'] = 'W';
                         }
 
-                        if ($r['status']==='separated') {
+                        if ($r['status'] === 'separated') {
                             $r['status'] = 'A';
                         }
 
-                        if ($r['status']==='domestic partner') {
+                        if ($r['status'] === 'domestic partner') {
                             $r['status'] = 'P';
                         }
 
                         if ($r['email']) {
-                            $email  = '~^NET^Internet^'.$r['email'];
+                            $email  = '~^NET^Internet^' . $r['email'];
                         }
 
                         if ($r['race']) {
-                            $race       = $race_code.'^'.$race_title.'^HL70005';
+                            $race       = $race_code . '^' . $race_title . '^HL70005';
                         }
 
                         if ($r['ethnicity']) {
-                            $ethnicity = $ethnicity_code.'^'.$ethnicity_title.'^CDCREC';
+                            $ethnicity = $ethnicity_code . '^' . $ethnicity_title . '^CDCREC';
                         }
 
-                        $r['ss'] = $r['ss'] ? "~".$r['ss']."^^^MAA^SS" : "";
+                        $r['ss'] = $r['ss'] ? "~" . $r['ss'] . "^^^MAA^SS" : "";
                         $content .= "PID|" . // [[ 3.72 ]]
                             "1|" . // 1. Set id
                         "|" . // 2. (B)Patient id
-                            $r['pubpid']. "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . $r['ss']. "|". // 3. (R) Patient indentifier list. TODO: Hard-coded the OID from NIST test.
+                            $r['pubpid'] . "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . $r['ss'] . "|" . // 3. (R) Patient indentifier list. TODO: Hard-coded the OID from NIST test.
                         "|" . // 4. (B) Alternate PID
-                            $r['patientname']."^^^^L|" . // 5.R. Name
-                            $guardianname."|" . // 6. Mather Maiden Name
-                        $r['DOB']."|" . // 7. Date, time of birth
-                        $r['sex']."|" . // 8. Sex
+                            $r['patientname'] . "^^^^L|" . // 5.R. Name
+                            $guardianname . "|" . // 6. Mather Maiden Name
+                        $r['DOB'] . "|" . // 7. Date, time of birth
+                        $r['sex'] . "|" . // 8. Sex
                         "|" . // 9.B Patient Alias
-                            $race. "|" . // 10. Race // Ram change
+                            $race . "|" . // 10. Race // Ram change
                             $r['address'] . "^L" . "|" . // 11. Address. Default to address type  Mailing Address(M)
                         "|" . // 12. county code
-                            "^PRN^PH^^^"  . $this->format_phone($r['phone_home']) . "^^".$email."|" . // 13. Phone Home. Default to Primary Home Number(PRN)
+                            "^PRN^PH^^^"  . $this->format_phone($r['phone_home']) . "^^" . $email . "|" . // 13. Phone Home. Default to Primary Home Number(PRN)
                             "^WPN^PH^^^" . $this->format_phone($r['phone_biz']) . "^^|"  . // 14. Phone Work.
-                            $r['language']."|" . // 15. Primary language
-                        $r['status']."|" . // 16. Marital status
+                            $r['language'] . "|" . // 15. Primary language
+                        $r['status'] . "|" . // 16. Marital status
                         "|" . // 17. Religion
                         "|" . // 18. patient Account Number
                         "|" . // 19.B SSN Number
@@ -369,42 +370,42 @@ class ImmunizationController extends AbstractActionController
 
                         if ($r['publicity_code']) {
                             $publicity_code_val   = $this->getImmunizationTable()->getNotes($r['publicity_code'], 'publicity_code');
-                            $publicity_code       = $publicity_code_val."^".$r['publicity_code']."^HL70215";
+                            $publicity_code       = $publicity_code_val . "^" . $r['publicity_code'] . "^HL70215";
                         }
 
                         $imm_registry_status_code = $this->getImmunizationTable()->getNotes($r['imm_reg_status'], 'immunization_registry_status');
                         $protection_indicator     = $this->getImmunizationTable()->getNotes($r['protect_indicator'], 'yesno');
                         if ($publicity_code || $protection_indicator || $imm_registry_status_code) {
                             $content .=  "PD1|" . // Patient Additional Demographic Segment
-                                "|". // 1. Living Dependancy
-                                "|". // 2. Living Arrangement
-                                $r['fac_name']."|" . // 3. Patient Primary Facility
-                                $r['primary_care_provider_details']."|" . // 4. Patient Primary Care Provider NPI and Provider name
+                                "|" . // 1. Living Dependancy
+                                "|" . // 2. Living Arrangement
+                                $r['fac_name'] . "|" . // 3. Patient Primary Facility
+                                $r['primary_care_provider_details'] . "|" . // 4. Patient Primary Care Provider NPI and Provider name
                                 "|" . // 5. Student Indicator
                                 "|" . // 6. Handicap
                                 "|" . // 7. Living Will Code
                                 "|" . // 8. Organ Donor Code
                                 "|" . // 9. Separate Bill
                                 "|" . // 10. Duplicate Patient
-                                $publicity_code."|" . // 11. Publicity Code
-                                $protection_indicator."|" . // 12. Protection Indicator
-                                $r['protection_effective_date']."|" . // 13. Protection Indicator Effective Date[If PD1-12(Protection Indicator) is valued)]
+                                $publicity_code . "|" . // 11. Publicity Code
+                                $protection_indicator . "|" . // 12. Protection Indicator
+                                $r['protection_effective_date'] . "|" . // 13. Protection Indicator Effective Date[If PD1-12(Protection Indicator) is valued)]
                                 "|" . // 14. Place of worship
                                 "|" . // 15. Advance Directive Code
-                                $imm_registry_status_code."|". // 16. Immunization Registry Status
-                                $r['immunization_registry_status_effective_date']."|" . // 17. Immunization Registry Status Effective Date [If the PD1-16 (Registry Status)field is valued.]
-                                $r['publicity_code_effective_date']."|" . // 18. Publicity Code Effective Date [If the PD1-11 (Publicity Code)field is valued.]
-                                "|". // 19. Military Branch
-                                "|". // 20. Military Rank/grade
+                                $imm_registry_status_code . "|" . // 16. Immunization Registry Status
+                                $r['immunization_registry_status_effective_date'] . "|" . // 17. Immunization Registry Status Effective Date [If the PD1-16 (Registry Status)field is valued.]
+                                $r['publicity_code_effective_date'] . "|" . // 18. Publicity Code Effective Date [If the PD1-11 (Publicity Code)field is valued.]
+                                "|" . // 19. Military Branch
+                                "|" . // 20. Military Rank/grade
                                 "" . //21. Military Status
                                 "$D" ;
                         }
 
-                        if ($r['guardiansex']==='male') {
+                        if ($r['guardiansex'] === 'male') {
                             $r['guardiansex'] = 'M';
                         }
 
-                        if ($r['guardiansex']==='female') {
+                        if ($r['guardiansex'] === 'female') {
                             $r['guardiansex'] = 'F';
                         }
 
@@ -412,9 +413,9 @@ class ImmunizationController extends AbstractActionController
                         if ($r['guardiansname'] && $r['guardianrelationship']) {
                             $content .=  "NK1|" . // Nearest of kin
                                 "1|" . // Set ID
-                                $guardianname."^^^^^L|".  // 2. Legal Name of next of kin
-                                $guardian_relationship_code."^".$r['guardianrelationship']."^HL70063|" . // 3. Relationship of next of kin with patient
-                                $r['guardian_address']."|" . // 4. Address of next of kin
+                                $guardianname . "^^^^^L|" .  // 2. Legal Name of next of kin
+                                $guardian_relationship_code . "^" . $r['guardianrelationship'] . "^HL70063|" . // 3. Relationship of next of kin with patient
+                                $r['guardian_address'] . "|" . // 4. Address of next of kin
                                 "^PRN^PH^^^" . $this->format_phone($r['guardianphone']) . "|" . //  5. Phone Home of next of kin. Default to Primary Home Number(PRN)
                                 "^WPN^PH^^^" . $this->format_phone($r['guardianworkphone'])    .  // 6. Phone Business of next of kin.
                                 "|" . //7. Contact Role
@@ -425,7 +426,7 @@ class ImmunizationController extends AbstractActionController
                                 "|" . //12. Next of kin/Associated parties employee number
                                 "|" . //13. Organization name
                                 "|" . //14. Marital status
-                                $r['guardiansex']."|" . //  15. Administrative Sex of next of kin
+                                $r['guardiansex'] . "|" . //  15. Administrative Sex of next of kin
                                 "|" . // 16. Date, time of birth of next of kin
                                 "|" . //17. Living Dependancy
                                 "|" . //18. Ambulatory Status
@@ -451,27 +452,27 @@ class ImmunizationController extends AbstractActionController
                     if ($r['administered_by_id'] == 0 && $r['information_source'] == 'hist_inf_src_unspecified') {
                         $ordering_provider = "";
                     } elseif ($r['ordering_provider']) {
-                        $ordering_provider = $r['ordering_provider']."^".$r['ordering_provider_name']."^^^^^NIST-AA-1^L";
+                        $ordering_provider = $r['ordering_provider'] . "^" . $r['ordering_provider_name'] . "^^^^^NIST-AA-1^L";
                     }
 
                     if ($r['created_by']) {
-                        $entered_by = $r['created_by']."^".$r['entered_by_name']."^^^^^NIST-AA-1";
+                        $entered_by = $r['created_by'] . "^" . $r['entered_by_name'] . "^^^^^NIST-AA-1";
                     }
 
                     $content .= "ORC" . // ORC mandatory for RXA
                         "|" .
-                        "RE|". //1. Order Control
+                        "RE|" . //1. Order Control
                         "|" . //2. Placer Order Number
-                        $r['immunizationid']."^NDA|" . //3. Filler Order Number 9999 for refusal and identifier for historic immunization
+                        $r['immunizationid'] . "^NDA|" . //3. Filler Order Number 9999 for refusal and identifier for historic immunization
                         "|" . //4. Placer Group Number
                         "|" . //5. Order Status
                         "|" . //6. Response Flag
                         "|" . //7. Quantity/Timing
                         "|" . //8. Parent
                         "|" . //9. Date/time of transaction
-                        $entered_by."|" . //10. Entered By
+                        $entered_by . "|" . //10. Entered By
                         "|" . //11. Verified By
-                        $ordering_provider."|" . //12. Ordering Provider
+                        $ordering_provider . "|" . //12. Ordering Provider
                         "|" . //13. Enterer's location
                         "|" . //14. Call Back Phone number
                         "|" . //15. Order effective date/time
@@ -496,26 +497,26 @@ class ImmunizationController extends AbstractActionController
                     $manufacturer_code             = $this->getImmunizationTable()->getNotes($r['manufacturer'], 'Immunization_Manufacturer');
                     $immunization_info_source_code = $this->getImmunizationTable()->getNotes($r['information_source'], 'immunization_informationsource');
                     if ($administered_unit_title) {
-                        $units   = $administered_unit_title.'^'.$administered_unit_title.'^UCUM^^^';
+                        $units   = $administered_unit_title . '^' . $administered_unit_title . '^UCUM^^^';
                     }
 
                     if ($r['manufacturer']) {
-                        $manufacturer  = $manufacturer_code . "^" . $r['manufacturer']. "^" . "MVX";
+                        $manufacturer  = $manufacturer_code . "^" . $r['manufacturer'] . "^" . "MVX";
                     }
 
                     if ($r['information_source']) {
-                        $information_source = $immunization_info_source_code."^".$r['information_source']."^NIP001";
+                        $information_source = $immunization_info_source_code . "^" . $r['information_source'] . "^NIP001";
                     }
 
                     if ($r['providername'] != null && $r['information_source'] == 'new_immunization_record') {
-                        $r['providername'] = $r['users_id']."^".$r['providername'];
+                        $r['providername'] = $r['users_id'] . "^" . $r['providername'];
                     }
 
                     $refusal_reason_code = $this->getImmunizationTable()->getNotes($r['refusal_reason'], 'immunization_refusal_reason');
                     $completion_status   = $this->getImmunizationTable()->getNotes($r['completion_status'], 'Immunization_Completion_Status');
                     if ($r['refusal_reason']) {
                         $completion_status        = 'RE' ;
-                        $immunization_refusal     = $refusal_reason_code."^".$r['refusal_reason']."^NIP002";
+                        $immunization_refusal     = $refusal_reason_code . "^" . $r['refusal_reason'] . "^NIP002";
                     }
 
                     if ($r['code'] == '998') {
@@ -525,35 +526,35 @@ class ImmunizationController extends AbstractActionController
                     $content .= "RXA|" .
                         "0|" . // 1. Give Sub-ID Counter
                         "1|" . // 2. Administrattion Sub-ID Counter
-                        $r['administered_date']."|" . // 3. Date/Time Start of Administration
+                        $r['administered_date'] . "|" . // 3. Date/Time Start of Administration
                         "|" . // 4. Date/Time End of Administration
-                        $r['code']. "^" . $r['immunizationtitle'] . "^" . "CVX" ."|" . // 5. Administration Code(CVX)
-                        $r['administered_amount']. "|" . // 6. Administered Amount. TODO: Immunization amt currently not captured in database, default to 999(not recorded)
-                        $units."|" . // 7. Administered Units
+                        $r['code'] . "^" . $r['immunizationtitle'] . "^" . "CVX" . "|" . // 5. Administration Code(CVX)
+                        $r['administered_amount'] . "|" . // 6. Administered Amount. TODO: Immunization amt currently not captured in database, default to 999(not recorded)
+                        $units . "|" . // 7. Administered Units
                         "|" . // 8. Administered Dosage Form
-                        $information_source."|" . // 9. Administration Notes
-                        $r['providername']."|"         . // 10. Administering Provider
-                        $r['facility_address']."|"     . // 11. Administered-at Location
+                        $information_source . "|" . // 9. Administration Notes
+                        $r['providername'] . "|"         . // 10. Administering Provider
+                        $r['facility_address'] . "|"     . // 11. Administered-at Location
                         "|" . // 12. Administered Per (Time Unit)
                         "|" . // 13. Administered Strength
                         "|" . // 14. Administered Strength Units
-                        $r['lot_number']."|" . // 15. Substance Lot Number
-                        $r['expiration_date']."|" . // 16. Substance Expiration Date
-                        $manufacturer. "|" . // 17. Substance Manufacturer Name
-                        $immunization_refusal."|" . // 18. Substance/Treatment Refusal Reason
+                        $r['lot_number'] . "|" . // 15. Substance Lot Number
+                        $r['expiration_date'] . "|" . // 16. Substance Expiration Date
+                        $manufacturer . "|" . // 17. Substance Manufacturer Name
+                        $immunization_refusal . "|" . // 18. Substance/Treatment Refusal Reason
                         "|" . // 19.Indication
-                        $completion_status."|" . // 20.Completion Status
+                        $completion_status . "|" . // 20.Completion Status
                         "A" . // 21.Action Code - RXA
                         "$D" ;
                     $administered_route_title      =  $this->CommonPlugin()->getListtitle('drug_route', $r['route']);
                     $administered_site_code        =  $this->getImmunizationTable()->getNotes($r['administration_site'], 'immunization_administered_site');
                     if ($r['route_code'] || $r['administration_site']) {
-                        $content .=  "RXR|".
-                            $r['route_code']."^".$administered_route_title."^HL70162|"      . //1. Route
-                            $administered_site_code."^".$r['administration_site']."^HL70163". // 2. Administration Site
-                            "|". // 3. Administration Device
-                            "|". // 4. Administration Method
-                            "|". // 5. Routing Instruction
+                        $content .=  "RXR|" .
+                            $r['route_code'] . "^" . $administered_route_title . "^HL70162|"      . //1. Route
+                            $administered_site_code . "^" . $r['administration_site'] . "^HL70163" . // 2. Administration Site
+                            "|" . // 3. Administration Device
+                            "|" . // 4. Administration Method
+                            "|" . // 5. Routing Instruction
                             "" . // 6. Administration Site Modifier
                             "$D" ;
                     }
@@ -566,18 +567,18 @@ class ImmunizationController extends AbstractActionController
                             $criteria_code            = $this->getImmunizationTable()->getCodes($val_obs['imo_criteria'], 'immunization_observation');
                             $criteria_notes           = $this->getImmunizationTable()->getNotes($val_obs['imo_criteria'], 'immunization_observation');
                             $obs_value_notes          = $this->getImmunizationTable()->getNotes($val_obs['imo_criteria_value'], 'imm_vac_eligibility_results');
-                            $criteria_value           = $criteria_code."^".$val_obs['imo_criteria']."^".$criteria_notes;
+                            $criteria_value           = $criteria_code . "^" . $val_obs['imo_criteria'] . "^" . $criteria_notes;
                             $date_obs                 = preg_replace('/-/', '', substr($val_obs['imo_date_observation'], 0, 10));
                             if ($val_obs['imo_criteria'] == 'funding_program_eligibility') {
-                                $obs_value              = $obs_value_notes."^".$val_obs['imo_criteria_value']."^HL70064";
+                                $obs_value              = $obs_value_notes . "^" . $val_obs['imo_criteria_value'] . "^HL70064";
                                 $obs_method             = "VXC40^per immunization^CDCPHINVS";
                                 $value_type             = "CE";
                             } elseif ($val_obs['imo_criteria'] == 'vaccine_type') {
-                                $obs_value              = $val_obs['imo_code']."^".$val_obs['imo_codetext']."^".$val_obs['imo_codetype'];
+                                $obs_value              = $val_obs['imo_code'] . "^" . $val_obs['imo_codetext'] . "^" . $val_obs['imo_codetype'];
                                 $value_type             = "CE";
                             } elseif ($val_obs['imo_criteria'] == 'disease_with_presumed_immunity') {
                                 $value_type             = "CE";
-                                $obs_value              = $val_obs['imo_code']."^".$val_obs['imo_codetext']."^SCT";
+                                $obs_value              = $val_obs['imo_code'] . "^" . $val_obs['imo_codetext'] . "^SCT";
                             }
 
                             if ($key_obs > 1) {
@@ -587,27 +588,27 @@ class ImmunizationController extends AbstractActionController
                                     $key_val = $key_val + 1;
                                 }
                             } else {
-                                $key_val = $key_obs+1;
+                                $key_val = $key_obs + 1;
                             }
 
-                            $content  .=  "OBX|".
-                                $key_val."|".        //1. Set ID
-                                $value_type."|".         //2. Value Type
-                                $criteria_value."|".     //3. Observation Identifier
-                                $key_val."|" .       //4. Observation Sub ID
-                                $obs_value."|".          //5. Observation Value
-                                "|".                     //6. Units
-                                "|".
-                                "|".
-                                "|".
-                                "|".
-                                "F|".                    //11. Observation Result Status
-                                "|".
-                                "|".
-                                $date_obs."|".           //14. Date/Time Of Observation
-                                "|".
-                                "|".
-                                $obs_method.             //17. Observation Method
+                            $content  .=  "OBX|" .
+                                $key_val . "|" .        //1. Set ID
+                                $value_type . "|" .         //2. Value Type
+                                $criteria_value . "|" .     //3. Observation Identifier
+                                $key_val . "|" .       //4. Observation Sub ID
+                                $obs_value . "|" .          //5. Observation Value
+                                "|" .                     //6. Units
+                                "|" .
+                                "|" .
+                                "|" .
+                                "|" .
+                                "F|" .                    //11. Observation Result Status
+                                "|" .
+                                "|" .
+                                $date_obs . "|" .           //14. Date/Time Of Observation
+                                "|" .
+                                "|" .
+                                $obs_method .             //17. Observation Method
                                 "$D";
                             $last_key                 = $key_val;
 
@@ -622,27 +623,27 @@ class ImmunizationController extends AbstractActionController
                                         $key_val            = $key_val + 1;
                                     }
                                 } else {
-                                    $key_val              = $last_key+1;
+                                    $key_val              = $last_key + 1;
                                 }
 
-                                $content  .=  "OBX|".
-                                    $key_val."|".     //1. Set ID
-                                    $value_type."|".      //2. Value Type
-                                    $criteria_value."|".  //3. Observation Identifier
-                                    $last_key."|" .    //4. Observation Sub ID
-                                    $obs_value."|".       //5. Observation Value
-                                    "|".                  //6. Units
-                                    "|".
-                                    "|".
-                                    "|".
-                                    "|".
-                                    "F|".                 //11. Observation Result Status
-                                    "|".
-                                    "|".
-                                    $date_obs."|".        //14. Date/Time Of Observation
-                                    "|".
-                                    "|".
-                                    "".                   //17. Observation Method
+                                $content  .=  "OBX|" .
+                                    $key_val . "|" .     //1. Set ID
+                                    $value_type . "|" .      //2. Value Type
+                                    $criteria_value . "|" .  //3. Observation Identifier
+                                    $last_key . "|" .    //4. Observation Sub ID
+                                    $obs_value . "|" .       //5. Observation Value
+                                    "|" .                  //6. Units
+                                    "|" .
+                                    "|" .
+                                    "|" .
+                                    "|" .
+                                    "F|" .                 //11. Observation Result Status
+                                    "|" .
+                                    "|" .
+                                    $date_obs . "|" .        //14. Date/Time Of Observation
+                                    "|" .
+                                    "|" .
+                                    "" .                   //17. Observation Method
                                     "$D";
                             }
 
@@ -658,27 +659,27 @@ class ImmunizationController extends AbstractActionController
                                         $key_val            = $key_val + 1;
                                     }
                                 } else {
-                                    $key_val = $last_key+1;
+                                    $key_val = $last_key + 1;
                                 }
 
-                                $content  .=  "OBX|".
-                                    $key_val."|".     //1. Set ID
-                                    $value_type."|".      //2. Value Type
-                                    $criteria_value."|".  //3. Observation Identifier
-                                    ($last_key-1)."|" .    //4. Observation Sub ID
-                                    $obs_value."|".       //5. Observation Value
-                                    "|".                  //6. Units
-                                    "|".
-                                    "|".
-                                    "|".
-                                    "|".
-                                    "F|".                 //11. Observation Result Status
-                                    "|".
-                                    "|".
-                                    $date_obs."|".        //14. Date/Time Of Observation
-                                    "|".
-                                    "|".
-                                    "".                   //17. Observation Method
+                                $content  .=  "OBX|" .
+                                    $key_val . "|" .     //1. Set ID
+                                    $value_type . "|" .      //2. Value Type
+                                    $criteria_value . "|" .  //3. Observation Identifier
+                                    ($last_key - 1) . "|" .    //4. Observation Sub ID
+                                    $obs_value . "|" .       //5. Observation Value
+                                    "|" .                  //6. Units
+                                    "|" .
+                                    "|" .
+                                    "|" .
+                                    "|" .
+                                    "F|" .                 //11. Observation Result Status
+                                    "|" .
+                                    "|" .
+                                    $date_obs . "|" .        //14. Date/Time Of Observation
+                                    "|" .
+                                    "|" .
+                                    "" .                   //17. Observation Method
                                     "$D";
                             }
 

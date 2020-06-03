@@ -1,0 +1,1058 @@
+[
+    {
+        "id": "42fe3345-76cc-4fb7-9750-734b759c872e",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>Eduardo Perez<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "234567891"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-789456"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Perez",
+                "given": [
+                    "Eduardo",
+                    "Kathy"
+                ],
+                "prefix": [
+                    "Mrs."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(619) 555-4859",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(619) 555-7821",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(619) 555-7822",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "info@pennfirm.com",
+                "use": "home"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1957-01-09",
+        "address": [
+            {
+                "line": [
+                    "789 Third Avenue"
+                ],
+                "city": "San Diego",
+                "state": "CA",
+                "postalCode": "90210"
+            }
+        ]
+    },
+    {
+        "id": "30c7ab18-4c5b-4be4-ad1a-eb7188fb086a",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>Nora Cohen<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "891-23-4567"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-8"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Cohen",
+                "given": [
+                    "Nora",
+                    "Lisa"
+                ],
+                "prefix": [
+                    "Mrs."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(213) 555-5555",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(213) 555-4444",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(619) 555-4445",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "n.cohen@email.com",
+                "use": "home"
+            }
+        ],
+        "gender": "female",
+        "birthDate": "1967-06-04",
+        "address": [
+            {
+                "line": [
+                    "155 First Avenue"
+                ],
+                "city": "San Luis",
+                "state": "CA",
+                "postalCode": "92101"
+            }
+        ]
+    },
+    {
+        "id": "aba55a70-581c-4e06-9208-6f4c6ce0f945",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>Jim Moses<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "545676767"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-17"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Moses",
+                "given": [
+                    "Jim",
+                    "Jeffrey"
+                ],
+                "prefix": [
+                    "Mr."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(323) 555-4444",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(909) 555-6767",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(909) 555-6768",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "n.cohen@email.com",
+                "use": "home"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1945-02-14",
+        "address": [
+            {
+                "line": [
+                    "72 Rolling Green Ave"
+                ],
+                "city": "Los Angeles",
+                "state": "CA",
+                "postalCode": "90210"
+            }
+        ]
+    },
+    {
+        "id": "4e8001d0-a774-40ef-8551-1e2413c40c6f",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>Richard Jones<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "555-11-1111"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-18"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Jones",
+                "given": [
+                    "Richard",
+                    "Cortez"
+                ],
+                "prefix": [
+                    "Mr."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(619) 555-5555",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(619) 333-3333",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(619) 333-3334",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "richard@pennfirm.com",
+                "use": "home"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1940-12-16",
+        "address": [
+            {
+                "line": [
+                    "400 West Broadway"
+                ],
+                "city": "San Diego",
+                "state": "CA",
+                "postalCode": "92101"
+            }
+        ]
+    },
+    {
+        "id": "b60e72ae-4e09-42a2-8cec-58ad7168d18a",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>Ilias Jenane<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "111-11-2222"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-22"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Jenane",
+                "given": [
+                    "Ilias",
+                    "Alexis"
+                ],
+                "prefix": [
+                    "Mr."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(619) 555-2222",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(619) 555-3333",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(619) 333-3335",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "i.jenane@email.com",
+                "use": "home"
+            }
+        ],
+        "gender": "female",
+        "birthDate": "1933-03-22",
+        "address": [
+            {
+                "line": [
+                    "145 N. East Street"
+                ],
+                "city": "La Mesa",
+                "state": "CA",
+                "postalCode": "92111"
+            }
+        ]
+    },
+    {
+        "id": "fc14bffc-b022-4385-8d82-19166f227a4b",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>John Dockerty<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "111-11-1111"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-25"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Dockerty",
+                "given": [
+                    "John",
+                    "Roger"
+                ],
+                "prefix": [
+                    "Mr."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(567) 789-7891",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(567) 789-1234",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(567) 789-1235",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "j.dockerty@email.com",
+                "use": "home"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1977-05-02",
+        "address": [
+            {
+                "line": [
+                    "800 West Way"
+                ],
+                "city": "San Diego",
+                "state": "CA",
+                "postalCode": "92101"
+            }
+        ]
+    },
+    {
+        "id": "fced08bf-2964-4a59-b016-41d9b9472ab1",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>James Janssen<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "555-11-1111"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-26"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Janssen",
+                "given": [
+                    "James",
+                    "Johnny"
+                ],
+                "prefix": [
+                    "Mr."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(818) 555-2222",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(818) 555-2323",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(818) 555-2324",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "j.janssen@email.com",
+                "use": "home"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1966-04-28",
+        "address": [
+            {
+                "line": [
+                    "111 North Street"
+                ],
+                "city": "Irvine",
+                "state": "CA",
+                "postalCode": "90205"
+            }
+        ]
+    },
+    {
+        "id": "c7964e9e-269a-44e5-b343-bbd89bf3f800",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>Jason Binder<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "222-11-8888"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-30"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Binder",
+                "given": [
+                    "Jason",
+                    "Frederick"
+                ],
+                "prefix": [
+                    "Mr."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(818) 555-2522",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(818) 555-2923",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(818) 555-2924",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "j.binder@email.com",
+                "use": "home"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1961-12-11",
+        "address": [
+            {
+                "line": [
+                    "100 West Sepulveda"
+                ],
+                "city": "Los Angeles",
+                "state": "CA",
+                "postalCode": "92020"
+            }
+        ]
+    },
+    {
+        "id": "b40db735-2b5c-455b-89aa-eee92a468554",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>Robert Dickey<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "214-22-1111"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-34"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Dickey",
+                "given": [
+                    "Robert",
+                    "Keith"
+                ],
+                "prefix": [
+                    "Mr."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(808) 555-1234",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(808) 555-4444",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(808) 555-4445",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "r.dickey@email.com",
+                "use": "home"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1955-04-12",
+        "address": [
+            {
+                "line": [
+                    "111 North Kearny"
+                ],
+                "city": "Torrance",
+                "state": "CA",
+                "postalCode": "91040"
+            }
+        ]
+    },
+    {
+        "id": "52cde3fb-0913-49f8-b094-a76952341be2",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>Jillian Mahoney<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "222-11-1111"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-35"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Mahoney",
+                "given": [
+                    "Jillian",
+                    "Francisco"
+                ],
+                "prefix": [
+                    "Mrs."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(808) 555-4444",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(808) 555-3333",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(808) 555-3334",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "j.mahoney@email.com",
+                "use": "home"
+            }
+        ],
+        "gender": "female",
+        "birthDate": "1968-08-11",
+        "address": [
+            {
+                "line": [
+                    "444 North State Street"
+                ],
+                "city": "Santa Ana",
+                "state": "CA",
+                "postalCode": "90204"
+            }
+        ]
+    },
+    {
+        "id": "92cc3377-5177-4fc5-80a6-278da0183293",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>Wallace Buckley<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "999-99-1111"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-40"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Buckley",
+                "given": [
+                    "Wallace",
+                    "Tracy"
+                ],
+                "prefix": [
+                    "Mr."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(555) 111-1111",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(555) 111-1234",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(555) 111-1235",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "j.buckley@email.com",
+                "use": "home"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1952-04-03",
+        "address": [
+            {
+                "line": [
+                    "123 West Street"
+                ],
+                "city": "Barstow",
+                "state": "California",
+                "postalCode": "90400"
+            }
+        ]
+    },
+    {
+        "id": "bb24f564-b2ac-4a88-a5a0-da13fe766fb2",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-05-17T01:49:15+00:00"
+        },
+        "resourceType": "Patient",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"> <p>Brent Perez<\/p><\/div>"
+        },
+        "identifier": [
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "SS"
+                        }
+                    ]
+                },
+                "system": "http:\/\/hl7.org\/fhir\/sid\/us-ssn",
+                "value": "123456789"
+            },
+            {
+                "use": "official",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http:\/\/terminology.hl7.org\/CodeSystem\/v2-0203",
+                            "code": "PT"
+                        }
+                    ]
+                },
+                "system": "http:\/\/terminology.hl7.org\/ValueSet\/v2-0203",
+                "value": "test-fixture-1001"
+            }            
+        ],
+        "active": true,
+        "name": [
+            {
+                "use": "official",
+                "family": "Perez",
+                "given": [
+                    "Brent",
+                    "Kenneth"
+                ],
+                "prefix": [
+                    "Mr."
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "(619) 696-5050",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(888) 480-5050",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(888) 480-5051",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "bperez@pennfirm.com",
+                "use": "home"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1960-01-01",
+        "address": [
+            {
+                "line": [
+                    "1234 1st Avenue"
+                ],
+                "city": "San Diego",
+                "state": "CA",
+                "postalCode": "92101"
+            }
+        ]
+    }
+]

@@ -19,4 +19,4 @@ Do you authorize electronic signature {CheckMark}
 Relationship to patient (if signed by a personal representative): {TextInput}
 Are you Primary Care Giver:{ynRadioGroup}
 Date: {DOS}
-</p><p>Clinic Representative Signature&nbsp;{ReferringDOC} Signed: {AdminSignature} </p><p><br></p>
+</p><p>Clinic Representative Signature&nbsp;{ReferringDOC} Signed: {AdminSignature} </p><p><br /></p>

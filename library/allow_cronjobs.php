@@ -1,4 +1,5 @@
 <?php
+
 /**
  * cronjob mapping to allow seamless use of scripts in background.
  *

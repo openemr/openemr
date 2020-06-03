@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2012 - Refactored extensively to allow for creating multiple feesheets on demand
  * uses a session array of PIDS by Medical Information Integration, LLC - mi-squared.com
@@ -16,13 +17,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/appointments.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/user.inc");
 
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -40,14 +40,14 @@ function genColumn($ix)
 
         if ($cmd == '*B') { // Borderless and empty
             $html .= " <tr><td colspan='5' class='fscode' style='border-width:0 1px 0 0;padding-top:1px;' nowrap>&nbsp;</td></tr>\n";
-        } else if ($cmd == '*G') {
+        } elseif ($cmd == '*G') {
             $title = text($a[1]);
             if (!$title) {
                 $title = '&nbsp;';
             }
 
             $html .= " <tr><td colspan='5' align='center' class='fsgroup' style='vertical-align:middle' nowrap>$title</td></tr>\n";
-        } else if ($cmd == '*H') {
+        } elseif ($cmd == '*H') {
             $title = text($a[1]);
             if (!$title) {
                 $title = '&nbsp;';
@@ -111,7 +111,7 @@ if (!empty($_SESSION['pidList']) and $form_fill == 2) {
     $pid_list = $_SESSION['pidList'];
     // If PID list is in Session, then Appt. Date list is expected to be a parallel array
     $apptdate_list = $_SESSION['apptdateList'];
-} else if ($form_fill == 1) {
+} elseif ($form_fill == 1) {
     array_push($pid_list, $pid); //get from active PID
 } else {
     array_push($pid_list, ''); // empty element for blank form
@@ -313,13 +313,12 @@ height: " . attr($page_height) . "pt;
 }
 </style>";
 
-$html .= "<title>" . text($frow['name']) . "</title>
-<script type='text/javascript' src='" . $GLOBALS['assets_static_relative'] . "/jquery/dist/jquery.min.js'></script>
-<script type=\"text/javascript\" src=\"../../library/dialog.js?v=" . $v_js_includes . "\"></script>
-<script language=\"JavaScript\">";
+$html .= "<title>" . text($frow['name']) . "</title>" .
+    Header::setupHeader(['opener', 'topdialog'], false) .
+    "<script language=\"JavaScript\">";
 
 $html .= "
-$(document).ready(function() {
+$(function () {
  var win = top.printLogSetup ? top : opener.top;
  win.printLogSetup(document.getElementById('printbutton'));
 });
@@ -476,7 +475,7 @@ foreach ($pid_list as $pid) {
 <td colspan='4' valign='top' class='fshead' style='height:${lheight}pt'>";
 
             if (empty($GLOBALS['ippf_specific'])) {
-                $html .= xlt('Insurance').":";
+                $html .= xlt('Insurance') . ":";
                 if ($form_fill) {
                     foreach (array('primary', 'secondary', 'tertiary') as $instype) {
                         $query = "SELECT * FROM insurance_data WHERE " .
@@ -603,10 +602,10 @@ foreach ($pid_list as $pid) {
 if ($form_fill != 2) {   //use native browser 'print' for multipage
     $html .= "<div id='hideonprint'>
 <p>
-<input type='button' value='";
+<input type='button' class='btn btn-secondary btn-print mt-3' value='";
 
     $html .= xla('Print');
-    $html .="' id='printbutton' />
+    $html .= "' id='printbutton' />
 </div>";
 }
 

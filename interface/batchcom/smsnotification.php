@@ -1,4 +1,5 @@
 <?php
+
 /**
  * smsnotification script.
  *
@@ -13,14 +14,14 @@
 
 require_once("../globals.php");
 require_once("$srcdir/registry.inc");
-require_once("../../library/acl.inc");
 require_once("batchcom.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // gacl control
-if (!acl_check('admin', 'notification')) {
+if (!AclMain::aclCheckCore('admin', 'notification')) {
     echo "<html>\n<body>\n<h1>";
     echo xlt('You are not authorized for this.');
     echo "</h1>\n</body>\n</html>\n";
@@ -29,13 +30,13 @@ if (!acl_check('admin', 'notification')) {
 
  // default value
 $next_app_date = date("Y-m-d");
-$hour="12";
-$min="15";
-$provider_name="EMR Group";
-$message="Welcome to EMR Group";
+$hour = "12";
+$min = "15";
+$provider_name = "EMR Group";
+$message = "Welcome to EMR Group";
 
 // process form
-if ($_POST['form_action']=='save') {
+if ($_POST['form_action'] == 'save') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -43,28 +44,28 @@ if ($_POST['form_action']=='save') {
     //validation uses the functions in notification.inc.php
     //validate dates
     if (!check_date_format($_POST['next_app_date'])) {
-        $form_err .= xl('Date format for "Next Appointment" is not valid') . '<br>';
+        $form_err .= xl('Date format for "Next Appointment" is not valid') . '<br />';
     }
 
     // validate selections
     if ($_POST['sms_gateway_type'] == "") {
-        $form_err .= xl('Error in "SMS Gateway" selection') . '<br>';
+        $form_err .= xl('Error in "SMS Gateway" selection') . '<br />';
     }
 
     // validates and or
     if ($_POST['provider_name'] == "") {
-        $form_err .= xl('Empty value in "Name of Provider"') . '<br>';
+        $form_err .= xl('Empty value in "Name of Provider"') . '<br />';
     }
 
     if ($_POST['message'] == "") {
-        $form_err .= xl('Empty value in "SMS Text"') . '<br>';
+        $form_err .= xl('Empty value in "SMS Text"') . '<br />';
     }
 
     //process sql
     if (!$form_err) {
-        $next_app_time = $_POST[hour].":".$_POST['min'];
-        $sql_text=" ( `notification_id` , `sms_gateway_type` , `next_app_date` , `next_app_time` , `provider_name` , `message` , `email_sender` , `email_subject` , `type` ) ";
-        $sql_value=" (?, ?, ?, ?, ?, ?, ?, 'SMS') ";
+        $next_app_time = $_POST[hour] . ":" . $_POST['min'];
+        $sql_text = " ( `notification_id` , `sms_gateway_type` , `next_app_date` , `next_app_time` , `provider_name` , `message` , `email_sender` , `email_subject` , `type` ) ";
+        $sql_value = " (?, ?, ?, ?, ?, ?, ?, 'SMS') ";
         $values = array($_POST['notification_id'], $_POST['sms_gateway_type'], $_POST['next_app_date'], $next_app_time,
                         $_POST['provider_name'], $_POST['message'], $_POST['email_sender'], $_POST['email_subject']);
         $query = "REPLACE INTO `automatic_notification` $sql_text VALUES $sql_value";
@@ -90,8 +91,8 @@ if ($result) {
 }
 
 // menu arrays (done this way so it's easier to validate input on validate selections)
-$sms_gateway=array ('CLICKATELL','TMB4');
-$hour_array =array('00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','21','21','22','23');
+$sms_gateway = array ('CLICKATELL','TMB4');
+$hour_array = array('00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','21','21','22','23');
 $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
 
 //START OUT OUR PAGE....
@@ -109,7 +110,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             <small><?php echo xlt('SMS Notification'); ?></small>
         </h1>
     </header>
-    <main>
+    <main class="mx-4">
         <?php
         if ($form_err) {
             echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';
@@ -154,7 +155,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <button class="btn btn-default btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
+                    <button class="btn btn-secondary btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
                 </div>
             </div>
         </form>

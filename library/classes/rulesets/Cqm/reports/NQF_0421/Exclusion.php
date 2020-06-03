@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -25,10 +26,12 @@ class NQF_0421_Exclusion implements CqmFilterIF
             }
         }
         
-        if (Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::PREGNANCY, $patient, $beginDate, $endDate) ||
+        if (
+            Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::PREGNANCY, $patient, $beginDate, $endDate) ||
             Helper::check(ClinicalType::PHYSICAL_EXAM, PhysicalExam::NOT_DONE_PATIENT, $patient, $beginDate, $endDate) ||
             Helper::check(ClinicalType::PHYSICAL_EXAM, PhysicalExam::NOT_DONE_MEDICAL, $patient, $beginDate, $endDate) ||
-            Helper::check(ClinicalType::PHYSICAL_EXAM, PhysicalExam::NOT_DONE_SYSTEM, $patient, $beginDate, $endDate) ) {
+            Helper::check(ClinicalType::PHYSICAL_EXAM, PhysicalExam::NOT_DONE_SYSTEM, $patient, $beginDate, $endDate)
+        ) {
             return true;
         }
         

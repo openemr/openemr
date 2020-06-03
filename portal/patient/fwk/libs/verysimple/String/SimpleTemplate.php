@@ -1,5 +1,7 @@
 <?php
+
 /** @package    verysimple::String */
+
 require_once("util/html2text.php");
 
 /**
@@ -66,7 +68,7 @@ class SimpleTemplate
         $html = str_replace("</p>", "</p>\n\n", $html);
         $html = str_replace("<p></p>", "<p>&nbsp;</p>", $html);
         
-        // Wipes <br> after block tags (for when the user includes some html in the text).
+        // Wipes <br /> after block tags (for when the user includes some html in the text).
         $wipebr = array (
                 "table",
                 "tr",
@@ -77,7 +79,7 @@ class SimpleTemplate
                 "li"
         );
         
-        for ($x = 0; $x < count($wipebr); $x ++) {
+        for ($x = 0; $x < count($wipebr); $x++) {
             $tag = $wipebr [$x];
             $html = str_ireplace("<$tag><br />", "<$tag>", $html);
             $html = str_ireplace("</$tag><br />", "</$tag>", $html);

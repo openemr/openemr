@@ -1,4 +1,5 @@
 <?php
+
 /**
 * library/patient_tracker.inc.php Functions used in the Patient Flow Board.
 *
@@ -25,6 +26,7 @@
 * Please help the overall project by sending changes you make to the author and to the OpenEMR community.
 *
 */
+
 require_once(dirname(__FILE__) . '/appointments.inc.php');
 
 function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
@@ -33,19 +35,19 @@ function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_
     $tracker_time_calc = strtotime($tracker_to_time) - strtotime($tracker_from_time);
 
     $tracker_time = "";
-    if ($tracker_time_calc > 60*60*24) {
-        $days = floor($tracker_time_calc/60/60/24);
+    if ($tracker_time_calc > 60 * 60 * 24) {
+        $days = floor($tracker_time_calc / 60 / 60 / 24);
         if ($days >= 2) {
-            $tracker_time .=  "$days ". xl('days');
+            $tracker_time .=  "$days " . xl('days');
         } else {
-            $tracker_time .=  "$days ". xl('day');
+            $tracker_time .=  "$days " . xl('day');
         }
 
-        $tracker_time_calc = $tracker_time_calc - ($days * (60*60*24));
+        $tracker_time_calc = $tracker_time_calc - ($days * (60 * 60 * 24));
     }
 
-    if ($tracker_time_calc > 60*60) {
-        $hours = floor($tracker_time_calc/60/60);
+    if ($tracker_time_calc > 60 * 60) {
+        $hours = floor($tracker_time_calc / 60 / 60);
         if (strlen($days != 0)) {
             if ($hours >= 2) {
                  $tracker_time .=  ", $hours " . xl('hours');
@@ -60,12 +62,12 @@ function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_
             }
         }
 
-        $tracker_time_calc = $tracker_time_calc - ($hours * (60*60));
+        $tracker_time_calc = $tracker_time_calc - ($hours * (60 * 60));
     }
 
     if ($allow_sec) {
         if ($tracker_time_calc > 60) {
-              $minutes = floor($tracker_time_calc/60);
+              $minutes = floor($tracker_time_calc / 60);
             if (strlen($hours != 0)) {
                 if ($minutes >= 2) {
                     $tracker_time .=  ", $minutes " . xl('minutes');
@@ -83,7 +85,7 @@ function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_
               $tracker_time_calc = $tracker_time_calc - ($minutes * 60);
         }
     } else {
-        $minutes = round($tracker_time_calc/60);
+        $minutes = round($tracker_time_calc / 60);
         if (strlen($hours != 0)) {
             if ($minutes >= 2) {
                 $tracker_time .=  ", $minutes " . xl('minutes');
@@ -195,9 +197,9 @@ function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status 
     }
 
   #Check to see if there is an entry in the patient_tracker table.
-    $tracker = sqlQuery("SELECT id, apptdate, appttime, eid, pid, original_user, encounter, lastseq,".
-                       "patient_tracker_element.room AS lastroom,patient_tracker_element.status AS laststatus ".
-                       "from `patient_tracker`".
+    $tracker = sqlQuery("SELECT id, apptdate, appttime, eid, pid, original_user, encounter, lastseq," .
+                       "patient_tracker_element.room AS lastroom,patient_tracker_element.status AS laststatus " .
+                       "from `patient_tracker`" .
                        "LEFT JOIN patient_tracker_element " .
                        "ON patient_tracker.id = patient_tracker_element.pt_tracker_id " .
                        "AND patient_tracker.lastseq = patient_tracker_element.seq " .
@@ -229,14 +231,14 @@ function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status 
             #Update lastseq in tracker.
              sqlStatement(
                  "UPDATE `patient_tracker` SET  `lastseq` = ? WHERE `id` = ?",
-                 array(($tracker['lastseq']+1),$tracker_id)
+                 array(($tracker['lastseq'] + 1),$tracker_id)
              );
             #Add a tracker item.
             sqlStatement(
                 "INSERT INTO `patient_tracker_element` " .
                 "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
                 "VALUES (?,?,?,?,?,?)",
-                array($tracker_id,$datetime,$user,$status,$room,($tracker['lastseq']+1))
+                array($tracker_id,$datetime,$user,$status,$room,($tracker['lastseq'] + 1))
             );
         }
 
@@ -286,8 +288,8 @@ function collectApptStatusSettings($option)
 function collect_Tracker_Elements($trackerid)
 {
     $res = sqlStatement("SELECT * FROM patient_tracker_element WHERE pt_tracker_id = ? ORDER BY LENGTH(seq), seq ", array($trackerid));
-    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
-        $returnval[$iter]=$row;
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+        $returnval[$iter] = $row;
     }
 
     return $returnval;
@@ -343,7 +345,7 @@ function random_drug_test($tracker_id, $percentage, $yearly_limit)
 
     if (is_null($drug_test_done['random_drug_test'])) {
         # get a count of the number of times the patient has been screened.
-        if ($yearly_limit >0) {
+        if ($yearly_limit > 0) {
             # check to see if screens are within the current year.
             $lastyear = date("Y-m-d", strtotime("-1 year", strtotime(date("Y-m-d H:i:s"))));
             $drug_test_count = sqlQuery("SELECT COUNT(*) from patient_tracker " .
@@ -351,7 +353,7 @@ function random_drug_test($tracker_id, $percentage, $yearly_limit)
         }
 
         # check that the patient is not at the yearly limit.
-        if ($drug_test_count['COUNT(*)'] >= $yearly_limit && ($yearly_limit >0)) {
+        if ($drug_test_count['COUNT(*)'] >= $yearly_limit && ($yearly_limit > 0)) {
              $drugtest = 0;
         } else {
           # Now do the randomization and set random_drug_test to the outcome.

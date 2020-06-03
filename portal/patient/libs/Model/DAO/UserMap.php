@@ -1,4 +1,5 @@
 <?php
+
 /**
  * UserMap.php
  *
@@ -105,9 +106,6 @@ class UserMap implements IDaoMap, IDaoMap2
             //self::$FM["SsiRelayhealth"] = new FieldMap("SsiRelayhealth","users","ssi_relayhealth",false,FM_TYPE_VARCHAR,64,null,false);
             self::$FM["Calendar"] = new FieldMap("Calendar", "users", "calendar", false, FM_TYPE_TINYINT, 1, null, false);
             self::$FM["AbookType"] = new FieldMap("AbookType", "users", "abook_type", false, FM_TYPE_VARCHAR, 31, null, false);
-            self::$FM["PwdExpirationDate"] = new FieldMap("PwdExpirationDate", "users", "pwd_expiration_date", false, FM_TYPE_DATE, null, null, false);
-            self::$FM["PwdHistory1"] = new FieldMap("PwdHistory1", "users", "pwd_history1", false, FM_TYPE_LONGTEXT, null, null, false);
-            self::$FM["PwdHistory2"] = new FieldMap("PwdHistory2", "users", "pwd_history2", false, FM_TYPE_LONGTEXT, null, null, false);
             self::$FM["DefaultWarehouse"] = new FieldMap("DefaultWarehouse", "users", "default_warehouse", false, FM_TYPE_VARCHAR, 31, null, false);
             self::$FM["Irnpool"] = new FieldMap("Irnpool", "users", "irnpool", false, FM_TYPE_VARCHAR, 31, null, false);
             self::$FM["StateLicenseNumber"] = new FieldMap("StateLicenseNumber", "users", "state_license_number", false, FM_TYPE_VARCHAR, 25, null, false);

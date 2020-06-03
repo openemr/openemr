@@ -1,4 +1,5 @@
 <?php
+
 /**
  * knockoutjs template for rendering review of old fee sheets.
  *
@@ -10,9 +11,10 @@
  * @copyright Copyright (c) 2019 bradymiller <bradymiller@users.sourceforge.net>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <script type="text/html" id="review-display">
-    <link rel="stylesheet" href="<?php echo $web_root;?>/interface/forms/fee_sheet/review/views/review.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $web_root;?>/interface/forms/fee_sheet/review/views/review.css" type="text/css" />
     <div data-bind="visible: $data.show">
     <div data-bind="visible: encounters().length==0"><?php echo xlt("No prior encounters."); ?></div>
     <select data-bind="options:encounters, optionsText: 'date', value: selectedEncounter, event: {change: choose_encounter}, visible: encounters().length>0"></select>
@@ -31,9 +33,9 @@
             <tr>
                 <td><input type="checkbox" data-bind="checked: selected"/></td>
                 <td data-bind="template: {name: 'procedure-select', data: $data}"></td>
-                <td><input class="price" type="text" data-bind="value:fee"/></td>
+                <td><input class="price form-control" type="text" data-bind="value:fee" /></td>
                 <td><input type="text" data-bind="value:modifiers,attr: {size: mod_size}"/></td>
-                <td><input class="units" type="text" data-bind="value:units"/></td>
+                <td><input class="units form-control" type="text" data-bind="value:units"/></td>
                 <td data-bind="foreach: justify"><input type="checkbox" data-bind="checked: selected"/><span data-bind="text:code"></span></td>
             </tr>
 
@@ -52,9 +54,9 @@
             </tr>
         </tbody>
     </table>
-    <div>
-        <input type="button" data-bind="click: add_review" value="<?php echo xla("Add");?>" />
-        <input class="cancel_dialog" type="button" data-bind="click: cancel_review" value="<?php echo xla("Cancel");?>" />
+    <div class="btn-group">
+        <input type="button" class="btn btn-primary" data-bind="click: add_review" value="<?php echo xla("Add");?>" />
+        <input class="cancel_dialog btn btn-secondary" type="button" data-bind="click: cancel_review" value="<?php echo xla("Cancel");?>" />
     </div>
     </div>
 </script>

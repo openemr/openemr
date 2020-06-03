@@ -1,4 +1,5 @@
 <?php
+
 /**
  * body_composition view.php
  *
@@ -18,6 +19,7 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $scale_file_name = '/tmp/tanita_scale.txt';
 $scale_file_age = -1;
@@ -40,7 +42,7 @@ function rbvalue($rbname)
 function rbinput($name, $value, $desc, $colname)
 {
     global $row;
-    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) ."'";
+    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
     if ($row[$colname] == $value) {
         $ret .= " checked";
     }
@@ -112,7 +114,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 </head>
 
 <body <?php echo $top_bg_line; ?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">

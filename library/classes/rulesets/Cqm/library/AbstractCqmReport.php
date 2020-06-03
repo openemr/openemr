@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -6,7 +7,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once(dirname(__FILE__)."/../../../../clinical_rules.php");
+require_once(dirname(__FILE__) . "/../../../../clinical_rules.php");
 
 abstract class AbstractCqmReport implements RsReportIF
 {
@@ -23,17 +24,17 @@ abstract class AbstractCqmReport implements RsReportIF
     {
         // require all .php files in the report's sub-folder
         $className = get_class($this);
-        foreach (glob(dirname(__FILE__)."/../reports/".$className."/*.php") as $filename) {
+        foreach (glob(dirname(__FILE__) . "/../reports/" . $className . "/*.php") as $filename) {
             require_once($filename);
         }
 
         // require common .php files
-        foreach (glob(dirname(__FILE__)."/../reports/common/*.php") as $filename) {
+        foreach (glob(dirname(__FILE__) . "/../reports/common/*.php") as $filename) {
             require_once($filename);
         }
 
         // require clinical types
-        foreach (glob(dirname(__FILE__)."/../../../ClinicalTypes/*.php") as $filename) {
+        foreach (glob(dirname(__FILE__) . "/../../../ClinicalTypes/*.php") as $filename) {
             require_once($filename);
         }
 
@@ -69,7 +70,7 @@ abstract class AbstractCqmReport implements RsReportIF
         $populationCriterias = $this->createPopulationCriteria();
         if (!is_array($populationCriterias)) {
             $tmpPopulationCriterias = array();
-            $tmpPopulationCriterias[]= $populationCriterias;
+            $tmpPopulationCriterias[] = $populationCriterias;
             $populationCriterias = $tmpPopulationCriterias;
         }
 
@@ -93,7 +94,7 @@ abstract class AbstractCqmReport implements RsReportIF
                 $numerators = $populationCriteria->createNumerators();
                 if (!is_array($numerators)) {
                     $tmpNumerators = array();
-                    $tmpNumerators[]= $numerators;
+                    $tmpNumerators[] = $numerators;
                     $numerators = $tmpNumerators;
                 }
 
@@ -176,7 +177,7 @@ abstract class AbstractCqmReport implements RsReportIF
                     }
 
                     $percentage = calculate_percentage($pass_filt, $exclude_filt, $pass_targ);
-                    $this->_resultsArray[]= new CqmResult(
+                    $this->_resultsArray[] = new CqmResult(
                         $this->_rowRule,
                         $title,
                         $populationCriteria->getTitle(),

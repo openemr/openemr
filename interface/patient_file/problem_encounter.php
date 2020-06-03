@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This script add and delete Issues and Encounters relationships.
  *
@@ -13,28 +14,27 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $patdata = getPatientData($pid, "fname,lname,squad");
 
-$thisauth = ((acl_check('encounters', 'notes', '', 'write') ||
-            acl_check('encounters', 'notes_a', '', 'write')) &&
-            acl_check('patients', 'med', '', 'write'));
+$thisauth = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') ||
+            AclMain::aclCheckCore('encounters', 'notes_a', '', 'write')) &&
+            AclMain::aclCheckCore('patients', 'med', '', 'write'));
 
-if ($patdata['squad'] && ! acl_check('squads', $patdata['squad'])) {
+if ($patdata['squad'] && ! AclMain::aclCheckCore('squads', $patdata['squad'])) {
      $thisauth = 0;
 }
 
 if (!$thisauth) {
     echo "<html>\n<body>\n";
-    echo "<p>" .xlt('You are not authorized for this.'). "</p>\n";
+    echo "<p>" . xlt('You are not authorized for this.') . "</p>\n";
     echo "</body>\n</html>\n";
     exit();
 }
@@ -70,7 +70,7 @@ if ($_POST['form_save']) {
     }
 
     echo "<html><body>"
-    ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
+    . "<script type=\"text/javascript\" src=\"" . $webroot . "/interface/main/tabs/js/include_opener.js\"></script>"
     . "<script language='JavaScript'>\n";
     if ($alertmsg) {
         echo " alert(" . js_escape($alertmsg) . ");\n";
@@ -111,11 +111,11 @@ tr.detail { font-size:10pt; background-color:#eeeeee; }
 // These are the possible colors for table rows.
 var trcolors = new Object();
 // Colors for:            Foreground Background
-trcolors['U'] = new Array('#000000', '#eeeeee'); // unselected
-trcolors['K'] = new Array('#000000', '#eeee00'); // selected key
-// trcolors['Y'] = new Array('#000000', '#99ff99'); // selected value resolved=Y
-// trcolors['N'] = new Array('#000000', '#ff9999'); // selected value resolved=N
-trcolors['V'] = new Array('#000000', '#9999ff'); // selected value
+trcolors['U'] = new Array('var(--black)', '#eeeeee'); // unselected
+trcolors['K'] = new Array('var(--black)', '#eeee00'); // selected key
+// trcolors['Y'] = new Array('var(--black)', '#99ff99'); // selected value resolved=Y
+// trcolors['N'] = new Array('var(--black)', '#ff9999'); // selected value resolved=N
+trcolors['V'] = new Array('var(--black)', '#9999ff'); // selected value
 
 var pselected = new Object();
 var eselected = new Object();
@@ -261,7 +261,7 @@ function doclick(pfx, id) {
 </script>
 
 </head>
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' bgcolor='#ffffff'>
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' bgcolor='var(--white)'>
 <form method='post' action='problem_encounter.php' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php
@@ -287,7 +287,7 @@ while ($row = sqlFetchArray($peres)) {
 
  <tr>
   <td align='center' valign='top' style="padding: 0 0 0 5px;">
-   <table class="table table-condensed">
+   <table class="table table-sm">
     <tr class='head'>
      <td colspan='3' align='center'>
       <input type='radio' name='form_key' value='p' onclick='clearall()' checked />
@@ -313,7 +313,7 @@ while ($row = sqlFetchArray($pres)) {
    </table>
   </td>
   <td align='center' valign='top' style="padding: 0 5px 0 0;">
-   <table class="table table-condensed">
+   <table class="table table-sm">
     <tr class='head'>
      <td colspan='2' align='center'>
       <input type='radio' name='form_key' value='e' onclick='clearall()' />
@@ -340,9 +340,9 @@ while ($row = sqlFetchArray($eres)) {
 
  <tr>
   <td colspan='2' align='center'>
-   <input type='submit' name='form_save' value='<?php echo xla('Save'); ?>' disabled /> &nbsp;
-   <input type='button' value='<?php echo xla('Add Issue'); ?>' onclick='newIssue()' />
-   <input type='button' value='<?php echo xla('Cancel'); ?>' onclick='dlgclose()' />
+   <input type='submit' class='btn btn-secondary btn-sm btn-save' name='form_save' value='<?php echo xla('Save'); ?>' disabled /> &nbsp;
+   <input type='button' class='btn btn-primary btn-sm' value='<?php echo xla('Add Issue'); ?>' onclick='newIssue()' />
+   <button  class='btn btn-link btn-cancel' onclick='dlgclose()'><?php echo xla('Cancel'); ?></button>
   </td>
  </tr>
 

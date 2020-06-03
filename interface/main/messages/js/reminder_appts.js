@@ -341,9 +341,7 @@ function show_this(colorish='') {
 
 //in bootstrap_menu.js
 function tabYourIt(tabNAME, url) {
-    if (!top.tab_mode) {
-        tabNAME = window.name;
-    }
+    tabNAME = window.name;
     parent.left_nav.loadFrame('1', tabNAME, url);
 }
 
@@ -363,16 +361,6 @@ $(function () {
         $(this).parent().addClass('open');
         $(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideDown();
     });
-    $(".divTableRow").mouseover(function () {
-        if ((!$(this).hasClass('divTableHeading')) &&
-            (!$(this).hasClass('greenish')) &&
-            (!$(this).parents().hasClass('newRecall')) &&
-            (!$(this).parents().hasClass('prefs'))
-        ) $(this).addClass("yellow").css('cursor', 'pointer');
-    });
-    $(".divTableRow").mouseout(function () {
-        $(this).removeClass('yellow');
-    });
     $("[name='new_recall_when']").change(function () {
         var dolv = moment($("#DOLV").val());
         now = dolv.add($(this).val(), 'days').format(format_date_moment_js);
@@ -388,7 +376,7 @@ $(function () {
             data: formData,
             action: 'save_prefs'
         }).done(function (result) {
-            $("#div_response").html('<span style="color:red;">' + xljs1 + '.</span>');
+            $("#div_response").html('<span class="text-danger">' + xljs1 + '.</span>');
             setTimeout(function () {
                 $("#div_response").html('<br />');
             }, 2000);

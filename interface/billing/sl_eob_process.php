@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This processes X12 835 remittances and produces a report.
  *
@@ -9,7 +10,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,12 +18,13 @@
 ob_start();
 
 require_once("../globals.php");
-require_once("$srcdir/invoice_summary.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 use OpenEMR\Services\InsuranceService;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
@@ -147,54 +149,56 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
     }
 }
 
-    // This is called back by ParseERA::parse_era() once per claim.
+    // This is called back by ParseERA::parseERA() once per claim.
     //
+
+// TODO: Sort colors here for Bootstrap themes
 function era_callback_check(&$out)
 {
     global $InsertionId;//last inserted ID of
     global $StringToEcho,$debug;
 
-    if ($_GET['original']=='original') {
-        $StringToEcho="<br/><br/><br/><br/><br/><br/>";
-        $StringToEcho.="<table border='1' cellpadding='0' cellspacing='0'  width='750'>";
-        $StringToEcho.="<tr bgcolor='#cccccc'><td width='50'></td><td class='dehead' width='150' align='center'>" . xlt('Check Number') . "</td><td class='dehead' width='400'  align='center'>" . xlt('Payee Name') . "</td><td class='dehead'  width='150' align='center'>" . xlt('Check Amount') . "</td></tr>";
-        $WarningFlag=false;
-        for ($check_count=1; $check_count<=$out['check_count']; $check_count++) {
-            if ($check_count%2==1) {
-                $bgcolor='#ddddff';
+    if ($_GET['original'] == 'original') {
+        $StringToEcho = "<br/><br/><br/><br/><br/><br/>";
+        $StringToEcho .= "<table class='table table-bordered' cellpadding='0' cellspacing='0' width='750'>";
+        $StringToEcho .= "<tr class='table-light'><td width='50'></td><td class='dehead' width='150' align='center'>" . xlt('Check Number') . "</td><td class='dehead' width='400' align='center'>" . xlt('Payee Name') . "</td><td class='dehead' width='150' align='center'>" . xlt('Check Amount') . "</td></tr>";
+        $WarningFlag = false;
+        for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
+            if ($check_count % 2 == 1) {
+                $bgcolor = '#ddddff';
             } else {
-                $bgcolor='#ffdddd';
+                $bgcolor = '#ffdddd';
             }
 
-             $rs=sqlQ("select reference from ar_session where reference=?", array($out['check_number'.$check_count]));
-            if (sqlNumRows($rs)>0) {
-                $bgcolor='#ff0000';
-                $WarningFlag=true;
+             $rs = sqlQ("select reference from ar_session where reference=?", array($out['check_number' . $check_count]));
+            if (sqlNumRows($rs) > 0) {
+                $bgcolor = '#ff0000';
+                $WarningFlag = true;
             }
 
-            $StringToEcho.="<tr bgcolor='" . attr($bgcolor) . "'>";
-            $StringToEcho.="<td><input type='checkbox'  name='chk" . attr($out['check_number'.$check_count]) . "' value='" . attr($out['check_number'.$check_count]) . "'/></td>";
-            $StringToEcho.="<td>" . text($out['check_number'.$check_count]) . "</td>";
-            $StringToEcho.="<td>" . text($out['payee_name'.$check_count]) . "</td>";
-            $StringToEcho.="<td align='right'>" . text(number_format($out['check_amount'.$check_count], 2)) . "</td>";
-            $StringToEcho.="</tr>";
+            $StringToEcho .= "<tr bgcolor='" . attr($bgcolor) . "'>";
+            $StringToEcho .= "<td><input type='checkbox'  name='chk" . attr($out['check_number' . $check_count]) . "' value='" . attr($out['check_number' . $check_count]) . "'/></td>";
+            $StringToEcho .= "<td>" . text($out['check_number' . $check_count]) . "</td>";
+            $StringToEcho .= "<td>" . text($out['payee_name' . $check_count]) . "</td>";
+            $StringToEcho .= "<td align='right'>" . text(number_format($out['check_amount' . $check_count], 2)) . "</td>";
+            $StringToEcho .= "</tr>";
         }
 
-        $StringToEcho.="<tr bgcolor='#cccccc'><td colspan='4' align='center'><input type='submit'  name='CheckSubmit' value='Submit'/></td></tr>";
-        if ($WarningFlag==true) {
-            $StringToEcho.="<tr bgcolor='#ff0000'><td colspan='4' align='center'>" . xlt('Warning, Check Number already exist in the database') . "</td></tr>";
+        $StringToEcho .= "<tr class='table-light'><td colspan='4' align='center'><input type='submit' name='CheckSubmit' value='Submit'/></td></tr>";
+        if ($WarningFlag == true) {
+            $StringToEcho .= "<tr class='table-danger'><td colspan='4' align='center'>" . xlt('Warning, Check Number already exist in the database') . "</td></tr>";
         }
 
-        $StringToEcho.="</table>";
+        $StringToEcho .= "</table>";
     } else {
-        for ($check_count=1; $check_count<=$out['check_count']; $check_count++) {
-            $chk_num=$out['check_number'.$check_count];
-            $chk_num=str_replace(' ', '_', $chk_num);
-            if (isset($_REQUEST['chk'.$chk_num])) {
-                $check_date=$out['check_date'.$check_count]?$out['check_date'.$check_count]:$_REQUEST['paydate'];
-                $post_to_date=$_REQUEST['post_to_date']!=''?$_REQUEST['post_to_date']:date('Y-m-d');
-                $deposit_date=$_REQUEST['deposit_date']!=''?$_REQUEST['deposit_date']:date('Y-m-d');
-                $InsertionId[$out['check_number'.$check_count]]=SLEOB::arPostSession($_REQUEST['InsId'], $out['check_number'.$check_count], $out['check_date'.$check_count], $out['check_amount'.$check_count], $post_to_date, $deposit_date, $debug);
+        for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
+            $chk_num = $out['check_number' . $check_count];
+            $chk_num = str_replace(' ', '_', $chk_num);
+            if (isset($_REQUEST['chk' . $chk_num])) {
+                $check_date = $out['check_date' . $check_count] ? $out['check_date' . $check_count] : $_REQUEST['paydate'];
+                $post_to_date = $_REQUEST['post_to_date'] != '' ? $_REQUEST['post_to_date'] : date('Y-m-d');
+                $deposit_date = $_REQUEST['deposit_date'] != '' ? $_REQUEST['deposit_date'] : date('Y-m-d');
+                $InsertionId[$out['check_number' . $check_count]] = SLEOB::arPostSession($_REQUEST['InsId'], $out['check_number' . $check_count], $out['check_date' . $check_count], $out['check_amount' . $check_count], $post_to_date, $deposit_date, $debug);
             }
         }
     }
@@ -207,18 +211,18 @@ function era_callback(&$out)
 
 
     // Some heading information.
-    $chk_123=$out['check_number'];
-    $chk_123=str_replace(' ', '_', $chk_123);
-    if (isset($_REQUEST['chk'.$chk_123])) {
+    $chk_123 = $out['check_number'];
+    $chk_123 = str_replace(' ', '_', $chk_123);
+    if (isset($_REQUEST['chk' . $chk_123])) {
         if ($encount == 0) {
             writeMessageLine(
-                '#ffffff',
+                'var(--white)',
                 'infdetail',
                 "Payer: " . $out['payer_name']
             );
             if ($debug) {
                 writeMessageLine(
-                    '#ffffff',
+                    'var(--white)',
                     'infdetail',
                     "WITHOUT UPDATE is selected; no changes will be applied."
                 );
@@ -237,14 +241,14 @@ function era_callback(&$out)
             // Get invoice data into $arrow or $ferow.
             $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname " .
             "FROM form_encounter AS e, patient_data AS p WHERE " .
-            "e.pid = ? AND e.encounter = ? AND ".
+            "e.pid = ? AND e.encounter = ? AND " .
             "p.pid = e.pid", array($pid, $encounter));
             if (empty($ferow)) {
                   $pid = $encounter = 0;
                   $invnumber = $out['our_claim_id'];
             } else {
                   $inverror = false;
-                  $codes = ar_get_invoice_summary($pid, $encounter, true);
+                  $codes = InvoiceSummary::arGetInvoiceSummary($pid, $encounter, true);
                   // $svcdate = substr($ferow['date'], 0, 10);
             }
         }
@@ -268,7 +272,7 @@ function era_callback(&$out)
         writeMessageLine(
             $bgcolor,
             'infdetail',
-            "Claim status $csc: " . BillingUtilities::claim_status_codes_CLP02[$csc]
+            "Claim status $csc: " . BillingUtilities::CLAIM_STATUS_CODES_CLP02[$csc]
         );
 
     // Show an error message if the claim is missing or already posted.
@@ -296,7 +300,7 @@ function era_callback(&$out)
                     $code_value = '';
                     foreach ($out['svc'] as $svc) {
                         foreach ($svc['adj'] as $adj) {//Per code and modifier the reason will be showed in the billing manager.
-                            $code_value .= $svc['code'].'_'.$svc['mod'].'_'.$adj['group_code'].'_'.$adj['reason_code'].',';
+                            $code_value .= $svc['code'] . '_' . $svc['mod'] . '_' . $adj['group_code'] . '_' . $adj['reason_code'] . ',';
                         }
                     }
 
@@ -312,7 +316,7 @@ function era_callback(&$out)
                 'errdetail',
                 "Not posting adjustments for denied claims, please follow up manually!"
             );
-        } else if ($csc == '22') {
+        } elseif ($csc == '22') {
             $inverror = true;
             writeMessageLine(
                 $bgcolor,
@@ -448,7 +452,7 @@ function era_callback(&$out)
             if ($svc['remark']) {
                 $rmk = $svc['remark'];
                 writeMessageLine($bgcolor, 'infdetail', "$rmk: " .
-                    BillingUtilities::remittance_advice_remark_codes[$rmk]);
+                    BillingUtilities::REMITTANCE_ADVICE_REMARK_CODES[$rmk]);
             }
 
             // Post and report the payment for this service item from the ERA.
@@ -493,7 +497,7 @@ function era_callback(&$out)
             // must be 25 characters or less in order to fit on patient statements.
             foreach ($svc['adj'] as $adj) {
                 $description = $adj['reason_code'] . ': ' .
-                    BillingUtilities::claim_adjustment_reason_codes[$adj['reason_code']];
+                    BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code']];
                 if ($adj['group_code'] == 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.
@@ -507,9 +511,9 @@ function era_callback(&$out)
                         $reason = "$inslabel ptresp: "; // Reasons should be 25 chars or less.
                         if ($adj['reason_code'] == '1') {
                             $reason = "$inslabel dedbl: ";
-                        } else if ($adj['reason_code'] == '2') {
+                        } elseif ($adj['reason_code'] == '2') {
                             $reason = "$inslabel coins: ";
-                        } else if ($adj['reason_code'] == '3') {
+                        } elseif ($adj['reason_code'] == '3') {
                             $reason = "$inslabel copay: ";
                         }
                     } else { // Non-primary insurance adjustments are garbage, either repeating
@@ -595,14 +599,14 @@ function era_callback(&$out)
         if (!$error && !$debug && $insurance_done) {
             $level_done = 0 + substr($inslabel, 3);
 
-            if ($out['crossover']==1) {//Automatic forward case.So need not again bill from the billing manager screen.
+            if ($out['crossover'] == 1) {//Automatic forward case.So need not again bill from the billing manager screen.
                 sqlStatement("UPDATE form_encounter " .
                 "SET last_level_closed = ?,last_level_billed=? WHERE " .
                 "pid = ? AND encounter = ?", array($level_done, $level_done, $pid, $encounter));
                 writeMessageLine(
                     $bgcolor,
                     'infdetail',
-                    'This claim is processed by Insurance '.$level_done.' and automatically forwarded to Insurance '.($level_done+1) .' for processing. '
+                    'This claim is processed by Insurance ' . $level_done . ' and automatically forwarded to Insurance ' . ($level_done + 1) . ' for processing. '
                 );
             } else {
                 sqlStatement("UPDATE form_encounter " .
@@ -614,7 +618,7 @@ function era_callback(&$out)
             if ($primary && SLEOB::arGetPayerID($pid, $service_date, 2)) {
                 SLEOB::arSetupSecondary($pid, $encounter, $debug, $out['crossover']);
 
-                if ($out['crossover']<>1) {
+                if ($out['crossover'] <> 1) {
                     writeMessageLine(
                         $bgcolor,
                         'infdetail',
@@ -687,31 +691,58 @@ if (!$debug) {
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<style type="text/css">
- body       { font-family:sans-serif; font-size:8pt; font-weight:normal }
- .dehead    { color:#000000; font-family:sans-serif; font-size:9pt; font-weight:bold }
- .olddetail { color:#000000; font-family:sans-serif; font-size:9pt; font-weight:normal }
- .newdetail { color:#00dd00; font-family:sans-serif; font-size:9pt; font-weight:normal }
- .errdetail { color:#dd0000; font-family:sans-serif; font-size:9pt; font-weight:normal }
- .infdetail { color:#0000ff; font-family:sans-serif; font-size:9pt; font-weight:normal }
+<?php Header::setupHeader(); ?>
+<style>
+    body {
+        font-family: sans-serif;
+        font-size: 0.6875rem;
+        font-weight: normal;
+    }
+    .dehead {
+        font-family: sans-serif;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    .olddetail {
+        font-family: sans-serif;
+        font-size: 0.75rem;
+        font-weight: normal;
+    }
+    .newdetail {
+        color: var(--success);
+        font-family: sans-serif;
+        font-size: 0.75rem;
+        font-weight: normal;
+    }
+    .errdetail {
+        color: var(--danger);
+        font-family: sans-serif;
+        font-size: 0.75rem;
+        font-weight: normal;
+    }
+    .infdetail {
+        color: var(--primary);
+        font-family: sans-serif;
+        font-size: 0.75rem;
+        font-weight: normal;
+    }
 </style>
-<title><?php echo xlt('EOB Posting - Electronic Remittances')?></title>
+<title><?php echo xlt('EOB Posting - Electronic Remittances'); ?></title>
 </head>
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
-<form action="sl_eob_process.php" method="get" >
+<body class='m-0'>
+<form action="sl_eob_process.php" method="get">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 <?php
-if ($_GET['original']=='original') {
-    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
+if ($_GET['original'] == 'original') {
+    $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
     echo $StringToEcho;
 } else {
     ?>
-    <table border='0' cellpadding='2' cellspacing='0' width='100%'>
+    <table class='table table-borderless w-100' cellpadding='2' cellspacing='0'>
 
-     <tr bgcolor="#cccccc">
+     <tr class="table-light">
       <td class="dehead">
     <?php echo xlt('Patient'); ?>
       </td>
@@ -738,27 +769,27 @@ if ($_GET['original']=='original') {
     <?php
     global $InsertionId;
 
-    $eraname=$_REQUEST['eraname'];
-    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi");
-    $alertmsg = ParseERA::parse_era($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
+    $eraname = $_REQUEST['eraname'];
+    $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi");
+    $alertmsg = ParseERA::parseERA($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
     if (!$debug) {
-          $StringIssue=xl("Total Distribution for following check number is not full").': ';
-          $StringPrint='No';
+          $StringIssue = xl("Total Distribution for following check number is not full") . ': ';
+          $StringPrint = 'No';
         foreach ($InsertionId as $key => $value) {
-            $rs= sqlQ("select pay_total from ar_session where session_id=?", array($value));
-            $row=sqlFetchArray($rs);
-            $pay_total=$row['pay_total'];
-            $rs= sqlQ("select sum(pay_amount) sum_pay_amount from ar_activity where session_id=?", array($value));
-            $row=sqlFetchArray($rs);
-            $pay_amount=$row['sum_pay_amount'];
+            $rs = sqlQ("select pay_total from ar_session where session_id=?", array($value));
+            $row = sqlFetchArray($rs);
+            $pay_total = $row['pay_total'];
+            $rs = sqlQ("select sum(pay_amount) sum_pay_amount from ar_activity where session_id=?", array($value));
+            $row = sqlFetchArray($rs);
+            $pay_amount = $row['sum_pay_amount'];
 
-            if (($pay_total-$pay_amount)<>0) {
-                $StringIssue.=$key.' ';
-                $StringPrint='Yes';
+            if (($pay_total - $pay_amount) <> 0) {
+                $StringIssue .= $key . ' ';
+                $StringPrint = 'Yes';
             }
         }
 
-        if ($StringPrint=='Yes') {
+        if ($StringPrint == 'Yes') {
             echo "<script>alert(" . js_escape($StringIssue) . ")</script>";
         }
     }
@@ -770,7 +801,7 @@ if ($_GET['original']=='original') {
 }
 ?>
 </center>
-<script language="JavaScript">
+<script>
 <?php
 if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Application/config/module.config.php
  *
@@ -9,15 +10,16 @@
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Application;
 
 use Application\Controller\IndexController;
 use Application\Listener\Listener;
 use Application\Listener\ModuleMenuSubscriber;
-use Zend\Router\Http\Literal;
-use Zend\Router\Http\Segment;
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Mvc\I18n\TranslatorFactory;
+use Laminas\Router\Http\Literal;
+use Laminas\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Mvc\I18n\TranslatorFactory;
 use Interop\Container\ContainerInterface;
 use OpenEmr\Core\Kernel;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -128,12 +130,12 @@ return array(
         'factories' => array(
             Listener::class => InvokableFactory::class,
             \Application\Model\ApplicationTable::class => function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get('Zend\Db\Adapter\Adapter');
+                $dbAdapter = $container->get('Laminas\Db\Adapter\Adapter');
                 $table = new \Application\Model\ApplicationTable($dbAdapter);
                 return $table;
             },
             \Application\Model\SendtoTable::class => function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get('Zend\Db\Adapter\Adapter');
+                $dbAdapter = $container->get('Laminas\Db\Adapter\Adapter');
                 $table = new \Application\Model\SendtoTable($dbAdapter);
                 return $table;
             },
@@ -160,7 +162,7 @@ return array(
         ),
     ),
     'view_helpers' => array(
-        'invokables'=> array(
+        'invokables' => array(
             'javascriptGlobals' => \Application\Helper\Javascript::class,
         ),
         'factories' => [

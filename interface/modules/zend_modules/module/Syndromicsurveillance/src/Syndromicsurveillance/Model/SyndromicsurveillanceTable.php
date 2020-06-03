@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php
  *
@@ -8,19 +9,19 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Syndromicsurveillance\Model;
 
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\TableGateway\AbstractTableGateway;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\Sql\Select;
-use Zend\InputFilter\Factory as InputFactory;
-use Zend\InputFilter\InputFilter;
-use Zend\InputFilter\InputFilterAwareInterface;
-use Zend\InputFilter\InputFilterInterface;
-
-use \Application\Model\ApplicationTable;
+use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\Sql\Select;
+use Laminas\InputFilter\Factory as InputFactory;
+use Laminas\InputFilter\InputFilter;
+use Laminas\InputFilter\InputFilterAwareInterface;
+use Laminas\InputFilter\InputFilterInterface;
+use Application\Model\ApplicationTable;
 
 class SyndromicsurveillanceTable extends AbstractTableGateway
 {
@@ -82,7 +83,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 
             $rows[$i] = array (
                 'value' => $row['id'],
-                'label' => $row['fname']." ".$row['lname'],
+                'label' => $row['fname'] . " " . $row['lname'],
                 'selected' => $select,
             );
             $i++;
@@ -130,7 +131,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $query_string[] = $toDate;
 
         if ($code_selected) {
-            $query .= add_escape_custom(" AND c.id IN (".implode(',', $code_selected).") ");
+            $query .= add_escape_custom(" AND c.id IN (" . implode(',', $code_selected) . ") ");
         }
 
         $query .= " AND l.diagnosis LIKE 'ICD9:%' 
@@ -144,7 +145,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 					AND b.code_type = 'ICD9' AND b.activity = '1' AND b.pid = p.pid AND fe.encounter = b.encounter ";
 
         if ($code_selected) {
-            $query .= add_escape_custom(" AND c.id IN (".implode(',', $code_selected).") ");
+            $query .= add_escape_custom(" AND c.id IN (" . implode(',', $code_selected) . ") ");
         }
 
         $query .= " AND c.code = b.code 
@@ -174,7 +175,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             return count($records);
         }
 
-        $query      .= " LIMIT ".\Application\Plugin\CommonPlugin::escapeLimit($start).",".\Application\Plugin\CommonPlugin::escapeLimit($end);
+        $query      .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($start) . "," . \Application\Plugin\CommonPlugin::escapeLimit($end);
 
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query, $query_string);
@@ -271,11 +272,11 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query, $query_string);
 
-        $D="\r";
+        $D = "\r";
         $nowdate    = date('YmdHis');
         $now          = date('YmdGi');
         $now1       = date('Y-m-d G:i');
-        $filename   = "syn_sur_". $now . ".hl7";
+        $filename   = "syn_sur_" . $now . ".hl7";
 
         foreach ($result as $r) {
             $fac_name = $race_code = $ethnicity_code = $county_code = '';
@@ -285,7 +286,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $race_code      = $this->getCodes($r['race'], 'race');
             $ethnicity_code = $this->getCodes($r['ethnicity'], 'ethnicity');
             $county_code    = $this->getCodes($r['county'], 'county');
-            $content .= "MSH|^~\&|OPENEMR|".$fac_name."^".$r['facility_npi']."^NPI|||".$nowdate."||".
+            $content .= "MSH|^~\&|OPENEMR|" . $fac_name . "^" . $r['facility_npi'] . "^NPI|||" . $nowdate . "||" .
             "ADT^A04^ADT_A01|NIST-SS-TC-XXX.XX|P^T|2.5.1|||||||||PH_SS-NoAck^SS Sender^2.16.840.1.114222.4.10.3^ISO$D";
             $content .= "EVN|" . // [[ 3.69 ]]
             "|" . // 1.B Event Type Code
@@ -294,63 +295,63 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             "|" . // 4. Event Reason Cod
             "|" . // 5. Operator ID
             "|" . // 6. Event Occurred
-            $fac_name."^".$r['facility_npi']."^NPI" . // 7. Event Facility
+            $fac_name . "^" . $r['facility_npi'] . "^NPI" . // 7. Event Facility
             "$D" ;
-            if ($r['sex']==='Male') {
+            if ($r['sex'] === 'Male') {
                 $r['sex'] = 'M';
             }
 
-            if ($r['sex']==='Female') {
+            if ($r['sex'] === 'Female') {
                 $r['sex'] = 'F';
             }
 
-            if ($r['status']==='married') {
+            if ($r['status'] === 'married') {
                 $r['status'] = 'M';
             }
 
-            if ($r['status']==='single') {
+            if ($r['status'] === 'single') {
                 $r['status'] = 'S';
             }
 
-            if ($r['status']==='divorced') {
+            if ($r['status'] === 'divorced') {
                 $r['status'] = 'D';
             }
 
-            if ($r['status']==='widowed') {
+            if ($r['status'] === 'widowed') {
                 $r['status'] = 'W';
             }
 
-            if ($r['status']==='separated') {
+            if ($r['status'] === 'separated') {
                 $r['status'] = 'A';
             }
 
-            if ($r['status']==='domestic partner') {
+            if ($r['status'] === 'domestic partner') {
                 $r['status'] = 'P';
             }
 
             $content .= "PID|" . // [[ 3.72 ]]
             "1|" . // 1. Set id
             "|" . // 2. (B)Patient id
-            $r['patientid']."^^^^MR|". // 3. (R) Patient indentifier list
+            $r['patientid'] . "^^^^MR|" . // 3. (R) Patient indentifier list
             "|" . // 4. (B) Alternate PID
             "^^^^^^~^^^^^^S|" . // 5.R. Name
             "|" . // 6. Mather Maiden Name
-            $r['DOB']."|" . // 7. Date, time of birth
-            $r['sex']."|" . // 8. Sex
+            $r['DOB'] . "|" . // 7. Date, time of birth
+            $r['sex'] . "|" . // 8. Sex
             "|" . // 9.B Patient Alias
-            $race_code."^^CDCREC|" . // 10. Race
-            "^^^^".$r['postal_code']."^^^^".$county_code."|" . // 11. Address
+            $race_code . "^^CDCREC|" . // 10. Race
+            "^^^^" . $r['postal_code'] . "^^^^" . $county_code . "|" . // 11. Address
             "|" . // 12. county code
-            $r['phone_home']."|" . // 13. Phone Home
-            $r['phone_biz']."|" . // 14. Phone Bussines
+            $r['phone_home'] . "|" . // 13. Phone Home
+            $r['phone_biz'] . "|" . // 14. Phone Bussines
             "|" . // 15. Primary language
-            $r['status']."|" . // 16. Marital status
+            $r['status'] . "|" . // 16. Marital status
             "|" . // 17. Religion
             "|" . // 18. patient Account Number
             "|" . // 19.B SSN Number
             "|" . // 20.B Driver license number
             "|" . // 21. Mathers Identifier
-            $ethnicity_code."^^CDCREC" . // 22. Ethnic Group
+            $ethnicity_code . "^^CDCREC" . // 22. Ethnic Group
             //"|" . // 23. Birth Plase
             //"|" . // 24. Multiple birth indicator
             //"|" . // 25. Birth order
@@ -388,7 +389,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             "|"  . // 16.
             "|"  . // 17.
             "|"  . // 18.
-            $r['encounter']."^^^^VN|"  . // 19.
+            $r['encounter'] . "^^^^VN|"  . // 19.
             "|"  . // 20.
             "|"  . // 21.
             "|"  . // 22.
@@ -413,62 +414,62 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             "|"  . // 41.
             "|"  . // 42.
             "|"  . // 43.
-            $nowdate. // 44. Admit Date/Time
+            $nowdate . // 44. Admit Date/Time
             "$D" ;
             $i = 0;
             foreach ($o_result as $row) {
                     $i++;
                 if ($row['code'] == 'SS003') {
                     if ($row['ob_value'] == '261QE0002X') {
-                        $text ='Emergency Care';
+                        $text = 'Emergency Care';
                     } elseif ($row['ob_value'] == '261QM2500X') {
-                        $text ='Medical Specialty';
+                        $text = 'Medical Specialty';
                     } elseif ($row['ob_value'] == '261QP2300X') {
-                        $text ='Primary Care';
+                        $text = 'Primary Care';
                     } elseif ($row['ob_value'] == '261QU0200X') {
-                        $text ='Urgent Care';
+                        $text = 'Urgent Care';
                     }
 
-                    $content .= "OBX|".
-                    $i."|".   //1. Set ID
-                    "CWE|".    //2. Value Type
-                    $row['code']."^^".$row['table_code']."|".    //3. Observation Identifier
-                    "|".    //4.
-                    $row['ob_value']."^".$text."^NUCC|".    //5. Observation Value
-                    "|".    //6. Units
-                    "|".    //7.
-                    "|".    //8.
-                    "|".    //9.
-                    "|".    //10.
-                    "F".     //11. Observation Result Status
+                    $content .= "OBX|" .
+                    $i . "|" .   //1. Set ID
+                    "CWE|" .    //2. Value Type
+                    $row['code'] . "^^" . $row['table_code'] . "|" .    //3. Observation Identifier
+                    "|" .    //4.
+                    $row['ob_value'] . "^" . $text . "^NUCC|" .    //5. Observation Value
+                    "|" .    //6. Units
+                    "|" .    //7.
+                    "|" .    //8.
+                    "|" .    //9.
+                    "|" .    //10.
+                    "F" .     //11. Observation Result Status
                     "$D";
                 } elseif ($row['code'] == '21612-7') {
-                    $content .= "OBX|".
-                    $i."|".   //1. Set ID
-                    "NM|".    //2. Value Type
-                    $row['code']."^^".$row['table_code']."|".    //3. Observation Identifier
-                    "|".    //4.
-                    $row['ob_value']."|".    //5. Observation Value
-                    $row['ob_unit']."^^UCUM|".    //6. Units
-                    "|".    //7.
-                    "|".    //8.
-                    "|".    //9.
-                    "|".    //10.
-                    "F".     //11. Observation Result Status
+                    $content .= "OBX|" .
+                    $i . "|" .   //1. Set ID
+                    "NM|" .    //2. Value Type
+                    $row['code'] . "^^" . $row['table_code'] . "|" .    //3. Observation Identifier
+                    "|" .    //4.
+                    $row['ob_value'] . "|" .    //5. Observation Value
+                    $row['ob_unit'] . "^^UCUM|" .    //6. Units
+                    "|" .    //7.
+                    "|" .    //8.
+                    "|" .    //9.
+                    "|" .    //10.
+                    "F" .     //11. Observation Result Status
                     "$D";
                 } elseif ($row['code'] == '8661-1') {
-                    $content .= "OBX|".
-                    $i."|".   //1. Set ID
-                    "CWE|".    //2. Value Type
-                    $row['code']."^^".$row['table_code']."|".    //3. Observation Identifier
-                    "|".    //4.
-                    "^^^^^^^^".$row['ob_value']."|".    //5. Observation Value
-                    "|".    //6. Units
-                    "|".    //7.
-                    "|".    //8.
-                    "|".    //9.
-                    "|".    //10.
-                    "F".     //11. Observation Result Status
+                    $content .= "OBX|" .
+                    $i . "|" .   //1. Set ID
+                    "CWE|" .    //2. Value Type
+                    $row['code'] . "^^" . $row['table_code'] . "|" .    //3. Observation Identifier
+                    "|" .    //4.
+                    "^^^^^^^^" . $row['ob_value'] . "|" .    //5. Observation Value
+                    "|" .    //6. Units
+                    "|" .    //7.
+                    "|" .    //8.
+                    "|" .    //9.
+                    "|" .    //10.
+                    "F" .     //11. Observation Result Status
                     "$D";
                 }
             }
@@ -476,9 +477,9 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $content .= "DG1|" . // [[ 6.24 ]]
             "1|" . // 1. Set ID
             "|" . // 2.B.R Diagnosis Coding Method
-            $r['code']."^".$r['code_text']."^I9CDX|" . // 3. Diagnosis Code - DG1
+            $r['code'] . "^" . $r['code_text'] . "^I9CDX|" . // 3. Diagnosis Code - DG1
             "|" . // 4.B Diagnosis Description
-            $r['issuedate']."|" . // 5. Diagnosis Date/Time
+            $r['issuedate'] . "|" . // 5. Diagnosis Date/Time
             "W" . // 6.R Diagnosis Type  // A - Admiting, W - working
             //"|" . // 7.B Major Diagnostic Category
             //"|" . // 8.B Diagnostic Related Group
@@ -518,7 +519,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     {
         $date   = str_replace('/', '-', $date);
         $arr    = explode('-', $date);
-        $formatted_date = $arr[2]."-".$arr[0]."-".$arr[1];
+        $formatted_date = $arr[2] . "-" . $arr[0] . "-" . $arr[1];
         return $formatted_date;
     }
 
@@ -543,10 +544,10 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $arr    = explode('-', $date);
 
         if ($format == 'm/d/y') {
-            $formatted_date = $arr[1]."/".$arr[2]."/".$arr[0];
+            $formatted_date = $arr[1] . "/" . $arr[2] . "/" . $arr[0];
         }
 
-        $formatted_date = $temp[1] ? $formatted_date." ".$temp[1] : $formatted_date; //append the time, if exists, with the new formatted date
+        $formatted_date = $temp[1] ? $formatted_date . " " . $temp[1] : $formatted_date; //append the time, if exists, with the new formatted date
         return $formatted_date;
     }
 

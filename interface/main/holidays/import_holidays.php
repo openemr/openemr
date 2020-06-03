@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/main/holidays/import_holidays.php holidays/clinic handle import/download holidays files
  *
@@ -14,12 +15,13 @@
 set_time_limit(0);
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once("Holidays_Controller.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
 }
 
@@ -27,12 +29,12 @@ $holidays_controller = new Holidays_Controller();
 $csv_file_data = $holidays_controller->get_file_csv_data();
 
 //this part download the CSV file after the click on the href link
-if ($_GET['download_file']==1) {
+if ($_GET['download_file'] == 1) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $target_file=$holidays_controller->get_target_file();
+    $target_file = $holidays_controller->get_target_file();
     if (! file_exists($target_file)) {
         echo xlt('file missing');
     } else {
@@ -89,7 +91,7 @@ if (!empty($_POST['sync'])) {
 <html>
 <head>
     <title><?php echo xlt('Holidays management'); ?></title>
-    <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+    <?php Header::setupHeader(); ?>
 
 </head>
 
@@ -99,26 +101,29 @@ if ($saved) {
     echo "<p style='color:green'>" .
         xlt('Successfully Completed');
         "</p>\n";
-} elseif (!empty($_POST['bn_upload'])             &&
+} elseif (
+    !empty($_POST['bn_upload'])             &&
         !empty($_POST['import_holidays'])       &&
         !empty($_POST['sync'])
-        ) {
+) {
     echo "<p style='color:red'>" .
         xlt('Operation Failed');
     "</p>\n";
 }
 ?>
+<div class="container-fluid">
 <form method='post' action='import_holidays.php' enctype='multipart/form-data'
       onsubmit='return top.restoreSession()'>
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-        <p class='text'>
-        <table border='1' cellpadding='4'>
-            <tr bgcolor='#dddddd' class='dehead'>
-                <td align='center' colspan='2'>
-                    <?php echo xlt('CSV'); ?>
-                </td>
-            </tr>
+<div class="table-responsive">
+        <table class='table table-bordered text' cellpadding='4'>
+            <thead class='thead-light'>
+                <tr>
+                    <th align='center' colspan='2'>
+                        <?php echo xlt('CSV'); ?>
+                    </th>
+                </tr>
+            </thead>
             <tr>
                 <td class='detail' nowrap>
                     <?php echo xlt('CSV File'); ?>
@@ -135,9 +140,9 @@ if ($saved) {
                 <td class='detail' nowrap>
                     <?php
                     if (!empty($csv_file_data)) {?>
-                        <?php $path=explode("/", $holidays_controller->get_target_file());?>
-                        <?php $filename=$path[count($path)-1];?>
-                        <?php unset($path[count($path)-1]);?>
+                        <?php $path = explode("/", $holidays_controller->get_target_file());?>
+                        <?php $filename = $path[count($path) - 1];?>
+                        <?php unset($path[count($path) - 1]);?>
 
                         <a href="#" onclick='window.open("import_holidays.php?download_file=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>")'><?php echo text($csv_file_data['date']);?></a>
                         <?php
@@ -147,42 +152,45 @@ if ($saved) {
                 </td>
             </tr>
 
-        <tr bgcolor='#dddddd'>
+        <tr class='table-light'>
                 <td align='center' class='detail' colspan='2'>
-                    <input type='submit' name='bn_upload' value='<?php echo xla('Upload / Save') ?>' />
+                    <input class='btn btn-primary' type='submit' name='bn_upload' value='<?php echo xla('Upload / Save') ?>' />
                 </td>
             </tr>
         </table>
-        </p>
+    </div>
 </form>
-        <table border='1'>
+<div class="table-responsive">
+        <table class='table table-bordered'>
 
-        <tr >
-            <td >
+        <tr>
+            <td>
                 <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <input type='submit' name='import_holidays' value='<?php echo xla('Import holiday events') ?>'></br>
+                    <input type='submit' class='btn btn-primary' name='import_holidays' value='<?php echo xla('Import holiday events') ?>'><br />
 
                 </form>
             </td>
 
             <td>
-                    <?php echo xlt('CSV to calendar_external table'); ?></br>
+                    <?php echo xlt('CSV to calendar_external table'); ?><br />
                 <?php echo xlt('If the csv file has been uploaded, then click on the "Import holiday events" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table')?>
                 </td>
         </tr>
-            <tr >
-                <td >
+            <tr>
+                <td>
                     <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
                         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                        <input type='submit' name='sync' value='<?php echo xla('Synchronize') ?>' /></br>
+                        <input type='submit' class='btn btn-primary' name='sync' value='<?php echo xla('Synchronize') ?>' /><br />
                     </form>
                 </td>
                 <td >
-                    <?php echo xlt('calendar_external to events'); ?></br>
+                    <?php echo xlt('calendar_external to events'); ?><br />
                     <?php echo xlt('If you have already filled the calendar_external table, then click on "Synchronize" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays')?>
                 </td>
             </tr>
         </table>
+</div>
+</div>
 </body>
 </html>

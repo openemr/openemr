@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php
  *
@@ -11,9 +12,9 @@
 
 namespace Application\Model;
 
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
-use Zend\Db\Adapter\Driver\Pdo\Result;
+use Laminas\Db\Adapter\Driver\Pdo\Result;
 
 class SendtoTable extends AbstractTableGateway
 {

@@ -4,21 +4,25 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *}
 <table>
-  {if empty($prescriptions)}
-        <tr class='text'>
-                <td>&nbsp;&nbsp;{xlt t='None'}</td>
-        </tr>
-  {/if}
-	{foreach from=$prescriptions item=prescription}
-  {if $prescription->get_active() > 0}
-	<tr class='text'>
-		<td>{$prescription->drug|text}</td>
-		<td>{$prescription->get_dosage_display()|text}</td>
-	</tr>
-  {/if}
-	{/foreach}
+    {if empty($prescriptions)}
+    <tr class='text'>
+        <td>&nbsp;&nbsp;{xlt t='None'}</td>
+    </tr>
+    {/if}
+    {foreach from=$prescriptions item=prescription}
+    {if $prescription->get_active() > 0}
+    <tr class='text'>
+        <td>{$prescription->drug|text}&nbsp;</td>
+        <td>{$prescription->get_size()|text}{$prescription->get_unit_display()|text}&nbsp;
+            {$prescription->get_dosage_display()|text}</td>
+        <td>&nbsp;</td>
+    </tr>
+    {/if}
+    {/foreach}
 </table>

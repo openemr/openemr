@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Authorizations script.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
@@ -47,21 +47,21 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
+<?php Header::setupHeader(); ?>
 <style>
 /* min & max buttons are hidden in the newer concurrent layout */
 #min {
     float: right;
     padding: 3px;
     margin: 2px;
-    cursor: pointer; cursor: hand;
+    cursor: pointer;
     <?php echo "display: none;"; ?>
 }
 #max {
     float: right;
     padding: 3px;
     margin: 2px;
-    cursor: pointer; cursor: hand;
+    cursor: pointer;
     <?php echo "display: none;"; ?>
 }
 </style>
@@ -70,10 +70,10 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 
 <!-- 'buttons' to min/max the bottom frame -JRM -->
 <div id="max" title="Restore this information">
-<img src="<?php echo $GLOBALS['images_static_relative']; ?>/max.gif">
+    <img src="<?php echo $GLOBALS['images_static_relative']; ?>/max.gif" />
 </div>
 <div id="min" title="Minimize this information">
-<img src="<?php echo $GLOBALS['images_static_relative']; ?>/min.gif">
+    <img src="<?php echo $GLOBALS['images_static_relative']; ?>/min.gif" />
 </div>
 
 <?php if ($imauthorized) { ?>
@@ -94,75 +94,83 @@ if ($imauthorized && $see_auth > 1) {
 //  transactions
 
 //fetch billing information:
-    if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user " .
-    "from billing LEFT JOIN users as u on billing.user = u.id where " .
-    "billing.authorized = 0 and billing.activity = 1 and " .
-    "groupname = ?", array($groupname))) {
+    if (
+        $res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user " .
+        "from billing LEFT JOIN users as u on billing.user = u.id where " .
+        "billing.authorized = 0 and billing.activity = 1 and " .
+        "groupname = ?", array($groupname))
+    ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result1[$iter] = $row;
         }
 
         if ($result1) {
             foreach ($result1 as $iter) {
-                $authorize{$iter{"pid"}}{"billing"} .= "<span class=text>" .
-                text($iter{"code_text"} . " " . date("n/j/Y", strtotime($iter{"date"}))) .
-                "</span><br>\n";
+                $authorize[$iter["pid"]]["billing"] .= "<span class='text'>" .
+                text($iter["code_text"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                "</span><br />\n";
             }
         }
     }
 
 //fetch transaction information:
-    if ($res = sqlStatement("select * from transactions where " .
-    "authorized = 0 and groupname = ?", array($groupname))) {
+    if (
+        $res = sqlStatement("select * from transactions where " .
+        "authorized = 0 and groupname = ?", array($groupname))
+    ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result2[$iter] = $row;
         }
 
         if ($result2) {
             foreach ($result2 as $iter) {
-                $authorize{$iter{"pid"}}{"transaction"} .= "<span class=text>" .
-                text($iter{"title"} . ": " . (strterm($iter{"body"}, 25)) . " " . date("n/j/Y", strtotime($iter{"date"}))) .
-                "</span><br>\n";
+                $authorize[$iter["pid"]]["transaction"] .= "<span class='text'>" .
+                text($iter["title"] . ": " . (strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                "</span><br />\n";
             }
         }
     }
 
     if (empty($GLOBALS['ignore_pnotes_authorization'])) {
           //fetch pnotes information:
-        if ($res = sqlStatement("select * from pnotes where authorized = 0 and " .
-        "groupname = ?", array($groupname))) {
+        if (
+            $res = sqlStatement("select * from pnotes where authorized = 0 and " .
+            "groupname = ?", array($groupname))
+        ) {
             for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                 $result3[$iter] = $row;
             }
 
             if ($result3) {
                 foreach ($result3 as $iter) {
-                    $authorize{$iter{"pid"}}{"pnotes"} .= "<span class=text>" .
-                    text((strterm($iter{"body"}, 25)) . " " . date("n/j/Y", strtotime($iter{"date"}))) .
-                    "</span><br>\n";
+                    $authorize[$iter["pid"]]["pnotes"] .= "<span class='text'>" .
+                    text((strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                    "</span><br />\n";
                 }
             }
         }
     }
 
 //fetch forms information:
-    if ($res = sqlStatement("select * from forms where authorized = 0 and " .
-    "groupname = ?", array($groupname))) {
+    if (
+        $res = sqlStatement("select * from forms where authorized = 0 and " .
+        "groupname = ?", array($groupname))
+    ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result4[$iter] = $row;
         }
 
         if ($result4) {
             foreach ($result4 as $iter) {
-                $authorize{$iter{"pid"}}{"forms"} .= "<span class=text>" .
-                text($iter{"form_name"} . " " . date("n/j/Y", strtotime($iter{"date"}))) .
-                "</span><br>\n";
+                $authorize[$iter["pid"]]["forms"] .= "<span class='text'>" .
+                text($iter["form_name"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                "</span><br />\n";
             }
         }
     }
     ?>
 
-<table border='0' cellpadding='0' cellspacing='2' width='100%'>
+<table class='border-0 w-100' cellpadding='0' cellspacing='2'>
 <tr>
 <td valign='top'>
 
@@ -192,8 +200,8 @@ if ($imauthorized && $see_auth > 1) {
             echo "<a href='$rootdir/patient_file/summary/demographics.php?set_pid=" .
             attr_url($ppid) . "' target='RTop' onclick='top.restoreSession()'>";
 
-            echo "<span class='bold'>" . text($name{"fname"}) . " " .
-            text($name{"lname"}) . "</span></a><br>" .
+            echo "<span class='font-weight-bold'>" . text($name["fname"]) . " " .
+            text($name["lname"]) . "</span></a><br />" .
             "<a class=link_submit href='authorizations.php?mode=authorize" .
             "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" .
             xlt('Authorize') . "</a></td>\n";
@@ -203,7 +211,7 @@ if ($imauthorized && $see_auth > 1) {
           // added below 4 lines to add provider to authorizations for ez reference.
           $providerID = sqlFetchArray(sqlStatement(
             "select providerID from patient_data where pid=?", array($ppid) ));
-          $userID=$providerID{"providerID"};
+          $userID=$providerID["providerID"];
           $providerName = sqlFetchArray(sqlStatement(
             "select lname from users where id=?", array($userID) ));
             ****/
@@ -213,16 +221,16 @@ if ($imauthorized && $see_auth > 1) {
                 array($name['providerID'])
             ));
 
-            echo "<td valign=top><span class=bold>".xlt('Provider').":</span><span class=text><br>" .
-              text($providerName{"lname"}) . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Billing').":</span><span class=text><br>" .
-              $patient{"billing"} . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Transactions').":</span><span class=text><br>" .
-              $patient{"transaction"} . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Patient Notes').":</span><span class=text><br>" .
-              $patient{"pnotes"} . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Encounter Forms').":</span><span class=text><br>" .
-              $patient{"forms"} . "</td>\n";
+            echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Provider') . ":</span><span class='text'><br />" .
+              text($providerName["lname"]) . "</td>\n";
+            echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Billing') . ":</span><span class='text'><br />" .
+              $patient["billing"] . "</td>\n";
+            echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Transactions') . ":</span><span class='text'><br />" .
+              $patient["transaction"] . "</td>\n";
+            echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Patient Notes') . ":</span><span class='text'><br />" .
+              $patient["pnotes"] . "</td>\n";
+            echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Encounter Forms') . ":</span><span class='text'><br />" .
+              $patient["forms"] . "</td>\n";
             echo "</tr>\n";
 
             $count++;
@@ -238,11 +246,11 @@ if ($imauthorized && $see_auth > 1) {
 <?php } ?>
 
 </body>
-<script language='JavaScript'>
+<script>
 
 /* added to adjust the height of this frame by the min/max buttons */
 var origRows = null;
-$(function (){
+$(function () {
 
     $(".noterow").on("mouseover", function() { $(this).toggleClass("highlight"); });
     $(".noterow").on("mouseout", function() { $(this).toggleClass("highlight"); });

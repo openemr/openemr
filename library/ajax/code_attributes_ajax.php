@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Given a code type, code, selector and price level for a service or product, this creates
  * JavaScript that will call the user's handler passing the following arguments:
@@ -55,9 +56,11 @@ function write_code_info($codetype, $code, $selector, $pricelevel)
         while ($lrow = sqlFetchArray($lres)) {
             $wh .= "<option value='" . attr($lrow['option_id']) . "'";
             $has_inventory = sellDrug($code, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
-            if ($has_inventory && (
-            (strlen($defaultwh) == 0 && $lrow['is_default']           ) ||
-            (strlen($defaultwh)  > 0 && $lrow['option_id'] == $default))) {
+            if (
+                $has_inventory && (
+                (strlen($defaultwh) == 0 && $lrow['is_default']           ) ||
+                (strlen($defaultwh)  > 0 && $lrow['option_id'] == $default))
+            ) {
                 $wh .= " selected";
             } else {
               // Disable this warehouse option if not selected and has no inventory.

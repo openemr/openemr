@@ -4,6 +4,7 @@
 * @package   OpenEMR
 * @link      http://www.open-emr.org
 * @author    Brady Miller <brady.g.miller@gmail.com>
+* @author    Jerry Padgett <sjpadgett@gmail.com>
 * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 *}
@@ -12,7 +13,7 @@
 <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
 
 {if (!($patient_id > 0)) }
-  <div class="text" style="color:red;">
+  <div class="text text-danger">
     {xlt t="IMPORTANT: This upload tool is only for uploading documents on patients that are not yet entered into the system. To upload files for patients whom already have been entered into the system, please use the upload tool linked within the Patient Summary screen."}
     <br/>
     <br/>
@@ -31,7 +32,7 @@
     <p><span>{xlt t="Source File Path"}:</span> <input type="file" name="file[]" id="source-name" multiple="true"/>&nbsp;(<font size="1">{xlt t="Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click."}</font>)</p>
     <p><span title="{xla t='Leave Blank To Keep Original Filename'}">{xlt t="Optional Destination Name"}:</span> <input type="text" name="destination" title="{xla t='Leave Blank To Keep Original Filename'}" id="destination-name" /></p>
     {if !$hide_encryption}
-	</br>
+	<br />
 	<p><span title="{xla t='Check the box if this is an encrypted file'}">{xlt t="Is The File Encrypted?"}:</span> <input type="checkbox" name="encrypted" title="{xla t='Check the box if this is an encrypted file'}" id="encrypted" /></p>
 	<p><span title="{xla t='Pass phrase to decrypt document'}">{xlt t="Pass Phrase"}:</span> <input type="text" name="passphrase" title="{xla t='Pass phrase to decrypt document'}" id="passphrase" /></p>
 	<p><i>{xlt t='Supports AES-256-CBC encryption/decryption only.'}</i></p>
@@ -44,12 +45,12 @@
 <input type="hidden" name="process" value="{$PROCESS|attr}" />
 </form>
 
-<br><br>
+<br /><br />
 
 <!-- Drag and drop uploader -->
 <div id="autouploader">
 <form method="post" enctype="multipart/form-data" action="{$GLOBALS.webroot}/library/ajax/upload.php?patient_id={$patient_id|attr_url}&parent_id={$category_id|attr_url}&csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" class="dropzone">
-<input type="hidden" name="MAX_FILE_SIZE" value="64000000" >
+<input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
 </form>
 </div>
 
@@ -57,15 +58,32 @@
 <form method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
 <input type='hidden' name='patient_id' value='{$patient_id|attr}' />
-<p class='text bold'>
- {xlt t="Download document template for this patient and visit"}
-</p>
-<p class='text'>
- <select name='form_filename'>{$TEMPLATES_LIST}</select> &nbsp;
- <input type='submit' value='{xla t="Fetch"}' />
-</p>
+<div class='col-sm-6'>
+	<p class='text bold'>
+		{xlt t="Download document template for this patient and visit"}
+	</p>
+	<div class="input-group">
+		<span class="input-group-prepend">
+        	<button type="submit" class="btn btn-download">{xlt t="Fetch"}</button>
+        </span>
+		<select class="form-control" name='form_filename'>{$TEMPLATES_LIST}</select>
+	</div>
+</div>
 </form>
 <!-- End document template download section -->
+
+<!-- Section for portal document templates -->
+<div class='col-sm-6'>
+	<p class='text bold'>
+		{xlt t="Patient Document Template Forms"}
+	</p>
+	<div class="input-group">
+		<span class="input-group-prepend">
+			<button class="btn btn-download" onclick="callTemplateModule()">{xlt t="Open"}</button>
+		</span>
+		<select class="form-control" id='template_filename'>{$TEMPLATES_LIST_PATIENT}</select>
+	</div>
+</div>
 
 {if !empty($file)}
 	<div class="text bold">
@@ -75,14 +93,14 @@
 	{foreach from=$file item=file}
 		<div class="text">
 			{if $error}<i>{$error|text}</i><br/>{/if}
-			{xlt t='ID'}: {$file->get_id()|text}<br>
-			{xlt t='Patient'}: {$file->get_foreign_id()|text}<br>
-			{xlt t='URL'}: {$file->get_url()|text}<br>
-			{xlt t='Size'}: {$file->get_size()|text}<br>
-			{xlt t='Date'}: {$file->get_date()|text}<br>
-			{xlt t='Hash'}: {$file->get_hash()|text}<br>
-			{xlt t='MimeType'}: {$file->get_mimetype()|text}<br>
-			{xlt t='Revision'}: {$file->revision|text}<br><br>
+			{xlt t='ID'}: {$file->get_id()|text}<br />
+			{xlt t='Patient'}: {$file->get_foreign_id()|text}<br />
+			{xlt t='URL'}: {$file->get_url()|text}<br />
+			{xlt t='Size'}: {$file->get_size()|text}<br />
+			{xlt t='Date'}: {$file->get_date()|text}<br />
+			{xlt t='Hash'}: {$file->get_hash()|text}<br />
+			{xlt t='MimeType'}: {$file->get_mimetype()|text}<br />
+			{xlt t='Revision'}: {$file->revision|text}<br /><br />
 		</div>
 	{/foreach}
 {/if}

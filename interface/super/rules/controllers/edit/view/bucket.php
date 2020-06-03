@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/view/bucket.php
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <head>
     <script language="javascript" src="<?php js_src('bucket.js') ?>"></script>
@@ -40,7 +42,7 @@
 <p class="row">
     <span class="left_col colhead req" data-field="fld_completed"><?php echo xlt('Completed?'); ?></span>
     <span class="end_col">
-        <select data-grp-tgt="" type="dropdown" name="fld_completed" id="">
+        <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_completed" id="">
             <option id="" value="">--<?php echo xlt('Select'); ?>--</option>
             <option id="Yes" value="yes" <?php echo $criteria->completed ? "SELECTED" : "" ?>><?php echo xlt('Yes'); ?></option>
             <option id="No" value="no" <?php echo !$criteria->completed ? "SELECTED" : "" ?>><?php echo xlt('No'); ?></option>
@@ -52,7 +54,7 @@
 <p class="row">
     <span class="left_col colhead req" data-field="fld_frequency"><?php echo xlt('Frequency'); ?></span>
     <span class="end_col">
-        <select data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">
+        <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">
             <option id="" value="">--<?php echo xlt("Select"); ?>--</option>
             <option id="le" value="le" <?php echo $criteria->frequencyComparator == "le" ? "SELECTED" : "" ?>><?php echo "<=" ;?></option>
             <option id="lt" value="lt" <?php echo $criteria->frequencyComparator == "lt" ? "SELECTED" : "" ?>><?php echo "<" ;?></option>
@@ -62,7 +64,7 @@
             <option id="ne" value="ne" <?php echo $criteria->frequencyComparator == "ne" ? "SELECTED" : "" ?>><?php echo "!=" ;?></option>
         </select>
 
-        <input data-grp-tgt="fld_frequency" class="field short"
+        <input data-grp-tgt="fld_frequency" class="form-control field short"
            type="text"
            name="fld_frequency"
            value="<?php echo attr($criteria->frequency); ?>" />

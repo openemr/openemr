@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php
  *
@@ -8,10 +9,11 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Carecoordination\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Carecoordination\Model\MapperTable;
 
 // TODO: this class appears to be deprecated as nothing else refers to it.  It looks like it does the same thing as the SetupController does...
@@ -112,7 +114,7 @@ class MapperController extends AbstractActionController
         }
 
         $this->getMapperTable()->updateExistingMappedFields(array($existing_id,1));
-        return $this->redirect()->toRoute('mapper', array('action'=>'index'));
+        return $this->redirect()->toRoute('mapper', array('action' => 'index'));
     }
 
     /**

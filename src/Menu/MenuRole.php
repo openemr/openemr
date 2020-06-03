@@ -1,4 +1,5 @@
 <?php
+
 /**
  * MenuRole class.
  * (note this consolidated several libraries and maintained the author/copyright credits)
@@ -18,7 +19,7 @@ namespace OpenEMR\Menu;
 
 require_once(dirname(__FILE__) . "/../../library/registry.inc");
 
-use OpenEMR\Services\UserService;
+use OpenEMR\Common\Acl\AclMain;
 
 class MenuRole
 {
@@ -65,7 +66,7 @@ class MenuRole
 
     protected function menuUpdateEntries(&$menu_list)
     {
-        for ($idx=0; $idx<count($menu_list); $idx++) {
+        for ($idx = 0; $idx < count($menu_list); $idx++) {
             $entry = $menu_list[$idx];
             if (!isset($entry->url)) {
                 if (isset($this->menu_update_map[$entry->label])) {
@@ -75,7 +76,7 @@ class MenuRole
             }
 
             // Translate the labels
-            $entry->label=xlt($entry->label);
+            $entry->label = xlt($entry->label);
             // Recursive update of children
             if (isset($entry->children)) {
                 $this->menuUpdateEntries($entry->children);
@@ -85,7 +86,7 @@ class MenuRole
 
     protected function menuApplyRestrictions(&$menu_list_src, &$menu_list_updated)
     {
-        for ($idx=0; $idx<count($menu_list_src); $idx++) {
+        for ($idx = 0; $idx < count($menu_list_src); $idx++) {
             $srcEntry = $menu_list_src[$idx];
             $includeEntry = true;
 
@@ -93,7 +94,7 @@ class MenuRole
             if (!empty($srcEntry->acl_req)) {
                 if (is_array($srcEntry->acl_req[0])) {
                     $noneSet = true;
-                    for ($aclIdx=0; $aclIdx<count($srcEntry->acl_req); $aclIdx++) {
+                    for ($aclIdx = 0; $aclIdx < count($srcEntry->acl_req); $aclIdx++) {
                         if ($this->menuAclCheck($srcEntry->acl_req[$aclIdx])) {
                             $noneSet = false;
                         }
@@ -114,7 +115,7 @@ class MenuRole
             if (!empty($srcEntry->global_req)) {
                 if (is_array($srcEntry->global_req)) {
                     $noneSet = true;
-                    for ($globalIdx=0; $globalIdx<count($srcEntry->global_req); $globalIdx++) {
+                    for ($globalIdx = 0; $globalIdx < count($srcEntry->global_req); $globalIdx++) {
                         $curSetting = $srcEntry->global_req[$globalIdx];
                         // ! at the start of the string means test the negation
                         if (substr($curSetting, 0, 1) === '!') {
@@ -137,7 +138,7 @@ class MenuRole
                 } else {
                     // ! at the start of the string means test the negation
                     if (substr($srcEntry->global_req, 0, 1) === '!') {
-                        $globalSetting=substr($srcEntry->global_req, 1);
+                        $globalSetting = substr($srcEntry->global_req, 1);
                         // If the setting is both set and true, then skip this entry
                         if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting]) {
                             $includeEntry = false;
@@ -156,7 +157,7 @@ class MenuRole
             if (!empty($srcEntry->global_req_strict)) {
                 if (is_array($srcEntry->global_req_strict)) {
                     $allSet = true;
-                    for ($globalIdx=0; $globalIdx<count($srcEntry->global_req_strict); $globalIdx++) {
+                    for ($globalIdx = 0; $globalIdx < count($srcEntry->global_req_strict); $globalIdx++) {
                         $curSetting = $srcEntry->global_req_strict[$globalIdx];
                         // ! at the start of the string means test the negation
                         if (substr($curSetting, 0, 1) === '!') {
@@ -179,7 +180,7 @@ class MenuRole
                 } else {
                     // ! at the start of the string means test the negation
                     if (substr($srcEntry->global_req_strict, 0, 1) === '!') {
-                        $globalSetting=substr($srcEntry->global_req_strict, 1);
+                        $globalSetting = substr($srcEntry->global_req_strict, 1);
                         // If the setting is both set and true, then skip this entry
                         if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting]) {
                             $includeEntry = false;
@@ -195,15 +196,15 @@ class MenuRole
 
             if (isset($srcEntry->children)) {
                 // Iterate through and check the child elements
-                $checked_children=array();
+                $checked_children = array();
                 $this->menuApplyRestrictions($srcEntry->children, $checked_children);
-                $srcEntry->children=$checked_children;
+                $srcEntry->children = $checked_children;
             }
 
             if (!isset($srcEntry->url)) {
                 // If this is a header only entry, and there are no child elements, then don't include it in the list.
-                if (count($srcEntry->children)===0) {
-                    $includeEntry=false;
+                if (count($srcEntry->children) === 0) {
+                    $includeEntry = false;
                 }
             }
 
@@ -221,22 +222,22 @@ class MenuRole
         if (isset($arr[2])) {
             for ($i = 2; isset($arr[$i]); ++$i) {
                 if (substr($arr[0], 0, 1) == '!') {
-                    if (!acl_check(substr($arr[0], 1), $arr[1], '', $arr[$i])) {
+                    if (!AclMain::aclCheckCore(substr($arr[0], 1), $arr[1], '', $arr[$i])) {
                         return true;
                     }
                 } else {
-                    if (acl_check($arr[0], $arr[1], '', $arr[$i])) {
+                    if (AclMain::aclCheckCore($arr[0], $arr[1], '', $arr[$i])) {
                         return true;
                     }
                 }
             }
         } else {
             if (substr($arr[0], 0, 1) == '!') {
-                if (!acl_check(substr($arr[0], 1), $arr[1])) {
+                if (!AclMain::aclCheckCore(substr($arr[0], 1), $arr[1])) {
                     return true;
                 }
             } else {
-                if (acl_check($arr[0], $arr[1])) {
+                if (AclMain::aclCheckCore($arr[0], $arr[1])) {
                     return true;
                 }
             }

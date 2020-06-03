@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Imports patient demographics from our custom XML format.
  *
@@ -13,8 +14,8 @@
 
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -52,7 +53,7 @@ function setInsurance($pid, $ainsurance, $asubscriber, $seq)
 }
 
  // Check authorization.
-if (!acl_check('patients', 'demo', '', 'write')) {
+if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
     die("Updating demographics is not authorized.");
 }
 
@@ -101,17 +102,17 @@ if ($_POST['form_import']) {
 
             if ($probeix == 1 && $probearr[$probeix] == 'patient') {
                 $apatient[$tag] = $tagval;
-            } else if ($probeix == 2 && $probearr[$probeix] == 'pcp') {
+            } elseif ($probeix == 2 && $probearr[$probeix] == 'pcp') {
                 $apcp[$tag] = $tagval;
-            } else if ($probeix == 2 && $probearr[$probeix] == 'employer') {
+            } elseif ($probeix == 2 && $probearr[$probeix] == 'employer') {
                 $aemployer[$tag] = $tagval;
-            } else if ($probeix == 2 && $probearr[$probeix] == 'insurance') {
+            } elseif ($probeix == 2 && $probearr[$probeix] == 'insurance') {
                 if ($tag == 'priority') {
                     $inspriority = $tagval;
                 } else {
                     $ainsurance["$tag$inspriority"] = $tagval;
                 }
-            } else if ($probeix == 3 && $probearr[$probeix] == 'subscriber') {
+            } elseif ($probeix == 3 && $probearr[$probeix] == 'subscriber') {
                 $asubscriber["$tag$inspriority"] = $tagval;
             } else {
                 $alertmsg = "Invalid tag \"" . $probearr[$probeix] . "\" at level $probeix";
@@ -125,7 +126,7 @@ if ($_POST['form_import']) {
 
     $olddata = getPatientData($pid);
 
-    if ($olddata['squad'] && ! acl_check('squads', $olddata['squad'])) {
+    if ($olddata['squad'] && ! AclMain::aclCheckCore('squads', $olddata['squad'])) {
         die("You are not authorized to access this squad.");
     }
 
@@ -209,17 +210,17 @@ if ($_POST['form_import']) {
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="form-group"></div>
                 <div class="form-group">
                     <textarea name='form_import_data' class='form-control' rows='10'></textarea>
                 </div>
                 <div class="form-group text-right">
                     <div class="btn-group" role="group">
-                        <button type='submit' class='btn btn-default btn-save' name='form_import' value='bn_import'>
+                        <button type='submit' class='btn btn-secondary btn-save' name='form_import' value='bn_import'>
                             <?php echo xlt('Import'); ?>
                         </button>
-                        <button type="button" class="btn btn-link btn-cancel" onclick="window.close()">
+                        <button type="button" class="btn btn-link btn-cancel" onclick="dlgclose()">
                             <?php echo xlt("Cancel"); ?>
                         </button>
                     </div>

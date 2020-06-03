@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/main/calendar/find_group_popup.php
  *
@@ -14,7 +15,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../../globals.php');
 require_once("$srcdir/group.inc");
@@ -47,7 +47,7 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
 <html>
 <head>
     <title><?php echo xlt('Group Finder'); ?></title>
-    <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'opener']); ?>
+    <?php Header::setupHeader('opener'); ?>
 
     <style>
         form {
@@ -200,7 +200,7 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
     <div id="searchstatus"><?php echo xlt('Enter your search criteria above'); ?></div>
 <?php elseif (count($result) == 0) : ?>
 <div id="searchstatus" class="noResults"><?php echo xlt('No records found. Please expand your search criteria.'); ?>
-    <br>
+    <br />
 </div>
 <?php elseif (count($result) >= 100) : ?>
 <div id="searchstatus" class="tooManyResults"><?php echo xlt('More than 100 records found. Please narrow your search criteria.'); ?></div>
@@ -249,7 +249,7 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
 
     // jQuery stuff to make the page a little easier to use
 
-    $(function(){
+    $(function () {
         $("#searchparm").trigger("focus");
         $(".oneresult").on("mouseover", function() { $(this).toggleClass("highlight"); });
         $(".oneresult").on("mouseout", function() { $(this).toggleClass("highlight"); });

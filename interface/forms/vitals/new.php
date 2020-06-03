@@ -1,4 +1,5 @@
 <?php
+
 /**
  * vitals new.php
  *
@@ -9,8 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 
 require("C_FormVitals.class.php");

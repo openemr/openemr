@@ -1,4 +1,7 @@
 <?php
+
+use OpenEMR\Common\Acl\AclMain;
+
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
 function getFormByEncounter(
@@ -31,7 +34,7 @@ function getFormByEncounter(
 
     $res = sqlStatement($sql, $arraySqlBind);
 
-    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
 
@@ -102,10 +105,10 @@ function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType 
     if ($dateStart && $dateEnd) {
         $where .= "form_encounter.pid = ? and form_encounter.date >= ? and form_encounter.date <= ?";
         array_push($arraySqlBind, $pid, $dateStart, $dateEnd);
-    } else if ($dateStart && !$dateEnd) {
+    } elseif ($dateStart && !$dateEnd) {
         $where .= "form_encounter.pid = ? and form_encounter.date >= ?";
         array_push($arraySqlBind, $pid, $dateStart);
-    } else if (!$dateStart && $dateEnd) {
+    } elseif (!$dateStart && $dateEnd) {
         $where .= "form_encounter.pid = ? and form_encounter.date <= ?";
         array_push($arraySqlBind, $pid, $dateEnd);
     } else {
@@ -116,7 +119,7 @@ function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType 
     //Not table escaping $from since this is hard-coded above and can include more than just a table name
     $res = sqlStatement("SELECT distinct encounter FROM " . $from . " WHERE " . $where . " ORDER by date desc", $arraySqlBind);
 
-    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
 
@@ -181,5 +184,5 @@ function hasFormPermission($formDir)
     // get the aco spec from registry table
     $formRow = sqlQuery("SELECT aco_spec FROM registry WHERE directory = ?", array($formDir));
     $permission = explode('|', $formRow['aco_spec']);
-    return acl_check($permission[0], $permission[1]);
+    return AclMain::aclCheckCore($permission[0], $permission[1]);
 }

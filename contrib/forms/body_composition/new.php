@@ -1,4 +1,5 @@
 <?php
+
 /**
  * body_composition new.php
  *
@@ -13,12 +14,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $scale_file_name = '/tmp/tanita_scale.txt';
 $scale_file_age = -1;
@@ -109,7 +110,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 </head>
 
 <body <?php echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">

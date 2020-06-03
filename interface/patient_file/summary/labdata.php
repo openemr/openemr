@@ -1,4 +1,5 @@
 <?php
+
 /**
  * How to present clinical parameter.
  *
@@ -31,7 +32,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("../../../library/options.inc.php");
@@ -73,11 +73,11 @@ echo "<html><head>";
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'dygraphs']); ?>
+<?php Header::setupHeader('dygraphs'); ?>
 
 <link rel="stylesheet" href="<?php echo $web_root; ?>/interface/themes/labdata.css" type="text/css">
 
-<script type="text/javascript" language="JavaScript">
+<script>
 function checkAll(bx) {
     for (var tbls=document.getElementsByTagName("table"), i=tbls.length; i--; )
       for (var bxs=tbls[i].getElementsByTagName("input"), j=bxs.length; j--; )
@@ -154,7 +154,7 @@ if (!$printable) {
         $tab++;
         if ($tab == 10) {
             echo "</td><td>";
-            $tab=0;
+            $tab = 0;
         }
     }
 
@@ -172,21 +172,21 @@ if ($mode == 'list') {
     echo "checked='checked' ";
 }
 
-    echo " value='list'> " . xlt('List') . "<br>";
+    echo " value='list'> " . xlt('List') . "<br />";
 
     echo "<input type='radio' name='mode' ";
 if ($mode != 'list') {
     echo "checked='checked' ";
 }
 
-    echo " value='matrix'> " . xlt('Matrix') . "<br>";
+    echo " value='matrix'> " . xlt('Matrix') . "<br />";
 
     echo "<td></td></td>";
     echo "</tr><tr>";
     echo "<td>";
 
     echo "<a href='../summary/demographics.php' ";
-    echo " class='css_button' onclick='top.restoreSession()'>";
+    echo " class='btn btn-secondary' onclick='top.restoreSession()'>";
     echo "<span>" . xlt('Back to Patient') . "</span></a>";
 
     echo "</td>";
@@ -194,7 +194,7 @@ if ($mode != 'list') {
     echo "</tr></table>";
     echo "</form>";
 } // end "if printable"
-    echo "<br><br><hr><br>";
+    echo "<br /><br /><hr><br />";
 
 // print results of patient's items
 //-------------------------------------------
@@ -203,11 +203,11 @@ $value_select = $_POST['value_code'];
 // are some Items selected?
 if ($value_select) {
     // print in List-Mode
-    if ($mode=='list') {
+    if ($mode == 'list') {
         $i = 0;
         $item_graph = 0;
         $rowspan = count($value_select);
-        echo "<table border='1' cellspacing='3'>";
+        echo "<table class='border' cellspacing='3'>";
         echo "<tr>";
         #echo "<th class='list'>Item</td>";
         echo "<th class='list'>" . xlt('Name') . "</th> ";
@@ -262,7 +262,7 @@ if ($value_select) {
                 echo "<td class='list_log'>"  . text($myrow['review_status']) . "</td>";
                 echo "<td class='list_log'>";
                 if (!$printable) {
-                    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=". attr_url($myrow['encounter_id']) . "' target='RBot'>";
+                    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr_url($myrow['encounter_id']) . "' target='RBot'>";
                     echo text($myrow['encounter_id']);
                     echo "</a>";
                 } else {
@@ -276,11 +276,11 @@ if ($value_select) {
 
             if ($value_count > 1 && !$printable) {
                 echo "<tr><td colspan='7' align='center'>";
-                echo "<input type='button' class='graph_button'  onclick='get_my_graph" . attr($item_graph) . "()' name='' value='" . xla('Plot item') . " \"" . attr($the_item) . "\"'>";
+                echo "<input type='button' class='graph_button btn btn-secondary' onclick='get_my_graph" . attr($item_graph) . "()' name='' value='" . xla('Plot item') . " \"" . attr($the_item) . "\"'>";
                 echo "</td></tr>";
             }
             ?>
-            <script type="text/javascript">
+            <script>
             // prepare to plot the stuff
             top.restoreSession();
             function get_my_graph<?php echo attr($item_graph) ?>(){
@@ -302,7 +302,7 @@ if ($value_select) {
                         dataType: "json",
                         success: function(returnData){
                             g2 = new Dygraph(
-                                document.getElementById(<?php echo js_escape('graph_item_'.$item_graph) ?>),
+                                document.getElementById(<?php echo js_escape('graph_item_' . $item_graph) ?>),
                                 returnData.data_final,
                                 {
                                     title: returnData.title,
@@ -325,11 +325,11 @@ if ($value_select) {
             $item_graph++;
         }
 
-        echo "</table><br>";
+        echo "</table><br />";
     }// end if mode = list
 
     //##########################################################################################################################
-    if ($mode=='matrix') {
+    if ($mode == 'matrix') {
         $value_matrix = array();
         $datelist = array();
         $i = 0;
@@ -373,7 +373,7 @@ if ($value_select) {
         $itemcount = count($value_matrix);
 
         // print matrix
-        echo "<table border='1' cellpadding='2'>";
+        echo "<table class='border' cellpadding='2'>";
         echo "<tr>";
         #echo "<th class='matrix'>Item</th>";
         echo "<th class='matrix'>" . xlt('Name') . "</th>";
@@ -386,9 +386,9 @@ if ($value_select) {
 
         echo "</tr>";
 
-        $i=0;
-        $a=true;
-        while ($a==true) {
+        $i = 0;
+        $a = true;
+        while ($a == true) {
             echo "<tr>";
             #echo "<td class='matrix_item'>" . text($value_matrix[$i]['result_code']) . "</td>";
             echo "<td class='matrix_item'>" . text($value_matrix[$i]['result_text']) . "</td>";
@@ -396,7 +396,7 @@ if ($value_select) {
             echo "<td class='matrix_item'>" . text($value_matrix[$i]['units']) . "</td>";
             echo "<td class='matrix_spacer'> | </td>";
 
-            $z=0;
+            $z = 0;
             while ($z < $cellcount) {
                 if ($value_matrix[$i]['date_collected'] == $datelist[$z]) {
                     if ($value_matrix[$i]['result'] == null) {
@@ -430,7 +430,7 @@ if ($value_select) {
             }
 
             if ($i == $itemcount) {
-                $a=false;
+                $a = false;
             }
         }
 
@@ -446,15 +446,15 @@ if (!$printable) {
     if (!$nothing) {
         echo "<p>";
         echo "<form method='post' action='" . attr($path_to_this_script) . "' target='_new' onsubmit='return top.restoreSession()'>";
-        echo "<input type='hidden' name='mode' value='". attr($mode) . "'>";
+        echo "<input type='hidden' name='mode' value='" . attr($mode) . "'>";
         foreach ($_POST['value_code'] as $this_valuecode) {
-            echo "<input type='hidden' name='value_code[]' value='". attr($this_valuecode) . "'>";
+            echo "<input type='hidden' name='value_code[]' value='" . attr($this_valuecode) . "'>";
         }
 
         echo "<input type='submit' name='print' value='" . xla('View Printable Version') . "' />";
         echo "</form>";
-        echo "<br><a href='../summary/demographics.php' ";
-        echo " class='css_button' onclick='top.restoreSession()'>";
+        echo "<br /><a href='../summary/demographics.php' ";
+        echo " class='btn btn-secondary' onclick='top.restoreSession()'>";
         echo "<span>" . xlt('Back to Patient') . "</span></a>";
     }
 } else {
@@ -462,7 +462,7 @@ if (!$printable) {
 }
 
 echo "</span>";
-echo "<br><br>";
+echo "<br /><br />";
 echo "</div>";
 echo "</body></html>";
 ?>

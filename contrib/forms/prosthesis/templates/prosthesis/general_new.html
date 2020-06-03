@@ -106,15 +106,15 @@ a {
 
 <tr>
 
-	<td valign="top">Prescription Diagnosis</td><td class="form_text"><input type="text" name="diagnosis" size="75" value="{$prosthesis->get_diagnosis()|attr}"><br><br></td>
+	<td valign="top">Prescription Diagnosis</td><td class="form_text"><input type="text" name="diagnosis" size="75" value="{$prosthesis->get_diagnosis()|attr}"><br /><br /></td>
 
 </tr>
 
 <tr>
 
-	<td valign="top">Hx</td><td class="form_text"><input type="text" name="hx" size="75" value="{$prosthesis->get_hx()|attr}"><br>
+	<td valign="top">Hx</td><td class="form_text"><input type="text" name="hx" size="75" value="{$prosthesis->get_hx()|attr}"><br />
 
-					<input type="checkbox" name="worn_le_past_five" value="1" {if $prosthesis->get_involvement_bilateral() eq 1}checked{/if}"> Pt has worn a L.E. orthosis in the past 5 yrs.<br><br><br></td>
+					<input type="checkbox" name="worn_le_past_five" value="1" {if $prosthesis->get_involvement_bilateral() eq 1}checked{/if}"> Pt has worn a L.E. orthosis in the past 5 yrs.<br /><br /><br /></td>
 
 </tr>
 
@@ -158,7 +158,7 @@ a {
 
 		<tr>
 
-			<td class="form_text">Shoe Size <input type="text" name="shoe_size" size="15" value="{$prosthesis->get_shoe_size()|attr}"><br><br></td>
+			<td class="form_text">Shoe Size <input type="text" name="shoe_size" size="15" value="{$prosthesis->get_shoe_size()|attr}"><br /><br /></td>
 
 			<td></td>
 
@@ -168,7 +168,7 @@ a {
 
 			<td valign="top" class="form_text">Calf <input type="text" name="calf" size="10" value="{$prosthesis->get_calf()|attr}">&nbsp;&nbsp;&nbsp;Ankle <input type="text" name="ankle" size="10" value="{$prosthesis->get_ankle()|attr}"></td>
 
-			<td><br><br><br></td>
+			<td><br /><br /><br /></td>
 
 		</tr>
 
@@ -188,13 +188,13 @@ a {
 
 <tr>
 
-	<td><br><br>Notes</td>
+	<td><br /><br />Notes</td>
 
 </tr>
 
 <tr>
 
-	<td colspan="3" class="form_text"><textarea name="notes" value="{$prosthesis->get_notes()|attr}" wrap="virtual" cols="75" rows="4">{$prosthesis->get_notes()|text}</textarea><br><br><br></td>
+	<td colspan="3" class="form_text"><textarea name="notes" value="{$prosthesis->get_notes()|attr}" wrap="virtual" cols="75" rows="4">{$prosthesis->get_notes()|text}</textarea><br /><br /><br /></td>
 
 </tr>
 
@@ -208,7 +208,7 @@ a {
 
 			<td valign="top" class="form_text"><input type="checkbox" name="use_reviewed" value="1" {if $prosthesis->get_use_reviewed() eq 1}checked{/if}"> &nbsp;Donning, doffing, skin precautions, and orthotic use reviewed with patient</td>
 
-			<td valign="top" class="form_text"><input type="checkbox" name="wear_reviewed" value="1" {if $prosthesis->get_wear_reviewed() eq 1}checked{/if}"> &nbsp;Initial wear schedule reviewed with patient.<br><br><br></td>
+			<td valign="top" class="form_text"><input type="checkbox" name="wear_reviewed" value="1" {if $prosthesis->get_wear_reviewed() eq 1}checked{/if}"> &nbsp;Initial wear schedule reviewed with patient.<br /><br /><br /></td>
 
 		</tr>
 
@@ -222,11 +222,11 @@ a {
 
 	<td valign="top">Product Longeveity And Patient Wearing Schedule</td>
 
-	<td class="form_text">Number of years patient has worn an orthosis/prosthesis <input type="text" size="2" name="worn_years" value="{$prosthesis->get_worn_years()|attr}"> year(s)<br>
+	<td class="form_text">Number of years patient has worn an orthosis/prosthesis <input type="text" size="2" name="worn_years" value="{$prosthesis->get_worn_years()|attr}"> year(s)<br />
 
-		Age of current orthosis/prothesis <input type="text" size="2" name="age_months" value="{$prosthesis->get_age_months()|attr}"> months or <input type="text" size="2" name="age_years" value="{$prosthesis->get_age_years()|attr}"> year(s)<br>
+		Age of current orthosis/prothesis <input type="text" size="2" name="age_months" value="{$prosthesis->get_age_months()|attr}"> months or <input type="text" size="2" name="age_years" value="{$prosthesis->get_age_years()|attr}"> year(s)<br />
 
-		Daily wearing schedule <input type="text" size="2" name="wear_hours" value="{$prosthesis->get_wear_hours()|attr}"> hours per day<br><br><br></td>
+		Daily wearing schedule <input type="text" size="2" name="wear_hours" value="{$prosthesis->get_wear_hours()|attr}"> hours per day<br /><br /><br /></td>
 
 </tr>
 
@@ -234,13 +234,13 @@ a {
 
 	<td valign="top">Clinical Plan</td>
 
-	<td class="form_text"><input type="checkbox" name="plan_to_order" value="1" {if $prosthesis->get_plan_to_order() eq 1}checked{/if}"> Plan to order orthosis/prosthesis/product and fit on return date: <input type="text" size="8" name="plan_to_order_date" value="{$prosthesis->get_plan_to_order_date()|attr}"><br>
+	<td class="form_text"><input type="checkbox" name="plan_to_order" value="1" {if $prosthesis->get_plan_to_order() eq 1}checked{/if}"> Plan to order orthosis/prosthesis/product and fit on return date: <input type="text" size="8" name="plan_to_order_date" value="{$prosthesis->get_plan_to_order_date()|attr}"><br />
 
-		<input type="checkbox" name="received_product" value="1" {if $prosthesis->get_received_product() eq 1}checked{/if}"> Patient has received orthosis/prosthesis/product on this date: <input type="text" size="8" name="received_product_date" value="{$prosthesis->get_received_product_date()|attr}"><br>
+		<input type="checkbox" name="received_product" value="1" {if $prosthesis->get_received_product() eq 1}checked{/if}"> Patient has received orthosis/prosthesis/product on this date: <input type="text" size="8" name="received_product_date" value="{$prosthesis->get_received_product_date()|attr}"><br />
 
 		<input type="checkbox" name="given_instructions" value="1" {if $prosthesis->get_given_instructions() eq 1}checked{/if}"> Patient been given instructions for the device/service prescribed, understands the instructions, and is able to demonstrate its appropriate use
 
-		&nbsp&nbsp&nbsp;<input type="checkbox" name="patient_understands" value="1" {if $prosthesis->get_patient_understands() eq 1}checked{/if}"> Yes<br><br><br></td>
+		&nbsp&nbsp&nbsp;<input type="checkbox" name="patient_understands" value="1" {if $prosthesis->get_patient_understands() eq 1}checked{/if}"> Yes<br /><br /><br /></td>
 
 </tr>
 
@@ -262,7 +262,7 @@ a {
 
 <tr>
 
-	<td colspan="3"><br><br><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<td colspan="3"><br /><br /><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
    <a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
 

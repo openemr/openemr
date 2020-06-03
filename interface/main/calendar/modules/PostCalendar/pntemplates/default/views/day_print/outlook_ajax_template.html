@@ -251,7 +251,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     echo "<span id='daterange'>";
     $atmp = array_keys($A_EVENTS);
     echo date('d F Y', strtotime($atmp[0]));
-    echo "<br><span style='font-size:0.8em;font-weight:normal'>" . xlt(date('l', strtotime($atmp[0]))) . "</span>";
+    echo "<br /><span style='font-size:0.8em;font-weight:normal'>" . xlt(date('l', strtotime($atmp[0]))) . "</span>";
     echo "</span>";
     echo "</div>";
 
@@ -703,7 +703,7 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
 </body>
 
 <script>
-$(document).ready(function(){
+$(function () {
     var win = top.printLogPrint ? top : opener.top;
     win.printLogPrint(window);
 });

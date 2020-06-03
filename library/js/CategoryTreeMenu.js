@@ -231,7 +231,7 @@ function arrayCopy(input)
         '<span style="color:red; font-size:70%; font-family: sans-serif;">(' + deleteLabel + ')</span></a>'
         : '';
 
-			this.output += this.stringFormat('{0}<nobr>{1}{2}{3}{4}<span {5}>{6}</span>{7}</nobr><br></div>',
+			this.output += this.stringFormat('{0}<nobr>{1}{2}{3}{4}<span {5}>{6}</span>{7}</nobr><br /></div>',
 			                  layerTag,
 							  prepend,
 			                  parentLayerID == null && (nodes.length == 1 || this.noTopLevelImages) ? '' : imgTag,

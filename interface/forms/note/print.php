@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Work/School Note Form print.php
  *
@@ -12,20 +13,20 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?", array($_SESSION{"authUser"}));
+$provider_results = sqlQuery("select fname, lname from users where username=?", array($_SESSION["authUser"]));
 
 /* name of this form */
 $form_name = "note";
 
 // get the record from the database
 if ($_GET['id'] != "") {
-    $obj = formFetch("form_".$form_name, $_GET["id"]);
+    $obj = formFetch("form_" . $form_name, $_GET["id"]);
 }
 
 /* remove the time-of-day from the date fields */
@@ -37,28 +38,28 @@ if ($obj['date_of_signature'] != "") {
 <html><head>
 <title><?php echo "Form: note"?></title>
 
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
+<?php Header::setupHeader(); ?>
 
 </head>
 <body class="body_top">
 
 <form method=post action="">
-<span class="title"><?php echo xlt('Work/School Note'); ?></span><br></br>
+<span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />
 <?php echo xlt('Printed'); ?> <?php echo text(dateformat()); ?>
-<br><br>
+<br /><br />
 <select name="note_type">
-<option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") {
+<option value="WORK NOTE" <?php if ($obj['note_type'] == "WORK NOTE") {
     echo " SELECTED";
                           } ?>><?php echo xlt('WORK NOTE'); ?></option>
-<option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") {
+<option value="SCHOOL NOTE" <?php if ($obj['note_type'] == "SCHOOL NOTE") {
     echo " SELECTED";
                             } ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>
-<br>
+<br />
 <b><?php echo xlt('MESSAGE:'); ?></b>
-<br>
+<br />
 <div style="border: 1px solid black; padding: 5px; margin: 5px;"><?php echo text($obj["message"]);?></div>
-<br></br>
+<br /><br />
 
 <table>
 <tr><td>
@@ -78,7 +79,7 @@ if ($obj['date_of_signature'] != "") {
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function () {
     var win = top.printLogPrint ? top : opener.top;
     win.printLogPrint(window);
 });

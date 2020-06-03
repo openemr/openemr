@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -24,8 +25,10 @@ class NQF_0028a_Numerator implements CqmFilterIF
                 $beginMinus24Months = strtotime('-24 month', strtotime($date));
                 $beginMinus24Months = date('Y-m-d 00:00:00', $beginMinus24Months);
                 // this is basically a check to see if the patient's tobacco status has been evaluated in the two years previous to encounter.
-                if (Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_USER, $patient, $beginMinus24Months, $date) ||
-                    Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date) ) {
+                if (
+                    Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_USER, $patient, $beginMinus24Months, $date) ||
+                    Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date)
+                ) {
                     return true;
                 }
             }

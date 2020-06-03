@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -222,7 +224,7 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
                         $this->addGrouping($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"grouping" must be array of objects or null, '.gettype($data['grouping']).' seen.');
+                    throw new \InvalidArgumentException('"grouping" must be array of objects or null, ' . gettype($data['grouping']) . ' seen.');
                 }
             }
             if (isset($data['resource'])) {
@@ -231,7 +233,7 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
                         $this->addResource($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"resource" must be array of objects or null, '.gettype($data['resource']).' seen.');
+                    throw new \InvalidArgumentException('"resource" must be array of objects or null, ' . gettype($data['resource']) . ' seen.');
                 }
             }
             if (isset($data['page'])) {
@@ -243,7 +245,7 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
                         $this->addParameter($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"parameter" must be array of objects or null, '.gettype($data['parameter']).' seen.');
+                    throw new \InvalidArgumentException('"parameter" must be array of objects or null, ' . gettype($data['parameter']) . ' seen.');
                 }
             }
             if (isset($data['template'])) {
@@ -252,11 +254,11 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
                         $this->addTemplate($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"template" must be array of objects or null, '.gettype($data['template']).' seen.');
+                    throw new \InvalidArgumentException('"template" must be array of objects or null, ' . gettype($data['template']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

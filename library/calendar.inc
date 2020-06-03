@@ -1,54 +1,7 @@
 <?php
-//Require once the holidays controller for the is holiday function
 
-require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
-//function returns the next most recent appointment given a pid
-function getNextAppointment($pid)
-{
-    $query = "select * from calendar where pid = ? and time>now() order by time limit 1";
-    $rez = sqlStatement($query, [$pid]);
-    echo "<!-- getNextAppointment " . text($pid) . " -" . text($query) . "- -->";
-    return sqlFetchArray($rez);
-}
-
-
-//this function returns calendar data given date and provider
-function getCalendarDay($datetime, $owner, $groupname)
-{
-    $query = "select * from calendar where time like ? and owner like ? and groupname like ? order by time";
-    $rez = sqlStatement($query, [$datetime.'%', $owner, $groupname]);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-        $returnval[$iter]=$row;
-    }
-
-    echo "<!-- getCalendarDay -" . text($query) . "- " . text($datetime) . " " . text($owner) . " " . text($groupname) . " -->";
-    return $returnval;
-}
-
-//toggle the status of a noshow calendar entry
-function toggleNoShow($cid)
-{
-    $rez = sqlStatement("select noshow from calendar where id= ?", array($cid));
-    $row=sqlFetchArray($rez);
-    $oldnoshowval = $row{noshow};
-    $newnoshowval = !($oldnoshowval);
-    $query = "update calendar set noshow= ? where id= ?";
-    sqlStatement($query, [$newnoshowval, $cid]);
-}
-
-
-//return array of provider usernames
-function getProviderUsernames()
-{
-    $rez = sqlStatement("select distinct username, lname, fname from users " .
-        "where authorized = 1 and username != ''");
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-        $returnval[$iter]=$row;
-    }
-
-    return $returnval;
-}
-
+//Require once the holidays controller for the is_holiday() function
+require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
 function getIDfromUser($name)
 {
@@ -60,37 +13,6 @@ function getIDfromUser($name)
     } else {
         return $row['id'];
     }
-}
-function getAuthorizedIDs()
-{
-    $query = "select id, username from users where authorized=1 and username != ''";
-    $rez = sqlStatement($query);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-        $returnval[$iter]=$row;
-    }
-
-    return $returnval;
-}
-
-
-function getUserInfo()
-{
-    $rez = sqlStatement("select distinct id, username, lname, fname, authorized, " .
-        "info, facility from users where username != ''");
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-        $returnval[$iter]=$row;
-    }
-
-    return $returnval;
-}
-function getUsername($uID)
-{
-    $pi = getProviderInfo($uID, false);
-    if (strlen($pi["username"]) > 0) {
-        return $pi['username'];
-    }
-
-    return "";
 }
 
 //  returns an array of facility id and names
@@ -121,108 +43,11 @@ function getUserFacilities($uID)
 }
 
 //retrieve the name based on the username
-function getNamefromUsername($username)
+function getNameFromUsername($username)
 {
     $query = "select * from users where username like ? and username != ''";
     $res = sqlQuery($query, [$username]);
     return $res;
-}
-
-//retrieve calendar information from calendar id
-function getCalendarfromID($calid)
-{
-
-    //this table is deprecated and has been removed from new versions
-    //return sqlQuery("select * from calendar where id=?", array($calid));
-}
-
-//get calendar dates in a range of dates
-function getCalendarRanges($fromdate, $todate, $username)
-{
-    $rez = sqlStatement("select * from calendar where time >= ? and time< ? and owner like ? order by time", array($fromdate, $todate, $username));
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-        $returnval[$iter]=$row;
-    }
-
-    return $returnval;
-}
-
-
-//get calendar dates in a range of dates
-function getCalendarbyTimeandRange($time, $fromdate, $todate, $username)
-{
-    $query = "select * from calendar where time like ? and time>= ? and time< ? and owner like ? order by time";
-    $rez = sqlStatement($query, ['% '.$time.'%', $fromdate, $todate, $username]);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-        $returnval[$iter]=$row;
-    }
-
-    echo "<!-- getcalendarbytimeandrange -" . text($query) . "- -->";
-    return $returnval;
-}
-
-
-//add new calendar entry item
-function newCalendarItem(
-    $pid,
-    $time,
-    $reason,
-    $owner,
-    $groupname
-) {
-
-    sqlQuery("insert into calendar set pid=?,time=?,reason=?,owner=?,groupname=?,date=now()", array($pid, $time, $reason, $owner, $groupname));
-}
-
-//delete a calendar entry item
-function deleteCalendarItem($calid, $pid)
-{
-    sqlQuery("delete from calendar where id=? and pid=?", array($calid, $pid));
-}
-
-
-//save an edited calendar entry item
-function saveCalendarUpdate(
-    $calid,
-    $pid,
-    $time,
-    $reason,
-    $owner,
-    $groupname
-) {
-
-    sqlQuery("update calendar set pid=?,time=?,reason=?,owner=?,groupname=?,date=now() where id=?", array($pid, $time, $reason, $owner, $groupname, $calid));
-}
-
-
-//replicated functionality of postcalendar_getDate
-function pc_getDate($format = '%Y%m%d')
-{
-//    list($Date,$jumpday,$jumpmonth,$jumpyear) = pnVarCleanFromInput('Date','jumpday','jumpmonth','jumpyear');
-    if (!isset($Date)) {
-        // if we still don't have a date then calculate it
-        $time = time();
-        // check the jump menu
-        if (!isset($jumpday)) {
-            $jumpday = strftime('%d', $time);
-        }
-
-        if (!isset($jumpmonth)) {
-            $jumpmonth = strftime('%m', $time);
-        }
-
-        if (!isset($jumpyear)) {
-            $jumpyear = strftime('%Y', $time);
-        }
-
-        // create the correct date string
-        $Date = (int) "$jumpyear$jumpmonth$jumpday";
-    }
-
-    $y = substr($Date, 0, 4);
-    $m = substr($Date, 4, 2);
-    $d = substr($Date, 6, 2);
-    return strftime($format, mktime(0, 0, 0, $m, $d, $y));
 }
 
  /**
@@ -241,7 +66,7 @@ function is_weekend_day($day)
 }
 
 /**
- * This function checks if a certain date (YYYY/MM/DD) is a marked as a holiday/closed  event in the events table
+ * This function checks if a certain date (YYYY/MM/DD) is a marked as a holiday/closed event in the events table
  * @param (int) $day
  * @return boolean
  */

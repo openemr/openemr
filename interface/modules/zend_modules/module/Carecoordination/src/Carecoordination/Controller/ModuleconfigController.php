@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/ModuleconfigController.php
  *
@@ -8,11 +9,12 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Carecoordination\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\Filter\Compress\Zip;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\Filter\Compress\Zip;
 use Carecoordination\Form\ModuleconfigForm;
 
 class ModuleconfigController extends AbstractActionController

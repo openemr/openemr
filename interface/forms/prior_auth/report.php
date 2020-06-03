@@ -1,4 +1,5 @@
 <?php
+
 /**
  * prior auth form
  *
@@ -9,9 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once(dirname(__FILE__).'/../../globals.php');
-require_once($GLOBALS["srcdir"]."/api.inc");
+require_once(dirname(__FILE__) . '/../../globals.php');
+require_once($GLOBALS["srcdir"] . "/api.inc");
 
 function prior_auth_report($pid, $encounter, $cols, $id)
 {
@@ -28,7 +28,7 @@ function prior_auth_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
-            $key=ucwords(str_replace("_", " ", $key));
+            $key = ucwords(str_replace("_", " ", $key));
             print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
             $count++;
             if ($count == $cols) {

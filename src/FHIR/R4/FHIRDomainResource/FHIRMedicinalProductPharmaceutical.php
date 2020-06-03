@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -275,7 +277,7 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['administrableDoseForm'])) {
@@ -290,7 +292,7 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
                         $this->addIngredient($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"ingredient" must be array of objects or null, '.gettype($data['ingredient']).' seen.');
+                    throw new \InvalidArgumentException('"ingredient" must be array of objects or null, ' . gettype($data['ingredient']) . ' seen.');
                 }
             }
             if (isset($data['device'])) {
@@ -299,7 +301,7 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
                         $this->addDevice($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"device" must be array of objects or null, '.gettype($data['device']).' seen.');
+                    throw new \InvalidArgumentException('"device" must be array of objects or null, ' . gettype($data['device']) . ' seen.');
                 }
             }
             if (isset($data['characteristics'])) {
@@ -308,7 +310,7 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
                         $this->addCharacteristics($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"characteristics" must be array of objects or null, '.gettype($data['characteristics']).' seen.');
+                    throw new \InvalidArgumentException('"characteristics" must be array of objects or null, ' . gettype($data['characteristics']) . ' seen.');
                 }
             }
             if (isset($data['routeOfAdministration'])) {
@@ -317,11 +319,11 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
                         $this->addRouteOfAdministration($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"routeOfAdministration" must be array of objects or null, '.gettype($data['routeOfAdministration']).' seen.');
+                    throw new \InvalidArgumentException('"routeOfAdministration" must be array of objects or null, ' . gettype($data['routeOfAdministration']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * forms/eye_mag/php/eye_mag_functions.php
  *
@@ -12,10 +13,11 @@
  */
 
 $form_folder = "eye_mag";
-require_once(dirname(__FILE__)."/../../../../custom/code_types.inc.php");
-require_once(dirname(__FILE__)."/../../../../library/options.inc.php");
+require_once(dirname(__FILE__) . "/../../../../custom/code_types.inc.php");
+require_once(dirname(__FILE__) . "/../../../../library/options.inc.php");
 global $PMSFH;
 
+    use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Services\FacilityService;
 
     $facilityService = new FacilityService();
@@ -35,19 +37,19 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     global $form_id;
     global $earlier;
 
-    if ($type=="canvas") {
-        $zone=$zone."_canvas";
+    if ($type == "canvas") {
+        $zone = $zone . "_canvas";
     }
 
     $tables = array('form_eye_hpi','form_eye_ros','form_eye_vitals',
                 'form_eye_acuity','form_eye_refraction','form_eye_biometrics',
                 'form_eye_external', 'form_eye_antseg','form_eye_postseg',
                 'form_eye_neuro','form_eye_locking');
-    $output_return ="<span id='".attr($zone)."_prefix_oldies' name='".attr($zone)."_prefix_oldies' class='oldies_prefix'>";
-    $selected='';
-    $current='';
+    $output_return = "<span id='" . attr($zone) . "_prefix_oldies' name='" . attr($zone) . "_prefix_oldies' class='oldies_prefix'>";
+    $selected = '';
+    $current = '';
     if (!$priors) { //we have to build it
-        $query="select form_encounter.date as encounter_date,form_eye_base.id as form_id, form_eye_base.*
+        $query = "select form_encounter.date as encounter_date,form_eye_base.id as form_id, form_eye_base.*
                     from form_eye_base,forms,form_encounter
                     where
                     form_encounter.encounter = forms.encounter and
@@ -64,14 +66,14 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
             return;
         }
 
-        $i="0";
-        while ($prior= sqlFetchArray($result)) {
+        $i = "0";
+        while ($prior = sqlFetchArray($result)) {
             $dated = new DateTime($prior['encounter_date']);
             $dated = $dated->format('Y-m-d');
             $oeexam_date = oeFormatShortDate($dated);
 
             foreach ($tables as $table) {
-                $sql = "SELECT * from ".$table." WHERE id=?";
+                $sql = "SELECT * from " . $table . " WHERE id=?";
                 $sub_data = sqlStatement($sql, array($prior['id']));
                 $data = sqlFetchArray($sub_data);
                 if ($data) {
@@ -79,37 +81,37 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                 }
             }
             $priors[$i] = $prior;
-            if (($i >0) && ($prior['PLAN'])) {
+            if (($i > 0) && ($prior['PLAN'])) {
                 //this plan is a todo list for next visit, which is $i-1 actually
-                $j = $i-1;
+                $j = $i - 1;
                 $priors[$j]['TODO'] = array();
                 $priors[$j]['TODO'] = $prior['PLAN'];
             }
 
-            $selected ='';
+            $selected = '';
             $priors[$i]['visit_date'] = $prior['encounter_date'];
             $priors[$i]['exam_date'] = $oeexam_date;
-            if ($id_to_show ==$prior['form_id']) {
+            if ($id_to_show == $prior['form_id']) {
                 $selected = 'selected="selected"';
                 $current = $i;
             }
 
-            $output .= "<option value='".attr($prior['id'])."' ".attr($selected).">".text($oeexam_date)."</option>";
-            $selected ='';
+            $output .= "<option value='" . attr($prior['id']) . "' " . attr($selected) . ">" . text($oeexam_date) . "</option>";
+            $selected = '';
             $i++;
         }
     } else {
         //priors[] exists, containing the visits data AND the priors[earlier] field at the end, so iterate through all but the last one.
-        $visit_count = count($priors)-1;
-        for ($i=0; $i< count($priors); $i++) {
-            if ($form_id ==$priors[$i]['id']) {
+        $visit_count = count($priors) - 1;
+        for ($i = 0; $i < count($priors); $i++) {
+            if ($form_id == $priors[$i]['id']) {
                 $selected = 'selected=selected';
                 $current = $i;
             } else {
-                $selected ='';
+                $selected = '';
             }
 
-            $output .= "<option value='".attr($priors[$i]['id'])."' ".attr($selected).">".text($priors[$i]['exam_date'])."</option>";
+            $output .= "<option value='" . attr($priors[$i]['id']) . "' " . attr($selected) . ">" . text($priors[$i]['exam_date']) . "</option>";
         }
     }
 
@@ -151,49 +153,49 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     }
     if ($id_to_show != $orig_id) {
         $output_return .= '
-                <span title="'.xla($zone).': '.xla("Copy these values into current visit.").'
-                '.xla("Updated fields will be purple."). '"
+                <span title="' . xla($zone) . ': ' . xla("Copy these values into current visit.") . '
+                ' . xla("Updated fields will be purple.") . '"
 
-                    id="COPY_'.attr($zone).'"
-                    name="COPY_'.attr($zone).'"
-                    value="'.attr($id_to_show).'" onclick=\'$("#COPY_SECTION").val("'.attr($zone).'-'.attr($id_to_show).'").trigger("change");\'>
+                    id="COPY_' . attr($zone) . '"
+                    name="COPY_' . attr($zone) . '"
+                    value="' . attr($id_to_show) . '" onclick=\'$("#COPY_SECTION").val("' . attr($zone) . '-' . attr($id_to_show) . '").trigger("change");\'>
                     <i class="fa fa-paste fa-lg"></i>
                 </span>
                 &nbsp;&nbsp;';
     }
 
     $output_return .= '
-        <span onclick=\'$("#PRIOR_'.attr($zone).'").val("'.attr($priors[$i][id]).'").trigger("change");\'
-                id="PRIORS_'.attr($zone).'_earliest"
-                name="PRIORS_'.attr($zone).'_earliest"
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$i][id]) . '").trigger("change");\'
+                id="PRIORS_' . attr($zone) . '_earliest"
+                name="PRIORS_' . attr($zone) . '_earliest"
                 class="fa fa-fast-backward fa-sm PRIORS"
-                title="'.attr($zone).': '.attr($priors[$i]['encounter_date']).'">
+                title="' . attr($zone) . ': ' . attr($priors[$i]['encounter_date']) . '">
         </span>
         &nbsp;
-        <span onclick=\'$("#PRIOR_'.attr($zone).'").val("'.attr($priors[$earlier][id]).'").trigger("change");\'
-                id="PRIORS_'.attr($zone).'_minus_one"
-                name="PRIORS_'.attr($zone).'_minus_one"
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$earlier][id]) . '").trigger("change");\'
+                id="PRIORS_' . attr($zone) . '_minus_one"
+                name="PRIORS_' . attr($zone) . '_minus_one"
                 class="fa fa-step-backward fa-sm PRIORS"
-                title="'.attr($zone).': '.attr($priors[$earlier]['encounter_date']).'">
+                title="' . attr($zone) . ': ' . attr($priors[$earlier]['encounter_date']) . '">
         </span>&nbsp;&nbsp;
-        <select name="PRIOR_'.attr($zone).'"
-                id="PRIOR_'.attr($zone).'"
+        <select name="PRIOR_' . attr($zone) . '"
+                id="PRIOR_' . attr($zone) . '"
                 style="padding:0 0;font-size:1.2em;"
                 class="PRIORS">
-                '.$output.'
+                ' . $output . '
         </select>
                   &nbsp;
-        <span onclick=\'$("#PRIOR_'.attr($zone).'").val("'.attr($priors[$later][id]).'").trigger("change");\'
-                id="PRIORS_'.attr($zone).'_plus_one"
-                name="PRIORS_'.attr($zone).'_plus_one"
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$later][id]) . '").trigger("change");\'
+                id="PRIORS_' . attr($zone) . '_plus_one"
+                name="PRIORS_' . attr($zone) . '_plus_one"
                 class="fa  fa-step-forward PRIORS"
-                title="'.attr($zone).': '.attr($priors[$later]['encounter_date']).'">
+                title="' . attr($zone) . ': ' . attr($priors[$later]['encounter_date']) . '">
         </span>&nbsp;&nbsp;
-        <span onclick=\'$("#PRIOR_'.attr($zone).'").val("'.attr($priors[0][id]).'").trigger("change");\'
-                id="PRIORS_'.attr($zone).'_latest"
-                name="PRIORS_'.attr($zone).'_latest"
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[0][id]) . '").trigger("change");\'
+                id="PRIORS_' . attr($zone) . '_latest"
+                name="PRIORS_' . attr($zone) . '_latest"
                 class="fa  fa-fast-forward PRIORS"
-                title="'.attr($zone).': '.attr($priors[0]['encounter_date']).'"> &nbsp;
+                title="' . attr($zone) . ': ' . attr($priors[0]['encounter_date']) . '"> &nbsp;
         </span>
     </span>';
     return $output_return;
@@ -220,12 +222,12 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 ORDER BY ZONE_ORDER,ordering";
 
     $result = sqlStatement($query, array($_SESSION['authUserID']));
-    while ($prefs= sqlFetchArray($result)) {
+    while ($prefs = sqlFetchArray($result)) {
         ${$prefs['LOCATION']} = $prefs['GOVALUE'];
     }
 
      $query = "SELECT  *
-               from form_eye_base, 
+               from form_eye_base,
                 form_eye_hpi,form_eye_ros,form_eye_vitals,
                 form_eye_acuity,form_eye_refraction,form_eye_biometrics,
                 form_eye_external, form_eye_antseg,form_eye_postseg,
@@ -251,12 +253,12 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         //TODO maybe just sql _refraction+acuity
         display_refractive_data($result);
     } elseif ($zone == "EXT") {
-        if ($report =='0') {
+        if ($report == '0') {
             $output = priors_select($zone, $orig_id, $id_to_show, $pid);
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
             <div name="prior_selector">
                     <?php
                     echo $output;//prior visit selector - already sanitized
@@ -264,7 +266,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             </div>
                 <b>
                     <?php
-                    if ($report =='0') {
+                    if ($report == '0') {
                         echo xlt('Prior Exam');
                     } else {
                         echo xlt($zone);
@@ -333,8 +335,8 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     </table>
                 </div>
 
-            <?php ($EXT_VIEW ==1) ? ($display_EXT_view = "wide_textarea") : ($display_EXT_view= "narrow_textarea");?>
-            <?php ($display_EXT_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
+            <?php ($EXT_VIEW == 1) ? ($display_EXT_view = "wide_textarea") : ($display_EXT_view = "narrow_textarea");?>
+            <?php ($display_EXT_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
             <div id="PRIOR_EXT_text_list" name="PRIOR_EXT_text_list" class="borderShadow PRIORS <?php echo attr($display_EXT_view); ?>" >
                 <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_EXT_text_view" id="PRIOR_EXT_text_view"></span>
                 <table cellspacing="0" cellpadding="0" >
@@ -373,13 +375,13 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             </div>
 
             <?php
-    } elseif ($zone =="ANTSEG") {
-        if ($report =='0') {
+    } elseif ($zone == "ANTSEG") {
+        if ($report == '0') {
             $output = priors_select($zone, $orig_id, $id_to_show, $pid);
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -431,7 +433,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     // to allow for end-user customization
                     ?>
                     <span id="PRIORS_dil_listbox_title"><?php echo xlt('Dilation'); ?>:</span>
-                      <span id="PRIORS_dil_meds" class="pull-right"><?php
+                      <span id="PRIORS_dil_meds" class="float-right"><?php
                         if ($DIL_MEDS) {
                             echo text($DIL_MEDS);
                         }
@@ -456,14 +458,14 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                       <tr>
                         <td>
                             <input disabled type="checkbox" class="dil_drug" id="PRIORS_Neo25" name="PRIORS_NEO25" value="Neosynephrine 2.5%"  <?php
-                            if ($NEO25 =='Neosynephrine 2.5%') {
+                            if ($NEO25 == 'Neosynephrine 2.5%') {
                                 echo "checked='checked'";
                             } ?> />
                             <label for="Neo25" class="input-helper input-helper--checkbox"><?php echo text('Neo 2.5%'); ?></label>
                         </td>
                         <td>
                             <input disabled type="checkbox" class="dil_drug" id="PRIORS_Neo10" name="PRIORS_NEO10" value="Neosynephrine 10%"  <?php
-                            if ($NEO10 =='Neosynephrine 10%') {
+                            if ($NEO10 == 'Neosynephrine 10%') {
                                 echo "checked='checked'";
                             } ?> />
                             <label for="Neo10" class="input-helper input-helper--checkbox"><?php echo text('Neo 10%'); ?></label>
@@ -490,8 +492,8 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 </tr>
             </table>
         </div>
-        <?php ($ANTSEG_VIEW =='1') ? ($display_ANTSEG_view = "wide_textarea") : ($display_ANTSEG_view= "narrow_textarea");?>
-        <?php ($display_ANTSEG_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
+        <?php ($ANTSEG_VIEW == '1') ? ($display_ANTSEG_view = "wide_textarea") : ($display_ANTSEG_view = "narrow_textarea");?>
+        <?php ($display_ANTSEG_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
         <div id="PRIOR_ANTSEG_text_list"  name="PRIOR_ANTSEG_text_list" class="borderShadow PRIORS <?php echo attr($display_ANTSEG_view); ?>" >
                 <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_ANTSEG_text_view" id="PRIOR_ANTSEG_text_view"></span>
                 <table>
@@ -530,13 +532,13 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         </div>
 
         <?php
-    } elseif ($zone=="RETINA") {
-        if ($report =='0') {
+    } elseif ($zone == "RETINA") {
+        if ($report == '0') {
             $output = priors_select($zone, $orig_id, $id_to_show, $pid);
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -586,8 +588,8 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             </table>
         </div>
 
-        <?php ($RETINA_VIEW ==1) ? ($display_RETINA_view = "wide_textarea") : ($display_RETINA_view= "narrow_textarea");?>
-        <?php ($display_RETINA_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
+        <?php ($RETINA_VIEW == 1) ? ($display_RETINA_view = "wide_textarea") : ($display_RETINA_view = "narrow_textarea");?>
+        <?php ($display_RETINA_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
         <div>
             <div id="PRIOR_RETINA_text_list" name="PRIOR_RETINA_text_list" class="borderShadow PRIORS <?php echo attr($display_RETINA_view); ?>">
                     <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_RETINA_text_view" id="PRIOR_RETINA_text_view"></span>
@@ -630,13 +632,13 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             <textarea disabled id="PRIOR_RETINA_COMMENTS" name="PRIOR_RETINA_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($RETINA_COMMENTS); ?></textarea>
         </div>
         <?php
-    } elseif ($zone=="NEURO") {
-        if ($report =='0') {
+    } elseif ($zone == "NEURO") {
+        if ($report == '0') {
             $output = priors_select($zone, $orig_id, $id_to_show, $pid);
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -723,7 +725,7 @@ margin: 2px 0 2px 2px;">
                             <span id="PRIOR_ACTNORMAL_CHECK" name="PRIOR_ACTNORMAL_CHECK">
                             <label for="PRIOR_ACT" class="input-helper input-helper--checkbox"><?php echo xlt('Ortho'); ?></label>
                             <input disabled type="checkbox" name="PRIOR_ACT" id="PRIOR_ACT" checked="<?php
-                            if ($ACT =='1') {
+                            if ($ACT == '1') {
                                 echo "checked";
                             } ?>"></span>
                         </td>
@@ -961,97 +963,97 @@ margin: 2px 0 2px 2px;">
                 <?php
                 $hash_tag = '<i class="fa fa-minus"></i>';
                 if ($MOTILITY_RS > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_RS; ++$index) {
-                        $here = "PRIOR_MOTILITY_RS_".$index;
-                        $$here= $hash_tag;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_RS; ++$index) {
+                        $here = "PRIOR_MOTILITY_RS_" . $index;
+                        $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_RI > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_RI; ++$index) {
-                        $here ="PRIOR_MOTILITY_RI_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_RI; ++$index) {
+                        $here = "PRIOR_MOTILITY_RI_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_LS > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_LS; ++$index) {
-                        $here ="PRIOR_MOTILITY_LS_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_LS; ++$index) {
+                        $here = "PRIOR_MOTILITY_LS_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_LI > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_LI; ++$index) {
-                        $here ="PRIOR_MOTILITY_LI_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_LI; ++$index) {
+                        $here = "PRIOR_MOTILITY_LI_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_RRSO > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_RRSO; ++$index) {
-                        $here ="PRIOR_MOTILITY_RRSO_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_RRSO; ++$index) {
+                        $here = "PRIOR_MOTILITY_RRSO_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_LRSO > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_LRSO; ++$index) {
-                        $here ="PRIOR_MOTILITY_LRSO_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_LRSO; ++$index) {
+                        $here = "PRIOR_MOTILITY_LRSO_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_RLIO > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_RLIO; ++$index) {
-                        $here ="PRIOR_MOTILITY_RLIO_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_RLIO; ++$index) {
+                        $here = "PRIOR_MOTILITY_RLIO_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_LLIO > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_LLIO; ++$index) {
-                        $here ="PRIOR_MOTILITY_LLIO_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_LLIO; ++$index) {
+                        $here = "PRIOR_MOTILITY_LLIO_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_RLSO > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_RLSO; ++$index) {
-                        $here ="PRIOR_MOTILITY_RLSO_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_RLSO; ++$index) {
+                        $here = "PRIOR_MOTILITY_RLSO_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_LLSO > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_LLSO; ++$index) {
-                        $here ="PRIOR_MOTILITY_LLSO_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_LLSO; ++$index) {
+                        $here = "PRIOR_MOTILITY_LLSO_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_RRIO > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_RRIO; ++$index) {
-                        $here ="PRIOR_MOTILITY_RRIO_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_RRIO; ++$index) {
+                        $here = "PRIOR_MOTILITY_RRIO_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_LRIO > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_LRIO; ++$index) {
-                        $here ="PRIOR_MOTILITY_LRIO_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_LRIO; ++$index) {
+                        $here = "PRIOR_MOTILITY_LRIO_" . $index;
                         $$here = $hash_tag;
                     }
                 }
@@ -1059,33 +1061,33 @@ margin: 2px 0 2px 2px;">
 
                 $hash_tag = '<i class="fa fa-minus rotate-left"></i>';
                 if ($MOTILITY_LR > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_LR; ++$index) {
-                        $here ="PRIOR_MOTILITY_LR_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_LR; ++$index) {
+                        $here = "PRIOR_MOTILITY_LR_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_LL > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_LL; ++$index) {
-                        $here ="PRIOR_MOTILITY_LL_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_LL; ++$index) {
+                        $here = "PRIOR_MOTILITY_LL_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_RR > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_RR; ++$index) {
-                        $here ="PRIOR_MOTILITY_RR_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_RR; ++$index) {
+                        $here = "PRIOR_MOTILITY_RR_" . $index;
                         $$here = $hash_tag;
                     }
                 }
 
                 if ($MOTILITY_RL > '0') {
-                    $PRIOR_MOTILITYNORMAL='';
-                    for ($index =1; $index <= $MOTILITY_RL; ++$index) {
-                        $here ="PRIOR_MOTILITY_RL_".$index;
+                    $PRIOR_MOTILITYNORMAL = '';
+                    for ($index = 1; $index <= $MOTILITY_RL; ++$index) {
+                        $here = "PRIOR_MOTILITY_RL_" . $index;
                         $$here = $hash_tag;
                     }
                 }
@@ -1099,7 +1101,7 @@ margin: 2px 0 2px 2px;">
                             <td style="font-size:0.9em;vertical-align:middle;text-align:right;top:0.0in;right:0.1in;height:30px;">
                                 <label for="PRIOR_MOTILITYNORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
                                 <input disabled id="PRIOR_MOTILITYNORMAL" name="PRIOR_MOTILITYNORMAL" type="checkbox" value="1" <?php
-                                if ($MOTILITYNORMAL >'0') {
+                                if ($MOTILITYNORMAL > '0') {
                                     echo "checked";
                                 } ?> disabled>
                             </td>
@@ -1522,13 +1524,13 @@ margin: 2px 0 2px 2px;">
             }
         </script>
         <?php
-    } elseif ($zone=="IMPPLAN") {
-        if ($report =='0') {
+    } elseif ($zone == "IMPPLAN") {
+        if ($report == '0') {
             $output =  priors_select($zone, $orig_id, $id_to_show, $pid);
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector" class="PRIORS">
                 <?php
                 echo $output;
@@ -1540,12 +1542,12 @@ margin: 2px 0 2px 2px;">
 
         if ($PRIOR_IMPPLAN_items) {
             echo "<br /><br /><div style='width:90%;'>";
-            $i='0';
-            $k='1';
+            $i = '0';
+            $k = '1';
             foreach ($PRIOR_IMPPLAN_items as $item) {
                 echo "<div class='IMPPLAN_class' style='clear:both;margin:10px;'>";
-                echo "  <span>$k. ".text($item['title'])."</span><span class='pull-right'>".$item['code']."</span><br />";
-                echo '  <div class="fake-textarea-disabled-4">'.nl2br(text($item['plan'])).'</div>';
+                echo "  <span>$k. " . text($item['title']) . "</span><span class='float-right'>" . $item['code'] . "</span><br />";
+                echo '  <div class="fake-textarea-disabled-4">' . nl2br(text($item['plan'])) . '</div>';
                 echo '</div>';
                 $i++;
                 $k++;
@@ -1553,11 +1555,11 @@ margin: 2px 0 2px 2px;">
 
             echo "</div>";
         }
-    } elseif ($zone =="ALL") {
+    } elseif ($zone == "ALL") {
         echo $selector = priors_select($zone, $orig_id, $id_to_show, $pid);
-    } elseif ($zone =="PMSFH") {
+    } elseif ($zone == "PMSFH") {
         // Check authorization.
-        if (acl_check('patients', 'med')) {
+        if (AclMain::aclCheckCore('patients', 'med')) {
             $tmp = getPatientData($pid);
         }
 
@@ -1618,7 +1620,7 @@ function build_PMSFH($pid)
     global $form_id;
 
     $PMSFH = [];
-    $PMSFH['CHRONIC']=[];
+    $PMSFH['CHRONIC'] = [];
     //Define the PMSFH array elements as you need them:
     $PMSFH_labels = array("POH", "POS", "Eye Meds", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS");
     foreach ($PMSFH_labels as $panel_type) {
@@ -1631,9 +1633,9 @@ function build_PMSFH($pid)
              *  the pre-existing ISSUE_TYPE array - so for now do nothing
              */
             continue;
-        } elseif ($panel_type =='POH') {
+        } elseif ($panel_type == 'POH') {
             $focusISSUE = "medical_problem"; //openEMR ISSUE_TYPE
-            $subtype=" and subtype ='eye'";
+            $subtype = " and subtype ='eye'";
             /* This is an "eye" form: providers would like ophthalmic medical problems listed separately.
              * Thus we split the ISSUE_TYPE 'medical_problem' using subtype "eye"
              * but it could be "GYN", "ONC", "GU" etc - for whoever wants to
@@ -1652,33 +1654,33 @@ function build_PMSFH($pid)
              *      $subtype=" and subtype ='onc'";
              *   }
              */
-        } elseif ($panel_type =='POS') {
+        } elseif ($panel_type == 'POS') {
             $focusISSUE = "surgery"; //openEMR ISSUE_TYPE
-            $subtype=" and subtype ='eye'";
-        } elseif ($panel_type =='PMH') {
+            $subtype = " and subtype ='eye'";
+        } elseif ($panel_type == 'PMH') {
             $focusISSUE = "medical_problem"; //openEMR ISSUE_TYPE
-            $subtype=" and (subtype = '' OR subtype IS NULL)"; //fee_sheet makes subtype=
-        } elseif ($panel_type =='Surgery') {
+            $subtype = " and (subtype = '' OR subtype IS NULL)"; //fee_sheet makes subtype=
+        } elseif ($panel_type == 'Surgery') {
             $focusISSUE = "surgery"; //openEMR ISSUE_TYPE
-            $subtype="  and (subtype = '' OR subtype IS NULL)";
+            $subtype = "  and (subtype = '' OR subtype IS NULL)";
             $order = "ORDER BY begdate DESC";
-        } elseif ($panel_type =='Allergy') {
+        } elseif ($panel_type == 'Allergy') {
             $focusISSUE = "allergy"; //openEMR ISSUE_TYPE
-            $subtype="";
-        } elseif ($panel_type =='Medication') {
+            $subtype = "";
+        } elseif ($panel_type == 'Medication') {
             $focusISSUE = "medication"; //openEMR ISSUE_TYPE
-            $subtype="";
-        } elseif ($panel_type =='Eye Meds') {
+            $subtype = "";
+        } elseif ($panel_type == 'Eye Meds') {
             $focusISSUE = "medication"; //openEMR ISSUE_TYPE
             $subtype = "and subtype = 'eye'";// and subtype ='eye' ";
         }
 
         $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
-            $subtype." ".$order, array($pid,$focusISSUE));
-        $row_counter='0';
+            $subtype . " " . $order, array($pid,$focusISSUE));
+        $row_counter = '0';
         while ($row = sqlFetchArray($pres)) {
             $rowid = $row['id'];
-            $disptitle = text(trim($row['title'])) ? text($row['title']) : "[".xlt("Missing Title")."]";
+            $disptitle = text(trim($row['title'])) ? text($row['title']) : "[" . xlt("Missing Title") . "]";
             //  look up the diag codes
             $codetext = "";
             $codedesc = "";
@@ -1698,14 +1700,14 @@ function build_PMSFH($pid)
             // calculate the status
             if ($row['outcome'] == "1" && $row['enddate'] != null) {
               // Resolved
-                $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
-            } else if ($row['enddate'] == null) {
+                $statusCompute = generate_display_field(array('data_type' => '1','list_id' => 'outcome'), $row['outcome']);
+            } elseif ($row['enddate'] == null) {
                    $statusCompute = xlt("Active");
             } else {
                    $statusCompute = xlt("Inactive");
             }
 
-            ($row['comments'] != null)? ($comments = $row['comments']): ($comments="");
+            ($row['comments'] != null) ? ($comments = $row['comments']) : ($comments = "");
             $counter_here = count($PMSFH[$panel_type]);
             $newdata =  array (
                 'title' => $disptitle,
@@ -1741,12 +1743,12 @@ function build_PMSFH($pid)
                 'erx_source' => $row['erx_source'],
                 'erx_uploaded' => $row['erx_uploaded'],
                 'modifydate' => $row['modifydate'],
-                'PMSFH_link' => $panel_type."_".$row_counter
+                'PMSFH_link' => $panel_type . "_" . $row_counter
             );
             //let the end user decide on display elsewhere...  This is all about the array itself.
             $PMSFH[$panel_type][] = $newdata;
-            if ($row['occurrence'] =='4') {
-                $PMSFH['CHRONIC'][]=$newdata;
+            if ($row['occurrence'] == '4') {
+                $PMSFH['CHRONIC'][] = $newdata;
             }
 
             $row_counter++;
@@ -1760,7 +1762,7 @@ function build_PMSFH($pid)
     $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'HIS' AND group_id = '4' AND uor > 0 " .
     "ORDER BY seq");
-    $PMSFH['SOCH']=[];
+    $PMSFH['SOCH'] = [];
     while ($group_fields = sqlFetchArray($group_fields_query)) {
         $titlecols  = $group_fields['titlecols'];
         $datacols   = $group_fields['datacols'];
@@ -1768,12 +1770,12 @@ function build_PMSFH($pid)
         $field_id   = $group_fields['field_id'];
         $list_id    = $group_fields['list_id'];
         $currvalue  = '';
-        if ((preg_match("/^\|?0\|?\|?/", $result1[$field_id]))|| ($result1[$field_id]=='')) {
+        if ((preg_match("/^\|?0\|?\|?/", $result1[$field_id])) || ($result1[$field_id] == '')) {
             continue;
         } else {
             $currvalue = $result1[$field_id];
         }
-        $PMSFH['SOCH'][$field_id]=[];
+        $PMSFH['SOCH'][$field_id] = [];
         if ($data_type == 28 || $data_type == 32) {
             $tmp = explode('|', $currvalue);
             switch (count($tmp)) {
@@ -1804,7 +1806,7 @@ function build_PMSFH($pid)
 
             $PMSFH['SOCH'][$field_id]['resnote'] = text($PMSFH['SOCH'][$field_id]['resnote']);
             $PMSFH['SOCH'][$field_id]['resdate'] = text($PMSFH['SOCH'][$field_id]['resdate']);
-        } else if ($data_type == 2) {
+        } elseif ($data_type == 2) {
             $PMSFH['SOCH'][$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
         }
 
@@ -1815,39 +1817,39 @@ function build_PMSFH($pid)
         }
 
         //coffee,tobacco,alcohol,sleep_patterns,exercise_patterns,seatbelt_use,counseling,hazardous_activities,recreational_drugs
-        if ($field_id =="coffee") {
+        if ($field_id == "coffee") {
             $PMSFH['SOCH'][$field_id]['short_title'] = xlt("Caffeine");
         }
 
-        if ($field_id =="tobacco") {
+        if ($field_id == "tobacco") {
             $PMSFH['SOCH'][$field_id]['short_title'] = xlt("Cigs");
         }
 
-        if ($field_id =="alcohol") {
+        if ($field_id == "alcohol") {
             $PMSFH['SOCH'][$field_id]['short_title'] = xlt("ETOH");
         }
 
-        if ($field_id =="sleep_patterns") {
+        if ($field_id == "sleep_patterns") {
             $PMSFH['SOCH'][$field_id]['short_title'] = xlt("Sleep");
         }
 
-        if ($field_id =="exercise_patterns") {
+        if ($field_id == "exercise_patterns") {
             $PMSFH['SOCH'][$field_id]['short_title'] = xlt("Exercise");
         }
 
-        if ($field_id =="seatbelt_use") {
+        if ($field_id == "seatbelt_use") {
             $PMSFH['SOCH'][$field_id]['short_title'] = xlt("Seatbelt");
         }
 
-        if ($field_id =="counseling") {
+        if ($field_id == "counseling") {
             $PMSFH['SOCH'][$field_id]['short_title'] = xlt("Therapy");
         }
 
-        if ($field_id =="hazardous_activities") {
+        if ($field_id == "hazardous_activities") {
             $PMSFH['SOCH'][$field_id]['short_title'] = xlt("Thrills");
         }
 
-        if ($field_id =="recreational_drugs") {
+        if ($field_id == "recreational_drugs") {
             $PMSFH['SOCH'][$field_id]['short_title'] = xlt("Drug Use");
         }
     }
@@ -1856,10 +1858,10 @@ function build_PMSFH($pid)
     $patient = getPatientData($pid, "*");
     $PMSFH['SOCH']['marital_status'] = [];
     $PMSFH['SOCH']['occupation'] = [];
-    $PMSFH['SOCH']['marital_status']['short_title']=xlt("Marital");
-    $PMSFH['SOCH']['marital_status']['display']=text($patient['status']);
-    $PMSFH['SOCH']['occupation']['short_title']=xlt("Occupation");
-    $PMSFH['SOCH']['occupation']['display']=text($patient['occupation']);
+    $PMSFH['SOCH']['marital_status']['short_title'] = xlt("Marital");
+    $PMSFH['SOCH']['marital_status']['display'] = text($patient['status']);
+    $PMSFH['SOCH']['occupation']['short_title'] = xlt("Occupation");
+    $PMSFH['SOCH']['occupation']['display'] = text($patient['occupation']);
 
 
     // Build the FH portion of $PMSFH,$PMSFH['FH']
@@ -1894,7 +1896,7 @@ function build_PMSFH($pid)
         $field_id   = $group_fields['field_id'];
         $list_id    = $group_fields['list_id'];
         $currvalue  = '';
-        if ((preg_match("/^\|?0\|?\|?/", $result1[$field_id]))|| ($result1[$field_id]=='')) {
+        if ((preg_match("/^\|?0\|?\|?/", $result1[$field_id])) || ($result1[$field_id] == '')) {
             continue;
         } else {
             $currvalue = $result1[$field_id];
@@ -1910,39 +1912,39 @@ function build_PMSFH($pid)
         }
 
         //coffee,tobacco,alcohol,sleep_patterns,exercise_patterns,seatbelt_use,counseling,hazardous_activities,recreational_drugs
-        if ($field_id =="relatives_cancer") {
+        if ($field_id == "relatives_cancer") {
             $PMSFH['FH'][$field_id]['short_title'] = xlt("Cancer");
         }
 
-        if ($field_id =="relatives_diabetes") {
+        if ($field_id == "relatives_diabetes") {
             $PMSFH['FH'][$field_id]['short_title'] = xlt("Diabetes");
         }
 
-        if ($field_id =="relatives_high_blood_pressure") {
+        if ($field_id == "relatives_high_blood_pressure") {
             $PMSFH['FH'][$field_id]['short_title'] = xlt("HTN{{hypertension}}");
         }
 
-        if ($field_id =="relatives_heart_problems") {
+        if ($field_id == "relatives_heart_problems") {
             $PMSFH['FH'][$field_id]['short_title'] = xlt("Cor Disease");
         }
 
-        if ($field_id =="relatives_epilepsy") {
+        if ($field_id == "relatives_epilepsy") {
             $PMSFH['FH'][$field_id]['short_title'] = xlt("Epilepsy");
         }
 
-        if ($field_id =="relatives_mental_illness") {
+        if ($field_id == "relatives_mental_illness") {
             $PMSFH['FH'][$field_id]['short_title'] = xlt("Psych");
         }
 
-        if ($field_id =="relatives_suicide") {
+        if ($field_id == "relatives_suicide") {
             $PMSFH['FH'][$field_id]['short_title'] = xlt("Suicide");
         }
 
-        if ($field_id =="relatives_stroke") {
+        if ($field_id == "relatives_stroke") {
             $PMSFH['FH'][$field_id]['short_title'] = xlt("Stroke");
         }
 
-        if ($field_id =="relatives_tuberculosis") {
+        if ($field_id == "relatives_tuberculosis") {
             $PMSFH['FH'][$field_id]['short_title'] = xlt("TB");
         }
     }
@@ -1984,45 +1986,45 @@ function build_PMSFH($pid)
     // just like we are doing for Impression Plan.  Mybe we can piggybak onto one of the ROS tables already in OpenEMR?
 
     //define the ROS area to include = $given
-    $given="ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE,ROSCOMMENTS";
+    $given = "ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE,ROSCOMMENTS";
     $ROS_table = "form_eye_ros";
-    $query="SELECT $given from ". $ROS_table ." where id=?";
+    $query = "SELECT $given from " . $ROS_table . " where id=?";
 
     $ROS = sqlStatement($query, array($form_id));
     while ($row = sqlFetchArray($ROS)) {
         foreach (explode(',', $given) as $item) {
-            $PMSFH['ROS'][$item]['display']= $row[$item];
+            $PMSFH['ROS'][$item]['display'] = $row[$item];
         }
     }
 
     // translator will need to translate each item in $given
-    $PMSFH['ROS']['ROSGENERAL']['short_title']=xlt("GEN{{General}}");
-    $PMSFH['ROS']['ROSHEENT']['short_title']=xlt("HEENT");
-    $PMSFH['ROS']['ROSCV']['short_title']=xlt("CV{{Cardiovascular}}");
-    $PMSFH['ROS']['ROSPULM']['short_title']=xlt("PULM{{Pulmonary}}");
-    $PMSFH['ROS']['ROSGI']['short_title']=xlt("GI{{Gastrointestinal}}");
-    $PMSFH['ROS']['ROSGU']['short_title']=xlt("GU{{Genitourinary}}");
-    $PMSFH['ROS']['ROSDERM']['short_title']=xlt("DERM{{Dermatology}}");
-    $PMSFH['ROS']['ROSNEURO']['short_title']=xlt("NEURO{{Neurology}}");
-    $PMSFH['ROS']['ROSPSYCH']['short_title']=xlt("PSYCH{{Psychiatry}}");
-    $PMSFH['ROS']['ROSMUSCULO']['short_title']=xlt("ORTHO{{Orthopedics}}");
-    $PMSFH['ROS']['ROSIMMUNO']['short_title']=xlt("IMMUNO{{Immunology/Rheumatology}}");
-    $PMSFH['ROS']['ROSENDOCRINE']['short_title']=xlt("ENDO{{Endocrine}}");
-    $PMSFH['ROS']['ROSCOMMENTS']['short_title']=xlt("Comments");
+    $PMSFH['ROS']['ROSGENERAL']['short_title'] = xlt("GEN{{General}}");
+    $PMSFH['ROS']['ROSHEENT']['short_title'] = xlt("HEENT");
+    $PMSFH['ROS']['ROSCV']['short_title'] = xlt("CV{{Cardiovascular}}");
+    $PMSFH['ROS']['ROSPULM']['short_title'] = xlt("PULM{{Pulmonary}}");
+    $PMSFH['ROS']['ROSGI']['short_title'] = xlt("GI{{Gastrointestinal}}");
+    $PMSFH['ROS']['ROSGU']['short_title'] = xlt("GU{{Genitourinary}}");
+    $PMSFH['ROS']['ROSDERM']['short_title'] = xlt("DERM{{Dermatology}}");
+    $PMSFH['ROS']['ROSNEURO']['short_title'] = xlt("NEURO{{Neurology}}");
+    $PMSFH['ROS']['ROSPSYCH']['short_title'] = xlt("PSYCH{{Psychiatry}}");
+    $PMSFH['ROS']['ROSMUSCULO']['short_title'] = xlt("ORTHO{{Orthopedics}}");
+    $PMSFH['ROS']['ROSIMMUNO']['short_title'] = xlt("IMMUNO{{Immunology/Rheumatology}}");
+    $PMSFH['ROS']['ROSENDOCRINE']['short_title'] = xlt("ENDO{{Endocrine}}");
+    $PMSFH['ROS']['ROSCOMMENTS']['short_title'] = xlt("Comments");
 
-    $PMSFH['ROS']['ROSGENERAL']['title']=xlt("General");
-    $PMSFH['ROS']['ROSHEENT']['title']=xlt("HEENT");
-    $PMSFH['ROS']['ROSCV']['title']=xlt("Cardiovascular");
-    $PMSFH['ROS']['ROSPULM']['title']=xlt("Pulmonary");
-    $PMSFH['ROS']['ROSGI']['title']=xlt("GI{{Gastrointestinal}}");
-    $PMSFH['ROS']['ROSGU']['title']=xlt("GU{{Genitourinary}}");
-    $PMSFH['ROS']['ROSDERM']['title']=xlt("Dermatology");
-    $PMSFH['ROS']['ROSNEURO']['title']=xlt("Neurology");
-    $PMSFH['ROS']['ROSPSYCH']['title']=xlt("Pyschiatry");
-    $PMSFH['ROS']['ROSMUSCULO']['title']=xlt("Musculoskeletal");
-    $PMSFH['ROS']['ROSIMMUNO']['title']=xlt("Immune System");
-    $PMSFH['ROS']['ROSENDOCRINE']['title']=xlt("Endocrine");
-    $PMSFH['ROS']['ROSCOMMENTS']['title']=xlt("Comments");
+    $PMSFH['ROS']['ROSGENERAL']['title'] = xlt("General");
+    $PMSFH['ROS']['ROSHEENT']['title'] = xlt("HEENT");
+    $PMSFH['ROS']['ROSCV']['title'] = xlt("Cardiovascular");
+    $PMSFH['ROS']['ROSPULM']['title'] = xlt("Pulmonary");
+    $PMSFH['ROS']['ROSGI']['title'] = xlt("GI{{Gastrointestinal}}");
+    $PMSFH['ROS']['ROSGU']['title'] = xlt("GU{{Genitourinary}}");
+    $PMSFH['ROS']['ROSDERM']['title'] = xlt("Dermatology");
+    $PMSFH['ROS']['ROSNEURO']['title'] = xlt("Neurology");
+    $PMSFH['ROS']['ROSPSYCH']['title'] = xlt("Pyschiatry");
+    $PMSFH['ROS']['ROSMUSCULO']['title'] = xlt("Musculoskeletal");
+    $PMSFH['ROS']['ROSIMMUNO']['title'] = xlt("Immune System");
+    $PMSFH['ROS']['ROSENDOCRINE']['title'] = xlt("Endocrine");
+    $PMSFH['ROS']['ROSCOMMENTS']['title'] = xlt("Comments");
 
     return array($PMSFH); //yowsah!
 }
@@ -2059,30 +2061,30 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
     //SOCH, FH and ROS are listed in $PMSFH even if negative, only count positives
     foreach ($PMSFH[0]['ROS'] as $key => $value) {
-        if ($value['display'] =='') {
+        if ($value['display'] == '') {
             $total_PMSFH--;
             $count['ROS']--;
         }
     }
 
     foreach ($PMSFH[0]['FH'] as $key => $value) {
-        if ($value['display'] =='') {
+        if ($value['display'] == '') {
             $total_PMSFH--;
             $count['FH']--;
         }
     }
 
     foreach ($PMSFH[0]['SOCH'] as $key => $value) {
-        if (($value['display'] =='') || ($item['display'] == 'not_applicable')) {
+        if (($value['display'] == '') || ($item['display'] == 'not_applicable')) {
             $total_PMSFH--;
             $count['SOCH']--;
         }
     }
 
     $counter = "0";
-    $column_max = round($total_PMSFH/$rows)+1;
+    $column_max = round($total_PMSFH / $rows) + 1;
     if ($column_max < "25") {
-        $column_max ='20';
+        $column_max = '20';
     }
 
     $open_table = "<div style='float:left' class='table PMSFH_table'>";
@@ -2090,12 +2092,12 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     // $div is used when $counter reaches $column_max and a new row is needed.
     // It is used only if $row_count <= $rows, ie. $rows -1 times.
     $div = '</div>
-    <div id="PMSFH_block_2" name="PMSFH_block_2" class="QP_block_outer borderShadow text_clinical" style="'.attr($min_height).'">';
+    <div id="PMSFH_block_2" name="PMSFH_block_2" class="QP_block_outer borderShadow text_clinical" style="' . attr($min_height) . '">';
 
     echo $header = '
-            <div id="PMSFH_block_1" name="PMSFH_block_1" class="QP_block borderShadow text_clinical" style="'.attr($min_height).';">
+            <div id="PMSFH_block_1" name="PMSFH_block_1" class="QP_block borderShadow text_clinical" style="' . attr($min_height) . ';">
              ';
-    $row_count=1;
+    $row_count = 1;
 
     foreach ($PMSFH[0] as $key => $value) {
         if ($key == "FH" || $key == "SOCH" || $key == "ROS") {
@@ -2103,23 +2105,24 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             continue;
         }
 
-        $table='';
-        $header='';
-        $header .='    <table class="PMSFH_header">
+        $table = '';
+        $header = '';
+        $header .= '    <table class="PMSFH_header">
                 <tr>
                     <td width="90%">
-                        <span class="left" style="font-weight:800;font-size:0.9em;">'.xlt($key).'</span>
+                        <span class="left" style="font-weight:800;font-size:0.9em;">' . xlt($key) . '</span>
                     </td>
                     <td>
-                        <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\','.attr_js($key).',\'0\');" style="text-align:right;font-size:8px;">'. xlt("New") .'</span>
+                        <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',' . attr_js($key) . ',\'0\');" style="text-align:right;font-size:8px;">' . xlt("New") . '</span>
                     </td>
                 </tr>
                 </table>
         ';
         if (count($PMSFH[0][$key]) > '0') {
-            $index=0;
+            $index = 0;
             foreach ($PMSFH[0][$key] as $item) {
-                if (( ($key == "Medication") || ($key == "Eye Meds") )
+                if (
+                    ( ($key == "Medication") || ($key == "Eye Meds") )
                     &&
                         ($item['status'] == "Inactive")
                 ) {
@@ -2131,34 +2134,34 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                         <table class="PMSFH_header">
                             <tr>
                                 <td width="90%">
-                                    <span class="left" style="font-weight:800;font-size:0.9em;">'.xlt(ucwords($item['row_subtype'])).' Meds</span>
+                                    <span class="left" style="font-weight:800;font-size:0.9em;">' . xlt(ucwords($item['row_subtype'])) . ' Meds</span>
                                 </td>
                                 <td>
-                                    <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\','.attr_js($key).',\'0\');" style="text-align:right;font-size:8px;">'. xlt("New") .'</span>
+                                    <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',' . attr_js($key) . ',\'0\');" style="text-align:right;font-size:8px;">' . xlt("New") . '</span>
                                 </td>
                             </tr>
                         </table>
                         ';
-                    $subtype_Meds[$item['row_subtype']]['table'] .= "<span $red name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-                            onclick=\"alter_issue2(".attr_js($item['rowid']).",".attr_js($key).",".attr_js($index).");\">".text($item['title'].$reaction)."</span><br />";
+                    $subtype_Meds[$item['row_subtype']]['table'] .= "<span $red name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+                            onclick=\"alter_issue2(" . attr_js($item['rowid']) . "," . attr_js($key) . "," . attr_js($index) . ");\">" . text($item['title'] . $reaction) . "</span><br />";
                     $index++;
                     continue;
                 }
 
                 if ($key == "Allergy") {
                     if ($item['reaction']) {
-                        $reaction = " (".text($item['reaction']).")";
+                        $reaction = " (" . text($item['reaction']) . ")";
                     } else {
-                        $reaction ="";
+                        $reaction = "";
                     }
 
                     $red = "style='color:red;'";
                 } else {
-                    $red ='';
+                    $red = '';
                 }
 
-                $table .= "<span $red name='QP_PMH_".$item['rowid']."' href='#PMH_anchor' id='QP_PMH_".$item['rowid']."'
-                onclick=\"alter_issue2(".attr_js($item['rowid']).",".attr_js($key).",".attr_js($index).");\">".text($item['title'].$reaction)."</span><br />";
+                $table .= "<span $red name='QP_PMH_" . $item['rowid'] . "' href='#PMH_anchor' id='QP_PMH_" . $item['rowid'] . "'
+                onclick=\"alter_issue2(" . attr_js($item['rowid']) . "," . attr_js($key) . "," . attr_js($index) . ");\">" . text($item['title'] . $reaction) . "</span><br />";
                 $index++;
             }
         } else {
@@ -2171,35 +2174,35 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             $counter++;
         }
 
-        $display_PMSFH[$key] = $header.$open_table.$table.$close_table;
+        $display_PMSFH[$key] = $header . $open_table . $table . $close_table;
     }
 
     echo $display_PMSFH['POH'];
     $count = $count['POH'] + $count['PMH'] + 4;
     if ($count >= $column_max) {
-        echo $div.$header1;
+        echo $div . $header1;
     }
 
     echo $display_PMSFH['POS'];
     $count = $count + $count['POS'] + 4;
     if ($count >= $column_max) {
-        echo $div.$header1;
+        echo $div . $header1;
     }
 
     echo $display_PMSFH['Eye Meds'];
     $count = $count + $count['Surgery'] +  4;
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
-        $count=0;
-        $row_count =2;
+        $count = 0;
+        $row_count = 2;
     }
 
     echo $display_PMSFH['PMH'];
     $count = $count + $count['Surgery'] +  4;
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
-        $count=0;
-        $row_count =2;
+        $count = 0;
+        $row_count = 2;
     }
 
     echo $display_PMSFH['Surgery'];
@@ -2207,8 +2210,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     $count = $count + $count['Medication'] + 4;
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
-        $count=0;
-        $row_count =2;
+        $count = 0;
+        $row_count = 2;
     }
 
     echo $display_PMSFH['Medication'];
@@ -2216,8 +2219,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     $count = $count + $count['Allergy'] + 4;
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
-        $count=0;
-        $row_count =2;
+        $count = 0;
+        $row_count = 2;
     }
 
     echo $display_PMSFH['Allergy'];
@@ -2225,8 +2228,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     $count = $count + $count['FH'] + 4;
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
-        $count=0;
-        $row_count =2;
+        $count = 0;
+        $row_count = 2;
     } ?>
         <table class="PMSFH_header">
                 <tr>
@@ -2240,19 +2243,19 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
         </table>
         <?php
                 echo $open_table;
-                $mentions_FH='';
+                $mentions_FH = '';
         if (count($PMSFH[0]['FH']) > 0) {
             foreach ($PMSFH[0]['FH'] as $item) {
                 if (($counter > $column_max) && ($row_count < $rows)) {
-                    echo $close_table.$div.$open_table;
-                    $counter="0";
+                    echo $close_table . $div . $open_table;
+                    $counter = "0";
                     $row_count++;
                 }
 
                 if ($item['display'] > '') {
                     $counter++;
-                    echo "<span name='QP_PMH_".$item['rowid']."' href='#PMH_anchor' id='QP_PMH_".$item['rowid']."'
-                            onclick=\"alter_issue2('0','FH','');\">".xlt($item['short_title']).": ".text($item['display'])."</span><br />";
+                    echo "<span name='QP_PMH_" . $item['rowid'] . "' href='#PMH_anchor' id='QP_PMH_" . $item['rowid'] . "'
+                            onclick=\"alter_issue2('0','FH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
                     $mentions_FH++;
                 }
             }
@@ -2262,7 +2265,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 <span href="#PMH_anchor"
         onclick="alter_issue2('0','FH','');" style="text-align:right;"><?php echo xlt("Negative"); ?></span><br />
                 <?php
-                $counter = $counter+3;
+                $counter = $counter + 3;
         }
 
         echo $close_table;
@@ -2270,8 +2273,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
         if (($count > $column_max) && ($row_count < $rows)) {
             echo $div;
-            $count=0;
-            $row_count =2;
+            $count = 0;
+            $row_count = 2;
         } ?>
                 <table class="PMSFH_header">
                 <tr>
@@ -2287,14 +2290,14 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     echo $open_table;
                 foreach ($PMSFH[0]['SOCH'] as $item) {
                     if (($counter > $column_max) && ($row_count < $rows)) {
-                        echo $close_table.$div.$open_table;
-                        $counter="0";
+                        echo $close_table . $div . $open_table;
+                        $counter = "0";
                         $row_count++;
                     }
 
                     if (($item['display'] > '') && ($item['display'] != 'not_applicable')) {
-                        echo "<span name='QP_PMH_".$item['rowid']."' href='#PMH_anchor' id='QP_PMH_".$item['rowid']."'
-                                onclick=\"alter_issue2('0','SOCH','');\">".xlt($item['short_title']).": ".text($item['display'])."</span><br />";
+                        echo "<span name='QP_PMH_" . $item['rowid'] . "' href='#PMH_anchor' id='QP_PMH_" . $item['rowid'] . "'
+                                onclick=\"alter_issue2('0','SOCH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
                         $counter++;
                         $mentions_SOCH++;
                     }
@@ -2305,7 +2308,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     <span href="#PMH_anchor"
                     onclick="alter_issue2('0','SOCH','');" style="text-align:right;"><?php echo xlt("Not documented"); ?></span><br />
                     <?php
-                    $counter=$counter+2;
+                    $counter = $counter + 2;
                 }
 
                 echo $close_table;
@@ -2313,8 +2316,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
                 if (($count > $column_max) && ($row_count < $rows)) {
                     echo $div;
-                    $count=0;
-                    $row_count =2;
+                    $count = 0;
+                    $row_count = 2;
                 } ?>
             <table class="PMSFH_header">
                 <tr>
@@ -2330,23 +2333,23 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     echo $open_table;
             foreach ($PMSFH[0]['ROS'] as $item) {
                 if ($item['display'] > '') {
-                    if (($counter > $column_max)&& ($row_count < $rows)) {
-                        echo $close_table.$div.$open_table;
-                        $counter="0";
+                    if (($counter > $column_max) && ($row_count < $rows)) {
+                        echo $close_table . $div . $open_table;
+                        $counter = "0";
                         $row_count++;
                     }
 
                     //xlt($item['short_title']) - for a list of short_titles, see the predefined ROS categories
-                    echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-                             onclick=\"alter_issue2('0','ROS','');\">".xlt($item['short_title']).": ".text($item['display'])."</span><br />";
+                    echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+                             onclick=\"alter_issue2('0','ROS','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
                     $mention++;
                     $counter++;
                 }
             }
 
             if ($mention < 1) {
-                echo  xlt("Negative") ."<br />";
-                $counter=$counter++;
+                echo  xlt("Negative") . "<br />";
+                $counter = $counter++;
             }
 
                     echo $close_table;
@@ -2374,7 +2377,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     <div>';
 
     //<!-- POH -->
-    echo "<br /><span class='panel_title' title='".xla('Past Ocular History')."'>".xlt("POH{{Past Ocular History}}").":</span>";
+    echo "<br /><span class='panel_title' title='" . xla('Past Ocular History') . "'>" . xlt("POH{{Past Ocular History}}") . ":</span>";
     ?>
     <span class="top-right btn-sm" href="#PMH_anchor"
         onclick="alter_issue2('0','POH','');"
@@ -2382,10 +2385,10 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     <br />
     <?php
     if ($PMSFH[0]['POH']) {
-        $i=0;
+        $i = 0;
         foreach ($PMSFH[0]['POH'] as $item) {
-            echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid']).",'POH','".$i."');\">".text($item['title'])."</span><br />";
+            echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'POH','" . $i . "');\">" . text($item['title']) . "</span><br />";
             $i++;
         }
     } else { ?>
@@ -2395,7 +2398,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
     //<!-- POS -->
-    echo "<br /><span class='panel_title' title='".xla('Past Ocular Surgery')."'>".xlt("POS{{Past Ocular Surgery}}").":</span>";
+    echo "<br /><span class='panel_title' title='" . xla('Past Ocular Surgery') . "'>" . xlt("POS{{Past Ocular Surgery}}") . ":</span>";
     ?>
     <span class="top-right btn-sm" href="#PMH_anchor"
         onclick="alter_issue2('0','POS','');"
@@ -2403,10 +2406,10 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     <br />
     <?php
     if ($PMSFH[0]['POS']) {
-        $i=0;
+        $i = 0;
         foreach ($PMSFH[0]['POS'] as $item) {
-            echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid']).",'POS','".$i."');\">".text($item['title'])."</span><br />";
+            echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'POS','" . $i . "');\">" . text($item['title']) . "</span><br />";
             $i++;
         }
     } else { ?>
@@ -2416,20 +2419,20 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
 //<!-- Eye Meds -->
-    echo "<br /><span class='panel_title' title='".xla("Eye Meds")."'>".xlt("Eye Meds").":</span>";
+    echo "<br /><span class='panel_title' title='" . xla("Eye Meds") . "'>" . xlt("Eye Meds") . ":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
             onclick="alter_issue2('0','Medication','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
     <?php
     if ($PMSFH[0]['Eye Meds']) {
-         $i=0;
+         $i = 0;
         foreach ($PMSFH[0]['Eye Meds'] as $item) {
             if (($item['status'] == "Inactive") || ($item['row_subtype'] != "eye")) {
                 $i++;
                 continue;
             }
-            echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid']).",'Medication','".$i."');\" > ".text($item['title'])."</span><br />";
+            echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'Medication','" . $i . "');\" > " . text($item['title']) . "</span><br />";
             $i++;
         }
     } else { ?>
@@ -2439,37 +2442,37 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
     //<!-- PMH -->
-    echo "<br /> <span class='panel_title' title='".xla('Past Medical History')."'>".xlt("PMH{{Past Medical History}}").":</span>";
+    echo "<br /> <span class='panel_title' title='" . xla('Past Medical History') . "'>" . xlt("PMH{{Past Medical History}}") . ":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','PMH','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
     <?php
     if ($PMSFH[0]['PMH']) {
-        $i=0;
+        $i = 0;
         foreach ($PMSFH[0]['PMH'] as $item) {
-            if ($item['enddate'] !==" ") {
-                echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid']).",'PMH','".$i."');\">".text($item['title'])."</span><br />";
+            if ($item['enddate'] !== " ") {
+                echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'PMH','" . $i . "');\">" . text($item['title']) . "</span><br />";
                 $i++;
             }
         }
     } else { ?>
         <span href="#PMH_anchor"
-        onclick="alter_issue2('0','PMH','');" class="disabled_button"><?php echo xlt("None"); ?></br></span>
+        onclick="alter_issue2('0','PMH','');" class="disabled_button"><?php echo xlt("None"); ?><br /></span>
         <?php
     }
 
     //<!-- Surgeries -->
-    echo "<br /><span class='panel_title' title='".xla("Past Surgical History")."'>".xlt("Surgery").":</span>";
+    echo "<br /><span class='panel_title' title='" . xla("Past Surgical History") . "'>" . xlt("Surgery") . ":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','Surgery','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
     <?php
     if ($PMSFH[0]['Surgery']) {
-        $i=0;
+        $i = 0;
         foreach ($PMSFH[0]['Surgery'] as $item) {
-            echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid']).",'Surgery','".$i."');\">".text($item['title'])."<br /></span>";
+            echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'Surgery','" . $i . "');\">" . text($item['title']) . "<br /></span>";
             $i++;
         }
     } else { ?>
@@ -2479,20 +2482,20 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
     //<!-- Meds -->
-    echo "<br /><span class='panel_title' title='".xla("Medications")."'>".xlt("Medication").":</span>";
+    echo "<br /><span class='panel_title' title='" . xla("Medications") . "'>" . xlt("Medication") . ":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','Medication','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
     <?php
     if ($PMSFH[0]['Medication']) {
-        $i=0;
+        $i = 0;
         foreach ($PMSFH[0]['Medication'] as $item) {
             if (($item['row_subtype'] == "eye") || ($item['status'] == "Inactive")) {
                 $i++;
                 continue;
             }
-            echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid']).",'Medication','".$i."');\">".text($item['title'])."</span><br />";
+            echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'Medication','" . $i . "');\">" . text($item['title']) . "</span><br />";
             $i++;
         }
     } else { ?>
@@ -2503,22 +2506,22 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
 
 
     //<!-- Allergies -->
-    echo "<br /><span class='panel_title' title='".xla("Allergies")."'>".xlt("Allergy").":</span>";
+    echo "<br /><span class='panel_title' title='" . xla("Allergies") . "'>" . xlt("Allergy") . ":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','Allergy','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
     <?php
     if ($PMSFH[0]['Allergy']) {
-        $i=0;
+        $i = 0;
         foreach ($PMSFH[0]['Allergy'] as $item) {
             if ($item['reaction']) {
-                $reaction = "(".text($item['reaction']).")";
+                $reaction = "(" . text($item['reaction']) . ")";
             } else {
-                $reaction ="";
+                $reaction = "";
             }
 
-            echo "<span style='color:red;' name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-      onclick=\"alter_issue2(".attr_js($item['rowid']).",'Allergy','".$i."');\">".text($item['title'])." ".$reaction."</span><br />";
+            echo "<span style='color:red;' name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+      onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'Allergy','" . $i . "');\">" . text($item['title']) . " " . $reaction . "</span><br />";
             $i++;
         }
     } else { ?>
@@ -2528,15 +2531,15 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
        //<!-- Social History -->
-    echo "<br /><span class='panel_title' title='".xla("Social History")."'>".xlt('Soc Hx{{Social History}}').":</span>";
+    echo "<br /><span class='panel_title' title='" . xla("Social History") . "'>" . xlt('Soc Hx{{Social History}}') . ":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','SOCH','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?>
     </span><br />
     <?php
     foreach ($PMSFH[0]['SOCH'] as $k => $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
-            echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-        onclick=\"alter_issue2('0','SOCH','');\">".xlt($item['short_title']).": ".text($item['display'])."<br /></span>";
+            echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+        onclick=\"alter_issue2('0','SOCH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "<br /></span>";
 
             $mention_SOCH++;
         }
@@ -2550,7 +2553,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
     //<!-- Family History -->
-    echo "<br /><span class='panel_title' title='".xla("Family History")."'>".xlt("FH{{Family History}}").":</span>";
+    echo "<br /><span class='panel_title' title='" . xla("Family History") . "'>" . xlt("FH{{Family History}}") . ":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','FH','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span><br />
 
@@ -2558,8 +2561,8 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     if (count($PMSFH[0]['FH']) > 0) {
         foreach ($PMSFH[0]['FH'] as $item) {
             if ($item['display'] > '') {
-                echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-                onclick=\"alter_issue2('0','FH','');\">".xlt($item['short_title']).": ".text($item['display'])."<br /></span>";
+                echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+                onclick=\"alter_issue2('0','FH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "<br /></span>";
                 $mention_FH++;
             }
         }
@@ -2572,15 +2575,15 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         <?php
     }
 
-    echo "<br /><span class='panel_title' title='".xla("Review of Systems")."'>".xlt("ROS{{Review of Systems}}").":</span>";
+    echo "<br /><span class='panel_title' title='" . xla("Review of Systems") . "'>" . xlt("ROS{{Review of Systems}}") . ":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue('0','ROS','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
     <?php
     foreach ($PMSFH[0]['ROS'] as $item) {
         if ($item['display']) {
-            echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('0','ROS','');\">".text($item['short_title']).": ".text($item['display'])."</span><br />";
+            echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+            onclick=\"alter_issue2('0','ROS','');\">" . text($item['short_title']) . ": " . text($item['display']) . "</span><br />";
             $mention_ROS++;
         }
     }
@@ -2624,214 +2627,214 @@ function show_PMSFH_report($PMSFH)
 
     //SOCH, FH and ROS are listed in $PMSFH even if negative, only count positives
     foreach ($PMSFH[0]['ROS'] as $key => $value) {
-        if ($value['display'] =='') {
+        if ($value['display'] == '') {
             $total_PMSFH--;
             $count['ROS']--;
         }
     }
 
     foreach ($PMSFH[0]['FH'] as $key => $value) {
-        if ($value['display'] =='') {
+        if ($value['display'] == '') {
             $total_PMSFH--;
             $count['FH']--;
         }
     }
 
     foreach ($PMSFH[0]['SOCH'] as $key => $value) {
-        if (($value['display'] =='') || ($value['display'] == 'not_applicable')) {
+        if (($value['display'] == '') || ($value['display'] == 'not_applicable')) {
             $total_PMSFH--;
             $count['SOCH']--;
         }
     }
 
     $counter = "0";
-    $column_max = round($total_PMSFH/$rows) ;
-    $panel_size = round($total_PMSFH/$rows) ;
+    $column_max = round($total_PMSFH / $rows) ;
+    $panel_size = round($total_PMSFH / $rows) ;
 
     //<!-- POH -->
     $counter++;
     $counter++;
-    echo "<table style='width:700px;'><tr><td style='vertical-align:top;width:150px;' class='show_report'><br /><b>".xlt("POH{{Past Ocular History}}").":</b>";
+    echo "<table style='width:700px;'><tr><td style='vertical-align:top;width:150px;' class='show_report'><br /><b>" . xlt("POH{{Past Ocular History}}") . ":</b>";
     //note the HTML2PDF does not like <span style="font-weight:bold;"></span> so we are using the deprecated <b></b>
     ?>
     <br />
     <?php
     if ($PMSFH[0]['POH'] > "") {
         foreach ($PMSFH[0]['POH'] as $item) {
-            echo text($item['title'])." ".text($item['diagnosis'])."<br />";
+            echo text($item['title']) . " " . text($item['diagnosis']) . "<br />";
             $counter++;
         }
     } else {
-        echo xlt("None")."<br />";
+        echo xlt("None") . "<br />";
     }
 
     if (($counter + $count['POS']) > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0";
+        $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- PMH -->
-    echo "<br /><b>".xlt("Eye Surgery").":</b>";
+    echo "<br /><b>" . xlt("Eye Surgery") . ":</b>";
     ?>
     <br />
     <?php
     if ($PMSFH[0]['POS'] > "") {
         foreach ($PMSFH[0]['POS'] as $item) {
-            echo text($item['title'])." ".text($item['diagnosis'])."<br />";
+            echo text($item['title']) . " " . text($item['diagnosis']) . "<br />";
             $counter++;
         }
     } else {
-        echo xlt("None")."<br />";
+        echo xlt("None") . "<br />";
     }
 
     if (($counter + $count['PMH']) > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0";
+        $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- PMH -->
-    echo "<br /><b>".xlt("PMH").":</b>";
+    echo "<br /><b>" . xlt("PMH") . ":</b>";
     ?>
     <br />
     <?php
     if ($PMSFH[0]['PMH'] > "") {
         foreach ($PMSFH[0]['PMH'] as $item) {
-            echo text($item['title'])." ".text($item['diagnosis'])."<br />";
+            echo text($item['title']) . " " . text($item['diagnosis']) . "<br />";
             $counter++;
         }
     } else {
-        echo xlt("None")."<br />";
+        echo xlt("None") . "<br />";
     }
 
 
     if ($counter + $count['Medication'] > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0";
+        $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- Meds -->
-    echo "<br /><b>".xlt("Medication").":</b>";
+    echo "<br /><b>" . xlt("Medication") . ":</b>";
     ?>
     <br />
     <?php
     if ($PMSFH[0]['Medication'] > "") {
         foreach ($PMSFH[0]['Medication'] as $item) {
-            echo text($item['title'])." ".text($item['diagnosis'])."<br />";
+            echo text($item['title']) . " " . text($item['diagnosis']) . "<br />";
             $counter++;
         }
     } else {
-        echo xlt("None")."<br />";
+        echo xlt("None") . "<br />";
     }
 
     if ($counter + $count['Surgery'] > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0";
+        $counter = "0";
     }
 
     //<!-- Surgeries -->
     $counter++;
     $counter++;
-    echo "<br /><b>".xlt("Surgery").":</b>";
+    echo "<br /><b>" . xlt("Surgery") . ":</b>";
     ?><br />
     <?php
     if ($PMSFH[0]['Surgery'] > "") {
         foreach ($PMSFH[0]['Surgery'] as $item) {
-            echo text($item['title'])." ".text($item['diagnosis'])."<br />";
+            echo text($item['title']) . " " . text($item['diagnosis']) . "<br />";
             $counter++;
         }
     } else {
-        echo xlt("None")."<br />";
+        echo xlt("None") . "<br />";
     }
 
     if ($counter + $count['Allergy'] > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0";
+        $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- Allergies -->
-    echo "<br /><b>".xlt("Allergy").":</b>";
+    echo "<br /><b>" . xlt("Allergy") . ":</b>";
     ?>
     <br />
     <?php
     if ($PMSFH[0]['Allergy'] > "") {
         foreach ($PMSFH[0]['Allergy'] as $item) {
-            echo text($item['title'])."<br />";
+            echo text($item['title']) . "<br />";
             $counter++;
         }
     } else {
-        echo xlt("NKDA{{No known drug allergies}}")."<br />";
+        echo xlt("NKDA{{No known drug allergies}}") . "<br />";
     }
 
     if ($counter + $count['SOCH'] > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0";
+        $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- SocHx -->
-    echo "<br /><b>".xlt("Soc Hx{{Social History}}").":</b>";
+    echo "<br /><b>" . xlt("Soc Hx{{Social History}}") . ":</b>";
     ?>
     <br />
     <?php
     foreach ($PMSFH[0]['SOCH'] as $k => $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
-            echo xlt($item['short_title']).": ".text($item['display'])."<br />";
+            echo xlt($item['short_title']) . ": " . text($item['display']) . "<br />";
             $mention_PSOCH++;
             $counter++;
         }
     }
 
     if (!$mention_PSOCH) {
-        echo xlt("Negative")."<br />";
+        echo xlt("Negative") . "<br />";
     }
 
     if (($counter + $count['FH']) > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0";
+        $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- FH -->
-    echo "<br /><b>".xlt("FH{{Family History}}").":</b>";
+    echo "<br /><b>" . xlt("FH{{Family History}}") . ":</b>";
     ?>
     <br />
     <?php
     foreach ($PMSFH[0]['FH'] as $item) {
         if ($item['display']) {
-            echo xlt($item['short_title']).": ".text($item['display'])."<br />";
+            echo xlt($item['short_title']) . ": " . text($item['display']) . "<br />";
             $mention_FH++;
             $counter++;
         }
     }
 
     if (!$mention_FH) {
-        echo xlt("Negative")."<br />";
+        echo xlt("Negative") . "<br />";
     }
 
-    if (($counter!=="0") && (($counter + $count['ROS']) > $panel_size)) {
+    if (($counter !== "0") && (($counter + $count['ROS']) > $panel_size)) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0";
+        $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- ROS -->
-    echo "<br /><b>".xlt("ROS{{Review of Systems}}").":</b>";
+    echo "<br /><b>" . xlt("ROS{{Review of Systems}}") . ":</b>";
     ?><br />
     <?php
     foreach ($PMSFH[0]['ROS'] as $item) {
         if ($item['display']) {
-            echo xlt($item['short_title']).": ".$item['display']."<br />";
+            echo xlt($item['short_title']) . ": " . $item['display'] . "<br />";
             $mention_ROS++;
             $counter++;
         }
@@ -2866,21 +2869,21 @@ function display_QP($zone, $provider_id)
 
     ob_start();
     $query  = "SELECT * FROM list_options where list_id =?  ORDER BY seq";
-    $result = sqlStatement($query, array("Eye_QP_".$zone."_$provider_id"));
+    $result = sqlStatement($query, array("Eye_QP_" . $zone . "_$provider_id"));
     if (sqlNumRows($result) < '1') {
         //this provider's list has not been created yet.
         $query = "REPLACE INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists', ?, ?, '0', '1', '0')";
-        sqlStatement($query, array('Eye_QP_'.$zone.'_'.$provider_id,'Eye QP List '.$zone.' for '.$prov_data['lname']));
+        sqlStatement($query, array('Eye_QP_' . $zone . '_' . $provider_id,'Eye QP List ' . $zone . ' for ' . $prov_data['lname']));
         $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
-        $result = sqlStatement($query, array("Eye_QP_".$zone."_defaults"));
+        $result = sqlStatement($query, array("Eye_QP_" . $zone . "_defaults"));
         $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES (?,?,?,?,?,?,?,?,?)";
     } else {
-        $SQL_INSERT ='';
+        $SQL_INSERT = '';
     }
 
     while ($QP = sqlFetchArray($result)) {
         if (!empty($SQL_INSERT)) {
-            sqlStatement($SQL_INSERT, array("Eye_QP_".$zone."_".$provider_id,$QP['option_id'],$QP['title'],$QP['seq'],$QP['mapping'],$QP['notes'],$QP['codes'],$QP['activity'],$QP['subtype']));
+            sqlStatement($SQL_INSERT, array("Eye_QP_" . $zone . "_" . $provider_id,$QP['option_id'],$QP['title'],$QP['seq'],$QP['mapping'],$QP['notes'],$QP['codes'],$QP['activity'],$QP['subtype']));
         }
 
         $here[$QP['title']][$QP['subtype']]['notes']    = $QP['notes'];     //the text to fill into form
@@ -2890,7 +2893,7 @@ function display_QP($zone, $provider_id)
     }
 
     foreach ($here as $title => $values) { //start QP section items
-        $title_show = (strlen($title) > 19) ? substr($title, 0, 16).'...' : $title;
+        $title_show = (strlen($title) > 19) ? substr($title, 0, 16) . '...' : $title;
         if (preg_match('/clear field/', $title)) {
             $title_show = "<em><strong>$title</strong></em>";
         }
@@ -2915,7 +2918,7 @@ function display_QP($zone, $provider_id)
             </span>
             &nbsp;
             <?php
-        } else if ($values['R']) {
+        } elseif ($values['R']) {
             if ($values['R']['activity'] == '0') {
                 $action = "ADD";
             }
@@ -2941,7 +2944,7 @@ function display_QP($zone, $provider_id)
         $number_rows++;
         ?><br />
         <?php
-        if ($number_rows==19) {  ?>
+        if ($number_rows == 19) {  ?>
           </div>
           <div class="QP_block_outer borderShadow text_clinical" ><?php
         }
@@ -2951,9 +2954,9 @@ function display_QP($zone, $provider_id)
         }
     } //end QP section items
     ?>
-      <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone)."_".attr($provider_id); ?>','QP Editor');"
+      <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone) . "_" . attr($provider_id); ?>','QP Editor');"
       title="<?php echo xla('Click here to Edit this Doctor\'s Quick Pick list'); ?>"
-      name="provider_todo" style="color:black;font-weight:600;"><i class="closeButton pull-right fa fa-pencil fa-fw"></i> </a>
+      name="provider_todo" style="color:black;font-weight:600;"><i class="closeButton float-right fa fa-pencil-alt fa-fw"></i> </a>
         <?php
         $QP_panel = ob_get_contents();
         ob_end_clean();
@@ -2993,10 +2996,10 @@ function canvas_select($zone, $encounter, $pid)
     //are any from the same as the encounter?  If so selected=selected
     //
     global $documents;
-    $side="OU";
-    $type_name = $side."_".$zone."_VIEW";
-    $canvi=[];
-    if (!empty($documents['zones'][$zone])) {
+    $side = "OU";
+    $type_name = $side . "_" . $zone . "_VIEW";
+    $canvi = [];
+    if (!empty($documents['zones'][$zone]) && !empty($documents['docs_in_name']['Drawings'])) {
         foreach ($documents['docs_in_name']['Drawings'] as $doc) {
             if (!preg_match("/" . $zone . "_VIEW/", $doc['url'])) {
                 continue;
@@ -3058,7 +3061,7 @@ function canvas_select($zone, $encounter, $pid)
                     data-target="SELECT_CANVAS_' . attr($zone) . '"
                     data-direction="newest"
                     title="' . xla('Forward to current canvas') . '"></span>
-                    
+
         </div>';
         }
     }
@@ -3082,11 +3085,11 @@ function canvas_select($zone, $encounter, $pid)
 function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = '')
 {
     global $form_folder;
-    $filepath = $GLOBALS['oer_config']['documents']['repository'] . $pid ."/";
-    $base_name = $pid."_".$encounter."_".$side."_".$zone."_VIEW";
+    $filepath = $GLOBALS['oer_config']['documents']['repository'] . $pid . "/";
+    $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $zone . "_VIEW";
 
-    $file_history =  $filepath.$base_name;
-    $file_store= $file_history.".jpg";
+    $file_history =  $filepath . $base_name;
+    $file_store = $file_history . ".jpg";
     ?>
     <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" style="text-align:center;height: 2.5in;" class="Draw_class canvas">
         <span class="fa fa-file-text-o closeButton" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
@@ -3122,10 +3125,10 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <?php
 
                     $sql = "SELECT * from documents where url like ?";
-                    $doc = sqlQuery($sql, array("%". $base_name ."%"));
-                    $base_filetoshow = $GLOBALS['web_root']."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
+                    $doc = sqlQuery($sql, array("%" . $base_name . "%"));
+                    $base_filetoshow = $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
                 if (file_exists($file_store) && ($doc['id'] > '0')) {
-                    $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=".attr($pid)."&document_id=".attr($doc['id'])."&as_file=false&show_original=true&blahblah=".rand();
+                    $filetoshow = $GLOBALS['web_root'] . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']) . "&as_file=false&show_original=true&blahblah=" . rand();
                 } else {
                     //base image.
                     $filetoshow = $base_filetoshow;
@@ -3187,8 +3190,8 @@ function copy_forward($zone, $copy_from, $copy_to, $pid)
     global $form_id;
 
     $query = "select  *,form_encounter.date as encounter_date
-              
-               from forms,form_encounter,form_eye_base, 
+
+               from forms,form_encounter,form_eye_base,
                 form_eye_hpi,form_eye_ros,form_eye_vitals,
                 form_eye_acuity,form_eye_refraction,form_eye_biometrics,
                 form_eye_external,form_eye_antseg,form_eye_postseg,
@@ -3212,345 +3215,345 @@ function copy_forward($zone, $copy_from, $copy_to, $pid)
                     forms.pid =? and
                     forms.form_id =? ";
 
-    $objQuery =sqlQuery($query, array($pid,$copy_from));
-    if ($zone =="EXT") {
-        $result['RUL']=$objQuery['RUL'];
-        $result['LUL']=$objQuery['LUL'];
-        $result['RLL']=$objQuery['RLL'];
-        $result['LLL']=$objQuery['LLL'];
-        $result['RBROW']=$objQuery['RBROW'];
-        $result['LBROW']=$objQuery['LBROW'];
-        $result['RMCT']=$objQuery['RMCT'];
-        $result['LMCT']=$objQuery['LMCT'];
-        $result['RADNEXA']=$objQuery['RADNEXA'];
-        $result['LADNEXA']=$objQuery['LADNEXA'];
-        $result['RMRD']=$objQuery['RMRD'];
-        $result['LMRD']=$objQuery['LMRD'];
-        $result['RLF']=$objQuery['RLF'];
-        $result['LLF']=$objQuery['LLF'];
-        $result['RVFISSURE']=$objQuery['RVFISSURE'];
-        $result['LVFISSURE']=$objQuery['LVFISSURE'];
-        $result['RCAROTID']=$objQuery['RCAROTID'];
-        $result['LCAROTID']=$objQuery['LCAROTID'];
-        $result['RTEMPART']=$objQuery['RTEMPART'];
-        $result['LTEMPART']=$objQuery['LTEMPART'];
-        $result['RCNV']=$objQuery['RCNV'];
-        $result['LCNV']=$objQuery['LCNV'];
-        $result['RCNVII']=$objQuery['RCNVII'];
-        $result['LCNVII']=$objQuery['LCNVII'];
-        $result['ODSCHIRMER1']=$objQuery['ODSCHIRMER1'];
-        $result['OSSCHIRMER1']=$objQuery['OSSCHIRMER1'];
-        $result['ODSCHIRMER2']=$objQuery['ODSCHIRMER2'];
-        $result['OSSCHIRMER2']=$objQuery['OSSCHIRMER2'];
-        $result['ODTBUT']=$objQuery['ODTBUT'];
-        $result['OSTBUT']=$objQuery['OSTBUT'];
-        $result['OSHERTEL']=$objQuery['OSHERTEL'];
-        $result['HERTELBASE']=$objQuery['HERTELBASE'];
-        $result['ODPIC']=$objQuery['ODPIC'];
-        $result['OSPIC']=$objQuery['OSPIC'];
-        $result['EXT_COMMENTS']=$objQuery['EXT_COMMENTS'];
+    $objQuery = sqlQuery($query, array($pid,$copy_from));
+    if ($zone == "EXT") {
+        $result['RUL'] = $objQuery['RUL'];
+        $result['LUL'] = $objQuery['LUL'];
+        $result['RLL'] = $objQuery['RLL'];
+        $result['LLL'] = $objQuery['LLL'];
+        $result['RBROW'] = $objQuery['RBROW'];
+        $result['LBROW'] = $objQuery['LBROW'];
+        $result['RMCT'] = $objQuery['RMCT'];
+        $result['LMCT'] = $objQuery['LMCT'];
+        $result['RADNEXA'] = $objQuery['RADNEXA'];
+        $result['LADNEXA'] = $objQuery['LADNEXA'];
+        $result['RMRD'] = $objQuery['RMRD'];
+        $result['LMRD'] = $objQuery['LMRD'];
+        $result['RLF'] = $objQuery['RLF'];
+        $result['LLF'] = $objQuery['LLF'];
+        $result['RVFISSURE'] = $objQuery['RVFISSURE'];
+        $result['LVFISSURE'] = $objQuery['LVFISSURE'];
+        $result['RCAROTID'] = $objQuery['RCAROTID'];
+        $result['LCAROTID'] = $objQuery['LCAROTID'];
+        $result['RTEMPART'] = $objQuery['RTEMPART'];
+        $result['LTEMPART'] = $objQuery['LTEMPART'];
+        $result['RCNV'] = $objQuery['RCNV'];
+        $result['LCNV'] = $objQuery['LCNV'];
+        $result['RCNVII'] = $objQuery['RCNVII'];
+        $result['LCNVII'] = $objQuery['LCNVII'];
+        $result['ODSCHIRMER1'] = $objQuery['ODSCHIRMER1'];
+        $result['OSSCHIRMER1'] = $objQuery['OSSCHIRMER1'];
+        $result['ODSCHIRMER2'] = $objQuery['ODSCHIRMER2'];
+        $result['OSSCHIRMER2'] = $objQuery['OSSCHIRMER2'];
+        $result['ODTBUT'] = $objQuery['ODTBUT'];
+        $result['OSTBUT'] = $objQuery['OSTBUT'];
+        $result['OSHERTEL'] = $objQuery['OSHERTEL'];
+        $result['HERTELBASE'] = $objQuery['HERTELBASE'];
+        $result['ODPIC'] = $objQuery['ODPIC'];
+        $result['OSPIC'] = $objQuery['OSPIC'];
+        $result['EXT_COMMENTS'] = $objQuery['EXT_COMMENTS'];
         $result["json"] = json_encode($result);
         echo json_encode($result);
-    } elseif ($zone =="ANTSEG") {
-        $result['OSCONJ']=$objQuery['OSCONJ'];
-        $result['ODCONJ']=$objQuery['ODCONJ'];
-        $result['ODCORNEA']=$objQuery['ODCORNEA'];
-        $result['OSCORNEA']=$objQuery['OSCORNEA'];
-        $result['ODAC']=$objQuery['ODAC'];
-        $result['OSAC']=$objQuery['OSAC'];
-        $result['ODLENS']=$objQuery['ODLENS'];
-        $result['OSLENS']=$objQuery['OSLENS'];
-        $result['ODIRIS']=$objQuery['ODIRIS'];
-        $result['OSIRIS']=$objQuery['OSIRIS'];
-        $result['ODKTHICKNESS']=$objQuery['ODKTHICKNESS'];
-        $result['OSKTHICKNESS']=$objQuery['OSKTHICKNESS'];
-        $result['ODGONIO']=$objQuery['ODGONIO'];
-        $result['OSGONIO']=$objQuery['OSGONIO'];
-        $result['ODSHRIMER1']=$objQuery['ODSHIRMER1'];
-        $result['OSSHRIMER1']=$objQuery['OSSHIRMER1'];
-        $result['ODSHRIMER2']=$objQuery['ODSHIRMER2'];
-        $result['OSSHRIMER2']=$objQuery['OSSHIRMER2'];
-        $result['ODTBUT']=$objQuery['ODTBUT'];
-        $result['OSTBUT']=$objQuery['OSTBUT'];
-        $result['ANTSEG_COMMENTS']=$objQuery['ANTSEG_COMMENTS'];
+    } elseif ($zone == "ANTSEG") {
+        $result['OSCONJ'] = $objQuery['OSCONJ'];
+        $result['ODCONJ'] = $objQuery['ODCONJ'];
+        $result['ODCORNEA'] = $objQuery['ODCORNEA'];
+        $result['OSCORNEA'] = $objQuery['OSCORNEA'];
+        $result['ODAC'] = $objQuery['ODAC'];
+        $result['OSAC'] = $objQuery['OSAC'];
+        $result['ODLENS'] = $objQuery['ODLENS'];
+        $result['OSLENS'] = $objQuery['OSLENS'];
+        $result['ODIRIS'] = $objQuery['ODIRIS'];
+        $result['OSIRIS'] = $objQuery['OSIRIS'];
+        $result['ODKTHICKNESS'] = $objQuery['ODKTHICKNESS'];
+        $result['OSKTHICKNESS'] = $objQuery['OSKTHICKNESS'];
+        $result['ODGONIO'] = $objQuery['ODGONIO'];
+        $result['OSGONIO'] = $objQuery['OSGONIO'];
+        $result['ODSHRIMER1'] = $objQuery['ODSHIRMER1'];
+        $result['OSSHRIMER1'] = $objQuery['OSSHIRMER1'];
+        $result['ODSHRIMER2'] = $objQuery['ODSHIRMER2'];
+        $result['OSSHRIMER2'] = $objQuery['OSSHIRMER2'];
+        $result['ODTBUT'] = $objQuery['ODTBUT'];
+        $result['OSTBUT'] = $objQuery['OSTBUT'];
+        $result['ANTSEG_COMMENTS'] = $objQuery['ANTSEG_COMMENTS'];
         $result["json"] = json_encode($result);
         echo json_encode($result);
-    } elseif ($zone =="RETINA") {
-        $result['ODDISC']=$objQuery['ODDISC'];
-        $result['OSDISC']=$objQuery['OSDISC'];
-        $result['ODCUP']=$objQuery['ODCUP'];
-        $result['OSCUP']=$objQuery['OSCUP'];
-        $result['ODMACULA']=$objQuery['ODMACULA'];
-        $result['OSMACULA']=$objQuery['OSMACULA'];
-        $result['ODVESSELS']=$objQuery['ODVESSELS'];
-        $result['OSVESSELS']=$objQuery['OSVESSELS'];
-        $result['ODVITREOUS']=$objQuery['ODVITREOUS'];
-        $result['OSVITREOUS']=$objQuery['OSVITREOUS'];
-        $result['ODPERIPH']=$objQuery['ODPERIPH'];
-        $result['OSPERIPH']=$objQuery['OSPERIPH'];
-        $result['ODDRAWING']=$objQuery['ODDRAWING'];
-        $result['OSDRAWING']=$objQuery['OSDRAWING'];
-        $result['ODCMT']=$objQuery['ODCMT'];
-        $result['OSCMT']=$objQuery['OSCMT'];
-        $result['RETINA_COMMENTS']=$objQuery['RETINA_COMMENTS'];
+    } elseif ($zone == "RETINA") {
+        $result['ODDISC'] = $objQuery['ODDISC'];
+        $result['OSDISC'] = $objQuery['OSDISC'];
+        $result['ODCUP'] = $objQuery['ODCUP'];
+        $result['OSCUP'] = $objQuery['OSCUP'];
+        $result['ODMACULA'] = $objQuery['ODMACULA'];
+        $result['OSMACULA'] = $objQuery['OSMACULA'];
+        $result['ODVESSELS'] = $objQuery['ODVESSELS'];
+        $result['OSVESSELS'] = $objQuery['OSVESSELS'];
+        $result['ODVITREOUS'] = $objQuery['ODVITREOUS'];
+        $result['OSVITREOUS'] = $objQuery['OSVITREOUS'];
+        $result['ODPERIPH'] = $objQuery['ODPERIPH'];
+        $result['OSPERIPH'] = $objQuery['OSPERIPH'];
+        $result['ODDRAWING'] = $objQuery['ODDRAWING'];
+        $result['OSDRAWING'] = $objQuery['OSDRAWING'];
+        $result['ODCMT'] = $objQuery['ODCMT'];
+        $result['OSCMT'] = $objQuery['OSCMT'];
+        $result['RETINA_COMMENTS'] = $objQuery['RETINA_COMMENTS'];
         $result["json"] = json_encode($result);
         echo json_encode($result);
-    } elseif ($zone =="NEURO") {
-        $result['ACT']=$objQuery['ACT'];
-        $result['ACT5CCDIST']=$objQuery['ACT5CCDIST'];
-        $result['ACT1CCDIST']=$objQuery['ACT1CCDIST'];
-        $result['ACT2CCDIST']=$objQuery['ACT2CCDIST'];
-        $result['ACT3CCDIST']=$objQuery['ACT3CCDIST'];
-        $result['ACT4CCDIST']=$objQuery['ACT4CCDIST'];
-        $result['ACT6CCDIST']=$objQuery['ACT6CCDIST'];
-        $result['ACT7CCDIST']=$objQuery['ACT7CCDIST'];
-        $result['ACT8CCDIST']=$objQuery['ACT8CCDIST'];
-        $result['ACT9CCDIST']=$objQuery['ACT9CCDIST'];
-        $result['ACT10CCDIST']=$objQuery['ACT10CCDIST'];
-        $result['ACT11CCDIST']=$objQuery['ACT11CCDIST'];
-        $result['ACT1SCDIST']=$objQuery['ACT1SCDIST'];
-        $result['ACT2SCDIST']=$objQuery['ACT2SCDIST'];
-        $result['ACT3SCDIST']=$objQuery['ACT3SCDIST'];
-        $result['ACT4SCDIST']=$objQuery['ACT4SCDIST'];
-        $result['ACT5SCDIST']=$objQuery['ACT5SCDIST'];
-        $result['ACT6SCDIST']=$objQuery['ACT6SCDIST'];
-        $result['ACT7SCDIST']=$objQuery['ACT7SCDIST'];
-        $result['ACT8SCDIST']=$objQuery['ACT8SCDIST'];
-        $result['ACT9SCDIST']=$objQuery['ACT9SCDIST'];
-        $result['ACT10SCDIST']=$objQuery['ACT10SCDIST'];
-        $result['ACT11SCDIST']=$objQuery['ACT11SCDIST'];
-        $result['ACT1SCNEAR']=$objQuery['ACT1SCNEAR'];
-        $result['ACT2SCNEAR']=$objQuery['ACT2SCNEAR'];
-        $result['ACT3SCNEAR']=$objQuery['ACT3SCNEAR'];
-        $result['ACT4SCNEAR']=$objQuery['ACT4SCNEAR'];
-        $result['ACT5CCNEAR']=$objQuery['ACT5CCNEAR'];
-        $result['ACT6CCNEAR']=$objQuery['ACT6CCNEAR'];
-        $result['ACT7CCNEAR']=$objQuery['ACT7CCNEAR'];
-        $result['ACT8CCNEAR']=$objQuery['ACT8CCNEAR'];
-        $result['ACT9CCNEAR']=$objQuery['ACT9CCNEAR'];
-        $result['ACT10CCNEAR']=$objQuery['ACT10CCNEAR'];
-        $result['ACT11CCNEAR']=$objQuery['ACT11CCNEAR'];
-        $result['ACT5SCNEAR']=$objQuery['ACT5SCNEAR'];
-        $result['ACT6SCNEAR']=$objQuery['ACT6SCNEAR'];
-        $result['ACT7SCNEAR']=$objQuery['ACT7SCNEAR'];
-        $result['ACT8SCNEAR']=$objQuery['ACT8SCNEAR'];
-        $result['ACT9SCNEAR']=$objQuery['ACT9SCNEAR'];
-        $result['ACT10SCNEAR']=$objQuery['ACT10SCNEAR'];
-        $result['ACT11SCNEAR']=$objQuery['ACT11SCNEAR'];
-        $result['ACT1CCNEAR']=$objQuery['ACT1CCNEAR'];
-        $result['ACT2CCNEAR']=$objQuery['ACT2CCNEAR'];
-        $result['ACT3CCNEAR']=$objQuery['ACT3CCNEAR'];
-        $result['ACT4CCNEAR']=$objQuery['ACT4CCNEAR'];
-        $result['ODVF1']=$objQuery['ODVF1'];
-        $result['ODVF2']=$objQuery['ODVF2'];
-        $result['ODVF3']=$objQuery['ODVF3'];
-        $result['ODVF4']=$objQuery['ODVF4'];
-        $result['OSVF1']=$objQuery['OSVF1'];
-        $result['OSVF2']=$objQuery['OSVF2'];
-        $result['OSVF3']=$objQuery['OSVF3'];
-        $result['OSVF4']=$objQuery['OSVF4'];
-        $result['MOTILITY_RS']=$objQuery['MOTILITY_RS'];
-        $result['MOTILITY_RI']=$objQuery['MOTILITY_RI'];
-        $result['MOTILITY_RR']=$objQuery['MOTILITY_RR'];
-        $result['MOTILITY_RL']=$objQuery['MOTILITY_RL'];
-        $result['MOTILITY_LS']=$objQuery['MOTILITY_LS'];
-        $result['MOTILITY_LI']=$objQuery['MOTILITY_LI'];
-        $result['MOTILITY_LR']=$objQuery['MOTILITY_LR'];
-        $result['MOTILITY_LL']=$objQuery['MOTILITY_LL'];
-        $result['NEURO_COMMENTS']=$objQuery['NEURO_COMMENTS'];
-        $result['STEREOPSIS']=$objQuery['STEREOPSIS'];
-        $result['ODNPA']=$objQuery['ODNPA'];
-        $result['OSNPA']=$objQuery['OSNPA'];
-        $result['VERTFUSAMPS']=$objQuery['VERTFUSAMPS'];
-        $result['DIVERGENCEAMPS']=$objQuery['DIVERGENCEAMPS'];
-        $result['NPC']=$objQuery['NPC'];
-        $result['DACCDIST']=$objQuery['DACCDIST'];
-        $result['DACCNEAR']=$objQuery['DACCNEAR'];
-        $result['CACCDIST']=$objQuery['CACCDIST'];
-        $result['CACCNEAR']=$objQuery['CACCNEAR'];
-        $result['ODCOLOR']=$objQuery['ODCOLOR'];
-        $result['OSCOLOR']=$objQuery['OSCOLOR'];
-        $result['ODCOINS']=$objQuery['ODCOINS'];
-        $result['OSCOINS']=$objQuery['OSCOINS'];
-        $result['ODREDDESAT']=$objQuery['ODREDDESAT'];
-        $result['OSREDDESAT']=$objQuery['OSREDDESAT'];
-        $result['ODPUPILSIZE1']=$objQuery['ODPUPILSIZE1'];
-        $result['ODPUPILSIZE2']=$objQuery['ODPUPILSIZE2'];
-        $result['ODPUPILREACTIVITY']=$objQuery['ODPUPILREACTIVITY'];
-        $result['ODAPD']=$objQuery['ODAPD'];
-        $result['OSPUPILSIZE1']=$objQuery['OSPUPILSIZE1'];
-        $result['OSPUPILSIZE2']=$objQuery['OSPUPILSIZE2'];
-        $result['OSPUPILREACTIVITY']=$objQuery['OSPUPILREACTIVITY'];
-        $result['OSAPD']=$objQuery['OSAPD'];
-        $result['DIMODPUPILSIZE1']=$objQuery['DIMODPUPILSIZE1'];
-        $result['DIMODPUPILSIZE2']=$objQuery['DIMODPUPILSIZE2'];
-        $result['DIMODPUPILREACTIVITY']=$objQuery['DIMODPUPILREACTIVITY'];
-        $result['DIMOSPUPILSIZE1']=$objQuery['DIMOSPUPILSIZE1'];
-        $result['DIMOSPUPILSIZE2']=$objQuery['DIMOSPUPILSIZE2'];
-        $result['DIMOSPUPILREACTIVITY']=$objQuery['DIMOSPUPILREACTIVITY'];
-        $result['PUPIL_COMMENTS']=$objQuery['PUPIL_COMMENTS'];
+    } elseif ($zone == "NEURO") {
+        $result['ACT'] = $objQuery['ACT'];
+        $result['ACT5CCDIST'] = $objQuery['ACT5CCDIST'];
+        $result['ACT1CCDIST'] = $objQuery['ACT1CCDIST'];
+        $result['ACT2CCDIST'] = $objQuery['ACT2CCDIST'];
+        $result['ACT3CCDIST'] = $objQuery['ACT3CCDIST'];
+        $result['ACT4CCDIST'] = $objQuery['ACT4CCDIST'];
+        $result['ACT6CCDIST'] = $objQuery['ACT6CCDIST'];
+        $result['ACT7CCDIST'] = $objQuery['ACT7CCDIST'];
+        $result['ACT8CCDIST'] = $objQuery['ACT8CCDIST'];
+        $result['ACT9CCDIST'] = $objQuery['ACT9CCDIST'];
+        $result['ACT10CCDIST'] = $objQuery['ACT10CCDIST'];
+        $result['ACT11CCDIST'] = $objQuery['ACT11CCDIST'];
+        $result['ACT1SCDIST'] = $objQuery['ACT1SCDIST'];
+        $result['ACT2SCDIST'] = $objQuery['ACT2SCDIST'];
+        $result['ACT3SCDIST'] = $objQuery['ACT3SCDIST'];
+        $result['ACT4SCDIST'] = $objQuery['ACT4SCDIST'];
+        $result['ACT5SCDIST'] = $objQuery['ACT5SCDIST'];
+        $result['ACT6SCDIST'] = $objQuery['ACT6SCDIST'];
+        $result['ACT7SCDIST'] = $objQuery['ACT7SCDIST'];
+        $result['ACT8SCDIST'] = $objQuery['ACT8SCDIST'];
+        $result['ACT9SCDIST'] = $objQuery['ACT9SCDIST'];
+        $result['ACT10SCDIST'] = $objQuery['ACT10SCDIST'];
+        $result['ACT11SCDIST'] = $objQuery['ACT11SCDIST'];
+        $result['ACT1SCNEAR'] = $objQuery['ACT1SCNEAR'];
+        $result['ACT2SCNEAR'] = $objQuery['ACT2SCNEAR'];
+        $result['ACT3SCNEAR'] = $objQuery['ACT3SCNEAR'];
+        $result['ACT4SCNEAR'] = $objQuery['ACT4SCNEAR'];
+        $result['ACT5CCNEAR'] = $objQuery['ACT5CCNEAR'];
+        $result['ACT6CCNEAR'] = $objQuery['ACT6CCNEAR'];
+        $result['ACT7CCNEAR'] = $objQuery['ACT7CCNEAR'];
+        $result['ACT8CCNEAR'] = $objQuery['ACT8CCNEAR'];
+        $result['ACT9CCNEAR'] = $objQuery['ACT9CCNEAR'];
+        $result['ACT10CCNEAR'] = $objQuery['ACT10CCNEAR'];
+        $result['ACT11CCNEAR'] = $objQuery['ACT11CCNEAR'];
+        $result['ACT5SCNEAR'] = $objQuery['ACT5SCNEAR'];
+        $result['ACT6SCNEAR'] = $objQuery['ACT6SCNEAR'];
+        $result['ACT7SCNEAR'] = $objQuery['ACT7SCNEAR'];
+        $result['ACT8SCNEAR'] = $objQuery['ACT8SCNEAR'];
+        $result['ACT9SCNEAR'] = $objQuery['ACT9SCNEAR'];
+        $result['ACT10SCNEAR'] = $objQuery['ACT10SCNEAR'];
+        $result['ACT11SCNEAR'] = $objQuery['ACT11SCNEAR'];
+        $result['ACT1CCNEAR'] = $objQuery['ACT1CCNEAR'];
+        $result['ACT2CCNEAR'] = $objQuery['ACT2CCNEAR'];
+        $result['ACT3CCNEAR'] = $objQuery['ACT3CCNEAR'];
+        $result['ACT4CCNEAR'] = $objQuery['ACT4CCNEAR'];
+        $result['ODVF1'] = $objQuery['ODVF1'];
+        $result['ODVF2'] = $objQuery['ODVF2'];
+        $result['ODVF3'] = $objQuery['ODVF3'];
+        $result['ODVF4'] = $objQuery['ODVF4'];
+        $result['OSVF1'] = $objQuery['OSVF1'];
+        $result['OSVF2'] = $objQuery['OSVF2'];
+        $result['OSVF3'] = $objQuery['OSVF3'];
+        $result['OSVF4'] = $objQuery['OSVF4'];
+        $result['MOTILITY_RS'] = $objQuery['MOTILITY_RS'];
+        $result['MOTILITY_RI'] = $objQuery['MOTILITY_RI'];
+        $result['MOTILITY_RR'] = $objQuery['MOTILITY_RR'];
+        $result['MOTILITY_RL'] = $objQuery['MOTILITY_RL'];
+        $result['MOTILITY_LS'] = $objQuery['MOTILITY_LS'];
+        $result['MOTILITY_LI'] = $objQuery['MOTILITY_LI'];
+        $result['MOTILITY_LR'] = $objQuery['MOTILITY_LR'];
+        $result['MOTILITY_LL'] = $objQuery['MOTILITY_LL'];
+        $result['NEURO_COMMENTS'] = $objQuery['NEURO_COMMENTS'];
+        $result['STEREOPSIS'] = $objQuery['STEREOPSIS'];
+        $result['ODNPA'] = $objQuery['ODNPA'];
+        $result['OSNPA'] = $objQuery['OSNPA'];
+        $result['VERTFUSAMPS'] = $objQuery['VERTFUSAMPS'];
+        $result['DIVERGENCEAMPS'] = $objQuery['DIVERGENCEAMPS'];
+        $result['NPC'] = $objQuery['NPC'];
+        $result['DACCDIST'] = $objQuery['DACCDIST'];
+        $result['DACCNEAR'] = $objQuery['DACCNEAR'];
+        $result['CACCDIST'] = $objQuery['CACCDIST'];
+        $result['CACCNEAR'] = $objQuery['CACCNEAR'];
+        $result['ODCOLOR'] = $objQuery['ODCOLOR'];
+        $result['OSCOLOR'] = $objQuery['OSCOLOR'];
+        $result['ODCOINS'] = $objQuery['ODCOINS'];
+        $result['OSCOINS'] = $objQuery['OSCOINS'];
+        $result['ODREDDESAT'] = $objQuery['ODREDDESAT'];
+        $result['OSREDDESAT'] = $objQuery['OSREDDESAT'];
+        $result['ODPUPILSIZE1'] = $objQuery['ODPUPILSIZE1'];
+        $result['ODPUPILSIZE2'] = $objQuery['ODPUPILSIZE2'];
+        $result['ODPUPILREACTIVITY'] = $objQuery['ODPUPILREACTIVITY'];
+        $result['ODAPD'] = $objQuery['ODAPD'];
+        $result['OSPUPILSIZE1'] = $objQuery['OSPUPILSIZE1'];
+        $result['OSPUPILSIZE2'] = $objQuery['OSPUPILSIZE2'];
+        $result['OSPUPILREACTIVITY'] = $objQuery['OSPUPILREACTIVITY'];
+        $result['OSAPD'] = $objQuery['OSAPD'];
+        $result['DIMODPUPILSIZE1'] = $objQuery['DIMODPUPILSIZE1'];
+        $result['DIMODPUPILSIZE2'] = $objQuery['DIMODPUPILSIZE2'];
+        $result['DIMODPUPILREACTIVITY'] = $objQuery['DIMODPUPILREACTIVITY'];
+        $result['DIMOSPUPILSIZE1'] = $objQuery['DIMOSPUPILSIZE1'];
+        $result['DIMOSPUPILSIZE2'] = $objQuery['DIMOSPUPILSIZE2'];
+        $result['DIMOSPUPILREACTIVITY'] = $objQuery['DIMOSPUPILREACTIVITY'];
+        $result['PUPIL_COMMENTS'] = $objQuery['PUPIL_COMMENTS'];
         $result["json"] = json_encode($result);
         echo json_encode($result);
-    } elseif ($zone =="IMPPLAN") {
+    } elseif ($zone == "IMPPLAN") {
         $result['IMPPLAN'] = build_IMPPLAN_items($pid, $copy_from);
         echo json_encode($result);
-    } elseif ($zone =="ALL") {
-        $result['RUL']=$objQuery['RUL'];
-        $result['LUL']=$objQuery['LUL'];
-        $result['RLL']=$objQuery['RLL'];
-        $result['LLL']=$objQuery['LLL'];
-        $result['RBROW']=$objQuery['RBROW'];
-        $result['LBROW']=$objQuery['LBROW'];
-        $result['RMCT']=$objQuery['RMCT'];
-        $result['LMCT']=$objQuery['LMCT'];
-        $result['RADNEXA']=$objQuery['RADNEXA'];
-        $result['LADNEXA']=$objQuery['LADNEXA'];
-        $result['RMRD']=$objQuery['RMRD'];
-        $result['LMRD']=$objQuery['LMRD'];
-        $result['RLF']=$objQuery['RLF'];
-        $result['LLF']=$objQuery['LLF'];
-        $result['RVFISSURE']=$objQuery['RVFISSURE'];
-        $result['LVFISSURE']=$objQuery['LVFISSURE'];
-        $result['ODHERTEL']=$objQuery['ODHERTEL'];
-        $result['OSHERTEL']=$objQuery['OSHERTEL'];
-        $result['HERTELBASE']=$objQuery['HERTELBASE'];
-        $result['ODPIC']=$objQuery['ODPIC'];
-        $result['OSPIC']=$objQuery['OSPIC'];
-        $result['EXT_COMMENTS']=$objQuery['EXT_COMMENTS'];
+    } elseif ($zone == "ALL") {
+        $result['RUL'] = $objQuery['RUL'];
+        $result['LUL'] = $objQuery['LUL'];
+        $result['RLL'] = $objQuery['RLL'];
+        $result['LLL'] = $objQuery['LLL'];
+        $result['RBROW'] = $objQuery['RBROW'];
+        $result['LBROW'] = $objQuery['LBROW'];
+        $result['RMCT'] = $objQuery['RMCT'];
+        $result['LMCT'] = $objQuery['LMCT'];
+        $result['RADNEXA'] = $objQuery['RADNEXA'];
+        $result['LADNEXA'] = $objQuery['LADNEXA'];
+        $result['RMRD'] = $objQuery['RMRD'];
+        $result['LMRD'] = $objQuery['LMRD'];
+        $result['RLF'] = $objQuery['RLF'];
+        $result['LLF'] = $objQuery['LLF'];
+        $result['RVFISSURE'] = $objQuery['RVFISSURE'];
+        $result['LVFISSURE'] = $objQuery['LVFISSURE'];
+        $result['ODHERTEL'] = $objQuery['ODHERTEL'];
+        $result['OSHERTEL'] = $objQuery['OSHERTEL'];
+        $result['HERTELBASE'] = $objQuery['HERTELBASE'];
+        $result['ODPIC'] = $objQuery['ODPIC'];
+        $result['OSPIC'] = $objQuery['OSPIC'];
+        $result['EXT_COMMENTS'] = $objQuery['EXT_COMMENTS'];
 
-        $result['OSCONJ']=$objQuery['OSCONJ'];
-        $result['ODCONJ']=$objQuery['ODCONJ'];
-        $result['ODCORNEA']=$objQuery['ODCORNEA'];
-        $result['OSCORNEA']=$objQuery['OSCORNEA'];
-        $result['ODAC']=$objQuery['ODAC'];
-        $result['OSAC']=$objQuery['OSAC'];
-        $result['ODLENS']=$objQuery['ODLENS'];
-        $result['OSLENS']=$objQuery['OSLENS'];
-        $result['ODIRIS']=$objQuery['ODIRIS'];
-        $result['OSIRIS']=$objQuery['OSIRIS'];
-        $result['ODKTHICKNESS']=$objQuery['ODKTHICKNESS'];
-        $result['OSKTHICKNESS']=$objQuery['OSKTHICKNESS'];
-        $result['ODGONIO']=$objQuery['ODGONIO'];
-        $result['OSGONIO']=$objQuery['OSGONIO'];
-        $result['ANTSEG_COMMENTS']=$objQuery['ANTSEG_COMMENTS'];
+        $result['OSCONJ'] = $objQuery['OSCONJ'];
+        $result['ODCONJ'] = $objQuery['ODCONJ'];
+        $result['ODCORNEA'] = $objQuery['ODCORNEA'];
+        $result['OSCORNEA'] = $objQuery['OSCORNEA'];
+        $result['ODAC'] = $objQuery['ODAC'];
+        $result['OSAC'] = $objQuery['OSAC'];
+        $result['ODLENS'] = $objQuery['ODLENS'];
+        $result['OSLENS'] = $objQuery['OSLENS'];
+        $result['ODIRIS'] = $objQuery['ODIRIS'];
+        $result['OSIRIS'] = $objQuery['OSIRIS'];
+        $result['ODKTHICKNESS'] = $objQuery['ODKTHICKNESS'];
+        $result['OSKTHICKNESS'] = $objQuery['OSKTHICKNESS'];
+        $result['ODGONIO'] = $objQuery['ODGONIO'];
+        $result['OSGONIO'] = $objQuery['OSGONIO'];
+        $result['ANTSEG_COMMENTS'] = $objQuery['ANTSEG_COMMENTS'];
 
-        $result['ODDISC']=$objQuery['ODDISC'];
-        $result['OSDISC']=$objQuery['OSDISC'];
-        $result['ODCUP']=$objQuery['ODCUP'];
-        $result['OSCUP']=$objQuery['OSCUP'];
-        $result['ODMACULA']=$objQuery['ODMACULA'];
-        $result['OSMACULA']=$objQuery['OSMACULA'];
-        $result['ODVESSELS']=$objQuery['ODVESSELS'];
-        $result['OSVESSELS']=$objQuery['OSVESSELS'];
-        $result['ODVITREOUS']=$objQuery['ODVITREOUS'];
-        $result['OSVITREOUS']=$objQuery['OSVITREOUS'];
-        $result['ODPERIPH']=$objQuery['ODPERIPH'];
-        $result['OSPERIPH']=$objQuery['OSPERIPH'];
-        $result['ODDRAWING']=$objQuery['ODDRAWING'];
-        $result['OSDRAWING']=$objQuery['OSDRAWING'];
-        $result['ODCMT']=$objQuery['ODCMT'];
-        $result['OSCMT']=$objQuery['OSCMT'];
-        $result['RETINA_COMMENTS']=$objQuery['RETINA_COMMENTS'];
+        $result['ODDISC'] = $objQuery['ODDISC'];
+        $result['OSDISC'] = $objQuery['OSDISC'];
+        $result['ODCUP'] = $objQuery['ODCUP'];
+        $result['OSCUP'] = $objQuery['OSCUP'];
+        $result['ODMACULA'] = $objQuery['ODMACULA'];
+        $result['OSMACULA'] = $objQuery['OSMACULA'];
+        $result['ODVESSELS'] = $objQuery['ODVESSELS'];
+        $result['OSVESSELS'] = $objQuery['OSVESSELS'];
+        $result['ODVITREOUS'] = $objQuery['ODVITREOUS'];
+        $result['OSVITREOUS'] = $objQuery['OSVITREOUS'];
+        $result['ODPERIPH'] = $objQuery['ODPERIPH'];
+        $result['OSPERIPH'] = $objQuery['OSPERIPH'];
+        $result['ODDRAWING'] = $objQuery['ODDRAWING'];
+        $result['OSDRAWING'] = $objQuery['OSDRAWING'];
+        $result['ODCMT'] = $objQuery['ODCMT'];
+        $result['OSCMT'] = $objQuery['OSCMT'];
+        $result['RETINA_COMMENTS'] = $objQuery['RETINA_COMMENTS'];
 
-        $result['ACT']=$objQuery['ACT'];
-        $result['ACT5CCDIST']=$objQuery['ACT5CCDIST'];
-        $result['ACT1CCDIST']=$objQuery['ACT1CCDIST'];
-        $result['ACT2CCDIST']=$objQuery['ACT2CCDIST'];
-        $result['ACT3CCDIST']=$objQuery['ACT3CCDIST'];
-        $result['ACT4CCDIST']=$objQuery['ACT4CCDIST'];
-        $result['ACT6CCDIST']=$objQuery['ACT6CCDIST'];
-        $result['ACT7CCDIST']=$objQuery['ACT7CCDIST'];
-        $result['ACT8CCDIST']=$objQuery['ACT8CCDIST'];
-        $result['ACT9CCDIST']=$objQuery['ACT9CCDIST'];
-        $result['ACT10CCDIST']=$objQuery['ACT10CCDIST'];
-        $result['ACT11CCDIST']=$objQuery['ACT11CCDIST'];
-        $result['ACT1SCDIST']=$objQuery['ACT1SCDIST'];
-        $result['ACT2SCDIST']=$objQuery['ACT2SCDIST'];
-        $result['ACT3SCDIST']=$objQuery['ACT3SCDIST'];
-        $result['ACT4SCDIST']=$objQuery['ACT4SCDIST'];
-        $result['ACT5SCDIST']=$objQuery['ACT5SCDIST'];
-        $result['ACT6SCDIST']=$objQuery['ACT6SCDIST'];
-        $result['ACT7SCDIST']=$objQuery['ACT7SCDIST'];
-        $result['ACT8SCDIST']=$objQuery['ACT8SCDIST'];
-        $result['ACT9SCDIST']=$objQuery['ACT9SCDIST'];
-        $result['ACT10SCDIST']=$objQuery['ACT10SCDIST'];
-        $result['ACT11SCDIST']=$objQuery['ACT11SCDIST'];
-        $result['ACT1SCNEAR']=$objQuery['ACT1SCNEAR'];
-        $result['ACT2SCNEAR']=$objQuery['ACT2SCNEAR'];
-        $result['ACT3SCNEAR']=$objQuery['ACT3SCNEAR'];
-        $result['ACT4SCNEAR']=$objQuery['ACT4SCNEAR'];
-        $result['ACT5CCNEAR']=$objQuery['ACT5CCNEAR'];
-        $result['ACT6CCNEAR']=$objQuery['ACT6CCNEAR'];
-        $result['ACT7CCNEAR']=$objQuery['ACT7CCNEAR'];
-        $result['ACT8CCNEAR']=$objQuery['ACT8CCNEAR'];
-        $result['ACT9CCNEAR']=$objQuery['ACT9CCNEAR'];
-        $result['ACT10CCNEAR']=$objQuery['ACT10CCNEAR'];
-        $result['ACT11CCNEAR']=$objQuery['ACT11CCNEAR'];
-        $result['ACT5SCNEAR']=$objQuery['ACT5SCNEAR'];
-        $result['ACT6SCNEAR']=$objQuery['ACT6SCNEAR'];
-        $result['ACT7SCNEAR']=$objQuery['ACT7SCNEAR'];
-        $result['ACT8SCNEAR']=$objQuery['ACT8SCNEAR'];
-        $result['ACT9SCNEAR']=$objQuery['ACT9SCNEAR'];
-        $result['ACT10SCNEAR']=$objQuery['ACT10SCNEAR'];
-        $result['ACT11SCNEAR']=$objQuery['ACT11SCNEAR'];
-        $result['ACT1CCNEAR']=$objQuery['ACT1CCNEAR'];
-        $result['ACT2CCNEAR']=$objQuery['ACT2CCNEAR'];
-        $result['ACT3CCNEAR']=$objQuery['ACT3CCNEAR'];
-        $result['ACT4CCNEAR']=$objQuery['ACT4CCNEAR'];
-        $result['ODVF1']=$objQuery['ODVF1'];
-        $result['ODVF2']=$objQuery['ODVF2'];
-        $result['ODVF3']=$objQuery['ODVF3'];
-        $result['ODVF4']=$objQuery['ODVF4'];
-        $result['OSVF1']=$objQuery['OSVF1'];
-        $result['OSVF2']=$objQuery['OSVF2'];
-        $result['OSVF3']=$objQuery['OSVF3'];
-        $result['OSVF4']=$objQuery['OSVF4'];
-        $result['MOTILITY_RS']=$objQuery['MOTILITY_RS'];
-        $result['MOTILITY_RI']=$objQuery['MOTILITY_RI'];
-        $result['MOTILITY_RR']=$objQuery['MOTILITY_RR'];
-        $result['MOTILITY_RL']=$objQuery['MOTILITY_RL'];
-        $result['MOTILITY_LS']=$objQuery['MOTILITY_LS'];
-        $result['MOTILITY_LI']=$objQuery['MOTILITY_LI'];
-        $result['MOTILITY_LR']=$objQuery['MOTILITY_LR'];
-        $result['MOTILITY_LL']=$objQuery['MOTILITY_LL'];
-        $result['NEURO_COMMENTS']=$objQuery['NEURO_COMMENTS'];
-        $result['STEREOPSIS']=$objQuery['STEREOPSIS'];
-        $result['ODNPA']=$objQuery['ODNPA'];
-        $result['OSNPA']=$objQuery['OSNPA'];
-        $result['VERTFUSAMPS']=$objQuery['VERTFUSAMPS'];
-        $result['DIVERGENCEAMPS']=$objQuery['DIVERGENCEAMPS'];
-        $result['NPC']=$objQuery['NPC'];
-        $result['DACCDIST']=$objQuery['DACCDIST'];
-        $result['DACCNEAR']=$objQuery['DACCNEAR'];
-        $result['CACCDIST']=$objQuery['CACCDIST'];
-        $result['CACCNEAR']=$objQuery['CACCNEAR'];
-        $result['ODCOLOR']=$objQuery['ODCOLOR'];
-        $result['OSCOLOR']=$objQuery['OSCOLOR'];
-        $result['ODCOINS']=$objQuery['ODCOINS'];
-        $result['OSCOINS']=$objQuery['OSCOINS'];
-        $result['ODREDDESAT']=$objQuery['ODREDDESAT'];
-        $result['OSREDDESAT']=$objQuery['OSREDDESAT'];
-        $result['ODPUPILSIZE1']=$objQuery['ODPUPILSIZE1'];
-        $result['ODPUPILSIZE2']=$objQuery['ODPUPILSIZE2'];
-        $result['ODPUPILREACTIVITY']=$objQuery['ODPUPILREACTIVITY'];
-        $result['ODAPD']=$objQuery['ODAPD'];
-        $result['OSPUPILSIZE1']=$objQuery['OSPUPILSIZE1'];
-        $result['OSPUPILSIZE2']=$objQuery['OSPUPILSIZE2'];
-        $result['OSPUPILREACTIVITY']=$objQuery['OSPUPILREACTIVITY'];
-        $result['OSAPD']=$objQuery['OSAPD'];
-        $result['DIMODPUPILSIZE1']=$objQuery['DIMODPUPILSIZE1'];
-        $result['DIMODPUPILSIZE2']=$objQuery['DIMODPUPILSIZE2'];
-        $result['DIMODPUPILREACTIVITY']=$objQuery['DIMODPUPILREACTIVITY'];
-        $result['DIMOSPUPILSIZE1']=$objQuery['DIMOSPUPILSIZE1'];
-        $result['DIMOSPUPILSIZE2']=$objQuery['DIMOSPUPILSIZE2'];
-        $result['DIMOSPUPILREACTIVITY']=$objQuery['DIMOSPUPILREACTIVITY'];
-        $result['PUPIL_COMMENTS']=$objQuery['PUPIL_COMMENTS'];
-        $result['IMP']=$objQuery['IMP'];
+        $result['ACT'] = $objQuery['ACT'];
+        $result['ACT5CCDIST'] = $objQuery['ACT5CCDIST'];
+        $result['ACT1CCDIST'] = $objQuery['ACT1CCDIST'];
+        $result['ACT2CCDIST'] = $objQuery['ACT2CCDIST'];
+        $result['ACT3CCDIST'] = $objQuery['ACT3CCDIST'];
+        $result['ACT4CCDIST'] = $objQuery['ACT4CCDIST'];
+        $result['ACT6CCDIST'] = $objQuery['ACT6CCDIST'];
+        $result['ACT7CCDIST'] = $objQuery['ACT7CCDIST'];
+        $result['ACT8CCDIST'] = $objQuery['ACT8CCDIST'];
+        $result['ACT9CCDIST'] = $objQuery['ACT9CCDIST'];
+        $result['ACT10CCDIST'] = $objQuery['ACT10CCDIST'];
+        $result['ACT11CCDIST'] = $objQuery['ACT11CCDIST'];
+        $result['ACT1SCDIST'] = $objQuery['ACT1SCDIST'];
+        $result['ACT2SCDIST'] = $objQuery['ACT2SCDIST'];
+        $result['ACT3SCDIST'] = $objQuery['ACT3SCDIST'];
+        $result['ACT4SCDIST'] = $objQuery['ACT4SCDIST'];
+        $result['ACT5SCDIST'] = $objQuery['ACT5SCDIST'];
+        $result['ACT6SCDIST'] = $objQuery['ACT6SCDIST'];
+        $result['ACT7SCDIST'] = $objQuery['ACT7SCDIST'];
+        $result['ACT8SCDIST'] = $objQuery['ACT8SCDIST'];
+        $result['ACT9SCDIST'] = $objQuery['ACT9SCDIST'];
+        $result['ACT10SCDIST'] = $objQuery['ACT10SCDIST'];
+        $result['ACT11SCDIST'] = $objQuery['ACT11SCDIST'];
+        $result['ACT1SCNEAR'] = $objQuery['ACT1SCNEAR'];
+        $result['ACT2SCNEAR'] = $objQuery['ACT2SCNEAR'];
+        $result['ACT3SCNEAR'] = $objQuery['ACT3SCNEAR'];
+        $result['ACT4SCNEAR'] = $objQuery['ACT4SCNEAR'];
+        $result['ACT5CCNEAR'] = $objQuery['ACT5CCNEAR'];
+        $result['ACT6CCNEAR'] = $objQuery['ACT6CCNEAR'];
+        $result['ACT7CCNEAR'] = $objQuery['ACT7CCNEAR'];
+        $result['ACT8CCNEAR'] = $objQuery['ACT8CCNEAR'];
+        $result['ACT9CCNEAR'] = $objQuery['ACT9CCNEAR'];
+        $result['ACT10CCNEAR'] = $objQuery['ACT10CCNEAR'];
+        $result['ACT11CCNEAR'] = $objQuery['ACT11CCNEAR'];
+        $result['ACT5SCNEAR'] = $objQuery['ACT5SCNEAR'];
+        $result['ACT6SCNEAR'] = $objQuery['ACT6SCNEAR'];
+        $result['ACT7SCNEAR'] = $objQuery['ACT7SCNEAR'];
+        $result['ACT8SCNEAR'] = $objQuery['ACT8SCNEAR'];
+        $result['ACT9SCNEAR'] = $objQuery['ACT9SCNEAR'];
+        $result['ACT10SCNEAR'] = $objQuery['ACT10SCNEAR'];
+        $result['ACT11SCNEAR'] = $objQuery['ACT11SCNEAR'];
+        $result['ACT1CCNEAR'] = $objQuery['ACT1CCNEAR'];
+        $result['ACT2CCNEAR'] = $objQuery['ACT2CCNEAR'];
+        $result['ACT3CCNEAR'] = $objQuery['ACT3CCNEAR'];
+        $result['ACT4CCNEAR'] = $objQuery['ACT4CCNEAR'];
+        $result['ODVF1'] = $objQuery['ODVF1'];
+        $result['ODVF2'] = $objQuery['ODVF2'];
+        $result['ODVF3'] = $objQuery['ODVF3'];
+        $result['ODVF4'] = $objQuery['ODVF4'];
+        $result['OSVF1'] = $objQuery['OSVF1'];
+        $result['OSVF2'] = $objQuery['OSVF2'];
+        $result['OSVF3'] = $objQuery['OSVF3'];
+        $result['OSVF4'] = $objQuery['OSVF4'];
+        $result['MOTILITY_RS'] = $objQuery['MOTILITY_RS'];
+        $result['MOTILITY_RI'] = $objQuery['MOTILITY_RI'];
+        $result['MOTILITY_RR'] = $objQuery['MOTILITY_RR'];
+        $result['MOTILITY_RL'] = $objQuery['MOTILITY_RL'];
+        $result['MOTILITY_LS'] = $objQuery['MOTILITY_LS'];
+        $result['MOTILITY_LI'] = $objQuery['MOTILITY_LI'];
+        $result['MOTILITY_LR'] = $objQuery['MOTILITY_LR'];
+        $result['MOTILITY_LL'] = $objQuery['MOTILITY_LL'];
+        $result['NEURO_COMMENTS'] = $objQuery['NEURO_COMMENTS'];
+        $result['STEREOPSIS'] = $objQuery['STEREOPSIS'];
+        $result['ODNPA'] = $objQuery['ODNPA'];
+        $result['OSNPA'] = $objQuery['OSNPA'];
+        $result['VERTFUSAMPS'] = $objQuery['VERTFUSAMPS'];
+        $result['DIVERGENCEAMPS'] = $objQuery['DIVERGENCEAMPS'];
+        $result['NPC'] = $objQuery['NPC'];
+        $result['DACCDIST'] = $objQuery['DACCDIST'];
+        $result['DACCNEAR'] = $objQuery['DACCNEAR'];
+        $result['CACCDIST'] = $objQuery['CACCDIST'];
+        $result['CACCNEAR'] = $objQuery['CACCNEAR'];
+        $result['ODCOLOR'] = $objQuery['ODCOLOR'];
+        $result['OSCOLOR'] = $objQuery['OSCOLOR'];
+        $result['ODCOINS'] = $objQuery['ODCOINS'];
+        $result['OSCOINS'] = $objQuery['OSCOINS'];
+        $result['ODREDDESAT'] = $objQuery['ODREDDESAT'];
+        $result['OSREDDESAT'] = $objQuery['OSREDDESAT'];
+        $result['ODPUPILSIZE1'] = $objQuery['ODPUPILSIZE1'];
+        $result['ODPUPILSIZE2'] = $objQuery['ODPUPILSIZE2'];
+        $result['ODPUPILREACTIVITY'] = $objQuery['ODPUPILREACTIVITY'];
+        $result['ODAPD'] = $objQuery['ODAPD'];
+        $result['OSPUPILSIZE1'] = $objQuery['OSPUPILSIZE1'];
+        $result['OSPUPILSIZE2'] = $objQuery['OSPUPILSIZE2'];
+        $result['OSPUPILREACTIVITY'] = $objQuery['OSPUPILREACTIVITY'];
+        $result['OSAPD'] = $objQuery['OSAPD'];
+        $result['DIMODPUPILSIZE1'] = $objQuery['DIMODPUPILSIZE1'];
+        $result['DIMODPUPILSIZE2'] = $objQuery['DIMODPUPILSIZE2'];
+        $result['DIMODPUPILREACTIVITY'] = $objQuery['DIMODPUPILREACTIVITY'];
+        $result['DIMOSPUPILSIZE1'] = $objQuery['DIMOSPUPILSIZE1'];
+        $result['DIMOSPUPILSIZE2'] = $objQuery['DIMOSPUPILSIZE2'];
+        $result['DIMOSPUPILREACTIVITY'] = $objQuery['DIMOSPUPILREACTIVITY'];
+        $result['PUPIL_COMMENTS'] = $objQuery['PUPIL_COMMENTS'];
+        $result['IMP'] = $objQuery['IMP'];
         $result["json"] = json_encode($result);
         echo json_encode($result);
-    } elseif ($zone =="READONLY") {
-        $result=$objQuery;
-        $count_rx='0';
+    } elseif ($zone == "READONLY") {
+        $result = $objQuery;
+        $count_rx = '0';
         $query1 = "select * from form_eye_mag_wearing where PID=? and ENCOUNTER=? and FORM_ID >'0' ORDER BY RX_NUMBER";
         $wear = sqlStatement($query1, array($pid,$_SESSION['encounter']));
         while ($wearing = sqlFetchArray($wear)) {
@@ -3611,10 +3614,10 @@ function copy_forward($zone, $copy_from, $copy_to, $pid)
 function build_IMPPLAN_items($pid, $form_id)
 {
     global $form_folder;
-    $query ="select * from form_".$form_folder."_impplan where form_id=? and pid=? ORDER BY IMPPLAN_order";
+    $query = "select * from form_" . $form_folder . "_impplan where form_id=? and pid=? ORDER BY IMPPLAN_order";
     $newdata = array();
     $fres = sqlStatement($query, array($form_id,$pid));
-    $i=0;
+    $i = 0;
     while ($frow = sqlFetchArray($fres)) {
         $IMPPLAN_items[$i]['form_id'] = $frow['form_id'];
         $IMPPLAN_items[$i]['pid'] = $frow['pid'];
@@ -3641,9 +3644,9 @@ function build_IMPPLAN_items($pid, $form_id)
              */
 function build_CODING_items($pid, $encounter)
 {
-    $query ="select * from billing where encounter=? and pid=? ORDER BY id";
+    $query = "select * from billing where encounter=? and pid=? ORDER BY id";
     $fres = sqlStatement($query, array($encounter,$pid));
-    $i=0;
+    $i = 0;
 
     while ($frow = sqlFetchArray($fres)) {
         $CODING_items[$i]['encounter'] = $frow['encounter'];
@@ -3674,9 +3677,9 @@ function document_engine($pid)
     while ($row1 = sqlFetchArray($sql1)) {
         $categories[] = $row1;
         $my_name[$row1['id']] = $row1['name'];
-        $children_names[$row1['parent']][]=$row1['name'];
+        $children_names[$row1['parent']][] = $row1['name'];
         $parent_name[$row1['name']] = $my_name[$row1['parent']];
-        if ($row1['value'] >'') {
+        if ($row1['value'] > '') {
             //if there is a value, tells us what segment of exam ($zone) this belongs in...
             $zones[$row1['value']][] = $row1;
         } else {
@@ -3696,27 +3699,27 @@ function document_engine($pid)
         //the document may not be created on the same day as the encounter, use encounter date first
         //get encounter date from encounter id
         if ($row2['encounter_id']) {
-            $visit= getEncounterDateByEncounter($row2['encounter_id']);
+            $visit = getEncounterDateByEncounter($row2['encounter_id']);
             $row2['encounter_date'] = oeFormatSDFT(strtotime($visit['date']));
         } else {
             $row2['encounter_date'] = $row2['docdate'];
         }
 
-        $documents[]= $row2;
+        $documents[] = $row2;
         $docs_in_cat_id[$row2['category_id']][] = $row2;
         if ($row2['value'] > '') {
             $docs_in_zone[$row2['value']][] = $row2;
         } else {
-            $docs_in_zone['OTHER'][]=$row2;
+            $docs_in_zone['OTHER'][] = $row2;
         }
 
         $docs_in_name[$row2['name']][] = $row2;
         $docs_by_date[$row2['encounter_date']][] = $row2;
     }
 
-    $documents['categories']=$categories;
-    $documents['my_name']=$my_name;
-    $documents['children_names']=$children_names;
+    $documents['categories'] = $categories;
+    $documents['my_name'] = $my_name;
+    $documents['children_names'] = $children_names;
     $documents['parent_name'] = $parent_name;
     $documents['zones'] = $zones;
     $documents['docs_in_zone'] = $docs_in_zone;
@@ -3764,27 +3767,27 @@ function display($pid, $encounter, $category_value)
         list($documents) = document_engine($pid);
     }
 
-    for ($j=0; $j < count($documents['zones'][$category_value]); $j++) {
+    for ($j = 0; $j < count($documents['zones'][$category_value]); $j++) {
         $count_here = empty($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) ? 0 : count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
 
-        $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here-1]['document_id'];
+        $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'];
         $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", $documents['zones'][$category_value][$j]['name']);
         $episode .= "<tr>
-        <td class='right'><b>".text($documents['zones'][$category_value][$j]['name'])."</b>:&nbsp;</td>
+        <td class='right'><b>" . text($documents['zones'][$category_value][$j]['name']) . "</b>:&nbsp;</td>
         <td>
-            <a href='../../../controller.php?document&upload&patient_id=".attr($pid)."&parent_id=".attr($documents['zones'][$category_value][$j]['id'])."&'>
-            <img src='../../forms/".$form_folder."/images/upload_file.png' class='little_image'>
+            <a href='../../../controller.php?document&upload&patient_id=" . attr($pid) . "&parent_id=" . attr($documents['zones'][$category_value][$j]['id']) . "&'>
+            <img src='../../forms/" . $form_folder . "/images/upload_file.png' class='little_image'>
             </a>
         </td>
         <td>
-            <a onclick=\"return showpnotes('". $id_to_show ."');\">
-                <img  src='../../forms/".$form_folder."/images/upload_multi.png' class='little_image'>
+            <a onclick=\"return showpnotes('" . $id_to_show . "');\">
+                <img  src='../../forms/" . $form_folder . "/images/upload_multi.png' class='little_image'>
             </a>
         </td>
         <td>";
         //open via OpenEMR Documents with treemenu
         if ($count_here > '0') {
-            $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
+            $episode .= '<a onclick="openNewForm(\'' . $GLOBALS['webroot'] . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . $id_to_show . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
         }
 
         $episode .= '</td></tr>';
@@ -3812,20 +3815,20 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
     global $display;
     global $provider_id;
 
-    $providerNAME = $prov_data['fname']." ".$prov_data['lname'];
+    $providerNAME = $prov_data['fname'] . " " . $prov_data['lname'];
     if ($prov_data['suffix']) {
-        $providerNAME.= ", ".$prov_data['suffix'];
+        $providerNAME .= ", " . $prov_data['suffix'];
     }
 
     if ($_REQUEST['display'] == "fullscreen") {
         $fullscreen_disable = 'disabled';
     } else {
-        $frame_disabled ='disabled';
+        $frame_disabled = 'disabled';
         echo "<style>.tabHide{ display:none; }</style>";
     }
     ?>
        <!-- Navigation -->
-    <nav class="navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation" style="margin-bottom: 0;z-index: 9999999;">
+    <nav class="navbar navbar-fixed-top navbar-custom navbar-bright navbar-inner navbar-expand" data-role="page banner navigation" style="margin-bottom: 0;z-index: 9999999;">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="container-fluid" style="margin-top:0px;padding:2px;">
             <div class="navbar-header brand" style="color:black;">
@@ -3841,7 +3844,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="tabHide <?php echo $fullscreen_disabled; ?>"><a id="BUTTON_PREFERENCES_menu" target="RTop" href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_globals.php">
                             <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
                             <?php echo xlt("Preferences"); ?></a></li>
-                            <li id="menu_PRINT_narrative" name="menu_PRINT_report"><a id="BUTTON_PRINT_report" target="_new" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo $form_folder."_".$form_id."=".$encounter; ?>"><?php echo xlt("Print Report"); ?></a></li>
+                            <li id="menu_PRINT_narrative" name="menu_PRINT_report"><a id="BUTTON_PRINT_report" target="_new" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?></a></li>
                             <li id="menu_PRINT_narrative_2" name="menu_PRINT_report_2"><a id="BUTTON_PRINT_report_2" target="_new" href="#"
                                 onclick="top.restoreSession(); create_task('<?php echo attr($provider_id); ?>','Report','menu'); return false;">
                                 <?php echo xlt("Save Report as PDF"); ?></a></li>
@@ -3862,7 +3865,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                 name="provider_todo">
                                 <i class="fa fa-angle-double-up tabHide" title="<?php echo xla('Opens in Top frame'); ?>"></i> &nbsp;
                                 <?php echo xlt("My Default Values"); ?> &nbsp;
-                                <span class="menu_icon"><i class="fa fa-pencil fa-fw"></i> </span></a></li>
+                                <span class="menu_icon"><i class="fa fa-pencil-alt fa-fw"></i> </span></a></li>
                         </ul>
                     </li>
 
@@ -3894,7 +3897,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             if ($display !== "fullscreen") { ?>
                                 <li class="divider"></li>
                                 <li id="menu_fullscreen" name="menu_fullscreen" <?php echo $fullscreen; ?>>
-                                    <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup('<?php echo $_SERVER['REQUEST_URI']. '&display=fullscreen&encounter='.$encounter; ?>');" href="JavaScript:void(0);" class=""><?php echo xlt('Fullscreen'); ?></a>
+                                    <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup('<?php echo $_SERVER['REQUEST_URI'] . '&display=fullscreen&encounter=' . $encounter; ?>');" href="JavaScript:void(0);" class=""><?php echo xlt('Fullscreen'); ?></a>
                                 </li>
                                 <?php
                             } ?>
@@ -3926,7 +3929,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><span style="margin-right:15px;color:black;"  onclick="editScripts('/openemr/controller.php?prescription&list&id=<?php echo $pid; ?>');">eRx</button>
+                    <li><span style="margin-right:15px;color:black;"  onclick="editScripts('/openemr/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>');">eRx</button>
                         </span></li>
                     <li ><span id="active_flag" name="active_flag" style="margin-right:15px;color:red;"> <?php echo xlt('Active Chart'); ?> </span>
                         <span name="active_icon" id="active_icon" style="color:black;"><i class='fa fa-toggle-on'></i></span></li>
@@ -3942,7 +3945,6 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
 /**
  *  This is currently a floating div top with patient demographics and such.
  *  Used in fullscreen mode at the top.
- *  Moving towards containing info similar to main_title.php.
  *
  *  @param string $pid patient_id
  *  @param string $encounter is the current encounter number
@@ -3961,7 +3963,7 @@ function menu_overhaul_left($pid, $encounter)
     global $ref_data;
     global $ins_coA;
     global $ins_coB;
-   
+
     /*
      * find out if the patient has a photo
      */
@@ -3977,15 +3979,15 @@ function menu_overhaul_left($pid, $encounter)
                             <?php
                             $age = getPatientAgeDisplay($pat_data['DOB'], $encounter_date);
                             $DOB = oeFormatShortDate($pat_data['DOB']);
-                            echo "<b>".xlt('Name').":</b> </td><td nowrap> &nbsp;".text($pat_data['fname'])."  ".text($pat_data['lname'])." (".text($pid).")</td></tr>
-                                    <tr><td class='right'><b>".xlt('DOB').":</b></td><td  nowrap> &nbsp;".text($DOB). "&nbsp;&nbsp;(".text($age).")";
+                            echo "<b>" . xlt('Name') . ":</b> </td><td nowrap> &nbsp;" . text($pat_data['fname']) . "  " . text($pat_data['lname']) . " (" . text($pid) . ")</td></tr>
+                                    <tr><td class='right'><b>" . xlt('DOB') . ":</b></td><td  nowrap> &nbsp;" . text($DOB) . "&nbsp;&nbsp;(" . text($age) . ")";
                             ?>
                             <?php
                             ?>
                         </td>
                     </tr>
                     <?php
-                        echo "<tr><td class='right' nowrap><b>".xlt('Visit Date').":</b></td><td>&nbsp;".$visit_date."</td></tr>";
+                        echo "<tr><td class='right' nowrap><b>" . xlt('Visit Date') . ":</b></td><td>&nbsp;" . $visit_date . "</td></tr>";
                     ?>
                     <tr><td class="right" style="vertical-align:top;" nowrap><b><?php echo xlt("Provider"); ?>:</b>&nbsp;</td>
                         <td><?php echo text(getProviderName(getProviderIdOfEncounter($encounter))); ?></td>
@@ -4002,9 +4004,9 @@ function menu_overhaul_left($pid, $encounter)
                         <td class="right" style="vertical-align:top;" nowrap><b><?php echo xlt("Plan"); ?>:</b>&nbsp;</td>
                         <td style="vertical-align:top;">
                             <?php
-                            $j=1;
+                            $j = 1;
                             foreach ($priors[0]['TODO'] as $plan) {
-                                echo "<span class='button'>".$j++."</span> ". text($plan['ORDER_DETAILS'])."<br />";
+                                echo "<span class='button'>" . $j++ . "</span> " . text($plan['ORDER_DETAILS']) . "<br />";
                             }
                             ?>
                         </td>
@@ -4030,21 +4032,21 @@ function menu_overhaul_left($pid, $encounter)
         </div>
 
         <div id="left_menu2" name="left_menu2" class="col-md-4" style="font-size:1.0em;">
-            
+
             <div style="position:relative;float:left;padding-left:18px;top:0px;">
                 <table style="border:1pt;font-size:1.0em;">
                     <tr>
                         <td class="right"><b><?php echo xlt("PCP"); ?>:</b>&nbsp;</td>
-                        <td class="left"><span id="pcp_name"><?php echo text($pcp_data['fname'])." ".text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) {
-                                    echo ", ".text($pcp_data['suffix']);} ?></span></td>
+                        <td class="left"><span id="pcp_name"><?php echo text($pcp_data['fname']) . " " . text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) {
+                                    echo ", " . text($pcp_data['suffix']);} ?></span></td>
                         </td>
                     </tr>
-                    
+
                     <tr><td class="right" nowrap><b><?php echo xlt("Referred By"); ?>:</b>&nbsp;</td>
                         <td class="left">&nbsp;
-    
-                        <span id="ref_name"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
-                                    echo ", ".text($ref_data['suffix']);} ?></span></td>
+
+                        <span id="ref_name"><?php echo text($ref_data['fname']) . " " . text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
+                                    echo ", " . text($ref_data['suffix']);} ?></span></td>
                         </tr>
                     <tr><td class="right"><b><?php echo xlt("Insurance"); ?>:</b>&nbsp;</td><td class="left">&nbsp;<?php echo text($ins_coA); ?></td></tr>
                     <tr><td class="right"><b><?php echo xlt("Secondary"); ?>:</b>&nbsp;</td><td class="left">&nbsp;<?php echo text($ins_coB); ?></td></tr>
@@ -4059,7 +4061,7 @@ function menu_overhaul_left($pid, $encounter)
                                     "AND p.type = 2 where d.id=?" .
                                     "ORDER BY state, city, name, area_code, prefix, number";
                                 $pharm = sqlQuery($sql, array($pat_data['pharmacy_id']));
-                                echo text($pharm['name'].", ".$pharm['city']." ".$pharm['state']);
+                                echo text($pharm['name'] . ", " . $pharm['city'] . " " . $pharm['state']);
                             }
                             ?>
                         </td></tr>
@@ -4105,7 +4107,7 @@ function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
 
     $res = sqlStatement($sql, array($state));
     if ($res) {
-        for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;
         }
     } else {
@@ -4152,8 +4154,8 @@ function report_header($pid, $direction = 'shell')
             <td style='width:150px;text-align:top;'>
                 <?php
                 if ($direction == "web") {
-                    $practice_logo = $GLOBALS['webroot']."/sites/default/images/practice_logo.gif";
-                    if (file_exists($OE_SITE_DIR."/images/practice_logo.gif")) {
+                    $practice_logo = $GLOBALS['webroot'] . "/sites/default/images/practice_logo.gif";
+                    if (file_exists($OE_SITE_DIR . "/images/practice_logo.gif")) {
                         echo "<img src='$practice_logo' align='left' style='width:150px;margin:0px 10px;'><br />\n";
                     }
                 } else {
@@ -4168,11 +4170,11 @@ function report_header($pid, $direction = 'shell')
                 <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />
                 <?php echo text($facility['street']); ?><br />
                 <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br />
-                <?php echo xlt('Phone').': ' .text($facility['phone']); ?><br />
-                <?php echo xlt('Fax').': ' .text($facility['fax']); ?><br />
+                <?php echo xlt('Phone') . ': ' . text($facility['phone']); ?><br />
+                <?php echo xlt('Fax') . ': ' . text($facility['fax']); ?><br />
                 <br clear='all' />
                 <?php
-                    $visit= getEncounterDateByEncounter($encounter);
+                    $visit = getEncounterDateByEncounter($encounter);
                     $visit_date = $visit['date'];
                 ?>
             </td>
@@ -4181,7 +4183,7 @@ function report_header($pid, $direction = 'shell')
                 <b style="font-weight:bold;"><?php echo xlt('DOB'); ?>:</b> <?php echo text($DOB); ?><br />
                 <b style="font-weight:bold;"><?php echo xlt('Generated on'); ?>:</b> <?php echo text(oeFormatShortDate()); ?><br />
                 <b><?php echo xlt('Visit Date'); ?>:</b> <?php echo oeFormatSDFT(strtotime($visit_date)); ?><br />
-                <b><?php echo xlt('Provider') . ':</b> ' . text(getProviderName(getProviderIdOfEncounter($encounter))).'<br />'; ?>
+                <b><?php echo xlt('Provider') . ':</b> ' . text(getProviderName(getProviderIdOfEncounter($encounter))) . '<br />'; ?>
 
           </td>
         </tr>
@@ -4225,21 +4227,21 @@ function start_your_engines($FIELDS)
 
     $query = "select * from list_options where list_id ='Eye_Coding_Fields' Order by seq";
     $result = sqlStatement($query);
-    while ($fielding =sqlFetchArray($result)) {//build the list of clinical fields to search through
-        $fields[$fielding['title']] =$fielding['notes'];
+    while ($fielding = sqlFetchArray($result)) {//build the list of clinical fields to search through
+        $fields[$fielding['title']] = $fielding['notes'];
     }
 
     //get the clinical terms to search for (title) and what field/where to look for it (notes)
     $query = "SELECT * FROM list_options WHERE list_id = 'Eye_Coding_Terms' order by seq";
     $result = sqlStatement($query);
-    while ($term_sheet =sqlFetchArray($result)) {
+    while ($term_sheet = sqlFetchArray($result)) {
         if ($term_sheet['title'] > '') {
             $newdata =  array (
               'term'        => $term_sheet['title'], //the term =/- possible option_values eg. CSME:DM|IOL|RVO
               'location'    => $term_sheet['notes'], //the form field to search for the term
               'codes'       => $term_sheet['codes']  //the specific code for this term/location, may be blank
               );
-            $clinical_terms[] =$newdata;
+            $clinical_terms[] = $newdata;
         }
     }
 
@@ -4257,8 +4259,8 @@ function start_your_engines($FIELDS)
     // For terms that overlap other diseases, use term:option|option|option.  These are always last to process.
 
     foreach ($clinical_terms as $amihere) {
-        $option_values="";
-        $term="";
+        $option_values = "";
+        $term = "";
         $code_found = array();
         if (stripos($amihere['term'], ":") !== false) { //options are stored here code:option_values
             list ($term,$option_values) = explode(":", $amihere['term']);
@@ -4266,7 +4268,7 @@ function start_your_engines($FIELDS)
             $term = $amihere['term'];
         }
 
-        if (stripos($FIELDS[$amihere['location']], $term) !==false) {
+        if (stripos($FIELDS[$amihere['location']], $term) !== false) {
             //the term is in the field
             $within_array = 'no';
             if (isset($positives[$amihere['location']]) > '') { //true if anything was already found in this field
@@ -4280,11 +4282,11 @@ function start_your_engines($FIELDS)
                 }
             }
 
-            if ($within_array =="yes") {
+            if ($within_array == "yes") {
                 continue;
             }
 
-            $positives[$amihere['location']][]=$term;
+            $positives[$amihere['location']][] = $term;
             if (preg_match("/^(OD)/", $amihere['location'])) {
                 $side = "right eye";
                 $side1 = "OD";
@@ -4295,21 +4297,21 @@ function start_your_engines($FIELDS)
                 $side2 = "L";
             }
 
-            if (($amihere['codes'] > '') && ($option_values=="")) { //did the user define a code for this term in list Eye_Coding_Terms?
+            if (($amihere['codes'] > '') && ($option_values == "")) { //did the user define a code for this term in list Eye_Coding_Terms?
                 //If so process - we are primed and don't need the carburetor for the Builder
                 //eg ICD10:H02.891
                 if (stripos($amihere['codes'], ":") !== false) {
                     list($code_type,$code) = explode(":", $amihere['codes']);
                 } else {
                     //default to ICD10.  Maybe there is a GLOBALS value for this? Maybe there should be?
-                    $code_type="ICD10";
+                    $code_type = "ICD10";
                 }
 
-                $code_found['code'] = $code_type.":".$code;
+                $code_found['code'] = $code_type . ":" . $code;
                 $code_found['code_type'] = $code_type;
                 list($sub_term,$newdata) = coding_engine($term, $code_found, $amihere['location']);
                 $codes_found[$sub_term][] = $newdata;
-                $positives[$location][]=$term;
+                $positives[$location][] = $term;
             } else { //no code was defined, further processing needed.
                 if ($option_values) {
                     // This clinical finding (term) can be found in more than one disease process ('option_values')
@@ -4320,16 +4322,16 @@ function start_your_engines($FIELDS)
                     // Currently for most users this is ICD10 but it is built to allow extension to any code sets in openEMR,
                     // including foreign laguage code sets.
                     $options = explode("|", $option_values);
-                    $hit_here="0";
+                    $hit_here = "0";
 
                     foreach ($options as $option) {
                         // if it has mass, try to execute it.
-                        $term_now="";
-                        if ($option=="DM") {
+                        $term_now = "";
+                        if ($option == "DM") {
                             //This option is run for 3 conditions at present:
                             //CSME/NVD/NVE per eye.  It is the same every time so only do it once, per eye.
                             //Did we already code this?  If so move on.
-                            if ($hit_DM[$side1]=='1') {
+                            if ($hit_DM[$side1] == '1') {
                                 continue;
                             }
 
@@ -4338,7 +4340,7 @@ function start_your_engines($FIELDS)
 
                             //is the patient diabetic?
                             //search medical_problem for DM
-                            $within_array="";
+                            $within_array = "";
                             foreach ($PMSFH[0]['PMH'] as $k => $v) {
                                 if (stripos($v['codedesc'], "diabetes")) {
                                     $DM_code = $v['codedesc'];
@@ -4346,11 +4348,11 @@ function start_your_engines($FIELDS)
                                 }
                             }
 
-                            if ($within_array =="yes") {
+                            if ($within_array == "yes") {
                                 if (stripos($DM_code, "1")) {
                                     $DM_text = "Type 1 diabetes mellitus";
                                     $label = "DM 1";
-                                } else if (stripos($DM_code, "2")) {
+                                } elseif (stripos($DM_code, "2")) {
                                     $DM_text = "Type 2 diabetes mellitus";
                                     $label = "DM 2";
                                 } else {
@@ -4362,25 +4364,25 @@ function start_your_engines($FIELDS)
                             }
 
                             //is there CSME
-                            if ($side=="right eye") {
-                                $location  ="ODMACULA";
-                                $location1 ="ODDISC";
-                                $location2 ="ODVESSELS";
-                                $location3 ="ODPERIPH";
-                            } else if ($side=="left eye") {
-                                $location  ="OSMACULA";
-                                $location1 ="OSDISC";
-                                $location2 ="OSVESSELS";
-                                $location3 ="OSPERIPH";
+                            if ($side == "right eye") {
+                                $location  = "ODMACULA";
+                                $location1 = "ODDISC";
+                                $location2 = "ODVESSELS";
+                                $location3 = "ODPERIPH";
+                            } elseif ($side == "left eye") {
+                                $location  = "OSMACULA";
+                                $location1 = "OSDISC";
+                                $location2 = "OSVESSELS";
+                                $location3 = "OSPERIPH";
                             }
 
-                            if ((stripos($FIELDS[$location], "flat") ===false) && (stripos($FIELDS[$location], "CSME") !==false)) {
+                            if ((stripos($FIELDS[$location], "flat") === false) && (stripos($FIELDS[$location], "CSME") !== false)) {
                                 //what if they type "no CSME" or "not flat"?
                                 $MAC_text = "with macular edema";
                                 $hit_CSME = "w/ CSME";
                             } else {
-                                $MAC_text="without macular edema";
-                                $hit_CSME="w/o CSME";
+                                $MAC_text = "without macular edema";
+                                $hit_CSME = "w/o CSME";
                             }
 
                             //is there (NVD or NVE) or BDR?
@@ -4392,38 +4394,44 @@ function start_your_engines($FIELDS)
                             $BDR    = "BDR";
                             $IRMA   = "IrMA";
                             //note stripos() is case-insensitive
-                            if (( (stripos($FIELDS[$location1], $NVD) !==false) ||
-                                (stripos($FIELDS[$location2], $NVE) !==false) ||
-                                (stripos($FIELDS[$location3], $NVE) !==false) )
-                                &&
-                                ( (stripos($FIELDS[$location1], "no ".$NVD) !==true) ||
-                                (stripos($FIELDS[$location2], "no ".$NVE) !==true) ||
-                                (stripos($FIELDS[$location3], "no ".$NVE) !==true) )
-                               ) {
-                                $DX="with proliferative";
-                                $label = $label. "w/ PDR ".$hit_CSME;
-                                $hit_PDR[$side]='1';
-                            } else if ((stripos($FIELDS[$location2], $PPDR) !==false) ||
-                                (stripos($FIELDS[$location2], $PPDR) !==false) ||
-                                (stripos($FIELDS[$location], $IRMA)  !==false) ||
-                                (stripos($FIELDS[$location2], $IRMA) !==false) ||
-                                (stripos($FIELDS[$location3], $IRMA) !==false)) {
-                                $DX="with severe nonproliferative";
-                                $label = $label." w/ PPDR ".$hit_CSME;
-                                $hit_PPDR[$side]='1';
-                            } else if ((stripos($FIELDS[$location], $BDR) !==false) ||
-                                (stripos($FIELDS[$location2], $BDR) !==false)) {
+                            if (
+                                ( (stripos($FIELDS[$location1], $NVD) !== false) ||
+                                (stripos($FIELDS[$location2], $NVE) !== false) ||
+                                (stripos($FIELDS[$location3], $NVE) !== false) ) &&
+                                ( (stripos($FIELDS[$location1], "no " . $NVD) !== true) ||
+                                (stripos($FIELDS[$location2], "no " . $NVE) !== true) ||
+                                (stripos($FIELDS[$location3], "no " . $NVE) !== true) )
+                            ) {
+                                $DX = "with proliferative";
+                                $label = $label . "w/ PDR " . $hit_CSME;
+                                $hit_PDR[$side] = '1';
+                            } elseif (
+                                (stripos($FIELDS[$location2], $PPDR) !== false) ||
+                                (stripos($FIELDS[$location2], $PPDR) !== false) ||
+                                (stripos($FIELDS[$location], $IRMA)  !== false) ||
+                                (stripos($FIELDS[$location2], $IRMA) !== false) ||
+                                (stripos($FIELDS[$location3], $IRMA) !== false)
+                            ) {
+                                $DX = "with severe nonproliferative";
+                                $label = $label . " w/ PPDR " . $hit_CSME;
+                                $hit_PPDR[$side] = '1';
+                            } elseif (
+                                (stripos($FIELDS[$location], $BDR) !== false) ||
+                                (stripos($FIELDS[$location2], $BDR) !== false)
+                            ) {
                                     $trace = "tr";
-                                if ((stripos($FIELDS[$location], $trace." ".$BDR) !==false) ||
-                                    (stripos($FIELDS[$location2], "+1 ".$BDR) !==false) ||
-                                    (stripos($FIELDS[$location], $trace." ".$BDR) !==false) ||
-                                    (stripos($FIELDS[$location2], "+1 ".$BDR) !==false)) {
-                                    $DX="with mild nonproliferative";
-                                    $label = $label." w/ mild BDR ".$hit_CSME;
-                                    $hit_BDR[$side]='1';
+                                if (
+                                    (stripos($FIELDS[$location], $trace . " " . $BDR) !== false) ||
+                                    (stripos($FIELDS[$location2], "+1 " . $BDR) !== false) ||
+                                    (stripos($FIELDS[$location], $trace . " " . $BDR) !== false) ||
+                                    (stripos($FIELDS[$location2], "+1 " . $BDR) !== false)
+                                ) {
+                                    $DX = "with mild nonproliferative";
+                                    $label = $label . " w/ mild BDR " . $hit_CSME;
+                                    $hit_BDR[$side] = '1';
                                 } else {
-                                    $DX="with moderate nonproliferative";
-                                    $label = $label." w/ mod BDR ".$hit_CSME;
+                                    $DX = "with moderate nonproliferative";
+                                    $label = $label . " w/ mod BDR " . $hit_CSME;
                                     $hit_BDR[$side] = '1';
                                 }
                             }
@@ -4439,10 +4447,10 @@ function start_your_engines($FIELDS)
                                         //does this code already exist for the other eye (right eye is always first)?
                                         //if so, change OD to OU and skip adding this code.
                                         //or is there a code for both eyes?
-                                        if ($side1=="OS") {
-                                            $count='0';
-                                            for ($i=0; $i < count($codes_found[$sub_term]); $i++) {
-                                                $swap="OD";
+                                        if ($side1 == "OS") {
+                                            $count = '0';
+                                            for ($i = 0; $i < count($codes_found[$sub_term]); $i++) {
+                                                $swap = "OD";
                                                 $codes_found[$sub_term][$i]['title'] = str_replace($swap, "OU", $codes_found[$sub_term][$i]['title']);
                                                 break 2;
                                                 $count++;
@@ -4450,25 +4458,25 @@ function start_your_engines($FIELDS)
                                         }
 
                                         $codes_found[$sub_term][] = $newdata;
-                                        $positives["DM".$side1][] = $newdata['code'];
-                                        $hit_DM[$side1]='1';
+                                        $positives["DM" . $side1][] = $newdata['code'];
+                                        $hit_DM[$side1] = '1';
                                     }
                                 }
                             }
-                        } else if ($option=="RVO") {
+                        } elseif ($option == "RVO") {
                             //is there a CRVO or BRVO associated?
                             //check Clinical fields for these terms
-                            if ($side=="right eye") {
-                                $location ="ODVESSELS";
+                            if ($side == "right eye") {
+                                $location = "ODVESSELS";
                             } else {
-                                $location ="OSVESSELS";
+                                $location = "OSVESSELS";
                             }
 
                             if ($hit_RVO[$location] == '1') {
                                 continue;
                             }
 
-                            if (stripos($FIELDS[$location], "CRVO") !==false) {
+                            if (stripos($FIELDS[$location], "CRVO") !== false) {
                                // this is a CRVO, look up code for location
                                 $terms = "CRVO";
                                 $code_found = coding_carburetor("central retinal vein", $side);
@@ -4476,25 +4484,25 @@ function start_your_engines($FIELDS)
                                     foreach ($code_found as $found) {
                                         list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
                                         $codes_found[$sub_term][] = $newdata;
-                                        $positives[$location][]="CRVO";
-                                        $hit_RVO[$location] ="1";
+                                        $positives[$location][] = "CRVO";
+                                        $hit_RVO[$location] = "1";
                                     }
                                 }
-                            } else if (stripos($FIELDS[$location], "BRVO") !==false) {
+                            } elseif (stripos($FIELDS[$location], "BRVO") !== false) {
                                // this is a BRVO, look up code for location
                                 $code_found = coding_carburetor("branch retinal vein", $side);
-                                $terms = "BRVO ".$term;
+                                $terms = "BRVO " . $term;
                                 if (isset($code_found)) { //there are matches, present them to the Builder
                                     foreach ($code_found as $found) {
                                         list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
                                         $codes_found[$sub_term][] = $newdata;
-                                        $positives[$location][]="BRVO";
-                                        $hit_RVO[$location]='1';
+                                        $positives[$location][] = "BRVO";
+                                        $hit_RVO[$location] = '1';
                                     }
                                 }
                             }
 
-                            if (($term=="CSME") && ($hit_RVO[$location]=='1')) {
+                            if (($term == "CSME") && ($hit_RVO[$location] == '1')) {
                                 //$code = "H35.81";
                                 $code_found = coding_carburetor("retinal", "edema");
                                 $terms = "Vein occlusion and macular edema";
@@ -4503,26 +4511,26 @@ function start_your_engines($FIELDS)
                                         if ($found['code'] == "ICD10:H35.81") {
                                             list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
                                             $codes_found[$sub_term][] = $newdata;
-                                            $positives[$location][]="CSME";
-                                            $hit_RVO_CSME='1';
+                                            $positives[$location][] = "CSME";
+                                            $hit_RVO_CSME = '1';
                                         }
                                     }
                                 }
                             }
-                        } else if ($option=="IOL") {
+                        } elseif ($option == "IOL") {
                             //are they within 3 months of cataract surgery on this eye?  Yag?
                             //search the same side Lens field for term IOL, ? procedure this eye in last 3 months?
                             //search surgery_issue_list or even search the billng engine
-                            $query = "select begdate as surg_date from lists where pid=? and type='surgery' and title like '%IOL%' and (title like '%".xlt($side1)."%')";
+                            $query = "select begdate as surg_date from lists where pid=? and type='surgery' and title like '%IOL%' and (title like '%" . xlt($side1) . "%')";
                             $surg = sqlQuery($query, array($pid));
-                            if ($surg['surg_date']>'') {
+                            if ($surg['surg_date'] > '') {
                                 $date1 = date('Y-m-d');
                                 //$date2 = (DateTime($surg['surg_date']));
                                 //echo $term."\n".$date."\n";continue;
-                                $date_diff=strtotime($date1) - strtotime($surg['surg_date']);
-                                $interval = $date_diff/(60 * 60 * 24);
+                                $date_diff = strtotime($date1) - strtotime($surg['surg_date']);
+                                $interval = $date_diff / (60 * 60 * 24);
                                 //$interval was 180, now = 90;
-                                if (($interval < '90') && ($term=="CSME")) {
+                                if (($interval < '90') && ($term == "CSME")) {
                                     //then this could be post procedure CSME cystoid macular edema  H59.031,2 OD OS
                                     $code_found = coding_carburetor("cystoid macular edema", $side);
                                     if (isset($code_found)) { //there are matches, present them to the Builder
@@ -4530,14 +4538,14 @@ function start_your_engines($FIELDS)
                                             $term = "Post-cataract CME";
                                             list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location'], $side1);
                                             $codes_found[$sub_term][] = $newdata;
-                                            $positives[$amihere['location']][]= $term;
-                                            $hit_IOL='1';
+                                            $positives[$amihere['location']][] = $term;
+                                            $hit_IOL = '1';
                                         }
 
-                                        if ($side1=="OS") {
-                                            $count='0';
-                                            for ($i=0; $i < count($codes_found[$sub_term]); $i++) {
-                                                $swap="OD";
+                                        if ($side1 == "OS") {
+                                            $count = '0';
+                                            for ($i = 0; $i < count($codes_found[$sub_term]); $i++) {
+                                                $swap = "OD";
                                                 $codes_found[$sub_term][$i]['title'] = str_replace($swap, "OU", $codes_found[$sub_term][$i]['title']);
                                                 break 2;
                                                 $count++;
@@ -4551,13 +4559,13 @@ function start_your_engines($FIELDS)
                         } else {
                             //should we have another big Dx often altering what a finding means to a coder; this is a placeholder.
                             //include $option in our code search for this term
-                            $term_now = $term ." ".$option;
+                            $term_now = $term . " " . $option;
                             $code_found = coding_carburetor($term_now, $fields[$amihere['location']]);
                             if (isset($code_found)) { //there are matches, present them to the Builder
                                 foreach ($code_found as $found) {
                                     list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location'], $side1);
                                     $codes_found[$sub_term][] = $newdata;
-                                    $positives[$amihere['location']][]= $term_now;
+                                    $positives[$amihere['location']][] = $term_now;
                                 }
                             }
                         }
@@ -4570,7 +4578,7 @@ function start_your_engines($FIELDS)
                         foreach ($code_found as $found) {
                             list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location']);
                             $codes_found[$sub_term][] = $newdata;
-                            $positives[$amihere['location']][]= $term;
+                            $positives[$amihere['location']][] = $term;
                         }
                     }
                 }
@@ -4596,13 +4604,13 @@ function start_your_engines($FIELDS)
  */
 function coding_carburetor($term, $field)
 {
-    if (!$term||!$field) {
+    if (!$term || !$field) {
         return;
     }
 
     $codes = array();
     $code_type = "ICD10";  //only option is PROD (product or drug search) or NOT PROD...
-    $search_term = $term." ".$field;
+    $search_term = $term . " " . $field;
     $res = main_code_set_search($code_type, $search_term);
     while ($row = sqlFetchArray($res)) {
         $newdata =  array (
@@ -4611,7 +4619,7 @@ function coding_carburetor($term, $field)
                         'code_type' => $row['code_type_name'],
                         'code_desc' => $row['code_desc']
                     );
-        $codes[] =$newdata;
+        $codes[] = $newdata;
     }
 
     return $codes;
@@ -4634,28 +4642,28 @@ function coding_engine($term, $code_found, $location, $side = '')
     } else {
         $code = $code_found['code'];
         $code_type = "ICD10";//default to ICD10
-        $code_found['code'] = $code_type.":".$code_found['code'];
+        $code_found['code'] = $code_type . ":" . $code_found['code'];
     }
 
     $code_desc = lookup_code_descriptions($code_found['code']);
     $order   = array("\r\n", "\n","\r");
     $code_desc = str_replace($order, '', $code_desc);
 
-    $code_text = text($code_found['code']). " (" . text($code_desc) . ")";
-    $replace =" ";
+    $code_text = text($code_found['code']) . " (" . text($code_desc) . ")";
+    $replace = " ";
     $sub_term =  str_replace($replace, "", $term);
     //some codes are bilateral, some not, some are per eyelid.  Comment this out for now:
     //(preg_match("/right/",$code_desc))? $side = xlt('OD{{right eye}}') : $side = xlt('OS{{left eye}}');
 
     $newdata =  array (
-        'title'         => ucfirst($term). " ".$side,
+        'title'         => ucfirst($term) . " " . $side,
         'location'      => $location,
         'diagnosis'     => $code,
         'code'          => $code,
         'codetype'      => $code_found['code_type'],
         'codedesc'      => $code_desc,
         'codetext'      => $code_text,
-        'PMSFH_link'    => "Clinical_".$sub_term
+        'PMSFH_link'    => "Clinical_" . $sub_term
     );
     return array($sub_term,$newdata);
 }
@@ -4669,7 +4677,7 @@ function cmp($a, $b)
         return 0;
     }
 
-    return (strtotime($a) < strtotime($b))? -1 : 1;
+    return (strtotime($a) < strtotime($b)) ? -1 : 1;
 }
 
 /**
@@ -4710,12 +4718,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         }
     }
 
-    $i=0;
+    $i = 0;
         //if there are no priors, this is the first visit, display a generic splash screen.
     if ((array)$priors) {
         foreach ($priors as $visit) {
             //we need to build the lists - dates_OU,times_OU,gonio_OU,OCT_OU,VF_OU,ODIOP,OSIOP,IOPTARGETS
-            if ($visit['date']=='') {
+            if ($visit['date'] == '') {
                 continue;
             }
 
@@ -4726,30 +4734,30 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             //$date_OU[$i] = $visit['exam_date'];
 
             $time_here = explode(":", $visit['IOPTIME']);
-            $time = $time_here[0].":".$time_here[1];
+            $time = $time_here[0] . ":" . $time_here[1];
             $time_OU[$i] = $time;
 
-            if (($visit['ODGONIO'] > '')||($visit['OSGONIO'] > '')) {
+            if (($visit['ODGONIO'] > '') || ($visit['OSGONIO'] > '')) {
                 $GONIO_date[$i] = $visit["exam_date"];
                 $GONIO[$i]["list"] = '1';
             } else {
                 $GONIO[$i]["list"] = '';
             }
 
-            if ($visit['ODIOPAP']>'') {
+            if ($visit['ODIOPAP'] > '') {
                 $ODIOP[$i]['IOP'] = $visit['ODIOPAP'];
                 $ODIOP[$i]['method'] = "AP";
-            } else if ($visit['ODIOPTPN']>'') {
+            } elseif ($visit['ODIOPTPN'] > '') {
                 $ODIOP[$i]['IOP'] = $visit['ODIOPTPN'];
                 $ODIOP[$i]['method'] = "TPN";
             } else {
-                $ODIOP[$i]['IOP'] ="";
+                $ODIOP[$i]['IOP'] = "";
             }
 
-            if ($visit['OSIOPAP']>'') {
+            if ($visit['OSIOPAP'] > '') {
                 $OSIOP[$i]['IOP'] = $visit['OSIOPAP'];
                 $OSIOPMETHOD[$i]['method'] = "AP";
-            } else if ($visit['OSIOPTPN']>'') {
+            } elseif ($visit['OSIOPTPN'] > '') {
                 $OSIOP[$i]['IOP'] = $visit['OSIOPTPN'];
                 $OSIOPMETHOD[$i]['method'] = "TPN";
             } else {
@@ -4761,21 +4769,21 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             //build the Target line values for each date.
             $j =  $i - 1;
 
-            if ($visit['ODIOPTARGET']>'') {
-                $ODIOPTARGETS[$i]= $visit['ODIOPTARGET'];
-            } else if ($i==0) { //this should be set on in view/page load.  Keep for reports though...
+            if ($visit['ODIOPTARGET'] > '') {
+                $ODIOPTARGETS[$i] = $visit['ODIOPTARGET'];
+            } elseif ($i == 0) { //this should be set on in view/page load.  Keep for reports though...
                 list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, $id, $provider_id);
-            } else if (!$ODIOPTARGETS[$j]) {
+            } elseif (!$ODIOPTARGETS[$j]) {
                 list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, $id, $provider_id);
             } else {
                 $ODIOPTARGETS[$i] = $ODIOPTARGETS[$j];
             }
 
-            if ($visit['OSIOPTARGET']>'') {
+            if ($visit['OSIOPTARGET'] > '') {
                  $OSIOPTARGETS[$i] = $visit['OSIOPTARGET'];
-            } else if ($i==0) {
+            } elseif ($i == 0) {
                 list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, $id, $provider_id);
-            } else if (!$OSIOPTARGETS[$j]) {
+            } elseif (!$OSIOPTARGETS[$j]) {
                 list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, $id, $provider_id);
             } else {
                 $ODIOPTARGETS[$i] = $ODIOPTARGETS[$j];
@@ -4786,35 +4794,35 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         $VISITS_date[0] = $dated;
         if ($encounter_data['IOPTIME']) {
             $time_here = explode(":", $encounter_data['IOPTIME']);
-            $time = $time_here[0].":".$time_here[1];
+            $time = $time_here[0] . ":" . $time_here[1];
             $time_OU[] = $time;
         }
 
-        if ($encounter_data['ODGONIO']||$encounter_data['OSGONIO']) {
+        if ($encounter_data['ODGONIO'] || $encounter_data['OSGONIO']) {
             $GONIO_date[$i] = $dated;
         }
 
         $ODIOP[$i]['time'] = $time;
         $OSIOP[$i]['time'] = $time;
         //$IOPTARGET['visit_date'] = $encounter_data['exam_date'];
-        if ($encounter_data['ODIOPAP']>'') {
+        if ($encounter_data['ODIOPAP'] > '') {
             if (!is_int($encounter_data['ODIOPAP'])) {
-                $ODIOP[$k]['IOP']='';
+                $ODIOP[$k]['IOP'] = '';
             } else {
                 $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP']; }
             $ODIOP[$i]['method'] = "AP";
-        } else if ($encounter_data['ODIOPTPN']>'') {
+        } elseif ($encounter_data['ODIOPTPN'] > '') {
             $ODIOP[$i]['IOP'] = $encounter_data['ODIOPTPN'];
             $ODIOP[$i]['method'] = "TPN";
         }
 
-        if ($encounter_data['OSIOPAP']>'') {
+        if ($encounter_data['OSIOPAP'] > '') {
             if (!is_int($encounter_data['OSIOPAP'])) {
-                $OSIOP[$k]['IOP']='';
+                $OSIOP[$k]['IOP'] = '';
             } else {
                 $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP']; }
             $OSIOP[$i]['method'] = "AP";
-        } else if ($encounter_data['OSIOPTPN']>'') {
+        } elseif ($encounter_data['OSIOPTPN'] > '') {
             $OSIOP[$i]['IOP'] = $encounter_data['OSIOPTPN'];
             $OSIOP[$i]['method'] = "TPN";
         } else {
@@ -4822,7 +4830,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             //What about the Triggerfish contact lens continuous IOP device for example...  iCare device, etc
         }
 
-        if ($encounter_data['ODIOPTARGET']> '0') {
+        if ($encounter_data['ODIOPTARGET'] > '0') {
             $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
         } else {
             list($ODIOPTARGET, ) = getIOPTARGETS($pid, $id, $provider_id);
@@ -4845,10 +4853,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
     //can't merge empty arrays
     $list = array();
-    $arrs[]=$OCT_date;
-    $arrs[]=$VF_date;
-    $arrs[]=$GONIO_date;
-    $arrs[]=$VISITS_date;
+    $arrs[] = $OCT_date;
+    $arrs[] = $VF_date;
+    $arrs[] = $GONIO_date;
+    $arrs[] = $VISITS_date;
 
     foreach ($arrs as $arr) {
         if (is_array($arr)) {
@@ -4858,10 +4866,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
     $date_OU = array_unique($list);
     usort($date_OU, "cmp");
-    $times_OU=$time_OU;
+    $times_OU = $time_OU;
     usort($times_OU, "cmp");
 
-    for ($a=0; $a < count($date_OU); $a++) {
+    for ($a = 0; $a < count($date_OU); $a++) {
         if (!empty($GONIO_date)) {
             foreach ($GONIO_date as $GONIO) {
                 if ($date_OU[$a] == $GONIO) {
@@ -4898,16 +4906,16 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         }
 
         if (!$VF_values[$a]) {
-            $VF_values[] ="";
+            $VF_values[] = "";
         }
 
-        for ($k=0; $k < count($VISITS_date); $k++) {
+        for ($k = 0; $k < count($VISITS_date); $k++) {
             if ($date_OU[$a] == $VISITS_date[$k]) {
                 if (preg_match('/[a-z]/i', $ODIOP[$k]['IOP'])) {
-                    $ODIOP[$k]['IOP']='';}
+                    $ODIOP[$k]['IOP'] = '';}
                 if (preg_match('/[a-z]/i', $OSIOP[$k]['IOP'])) {
-                    $OSIOP[$k]['IOP']='';}
-                $OD_values[$a] = "'".$ODIOP[$k]['IOP']."'";
+                    $OSIOP[$k]['IOP'] = '';}
+                $OD_values[$a] = "'" . $ODIOP[$k]['IOP'] . "'";
                 $OD_methods[$a] = $ODIOP[$k]['method'];
                 $OS_values[$a] = $OSIOP[$k]['IOP'];
                 $OS_methods[$a] = $OSIOP[$k]['method'];
@@ -4942,8 +4950,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         }
     }
 
-    for ($a=0; $a < count($times_OU); $a++) {
-        for ($k=0; $k < count($ODIOP); $k++) {
+    for ($a = 0; $a < count($times_OU); $a++) {
+        for ($k = 0; $k < count($ODIOP); $k++) {
             if ($times_OU[$a] == $time_OU[$k]) {
                 $OD_time_values[$a] = $ODIOP[$k]['IOP'];
                 $OS_time_values[$a] = $OSIOP[$k]['IOP'];
@@ -4960,16 +4968,16 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         }
     }
 
-    $dates_OU = "'".implode("','", $date_OU)."'";
+    $dates_OU = "'" . implode("','", $date_OU) . "'";
     $OD_values = implode(",", $OD_values);
     $OS_values = implode(",", $OS_values);
-    $OCT_values = "'".implode("','", $OCT_values)."'";
-    $VF_values = "'".implode("','", $VF_values)."'";
-    $GONIO_values =  "'".implode("','", $GONIO_values)."'";
+    $OCT_values = "'" . implode("','", $OCT_values) . "'";
+    $VF_values = "'" . implode("','", $VF_values) . "'";
+    $GONIO_values =  "'" . implode("','", $GONIO_values) . "'";
     $IOPTARGET_values =  implode(",", $ODIOPTARGET_values);
-    $times_OU = "'".implode("','", $times_OU)."'";
-    $OD_time_values = "'".implode("','", $OD_time_values)."'";
-    $OS_time_values = "'".implode("','", $OS_time_values)."'";
+    $times_OU = "'" . implode("','", $times_OU) . "'";
+    $OD_time_values = "'" . implode("','", $OD_time_values) . "'";
+    $OS_time_values = "'" . implode("','", $OS_time_values) . "'";
 
     ?> <b> <?php echo xlt('Glaucoma Zone'); ?>:</b>
         <br /><br />
@@ -4988,32 +4996,32 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 </tr>
                 <?php
                     //what active meds have a subtype eye?
-                    $i=0;
+                    $i = 0;
                     $count_Meds = count($PMSFH[0]['Medication']);
                 if ($count_Meds > '0') {
                     foreach ($PMSFH[0]['Medication'] as $drug) {
-                        if (($drug['row_subtype'] =="eye") && (strtotime($drug['enddate']) < strtotime($visit_date) ) && ($drug['status'] != "Inactive")) {
-                            $current_drugs .= "<tr><td colspan='2' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
-                                      onclick=\"alter_issue2(".attr_js($drug['rowid']).",'Medication','".$i."');\">".text($drug['title'])."</span></td>
-                                      <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td></tr>";
-                        } else if (($drug['row_subtype'] =="eye")&& (!empty($drug['enddate']))) {//what meds have a subtype eye that are discontinued?
+                        if (($drug['row_subtype'] == "eye") && (strtotime($drug['enddate']) < strtotime($visit_date) ) && ($drug['status'] != "Inactive")) {
+                            $current_drugs .= "<tr><td colspan='2' class='GFS_td_1'><span name='QP_PMH_" . attr($drug['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($drug['rowid']) . "'
+                                      onclick=\"alter_issue2(" . attr_js($drug['rowid']) . ",'Medication','" . $i . "');\">" . text($drug['title']) . "</span></td>
+                                      <td class='GFS_td'>" . text(oeFormatShortDate($drug['begdate'])) . "</td></tr>";
+                        } elseif (($drug['row_subtype'] == "eye") && (!empty($drug['enddate']))) {//what meds have a subtype eye that are discontinued?
                             $hideme = "hideme_drugs nodisplay";
-                            $FAILED_drugs .= "<tr class='".$hideme."'><td colspan='1' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
-                                      onclick=\"alter_issue2(".attr_js($drug['rowid']).",'Medication','".$i."');\">".text($drug['title'])."</span></td>
-                                      <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td><td class='GFS_td'>".text(oeFormatShortDate($drug['enddate']))."</td></tr>";
+                            $FAILED_drugs .= "<tr class='" . $hideme . "'><td colspan='1' class='GFS_td_1'><span name='QP_PMH_" . attr($drug['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($drug['rowid']) . "'
+                                      onclick=\"alter_issue2(" . attr_js($drug['rowid']) . ",'Medication','" . $i . "');\">" . text($drug['title']) . "</span></td>
+                                      <td class='GFS_td'>" . text(oeFormatShortDate($drug['begdate'])) . "</td><td class='GFS_td'>" . text(oeFormatShortDate($drug['enddate'])) . "</td></tr>";
                         }
 
                         $i++;
                     }
 
                     if (!$current_drugs) {
-                        $current_drugs = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>".xlt('None documented')."</td></tr>";
-                        $no_drugs='1';
+                        $current_drugs = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('None documented') . "</td></tr>";
+                        $no_drugs = '1';
                     }
 
                     foreach ($PMSFH[0]['Medication'] as $drug) {
-                        if (($drug['row_subtype'] =="eye") && (!empty($drug['enddate']))) {
-                            $FAILED_drug .= "<li>".text($drug['title'])."</li>";
+                        if (($drug['row_subtype'] == "eye") && (!empty($drug['enddate']))) {
+                            $FAILED_drug .= "<li>" . text($drug['title']) . "</li>";
                         }
                     }
                 }
@@ -5030,35 +5038,35 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 <?php
                 echo $current_drugs;
                 if ($FAILED_drugs) {
-                    echo '<tr class="'.$hideme.'"><td class="GFS_title" colspan="1">'.xlt('Prior Eye Meds').'</td><td class="GFS_title" style="text-align:center;">'. xlt('Start').'</td><td  style="text-align:center;" class="GFS_title">End</td></tr>';
+                    echo '<tr class="' . $hideme . '"><td class="GFS_title" colspan="1">' . xlt('Prior Eye Meds') . '</td><td class="GFS_title" style="text-align:center;">' . xlt('Start') . '</td><td  style="text-align:center;" class="GFS_title">End</td></tr>';
                 }
 
                 echo $FAILED_drugs;
 
                 //start VF section
                 if ($count_VF > '0') { //need to decide how many to show on open, and hide the rest?  For now the first only.
-                    $count=0;
+                    $count = 0;
                     foreach ($documents['docs_in_name']['VF'] as $VF) {
                         if ($count < 1) {
                             //    $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
 
                             $current_VF = '<tr><td class="GFS_td_1 blue">
-                                <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($VF['id']).'\',\'Documents\');">
-                                <img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
+                                <a onclick="openNewForm(\'' . $GLOBALS['webroot'] . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($VF['id']) . '\',\'Documents\');">
+                                <img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
                                 </td>
-                                <td class="GFS_td_1">'.$VF['docdate'].'</td>
+                                <td class="GFS_td_1">' . $VF['docdate'] . '</td>
                                 </tr>';
                         } else {
                             $old_VFs .= '<tr><td class="GFS_td_1 hideme_VFs nodisplay"">
-                                <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($VF['id']).'\',\'Documents\');">
-                                <img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a></td>
-                                <td class="hideme_VFs nodisplay GFS_td_1">'.$VF['docdate'].'</td></tr>';
+                                <a onclick="openNewForm(\'' . $GLOBALS['webroot'] . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($VF['id']) . '\',\'Documents\');">
+                                <img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a></td>
+                                <td class="hideme_VFs nodisplay GFS_td_1">' . $VF['docdate'] . '</td></tr>';
                         }
 
                         $count++;
                     }
                 } else {
-                    $current_VF = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>".xlt('Not documented')."</td></tr>";
+                    $current_VF = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
                 }
                 ?>
                 <tr class="GFS_tr">
@@ -5069,7 +5077,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     }
                     ?>
                 </tr>
-                <?php echo $current_VF.$old_VFs;
+                <?php echo $current_VF . $old_VFs;
                 //end VF section
 
                 //start Optic Nerve section
@@ -5078,26 +5086,26 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     <td colspan="3" class="GFS_title"><?php echo xlt('Optic Nerve Analysis'); ?>:&nbsp;
                         <?php
                         if ($count_OCT > '0') { //need to decide how many to show on open, and hide the rest?  For now show first, hide rest.
-                            $count=0;
+                            $count = 0;
                             foreach ($documents['docs_in_name']['OCT'] as $OCT) {
                                 //get encounter date from encounter id
                                 if ($count < 1) {
                                     $current_OCT = '<tr>
                                             <td class="GFS_td_1">
-                                            <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($OCT['id']).'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
+                                            <a onclick="openNewForm(\'' . $GLOBALS['webroot'] . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($OCT['id']) . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
                                             </td>
-                                            <td class="GFS_td_1">'.$OCT['docdate'].'</td>
+                                            <td class="GFS_td_1">' . $OCT['docdate'] . '</td>
                                         </tr>
                                         ';
                                 } else {
                                     $old_OCTs .= '<tr><td class="hideme_OCTs nodisplay GFS_td_1">
-                                                <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($OCT['id']).'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a> 
-                                                </td><td class="hideme_OCTs nodisplay GFS_td_1">'.$OCT['docdate'].'</td></tr>';
+                                                <a onclick="openNewForm(\'' . $GLOBALS['webroot'] . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($OCT['id']) . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
+                                                </td><td class="hideme_OCTs nodisplay GFS_td_1">' . $OCT['docdate'] . '</td></tr>';
                                 }
                                 $count++;
                             }
                         } else {
-                            $current_OCT = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>".xlt('Not documented')."</td></tr>";
+                            $current_OCT = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
                         }
 
                         if ($old_OCTs) {
@@ -5105,18 +5113,18 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                         }
 
                         echo "</tr>";
-                        echo $current_OCT.$old_OCTs;
+                        echo $current_OCT . $old_OCTs;
 
-                        $count=0;
-                        $hideme='';
+                        $count = 0;
+                        $hideme = '';
                         foreach ($priors as $visit) {
-                            if (($visit['ODGONIO'] > " ")||($visit['OSGONIO'] > " ")) { // something is here
-                                if ($count >0) {
+                            if (($visit['ODGONIO'] > " ") || ($visit['OSGONIO'] > " ")) { // something is here
+                                if ($count > 0) {
                                     $hideme = "hideme_gonios nodisplay";// show the first only, hide the rest for now
                                 }
 
-                                $gonios .= "<tr><td class='GFS_td_1 ".$hideme."'>".$visit['exam_date']."</td><td class='GFS_td ".$hideme."' style='border:1pt dotted gray;'>".$visit['ODGONIO']."</td><td class='GFS_td ".$hideme."' style='border:1pt dotted gray;'>".$visit['OSGONIO']."</td></tr>";
-                                $GONIO_chart .='"1",';
+                                $gonios .= "<tr><td class='GFS_td_1 " . $hideme . "'>" . $visit['exam_date'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['ODGONIO'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['OSGONIO'] . "</td></tr>";
+                                $GONIO_chart .= '"1",';
                                 $count++;
                             } else {
                                 $GONIO_chart .= ',';
@@ -5125,15 +5133,15 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                         if (!empty($GONIO)) {
                             $GONIO = chop($GONIO, ",");
                         }
-                        if ($count ==0) {
-                            $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>".xlt('Not documented')."</td></tr>";
+                        if ($count == 0) {
+                            $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
                         }
                         ?>
                 <tr>
                     <td class="GFS_title_1" id="GFS_gonios" name="GFS_gonios" style="position:relative;"><?php echo xlt('Gonioscopy'); ?>:</td>
                     <?php
                     if ($count > '0') {
-                        echo "<td class='GFS_title center'>".xlt('OD{{right eye}}')."</td><td class='GFS_title center'>".xlt('OS{{left eye}}')."</td>";
+                        echo "<td class='GFS_title center'>" . xlt('OD{{right eye}}') . "</td><td class='GFS_title center'>" . xlt('OS{{left eye}}') . "</td>";
                     } else {
                         echo "<td class='GFS_title center'></td><td class='GFS_title center'></td>";
                     }
@@ -5145,16 +5153,16 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 </tr>
                     <?php echo $gonios;
 
-                    $count='0';
-                    $hideme='';
+                    $count = '0';
+                    $hideme = '';
                     foreach ($priors as $visit) {
-                        if (($visit['ODCUP'] > "")||($visit['OSCUP'] > "")) {
-                            if ($count >0) {
+                        if (($visit['ODCUP'] > "") || ($visit['OSCUP'] > "")) {
+                            if ($count > 0) {
                                 $hideme = "hideme_cups nodisplay";
                             }
 
-                            $cups .= "<tr><td class='GFS_td_1 ".$hideme." '>".text($visit['exam_date'])."</td><td class='GFS_td ".$hideme."' style='border:1pt dotted gray;'>".text($visit['ODCUP'])."</td><td class='GFS_td ".$hideme."' style='border:1pt dotted gray;''>".text($visit['OSCUP'])."</td></tr>";
-                            $DISCS_chart .='"1",';
+                            $cups .= "<tr><td class='GFS_td_1 " . $hideme . " '>" . text($visit['exam_date']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . text($visit['ODCUP']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;''>" . text($visit['OSCUP']) . "</td></tr>";
+                            $DISCS_chart .= '"1",';
                             $count++;
                         } else {
                             $DISCS_chart .= '"",';
@@ -5162,8 +5170,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     }
 
                     $DISCS_chart = chop($DISCS_chart, ",");
-                    if ($count ==0) {
-                        $cups = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>".xlt('Not documented')."</td></tr>";
+                    if ($count == 0) {
+                        $cups = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
                     }
                     ?>
                 <tr>
@@ -5174,7 +5182,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     }
 
                     if ($count > '0') {
-                        echo "<td class='GFS_title center'>".xlt('OD{{right eye}}')."</td><td class='GFS_title center'>".xlt('OS{{left eye}}')."</td>".$plus;
+                        echo "<td class='GFS_title center'>" . xlt('OD{{right eye}}') . "</td><td class='GFS_title center'>" . xlt('OS{{left eye}}') . "</td>" . $plus;
                     } else {
                         echo "<td class='GFS_title center'></td><td class='GFS_title center'></td>";
                     }
@@ -5188,7 +5196,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         <div style="position:relative;float:right; margin: 0px 5px;text-align:center;width:60%;">
             <?php
             if ($priors) {
-                if ($bywhat=='byday') { //$bywhat='byday'
+                if ($bywhat == 'byday') { //$bywhat='byday'
                         $class_1 = "nodisplay";
                         $class_2 = "";
                 } else {
@@ -5478,7 +5486,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                data: [<?php echo $VF_values; ?>],
                                fill: false,
                                backgroundColor: '#5CABFA',
-                               borderColor: '#000000',
+                               borderColor: 'var(--black)',
                                yAxisID: 'y-axis-2'
                                },{
                                type: 'bar',
@@ -5486,7 +5494,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                data: [<?php echo $OCT_values; ?>],//0/null is not done, 1 if performed.
                                fill: true,
                                backgroundColor: '#71B37C',
-                               borderColor: '#000000',
+                               borderColor: 'var(--black)',
                                yAxisID: 'y-axis-2'
                                },{
                                type: 'bar',
@@ -5496,7 +5504,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                strokeColor: 'rgba(209, 30, 93, 0.3)',
                                fillColor:'rgba(209, 30, 93, 0.3)',
                                backgroundColor: 'red',
-                               borderColor: '#000000',
+                               borderColor: 'var(--black)',
                                yAxisID: 'y-axis-2'
                                }]
                         },
@@ -5635,9 +5643,9 @@ function findProvider($pid, $encounter)
         $query = "select * from openemr_postcalendar_events where pc_pid=? and pc_eventDate=?";
         $find_provider3 = sqlQuery($query, array($pid,$visit_date));
         $new_providerid = $find_provider3['pc_aid'];
-        if (($new_providerid < '1')||(!$new_providerid)) {
+        if (($new_providerid < '1') || (!$new_providerid)) {
             $get_authorized = $_SESSION['userauthorized'];
-            if ($get_authorized ==1) {
+            if ($get_authorized == 1) {
                 $find_provider2 = sqlQuery("SELECT providerID FROM patient_data WHERE pid = ? ", array($pid));
                 $new_providerid = $find_provider2['providerID'];
             }
@@ -5656,20 +5664,20 @@ function generate_lens_treatments($W, $LTs_present)
     ob_start();
     $query = "SELECT * FROM list_options where list_id =? and activity='1' ORDER BY seq";
     $TXs_data = sqlStatement($query, array("Eye_Lens_Treatments"));
-    $counter=0;
+    $counter = 0;
     $TXs_arr = explode("|", $LTs_present);
-    $tabindex=$W."0144";
+    $tabindex = $W . "0144";
     while ($row = sqlFetchArray($TXs_data)) {
-        $checked ='';
-        $ID=$row['option_id'];
+        $checked = '';
+        $ID = $row['option_id'];
         if (in_array($ID, $TXs_arr)) {
             $checked = "checked='yes'";
         }
 
-        echo "<input type='checkbox' id='TXs_".$W."_".$counter."' name='LENS_TREATMENTS_".$W."[]' $checked value='".attr($ID)."' tabindex='$tabindex'> ";
+        echo "<input type='checkbox' id='TXs_" . $W . "_" . $counter . "' name='LENS_TREATMENTS_" . $W . "[]' $checked value='" . attr($ID) . "' tabindex='$tabindex'> ";
         $label = text(substr($row['title'], 0, 30));
-        echo "<label for='TXs_".$W."_".$counter."' class='input-helper input-helper--checkbox' title='".attr($row['notes'])."'>";
-        echo $label."</label><br />";
+        echo "<label for='TXs_" . $W . "_" . $counter . "' class='input-helper input-helper--checkbox' title='" . attr($row['notes']) . "'>";
+        echo $label . "</label><br />";
         $counter++;
         $tabindex++;
     }
@@ -5690,11 +5698,11 @@ function generate_specRx($W)
     $query  = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? and RX_NUMBER =?";
     $wear   = sqlQuery($query, array($pid,$form_id,$encounter,$W));
     if ($wear) {
-        $RX_VALUE='1';
+        $RX_VALUE = '1';
         @extract($wear);
     } else {
-        $RX_VALUE='';
-        $display_W='nodisplay';
+        $RX_VALUE = '';
+        $display_W = 'nodisplay';
     }
 
     ob_start();
@@ -5794,7 +5802,7 @@ function generate_specRx($W)
                         <tr class="WNEAR">
                           <td rowspan=2><?php echo xlt('Mid{{middle Rx strength}}'); ?>/<br /><?php echo xlt('Near'); ?></td>
                           <td><b><?php echo xlt('OD{{right eye}}'); ?>:</b></td>
-                            <?php echo '<input type="hidden" name="RXStart_'.$W.' id="RXStart_'.$W.'" value="'.attr($RX_TYPE).'">'; ?>
+                            <?php echo '<input type="hidden" name="RXStart_' . $W . ' id="RXStart_' . $W . '" value="' . attr($RX_TYPE) . '">'; ?>
                           <td class="WMid"><input type="text" class="presbyopia" id="ODMIDADD_<?php echo attr($W); ?>" name="ODMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($ODMIDADD); ?>"></td>
                           <td class="WAdd2"><input type="text" class="presbyopia" id="ODADD_<?php echo attr($W); ?>" name="ODADD_<?php echo attr($W); ?>" value="<?php echo attr($ODADD); ?>" tabindex="<?php echo attr($W); ?>0106"></td>
                           <td></td>
@@ -5807,12 +5815,12 @@ function generate_specRx($W)
                           <td name="W_wide" title="<?php echo xla('Lens Material'); ?>" colspan="2">
                             <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Materials'); ?>"
-                                  name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil fa-fw"></i> </a>
+                                  name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                           </td>
                           <td name="W_wide2" colspan="4" rowspan="4">
                             <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Treatment Options'); ?>"
-                                  name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil fa-fw"></i> </a>
+                                  name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                             <br />
                             <?php  echo generate_lens_treatments($W, $LENS_TREATMENTS); ?>
                           </td>
@@ -5829,7 +5837,7 @@ function generate_specRx($W)
                           <td name="W_wide"><input type="text" class="prism" id="BPDD_<?php echo attr($W); ?>" name="BPDD_<?php echo attr($W); ?>" value="<?php echo attr($BPDD); ?>" tabindex="<?php echo attr($W); ?>0128"></td>
                           <td name="W_wide"><input type="text" class="prism" id="BPDN_<?php echo attr($W); ?>" name="BPDN_<?php echo attr($W); ?>" value="<?php echo attr($BPDN); ?>" tabindex="<?php echo attr($W); ?>0129"></td>
                           <td name="W_wide" title="<?php echo xla('Lens Material Options'); ?>" colspan="2">
-                            <?php echo generate_select_list("LENS_MATERIAL_".$W, "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', array('style'=>'width:120px','tabindex'=>$W.'0130')); ?>
+                            <?php echo generate_select_list("LENS_MATERIAL_" . $W, "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', array('style' => 'width:120px','tabindex' => $W . '0130')); ?>
                           </td>
                         </tr>
                         <tr>
@@ -5888,7 +5896,7 @@ function display_refractive_data($encounter_data)
         ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
     }
 
-    if (!$ODVA||$OSVA||$ARODSPH||$AROSSPH||$MRODSPH||$MROSSPH||$CRODSPH||$CROSSPH||$CTLODSPH||$CTLOSSPH) { ?>
+    if (!$ODVA || $OSVA || $ARODSPH || $AROSSPH || $MRODSPH || $MROSSPH || $CRODSPH || $CROSSPH || $CTLODSPH || $CTLOSSPH) { ?>
         <table class="refraction_tables">
            <tr class="text-center bold underline" style="background-color: #F3EEC7;">
                 <td ><?php echo oeFormatShortDate($date); ?></td>
@@ -5904,40 +5912,40 @@ function display_refractive_data($encounter_data)
             </tr>
             <?php
                //$count_rx++;
-            for ($i=1; $i <= $count_rx; $i++) {
-                if (${"RX_TYPE_$i"} =="0") {
+            for ($i = 1; $i <= $count_rx; $i++) {
+                if (${"RX_TYPE_$i"} == "0") {
                     $RX_TYPE = '';
-                } else if (${"RX_TYPE_$i"} =="1") {
+                } elseif (${"RX_TYPE_$i"} == "1") {
                     $RX_TYPE = xlt('Bifocals');
-                } else if (${"RX_TYPE_$i"} =="2") {
+                } elseif (${"RX_TYPE_$i"} == "2") {
                     $RX_TYPE = xlt('Trifocals');
-                } else if (${"RX_TYPE_$i"} =="3") {
+                } elseif (${"RX_TYPE_$i"} == "3") {
                     $RX_TYPE = xlt('Progressive');
                 }
                 ?>
                 <tr>
-                    <td class="bold"><?php echo xlt('Wear RX')." #".$i.": "; ?></td>
+                    <td class="bold"><?php echo xlt('Wear RX') . " #" . $i . ": "; ?></td>
                     <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                    <td ><?php echo (text(${"ODSPH_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODCYL_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODAXIS_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODPRISM_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODVA_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODMIDADD_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODADD_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODNEARVA_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"ODSPH_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"ODCYL_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"ODAXIS_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"ODPRISM_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"ODVA_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"ODMIDADD_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"ODADD_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"ODNEARVA_$i"}) ?: "-"); ?></td>
                    </tr>
                    <tr>
                     <td><?php echo $RX_TYPE; ?></td>
                     <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
-                    <td ><?php echo (text(${"OSSPH_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSCYL_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSAXIS_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSPRISM_$i"})?:"-");  ?></td>
-                    <td ><?php echo (text(${"OSVA_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSMIDADD_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSADD_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSNEARVA_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"OSSPH_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"OSCYL_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"OSAXIS_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"OSPRISM_$i"}) ?: "-");  ?></td>
+                    <td ><?php echo (text(${"OSVA_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"OSMIDADD_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"OSADD_$i"}) ?: "-"); ?></td>
+                    <td ><?php echo (text(${"OSNEARVA_$i"}) ?: "-"); ?></td>
                    </tr>
                     <?php
                     if (${"COMMENTS_$i"}) {
@@ -5953,30 +5961,30 @@ function display_refractive_data($encounter_data)
                     <?php
             }
 
-            if ($ARODSPH||$AROSSPH) { ?>
+            if ($ARODSPH || $AROSSPH) { ?>
                    <tr style="border-bottom:1pt solid black;">
                        <td class="bold"><?php echo xlt('AutoRef'); ?></td>
                        <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                       <td ><?php echo (text($ARODSPH)?:"-");  ?></td>
-                       <td ><?php echo (text($ARODCYL)?:"-");  ?></td>
-                       <td ><?php echo (text($ARODAXIS)?:"-");  ?></td>
-                       <td ><?php echo (text($ARODPRISM)?:"-");  ?></td>
-                       <td ><?php echo (text($ARODVA)?:"-");  ?></td>
+                       <td ><?php echo (text($ARODSPH) ?: "-");  ?></td>
+                       <td ><?php echo (text($ARODCYL) ?: "-");  ?></td>
+                       <td ><?php echo (text($ARODAXIS) ?: "-");  ?></td>
+                       <td ><?php echo (text($ARODPRISM) ?: "-");  ?></td>
+                       <td ><?php echo (text($ARODVA) ?: "-");  ?></td>
                        <td >-</td>
-                       <td ><?php echo (text($ARODADD)?:"-");  ?></td>
-                       <td ><?php echo (text($ARNEARODVA)?:"-"); ?></td>
+                       <td ><?php echo (text($ARODADD) ?: "-");  ?></td>
+                       <td ><?php echo (text($ARNEARODVA) ?: "-"); ?></td>
                    </tr>
                    <tr>
                        <td>&nbsp;</td>
                        <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
-                       <td ><?php echo (text($AROSSPH)?:"-");  ?></td>
-                       <td ><?php echo (text($AROSCYL)?:"-");  ?></td>
-                       <td ><?php echo (text($AROSAXIS)?:"-");  ?></td>
-                       <td ><?php echo (text($AROSPRISM)?:"-");  ?></td>
-                       <td ><?php echo (text($AROSVA)?:"-");  ?></td>
+                       <td ><?php echo (text($AROSSPH) ?: "-");  ?></td>
+                       <td ><?php echo (text($AROSCYL) ?: "-");  ?></td>
+                       <td ><?php echo (text($AROSAXIS) ?: "-");  ?></td>
+                       <td ><?php echo (text($AROSPRISM) ?: "-");  ?></td>
+                       <td ><?php echo (text($AROSVA) ?: "-");  ?></td>
                        <td >-</td>
-                       <td ><?php echo (text($AROSADD)?:"-");  ?></td>
-                       <td ><?php echo (text($ARNEAROSVA)?:"-"); ?></td>
+                       <td ><?php echo (text($AROSADD) ?: "-");  ?></td>
+                       <td ><?php echo (text($ARNEAROSVA) ?: "-"); ?></td>
                    </tr>
                     <?php
                     if (${"COMMENTS_$i"}) {
@@ -5992,66 +6000,66 @@ function display_refractive_data($encounter_data)
                     <?php
             }
 
-            if ($MRODSPH||$MROSSPH) { ?>
+            if ($MRODSPH || $MROSSPH) { ?>
                    <tr>
                        <td class="bold"><?php echo xlt('MR (Dry)'); ?></td>
                        <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                       <td ><?php echo (text($MRODSPH)?:"-");  ?></td>
-                       <td ><?php echo (text($MRODCYL)?:"-");  ?></td>
-                       <td ><?php echo (text($MRODAXIS)?:"-");  ?></td>
-                       <td ><?php echo (text($MRODPRISM)?:"-");  ?></td>
-                       <td ><?php echo (text($MRODVA)?:"-");  ?></td>
+                       <td ><?php echo (text($MRODSPH) ?: "-");  ?></td>
+                       <td ><?php echo (text($MRODCYL) ?: "-");  ?></td>
+                       <td ><?php echo (text($MRODAXIS) ?: "-");  ?></td>
+                       <td ><?php echo (text($MRODPRISM) ?: "-");  ?></td>
+                       <td ><?php echo (text($MRODVA) ?: "-");  ?></td>
                        <td >-</td>
-                       <td ><?php echo (text($MRODADD)?:"-");  ?></td>
-                       <td ><?php echo (text($MRNEARODVA)?:"-"); ?></td>
+                       <td ><?php echo (text($MRODADD) ?: "-");  ?></td>
+                       <td ><?php echo (text($MRNEARODVA) ?: "-"); ?></td>
                    </tr>
                    <tr></tr>
                    <tr>
                        <td></td>
                        <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
-                       <td ><?php echo (text($MROSSPH)?:"-");  ?></td>
-                       <td ><?php echo (text($MROSCYL)?:"-");  ?></td>
-                       <td ><?php echo (text($MROSAXIS)?:"-");  ?></td>
-                       <td ><?php echo (text($MROSPRISM)?:"-");  ?></td>
-                       <td ><?php echo (text($MROSVA)?:"-");  ?></td>
+                       <td ><?php echo (text($MROSSPH) ?: "-");  ?></td>
+                       <td ><?php echo (text($MROSCYL) ?: "-");  ?></td>
+                       <td ><?php echo (text($MROSAXIS) ?: "-");  ?></td>
+                       <td ><?php echo (text($MROSPRISM) ?: "-");  ?></td>
+                       <td ><?php echo (text($MROSVA) ?: "-");  ?></td>
                        <td >-</td>
-                       <td ><?php echo (text($MROSADD)?:"-");  ?></td>
-                       <td ><?php echo (text($MRNEAROSVA)?:"-"); ?></td>
+                       <td ><?php echo (text($MROSADD) ?: "-");  ?></td>
+                       <td ><?php echo (text($MRNEAROSVA) ?: "-"); ?></td>
                    </tr>
                 <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
 
-            if ($CRODSPH||$CROSSPH) { ?>
+            if ($CRODSPH || $CROSSPH) { ?>
                    <tr>
                        <td class="bold"><?php echo xlt('CR (Wet)'); ?></td>
                        <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                       <td ><?php echo (text($CRODSPH)?:"-");  ?></td>
-                       <td ><?php echo (text($CRODCYL)?:"-");  ?></td>
-                       <td ><?php echo (text($CRODAXIS)?:"-");  ?></td>
-                       <td ><?php echo (text($CRODPRISM)?:"-");  ?></td>
-                       <td ><?php echo (text($CRODVA)?:"-");  ?></td>
+                       <td ><?php echo (text($CRODSPH) ?: "-");  ?></td>
+                       <td ><?php echo (text($CRODCYL) ?: "-");  ?></td>
+                       <td ><?php echo (text($CRODAXIS) ?: "-");  ?></td>
+                       <td ><?php echo (text($CRODPRISM) ?: "-");  ?></td>
+                       <td ><?php echo (text($CRODVA) ?: "-");  ?></td>
                        <td >-</td>
-                       <td ><?php echo (text($CRODADD)?:"-");  ?></td>
-                       <td ><?php echo (text($CRNEARODVA)?:"-"); ?></td>
+                       <td ><?php echo (text($CRODADD) ?: "-");  ?></td>
+                       <td ><?php echo (text($CRNEARODVA) ?: "-"); ?></td>
                    </tr>
                    <tr>
                        <td></td>
                        <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
-                       <td ><?php echo (text($CROSSPH)?:"-");  ?></td>
-                       <td ><?php echo (text($CROSCYL)?:"-");  ?></td>
-                       <td ><?php echo (text($CROSAXIS)?:"-");  ?></td>
-                       <td ><?php echo (text($CROSPRISM)?:"-");  ?>&nbsp;</td>
-                       <td ><?php echo (text($CROSVA)?:"-");  ?></td>
+                       <td ><?php echo (text($CROSSPH) ?: "-");  ?></td>
+                       <td ><?php echo (text($CROSCYL) ?: "-");  ?></td>
+                       <td ><?php echo (text($CROSAXIS) ?: "-");  ?></td>
+                       <td ><?php echo (text($CROSPRISM) ?: "-");  ?>&nbsp;</td>
+                       <td ><?php echo (text($CROSVA) ?: "-");  ?></td>
                        <td >-</td>
-                       <td ><?php echo (text($CROSADD)?:"-");  ?></td>
-                       <td ><?php echo (text($CRNEAROSVA)?:"-"); ?></td>
+                       <td ><?php echo (text($CROSADD) ?: "-");  ?></td>
+                       <td ><?php echo (text($CRNEAROSVA) ?: "-"); ?></td>
                    </tr>
                 <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
 
-            if ($CTLODSPH||$CTLOSSPH) { ?>
+            if ($CTLODSPH || $CTLOSSPH) { ?>
                    <tr class="bold text-center underline">
                        <td></td>
                        <td><?php echo xlt('Eye'); ?></td>
@@ -6067,14 +6075,14 @@ function display_refractive_data($encounter_data)
                    <tr>
                        <td class="bold"><?php echo xlt('CTL'); ?></td>
                        <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                       <td ><?php echo (text($CTLODSPH)?:"-");  ?></td>
-                       <td ><?php echo (text($CTLODCYL)?:"-");  ?></td>
-                       <td ><?php echo (text($CTLODAXIS)?:"-");  ?></td>
-                       <td ><?php echo (text($CTLODBC)?:"-");  ?></td>
-                       <td ><?php echo (text($CTLODDIAM)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLODSPH) ?: "-");  ?></td>
+                       <td ><?php echo (text($CTLODCYL) ?: "-");  ?></td>
+                       <td ><?php echo (text($CTLODAXIS) ?: "-");  ?></td>
+                       <td ><?php echo (text($CTLODBC) ?: "-");  ?></td>
+                       <td ><?php echo (text($CTLODDIAM) ?: "-");  ?></td>
                        <td></td>
-                       <td ><?php echo (text($CTLODADD)?:"-");  ?></td>
-                       <td ><?php echo (text($CTLODVA)?:"-"); ?></td>
+                       <td ><?php echo (text($CTLODADD) ?: "-");  ?></td>
+                       <td ><?php echo (text($CTLODVA) ?: "-"); ?></td>
                    </tr>
                     <?php if (!empty($CTLODQUANTITY)) { ?>
                        <tr>
@@ -6084,28 +6092,28 @@ function display_refractive_data($encounter_data)
                     <?php } ?>
                    <tr style="font-size:0.6em;">
                        <td></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD)?:"-");  ?></td>
-                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD) ?: "-");  ?></td>
+                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD) ?: "-");  ?></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD) ?: "-");  ?></td>
 
                    </tr>
                    <tr>
                        <td></td>
                        <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
-                       <td ><?php echo (text($CTLOSSPH)?:"-");  ?></td>
-                       <td ><?php echo (text($CTLOSCYL)?:"-");  ?></td>
-                       <td ><?php echo (text($CTLOSAXIS)?:"-");  ?></td>
-                       <td ><?php echo (text($CTLOSBC)?:"-");  ?></td>
-                       <td ><?php echo (text($CTLOSDIAM)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLOSSPH) ?: "-");  ?></td>
+                       <td ><?php echo (text($CTLOSCYL) ?: "-");  ?></td>
+                       <td ><?php echo (text($CTLOSAXIS) ?: "-");  ?></td>
+                       <td ><?php echo (text($CTLOSBC) ?: "-");  ?></td>
+                       <td ><?php echo (text($CTLOSDIAM) ?: "-");  ?></td>
                        <td></td>
-                       <td ><?php echo (text($CTLOSADD)?:"-");  ?></td>
-                       <td ><?php echo (text($CTLOSVA)?:"-"); ?></td>
+                       <td ><?php echo (text($CTLOSADD) ?: "-");  ?></td>
+                       <td ><?php echo (text($CTLOSVA) ?: "-"); ?></td>
                    </tr>
                    <tr style="font-size:9px;">
                        <td></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS)?:"-");  ?></td>
-                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS) ?: "-");  ?></td>
+                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS) ?: "-");  ?></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS) ?: "-");  ?></td>
                    </tr>
                     <?php if (!empty($CTLOSQUANTITY)) { ?>
                         <tr>
@@ -6128,7 +6136,7 @@ function display_refractive_data($encounter_data)
     } ?>
 
     <?php
-    if ($GLAREODVA||$CONTRASTODVA||$ODK1||$ODK2||$LIODVA||$PAMODBA) { ?>
+    if ($GLAREODVA || $CONTRASTODVA || $ODK1 || $ODK2 || $LIODVA || $PAMODBA) { ?>
       <table>
         <tr>
           <td id="LayerVision_ADDITIONAL" class="refraction <?php echo $display_Add; ?>" style="padding:10px;font-size:10px;">
@@ -6240,26 +6248,26 @@ function getIOPTARGETS($pid, $id, $provider_id)
     $result = sqlStatement($query, array($pid, $id));
 
     while ($row = sqlFetchArray($result)) {
-        if (($row['ODIOPTARGET'] >'0') || ($row['OSIOPTARGET'] > '0')) {
+        if (($row['ODIOPTARGET'] > '0') || ($row['OSIOPTARGET'] > '0')) {
             return array($row['ODIOPTARGET'], $row['OSIOPTARGET']);
         }
     }
-    $query = "SELECT * FROM `list_options` 
-            WHERE 
-            `list_id` LIKE ? AND 
-            (   option_id = 'ODIOPTARGET' OR  
+    $query = "SELECT * FROM `list_options`
+            WHERE
+            `list_id` LIKE ? AND
+            (   option_id = 'ODIOPTARGET' OR
                 option_id = 'OSIOPTARGET'  )
              ";
-    $result = sqlQuery($query, array("Eye_defaults_".$provider_id));
+    $result = sqlQuery($query, array("Eye_defaults_" . $provider_id));
     while ($default_TARGETS = sqlFetchArray($result)) {
-        if ($default_TARGETS['option_id']=='ODIOPTARGET') {
+        if ($default_TARGETS['option_id'] == 'ODIOPTARGET') {
             $ODIOPTARGET = $default_TARGETS["title"];
         }
-        if ($default_TARGETS['option_id']=='OSIOPTARGET') {
+        if ($default_TARGETS['option_id'] == 'OSIOPTARGET') {
             $OSIOPTARGET = $default_TARGETS["title"];
         }
     }
-    if (($ODIOPTARGET >'0') || ($OSIOPTARGET > '0')) {
+    if (($ODIOPTARGET > '0') || ($OSIOPTARGET > '0')) {
         return array($ODIOPTARGET, $OSIOPTARGET);
     }
     return array('21','21');

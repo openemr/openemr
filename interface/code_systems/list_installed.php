@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file implements the main jquery interface for loading external
  * database files into openEMR
@@ -24,14 +25,12 @@
  * @link    http://www.open-emr.org
  */
 
-
-
-
 require_once("../../interface/globals.php");
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 // Control access
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     echo xlt('Not Authorized');
     exit;
 }
@@ -40,8 +39,8 @@ $db = isset($_GET['db']) ? $_GET['db'] : '0';
 
 // Ordering by the imported_date with tiebreaker being the revision_date
 $rez = sqlStatement("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision_date`, `revision_version`, `name` FROM `standardized_tables_track` WHERE upper(`name`) = ? ORDER BY `imported_date` DESC, `revision_date` DESC", array($db));
-for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-    $sqlReturn[$iter]=$row;
+for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+    $sqlReturn[$iter] = $row;
 }
 
 if (empty($sqlReturn)) {
@@ -55,7 +54,7 @@ if (empty($sqlReturn)) {
         <div class="atr"><?php echo xlt("Name") . ": " . text($sqlReturn[1]['name']); ?> </div>
         <div class="atr"><?php echo xlt("Revision") . ": " . text($sqlReturn[1]['revision_version']); ?> </div>
         <div class="atr"><?php echo xlt("Release Date") . ": " . text($sqlReturn[1]['revision_date']); ?> </div>
-        <br>
+        <br />
         <?php
     }
 

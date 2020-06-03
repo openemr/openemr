@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRElement;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRElement;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using

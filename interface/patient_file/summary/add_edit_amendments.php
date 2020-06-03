@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Add/Edit Amendments
  *
@@ -11,11 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (isset($_POST['mode'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -101,7 +103,7 @@ if ($amendment_id) {
 }
 
 // Check the ACL
-$haveAccess = acl_check('patients', 'trans');
+$haveAccess = AclMain::aclCheckCore('patients', 'trans');
 $onlyRead = ( $haveAccess ) ? 0 : 1;
 $onlyRead = ( $onlyRead || $amendment_status ) ? 1 : 0;
 $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
@@ -111,28 +113,20 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 <html>
 <head>
 
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-
-<!-- page styles -->
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
 .highlight {
-  color: green;
+  color: var(--success);
 }
 tr.selected {
-  background-color: white;
+  background-color: var(--white);
 }
 .historytbl {
  border-collapse: collapse;
 }
 .historytbl td th{
-  border: 1px solid #000;
+  border: 1px solid var(--black);
 }
 </style>
 
@@ -153,7 +147,7 @@ function formValidation() {
     $("#add_edit_amendments").submit();
 }
 
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -179,19 +173,19 @@ $(function() {
         </td>
         <?php if (! $onlyRead) { ?>
         <td>
-            <a href=# onclick="formValidation()" class="css_button_small"><span><?php echo xlt('Save');?></span></a>
+            <a href=# onclick="formValidation()" class="btn btn-primary btn-sm"><span><?php echo xlt('Save');?></span></a>
         </td>
         <?php } ?>
         <td>
-            <a href="list_amendments.php" class="css_button_small"><span><?php echo xlt('Back');?></span></a>
+            <a href="list_amendments.php" class="btn btn-secondary btn-sm"><span><?php echo xlt('Back');?></span></a>
         </td>
     </tr>
     </table>
 
-    <br>
-    <table border=0 cellpadding=1 cellspacing=1>
+    <br />
+    <table border='0' cellpadding='1' cellspacing='1'>
         <tr>
-            <td><span class=text ><?php echo xlt('Requested Date'); ?></span></td>
+            <td><span class='text'><?php echo xlt('Requested Date'); ?></span></td>
             <td>
             <?php if (! $onlyRead) { ?>
                 <input type='text' size='10' class='datepicker' name="amendment_date" id="amendment_date"
@@ -263,7 +257,7 @@ $(function() {
                 $userName = $row['lname'] . ", " . $row['fname'];
                 echo "<td align=left class=text>" . text(oeFormatShortDate($created_date)) . "</td>";
                 echo "<td align=left class=text>" . text($userName) . "</td>";
-                echo "<td align=left class=text>" . ( ( $row['amendment_status'] ) ? generate_display_field(array('data_type'=>'1','list_id'=>'amendment_status'), $row['amendment_status']) : '') . "</td>";
+                echo "<td align=left class=text>" . ( ( $row['amendment_status'] ) ? generate_display_field(array('data_type' => '1','list_id' => 'amendment_status'), $row['amendment_status']) : '') . "</td>";
                 echo "<td align=left class=text>" . text($row['amendment_note']) . "</td>";
                 echo "<tr>";
             }

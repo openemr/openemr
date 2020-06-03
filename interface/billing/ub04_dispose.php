@@ -1,4 +1,5 @@
 <?php
+
 /**
  * UB04 Functions
  *
@@ -8,12 +9,12 @@
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 require_once("../globals.php");
-require_once("$srcdir/gen_x12_837i.inc.php");
-require_once("$srcdir/invoice_summary.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
+use OpenEMR\Billing\X125010837I;
 use OpenEMR\Pdf\PdfCreator;
 
 $dispose = isset($_POST['handler']) ? $_POST['handler'] : $_GET['handler'];
@@ -94,8 +95,11 @@ function saveTemplate($encounter, $pid, $ub04id, $action = 'form')
     }
 }
 
-function buildTemplate($pid = '', $encounter = '', $htmlin, $action = 'form', &$log)
+function buildTemplate(string $pid = null, string $encounter = null, $htmlin, string $action = null, &$log)
 {
+    if (!$action) {
+        $action = 'form';
+    }
     $ub04id = get_ub04_array($pid, $encounter, $log);
 
     $ub04id = json_encode($ub04id);
@@ -237,7 +241,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $clm_total_charges = 0;
     $clm_amount_adjusted = 0;
     $clm_amount_paid = $ub04_proc_index ? 0 : $claim->patientPaidAmount();
-    for ($tlh = 0; $tlh < $proccount; ++ $tlh) {
+    for ($tlh = 0; $tlh < $proccount; ++$tlh) {
         $tmp = $claim->procs[$tlh][code_text];
         if ($claim->procs[$tlh][code_type] == 'HCPCS') {
             $tmpcode = '3';
@@ -250,8 +254,10 @@ function get_ub04_array($pid, $encounter, &$log = "")
             $tmpcode,
             $getrevcd
         ));
-        $claim->procs[$tlh]['revenue_code'] = $claim->procs[$tlh]['revenue_code'] ? $claim->procs[$tlh]['revenue_code'] : $revcode[$tlh]['revenue_code'];
-        $revcode2[$tlh] = array_merge($revcode[$tlh], $claim->procs[$tlh]);
+        if (!empty($revcode[$tlh])) {
+            $claim->procs[$tlh]['revenue_code'] = $claim->procs[$tlh]['revenue_code'] ? $claim->procs[$tlh]['revenue_code'] : $revcode[$tlh]['revenue_code'];
+            $revcode2[$tlh] = array_merge($revcode[$tlh], $claim->procs[$tlh]);
+        }
     }
     foreach ($revcode as $key => $row) {
         $revcod[$key] = $row['revenue_code'];
@@ -261,7 +267,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $os = 99; // Line 1 - 23 offset
     $dos = 382;
     $pcnt = 0;
-    for ($svccount = 0; $svccount < 22 && $ub04_proc_index < $proccount; ++ $ub04_proc_index) {
+    for ($svccount = 0; $svccount < 22 && $ub04_proc_index < $proccount; ++$ub04_proc_index) {
         $dia = $claim->diagIndexArray($ub04_proc_index);
         if (! $claim->cptCharges($ub04_proc_index)) {
             $log .= "*** Procedure '" . $claim->cptKey($ub04_proc_index) . "' has no charges!\n";
@@ -271,7 +277,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
         }
         $clm_total_charges += $claim->cptCharges($ub04_proc_index);
         // Compute prior payments and "hard" adjustments.
-        for ($ins = 1; $ins < $claim->payerCount(); ++ $ins) {
+        for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
             if ($claim->payerSequence($ins) > $claim->payerSequence()) {
                 continue; // skip future payers
             }
@@ -279,30 +285,30 @@ function get_ub04_array($pid, $encounter, &$log = "")
             $clm_amount_paid += $payerpaid[1];
             $clm_amount_adjusted += $payerpaid[2];
         }
-        ++ $svccount;
+        ++$svccount;
         $mcnt = $ub04_proc_index;
 
         // @todo need if inpatient or out patient for box 74 - 74e
         $tmp = $claim->cleanDate($revcode2[$mcnt][date]);
         $sdate = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2);
         if ($pcnt < 6) {
-            $ub04id[$dos ++] = $revcode2[$mcnt][code]; /* 74. PRINCIPAL PROCEDURE CODE */
-            $ub04id[$dos ++] = $sdate; /* 74. PRINCIPAL PROCEDURE DATE */
+            $ub04id[$dos++] = $revcode2[$mcnt][code]; /* 74. PRINCIPAL PROCEDURE CODE */
+            $ub04id[$dos++] = $sdate; /* 74. PRINCIPAL PROCEDURE DATE */
             if ($dos == 388) {
                 $dos = 393;
             }
-            $pcnt ++;
+            $pcnt++;
         }
         // @todo Deal with code modifiers $revcode2[$mcnt][modifier]
         $tmp = $claim->serviceDate();
         $sdate = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2);
         $ub04id[$os] = $claim->procs[$mcnt][revenue_code]; // 42. REVENUE CODE, Line 1-23 */
-        $ub04id[++ $os] = strtoupper($revcode2[$mcnt][code_text]); /* 43. REVENUE DESCRIPTION, Line 1-23 */
-        $ub04id[++ $os] = trim($revcode2[$mcnt][code] . ' ' . $revcode2[$mcnt][modifier]); /* 44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 1-23 */
-        $ub04id[++ $os] = $sdate; /* 45. SERVICE DATE, Line 1-23 */
-        $ub04id[++ $os] = $revcode2[$mcnt][units]; /* 46. SERVICE UNITS, Line 1-23 */
-        $ub04id[++ $os] = str_replace('.', '  ', sprintf('%8.2f', $revcode2[$mcnt][fee])); /* 47. TOTAL CHARGES, Line 1-23 */
-        $ub04id[++ $os] = ''; /* 48. NON-COVERED CHARGES, Line 1-23 */
+        $ub04id[++$os] = strtoupper($revcode2[$mcnt][code_text]); /* 43. REVENUE DESCRIPTION, Line 1-23 */
+        $ub04id[++$os] = trim($revcode2[$mcnt][code] . ' ' . $revcode2[$mcnt][modifier]); /* 44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 1-23 */
+        $ub04id[++$os] = $sdate; /* 45. SERVICE DATE, Line 1-23 */
+        $ub04id[++$os] = $revcode2[$mcnt][units]; /* 46. SERVICE UNITS, Line 1-23 */
+        $ub04id[++$os] = str_replace('.', '  ', sprintf('%8.2f', $revcode2[$mcnt][fee])); /* 47. TOTAL CHARGES, Line 1-23 */
+        $ub04id[++$os] = ''; /* 48. NON-COVERED CHARGES, Line 1-23 */
         $os += 2;
     }
     $ub04id[275] = '0001'; /* 42. REVENUE CODE, Line 23 */
@@ -321,12 +327,12 @@ function get_ub04_array($pid, $encounter, &$log = "")
         $diagnosis[] = $diag;
         if (! empty($diag)) {
             if ($os == 362) {
-                $ub04id[$os ++] = substr($diag, 0, 7);
+                $ub04id[$os++] = substr($diag, 0, 7);
                 $ub04id[366] = "";
                 continue;
             }
-            $ub04id[$os ++] = substr($diag, 0, 7);
-            $ub04id[$os ++] = "";
+            $ub04id[$os++] = substr($diag, 0, 7);
+            $ub04id[$os++] = "";
         }
         if ($os == 346) {
             $os = 348;

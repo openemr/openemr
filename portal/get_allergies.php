@@ -1,7 +1,8 @@
 <?php
+
 /**
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * Copyright (C) 2011 Cassian LUP <cassi.lup@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -20,13 +21,14 @@
  * @link http://www.open-emr.org
  *
  */
+
         require_once("verify_session.php");
 
         $sql = "SELECT * FROM lists WHERE pid = ? AND type = 'allergy' ORDER BY begdate";
 
         $res = sqlStatement($sql, array($pid));
 
-if (sqlNumRows($res)>0) {
+if (sqlNumRows($res) > 0) {
     ?>
     <table class="table table-striped">
         <tr class="header">
@@ -37,14 +39,14 @@ if (sqlNumRows($res)>0) {
     <th><?php echo xlt('Referrer'); ?></th>
         </tr>
     <?php
-    $even=false;
+    $even = false;
     while ($row = sqlFetchArray($res)) {
-        echo "<tr class='".$class."'>";
-        echo "<td>".text($row['title'])."</td>";
-        echo "<td>".text($row['date'])."</td>";
-        echo "<td>".text($row['begdate'])."</td>";
-        echo "<td>".text($row['enddate'])."</td>";
-        echo "<td>".text($row['referredby'])."</td>";
+        echo "<tr class='" . $class . "'>";
+        echo "<td>" . text($row['title']) . "</td>";
+        echo "<td>" . text($row['date']) . "</td>";
+        echo "<td>" . text($row['begdate']) . "</td>";
+        echo "<td>" . text($row['enddate']) . "</td>";
+        echo "<td>" . text($row['referredby']) . "</td>";
         echo "</tr>";
     }
 

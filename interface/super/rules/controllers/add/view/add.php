@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/add/view/add.php
  *
@@ -10,13 +11,14 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
-<table class="header">
-  <tr >
+<table class="table header">
+  <tr>
         <td class="title"><?php echo xlt('Add Rule'); ?></td>
         <td>
-            <a href="index.php?action=add!add" class="iframe_medium css_button" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a>
-            <a href="index.php?action=browse!list" class="iframe_medium css_button" onclick="top.restoreSession()"><span><?php echo xlt('Cancel'); ?></span></a>
+            <a href="index.php?action=add!add" class="iframe_medium btn btn-primary" onclick="top.restoreSession()"><?php echo xlt('Save'); ?></a>
+            <a href="index.php?action=browse!list" class="iframe_medium btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt('Cancel'); ?></a>
         </td>
   </tr>
 </table>

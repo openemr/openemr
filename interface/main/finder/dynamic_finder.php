@@ -1,4 +1,5 @@
 <?php
+
 /**
  * dynamic_finder.php
  *
@@ -15,11 +16,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once(dirname(__FILE__) . "/../../globals.php");
 require_once "$srcdir/user.inc";
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
@@ -36,51 +37,200 @@ $colcount = 0;
 $header0 = "";
 $header = "";
 $coljson = "";
-$res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
+$orderjson = "";
+$res = sqlStatement("SELECT option_id, title, toggle_setting_1 FROM list_options WHERE " .
     "list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
+$sort_dir_map = generate_list_map('Sort_Direction');
 while ($row = sqlFetchArray($res)) {
     $colname = $row['option_id'];
+    $colorder = $sort_dir_map[$row['toggle_setting_1']]; // Get the title 'asc' or 'desc' using the value
     $title = xl_list_label($row['title']);
-    $title1 = ($title == xl('Full Name'))? xl('Name'): $title;
+    $title1 = ($title == xl('Full Name')) ? xl('Name') : $title;
     $header .= "   <th>";
     $header .= text($title);
     $header .= "</th>\n";
     $header0 .= "   <td ><input type='text' size='20' ";
-    $header0 .= "value='' class='search_init' placeholder='".xla("Search by"). " " . $title1 ."'/></td>\n";
+    $header0 .= "value='' class='search_init' placeholder='" . xla("Search by") . " " . $title1 . "'/></td>\n";
     if ($coljson) {
         $coljson .= ", ";
     }
     $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"}";
+    if ($orderjson) {
+        $orderjson .= ", ";
+    }
+    $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
-$loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
+$loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
 ?>
 <html>
 <head>
-    <?php Header::setupHeader();?>
+    <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs']); ?>
     <title><?php echo xlt("Patient Finder"); ?></title>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt/css/jquery.dataTables.css" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt/css/colReorder.dataTables.css" type="text/css">
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net/js/jquery.dataTables.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder/js/dataTables.colReorder.js"></script>
 <style>
     /* Finder Processing style */
     div.dataTables_wrapper div.dataTables_processing {
         top: -20px;
         width: auto;
         margin: 0;
-        color: red;
+        color: var(--danger);
         transform: translateX(-50%);
     }
+
     @media screen and (max-width: 640px) {
-        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter {
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
             float: inherit;
             text-align: justify;
         }
     }
-    
+
+    /* Color Overrides for jQuery-DT */
+    table.dataTable thead th,
+    table.dataTable thead td {
+        border-bottom: 1px solid var(--gray900) !important;
+    }
+
+    table.dataTable tfoot th,
+    table.dataTable tfoot td {
+        border-top: 1px solid var(--gray900) !important;
+    }
+
+    table.dataTable tbody tr {
+        background-color: var(--white) !important;
+    }
+
+    table.dataTable.row-border tbody th,
+    table.dataTable.row-border tbody td,
+    table.dataTable.display tbody th,
+    table.dataTable.display tbody td {
+        border-top: 1px solid var(--gray300) !important;
+    }
+
+    table.dataTable.cell-border tbody th,
+    table.dataTable.cell-border tbody td {
+        border-top: 1px solid var(--gray300) !important;
+        border-right: 1px solid var(--gray300) !important;
+    }
+
+    table.dataTable.cell-border tbody tr th:first-child,
+    table.dataTable.cell-border tbody tr td:first-child {
+        border-left: 1px solid var(--gray300) !important;
+    }
+
+    table.dataTable.stripe tbody tr.odd,
+    table.dataTable.display tbody tr.odd {
+        background-color: var(--light) !important;
+    }
+
+    table.dataTable.hover tbody tr:hover,
+    table.dataTable.display tbody tr:hover {
+        background-color: var(--light) !important;
+    }
+
+    table.dataTable.order-column tbody tr>.sorting_1,
+    table.dataTable.order-column tbody tr>.sorting_2,
+    table.dataTable.order-column tbody tr>.sorting_3,
+    table.dataTable.display tbody tr>.sorting_1,
+    table.dataTable.display tbody tr>.sorting_2,
+    table.dataTable.display tbody tr>.sorting_3 {
+        background-color: var(--light) !important;
+    }
+
+    table.dataTable.display tbody tr.odd>.sorting_1,
+    table.dataTable.order-column.stripe tbody tr.odd>.sorting_1 {
+        background-color: var(--light) !important;
+    }
+
+    table.dataTable.display tbody tr.odd>.sorting_2,
+    table.dataTable.order-column.stripe tbody tr.odd>.sorting_2 {
+        background-color: var(--light) !important;
+    }
+
+    table.dataTable.display tbody tr.odd>.sorting_3,
+    table.dataTable.order-column.stripe tbody tr.odd>.sorting_3 {
+        background-color: var(--light) !important;
+    }
+
+    table.dataTable.display tbody tr.even>.sorting_1,
+    table.dataTable.order-column.stripe tbody tr.even>.sorting_1 {
+        background-color: var(--light) !important;
+    }
+
+    table.dataTable.display tbody tr.even>.sorting_2,
+    table.dataTable.order-column.stripe tbody tr.even>.sorting_2 {
+        background-color: var(--light) !important;
+    }
+
+    table.dataTable.display tbody tr.even>.sorting_3,
+    table.dataTable.order-column.stripe tbody tr.even>.sorting_3 {
+        background-color: var(--light) !important;
+    }
+
+    table.dataTable.display tbody tr:hover>.sorting_1,
+    table.dataTable.order-column.hover tbody tr:hover>.sorting_1 {
+        background-color: var(--gray200) !important;
+    }
+
+    table.dataTable.display tbody tr:hover>.sorting_2,
+    table.dataTable.order-column.hover tbody tr:hover>.sorting_2 {
+        background-color: var(--gray200) !important;
+    }
+
+    table.dataTable.display tbody tr:hover>.sorting_3,
+    table.dataTable.order-column.hover tbody tr:hover>.sorting_3 {
+        background-color: var(--gray200) !important;
+    }
+
+    table.dataTable.display tbody .odd:hover,
+    table.dataTable.display tbody .even:hover {
+        background-color: var(--gray200) !important;
+    }
+
+    table.dataTable.no-footer {
+        border-bottom: 1px solid var(--gray900) !important;
+    }
+
+    .dataTables_wrapper .dataTables_processing {
+        background-color: var(--white) !important;
+        background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgba(var(--black), 0.9)), color-stop(75%, rgba(var(--black), 0.9)), color-stop(100%, transparent)) !important;
+        background: -webkit-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+        background: -moz-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+        background: -ms-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+        background: -o-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+        background: linear-gradient(to right, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_processing,
+    .dataTables_wrapper .dataTables_paginate {
+        color: var(--dark) !important;
+    }
+
+    .dataTables_wrapper.no-footer .dataTables_scrollBody {
+        border-bottom: 1px solid var(--gray900) !important;
+    }
+
+    /* Pagination button Overrides for jQuery-DT */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+    }
+
+    /* Sort indicator Overrides for jQuery-DT */
+    table thead .sorting::before,
+    table thead .sorting_asc::before,
+    table thead .sorting_asc::after,
+    table thead .sorting_desc::before,
+    table thead .sorting_desc::after,
+    table thead .sorting::after {
+        display: none !important;
+    }
 </style>
-<script language="JavaScript">
+<script>
 
     var uspfx = '<?php echo attr($uspfx); ?>';
 
@@ -109,6 +259,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
             // See: http://datatables.net/usage/columns and
             // http://datatables.net/release-datatables/extras/ColReorder/server_side.html
             "columns": [ <?php echo $coljson; ?> ],
+            "order": [ <?php echo $orderjson; ?> ],
             "lengthMenu": [10, 25, 50, 100],
             "pageLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
             <?php // Bring in the translations ?>
@@ -197,17 +348,17 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <?php if (acl_check('patients', 'demo', '', array('write','addonly'))) { ?>
-                    <button id="create_patient_btn1" class="btn btn-default btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
+                <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
+                    <button id="create_patient_btn1" class="btn btn-secondary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
                 <?php } ?>
             </div>
             </div>
-        <br>
+        <br />
         <div class="row">
             <div class="col-sm-12">
                 <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
                     <!-- Class "display" is defined in demo_table.css -->
-                    <table border="0" cellpadding="0" cellspacing="0" class="display" id="pt_table">
+                    <table cellpadding="0" cellspacing="0" class="border-0 display" id="pt_table">
                         <thead>
                             <tr id="advanced_search" class="hideaway"  style="display: none;">
                                 <?php echo $header0; ?>
@@ -256,8 +407,8 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
                 $("#pt_table_length").addClass ("hidden");
                 $("#show_hide").addClass ("hidden");
                 $("#search_hide").addClass ("hidden");
-                
-                
+
+
             } else {
                 $("#pt_table_filter").removeClass ("hidden");
                 $("#pt_table_length").removeClass ("hidden");
@@ -266,7 +417,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
             }
         });
     </script>
-    
+
     <script>
         document.addEventListener('touchstart', {});
     </script>

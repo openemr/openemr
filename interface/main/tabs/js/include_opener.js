@@ -25,24 +25,8 @@ if (!opener) {
 window.close =
     function (call, args) {
         var frameName = window.name;
-        var wframe = opener;
-        if (!top.tab_mode) {
-            for (; wframe.name !== 'RTop' && wframe.name !== 'RBot'; wframe = wframe.parent) {
-                if (wframe.parent === wframe) {
-                    wframe = window;
-                }
-            }
-            for (let i = 0; wframe.document.body.localName !== 'body' && i < 4; wframe = wframe[i++]) {
-                if (i === 3) {
-                    console.log("Opener: unable to find modal's frame");
-                    return false;
-                }
-            }
-            dialogModal = wframe.$('div#' + frameName);
-        } else {
-            var dialogModal = top.$('div#' + frameName);
-            wframe = top;
-        }
+        var wframe = top;
+        var dialogModal = top.$('div#' + frameName);
 
         var removeFrame = dialogModal.find("iframe[name='" + frameName + "']");
         if (removeFrame.length > 0) {
@@ -61,24 +45,8 @@ window.close =
 var dlgclose =
     function (call, args) {
         var frameName = window.name;
-        var wframe = opener;
-        if (!top.tab_mode) {
-            for (; wframe.name !== 'RTop' && wframe.name !== 'RBot'; wframe = wframe.parent) {
-                if (wframe.parent === wframe) {
-                    wframe = window;
-                }
-            }
-            for (let i = 0; wframe.document.body.localName !== 'body' && i < 4; wframe = wframe[i++]) {
-                if (i === 3) {
-                    console.log("Opener: unable to find modal's frame");
-                    return false;
-                }
-            }
-            dialogModal = wframe.$('div#' + frameName);
-        } else {
-            var dialogModal = top.$('div#' + frameName);
-            wframe = top;
-        }
+        var wframe = top;
+        var dialogModal = top.$('div#' + frameName);
 
         var removeFrame = dialogModal.find("iframe[name='" + frameName + "']");
         if (removeFrame.length > 0) {

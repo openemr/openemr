@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/view/action.php
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <?php $action = $viewBean->action?>
 <?php $rule = $viewBean->rule?>
@@ -24,14 +26,14 @@
     bucket.init();
 </script>
 
-<table class="header">
+<table class="table header">
   <tr>
         <td class="title"><?php echo xlt('Rule Edit'); ?></td>
         <td>
-            <a href="index.php?action=detail!view&id=<?php echo attr_url($action->id); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
+            <a href="index.php?action=detail!view&id=<?php echo attr_url($action->id); ?>" class="iframe_medium btn btn-secondary" onclick="top.restoreSession()">
                 <span><?php echo xlt('Cancel'); ?></span>
             </a>
-            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save');  ?></span></a>
+            <a href="javascript:;" class="iframe_medium btn btn-primary" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save');  ?></span></a>
         </td>
   </tr>
 </table>

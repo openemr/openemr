@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/billing/customize_log.php - starting point for customization of billing log
  *
@@ -11,12 +12,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 
 $filename = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/process_bills.log';
+
+if (!file_exists($filename)) {
+    echo xlt("Billing log is empty");
+    exit;
+}
 
 $fh = file_get_contents($filename);
 

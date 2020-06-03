@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This describes information stored in the history_data table.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
  // Exams: database name and descriptive name, in order of on-screen
  // presentation, and with the exam results index for last_exam_results:

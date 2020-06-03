@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Dicom viewer wrapper script for documents
  *
@@ -17,6 +18,8 @@
 
 require_once('../interface/globals.php');
 
+use OpenEMR\Core\Header;
+
 $web_path = $_REQUEST['web_path'];
 $patid = $_REQUEST['patient_id'];
 $docid = isset($_REQUEST['document_id']) ? $_REQUEST['document_id'] : $_REQUEST['doc_id'];
@@ -32,25 +35,7 @@ $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&doc
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/modernizr-3-5-0/dist/modernizr-build.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/i18next/dist/umd/i18next.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/i18next-xhr-backend/dist/umd/i18nextXHRBackend.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/i18next-browser-languagedetector/dist/umd/i18nextBrowserLanguageDetector.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/konva/konva.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/magic-wand-js/js/magic-wand-min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jszip/dist/jszip.min.js"></script>
-    <!-- Third party (viewer) -->
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/flot/jquery.flot.js"></script>
-    <!-- decoders -->
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/decoders/pdfjs/jpx.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/decoders/pdfjs/util.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/decoders/pdfjs/arithmetic_decoder.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/decoders/pdfjs/jpg.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/decoders/rii-mango/lossless-min.js"></script>
-    <!-- Local (dwv) -->
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/dist/dwv.min.js"></script>
+    <?php Header::setupHeader(['dwv', 'i18next', 'i18next-xhr-backend', 'i18next-browser-languagedetector', 'jszip', 'magic-wand', 'konva']); ?>
     <!-- i18n dwv wrapper -->
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/dwv/dwv_i18n.js"></script>
 </head>

@@ -1,21 +1,23 @@
 <?php
+
 /**
  * Edit user.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
-require_once("../../library/acl.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
@@ -30,7 +32,7 @@ if (!empty($_GET)) {
 
 $facilityService = new FacilityService();
 
-if (!$_GET["id"] || !acl_check('admin', 'users')) {
+if (!$_GET["id"] || !AclMain::aclCheckCore('admin', 'users')) {
     exit();
 }
 
@@ -40,7 +42,6 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
 }
 
 $iter = $result[0];
-
 ?>
 
 <html>
@@ -84,7 +85,7 @@ function submitform() {
 
     top.restoreSession();
     var flag=0;
-    <?php if (!$GLOBALS['use_active_directory']) { ?>
+<?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
     if(document.forms[0].clearPass.value!="")
     {
         //Checking for the strong password if the 'secure password' feature is enabled
@@ -116,16 +117,7 @@ function submitform() {
         }
 
     }//If pwd null ends here
-    <?php } ?>
-    //Request to reset the user password if the user was deactived once the password expired.
-    if((document.forms[0].pwd_expires.value != 0) && (document.forms[0].clearPass.value == "")) {
-        if((document.forms[0].user_type.value != "Emergency Login") && (document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
-        {
-            flag=1;
-            document.getElementById('error_message').innerHTML=<?php echo xlj('Please reset the password.') ?>;
-        }
-    }
-
+<?php } ?>
   if (document.forms[0].access_group_id) {
     var sel = getSelected(document.forms[0].access_group_id.options);
     for (var item in sel) {
@@ -231,17 +223,17 @@ function authorized_clicked() {
 <div class="container">
     <?php
     /*  Get the list ACL for the user */
-    $is_super_user = acl_check('admin', 'super');
-    $acl_name=acl_get_group_titles($iter["username"]);
-    $bg_name='';
-    $bg_count=count($acl_name);
+    $is_super_user = AclMain::aclCheckCore('admin', 'super');
+    $acl_name = AclExtended::aclGetGroupTitles($iter["username"]);
+    $bg_name = '';
+    $bg_count = count($acl_name);
     $selected_user_is_superuser = false;
-    for ($i=0; $i<$bg_count; $i++) {
+    for ($i = 0; $i < $bg_count; $i++) {
         if ($acl_name[$i] == "Emergency Login") {
-            $bg_name=$acl_name[$i];
+            $bg_name = $acl_name[$i];
         }
         //check if user member on group with superuser rule
-        if (is_group_include_superuser($acl_name[$i])) {
+        if (AclExtended::isGroupIncludeSuperuser($acl_name[$i])) {
             $selected_user_is_superuser = true;
         }
     }
@@ -250,49 +242,37 @@ function authorized_clicked() {
 <table><tr><td>
 <span class="title"><?php echo xlt('Edit User'); ?></span>&nbsp;
 </td><td>
-    <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick='return submitform()' <?php echo $disabled_save; ?>> <span><?php echo xlt('Save');?></span> </a>
+    <a class="btn btn-secondary btn-save" name='form_save' id='form_save' href='#' onclick='return submitform()' <?php echo $disabled_save; ?>> <span><?php echo xlt('Save');?></span> </a>
     <a class="btn btn-link btn-cancel" id='cancel' href='#'><span><?php echo xlt('Cancel');?></span></a>
 </td></tr>
 </table>
-<br>
+<br />
 <FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<input type=hidden name="pwd_expires" value="<?php echo attr($GLOBALS['password_expiration_days']); ?>" >
 <input type=hidden name="pre_active" value="<?php echo attr($iter["active"]); ?>" >
-<input type=hidden name="exp_date" value="<?php echo attr($iter["pwd_expiration_date"]); ?>" >
 <input type=hidden name="get_admin_id" value="<?php echo attr($GLOBALS['Emergency_Login_email']); ?>" >
 <input type=hidden name="admin_id" value="<?php echo attr($GLOBALS['Emergency_Login_email_id']); ?>" >
 <input type=hidden name="check_acl" value="">
-<?php
-//Calculating the grace time
-$current_date = date("Y-m-d");
-$password_exp=$iter["pwd_expiration_date"];
-if ($password_exp != "0000-00-00") {
-    $grace_time1 = date("Y-m-d", strtotime($password_exp . "+".$GLOBALS['password_grace_time'] ."days"));
-}
-?>
-<input type=hidden name="current_date" value="<?php echo attr(strtotime($current_date)); ?>" >
-<input type=hidden name="grace_time" value="<?php echo attr(strtotime($grace_time1)); ?>" >
 <input type=hidden name="user_type" value="<?php echo attr($bg_name); ?>" >
 
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
     <TD style="width:180px;"><span class=text><?php echo xlt('Username'); ?>: </span></TD>
     <TD style="width:270px;"><input type=entry name=username style="width:150px;" class="form-control" value="<?php echo attr($iter["username"]); ?>" disabled></td>
-    <?php if (!$GLOBALS['use_active_directory']) { ?>
+<?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
         <TD style="width:200px;"><span class=text>*<?php echo xlt('Your Password'); ?>*: </span></TD>
         <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  class="form-control" value="" autocomplete='off'><font class="mandatory"></font></TD>
-    <?php } ?>
+<?php } ?>
 </TR>
-    <?php if (!$GLOBALS['use_active_directory']) { ?>
+<?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
 <TR>
     <TD style="width:180px;"><span class=text></span></TD>
     <TD style="width:270px;"></td>
     <TD style="width:200px;"><span class=text><?php echo xlt('User\'s New Password'); ?>: </span></TD>
     <TD class='text' style="width:280px;">    <input type=text name=clearPass style="width:150px;"  class="form-control" value=""><font class="mandatory"></font></td>
 </TR>
-    <?php } ?>
+<?php } ?>
 
 <TR height="30" style="valign:middle;">
   <td class='text'>
@@ -413,7 +393,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 <td><input type="text" name="state_license_number" style="width:150px;" class="form-control" value="<?php echo attr($iter["state_license_number"]); ?>"></td>
 <td class='text'><?php echo xlt('NewCrop eRX Role'); ?>:</td>
 <td>
-    <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'], '', xl('Select Role'), '', '', '', array('style'=>'width:150px')); ?>
+    <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'], '', xl('Select Role'), '', '', '', array('style' => 'width:150px')); ?>
 </td>
 </tr>
 <tr>
@@ -478,8 +458,8 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
  <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" class="form-control">
 <?php
 // Collect the access control group of user
-$list_acl_groups = acl_get_group_title_list($is_super_user || $selected_user_is_superuser);
-$username_acl_groups = acl_get_group_titles($iter["username"]);
+$list_acl_groups = AclExtended::aclGetGroupTitleList($is_super_user || $selected_user_is_superuser);
+$username_acl_groups = AclExtended::aclGetGroupTitles($iter["username"]);
 foreach ($list_acl_groups as $value) {
     if (($username_acl_groups) && in_array($value, $username_acl_groups)) {
         // Modified 6-2009 by BM - Translate group name if applicable
@@ -504,7 +484,7 @@ foreach ($list_acl_groups as $value) {
     }
     ?>
 <!--
-Display red alert if entered password matched one of last three passwords/Display red alert if user password was expired and the user was inactivated previously
+Display red alert if entered password matched one of last three passwords/Display red alert if user password is expired
 -->
   <div class="redtext" id="error_message">&nbsp;</div>
   </td>
@@ -519,7 +499,7 @@ Display red alert if entered password matched one of last three passwords/Displa
 <INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo attr($GLOBALS['secure_password']); ?>">
 </FORM>
 <script language="JavaScript">
-$(function(){
+$(function () {
     $("#cancel").click(function() {
           dlgclose();
      });

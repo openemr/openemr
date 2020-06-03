@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Phreeze */
 
 /**
@@ -19,7 +20,7 @@ require_once("verysimple/DB/DataDriver/IDataDriver.php");
  */
 class DataAdapter implements IObservable
 {
-    
+
     /**
      *
      * @var ConnectionSetting
@@ -32,19 +33,19 @@ class DataAdapter implements IObservable
     private $_label;
     private $_transactionInProgress;
     private $_masterAdapter;
-    
+
     /** @var used internally to keep track of communication error re-tries */
     private $_num_retries = 0;
-    
+
     /** @var static singleton instance of the data adapter */
     static $ADAPTER_INSTANCE = null;
-    
+
     /** @var instance of the driver class, used for escaping */
     static $DRIVER_INSTANCE = null;
-    
+
     /** @var bool if true the data adapter attempt one retry when a communication error occurs */
     static $RETRY_ON_COMMUNICATION_ERROR = false;
-    
+
     /**
      * Contructor initializes the object
      *
@@ -62,21 +63,21 @@ class DataAdapter implements IObservable
         if ($this->_driver) {
             DataAdapter::$DRIVER_INSTANCE = $this->_driver;
         }
-        
+
         $this->_label = $label ? $label : 'db-' . mt_rand(10000, 99999);
-        
+
         $this->ConnectionSetting = & $csetting;
-        
+
         if ($listener) {
             $this->AttachObserver($listener);
         }
 
         $this->Observe("DataAdapter ($this->_label) Instantiated", OBSERVE_DEBUG);
-        
+
         // set the singleton reference
         DataAdapter::$ADAPTER_INSTANCE = $this;
     }
-    
+
     /**
      * Destructor closes the db connection.
      *
@@ -87,7 +88,7 @@ class DataAdapter implements IObservable
         $this->Observe("DataAdapter ($this->_label) Destructor Firing...", OBSERVE_DEBUG);
         $this->Close();
     }
-    
+
     /**
      * Load the data driver
      *
@@ -97,7 +98,7 @@ class DataAdapter implements IObservable
     {
         if ($this->_driver == null) {
             require_once("verysimple/IO/Includer.php");
-            
+
             // the driver was not explicitly provided so we will try to create one from
             // the connection setting based on the database types that we do know about
             switch ($this->ConnectionSetting->Type) {
@@ -123,11 +124,11 @@ class DataAdapter implements IObservable
                     }
                     break;
             }
-            
+
             DataAdapter::$DRIVER_INSTANCE = $this->_driver;
         }
     }
-    
+
     /**
      * Returns name of the DB currently in use
      *
@@ -138,7 +139,7 @@ class DataAdapter implements IObservable
     {
         return $this->ConnectionSetting->DBName;
     }
-    
+
     /**
      * Opens a connection to the data server and selects the specified database
      *
@@ -147,17 +148,17 @@ class DataAdapter implements IObservable
     function Open()
     {
         $this->Observe("DataAdapter ($this->_label) Opening Connection...", OBSERVE_DEBUG);
-        
+
         if ($this->_dbopen) {
             $this->Observe("DataAdapter ($this->_label) Connection Already Open", OBSERVE_WARN);
         } else {
             if (! $this->_driver) {
                 $this->LoadDriver();
             }
-            
+
             try {
                 $this->_dbconn = $this->_driver->Open($this->ConnectionSetting->ConnectionString, $this->ConnectionSetting->DBName, $this->ConnectionSetting->Username, $this->ConnectionSetting->Password, $this->ConnectionSetting->Charset, $this->ConnectionSetting->BootstrapSQL);
-                
+
                 $this->_num_retries = 0;
             } catch (Exception $ex) {
                 // retry one time a communication error occurs
@@ -167,18 +168,18 @@ class DataAdapter implements IObservable
                     sleep(2); // slight delay to prevent throttling
                     return $this->Open();
                 }
-                
+
                 $msg = "DataAdapter ($this->_label) Error Opening DB: " . $ex->getMessage() . ' (retry attempts: ' . $this->_num_retries . ')';
-                
+
                 $this->Observe($msg, OBSERVE_FATAL);
                 throw new Exception($msg, $ex->getCode());
             }
-            
+
             $this->_dbopen = true;
             $this->Observe("DataAdapter ($this->_label) Connection Open", OBSERVE_DEBUG);
         }
     }
-    
+
     /**
      * Closing the connection to the data Server
      *
@@ -187,7 +188,7 @@ class DataAdapter implements IObservable
     function Close()
     {
         $this->Observe("DataAdapter ($this->_label) Closing Connection...", OBSERVE_DEBUG);
-        
+
         if ($this->_dbopen) {
             $this->_driver->Close($this->_dbconn); // ignore warnings
             $this->_dbopen = false;
@@ -196,7 +197,7 @@ class DataAdapter implements IObservable
             $this->Observe("DataAdapter ($this->_label) Connection Not Open", OBSERVE_DEBUG);
         }
     }
-    
+
     /**
      * Checks that the connection is open and if not, crashes
      *
@@ -217,7 +218,7 @@ class DataAdapter implements IObservable
             }
         }
     }
-    
+
     /**
      * Executes a SQL select statement and returns a resultset that can be read
      * using Fetch
@@ -230,7 +231,7 @@ class DataAdapter implements IObservable
     {
         $this->RequireConnection(true);
         $this->Observe("DataAdapter ($this->_label) (DataAdapter.Select) " . $sql, OBSERVE_QUERY);
-        
+
         try {
             $rs = $this->_driver->Query($this->_dbconn, $sql);
             $this->_num_retries = 0;
@@ -242,16 +243,16 @@ class DataAdapter implements IObservable
                 sleep(2); // slight delay to prevent throttling
                 return $this->Select($sql);
             }
-            
+
             $msg = "DataAdapter ($this->_label)" . ' Error Selecting SQL: ' . $ex->getMessage() . ' (retry attempts: ' . $this->_num_retries . ')';
-            
+
             $this->Observe($msg, OBSERVE_FATAL);
             throw new Exception($msg, $ex->getCode());
         }
-        
+
         return $rs;
     }
-    
+
     /**
      * Executes a SQL query that does not return a resultset
      *
@@ -262,16 +263,16 @@ class DataAdapter implements IObservable
     function Execute($sql)
     {
         $result = null;
-        
+
         if ($this->ConnectionSetting->IsReadOnlySlave) {
             // this is a read-only slave connection attempting a write operation. we
             // will only proceed if the connection specifies a "master" delegate connection
             if (! $this->_masterAdapter) {
                 if ($this->ConnectionSetting->MasterConnectionDelegate) {
                     $this->Observe("DataAdapter ($this->_label) (DataAdapter.Execute) Delegating write operation from Slave to Master Connection", OBSERVE_INFO);
-                    
+
                     $this->_masterAdapter = new DataAdapter($this->ConnectionSetting->MasterConnectionDelegate);
-                    
+
                     foreach ($this->_observers as $observer) {
                         $this->_masterAdapter->AttachObserver($observer);
                     }
@@ -279,14 +280,14 @@ class DataAdapter implements IObservable
                     throw new Exception('DB Write operation was attempted on a read-only slave connection');
                 }
             }
-            
+
             // we have a master connection initialized and ready to use
             $result = $this->_masterAdapter->Execute($sql);
         } else {
             $this->RequireConnection(true);
             $this->Observe("DataAdapter ($this->_label) (DataAdapter.Execute) " . $sql, OBSERVE_QUERY);
             $result = - 1;
-            
+
             try {
                 $result = $this->_driver->Execute($this->_dbconn, $sql);
                 $this->_num_retries = 0;
@@ -298,9 +299,9 @@ class DataAdapter implements IObservable
                     sleep(2); // slight delay to prevent throttling
                     return $this->Execute($sql);
                 }
-                
+
                 $msg = "DataAdapter ($this->_label)" . ' Error Executing SQL: ' . $ex->getMessage() . ' (retry attempts: ' . $this->_num_retries . ')';
-                
+
                 $this->Observe($msg, OBSERVE_FATAL);
                 throw new Exception($msg, $ex->getCode());
             }
@@ -308,7 +309,7 @@ class DataAdapter implements IObservable
 
         return $result;
     }
-    
+
     /**
      * Return true if a transaction is in progress
      *
@@ -318,7 +319,7 @@ class DataAdapter implements IObservable
     {
         return $this->_transactionInProgress;
     }
-    
+
     /**
      * Start a DB transaction, disabling auto-commit if necessar)
      *
@@ -329,17 +330,17 @@ class DataAdapter implements IObservable
         if ($this->IsTransactionInProgress()) {
             throw new Exception('Transaction is already in progress.  Commit or rollback must be called before beginning a new transaction');
         }
-        
+
         if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Transactions are not allowed on a read-only slave');
         }
-        
+
         $this->RequireConnection(true);
         $this->Observe("DataAdapter ($this->_label) (DataAdapter.StartTransaction)", OBSERVE_QUERY);
         $this->_transactionInProgress = true;
         return $this->_driver->StartTransaction($this->_dbconn);
     }
-    
+
     /**
      * Commit the current DB transaction and re-enable auto-commit if necessary
      *
@@ -350,13 +351,13 @@ class DataAdapter implements IObservable
         if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Transactions are not allowed on a read-only slave');
         }
-        
+
         $this->RequireConnection(true);
         $this->Observe("DataAdapter ($this->_label) (DataAdapter.CommitTransaction)", OBSERVE_QUERY);
         $this->_transactionInProgress = false;
         return $this->_driver->CommitTransaction($this->_dbconn);
     }
-    
+
     /**
      * Rollback the current DB transaction and re-enable auto-commit if necessary
      *
@@ -367,13 +368,13 @@ class DataAdapter implements IObservable
         if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Transactions are not allowed on a read-only slave');
         }
-        
+
         $this->RequireConnection(true);
         $this->Observe("DataAdapter ($this->_label) (DataAdapter.RollbackTransaction)", OBSERVE_QUERY);
         $this->_transactionInProgress = false;
         return $this->_driver->RollbackTransaction($this->_dbconn);
     }
-    
+
     /**
      * Return true if the error with the given message is a communication/network error
      *
@@ -386,7 +387,7 @@ class DataAdapter implements IObservable
         $msg = is_a($error, 'Exception') ? $error->getMessage() : $error;
         return strpos(strtolower($msg), 'lost connection') !== false;
     }
-    
+
     /**
      * Returns an array of all table names in the current database
      *
@@ -398,7 +399,7 @@ class DataAdapter implements IObservable
     {
         return $this->_driver->GetTableName($this->_dbconn, $this->GetDBName(), $ommitEmptyTables);
     }
-    
+
     /**
      * Runs OPTIMIZE TABLE on all tables in the current database
      *
@@ -409,14 +410,14 @@ class DataAdapter implements IObservable
         if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Optimizing tables is allowed on a read-only slave');
         }
-        
+
         $results = array ();
         $table_names = $this->_driver->GetTableNames($this->_dbconn, $this->GetDBName());
-        
+
         foreach ($table_names as $table_name) {
             $results [$table_name] = $this->_driver->Optimize($this->_dbconn, $table_name);
         }
-        
+
         return $results;
     }
     /**
@@ -430,7 +431,7 @@ class DataAdapter implements IObservable
     function GetLastInsertId()
     {
         $id = null;
-        
+
         if ($this->ConnectionSetting->IsReadOnlySlave && $this->_masterAdapter) {
             $id = $this->_masterAdapter->GetLastInsertId();
         } else {
@@ -438,10 +439,10 @@ class DataAdapter implements IObservable
             $this->Observe("DataAdapter ($this->_label) GetLastInsertId", OBSERVE_QUERY);
             $id = $this->_driver->GetLastInsertId($this->_dbconn);
         }
-        
+
         return $id;
     }
-    
+
     /**
      * Moves the database curser forward and returns the current row as an associative array
      * the resultset passed in must have been created by the same database driver that
@@ -454,11 +455,11 @@ class DataAdapter implements IObservable
     function Fetch($rs)
     {
         $this->RequireConnection();
-        
+
         $this->Observe("DataAdapter ($this->_label) Fetching next result as array", OBSERVE_DEBUG);
         return $this->_driver->Fetch($this->_dbconn, $rs);
     }
-    
+
     /**
      * Releases the resources for the given resultset.
      * the resultset must have
@@ -470,11 +471,11 @@ class DataAdapter implements IObservable
     function Release($rs)
     {
         $this->RequireConnection();
-        
+
         $this->Observe("DataAdapter ($this->_label) Releasing result resources", OBSERVE_DEBUG);
         $this->_driver->Release($this->_dbconn, $rs);
     }
-    
+
     /**
      * Removes any illegal chars from a value to prepare it for use in SQL
      *
@@ -487,22 +488,17 @@ class DataAdapter implements IObservable
         if (DataAdapter::$ADAPTER_INSTANCE) {
             DataAdapter::$ADAPTER_INSTANCE->LoadDriver();
         }
-            
+
             // this is an unfortunate leftover from poor design of making this function static
             // we cannon use the driver's escape method without a static reference
         if (! DataAdapter::$DRIVER_INSTANCE) {
             throw new Exception("DataAdapter must be instantiated before Escape can be called");
         }
-            
-            // if magic quotes are enabled, then we need to stip the slashes that php added
-        if (get_magic_quotes_runtime() || get_magic_quotes_gpc()) {
-            $val = stripslashes($val);
-        }
-            
+
             // $driver->RequireConnection(true);
         return DataAdapter::$DRIVER_INSTANCE->Escape($val);
     }
-    
+
     /**
      * Quote and escape value to prepare it for use in SQL
      *
@@ -515,17 +511,17 @@ class DataAdapter implements IObservable
         if (DataAdapter::$ADAPTER_INSTANCE) {
             DataAdapter::$ADAPTER_INSTANCE->LoadDriver();
         }
-            
+
             // this is an unfortunate leftover from poor design of making this function static
             // we cannon use the driver's escape method without a static reference
         if (! DataAdapter::$DRIVER_INSTANCE) {
             throw new Exception("DataAdapter must be instantiated before Escape can be called");
         }
-            
+
             // $driver->RequireConnection(true);
         return DataAdapter::$DRIVER_INSTANCE->GetQuotedSql($val);
     }
-    
+
     /**
      * Registers/attaches an IObserver to this object
      *
@@ -541,7 +537,7 @@ class DataAdapter implements IObservable
             }
         }
     }
-    
+
     /**
      * Fires the Observe event on all registered observers
      *

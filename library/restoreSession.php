@@ -1,4 +1,5 @@
 <?php
+
 /**
  * restoreSession.php
  *
@@ -16,6 +17,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
 // login.php makes sure the session ID captured here is different for each
 // new login.  We maintain it here because most browsers do not have separate

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -205,11 +207,11 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
                         $this->addRepeatUnit($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"repeatUnit" must be array of objects or null, '.gettype($data['repeatUnit']).' seen.');
+                    throw new \InvalidArgumentException('"repeatUnit" must be array of objects or null, ' . gettype($data['repeatUnit']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

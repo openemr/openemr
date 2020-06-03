@@ -1,0 +1,22 @@
+# Github Stale Addon - Removes issues that are stale
+# Number of days of inactivity before an issue becomes stale
+daysUntilStale: 90
+# Number of days of inactivity before a stale issue is closed
+daysUntilClose: 7
+# Issues with these labels will never be considered stale
+exemptLabels:
+  - pinned
+  - Security
+# Label to use when marking an issue as stale
+staleLabel: Stale
+# Set to true to ignore issues in a milestone (defaults to false)
+exemptMilestones: true
+# Comment to post when marking an issue as stale. Set to `false` to disable
+markComment: >
+  This issue has been automatically marked as stale because it has not had
+  any recent activity within the past 90 days. It will be closed in 7 days
+  if no further activity occurs.
+# Comment to post when closing a stale issue. Set to `false` to disable
+closeComment: >
+  This issue has been automatically closed because it has not had
+  any recent activity within the past 97 days.

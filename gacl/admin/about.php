@@ -1,15 +1,12 @@
 <?php
 //First make sure user has access
 require_once("../../interface/globals.php");
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
+
 //ensure user has proper access
-if (!acl_check('admin', 'acl')) {
+if (!AclMain::aclCheckCore('admin', 'acl')) {
             echo xlt('ACL Administration Not Authorized');
-            exit;
-}
-//ensure php is installed
-if (!isset($phpgacl_location)) {
-            echo xlt('php-GACL access controls are turned off');
             exit;
 }
 
@@ -77,7 +74,7 @@ switch ($_POST['action']) {
 
 		submit_system_info($_POST['system_information'], $_POST['system_info_md5']);
 
-		echo "<div align=center>Thanks for contributing to phpGACL. <br> Click <a href=\"acl_list.php\">here</a> to proceed to the Administration Interface.</div><br>\n";
+		echo "<div align=center>Thanks for contributing to phpGACL. <br /> Click <a href=\"acl_list.php\">here</a> to proceed to the Administration Interface.</div><br />\n";
 		exit;
         break;
     default:

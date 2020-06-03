@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Abstract implementation of SignableIF which represents a signable row
  * in the database.
@@ -25,9 +23,11 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/SignableIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/Signature.php';
-require_once $GLOBALS['srcdir'].'/ESign/Utils/Verification.php';
+namespace ESign;
+
+require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Signature.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Utils/Verification.php';
 
 abstract class DbRow_Signable implements SignableIF
 {
@@ -42,17 +42,17 @@ abstract class DbRow_Signable implements SignableIF
         $this->_tableName = $tableName;
         $this->_verification = new Utils_Verification();
     }
-    
+
     public function getSignatures()
     {
         $this->_signatures = array();
-        
+
         $statement = "SELECT E.id, E.tid, E.table, E.uid, U.fname, U.lname, E.datetime, E.is_lock, E.amendment, E.hash, E.signature_hash FROM esign_signatures E ";
         $statement .= "JOIN users U ON E.uid = U.id ";
         $statement .= "WHERE E.tid = ? AND E.table = ? ";
         $statement .= "ORDER BY E.datetime ASC";
         $result = sqlStatement($statement, array( $this->_tableId, $this->_tableName ));
-        
+
         while ($row = sqlFetchArray($result)) {
             $signature = new Signature(
                 $row['id'],
@@ -67,12 +67,12 @@ abstract class DbRow_Signable implements SignableIF
                 $row['amendment'],
                 $row['signature_hash']
             );
-            $this->_signatures[]= $signature;
+            $this->_signatures[] = $signature;
         }
-        
+
         return $this->_signatures;
     }
-    
+
     /**
      * Get the hash of the last signature of type LOCK.
      *
@@ -94,17 +94,17 @@ abstract class DbRow_Signable implements SignableIF
 
         return $hash;
     }
-    
+
     public function getTableId()
     {
         return $this->_tableId;
     }
-    
+
     public function renderForm()
     {
         include 'views/esign_signature_log.php';
     }
-    
+
     public function isLocked()
     {
         $statement = "SELECT E.is_lock FROM esign_signatures E ";
@@ -114,7 +114,7 @@ abstract class DbRow_Signable implements SignableIF
         if ($row && $row['is_lock'] == SignatureIF::ESIGN_LOCK) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -122,16 +122,16 @@ abstract class DbRow_Signable implements SignableIF
     {
         $statement = "INSERT INTO `esign_signatures` ( `tid`, `table`, `uid`, `datetime`, `is_lock`, `hash`, `amendment`, `signature_hash` ) ";
         $statement .= "VALUES ( ?, ?, ?, NOW(), ?, ?, ?, ? ) ";
-        
+
         // Make type string
         $isLock = SignatureIF::ESIGN_NOLOCK;
         if ($lock) {
             $isLock = SignatureIF::ESIGN_LOCK;
         }
-        
+
         // Create a hash of the signable object so we can verify it's integrity
         $hash = $this->_verification->hash($this->getData());
-        
+
         // Crate a hash of the signature data itself. This is the same data as Signature::getData() method
         $signature = array(
             $this->_tableId,
@@ -141,18 +141,18 @@ abstract class DbRow_Signable implements SignableIF
             $hash,
             $amendment );
         $signatureHash = $this->_verification->hash($signature);
-        
+
         // Append the hash of the signature data to the insert array before we insert
-        $signature[]= $signatureHash;
+        $signature[] = $signatureHash;
         $id = sqlInsert($statement, $signature);
-        
+
         if ($id === false) {
             throw new \Exception("Error occured while attempting to insert a signature into the database.");
         }
-        
+
         return $id;
     }
-    
+
     public function verify()
     {
         $valid = true;
@@ -160,13 +160,13 @@ abstract class DbRow_Signable implements SignableIF
         // Check to see if this SignableIF is locked
         if ($this->isLocked()) {
             $signatures = $this->getSignatures();
-        
+
             // SignableIF is locked, so if it has any signatures, make sure it hasn't been edited since lock
             if (count($signatures)) {
                 // Verify the data of the SignableIF object
                 $lastLockHash = $this->getLastLockHash();
                 $valid = $this->_verification->verify($this->getData(), $lastLockHash);
-                
+
                 if ($valid === true) {
                     // If still vlaid, verify each signatures' integrity
                     foreach ($signatures as $signature) {
@@ -180,7 +180,7 @@ abstract class DbRow_Signable implements SignableIF
                 }
             }
         }
-        
+
         return $valid;
     }
 }

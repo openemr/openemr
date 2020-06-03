@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Global Configuration Override
  *
@@ -26,8 +27,10 @@ $utf8 = array(PDO::MYSQL_ATTR_INIT_COMMAND => $tmp);
 // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
 if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
     $utf8[PDO::MYSQL_ATTR_SSL_CA ] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca";
-    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
+    if (
+        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
+    ) {
         $utf8[PDO::MYSQL_ATTR_SSL_KEY] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key";
         $utf8[PDO::MYSQL_ATTR_SSL_CERT] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert";
     }
@@ -35,10 +38,10 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
 
 // Sets default factory using the default database
 $factories = array(
-    'Zend\Db\Adapter\Adapter' => function ($containerInterface, $requestedName) {
-        $adapterFactory = new Zend\Db\Adapter\AdapterServiceFactory();
+    'Laminas\Db\Adapter\Adapter' => function ($containerInterface, $requestedName) {
+        $adapterFactory = new Laminas\Db\Adapter\AdapterServiceFactory();
         $adapter = $adapterFactory($containerInterface, $requestedName);
-        \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
+        \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
         return $adapter;
     }
 );
@@ -64,7 +67,7 @@ if ($GLOBALS['allow_multiple_databases']) {
 
             // Create new factories using data from custom database
             $factories[$row['namespace']] = function ($serviceManager) use ($row) {
-                $adapterAbstractServiceFactory = new Zend\Db\Adapter\AdapterAbstractServiceFactory();
+                $adapterAbstractServiceFactory = new Laminas\Db\Adapter\AdapterAbstractServiceFactory();
                 $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager, '', $row['namespace']);
                 return $adapter;
             };
@@ -77,10 +80,10 @@ if ($GLOBALS['allow_multiple_databases']) {
 return array(
     'db' => array(
         'driver'         => 'Pdo',
-        'dsn'            => 'mysql:dbname='.$GLOBALS['dbase'].';host='.$GLOBALS['host'],
-        'username'       => $GLOBALS['login'],
-        'password'       => $GLOBALS['pass'],
-        'port'           => $GLOBALS['port'],
+        'dsn'            => 'mysql:dbname=' . ($GLOBALS['dbase'] ?? '') . ';host=' . ($GLOBALS['host'] ?? ''),
+        'username'       => $GLOBALS['login'] ?? '',
+        'password'       => $GLOBALS['pass'] ?? '',
+        'port'           => $GLOBALS['port'] ?? '',
         'driver_options' => $utf8,
         'adapters' => $adapters
 

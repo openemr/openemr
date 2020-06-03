@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
@@ -21,13 +22,14 @@
  * @link http://www.open-emr.org
  *
  */
+
         require_once("verify_session.php");
 
     $sql = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' ORDER BY begdate";
 
     $res = sqlStatement($sql, array($pid));
 
-if (sqlNumRows($res)>0) {
+if (sqlNumRows($res) > 0) {
     ?>
     <table class="table table-striped">
         <tr>
@@ -37,13 +39,13 @@ if (sqlNumRows($res)>0) {
         <th><?php echo xlt('Referrer'); ?></th>
         </tr>
     <?php
-    $even=false;
+    $even = false;
     while ($row = sqlFetchArray($res)) {
-        echo "<tr class='".text($class)."'>";
-        echo "<td>".text($row['title'])."</td>";
-        echo "<td>".text($row['begdate'])."</td>";
-        echo "<td>".text($row['enddate'])."</td>";
-        echo "<td>".text($row['referredby'])."</td>";
+        echo "<tr class='" . text($class) . "'>";
+        echo "<td>" . text($row['title']) . "</td>";
+        echo "<td>" . text($row['begdate']) . "</td>";
+        echo "<td>" . text($row['enddate']) . "</td>";
+        echo "<td>" . text($row['referredby']) . "</td>";
         echo "</tr>";
     }
 

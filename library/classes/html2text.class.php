@@ -156,7 +156,7 @@ class html2text
         '/<h[123][^>]*>(.*?)<\/h[123]>/ie',      // H1 - H3
         '/<h[456][^>]*>(.*?)<\/h[456]>/ie',      // H4 - H6
         '/<p[^>]*>/i',                           // <P>
-        '/<br[^>]*>/i',                          // <br>
+        '/<br[^>]*>/i',                          // <br />
         '/<b[^>]*>(.*?)<\/b>/ie',                // <b>
         '/<strong[^>]*>(.*?)<\/strong>/ie',      // <strong>
         '/<i[^>]*>(.*?)<\/i>/i',                 // <i>
@@ -208,7 +208,7 @@ class html2text
         "strtoupper(\"\n\n\\1\n\n\")",          // H1 - H3
         "ucwords(\"\n\n\\1\n\n\")",             // H4 - H6
         "\n\n\t",                               // <P>
-        "\n",                                   // <br>
+        "\n",                                   // <br />
         'strtoupper("\\1")',                    // <b>
         'strtoupper("\\1")',                    // <strong>
         '_\\1_',                                // <i>
@@ -468,8 +468,10 @@ class html2text
      */
     function _build_link_list($link, $display)
     {
-        if (substr($link, 0, 7) == 'http://' || substr($link, 0, 8) == 'https://' ||
-             substr($link, 0, 7) == 'mailto:' ) {
+        if (
+            substr($link, 0, 7) == 'http://' || substr($link, 0, 8) == 'https://' ||
+             substr($link, 0, 7) == 'mailto:'
+        ) {
             $this->_link_count++;
             $this->_link_list .= "[" . $this->_link_count . "] $link\n";
             $additional = ' [' . $this->_link_count . ']';

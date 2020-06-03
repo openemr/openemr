@@ -9,16 +9,16 @@
 # php-fpm Dockerfile build for openemr development docker environment
 # This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.2>
 #
-FROM php:7.4-rc-fpm
+FROM php:7.4-fpm
 
 # Update
 RUN apt-get update
 
-# Add default-mysql-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
+# Add mariadb-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
 # Add imagemagick that is needed for some image processing in OpenEMR
 # Note this basically add 160MB of space to the docker, so would be nice for OpenEMR to not require this stuff
 #  and instead rely on php scripts, if possible.
-RUN apt-get install -y default-mysql-client \
+RUN apt-get install -y mariadb-client \
                        imagemagick
 
 # Add the php extensions (note using a very cool script by mlocati to do this)

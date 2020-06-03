@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is a report of receipts by payer or payment method.
  *
@@ -20,13 +21,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 require_once "$srcdir/options.inc.php";
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -226,7 +226,7 @@ function payerCmp($a, $b)
     return 0;
 }
 
-if (! acl_check('acct', 'rep')) {
+if (! AclMain::aclCheckCore('acct', 'rep')) {
     die(xlt("Unauthorized access."));
 }
 
@@ -274,16 +274,15 @@ $form_proc_code = $tmp_code_array[1];
         }
 
         table.mymaintable, table.mymaintable td {
-            border: 1px solid #aaaaaa;
             border-collapse: collapse;
         }
         table.mymaintable td {
-            padding: 1pt 4pt 1pt 4pt;
+            padding: 1px 5px 1px 5px;
         }
     </style>
 
-    <script language="JavaScript">
-        $(function() {
+    <script>
+        $(function () {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
@@ -335,7 +334,7 @@ $form_proc_code = $tmp_code_array[1];
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Report by'); ?>
             </td>
             <td>
@@ -357,7 +356,7 @@ $form_proc_code = $tmp_code_array[1];
             <?php dropdown_facility($form_facility, 'form_facility', false); ?>
             </td>
 
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php
                 if (!$GLOBALS['simplified_demographics']) {
                     echo '&nbsp;' . xlt('Procedure/Service') . ':';
@@ -370,7 +369,7 @@ $form_proc_code = $tmp_code_array[1];
                 if ($GLOBALS['simplified_demographics']) {
                     echo "style='display:none'";
                 } ?> />
-                                <br>
+                                <br />
           <div class="checkbox">
                   <label><input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : ""; ?> /><?php echo xlt('Details')?></label>
           </div>
@@ -387,7 +386,7 @@ $form_proc_code = $tmp_code_array[1];
             <td>
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
@@ -399,17 +398,17 @@ $form_proc_code = $tmp_code_array[1];
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
                         <?php if ($_POST['form_refresh']) { ?>
-                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
                         <?php } ?>
@@ -429,9 +428,9 @@ if ($_POST['form_refresh']) {
     ?>
 <div id="report_results">
 
-<table width='98%' id='mymaintable' class='mymaintable'>
+<table width='98%' id='mymaintable' class='table mymaintable'>
 
-<thead>
+<thead class='thead-light'>
 <tr bgcolor="#dddddd">
  <th>
     <?php echo xlt('Method') ?>
@@ -490,7 +489,7 @@ if ($_POST['form_refresh']) {
             "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
             "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
             "fe.date >= ? AND fe.date <= ?";
-            array_push($sqlBindArray, $form_from_date.' 00:00:00', $form_to_date.' 23:59:59');
+            array_push($sqlBindArray, $form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59');
             // If a facility was specified.
             if ($form_facility) {
                 $query .= " AND fe.facility_id = ?";
@@ -533,20 +532,20 @@ if ($_POST['form_refresh']) {
         //
         if ($form_use_edate) {
             $query .= " AND fe.date >= ? AND fe.date <= ?";
-            array_push($sqlBindArray, $form_from_date.' 00:00:00', $form_to_date.' 23:59:59');
+            array_push($sqlBindArray, $form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59');
         } else {
             $query .= " AND ( ( s.deposit_date IS NOT NULL AND " .
             "s.deposit_date >= ? AND s.deposit_date <= ? ) OR " .
             "( s.deposit_date IS NULL AND a.post_time >= ? AND " .
             "a.post_time <= ? ) )";
-            array_push($sqlBindArray, $form_from_date, $form_to_date, $form_from_date.' 00:00:00', $form_to_date.' 23:59:59');
+            array_push($sqlBindArray, $form_from_date, $form_to_date, $form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59');
         }
 
         // If a procedure code was specified.
         if ($form_proc_code && $form_proc_codetype) {
           // if a code_type is entered into the ar_activity table, then use it. If it is not entered in, then do not use it.
             $query .= " AND ( a.code_type = ? OR a.code_type = '' ) AND a.code LIKE ?";
-            array_push($sqlBindArray, $form_proc_codetype, $form_proc_code.'%');
+            array_push($sqlBindArray, $form_proc_codetype, $form_proc_code . '%');
         }
 
         // If a facility was specified.
@@ -567,7 +566,7 @@ if ($_POST['form_refresh']) {
         while ($row = sqlFetchArray($res)) {
             if ($form_use_edate) {
                 $thedate = substr($row['date'], 0, 10);
-            } else if (!empty($row['deposit_date'])) {
+            } elseif (!empty($row['deposit_date'])) {
                 $thedate = $row['deposit_date'];
             } else {
                 $thedate = substr($row['post_time'], 0, 10);

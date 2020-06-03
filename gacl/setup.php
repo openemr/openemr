@@ -155,8 +155,8 @@ switch ( $db_type ) {
 
 	default:
 		echo_normal("Sorry, <b>setup.php</b> currently does not fully support \"<b>$db_type</b>\" databases.
-					<br>I'm assuming you've already created the database \"$db_name\", attempting to create tables.
-					<br> Please email <b>$author_email</b> code to detect if a database is created or not so full support for \"<b>$db_type</b>\" can be added.");
+					<br />I'm assuming you've already created the database \"$db_name\", attempting to create tables.
+					<br /> Please email <b>$author_email</b> code to detect if a database is created or not so full support for \"<b>$db_type</b>\" can be added.");
 }
 
 
@@ -189,8 +189,8 @@ if ($result != 2) {
 
 if ( $failed <= 0 ) {
 	echo_success('
-First Step of Access Control Installation Successful!!!<br>');
+First Step of Access Control Installation Successful!!!<br />');
 } else {
-	echo_failed('Please fix the above errors and try again.<br><br>');
+	echo_failed('Please fix the above errors and try again.<br /><br />');
 }
 ?>

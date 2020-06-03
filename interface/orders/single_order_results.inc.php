@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Script to display results for a given procedure order.
 *
@@ -21,8 +22,9 @@
 * @author    Jerry Padgett <sjpadgett@gmail.com>
 */
 
-require_once($GLOBALS["srcdir"] . "/acl.inc");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
+
+use OpenEMR\Common\Acl\AclMain;
 
 function getListItem($listid, $value)
 {
@@ -317,7 +319,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     global $aNotes;
 
 // Check authorization.
-    $thisauth = acl_check('patients', 'med');
+    $thisauth = AclMain::aclCheckCore('patients', 'med');
     if (!$thisauth) {
         return xl('Not authorized');
     }
@@ -434,33 +436,17 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 
     <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
 <script language="JavaScript">
-    let mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-    if (typeof top.tab_mode === "undefined") {
-        if (typeof opener.top.tab_mode !== "undefined") {
-            top.tab_mode = opener.top.tab_mode;
+    var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+    if (typeof top.webroot_url === "undefined") {
+        if (typeof opener.top.webroot_url !== "undefined") {
             top.webroot_url = opener.top.webroot_url;
         }
     }
-    // Called to show patient notes related to this order in the "other" frame.
+
     // This works even if we are in a separate window.
     function showpnotes(orderid) {
-        // Find the top or bottom frame that contains or opened this page; return if none.
-        let w = window.opener ? window.opener : window;
-        if (!top.tab_mode) {
-            for (; w.name != 'RTop' && w.name != 'RBot'; w = w.parent) {
-                if (w.parent == w) {
-                    // This message is not translated because a developer will need to find it.
-                    alert('Internal error locating target frame in ' + (window.opener ? 'opener' : 'window'));
-                    return false;
-                }
-            }
-            var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
-            w.parent.left_nav.forceDual();
-            w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + <?php echo js_url($orderid); ?>);
-        } else {
-            let url = top.webroot_url + '/interface/patient_file/summary/pnotes_full.php?orderid=' + <?php echo js_url($orderid); ?>;
-            dlgopen(url, 'notes', 950, 750, false, '');
-        }
+        let url = top.webroot_url + '/interface/patient_file/summary/pnotes_full.php?orderid=' + <?php echo js_url($orderid); ?>;
+        dlgopen(url, 'notes', 950, 750, false, '');
         return false;
     }
 
@@ -633,10 +619,12 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                         // result for a given result code is its *array* of result rows from *one* of the reports.
                         foreach ($rrowsets as $key => $rrowset) {
                             // When two reports have the same date, use the result date to decide which is "latest".
-                            if (isset($finals[$key]) &&
+                            if (
+                                isset($finals[$key]) &&
                                 $row['date_report'] == $finals[$key][0]['date_report'] &&
                                 !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
-                                $rrow['date'] < $finals[$key][1]['date']) {
+                                $rrow['date'] < $finals[$key][1]['date']
+                            ) {
                                 $finals[$key][2] = true; // see comment below
                                 continue;
                             }
@@ -703,7 +691,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                     <?php if ($input_form && !empty($ctx['priors_omitted']) /* empty($_POST['form_showall']) */) { ?>
                         <input type='submit' name='form_showall' value='<?php echo xla('Show All Results'); ?>'
                                title='<?php echo xla('Include all values reported for each result code'); ?>'/>
-                    <?php } else if ($input_form && !empty($_POST['form_showall'])) { ?>
+                    <?php } elseif ($input_form && !empty($_POST['form_showall'])) { ?>
                         <input type='submit' name='form_latest' value='<?php echo xla('Latest Results Only'); ?>'
                                title='<?php echo xla('Show only latest values reported for each result code'); ?>'/>
                     <?php } ?>

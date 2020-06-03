@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -171,7 +173,7 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
                         $this->addEvent($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"event" must be array of objects or null, '.gettype($data['event']).' seen.');
+                    throw new \InvalidArgumentException('"event" must be array of objects or null, ' . gettype($data['event']) . ' seen.');
                 }
             }
             if (isset($data['repeat'])) {
@@ -180,8 +182,8 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

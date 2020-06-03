@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Provides manual administration for codes
  *
@@ -17,11 +18,13 @@ require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 // gacl control
-$thisauthview = acl_check('admin', 'superbill', false, 'view');
-$thisauthwrite = acl_check('admin', 'superbill', false, 'write');
+$thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
+$thisauthwrite = AclMain::aclCheckCore('admin', 'superbill', false, 'write');
 
 if (!($thisauthwrite || $thisauthview)) {
     echo "<html>\n<body>\n";
@@ -89,7 +92,7 @@ if (isset($mode) && $thisauthwrite) {
     if ($mode == "delete") {
         sqlStatement("DELETE FROM codes WHERE id = ?", array($code_id));
         $code_id = 0;
-    } else if ($mode == "add" || $mode == "modify_complete") { // this covers both adding and modifying
+    } elseif ($mode == "add" || $mode == "modify_complete") { // this covers both adding and modifying
         $crow = sqlQuery("SELECT COUNT(*) AS count FROM codes WHERE " .
             "code_type = '"    . ffescape($code_type)    . "' AND " .
             "code = '"         . ffescape($code)         . "' AND " .
@@ -140,7 +143,7 @@ if (isset($mode) && $thisauthwrite) {
                 $revenue_code = '';
             }
         }
-    } else if ($mode == "edit") { // someone clicked [Edit]
+    } elseif ($mode == "edit") { // someone clicked [Edit]
         $sql = "SELECT * FROM codes WHERE id = ?";
         $results = sqlStatement($sql, array($code_id));
         while ($row = sqlFetchArray($results)) {
@@ -158,7 +161,7 @@ if (isset($mode) && $thisauthwrite) {
             $reportable   = 0 + $row['reportable'];
             $financial_reporting  = 0 + $row['financial_reporting'];
         }
-    } else if ($mode == "modify") { // someone clicked [Modify]
+    } elseif ($mode == "modify") { // someone clicked [Modify]
         // this is to modify external code types, of which the modifications
         // are stored in the codes table
         $code_type_name_external = $_POST['code_type_name_external'];
@@ -183,10 +186,12 @@ if (isset($mode) && $thisauthwrite) {
     }
 
     // If codes history is enabled in the billing globals save data to codes history table
-    if ($GLOBALS['save_codes_history'] && $alertmsg=='' &&
-        ( $mode == "add" || $mode == "modify_complete" || $mode == "delete" ) ) {
-        $action_type= empty($_POST['code_id']) ? 'new' : $mode;
-        $action_type= ($action_type=='add') ? 'update' : $action_type ;
+    if (
+        $GLOBALS['save_codes_history'] && $alertmsg == '' &&
+        ( $mode == "add" || $mode == "modify_complete" || $mode == "delete" )
+    ) {
+        $action_type = empty($_POST['code_id']) ? 'new' : $mode;
+        $action_type = ($action_type == 'add') ? 'update' : $action_type ;
         $code       = $_POST['code'];
         $code_type  = $_POST['code_type'];
         $code_text  = $_POST['code_text'];
@@ -198,29 +203,29 @@ if (isset($mode) && $thisauthwrite) {
         $active     = empty($_POST['active']) ? 0 : 1;
         $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
         $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
-        $fee=json_encode($_POST['fee']);
-        $code_sql= sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=?", array($code_type)));
-        $code_name='';
+        $fee = json_encode($_POST['fee']);
+        $code_sql = sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=?", array($code_type)));
+        $code_name = '';
 
         if ($code_sql) {
-            $code_name=$code_sql['ct_label'];
+            $code_name = $code_sql['ct_label'];
         }
 
-        $categorey_id= $_POST['form_superbill'];
-        $categorey_sql=sqlFetchArray(sqlStatement("SELECT (title ) FROM list_options WHERE list_id='superbill'".
+        $categorey_id = $_POST['form_superbill'];
+        $categorey_sql = sqlFetchArray(sqlStatement("SELECT (title ) FROM list_options WHERE list_id='superbill'" .
             " AND option_id=?", array($categorey_id)));
 
-        $categorey_name='';
+        $categorey_name = '';
 
         if ($categorey_sql) {
-            $categorey_name=$categorey_sql['title'];
+            $categorey_name = $categorey_sql['title'];
         }
 
-        $date=date('Y-m-d H:i:s');
-        $date=oeFormatShortDate($date);
+        $date = date('Y-m-d H:i:s');
+        $date = oeFormatShortDate($date);
         $results =  sqlStatement(
             "INSERT INTO codes_history ( " .
-            "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name,".
+            "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name," .
             "code_text,code_text_short,prices,action_type, update_by ) VALUES ( " .
             "?, ?,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)",
             array($date,$code,$modifier,$active,$reportable,$financial_reporting,$categorey_name,$code_name,$code_text,'',$fee,$action_type,$_SESSION['authUser'])
@@ -238,7 +243,7 @@ if (isset($_REQUEST['filter'])) {
     $filter = array();
     $filter_key = array();
     foreach ($_REQUEST['filter'] as $var) {
-        $var = $var+0;
+        $var = $var + 0;
         array_push($filter, $var);
         $var_key = convert_type_id_to_key($var);
         array_push($filter_key, $var_key);
@@ -281,36 +286,39 @@ if ($fend > $count) {
 <head>
     <title><?php echo xlt("Codes"); ?></title>
 
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-    <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="../../../library/textformat.js"></script>
-    <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-themes/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui/jquery-ui.min.js"></script>
+    <?php Header::setupHeader(['select2']); ?>
+
 <style>
     .ui-autocomplete { max-height: 350px; max-width: 35%; overflow-y: auto; overflow-x: hidden; }
 </style>
     <script>
     <?php if ($institutional) { ?>
-    $( function() {
-        var cache = {};
-        $( ".revcode" ).autocomplete({
-            minLength: 1,
-            source: function( request, response ) {
-                var term = request.term;
-                request.code_group = "revenue_code";
-                if ( term in cache ) {
-                  response( cache[ term ] );
-                  return;
-                }
-                $.getJSON( "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
-                  cache[ term ] = data;
-                  response( data );
-                });
+    $(function () {
+        $(".revcode").select2({
+        ajax: {
+            url: "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php",
+            dataType: 'json',
+            data: function(params) {
+                return {
+                  code_group: "revenue_code",
+                  term: params.term
+                };
+            },
+            processResults: function(data) {
+                return  {
+                    results: $.map(data, function(item, index) {
+                        return {
+                            text: item.label,
+                            id: index,
+                            value: item.value
+                        }
+                    })
+                };
+                return x;
+            },
+            cache: true
             }
-        }).dblclick(function(event) {
-            $(this).autocomplete('search'," ");
-        });
+        })
     });
     <?php } ?>
 
@@ -463,19 +471,16 @@ if ($fend > $count) {
 
     <input type='hidden' name='mode' value=''>
 
-    <br>
+    <br />
 
-    <center>
-        <table border='0' cellpadding='0' cellspacing='0'>
+        <table class='table-borderless' cellpadding='0' cellspacing='0'>
 
             <tr>
-                <td colspan="3"> <?php echo xlt('Not all fields are required for all codes or code types.'); ?><br><br></td>
+                <td colspan="3"> <?php echo xlt('Not all fields are required for all codes or code types.'); ?><br /><br /></td>
             </tr>
 
             <tr>
-                <td><?php echo xlt('Type'); ?>:</td>
-                <td width="5">
-                </td>
+                <td colspan="2"><?php echo xlt('Type'); ?>:</td>
                 <td>
 
                     <?php if ($mode != "modify") { ?>
@@ -537,8 +542,7 @@ if ($fend > $count) {
             </tr>
 
             <tr>
-                <td><?php echo xlt('Description'); ?>:</td>
-                <td></td>
+                <td colspan="2"><?php echo xlt('Description'); ?>:</td>
                 <td>
                     <?php if ($mode == "modify") { ?>
                         <input type='text' size='50' name="code_text" readonly="readonly" value='<?php echo attr($code_text) ?>'>
@@ -548,9 +552,9 @@ if ($fend > $count) {
                 <?php if ($institutional) { ?>
                     <?php echo xlt('Revenue Code'); ?>:
                     <?php if ($mode == "modify") { ?>
-                        <input type='text' size='6' name="revenue_code" readonly="readonly" value='<?php echo attr($revenue_code) ?>'>
+                        <input type='text' size='6' name="revenue_code" readonly="readonly" value='<?php echo attr($revenue_code) ?>' />
                     <?php } else { ?>
-                        <input type='text' size='6' class='revcode' name="revenue_code" title='<?php echo xla('Type to search and select revenue code'); ?>' value='<?php echo attr($revenue_code) ?>'>
+                        <select size='6' style='width:150px' class='revcode' name="revenue_code" title='<?php echo xla('Type to search and select revenue code'); ?>' value='<?php echo attr($revenue_code) ?>'> </select>
                     <?php } ?>
                 <?php } ?>
                 </td>
@@ -561,7 +565,7 @@ if ($fend > $count) {
                 <td></td>
                 <td>
                     <?php
-                    generate_form_field(array('data_type'=>1,'field_id'=>'superbill','list_id'=>'superbill'), $superbill);
+                    generate_form_field(array('data_type' => 1,'field_id' => 'superbill','list_id' => 'superbill'), $superbill);
                     ?>
                     &nbsp;&nbsp;
                     <input type='checkbox' title='<?php echo xla("Syndromic Surveillance Report") ?>' name='reportable' value='1'<?php if (!empty($reportable)) {
@@ -577,7 +581,7 @@ if ($fend > $count) {
             </tr>
 
             <tr<?php if (empty($GLOBALS['ippf_specific'])) {
-                echo " style='display:none'";
+                echo " class='d-none'";
                } ?>>
                 <td><?php echo xlt('CYP Factor'); ?>:</td>
                 <td></td>
@@ -588,7 +592,7 @@ if ($fend > $count) {
 
 
             <tr<?php if (!related_codes_are_used()) {
-                echo " style='display:none'";
+                echo " class='d-none'";
                } ?>>
                 <td><?php echo xlt('Relate To'); ?>:</td>
                 <td></td>
@@ -601,8 +605,7 @@ if ($fend > $count) {
             </tr>
 
             <tr>
-                <td><?php echo xlt('Fees'); ?>:</td>
-                <td></td>
+                <td colspan="2"><?php echo xlt('Fees'); ?>:</td>
                 <td>
                     <?php
                     $pres = sqlStatement("SELECT lo.option_id, lo.title, p.pr_price " .
@@ -653,8 +656,8 @@ if ($fend > $count) {
             } ?>
 
             <tr>
-                <td colspan="3" align="center">
-                    <input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>"><br>
+                <td class="text-center" colspan="3">
+                    <input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>"><br />
                     <input type="hidden" name="code_type_name_external" value="<?php echo attr($code_type_name_external) ?>">
                     <input type="hidden" name="code_external" value="<?php echo attr($code_external) ?>">
                     <?php if ($thisauthwrite) { ?>
@@ -669,8 +672,8 @@ if ($fend > $count) {
                 </td>
             </tr>
         </table>
-        <br>
-        <table border='0' cellpadding='5' cellspacing='0' width='96%'>
+        <br />
+        <table class='table-borderless' cellpadding='5' cellspacing='0' width='96%'>
             <tr>
 
                 <td class='text'>
@@ -702,7 +705,7 @@ if ($fend > $count) {
                     <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>'>
                 </td>
 
-                <td class='text' align='right'>
+                <td class='text text-right'>
                     <?php if ($fstart) { ?>
                         <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
                             &lt;&lt;
@@ -721,22 +724,22 @@ if ($fend > $count) {
 
 </form>
 
-<table border='0' cellpadding='5' cellspacing='0' width='96%'>
+<table class='table-borderless' cellpadding='5' cellspacing='0' width='96%'>
     <tr>
-        <td><span class='bold'><?php echo xlt('Code'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Mod'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Code'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Mod'); ?></span></td>
         <?php if ($institutional) { ?>
-            <td><span class='bold'><?php echo xlt('Revenue'); ?></span></td>
+            <td><span class='font-weight-bold'><?php echo xlt('Revenue'); ?></span></td>
         <?php } ?>
-        <td><span class='bold'><?php echo xlt('Act'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Category'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Dx Rep'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Serv Rep'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Type'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Description'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Short Description'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Act'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Category'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Dx Rep'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Serv Rep'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Type'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Description'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Short Description'); ?></span></td>
         <?php if (related_codes_are_used()) { ?>
-            <td><span class='bold'><?php echo xlt('Related'); ?></span></td>
+            <td><span class='font-weight-bold'><?php echo xlt('Related'); ?></span></td>
         <?php } ?>
         <?php
         $pres = sqlStatement("SELECT title FROM list_options " .
@@ -775,12 +778,12 @@ if ($fend > $count) {
             echo "  <td class='text'>" . text($iter["code"]) . "</td>\n";
             echo "  <td class='text'>" . text($iter["modifier"]) . "</td>\n";
             if ($institutional) {
-                echo "  <td class='text'>" . ($iter['revenue_code'] > '' ? text($iter['revenue_code']) : 'none') ."</td>\n";
+                echo "  <td class='text'>" . ($iter['revenue_code'] > '' ? text($iter['revenue_code']) : 'none') . "</td>\n";
             }
             if ($iter["code_external"] > 0) {
                 // If there is no entry in codes sql table, then default to active
                 //  (this is reason for including NULL below)
-                echo "  <td class='text'>" . ( ($iter["active"] || $iter["active"]==null) ? xlt('Yes') : xlt('No')) . "</td>\n";
+                echo "  <td class='text'>" . ( ($iter["active"] || $iter["active"] == null) ? xlt('Yes') : xlt('No')) . "</td>\n";
             } else {
                 echo "  <td class='text'>" . ( ($iter["active"]) ? xlt('Yes') : xlt('No')) . "</td>\n";
             }
@@ -805,7 +808,7 @@ if ($fend > $count) {
                 $arel = explode(';', $iter['related_code']);
                 foreach ($arel as $tmp) {
                     list($reltype, $relcode) = explode(':', $tmp);
-                    $code_description = lookup_code_descriptions($reltype.":".$relcode);
+                    $code_description = lookup_code_descriptions($reltype . ":" . $relcode);
                     echo text($relcode) . ' ' . text(trim($code_description)) . '<br />';
                 }
 
@@ -837,9 +840,7 @@ if ($fend > $count) {
 
 </table>
 
-</center>
-
-<script language="JavaScript">
+<script>
     <?php
     if ($alertmsg) {
         echo "alert(" . js_escape($alertmsg) . ");\n";

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ajax Handler for Register
  *
@@ -15,11 +16,15 @@
 require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
-if ($_SESSION['register'] === true && isset($_SESSION['pid'])) {
+if (
+    $_SESSION['register'] === true && isset($_SESSION['pid']) ||
+    ($_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
+    ($_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
+) {
     $ignoreAuth_onsite_portal_two = true;
 }
 
-require_once("../../interface/globals.php");
+require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once("$srcdir/patient.inc");
 require_once(dirname(__FILE__) . "/../lib/portal_mail.inc");
 require_once("$srcdir/pnotes.inc");
@@ -31,6 +36,32 @@ if ($action == 'set_lang') {
     $_SESSION['language_choice'] = (int) $_REQUEST['value'];
     echo 'okay';
     exit();
+} elseif ($action == 'userIsUnique') {
+    if (
+        ($_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
+        ($_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
+    ) {
+        // The above comparisons will not allow querying for usernames if not authorized (ie. not including the register stuff)
+        if (empty(trim($_REQUEST['account']))) {
+            echo "0";
+            exit;
+        }
+        $tmp = trim($_REQUEST['loginUname']);
+        if (empty($tmp)) {
+            echo "0";
+            exit;
+        }
+        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_login_username = ? Or portal_username = ?", array($tmp, $tmp));
+        if ($auth === false) {
+            echo "1";
+            exit;
+        } elseif ($auth['portal_username'] === trim($_REQUEST['account'])) {
+            echo "1";
+            exit;
+        }
+    }
+    echo "0";
+    exit;
 } elseif ($action == 'get_newpid') {
     $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';
     $rtn = isNew($_REQUEST['dob'], $_REQUEST['last'], $_REQUEST['first'], $email);

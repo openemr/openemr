@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CLICKATELL SMS API
  *
@@ -175,7 +176,7 @@ class sms
         if ($this->unicode == true) {
             $this->_chk_mbstring();
             if (mb_strlen($text) > 210) {
-                die("Your unicode message is too long! (Current lenght=".mb_strlen($text).")");
+                die("Your unicode message is too long! (Current lenght=" . mb_strlen($text) . ")");
             }
 
             /* Does message need to be concatenate */
@@ -186,7 +187,7 @@ class sms
             }
         } else {
             if (strlen($text) > 459) {
-                die("Your message is too long! (Current lenght=".strlen($text).")");
+                die("Your message is too long! (Current lenght=" . strlen($text) . ")");
             }
 
             /* Does message need to be concatenate */
@@ -242,7 +243,7 @@ class sms
             $out_text = "";
 
             //encode each character in text
-            for ($i=0; $i<$uni_text_len; $i++) {
+            for ($i = 0; $i < $uni_text_len; $i++) {
                 $out_text .= $this->uniord(mb_substr($text, $i, 1, "UTF-8"));
             }
 
@@ -259,31 +260,31 @@ class sms
     function uniord($c)
     {
         $ud = 0;
-        if (ord($c{0})>=0 && ord($c{0})<=127) {
-            $ud = ord($c{0});
+        if (ord($c[0]) >= 0 && ord($c[0]) <= 127) {
+            $ud = ord($c[0]);
         }
 
-        if (ord($c{0})>=192 && ord($c{0})<=223) {
-            $ud = (ord($c{0})-192)*64 + (ord($c{1})-128);
+        if (ord($c[0]) >= 192 && ord($c[0]) <= 223) {
+            $ud = (ord($c[0]) - 192) * 64 + (ord($c[1]) - 128);
         }
 
-        if (ord($c{0})>=224 && ord($c{0})<=239) {
-            $ud = (ord($c{0})-224)*4096 + (ord($c{1})-128)*64 + (ord($c{2})-128);
+        if (ord($c[0]) >= 224 && ord($c[0]) <= 239) {
+            $ud = (ord($c[0]) - 224) * 4096 + (ord($c[1]) - 128) * 64 + (ord($c[2]) - 128);
         }
 
-        if (ord($c{0})>=240 && ord($c{0})<=247) {
-            $ud = (ord($c{0})-240)*262144 + (ord($c{1})-128)*4096 + (ord($c{2})-128)*64 + (ord($c{3})-128);
+        if (ord($c[0]) >= 240 && ord($c[0]) <= 247) {
+            $ud = (ord($c[0]) - 240) * 262144 + (ord($c[1]) - 128) * 4096 + (ord($c[2]) - 128) * 64 + (ord($c[3]) - 128);
         }
 
-        if (ord($c{0})>=248 && ord($c{0})<=251) {
-            $ud = (ord($c{0})-248)*16777216 + (ord($c{1})-128)*262144 + (ord($c{2})-128)*4096 + (ord($c{3})-128)*64 + (ord($c{4})-128);
+        if (ord($c[0]) >= 248 && ord($c[0]) <= 251) {
+            $ud = (ord($c[0]) - 248) * 16777216 + (ord($c[1]) - 128) * 262144 + (ord($c[2]) - 128) * 4096 + (ord($c[3]) - 128) * 64 + (ord($c[4]) - 128);
         }
 
-        if (ord($c{0})>=252 && ord($c{0})<=253) {
-            $ud = (ord($c{0})-252)*1073741824 + (ord($c{1})-128)*16777216 + (ord($c{2})-128)*262144 + (ord($c{3})-128)*4096 + (ord($c{4})-128)*64 + (ord($c{5})-128);
+        if (ord($c[0]) >= 252 && ord($c[0]) <= 253) {
+            $ud = (ord($c[0]) - 252) * 1073741824 + (ord($c[1]) - 128) * 16777216 + (ord($c[2]) - 128) * 262144 + (ord($c[3]) - 128) * 4096 + (ord($c[4]) - 128) * 64 + (ord($c[5]) - 128);
         }
 
-        if (ord($c{0})>=254 && ord($c{0})<=255) { //error
+        if (ord($c[0]) >= 254 && ord($c[0]) <= 255) { //error
             $ud = false;
         }
 
@@ -341,7 +342,7 @@ class sms
             curl_setopt($ch, CURLOPT_PROXYUSERPWD, $this->curl_proxyuserpwd);
         }
 
-        $result=curl_exec($ch);
+        $result = curl_exec($ch);
         curl_close($ch);
         return $result;
     }
@@ -362,7 +363,7 @@ class sms
             fclose($handler);
             return $result;
         } else {
-            die("Error while executing fopen sending method!<br>Please check does PHP have OpenSSL support and check does PHP version is greater than 4.3.0.");
+            die("Error while executing fopen sending method!<br />Please check does PHP have OpenSSL support and check does PHP version is greater than 4.3.0.");
         }
     }
 
@@ -374,7 +375,7 @@ class sms
     {
         $session = substr($result, 4);
         $code = substr($result, 0, 2);
-        if ($code!="OK") {
+        if ($code != "OK") {
             die("Error in SMS authorization! (" . text($result) . ")");
         }
 
@@ -388,7 +389,7 @@ class sms
     function _parse_send($result)
     {
         $code = substr($result, 0, 2);
-        if ($code!="ID") {
+        if ($code != "ID") {
             die("Error sending SMS! (" . text($result) . ")");
         } else {
             $code = "OK";

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This program saves data from the misc_billing_form
  *
@@ -15,7 +16,7 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 

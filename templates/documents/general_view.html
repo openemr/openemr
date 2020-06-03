@@ -5,11 +5,15 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *}
 
-<script language="JavaScript">
-
+<script>
+ {if $GLOBALS.oefax_enable}
+ {dispatchPatientDocumentEvent event="javascript_ready_fax_dialog"}
+ {/if}
  function popoutcontent(othis) {literal}{{/literal}
     let popsrc = $(othis).parents('body').find('#DocContents iframe').attr("src");
     let wname = '_' + Math.random().toString(36).substr(2, 6);
@@ -33,28 +37,15 @@
 
  // Called to show patient notes related to this document in the "other" frame.
  function showpnotes(docid) {literal}{{/literal}
- {literal}
- if (top.tab_mode) {
-     let btnClose = {/literal}{xlj t="Done"}{literal};
+     let btnClose = {xlj t="Done"}{literal};
      let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid);
      dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
          buttons: [
-             {text: btnClose, close: true, style: 'default btn-xs'}
-         ],
-         sizeHeight: 'auto',
-         allowResize: true,
-         allowDrag: true,
-         dialogId: '',
-         type: 'iframe'
+             {text: btnClose, close: true, style: 'default btn-sm'}
+         ]
      });
      return false;
- }
- {/literal}
-  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
-  parent.left_nav.forceDual();
-  parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid));
-  return false;
- {literal}}{/literal}
+ }{/literal}
 
  function submitNonEmpty( e ) {literal}{{/literal}
 	if ( e.elements['passphrase'].value.length == 0 ) {literal}{{/literal}
@@ -130,31 +121,34 @@ function ImgProcedure() {literal}{{/literal}
  }{/literal}
 </script>
 
-<table valign="top" width="100%">
+<table class="w-100" valign="top">
     <tr>
         <td>
-            <div style="margin-bottom: 6px;padding-bottom: 6px;border-bottom:3px solid gray;">
+            <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 3px solid var(--gray);">
             <h4>{$file->get_url_web()|text}
               <div class="btn-group btn-toggle">
-                <button class="btn btn-xs btn-default properties">{xlt t='Properties'}</button>
-                <button class="btn btn-xs btn-primary active">{xlt t='Contents'}</button>
+                <button class="btn btn-sm btn-secondary properties">{xlt t='Properties'}</button>
+                <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
               </div>
-            <span style="float:right;">
-            <a class="css_button" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">
-                <span class="glyphicon glyphicon-fullscreen"></span></a>
-            <a class="css_button" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()"><span>{xlt t='Download'}</span></a>
-            <a class="css_button" href='' onclick='return showpnotes({$file->get_id()|attr_js})'><span>{xlt t='Show Notes'}</span></a>
+            <span style="float: right;">
+            <script>var file = {$file->get_url()|js_escape};</script>
+            {if $GLOBALS.oefax_enable}
+            {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
+            {/if}
+            <a class="btn btn-primary" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
+            <a class="btn btn-primary" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()">{xlt t='Download'}</a>
+            <a class="btn btn-primary" href='' onclick='return showpnotes({$file->get_id()|attr_js})'>{xlt t='Show Notes'}</a>
             {$delete_string}
             {if $file->get_ccr_type($file->get_id()) eq "CCR" and ($file->get_mimetype($file->get_id()) eq "application/xml" or $file->get_mimetype($file->get_id()) eq "text/xml") and
             $file->get_imported($file->get_id()) eq 0 }
-            <a class="css_button" href='javascript:' onclick='return import_ccr({$file->get_id()|attr_js})'><span>{xlt t='Import'}</span></a>
+            <a class="btn btn-primary" href='javascript:' onclick='return import_ccr({$file->get_id()|attr_js})'>{xlt t='Import'}</a>
             {/if}
             </span>
             </h4>
             </div>
         </td>
     </tr>
-    <tr id="DocProperties" style="display:none;">
+    <tr id="DocProperties" style="display: none;">
 		<td valign="top">
 			{if !$hide_encryption}
 			<div class="text">
@@ -170,7 +164,7 @@ function ImgProcedure() {literal}{{/literal}
                 <div>
                     {xlt t='Pass Phrase'}:
                     <input title="{xla t='Supports TripleDES encryption/decryption only.'} {xla t='Leaving the pass phrase blank will not encrypt the document'}" type='text' size='20' name='passphrase' id='passphrase' value=''/>
-                    <input type="hidden" name="encrypted" value="true"></input>
+                    <input type="hidden" name="encrypted" value="true" />
               	</div>
                 </form>
             </div>
@@ -206,8 +200,7 @@ function ImgProcedure() {literal}{{/literal}
               	</div>
                 <div>
                     {xlt t='Date'}:
-                    <input type='text' size='10' class='datepicker' name='docdate' id='docdate'
-                     value='{$DOCDATE|attr}' title='{xla t='yyyy-mm-dd document date'}' />
+                    <input type='text' size='10' class='datepicker' name='docdate' id='docdate' value='{$DOCDATE|attr}' title="{xla t='yyyy-mm-dd document date'}" />
                     <select name="issue_id">{$ISSUES_LIST}</select>
                 </div>
                 </form>
@@ -229,8 +222,7 @@ function ImgProcedure() {literal}{{/literal}
                 <div>
                         <select name="new_category_id">{$tree_html_listbox}</select>&nbsp;
                         {xlt t='Move to Patient'} # <input type="text" name="new_patient_id" size="4" />
-                        <a href="javascript:{literal}{}{/literal}"
-                         onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|attr_url}&form_name={"document_move['new_patient_name']"|attr_url}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
+                        <a href="javascript:{literal}{}{/literal}" onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|attr_url}&form_name={"document_move['new_patient_name']"|attr_url}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
                         <img src="{$IMAGES_STATIC_RELATIVE}/stock_search-16.png" border="0" /></a>
                         <input type="hidden" name="new_patient_name" value="" />
                 </div>
@@ -304,7 +296,7 @@ function ImgProcedure() {literal}{{/literal}
 
                     </div>
                 <div>
-                    <textarea cols="53" rows="8" wrap="virtual" name="note" style="width:100%"></textarea><br>
+                    <textarea cols="53" rows="8" wrap="virtual" name="note" style="width:100%"></textarea><br />
                     <input type="hidden" name="process" value="{$PROCESS|attr}" />
                     <input type="hidden" name="foreign_id" value="{$file->get_id()|attr}" />
 
@@ -346,16 +338,16 @@ function ImgProcedure() {literal}{{/literal}
 		</td>
 	</tr>
 </table>
-<script language='JavaScript'>
+<script>
 {literal}
 $('.btn-toggle').click(function() {
     $(this).find('.btn').toggleClass('active');
 
-    if ($(this).find('.btn-primary').length >0) {
+    if ($(this).find('.btn-primary').length > 0) {
         $(this).find('.btn').toggleClass('btn-primary');
     }
 
-    $(this).find('.btn').toggleClass('btn-default');
+    $(this).find('.btn').toggleClass('btn-secondary');
     var show_prop = ($(this).find('.properties.active').length > 0 ? 'block':'none');
     $("#DocProperties").css('display', show_prop);
 });

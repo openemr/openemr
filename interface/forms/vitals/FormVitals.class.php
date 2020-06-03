@@ -1,6 +1,5 @@
 <?php
 
-
 define("EVENT_VEHICLE", 1);
 define("EVENT_WORK_RELATED", 2);
 define("EVENT_SLIP_FALL", 3);
@@ -11,6 +10,9 @@ define("EVENT_OTHER", 4);
  * class FormHpTjePrimary
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class FormVitals extends ORDataObject
 {
 
@@ -59,7 +61,7 @@ class FormVitals extends ORDataObject
             $id = "";
             $this->date = $this->get_date();
             $this->user = $_SESSION['authUser'];
-            $this->groupname = $_SESSION['authGroup'];
+            $this->groupname = $_SESSION['authProvider'];
         }
 
         $this->_table = "form_vitals";
@@ -78,7 +80,7 @@ class FormVitals extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-            ."ID: " . $this->id . "\n";
+            . "ID: " . $this->id . "\n";
 
         if ($html) {
             return nl2br($string);
@@ -194,10 +196,10 @@ class FormVitals extends ORDataObject
     }
     function display_weight($pounds)
     {
-        if ($pounds!=0) {
-            if ($GLOBALS['us_weight_format']==2) {
-                $pounds_int=floor($pounds);
-                return $pounds_int." ".xl('lb') ." " .round(($pounds-$pounds_int)*16)." ".xl('oz');
+        if ($pounds != 0) {
+            if ($GLOBALS['us_weight_format'] == 2) {
+                $pounds_int = floor($pounds);
+                return $pounds_int . " " . xl('lb') . " " . round(($pounds - $pounds_int) * 16) . " " . xl('oz');
             } else {
                 return $pounds;
             }

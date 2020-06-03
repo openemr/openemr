@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Generated DocBlock
  *
@@ -12,11 +13,15 @@
  * @copyright Copyright (c) 2012 fndtn357 <fndtn357@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Core\Header;
+
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<title>Export Patient Demographics</title>
+    <title>Export Patient Demographics</title>
+
+    <?php Header::setupHeader(); ?>
 </head>
 <body>
 

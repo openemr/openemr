@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Upgrading and patching functions of database.
 *
@@ -24,6 +25,8 @@
 * @author  Teny <teny@zhservices.com>
 * @link      https://www.open-emr.org
 */
+
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
 * Check if a Sql table exists.
@@ -74,6 +77,42 @@ function columnHasType($tblname, $colname, $coltype)
     }
 
     return (strcasecmp($row['Type'], $coltype) == 0);
+}
+
+/**
+ * Check if a Sql column has a certain type and a certain default value.
+ *
+ * @param  string $tblname      Sql Table Name
+ * @param  string $colname      Sql Column Name
+ * @param  string $coltype      Sql Column Type
+ * @param  string $coldefault   Sql Column Default
+ * @return boolean              returns true if the sql column is of the specified type and default
+ */
+function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
+{
+    $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ?", [$colname]);
+    if (empty($row)) {
+        return true;
+    }
+
+    // Check if the type matches
+    if (strcasecmp($row['Type'], $coltype) != 0) {
+        return false;
+    }
+
+    // Now for the more difficult check for if the default matches
+    if ($coldefault == "NULL") {
+        // Special case when checking if default is NULL
+        $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ? AND `Default` IS NULL", [$colname]);
+        return (!empty($row));
+    } elseif ($coldefault == "") {
+        // Special case when checking if default is ""(blank)
+        $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ? AND `Default` IS NOT NULL AND `Default` = ''", [$colname]);
+        return (!empty($row));
+    } else {
+        // Standard case when checking if default is neither NULL or ""(blank)
+        return (strcasecmp($row['Default'], $coldefault) == 0);
+    }
 }
 
 /**
@@ -200,11 +239,11 @@ function listExists($option_id)
 function clickOptionsMigrate()
 {
   // If the clickoptions.txt file exist, then import it.
-    if (file_exists(dirname(__FILE__)."/../sites/".$_SESSION['site_id']."/clickoptions.txt")) {
-        $file_handle = fopen(dirname(__FILE__)."/../sites/".$_SESSION['site_id']."/clickoptions.txt", "rb");
+    if (file_exists(dirname(__FILE__) . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt")) {
+        $file_handle = fopen(dirname(__FILE__) . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt", "rb");
         $seq  = 10;
         $prev = '';
-        echo "Importing clickoption setting<br>";
+        echo "Importing clickoption setting<br />";
         while (!feof($file_handle)) {
             $line_of_text = fgets($file_handle);
             if (preg_match('/^#/', $line_of_text)) {
@@ -220,12 +259,12 @@ function clickOptionsMigrate()
             $parts[1] = trim(str_replace("\r\n", "", $parts[1]));
             if ($parts[0] != $prev) {
                 $sql1 = "INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES (?,?,?)";
-                SqlStatement($sql1, array('lists',$parts[0].'_issue_list',ucwords(str_replace("_", " ", $parts[0])).' Issue List'));
+                SqlStatement($sql1, array('lists',$parts[0] . '_issue_list',ucwords(str_replace("_", " ", $parts[0])) . ' Issue List'));
                 $seq = 10;
             }
 
             $sql2 = "INSERT INTO list_options (`list_id`,`option_id`,`title`,`seq`) VALUES (?,?,?,?)";
-            SqlStatement($sql2, array($parts[0].'_issue_list', $parts[1], $parts[1], $seq));
+            SqlStatement($sql2, array($parts[0] . '_issue_list', $parts[1], $parts[1], $seq));
             $seq = $seq + 10;
             $prev = $parts[0];
         }
@@ -245,10 +284,10 @@ function CreateOccupationList()
     }
 
     sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'Occupation', 'Occupation')");
-    if (count($records)>0) {
+    if (count($records) > 0) {
         $seq = 0;
         foreach ($records as $key => $value) {
-            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", array($value, $value, ($seq+10)));
+            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", array($value, $value, ($seq + 10)));
             $seq = $seq + 10;
         }
     }
@@ -265,10 +304,10 @@ function CreateReactionList()
     }
 
     sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'reaction', 'Reaction')");
-    if (count($records)>0) {
+    if (count($records) > 0) {
         $seq = 0;
         foreach ($records as $key => $value) {
-            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", array($value, $value, ($seq+10)));
+            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", array($value, $value, ($seq + 10)));
             $seq = $seq + 10;
         }
     }
@@ -286,10 +325,10 @@ function CreateImmunizationManufacturerList()
     }
 
     sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','Immunization_Manufacturer','Immunization Manufacturer')");
-    if (count($records)>0) {
+    if (count($records) > 0) {
         $seq = 0;
         foreach ($records as $key => $value) {
-            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Immunization_Manufacturer', ?, ?, ?)", array($value, $value, ($seq+10)));
+            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Immunization_Manufacturer', ?, ?, ?)", array($value, $value, ($seq + 10)));
             $seq = $seq + 10;
         }
     }
@@ -361,7 +400,7 @@ function getTablesList($arg = array())
  */
 function MigrateTableEngine($table, $engine)
 {
-    $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine);
+    $r = sqlStatement('ALTER TABLE `' . $table . '` ENGINE=?', $engine);
     return true;
 }
 
@@ -388,7 +427,7 @@ function convertLayoutProperties()
             if (empty($props['mapping'])) {
                 $props['mapping'] = 'Clinical';
             }
-        } else if (substr($form_id, 0, 3) == 'LBT') {
+        } elseif (substr($form_id, 0, 3) == 'LBT') {
             $props = sqlQuery(
                 "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'transactions' AND option_id = ?",
                 array($form_id)
@@ -399,17 +438,17 @@ function convertLayoutProperties()
             if (empty($props['mapping'])) {
                 $props['mapping'] = 'Transactions';
             }
-        } else if ($form_id == 'DEM') {
+        } elseif ($form_id == 'DEM') {
             $props['title'] = 'Demographics';
-        } else if ($form_id == 'HIS') {
+        } elseif ($form_id == 'HIS') {
             $props['title'] = 'History';
-        } else if ($form_id == 'FACUSR') {
+        } elseif ($form_id == 'FACUSR') {
             $props['title'] = 'Facility Specific User Information';
-        } else if ($form_id == 'CON') {
+        } elseif ($form_id == 'CON') {
             $props['title'] = 'Contraception Issues';
-        } else if ($form_id == 'GCA') {
+        } elseif ($form_id == 'GCA') {
             $props['title'] = 'Abortion Issues';
-        } else if ($form_id == 'SRH') {
+        } elseif ($form_id == 'SRH') {
             $props['title'] = 'IPPF SRH Data';
         }
 
@@ -525,6 +564,10 @@ function convertLayoutProperties()
 *   arguments: table_name colname value
 *   behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
 *
+* #IfNotColumnTypeDefault
+*   arguments: table_name colname value value2
+*   behavior:  If the table table_name does not have a column colname with a data type equal to value and a default equal to value2, then the block will be executed
+*
 * #IfNotRow
 *   arguments: table_name colname value
 *   behavior:  If the table table_name does not have a row where colname = value, the block will be executed.
@@ -548,6 +591,10 @@ function convertLayoutProperties()
 *              1) The table table_name does not have a row where colname = value AND colname2 = value2.
 *              2) The table table_name does not have a row where colname = value AND colname3 = value3.
 *
+* #IfRow
+*   arguments: table_name colname value
+*   behavior:  If the table table_name does have a row where colname = value, the block will be executed.
+*
 * #IfRow2D
 *   arguments: table_name colname value colname2 value2
 *   behavior:  If the table table_name does have a row where colname = value AND colname2 = value2, the block will be executed.
@@ -565,6 +612,10 @@ function convertLayoutProperties()
 *   desc:      This function will allow adding of indexes/keys.
 *   arguments: table_name colname
 *   behavior:  If the index does not exist, it will be created
+*
+* #IfUuidNeedUpdate
+*   argument: table_name
+*   behavior: this will add and populate a uuid column into table
 *
 * #IfNotMigrateClickOptions
 *   Custom function for the importing of the Clickoptions settings (if exist) from the codebase into the database
@@ -597,14 +648,14 @@ function convertLayoutProperties()
 *
 * @param  string  $filename  Sql upgrade/patch filename
 */
-function upgradeFromSqlFile($filename)
+function upgradeFromSqlFile($filename, $path = '')
 {
     global $webserver_root;
 
     flush();
     echo "<font color='green'>Processing $filename ...</font><br />\n";
 
-    $fullname = "$webserver_root/sql/$filename";
+    $fullname = ( (!empty($path) && is_dir($path)) ? $path : $webserver_root) . "/sql/$filename";
 
     $fd = fopen($fullname, 'r');
     if ($fd == false) {
@@ -634,12 +685,12 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfTable\s+(\S+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfTable\s+(\S+)/', $line, $matches)) {
             $skipping = ! tableExists($matches[1]);
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfColumn\s+(\S+)\s+(\S+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfColumn\s+(\S+)\s+(\S+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = !columnExists($matches[1], $matches[2]);
             } else {
@@ -650,7 +701,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfMissingColumn\s+(\S+)\s+(\S+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfMissingColumn\s+(\S+)\s+(\S+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = columnExists($matches[1], $matches[2]);
             } else {
@@ -661,7 +712,31 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotColumnType\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+            // This allows capturing a default setting that is not blank
+            if (tableExists($matches[1])) {
+                $skipping = columnHasTypeDefault($matches[1], $matches[2], $matches[3], $matches[4]);
+            } else {
+                // If no such table then the column type is deemed not "missing".
+                $skipping = true;
+            }
+
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+        } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
+            // This allows capturing a default setting that is blank
+            if (tableExists($matches[1])) {
+                $skipping = columnHasTypeDefault($matches[1], $matches[2], $matches[3], $matches[4]);
+            } else {
+                // If no such table then the column type is deemed not "missing".
+                $skipping = true;
+            }
+
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+        } elseif (preg_match('/^#IfNotColumnType\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = columnHasType($matches[1], $matches[2], $matches[3]);
             } else {
@@ -672,7 +747,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfIndex\s+(\S+)\s+(\S+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfIndex\s+(\S+)\s+(\S+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 // If no such index then skip.
                 $skipping = !tableHasIndex($matches[1], $matches[2]);
@@ -684,7 +759,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotIndex\s+(\S+)\s+(\S+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfNotIndex\s+(\S+)\s+(\S+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = tableHasIndex($matches[1], $matches[2]);
             } else {
@@ -695,7 +770,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotRow\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfNotRow\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = tableHasRow($matches[1], $matches[2], $matches[3]);
             } else {
@@ -706,7 +781,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotRow2D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfNotRow2D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
             } else {
@@ -717,7 +792,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotRow3D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfNotRow3D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = tableHasRow3D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $matches[6], $matches[7]);
             } else {
@@ -728,7 +803,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotRow4D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfNotRow4D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = tableHasRow4D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $matches[6], $matches[7], $matches[8], $matches[9]);
             } else {
@@ -739,7 +814,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotRow2Dx2\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfNotRow2Dx2\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
             // If either check exist, then will skip
                 $firstCheck = tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
@@ -757,7 +832,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfRow2D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfRow2D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = !(tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]));
             } else {
@@ -768,7 +843,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfRow3D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfRow3D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = !(tableHasRow3D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $matches[6], $matches[7]));
             } else {
@@ -779,7 +854,18 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotMigrateClickOptions/', $line)) {
+        } elseif (preg_match('/^#IfRow\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+            if (tableExists($matches[1])) {
+                $skipping = !(tableHasRow($matches[1], $matches[2], $matches[3]));
+            } else {
+                // If no such table then should skip.
+                $skipping = true;
+            }
+
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+        } elseif (preg_match('/^#IfNotMigrateClickOptions/', $line)) {
             if (tableExists("issue_types")) {
                 $skipping = true;
             } else {
@@ -791,7 +877,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotListOccupation/', $line)) {
+        } elseif (preg_match('/^#IfNotListOccupation/', $line)) {
             if ((listExists("Occupation")) || (!columnExists('patient_data', 'occupation'))) {
                 $skipping = true;
             } else {
@@ -804,7 +890,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotListReaction/', $line)) {
+        } elseif (preg_match('/^#IfNotListReaction/', $line)) {
             if ((listExists("reaction")) || (!columnExists('lists', 'reaction'))) {
                 $skipping = true;
             } else {
@@ -817,7 +903,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotListImmunizationManufacturer/', $line)) {
+        } elseif (preg_match('/^#IfNotListImmunizationManufacturer/', $line)) {
             if (listExists("Immunization_Manufacturer")) {
                 $skipping = true;
             } else {
@@ -830,7 +916,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotWenoRx/', $line)) {
+        } elseif (preg_match('/^#IfNotWenoRx/', $line)) {
             if (tableHasRow('erx_weno_drugs', "drug_id", '1008') == true) {
                 $skipping = true;
             } else {
@@ -843,12 +929,12 @@ function upgradeFromSqlFile($filename)
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
             // convert all *text types to use default null setting
-        } else if (preg_match('/^#IfTextNullFixNeeded/', $line)) {
+        } elseif (preg_match('/^#IfTextNullFixNeeded/', $line)) {
             $items_to_convert = sqlStatement(
-                "SELECT col.`table_name`, col.`column_name`, col.`data_type`, col.`column_comment` 
-          FROM `information_schema`.`columns` col INNER JOIN `information_schema`.`tables` tab 
+                "SELECT col.`table_name`, col.`column_name`, col.`data_type`, col.`column_comment`
+          FROM `information_schema`.`columns` col INNER JOIN `information_schema`.`tables` tab
           ON tab.TABLE_CATALOG=col.TABLE_CATALOG AND tab.table_schema=col.table_schema AND tab.table_name=col.table_name
-          WHERE col.`data_type` IN ('tinytext', 'text', 'mediumtext', 'longtext') 
+          WHERE col.`data_type` IN ('tinytext', 'text', 'mediumtext', 'longtext')
           AND col.is_nullable='NO' AND col.table_schema=database() AND tab.table_type='BASE TABLE'"
             );
             if (sqlNumRows($items_to_convert) == 0) {
@@ -871,19 +957,19 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfTableEngine\s+(\S+)\s+(MyISAM|InnoDB)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfTableEngine\s+(\S+)\s+(MyISAM|InnoDB)/', $line, $matches)) {
             // perform special actions if table has specific engine
             $skipping = !tableHasEngine($matches[1], $matches[2]);
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
+        } elseif (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
             // find MyISAM tables and attempt to convert them
             //tables that need to skip InnoDB migration (stay at MyISAM for now)
             $tables_skip_migration = array('form_eye_mag');
 
-            $tables_list = getTablesList(array('engine'=>'MyISAM'));
-            if (count($tables_list)==0) {
+            $tables_list = getTablesList(array('engine' => 'MyISAM'));
+            if (count($tables_list) == 0) {
                 $skipping = true;
             } else {
                 $skipping = false;
@@ -907,14 +993,27 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#ConvertLayoutProperties/', $line)) {
+        } elseif (preg_match('/^#IfUuidNeedUpdate\s+(\S+)/', $line, $matches)) {
+            $uuidRegistry = new UuidRegistry(['table_name' => $matches[1]]);
+            if (tableExists($matches[1]) && $uuidRegistry->tableNeedsUuidCreation()) {
+                $skipping = false;
+                echo "<font color='black'>Going to add UUIDs to " . $matches[1] . " table</font><br />\n";
+                $uuidRegistry->createMissingUuids();
+                echo "<font color='green'>Successfully completed adding UUIDs to " . $matches[1] . " table</font><br />\n";
+            } else {
+                $skipping = true;
+            }
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+        } elseif (preg_match('/^#ConvertLayoutProperties/', $line)) {
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             } else {
                 echo "Converting layout properties ...<br />\n";
                 convertLayoutProperties();
             }
-        } else if (preg_match('/^#EndIf/', $line)) {
+        } elseif (preg_match('/^#EndIf/', $line)) {
             $skipping = false;
         }
 

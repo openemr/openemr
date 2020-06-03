@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Interactive code finder AJAX support.
  * For DataTables documentation see: http://legacy.datatables.net/
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -36,16 +36,16 @@ if ($what == 'codes') {
     $prod = $codetype == 'PROD';
     $ncodetype = $code_types[$codetype]['id'];
     $include_inactive = !empty($_GET['inactive']);
-} else if ($what == 'fields') {
+} elseif ($what == 'fields') {
     $source = empty($_GET['source']) ? 'D' : $_GET['source'];
     if ($source == 'D') {
         $layout_id = 'DEM';
-    } else if ($source == 'H') {
+    } elseif ($source == 'H') {
         $layout_id = 'HIS';
-    } else if ($source == 'E') {
+    } elseif ($source == 'E') {
         $layout_id = 'LBF%';
     }
-} else if ($what == 'groups') {
+} elseif ($what == 'groups') {
     if (!empty($_GET['layout_id'])) {
         $layout_id = $_GET['layout_id'];
     }
@@ -122,8 +122,10 @@ function feSearchSort($search = '', $column = 0, $reverse = false)
     global $form_encounter_layout;
     $arr = array();
     foreach ($form_encounter_layout as $feitem) {
-        if ($search && stripos($feitem['field_id'], $search) === false &&
-        stripos($feitem['title'], $search) === false ) {
+        if (
+            $search && stripos($feitem['field_id'], $search) === false &&
+            stripos($feitem['title'], $search) === false
+        ) {
             continue;
         }
         $feitem['fld_length' ] = 20;
@@ -175,7 +177,7 @@ if (isset($_GET['iSortCol_0'])) {
                   // $orderby .= $prod ? "d.name $sSortDir" : "c.code_text $sSortDir";
                     $ordermode = array('description', 'code');
                 }
-            } else if ($what == 'fields') {
+            } elseif ($what == 'fields') {
                 if ($source == 'V') {
                   // No action needed here.
                 } else {
@@ -186,13 +188,13 @@ if (isset($_GET['iSortCol_0'])) {
                         $orderby .= "lo.title $sSortDir";
                     }
                 }
-            } else if ($what == 'lists') {
+            } elseif ($what == 'lists') {
                 if ($iSortCol == 0) {
                     $orderby .= "li.list_id $sSortDir";
                 } else {
                     $orderby .= "li.option_id $sSortDir";
                 }
-            } else if ($what == 'groups') {
+            } elseif ($what == 'groups') {
                 if ($iSortCol == 0) {
                     $orderby .= "code $sSortDir";
                 } else {
@@ -205,10 +207,10 @@ if (isset($_GET['iSortCol_0'])) {
 
 if ($what == 'codes') {
   // Nothing to do here.
-} else if ($what == 'fields') {
+} elseif ($what == 'fields') {
     if ($source == 'V') {
       // No setup needed.
-    } else if ($source == 'E') {
+    } elseif ($source == 'E') {
         $sellist = "lo.field_id, " .
         "MIN(lo.group_id    ) AS group_id, "     .
         "MIN(lo.title       ) AS title, "        .
@@ -229,7 +231,7 @@ if ($what == 'codes') {
             $sSearch = add_escape_custom($searchTerm);
             $where2 = "AND (lo.field_id LIKE '%$sSearch%' OR lo.title LIKE '%$sSearch%')";
         }
-    } else if ($source == 'D' || $source == 'H') {
+    } elseif ($source == 'D' || $source == 'H') {
         $sellist = "lo.*";
         $from = "layout_options AS lo";
         $where1 = "WHERE lo.form_id LIKE '" . add_escape_custom($layout_id) . "' AND lo.uor > 0";
@@ -238,7 +240,7 @@ if ($what == 'codes') {
             $where2 = "AND (lo.field_id LIKE '%$sSearch%' OR lo.title LIKE '%$sSearch%')";
         }
     }
-} else if ($what == 'lists') {
+} elseif ($what == 'lists') {
     $sellist = "li.option_id AS code, li.title AS description";
     $from = "list_options AS li";
     $where1 = "WHERE li.list_id LIKE 'lists' AND li.activity = 1";
@@ -246,7 +248,7 @@ if ($what == 'codes') {
         $sSearch = add_escape_custom($searchTerm);
         $where2 = "AND (li.list_id LIKE '%$sSearch%' OR li.title LIKE '%$sSearch%')";
     }
-} else if ($what == 'groups') {
+} elseif ($what == 'groups') {
     $sellist .= "DISTINCT lo.group_id AS code, lp.grp_title AS description";
     $from = "layout_options AS lo, layout_group_properties AS lp";
     $where1 = "WHERE lo.form_id LIKE '" . add_escape_custom($layout_id) . "' AND lp.grp_form_id = lo.form_id AND lp.grp_group_id = lo.group_id";
@@ -263,7 +265,7 @@ if ($what == 'fields' && $source == 'V') {
     $fe_array = feSearchSort($searchTerm, $fe_column, $fe_reverse);
     $iTotal = count($form_encounter_layout);
     $iFilteredTotal = count($fe_array);
-} else if ($what == 'codes') {
+} elseif ($what == 'codes') {
     $iTotal = main_code_set_search($codetype, '', null, null, !$include_inactive, null, true);
     $iFilteredTotal = main_code_set_search($codetype, $searchTerm, null, null, !$include_inactive, null, true);
 } else {
@@ -289,7 +291,7 @@ if ($what == 'fields' && $source == 'V') {
         $arow[] = $feitem['title'];
         $out['aaData'][] = $arow;
     }
-} else if ($what == 'codes') {
+} elseif ($what == 'codes') {
     $start = null;
     $number = null;
     if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {

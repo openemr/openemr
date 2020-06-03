@@ -4,116 +4,108 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-div.review
-{
-    position: absolute;
-    z-index:100;
-    background-color: #F0F0F0;
-}
-div.review > div
-{
-    border: 1px black solid;
-    padding: 1px;
-}
-div.review table td
-{
-    text-align: left;
-}
-th.first_column
-{
-    text-align:left;
-}
-div.review table input.price
-{
-    width: 5em;
-    text-align: right;
+div.review {
+  background-color: var(--light);
+  position: absolute;
+  z-index: 100;
 }
 
-div.review table input.units
-{
-    width: 3em;
-    text-align: right;
-}
-a.justify_label
-{
-    cursor: pointer;
-}
-div.justify_template
-{
-    position:absolute;
-    z-index:100;
-    background-color: #F0F0F0;
-}
-div.justify_template > div
-{
-    border: 1px black solid;
+div.review > div {
+  border: 1px solid;
+  padding: 1px;
 }
 
-div.justify_template span.search_results
-{
-    position:absolute;
-    background-color: white;
-    border: 1px solid black;
+div.review table td {
+  text-align: left;
 }
-div.justify_template span.search_results table
-{
-    cursor:pointer;
+
+th.first_column {
+  text-align: left;
+}
+
+div.review table input.price {
+  text-align: right;
+  width: 5em;
+}
+
+div.review table input.units {
+  text-align: right;
+  width: 3em;
+}
+
+a.justify_label {
+  cursor: pointer;
+}
+
+div.justify_template {
+  background-color: var(--light);
+  position: absolute;
+  z-index: 100;
+}
+
+div.justify_template > div {
+  border: 1px solid var(--black);
+}
+
+div.justify_template span.search_results {
+  background-color: var(--white);
+  border: 1px solid var(--black);
+  position: absolute;
+}
+
+div.justify_template span.search_results table {
+  cursor: pointer;
 }
 
 
-tr[encounter_issue] > td.info
-{
-    font-weight:bold;
+tr[encounter_issue] > td.info {
+  font-weight: bold;
 }
 
-tr.patient > td.info
-{
-    color:blue;
-}
-tr.common > td.info
-{
-    color:darkslategrey;
+tr.patient > td.info {
+  color: var(--primary);
 }
 
-tr.search > td.info
-{
-    color:green;
+tr.common > td.info {
+  color: #2f4f4f;
 }
 
-td.priority
-{
-    text-align: center;
-    width: 1.1em;
-}
-th.sort
-{
-    cursor: pointer;
+tr.search > td.info {
+  color: var(--success);
 }
 
-div.justify_template span.search_results tr:hover
-{
-    background-color:yellow;
+td.priority {
+  text-align: center;
+  width: 1.1em;
 }
 
-.problem_warning
-{
-    font-weight:bold;
-    cursor: pointer;
-    background-color: yellow;
-    width:100%
+th.sort {
+  cursor: pointer;
 }
 
-.warning_details
-{
-    position:absolute;
-    background-color: white;
-    width:100%
-
+div.justify_template span.search_results tr:hover {
+  background-color: var(--yellow);
 }
-td>input.description{
-    width:100%;
+
+.problem_warning {
+  background-color: var(--yellow);
+  cursor: pointer;
+  font-weight: bold;
+  width: 100%;
+}
+
+.warning_details {
+  background-color: var(--white);
+  position: absolute;
+  width: 100%;
+}
+
+td > input.description {
+  width: 100%;
 }

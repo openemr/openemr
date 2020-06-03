@@ -1,4 +1,5 @@
 <?php
+
 /******************************************************************************
  * Copyright (c) 2010 Jevon Wright and others.
  * All rights reserved. This program and the accompanying materials
@@ -155,7 +156,7 @@ function iterate_over_node($node)
     // debug
     // $output .= "[$name,$nextName]";
     
-    for ($i = 0; $i < $node->childNodes->length; $i ++) {
+    for ($i = 0; $i < $node->childNodes->length; $i++) {
         $n = $node->childNodes->item($i);
         
         $text = iterate_over_node($n);

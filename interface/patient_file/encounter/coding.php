@@ -1,4 +1,5 @@
 <?php
+
 /**
  * coding.php
  *
@@ -9,7 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 
@@ -17,7 +17,7 @@ use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
+<?php Header::setupHeader(); ?>
 
 <!-- DBC STUFF ================ -->
 

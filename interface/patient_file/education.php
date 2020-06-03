@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is called as a pop-up to display patient education materials.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -40,15 +40,15 @@ if ($_POST['bn_submit']) {
         $url .= '?mainSearchCriteria.v.cs=';
         if ('ICD9'   == $codetype) {
             $url .= '2.16.840.1.113883.6.103';
-        } else if ('ICD10'  == $codetype) {
+        } elseif ('ICD10'  == $codetype) {
             $url .= '2.16.840.1.113883.6.90' ;
-        } else if ('SNOMED' == $codetype) {
+        } elseif ('SNOMED' == $codetype) {
             $url .= '2.16.840.1.113883.6.96' ;
-        } else if ('RXCUI'  == $codetype) {
+        } elseif ('RXCUI'  == $codetype) {
             $url .= '2.16.840.1.113883.6.88' ;
-        } else if ('NDC'    == $codetype) {
+        } elseif ('NDC'    == $codetype) {
             $url .= '2.16.840.1.113883.6.69' ;
-        } else if ('LOINC'  == $codetype) {
+        } elseif ('LOINC'  == $codetype) {
             $url .= '2.16.840.1.113883.6.1'  ;
         } else {
             die(xlt('Code type not recognized') . ': ' . text($codetype));
@@ -114,7 +114,7 @@ if ($_POST['bn_submit']) {
 <body class="body_top">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h3>
                         <?php
@@ -137,7 +137,7 @@ if ($_POST['bn_submit']) {
             </div>
         </div>
         <div class='row'>
-            <div class='col-xs-12'>
+            <div class='col-12'>
                 <form method='post' action='education.php' onsubmit='return top.restoreSession()'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <input type='hidden' name='type'     value='<?php echo attr($codetype); ?>' />
@@ -152,7 +152,7 @@ if ($_POST['bn_submit']) {
                     </div>
                     <div class='form-group'>
                         <div class='btn-group' role='group'>
-                            <button type='submit' class='btn btn-default btn-search' name='bn_submit' value='bn_submit'>
+                            <button type='submit' class='btn btn-secondary btn-search' name='bn_submit' value='bn_submit'>
                                 <?php echo xlt('Submit'); ?>
                             </button>
                             <button type='button' class='btn btn-link btn-cancel' onclick='window.close()'>

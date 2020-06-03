@@ -128,7 +128,7 @@ a {
 
 	<td class="title">
 
-		{if $smarty.foreach.loops.first ne 1}<br>{/if}
+		{if $smarty.foreach.loops.first ne 1}<br />{/if}
 
 		{$title}
 
@@ -204,7 +204,7 @@ a {
 
     						<td colspan="4" class="form_text">Date of Last PSA: <input type=text name="date_last_psa" value="{$review_of_systems->get_date_last_psa()|attr}" ></td>
 
-					{elseif $row_title eq "When sexually active,<br> are you active with:"}
+					{elseif $row_title eq "When sexually active,<br /> are you active with:"}
 
 						<tr>
 

@@ -17,17 +17,11 @@
         <meta charset="utf-8">
         <?php echo $this->headTitle($this->translate()->xl('Welcome to OpenEMR'))->setSeparator(' - ')->setAutoEscape(false) ?>
 
-        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
-
+        <!-- TODO: Remove all of this and replace it !-->
+        
+        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no') ?>
         <!-- styles -->
-        <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
-												->prependStylesheet($this->basePath() . '/css/file_uploader.css')
-												->prependStylesheet($this->basePath() . '/css/'.$GLOBALS['zhemr']['default_theme'].'/documents.css')
-												->prependStylesheet($this->basePath() . '/css/'.$GLOBALS['zhemr']['default_theme'].'/css_buttons.css')
-                        ->prependStylesheet($this->basePath() . '/css/layout.css')
-                        ->prependStylesheet($this->basePath() . '/css/skeleton.css')
-                        ->prependStylesheet($this->basePath() . '/css/base.css')
-                        ->prependStylesheet($this->basePath() . '/css/default/datepicker.css')?>
+        <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))->prependStylesheet($this->basePath() . '/css/file_uploader.css')->prependStylesheet($this->basePath() . '/css/'.$GLOBALS['zhemr']['default_theme'].'/documents.css')->prependStylesheet($this->basePath() . '/css/'.$GLOBALS['zhemr']['default_theme'].'/css_buttons.css')->prependStylesheet($this->basePath() . '/css/layout.css')->prependStylesheet($this->basePath() . '/css/skeleton.css')->prependStylesheet($this->basePath() . '/css/base.css')->prependStylesheet($this->basePath() . '/css/default/datepicker.css')?>
         <!-- Scripts -->
         <?php echo $this->headScript()->prependFile($this->basePath() . '/js/lib/modernizr-2.6.2.min.js') ?>
     </head>

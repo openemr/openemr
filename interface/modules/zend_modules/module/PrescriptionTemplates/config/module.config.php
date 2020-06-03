@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (C) 2018 Amiel Elboim <amielel@matrix.co.il>
  *
@@ -17,10 +18,11 @@
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
  */
+
 namespace PrescriptionTemplates;
 
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
 use PrescriptionTemplates\Controller\HtmlTemplatesController;
 use PrescriptionTemplates\Controller\PdfTemplatesController;
 use Interop\Container\ContainerInterface;

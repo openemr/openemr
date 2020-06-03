@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report lists patients that were seen within a given date
  * range.
@@ -67,9 +68,9 @@ if ($_POST['form_labels']) {
 
     <?php Header::setupHeader('datetime-picker'); ?>
 
-<script language="JavaScript">
+<script>
 
-$(function() {
+$(function () {
     var win = top.printLogSetup ? top : opener.top;
     win.printLogSetup(document.getElementById('printbutton'));
 
@@ -117,7 +118,7 @@ $(function() {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Unique Seen Patients'); ?></span>
 
 <div id="report_parameters_daterange">
-    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt("to{{Range}}") . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt("to{{Range}}") . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' method='post' action='unique_seen_patients_report.php' id='theform' onsubmit='return top.restoreSession()'>
@@ -134,13 +135,13 @@ $(function() {
 
    <table class='text'>
        <tr>
-           <td class='control-label'>
+           <td class='col-form-label'>
                 <?php echo xlt('Visits From'); ?>:
            </td>
            <td>
              <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
            </td>
-           <td class='control-label'>
+           <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
            </td>
            <td>
@@ -152,20 +153,20 @@ $(function() {
    </div>
 
  </td>
- <td align='left' valign='middle' height="100%">
-   <table style='border-left:1px solid; width:100%; height:100%' >
+ <td class='h-100' align='left' valign='middle' height="100%">
+   <table class='w-100 h-100' style='border-left:1px solid'>
        <tr>
            <td>
                <div class="text-center">
          <div class="btn-group" role="group">
-                     <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_labels").val(""); $("#theform").submit();'>
+                     <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_labels").val(""); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                      </a>
                     <?php if ($_POST['form_refresh']) { ?>
-                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
-                        <a href='#' class='btn btn-default btn-transmit' onclick='$("#form_labels").attr("value","true"); $("#theform").submit();'>
+                        <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_labels").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Labels'); ?>
                         </a>
                     <?php } ?>
@@ -180,9 +181,9 @@ $(function() {
 </div> <!-- end of parameters -->
 
 <div id="report_results">
-<table>
+<table class='table'>
 
-<thead>
+<thead class='thead-light'>
 <th> <?php echo xlt('Last Visit'); ?> </th>
 <th> <?php echo xlt('Patient'); ?> </th>
 <th align='right'> <?php echo xlt('Visits'); ?> </th>
@@ -234,14 +235,14 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
         if ($row['DOB']) {
             $dob = $row['DOB'];
             $tdy = $row['edate'];
-            $ageInMonths = (substr($tdy, 0, 4)*12) + substr($tdy, 5, 2) -
-                   (substr($dob, 0, 4)*12) - substr($dob, 5, 2);
+            $ageInMonths = (substr($tdy, 0, 4) * 12) + substr($tdy, 5, 2) -
+                   (substr($dob, 0, 4) * 12) - substr($dob, 5, 2);
             $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);
             if ($dayDiff < 0) {
                 --$ageInMonths;
             }
 
-            $age = intval($ageInMonths/12);
+            $age = intval($ageInMonths / 12);
         }
 
         if ($_POST['form_labels']) {

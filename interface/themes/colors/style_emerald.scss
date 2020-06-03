@@ -1,16 +1,21 @@
 $colorname: "Emerald";
 
 $darkest: #176638;
-$darker: #24A35A;
-$dark: #2ECC71;
-$mid: #57D68D;
-$midpale: #96E5B8;
-$pale: #C0EFD4;
-$midpalepale: #D2F3E0;
-$palepale: #D6F9E5;
-$palepurple: #E7E6F9;
-$paler: #F1FBF5;
-$midnightblue: #2F2F7D;
-$white: #FFFFFF;
+$darker: #24a35a;
+$dark: #2ecc71;
+$mid: #57d68d;
+$midpale: #96e5b8;
+$pale: #c0efd4;
+$midpalepale: #d2f3e0;
+$palepale: #d6f9e5;
+$palepurple: #e7e6f9;
+$paler: #f1fbf5;
+$midnightblue: #2f2f7d;
+$white: #fff;
 
+// Enables responsive text for Bootstrap
+$enable-responsive-font-sizes: true;
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
 @import "../color_base";

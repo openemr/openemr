@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php
  *
@@ -11,9 +12,9 @@
 
 namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\View\Model\JsonModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
 
 class IndexController extends AbstractActionController
@@ -23,7 +24,7 @@ class IndexController extends AbstractActionController
 
     public function __construct(\Application\Model\ApplicationTable $applicationTable)
     {
-        $this->listenerObject = new Listener;
+        $this->listenerObject = new Listener();
         $this->applicationTable = $applicationTable;
     }
 
@@ -41,7 +42,7 @@ class IndexController extends AbstractActionController
      * Function ajaxZXL
      * All JS Mesages to xl Translation
      *
-     * @return \Zend\View\Model\JsonModel
+     * @return \Laminas\View\Model\JsonModel
      */
     public function ajaxZxlAction()
     {
@@ -100,7 +101,7 @@ class IndexController extends AbstractActionController
                                         'searchMode'    => $searchMode,
                                         'limit'         => $limit,
                                         'CommonPlugin'  => $this->CommonPlugin(),
-                                        'listenerObject'=>$this->listenerObject,
+                                        'listenerObject' => $this->listenerObject,
                                     ));
         return $index;
     }

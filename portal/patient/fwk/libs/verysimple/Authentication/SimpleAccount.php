@@ -1,5 +1,7 @@
 <?php
+
 /** @package    verysimple::Authentication */
+
 require_once("IAuthenticatable.php");
 
 /**

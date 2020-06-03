@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report lists referrals for a given date range.
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -40,7 +40,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
     <script language="JavaScript">
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-        $(function() {
+        $(function () {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
@@ -94,7 +94,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Referrals'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+<?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' id='theform' method='post' action='referrals_report.php' onsubmit='return top.restoreSession()'>
@@ -109,20 +109,20 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Facility'); ?>:
             </td>
             <td>
             <?php dropdown_facility(($form_facility), 'form_facility', true); ?>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
                <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'
          class='datepicker form-control'>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
@@ -135,17 +135,17 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                     <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                     <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                      </a>
                         <?php if ($_POST['form_refresh']) { ?>
-                       <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                       <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                             <?php echo xlt('Print'); ?>
                        </a>
                         <?php } ?>
@@ -163,8 +163,8 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 if ($_POST['form_refresh']) {
     ?>
 <div id="report_results">
-<table width='98%' id='mymaintable'>
-<thead>
+<table class='table' width='98%' id='mymaintable'>
+<thead class='thead-light'>
 <th> <?php echo xlt('Refer To'); ?> </th>
 <th> <?php echo xlt('Refer Date'); ?> </th>
 <th> <?php echo xlt('Reply Date'); ?> </th>
@@ -215,7 +215,7 @@ if ($_POST['form_refresh']) {
    <tr>
     <td>
             <?php
-            if ($row['organization']!=null || $row['organization']!='') {
+            if ($row['organization'] != null || $row['organization'] != '') {
                 echo text($row['organization']);
             } else {
                 echo text($row['referer_to']);

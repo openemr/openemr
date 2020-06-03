@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is a report to create a patient ledger of charges with payments
  * applied.
@@ -13,13 +14,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/acl.inc');
-require_once($GLOBALS['srcdir'].'/options.inc.php');
-require_once($GLOBALS['srcdir'].'/appointments.inc.php');
+require_once($GLOBALS['srcdir'] . '/patient.inc');
+require_once($GLOBALS['srcdir'] . '/options.inc.php');
+require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
@@ -45,7 +45,7 @@ $orow = 0;
 $pat_pid = $_GET['patient_id'];
 $type_form = $_GET['form'];
 
-if (! acl_check('acct', 'rep')) {
+if (! AclMain::aclCheckCore('acct', 'rep')) {
     die(xlt("Unauthorized access."));
 }
 
@@ -83,10 +83,10 @@ function User_Id_Look($thisField)
     }
 
     $ret = '';
-    $rlist= sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", array($thisField));
-    $rrow= sqlFetchArray($rlist);
+    $rlist = sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", array($thisField));
+    $rrow = sqlFetchArray($rlist);
     if ($rrow) {
-        $ret = $rrow{'lname'}.', '.$rrow{'fname'}.' '.$rrow{'mname'};
+        $ret = $rrow['lname'] . ', ' . $rrow['fname'] . ' ' . $rrow['mname'];
     }
 
     return $ret;
@@ -104,16 +104,16 @@ function List_Look($thisData, $thisList)
         return '';
     }
 
-    $fres=sqlStatement("SELECT title FROM list_options WHERE list_id = ? ".
+    $fres = sqlStatement("SELECT title FROM list_options WHERE list_id = ? " .
         "AND option_id = ? AND activity = 1", array($thisList, $thisData));
     if ($fres) {
-        $rret=sqlFetchArray($fres);
-        $dispValue= xl_list_label($rret{'title'});
+        $rret = sqlFetchArray($fres);
+        $dispValue = xl_list_label($rret['title']);
         if ($thisList == 'occurrence' && $dispValue == '') {
             $dispValue = xl('Unknown or N/A');
         }
     } else {
-        $dispValue= xl('Not Found');
+        $dispValue = xl('Not Found');
     }
 
     return $dispValue;
@@ -126,10 +126,10 @@ function GetAllCredits($enc = '', $pat = '')
         return($all);
     }
 
-    $sql = "SELECT activity.*, session.*, ins.name FROM ar_activity AS ".
-    "activity LEFT JOIN ar_session AS session USING (session_id) ".
-    "LEFT JOIN insurance_companies AS ins ON session.payer_id = ".
-    "ins.id WHERE encounter=? AND pid=? ".
+    $sql = "SELECT activity.*, session.*, ins.name FROM ar_activity AS " .
+    "activity LEFT JOIN ar_session AS session USING (session_id) " .
+    "LEFT JOIN insurance_companies AS ins ON session.payer_id = " .
+    "ins.id WHERE encounter=? AND pid=? " .
     "ORDER BY sequence_no";
     $result = sqlStatement($sql, array($enc, $pat));
     $iter = 0;
@@ -144,27 +144,27 @@ function PrintEncHeader($dt, $rsn, $dr)
 {
     global $bgcolor, $orow;
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-    echo "<tr bgcolor='#FFFFFF'>";
+    echo "<tr class='bg-white'>";
     if (strlen($rsn) > 50) {
-        $rsn = substr($rsn, 0, 50).'...';
+        $rsn = substr($rsn, 0, 50) . '...';
     }
 
-    echo "<td colspan='4'><span class='bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>".text(substr($dt, 0, 10))." / ".text($rsn)."</span></td>";
-    echo "<td colspan='5'><span class='bold'>" . xlt('Provider') . ": </span><span class='detail'>".text(User_Id_Look($dr))."</span></td>";
+    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr($dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
+    echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
     echo "</tr>\n";
     $orow++;
 }
 function PrintEncFooter()
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;
-    echo "<tr bgcolor='#DDFFFF'>";
+    echo "<tr style='background-color: var(--gray300)'>";
     echo "<td colspan='3'>&nbsp;</td>";
-    echo "<td class='detail'>". xlt('Encounter Balance').":</td>";
-    echo "<td class='detail' style='text-align: center;'>".text($enc_units)."</td>";
-    echo "<td class='detail' style='text-align: center;'>".text(oeFormatMoney($enc_chg))."</td>";
-    echo "<td class='detail' style='text-align: right;'>".text(oeFormatMoney($enc_pmt))."</td>";
-    echo "<td class='detail' style='text-align: right;'>".text(oeFormatMoney($enc_adj))."</td>";
-    echo "<td class='detail' style='text-align: right;'>".text(oeFormatMoney($enc_bal))."</td>";
+    echo "<td class='detail'>" . xlt('Encounter Balance') . ":</td>";
+    echo "<td class='detail text-center'>" . text($enc_units) . "</td>";
+    echo "<td class='detail text-center'>" . text(oeFormatMoney($enc_chg)) . "</td>";
+    echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_pmt)) . "</td>";
+    echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_adj)) . "</td>";
+    echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_bal)) . "</td>";
     echo "</tr>\n";
 }
 function PrintCreditDetail($detail, $pat, $unassigned = false)
@@ -216,7 +216,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
                 $description .= ' ';
             }
 
-            $description .= '['.$memo.']';
+            $description .= '[' . $memo . ']';
         }
         if ($uap_flag === true) {
             if ($description) {
@@ -224,8 +224,8 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
             }
             $description .= '{Pay History}';
         }
-        $print .= "<td class='detail' colspan='2'>".
-                                      text($description)."&nbsp;</td>";
+        $print .= "<td class='detail' colspan='2'>" .
+                                      text($description) . "&nbsp;</td>";
         $payer = ($pmt['name'] == '') ? xl('Patient') : $pmt['name'];
         if ($unassigned) {
               $pmt_date = substr($pmt['post_to_date'], 0, 10);
@@ -233,10 +233,10 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
               $pmt_date = substr($pmt['post_time'], 0, 10);
         }
 
-        $print .= "<td class='detail'>".
-        text($pmt_date)."&nbsp;/&nbsp;".text($payer)."</td>";
+        $print .= "<td class='detail'>" .
+        text($pmt_date) . "&nbsp;/&nbsp;" . text($payer) . "</td>";
         $type = List_Look($pmt['payment_type'], 'payment_type');
-        $print .= "<td class='detail'>".text($type)."&nbsp;</td>";
+        $print .= "<td class='detail'>" . text($type) . "&nbsp;</td>";
         if ($unassigned) {
               $pmt_amt = $pmt['pay_total'] - $pmt['applied'];
               $uac_bal = $pmt_amt * -1;
@@ -269,17 +269,17 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
         $print_appl = $uac_appl ? oeFormatMoney($uac_appl) : "";
         $print_bal = $uac_bal ? oeFormatMoney($uac_bal) : "";
 
-        $print .= "<td class='detail' style='text-align: center;'>".text($print_appl)."&nbsp;</td>";
-        $print .= "<td class='detail' style='text-align: right;'>".text($print_pmt)."&nbsp;</td>";
-        $print .= "<td class='detail' style='text-align: right;'>".text($print_adj)."&nbsp;</td>";
-        $print .= "<td class='detail' style='text-align: right;'>".text($print_bal)."&nbsp;</td>";
+        $print .= "<td class='detail text-center'>" . text($print_appl) . "&nbsp;</td>";
+        $print .= "<td class='detail text-right'>" . text($print_pmt) . "&nbsp;</td>";
+        $print .= "<td class='detail text-right'>" . text($print_adj) . "&nbsp;</td>";
+        $print .= "<td class='detail text-right'>" . text($print_bal) . "&nbsp;</td>";
         $print .= "</tr>\n";
         echo $print;
         if ($pmt['follow_up_note'] != '') {
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-            $print = "<tr bgcolor='". attr($bgcolor) ."'>";
+            $print = "<tr bgcolor='" . attr($bgcolor) . "'>";
             $print .= "<td class='detail' colspan='2'>&nbsp;</td>";
-            $print .= "<td colspan='7'>". xlt('Follow Up Note') .": ";
+            $print .= "<td colspan='7'>" . xlt('Follow Up Note') . ": ";
             $print .= text($pmt['follow_up_note']);
             $print .= "</td></tr>\n";
             echo $print;
@@ -306,7 +306,7 @@ if (!isset($_REQUEST['form_provider'])) {
     $_REQUEST['form_provider'] = '';
 }
 
-if ($type_form=='0') {
+if ($type_form == '0') {
     if (!isset($_REQUEST['form_patient'])) {
         $_REQUEST['form_patient'] = '';
     }
@@ -338,13 +338,13 @@ if (!isset($_REQUEST['$form_dob'])) {
 
 if (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'Y') {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
-    $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y')-$ledger_time);
+    $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
 } elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'M') {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
-    $last_year = mktime(0, 0, 0, date('m')-$ledger_time, date('d'), date('Y'));
+    $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
 } elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'D') {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
-    $last_year = mktime(0, 0, 0, date('m'), date('d')-$ledger_time, date('Y'));
+    $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }
 
 $form_from_date = date('Y-m-d', $last_year);
@@ -364,7 +364,7 @@ if ($_REQUEST['form_csvexport']) {
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
-    header("Content-Disposition: attachment; filename=svc_financial_report_".attr($form_from_date)."--".attr($form_to_date).".csv");
+    header("Content-Disposition: attachment; filename=svc_financial_report_" . attr($form_from_date) . "--" . attr($form_to_date) . ".csv");
     header("Content-Description: File Transfer");
 } else {
     ?>
@@ -375,7 +375,7 @@ if ($_REQUEST['form_csvexport']) {
 
     <?php Header::setupHeader('datetime-picker'); ?>
 
-    <script type="text/javascript">
+    <script>
         var pt_name;
         var pt_id;
         function checkSubmit() {
@@ -437,8 +437,8 @@ if ($_REQUEST['form_csvexport']) {
             }
         }
     </style>
-    <script language="JavaScript">
-        $(function() {
+    <script>
+        $(function () {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 
@@ -491,9 +491,9 @@ if ($_REQUEST['form_csvexport']) {
                 if ($type_form != '0') {
                     require_once("$include_root/patient_file/summary/dashboard_header.php");
                 } else {
-                    echo '<div class="page-header">'. "\r\n";
+                    echo '<div class="page-header">' . "\r\n";
                     echo  $oemr_ui->pageHeading() . "\r\n";
-                    echo '</div>'. "\r\n";
+                    echo '</div>' . "\r\n";
                 } ?>
 
             </div>
@@ -529,28 +529,28 @@ if ($_REQUEST['form_csvexport']) {
                             <td width='70%'>
                                 <?php
                             } ?>
-                                <div style='float:left'>
+                                <div style='float: left'>
                                     <table class='text'>
                                         <tr>
                                             <?php
                                             if ($type_form == '0') { ?>
-                                            <td class='control-label'>
+                                            <td class='col-form-label'>
                                                 <?php echo xlt('Facility'); ?>:
                                             </td>
                                             <td>
                                                 <?php dropdown_facility($form_facility, 'form_facility', true); ?>
                                             </td>
-                                            <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
+                                            <td class='col-form-label'><?php echo xlt('Provider'); ?>:</td>
                                             <td>
                                                 <?php
-                                                $query = "SELECT id, lname, fname FROM users WHERE ".
+                                                $query = "SELECT id, lname, fname FROM users WHERE " .
                                                 "authorized=1 AND active!=0 ORDER BY lname, fname";
                                                 $ures = sqlStatement($query);
                                                 echo "   <select name='form_provider' class='form-control'>\n";
                                                 echo "    <option value=''>-- " . xlt('All') . " --\n";
                                                 while ($urow = sqlFetchArray($ures)) {
                                                     $provid = $urow['id'];
-                                                    echo "    <option value='" . attr($provid) ."'";
+                                                    echo "    <option value='" . attr($provid) . "'";
                                                     if ($provid == $_REQUEST['form_provider']) {
                                                         echo " selected";
                                                     }
@@ -563,23 +563,23 @@ if ($_REQUEST['form_csvexport']) {
                                         <tr>
                                                 <?php
                                             } ?>
-                                            <td class='control-label'>
+                                            <td class='col-form-label'>
                                                 <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
                                             </td>
                                             <td>
-                                                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
+                                                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>' />
                                             </td>
-                                            <td class='control-label' class='control-label'>
+                                            <td class='col-form-label' class='col-form-label'>
                                                 <?php echo xlt('To{{Range}}'); ?>:
                                             </td>
                                             <td>
-                                                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
+                                                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>' />
                                             </td>
                                             <?php
                                             if ($type_form == '0') { ?>
-                                            <td><span class='control-label'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
+                                            <td><span class='col-form-label'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
                                             <td>
-                                                <input type='text' size='20' name='form_patient' class='form-control' style='width:100%;cursor:pointer;cursor:hand' id='form_patient' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+                                                <input type='text' size='20' name='form_patient' class='form-control' style='cursor:pointer;' id='form_patient' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
                                                 <?php
                                             } else { ?>
                                                 <input type='hidden' name='form_patient' value='<?php echo attr($form_patient); ?>' />
@@ -592,23 +592,23 @@ if ($_REQUEST['form_csvexport']) {
                                     </table>
                                 </div>
                             </td>
-                            <td align='left' valign='middle' height="100%">
-                                <table style='border-left:1px solid; width:100%; height:100%' >
+                            <td class="align-middle h-100" align='left'>
+                                <table class="w-100 h-100" style='border-left: 1px solid;'>
                                     <tr>
                                         <td>
                                             <div class="text-center">
                                                 <div class="btn-group" role="group">
-                                                    <a href='#' class='btn btn-default btn-save' onclick="checkSubmit();" >
+                                                    <a href='#' class='btn btn-secondary btn-save' onclick="checkSubmit();" >
                                                     <?php echo xlt('Submit'); ?>
                                                     </a>
                                                     <?php
                                                     if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) { ?>
-                                                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                                         <?php echo xlt('Print Ledger'); ?>
                                                         </a>
                                                         <?php
                                                         if ($type_form == '1') { ?>
-                                                            <a href="../patient_file/summary/demographics.php" class="btn btn-default btn-transmit" onclick="top.restoreSession()">
+                                                            <a href="../patient_file/summary/demographics.php" class="btn btn-secondary btn-transmit" onclick="top.restoreSession()">
                                                             <?php echo xlt('Back To Patient');?>
                                                             </a>
                                                             <?php
@@ -632,14 +632,14 @@ $to_date = $form_to_date . ' 23:59:59';
 if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     $rows = array();
     $sqlBindArray = array();
-    $query = "select b.code_type, b.code, b.code_text, b.pid, b.provider_id, ".
-    "b.billed, b.payer_id, b.units, b.fee, b.bill_date, b.id, ".
-    "ins.name, ".
-    "fe.encounter, fe.date, fe.reason, fe.provider_id ".
-    "FROM form_encounter AS fe ".
-    "LEFT JOIN billing AS b ON b.pid=fe.pid AND b.encounter=fe.encounter ".
-    "LEFT JOIN insurance_companies AS ins ON b.payer_id = ins.id ".
-    "LEFT OUTER JOIN code_types AS c ON c.ct_key = b.code_type ".
+    $query = "select b.code_type, b.code, b.code_text, b.pid, b.provider_id, " .
+    "b.billed, b.payer_id, b.units, b.fee, b.bill_date, b.id, " .
+    "ins.name, " .
+    "fe.encounter, fe.date, fe.reason, fe.provider_id " .
+    "FROM form_encounter AS fe " .
+    "LEFT JOIN billing AS b ON b.pid=fe.pid AND b.encounter=fe.encounter " .
+    "LEFT JOIN insurance_companies AS ins ON b.payer_id = ins.id " .
+    "LEFT OUTER JOIN code_types AS c ON c.ct_key = b.code_type " .
     "WHERE fe.date >= ? AND fe.date <= ? AND fe.pid = ? ";
     array_push($sqlBindArray, $from_date, $to_date, $form_pid);
     if ($form_facility) {
@@ -659,11 +659,11 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     if ($_REQUEST['form_csvexport']) {
       // CSV headers:
         if (true) {
-            echo '"Code/Enc Dt",';
-            echo '"Description",';
-            echo '"Billed/Who",';
-            echo '"Type/Units",';
-            echo '"Chg/Pmt Amount",'."\n";
+            echo csvEscape("Code/Enc Dt") . ',';
+            echo csvEscape("Description") . ',';
+            echo csvEscape("Billed/Who") . ',';
+            echo csvEscape("Type/Units") . ',';
+            echo csvEscape("Chg/Pmt Amount") . "\n";
         }
     } else {
         if (!$form_facility) {
@@ -673,34 +673,34 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         $facility = $facilityService->getById($form_facility);
         $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
         $pat_dob = $patient['DOB'];
-        $pat_name = $patient['fname']. ' ' . $patient['lname'];
+        $pat_name = $patient['fname'] . ' ' . $patient['lname'];
         ?>
         <div id="report_header">
-            <table width="98%"  border="0" cellspacing="0" cellpadding="0">
+            <table class="border-0" width="98%" cellspacing="0" cellpadding="0">
                 <tr>
-                    <td class="title" ><?php echo text($facility{'name'}); ?></td>
+                    <td class="title"><?php echo text($facility['name']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo text($facility{'street'}); ?></td>
+                    <td class="title"><?php echo text($facility['street']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo text($facility{'city'}).", ".text($facility{'state'})." ".text($facility{'postal_code'}); ?></td>
+                    <td class="title"><?php echo text($facility['city']) . ", " . text($facility['state']) . " " . text($facility['postal_code']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo xlt('Phone').': ' .text($facility{'phone'}); ?></td>
+                    <td class="title"><?php echo xlt('Phone') . ': ' . text($facility['phone']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo xlt('Tax Id').': ' .text($facility{'federal_ein'}); ?></td>
+                    <td class="title"><?php echo xlt('Tax Id') . ': ' . text($facility['federal_ein']); ?></td>
                 </tr>
                 <tr><td>&nbsp;</td></tr>
                 <tr>
-                    <td class="title" ><?php echo xlt('Patient Ledger'); ?></td>
+                    <td class="title"><?php echo xlt('Patient Ledger'); ?></td>
                 </tr>
                 <tr>
                 <?php
                 $title = xl('All Providers');
                 if ($form_provider) {
-                    $title = xl('For Provider') . ': '.User_Id_Look($form_provider);
+                    $title = xl('For Provider') . ': ' . User_Id_Look($form_provider);
                 }
                 ?>
                     <td class="title" ><?php echo text($title); ?></td>
@@ -709,16 +709,16 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                                 <?php
                                 $title = xl('For Dates') . ': ' . oeFormatShortDate($form_from_date) . ' - ' . oeFormatShortDate($form_to_date);
                                 ?>
-                    <td class="title" ><?php echo text($title); ?></td>
+                    <td class="title"><?php echo text($title); ?></td>
                                 </tr>
                             </table>
                             <br/>
-                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                            <table class="w-100 border-0" cellspacing="0" cellpadding="0">
                                 <tr>
-                    <td class='bold' ><?php echo xlt('Date')?>:
+                    <td class='font-weight-bold'><?php echo xlt('Date')?>:
                         <?php echo text(date('Y-m-d')); ?>
                     </td>
-                    <td class='bold' ><?php echo xlt('Patient')?>:
+                    <td class='font-weight-bold'><?php echo xlt('Patient')?>:
                     <?php
                     if ($type_form == '1') { ?>
                                         <?php echo text($pat_name); ?>
@@ -729,7 +729,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                                     </td>
                                     <?php
                     } ?>
-                                    <td class='bold' ><?php echo xlt('DOB')?>:
+                                    <td class='font-weight-bold'><?php echo xlt('DOB')?>:
                                     <?php
                                     if ($type_form == '1') { ?>
                                         <?php echo text($pat_dob);?>
@@ -740,7 +740,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                                     </td>
                                         <?php
                                     } ?>
-                                    <td class='bold'> <?php echo xlt('ID')?>:
+                                    <td class='font-weight-bold'> <?php echo xlt('ID')?>:
                                         <?php echo text($form_pid);?>
                                     </td>
                                 </tr>
@@ -749,24 +749,24 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                         <div id="report_results">
                         <table>
                             <tr>
-                                <td class='bold' ><?php echo xlt('Code'); ?></td>
-                                <td colspan="2" class='bold' ><?php echo xlt('Description'); ?></td>
-                                <td class='bold' ><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
-                                <td class='bold' ><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
+                                <td colspan="2" class='font-weight-bold'><?php echo xlt('Description'); ?></td>
+                                <td class='font-weight-bold'><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
+                                <td class='font-weight-bold'><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 <?php echo xlt('Units'); ?></td>
-                                <td class='bold' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
-                                <td align='right' class='bold' >&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
-                                <td align='right' class='bold' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
-                                <td align='right' class='bold' >&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
+                                <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
+                                <td align='right' class='font-weight-bold'>&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
+                                <td align='right' class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
+                                <td align='right' class='font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
                             </tr>
                             <tr>
                                 <td>&nbsp;&nbsp;&nbsp;</td>
-                                <td colspan="2" >&nbsp;&nbsp;&nbsp;</td>
+                                <td colspan="2">&nbsp;&nbsp;&nbsp;</td>
                                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 &nbsp;&nbsp;&nbsp;</td>
-                                <td class='bold' >&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Appl'); ?></td>
-                                <td align='right' class='bold' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
+                                <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Appl'); ?></td>
+                                <td align='right' class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
                                 <td>&nbsp;</td>
                                 <td>&nbsp;</td>
                             </tr>
@@ -786,9 +786,9 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                 if (count($credits) > 0) {
                     if (!$hdr_printed) {
                         PrintEncHeader(
-                            $prev_row{'date'},
-                            $prev_row{'reason'},
-                            $prev_row{'provider_id'}
+                            $prev_row['date'],
+                            $prev_row['reason'],
+                            $prev_row['provider_id']
                         );
                     }
 
@@ -805,35 +805,35 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             $enc_units = $enc_chg = $enc_pmt = $enc_adj = $enc_bal = 0;
         }
 
-        if ($erow{'id'}) {
+        if ($erow['id']) {
             // Now print an encounter heading line -
             if (!$hdr_printed) {
                 PrintEncHeader(
-                    $erow{'date'},
-                    $erow{'reason'},
-                    $erow{'provider_id'}
+                    $erow['date'],
+                    $erow['reason'],
+                    $erow['provider_id']
                 );
                 $hdr_printed = true;
             }
 
             $code_desc = $erow['code_text'];
             if (strlen($code_desc) > 50) {
-                $code_desc = substr($code_desc, 0, 50).'...';
+                $code_desc = substr($code_desc, 0, 50) . '...';
             }
 
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-            $print = "<tr bgcolor='". attr($bgcolor) ."'>";
-            $print .= "<td class='detail'>".text($erow['code'])."</td>";
-            $print .= "<td class='detail' colspan='2'>".text($code_desc)."</td>";
+            $print = "<tr bgcolor='" . attr($bgcolor) . "'>";
+            $print .= "<td class='detail'>" . text($erow['code']) . "</td>";
+            $print .= "<td class='detail' colspan='2'>" . text($code_desc) . "</td>";
             $who = ($erow['name'] == '') ? xl('Self') : $erow['name'];
             $bill = substr($erow['bill_date'], 0, 10);
             if ($bill == '') {
                 $bill = 'unbilled';
             }
 
-            $print .= "<td class='detail'>".text($bill)."&nbsp;/&nbsp;".text($who)."</td>";
-            $print .= "<td class='detail' style='text-align: center;'>". text($erow['units'])."</td>";
-            $print .= "<td class='detail' style='text-align: center;'>". text(oeFormatMoney($erow['fee']))."</td>";
+            $print .= "<td class='detail'>" . text($bill) . "&nbsp;/&nbsp;" . text($who) . "</td>";
+            $print .= "<td class='detail text-center'>" . text($erow['units']) . "</td>";
+            $print .= "<td class='detail text-center'>" . text(oeFormatMoney($erow['fee'])) . "</td>";
             $print .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
             $print .= "</tr>\n";
 
@@ -852,7 +852,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             }
         }
 
-        $prev_encounter_id = $erow{'encounter'};
+        $prev_encounter_id = $erow['encounter'];
         $prev_row = $erow;
     }
 
@@ -861,9 +861,9 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         if (count($credits) > 0) {
             if (!$hdr_printed) {
                 PrintEncHeader(
-                    $prev_row{'date'},
-                    $prev_row{'reason'},
-                    $prev_row{'provider_id'}
+                    $prev_row['date'],
+                    $prev_row['reason'],
+                    $prev_row['provider_id']
                 );
             }
 
@@ -880,7 +880,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     if (count($uac) > 0) {
         if ($orow) {
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-            echo "<tr bgcolor='#FFFFFF'><td colspan='9'>&nbsp;</td></tr>\n";
+            echo "<tr bgcolor='var(--white)'><td colspan='9'>&nbsp;</td></tr>\n";
         }
 
         PrintCreditDetail($uac, $form_pid, true);
@@ -889,19 +889,19 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     if (!$_REQUEST['form_csvexport'] && $orow) {
         echo "<tr bgcolor='#DDFFFF'>\n";
         echo " <td colspan='2'>&nbsp;</td>";
-        echo " <td class='bold' colspan='2'>" . xlt("Grand Total") ."</td>\n";
-        echo " <td class='bold' style='text-align: center;'>". text($total_units) ."</td>\n";
-        echo " <td class='bold' style='text-align: center;'>". text(oeFormatMoney($total_chg)) ."</td>\n";
-        echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_pmt)) ."</td>\n";
-        echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_adj)) ."</td>\n";
-        echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_bal)) . "</td>\n";
+        echo " <td class='font-weight-bold' colspan='2'>" . xlt("Grand Total") . "</td>\n";
+        echo " <td class='font-weight-bold text-center'>" . text($total_units) . "</td>\n";
+        echo " <td class='font-weight-bold text-center'>" . text(oeFormatMoney($total_chg)) . "</td>\n";
+        echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_pmt)) . "</td>\n";
+        echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_adj)) . "</td>\n";
+        echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_bal)) . "</td>\n";
         echo " </tr>\n";
         ?>
     </table>
-    <tr><td>&nbsp;</td></tr><br><br>
+    <tr><td>&nbsp;</td></tr><br /><br />
         <?php
         if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
-            $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
+            $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
         # add one day to date so it will not get todays appointment
             $current_date2 = date('Y-m-d', $next_day);
             $events = fetchNextXAppts($current_date2, $form_pid);
@@ -926,7 +926,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
 
 if (! $_REQUEST['form_csvexport']) {
     if ($_REQUEST['form_refresh'] && $orow <= 0) {
-        echo "<span style='font-size:10pt;'>";
+        echo "<span style='font-size: 13px;'>";
         echo xlt('No matches found. Try search again.');
         echo "</span>";
         echo '<script>document.getElementById("report_results").style.display="none";</script>';
@@ -944,7 +944,7 @@ if (! $_REQUEST['form_csvexport']) {
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
-        $(function(){
+        $(function () {
             $(listId).addClass("active");
         });
     </script>

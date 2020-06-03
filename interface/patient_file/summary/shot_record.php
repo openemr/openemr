@@ -1,4 +1,5 @@
 <?php
+
 /**
  * shot_record.php
  *
@@ -9,7 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/immunization_helper.php");
@@ -19,12 +19,12 @@ use OpenEMR\Services\FacilityService;
 $facilityService = new FacilityService();
 
 //collect facility data
-$res = $facilityService->getFacilityForUserFormatted($_SESSION['authId']);
+$res = $facilityService->getFacilityForUserFormatted($_SESSION['authUserID']);
 
 //collect patient data
-$res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name ".
-                ",date_format(p.DOB,'%c/%e/%Y') as patient_DOB ".
-                ",concat(p.street,'\n',p.city,', ',p.state,' ',p.postal_code) as patient_address".
+$res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name " .
+                ",date_format(p.DOB,'%c/%e/%Y') as patient_DOB " .
+                ",concat(p.street,'\n',p.city,', ',p.state,' ',p.postal_code) as patient_address" .
                 " from patient_data p where p.pid = ?", array($pid));
 
 //collect immunizations
@@ -51,12 +51,12 @@ function convertToDataArray($data_array)
         //Vaccine
         // Figure out which name to use (ie. from cvx list or from the custom list)
         if ($GLOBALS['use_custom_immun_list']) {
-            $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+            $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
         } else {
             if (!empty($row['code_text_short'])) {
                 $vaccine_display = xlt($row['code_text_short']);
             } else {
-                $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+                $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
             }
         }
 
@@ -65,7 +65,7 @@ function convertToDataArray($data_array)
         //Amount
         if ($row['amount_administered'] > 0) {
             $data[$current][xl('Amount') . "\n" . xl('Admin')] = $row['amount_administered'] . " " .
-            generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']);
+            generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['amount_administered_unit']);
         } else {
             $data[$current][xl('Amount') . "\n" . xl('Admin')] = "";
         }
@@ -92,14 +92,14 @@ function convertToDataArray($data_array)
         $data[$current][xl('Patient') . "\n" . xl('Education') . "\n" . xl('Date')] = $temp_date->format('Y-m-d');
 
         //Route
-        $data[$current][xl('Route')] = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']);
+        $data[$current][xl('Route')] = generate_display_field(array('data_type' => '1','list_id' => 'drug_route'), $row['route']);
 
         //Admin Site
-        $data[$current][xl('Admin') . "\n" . xl('Site')] = generate_display_field(array('data_type'=>'1','list_id'=>'proc_body_site'), $row['administration_site']);
+        $data[$current][xl('Admin') . "\n" . xl('Site')] = generate_display_field(array('data_type' => '1','list_id' => 'proc_body_site'), $row['administration_site']);
 
         //Comments
         $data[$current][xl('Comments')] = $row['note'];
-        $current ++;
+        $current++;
     }
 
     return $data;
@@ -131,7 +131,7 @@ function printHTML($res, $res2, $data)
 
   //convert end of line characters to html (escape for html output first)
     $patterns = array ('/\n/');
-    $replace = array ('<br>');
+    $replace = array ('<br />');
     $res['facility_address'] = text($res['facility_address']);
     $res['facility_address'] = preg_replace($patterns, $replace, $res['facility_address']);
     $res2['patient_address'] = text($res2['patient_address']);
@@ -210,17 +210,17 @@ function printHTML($res, $res2, $data)
 
     <?php
   //plan 15 lines per page
-    $linesPerPage=15;
-    $countTotalPages = (ceil((count($data))/$linesPerPage));
-    for ($i=0; $i<$countTotalPages; $i++) {
+    $linesPerPage = 15;
+    $countTotalPages = (ceil((count($data)) / $linesPerPage));
+    for ($i = 0; $i < $countTotalPages; $i++) {
         echo "<div class='paddingdiv'>\n";
 
         //display facility information (Note it is already escaped)
         echo "<div class='clinicAddress'>" . $res['facility_address'] . "</div>\n";
 
         //display patient information (Note patient address is already escaped)
-        echo "<div class='patientAddress'>" . text($res2['patient_name']) . "<br>" .
-        text(xl('Date of Birth') . ": " . $res2['patient_DOB']) . "<br>" .
+        echo "<div class='patientAddress'>" . text($res2['patient_name']) . "<br />" .
+        text(xl('Date of Birth') . ": " . $res2['patient_DOB']) . "<br />" .
         $res2['patient_address'] . "</div>\n";
 
         //display table title
@@ -241,14 +241,14 @@ function printHTML($res, $res2, $data)
         echo "</tr>\n";
 
         //display shot data
-        for ($j=0; $j<$linesPerPage; $j++) {
+        for ($j = 0; $j < $linesPerPage; $j++) {
             if ($rowData = array_shift($data)) {
                 echo "<tr>";
                 foreach ($rowData as $key => $value) {
                     //shading of cells
-                    if ($j==0) {
+                    if ($j == 0) {
                         echo "<td>";
-                    } elseif ($j%2) {
+                    } elseif ($j % 2) {
                         echo "<td class ='odd'>";
                     } else {
                         echo "<td>";
@@ -273,7 +273,7 @@ function printHTML($res, $res2, $data)
         if ($countTotalPages > 1) {
             //display page number if greater than one page
             echo "<div class='pageNumber'>" .
-            text(xl('Page') . " " . ($i+1) . "/" . $countTotalPages) .
+            text(xl('Page') . " " . ($i + 1) . "/" . $countTotalPages) .
             "</div>\n";
         }
 

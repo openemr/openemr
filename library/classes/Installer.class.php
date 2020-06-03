@@ -1,20 +1,22 @@
 <?php
+
 /**
  *
  * Installer class.
  *
- * @package OpenEMR
- * @link    https://www.open-emr.org
- * @author Andrew Moore <amoore@cpan.org>
- * @author Ranganath Pathak <pathak@scrs1.org>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Andrew Moore <amoore@cpan.org>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Andrew Moore <amoore@cpan.org>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 class Installer
 {
-
     public function __construct($cgi_variables)
     {
         // Installation variables
@@ -29,7 +31,7 @@ class Installer
         $this->i2faSecret               = isset($cgi_variables['i2fasecret']) ? ($cgi_variables['i2fasecret']) : '';
         $this->server                   = isset($cgi_variables['server']) ? ($cgi_variables['server']) : ''; // mysql server (usually localhost)
         $this->loginhost                = isset($cgi_variables['loginhost']) ? ($cgi_variables['loginhost']) : ''; // php/apache server (usually localhost)
-        $this->port                     = isset($cgi_variables['port']) ? ($cgi_variables['port']): '';
+        $this->port                     = isset($cgi_variables['port']) ? ($cgi_variables['port']) : '';
         $this->root                     = isset($cgi_variables['root']) ? ($cgi_variables['root']) : '';
         $this->rootpass                 = isset($cgi_variables['rootpass']) ? ($cgi_variables['rootpass']) : '';
         $this->login                    = isset($cgi_variables['login']) ? ($cgi_variables['login']) : '';
@@ -206,14 +208,14 @@ class Installer
         return $this->execute_sql($sql);
     }
 
-    public function check_database_user()
-    {
-        return $this->execute_sql("SELECT user FROM mysql.user WHERE user = '" . $this->escapeSql($this->login) . "' AND host = '" . $this->escapeSql($this->loginhost) . "'");
-    }
-
     public function create_database_user()
     {
-        $checkUser = $this->check_database_user();
+        // First, check for database user in the mysql.user table (this works for all except mariadb 10.4+)
+        $checkUser = $this->execute_sql("SELECT user FROM mysql.user WHERE user = '" . $this->escapeSql($this->login) . "' AND host = '" . $this->escapeSql($this->loginhost) . "'", false);
+        if ($checkUser === false) {
+            // Above caused error, so is MariaDB 10.4+, and need to do below query instead in the mysql.global_priv table
+            $checkUser = $this->execute_sql("SELECT user FROM mysql.global_priv WHERE user = '" . $this->escapeSql($this->login) . "' AND host = '" . $this->escapeSql($this->loginhost) . "'");
+        }
 
         if ($checkUser === false) {
             // there was an error in the check database user query, so return false
@@ -307,8 +309,8 @@ class Installer
                     continue;
             }
 
-            $query = $query.$line;          // Check for full query
-            $chr = substr($query, strlen($query)-1, 1);
+            $query = $query . $line;          // Check for full query
+            $chr = substr($query, strlen($query) - 1, 1);
             if ($chr == ";") { // valid query, execute
                     $query = rtrim($query, ";");
                 if (! $this->execute_sql($query)) {
@@ -328,7 +330,7 @@ class Installer
             return false;
         }
 
-        $sql_results .= "OK<br>\n";
+        $sql_results .= "<span class='text-success'><b>OK</b></span>.<br>\n";
         fclose($fd);
         return $sql_results;
     }
@@ -341,7 +343,7 @@ class Installer
         include dirname(__FILE__) . "/../../version.php";
         if ($this->execute_sql("UPDATE version SET v_major = '" . $this->escapeSql($v_major) . "', v_minor = '" . $this->escapeSql($v_minor) . "', v_patch = '" . $this->escapeSql($v_patch) . "', v_realpatch = '" . $this->escapeSql($v_realpatch) . "', v_tag = '" . $this->escapeSql($v_tag) . "', v_database = '" . $this->escapeSql($v_database) . "', v_acl = '" . $this->escapeSql($v_acl) . "'") == false) {
             $this->error_message = "ERROR. Unable insert version information into database\n" .
-            "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
+            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
             return false;
         }
 
@@ -352,23 +354,25 @@ class Installer
     {
         if ($this->execute_sql("INSERT INTO `groups` (id, name, user) VALUES (1,'" . $this->escapeSql($this->igroup) . "','" . $this->escapeSql($this->iuser) . "')") == false) {
             $this->error_message = "ERROR. Unable to add initial user group\n" .
-            "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
+            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
             return false;
         }
 
-        $password_hash = "NoLongerUsed";  // This is the value to insert into the password column in the "users" table. password details are now being stored in users_secure instead.
-        $salt=oemr_password_salt();     // Uses the functions defined in library/authentication/password_hashing.php
-        $hash=oemr_password_hash($this->iuserpass, $salt);
-        if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'" . $this->escapeSql($this->iuser) . "','" . $this->escapeSql($password_hash) . "',1,'" . $this->escapeSql($this->iuname) . "','" . $this->escapeSql($this->iufname) . "',3,1,3)") == false) {
+        if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'" . $this->escapeSql($this->iuser) . "','NoLongerUsed',1,'" . $this->escapeSql($this->iuname) . "','" . $this->escapeSql($this->iufname) . "',3,1,3)") == false) {
             $this->error_message = "ERROR. Unable to add initial user\n" .
-            "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
+            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
             return false;
         }
 
-        // Create the new style login credentials with blowfish and salt
-        if ($this->execute_sql("INSERT INTO users_secure (id, username, password, salt) VALUES (1,'" . $this->escapeSql($this->iuser) . "','" . $this->escapeSql($hash) . "','" . $this->escapeSql($salt) . "')") == false) {
+        $hash = password_hash($this->iuserpass, PASSWORD_DEFAULT);
+        if (empty($hash)) {
+            // Something is seriously wrong
+            error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
+            die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+        }
+        if ($this->execute_sql("INSERT INTO users_secure (id, username, password, last_update_password) VALUES (1,'" . $this->escapeSql($this->iuser) . "','" . $this->escapeSql($hash) . "',NOW())") == false) {
             $this->error_message = "ERROR. Unable to add initial user login credentials\n" .
-            "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
+            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
             return false;
         }
 
@@ -377,9 +381,9 @@ class Installer
             // Encrypt the new secret with the hashed password
             $cryptoGen = new OpenEMR\Common\Crypto\CryptoGen();
             $secret = $cryptoGen->encryptStandard($this->i2faSecret, $hash);
-            if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '".$this->escapeSql($secret)."', '')") == false) {
-                $this->error_message = "ERROR. Unable to add initial user's 2FA credentials\n".
-                    "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
+            if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '" . $this->escapeSql($secret) . "', '')") == false) {
+                $this->error_message = "ERROR. Unable to add initial user's 2FA credentials\n" .
+                    "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
                 return false;
             }
         }
@@ -852,7 +856,7 @@ if ($it_died != 0) {
     public function setCurrentTheme()
     {
         $this->getCurrentTheme();//why is this needed ?
-        return $this->execute_sql("UPDATE globals SET gl_value='". $this->escapeSql($this->new_theme) ."' WHERE gl_name LIKE '%css_header%'");
+        return $this->execute_sql("UPDATE globals SET gl_value='" . $this->escapeSql($this->new_theme) . "' WHERE gl_name LIKE '%css_header%'");
     }
 
     public function listThemes()
@@ -877,7 +881,7 @@ if ($it_died != 0) {
     public function displayThemesDivs()
     {
         $themes_number = count($this->listThemes());
-        for ($i=0; $i < $themes_number; $i++) {
+        for ($i = 0; $i < $themes_number; $i++) {
             $id = $i + 1;
             $arr_theme_name = $this->listThemes();
             $theme_file_name = $arr_theme_name[$i];
@@ -911,7 +915,7 @@ FDIV;
                 case 5://end row
                     echo $img_div . "\r\n";
                     echo $div_end . "\r\n";
-                    echo "<br>" . "\r\n";
+                    echo "<br />" . "\r\n";
                     break;
 
                 default:
@@ -931,19 +935,19 @@ FDIV;
         $theme_value = $arr_extracted_file_name['theme_value'];
         $theme_title = $arr_extracted_file_name['theme_title'];
         $img_path = "public/images/stylesheets/";
-        $theme_file_path = $img_path . "style_". $theme_value .".png";
+        $theme_file_path = $img_path . "style_" . $theme_value . ".png";
 
         $display_selected_theme_div = <<<DSTD
                         <div class="row">
                             <div class="col-sm-12">
                                 <h4>Current Theme:</h4>
-                                <div class="col-sm-4 col-sm-offset-4 checkboxgroup">
+                                <div class="col-sm-4 offset-sm-4 checkboxgroup">
                                     <label for="nothing"><img  id="current_theme" src="{$theme_file_path}" width="100%"></label>
                                     <p id="current_theme_title"style="margin:0">{$theme_title}</p>
                                 </div>
                             </div>
                         </div>
-                        <br>
+                        <br />
 DSTD;
         echo $display_selected_theme_div . "\r\n";
         return;
@@ -956,18 +960,18 @@ DSTD;
         $theme_value = $arr_extracted_file_name['theme_value'];
         $theme_title = $arr_extracted_file_name['theme_title'];
         $img_path = "public/images/stylesheets/";
-        $theme_file_path = $img_path . "style_". $theme_value .".png";
+        $theme_file_path = $img_path . "style_" . $theme_value . ".png";
 
         $display_selected_theme_div = <<<DSTD
                         <div class="row">
                             <div class="col-sm-12">
-                                <div class="col-sm-4 col-sm-offset-4 checkboxgroup">
+                                <div class="col-sm-4 offset-sm-4 checkboxgroup">
                                     <label for="nothing"><img  id="current_theme" src="{$theme_file_path}" width="75%"></label>
                                     <p id="current_theme_title"style="margin:0">{$theme_title}</p>
                                 </div>
                             </div>
                         </div>
-                        <br>
+                        <br />
 DSTD;
         echo $display_selected_theme_div . "\r\n";
         return;
@@ -982,7 +986,7 @@ DSTD;
                     <div class="modal-content  oe-modal-content" style="height:700px">
                         <div class="modal-header clearfix">
                             <button type="button" class="close" data-dismiss="modal" aria-label=Close>
-                            <span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button>
+                            <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span></button>
                         </div>
                         <div class="modal-body" style="height:80%;">
                             <iframe src="" id="targetiframe" style="height:100%; width:100%; overflow-x: hidden; border:none"
@@ -990,35 +994,29 @@ DSTD;
                         </div>
                         <div class="modal-footer" style="margin-top:0px;">
                            <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">Close</button>
-                           <!--<button class="btn btn-default btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">Print</button>-->
+                           <!--<button class="btn btn-secondary btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">Print</button>-->
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <script>
-            $(function() {
+            $(function () {
                 $('#help-href').click (function(){
                     document.getElementById('targetiframe').src = "Documentation/help_files/openemr_installation_help.php";
                 })
             });
-            $(function() {
+            $(function () {
                 $('#print-help-href').click (function(){
                     $("#targetiframe").get(0).contentWindow.print();
                 })
             });
             // Jquery draggable
-            $('.modal-dialog').draggable({
-                    handle: ".modal-header, .modal-footer"
-            });
-           $( ".modal-content" ).resizable({
-                aspectRatio: true,
-                minHeight: 300,
-                minWidth: 300
-            });
+            $(".modal-dialog").addClass('drag-action');
+            $(".modal-content").addClass('resize-action');
         </script>
 SETHLP;
-        echo $setup_help_modal  ."\r\n";
+        echo $setup_help_modal  . "\r\n";
         return;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Exports patient demographics to a custom XML format
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
-
 
  require_once("../interface/globals.php");
  require_once("../library/patient.inc");
@@ -281,15 +281,15 @@ if ($rowed['id']) {
 <body class="body_top">
   <div class="container">
      <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
            <div class="form-group"></div>
            <div class="form-group">
               <textarea name="export_data" class="form-control" rows="18" readonly><?php echo text($out) ?></textarea>
            </div>
            <div class="form-group">
-              <div class="col-xs-12 text-right">
+              <div class="col-12 text-right">
                  <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default btn-cancel" onclick="window.close()"><?php echo xlt("Close"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-cancel" onclick="dlgclose()"><?php echo xlt("Close"); ?></button>
                  </div>
               </div>
            </div>

@@ -4,10 +4,11 @@
 
 /** Serialized Array of big names, thousand, million, etc
 * @package NumberToText */
+
 define("N2T_BIG", serialize(array('thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion', 'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion', 'vigintillion')));
 /** Serialized Array of medium names, twenty, thirty, etc
 * @package NumberToText */
-define("N2T_MEDIUM", serialize(array(2=>'twenty', 3=>'thirty', 4=>'forty', 5=>'fifty', 6=>'sixty', 7=>'seventy', 8=>'eighty', 9=>'ninety')));
+define("N2T_MEDIUM", serialize(array(2 => 'twenty', 3 => 'thirty', 4 => 'forty', 5 => 'fifty', 6 => 'sixty', 7 => 'seventy', 8 => 'eighty', 9 => 'ninety')));
 /** Serialized Array of small names, zero, one, etc.. up to eighteen, nineteen
 * @package NumberToText */
 define("N2T_SMALL", serialize(array('zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen')));
@@ -117,12 +118,12 @@ class NumberToText
 
             if ($section > count($big) - 1) {
                 // ran out of names for numbers this big, call recursively
-                $text = NumberToText($int, false, false, $and)." ".$big[$section-1]." ".$text;
+                $text = NumberToText($int, false, false, $and) . " " . $big[$section - 1] . " " . $text;
                 $int = 0;
             } else {
                 // we can handle it
 
-                if (strlen($int)<3) {
+                if (strlen($int) < 3) {
                       $convert = $int;
                       $int = 0;
                 } else {
@@ -133,7 +134,7 @@ class NumberToText
                 if ($convert > 0) {
                     // we have something here, put it in
                     if ($section > 0) {
-                        $text = $this->n2t_convertthree($convert, $and, ($int > 0))." ".$big[$section-1]." ".$text;
+                        $text = $this->n2t_convertthree($convert, $and, ($int > 0)) . " " . $big[$section - 1] . " " . $text;
                     } else {
                         $text = $this->n2t_convertthree($convert, $and, ($int > 0));
                     }
@@ -147,13 +148,13 @@ class NumberToText
 
         if ($currency && floor($number)) {
             // add " dollars"
-            $text .= " ".($int_o == 1 ? N2T_DOLLARS_ONE : N2T_DOLLARS)." ";
+            $text .= " " . ($int_o == 1 ? N2T_DOLLARS_ONE : N2T_DOLLARS) . " ";
         }
 
         if ($decimal && $currency) {
             // if we have any cents, add those
             if ($int_o > 0) {
-                $text .= " ".N2T_AND." ";
+                $text .= " " . N2T_AND . " ";
             }
 
             $cents = substr($decimal, 0, 2); // (0.)2342 -> 23
@@ -167,19 +168,19 @@ class NumberToText
             $text .= " point";
             for ($i = 0; $i < strlen($decimal); $i++) {
                 // go through one number at a time
-                $text .= " ".$small[$decimal{$i}];
+                $text .= " " . $small[$decimal[$i]];
             }
         }
 
 
         if ($decimal_o && $currency) {
             // add " cents" (if we're doing currency and had decimals)
-            $text .= " ".($decimal_o == 1 ? N2T_CENTS_ONE : N2T_CENTS);
+            $text .= " " . ($decimal_o == 1 ? N2T_CENTS_ONE : N2T_CENTS);
         }
 
         // check for negative
         if ($negative) {
-            $text = N2T_NEGATIVE." ".$text;
+            $text = N2T_NEGATIVE . " " . $text;
         }
 
         // capatalize words
@@ -210,22 +211,22 @@ class NumberToText
 
         if ($hundreds = floor($number / 100)) {
             // we have 100's place
-            $text .= $small[$hundreds]." hundred ";
+            $text .= $small[$hundreds] . " hundred ";
         }
 
         $tens = $number % 100;
         if ($tens) {
             // we still have values
             if ($and && ($hundreds || $preceding)) {
-                $text .= " ".N2T_AND." ";
+                $text .= " " . N2T_AND . " ";
             }
 
             if ($tens < 20) {
                 $text .= $small[$tens];
             } else {
-                $text .= $medium[floor($tens/10)];
+                $text .= $medium[floor($tens / 10)];
                 if ($ones = $tens % 10) {
-                    $text .= "-".$small[$ones];
+                    $text .= "-" . $small[$ones];
                 }
             }
         }

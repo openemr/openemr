@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPharmaceutical;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPharmaceutical;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -292,11 +294,11 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
                         $this->addTargetSpecies($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"targetSpecies" must be array of objects or null, '.gettype($data['targetSpecies']).' seen.');
+                    throw new \InvalidArgumentException('"targetSpecies" must be array of objects or null, ' . gettype($data['targetSpecies']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

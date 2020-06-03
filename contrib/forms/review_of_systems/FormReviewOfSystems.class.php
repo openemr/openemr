@@ -1,12 +1,12 @@
 <?php
 
-
-
-
 /**
  * class Prosthesis
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class FormReviewOfSystems extends ORDataObject
 {
 
@@ -90,7 +90,7 @@ class FormReviewOfSystems extends ORDataObject
                 if (!empty($check)) {
                     $sql = "INSERT INTO form_review_of_systems_checks set foreign_id= ?, name = ?";
                     sqlQuery($sql, array($this->id, $check));
-                    //echo "$sql<br>";
+                    //echo "$sql<br />";
                 }
             }
         }
@@ -380,9 +380,9 @@ class FormReviewOfSystems extends ORDataObject
 
         $at = array();
         $a_bottom = array();
-        $at["When sexually active,<br> are you active with:"]['sexually_active_men']    =  "Men";
-        $at["When sexually active,<br> are you active with:"]['sexually_active_women']  =  "Women";
-        $at["When sexually active,<br> are you active with:"]['sexually_active_both']   =  "Both";
+        $at["When sexually active,<br /> are you active with:"]['sexually_active_men']    =  "Men";
+        $at["When sexually active,<br /> are you active with:"]['sexually_active_women']  =  "Women";
+        $at["When sexually active,<br /> are you active with:"]['sexually_active_both']   =  "Both";
 
         $a['General'] = $at;
 

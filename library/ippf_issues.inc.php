@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This module is invoked by add_edit_issue.php as an extension to
  * add support for issue types that are specific to IPPF.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
@@ -129,7 +129,7 @@ function issue_ippf_gcac_form($issue, $thispid)
             $group_name = $grparr[$this_group]['grp_title'];
             $last_group = $this_group;
             echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
-            "onclick='return divclick(this," . attr_js('div_'.$group_seq) . ");'";
+            "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
             if ($display_style == 'block') {
                 echo " checked";
             }
@@ -275,7 +275,7 @@ function issue_ippf_con_form($issue, $thispid)
             $group_name = $grparr[$this_group]['grp_title'];
             $last_group = $this_group;
             echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
-            "onclick='return divclick(this," . attr_js('div_'.$group_seq) . ");'";
+            "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
             if ($display_style == 'block') {
                 echo " checked";
             }

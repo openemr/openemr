@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Multi-Factor Authentication Management
  *
@@ -11,7 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
@@ -22,8 +22,8 @@ use OpenEMR\OeUI\OemrUI;
 function writeRow($method, $name, $allowEdit = false)
 {
     echo "        <tr><td>&nbsp;";
-    if ($name =='') {
-        echo '<i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i>'. ' ' . text($method);
+    if ($name == '') {
+        echo '<i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i>' . ' ' . text($method);
     } else {
         echo text($method);
     }
@@ -31,16 +31,16 @@ function writeRow($method, $name, $allowEdit = false)
     echo text($name);
     echo "&nbsp;</td><td>";
     if ($allowEdit) {
-        echo "<button type='button' class='btn btn-default btn-search' onclick='editclick(" . attr_js($method) . ")'>" . xlt('View') . "</button> &nbsp";
+        echo "<button type='button' class='btn btn-secondary btn-search' onclick='editclick(" . attr_js($method) . ")'>" . xlt('View') . "</button> &nbsp";
     }
     if ($name) {
-        echo "<button type='button' class='btn btn-default btn-delete' onclick='delclick(" . attr_js($method) . ", " .
+        echo "<button type='button' class='btn btn-secondary btn-delete' onclick='delclick(" . attr_js($method) . ", " .
         attr_js($name) . ")'>" . xlt('Delete') . "</button>";
     }
     echo "</td></tr>\n";
 }
 
-$userid = $_SESSION['authId'];
+$userid = $_SESSION['authUserID'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 $message = '';
@@ -168,7 +168,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <div>
                         <fieldset>
                             <legend><?php echo xlt('Select/Add New Authentication Method for') . " " . $user_full_name; ?></legend>
-                            <div class='col-sm-4 col-sm-offset-4'>
+                            <div class='col-sm-4 offset-sm-4'>
                                 <select name='form_add' onchange='addclick(this)'class='col-sm-12'>
                                     <option value=''><?php echo xlt('Add New...'); ?></option>
                                     <option value='U2F'><?php echo xlt('U2F USB Device'); ?></option>

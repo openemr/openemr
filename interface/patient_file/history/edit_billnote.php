@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Billing notes.
  *
@@ -11,23 +12,23 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $feid = $_GET['feid'] + 0; // id from form_encounter table
 
 $info_msg = "";
 
-if (!acl_check('acct', 'bill', '', 'write')) {
+if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     die(xlt('Not authorized'));
 }
 ?>
 <html>
 <head>
-<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 
 <style>
 </style>
@@ -56,7 +57,7 @@ if ($_POST['form_submit'] || $_POST['form_cancel']) {
     $fenote = str_replace("\r\n", "<br />", $fenote);
     $fenote = str_replace("\n", "<br />", $fenote);
     if (! $fenote) {
-        $fenote = '['. xl('Add') . ']';
+        $fenote = '[' . xl('Add') . ']';
     }
 
     echo "<script language='JavaScript'>\n";

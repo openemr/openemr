@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -28,13 +29,14 @@
 
 
 require_once("../../interface/globals.php");
+
+use OpenEMR\Core\Header;
+
 $list_id = $_REQUEST['list_id'];
 ?>
 <html>
     <head>
-        <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-        <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+        <?php Header::setupHeader('opener'); ?>
         <script type="text/javascript">
         function add_template(){
             top.restoreSession();
@@ -56,7 +58,7 @@ $list_id = $_REQUEST['list_id'];
                 dataType: "html",
                 data: {
                      templateid: document.getElementById('template_name').value,
-                     list_id: <?php echo $list_id;?>,
+                     list_id: <?php echo js_escape($list_id);?>,
                      multi: val,
                      source: "add_template"
                 },
@@ -97,8 +99,8 @@ $list_id = $_REQUEST['list_id'];
                         <select multiple name="multi_context[]" id="multi_context" size="5">
                             <?php
                             $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
-                            while ($row=sqlFetchArray($res)) {
-                                echo "<option value='".htmlspecialchars($row['cl_list_id'], ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</option>";
+                            while ($row = sqlFetchArray($res)) {
+                                echo "<option value='" . htmlspecialchars($row['cl_list_id'], ENT_QUOTES) . "'>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</option>";
                             }
                             ?>
                         </select>
@@ -107,7 +109,7 @@ $list_id = $_REQUEST['list_id'];
                     <input type="text" name="template_name" id="template_name">
                     </td>
                     <td>
-                    <a href="#" onclick="add_template()" class="css_button"><span><?php echo htmlspecialchars(xl('ADD'), ENT_QUOTES);?></span></a>
+                    <a href="#" onclick="add_template()" class="btn btn-primary"><span><?php echo htmlspecialchars(xl('ADD'), ENT_QUOTES);?></span></a>
                     </td>
                 </tr>
             </table>

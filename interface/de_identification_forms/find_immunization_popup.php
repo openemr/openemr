@@ -1,4 +1,5 @@
 <?php
+
 /**
  * find_immunization_popup.php
  *
@@ -11,12 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $info_msg = "";
 $codetype = $_REQUEST['codetype'];
@@ -25,11 +26,13 @@ $form_code_type = $_POST['form_code_type'];
 <html>
 <head>
 <title><?php echo xlt('Immunization'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 <style>
-td { font-size:10pt; }
+    td {
+        font-size: 0.8125rem;
+    }
 </style>
-<script language="JavaScript">
+<script>
 //pass value selected to the parent window
  function window_submit(chk)
  {
@@ -115,7 +118,7 @@ function check_search_str()
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
-<table border='0' cellpadding='5' cellspacing='0'>
+<table class="border-0" cellpadding='5' cellspacing='0'>
  <tr>
   <td height="1">
   </td>
@@ -127,7 +130,7 @@ function check_search_str()
    <input type='text' name='search_term' id='search_term' size='12' value='<?php echo attr($_REQUEST['search_term']); ?>'
     title='<?php echo xla('Any part of the immunization id or immunization name'); ?>' />
    &nbsp;
-   <input type='submit' name='bn_search' value='<?php echo xla('Search'); ?>' />
+   <input type='submit' class="btn btn-primary btn-sm" name='bn_search' value='<?php echo xla('Search'); ?>' />
    </b>
   </td>
  </tr>
@@ -146,7 +149,7 @@ function check_search_str()
     }
     ?>
 
-<table border='0'>
+<table class="border-0">
  <tr>
   <td colspan="4">
     <?php
@@ -154,12 +157,12 @@ function check_search_str()
     {
     $query = "SELECT count(*) as count FROM list_options " .
       "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " ;
-    $res = sqlStatement($query, array('%'.$search_term.'%'));
+    $res = sqlStatement($query, array('%' . $search_term . '%'));
     if ($row = sqlFetchArray($res)) {
         $no_of_items = $row['count'];
         if ($no_of_items < 1) {
             ?>
-     <script language='JavaScript'>
+     <script>
         alert(<?php echo xlj('Search string does not match with list in database'); ?> + '\n' + <?php echo xlj('Please enter new search string'); ?>);
      document.theform.search_term.value=" ";
      document.theform.search_term.focus();
@@ -170,14 +173,14 @@ function check_search_str()
         $query = "SELECT option_id,title FROM list_options " .
         "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " .
         "ORDER BY title";
-        $res = sqlStatement($query, array('%'.$search_term.'%'));
+        $res = sqlStatement($query, array('%' . $search_term . '%'));
         $row_count = 0;
         while ($row = sqlFetchArray($res)) {
             $row_count = $row_count + 1;
             $itercode = $row['option_id'];
             $itertext = ucfirst(strtolower(trim($row['title'])));
             ?>
-       <input type="checkbox" id="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "</br>";
+       <input type="checkbox" id="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "<br />";
         }
     }
 
@@ -187,14 +190,15 @@ function check_search_str()
 </tr>
  </table>
 <center>
- <input type='button' name='select_all' value='<?php echo xla('Select All'); ?>' onclick="chkbox_select_all(document.select_immunization.chkbox);"/>
+<div class="btn-group">
+ <input type='button' class="btn btn-primary" name='select_all' value='<?php echo xla('Select All'); ?>' onclick="chkbox_select_all(document.select_immunization.chkbox);"/>
 
- <input type='button' name='select_none' value='<?php echo xla('Unselect All'); ?>' onclick="chkbox_select_none(document.select_immunization.chkbox);"/>
+ <input type='button' class="btn btn-primary" name='select_none' value='<?php echo xla('Unselect All'); ?>' onclick="chkbox_select_none(document.select_immunization.chkbox);"/>
 
- <input type='button' name='submit' value='<?php echo xla('Submit'); ?>' onclick="window_submit(document.select_immunization.chkbox);"/>
+ <input type='button' class="btn btn-primary" name='submit' value='<?php echo xla('Submit'); ?>' onclick="window_submit(document.select_immunization.chkbox);"/>
 
- <input type='button' name='cancel' value='<?php echo xla('Cancel'); ?>' onclick="window_close();"/>
-
+ <input type='button' class="btn btn-primary" name='cancel' value='<?php echo xla('Cancel'); ?>' onclick="window_close();"/>
+</div>
  </center>
 <?php } ?>
 </form>

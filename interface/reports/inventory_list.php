@@ -1,4 +1,5 @@
 <?php
+
 /**
  * inventory_list.php
  *
@@ -7,17 +8,17 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$include_root/drugs/drugs.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -26,7 +27,7 @@ if (!empty($_POST)) {
 }
 
 // Check authorization.
-$thisauth = acl_check('admin', 'drugs');
+$thisauth = AclMain::aclCheckCore('admin', 'drugs');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }
@@ -62,8 +63,9 @@ $res = sqlStatement("SELECT d.*, SUM(di.on_hand) AS on_hand " .
 
 <head>
 
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php echo xlt('Inventory List'); ?></title>
+
+<?php Header::setupHeader(['report-helper']); ?>
 
 <style>
 /* specifically include & exclude from printing */
@@ -92,13 +94,9 @@ table.mymaintable td, table.mymaintable th {
 }
 </style>
 
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-
 <script language="JavaScript">
 
- $(function() {
+ $(function () {
   oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
@@ -144,11 +142,11 @@ table.mymaintable td, table.mymaintable th {
    <table style='border-left:1px solid; width:100%; height:100%'>
     <tr>
      <td valign='middle'>
-      <a href='#' class='css_button' onclick='mysubmit("submit")' style='margin-left:1em'>
+      <a href='#' class='btn btn-primary' onclick='mysubmit("submit")' style='margin-left:1em'>
        <span><?php echo xlt('Submit'); ?></span>
       </a>
 <?php if ($form_action) { ?>
-      <a href='#' class='css_button' id='printbutton' style='margin-left:1em'>
+      <a href='#' class='btn btn-primary' id='printbutton' style='margin-left:1em'>
        <span><?php echo xlt('Print'); ?></span>
       </a>
 <?php } ?>
@@ -248,7 +246,7 @@ table.mymaintable td, table.mymaintable th {
                 $expdays = (int) ((strtotime($irow['expiration']) - time()) / (60 * 60 * 24));
                 if ($expdays <= 0) {
                     addWarning(text(xl('Lot') . " '$lotno' " . xl('has expired')));
-                } else if ($expdays <= 30) {
+                } elseif ($expdays <= 30) {
                     addWarning(text(xl('Lot') . " '$lotno' " . xl('expires in') . " $expdays " . xl('days')));
                 }
             }
@@ -258,7 +256,7 @@ table.mymaintable td, table.mymaintable th {
         echo "  <td>" . text($row['name']) . "</td>\n";
         echo "  <td>" . text($row['ndc_number']) . "</td>\n";
         echo "  <td>" .
-           generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+           generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row['form']) .
            "</td>\n";
         echo "  <td align='right'>" . text($row['on_hand']) . "</td>\n";
         echo "  <td align='right'>" . text($row['reorder_point']) . "</td>\n";

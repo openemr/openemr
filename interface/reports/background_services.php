@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Report to view the background services.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2013-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -61,8 +61,8 @@ use OpenEMR\Core\Header;
     <table>
         <tr>
             <td width='470px'>
-                  <div class="btn-group pull-left" role="group">
-                    <a id='refresh_button' href='#' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+                  <div class="btn-group float-left" role="group">
+                    <a id='refresh_button' href='#' class='btn btn-secondary btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
                         <?php echo xlt('Refresh'); ?>
                     </a>
                 </div>
@@ -71,20 +71,20 @@ use OpenEMR\Core\Header;
     </table>
 </div>  <!-- end of search parameters -->
 
-<br>
+<br />
 
 
 
 <div id="report_results">
-<table>
+<table class='table'>
 
- <thead>
+ <thead class='thead-light'>
   <th align='center'>
     <?php echo xlt('Service Name'); ?>
   </th>
 
   <th align='center'>
-    <?php echo xlt('Active'); ?>
+    <?php echo xlt('Active{{Service}}'); ?>
   </th>
 
   <th align='center'>
@@ -96,7 +96,7 @@ use OpenEMR\Core\Header;
   </th>
 
   <th align='center'>
-    <?php echo xlt('Currently Busy'); ?>
+    <?php echo xlt('Currently Busy{{Service}}'); ?>
   </th>
 
   <th align='center'>
@@ -136,7 +136,7 @@ while ($row = sqlFetchArray($res)) {
           <td align='center'><?php echo xlt('Not Applicable'); ?></td>
         <?php } ?>
 
-          <td align='center'><?php echo ($row['running']>0) ? xlt("Yes") : xlt("No"); ?></td>
+          <td align='center'><?php echo ($row['running'] > 0) ? xlt("Yes") : xlt("No"); ?></td>
 
         <?php if ($row['running'] > -1) { ?>
           <td align='center'><?php echo text(oeFormatDateTime($row['last_run_start'], "global", true)); ?></td>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_views/groupDetailsGeneralData.php contains group details view.
  *
@@ -14,12 +15,15 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Acl\AclMain;
+
 ?>
 
 
-<?php $edit = acl_check("groups", "gadd", false, 'write');?>
-<?php $edit_encounter = acl_check("groups", "glog", false, 'write');?>
-<?php $view = acl_check("groups", "gadd", false, 'view');?>
+<?php $edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');?>
+<?php $edit_encounter = AclMain::aclCheckCore("groups", "glog", false, 'write');?>
+<?php $view = AclMain::aclCheckCore("groups", "gadd", false, 'view');?>
 
 
 <?php require 'header.php'; ?>
@@ -195,7 +199,7 @@
     </div>
 </main>
 <script>
-    $(function(){
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -219,24 +223,17 @@
     }
 
     function newGroup(){
-        <?php if ($GLOBALS['new_tabs_layout']) : ?>
         top.restoreSession();
         parent.left_nav.loadFrame('gcv4','enc','forms/newGroupEncounter/new.php?autoloaded=1&calenc=')
-        <?php else : ?>
-        top.restoreSession();
-        top.frames['RBot'].location = <?php echo js_escape($GLOBALS['web_root']); ?> + '/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
-        <?php endif; ?>
     }
 
     parent.left_nav.setTherapyGroup(<?php echo js_escape($groupData['group_id'])?>, <?php echo js_escape($groupData['group_name'])?>);
-    <?php if (!$GLOBALS['new_tabs_layout']) : ?>
     top.restoreSession();
     parent.left_nav.loadFrame('enc2', 'RBot', '/patient_file/history/encounters.php');
     $(parent.Title.document.getElementById('clear_active')).hide();
-    <?php endif;?>
     /* show the encounters menu in the title menu (code like interface/forms/newGroupEncounter/save.php) */
     <?php
-    $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe ".
+    $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe " .
     " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.group_id = ? order by fe.date desc", array($groupData['group_id']));
     ?>
 
@@ -245,7 +242,7 @@
     EncounterIdArray=new Array;
     Count=0;
     <?php
-    if (sqlNumRows($result4)>0) {
+    if (sqlNumRows($result4) > 0) {
         while ($rowresult4 = sqlFetchArray($result4)) {
             ?>
         EncounterIdArray[Count]=<?php echo js_escape($rowresult4['encounter']); ?>;

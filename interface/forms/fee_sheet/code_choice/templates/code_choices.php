@@ -1,4 +1,5 @@
 <?php
+
 /**
  * code_choices.php
  *
@@ -8,12 +9,13 @@
  * @copyright Copyright (c) 2014 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <script type="text/html" id="code-choice-options">
     &nbsp;
     <div data-bind="foreach:categories">
         <div class="category-display">
-            <button data-bind="text:title,click: set_active_category"></button>
+            <button class="btn btn-primary" data-bind="text:title,click: set_active_category"></button>
         </div>
     </div>
     <!-- ko if: active_category -->
@@ -33,9 +35,9 @@
                 <span data-bind="text:description,click: toggle_code"></span>
             </div>
         </div>
-        <div style="clear: both; padding:15px 0px  0px 10px;">
-            <button data-bind="click:codes_ok"><?php echo xlt("OK")?></button>
-            <button data-bind="click:codes_cancel"><?php echo xlt("Cancel")?></button>
+        <div style="clear: both; padding: 15px 0 0 10px;">
+            <button class="btn btn-primary" data-bind="click:codes_ok"><?php echo xlt("OK")?></button>
+            <button class="btn btn-secondary" data-bind="click:codes_cancel"><?php echo xlt("Cancel")?></button>
         </div>
     </div>
 </script>

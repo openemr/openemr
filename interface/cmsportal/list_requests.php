@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fetch and list pending requests from the WordPress portal.
  *
@@ -11,13 +12,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("portal.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 /**
  * Get a list item title, translating if required.
@@ -86,7 +87,7 @@ function patientNameFromLogin($login)
 }
 
 // Check authorization.
-$thisauth = acl_check('patients', 'med');
+$thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }
@@ -117,23 +118,22 @@ if (!empty($_POST['bn_delete'])) {
 <html>
 <head>
 
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+    <?php Header::setupHeader('datetime-picker'); ?>
 
 <title><?php echo xlt('Portal Requests'); ?></title>
 
 <style>
+tr.head {
+  font-size: 0.8125rem;
+  background-color: var(--gray400);
+  text-align: center;
+}
 
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; }
-a, a:visited, a:hover { color:#0000cc; }
-
+tr.detail {
+  font-size: 0.8125rem;
+  background-color: var(--gray300);
+}
 </style>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
@@ -188,7 +188,7 @@ function openMessage(messageid) {
  document.location.href = 'upload_form.php?messageid=' + messageid;
 }
 
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

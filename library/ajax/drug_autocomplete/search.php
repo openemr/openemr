@@ -1,4 +1,5 @@
 <?php
+
 /**
  * weno rx search.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../../../interface/globals.php');
 
@@ -25,10 +25,10 @@ if (isset($_GET['term'])) {
     $term    = filter_input(INPUT_GET, "term");
 
     $sql = "SELECT full_name, rxn_dose_form, route, strength FROM erx_weno_drugs WHERE full_name LIKE ? ";
-    $val = array('%'.$term.'%');
+    $val = array('%' . $term . '%');
     $res = sqlStatement($sql, $val);
     while ($row = sqlFetchArray($res)) {
-        $return_arr[] =  $row['full_name'] . " - ". $row['rxn_dose_form'] . " - ". $row['route'] . " - ". $row['strength'];
+        $return_arr[] =  $row['full_name'] . " - " . $row['rxn_dose_form'] . " - " . $row['route'] . " - " . $row['strength'];
     }
 
     /* Toss back results as json encoded array. */

@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -25,8 +26,10 @@ class LabResult extends ClinicalType
         $data = Codes::lookup($this->getOptionId());
         
         $range = new Range(Range::NEG_INF, Range::POS_INF);
-        if (isset($options[self::OPTION_RANGE]) &&
-            is_a($options[self::OPTION_RANGE], 'Range') ) {
+        if (
+            isset($options[self::OPTION_RANGE]) &&
+            is_a($options[self::OPTION_RANGE], 'Range')
+        ) {
             $range = $options[self::OPTION_RANGE];
         }
         
@@ -62,13 +65,13 @@ class LabResult extends ClinicalType
                     $sql .= "AND procedure_result.result < ? ";
                 }
                 
-                $bindings = array( $codeType.':'.$code, $code, $beginDate, $endDate, $patient->id );
+                $bindings = array( $codeType . ':' . $code, $code, $beginDate, $endDate, $patient->id );
                 if ($range->lowerBound != Range::NEG_INF) {
-                    $bindings []= $range->lowerBound;
+                    $bindings [] = $range->lowerBound;
                 }
 
                 if ($range->upperBound != Range::POS_INF) {
-                    $bindings []= $range->upperBound;
+                    $bindings [] = $range->upperBound;
                 }
 
                 $result = sqlStatement($sql, $bindings);

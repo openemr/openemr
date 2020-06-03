@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ankleinjury report.php
  *
@@ -11,8 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once(dirname(__FILE__).'/../../globals.php');
+require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
 function ankleinjury_report($pid, $encounter, $cols, $id)
@@ -22,9 +22,11 @@ function ankleinjury_report($pid, $encounter, $cols, $id)
     if ($data) {
         print "<table>\n<tr>\n";
         foreach ($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
-             $key == "authorized" || $key == "activity" || $key == "date" ||
-             $value == "" || $value == "0000-00-00 00:00:00") {
+            if (
+                $key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
+                $key == "authorized" || $key == "activity" || $key == "date" ||
+                $value == "" || $value == "0000-00-00 00:00:00"
+            ) {
                 continue;
             }
 
@@ -32,7 +34,7 @@ function ankleinjury_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
-            $key=ucwords(str_replace("_", " ", $key));
+            $key = ucwords(str_replace("_", " ", $key));
             $key = str_replace("Ankle ", "", $key);
             $key = str_replace("Injuary", "Injury", $key);
             print "<td valign='top'><span class='bold'>" . xlt($key) . ": </span><span class='text'>" . text($value) . "</span></td>\n";

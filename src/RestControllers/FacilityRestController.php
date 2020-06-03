@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FacilityRestController
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\RestControllers;
 
@@ -41,7 +41,8 @@ class FacilityRestController
         $validationResult = $this->facilityService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $serviceResult = $this->facilityService->insert($data);
         return RestControllerHelper::responseHandler($serviceResult, array('fid' => $serviceResult), 201);
@@ -52,7 +53,8 @@ class FacilityRestController
         $validationResult = $this->facilityService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $serviceResult = $this->facilityService->update($data);
         return RestControllerHelper::responseHandler($serviceResult, array('fid' => $data['fid']), 200);

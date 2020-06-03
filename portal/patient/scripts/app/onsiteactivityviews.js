@@ -34,76 +34,47 @@ var actpage = {
 			window.location.href = './provider';
 		});
 		function showPaymentModal(cpid,recid){
-			 var title = 'Patient Online Payment';
-			 var params = {
-		                buttons: [
-					   	   { text: 'Help', close: false, style: 'info btn-sm',id: 'formHelp'},
-					   	   { text: 'Cancel', close: true, style: 'default btn-sm'},
-		                   //{ text: 'Download', close: false, style: 'success btn-sm',id:'downloadTemplate'},
-		                   { text: 'Done', style: 'danger btn-sm', close:true}],
-		                size: eModal.size.xl,
-		                subtitle: 'Provider Audit.',
-		                title: title,
-		                useBin: false,
-		                url: './../portal_payment.php?pid='+cpid+'&user='+cuser+'&recid='+recid
-		            };
-		        return eModal.ajax(params)
-		            .then(function () { });
-		 };
-		function showDocumentModal(cpid,recid){
-			 var title = 'Patient Documents';
-			 var params = {
-		                buttons: [
-					   	   { text: 'Help', close: false, style: 'info btn-sm',id: 'formHelp'},
-					   	   { text: 'Cancel', close: true, style: 'default btn-sm'},
-		                   //{ text: 'Download', close: false, style: 'success btn-sm',id:'downloadTemplate'},
-		                   { text: 'Done', style: 'danger btn-sm', close:true}],
-		                size: eModal.size.xl,
-		                subtitle: 'Provider Audit.',
-		                title: title,
-		                useBin: false,
-		                url: './onsitedocuments?pid='+cpid+'&user='+cuser+'&recid='+recid
-		            };
-		        return eModal.iframe(params)
-		            .then(function () { });
-		 };
-		function showProfileModal(cpid){
-			 var title = 'Demographics Legend Red: Chart Values. Blue: Patient Edits.';
-			 var params = {
-		                buttons: [
-					   	   { text: 'Help', close: false, style: 'info btn-sm',id: 'formHelp'},
-					   	   { text: 'Cancel', close: true, style: 'default btn-sm'},
-		                   { text: 'Revert Edits', close: false, style: 'success btn-sm',id:'replaceAllButton'},
-		                   { text: 'Commit to Chart', style: 'danger btn-sm', close: false,id:'savePatientButton'}],
-		                size: eModal.size.xl,
-		                subtitle: 'Provider Audit.',
-		                title: title,
-		                useBin: false,
-		                url: './patientdata?pid='+cpid+'&user='+cuser
-		            };
-		        return eModal.ajax(params)
-		            .then(function () { });
-		 };
-		// @todo below for emodal refactor
-        /*function showProfileModal(cpid) {
-            var title = 'Demographics Legend Red: Charted Values. Blue: Patient Edits Provider Audit.';
-
+			var title = 'Patient Online Payment';
+            var params = {
+                buttons: [
+                    {text: 'Help', close: false, style: 'info btn-sm', id: 'formHelp'},
+                    {text: 'Cancel', close: true, style: 'secondary btn-sm'},
+                    {text: 'Done', style: 'danger btn-sm', close: true}],
+                onClosed: 'reload',
+                type: 'GET',
+                url: './../portal_payment.php?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser) + '&recid=' + encodeURIComponent(recid)
+            };
+            dlgopen('', '', 'modal-lg', 625, '', '', params);
+		}
+        function showProfileModal(cpid) {
+            var title = 'Demographics Legend Red: Charted Values. Blue: Patient Edits' + ' ';
             var params = {
                 buttons: [
                     { text: 'Help', close: false, style: 'info btn-sm',id: 'formHelp'},
                     { text: 'Cancel', close: true, style: 'default btn-sm'},
-                    { text: 'Revert Edits', close: false, style: 'success btn-sm',id:'replaceAllButton'},
-                    { text: 'Commit to Chart', style: 'danger btn-sm', close: false,id:'savePatientButton'}],
-                //onClosed: 'reload',
+                    { text: 'Revert Edits', close: false, style: 'success btn-sm', id:'replaceAllButton'},
+                    { text: 'Commit to Chart', style: 'danger btn-sm', close: false, id:'savePatientButton'}],
+                onClosed: 'reload',
+                sizeHeight: 'full',
+                allowDrag: false,
                 type: 'GET',
-                url: './patientdata?pid='+cpid+'&user='+cuser
+                url: top.webroot_url + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
             };
-            dlgopen('','','modal-xl', 500, '', title, params);
-        }*/
-
-        $(document.body).on('hidden.bs.modal', function () {
-            window.location.href = './onsiteactivityviews';
-        });
+            dlgopen('','','modal-xl', '', '', title, params);
+        }
+        function showDocumentModal(cpid, recid) {
+            var title = 'Audit Document';
+            var params = {
+                buttons: [
+                    {text: 'Help', close: false, style: 'info btn-sm', id: 'formHelp'},
+                    {text: 'Cancel', close: true, style: 'default btn-sm'},
+                    {text: 'Done', style: 'danger btn-sm', close: true}],
+                sizeHeight: 'full',
+                onClosed: 'reload',
+                url: './onsitedocuments?pid=' + cpid + '&user=' + encodeURIComponent(cuser) + '&recid=' + encodeURIComponent(recid)
+            };
+            dlgopen('', '', 'modal-lg', '', '', '', params);
+        }
 
 		// initialize the collection view
 		this.collectionView = new view.CollectionView({

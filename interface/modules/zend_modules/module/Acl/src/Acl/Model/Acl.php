@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Acl/src/Acl/Model/Acl.php
  *
@@ -12,10 +13,10 @@
 
 namespace Acl\Model;
 
-use Zend\InputFilter\Factory as InputFactory;
-use Zend\InputFilter\InputFilter;
-use Zend\InputFilter\InputFilterAwareInterface;
-use Zend\InputFilter\InputFilterInterface;
+use Laminas\InputFilter\Factory as InputFactory;
+use Laminas\InputFilter\InputFilter;
+use Laminas\InputFilter\InputFilterAwareInterface;
+use Laminas\InputFilter\InputFilterInterface;
 
 class Acl implements InputFilterAwareInterface
 {

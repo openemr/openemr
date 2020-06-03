@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Id: admin.php,v 1.1.1.3 2005/06/23 05:33:20 drbowen Exp $
  *

@@ -1,34 +1,26 @@
 <?php
 
-namespace ESign;
-
 /**
  * Encounter controller implementation
  *
- * Copyright (C) 2013 OEMR 501c3 www.oemr.org
- *
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Ken Chapple <ken@mi-squared.com>
- * @author  Medical Information Integration, LLC
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Medical Information Integration, LLC
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013 OEMR 501c3 www.oemr.org
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/Abstract/Controller.php';
-require_once $GLOBALS['srcdir'].'/ESign/Encounter/Configuration.php';
-require_once $GLOBALS['srcdir'].'/ESign/Encounter/Signable.php';
-require_once $GLOBALS['srcdir'].'/ESign/Encounter/Log.php';
+namespace ESign;
+
+require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Controller.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Configuration.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Signable.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Log.php';
+
+use OpenEMR\Common\Auth\AuthUtils;
 
 class Encounter_Controller extends Abstract_Controller
 {
@@ -39,7 +31,7 @@ class Encounter_Controller extends Abstract_Controller
         echo json_encode($signable->isLocked());
         exit;
     }
-    
+
     public function esign_form_view()
     {
         $form = new \stdClass();
@@ -49,17 +41,19 @@ class Encounter_Controller extends Abstract_Controller
         $form->action = '#';
         $signable = new Encounter_Signable($form->encounterId);
         $form->showLock = false;
-        if ($signable->isLocked() === false &&
+        if (
+            $signable->isLocked() === false &&
             $GLOBALS['lock_esign_all'] &&
-            $GLOBALS['esign_lock_toggle'] ) {
+            $GLOBALS['esign_lock_toggle']
+        ) {
             $form->showLock = true;
         }
-        
+
         $this->_view->form = $form;
         $this->setViewScript('encounter/esign_form.php');
         $this->render();
     }
-    
+
     public function esign_log_view()
     {
         $encounterId = $this->getRequest()->getParam('encounterId', '');
@@ -69,7 +63,7 @@ class Encounter_Controller extends Abstract_Controller
         echo $html;
         exit;
     }
-    
+
     /**
      *
      * @return multitype:string
@@ -89,9 +83,9 @@ class Encounter_Controller extends Abstract_Controller
                 $lock = ( $this->getRequest()->getParam('lock', '') == 'on' ) ? true : false;
             }
         }
-            
+
         $amendment = $this->getRequest()->getParam('amendment', '');
-        if (confirm_user_password($_SESSION['authUser'], $password)) {
+        if ((new AuthUtils())->confirmPassword($_SESSION['authUser'], $password)) {
             $signable = new Encounter_Signable($encounterId);
             if ($signable->sign($_SESSION['authUserID'], $lock, $amendment)) {
                 $message = xlt("Form signed successfully");
@@ -107,7 +101,7 @@ class Encounter_Controller extends Abstract_Controller
         $response->encounterId = $encounterId;
         $response->locked = $lock;
         if ($lock) {
-            $response->editButtonHtml = "<a href=# class='css_button_small form-edit-button-locked'><span>".xlt('Locked')."</span></a>";
+            $response->editButtonHtml = "<a href=# class='btn btn-secondary btn-sm form-edit-button-locked'>" . xlt('Locked') . "</a>";
         }
 
         echo json_encode($response);

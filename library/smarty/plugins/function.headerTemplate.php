@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -18,9 +19,9 @@ use OpenEMR\Core\Header;
 /**
  * Smarty {headerTemplate} function plugin.
  *
- * Type:     function<br>
- * Name:     headerTemplate<br>
- * Purpose:  headerTemplate in OpenEMR - Smarty templates<br>
+ * Type:     function<br />
+ * Name:     headerTemplate<br />
+ * Purpose:  headerTemplate in OpenEMR - Smarty templates<br />
  *
  * @param array
  * @param Smarty

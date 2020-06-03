@@ -1,4 +1,5 @@
 <?php
+
 /**
  * lab_results_messages.php
  *
@@ -10,11 +11,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("$include_root/globals.php");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/auth.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 function lab_results_messages($set_pid, $rid, $provider_id = "")
 {
@@ -36,11 +38,11 @@ function lab_results_messages($set_pid, $rid, $provider_id = "")
         foreach ($result as $user_detail) {
             unset($thisauth); // Make sure it is empty.
             // Check user authorization. Only send the pending review message to authorised user.
-            // $thisauth = acl_check('patients', 'sign', $user_detail['username']);
+            // $thisauth = AclMain::aclCheckCore('patients', 'sign', $user_detail['username']);
 
             // Route message to administrators if there is no provider match.
             if ($provider_id == "") {
-                $thisauth = acl_check('admin', 'super', $user_detail['username']);
+                $thisauth = AclMain::aclCheckCore('admin', 'super', $user_detail['username']);
             } else {
                 $thisauth = true;
             }

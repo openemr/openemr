@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Maintenance for the list of procedure providers.
  *
@@ -11,11 +12,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
 $popup = empty($_GET['popup']) ? 0 : 1;
@@ -33,7 +33,7 @@ $res = sqlStatement($query);
 <title><?php echo xlt('Procedure Providers'); ?></title>
 
 <?php if ($popup) { ?>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
+    <?php Header::setupAssets('topdialog'); ?>
 <?php } ?>
 
 <script language="JavaScript">
@@ -58,7 +58,7 @@ function doedclick_add() {
 // Process click to pop up the edit window.
 function doedclick_edit(ppid) {
  top.restoreSession();
- var editTitle = '<i class="fa fa-pencil" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
+ var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
  dlgopen('procedure_provider_edit.php?ppid=' + ppid, '_blank', 800, 750, false, editTitle);
 }
 
@@ -69,9 +69,9 @@ function doedclick_edit(ppid) {
 <body class="body_top">
     <?php
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray700)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
         $help_icon = '';
     }
@@ -88,11 +88,11 @@ function doedclick_edit(ppid) {
             <div class="col-sm-12">
                <form method='post' action='procedure_provider_list.php'>
                     <div class="btn-group">
-                        <button type="button" name="form_search" class="btn btn-default btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
-                        <button type="button" class="btn btn-default btn-add" onclick="doedclick_add()"><?php echo xlt('Add New{{Provider}}');?></button>
+                        <button type="button" name="form_search" class="btn btn-secondary btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
+                        <button type="button" class="btn btn-secondary btn-add" onclick="doedclick_add()"><?php echo xlt('Add New{{Provider}}');?></button>
                     </div>
-                    <br>
-                    <br>
+                    <br />
+                    <br />
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
@@ -109,12 +109,12 @@ function doedclick_edit(ppid) {
                                 echo "  <td>" . text($row['name']) . "</td>\n";
                                 echo "  <td>" . text($row['npi']) . "</td>\n";
                                 echo "  <td>" . text($row['protocol']) . "</td>\n";
-                                if (acl_check('admin', 'practice')) {
+                                if (AclMain::aclCheckCore('admin', 'practice')) {
                                         $trTitle = xl('Edit') . ' ' . $row['name'];
-                                        echo "  <td class=\"text-center\"><span style=\"color:#000000; cursor: pointer;\"  onclick='doedclick_edit(" . attr_js($row['ppid']) . ")' class=\"haskids fa fa-pencil\" title='" . attr($trTitle) . "'></span></td>\n";
+                                        echo "  <td class=\"text-center text-body\"><span style=\"cursor: pointer;\"  onclick='doedclick_edit(" . attr_js($row['ppid']) . ")' class=\"haskids fa fa-pencil-alt\" title='" . attr($trTitle) . "'></span></td>\n";
                                 } else {
                                         $trTitle = xl("Not Allowed to Edit") . ' ' . $row['name'];
-                                        echo "  <td class=\"text-center\"><span style=\"color:#CACFD2;cursor: no-drop;\"  class=\"haskids fa fa-pencil\" title='" . attr($trTitle) . "'></span></td>\n";
+                                        echo "  <td class=\"text-center\"><span style=\"color: var(--gray400); cursor: no-drop;\"  class=\"haskids fa fa-pencil-alt\" title='" . attr($trTitle) . "'></span></td>\n";
                                 }
                                 echo " </tr>\n";
                             }
@@ -125,7 +125,7 @@ function doedclick_edit(ppid) {
             </div>
         </div>
     </div><!-- End of container div -->
-    <br>
+    <br />
     <?php
     //home of the help modal ;)
     //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page

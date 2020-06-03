@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Administrative loader for lab compendium data.
 *
@@ -24,11 +25,11 @@
 
 set_time_limit(0);
 
-
-
-
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
+
+use OpenEMR\Core\Header;
 
 // This array is an important reference for the supported labs and their NPI
 // numbers as known to this program.  The clinic must define at least one
@@ -60,7 +61,7 @@ function getLabID($npi)
     return intval($lrow['ppid']);
 }
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized', '', '', '!'));
 }
 
@@ -80,13 +81,19 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 <html>
 
 <head>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<title><?php echo xlt('Load Lab Configuration'); ?></title>
+<?php Header::setupHeader(); ?>
+<title><?php echo xlt('Load Compendium'); ?></title>
 </head>
 
-<body class="body_top">
-<center>
-&nbsp;<br />
+<body class="body_top text-center">
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header text-left">
+                <h2><?php echo xlt('Load Lab Compendium'); ?></h2>
+            </div>
+        </div>
+    </div>
 <form method='post' action='load_compendium.php' enctype='multipart/form-data'>
 
 <table>
@@ -95,7 +102,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 if ($form_step == 0) {
     echo " <tr>\n";
     echo "  <td width='1%' nowrap>" . xlt('Vendor') . "</td>\n";
-    echo "  <td><select name='vendor'>";
+    echo "  <td><select class='form-control' name='vendor'>";
     foreach ($lab_npi as $key => $value) {
         echo "<option value='" . attr($key) . "'";
         if (!getLabID($key)) {
@@ -111,7 +118,7 @@ if ($form_step == 0) {
 
     echo " <tr>\n";
     echo "  <td nowrap>" . xlt('Action') . "</td>\n";
-    echo "  <td><select name='action'>";
+    echo "  <td><select class='form-control' name='action'>";
     echo "<option value='1'>" . xlt('Load Order Definitions') . "</option>";
     echo "<option value='2'>" . xlt('Load Order Entry Questions') . "</option>";
     echo "<option value='3'>" . xlt('Load OE Question Options') . "</option>";
@@ -120,7 +127,7 @@ if ($form_step == 0) {
 
     echo " <tr>\n";
     echo "  <td nowrap>" . xlt('Container Group Name') . "</td>\n";
-    echo "  <td><select name='group'>";
+    echo "  <td><select class='form-control' name='group'>";
     $gres = sqlStatement("SELECT procedure_type_id, name FROM procedure_type " .
     "WHERE procedure_type = 'grp' ORDER BY name, procedure_type_id");
     while ($grow = sqlFetchArray($gres)) {
@@ -134,12 +141,12 @@ if ($form_step == 0) {
     echo " <tr>\n";
     echo "  <td nowrap>" . xlt('File to Upload') . "</td>\n";
     echo "<td><input type='hidden' name='MAX_FILE_SIZE' value='4000000' />";
-    echo "<input type='file' name='userfile' /></td>\n";
+    echo "<input class='form-control' type='file' name='userfile' /></td>\n";
     echo " </tr>\n";
 
     echo " <tr>\n";
     echo "  <td nowrap>&nbsp;</td>\n";
-    echo "  <td><input type='submit' value='" . xla('Submit') . "' /></td>\n";
+    echo "  <td><input class='btn btn-primary mt-3' type='submit' value='" . xla('Submit') . "' /></td>\n";
     echo " </tr>\n";
 }
 
@@ -246,7 +253,7 @@ if ($form_step == 1) {
                         } // end if
                     } // end while
                     // end SFTP
-                } else if ($form_action == 2) { // load questions
+                } elseif ($form_action == 2) { // load questions
                     // Delete the vendor's current questions.
                     sqlStatement(
                         "DELETE FROM procedure_questions WHERE lab_id = ?",
@@ -291,11 +298,11 @@ if ($form_step == 1) {
                         // Figure out field type.
                         if ($acsv[6] == 'DD') {
                             $fldtype = 'S';
-                        } else if (stristr($acsv[3], 'mm/dd/yy') !== false) {
+                        } elseif (stristr($acsv[3], 'mm/dd/yy') !== false) {
                             $fldtype = 'D';
-                        } else if (stristr($acsv[3], 'wks_days') !== false) {
+                        } elseif (stristr($acsv[3], 'wks_days') !== false) {
                             $fldtype = 'G';
-                        } else if ($acsv[6] == 'FT') {
+                        } elseif ($acsv[6] == 'FT') {
                             $fldtype = 'T';
                         } else {
                             $fldtype = 'N';
@@ -329,7 +336,7 @@ if ($form_step == 1) {
                         }
                     } // end while
                     // end load questions
-                } else if ($form_action == 3) { // load question options
+                } elseif ($form_action == 3) { // load question options
                     // What should be uploaded is the "AOE Options" spreadsheet provided
                     // by YPMG, saved in "Text CSV" format from OpenOffice, using its
                     // default settings.  Values for each row are:
@@ -424,7 +431,7 @@ if ($form_step == 1) {
                                                 );
                         }
                     }
-                } else if ($form_action == 2) { // load questions
+                } elseif ($form_action == 2) { // load questions
                     // Mark the vendor's current questions inactive.
                     sqlStatement(
                         "DELETE FROM procedure_questions WHERE lab_id = ?",
@@ -470,7 +477,7 @@ if ($form_step == 1) {
                         $fldtype = 'T';
                         if (strpos($acsv[4], 'Drop') !== false) {
                             $fldtype = 'S';
-                        } else if (strpos($acsv[4], 'Multiselect') !== false) {
+                        } elseif (strpos($acsv[4], 'Multiselect') !== false) {
                             $fldtype = 'S';
                         }
 
@@ -542,13 +549,14 @@ ob_flush();
 flush();
 ?>
 
-</center>
+
 
 <?php if ($auto_continue) { ?>
-<script language="JavaScript">
+<script>
  setTimeout("document.forms[0].submit();", 500);
 </script>
 <?php } ?>
+</div>
 
 </body>
 </html>

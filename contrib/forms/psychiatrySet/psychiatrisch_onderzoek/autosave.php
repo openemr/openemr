@@ -1,4 +1,5 @@
 <?php
+
 ////////////////////////////////////////////////////////////////////
 // Form:    Psychiatrisch Onderzoek - Autosave
 // Package: Psychiatric Research - Dutch specific form
@@ -47,12 +48,12 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
     sqlQuery($strSql, array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["datum_onderzoek"], $_POST["reden_van_aanmelding"],
     $_POST["conclusie_van_intake"], $_POST["medicatie"], $_POST["anamnese"], $_POST["psychiatrisch_onderzoek"], $_POST["beschrijvende_conclusie"], $_POST["behandelvoorstel"], $newid));
 
-//echo "DEBUG :: id=$newid, sql=$strSql<br>";
+//echo "DEBUG :: id=$newid, sql=$strSql<br />";
 } else {
     $newid = formSubmit("form_psychiatrisch_onderzoek", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Psychiatric Examination", $newid, "psychiatrisch_onderzoek", $pid, $userauthorized);
 
-    //echo "Debug :: insert<br>";
+    //echo "Debug :: insert<br />";
 }
 
 

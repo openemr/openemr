@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FacilityService
  *
@@ -7,24 +8,25 @@
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Utils\QueryUtils;
 use Particle\Validator\Validator;
 
-class FacilityService
+class FacilityService extends BaseService
 {
     /**
      * Default constructor.
      */
     public function __construct()
     {
+        parent::__construct('facility');
     }
 
     public function validate($facility)
@@ -54,6 +56,7 @@ class FacilityService
         $validator->optional('facility_npi')->lengthBetween(2, 15);
         $validator->optional('facility_code')->lengthBetween(2, 31);
         $validator->optional('facility_taxonomy')->lengthBetween(2, 15);
+        $validator->optional('iban')->lengthBetween(2, 34);
 
         return $validator->validate($facility);
     }
@@ -65,17 +68,17 @@ class FacilityService
 
     public function getPrimaryBusinessEntity($options = null)
     {
-        if (!empty($options) && !empty($options["useLegacyImplementation"])) {
+        if (! empty($options) && ! empty($options["useLegacyImplementation"])) {
             return $this->getPrimaryBusinessEntityLegacy();
         }
 
         $args = array(
             "where" => "WHERE FAC.primary_business_entity = 1",
-            "data"  => null,
+            "data" => null,
             "limit" => 1
         );
 
-        if (!empty($options) && !empty($options["excludedId"])) {
+        if (! empty($options) && ! empty($options["excludedId"])) {
             $args["where"] .= " AND FAC.id != ?";
             $args["data"] = $options["excludedId"];
             return $this->get($args);
@@ -91,7 +94,7 @@ class FacilityService
             "order" => "ORDER BY FAC.name ASC"
         );
 
-        if (!empty($options) && !empty($options["orderField"])) {
+        if (! empty($options) && ! empty($options["orderField"])) {
             $args["order"] = "ORDER BY FAC." . escape_sql_column_name($options["orderField"], array("facility")) . " ASC";
         }
 
@@ -120,7 +123,7 @@ class FacilityService
     {
         return $this->get(array(
             "where" => "WHERE FAC.id = ?",
-            "data"  => array($id),
+            "data" => array($id),
             "limit" => 1
         ));
     }
@@ -129,8 +132,8 @@ class FacilityService
     {
         return $this->get(array(
             "where" => "WHERE USER.id = ?",
-            "data"  => array($userId),
-            "join"  => "JOIN users USER ON FAC.id = USER.facility_id",
+            "data" => array($userId),
+            "join" => "JOIN users USER ON FAC.id = USER.facility_id",
             "limit" => 1
         ));
     }
@@ -139,8 +142,8 @@ class FacilityService
     {
         $facility = $this->getFacilityForUser($userId);
 
-        if (!empty($facility)) {
-            $formatted  = "";
+        if (! empty($facility)) {
+            $formatted = "";
             $formatted .= $facility["name"];
             $formatted .= "\n";
             $formatted .= $facility["street"];
@@ -161,146 +164,33 @@ class FacilityService
     {
         return $this->get(array(
             "where" => "WHERE ENC.encounter = ?",
-            "data"  => array($encounterId),
-            "join"  => "JOIN form_encounter ENC ON FAC.id = ENC.facility_id",
+            "data" => array($encounterId),
+            "join" => "JOIN form_encounter ENC ON FAC.id = ENC.facility_id",
             "limit" => 1
         ));
     }
 
     public function update($data)
     {
-        $sql  = " UPDATE facility SET name=?,
-            phone=?,
-            fax=?,
-            street=?,
-            city=?,
-            state=?,
-            postal_code=?,
-            country_code=?,
-            federal_ein=?,
-            website=?,
-            email=?,
-            color=?,
-            service_location=?,
-            billing_location=?,
-            accepts_assignment=?,
-            pos_code=?,
-            domain_identifier=?,
-            attn=?,
-            tax_id_type=?,
-            primary_business_entity=?,
-            facility_npi=?,
-            facility_code=?,
-            facility_taxonomy=?,
-            mail_street=?,
-            mail_street2=?,
-            mail_city=?,
-            mail_state=?,
-            mail_zip=?,
-            oid=? WHERE id=?";
-
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE facility SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE id = ?";
+        array_push($query['bind'], $data['id']);
         return sqlStatement(
             $sql,
-            array(
-                $data["name"],
-                $data["phone"],
-                $data["fax"],
-                $data["street"],
-                $data["city"],
-                $data["state"],
-                $data["postal_code"],
-                $data["country_code"],
-                $data["federal_ein"],
-                $data["website"],
-                $data["email"],
-                $data["color"],
-                $data["service_location"],
-                $data["billing_location"],
-                $data["accepts_assignment"],
-                $data["pos_code"],
-                $data["domain_identifier"],
-                $data["attn"],
-                $data["tax_id_type"],
-                $data["primary_business_entity"],
-                $data["facility_npi"],
-                $data["facility_code"],
-                $data["facility_taxonomy"],
-                $data["mail_street"],
-                $data["mail_street2"],
-                $data["mail_city"],
-                $data["mail_state"],
-                $data["mail_zip"],
-                $data['oid'],
-                $data["fid"]
-            )
+            $query['bind']
         );
     }
 
     public function insert($data)
     {
-        $sql  = " INSERT INTO facility SET
-             name=?,
-             phone=?,
-             fax=?,
-             street=?,
-             city=?,
-             state=?,
-             postal_code=?,
-             country_code=?,
-             federal_ein=?,
-             website=?,
-             email=?,
-             color=?,
-             service_location=?,
-             billing_location=?,
-             accepts_assignment=?,
-             pos_code=?,
-             domain_identifier=?,
-             attn=?,
-             tax_id_type=?,
-             primary_business_entity=?,
-             facility_npi=?,
-             facility_code=?,
-             facility_taxonomy=?,
-             mail_street=?,
-             mail_street2=?,
-             mail_city=?,
-             mail_state=?,
-             mail_zip=?,
-             oid=? ";
-        return sqlInsert(
+        $query = $this->buildInsertColumns($data);
+        $sql = " INSERT INTO facility SET ";
+        $sql .= $query['set'];
+        return sqlStatement(
             $sql,
-            array(
-                $data["name"],
-                $data["phone"],
-                $data["fax"],
-                $data["street"],
-                $data["city"],
-                $data["state"],
-                $data["postal_code"],
-                $data["country_code"],
-                $data["federal_ein"],
-                $data["website"],
-                $data["email"],
-                $data["color"],
-                $data["service_location"],
-                $data["billing_location"],
-                $data["accepts_assignment"],
-                $data["pos_code"],
-                $data["domain_identifier"],
-                $data["attn"],
-                $data["tax_id_type"],
-                $data["primary_business_entity"],
-                $data["facility_npi"],
-                $data["facility_code"],
-                $data["facility_taxonomy"],
-                $data["mail_street"],
-                $data["mail_street2"],
-                $data["mail_city"],
-                $data["mail_state"],
-                $data["mail_zip"],
-                $data["oid"]
-            )
+            $query['bind']
         );
     }
 
@@ -321,7 +211,7 @@ class FacilityService
      */
     private function get($map)
     {
-        $sql  = " SELECT FAC.id,";
+        $sql = " SELECT FAC.id,";
         $sql .= "        FAC.name,";
         $sql .= "        FAC.phone,";
         $sql .= "        FAC.fax,";
@@ -352,10 +242,12 @@ class FacilityService
         $sql .= "        FAC.mail_city,";
         $sql .= "        FAC.mail_state,";
         $sql .= "        FAC.mail_zip,";
-        $sql .= "        FAC.oid";
+        $sql .= "        FAC.oid,";
+        $sql .= "        FAC.iban,";
+        $sql .= "        FAC.info";
         $sql .= " FROM facility FAC";
 
-        return QueryUtils::selectHelper($sql, $map);
+        return self::selectHelper($sql, $map);
     }
 
     private function getPrimaryBusinessEntityLegacy()

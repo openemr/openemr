@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This program creates the misc_billing_form
  *
@@ -19,7 +20,7 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc");
 require_once("date_qualifier_options.php");
@@ -95,7 +96,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                     <div class='col-sm-11 col-offset-sm-1'>
-                        <span class="text"><?php echo xlt('Checked box = yes, empty = no'); ?><br><br></span>
+                        <span class="text"><?php echo xlt('Checked box = yes, empty = no'); ?><br /><br /></span>
                         <div class="form-group">
                             <label><?php echo xlt('Box 10 A. Employment related'); ?>:
                                 <input type="checkbox" name="employment_related" id="box10a" value="1"
@@ -115,7 +116,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                             </label>
                             <label><?php echo xlt('State'); ?>:
                                 <input type="text" name="accident_state" id="box10bstate" size="1"
-                                       value="<?php echo attr($obj{"accident_state"}); ?>">
+                                       value="<?php echo attr($obj["accident_state"]); ?>">
                             </label>
                         </div>
                         <div class="form-group">
@@ -130,7 +131,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         <div class="form-group">
                             <label><?php echo xlt('Box 10 D. EPSDT Referral Code'); ?>
                                 <input type="text" name="medicaid_referral_code" id="box10d"
-                                       value="<?php echo attr($obj{"medicaid_referral_code"}); ?>">
+                                       value="<?php echo attr($obj["medicaid_referral_code"]); ?>">
                             </label>
                             <label><?php echo xlt('EPSDT'); ?> :
                                 <input type="checkbox" name="epsdt_flag" id="box10depsdt" value="1"
@@ -142,7 +143,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-group clearfix">
                             <label><?php echo xlt('Box 14. Onset Date:'); ?>
-                                <?php $onset_date = $obj{"onset_date"}; ?>
+                                <?php $onset_date = $obj["onset_date"]; ?>
                                 <input type="text" size="10" class='datepicker' name='onset_date' id='onset_date'
                                        value='<?php echo attr($onset_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'>
                             </label>
@@ -152,7 +153,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-group clearfix">
                             <label><?php echo xlt('Box 15. Other Date:'); ?>
-                                <?php $date_initial_treatment = $obj{"date_initial_treatment"}; ?>
+                                <?php $date_initial_treatment = $obj["date_initial_treatment"]; ?>
                                 <input type="text" size="10" class='datepicker' name='date_initial_treatment'
                                        id='date_initial_treatment' value='<?php echo attr($date_initial_treatment); ?>'
                                        title='<?php echo xla('yyyy-mm-dd'); ?>'>
@@ -165,42 +166,42 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                             <label for='off_work_from'
                                    class="col-sm-3 form-inline"><?php echo xlt('Box 16. Date unable to work from'); ?>
                                 :</label>
-                            <?php $off_work_from = $obj{"off_work_from"}; ?>
+                            <?php $off_work_from = $obj["off_work_from"]; ?>
                             <input type="text" class='datepicker form-inline col-sm-2' name='off_work_from'
                                    id='off_work_from' value='<?php echo attr($off_work_from); ?>'
                                    title='<?php echo xla('yyyy-mm-dd'); ?>'>
                             <label for='off_work_to'
                                    class="col-sm-3 form-inline"><?php echo xlt('Box 16. Date unable to work to'); ?>
                                 :</label>
-                            <?php $off_work_to = $obj{"off_work_to"}; ?>
+                            <?php $off_work_to = $obj["off_work_to"]; ?>
                             <input type="text" class='datepicker col-sm-2' name='off_work_to' id='off_work_to'
                                    value='<?php echo attr($off_work_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'>
                         </div>
                         <div class="form-group">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider') ?>:
                                 <?php
-                                if ($obj{"provider_id"}) {
-                                    genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj{"provider_id"});
+                                if ($obj["provider_id"]) {
+                                    genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj["provider_id"]);
                                 } else { // defalut to the patient's ref_prov
                                     genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
                                 } ?>
                             </label>
                             <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:
-                                <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', $obj{"provider_qualifier_code"}, 'Provider Qualifier Code'); ?>
+                                <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', $obj["provider_qualifier_code"], 'Provider Qualifier Code'); ?>
                             </label>
                         </div>
                         <div class="form-group clearfix">
                             <label for='hospitalization_date_from'
                                    class="col-sm-3 form-inline"><?php echo xlt('Box 18. Hospitalization date from'); ?>
                                 :</label>
-                            <?php $hospitalization_date_from = $obj{"hospitalization_date_from"}; ?>
+                            <?php $hospitalization_date_from = $obj["hospitalization_date_from"]; ?>
                             <input type="text" class='datepicker col-sm-2 ' name='hospitalization_date_from'
                                    id='hospitalization_date_from' value='<?php echo attr($hospitalization_date_from); ?>'
                                    title='<?php echo xla('yyyy-mm-dd'); ?>'>
                             <label for='off_work_to'
                                    class="col-sm-3 form-inline"><?php echo xlt('Box 18. Hospitalization date to'); ?>
                                 :</label>
-                            <?php $hospitalization_date_to = $obj{"hospitalization_date_to"}; ?>
+                            <?php $hospitalization_date_to = $obj["hospitalization_date_to"]; ?>
                             <input type="text" class='datepicker col-sm-2' name='hospitalization_date_to'
                                    id='hospitalization_date_to' value='<?php echo attr($hospitalization_date_to); ?>'
                                    title='<?php echo xla('yyyy-mm-dd'); ?>'>
@@ -215,23 +216,23 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                             </label>
                             <label><?php echo xlt('Amount Charged'); ?>:
                                 <input type="text" size="7" align='right' name="lab_amount" id="lab_amount"
-                                       value="<?php echo attr($obj{"lab_amount"}); ?>">
+                                       value="<?php echo attr($obj["lab_amount"]); ?>">
                             </label>
                         </div>
                         <div class="form-group">
                             <label><?php echo xlt('Box 22. Medicaid Resubmission Code (ICD-10)'); ?>:
                                 <input type="text" name="medicaid_resubmission_code" id="medicaid_resubmission_code"
-                                       value="<?php echo attr($obj{"medicaid_resubmission_code"}); ?>">
+                                       value="<?php echo attr($obj["medicaid_resubmission_code"]); ?>">
                             </label>
                             <label><?php echo xlt('Medicaid Original Reference No.'); ?>:
                                 <input type="text" name="medicaid_original_reference" id="medicaid_original_reference"
-                                       value="<?php echo attr($obj{"medicaid_original_reference"}); ?>">
+                                       value="<?php echo attr($obj["medicaid_original_reference"]); ?>">
                             </label>
                         </div>
                         <div class="form-group">
                             <label><?php echo xlt('Box 23. Prior Authorization No.'); ?>:
                                 <input type="text" name="prior_auth_number" id="prior_auth_number"
-                                       value="<?php echo attr($obj{"prior_auth_number"}); ?>">
+                                       value="<?php echo attr($obj["prior_auth_number"]); ?>">
                             </label>
                         </div>
                         <div class="form-group">
@@ -244,7 +245,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                             </label>
                             <label><?php echo xlt('X12 only ICN resubmission No.'); ?>:
                                 <input type="text" name="icn_resubmission_number" id="icn_resubmission_number"
-                                       value="<?php echo attr($obj{"icn_resubmission_number"}); ?>">
+                                       value="<?php echo attr($obj["icn_resubmission_number"]); ?>">
                             </label>
                         </div>
                     </div>
@@ -252,25 +253,25 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                 <fieldset>
                     <legend><?php echo xlt('Additional Notes'); ?></legend>
                     <div class="form-group">
-                        <div class="col-sm-10 col-sm-offset-1">
+                        <div class="col-sm-10 offset-sm-1">
                             <textarea name="comments" id="comments" class="form-control" cols="80"
-                                      rows="3"><?php echo text($obj{"comments"}); ?></textarea>
+                                      rows="3"><?php echo text($obj["comments"]); ?></textarea>
                         </div>
                     </div>
                 </fieldset>
                 <div class="form-group clearfix">
-                    <div class="col-sm-offset-1 col-sm-12 position-override">
+                    <div class="offset-sm-1 col-sm-12 position-override">
                         <div class="btn-group btn-pinch" role="group">
                             <!-- Save/Cancel buttons -->
-                            <button type="submit" class="btn btn-default btn-save save"> <?php echo xla('Save'); ?></button>
+                            <button type="submit" class="btn btn-secondary btn-save save"><?php echo xlt('Save'); ?></button>
                             <button type="button"
-                                    class="dontsave btn btn-link btn-cancel btn-separate-left"><?php echo xla('Cancel'); ?></button>
+                                    class="dontsave btn btn-link btn-cancel btn-separate-left"><?php echo xlt('Cancel'); ?></button>
                         </div>
                     </div>
                 </div>
             </form>
-            <br>
-            <br>
+            <br />
+            <br />
         </div>
     </div>
 </div><!--End of container div-->

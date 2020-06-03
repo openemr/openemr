@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Care plan form new.php
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -46,15 +46,15 @@ endforeach;
 
         <?php Header::setupHeader(['datetime-picker']);?>
 
-        <style type="text/css" title="mystyles" media="all">
+        <style title="mystyles" media="all">
             @media only screen and (max-width: 768px) {
                 [class*="col-"] {
                 width: 100%;
-                text-align:left!Important;
+                text-align:left !important;
             }
         </style>
 
-        <script type="text/javascript">
+        <script>
             function duplicateRow(e) {
                 var newRow = e.cloneNode(true);
                 e.parentNode.insertBefore(newRow, e.nextSibling);
@@ -141,38 +141,38 @@ endforeach;
                         foreach ($check_res as $key => $obj) {
                             ?>
                     <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
-                    <div class="form-group">
-                        <div class=" forms col-xs-3">
+                    <div class="form-row col">
+                        <div class="forms col-3">
                             <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
-                            <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo attr($obj{"code"}); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                            <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);' />
                             <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
-                            <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj{"codetext"}); ?>">
+                            <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>" />
                         </div>
-                        <div class="forms col-xs-4">
+                        <div class="forms col-4">
                             <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Description'); ?>:</label>
-                            <textarea name="description[]"  id="description_<?php echo attr($key) + 1; ?>" class="form-control description" rows="3" ><?php echo text($obj{"description"}); ?></textarea>
+                            <textarea name="description[]"  id="description_<?php echo attr($key) + 1; ?>" class="form-control description" rows="3" ><?php echo text($obj["description"]); ?></textarea>
                         </div>
-                        <div class="forms col-xs-2">
+                        <div class="forms col-2">
                             <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
-                            <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                            <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                         </div>
-                        <div class="forms col-xs-2">
+                        <div class="forms col-2">
                             <label for="care_plan_type_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Type'); ?>:</label>
                             <select name="care_plan_type[]" id="care_plan_type_<?php echo attr($key) + 1; ?>" class="form-control care_plan_type">
                                 <option value=""></option>
                                 <?php foreach ($care_plan_type as $value) :
-                                    $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
+                                    $selected = ($value['value'] == $obj["care_plan_type"]) ? 'selected="selected"' : '';
                                     ?>
                                     <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
                                 <?php endforeach;?>
                                 </select>
                         </div>
-                        <div class="forms col-xs-1" style="padding-top:35px">
+                        <div class="forms col-1" style="padding-top: 35px">
                             <i class="fa fa-plus-circle fa-2x" aria-hidden="true" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'></i>
                             <i class="fa fa-times-circle fa-2x text-danger"  aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
                         </div>
                         <div class="clearfix"></div>
-                        <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>">
+                        <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>" />
                     </div>
                     </div>
                             <?php
@@ -180,38 +180,38 @@ endforeach;
                     } else {
                         ?>
                     <div class="tb_row" id="tb_row_1">
-                        <div class="form-group">
-                            <div class=" forms col-xs-3">
+                        <div class="form-row col">
+                            <div class=" forms col-3">
                                 <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj{"code"}); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                 <span id="displaytext_1"  class="displaytext help-block"></span>
-                                <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj{"codetext"}); ?>">
+                                <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>">
                             </div>
-                            <div class="forms col-xs-4">
+                            <div class="forms col-4">
                                 <label for="description_1" class="h5"><?php echo xlt('Description'); ?>:</label>
-                                <textarea name="description[]"  id="description_1" class="form-control description" rows="3" ><?php echo text($obj{"description"}); ?></textarea>
+                                <textarea name="description[]"  id="description_1" class="form-control description" rows="3" ><?php echo text($obj["description"]); ?></textarea>
                             </div>
-                            <div class="forms col-xs-2">
+                            <div class="forms col-2">
                                 <label for="code_date_1" class="h5"><?php echo xlt('Date'); ?>:</label>
-                                <input type='text' id="code_date_1"  name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                                <input type='text' id="code_date_1"  name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                             </div>
-                            <div class="forms col-xs-2">
+                            <div class="forms col-2">
                                 <label for="care_plan_type_1" class="h5"><?php echo xlt('Type'); ?>:</label>
                                 <select name="care_plan_type[]" id="care_plan_type_1" class="form-control care_plan_type">
                                     <option value=""></option>
                                     <?php foreach ($care_plan_type as $value) :
-                                        $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
+                                        $selected = ($value['value'] == $obj["care_plan_type"]) ? 'selected="selected"' : '';
                                         ?>
                                         <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
                                     <?php endforeach;?>
                                 </select>
                             </div>
-                            <div class="forms col-xs-1 " style="padding-top:35px">
+                            <div class="forms col-1" style="padding-top: 35px">
                                 <i class="fa fa-plus-circle fa-2x" aria-hidden="true" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'></i>
-                                <i class="fa fa-times-circle fa-2x text-danger"  aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
+                                <i class="fa fa-times-circle fa-2x text-danger" aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
                             </div>
                             <div class="clearfix"></div>
-                            <input type="hidden" name="count[]" id="count_1" class="count" value="1">
+                            <input type="hidden" name="count[]" id="count_1" class="count" value="1" />
                         </div>
                     </div>
                     <?php }
@@ -222,7 +222,7 @@ endforeach;
                         <div class="btn-group oe-opt-btn-group-pinch" role="group">
                             <button type="submit" onclick="top.restoreSession()" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
                             <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
-                            <input type="hidden" id="clickId" value="">
+                            <input type="hidden" id="clickId" value="" />
                         </div>
                     </div>
                 </div>

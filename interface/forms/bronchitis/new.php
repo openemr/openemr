@@ -1,4 +1,5 @@
 <?php
+
 /**
  * bronchitis new.php
  *
@@ -15,11 +16,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 formHeader("Form: bronchitis");
 $returnurl = 'encounter_top.php';
@@ -52,28 +53,28 @@ $returnurl = 'encounter_top.php';
    }
 </SCRIPT>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
 
 <form method=post action="<?php echo $rootdir;?>/forms/bronchitis/save.php?mode=new" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<br></br>
+<br /><br />
 <span class="title" ><?php echo xlt('Bronchitis Form'); ?></span>
-<br></br>
+<br /><br />
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
-<br>
+<br />
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
-<br></br>
+<br /><br />
 <span class="text" ><?php echo xlt('Onset of Illness:'); ?> </span><input type="entry" name="bronchitis_date_of_illness" value=""></input>
-<br></br>
+<br /><br />
 
-<span class="text" ><?php echo xlt('HPI:'); ?>:</span><br></br>
+<span class="text" ><?php echo xlt('HPI:'); ?>:</span><br /><br />
 <textarea name="bronchitis_hpi" rows="4" cols="67" wrap="virtual name"></textarea>
-<br></br>
+<br /><br />
 
 <table ><th colspan="5"><?php echo xlt('Other Pertinent Symptoms:'); ?></th>
 <tr>
@@ -102,7 +103,7 @@ $returnurl = 'encounter_top.php';
 <td width="80" align="right"><?php echo xlt('Sputum:'); ?></td>
 <td><input type="checkbox" name="bronchitis_ops_sputum"></input></td>
 <td width="100" align="right"><?php echo xlt('Appearance:'); ?></td>
-<td><input type="text" name="bronchitis_ops_appearance" size="10" value="<?php echo xla('none'); ?>"></input></td>
+<td><input type="text" name="bronchitis_ops_appearance" size="10" value="<?php echo xla('none{{Symptoms}}'); ?>"></input></td>
 </tr>
 </table>
 
@@ -112,7 +113,7 @@ $returnurl = 'encounter_top.php';
 <td><input type="checkbox" name="bronchitis_ops_all_reviewed"></input></td>
 </tr>
 </table>
-<br></br>
+<br /><br />
 
 
 <table >
@@ -130,7 +131,7 @@ $returnurl = 'encounter_top.php';
 <td><input type="checkbox" name="bronchitis_review_of_fh"></input></td>
 </tr>
 </table>
-<br></br>
+<br /><br />
 
 <table>
 <tr>
@@ -207,7 +208,7 @@ $returnurl = 'encounter_top.php';
 <td><input type="checkbox" name="bronchitis_tms_nares_not_examined"></input></td>
 </tr>
 </table>
-<br></br>
+<br /><br />
 
 <table>
 <tr>
@@ -258,7 +259,7 @@ $returnurl = 'encounter_top.php';
 <td><input type="checkbox" name="bronchitis_oropharynx_not_examined"></input></td>
 </tr>
 </table>
-<br></br>
+<br /><br />
 
 <table>
 <tr>
@@ -299,7 +300,7 @@ $returnurl = 'encounter_top.php';
 <td><input type="checkbox" name="bronchitis_heart_not_examined"></input></td>
 </tr>
 </table>
-<br></br>
+<br /><br />
 
 <table>
 <tr>
@@ -357,17 +358,17 @@ $returnurl = 'encounter_top.php';
 <td><input type="checkbox" name="bronchitis_lungs_not_examined"></input></td>
 </tr>
 </table>
-<br></br>
+<br /><br />
 
-<span class="text" ><?php echo xlt('Diagnostic Tests:'); ?></span><br></br>
+<span class="text" ><?php echo xlt('Diagnostic Tests:'); ?></span><br /><br />
 <textarea name="bronchitis_diagnostic_tests" rows="4" cols="67" wrap="virtual name"></textarea>
-<br></br>
+<br /><br />
 
 <span class="text" ><?php echo xlt('Diagnosis:'); ?> </span>
 <table><tr>
    <td>
    <select name="diagnosis1_bronchitis_form" >
-      <option value="None"><?php echo xlt('None'); ?></option>
+      <option value="None"><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="465.9, URI"><?php echo xlt('465.9, URI'); ?></option>
       <option value="466.0, Bronchitis, Acute NOS"><?php echo xlt('466.0, Bronchitis, Acute NOS'); ?></option>
       <option value="493.92, Astma, Acute Exac."><?php echo xlt('493.92, Asthma, Acute Exac.'); ?></option>
@@ -376,14 +377,14 @@ $returnurl = 'encounter_top.php';
       <option value="491.21,COPD Exacerbation"><?php echo xlt('491.21, COPD Exacerbation'); ?></option>
       <option value="486.0, Pneumonia, Acute"><?php echo xlt('486.0, Pneumonia, Acute'); ?></option>
       <option value="519.7, Bronchospasm"><?php echo xlt('519.7, Bronchospasm'); ?></option>
-      <br><br>
+      <br /><br />
    </select>
    </td>
 </tr>
 <tr>
    <td>
    <select name="diagnosis2_bronchitis_form">
-      <option value="None"><?php echo xlt('None'); ?></option>
+      <option value="None"><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="465.9, URI"><?php echo xlt('465.9, URI'); ?></option>
       <option value="466.0, Bronchitis, Acute NOS"><?php echo xlt('466.0, Bronchitis, Acute NOS'); ?></option>
       <option value="493.92, Asthma, Acute Exac."><?php echo xlt('493.92, Asthma, Acute Exac.'); ?></option>
@@ -392,14 +393,14 @@ $returnurl = 'encounter_top.php';
       <option value="491.21,COPD Exacerbation"><?php echo xlt('491.21, COPD Exacerbation'); ?></option>
       <option value="486.0, Pneumonia, Acute"><?php echo xlt('486.0, Pneumonia, Acute'); ?></option>
       <option value="519.7, Bronchospasm"><?php echo xlt('519.7, Bronchospasm'); ?></option>
-      <br><br>
+      <br /><br />
    </select>
    </td>
 </tr>
 <tr>
    <td>
    <select name="diagnosis3_bronchitis_form">
-      <option value="None"><?php echo xlt('None'); ?></option>
+      <option value="None"><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="465.9, URI"><?php echo xlt('465.9, URI'); ?></option>
       <option value="466.0, Bronchitis, Acute NOS"><?php echo xlt('466.0, Bronchitis, Acute NOS'); ?></option>
       <option value="493.92, Asthma, Acute Exac."><?php echo xlt('493.92, Asthma, Acute Exac.'); ?></option>
@@ -408,14 +409,14 @@ $returnurl = 'encounter_top.php';
       <option value="491.21,COPD Exacerbation"><?php echo xlt('491.21, COPD Exacerbation'); ?></option>
       <option value="486.0, Pneumonia, Acute"><?php echo xlt('486.0, Pneumonia, Acute'); ?></option>
       <option value="519.7, Bronchospasm"><?php echo xlt('519.7, Bronchospasm'); ?></option>
-     <br><br>
+     <br /><br />
    </select>
    </td>
 </tr>
 <tr>
    <td>
    <select name="diagnosis4_bronchitis_form">
-      <option value="None"><?php echo xlt('None'); ?></option>
+      <option value="None"><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="465.9, URI"><?php echo xlt('465.9, URI'); ?></option>
       <option value="466.0, Bronchitis, Acute NOS"><?php echo xlt('466.0, Bronchitis, Acute NOS'); ?></option>
       <option value="493.92, Asthma, Acute Exac."><?php echo xlt('493.92, Asthma, Acute Exac.'); ?></option>
@@ -424,25 +425,25 @@ $returnurl = 'encounter_top.php';
       <option value="491.21,COPD Exacerbation"><?php echo xlt('491.21, COPD Exacerbation'); ?></option>
       <option value="486.0, Pneumonia, Acute"><?php echo xlt('486.0, Pneumonia, Acute'); ?></option>
       <option value="519.7, Bronchospasm"><?php echo xlt('519.7, Bronchospasm'); ?></option>
-     <br><br>
+     <br /><br />
    </select>
    </td>
 </tr>
 <table>
-<br></br>
+<br /><br />
 
-<span class="text" ><?php echo xlt('Additional Diagnosis:'); ?> </span><br></br>
+<span class="text" ><?php echo xlt('Additional Diagnosis:'); ?> </span><br /><br />
 <textarea name="bronchitis_additional_diagnosis" rows="4" cols="67" wrap="virtual name"></textarea>
-<br></br>
+<br /><br />
 
-<span class="text" ><?php echo xlt('Treatment:'); ?> </span><br></br>
+<span class="text" ><?php echo xlt('Treatment:'); ?> </span><br /><br />
 <textarea name="bronchitis_treatment" rows="4" cols="67" wrap="virtual name"></textarea>
 
-<br></br>
-<input type="Button" value="<?php echo xla('Check Input Data'); ?>" style="color: #483D8B" onClick = "onset_check(my_form)"<br>
-<br>
+<br /><br />
+<input type="Button" value="<?php echo xla('Check Input Data'); ?>" style="color: #483D8B" onClick = "onset_check(my_form)"<br />
+<br />
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
-<br>
+<br />
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 </form>

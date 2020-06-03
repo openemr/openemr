@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstance;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstance;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -167,8 +169,8 @@ class FHIRSubstanceIngredient extends FHIRBackboneElement implements \JsonSerial
             if (isset($data['substanceReference'])) {
                 $this->setSubstanceReference($data['substanceReference']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

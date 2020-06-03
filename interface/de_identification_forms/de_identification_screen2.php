@@ -1,4 +1,5 @@
 <?php
+
 /**
  * de_identification script 2
  *
@@ -11,16 +12,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
 }
 
@@ -43,27 +44,27 @@ if ($_POST["all"]) {
     $include_tables = "all";
 } else {
     if ($_POST["history_data"]) {
-        $include_tables = $include_tables . $_POST["history_data"]. "#";
+        $include_tables = $include_tables . $_POST["history_data"] . "#";
     }
 
     if ($_POST["prescriptions"]) {
-        $include_tables = $include_tables . $_POST["prescriptions"]. "#";
+        $include_tables = $include_tables . $_POST["prescriptions"] . "#";
     }
 
     if ($_POST["immunization"]) {
-        $include_tables = $include_tables . $_POST["immunization"]. "#";
+        $include_tables = $include_tables . $_POST["immunization"] . "#";
     }
 
     if ($_POST["lists"]) {
-        $include_tables = $include_tables . $_POST["lists"]. "#";
+        $include_tables = $include_tables . $_POST["lists"] . "#";
     }
 
     if ($_POST["transactions"]) {
-        $include_tables = $include_tables . $_POST["transactions"]. "#";
+        $include_tables = $include_tables . $_POST["transactions"] . "#";
     }
 
     if ($_POST["insurance_data"]) {
-        $include_tables = $include_tables . $_POST["insurance_data"]. "#";
+        $include_tables = $include_tables . $_POST["insurance_data"] . "#";
     }
 
     if ($_POST["billing_data"]) {
@@ -93,8 +94,9 @@ if ($deIdentificationStatus == 0) {
 <html>
 <head>
 <title>De Identification</title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+
+    <?php Header::setupHeader(); ?>
+
 <style type="text/css">
 .style1 {
     text-align: center;
@@ -111,9 +113,9 @@ if ($deIdentificationStatus == 0) {
     if ($row = sqlFetchArray($res)) {
         $no_of_items = $row['count'];
         if ($no_of_items == 0) {
-            $cmd="cp " . escapeshellarg($GLOBALS['fileroot']."/sql/metadata_de_identification.txt") . " " . escapeshellarg($GLOBALS['temporary_files_dir']."/metadata_de_identification.txt");
-            $output3=shell_exec($cmd);
-            $query = "LOAD DATA INFILE '" . add_escape_custom($GLOBALS['temporary_files_dir']) ."/metadata_de_identification.txt' INTO TABLE metadata_de_identification FIELDS TERMINATED BY ','  LINES TERMINATED BY '\n'";
+            $cmd = "cp " . escapeshellarg($GLOBALS['fileroot'] . "/sql/metadata_de_identification.txt") . " " . escapeshellarg($GLOBALS['temporary_files_dir'] . "/metadata_de_identification.txt");
+            $output3 = shell_exec($cmd);
+            $query = "LOAD DATA INFILE '" . add_escape_custom($GLOBALS['temporary_files_dir']) . "/metadata_de_identification.txt' INTO TABLE metadata_de_identification FIELDS TERMINATED BY ','  LINES TERMINATED BY '\n'";
             $res = sqlStatement($query);
         }
     }
@@ -141,7 +143,7 @@ if ($deIdentificationStatus == 0) {
 
     try {
         //call procedure - execute in background
-        $sh_cmd='./de_identification_procedure.sh ' . escapeshellarg($sqlconf["host"]) . ' ' . escapeshellarg($sqlconf["login"]) . ' ' . escapeshellarg($sqlconf["pass"]) . ' ' . escapeshellarg($sqlconf["dbase"]) . ' &';
+        $sh_cmd = './de_identification_procedure.sh ' . escapeshellarg($sqlconf["host"]) . ' ' . escapeshellarg($sqlconf["login"]) . ' ' . escapeshellarg($sqlconf["pass"]) . ' ' . escapeshellarg($sqlconf["dbase"]) . ' &';
         system($sh_cmd);
 
 
@@ -172,11 +174,11 @@ if ($deIdentificationStatus == 0) {
     <tr valign="top">
 
         <td>&nbsp;</td>
-        <td rowspan="3"><br>
+        <td rowspan="3"><br />
                         <?php echo xlt('No Patient record found for given Selection criteria');
-                        echo "</br></br>";
+                        echo "<br /><br />";
                         echo xlt('Please start new De Identification process');
-                        echo "</br>";   ?> </br>
+                        echo "<br />";   ?> <br />
         </td>
         <td>&nbsp;</td>
     </tr>
@@ -198,7 +200,7 @@ if ($deIdentificationStatus == 0) {
 
                         <?php
                     } else {   //delete old de_identified_data.xls file
-                        $timestamp=0;
+                        $timestamp = 0;
                         $query = "select now() as timestamp";
                         $res = sqlStatement($query);
                         if ($row = sqlFetchArray($res)) {
@@ -206,7 +208,7 @@ if ($deIdentificationStatus == 0) {
                         }
 
                         $timestamp = str_replace(" ", "_", $timestamp);
-                        $de_identified_file = $GLOBALS['temporary_files_dir']."/de_identified_data".$timestamp.".xls";
+                        $de_identified_file = $GLOBALS['temporary_files_dir'] . "/de_identified_data" . $timestamp . ".xls";
                         $query = "update de_identification_status set last_available_de_identified_data_file = ?";
                         $res = sqlStatement($query, array($de_identified_file));
                         $query = "select * from de_identified_data into outfile '" . add_escape_custom($de_identified_file) . "' ";
@@ -225,11 +227,11 @@ if ($deIdentificationStatus == 0) {
     <table class="de_identification_status_message" align="center">
     <tr valign="top">
         <td>&nbsp;</td>
-        <td rowspan="3"><br>
+        <td rowspan="3"><br />
                         <?php echo xlt('De Identification Process is ongoing');
-                        echo "</br></br>";
+                        echo "<br /><br />";
                         echo xlt('Please visit De Identification screen after some time');
-                        echo "</br>";   ?> </br>
+                        echo "<br />";   ?> <br />
         </td>
         <td>&nbsp;</td>
     </tr>
@@ -258,7 +260,7 @@ if ($deIdentificationStatus == 0) {
         $query = "update de_identification_status set status = 3";
         $res = sqlStatement($query);
     }
-} else if ($deIdentificationStatus == 2 or $deIdentificationStatus == 3) {
+} elseif ($deIdentificationStatus == 2 or $deIdentificationStatus == 3) {
  //2 - The De Identification process completed and xls file is ready to download
  //3 - The De Identification process completed with error
     $query = "select last_available_de_identified_data_file from de_identification_status";
@@ -271,7 +273,7 @@ if ($deIdentificationStatus == 0) {
     if (file_exists($filename)) {
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename='.basename($filename));
+        header('Content-Disposition: attachment; filename=' . basename($filename));
         header('Content-Transfer-Encoding: binary');
         header('Content-Type: application/vnd.ms-excel;');                 // This should work for IE & Opera
         header("Content-type: application/x-msexcel");                    // This should work for the rest

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -318,7 +320,7 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
                         $this->addDesignation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"designation" must be array of objects or null, '.gettype($data['designation']).' seen.');
+                    throw new \InvalidArgumentException('"designation" must be array of objects or null, ' . gettype($data['designation']) . ' seen.');
                 }
             }
             if (isset($data['contains'])) {
@@ -327,11 +329,11 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
                         $this->addContains($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"contains" must be array of objects or null, '.gettype($data['contains']).' seen.');
+                    throw new \InvalidArgumentException('"contains" must be array of objects or null, ' . gettype($data['contains']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Default values for optional variables that are allowed to be set by callers.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -75,7 +77,7 @@ if (IS_WINDOWS) {
 $web_root = substr($webserver_root, strspn($webserver_root ^ $server_document_root, "\0"));
 // Ensure web_root starts with a path separator
 if (preg_match("/^[^\/]/", $web_root)) {
-    $web_root = "/".$web_root;
+    $web_root = "/" . $web_root;
 }
 
 // The webserver_root and web_root are now automatically collected in
@@ -126,7 +128,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     // of text() as our helper functions are loaded in later on in this file.
     if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp)) {
         echo "Invalid URL";
-        error_log("Request with site id '". htmlspecialchars($tmp, ENT_QUOTES) . "' contains invalid characters.");
+        error_log("Request with site id '" . htmlspecialchars($tmp, ENT_QUOTES) . "' contains invalid characters.");
         die();
     }
 
@@ -228,7 +230,7 @@ if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
 //  library/date_functions.php - Includes functions for date internationalization
 //  library/validation/validate_core.php - Includes functions for page validation
 //  library/translation.inc.php - Includes translation functions
-require_once $GLOBALS['vendor_dir'] ."/autoload.php";
+require_once $GLOBALS['vendor_dir'] . "/autoload.php";
 
 /**
  * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
@@ -240,7 +242,7 @@ require_once $GLOBALS['vendor_dir'] ."/autoload.php";
  * @link http://open-emr.org/wiki/index.php/Dotenv_Usage
  */
 if (file_exists("{$webserver_root}/.env")) {
-    $dotenv = Dotenv::create($webserver_root);
+    $dotenv = Dotenv::createImmutable($webserver_root);
     $dotenv->load();
 }
 
@@ -256,6 +258,12 @@ require_once(dirname(__FILE__) . "/../version.php");
 //    - INFO/WARN/ERROR are great for production
 //    - TRACE is useful when debugging hard to spot bugs
 $GLOBALS["log_level"] = "OFF";
+
+// Load twig support
+$twigLoader = new Twig\Loader\FilesystemLoader($webserver_root . '/templates');
+$twigEnv = new Twig\Environment($twigLoader, ['autoescape' => false]);
+$twigEnv->addExtension(new OpenEMR\Core\TwigExtension());
+$GLOBALS['twig'] = $twigEnv;
 
 try {
     /** @var Kernel */
@@ -278,7 +286,7 @@ $GLOBALS['ippf_specific'] = false;
 $GLOBALS['inhouse_pharmacy'] = false;
 $GLOBALS['sell_non_drug_products'] = 0;
 
-$glrow = sqlQuery("SHOW TABLES LIKE 'globals'");
+$glrow = sqlQueryNoLog("SHOW TABLES LIKE 'globals'");
 if (!empty($glrow)) {
   // Collect user specific settings from user_settings table.
   //
@@ -290,7 +298,7 @@ if (!empty($glrow)) {
         $temp_authuserid = $_SESSION['authUserID'];
     } else {
         if (!empty($_POST['authUser'])) {
-            $temp_sql_ret = sqlQuery("SELECT `id` FROM `users` WHERE `username` = ?", array($_POST['authUser']));
+            $temp_sql_ret = sqlQueryNoLog("SELECT `id` FROM `users` WHERE BINARY `username` = ?", array($_POST['authUser']));
             if (!empty($temp_sql_ret['id'])) {
               //Set the user id from the login variable
                 $temp_authuserid = $temp_sql_ret['id'];
@@ -299,17 +307,17 @@ if (!empty($glrow)) {
     }
 
     if (!empty($temp_authuserid)) {
-        $glres_user = sqlStatement(
+        $glres_user = sqlStatementNoLog(
             "SELECT `setting_label`, `setting_value` " .
             "FROM `user_settings` " .
             "WHERE `setting_user` = ? " .
             "AND `setting_label` LIKE 'global:%'",
             array($temp_authuserid)
         );
-        for ($iter=0; $row=sqlFetchArray($glres_user); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($glres_user); $iter++) {
           //remove global_ prefix from label
             $row['setting_label'] = substr($row['setting_label'], 7);
-            $gl_user[$iter]=$row;
+            $gl_user[$iter] = $row;
         }
     }
 
@@ -317,7 +325,7 @@ if (!empty($glrow)) {
   // Some parameters require custom handling.
   //
     $GLOBALS['language_menu_show'] = array();
-    $glres = sqlStatement(
+    $glres = sqlStatementNoLog(
         "SELECT gl_name, gl_index, gl_value FROM globals " .
         "ORDER BY gl_name, gl_index"
     );
@@ -337,7 +345,7 @@ if (!empty($glrow)) {
             $GLOBALS['language_menu_show'][] = $gl_value;
         } elseif ($gl_name == 'css_header') {
             //Escape css file name using 'attr' for security (prevent XSS).
-            $GLOBALS[$gl_name] = $web_root.'/public/themes/'.attr($gl_value).'?v='.$v_js_includes;
+            $GLOBALS[$gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
             $css_header = $GLOBALS[$gl_name];
             $temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
@@ -367,7 +375,7 @@ if (!empty($glrow)) {
             }
 
           // Synchronize MySQL time zone with PHP time zone.
-            sqlStatement("SET time_zone = ?", array((new DateTime())->format("P")));
+            sqlStatementNoLog("SET time_zone = ?", array((new DateTime())->format("P")));
         } else {
             $GLOBALS[$gl_name] = $gl_value;
         }
@@ -387,22 +395,26 @@ if (!empty($glrow)) {
 // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
     $rtl_override = false;
     if (isset($_SESSION['language_direction'])) {
-        if ($_SESSION['language_direction'] == 'rtl' &&
-        !strpos($GLOBALS['css_header'], 'rtl')  ) {
+        if (
+            $_SESSION['language_direction'] == 'rtl' &&
+            !strpos($GLOBALS['css_header'], 'rtl')
+        ) {
             // the $css_header_value is set above
             $rtl_override = true;
         }
     } elseif (isset($_SESSION['language_choice'])) {
         //this will support the onsite patient portal which will have a language choice but not yet a set language direction
         $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
-        if ($_SESSION['language_direction'] == 'rtl' &&
-        !strpos($GLOBALS['css_header'], 'rtl')) {
+        if (
+            $_SESSION['language_direction'] == 'rtl' &&
+            !strpos($GLOBALS['css_header'], 'rtl')
+        ) {
             // the $css_header_value is set above
             $rtl_override = true;
         }
     } else {
         //$_SESSION['language_direction'] is not set, so will use the default language
-        $default_lang_id = sqlQuery('SELECT lang_id FROM lang_languages WHERE lang_description = ?', array($GLOBALS['language_default']));
+        $default_lang_id = sqlQueryNoLog('SELECT lang_id FROM lang_languages WHERE lang_description = ?', array($GLOBALS['language_default']));
 
         if (getLanguageDir($default_lang_id['lang_id']) === 'rtl' && !strpos($GLOBALS['css_header'], 'rtl')) {
 // @todo eliminate 1 SQL query
@@ -417,9 +429,9 @@ if (!empty($glrow)) {
         $new_theme = 'rtl_' . $temp_css_theme_name;
 
         // Check file existance
-        if (file_exists($webserver_root.'/public/themes/'.$new_theme)) {
+        if (file_exists($webserver_root . '/public/themes/' . $new_theme)) {
             //Escape css file name using 'attr' for security (prevent XSS).
-            $GLOBALS['css_header'] = $web_root.'/public/themes/'.attr($new_theme).'?v='.$v_js_includes;
+            $GLOBALS['css_header'] = $web_root . '/public/themes/' . attr($new_theme) . '?v=' . $v_js_includes;
             $css_header = $GLOBALS['css_header'];
         } else {
             // throw a warning if rtl'ed file does not exist.
@@ -446,7 +458,7 @@ if (!empty($glrow)) {
     $GLOBALS['translate_form_titles'] = true;
     $GLOBALS['translate_document_categories'] = true;
     $GLOBALS['translate_appt_categories'] = true;
-    $timeout = 7200;
+    $GLOBALS['timeout'] = 7200;
     $openemr_name = 'OpenEMR';
     $css_header = "$web_root/public/themes/style_default.css";
     $GLOBALS['css_header'] = $css_header;
@@ -488,13 +500,6 @@ $tmore = xl('(More)');
 //    -if you don't want it translated, then strip the xl function away
 $tback = xl('(Back)');
 
-// This is the idle logout function:
-// if a page has not been refreshed within this many seconds, the interface
-// will return to the login page
-if (!empty($special_timeout)) {
-    $timeout = intval($special_timeout);
-}
-
 $versionService = new \OpenEMR\Services\VersionService();
 $version = $versionService->fetch();
 
@@ -505,7 +510,7 @@ if (!empty($version)) {
     // function calls within empty() in php versions < 5.5 .
     $version_getrealpatch = $version->getRealPatch();
     if (($version->getRealPatch() != '0') && (!(empty($version_getrealpatch)))) {
-        $patch_appending = " (".$version->getRealPatch().")";
+        $patch_appending = " (" . $version->getRealPatch() . ")";
     }
 
     $openemr_version = $version->getMajor() . "." . $version->getMinor() . "." . $version->getPatch();
@@ -516,7 +521,7 @@ if (!empty($version)) {
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];
-$GLOBALS['backpic'] = $backpic;
+$GLOBALS['backpic'] = $backpic ?? '';
 
 // 1 = send email message to given id for Emergency Login user activation,
 // else 0.
@@ -526,7 +531,7 @@ $GLOBALS['Emergency_Login_email'] = empty($GLOBALS['Emergency_Login_email_id']) 
 //Run de_identification_upgrade.php script to upgrade OpenEMR database to include procedures,
 //functions, tables for de-identification(Mysql root user and password is required for successful
 //execution of the de-identification upgrade script)
-$GLOBALS['include_de_identification']=0;
+$GLOBALS['include_de_identification'] = 0;
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
 // don't include the authentication module - we do this to avoid
@@ -592,8 +597,8 @@ $therapy_group = (empty($pid) && isset($_SESSION['therapy_group'])) ? $_SESSION[
 // global interface function to format text length using ellipses
 function strterm($string, $length)
 {
-    if (strlen($string) >= ($length-3)) {
-        return substr($string, 0, $length-3) . "...";
+    if (strlen($string) >= ($length - 3)) {
+        return substr($string, 0, $length - 3) . "...";
     } else {
         return $string;
     }

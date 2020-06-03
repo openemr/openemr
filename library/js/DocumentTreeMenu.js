@@ -224,7 +224,7 @@ function arrayCopy(input)
 			var linkStart = nodes[i].link ? this.stringFormat('<a href="{0}" target="{1}">', nodes[i].link, linkTarget) : '';
 			var linkEnd = '</a>';
 			
-			this.output += this.stringFormat('{0}<nobr>{1}{2}{3}{4}<span {5}>{6}</span>{7}</nobr><br></div>',
+			this.output += this.stringFormat('{0}<nobr>{1}{2}{3}{4}<span {5}>{6}</span>{7}</nobr><br /></div>',
 			                  layerTag,
 							  prepend,
 			                  parentLayerID == null && (nodes.length == 1 || this.noTopLevelImages) ? '' : imgTag,

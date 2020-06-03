@@ -1,29 +1,40 @@
 /*---------------------------openemr5.0.2 messages--------------------------- */
 .oe-margin-t-3 {
-    margin-top: 3px;
+  margin-top: 3px;
 }
+
 .oe-margin-t-10 {
-    margin-top: 10px;
+  margin-top: 10px;
 }
+
 .oe-display {
-    display: none;
+  display: none;
 }
+
 .oe-margin-b-20 {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
+
 .oe-margin-b-10 {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
-a.arrowhead, a:hover.arrowhead, a:visited.arrowhead {
-    color: black;
+
+a.arrowhead,
+a:hover.arrowhead,
+a:visited.arrowhead {
+  color: $body-color;
 }
+
 .oe-cursor-stop {
-    cursor: not-allowed;
+  cursor: not-allowed;
 }
+
 .oe-cursor-add {
-    cursor: cell;
+  cursor: cell;
 }
+
 .oe-patient-background {
-    background: #ffff9e !important;
+  background: lighten($yellow, 80%) !important;
 }
+
 /*---------------------------openemr5.0.2 messages--------------------------- */

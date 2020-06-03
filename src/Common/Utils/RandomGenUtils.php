@@ -1,4 +1,5 @@
 <?php
+
 /**
  * RandomGenUtils class.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\Common\Utils;
 
@@ -60,5 +60,42 @@ class RandomGenUtils
         }
 
         return $new_token;
+    }
+
+    // Function to generate a password for the patient portal
+    //  Randomly generates password with 12 characters that contains at least:
+    //   one lower case
+    //   one upper case
+    //   one number
+    //   one special character
+    public static function generatePortalPassword()
+    {
+        $success = false;
+        $i = 0;
+        while (!$success) {
+            $the_password = self::produceRandomString(12, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%");
+            if (empty($the_password)) {
+                // Something is seriously wrong with the random generator
+                error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique token.');
+                die("OpenEMR Error : OpenEMR is not working because unable to create a random unique token.");
+            }
+            $i++;
+            if ($i > 1000) {
+                // Something is seriously wrong since 1000 tries have not created a valid password
+                error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique token.');
+                die("OpenEMR Error : OpenEMR is not working because unable to create a random unique token.");
+            }
+            if (
+                preg_match('/[A-Z]/', $the_password) &&
+                preg_match('/[a-z]/', $the_password) &&
+                preg_match('/[0-9]/', $the_password) &&
+                preg_match('/[@#$%]/', $the_password)
+            ) {
+                // Password passes criteria
+                $success = true;
+            }
+        }
+
+        return $the_password;
     }
 }

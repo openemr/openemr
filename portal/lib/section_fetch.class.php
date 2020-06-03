@@ -1,4 +1,5 @@
 <?php
+
 /**
  * section_fetch.class.php
  *
@@ -8,12 +9,13 @@
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 //namespace OnsitePortal;
 
 require_once(dirname(__file__) . "/../../custom/code_types.inc.php");
 
 
-require_once(dirname(__file__) .'/appsql.class.php');
+require_once(dirname(__file__) . '/appsql.class.php');
 class FetchSection
 {
 
@@ -107,7 +109,7 @@ class FetchSection
  * @param    pid       Integer     patient id
  * @return   records   Array       list of immunizations
  */
-    public function getImmunizations($pid)
+    public static function getImmunizations($pid)
     {
         $appTable = new ApplicationTable();
         $query         = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,

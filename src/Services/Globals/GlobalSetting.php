@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OpenEMR.
  *
@@ -36,10 +37,10 @@ class GlobalSetting
     public function format()
     {
         return [
-            xl($this->label),
+            $this->label,
             $this->dataType,
             $this->default,
-            xl($this->description)
+            $this->description
         ];
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Functions to support questions at order entry that are specific to order type.
  *
@@ -36,7 +37,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
         return $s;
     }
     // container is div in form.
-    $s .= "<table class='table table-condensed bg-light qoe-table'>";
+    $s .= "<table class='table table-sm bg-light qoe-table'>";
 
   // Get all the questions for the given procedure order type.
     $qres = sqlStatement("SELECT " .
@@ -69,7 +70,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
         $s .= "<tr>";
         $s .= "<td valign='top'";
         if ($qrow['required']) {
-            $s .= " style='color:#880000'"; // TBD: move to stylesheet
+            $s .= " style='color: #880000'"; // TBD: move to stylesheet
         }
 
         $s .= ">" . text($qrow['question_text']) . "</td>";
@@ -84,7 +85,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
             }
 
             $s .= " title='" . attr($qrow['tips']) . "' placeholder='" . attr($qrow['tips']) . "' />";
-        } else if ($fldtype == 'N') {
+        } elseif ($fldtype == 'N') {
             // Numeric text Field.
             // TBD: Add some JavaScript validation for this.
             $s .= "<input class='input-sm' type='text' name='" . attr($qfieldid) . "' maxlength='8'";
@@ -93,7 +94,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
             }
 
             $s .= " title='" . attr($qrow['tips']) . "' placeholder='" . attr($qrow['tips']) . "' />";
-        } else if ($fldtype == 'D') {
+        } elseif ($fldtype == 'D') {
             // Date Field.
             $s .= "<input type='text' name='" . attr($qfieldid) . "' id='" . attr($qfieldid) . "'";
             if (!empty($answers)) {
@@ -102,7 +103,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
 
             $s .= " class='datepicker input-sm' title='" . xla('Click here to choose a date') . "' />";
             /* Legacy calendar removed to update to current calendar 07/20/2018 sjp */
-        } else if ($fldtype == 'G') {
+        } elseif ($fldtype == 'G') {
             // Gestational age in weeks and days.
             $currweeks = -1;
             $currdays  = -1;
@@ -162,7 +163,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
             $s .= "</select>";
             }
              *****************************************************************/
-        } else if ($fldtype == 'M') {
+        } elseif ($fldtype == 'M') {
             // List of checkboxes.
             $a = explode(';', $qrow['options']);
             $i = 0;

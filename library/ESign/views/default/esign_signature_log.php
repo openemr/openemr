@@ -1,4 +1,5 @@
 <?php
+
 /**
  * default signature log view script
  *
@@ -20,6 +21,7 @@
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
 ?>
 <div id='esign-signature-log-<?php echo attr($this->logId); ?>' class='esign-signature-log-container'>
     <div class="esign-signature-log-table">
@@ -28,7 +30,7 @@
         
         <?php if (!$this->verified) { ?>
         <div class="esign-log-row">
-            <div style='text-align:center;color:red;'><?php echo xlt('The data integrity test failed for this form'); ?></div>
+            <div class="text-center text-danger"><?php echo xlt('The data integrity test failed for this form'); ?></div>
         </div>
         <?php } ?>
         

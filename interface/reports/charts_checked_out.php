@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This reports checkins and checkouts for a specified patient's chart.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -83,8 +83,8 @@ $res = PatientService::getChartTrackerInformation();
 $data_ctr = 0;
 while ($row = sqlFetchArray($res)) {
     if ($data_ctr == 0) { ?>
-    <table>
-     <thead>
+    <table class='table'>
+     <thead class='thead-light'>
           <th> <?php echo xlt('Chart'); ?> </th>
           <th> <?php echo xlt('Patient'); ?> </th>
           <th> <?php echo xlt('Location'); ?> </th>

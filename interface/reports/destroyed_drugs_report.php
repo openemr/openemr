@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report lists destroyed drug lots within a specified date range.
  *
@@ -7,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +17,7 @@ require_once("$srcdir/patient.inc");
 require_once("../drugs/drugs.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -25,35 +27,122 @@ if (!empty($_POST)) {
 
 $form_from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01'); // From date filter
 $form_to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');   // To date filter
+
+function processData($data)
+{
+    $data['inventory_id'] = [$data['inventory_id']];
+    $data['lot_number'] = [$data['lot_number']];
+    $data['on_hand'] = [$data['on_hand']];
+    $data['destroy_date'] = [$data['destroy_date']];
+    $data['destroy_method'] = [$data['destroy_method']];
+    $data['destroy_witness'] = [$data['destroy_witness']];
+    $data['destroy_notes'] = [$data['destroy_notes']];
+    return $data;
+}
+function mergeData($d1, $d2)
+{
+    $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
+    $d1['lot_number'] = array_merge($d1['lot_number'], $d2['lot_number']);
+    $d1['on_hand'] = array_merge($d1['on_hand'], $d2['on_hand']);
+    $d1['destroy_date'] = array_merge($d1['destroy_date'], $d2['destroy_date']);
+    $d1['destroy_method'] = array_merge($d1['destroy_method'], $d2['destroy_method']);
+    $d1['destroy_witness'] = array_merge($d1['destroy_witness'], $d2['destroy_witness']);
+    $d1['destroy_notes'] = array_merge($d1['destroy_notes'], $d2['destroy_notes']);
+    return $d1;
+}
+function mapToTable($row)
+{
+    if ($row) {
+        echo "<tr>\n";
+        echo "<td> " . text($row["name"]) . " </td>\n";
+        echo "<td>" . text($row["ndc_number"]) . " </td>\n";
+        echo "<td>";
+        foreach ($row['inventory_id'] as $key => $value) {
+            echo "<div onclick='doclick(" . attr(addslashes($row['drug_id'])) . "," . attr(addslashes($row['inventory_id'][$key])) . ")'>" .
+            "<a href='' onclick='return false'>" . text($row['lot_number'][$key]) . "</a></div>";
+        }
+        echo "</td>\n<td>";
+
+        foreach ($row['on_hand'] as $value) {
+            $value = $value != null ? $value : "N/A";
+            echo "<div >" . text($value) . "</div>";
+        }
+        echo "</td>\n<td>";
+
+        foreach ($row['destroy_date'] as $value) {
+            $value = $value != null ? $value : "N/A";
+            echo "<div >" . text(oeFormatShortDate($value)) . "</div>";
+        }
+        echo "</td>\n<td>";
+
+        foreach ($row['destroy_method'] as $value) {
+            $value = $value != null ? $value : "N/A";
+            echo "<div >" . text($value) . "</div>";
+        }
+        echo "</td>\n<td>";
+
+        foreach ($row['destroy_witness'] as $value) {
+            $value = $value != null ? $value : "N/A";
+            echo "<div >" . text($value) . "</div>";
+        }
+        echo "</td>\n<td>";
+
+        foreach ($row['destroy_notes'] as $value) {
+            $value = $value != null ? $value : "N/A";
+            echo "<div >" . text($value) . "</div>";
+        }
+        echo "</td>\n</tr>\n";
+    }
+}
 ?>
 <html>
 <head>
 <title><?php echo xlt('Destroyed Drugs'); ?></title>
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+
+    <?php Header::setupHeader(['datetime-picker','datatables', 'datatables-dt', 'datatables-bs', 'report-helper']); ?>
 
 <style>
-table.mymaintable, table.mymaintable td, table.mymaintable th {
- border: 1px solid #aaaaaa;
- border-collapse: collapse;
+/* TODO: Is the below code for links necessary? */
+a, a:visited, a:hover {
+  color: var(--primary);
 }
-table.mymaintable td, table.mymaintable th {
- padding: 1pt 4pt 1pt 4pt;
+#mymaintable thead .sorting::before,
+#mymaintable thead .sorting_asc::before,
+#mymaintable thead .sorting_asc::after,
+#mymaintable thead .sorting_desc::before,
+#mymaintable thead .sorting_desc::after,
+#mymaintable thead .sorting::after {
+  display: none;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+
+.paginate_button:hover{
+  background: transparent !important;
 }
 </style>
 
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<script>
 
-<script language="JavaScript">
+// Process click on destroyed drug.
+function doclick(id, lot) {
+ dlgopen('../drugs/destroy_lot.php?drug=' + encodeURIComponent(id) + '&lot=' + encodeURIComponent(lot), '_blank', 600, 475);
+}
 
-$(function() {
-    oeFixedHeaderSetup(document.getElementById('mymaintable'));
+$(function () {
     var win = top.printLogSetup ? top : opener.top;
     win.printLogSetup(document.getElementById('printbutton'));
+
+    $('#mymaintable').DataTable({
+            stripeClasses:['stripe1','stripe2'],
+            orderClasses: false,
+            <?php // Bring in the translations ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+    });
 
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
@@ -67,68 +156,37 @@ $(function() {
 </script>
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body class="container-fluid text-center">
 
-<center>
 
 <h2><?php echo xlt('Destroyed Drugs'); ?></h2>
 
 <form name='theform' method='post' action='destroyed_drugs_report.php' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<table border='0' cellpadding='3'>
-
- <tr>
-  <td>
-    <?php echo xlt('From'); ?>:
-   <input type='text' class='datepicker' name='form_from_date' id='form_from_date'
+<div class="col-sm-12">
+    <span class="font-weight-bold"><?php echo xlt('From'); ?>:</span>
+    <input type='text' style="width: 200px" class='datepicker form-control d-inline' name='form_from_date' id='form_from_date'
     size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
-
-   &nbsp;<?php echo xlt('To{{Range}}'); ?>:
-   <input type='text' class='datepicker' name='form_to_date' id='form_to_date'
+    <span class="font-weight-bold"><?php echo xlt('To{{Range}}'); ?>:</span>
+    <input type='text' style="width: 200px" class='datepicker form-control d-inline' name='form_to_date' id='form_to_date'
     size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
+    <input class="btn btn-primary" type='submit' name='form_refresh' value='<?php echo xla('Refresh'); ?>' />
+    <input class="btn btn-secondary" type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
+</div>
 
-   &nbsp;
-   <input type='submit' name='form_refresh' value='<?php echo xla('Refresh'); ?>'>
-   &nbsp;
-   <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
-  </td>
- </tr>
-
- <tr>
-  <td height="1">
-  </td>
- </tr>
-
-</table>
-
-<table width='98%' id='mymaintable' class='mymaintable'>
+<!-- TODO: Why didn't we use the BS4 table class here? !-->
+<table id='mymaintable' class="display table-striped">
  <thead>
- <tr bgcolor="#dddddd">
-  <td class='dehead'>
-    <?php echo xlt('Drug Name'); ?>
-  </td>
-  <td class='dehead'>
-    <?php echo xlt('NDC'); ?>
-  </td>
-  <td class='dehead'>
-    <?php echo xlt('Lot'); ?>
-  </td>
-  <td class='dehead'>
-    <?php echo xlt('Qty'); ?>
-  </td>
-  <td class='dehead'>
-    <?php echo xlt('Date Destroyed'); ?>
-  </td>
-  <td class='dehead'>
-    <?php echo xlt('Method'); ?>
-  </td>
-  <td class='dehead'>
-    <?php echo xlt('Witness'); ?>
-  </td>
-  <td class='dehead'>
-    <?php echo xlt('Notes'); ?>
-  </td>
+ <tr>
+  <th><?php echo xlt('Drug Name'); ?></th>
+  <th><?php echo xlt('NDC'); ?></th>
+  <th><?php echo xlt('Lot'); ?></th>
+  <th><?php echo xlt('Qty'); ?></th>
+  <th><?php echo xlt('Date Destroyed'); ?></th>
+  <th><?php echo xlt('Method'); ?></th>
+  <th><?php echo xlt('Witness'); ?></th>
+  <th><?php echo xlt('Notes'); ?></th>
  </tr>
  </thead>
  <tbody>
@@ -145,56 +203,28 @@ if ($_POST['form_refresh']) {
     "WHERE $where " .
     "ORDER BY d.name, i.drug_id, i.destroy_date, i.lot_number";
 
-  // echo "<!-- $query -->\n"; // debugging
     $res = sqlStatement($query, array($form_from_date, $form_to_date));
-
-    $last_drug_id = 0;
+    $prevRow = '';
     while ($row = sqlFetchArray($res)) {
-        $drug_name       = $row['name'];
-        $ndc_number      = $row['ndc_number'];
-        if ($row['drug_id'] == $last_drug_id) {
-            $drug_name  = '&nbsp;';
-            $ndc_number = '&nbsp;';
+        $row = processData($row);
+        if ($prevRow == '') {
+            $prevRow = $row;
+            continue;
         }
-        ?>
-   <tr>
-    <td class='detail'>
-        <?php echo text($drug_name); ?>
-  </td>
-  <td class='detail'>
-        <?php echo text($ndc_number); ?>
-  </td>
-  <td class='detail'>
-     <a href='../drugs/destroy_lot.php?drug=<?php echo attr_url($row['drug_id']); ?>&lot=<?php echo attr_url($row['inventory_id']); ?>'
-    style='color:#0000ff' target='_blank'>
-        <?php echo text($row['lot_number']); ?>
-   </a>
-  </td>
-  <td class='detail'>
-        <?php echo text($row['on_hand']); ?>
-  </td>
-  <td class='detail'>
-        <?php echo text(oeFormatShortDate($row['destroy_date'])); ?>
-  </td>
-  <td class='detail'>
-        <?php echo text($row['destroy_method']); ?>
-  </td>
-  <td class='detail'>
-        <?php echo text($row['destroy_witness']); ?>
-  </td>
-  <td class='detail'>
-        <?php echo text($row['destroy_notes']); ?>
-  </td>
- </tr>
-        <?php
-        $last_drug_id = $row['drug_id'];
-    } // end while
-} // end if
+        if ($prevRow['drug_id'] == $row['drug_id']) {
+            $row = mergeData($prevRow, $row);
+        } else {
+            mapToTable($prevRow);
+        }
+        $prevRow = $row;
+    }
+    mapToTable($prevRow);
+}
 ?>
 
  </tbody>
 </table>
 </form>
-</center>
+
 </body>
 </html>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Multi select patient.
  *
@@ -6,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Amiel Elboim <amielel@matrix.co.il
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2017 Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -27,7 +30,7 @@ if (isset($_GET['patients'])) {
     $patients = explode(';', $patients);
     $results = array();
     foreach ($patients as $patient) {
-        $result=getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
+        $result = getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
         $results[] = $result;
     }
 }
@@ -44,33 +47,32 @@ if (isset($_GET['patients'])) {
         #searchCriteria {
             text-align: center;
             width: 100%;
-            background-color: #ddddff;
+            background-color: var(--gray300);
             font-weight: bold;
             padding: 7px;
         }
-        .select-box{
+        
+        .select-box {
             display: inline-block;
         }
-        #by-id{
+        
+        #by-id {
             width: 90px !important;
         }
-        #by-name{
+        
+        #by-name {
             width: 120px !important;
         }
-        .buttons-box{
-            margin-left: 10px;
-            margin-right: 10px;
+        
+        .inline-box {
             display: inline-block;
             vertical-align: middle;
         }
-        .inline-box{
-            display: inline-block;
-            vertical-align: middle;
-        }
-        .remove-patient{
-            color: red;
+        .remove-patient {
+            color: var(--danger);
             pointer-events: auto;
         }
+        
         #searchResultsHeader {
             width: 100%;
             border-collapse: collapse;
@@ -78,7 +80,7 @@ if (isset($_GET['patients'])) {
         #searchResults {
             width: 100%;
             border-collapse: collapse;
-            background-color: white;
+            background-color: var(--white);
             overflow: auto;
         }
 
@@ -86,40 +88,46 @@ if (isset($_GET['patients'])) {
             cursor: hand;
             cursor: pointer;
         }
+        
         #searchResults td {
-            /*font-size: 0.7em;*/
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--gray200);
         }
     </style>
 
 </head>
 
 <body class="body_top">
-<div class="container-responsive">
+<div class="container-fluid">
     <div id="searchCriteria">
-        <form class="form-inline">
-            <div class="select-box">
-                <label><?php echo xlt('Patient name') .':'; ?></label>
-                <select id="by-name" class="input-sm">
-                    <option value=""><?php echo xlt('Enter name'); ?></option>
-                </select>
-                <label><?php echo xlt('Patient ID'); ?></label>
-                <select id="by-id" class="input-sm">
-                    <option value=""><?php echo xlt('Enter ID'); ?></option>
-                </select>
-            </div>
-            <div class="buttons-box">
-                <div class="inline-box">
-                    <button id="add-to-list"><?php echo xlt('Add to list'); ?></button>
+        <form>
+            <div class="row align-items-center">
+                <div class="col-4">
+                    <div class="select-box form-inline">
+                        <label for="by-name"><?php echo xlt('Patient name') . ':'; ?></label>
+                        <select id="by-name" name="by-name" class="input-sm">
+                            <option value=""><?php echo xlt('Enter name'); ?></option>
+                        </select>
+                    </div>
                 </div>
-                <div class="inline-box">
-                    <button id="send-patients" onclick="selPatients()"><?php echo xlt('OK'); ?></button>
+                <div class="col-4">
+                    <div class="select-box form-inline">
+                        <label for="by-id"><?php echo xlt('Patient ID'); ?>:</label>
+                        <select id="by-id" name="by-id" class="input-sm">
+                            <option value=""><?php echo xlt('Enter ID'); ?></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="btn-group" role="group" aria-label="Form Buttons">
+                            <button id="add-to-list" type="button" class="btn btn-secondary btn-sm"><?php echo xlt('Add to list'); ?></button>
+                            <button id="send-patients" type="button" class="btn btn-secondary btn-sm" onclick="selPatients()"><?php echo xlt('OK'); ?></button>
+                    </div>
                 </div>
             </div>
         </form>
     </div>
 
-    <table id="results-table" class="table table-condensed">
+    <table id="results-table" class="table table-sm">
         <thead id="searchResultsHeader" class="head">
         <tr>
             <th class="srName"><?php echo xlt('Name'); ?></th>
@@ -162,6 +170,7 @@ $('#results-table').hide();
 
 //Initial select2 library for auto completing using ajax
 $('#by-id, #by-name').select2({
+    theme: "bootstrap4",
     ajax: {
         beforeSend: top.restoreSession,
         url: 'multi_patients_finder_ajax.php',

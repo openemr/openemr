@@ -3,23 +3,23 @@
 
 # OpenEMR
 
-[OpenEMR](http://open-emr.org) is the most popular open source electronic health records and medical practice management solution. [ONC certified](http://open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#ONC_Ambulatory_EHR_Certification) with international usage, OpenEMR's goal is a superior alternative to its proprietary counterparts.
+[OpenEMR](https://open-emr.org) is the most popular open source electronic health records and medical practice management solution. [ONC certified](https://open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#ONC_Ambulatory_EHR_Certification) with international usage, OpenEMR's goal is a superior alternative to its proprietary counterparts.
 
 ### Contributing
 
-OpenEMR is a leader in healthcare open source software. Costly proprietary EMRs are no longer the only option. [Learn how to start contributing today!](http://open-emr.org/wiki/index.php/FAQ#How_do_I_begin_to_volunteer_for_the_OpenEMR_project.3F)
+OpenEMR is a leader in healthcare open source software. Costly proprietary EMRs are no longer the only option. [Learn how to start contributing today!](https://open-emr.org/wiki/index.php/FAQ#How_do_I_begin_to_volunteer_for_the_OpenEMR_project.3F)
 
 > Already comfortable with git? Check out [CONTRIBUTING.md](CONTRIBUTING.md) for quick setup instructions
 
 ### Support
 
-Community and Professional support can be found [here](http://open-emr.org/wiki/index.php/OpenEMR_Support_Guide).
+Community and Professional support can be found [here](https://open-emr.org/wiki/index.php/OpenEMR_Support_Guide).
 
-Extensive documentation and forums can be found on the [OpenEMR website](http://open-emr.org).
+Extensive documentation and forums can be found on the [OpenEMR website](https://open-emr.org).
 
 ### Reporting Issues and Bugs
 
-Report these on the [Issue Tracker](https://github.com/openemr/openemr/issues). If you are unsure if it is an issue/bug, then always feel free to use the [Forum](https://community.open-emr.org/) and [Chat](https://chat.open-emr.org/).
+Report these on the [Issue Tracker](https://github.com/openemr/openemr/issues). If you are unsure if it is an issue/bug, then always feel free to use the [Forum](https://community.open-emr.org/) and [Chat](https://www.open-emr.org/chat/).
 
 
 ### Reporting Security Vulnerabilities
@@ -32,9 +32,9 @@ Check out [API_README.md](API_README.md)
 
 ### For Developers
 
-If using OpenEMR directly from the code repository, then the following commands will build OpenEMR:
-```
-composer install
+If using OpenEMR directly from the code repository, then the following commands will build OpenEMR (Node.js version 10.* or 12.* is required) :
+```shell
+composer install --no-dev
 npm install
 npm run build
 composer dump-autoload -o

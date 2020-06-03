@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ModuleconfigController.php
  * @package   OpenEMR
@@ -7,11 +8,12 @@
  * @copyright Copyright (c) 2019 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Ccr\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\Filter\Compress\Zip;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\Filter\Compress\Zip;
 
 /**
  * Handles the OpenEMR Module configuration for the Ccr module.

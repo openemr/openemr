@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient Tracker Status Editor
  *
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -53,7 +53,7 @@ $theroom = '';
     </head>
 
 <?php
-if ($_POST['statustype'] !='') {
+if ($_POST['statustype'] != '') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -100,8 +100,8 @@ $row = sqlQuery("select fname, lname " .
 <body class="body_top">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
-                <h2><?php echo xlt('Change Status for'). " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
+            <div class="col-12">
+                <h2><?php echo xlt('Change Status for') . " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
             </div>
         </div>
         <form id="form_note" method="post" action="patient_tracker_status.php?tracker_id=<?php echo attr_url($tracker_id) ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" enctype="multipart/form-data" >
@@ -116,7 +116,7 @@ $row = sqlQuery("select fname, lname " .
             </div>
             <div class="position-override">
                 <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                    <a href='javascript:;' class='btn btn-default btn-save' onclick='document.getElementById("form_note").submit();'><?php echo xlt('Save')?></a>
+                    <a href='javascript:;' class='btn btn-secondary btn-save' onclick='document.getElementById("form_note").submit();'><?php echo xlt('Save')?></a>
                     <a href='javascript:;' class='btn btn-link btn-cancel oe-opt-btn-separate-left' onclick="dlgclose();" ><?php echo xlt('Cancel'); ?></a>
                 </div>
             </div>

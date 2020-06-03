@@ -6,15 +6,12 @@ if (!empty($_GET['debug'])) {
 */
 //First make sure user has access
 require_once("../../interface/globals.php");
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
+
 //ensure user has proper access
-if (!acl_check('admin', 'acl')) {
+if (!AclMain::aclCheckCore('admin', 'acl')) {
             echo xlt('ACL Administration Not Authorized');
-            exit;
-}
-//ensure php is installed
-if (!isset($phpgacl_location)) {
-            echo xlt('php-GACL access controls are turned off');
             exit;
 }
 
@@ -73,7 +70,7 @@ while (list(,$row) = @each($rows)) {
 	if ($aco_section_name != $tmp_aco_section_name OR $aco_name != $tmp_aco_name) {
 		$display_aco_name = "$aco_section_name > $aco_name";
 	} else {
-		$display_aco_name = "<br>";
+		$display_aco_name = "<br />";
 	}
 
 	$acls[] = array(
@@ -98,7 +95,7 @@ while (list(,$row) = @each($rows)) {
 	$tmp_aco_name = $aco_name;
 }
 
-//echo "<br><br>$x ACL_CHECK()'s<br>\n";
+//echo "<br /><br />$x ACL_CHECK()'s<br />\n";
 
 $smarty->assign("acls", $acls);
 

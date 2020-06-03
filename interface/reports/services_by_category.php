@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Services by category report.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
@@ -65,8 +65,9 @@ function bucks($amount)
             }
         }
 
-        table.mymaintable, table.mymaintable td, table.mymaintable th {
-            border: 1px solid #aaaaaa;
+        table.mymaintable,
+        table.mymaintable td,
+        table.mymaintable th {
             border-collapse: collapse;
         }
         table.mymaintable td, table.mymaintable th {
@@ -74,9 +75,9 @@ function bucks($amount)
         }
     </style>
 
-    <script language="JavaScript">
+    <script>
 
-     $(function() {
+     $(function () {
          oeFixedHeaderSetup(document.getElementById('mymaintable'));
          var win = top.printLogSetup ? top : opener.top;
          win.printLogSetup(document.getElementById('printbutton'));
@@ -129,17 +130,17 @@ function bucks($amount)
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
                         <?php if ($_POST['form_refresh']) { ?>
-                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
                         <?php } ?>
@@ -160,9 +161,9 @@ if ($_POST['form_refresh']) {
 <div id="report_results">
 
 
-<table width='98%' id='mymaintable' class='mymaintable'>
-<thead style='display:table-header-group'>
-<tr bgcolor="#dddddd">
+<table width='98%' id='mymaintable' class='table table-striped mymaintable'>
+<thead class='thead-light'>
+<tr>
 <th class='bold'><?php echo xlt('Category'); ?></th>
 <th class='bold'><?php echo xlt('Type'); ?></th>
 <th class='bold'><?php echo xlt('Code'); ?></th>
@@ -218,8 +219,7 @@ if ($_POST['form_refresh']) {
             }
         }
 
-        $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
-        echo "  <tr bgcolor='" . attr($bgcolor) . "'>\n";
+        echo "  <tr>\n";
         // Added 5-09 by BM - Translate label if applicable
         echo "   <td class='text'>" . text(xl_list_label($disp_category)) . "</td>\n";
         echo "   <td class='text'>" . text($key) . "</td>\n";

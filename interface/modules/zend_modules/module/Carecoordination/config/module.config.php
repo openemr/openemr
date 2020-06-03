@@ -1,9 +1,10 @@
 <?php
+
 namespace Carecoordination;
 
 use Documents\Plugin\Documents;
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
 use Carecoordination\Controller\CarecoordinationController;
 use Carecoordination\Controller\EncounterccdadispatchController;
 use Carecoordination\Controller\EncountermanagerController;
@@ -137,22 +138,22 @@ return array(
     'service_manager' => [
         'factories' => array(
             CarecoordinationTable::class =>  function (ContainerInterface $container, $requestedName) {
-                return new CarecoordinationTable($container->get(\Zend\Db\Adapter\Adapter::class));
+                return new CarecoordinationTable($container->get(\Laminas\Db\Adapter\Adapter::class));
             },
             EncounterccdadispatchTable::class =>  function (ContainerInterface $container, $requestedName) {
-                    return new EncounterccdadispatchTable();
+                    return new EncounterccdadispatchTable($container->get(\Laminas\Db\Adapter\Adapter::class));
             },
             EncountermanagerTable::class =>  function (ContainerInterface $container, $requestedName) {
-                    return new EncountermanagerTable($container->get(\Zend\Db\Adapter\Adapter::class));
+                    return new EncountermanagerTable($container->get(\Laminas\Db\Adapter\Adapter::class));
             },
             SetupTable::class =>  function (ContainerInterface $container, $requestedName) {
-                    return new SetupTable($container->get(\Zend\Db\Adapter\Adapter::class));
+                    return new SetupTable($container->get(\Laminas\Db\Adapter\Adapter::class));
             },
             CcdTable::class =>  function (ContainerInterface $container, $requestedName) {
-                    return new CcdTable($container->get(\Zend\Db\Adapter\Adapter::class));
+                    return new CcdTable($container->get(\Laminas\Db\Adapter\Adapter::class));
             },
             ModuleconfigForm::class => function (ContainerInterface $container, $requestedName) {
-                return new ModuleconfigForm($container->get(\Zend\Db\Adapter\Adapter::class));
+                return new ModuleconfigForm($container->get(\Laminas\Db\Adapter\Adapter::class));
             },
             // so this isn't really a 'controller' class used as a route 'controller' but more to reuse component code for other modules...
             ModuleconfigController::class => function (ContainerInterface $container, $requestedName) {

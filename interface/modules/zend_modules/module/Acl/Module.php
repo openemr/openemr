@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Acl/Module.php
  *
@@ -13,7 +14,7 @@
 namespace Acl;
 
 use Acl\Model\AclTable;
-use Zend\ModuleManager\ModuleManager;
+use Laminas\ModuleManager\ModuleManager;
 
 class Module
 {
@@ -21,7 +22,7 @@ class Module
     {
         // TODO: verify that we need this namespace autoloader... it should be on by default...
         return array(
-            'Zend\Loader\StandardAutoloader' => array(
+            'Laminas\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ),
@@ -34,7 +35,7 @@ class Module
         return array(
             'factories' => array(
                 'Acl\Model\AclTable' =>  function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $dbAdapter = $sm->get('Laminas\Db\Adapter\Adapter');
                     $table = new AclTable($dbAdapter);
                     return $table;
                 },

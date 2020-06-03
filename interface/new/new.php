@@ -1,4 +1,5 @@
 <?php
+
 /**
  * new.php
  *
@@ -9,10 +10,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if ($GLOBALS['full_new_patient_form']) {
     require("new_comprehensive.php");
@@ -44,16 +45,13 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
 <html>
 
 <head>
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<?php
+    Header::setupHeader('datetime-picker');
+    include_once($GLOBALS['srcdir'] . "/options.js.php");
+?>
 
-<?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
-
-<script LANGUAGE="JavaScript">
+<script>
 
  function validate() {
   var f = document.forms[0];
@@ -79,7 +77,7 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
   return true;
  }
 
-$(function (){
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -108,7 +106,7 @@ $(function (){
 
 <span class='title'><?php echo xlt('Add Patient Record'); ?></span>
 
-<br><br>
+<br /><br />
 
 <center>
 
@@ -116,12 +114,12 @@ $(function (){
    <input type='hidden' name='title' value='' />
 <?php } ?>
 
-<table border='0'>
+<table class="border-0">
 
 <?php if (!$GLOBALS['omit_employers']) { ?>
  <tr>
   <td>
-   <span class='bold'><?php echo xlt('Title'); ?>: </span>
+   <span class='font-weight-bold'><?php echo xlt('Title'); ?>: </span>
   </td>
   <td>
    <select name='title'>
@@ -144,34 +142,34 @@ $(function (){
 
  <tr>
   <td>
-   <span class='bold'><?php echo xlt('First Name'); ?>: </span>
+   <span class='font-weight-bold'><?php echo xlt('First Name'); ?>: </span>
   </td>
   <td>
-   <input type='entry' size='15' name='fname' value='<?php echo attr($form_fname); ?>'>
-  </td>
- </tr>
-
- <tr>
-  <td>
-   <span class='bold'><?php echo xlt('Middle Name'); ?>: </span>
-  </td>
-  <td>
-   <input type='entry' size='15' name='mname' value='<?php echo attr($form_mname); ?>'>
+   <input type='entry' size='15' name='fname' value='<?php echo attr($form_fname); ?>' />
   </td>
  </tr>
 
  <tr>
   <td>
-   <span class='bold'><?php echo xlt('Last Name'); ?>: </span>
+   <span class='font-weight-bold'><?php echo xlt('Middle Name'); ?>: </span>
   </td>
   <td>
-   <input type='entry' size='15' name='lname' value='<?php echo attr($form_lname); ?>'>
+   <input type='entry' size='15' name='mname' value='<?php echo attr($form_mname); ?>' />
   </td>
  </tr>
 
  <tr>
   <td>
-   <span class='bold'><?php echo xlt('Sex'); ?>: </span>
+   <span class='font-weight-bold'><?php echo xlt('Last Name'); ?>: </span>
+  </td>
+  <td>
+   <input type='entry' size='15' name='lname' value='<?php echo attr($form_lname); ?>' />
+  </td>
+ </tr>
+
+ <tr>
+  <td>
+   <span class='font-weight-bold'><?php echo xlt('Sex'); ?>: </span>
   </td>
   <td>
    <select name='sex'>
@@ -195,7 +193,7 @@ while ($orow = sqlFetchArray($ores)) {
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
  <tr>
   <td>
-   <span class='bold'><?php echo xlt('Referral Source'); ?>: </span>
+   <span class='font-weight-bold'><?php echo xlt('Referral Source'); ?>: </span>
   </td>
   <td>
    <select name='refsource'>
@@ -219,7 +217,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr>
   <td>
-   <span class='bold'><?php echo xlt('Birth Date'); ?>: </span>
+   <span class='font-weight-bold'><?php echo xlt('Birth Date'); ?>: </span>
   </td>
   <td>
    <input type='text' size='10' class='datepicker' name='DOB' id='DOB'
@@ -229,7 +227,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr<?php echo $regstyle ?>>
   <td>
-   <span class='bold'><?php echo xlt('Registration Date'); ?>: </span>
+   <span class='font-weight-bold'><?php echo xlt('Registration Date'); ?>: </span>
   </td>
   <td>
    <input type='text' size='10' class='datepicker' name='regdate' id='regdate'
@@ -239,17 +237,17 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr>
   <td>
-   <span class='bold'><?php echo xlt('Patient Number'); ?>: </span>
+   <span class='font-weight-bold'><?php echo xlt('Patient Number'); ?>: </span>
   </td>
   <td>
-   <input type='entry' size='5' name='pubpid' value='<?php echo attr($form_pubpid); ?>'>
+   <input type='entry' size='5' name='pubpid' value='<?php echo attr($form_pubpid); ?>' />
    <span class='text'><?php echo xlt('omit to autoassign'); ?> &nbsp; &nbsp; </span>
   </td>
  </tr>
 
  <tr>
   <td colspan='2'>
-   &nbsp;<br>
+   &nbsp;<br />
    <input type='submit' name='form_create' value='<?php echo xla('Create New Patient'); ?>' />
   </td>
   <td>
@@ -259,7 +257,7 @@ while ($orow = sqlFetchArray($ores)) {
 </table>
 </center>
 </form>
-<script language="Javascript">
+<script>
 <?php
 if ($form_pubpid) {
     echo "alert(" . xlj('This patient ID is already in use!') . ");\n";

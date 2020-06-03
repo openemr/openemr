@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -202,14 +204,14 @@ class FHIRCodeSystemFilter extends FHIRBackboneElement implements \JsonSerializa
                         $this->addOperator($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"operator" must be array of objects or null, '.gettype($data['operator']).' seen.');
+                    throw new \InvalidArgumentException('"operator" must be array of objects or null, ' . gettype($data['operator']) . ' seen.');
                 }
             }
             if (isset($data['value'])) {
                 $this->setValue($data['value']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

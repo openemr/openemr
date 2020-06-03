@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Document Template Download Module.
  *
@@ -14,9 +15,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
@@ -84,7 +83,6 @@ function dataFixup($data, $title = '')
 // Return a string naming all issues for the specified patient and issue type.
 function getIssues($type)
 {
-  // global $itemSeparator;
     $tmp = '';
     $lres = sqlStatement("SELECT title, comments FROM lists WHERE " .
     "pid = ? AND type = ? AND enddate IS NULL " .
@@ -135,17 +133,17 @@ function doSubs($s)
             }
 
             $s = keyReplace($s, dataFixup($tmp, xl('Name')));
-        } else if (keySearch($s, '{PatientID}')) {
+        } elseif (keySearch($s, '{PatientID}')) {
             $s = keyReplace($s, dataFixup($ptrow['pubpid'], xl('Chart ID')));
-        } else if (keySearch($s, '{Address}')) {
+        } elseif (keySearch($s, '{Address}')) {
             $s = keyReplace($s, dataFixup($ptrow['street'], xl('Street')));
-        } else if (keySearch($s, '{City}')) {
+        } elseif (keySearch($s, '{City}')) {
             $s = keyReplace($s, dataFixup($ptrow['city'], xl('City')));
-        } else if (keySearch($s, '{State}')) {
+        } elseif (keySearch($s, '{State}')) {
             $s = keyReplace($s, dataFixup(getListItemTitle('state', $ptrow['state']), xl('State')));
-        } else if (keySearch($s, '{Zip}')) {
+        } elseif (keySearch($s, '{Zip}')) {
             $s = keyReplace($s, dataFixup($ptrow['postal_code'], xl('Postal Code')));
-        } else if (keySearch($s, '{PatientPhone}')) {
+        } elseif (keySearch($s, '{PatientPhone}')) {
             $ptphone = $ptrow['phone_contact'];
             if (empty($ptphone)) {
                 $ptphone = $ptrow['phone_home'];
@@ -164,13 +162,13 @@ function doSubs($s)
             }
 
             $s = keyReplace($s, dataFixup($ptphone, xl('Phone')));
-        } else if (keySearch($s, '{PatientDOB}')) {
+        } elseif (keySearch($s, '{PatientDOB}')) {
             $s = keyReplace($s, dataFixup(oeFormatShortDate($ptrow['DOB']), xl('Birth Date')));
-        } else if (keySearch($s, '{PatientSex}')) {
+        } elseif (keySearch($s, '{PatientSex}')) {
             $s = keyReplace($s, dataFixup(getListItemTitle('sex', $ptrow['sex']), xl('Sex')));
-        } else if (keySearch($s, '{DOS}')) {
+        } elseif (keySearch($s, '{DOS}')) {
             $s = keyReplace($s, dataFixup(oeFormatShortDate(substr($enrow['date'], 0, 10)), xl('Service Date')));
-        } else if (keySearch($s, '{ChiefComplaint}')) {
+        } elseif (keySearch($s, '{ChiefComplaint}')) {
             $cc = $enrow['reason'];
             $patientid = $ptrow['pid'];
             $DOS = substr($enrow['date'], 0, 10);
@@ -183,7 +181,7 @@ function doSubs($s)
             }
 
             $s = keyReplace($s, dataFixup($cc, xl('Chief Complaint')));
-        } else if (keySearch($s, '{ReferringDOC}')) {
+        } elseif (keySearch($s, '{ReferringDOC}')) {
             $tmp = empty($ptrow['ur_fname']) ? '' : $ptrow['ur_fname'];
             if (!empty($ptrow['ur_mname'])) {
                 if ($tmp) {
@@ -202,33 +200,33 @@ function doSubs($s)
             }
 
             $s = keyReplace($s, dataFixup($tmp, xl('Referer')));
-        } else if (keySearch($s, '{Allergies}')) {
-            $tmp = generate_plaintext_field(array('data_type'=>'24','list_id'=>''), '');
+        } elseif (keySearch($s, '{Allergies}')) {
+            $tmp = generate_plaintext_field(array('data_type' => '24','list_id' => ''), '');
             $s = keyReplace($s, dataFixup($tmp, xl('Allergies')));
-        } else if (keySearch($s, '{Medications}')) {
+        } elseif (keySearch($s, '{Medications}')) {
             $s = keyReplace($s, dataFixup(getIssues('medication'), xl('Medications')));
-        } else if (keySearch($s, '{ProblemList}')) {
+        } elseif (keySearch($s, '{ProblemList}')) {
             $s = keyReplace($s, dataFixup(getIssues('medical_problem'), xl('Problem List')));
-        } else if (keySearch($s, '{GRP}')) { // This tag indicates the fields from here until {/GRP} are a group
+        } elseif (keySearch($s, '{GRP}')) { // This tag indicates the fields from here until {/GRP} are a group
             // of fields separated by semicolons.  Fields with no data are omitted, and fields with
             // data are prepended with their field label from the form layout.
             ++$groupLevel;
             $groupCount = 0;
             $s = keyReplace($s, '');
-        } else if (keySearch($s, '{/GRP}')) {
+        } elseif (keySearch($s, '{/GRP}')) {
             if ($groupLevel > 0) {
                 --$groupLevel;
             }
 
             $s = keyReplace($s, '');
-        } else if (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr($s, $keyLocation), $matches)) {
+        } elseif (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr($s, $keyLocation), $matches)) {
             // This is how we specify the separator between group items in a way that
             // is independent of the document format. Whatever is between {ITEMSEP} and
             // {/ITEMSEP} is the separator string.  Default is "; ".
             $itemSeparator = $matches[1];
             $keyLength = strlen($matches[0]);
             $s = keyReplace($s, '');
-        } else if (preg_match('/^\{(LBF\w+):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+        } elseif (preg_match('/^\{(LBF\w+):(\w+)\}/', substr($s, $keyLocation), $matches)) {
             // This handles keys like {LBFxxx:fieldid} for layout-based encounter forms.
             $formname = $matches[1];
             $fieldid  = $matches[2];
@@ -261,7 +259,7 @@ function doSubs($s)
             }
 
             $s = keyReplace($s, dataFixup($data, $title));
-        } else if (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+        } elseif (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $keyLocation), $matches)) {
             // This handles keys like {DEM:fieldid} and {HIS:fieldid}.
             $formname = $matches[1];
             $fieldid  = $matches[2];
@@ -292,8 +290,6 @@ function doSubs($s)
 
     return $s;
 }
-
-// if (!acl_check('admin', 'super')) die(htmlspecialchars(xl('Not authorized')));
 
 // Get patient demographic info.
 $ptrow = sqlQuery("SELECT pd.*, " .
@@ -326,38 +322,38 @@ $ext = strtolower(array_pop(explode('.', $filename)));
 if ('dotx' == $ext) {
     // PHP does not seem to recognize this type.
     $mimetype = 'application/msword';
-} else if (function_exists('finfo_open')) {
+} elseif (function_exists('finfo_open')) {
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mimetype = finfo_file($finfo, $templatepath);
     finfo_close($finfo);
-} else if (function_exists('mime_content_type')) {
+} elseif (function_exists('mime_content_type')) {
     $mimetype = mime_content_type($templatepath);
 } else {
     if ('doc'  == $ext) {
         $mimetype = 'application/msword'                             ;
-    } else if ('dot'  == $ext) {
+    } elseif ('dot'  == $ext) {
         $mimetype = 'application/msword'                             ;
-    } else if ('htm'  == $ext) {
+    } elseif ('htm'  == $ext) {
         $mimetype = 'text/html'                                      ;
-    } else if ('html' == $ext) {
+    } elseif ('html' == $ext) {
         $mimetype = 'text/html'                                      ;
-    } else if ('odt'  == $ext) {
+    } elseif ('odt'  == $ext) {
         $mimetype = 'application/vnd.oasis.opendocument.text'        ;
-    } else if ('ods'  == $ext) {
+    } elseif ('ods'  == $ext) {
         $mimetype = 'application/vnd.oasis.opendocument.spreadsheet' ;
-    } else if ('ott'  == $ext) {
+    } elseif ('ott'  == $ext) {
         $mimetype = 'application/vnd.oasis.opendocument.text'        ;
-    } else if ('pdf'  == $ext) {
+    } elseif ('pdf'  == $ext) {
         $mimetype = 'application/pdf'                                ;
-    } else if ('ppt'  == $ext) {
+    } elseif ('ppt'  == $ext) {
         $mimetype = 'application/vnd.ms-powerpoint'                  ;
-    } else if ('ps'   == $ext) {
+    } elseif ('ps'   == $ext) {
         $mimetype = 'application/postscript'                         ;
-    } else if ('rtf'  == $ext) {
+    } elseif ('rtf'  == $ext) {
         $mimetype = 'application/rtf'                                ;
-    } else if ('txt'  == $ext) {
+    } elseif ('txt'  == $ext) {
         $mimetype = 'text/plain'                                     ;
-    } else if ('xls'  == $ext) {
+    } elseif ('xls'  == $ext) {
         $mimetype = 'application/vnd.ms-excel'                       ;
     }
 }
@@ -375,10 +371,10 @@ if ($cryptoGen->cryptCheckStandard($fileData)) {
 $dname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
 file_put_contents($dname, $fileData);
 
-$zipin = new ZipArchive;
+$zipin = new ZipArchive();
 if ($zipin->open($dname) === true) {
     // Must be a zip archive.
-    $zipout = new ZipArchive;
+    $zipout = new ZipArchive();
     $zipout->open($fname, ZipArchive::OVERWRITE);
     for ($i = 0; $i < $zipin->numFiles; ++$i) {
         $ename = $zipin->getNameIndex($i);
@@ -409,14 +405,14 @@ if ($pi['extension'] !== '') {
 header('Content-Description: File Transfer');
 header('Content-Transfer-Encoding: binary');
 header('Expires: 0');
+header("Cache-control: private");
 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-header('Pragma: public');
-// attachment, not inline
-header("Content-Disposition: attachment; filename=\"$dlname\"");
-header("Content-Type: $mimetype");
+header("Content-Type: $mimetype; charset=utf-8");
 header("Content-Length: " . filesize($fname));
-ob_clean();
-flush();
-readfile($fname);
+header('Content-Disposition: attachment; filename="' . $dlname . '"');
+
+ob_end_clean();
+@readfile($fname) or error_log("Template temp file not found: " . $fname);
 
 unlink($fname);
+exit;

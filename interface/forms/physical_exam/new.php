@@ -1,4 +1,5 @@
 <?php
+
 /**
  * physical_exam new.php
  *
@@ -11,13 +12,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("lines.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (! $encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
@@ -139,8 +140,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php Header::setupHeader(); ?>
 <script language="JavaScript">
 
  function seldiag(selobj, line_id) {
@@ -187,7 +187,7 @@ foreach ($pelines as $sysname => $sysarray) {
     if ($sysname == '*') {
        // TBD: Show any remaining entries in $rows (should not be any).
         echo " <tr><td colspan='6'>\n";
-        echo "   &nbsp;<br><b>" . xlt('Treatment:') . "</b>\n";
+        echo "   &nbsp;<br /><b>" . xlt('Treatment:') . "</b>\n";
         echo " </td></tr>\n";
     } else {
         $sysnamedisp = xl($sysname);

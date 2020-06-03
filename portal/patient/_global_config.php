@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package Adserv
  *
@@ -115,7 +116,7 @@ class GlobalConfig
         }
 
         if (!self::$INSTANCE instanceof self) {
-            self::$INSTANCE = new self;
+            self::$INSTANCE = new self();
         }
 
         return self::$INSTANCE;
@@ -155,7 +156,7 @@ class GlobalConfig
     function GetAction()
     {
         list($controller,$method) = $this->GetRouter()->GetRoute();
-        return $controller.'.'.$method;
+        return $controller . '.' . $method;
     }
 
     /**
@@ -204,7 +205,7 @@ class GlobalConfig
         if ($this->render_engine == null) {
             $engine_class = self::$TEMPLATE_ENGINE;
             if (!class_exists($engine_class)) {
-                require_once 'verysimple/Phreeze/'. $engine_class  . '.php';
+                require_once 'verysimple/Phreeze/' . $engine_class  . '.php';
             }
 
             $this->render_engine = new $engine_class(self::$TEMPLATE_PATH, self::$TEMPLATE_CACHE_PATH);

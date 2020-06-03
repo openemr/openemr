@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -228,11 +230,11 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
                         $this->addPage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"page" must be array of objects or null, '.gettype($data['page']).' seen.');
+                    throw new \InvalidArgumentException('"page" must be array of objects or null, ' . gettype($data['page']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

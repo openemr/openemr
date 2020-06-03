@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Facility user-specific settings.
  *
@@ -11,11 +12,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -26,7 +26,7 @@ if (!empty($_POST)) {
 }
 
 // Ensure authorized
-if (!acl_check('admin', 'users')) {
+if (!AclMain::aclCheckCore('admin', 'users')) {
     die(xlt("Unauthorized"));
 }
 
@@ -56,7 +56,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
 
     <title><?php echo xlt("Facility Specific User Information"); ?></title>
 
-    <?php Header::setupHeader(['common','jquery-ui']); ?>
+    <?php Header::setupHeader(['common']); ?>
 
     <script type="text/javascript">
         function refreshme() {
@@ -64,7 +64,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
             document.location.reload();
         }
 
-        $(function(){
+        $(function () {
             $(".small_modal").on('click', function(e) {
                 e.preventDefault();e.stopPropagation();
                 dlgopen('', '', 500, 200, '', '', {
@@ -88,8 +88,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
     // Collect all facilities and store them in an array
     $f_res = sqlStatement("select * from `facility` order by `name`");
     $f_arr = array();
-    for ($i=0; $row=sqlFetchArray($f_res); $i++) {
-        $f_arr[$i]=$row;
+    for ($i = 0; $row = sqlFetchArray($f_res); $i++) {
+        $f_arr[$i] = $row;
     }
 
     // Collect layout information and store them in an array
@@ -97,23 +97,23 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
                           "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
                           "ORDER BY group_id, seq");
     $l_arr = array();
-    for ($i=0; $row=sqlFetchArray($l_res); $i++) {
-        $l_arr[$i]=$row;
+    for ($i = 0; $row = sqlFetchArray($l_res); $i++) {
+        $l_arr[$i] = $row;
     }
     ?>
 
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-title">
                     <h2><?php echo xlt('Facility Specific User Information'); ?></h2>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="btn-group">
-                    <a href="usergroup_admin.php" class="btn btn-default btn-back" onclick="top.restoreSession()"><?php echo xlt('Back to Users'); ?></a>
+                    <a href="usergroup_admin.php" class="btn btn-secondary btn-back" onclick="top.restoreSession()"><?php echo xlt('Back to Users'); ?></a>
                 </div>
             </div>
         </div>

@@ -1,15 +1,12 @@
 <?php
 //First make sure user has access
 require_once("../../interface/globals.php");
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
+
 //ensure user has proper access
-if (!acl_check('admin', 'acl')) {
+if (!AclMain::aclCheckCore('admin', 'acl')) {
             echo xlt('ACL Administration Not Authorized');
-            exit;
-}
-//ensure php is installed
-if (!isset($phpgacl_location)) {
-            echo xlt('php-GACL access controls are turned off');
             exit;
 }
 
@@ -80,7 +77,7 @@ switch ($_GET['action']) {
 			}
 		}
 
-		//echo "<br><br>$x ACL_CHECK()'s<br>\n";
+		//echo "<br /><br />$x ACL_CHECK()'s<br />\n";
 
 		$smarty->assign('acls', $acls);
 

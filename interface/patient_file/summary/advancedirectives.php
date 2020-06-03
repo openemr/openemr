@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Advance directives gui.
  *
@@ -57,7 +58,7 @@ use OpenEMR\Core\Header;
             return true;
         }
 
-        $(document).ready(function(){
+        $(function () {
             $("#cancel").click(function() { dlgclose(); });
 
             $('.datepicker').datetimepicker({
@@ -74,27 +75,27 @@ use OpenEMR\Core\Header;
 <body class="body_top">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h3><?php echo xlt('Advance Directives'); ?></h3>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <form action='advancedirectives.php' method='post' onsubmit='return validate(this)'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="form-group">
                         <label for="form_yesno"><?php echo xlt('Completed'); ?></label>
-                        <?php generate_form_field(array('data_type'=>1,'field_id'=>'yesno','list_id'=>'yesno','empty_title'=>'SKIP'), $form_completedad); ?>
+                        <?php generate_form_field(array('data_type' => 1,'field_id' => 'yesno','list_id' => 'yesno','empty_title' => 'SKIP'), $form_completedad); ?>
                     </div>
                     <div class="form-group">
                         <label for="form_adreviewed"><?php echo xlt('Last Reviewed'); ?></label>
-                        <?php generate_form_field(array('data_type'=>4,'field_id'=>'adreviewed'), oeFormatShortDate($form_adreviewed)); ?>
+                        <?php generate_form_field(array('data_type' => 4,'field_id' => 'adreviewed'), oeFormatShortDate($form_adreviewed)); ?>
                     </div>
                     <div class="form-group">
                         <div class="btn-group" role="group">
-                            <button type="submit" id="create" class="btn btn-default btn-save"><?php echo xla('Save'); ?></button>
+                            <button type="submit" id="create" class="btn btn-secondary btn-save"><?php echo xla('Save'); ?></button>
                             <button type="button" id="cancel" class="btn btn-link btn-cancel"><?php echo xla('Cancel'); ?></button>
                         </div>
                     </div>
@@ -103,7 +104,7 @@ use OpenEMR\Core\Header;
         </div>
         <hr>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <?php
                 $query = "SELECT id FROM categories WHERE name='Advance Directive'";
                 $myrow2 = sqlQuery($query);
@@ -127,7 +128,7 @@ use OpenEMR\Core\Header;
                             $dateTimeDoc = $myrows4['date'];
                             $idDoc = $myrows4['id'];
                             ?>
-                            <br>
+                            <br />
                             <a href='<?php echo $web_root; ?>/controller.php?document&retrieve&patient_id=<?php echo attr_url($pid); ?>&document_id=<?php echo attr_url($idDoc); ?>&as_file=true'>
                                 <?php echo text(xl_document_category($nameDoc)); ?>
                             </a>
@@ -138,7 +139,7 @@ use OpenEMR\Core\Header;
                           // if no associated docs with category then show it's empty
                         if (!$counterFlag) {
                             ?>
-                            <br><?php echo text($nameDoc); ?><span style='color:red;'>[<?php echo xlt('EMPTY'); ?>]</span>
+                            <br /><?php echo text($nameDoc); ?><span style='color:red;'>[<?php echo xlt('EMPTY'); ?>]</span>
                             <?php
                         }
                     }

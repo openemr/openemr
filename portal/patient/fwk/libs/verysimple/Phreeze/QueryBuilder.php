@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Phreeze */
 
 /**
@@ -145,7 +146,7 @@ class QueryBuilder
             // this by simply adding in referenced to foreign field in the order you want
             // the tables to be joined
             // for ($i = count($tablenames) -1; $i > 0 ; $i--) // this iterates backwards
-            for ($i = 1; $i < count($tablenames); $i ++) { // this iterates forwards
+            for ($i = 1; $i < count($tablenames); $i++) { // this iterates forwards
                 try {
                     $sql .= $this->Joins [$tablenames [$i]];
                 } catch (Exception $ex) {

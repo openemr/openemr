@@ -1,4 +1,5 @@
 <?php
+
 /**
  * library/log_validation.php to validate audit logs tamper resistance.
  *
@@ -20,13 +21,12 @@
  * @link    https://www.open-emr.org
  */
 
-
 require_once("../interface/globals.php");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-if (!acl_check('admin', 'users')) {
+if (!AclMain::aclCheckCore('admin', 'users')) {
     die(xlt("Not Authorized"));
 }
 
@@ -43,7 +43,7 @@ while ($row = sqlFetchArray($sql)) {
     if (empty($logEntry)) {
         $valid = false;
         array_push($errors, xl("Following audit log entry number is missing") . ": " . $row['log_id']);
-    } else if ($row['log_checksum'] != $logEntry['checksum']) {
+    } elseif ($row['log_checksum'] != $logEntry['checksum']) {
         $valid = false;
         array_push($errors, xl("Audit log tampering evident at entry number") . " " . $row['log_id']);
     }

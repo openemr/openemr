@@ -1,4 +1,5 @@
 <?php
+
  // Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -7,14 +8,14 @@
  // of the License, or (at your option) any later version.
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
 // Check authorization.
-$thisauth = acl_check('admin', 'drugs');
+$thisauth = AclMain::aclCheckCore('admin', 'drugs');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }
@@ -47,6 +48,85 @@ $orderby = $ORDERHASH[$form_orderby];
   "LEFT JOIN list_options AS lof ON lof.list_id = 'drug_form' AND " .
   "lof.option_id = d.form AND lof.activity = 1 " .
   "ORDER BY d.active DESC, $orderby");
+
+ function generateEmptyTd($n)
+ {
+     $temp = '';
+     while ($n > 0) {
+         $temp .= "<td></td>";
+         $n--;
+     }
+     echo $temp;
+ }
+ function processData($data)
+ {
+     $data['inventory_id'] = [$data['inventory_id']];
+     $data['lot_number'] = [$data['lot_number']];
+     $data['title'] =  [$data['title']];
+     $data['on_hand'] = [$data['on_hand']];
+     $data['expiration'] = [$data['expiration']];
+     return $data;
+ }
+ function mergeData($d1, $d2)
+ {
+     $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
+     $d1['lot_number'] = array_merge($d1['lot_number'], $d2['lot_number']);
+     $d1['title'] = array_merge($d1['title'], $d2['title']);
+     $d1['on_hand'] = array_merge($d1['on_hand'], $d2['on_hand']);
+     $d1['expiration'] = array_merge($d1['expiration'], $d2['expiration']);
+     return $d1;
+ }
+ function mapToTable($row)
+ {
+     if ($row) {
+         echo " <tr class='detail'>\n";
+         $lastid = $row['drug_id'];
+         echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(addslashes($lastid)) . ")'>" .
+         "<a href='' onclick='return false'>" .
+         text($row['name']) . "</a></td>\n";
+         echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
+         echo "  <td>" . text($row['ndc_number']) . "</td>\n";
+         echo "  <td>" .
+         generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row['form']) .
+         "</td>\n";
+         echo "  <td>" . text($row['size']) . "</td>\n";
+         echo "  <td>" .
+         generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['unit']) .
+         "</td>\n";
+         echo "  <td title='" . xla('Click to receive (add) new lot') . "' onclick='doiclick(" . attr(addslashes($lastid)) . ",0)' title='" . xla('Add new lot and transaction') . "'>" .
+         "<a href='' onclick='return false'>" . xlt('New') . "</a></td>\n";
+
+         if (!empty($row['inventory_id'][0])) {
+             echo "<td>";
+             foreach ($row['inventory_id'] as $key => $value) {
+                 echo "<div title='" . xla('Click to edit') . "' onclick='doiclick(" . attr(addslashes($lastid)) . "," . attr(addslashes($row['inventory_id'][$key])) . ")'>" .
+                 "<a href='' onclick='return false'>" . text($row['lot_number'][$key]) . "</a></div>";
+             }
+             echo "</td>\n<td>";
+
+             foreach ($row['title'] as $value) {
+                 $value = $value != null ? $value : "N/A";
+                 echo "<div >" .  text($value) . "</div>";
+             }
+             echo "</td>\n<td>";
+
+             foreach ($row['on_hand'] as $value) {
+                 $value = $value != null ? $value : "N/A";
+                 echo "<div >" . text($value) . "</div>";
+             }
+             echo "</td>\n<td>";
+
+             foreach ($row['expiration'] as $value) {
+                 $value = $value != null ? $value : "N/A";
+                 echo "<div >" . text(oeFormatShortDate($value)) . "</div>";
+             }
+             echo "</td>\n";
+         } else {
+                 generateEmptyTd(4);
+         }
+         echo " </tr>\n";
+     }
+ }
     ?>
 <html>
 
@@ -55,22 +135,33 @@ $orderby = $ORDERHASH[$form_orderby];
 <title><?php echo xlt('Drug Inventory'); ?></title>
 
 <style>
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; }
-a, a:visited, a:hover { color:#0000cc; }
+a, a:visited, a:hover {
+  color: var(--primary);
+}
+#mymaintable thead .sorting::before,
+#mymaintable thead .sorting_asc::before,
+#mymaintable thead .sorting_asc::after,
+#mymaintable thead .sorting_desc::before,
+#mymaintable thead .sorting_desc::after,
+#mymaintable thead .sorting::after {
+  display: none;
+}
 
-table.mymaintable, table.mymaintable td {
- border: 1px solid #aaaaaa;
- border-collapse: collapse;
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
 }
-table.mymaintable td {
- padding: 1pt 4pt 1pt 4pt;
+
+.paginate_button:hover {
+  background: transparent !important;
 }
+
 </style>
 
-<?php Header::setupHeader('report-helper'); ?>
+<?php Header::setupHeader(['datatables', 'datatables-dt', 'datatables-bs', 'report-helper']); ?>
 
-<script language="JavaScript">
+<script>
 
 // callback from add_edit_drug.php or add_edit_drug_inventory.php:
 function refreshme() {
@@ -87,19 +178,15 @@ function doiclick(id, lot) {
  dlgopen('add_edit_lot.php?drug=' + id + '&lot=' + lot, '_blank', 600, 475);
 }
 
-// Process click on a column header for sorting.
-function dosort(orderby) {
- var f = document.forms[0];
- f.form_orderby.value = orderby;
- top.restoreSession();
- f.submit();
- return false;
-}
 
-$(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
+$(function () {
+  $('#mymaintable').DataTable({
+            stripeClasses:['stripe1','stripe2'],
+            orderClasses: false,
+            <?php // Bring in the translations ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+        });
 });
-
 </script>
 
 </head>
@@ -107,120 +194,67 @@ $(function() {
 <body class="body_top">
 <form method='post' action='drug_inventory.php'>
 
-<table width='100%' id='mymaintable' class='mymaintable'>
+<!-- TODO: Why are we not using the BS4 table class here? !-->
+<table id='mymaintable' class="display table-striped">
  <thead>
  <tr class='head'>
-  <td title='<?php echo xla('Click to edit'); ?>'>
-   <a href="#" onclick="return dosort('prod')"
-    <?php if ($form_orderby == "prod") {
-        echo " style=\"color:#00cc00\"";
-    } ?>>
+  <th>
     <?php echo xlt('Name'); ?> </a>
-  </td>
-  <td>
+  </th>
+  <th>
     <?php echo xlt('Act'); ?>
-  </td>
-  <td>
-   <a href="#" onclick="return dosort('ndc')"
-    <?php if ($form_orderby == "ndc") {
-        echo " style=\"color:#00cc00\"";
-    } ?>>
-    <?php echo xlt('NDC'); ?> </a>
-  </td>
-  <td>
-   <a href="#" onclick="return dosort('form')"
-    <?php if ($form_orderby == "form") {
-        echo " style=\"color:#00cc00\"";
-    } ?>>
-    <?php echo xlt('Form'); ?> </a>
-  </td>
-  <td>
+  </th>
+  <th>
+   <?php echo xlt('NDC'); ?> </a>
+  </th>
+  <th>
+   <?php echo xlt('Form'); ?> </a>
+  </th>
+  <th>
     <?php echo xlt('Size'); ?>
-  </td>
-  <td>
+  </th>
+  <th>
     <?php echo xlt('Unit'); ?>
-  </td>
-  <td title='<?php echo xla('Click to receive (add) new lot'); ?>'>
+  </th>
+  <th>
     <?php echo xlt('New'); ?>
-  </td>
-  <td title='<?php echo xla('Click to edit'); ?>'>
-   <a href="#" onclick="return dosort('lot')"
-    <?php if ($form_orderby == "lot") {
-        echo " style=\"color:#00cc00\"";
-    } ?>>
+  </th>
+  <th>
     <?php echo xlt('Lot'); ?> </a>
-  </td>
-  <td>
-   <a href="#" onclick="return dosort('wh')"
-    <?php if ($form_orderby == "wh") {
-        echo " style=\"color:#00cc00\"";
-    } ?>>
+  </th>
+  <th>
     <?php echo xlt('Warehouse'); ?> </a>
-  </td>
-  <td>
-   <a href="#" onclick="return dosort('qoh')"
-    <?php if ($form_orderby == "qoh") {
-        echo " style=\"color:#00cc00\"";
-    } ?>>
+  </th>
+  <th>
     <?php echo xlt('QOH'); ?> </a>
-  </td>
-  <td>
-   <a href="#" onclick="return dosort('exp')"
-    <?php if ($form_orderby == "exp") {
-        echo " style=\"color:#00cc00\"";
-    } ?>>
+  </th>
+  <th>
     <?php echo xlt('Expires'); ?> </a>
-  </td>
+  </th>
  </tr>
  </thead>
  <tbody>
 <?php
- $lastid = "";
- $encount = 0;
+ $prevRow = '';
 while ($row = sqlFetchArray($res)) {
-    if ($lastid != $row['drug_id']) {
-        ++$encount;
-        $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-        $lastid = $row['drug_id'];
-        echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-        echo "  <td onclick='dodclick(" . attr(addslashes($lastid)) . ")'>" .
-        "<a href='' onclick='return false'>" .
-        text($row['name']) . "</a></td>\n";
-        echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
-        echo "  <td>" . text($row['ndc_number']) . "</td>\n";
-        echo "  <td>" .
-        generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
-        "</td>\n";
-        echo "  <td>" . text($row['size']) . "</td>\n";
-        echo "  <td>" .
-        generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
-        "</td>\n";
-        echo "  <td onclick='doiclick(" . attr(addslashes($lastid)) . ",0)' title='" . xla('Add new lot and transaction') . "'>" .
-        "<a href='' onclick='return false'>" . xlt('New') . "</a></td>\n";
-    } else {
-        echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-        echo "  <td colspan='7'>&nbsp;</td>\n";
+    $row = processData($row);
+    if ($prevRow == '') {
+        $prevRow = $row;
+        continue;
     }
-
-    if (!empty($row['inventory_id'])) {
-        echo "  <td onclick='doiclick(" . attr(addslashes($lastid)) . "," . attr(addslashes($row['inventory_id'])) . ")'>" .
-        "<a href='' onclick='return false'>" . text($row['lot_number']) . "</a></td>\n";
-        echo "  <td>" . text($row['title']) . "</td>\n";
-        echo "  <td>" . text($row['on_hand']) . "</td>\n";
-        echo "  <td>" . text(oeFormatShortDate($row['expiration'])) . "</td>\n";
+    if ($prevRow['drug_id'] == $row['drug_id']) {
+        $row = mergeData($prevRow, $row);
     } else {
-        echo "  <td colspan='4'>&nbsp;</td>\n";
+        mapToTable($prevRow);
     }
-
-    echo " </tr>\n";
+    $prevRow = $row;
 } // end while
+mapToTable($prevRow);
 ?>
  </tbody>
 </table>
 
-<center><p>
- <input type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' />
-</p></center>
+<input class="btn btn-primary btn-block w-25 mx-auto" type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' />
 
 <input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby) ?>" />
 

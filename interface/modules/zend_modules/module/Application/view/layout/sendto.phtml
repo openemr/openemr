@@ -14,12 +14,11 @@
                         ->prependStylesheet($this->basePath() . '/css/sendTo.css')
                         ->prependStylesheet($this->basePath() . '/css/bootstrap.min.css') ?>
         <!-- Scripts -->
-        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/html5.js', 'text/javascript', array('conditional' => 'lt IE 9',))
-                                      ->prependFile($this->basePath() . '/js/autosuggest/autosuggest.js')
+        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autosuggest.js')
                                       ->prependFile($this->basePath() . '/js/application/sendTo.js')
                                       ->prependFile($this->basePath() . '/js/application/addRule.js')
-                                      ->prependFile($this->basePath() . '/js/bootstrap.min.js')
-                                      ->prependFile($this->basePath() . '/js/jquery.min.js') ?>
+                                      ->prependFile($this->basePath() . '/js/lib/bootstrap.min.js')
+                                      ->prependFile($this->basePath() . '/js/lib/jquery-1.8.2.min.js') ?>
     </head>
     <body>
         <div class="container">

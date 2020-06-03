@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -144,7 +146,7 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
                         $this->addLink($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"link" must be array of objects or null, '.gettype($data['link']).' seen.');
+                    throw new \InvalidArgumentException('"link" must be array of objects or null, ' . gettype($data['link']) . ' seen.');
                 }
             }
             if (isset($data['capability'])) {
@@ -153,11 +155,11 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
                         $this->addCapability($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"capability" must be array of objects or null, '.gettype($data['capability']).' seen.');
+                    throw new \InvalidArgumentException('"capability" must be array of objects or null, ' . gettype($data['capability']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

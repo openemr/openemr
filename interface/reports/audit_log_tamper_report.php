@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Audit Log Tamper Report.
  *
@@ -11,12 +12,12 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 if (!empty($_GET)) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -30,12 +31,7 @@ if (!empty($_GET)) {
 
 <title><?php echo xlt("Audit Log Tamper Report"); ?></title>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
 #logview {
@@ -54,7 +50,7 @@ if (!empty($_GET)) {
 }
 
 #logview td {
-    background-color: #ffffff;
+    background-color: var(--white);
     border-bottom: 1px solid #808080;
     cursor: default;
     padding: 5px 5px;
@@ -96,9 +92,9 @@ function eventTypeChange(eventname)
 </head>
 <body class="body_top">
 <font class="title"><?php echo xlt('Audit Log Tamper Report'); ?></font>
-<br>
+<br />
 <?php
-$err_message=0;
+$err_message = 0;
 
 $start_date = (!empty($_GET["start_date"])) ? DateTimeToYYYYMMDDHHMMSS($_GET["start_date"]) : date("Y-m-d") . " 00:00:00";
 $end_date = (!empty($_GET["end_date"])) ? DateTimeToYYYYMMDDHHMMSS($_GET["end_date"]) : date("Y-m-d") . " 23:59:59";
@@ -109,7 +105,7 @@ if ($start_date > $end_date) {
     echo "<table><tr class='alert'><td colspan=7>";
     echo xlt('Start Date should not be greater than End Date');
     echo "</td></tr></table>";
-    $err_message=1;
+    $err_message = 1;
 }
 
 if ($_GET["form_patient"]) {
@@ -125,7 +121,7 @@ if ($form_patient == '') {
 }
 
 ?>
-<br>
+<br />
 <FORM METHOD="GET" name="theform" id="theform" onSubmit='top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php
@@ -173,7 +169,7 @@ $check_sum = isset($_GET['check_sum']);
 </FORM>
 
 
-<?php if ($start_date && $end_date && $err_message!=1) { ?>
+<?php if ($start_date && $end_date && $err_message != 1) { ?>
 <div id="logview">
 <span class="text" id="display_tamper" style="display:none;"><?php echo xlt('Following rows in the audit log have been tampered'); ?></span>
 <table>
@@ -192,20 +188,20 @@ $check_sum = isset($_GET['check_sum']);
     $eventname = $_GET['eventname'];
     $type_event = $_GET['type_event'];
     ?>
-<input type="hidden" name="event" value="<?php echo attr($eventname)."-".attr($type_event) ?>">
+<input type="hidden" name="event" value="<?php echo attr($eventname) . "-" . attr($type_event) ?>">
     <?php
     $type_event = "update";
-    $tevent="";
-    $gev="";
+    $tevent = "";
+    $gev = "";
     if ($eventname != "" && $type_event != "") {
-        $getevent=$eventname."-".$type_event;
+        $getevent = $eventname . "-" . $type_event;
     }
 
     if (($eventname == "") && ($type_event != "")) {
-        $tevent=$type_event;
-    } else if ($type_event =="" && $eventname != "") {
-        $gev=$eventname;
-    } else if ($eventname == "") {
+        $tevent = $type_event;
+    } elseif ($type_event == "" && $eventname != "") {
+        $gev = $eventname;
+    } elseif ($eventname == "") {
         $gev = "";
     } else {
         $gev = $getevent;
@@ -213,7 +209,7 @@ $check_sum = isset($_GET['check_sum']);
 
     $dispArr = array();
     $icnt = 1;
-    if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
+    if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent))) {
         // Set up crypto object (object will increase performance since caches used keys)
         $cryptoGen = new CryptoGen();
 
@@ -232,7 +228,7 @@ $check_sum = isset($_GET['check_sum']);
                 $commentEncrStatus = $logEncryptData['encrypt'];
                 $checkSumOld = $logEncryptData['checksum'];
                 $encryptVersion = $logEncryptData['version'];
-                $concatLogColumns = $iter['date'].$iter['event'].$iter['user'].$iter['groupname'].$iter['comments'].$iter['patient_id'].$iter['success'].$iter['checksum'].$iter['crt_user'];
+                $concatLogColumns = $iter['date'] . $iter['event'] . $iter['user'] . $iter['groupname'] . $iter['comments'] . $iter['patient_id'] . $iter['success'] . $iter['checksum'] . $iter['crt_user'];
                 $checkSumNew = sha1($concatLogColumns);
 
                 if ($checkSumOld != $checkSumNew) {
@@ -258,7 +254,7 @@ $check_sum = isset($_GET['check_sum']);
                     } else {
                         $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
                     }
-                } else if ($encryptVersion == 2) {
+                } elseif ($encryptVersion == 2) {
                     // Use new openssl method
                     if (extension_loaded('openssl')) {
                         $trans_comments = $cryptoGen->aes256DecryptTwo($iter["comments"]);
@@ -270,7 +266,7 @@ $check_sum = isset($_GET['check_sum']);
                     } else {
                         $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
                     }
-                } else if ($encryptVersion == 1) {
+                } elseif ($encryptVersion == 1) {
                     // Use new openssl method
                     if (extension_loaded('openssl')) {
                         $trans_comments = preg_replace($patterns, $replace, trim($cryptoGen->aes256DecryptOne($iter["comments"])));
@@ -313,7 +309,7 @@ $check_sum = isset($_GET['check_sum']);
                 <?php
                 $colspan = 4;
                 if ($check_sum) {
-                    $colspan=6;
+                    $colspan = 6;
                 }
                 ?>
         <TD class="text" colspan="<?php echo attr($colspan);?>" align="center"><?php echo xlt('No audit log tampering detected in the selected date range.'); ?></TD>
@@ -332,7 +328,7 @@ $check_sum = isset($_GET['check_sum']);
 <script language="javascript">
 
 // jQuery stuff to make the page a little easier to use
-$(function(){
+$(function () {
     // funny thing here... good learning experience
     // the TR has TD children which have their own background and text color
     // toggling the TR color doesn't change the TD color

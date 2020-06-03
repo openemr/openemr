@@ -1,46 +1,18 @@
 <?php
+
 /**
  * Main info frame.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<HTML>
-<HEAD>
-<TITLE><?php echo xlt('Calendar'); ?></TITLE>
-<!-- (CHEMED) -->
-<!-- The DOCTYPE is set above to XHTML to put IE into Sttrict Mode so we can get a viewport width -->
-<script type='text/javascript' language='JavaScript'>
-function GetInnerX () {
-    var x;
-    if (self.innerHeight) // all except Explorer
-    {
-        x = self.innerWidth;
-    }
-    else if (document.documentElement && document.documentElement.clientHeight)
-        // Explorer 6 Strict Mode
-    {
-        x = document.documentElement.clientWidth;
-    }
-    else if (document.body) // other Explorers
-    {
-        x = document.body.clientWidth;
-    }
-    return x;
-}
-
-var x = GetInnerX();
-var framesrc = '<frame ';
-
-<?php
 
 // this allows us to keep our viewtype between screens -- JRM calendar_view_type
 $viewtype = $GLOBALS['calendar_view_type'];
@@ -73,33 +45,12 @@ if (isset($_SESSION['pc_username'])) {
 // different frame source page depending on session vars
 if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view";
-} else if ($_SESSION['userauthorized']) {
+} elseif ($_SESSION['userauthorized']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view&" . $pcuStr;
 } else {
     $framesrc = "calendar/index.php?module=PostCalendar&func=view&viewtype=" . attr_url($viewtype);
 }
-?>
 
-framesrc += ' src="<?php echo $framesrc; ?>';
-framesrc += '&framewidth=' + encodeURIComponent(x) + '" name="Calendar" scrolling="auto" frameborder="YES">';
-
-</script>
-<!-- END (CHEMED) -->
-</HEAD>
-
-<!-- (CHEMED) -->
-<script type='text/javascript' language='JavaScript'>
-    document.write('<frameset rows="*" cols="*" name="Main" frameborder="NO" border="0" framespacing="0" >');
-    document.write(framesrc);
-    document.write('</frameset>');
-    document.close();
-
-</script>
-<!-- END (CHEMED) -->
-
-
-<noframes><body bgcolor="#FFFFFF">
-<?php echo xlt('Frame support required'); ?>
-</body></noframes>
-
-</HTML>
+// Removed frame as it causes framing issues related to height
+// This functions completely normally without it
+header("Location: " . $framesrc);

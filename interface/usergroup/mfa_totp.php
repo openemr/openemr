@@ -1,4 +1,5 @@
 <?php
+
 /**
  * App Based TOTP Support
  *
@@ -9,21 +10,21 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Anthony Zullo <anthonykzullo@gmail.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
-
 
 require_once('../globals.php');
 require_once("$srcdir/classes/Totp.class.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
-$userid = $_SESSION['authId'];
+$userid = $_SESSION['authUserID'];
 $action = $_REQUEST['action'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
@@ -51,7 +52,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
             window.location.href = 'mfa_registrations.php';
         }
 
-        $(function() {
+        $(function () {
             $('#clearPass').focus();
         });
     </script>
@@ -117,7 +118,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                                 </div>
                                             <?php } ?>
                                             <p><?php echo xlt('In order to register your device, please provide your OpenEMR login password'); ?></p>
-                                            <div class="col-sm-4 col-sm-offset-4">
+                                            <div class="col-sm-4 offset-sm-4">
                                                 <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password'); ?>:" >
                                             </div>
                                         </div>
@@ -125,7 +126,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                 </fieldset>
                                 <div class="form-group clearfix">
                                 <div class="col-sm-12 text-left position-override">
-                                        <button type="button" class="btn btn-default btn-save" value="<?php echo xla('Submit'); ?>" onclick="doregister('reg2')"><?php echo xlt('Submit'); ?></button>
+                                        <button type="button" class="btn btn-secondary btn-save" value="<?php echo xla('Submit'); ?>" onclick="doregister('reg2')"><?php echo xlt('Submit'); ?></button>
                                         <button type="button" class="btn btn-link btn-cancel btn-separate-left" value="<?php echo xla('Cancel'); ?>" onclick="docancel()" ><?php echo xlt('Cancel'); ?></button>
                                     </div>
                                 </div>
@@ -138,7 +139,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             }
 
                             // Redirect back to step 1 if user password is incorrect
-                            if (!confirm_user_password($_SESSION['authUser'], $_POST['clearPass'])) {
+                            if (!(new AuthUtils())->confirmPassword($_SESSION['authUser'], $_POST['clearPass'])) {
                                 header("Location: mfa_totp.php?action=reg1&error=auth");
                                 exit();
                             }
@@ -181,11 +182,11 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                                 <?php echo xlt('Your current TOTP key QR code is displayed below.'); ?>
                                             </p>
                                         <?php } ?>
-                                            <br>
+                                            <br />
                                             <img src="<?php echo attr($qr); ?>" class="img-responsive center-block" style="height:200px !Important"/>
-                                            <br>
+                                            <br />
                                             <p><?php echo xlt('Example authenticator apps include'); ?></p>:
-                                            <div class="col-sm-4 col-sm-offset-4">
+                                            <div class="col-sm-4 offset-sm-4">
                                                 <ul>
                                                     <li><?php echo xlt('Google Auth'); ?>
                                                         (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8" target="_blank" rel="noopener">
@@ -204,7 +205,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             <div class="form-group clearfix">
                                 <div class="col-sm-12 text-left position-override">
                                     <?php if (!$doesExist) { ?>
-                                        <button type="button" class="btn btn-default btn-save" value="<?php echo xla('Register'); ?>" onclick="doregister('reg3')"><?php echo xlt('Register'); ?></button>
+                                        <button type="button" class="btn btn-secondary btn-save" value="<?php echo xla('Register'); ?>" onclick="doregister('reg3')"><?php echo xlt('Register'); ?></button>
                                         <button type="button" class="btn btn-link btn-cancel btn-separate-left" value="<?php echo xla('Cancel'); ?>" onclick="docancel()" ><?php echo xlt('Cancel'); ?></button>
                                     <?php } else { // $doesExist ?>
                                         <button type="button" class="btn btn-link btn-back btn-separate-left" value="<?php echo xla('Back'); ?>" onclick="docancel()" ><?php echo xlt('Back'); ?></button>

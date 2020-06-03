@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This include is just a HTML and JS *fragment* it CANNOT stand alone
  *
@@ -20,6 +21,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
 
 
@@ -62,16 +64,16 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 // jQuery makes life easier (sometimes)
 
-$(document).ready(function(){
+$(function () {
 
     /********************************************************/
     /************ List-box modification functions ***********/
     /********************************************************/
 
-    $("#newlistitem").keypress(function(evt) { if (evt.keyCode == 13) { SaveNewListItem(this, evt); return false; }});
-    $(".addtolist").click(function(evt) { AddToList(this, evt); });
-    $("#newlistitem_submit").click(function(evt) { SaveNewListItem(this, evt); });
-    $("#newlistitem_cancel").click(function(evt) { CancelAddToList(this, evt); });
+    $("#newlistitem").on("keypress", function(evt) { if (evt.keyCode == 13) { SaveNewListItem(this, evt); return false; }});
+    $(".addtolist").on("click", function(evt) { AddToList(this, evt); });
+    $("#newlistitem_submit").on("click", function(evt) { SaveNewListItem(this, evt); });
+    $("#newlistitem_cancel").on("click", function(evt) { CancelAddToList(this, evt); });
 
     // display the 'new list item' DIV at the mouse position
     var AddToList = function(btnObj, e) {

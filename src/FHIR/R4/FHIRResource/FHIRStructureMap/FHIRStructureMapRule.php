@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRStructureMap;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRStructureMap;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -251,7 +253,7 @@ class FHIRStructureMapRule extends FHIRBackboneElement implements \JsonSerializa
                         $this->addSource($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"source" must be array of objects or null, '.gettype($data['source']).' seen.');
+                    throw new \InvalidArgumentException('"source" must be array of objects or null, ' . gettype($data['source']) . ' seen.');
                 }
             }
             if (isset($data['target'])) {
@@ -260,7 +262,7 @@ class FHIRStructureMapRule extends FHIRBackboneElement implements \JsonSerializa
                         $this->addTarget($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"target" must be array of objects or null, '.gettype($data['target']).' seen.');
+                    throw new \InvalidArgumentException('"target" must be array of objects or null, ' . gettype($data['target']) . ' seen.');
                 }
             }
             if (isset($data['rule'])) {
@@ -269,7 +271,7 @@ class FHIRStructureMapRule extends FHIRBackboneElement implements \JsonSerializa
                         $this->addRule($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"rule" must be array of objects or null, '.gettype($data['rule']).' seen.');
+                    throw new \InvalidArgumentException('"rule" must be array of objects or null, ' . gettype($data['rule']) . ' seen.');
                 }
             }
             if (isset($data['dependent'])) {
@@ -278,14 +280,14 @@ class FHIRStructureMapRule extends FHIRBackboneElement implements \JsonSerializa
                         $this->addDependent($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"dependent" must be array of objects or null, '.gettype($data['dependent']).' seen.');
+                    throw new \InvalidArgumentException('"dependent" must be array of objects or null, ' . gettype($data['dependent']) . ' seen.');
                 }
             }
             if (isset($data['documentation'])) {
                 $this->setDocumentation($data['documentation']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

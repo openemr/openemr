@@ -13,160 +13,240 @@
 #         loadInFile: relative path to file, load always in specific file (defaults to false) for custom assets.
 assets:
     jquery:
-        basePath: %assets_static_relative%/jquery/dist/
+        basePath: '%assets_static_relative%/jquery/dist/'
         script: jquery.min.js
         autoload: true
         allowNoLoad: true
     bootstrap:
-        basePath: %assets_static_relative%/bootstrap/dist/
-        script: js/bootstrap.min.js
+        basePath: '%assets_static_relative%/bootstrap/dist/'
+        script: js/bootstrap.bundle.min.js
+        # Bootstrap is included in main themes via SASS
+        #  So will only use below css link if no_main-theme token is provided.
+        #  TODO - incorporate this mechanism for rtl when rtl bootrap SASS mechanism is up and running
         link: css/bootstrap.min.css
         autoload: true
-        allowNoLoad: true # could also just edit Header.php to remove this check (unnecessary?)
+        allowNoLoad: true
+        # RTL only for no_main-theme which is rare
         rtl:
-            basePath: %assets_static_relative%/bootstrap-rtl/dist/
-            link: css/bootstrap-rtl.css
-    bootstrap-sidebar:
-        basePath: %assets_static_relative%/bootstrap-sidebar/dist/
-        script: js/sidebar.js
-        link: css/sidebar.css
+            basePath: '%assets_static_relative%/bootstrap-rtl/dist/'
+            link: css/bootstrap-rtl.min.css
+    # keep utility and javaScript translations near top of load order.
+    i18next:
+        basePath: '%assets_static_relative%/i18next/dist/umd/'
+        script: i18next.min.js
+    utility:
+        basePath: '%webroot%/library/js/'
+        script: utility.js
+        autoload: true
+        allowNoLoad: true
     main-theme:
         alreadyBuilt: true
-        link: %css_header%
+        link: '%css_header%'
         autoload: true
         allowNoLoad: true
     tabs-theme:
-        basePath: %webroot%/public/themes/
-        link: %theme_tabs_layout%
+        basePath: '%webroot%/public/themes/'
+        link: '%theme_tabs_layout%'
         rtl:
-            basePath: %webroot%/public/themes/
+            basePath: '%webroot%/public/themes/'
             link: rtl_%theme_tabs_layout%
+    pdf-style:
+        basePath: '%webroot%/public/themes/'
+        link: style_pdf.css
+    patientportal-base:
+        basePath: '%webroot%/public/themes/'
+        link: patientportal-base.css
+        rtl:
+            basePath: '%webroot%/public/themes/'
+            link: rtl_patientportal-base.css
+    patientportal-register:
+        basePath: '%webroot%/public/themes/'
+        link: patientportal-register.css
+        rtl:
+            basePath: '%webroot%/public/themes/'
+            link: rtl_patientportal-register.css
+    patientportal-style:
+        basePath: '%webroot%/public/themes/'
+        link: patientportal-style.css
+        rtl:
+            basePath: '%webroot%/public/themes/'
+            link: rtl_patientportal-style.css
     knockout:
-        basePath: %assets_static_relative%/knockout/build/output/
+        basePath: '%assets_static_relative%/knockout/build/output/'
         script: knockout-latest.js
     jquery-ui:
-        basePath: %assets_static_relative%/jquery-ui/
+        basePath: '%assets_static_relative%/jquery-ui/'
         script: jquery-ui.min.js
+    jquery-ui-theme:
+        basePath: '%assets_static_relative%/jquery-ui/'
+        link: jquery-ui.theme.css
     jquery-ui-base:
-        basePath: %assets_static_relative%/jquery-ui-themes/themes/base/
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/base/'
         link: jquery-ui.min.css
     jquery-ui-darkness:
-        basePath: %assets_static_relative%/jquery-ui-themes/themes/ui-darkness/
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/ui-darkness/'
         link: jquery-ui.min.css
     jquery-ui-sunny:
-        basePath: %assets_static_relative%/jquery-ui-themes/themes/sunny/
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/sunny/'
         link: jquery-ui.min.css
     jquery-ui-redmond:
-        basePath: %assets_static_relative%/jquery-ui-themes/themes/redmond/
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/redmond/'
         link: jquery-ui.min.css
     jquery-ui-cupertino:
-        basePath: %assets_static_relative%/jquery-ui-themes/themes/cupertino/
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/cupertino/'
         link: jquery-ui.min.css
     jquery-ui-lightness:
-        basePath: %assets_static_relative%/jquery-ui-themes/themes/ui-lightness/
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/ui-lightness/'
         link: jquery-ui.min.css
-    jquery-ui-lightness-1-10-4:
-        basePath: %assets_static_relative%/jquery-ui-themes-1-10-4/themes/ui-lightness/
+    jquery-ui-excite-bike:
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/excite-bike/'
         link: jquery-ui.min.css
-    jquery-ui-excite-bike-1-11-4:
-        basePath: %assets_static_relative%/jquery-ui-themes-1-11-4/themes/excite-bike/
-        link: jquery-ui.css # should this be the minified file?
+    jquery-gritter:
+        basePath: '%assets_static_relative%/gritter/'
+        link: css/jquery.gritter.css
+        script: js/jquery.gritter.min.js
+    datatables:
+        basePath: '%assets_static_relative%/datatables.net/js/'
+        script: jquery.dataTables.js
+    datatables-colreorder:
+        basePath: '%assets_static_relative%'
+        link: /datatables.net-colreorder-dt/css/colReorder.dataTables.min.css
+        script: /datatables.net-colreorder/js/dataTables.colReorder.min.js
+    datatables-dt:
+        basePath: '%assets_static_relative%/datatables.net-dt/css/'
+        link: jquery.dataTables.min.css
+    datatables-bs:
+        basePath: '%assets_static_relative%/datatables.net-bs4/'
+        script: js/dataTables.bootstrap4.min.js
+        link: css/dataTables.bootstrap4.min.css
+    datatables-jqui:
+        basePath: '%assets_static_relative%/datatables.net-jqui/js/'
+        script: dataTables.jqueryui.js
+    datatables-jqui-theme:
+        basePath: '%assets_static_relative%/datatables.net-jqui/css/'
+        link: dataTables.jqueryui.css
+    datatables-scroller:
+        basePath: '%assets_static_relative%/datatables.net-scroller/js/'
+        script: dataTables.scroller.js
+    datatables-scroller-jqui-theme:
+        basePath: '%assets_static_relative%/datatables.net-scroller-jqui/css/'
+        link: scroller.jqueryui.css
     fontawesome:
-        basePath: %assets_static_relative%/font-awesome/css/
-        link: font-awesome.min.css
-        autoload: true
-        allowNoLoad: true
+        basePath: '%assets_static_relative%/@fortawesome/fontawesome-free/css/'
+        link: all.min.css
     datetime-picker:
-        basePath: %assets_static_relative%/jquery-datetimepicker/build/
+        basePath: '%assets_static_relative%/jquery-datetimepicker/build/'
         script: jquery.datetimepicker.full.min.js
         link: jquery.datetimepicker.min.css
     report-helper:
-        basePath: %webroot%/library/js/
+        basePath: '%webroot%/library/js/'
         script: report_helper.js
     opener:
-        basePath: %webroot%/interface/main/tabs/js/
+        basePath: '%webroot%/interface/main/tabs/js/'
         script: include_opener.js
     topdialog:
-        basePath: %webroot%/library/
+        basePath: '%webroot%/library/'
         script: topdialog.js
     common:
-        basePath: %webroot%/library/js/
+        basePath: '%webroot%/library/js/'
         script: common.js
     textformat:
-        basePath: %webroot%/library/
+        basePath: '%webroot%/library/'
         script: textformat.js
         autoload: true
         allowNoLoad: true
     dialog:
-        basePath: %webroot%/library/
+        basePath: '%webroot%/library/'
         script: dialog.js
         autoload: true
         allowNoLoad: true
     select2:
-        basePath: %assets_static_relative%/
-        script: select2/dist/js/select2.full.js # should this be the minified file?
+        basePath: '%assets_static_relative%/select2/dist/'
+        script: js/select2.full.min.js
         link:
-            - select2/dist/css/select2.css # should this be the minified file?
-            - select2-bootstrap-theme/dist/select2-bootstrap.css # should this be the minified file?
+            - css/select2.min.css
+            # BS4 theme moved to main theme assets to allow fluidity
     jscolor:
-        basePath: %assets_static_relative%/jscolor/
+        basePath: '%assets_static_relative%/jscolor/'
         script: jscolor.js
-    emodal:
-        basePath: %assets_static_relative%/emodal/dist/
-        script: eModal.min.js
     esign:
-        basePath: %webroot%/library/ESign/
+        basePath: '%webroot%/library/ESign/'
         script: js/jquery.esign.js
         link: css/esign.css
+    esign-theme-only:
+        basePath: '%webroot%/library/ESign/'
+        link: css/esign.css
     dygraphs:
-        basePath: %assets_static_relative%/modified/dygraphs-2-0-0/
+        basePath: '%assets_static_relative%/modified/dygraphs-2-0-0/'
         script: dygraph.js
         link: dygraph.css
     moment:
-        basePath: %assets_static_relative%/moment/
-        script: moment.js # should this be the minified file?
-    pure:
-        basePath: %assets_static_relative%/pure/0.5.0/
+        basePath: '%assets_static_relative%/moment/min/'
+        script: moment.min.js
+    purecss:
+        basePath: '%assets_static_relative%/purecss/build/'
         link: pure-min.css
     angular:
-        basePath: %assets_static_relative%/angular/
+        basePath: '%assets_static_relative%/angular/'
         script: angular.min.js
     angular-sanitize:
-        basePath: %assets_static_relative%/angular-sanitize/
+        basePath: '%assets_static_relative%/angular-sanitize/'
         script: angular-sanitize.min.js
     angular-summernote:
-        basePath: %assets_static_relative%/angular-summernote/dist/
-        script: angular-summernote.js # should this be the minified file?
-    anythingslider:
-        basePath: %assets_static_relative%/anythingslider/
-        script: js/jquery.anythingslider.fx.js # should optional plugins be their own key?
-        script: js/jquery.anythingslider.video.js # should optional plugins be their own key?
-        script: js/jquery.easing.1.2.js # should optional extensions be their own key?
-        script: js/jquery.anythingslider.min.js
-        # link: css/anythingslider.css
-        link: css/theme-metallic.css
-        link: css/theme-minimalist-round.css
-        link: css/theme-minimalist-square.css
-        link: css/theme-construction.css
-        link: css/theme-cs-portfolio.css
+        basePath: '%assets_static_relative%/angular-summernote/dist/'
+        script: angular-summernote.min.js
     backbone:
-        basePath: %assets_static_relative%/backbone/
+        basePath: '%assets_static_relative%/backbone/'
         script: backbone-min.js
     checklist-model:
-        basePath: %assets_static_relative%/checklist-model/
+        basePath: '%assets_static_relative%/checklist-model/'
         script: checklist-model.js
     summernote:
-        basePath: %assets_static_relative%/summernote/dist/
+        basePath: '%assets_static_relative%/summernote/dist/'
         script: summernote.js
         link: summernote.css
+    summernote-ext-nugget:
+        basePath: '%assets_static_relative%/summernote-nugget/plugins/nugget/'
+        script: summernote-ext-nugget.js
     shortcut:
-        basePath: %assets_static_relative%/manual-added-package/shortcut.js-2-01-B/
+        basePath: '%assets_static_relative%/manual-added-packages/shortcut.js-2-01-B/'
         script: shortcut.js
     underscore:
-        basePath: %assets_static_relative%/underscore
+        basePath: '%assets_static_relative%/underscore/'
         script: underscore-min.js
-    userdebug:
-        basePath: %webroot%/library/js/
-        script: userDebug.js
-        autoload: true
-        allowNoLoad: true
+    ckeditor:
+        basePath: '%assets_static_relative%/ckeditor4/'
+        script: ckeditor.js
+    search-highlight:
+        basePath: '%webroot%/library/js/'
+        script: SearchHighlight.js
+    track-anything:
+        basePath: '%webroot%/interface/forms/track_anything/'
+        link: style.css
+    i18next-xhr-backend:
+        basePath: '%assets_static_relative%/i18next-xhr-backend/dist/umd/'
+        script: i18nextXHRBackend.min.js
+    i18next-browser-languagedetector:
+        basePath: '%assets_static_relative%/i18next-browser-languagedetector/dist/umd/'
+        script: i18nextBrowserLanguageDetector.min.js
+    konva:
+        basePath: '%assets_static_relative%/konva/'
+        script: konva.min.js
+    magic-wand:
+        basePath: '%assets_static_relative%/magic-wand-js/js/'
+        script: magic-wand-min.js
+    jszip:
+        basePath: '%assets_static_relative%/jszip/dist/'
+        script: jszip.min.js
+    jspdf:
+        basePath: '%assets_static_relative%/jspdf/dist/'
+        script: jspdf.min.js
+    dwv:
+        basePath: '%assets_static_relative%/dwv/'
+        script:
+            - decoders/pdfjs/jpx.js
+            - decoders/pdfjs/util.js
+            - decoders/pdfjs/arithmetic_decoder.js
+            - decoders/pdfjs/jpg.js
+            - decoders/rii-mango/lossless-min.js
+            - dist/dwv.min.js

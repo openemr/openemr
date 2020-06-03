@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Trending script for graphing objects.
  *
@@ -11,10 +12,10 @@
  * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
  */
 
-$special_timeout = 3600;
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $formname = $_GET["formname"];
 $is_lbf = substr($formname, 0, 3) === 'LBF';
@@ -34,8 +35,13 @@ if ($is_lbf) {
 ?>
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
+<?php
+// Special case where not setting up the header for a script, so using setupAssets function,
+//  which does not autoload anything. The actual header is set up in the script called at
+//  the bottom of this script.
+Header::setupAssets(['dygraphs', 'jquery']);
+?>
+
 <?php
 // Hide the current value css entries. This is currently specific
 //  for the vitals form but could use this mechanism for other
@@ -49,21 +55,26 @@ if ($is_lbf) {
 // Also customize the 'graph' class to look like links.
 ?>
 <style>
-  .currentvalues { display: none;}
-  .valuesunfocus { display: none;}
-  .editonly      { display: none !important;}
+  .currentvalues {
+    display: none;
+  }
+  .valuesunfocus {
+    display: none;
+  }
+  .editonly {
+    display: none !important;
+  }
 
-  .graph {color:#0000cc;}
+  .graph {
+    color: #0000cc;
+  }
 
   #chart {
     margin:0em 1em 2em 2em;
   }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js?v=<?php echo $v_js_includes; ?>"></script>
-
-<script type="text/javascript">
+<script>
 
 
 // Show the selected chart in the 'chart' div element
@@ -112,7 +123,7 @@ function show_graph(table_graph, name_graph, title_graph)
     });
 }
 
-$(function (){
+$(function () {
 
   // Use jquery to show the 'readonly' class entries
   $('.readonly').show();

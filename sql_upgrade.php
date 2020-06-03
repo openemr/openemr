@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -42,7 +43,7 @@ $desiredVersion->setMinor($v_minor);
 $desiredVersion->setMajor($v_major);
 
 // Force logging off
-$GLOBALS["enable_auditlog"]=0;
+$GLOBALS["enable_auditlog"] = 0;
 
 $versions = array();
 $sqldir = "$webserver_root/sql";
@@ -74,7 +75,7 @@ ksort($versions);
 <body>
 <center>
 <span class='title'>OpenEMR Database Upgrade</span>
-<br>
+<br />
 </center>
 <?php
 if (!empty($_POST['form_submit'])) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdTable.php
  *
@@ -8,19 +9,17 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Carecoordination\Model;
 
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
-use Zend\Db\Adapter\Driver\Pdo\Result;
-use Zend\XmlRpc\Generator;
-
+use Laminas\Db\Adapter\Driver\Pdo\Result;
+use Laminas\XmlRpc\Generator;
 use DOMDocument;
 use DOMXpath;
-
 use Document;
 use CouchDB;
-
 use Documents\Model\DocumentsTable;
 
 class CcdTable extends AbstractTableGateway

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Batch Communication Tool for selecting/communicating with subsets of patients
  *
@@ -14,13 +15,13 @@
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
 require_once("$srcdir/registry.inc");
-require_once("../../library/acl.inc");
 require_once("batchcom.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-if (!acl_check('admin', 'batchcom')) {
+if (!AclMain::aclCheckCore('admin', 'batchcom')) {
     echo "<html>\n<body>\n<h1>";
     echo xlt('You are not authorized for this.');
     echo "</h1>\n</body>\n</html>";
@@ -29,12 +30,12 @@ if (!acl_check('admin', 'batchcom')) {
 
 // menu arrays (done this way so it's easier to validate input on validate selections)
 $process_choices = array(xl('Download CSV File'), xl('Send Emails'), xl('Phone call list'));
-$gender_choices = array(xl('Any'), xl('Male'), xl('Female'));
+$gender_choices = array(xl('Any{{Gender}}'), xl('Male'), xl('Female'));
 $hipaa_choices = array(xl('No'), xl('Yes'));
-$sort_by_choices = array(xl('Zip Code')=>'patient_data.postal_code', xl('Last Name')=>'patient_data.lname', xl('Appointment Date')=>'last_appt');
+$sort_by_choices = array(xl('Zip Code') => 'patient_data.postal_code', xl('Last Name') => 'patient_data.lname', xl('Appointment Date') => 'last_appt');
 
 // process form
-if ($_POST['form_action']=='process') {
+if ($_POST['form_action'] == 'process') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -80,7 +81,7 @@ if ($_POST['form_action']=='process') {
     }
 
     if (!check_select($_POST['sort_by'], $sort_by_choices)) {
-        $form_err.=xl('Error in "Sort By" selection');
+        $form_err .= xl('Error in "Sort By" selection');
     }
 
     //process sql
@@ -96,40 +97,40 @@ if ($_POST['form_action']=='process') {
         $params = array();
 
         //appointment dates
-        if ($_POST['app_s']!=0 and $_POST['app_s']!='') {
+        if ($_POST['app_s'] != 0 and $_POST['app_s'] != '') {
             $sql .= " and cal_events.pc_eventDate >= ?";
             array_push($params, $_POST['app_s']);
         }
 
-        if ($_POST['app_e']!=0 and $_POST['app_e']!='') {
+        if ($_POST['app_e'] != 0 and $_POST['app_e'] != '') {
             $sql .= " and cal_events.pc_endDate <= ?";
             array_push($params, $_POST['app_e']);
         }
 
         // encounter dates
-        if ($_POST['seen_since']!=0 and $_POST['seen_since']!='') {
+        if ($_POST['seen_since'] != 0 and $_POST['seen_since'] != '') {
             $sql .= " and forms.date >= ?" ;
             array_push($params, $_POST['seen_since']);
         }
 
-        if ($_POST['seen_before']!=0 and $_POST['seen_before']!='') {
+        if ($_POST['seen_before'] != 0 and $_POST['seen_before'] != '') {
             $sql .= " and forms.date <= ?" ;
             array_push($params, $_POST['seen_before']);
         }
 
         // age
-        if ($_POST['age_from']!=0 and $_POST['age_from']!='') {
+        if ($_POST['age_from'] != 0 and $_POST['age_from'] != '') {
             $sql .= " and DATEDIFF( CURDATE( ), patient_data.DOB )/ 365.25 >= ?";
             array_push($params, $_POST['age_from']);
         }
 
-        if ($_POST['age_upto']!=0 and $_POST['age_upto']!='') {
+        if ($_POST['age_upto'] != 0 and $_POST['age_upto'] != '') {
             $sql .= " and DATEDIFF( CURDATE( ), patient_data.DOB )/ 365.25 <= ?";
             array_push($params, $_POST['age_upto']);
         }
 
         // gender
-        if ($_POST['gender']!='Any') {
+        if ($_POST['gender'] != 'Any') {
             $sql .= " and patient_data.sex=?";
             array_push($params, $_POST['gender']);
         }
@@ -141,7 +142,7 @@ if ($_POST['form_action']=='process') {
 
         switch ($_POST['process_type']) :
             case $choices[1]: // Email
-                $sql.=" and patient_data.email IS NOT NULL ";
+                $sql .= " and patient_data.email IS NOT NULL ";
                 break;
         endswitch;
 
@@ -172,17 +173,15 @@ if ($_POST['form_action']=='process') {
 ?>
 <html>
 <head>
-<title><?php echo xlt('BatchCom'); ?></title>
-<?php Header::setupHeader(['datetime-picker']); ?>
+    <?php Header::setupHeader(['datetime-picker']); ?>
+    <title><?php echo xlt('BatchCom'); ?></title>
 </head>
 <body class="body_top container">
-<header class="row">
+<header>
     <?php require_once("batch_navigation.php");?>
-    <h1 class="col-md-6 col-md-offset-3 text-center">
-        <?php echo xlt('Batch Communication Tool')?>
-    </h1>
+    <h1 class="text-center"><?php echo xlt('Batch Communication Tool')?></h1>
 </header>
-<main>
+<main class="mx-4">
     <?php
     if ($form_err) {
         echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';
@@ -191,7 +190,7 @@ if ($_POST['form_action']=='process') {
     <form name="select_form" method="post" action="">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <div class="row">
-            <div class="col-md-3 well form-group">
+            <div class="col-md card p-3 m-1 form-group">
                 <label for="process_type"><?php echo xlt("Process") . ":"; ?></label>
                 <select name="process_type" class="form-control">
                     <?php
@@ -201,7 +200,7 @@ if ($_POST['form_action']=='process') {
                     ?>
                 </select>
             </div>
-            <div class="col-md-3 well form-group">
+            <div class="col-md card p-3 m-1 form-group">
                 <label for="hipaa_choice"><?php echo xlt("Override HIPAA choice") . ":"; ?></label>
                 <select name="hipaa_choice" class="form-control">
                     <?php
@@ -211,7 +210,7 @@ if ($_POST['form_action']=='process') {
                     ?>
                 </select>
             </div>
-            <div class="col-md-3 well form-group">
+            <div class="col-md card p-3 m-1 form-group">
                 <label for="sort_by"><?php echo xlt("Sort by"); ?></label>
                 <select name="sort_by" class="form-control">
                     <?php
@@ -221,7 +220,7 @@ if ($_POST['form_action']=='process') {
                     ?>
                 </select>
             </div>
-            <div class="col-md-3 well form-group">
+            <div class="col-md card p-3 m-1 form-group">
                 <label for="gender"><?php echo xlt('Gender') ?>:</label>
                 <select name="gender" class="form-control">
                     <?php
@@ -233,36 +232,36 @@ if ($_POST['form_action']=='process') {
             </div>
         </div>
         <div class="row">
-            <div class="col-md-3 well form-group">
+            <div class="col-md card p-3 m-1 form-group">
                 <label for="age_from"><?php echo xlt("Age Range") . ":"; ?></label>
                 <input name="age_from" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
                 <label for="age_upto" class="text-center"><?php echo xlt('to{{Range}}'); ?></label>
                 <input name="age_upto" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
             </div>
-            <div class="col-md-3 well form-group">
+            <div class="col-md card p-3 m-1 form-group">
                 <label for="app_s"><?php echo xlt('Appointment within') ?>:</label>
-                    <input type="text" class="datepicker form-control" name="app_s" placeholder="<?php echo xla('any date'); ?>">
+                    <input type="text" class="datepicker form-control" name="app_s" placeholder="<?php echo xla('any date'); ?>" />
                     <div class="text-center"><?php echo xlt('to{{Range}}'); ?></div>
-                    <input type="text" class="datepicker form-control" name="app_e" placeholder="<?php echo xla('any date'); ?>">
+                    <input type="text" class="datepicker form-control" name="app_e" placeholder="<?php echo xla('any date'); ?>" />
             </div>
-            <!-- later gator    <br>Insurance: <SELECT multiple NAME="insurance" Rows="10" cols="20"></SELECT> -->
-            <div class="col-md-3 well form-group">
+            <!-- later gator    <br />Insurance: <SELECT multiple NAME="insurance" Rows="10" cols="20"></SELECT> -->
+            <div class="col-md card p-3 m-1 form-group">
                 <label for="app_s"><?php echo xlt('Seen within')?>:</label>
-                    <input type="text" class="datepicker form-control" name="seen_since" placeholder="<?php echo xla('any date'); ?>">
+                    <input type="text" class="datepicker form-control" name="seen_since" placeholder="<?php echo xla('any date'); ?>" />
                     <div class="text-center"><?php echo xlt('to{{Range}}'); ?></div>
-                    <input type="text" class="datepicker form-control" name="seen_before" placeholder="<?php echo xla('any date'); ?>">
+                    <input type="text" class="datepicker form-control" name="seen_before" placeholder="<?php echo xla('any date'); ?>" />
             </div>
         </div>
         <div class="email row form-group">
-            <div class="col-md-6 col-md-offset-3 well">
+            <div class="col-md-6 offset-md-3 card p-3 m-1">
                 <div class="col-md-6">
                     <label for="email_sender"><?php echo xlt('Email Sender'); ?>:</label>
-                    <input class="form-control" type="text" name="email_sender" placeholder="your@email.email">
+                    <input class="form-control" type="text" name="email_sender" placeholder="your@email.email" />
                 </div>
 
                 <div class="col-md-6">
                     <label for="email_subject"><?php echo xlt('Email Subject'); ?>:</label>
-                    <input class="form-control" type="text" name="email_subject" placeholder="From your clinic">
+                    <input class="form-control" type="text" name="email_subject" placeholder="<?php echo xla('From your clinic'); ?>" />
                 </div>
                 <div class="col-md-12">
                     <label for="email_subject"><?php echo xlt('Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***{{Do Not translate the ***NAME*** elements of this constant.}}'); ?>:</label>
@@ -273,9 +272,9 @@ if ($_POST['form_action']=='process') {
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12 form-group">
-                <input type="hidden" name="form_action" value="process">
-                <button type="submit" name="submit" class="btn btn-default btn-save">
+            <div class="col-md form-group">
+                <input type="hidden" name="form_action" value="process" />
+                <button type="submit" name="submit" class="btn btn-secondary btn-save">
                     <?php echo xla("Process"); ?>
                 </button>
             </div>

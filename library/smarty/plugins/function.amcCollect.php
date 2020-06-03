@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -13,13 +14,12 @@
  * of the License, or (at your option) any later version.
  */
 
-
 /**
  * Smarty {amcCollect} function plugin
  *
- * Type:     function<br>
- * Name:     amcCollect<br>
- * Purpose:  amcCollect in OpenEMR - Smarty templates<br>
+ * Type:     function<br />
+ * Name:     amcCollect<br />
+ * Purpose:  amcCollect in OpenEMR - Smarty templates<br />
  *
  * @param array
  * @param Smarty

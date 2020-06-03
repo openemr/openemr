@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (C) 2018 Amiel Elboim <amielel@matrix.co.il>
  *
@@ -18,11 +19,10 @@
  * @link    http://www.open-emr.org
  */
 
-
 namespace PrescriptionTemplates\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 
 class PrescriptionTemplatesController extends AbstractActionController
 {

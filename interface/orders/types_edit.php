@@ -1,4 +1,5 @@
 <?php
+
 /**
  * types_edit.php
  *
@@ -11,9 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
@@ -85,7 +84,7 @@ function recursiveDelete($typeid)
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['opener','topdialog','datetime-picker', 'jquery-ui', 'jquery-ui-base']);?>
+    <?php Header::setupHeader(['opener','topdialog','datetime-picker']);?>
 
 <title><?php echo $typeid ? xlt('Edit') : xlt('Add New{{Type}}'); ?> <?php echo xlt('Order/Result Type'); ?></title>
 
@@ -714,10 +713,10 @@ function proc_type_changed() {
                         <div class="form-group clearfix" id="button-container">
                             <div class="col-sm-12 text-left position-override">
                                 <div class="btn-group btn-group-pinch" role="group">
-                                    <button type='submit' name='form_save'  class="btn btn-default btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
+                                    <button type='submit' name='form_save'  class="btn btn-secondary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                     <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
                                     <?php if ($typeid) { ?>
-                                        <button type='submit' name='form_delete'  class="btn btn-default btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
+                                        <button type='submit' name='form_delete'  class="btn btn-secondary btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -729,17 +728,15 @@ function proc_type_changed() {
         <script>
             //jqury-ui tooltip
             $(function () {
-                //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
-                // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
-                $('.icon-tooltip').attr("title", <?php echo xlj('Click to see more information'); ?>).tooltip({
+                $('.icon-tooltip').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip({
                     show: {
                         delay: 700,
                         duration: 0
                     }
                 });
-                $('.enter-details-tooltip').attr( "title", <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?> + ". " + <?php echo xlj('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?> + ".").tooltip();
+                $('#enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
                 $('#form_procedure_type').click(function(){
-                    $('.enter-details-tooltip').attr( "title", <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?> + ". " + <?php echo xlj('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?> + ".").tooltip();
+                    $('#enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
                 });
             });
         </script>

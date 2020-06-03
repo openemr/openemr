@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -144,8 +146,8 @@ class FHIRMedicationKnowledgeMonograph extends FHIRBackboneElement implements \J
             if (isset($data['source'])) {
                 $this->setSource($data['source']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

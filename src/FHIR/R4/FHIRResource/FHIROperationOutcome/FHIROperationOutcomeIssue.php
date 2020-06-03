@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -266,7 +268,7 @@ For resource issues, this will be a simple XPath limited to element names, repet
                         $this->addLocation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"location" must be array of objects or null, '.gettype($data['location']).' seen.');
+                    throw new \InvalidArgumentException('"location" must be array of objects or null, ' . gettype($data['location']) . ' seen.');
                 }
             }
             if (isset($data['expression'])) {
@@ -275,11 +277,11 @@ For resource issues, this will be a simple XPath limited to element names, repet
                         $this->addExpression($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"expression" must be array of objects or null, '.gettype($data['expression']).' seen.');
+                    throw new \InvalidArgumentException('"expression" must be array of objects or null, ' . gettype($data['expression']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

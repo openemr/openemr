@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -7,10 +8,10 @@
 // of the License, or (at your option) any later version.
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -45,7 +46,7 @@ $quantity        = $_REQUEST['quantity'];
 $fee             = $_REQUEST['fee'];
 $user            = $_SESSION['authUser'];
 
-if (!acl_check('admin', 'drugs')) {
+if (!AclMain::aclCheckCore('admin', 'drugs')) {
     die(xl('Not authorized'));
 }
 
@@ -173,14 +174,14 @@ if ($dconfig['disclaimer']) {
 $label_text = $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] .
 ' RX#' . sprintf('%06u', $row['prescription_id']) . "\n" .
 $row['name'] . ' ' . $row['size'] . ' ' .
-generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) . ' ' .
+generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['unit']) . ' ' .
 xl('QTY') . ' ' . $row['quantity'] . "\n" .
 xl('Take') . ' ' . $row['dosage'] . ' ' .
-generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row['form']) .
 ($row['dosage'] > 1 ? 's ' : ' ') .
-generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row['interval']) .
+generate_display_field(array('data_type' => '1','list_id' => 'drug_interval'), $row['interval']) .
 ' ' .
-generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']) .
+generate_display_field(array('data_type' => '1','list_id' => 'drug_route'), $row['route']) .
 "\n" . xl('Lot', '', '', ' ') . $row['lot_number'] . xl('Exp', '', ' ', ' ') . $row['expiration'] . "\n" .
 xl('NDC', '', '', ' ') . $row['ndc_number'] . ' ' . $row['manufacturer'];
 
@@ -203,14 +204,14 @@ if (false) { // if PDF output is desired
     $pdf->ezSetMargins($dconfig['top'], $dconfig['bottom'], $dconfig['left'], $dconfig['right']);
     $pdf->selectFont('Helvetica');
     $pdf->ezSetDy(20); // dunno why we have to do this...
-    $pdf->ezText($header_text, 7, array('justification'=>'center'));
+    $pdf->ezText($header_text, 7, array('justification' => 'center'));
     if (!empty($dconfig['logo'])) {
         $pdf->ezSetDy(-5); // add space (move down) before the image
         $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
         $pdf->ezSetDy(8);  // reduce space (move up) after the image
     }
 
-    $pdf->ezText($label_text, 9, array('justification'=>'center'));
+    $pdf->ezText($label_text, 9, array('justification' => 'center'));
     $pdf->ezStream();
 } else { // HTML output
     ?>

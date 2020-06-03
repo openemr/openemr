@@ -1,4 +1,5 @@
 <?php
+
 /**
  * copay.php
  *
@@ -9,10 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// TODO: Code cleanup
 
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 // This may be more appropriate to move to the library
 // later
@@ -34,11 +37,11 @@ function getInsuranceCompanies($pid)
 }
 
 //the number of rows to display before resetting and starting a new column:
-$N=10
+$N = 10
 ?>
 <html>
 <head>
-<script type="text/javascript">
+<script>
 function cleartext(atrib)
 {
 document.copay_form.code.value=document.copay_form.codeH.value;
@@ -47,47 +50,47 @@ document.copay_form.codeH.value="";
 </script>
 
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_bottom">
 
-<table border='0' cellspacing='0' cellpadding='0' height='100%'>
+<table class="table-borderless h-100" cellspacing='0' cellpadding='0'>
 <tr>
 
-<td valign=top>
+<td class="align-top">
 
 <dl>
 
 <form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 
-<dt><span class=title><?php echo xlt('Copay'); ?></span></dt>
+<dt><span class='title'><?php echo xlt('Copay'); ?></span></dt>
 
-<br>
-<input type=hidden name=code>
+<br />
+<input type='hidden' name='code' />
 <span class='text'><?php echo xlt('$'); ?> </span><input type='entry' name='codeH' value='' size='5' />
 
-<input type="SUBMIT" value="<?php echo xla('Save');?>" onclick="cleartext('clear')"><br><br>
+<input type="SUBMIT" value="<?php echo xla('Save');?>" onclick="cleartext('clear')"><br /><br />
 
 
 <div<?php if ($GLOBALS['simplified_copay']) {
-    echo " style='display:none;'";
+    echo " class='d-none'";
     } ?>>
-<input type="RADIO" name="payment_method" value="cash" checked><?php echo xlt('cash'); ?>
-<input type="RADIO" name="payment_method" value="credit card"><?php echo xlt('credit'); ?>
-<input type="RADIO" name="payment_method" value="check"><?php echo xlt('check'); ?>
-<input type="RADIO" name="payment_method" value="other"><?php echo xlt('other'); ?><br><br>
-<input type="RADIO" name="payment_method" value="insurance"><?php echo xlt('insurance'); ?>
+<input type="radio" name="payment_method" value="cash" checked><?php echo xlt('cash'); ?>
+<input type="radio" name="payment_method" value="credit card"><?php echo xlt('credit'); ?>
+<input type="radio" name="payment_method" value="check"><?php echo xlt('check'); ?>
+<input type="radio" name="payment_method" value="other"><?php echo xlt('other'); ?><br /><br />
+<input type="radio" name="payment_method" value="insurance"><?php echo xlt('insurance'); ?>
 <?php
-if ($ret=getInsuranceCompanies($pid)) {
-    if (sizeof($ret)>0) {
-        echo "<select name=insurance_company>\n";
+if ($ret = getInsuranceCompanies($pid)) {
+    if (sizeof($ret) > 0) {
+        echo "<select name='insurance_company'>\n";
         foreach ($ret as $iter) {
             $plan_name = trim($iter['plan_name']);
             if ($plan_name != '') {
                 echo "<option value='"
                 . attr($plan_name)
-                ."'>" . text($plan_name) ."\n";
+                . "'>" . text($plan_name) . "\n";
             }
         }
 
@@ -95,8 +98,8 @@ if ($ret=getInsuranceCompanies($pid)) {
     }
 }
 ?>
-<br><br>
-<input type="RADIO" name="payment_method" value="write off"><?php echo xlt('write off'); ?>
+<br /><br />
+<input type="radio" name="payment_method" value="write off"><?php echo xlt('write off'); ?>
 
 </div>
 

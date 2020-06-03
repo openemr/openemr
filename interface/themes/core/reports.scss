@@ -1,62 +1,57 @@
 /* styles taken out of templates/report/general_default.html */
 
-#reports_list td {
-    font-size: 0.8em;
-}
+#reports_list td,
 #reports_list a {
-    font-size: 0.8em;
+  @include font-size("0.8rem !important");
 }
+
 /*
 * REPORTS
 */
 
 #report_parameters {
-    background-color: #ececec;
-    margin-top: 10px;
+  margin-top: 10px;
 }
+
 #report_parameters table {
-    border: solid 1px;
-    width: 100%;
-    border-collapse: collapse;
+  border-collapse: collapse;
+  width: 100%;
 }
+
 #report_parameters table td {
-    padding: 5px;
+  padding: 5px;
 }
+
 #report_parameters table table {
-    border: 0px;
-    border-collapse: collapse;
-    font-size: 0.8em;
+  @include font-size("0.8rem !important");
+  border: 0;
+  border-collapse: collapse;
 }
+
 #report_parameters table table td.label_custom {
-    text-align: $right;
+  text-align: $right;
 }
+
 #report_results table {
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
-    border-left: 1px solid black;
-    border-right: 1px solid black;
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1px;
+  border-collapse: collapse;
+  margin-top: 1px;
+  width: 100%;
 }
+
 #report_results table thead {
-    padding: 5px;
-    display: table-header-group;
-    background-color: #ddd;
-    text-align: $left;
-    font-weight: bold;
-    font-size: 0.7em;
+  font-weight: bold;
+  text-align: $left;
 }
+
 #report_results table th {
-    border-bottom: 1px solid black;
-    padding: 5px;
+  padding: 5px;
 }
+
 #report_results table td {
-    padding: 5px;
-    border-bottom: 1px dashed;
-    font-size: 0.8em;
+  padding: 5px;
 }
+
 .report_totals td {
-    background-color: #77ff77;
-    font-weight: bold;
+  background-color: lighten($green, 30%);
+  font-weight: bold;
 }

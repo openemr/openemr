@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -25,7 +26,7 @@ class Characteristic extends ClinicalType
         
         if ($this->getOptionId() == self::TERMINAL_ILLNESS) {
             // TODO check for terminal illness
-        } else if ($this->getOptionId() == self::TOBACCO_USER) {
+        } elseif ($this->getOptionId() == self::TOBACCO_USER) {
             $tobaccoHistory = getHistoryData($patient->id, "tobacco", $beginDate, $endDate);
             
             if (isset($tobaccoHistory['tobacco'])) {
@@ -33,14 +34,14 @@ class Characteristic extends ClinicalType
                 $tobaccoStatus = $tmp[1];
                 if ($tobaccoStatus == 'currenttobacco') {
                     $return = true;
-                } else if ($tobaccoStatus == 'quittobacco') {
+                } elseif ($tobaccoStatus == 'quittobacco') {
                     $quitDate = $tmp[2];
                     if (strtotime($quitDate) > strtotime($beginDate)) {
                         $return = true;
                     }
                 }
             }
-        } else if ($this->getOptionId() == self::TOBACCO_NON_USER) {
+        } elseif ($this->getOptionId() == self::TOBACCO_NON_USER) {
             $tobaccoHistory = getHistoryData($patient->id, "tobacco", $beginDate, $endDate);
             if (isset($tobaccoHistory['tobacco'])) {
                 $tmp = explode('|', $tobaccoHistory['tobacco']);
@@ -50,7 +51,7 @@ class Characteristic extends ClinicalType
                     if (strtotime($quitDate) < strtotime($beginDate)) {
                         $return = true;
                     }
-                } else if ($tobaccoStatus == 'nevertobacco') {
+                } elseif ($tobaccoStatus == 'nevertobacco') {
                     $return = true;
                 }
             }

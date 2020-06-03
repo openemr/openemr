@@ -1,15 +1,16 @@
 <?php
+
 namespace Carecoordination;
 
 use Carecoordination\Model\CarecoordinationTable;
 use Carecoordination\Model\SetupTable;
 use Carecoordination\Model\EncounterccdadispatchTable;
 use Carecoordination\Model\EncountermanagerTable;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\TableGateway;
-use Zend\ModuleManager\ModuleManager;
-use Zend\View\Helper\Openemr\Emr;
-use Zend\View\Helper\Openemr\Menu;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\TableGateway;
+use Laminas\ModuleManager\ModuleManager;
+use Laminas\View\Helper\Openemr\Emr;
+use Laminas\View\Helper\Openemr\Menu;
 use Carecoordination\Model\Progressnote;
 use Carecoordination\Model\ProgressnoteTable;
 use Carecoordination\Model\Continuitycaredocument;
@@ -21,10 +22,10 @@ class Module
     public function getAutoloaderConfig()
     {
         return array(
-            'Zend\Loader\ClassMapAutoloader' => array(
+            'Laminas\Loader\ClassMapAutoloader' => array(
                 __DIR__ . '/autoload_classmap.php',
             ),
-            'Zend\Loader\StandardAutoloader' => array(
+            'Laminas\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                     

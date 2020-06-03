@@ -1,4 +1,5 @@
 <?php
+
     /**
      * /library/MedEx/MedEx.php
      *
@@ -27,16 +28,14 @@
      * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
      */
 
-    $ignoreAuth=true;
+    $ignoreAuth = true;
     $_SERVER['HTTP_HOST']   = 'default'; //change for multi-site
 
-    require_once(dirname(__FILE__)."/../../interface/globals.php");
-    require_once(dirname(__FILE__)."/../patient.inc");
-    require_once(dirname(__FILE__)."/../log.inc");
-    require_once(dirname(__FILE__)."/API.php");
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(dirname(__FILE__) . "/../patient.inc");
+    require_once(dirname(__FILE__) . "/API.php");
     
-    
-if (empty($_POST['callback_key'])) {
+if (!empty($_POST['callback_key'])) {
     $MedEx = new MedExApi\MedEx('MedExBank.com');
     $response = $MedEx->login('1');
     header('Content-type: application/json');

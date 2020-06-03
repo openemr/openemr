@@ -1,4 +1,5 @@
 <?php
+
 /**
  * print_referral.php
  *
@@ -8,9 +9,9 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
@@ -52,11 +53,16 @@ $TEMPLATE_LABELS = array(
   'label_scripts_and_referrals' => xlt('Prescriptions and other referrals'),
   'label_subhead_clinic'        => xlt('Clinic Copy'),
   'label_subhead_patient'       => xlt('Client Copy'),
-  'label_subhead_referred'      => xlt('For Referred Organization/Practitioner')
+  'label_subhead_referred'      => xlt('For Referred Organization/Practitioner'),
+  'label_ins_name'              => xlt('Insurance'),
+  'label_ins_plan_name'         => xlt('Plan'),
+  'label_ins_policy'            => xlt('Policy'),
+  'label_ins_group'             => xlt('Group'),
+  'label_ins_date'              => xlt('Effective Date')
 );
 
 if (!is_file($template_file)) {
-    die(text($template_file). " does not exist!");
+    die(text($template_file) . " does not exist!");
 }
 
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
@@ -83,9 +89,11 @@ if ($transid) {
 if ($patient_id) {
     $patdata = getPatientData($patient_id);
     $patient_age = getPatientAge(str_replace('-', '', $patdata['DOB']));
+    $insurancedata = getInsuranceData($patient_id);
 } else {
     $patdata = array('DOB' => '');
     $patient_age = '';
+    $ins_name = '';
 }
 
 if (empty($trow['refer_from'])) {
@@ -115,7 +123,7 @@ if (empty($torow)) {
 
 $vrow = sqlQuery("SELECT * FROM form_vitals WHERE " .
   "pid = ? AND date <= ? " .
-  "ORDER BY date DESC LIMIT 1", array($patient_id, $refer_date." 23:59:59"));
+  "ORDER BY date DESC LIMIT 1", array($patient_id, $refer_date . " 23:59:59"));
 if (empty($vrow)) {
     $vrow = array(
     'bps' => '',
@@ -159,12 +167,12 @@ fclose($fh);
 
 $s = str_replace("{header1}", genFacilityTitle($TEMPLATE_LABELS['label_form1_title'], -1, $logo), $s);
 $s = str_replace("{header2}", genFacilityTitle($TEMPLATE_LABELS['label_form2_title'], -1, $logo), $s);
-
 $s = str_replace("{fac_name}", text($facrow['name']), $s);
 $s = str_replace("{fac_facility_npi}", text($facrow['facility_npi']), $s);
 $s = str_replace("{ref_id}", text($trow['id']), $s);
 $s = str_replace("{ref_pid}", text($patient_id), $s);
 $s = str_replace("{pt_age}", text($patient_age), $s);
+
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'LBTref' ORDER BY group_id, seq");
@@ -185,7 +193,7 @@ while ($frow = sqlFetchArray($fres)) {
 
 foreach ($patdata as $key => $value) {
     if ($key == "sex") {
-        $s = str_replace("{pt_$key}", generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $value), $s);
+        $s = str_replace("{pt_$key}", generate_display_field(array('data_type' => '1','list_id' => 'sex'), $value), $s);
     } else {
         $s = str_replace("{pt_$key}", text($value), $s);
     }
@@ -204,7 +212,11 @@ foreach ($vrow as $key => $value) {
 }
 
 foreach ($TEMPLATE_LABELS as $key => $value) {
-    $s = str_replace("{".$key."}", $value, $s);
+    $s = str_replace("{" . $key . "}", $value, $s);
+}
+
+foreach ($insurancedata as $key => $value) {
+    $s = str_replace("{insurance_$key}", text($value), $s);
 }
 
 // A final pass to clear any unmatched variables:

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Acl/config/module.config.php
  *
@@ -9,10 +10,11 @@
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Acl;
 
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
 use Interop\Container\ContainerInterface;
 
 return array(
@@ -64,7 +66,7 @@ return array(
     'service_manager' => [
         'factories' => [
             Model\AclTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Zend\Db\Adapter\Adapter::class);
+                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $table = new Model\AclTable($dbAdapter);
                 return $table;
             },

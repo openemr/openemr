@@ -144,7 +144,7 @@ $table_name = ']]></xsl:text>
 <xsl:template match="acl">
 <xsl:if test="@table='patients'">
 <xsl:text disable-output-escaping="yes"><![CDATA[/* Check the access control lists to ensure permissions to this page */
-if (!acl_check(']]></xsl:text>
+if (!AclMain::aclCheckCore(']]></xsl:text>
 <xsl:value-of select="@table" />
 <xsl:text disable-output-escaping="yes"><![CDATA[', ']]></xsl:text>
 <xsl:value-of select="./text()" />
@@ -152,7 +152,7 @@ if (!acl_check(']]></xsl:text>
  die(text($form_name).': '.xlt("Access Denied"));
 }
 $thisauth_write_addonly=FALSE;
-if ( acl_check(']]></xsl:text>
+if ( AclMain::aclCheckCore(']]></xsl:text>
 <xsl:value-of select="@table" />
 <xsl:text disable-output-escaping="yes"><![CDATA[',']]></xsl:text>
 <xsl:value-of select="./text()" />
@@ -274,12 +274,12 @@ $cells_per_row=]]></xsl:text>
 <xsl:if test="$page='show' or $page='view' or $page='new' or $page='report' or $page='print'">
 <xsl:if test="//manual//field[@type='checkbox_list' or @type='checkbox_combo_list' or @type='exams' or @type='textbox' or @type='textarea' or @type='provider' or @type='date' or @type='textfield' or @type='dropdown_list']">
 <xsl:text disable-output-escaping="yes"><![CDATA[/* in order to use the layout engine's draw functions, we need a fake table of layout data. */
-$manual_layouts = array( 
+$manual_layouts = array(
 ]]></xsl:text>
 <xsl:for-each select="//manual//field[@type='checkbox_list' or @type='checkbox_combo_list' or @type='exams' or @type='textbox' or @type='textarea' or @type='provider' or @type='date' or @type='textfield' or @type='dropdown_list']">
 <xsl:text disable-output-escaping="yes"><![CDATA[ ']]></xsl:text>
 <xsl:value-of select="@name" />
-<xsl:text disable-output-escaping="yes"><![CDATA[' => 
+<xsl:text disable-output-escaping="yes"><![CDATA[' =>
    array( 'field_id' => ']]></xsl:text>
 <xsl:value-of select="@name" />
 <xsl:if test="@type='checkbox_list'">

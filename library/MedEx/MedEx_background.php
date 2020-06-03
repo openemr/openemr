@@ -1,4 +1,5 @@
 <?php
+
 /**
  * /library/MedEx/medex_background.php
  *
@@ -23,24 +24,20 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$ignoreAuth=true;
+$ignoreAuth = true;
 
-require_once(dirname(__FILE__)."/../../interface/globals.php");
-require_once(dirname(__FILE__)."/API.php");
-require_once(dirname(__FILE__)."/../patient.inc");
+require_once(dirname(__FILE__) . "/../../interface/globals.php");
+require_once(dirname(__FILE__) . "/API.php");
+require_once(dirname(__FILE__) . "/../patient.inc");
 
 function start_MedEx()
 {
     $MedEx = new MedExApi\MedEx('MedExBank.com');
     $logged_in = $MedEx->login('1');
     if ($logged_in) {
-        $token      = $logged_in['token'];
-        $MedEx->practice->sync($token);
-        $campaigns  = $MedEx->campaign->events($token);
-        $MedEx->events->generate($token, $campaigns['events']);
-        echo "Completed @ ". date("Y-m-d H:i:s") . "\n";
+        echo "Completed @ " . date("Y-m-d H:i:s") . "\n";
     } else {
         echo $MedEx->getLastError();
-        echo "Failed @ ". date("Y-m-d H:i:s") . "\n";
+        echo "Failed @ " . date("Y-m-d H:i:s") . "\n";
     }
 }

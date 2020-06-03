@@ -1,4 +1,5 @@
 <?php
+
 /**
  * InsuranceRestController
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\RestControllers;
 
@@ -44,7 +44,8 @@ class InsuranceRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $serviceResult = $this->insuranceService->insert($pid, $type, $data);
         return RestControllerHelper::responseHandler($serviceResult, $type, 200);
@@ -58,7 +59,8 @@ class InsuranceRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $serviceResult = $this->insuranceService->insert($pid, $type, $data);
         return RestControllerHelper::responseHandler($serviceResult, $type, 201);

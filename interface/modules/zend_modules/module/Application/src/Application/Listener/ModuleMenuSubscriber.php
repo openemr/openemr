@@ -14,15 +14,16 @@
 
 namespace Application\Listener;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Menu\MenuEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class ModuleMenuSubscriber
  * @package Application\Listener
  *
  * Listens to OpenEMR menu events and adds menu items to the menu structure based upon which modules
- * have been installed through the Zend Module system.
+ * have been installed through the Laminas Module system.
  *
  * This can be used as an example of how to use the OpenEMR event dispatcher and the module system to extend the
  * codebase without modifying the core OpenEMR files.  This facilitates easier upgrading and clean separations of concerns.
@@ -100,46 +101,46 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                     $modulePath = $GLOBALS['zendModDir'];
                 }
 
-                $relative_link ="/interface/modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
+                $relative_link = "/interface/modules/" . $modulePath . "/" . $modulerow['mod_relative_link'] . $added;
                 $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
 
                 if (sqlNumRows($module_hooks) == 0) {
                     // module without hooks in module section
                     $acl_section = strtolower($modulerow['mod_directory']);
-                    if (zh_acl_check($_SESSION['authUserID'], $acl_section) ?  "" : "1") {
+                    if (AclMain::zhAclCheck($_SESSION['authUserID'], $acl_section) ?  "" : "1") {
                         continue;
                     }
 
-                    $newEntry=new \stdClass();
-                    $newEntry->label=xlt($mod_nick_name);
-                    $newEntry->url=$relative_link;
-                    $newEntry->requirement=0;
-                    $newEntry->target='mod';
+                    $newEntry = new \stdClass();
+                    $newEntry->label = xlt($mod_nick_name);
+                    $newEntry->url = $relative_link;
+                    $newEntry->requirement = 0;
+                    $newEntry->target = 'mod';
                     array_push($menu_list->children, $newEntry);
                 } else {
                     // module with hooks in module section
-                    $newEntry=new \stdClass();
-                    $newEntry->requirement=0;
-                    $newEntry->icon="fa-caret-right";
-                    $newEntry->label=xlt($mod_nick_name);
-                    $newEntry->children=array();
+                    $newEntry = new \stdClass();
+                    $newEntry->requirement = 0;
+                    $newEntry->icon = "fa-caret-right";
+                    $newEntry->label = xlt($mod_nick_name);
+                    $newEntry->children = array();
                     $jid = 0;
                     $modid = '';
                     while ($hookrow = sqlFetchArray($module_hooks)) {
-                        if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                        if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
                             continue;
                         }
 
-                        $relative_link ="/interface/modules/".$modulePath."/".$hookrow['mod_relative_link'].$hookrow['path'];
+                        $relative_link = "/interface/modules/" . $modulePath . "/" . $hookrow['mod_relative_link'] . $hookrow['path'];
                         $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
 
-                        if ($jid==0 || ($modid!=$hookrow['mod_id'])) {
-                            $subEntry=new \stdClass();
-                            $subEntry->requirement=0;
-                            $subEntry->target='mod';
-                            $subEntry->menu_id='mod0';
-                            $subEntry->label=xlt($mod_nick_name);
-                            $subEntry->url=$relative_link;
+                        if ($jid == 0 || ($modid != $hookrow['mod_id'])) {
+                            $subEntry = new \stdClass();
+                            $subEntry->requirement = 0;
+                            $subEntry->target = 'mod';
+                            $subEntry->menu_id = 'mod0';
+                            $subEntry->label = xlt($mod_nick_name);
+                            $subEntry->url = $relative_link;
                             $newEntry->children[] = $subEntry;
                         }
 
@@ -187,7 +188,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                     array_unshift($menu_list->children, $newEntry);
                 }
 
-                if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
                     continue;
                 }
 
@@ -201,7 +202,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                 $subEntry->label = xlt($mod_nick_name);
                 $subEntry->url = $relative_link;
 
-                $reportsHooks[count($reportsHooks)-1]->children[] = $subEntry;
+                $reportsHooks[count($reportsHooks) - 1]->children[] = $subEntry;
 
                 $jid++;
                 $modid = $hookrow['mod_id'];

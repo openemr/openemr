@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php
  *
@@ -11,13 +12,13 @@
 
 namespace Application\Helper;
 
-use Zend\View\Helper\AbstractHelper;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\View\Exception;
+use Laminas\View\Helper\AbstractHelper;
+use Laminas\ServiceManager\ServiceLocatorAwareInterface;
+use Laminas\ServiceManager\ServiceLocatorInterface;
+use Laminas\View\Exception;
 use Application\Controller\SendtoController;
 
-class SendToHieHelper extends \Zend\View\Helper\AbstractHelper
+class SendToHieHelper extends \Laminas\View\Helper\AbstractHelper
 {
   /**
    * @var \Application\Controller\SendtoController
@@ -74,7 +75,7 @@ class SendToHieHelper extends \Zend\View\Helper\AbstractHelper
   /**
    * Get the service locator.
    *
-   * @return \Zend\ServiceManager\ServiceLocatorInterface
+   * @return \Laminas\ServiceManager\ServiceLocatorInterface
    *
    */
     public function getServiceLocator()

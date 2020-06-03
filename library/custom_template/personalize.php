@@ -1,4 +1,5 @@
 <?php
+
 /**
  * personalize.php
  *
@@ -12,20 +13,21 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../interface/globals.php");
-$list_id = $_REQUEST['list_id'] ? $_REQUEST['list_id'] : $_REQUEST['filter_context'];
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+
+$list_id = $_REQUEST['list_id'] ? $_REQUEST['list_id'] : $_REQUEST['filter_context'];
 
 function Delete_Rows($id)
 {
-    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($id, $_SESSION['authId']));
+    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($id, $_SESSION['authUserID']));
 }
 
 function Insert_Rows($id, $order = "")
 {
-    sqlStatement("REPLACE INTO template_users (tu_template_id,tu_user_id,tu_template_order) VALUES (?,?,?)", array($id, $_SESSION['authId'], $order));
+    sqlStatement("REPLACE INTO template_users (tu_template_id,tu_user_id,tu_template_order) VALUES (?,?,?)", array($id, $_SESSION['authUserID'], $order));
 }
 
 if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
@@ -33,7 +35,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
     $personalized = $_REQUEST['personalized'];
     foreach ($topersonalized as $key => $value) {
         $arr = explode("|", $value);
-        $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authId']));
+        $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authUserID']));
         if (sqlNumRows($res)) {
             Delete_Rows($arr[0]);
             $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", array($arr[0]));
@@ -47,7 +49,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
     foreach ($personalized as $key => $value) {
         $arr = explode("|", $value);
         if ($arr[1]) {
-            $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authId']));
+            $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authUserID']));
             Insert_Rows($arr[0]);
             $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", array($arr[0]));
             while ($row = sqlFetchArray($qry)) {
@@ -69,7 +71,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 <html>
 <head>
 
-    <?php Header::setupHeader(['common', 'opener', 'jquery-ui',]); ?>
+    <?php Header::setupHeader(['common', 'opener']); ?>
 
     <script type="text/javascript">
 
@@ -312,7 +314,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         <option value=''><?php echo htmlspecialchars(xl('Select a User'), ENT_QUOTES); ?></option>
                         <?php
                         $user_sql = "SELECT DISTINCT(tu.tu_user_id),u.fname,u.lname FROM template_users AS tu LEFT OUTER JOIN users AS u ON tu.tu_user_id=u.id WHERE tu.tu_user_id!=?";
-                        $user_res = sqlStatement($user_sql, array($_SESSION['authId']));
+                        $user_res = sqlStatement($user_sql, array($_SESSION['authUserID']));
                         while ($user_row = sqlFetchArray($user_res)) {
                             echo "<option value='" . htmlspecialchars($user_row['tu_user_id'], ENT_QUOTES) . "' ";
                             echo ($_REQUEST['filter_users'] == $user_row['tu_user_id']) ? 'selected' : '';
@@ -324,33 +326,28 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             </tr>
         </table>
     </fieldset>
-    <table align="center" width="100%">
+    <table align="center w-100">
         <tr class="text">
             <td colspan="3">
-                <a href=# class="css_button"
-                   onclick="top.restoreSession();personalize_save()"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES); ?></span></a>
+                <a href=# class="btn btn-primary" onclick="top.restoreSession();personalize_save()"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES); ?></span></a>
                 <?php
-                if (acl_check('nationnotes', 'nn_configure')) {
+                if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                     ?>
-                    <a href="delete_category.php" id="share_link" class="iframe_medium css_button"
-                       onclick="top.restoreSession();"><span><?php echo htmlspecialchars(xl('Delete Category'), ENT_QUOTES); ?></span></a>
+                    <a href="delete_category.php" id="share_link" class="iframe_medium btn btn-primary" onclick="top.restoreSession();"><span><?php echo htmlspecialchars(xl('Delete Category'), ENT_QUOTES); ?></span></a>
                     <?php
                 }
                 ?>
                 <?php
-                if (acl_check('nationnotes', 'nn_configure')) {
+                if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                     ?>
-                    <a href="add_template.php?list_id=<?php echo attr($_REQUEST['list_id']); ?>"
-                       onclick="top.restoreSession();" class="iframe_small css_button"
-                       title="<?php echo htmlspecialchars(xl('Add Category'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Category'), ENT_QUOTES); ?></span></a>
+                    <a href="add_template.php?list_id=<?php echo attr($_REQUEST['list_id']); ?>" onclick="top.restoreSession();" class="iframe_small btn btn-primary" title="<?php echo htmlspecialchars(xl('Add Category'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Category'), ENT_QUOTES); ?></span></a>
                     <?php
                 }
                 ?>
                 <?php
-                if (acl_check('nationnotes', 'nn_configure')) {
+                if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                     ?>
-                    <a href="add_context.php" class="iframe_medium css_button" onclick="top.restoreSession();"
-                       title="<?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES); ?></span></a>
+                    <a href="add_context.php" class="iframe_medium btn btn-primary" onclick="top.restoreSession();" title="<?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES); ?></span></a>
                     <?php
                 }
                 ?>
@@ -358,19 +355,18 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             <th><?php echo htmlspecialchars(xl('Available categories'), ENT_QUOTES); ?></th>
             <th>&nbsp;</th>
             <?php
-            $user = sqlQuery("SELECT * FROM users WHERE id=?", array($_SESSION['authId']));
+            $user = sqlQuery("SELECT * FROM users WHERE id=?", array($_SESSION['authUserID']));
             ?>
             <th><?php echo htmlspecialchars(xl('Categories for') . " " . $user['fname'] . " " . $user['lname'], ENT_QUOTES); ?></th>
         </tr>
         <tr class="text">
-            <td align=right>
-                <select multiple name="topersonalized[]" id="topersonalized" size="6" style="width:220px"
-                        onchange="display_category_item(document.myform,'topersonalized');">
+            <td align="right">
+                <select multiple name="topersonalized[]" id="topersonalized" size="6" style="width:220px" onchange="display_category_item(document.myform,'topersonalized');">
                     <?php
                     $where = '';
                     $join = '';
-                    $arval = array($_SESSION['authId']);
-                    $arval1 = array($_REQUEST['filter_users'], $_SESSION['authId']);
+                    $arval = array($_SESSION['authUserID']);
+                    $arval1 = array($_REQUEST['filter_users'], $_SESSION['authUserID']);
                     if ($_REQUEST['filter_context']) {
                         $where .= " AND cl_list_id=?";
                         array_push($arval, $_REQUEST['filter_context']);
@@ -420,7 +416,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             </td>
             <td align="center">
                 <input type="button" name="remove" value=&raquo;
-                       onclick="jsub_selected(document.myform,'personalized','topersonalized')"></br>
+                       onclick="jsub_selected(document.myform,'personalized','topersonalized')"><br />
                 <input type="button" name="remove" value=&laquo;
                        onclick="check_user_category(document.myform,'topersonalized','personalized')">
             </td>
@@ -435,7 +431,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                                 tu.tu_user_id=? AND c.cl_list_type=3 AND cl_deleted=0 " .
                         $where .
                         "ORDER BY c.cl_list_item_long";
-                    $resTemplates = sqlStatement($sql, array($_SESSION['authId']));
+                    $resTemplates = sqlStatement($sql, array($_SESSION['authUserID']));
                     while ($rowTemplates = sqlFetchArray($resTemplates)) {
                         $cntxt = '';
                         if (!$_REQUEST['filter_context']) {
@@ -455,7 +451,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
         </tr>
         <tr class="text">
             <td colspan="3">
-                <div style="width:100%;overflow:auto;height:150px" id="itemdiv"></div>
+                <div class="w-100 overflow-auto" style="height:150px" id="itemdiv"></div>
             </td>
         </tr>
     </table>

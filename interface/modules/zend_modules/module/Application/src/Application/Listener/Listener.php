@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php
  *
@@ -11,9 +12,9 @@
 
 namespace Application\Listener;
 
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\ListenerAggregateInterface;
-use Zend\Mvc\Controller\AbstractActionController;
+use Laminas\EventManager\EventManagerInterface;
+use Laminas\EventManager\ListenerAggregateInterface;
+use Laminas\Mvc\Controller\AbstractActionController;
 
 /**
  * This class is supposed to listen for events in the module like the aclcheckEvent and trigger actions
@@ -25,7 +26,7 @@ use Zend\Mvc\Controller\AbstractActionController;
 class Listener extends AbstractActionController implements ListenerAggregateInterface
 {
   /**
-   * @var \Zend\Stdlib\CallbackHandler[]
+   * @var \Laminas\Stdlib\CallbackHandler[]
    */
     protected $listeners = array();
     protected $applicationTable;
@@ -55,7 +56,7 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
    * @param string $str
    * @return string
    */
-    public function z_xl($str)
+    public static function z_xl($str)
     {
         return xl($str);
     }
@@ -65,7 +66,7 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
    * @param string $str
    * @return string
    */
-    public function z_xlt($str)
+    public static function z_xlt($str)
     {
         return xlt($str);
     }
@@ -75,7 +76,7 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
    * @param string $str
    * @return string
    */
-    public function z_xla($str)
+    public static function z_xla($str)
     {
         return xla($str);
     }
@@ -85,7 +86,7 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
    * @param string $str
    * @return string
    */
-    public function z_xls($str)
+    public static function z_xls($str)
     {
         return xls($str);
     }

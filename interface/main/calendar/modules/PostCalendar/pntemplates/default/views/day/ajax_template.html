@@ -1,6 +1,7 @@
 [-*Smarty*-]
 [-*****************************************************************************-]
 [-* Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com> and others      *-]
+[-* Copyright (C) 2019 Jerry Padgett <sjpadgett@gmail.com>                    *-]
 [-*                                                                           *-]
 [-* This program is free software; you can redistribute it and/or             *-]
 [-* modify it under the terms of the GNU General Public License               *-]
@@ -21,7 +22,7 @@ $timeslotHeightVal=20;
 $timeslotHeightUnit="px";
 [-/php-]
 
-<script language='JavaScript'>
+<script>
 
  // This is called from the event editor popup.
  function refreshme() {
@@ -32,25 +33,17 @@ $timeslotHeightUnit="px";
  function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
   dlgopen('add_edit_event.php?startampm=' + encodeURIComponent(startampm) +
    '&starttimeh=' + encodeURIComponent(starttimeh) + '&userid=' + encodeURIComponent(providerid) + '&starttimem=' + encodeURIComponent(starttimem) +
-   '&date=' + encodeURIComponent(eventdate) + '&catid=' + encodeURIComponent(catid)[-php-]
-    if(isset($_SESSION['pid']))
-        {
-            if($_SESSION['pid']>0)
-                {
-                    echo "+'&patientid=" . attr_url($_SESSION['pid']) . "'";
-                }
-        }
-    [-/php-]
-   ,'_blank', 775, 500);
+   '&date=' + encodeURIComponent(eventdate) + '&catid=' + encodeURIComponent(catid)
+   ,'_blank', 780, 675, '', '', {onClosed: 'refreshme'});
  }
 
  function oldEvt(eventdate, eventid, pccattype) {
-  dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 775, 500);
+  dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 650);
  }
 
  function oldGroupEvt(eventdate, eventid, pccattype){
   top.restoreSession();
-  dlgopen('add_edit_event.php?group=true&date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 775, 500);
+  dlgopen('add_edit_event.php?group=true&date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 675);
  }
 
  function goPid(pid) {
@@ -146,7 +139,7 @@ $timeslotHeightUnit="px";
 
 //==================================
 //FACILITY FILTERING (CHEMED)
-$facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+$facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
 if ( $_SESSION['pc_facility'] ) {
   $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
 } else {
@@ -157,31 +150,26 @@ if ( $_SESSION['pc_facility'] ) {
 
 $chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
 $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+[-/php-]
+<div id="wrapper">
+    <form name='theform' id='theform' action='index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic=' method='post' onsubmit='return top.restoreSession()'>
+        <div id="topToolbarRight" class="bgcolor2">
+            <a id="menu-toggle" class="float-left btn btn-calendar"></a>
+            <div id="functions">
+                <input type="hidden" name="jumpdate" id="jumpdate" value="" />
+                <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo attr($viewtype);[-/php-]" />
+                [-php-] echo "<a href='#' title='" . xla("New Appointment") . "' onclick='newEvt(1, 9, 00, " . attr_js($Date) . ", 0, 0)' class='btn btn-primary btn-sm'><i class='fa fa-plus' aria-hidden='true'></i></a>\n";
+                echo "<a href='#' title='" . xla("Search Appointment") . "' onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='btn btn-primary btn-sm'><i class='fa fa-search' aria-hidden='true'></i></a>\n";
+    if ($Date <> date('Ymd')) {
+    [-/php-]
+    <a href='#' name='bnsubmit' value='[-xla t="Today"-]' onClick='GoToToday(theform);' class='btn btn-primary btn-sm'>[-xlt t='Today'-]</a>
+    [-php-]
+    }
+[-/php-]
 
-[-/php-]
-<div id="topToolbarRight" class="bgcolor2">  <!-- this wraps some of the top toolbar items -->
-<div id="functions">
-<!-- stuff form element here to avoid the margin padding it introduces into the page in some browsers -->
-<form name='theform' id='theform' action='index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic=' method='post' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="jumpdate" id="jumpdate" value="">
-<input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo attr($viewtype);[-/php-]">
-[-php-]
-echo "   <a href='#' title='" . xla("New Appointment") . "' onclick='newEvt(1, 9, 00, " . attr_js($Date) . ", 0, 0)' class='css_button css_button_icon'>
-            <i class='fa fa-plus' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xla("Search Appointment") . "'
-            onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='css_button css_button_icon'>
-            <i class='fa fa-search' aria-hidden='true'></i></a>\n";
-[-/php-]
 </div>
-
-
-<div id="dateNAV"">
+<div id="dateNAV">
 [-php-]
-if ($Date <> date('Ymd')) {
-[-/php-]
-<a href='#' name='bnsubmit' value='[-xla t="Today"-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-xlt t='Today'-]</span></a>
-[-php-]
-}
 echo "   <a id='prevday' href='$PREV_DAY_URL' onclick='top.restoreSession()' title='" . xla("Previous Day") . "'>
             <i class='fa " . attr($chevron_icon_left) . " chevron_color' aria-hidden='true'></i></a>\n";
 $atmp = array_keys($A_EVENTS);
@@ -190,21 +178,19 @@ echo "   <a id='nextday' href='$NEXT_DAY_URL' onclick='top.restoreSession()' tit
             <i class= 'fa " . attr($chevron_icon_right) . " chevron_color' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
-
 <div id="viewPicker">
 [-php-]
-echo "   <a href='#' id='printview' title='" . xla("View Printable Version") . "' class='css_button css_button_icon'>
+echo "   <a href='#' id='printview' title='" . xla("View Printable Version") . "' class='btn btn-primary btn-sm'>
             <i class='fa fa-print' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xla("Refresh") . "' onclick='javascript:refreshme()' class='css_button css_button_icon'>
-            <i class='fa fa-refresh' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' type='button' id='dayview' title='" . xla('Day View') . "' class='css_button'/><span>" . xlt('Day') . "</span></a>\n";
-echo "   <a href='#' type='button' id='weekview' title='" . xla('Week View') . "' class='css_button'/><span>" . xlt('Week') . "</span></a>\n";
-echo "   <a href='#' type='button' id='monthview' title='" . xla('Month View') . "' class='css_button'/><span>" . xlt('Month') . "</span></a>\n";
+echo "   <a href='#' title='" . xla("Refresh") . "' onclick='javascript:refreshme()' class='btn btn-primary btn-sm'>
+            <i class='fa fa-sync' aria-hidden='true'></i></a>\n";
+echo "   <a href='#' type='button' id='dayview' title='" . xla('Day View') . "' class='btn btn-primary btn-sm'>" . xlt('Day') . "</a>\n";
+echo "   <a href='#' type='button' id='weekview' title='" . xla('Week View') . "' class='btn btn-primary btn-sm'>" . xlt('Week') . "</a>\n";
+echo "   <a href='#' type='button' id='monthview' title='" . xla('Month View') . "' class='btn btn-primary btn-sm'>" . xlt('Month') . "</a>\n";
 [-/php-]
 </div>
 </div> <!-- end topToolbarRight -->
-<div id="bottom">
-<div id="bottomLeft">
+<div id="bottomLeft" class="sidebar-wrapper">
 <div id="datePicker">
 [-php-]
 $atmp = array_keys($A_EVENTS);
@@ -214,9 +200,10 @@ $cYear = date("Y", $caldate);
 $cDay = date("d", $caldate);
 
 include_once($GLOBALS['fileroot'].'/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php');
+echo "\n";
 [-/php-]
-<table border="0" cellpadding="0" cellspacing="0">
-<tr>
+<table class='border-0' cellpadding="0" cellspacing="0">
+<tbody><tr>
 [-php-]
 
 // compute the previous month date
@@ -244,7 +231,7 @@ echo xl(date('F', $caldate));
 [-/php-]
 </td>
 <td class="tdDOW-small tdDatePicker" id="[-php-]echo attr($nextMonth)[-/php-]" title="[-php-]echo xla(date("F", strtotime($nextMonth)));[-/php-]">&gt;</td>
-<tr>
+</tr><tr>
 [-php-]
 foreach ($DOWlist as $dow) {
     echo "<td class='tdDOW-small'>" . text($this->_tpl_vars['A_SHORT_DAY_NAMES'][$dow]) . "</td>";
@@ -313,6 +300,7 @@ while ($currdate <= $enddate) {
     ////////
 }
 [-/php-]
+</tbody>
 </table>
 </div>
 
@@ -331,26 +319,26 @@ $facilities = getFacilities();
 if ($_SESSION['authorizeduser'] == 1) {
   $facilities = getFacilities();
 } else {
-  $facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+  $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
   if (count($facilities) == 1)
     $_SESSION['pc_facility'] = key($facilities);
 }
 /********************************************************************/
 if (count($facilities) > 1) {
-    echo "   <select name='pc_facility' id='pc_facility' class='view1' >\n";
+    echo "   <select name='pc_facility' id='pc_facility' class='view1 form-control' >\n";
     if ( !$_SESSION['pc_facility'] ) $selected = "selected='selected'";
     // echo "    <option value='0' $selected>"  . xlt('All Facilities') . "</option>\n";
-    if (!$GLOBALS['restrict_user_facility']) echo "    <option value='0' $selected>" . xlt('All Facilities') . "</option>\n";
+    if (!$GLOBALS['restrict_user_facility']) echo "    <option class='bg-info' value='0' $selected>" . xlt('All Facilities') . "</option>\n";
     foreach ($facilities as $fa) {
         $selected = ( $_SESSION['pc_facility'] == $fa['id']) ? "selected='selected'" : "" ;
-        echo "    <option style=background-color:".htmlspecialchars($fa['color'],ENT_QUOTES)." value='" . attr($fa['id']) . "' $selected>" . text($fa['name']) . "</option>\n";
+        echo "    <option class='bg-info' value='" . attr($fa['id']) . "' $selected>" . text($fa['name']) . "</option>\n";
     }
     echo "   </select>\n";
 }
  // EOS FF
  // ==============================
  echo "</div>";
- echo "   <select multiple size='5' name='pc_username[]' id='pc_username' class='view2'>\n";
+ echo "   <select multiple size='5' name='pc_username[]' id='pc_username' class='view2 form-control'>\n";
  echo "    <option value='__PC_ALL__'>"  . xlt("All Users") . "</option>\n";
  foreach ($provinfo as $doc) {
     $username = $doc['username'];
@@ -360,7 +348,6 @@ if (count($facilities) > 1) {
     echo ">" . text($doc['lname']) . ", " . text($doc['fname']) . "</option>\n";
  }
  echo "   </select>\n";
-
 [-/php-]
 </div>
 [-php-]
@@ -370,7 +357,7 @@ if($_SESSION['pc_facility'] == 0){
  <table>
 [-php-]
 foreach ($facilities as $f){
-echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-weight:bold>" . text($f['name']) . "</div></td></tr>";
+echo "\n<tr><td><div class='view1 font-weight-bold text-ovr-dark' style='background-color:".$f['color'].";'>" . text($f['name']) . "</div></td></tr>\n";
 }
 [-/php-]
  </table>
@@ -378,39 +365,39 @@ echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-
 [-php-]
 }
 [-/php-]
-
-</form>
-
 [-assign var="dayname" value=$DATE|date_format:"%w"-]
 [-assign var="day"     value=$DATE|date_format:"%d"|string_format:"%1d"-]
 [-assign var="month"   value=$DATE|date_format:"%m"|string_format:"%1d"-]
 [-assign var="year"    value=$DATE|date_format:"%Y"|string_format:"%4d"-]
 
 [-pc_sort_events var="S_EVENTS" sort="time" order="asc" value=$A_EVENTS-]
-    <div id="popup" class="pop-up">
-        <img id="popupImage" alt="" />
-    </div>
-</div> <!-- end bottomLeft -->
 
-    <div id="bigCal">
+<div id="popup" class="pop-up">
+    <img id="popupImage" alt="" />
+</div>
+</div><!-- end bottomLeft -->
+
+<div class="page-content-wrapper">
+<div class="container-fluid calsearch_body">
+<div id="bigCal" style="overflow-x: auto;">
 [-php-]
 /* used in debugging
     foreach ($A_EVENTS as $date => $events) {
         echo $date." = ";
         foreach ($events as $oneE) {
             echo text(print_r($oneE, true));
-            echo "<br><br>";
+            echo "<br /><br />";
         }
-        echo "<hr width=100%>";
+        echo "<hr class='w-100'>";
     }
 */
 
-echo "<table border='0' cellpadding='1' cellspacing='0' width='100%'>\n";
+echo "<table class='w-100 border-0' cellpadding='1' cellspacing='0'>\n";
 
 // output the TD with the times DIV
 echo "<tr>";
-echo "<td id='times'><div><table>\n";
-echo "<td class='timeslot providerXbtn' data-username='__PC_ALL__'><i class='fa fa-lg fa-user-md'></i></td>";
+echo "<td id='times'><div><table><tr>\n";
+echo "<td class='timeslot providerXbtn' data-username='__PC_ALL__'><i class='fa fa-lg fa-user-md'></i></td></tr>";
 //============================================================================================================================
 // Check global time preference so that 24 and 12hour preference is displayed properly
 
@@ -470,7 +457,6 @@ foreach ($providers as $provider) {
         // determine if events overlap and adjust their width and left position as needed
         // 26 Feb 2008 - This needs fine tuning or total replacement
         //             - it doesn't work as well as I'd like - JRM
-        $eventPositions = array();
         foreach ($times as $slottime) {
             $starttimeh = $slottime['hour'];
             $starttimem = $slottime['minute'];
@@ -489,7 +475,7 @@ foreach ($providers as $provider) {
                 // skip events for other providers
                 // $e1['aid']!=0 :With the holidays we included clinic events, they have provider id =0
                 // we dont want to exclude those events from being displayed
-                if ($providerid != $e1['aid']  && $e1['aid'] != 0) { continue; }
+                if ($providerid != $e1['aid'] && $e1['aid'] != 0) { continue; }
 
                 // specially handle all-day events
                 if ($e1['alldayevent'] == 1) {
@@ -528,12 +514,11 @@ foreach ($providers as $provider) {
 
                 // loop over the events in this timeslot and adjust their width
                 foreach ($events_in_timeslot as $eid) {
-                    $eventPositions[$eid] = new stdClass();
-
                     // set the width if not already set or if the current width is smaller
                     // than was was previously set
                     if (!isset($eventPositions[$eid]->width))
                     {
+                        $eventPositions[$eid] = new stdClass();
                         $eventPositions[$eid]->width = $width;
                     } else if ($eventPositions[$eid]->width > $width)
                     {
@@ -735,7 +720,9 @@ foreach ($providers as $provider) {
                 if ($comment) $atitle .= " $comment";
                 $divTitle .= "\n[".$atitle ."]";
                 $content .= text($catname);
-                if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "'>";
+                if ($event['recurrtype'] > 0) {
+                    $content .= "<img class='border-0' src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' style='margin: 0 2px 0 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "' />";
+                }
                 if ($comment) $content .= " " . text($comment);
             }
             else {
@@ -754,10 +741,7 @@ foreach ($providers as $provider) {
                     $link_title .= "(" . xl('Click to view') . ")";
 
                     $content .= "<a href='javascript:goPid(" . attr_js($patientid) . ")' title='" . attr($link_title) . "'>";
-                    $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/user-green.gif'
-                                      onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\"
-                                      onmouseout=\"javascript:HideImage();\"
-                                      border='0' title='" . attr($link_title) . "' alt='" . xla('View Patient') . "' />";
+                    $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/user-green.gif' onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\" onmouseout=\"javascript:HideImage();\" border='0' title='" . attr($link_title) . "' alt='" . xla('View Patient') . "' />";
                     if ($catid == 1) $content .= "<strike>";
                     $content .= text($lname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
@@ -765,7 +749,7 @@ foreach ($providers as $provider) {
                         if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
                             $content .= "(" . text($event['title']);
                             if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
-                            $content .= ": <font color='green'>" . text(trim($event['hometext'])) . "</font>";
+                            $content .= ": <span class='text-success'>" . text(trim($event['hometext'])) . "</span>";
                             $content .= ")";
                         }
                     }
@@ -785,7 +769,7 @@ foreach ($providers as $provider) {
                         if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
                             $content .= "(" . text($event['title']);
                             if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
-                            $content .= ": <font color='green'>" . text(trim($event['hometext'])) . "</font>";
+                            $content .= ": <span class='text-success'>" . text(trim($event['hometext'])) . "</span>";
                             $content .= ")";
                         }
                     }
@@ -830,7 +814,7 @@ foreach ($providers as $provider) {
           // output the DIV and content
           // For "OUT" events, applying the background color in CSS.
 
-            if ($event['catid']!="6" && $event['catid']!="4" ){
+            if ($event['catid'] != "6") {
               $background_string= ($event['catid'] == 3) ? "" : ";background-color:" . attr($color);
               echo "<div class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
               $background_string.
@@ -839,16 +823,15 @@ foreach ($providers as $provider) {
               "' title='" . attr($divTitle) . "'".
               " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
               ">";
-            }
-            else{
-             $background_string= ";background-color:" . attr($color);
-            echo "<div class='" . attr($evtClass) . " hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
+            } else {
+              $background_string= ";background-color:" . attr($color);
+              echo "<div class='" . attr($evtClass) . " hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
               $background_string.
               "; $divWidth".
               "; $divLeft".
               "' title='" . attr($divTitle) . "'".
-            " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
-            ">";
+              " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
+              ">";
             }
           // second part for the special IN event
           if ($event['catid'] != 2) { echo $content; }
@@ -865,7 +848,7 @@ foreach ($providers as $provider) {
                    "' title='" . attr($divTitle) . "'".
                    " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
                    ">";
-               $content = text($dispstarth) . ':' . text($startm) . " " . text($content);
+               $content = text($dispstarth) . ':' . text($startm) . " " . $content;
                echo $content;
                echo "</div>\n";
            }
@@ -892,26 +875,26 @@ foreach ($providers as $provider) {
                    "; height:".$timeslotHeightVal.$timeslotHeightUnit.
                    "; $divWidth".
                    "; $divLeft".
-                   "; background:#DDDDDD".
+                   "; background: var(--gray300)".
                    "; border: none".
                    "' title='" . attr($divTitle) . "'".
                    " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
                    ">";
-               $content = "<span style='color:red;text-align:center;font-weight:bold'>" . text($row['name']) . "</span>";
+               $content = "<span class='text-danger text-center font-weight-bold'>" . text($row['name']) . "</span>";
                echo $content;
                echo "</div>\n";
            }
 
            // output the DIV and content
            echo "<div class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
-               "; background-color:#DDDDDD".
+               "; background-color: var(--gray300)".
                "; $divWidth".
                "; $divLeft".
                "' title='" . attr($divTitle) . "'".
                " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
                ">";
            // second part for the special IN event
-           if ($event['catid'] != 2) { echo "<span style='color:red;text-align:center;font-weight:bold'>" . text($row['name']) . "</span>"; }
+           if ($event['catid'] != 2) { echo "<span class='text-danger text-center font-weight-bold'>" . text($row['name']) . "</span>"; }
            echo "</div>\n";
        }
   } // end EVENT loop
@@ -926,14 +909,15 @@ foreach ($providers as $provider) {
 //============================================================================================================================
 echo " </tr>\n";
 echo "</table>\n";
-echo "<P>";
 
 [-/php-]
 </div>  <!-- end bigCal DIV -->
 </div>  <!-- end bottom DIV -->
-</body>
+</div>
+</form>
+</div>
 
-<script language='JavaScript'>
+<script>
     var tsHeight=[-php-] echo js_escape($timeslotHeightVal.$timeslotHeightUnit); [-/php-];
     var tsHeightNum=[-php-] echo js_escape($timeslotHeightVal); [-/php-];
 
@@ -948,7 +932,7 @@ echo "<P>";
         ChangeProviders($("#pc_username"));
     }
 
-    $(function(){
+    $(function () {
         setupDirectTime();
         $("#pc_username").change(function() { ChangeProviders(this); });
         $("#pc_facility").change(function() { ChangeProviders(this); });
@@ -1027,10 +1011,9 @@ echo "<P>";
      */
     var ChangeProviders = function (eventObject) {
         $('#theform').submit();
-    }
+    };
 
-    /* change the calendar view
-     */
+    /* change the calendar view */
     var ChangeView = function (eventObject) {
         if (eventObject.id == "dayview") {
             $("#viewtype").val('day');
@@ -1045,9 +1028,13 @@ echo "<P>";
             $("#viewtype").val('year');
         }
         $('#theform').submit();
-    }
+    };
 
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
 </script>
 
-
+</body>
 </html>

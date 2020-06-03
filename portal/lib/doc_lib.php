@@ -1,4 +1,5 @@
 <?php
+
 /**
  * doc_lib.php
  *
@@ -6,14 +7,13 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016-2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
@@ -24,27 +24,30 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
-    if (! isset($_SESSION['authUserID'])) {
+    if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
-        header('Location: '.$landingpage);
+        header('Location: ' . $landingpage);
         exit;
     }
 }
 
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/classes/Note.class.php");
-require_once(dirname(__FILE__)."/appsql.class.php");
+require_once(dirname(__FILE__) . "/appsql.class.php");
 
 use Mpdf\Mpdf;
 
 $logit = new ApplicationTable();
-$htmlin = $_REQUEST['content'];
+$htmlin = $_POST['content'];
 $dispose = $_POST['handler'];
-$cpid = $_REQUEST['cpid'] ? $_REQUEST['cpid'] : $GLOBALS['pid'];
+$cpid = $_POST['cpid'] ? $_POST['cpid'] : $GLOBALS['pid'];
+$category = isset($_POST['catid']) ? $_POST['catid'] : 0;
 
 try {
-    $result = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("Reviewed"));
-    $category = $result['id'] ? $result['id'] : 3;
+    if (!$category) {
+        $result = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("Reviewed"));
+        $category = $result['id'] ? $result['id'] : 3;
+    }
     $form_filename = convert_safe_file_dir_name($_REQUEST['docid']) . '_' . convert_safe_file_dir_name($cpid) . '.pdf';
     $templatedir = $GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/patient_documents";
     $templatepath = "$templatedir/$form_filename";
@@ -71,52 +74,36 @@ try {
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
+
+    $htmlin = "<html><body>$htmlin</body></html>";
+    // need custom stylesheet for templates
     $pdf->writeHtml($htmlin);
+
     if ($dispose == 'download') {
         header('Content-type: application/pdf');
-        header('Content-Disposition: attachment; filename=$form_filename');
+        header("Content-Disposition: attachment; filename=$form_filename");
         $pdf->Output($form_filename, 'D');
-        $logit->portalLog('download document', $cpid, ('document:'.$form_filename));
+        $logit->portalLog('download document', $cpid, ('document:' . $form_filename));
+        exit();
     }
 
     if ($dispose == 'view') {
         Header("Content-type: application/pdf");
         $pdf->Output($templatepath, 'I');
+        exit();
     }
 
     if ($dispose == 'chart') {
-        $data = $pdf->Output($form_filename, 'S');
-        ob_start();
-        $d = new Document();
-
         if (!$cpid) {
-            echo xla("ERROR Missing Patient ID");
+            echo js_escape("ERROR " . xla("Missing Patient ID"));
             exit();
         }
+        $data = $pdf->Output($form_filename, 'S');
+        $d = new Document();
         $rc = $d->createDocument($cpid, $category, $form_filename, 'application/pdf', $data);
-        ob_clean();
-        echo $rc;
-        $logit->portalLog('chart document', $cpid, ('document:'.$form_filename));
-
-        exit(0);
+        $logit->portalLog('chart document', $cpid, ('document:' . $form_filename));
+        exit();
     };
 } catch (Exception $e) {
-    echo 'Message: ' .$e->getMessage();
-    die(xlt("no signature in document"));
+    die($e->getMessage());
 }
-
-// not currently used but meant to be.
-function doc_toDoc($htmlin)
-{
-    header("Content-type: application/vnd.oasis.opendocument.text");
-    header("Content-Disposition: attachment;Filename=document_name.html");
-    echo "<html>";
-    echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=Windows-1252\">";
-    echo "<body>";
-    echo $htmlin;
-    echo "</body>";
-    echo "</html>";
-    ob_clean();
-    flush();
-    readfile($fname);
-};

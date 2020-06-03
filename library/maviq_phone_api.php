@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2010 Maviq <info@maviq.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -31,7 +32,7 @@ class MaviqClient
 
         $encoded = "";
         foreach ($vars as $key => $value) {
-            $encoded .= "$key=".urlencode($value)."&";
+            $encoded .= "$key=" . urlencode($value) . "&";
         }
 
         $encoded = substr($encoded, 0, -1);
@@ -45,7 +46,7 @@ class MaviqClient
 
         // if GET and vars, append them
         if ($method == "GET") {
-            $url .= (false === strpos($path, '?')?"?":"&").$encoded;
+            $url .= (false === strpos($path, '?') ? "?" : "&") . $encoded;
         }
 
         // initialize a new curl object

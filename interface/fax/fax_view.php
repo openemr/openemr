@@ -1,4 +1,5 @@
 <?php
+
 /**
  * fax_view.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2016 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -47,7 +47,7 @@ if ($jobid) {
     if (!$ffname) {
         die(xlt("Cannot find postscript document reference in ") . text($jfname));
     }
-} else if ($_GET['scan']) {
+} elseif ($_GET['scan']) {
     $ffname = $GLOBALS['scanner_output_directory'] . '/' . check_file_dir_name($_GET['scan']);
 } else {
     $ffname = $GLOBALS['hylafax_basedir'] . '/recvq/' . check_file_dir_name($_GET['file']);
@@ -66,7 +66,7 @@ ob_start();
 $ext = substr($ffname, strrpos($ffname, '.'));
 if ($ext == '.ps') {
     passthru("TMPDIR=/tmp ps2pdf '" . escapeshellarg($ffname) . "' -");
-} else if ($ext == '.pdf' || $ext == '.PDF') {
+} elseif ($ext == '.pdf' || $ext == '.PDF') {
     readfile($ffname);
 } else {
     passthru("tiff2pdf '" . escapeshellarg($ffname) . "'");

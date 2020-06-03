@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient history posting for the WordPress Patient Portal.
  *
@@ -7,15 +8,16 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("portal.inc.php");
+
+use OpenEMR\Core\Header;
 
 $postid = intval($_REQUEST['postid']);
 $ptid   = intval($_REQUEST['ptid'  ]);
@@ -65,22 +67,26 @@ $hyrow = getHistoryData($ptid, "*");
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
+tr.head {
+  font-size: 0.8125rem;
+  background-color: var(--gray400);
+  text-align: center;
+}
 
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; background-color:#ddddff; }
-td input  { background-color:transparent; }
+tr.detail {
+  font-size: 0.8125rem;
+  background-color: var(--gray300);
+}
 
+td input {
+  background-color: transparent;
+}
 </style>
 
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-7-2/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-
-<script language="JavaScript">
+<script>
 
 function myRestoreSession() {
  if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();
@@ -108,21 +114,61 @@ function validate() {
  return true;
 }
 
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
-        <?php $datetimepicker_timepicker = false; ?>
-        <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-    });
-    $('.datetimepicker').datetimepicker({
-        <?php $datetimepicker_timepicker = true; ?>
-        <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-    });
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datepicker-past').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker-past').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datepicker-future').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+    <?php $datetimepicker_maxDate = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker-future').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+    <?php $datetimepicker_maxDate = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
 });
 
 </script>
@@ -133,10 +179,10 @@ $(function() {
 
 <form method='post' action='history_form.php' onsubmit='return validate()'>
 
-<input type='hidden' name='ptid'   value='<?php echo attr($ptid);   ?>' />
+<input type='hidden' name='ptid' value='<?php echo attr($ptid);   ?>' />
 <input type='hidden' name='postid' value='<?php echo attr($postid); ?>' />
 
-<table width='100%' cellpadding='1' cellspacing='2'>
+<table class='w-100' cellpadding='1' cellspacing='2'>
  <tr class='head'>
   <th align='left'><?php echo xlt('Field'); ?></th>
   <th align='left'><?php echo xlt('Current Value'); ?></th>
@@ -185,7 +231,7 @@ while ($lorow = sqlFetchArray($lores)) {
         $newvalue = cms_field_to_lbf($data_type, $reskey, $result['fields']);
 
         echo " <tr class='detail'>\n";
-        echo "  <td class='bold'>" . text($field_title) . "</td>\n";
+        echo "  <td class='font-weight-bold'>" . text($field_title) . "</td>\n";
         echo "  <td>" . generate_display_field($lorow, $currvalue) . "</td>\n";
         echo "  <td>";
         generate_form_field($lorow, $newvalue);
@@ -197,16 +243,14 @@ while ($lorow = sqlFetchArray($lores)) {
 echo "</table>\n";
 ?>
 
-<p>
-<input type='submit' name='bn_save' value='<?php echo xla('Save and Delete Request'); ?>' />
-&nbsp;
-<input type='button' value='<?php echo xla('Back'); ?>'
- onclick="myRestoreSession();location='list_requests.php'" />
-</p>
+<div class="btn-group">
+<input type='submit' class='btn btn-primary' name='bn_save' value='<?php echo xla('Save and Delete Request'); ?>' />
+<input type='button' class='btn btn-secondary' value='<?php echo xla('Back'); ?>' onclick="myRestoreSession();location='list_requests.php'" />
+</div>
 
 </form>
 
-<script language="JavaScript">
+<script>
 
 randompass();
 
@@ -221,4 +265,3 @@ randompass();
 </center>
 </body>
 </html>
-

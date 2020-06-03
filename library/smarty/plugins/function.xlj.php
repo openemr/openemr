@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -18,9 +19,9 @@
 /**
  * Smarty {xlj} function plugin
  *
- * Type:     function<br>
- * Name:     xlj<br>
- * Purpose:  translate in OpenEMR and escape for js - Smarty templates<br>
+ * Type:     function<br />
+ * Name:     xlj<br />
+ * Purpose:  translate in OpenEMR and escape for js - Smarty templates<br />
  *
  * Examples:
  *

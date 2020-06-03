@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  Encounters report.
  *
@@ -15,7 +16,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/forms.inc");
@@ -144,7 +144,7 @@ $res = sqlStatement($query, $sqlBindArray);
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {
@@ -169,8 +169,8 @@ $res = sqlStatement($query, $sqlBindArray);
         }
     </style>
 
-    <script LANGUAGE="JavaScript">
-        $(function() {
+    <script>
+        $(function () {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
@@ -203,7 +203,7 @@ $res = sqlStatement($query, $sqlBindArray);
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Encounters'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+<?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form method='post' name='theform' id='theform' action='encounters_report.php' onsubmit='return top.restoreSession()'>
@@ -217,13 +217,13 @@ $res = sqlStatement($query, $sqlBindArray);
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Facility'); ?>:
             </td>
             <td>
             <?php dropdown_facility($form_facility, 'form_facility', true); ?>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Provider'); ?>:
             </td>
             <td>
@@ -232,7 +232,7 @@ $res = sqlStatement($query, $sqlBindArray);
                  // Build a drop-down list of providers.
                  //
 
-                 $query = "SELECT id, lname, fname FROM users WHERE ".
+                 $query = "SELECT id, lname, fname FROM users WHERE " .
                   "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
 
                  $ures = sqlStatement($query);
@@ -256,13 +256,13 @@ $res = sqlStatement($query, $sqlBindArray);
             </td>
         </tr>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
@@ -302,17 +302,17 @@ $res = sqlStatement($query, $sqlBindArray);
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
                         <?php if ($_POST['form_refresh'] || $_POST['form_orderby']) { ?>
-              <a href='#' class='btn btn-default btn-print' id='printbutton'>
+              <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
                         <?php } ?>
@@ -331,24 +331,24 @@ $res = sqlStatement($query, $sqlBindArray);
 if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     ?>
 <div id="report_results">
-<table id='mymaintable'>
-<thead>
+<table class='table' id='mymaintable'>
+<thead class='thead-light'>
     <?php if ($form_details) { ?>
   <th>
    <a href="nojs.php" onclick="return dosort('doctor')"
-        <?php echo ($form_orderby == "doctor") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Provider'); ?> </a>
+        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Provider'); ?> </a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('time')"
-        <?php echo ($form_orderby == "time") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Date'); ?></a>
+        <?php echo ($form_orderby == "time") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('patient')"
-        <?php echo ($form_orderby == "patient") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
+        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('pubpid')"
-        <?php echo ($form_orderby == "pubpid") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('ID'); ?></a>
+        <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('ID'); ?></a>
   </th>
   <th>
         <?php echo xlt('Status'); ?>
@@ -358,7 +358,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('encounter')"
-        <?php echo ($form_orderby == "encounter") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Encounter Number'); ?></a>
+        <?php echo ($form_orderby == "encounter") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Encounter Number'); ?></a>
   </th>
   <th>
         <?php echo xlt('Form'); ?>
@@ -396,7 +396,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
                     $row['encounter'],
                     "formdir, user, form_name, form_id"
                 );
-                if ($encarr!='') {
+                if ($encarr != '') {
                     foreach ($encarr as $enc) {
                         if ($enc['formdir'] == 'newpatient') {
                             continue;
@@ -414,11 +414,13 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
                 $coded = "";
                 $billed_count = 0;
                 $unbilled_count = 0;
-                if ($billres = BillingUtilities::getBillingByEncounter(
-                    $row['pid'],
-                    $row['encounter'],
-                    "code_type, code, code_text, billed"
-                )) {
+                if (
+                    $billres = BillingUtilities::getBillingByEncounter(
+                        $row['pid'],
+                        $row['encounter'],
+                        "code_type, code, code_text, billed"
+                    )
+                ) {
                     foreach ($billres as $billrow) {
                         // $title = addslashes($billrow['code_text']);
                         if ($billrow['code_type'] != 'COPAY' && $billrow['code_type'] != 'TAX') {
@@ -448,9 +450,9 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
                 // Compute billing status.
                 if ($billed_count && $unbilled_count) {
                     $status = xl('Mixed');
-                } else if ($billed_count) {
+                } elseif ($billed_count) {
                     $status = xl('Closed');
-                } else if ($unbilled_count) {
+                } elseif ($unbilled_count) {
                     $status = xl('Open');
                 } else {
                     $status = xl('Empty');
@@ -518,7 +520,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 </form>
 </body>
 
-<script language='JavaScript'>
+<script>
 <?php if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";
 } ?>

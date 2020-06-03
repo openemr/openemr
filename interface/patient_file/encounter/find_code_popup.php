@@ -1,4 +1,5 @@
 <?php
+
 /**
  * find_code_popup.php
  *
@@ -11,13 +12,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/csv_like_join.php');
-require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
+require_once($GLOBALS['srcdir'] . '/patient.inc');
+require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
+require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -37,9 +38,9 @@ $form_code_type = $_POST['form_code_type'];
 $default = '';
 if (!empty($form_code_type)) {
     $default = $form_code_type;
-} else if (!empty($allowed_codes) && count($allowed_codes) == 1) {
+} elseif (!empty($allowed_codes) && count($allowed_codes) == 1) {
     $default = $allowed_codes[0];
-} else if (!empty($_REQUEST['default'])) {
+} elseif (!empty($_REQUEST['default'])) {
     $default = $_REQUEST['default'];
 }
 
@@ -51,14 +52,15 @@ $target_element = $_GET['target_element'];
 <html>
 <head>
 <title><?php echo xlt('Code Finder'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader('opener'); ?>
 
 <style>
-td { font-size:10pt; }
+td {
+    font-size: 13px;
+}
 </style>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
-<script language="JavaScript">
+<script>
 
  // Standard function
  function selcode(codetype, code, selector, codedesc) {
@@ -113,24 +115,23 @@ if (!empty($target_element)) {
 
 <center>
 
-<table border='0' cellpadding='5' cellspacing='0'>
+<table class='table-borderless' cellpadding='5' cellspacing='0'>
 
  <tr>
   <td height="1">
   </td>
  </tr>
 
- <tr class = "head" bgcolor='#ddddff'>
+ <tr class="head bg-light form-inline font-weight-bold">
   <td>
-   <b>
-
+  <div class="form-group">
 <?php
 if (!empty($allowed_codes)) {
     if (count($allowed_codes) === 1) {
-        echo "<input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly>\n";
+        echo "<input class='form-control' type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly />\n";
     } else {
         ?>
-   <select name='form_code_type'>
+   <select class='form-control' name='form_code_type'>
         <?php
         foreach ($allowed_codes as $code) {
             $selected_attr = ($default == $code) ? " selected='selected'" : '';
@@ -144,7 +145,7 @@ if (!empty($allowed_codes)) {
     }
 } else {
   // No allowed types were specified, so show all.
-    echo "   <select name='form_code_type'";
+    echo "   <select class='form-control' name='form_code_type'";
     echo ">\n";
     foreach ($code_types as $key => $value) {
         echo "    <option value='" . attr($key) . "'";
@@ -165,18 +166,21 @@ if (!empty($allowed_codes)) {
 }
 ?>
 
-    <?php echo xlt('Search for:'); ?>
-   <input type='text' name='search_term' size='12' value='<?php echo attr($_REQUEST['search_term']); ?>'
-    title='<?php echo xla('Any part of the desired code or its description'); ?>' />
-   &nbsp;
-   <input type='submit' name='bn_search' value='<?php echo xla('Search'); ?>' />
-   &nbsp;&nbsp;&nbsp;
+
+   <label for="searchTerm" class="mt-3"><?php echo xlt('Search for:'); ?></label>
+   <input type='text' class='form-control' name='search_term' size='12' id="searchTerm" value='<?php echo attr($_REQUEST['search_term']); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' />
+
+   <center>
+   <input type='submit' class='btn btn-primary mt-3' name='bn_search' value='<?php echo xla('Search'); ?>' />
+
     <?php if (!empty($target_element)) { ?>
-     <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', <?php echo attr_js($target_element); ?>)" />
+     <input type='button' class='btn btn-primary mt-3' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', <?php echo attr_js($target_element); ?>)" />
     <?php } else { ?>
-     <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
+     <input type='button' class='btn btn-danger mt-3' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
     <?php } ?>
-   </b>
+
+    </center>
+    </div>
   </td>
  </tr>
 
@@ -194,10 +198,10 @@ if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
     }
     ?>
 
-<table border='0'>
+<table class='border-0'>
 <tr>
-<td><b><?php echo xlt('Code'); ?></b></td>
-<td><b><?php echo xlt('Description'); ?></b></td>
+<td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
+<td class='font-weight-bold'><?php echo xlt('Description'); ?></td>
 </tr>
     <?php
     $search_term = $_REQUEST['search_term'];
@@ -210,7 +214,7 @@ if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
             $anchor = "<a href='' " .
             "onclick='return selcode(\"PROD\", " . attr_js($drug_id) . ", " . attr_js($selector) . ", " . attr_js($desc) . ")'>";
             echo " <tr>";
-            echo "  <td>$anchor" . text($drug_id.":".$selector) . "</a></td>\n";
+            echo "  <td>$anchor" . text($drug_id . ":" . $selector) . "</a></td>\n";
             echo "  <td>$anchor" . text($desc) . "</a></td>\n";
             echo " </tr>";
         }

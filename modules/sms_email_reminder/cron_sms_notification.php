@@ -13,12 +13,12 @@
 exit;
 
 // larry :: hack add for command line version
-$_SERVER['REQUEST_URI']=$_SERVER['PHP_SELF'];
-$_SERVER['SERVER_NAME']='localhost';
+$_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
+$_SERVER['SERVER_NAME'] = 'localhost';
 $backpic = "";
 
 // email notification
-$ignoreAuth=1;
+$ignoreAuth = 1;
 include_once("../../interface/globals.php");
 include_once("cron_functions.php");
 
@@ -33,7 +33,7 @@ $CRON_TIME = 5;
 
 $curr_date = date("Y-m-d");
 $curr_time = time();
-$check_date = date("Y-m-d", mktime(date("h")+$SMS_NOTIFICATION_HOUR, 0, 0, date("m"), date("d"), date("Y")));
+$check_date = date("Y-m-d", mktime(date("h") + $SMS_NOTIFICATION_HOUR, 0, 0, date("m"), date("d"), date("Y")));
 
 // larry :: move this in the loop to keep it fresh - perhaps try to use it without change
 // it's content - to do latter
@@ -41,9 +41,9 @@ $db_email_msg = cron_getNotificationData($TYPE);
 
 // object for sms
 global $mysms;
-if ($db_email_msg['sms_gateway_type']=='CLICKATELL') {
+if ($db_email_msg['sms_gateway_type'] == 'CLICKATELL') {
     include_once("sms_clickatell.php");
-} else if ($db_email_msg['sms_gateway_type']=='TMB4') {
+} elseif ($db_email_msg['sms_gateway_type'] == 'TMB4') {
     include_once("sms_tmb4.php");
 }
 
@@ -61,11 +61,11 @@ $CRON_TIME = $vectNotificationSettings['Send_SMS_Before_Hours'];
 $mysms = new sms($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
 
 $db_patient = cron_getAlertpatientData($TYPE);
-echo "\n<br>Total ".text(count($db_patient))." Records Found";
+echo "\n<br />Total " . text(count($db_patient)) . " Records Found";
 
 // for every event found
-for ($p=0; $p<count($db_patient); $p++) {
-    $prow =$db_patient[$p];
+for ($p = 0; $p < count($db_patient); $p++) {
+    $prow = $db_patient[$p];
 
     //echo "\n-----\nDEBUG :cron_sms: found patient = ".$prow['fname']." ".$prow['lname']."\n";
 
@@ -78,11 +78,11 @@ for ($p=0; $p<count($db_patient); $p++) {
         $app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
     }
     */
-    $app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
+    $app_date = $prow['pc_eventDate'] . " " . $prow['pc_startTime'];
     $app_time = strtotime($app_date);
 
-    $app_time_hour = round($app_time/3600);
-    $curr_total_hour = round(time()/3600);
+    $app_time_hour = round($app_time / 3600);
+    $curr_total_hour = round(time() / 3600);
 
     $remaining_app_hour = round($app_time_hour - $curr_total_hour);
     $remain_hour = round($remaining_app_hour - $SMS_NOTIFICATION_HOUR);
@@ -91,8 +91,8 @@ for ($p=0; $p<count($db_patient); $p++) {
     //echo "\nDEBUG :: checkdate=$check_date, app_date=$app_date, apptime=$app_time remain_hour=$remain_hour -- CRON_TIME=$CRON_TIME\n";
 
     // build log message
-    $strMsg = "\n========================".$TYPE." || ".date("Y-m-d H:i:s")."=========================";
-    $strMsg .= "\nSEND NOTIFICATION BEFORE:".$SMS_NOTIFICATION_HOUR." || CRONJOB RUN EVERY:".$CRON_TIME." || APPDATETIME:".$app_date." || REMAINING APP HOUR:".($remaining_app_hour)." || SEND ALERT AFTER:".($remain_hour);
+    $strMsg = "\n========================" . $TYPE . " || " . date("Y-m-d H:i:s") . "=========================";
+    $strMsg .= "\nSEND NOTIFICATION BEFORE:" . $SMS_NOTIFICATION_HOUR . " || CRONJOB RUN EVERY:" . $CRON_TIME . " || APPDATETIME:" . $app_date . " || REMAINING APP HOUR:" . ($remaining_app_hour) . " || SEND ALERT AFTER:" . ($remain_hour);
 
     // check in the interval
     if ($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME) {
@@ -121,8 +121,8 @@ for ($p=0; $p<count($db_patient); $p++) {
         //update entry >> pc_sendalertsms='Yes'
         cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
 
-        $strMsg .= " || ALERT SENT SUCCESSFULLY TO ".$prow['phone_cell'];
-        $strMsg .= "\n".$patient_info."\n".$smsgateway_info."\n".$data_info."\n".$db_email_msg['message'];
+        $strMsg .= " || ALERT SENT SUCCESSFULLY TO " . $prow['phone_cell'];
+        $strMsg .= "\n" . $patient_info . "\n" . $smsgateway_info . "\n" . $data_info . "\n" . $db_email_msg['message'];
     }
 
     // write logs for every reminder sent

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -7,13 +8,12 @@
  * Kevin Yeh 2013
  */
 
-
 /**
  * Smarty {user_info} function plugin
  *
- * Type:     function<br>
- * Name:     user_info<br>
- * Purpose:  Return the user info for a given ID<br>
+ * Type:     function<br />
+ * Name:     user_info<br />
+ * Purpose:  Return the user info for a given ID<br />
  *
  * Examples:
  *
@@ -34,8 +34,8 @@ function smarty_function_user_info($params, &$smarty)
             $user_id = $params['id'];
     }
 
-        $user_info=getUserIDInfo($user_id);
+        $user_info = getUserIDInfo($user_id);
     if ($user_info) {
-        echo $user_info['fname']." ".$user_info['lname'];
+        echo $user_info['fname'] . " " . $user_info['lname'];
     }
 }

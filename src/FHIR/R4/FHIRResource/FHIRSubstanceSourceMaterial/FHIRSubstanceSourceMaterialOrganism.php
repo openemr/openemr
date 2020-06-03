@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -315,7 +317,7 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
                         $this->addAuthor($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"author" must be array of objects or null, '.gettype($data['author']).' seen.');
+                    throw new \InvalidArgumentException('"author" must be array of objects or null, ' . gettype($data['author']) . ' seen.');
                 }
             }
             if (isset($data['hybrid'])) {
@@ -324,8 +326,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
             if (isset($data['organismGeneral'])) {
                 $this->setOrganismGeneral($data['organismGeneral']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

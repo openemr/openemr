@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php
  *
@@ -11,9 +12,9 @@
 
 namespace Documents\Model;
 
-use Zend\Db\TableGateway\AbstractTableGateway;
-use Zend\Db\Adapter\Adapter;
-use \Application\Model\ApplicationTable;
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\Adapter\Adapter;
+use Application\Model\ApplicationTable;
 
 class DocumentsTable extends AbstractTableGateway
 {
@@ -53,7 +54,7 @@ class DocumentsTable extends AbstractTableGateway
         $result   = $obj->zQuery($sql, array($categoryParentId));
         $category = array();
         foreach ($result as $row) {
-            $category[$row['cat_id']]= array(
+            $category[$row['cat_id']] = array(
             'category_id'   => $row['id'],
             'category_name' => $row['name'],
             );
@@ -87,12 +88,12 @@ class DocumentsTable extends AbstractTableGateway
         $obj              = new ApplicationTable();
         $categories_count = count($categories);
         $cat_name         = array();
-        for ($i=0; $i<$categories_count; $i++) {
+        for ($i = 0; $i < $categories_count; $i++) {
             $cat_name[$i]   = "?";
         }
 
-        $sql              = "SELECT `id`,`name` FROM `categories` ".
-                        "WHERE `name` IN (". implode(",", $cat_name) .")";
+        $sql              = "SELECT `id`,`name` FROM `categories` " .
+                        "WHERE `name` IN (" . implode(",", $cat_name) . ")";
         $result           = $obj->zQuery($sql, $categories);
         $category         = array();
         foreach ($result as $row) {

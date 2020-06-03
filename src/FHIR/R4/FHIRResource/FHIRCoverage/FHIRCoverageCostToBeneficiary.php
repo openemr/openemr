@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -199,11 +201,11 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
                         $this->addException($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"exception" must be array of objects or null, '.gettype($data['exception']).' seen.');
+                    throw new \InvalidArgumentException('"exception" must be array of objects or null, ' . gettype($data['exception']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

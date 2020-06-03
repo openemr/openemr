@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -17,8 +18,10 @@ class NQF_0041_Denominator implements CqmFilterIF
     {
         $periodPlus89Days = date('Y-m-d 00:00:00', strtotime('+89 day', strtotime($beginDate)));
         $periodMinus92Days = date('Y-m-d 00:00:00', strtotime('-92 day', strtotime($endDate)));
-        if (Helper::checkEncounter(Encounter::ENC_INFLUENZA, $patient, $beginDate, $periodPlus89Days) ||
-            Helper::checkEncounter(Encounter::ENC_INFLUENZA, $patient, $periodMinus92Days, $endDate) ) {
+        if (
+            Helper::checkEncounter(Encounter::ENC_INFLUENZA, $patient, $beginDate, $periodPlus89Days) ||
+            Helper::checkEncounter(Encounter::ENC_INFLUENZA, $patient, $periodMinus92Days, $endDate)
+        ) {
             return true;
         }
         

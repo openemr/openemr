@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report lists patients that were seen within a given date
  * range, or all patients if no date range is entered.
@@ -12,7 +13,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
@@ -24,13 +24,6 @@ if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-}
-
-// Prepare a string for CSV export.
-function qescape($str)
-{
-    $str = str_replace('\\', '\\\\', $str);
-    return str_replace('"', '\\"', $str);
 }
 
 $from_date = DateToYYYYMMDD($_POST['form_from_date']);
@@ -64,7 +57,7 @@ if ($_POST['form_csvexport']) {
 
 <script language="JavaScript">
 
-$(function() {
+$(function () {
     oeFixedHeaderSetup(document.getElementById('mymaintable'));
     top.printLogSetup(document.getElementById('printbutton'));
 
@@ -79,7 +72,7 @@ $(function() {
 
 </script>
 
-<style type="text/css">
+<style>
 
 /* specifically include & exclude from printing */
 @media print {
@@ -115,13 +108,13 @@ $(function() {
 <body class="body_top">
 
 <!-- Required for the popup date selectors -->
-<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
+<div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Patient List'); ?></span>
 
 <div id="report_parameters_daterange">
     <?php if (!(empty($to_date) && empty($from_date))) { ?>
-        <?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($to_date)); ?>
+        <?php echo text(oeFormatShortDate($from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($to_date)); ?>
 <?php } ?>
 </div>
 
@@ -140,7 +133,7 @@ $(function() {
 
     <table class='text'>
         <tr>
-      <td class='control-label'>
+      <td class='col-form-label'>
         <?php echo xlt('Provider'); ?>:
       </td>
       <td>
@@ -149,13 +142,13 @@ $(function() {
             'empty_title' => '-- All --'), $_POST['form_provider']);
             ?>
       </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Visits From'); ?>:
             </td>
             <td>
                <input class='datepicker form-control' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
@@ -167,20 +160,20 @@ $(function() {
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class="h-100" align='left' valign='middle'>
+    <table class="w-100 h-100" style='border-left: 1px solid;'>
         <tr>
             <td>
         <div class="text-center">
                   <div class="btn-group" role="group">
-                    <a href='#' class='btn btn-default btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                     </a>
-                    <a href='#' class='btn btn-default btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+                    <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Export to CSV'); ?>
                     </a>
                     <?php if ($_POST['form_refresh']) { ?>
-                      <a href='#' id='printbutton' class='btn btn-default btn-print'>
+                      <a href='#' id='printbutton' class='btn btn-secondary btn-print'>
                             <?php echo xlt('Print'); ?>
                       </a>
                     <?php } ?>
@@ -200,23 +193,23 @@ $(function() {
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if ($_POST['form_csvexport']) {
         // CSV headers:
-        echo '"' . xl('Last Visit') . '",';
-        echo '"' . xl('First') . '",';
-        echo '"' . xl('Last') . '",';
-        echo '"' . xl('Middle') . '",';
-        echo '"' . xl('ID') . '",';
-        echo '"' . xl('Street') . '",';
-        echo '"' . xl('City') . '",';
-        echo '"' . xl('State') . '",';
-        echo '"' . xl('Zip') . '",';
-        echo '"' . xl('Home Phone') . '",';
-        echo '"' . xl('Work Phone') . '"' . "\n";
+        echo csvEscape(xl('Last Visit')) . ',';
+        echo csvEscape(xl('First{{Name}}')) . ',';
+        echo csvEscape(xl('Last{{Name}}')) . ',';
+        echo csvEscape(xl('Middle{{Name}}')) . ',';
+        echo csvEscape(xl('ID')) . ',';
+        echo csvEscape(xl('Street')) . ',';
+        echo csvEscape(xl('City')) . ',';
+        echo csvEscape(xl('State')) . ',';
+        echo csvEscape(xl('Zip')) . ',';
+        echo csvEscape(xl('Home Phone')) . ',';
+        echo csvEscape(xl('Work Phone')) . "\n";
     } else {
         ?>
 
   <div id="report_results">
-  <table id='mymaintable'>
-   <thead>
+  <table class='table' id='mymaintable'>
+   <thead class='thead-light'>
     <th> <?php echo xlt('Last Visit'); ?> </th>
     <th> <?php echo xlt('Patient'); ?> </th>
     <th> <?php echo xlt('ID'); ?> </th>
@@ -244,7 +237,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         "e.pid = p.pid AND " .
         "e.date >= ? AND " .
         "e.date <= ? ";
-        array_push($sqlArrayBind, $from_date .' 00:00:00', $to_date . ' 23:59:59');
+        array_push($sqlArrayBind, $from_date . ' 00:00:00', $to_date . ' 23:59:59');
         if ($form_provider) {
             $query .= "AND e.provider_id = ? ";
             array_push($sqlArrayBind, $form_provider);
@@ -284,28 +277,28 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         if ($row['DOB']) {
             $dob = $row['DOB'];
             $tdy = $row['edate'] ? $row['edate'] : date('Y-m-d');
-            $ageInMonths = (substr($tdy, 0, 4)*12) + substr($tdy, 5, 2) -
-                   (substr($dob, 0, 4)*12) - substr($dob, 5, 2);
+            $ageInMonths = (substr($tdy, 0, 4) * 12) + substr($tdy, 5, 2) -
+                   (substr($dob, 0, 4) * 12) - substr($dob, 5, 2);
             $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);
             if ($dayDiff < 0) {
                 --$ageInMonths;
             }
 
-            $age = intval($ageInMonths/12);
+            $age = intval($ageInMonths / 12);
         }
 
         if ($_POST['form_csvexport']) {
-            echo '"' . oeFormatShortDate(substr($row['edate'], 0, 10)) . '",';
-            echo '"' . qescape($row['lname']) . '",';
-            echo '"' . qescape($row['fname']) . '",';
-            echo '"' . qescape($row['mname']) . '",';
-            echo '"' . qescape($row['pubpid']) . '",';
-            echo '"' . qescape(xl($row['street'])) . '",';
-            echo '"' . qescape(xl($row['city'])) . '",';
-            echo '"' . qescape(xl($row['state'])) . '",';
-            echo '"' . qescape($row['postal_code']) . '",';
-            echo '"' . qescape($row['phone_home']) . '",';
-            echo '"' . qescape($row['phone_biz']) . '"' . "\n";
+            echo csvEscape(oeFormatShortDate(substr($row['edate'], 0, 10))) . ',';
+            echo csvEscape($row['lname']) . ',';
+            echo csvEscape($row['fname']) . ',';
+            echo csvEscape($row['mname']) . ',';
+            echo csvEscape($row['pubpid']) . ',';
+            echo csvEscape(xl($row['street'])) . ',';
+            echo csvEscape(xl($row['city'])) . ',';
+            echo csvEscape(xl($row['state'])) . ',';
+            echo csvEscape($row['postal_code']) . ',';
+            echo csvEscape($row['phone_home']) . ',';
+            echo csvEscape($row['phone_biz']) . "\n";
         } else {
             ?>
        <tr>

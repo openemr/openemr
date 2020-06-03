@@ -21,109 +21,109 @@
 **/
 
 .esign-signature-log-table {
-	display: table;
-	font-size: small;
-	width: 100%;
-	margin-top: 10px;
+  display: table;
+  font-size: small;
+  margin-top: 10px;
+  width: 100%;
 }
 
 .esign-log-row.header {
-	border-bottom: 1px dashed;
-	text-align: center;
+  border-bottom: 1px dashed;
+  text-align: center;
 }
 
 .esign-log-row {
-	display: block;
-	float: left;
-	width: 100%;
+  display: block;
+  float: left;
+  width: 100%;
 }
 
 .esign-log-row span {
-	display: block;
-	padding-left: 4px;
-	padding-top: 2px;
-	padding-bottom: 2px;
+  display: block;
+  padding-bottom: 2px;
+  padding-left: 4px;
+  padding-top: 2px;
 }
 
 .esign-log-row span.esign-amendment {
-	padding-top: 4px;
-	font-style: italic;
+  font-style: italic;
+  padding-top: 4px;
 }
+
 .esign-log-row-container {
-	border-bottom: 1px dashed;
-	padding-top: 4px;
-	padding-bottom: 4px;
+  border-bottom: 1px dashed;
+  padding-bottom: 4px;
+  padding-top: 4px;
 }
 
 .esign-log-row-container.locked {
-	background-color: pink;
+  background-color: #ffc0cb;
 }
 
 .span3 {
-	width: 33%;
+  width: 33%;
 }
 
 .span9 {
-	width: 100%; 
+  width: 100%;
 }
 
 .esign-log-element {
-	display: inline;
-	float: left;
+  display: inline;
+  float: left;
 }
 
 .esign-log-element span {
-	padding: 4px;
+  padding: 4px;
 }
 
 .error {
-	color: red;
+  color: var(--danger);
 }
 
 .esign-signature-form-element {
-	margin-bottom: 4px;
-	width: 100%;
+  margin-bottom: 4px;
+  width: 100%;
 }
 
 .esign-signature-form-element label {
-	display: block;
-	width: 80px;
+  display: block;
+  width: 80px;
 }
 
 .esign-signature-form-element textarea {
-	width: 100%;
+  width: 100%;
 }
 
 .form-edit-button-locked {
-	cursor: default;
+  cursor: default;
 }
 
 #esign-mask {
-    position:absolute;
-    left:0;
-    top:0;
-    z-index:9000;
-    background-color:#000;
-    display:none;
+  background-color: var(--black);
+  display: none;
+  left: 0;
+  position: absolute;
+  top: 0;
+  z-index: 9000;
 }
 
 #esign-mask-content {
-border:solid 2px #b7ddf2;
-background-color: gainsboro;
+  background-color: #dcdcdc;
+  border: solid 2px #b7ddf2;
 }
 
 .window {
-    position:fixed;
-    left:0;
-    top:0;
-    width:440px;
-    height:auto;
-    display:none;
-    z-index:9999;
-    padding:20px;
+  display: none;
+  height: auto;
+  left: 0;
+  padding: 20px;
+  position: fixed;
+  top: 0;
+  width: 440px;
+  z-index: 9999;
 }
+
 .rounded {
-    -moz-border-radius:4px;
-    -webkit-border-radius:4px;
-    border-radius:4px;
+  border-radius: 4px;
 }

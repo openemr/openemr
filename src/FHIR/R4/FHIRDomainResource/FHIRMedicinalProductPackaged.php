@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -327,7 +329,7 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['subject'])) {
@@ -336,7 +338,7 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
                         $this->addSubject($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"subject" must be array of objects or null, '.gettype($data['subject']).' seen.');
+                    throw new \InvalidArgumentException('"subject" must be array of objects or null, ' . gettype($data['subject']) . ' seen.');
                 }
             }
             if (isset($data['description'])) {
@@ -351,7 +353,7 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
                         $this->addMarketingStatus($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"marketingStatus" must be array of objects or null, '.gettype($data['marketingStatus']).' seen.');
+                    throw new \InvalidArgumentException('"marketingStatus" must be array of objects or null, ' . gettype($data['marketingStatus']) . ' seen.');
                 }
             }
             if (isset($data['marketingAuthorization'])) {
@@ -363,7 +365,7 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
                         $this->addManufacturer($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"manufacturer" must be array of objects or null, '.gettype($data['manufacturer']).' seen.');
+                    throw new \InvalidArgumentException('"manufacturer" must be array of objects or null, ' . gettype($data['manufacturer']) . ' seen.');
                 }
             }
             if (isset($data['batchIdentifier'])) {
@@ -372,7 +374,7 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
                         $this->addBatchIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"batchIdentifier" must be array of objects or null, '.gettype($data['batchIdentifier']).' seen.');
+                    throw new \InvalidArgumentException('"batchIdentifier" must be array of objects or null, ' . gettype($data['batchIdentifier']) . ' seen.');
                 }
             }
             if (isset($data['packageItem'])) {
@@ -381,11 +383,11 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
                         $this->addPackageItem($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"packageItem" must be array of objects or null, '.gettype($data['packageItem']).' seen.');
+                    throw new \InvalidArgumentException('"packageItem" must be array of objects or null, ' . gettype($data['packageItem']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

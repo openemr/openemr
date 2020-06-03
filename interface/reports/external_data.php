@@ -1,4 +1,5 @@
 <?php
+
 /**
  * external_data.php
  *
@@ -12,10 +13,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Core\Header;
@@ -30,7 +29,7 @@ $records2 = array();
         <?php Header::setupHeader();?>
         <title><?php echo xlt('External Data'); ?></title>
         <script>
-            $(function() {
+            $(function () {
                 $('.ext-tab-head li').click(function() {
                     $('.ext-tab-head li').removeClass("child-active");
                     $(this).addClass("child-active");
@@ -49,13 +48,14 @@ $records2 = array();
             .dm-ed-in-1 {
                 height: 35px;
                 width: 100%;
-                background-color: #E7ECF2;
-                border-bottom: thin solid #C0C0C0;
+                background-color: var(--gray200);
+                border-bottom: thin solid var(--gray400);
                 padding: 5px 0; z-index: 100;
             }
             .dm-ed-in-1 h3 {
-                color: rgb(8, 102, 198);
-                font-size: 20px; float: left;
+                color: var(--primary);
+                font-size: 20px;
+                float: left;
                 line-height: 0px;
             }
             .dm-ed-in-2 {
@@ -63,7 +63,8 @@ $records2 = array();
                 width: 32px;
                 height: 32px;
                 float: left;
-                margin:2px 6px 0 6px;background-size: contain;
+                margin:2px 6px 0 6px;
+                background-size: contain;
             }
             .dm-ed-in-4 {
                 display: none;
@@ -82,19 +83,19 @@ $records2 = array();
                 width: 60%;
                 margin-left: 10%;
                 margin-top: 40px;
-                border: 1px solid #CCCCCC;
-                text-align:center;
+                border: 1px solid var(--gray400);
+                text-align: center;
                 padding: 30px;
                 font-size: 15px;
                 font-weight: bold;
-                background: #f7f7f7;
+                background: var(--light);
             }
             .dm-ed-in-9 {
-                line-height:30px;
+                line-height: 30px;
             }
             ul.ext-tab-head li {
-                border-bottom: 2px solid #faffff;
-                color: #222222;
+                border-bottom: 2px solid var(--light);
+                color: var(--dark);
                 cursor: pointer;
                 display: inline-block;
                 font-size: 14px;
@@ -130,19 +131,13 @@ $records2 = array();
                     require_once("$include_root/patient_file/summary/dashboard_header.php")
                     ?>
                 </div>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="col-sm-12">
-                            <?php
-                            $list_id = "external_data"; // to indicate nav item is active, count and give correct id
-                            // Collect the patient menu then build it
-                            $menuPatient = new PatientMenuRole();
-                            $menuPatient->displayHorizNavBarMenu();
-                            ?>
-                        </div>
-                    </div>
-                </div>
             </div>
+            <?php
+            $list_id = "external_data"; // to indicate nav item is active, count and give correct id
+            // Collect the patient menu then build it
+            $menuPatient = new PatientMenuRole();
+            $menuPatient->displayHorizNavBarMenu();
+            ?>
             <div class="clear"></div>
             <div class="row">
                 <div class="col-sm-12">
@@ -230,7 +225,7 @@ $records2 = array();
         <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
-        $(function(){
+        $(function () {
             $(listId).addClass("active");
         });
     </script>

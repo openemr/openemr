@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Documents/config/module.config.php
  *
@@ -8,10 +9,11 @@
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Documents;
 
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
 use Documents\Controller\DocumentsController;
 use Documents\Model\DocumentsTable;
 use Interop\Container\ContainerInterface;
@@ -77,7 +79,7 @@ return array(
     'service_manager' => [
         'factories' => [
             DocumentsTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Zend\Db\Adapter\Adapter::class);
+                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $table = new DocumentsTable($dbAdapter);
                 return $table;
             },

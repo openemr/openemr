@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The functions of this class support the billing process like the script billing_process.php.
  *
@@ -15,7 +16,7 @@ namespace OpenEMR\Billing;
 
 class ParseERA
 {
-    public static function parse_era_2100(&$out, $cb)
+    public static function parseERA2100(&$out, $cb)
     {
         if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
             // Production date is posted with adjustments, so make sure it exists.
@@ -76,7 +77,7 @@ class ParseERA
         }
     }
 
-    public static function parse_era($filename, $cb)
+    public static function parseERA($filename, $cb)
     {
         $delimiter1 = '~';
         $delimiter2 = '|';
@@ -126,7 +127,7 @@ class ParseERA
                 $out['isa_receiver_id'] = trim($seg[8]);
                 $out['isa_control_number'] = trim($seg[13]);
                 // TBD: clear some stuff if we allow multiple transmission files.
-            } else if ($segid == 'GS') {
+            } elseif ($segid == 'GS') {
                 if ($out['loopid']) {
                     return 'Unexpected GS segment';
                 }
@@ -134,12 +135,12 @@ class ParseERA
                 $out['gs_date'] = trim($seg[4]);
                 $out['gs_time'] = trim($seg[5]);
                 $out['gs_control_number'] = trim($seg[6]);
-            } else if ($segid == 'ST') {
-                self::parse_era_2100($out, $cb);
+            } elseif ($segid == 'ST') {
+                self::parseERA2100($out, $cb);
                 $out['loopid'] = '';
                 $out['st_control_number'] = trim($seg[2]);
                 $out['st_segment_count'] = 0;
-            } else if ($segid == 'BPR') {
+            } elseif ($segid == 'BPR') {
                 if ($out['loopid']) {
                     return 'Unexpected BPR segment';
                 }
@@ -147,7 +148,7 @@ class ParseERA
                 $out['check_amount'] = trim($seg[2]);
                 $out['check_date'] = trim($seg[16]); // yyyymmdd
                 // TBD: BPR04 is a payment method code.
-            } else if ($segid == 'TRN') {
+            } elseif ($segid == 'TRN') {
                 if ($out['loopid']) {
                     return 'Unexpected TRN segment';
                 }
@@ -157,60 +158,60 @@ class ParseERA
             //    $out['payer_id'] = trim($seg[4]); no payer id in TRN04 for 5010
                 // Note: TRN04 further qualifies the paying entity within the
                 // organization identified by TRN03.
-            } else if ($segid == 'REF' && $seg[1] == 'EV') {
+            } elseif ($segid == 'REF' && $seg[1] == 'EV') {
                 if ($out['loopid']) {
                     return 'Unexpected REF|EV segment';
                 }
-            } else if ($segid == 'CUR' && !$out['loopid']) {
+            } elseif ($segid == 'CUR' && !$out['loopid']) {
                 if ($seg[3] && $seg[3] != 1.0) {
                     return ("We cannot handle foreign currencies!");
                 }
-            } else if ($segid == 'REF' && !$out['loopid']) {
+            } elseif ($segid == 'REF' && !$out['loopid']) {
                 // ignore
-            } else if ($segid == 'DTM' && $seg[1] == '405') {
+            } elseif ($segid == 'DTM' && $seg[1] == '405') {
                 if ($out['loopid']) {
                     return 'Unexpected DTM|405 segment';
                 }
 
                 $out['production_date'] = trim($seg[2]); // yyyymmdd
-            } else if ($segid == 'N1' && $seg[1] == 'PR') { // Loop 1000A is Payer Information.
+            } elseif ($segid == 'N1' && $seg[1] == 'PR') { // Loop 1000A is Payer Information.
                 if ($out['loopid']) {
                     return 'Unexpected N1|PR segment';
                 }
                 $out['loopid'] = '1000A';
                 $out['payer_name'] = trim($seg[2]);
                 $out['payer_id'] = trim($seg[4]); // will be overwritten if in REF*2U below
-            } else if ($segid == 'N3' && $out['loopid'] == '1000A') {
+            } elseif ($segid == 'N3' && $out['loopid'] == '1000A') {
                 $out['payer_street'] = trim($seg[1]);
                 // TBD: N302 may exist as an additional address line.
-            } else if ($segid == 'N4' && $out['loopid'] == '1000A') {
+            } elseif ($segid == 'N4' && $out['loopid'] == '1000A') {
                 $out['payer_city'] = trim($seg[1]);
                 $out['payer_state'] = trim($seg[2]);
                 $out['payer_zip'] = trim($seg[3]);
-            } else if ($segid == 'REF' && $out['loopid'] == '1000A') {
+            } elseif ($segid == 'REF' && $out['loopid'] == '1000A') {
                 // Other types of REFs may be given to identify the payer, but we
                 // ignore them.
                 if (trim($seg[1] == '2U')) {
                     $out['payer_id'] = trim($seg[2]);
                 }
-            } else if ($segid == 'PER' && $out['loopid'] == '1000A') {
+            } elseif ($segid == 'PER' && $out['loopid'] == '1000A') {
                 // TBD: Report payer contact information as a note.
-            } else if ($segid == 'N1' && $seg[1] == 'PE') { // Loop 1000B is Payee Identification.
+            } elseif ($segid == 'N1' && $seg[1] == 'PE') { // Loop 1000B is Payee Identification.
                 if ($out['loopid'] != '1000A') {
                     return 'Unexpected N1|PE segment';
                 }
                 $out['loopid'] = '1000B';
                 $out['payee_name'] = trim($seg[2]);
                 $out['payee_tax_id'] = trim($seg[4]);
-            } else if ($segid == 'N3' && $out['loopid'] == '1000B') {
+            } elseif ($segid == 'N3' && $out['loopid'] == '1000B') {
                 $out['payee_street'] = trim($seg[1]);
-            } else if ($segid == 'N4' && $out['loopid'] == '1000B') {
+            } elseif ($segid == 'N4' && $out['loopid'] == '1000B') {
                 $out['payee_city'] = trim($seg[1]);
                 $out['payee_state'] = trim($seg[2]);
                 $out['payee_zip'] = trim($seg[3]);
-            } else if ($segid == 'REF' && $out['loopid'] == '1000B') {
+            } elseif ($segid == 'REF' && $out['loopid'] == '1000B') {
                 // Used to report additional ID numbers.  Ignored.
-            } else if ($segid == 'LX') {
+            } elseif ($segid == 'LX') {
                 //
                 // Loop 2000 provides for logical grouping of claim payment information.
                 // LX is required if any CLPs are present, but so far we do not care
@@ -220,19 +221,19 @@ class ParseERA
                     return 'Unexpected LX segment';
                 }
 
-                self::parse_era_2100($out, $cb);
+                self::parseERA2100($out, $cb);
                 $out['loopid'] = '2000';
-            } else if ($segid == 'TS2' && $out['loopid'] == '2000') {
+            } elseif ($segid == 'TS2' && $out['loopid'] == '2000') {
                 // ignore
-            } else if ($segid == 'TS3' && $out['loopid'] == '2000') {
+            } elseif ($segid == 'TS3' && $out['loopid'] == '2000') {
                 // ignore
-            } else if ($segid == 'CLP') {
+            } elseif ($segid == 'CLP') {
                 // Loop 2100 is Claim Payment Information. The good stuff begins here.
                 if (!$out['loopid']) {
                     return 'Unexpected CLP segment';
                 }
 
-                self::parse_era_2100($out, $cb);
+                self::parseERA2100($out, $cb);
                 $out['loopid'] = '2100';
                 $out['warnings'] = '';
                 // Clear some stuff to start the new claim:
@@ -260,11 +261,11 @@ class ParseERA
                 $out['amount_approved'] = trim($seg[4]);
                 $out['amount_patient'] = trim($seg[5]); // pt responsibility, copay + deductible
                 $out['payer_claim_id'] = trim($seg[7]); // payer's claim number
-            } else if ($segid == 'CAS' && $out['loopid'] == '2100') {
+            } elseif ($segid == 'CAS' && $out['loopid'] == '2100') {
                 // This is a claim-level adjustment and should be unusual.
                 // Handle it by creating a dummy zero-charge service item and
                 // then populating the adjustments into it.  See also code in
-                // self::parse_era_2100() which will later plug in a payment reversal
+                // self::parseERA2100() which will later plug in a payment reversal
                 // amount that offsets these adjustments.
                 $i = 0; // if present, the dummy service item will be first.
                 if (!$out['svc'][$i]) {
@@ -287,56 +288,56 @@ class ParseERA
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
                     $out['svc'][$i]['adj'][$j]['amount'] = $seg[$k + 1];
                 }
-            } else if ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') { // QC = Patient
+            } elseif ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') { // QC = Patient
                 $out['patient_lname'] = trim($seg[3]);
                 $out['patient_fname'] = trim($seg[4]);
                 $out['patient_mname'] = trim($seg[5]);
                 $out['patient_member_id'] = trim($seg[9]);
-            } else if ($segid == 'NM1' && $seg[1] == 'IL' && $out['loopid'] == '2100') { // IL = Insured or Subscriber
+            } elseif ($segid == 'NM1' && $seg[1] == 'IL' && $out['loopid'] == '2100') { // IL = Insured or Subscriber
                 $out['subscriber_lname'] = trim($seg[3]);
                 $out['subscriber_fname'] = trim($seg[4]);
                 $out['subscriber_mname'] = trim($seg[5]);
                 $out['subscriber_member_id'] = trim($seg[9]);
-            } else if ($segid == 'NM1' && $seg[1] == '82' && $out['loopid'] == '2100') { // 82 = Rendering Provider
+            } elseif ($segid == 'NM1' && $seg[1] == '82' && $out['loopid'] == '2100') { // 82 = Rendering Provider
                 $out['provider_lname'] = trim($seg[3]);
                 $out['provider_fname'] = trim($seg[4]);
                 $out['provider_mname'] = trim($seg[5]);
                 $out['provider_member_id'] = trim($seg[9]);
-            } else if ($segid == 'NM1' && $seg[1] == 'TT' && $out['loopid'] == '2100') { // TT = Crossover Carrier (Transfer To another payer)
+            } elseif ($segid == 'NM1' && $seg[1] == 'TT' && $out['loopid'] == '2100') { // TT = Crossover Carrier (Transfer To another payer)
                 $out['crossover'] = 1; //Claim automatic forward case.
-            } else if ($segid == 'NM1' && $seg[1] == '74' && $out['loopid'] == '2100') { // 74 = Corrected Insured
+            } elseif ($segid == 'NM1' && $seg[1] == '74' && $out['loopid'] == '2100') { // 74 = Corrected Insured
                 $out['corrected'] = 1; // Updated policy number case.
                 $out['corrected_mbi'] = trim($seg[9]); // Usually MBI from Medicare
-            } else if ($segid == 'NM1' && $out['loopid'] == '2100') { // PR = Corrected Payer
+            } elseif ($segid == 'NM1' && $out['loopid'] == '2100') { // PR = Corrected Payer
                 // $out['warnings'] .= "NM1 segment at claim level ignored.\n";
-            } else if ($segid == 'MOA' && $out['loopid'] == '2100') {
+            } elseif ($segid == 'MOA' && $out['loopid'] == '2100') {
                 $out['warnings'] .= "MOA segment at claim level ignored.\n";
-            } else if ($segid == 'REF' && $seg[1] == '1W' && $out['loopid'] == '2100') {
+            } elseif ($segid == 'REF' && $seg[1] == '1W' && $out['loopid'] == '2100') {
                 // REF segments may provide various identifying numbers, where REF02
                 // indicates the type of number.
                 $out['claim_comment'] = trim($seg[2]);
-            } else if ($segid == 'REF' && $out['loopid'] == '2100') {
+            } elseif ($segid == 'REF' && $out['loopid'] == '2100') {
                 // ignore
-            } else if ($segid == 'DTM' && $seg[1] == '050' && $out['loopid'] == '2100') {
+            } elseif ($segid == 'DTM' && $seg[1] == '050' && $out['loopid'] == '2100') {
                 $out['claim_date'] = trim($seg[2]); // yyyymmdd
-            } else if ($segid == 'DTM' && $out['loopid'] == '2100') { // 036 = expiration date of coverage
+            } elseif ($segid == 'DTM' && $out['loopid'] == '2100') { // 036 = expiration date of coverage
                 // 050 = date claim received by payer
                 // 232 = claim statement period start
                 // 233 = claim statement period end
                 // ignore?
-            } else if ($segid == 'PER' && $out['loopid'] == '2100') {
+            } elseif ($segid == 'PER' && $out['loopid'] == '2100') {
                 $out['payer_insurance'] = trim($seg[2]);
                 $out['warnings'] .= 'Claim contact information: ' .
                     $seg[4] . "\n";
-            } else if ($segid == 'AMT' && $out['loopid'] == '2100') { // For AMT01 see the Amount Qualifier Codes on
+            } elseif ($segid == 'AMT' && $out['loopid'] == '2100') { // For AMT01 see the Amount Qualifier Codes on
                 // pages 135-135 of the Implementation Guide.
                 // AMT is only good for comments and is not part of claim balancing.
                 $out['warnings'] .= "AMT segment at claim level ignored.\n";
-            } else if ($segid == 'QTY' && $out['loopid'] == '2100') { // For QTY01 see the Quantity Qualifier Codes on
+            } elseif ($segid == 'QTY' && $out['loopid'] == '2100') { // For QTY01 see the Quantity Qualifier Codes on
                 // pages 137-138 of the Implementation Guide.
                 // QTY is only good for comments and is not part of claim balancing.
                 $out['warnings'] .= "QTY segment at claim level ignored.\n";
-            } else if ($segid == 'SVC') { // Loop 2110 is Service Payment Information.
+            } elseif ($segid == 'SVC') { // Loop 2110 is Service Payment Information.
                 if (!$out['loopid']) {
                     return 'Unexpected SVC segment';
                 }
@@ -379,12 +380,12 @@ class ParseERA
                 $out['svc'][$i]['adj'] = array();
                 // Note: SVC05, if present, indicates the paid units of service.
                 // It defaults to 1.
-            } else if ($segid == 'DTM' && $out['loopid'] == '2110') { // DTM01 identifies the type of service date:
+            } elseif ($segid == 'DTM' && $out['loopid'] == '2110') { // DTM01 identifies the type of service date:
                 // 472 = a single date of service
                 // 150 = service period start
                 // 151 = service period end
                 $out['dos'] = trim($seg[2]); // yyyymmdd
-            } else if ($segid == 'CAS' && $out['loopid'] == '2110') {
+            } elseif ($segid == 'CAS' && $out['loopid'] == '2110') {
                 $i = count($out['svc']) - 1;
                 for ($k = 2; $k < 20; $k += 3) {
                     if (!$seg[$k]) {
@@ -406,19 +407,19 @@ class ParseERA
                     // Note: $seg[$k+2] is "quantity".  A value here indicates a change to
                     // the number of units of service.  We're ignoring that for now.
                 }
-            } else if ($segid == 'REF' && $out['loopid'] == '2110') {
+            } elseif ($segid == 'REF' && $out['loopid'] == '2110') {
                 // ignore
-            } else if ($segid == 'AMT' && $seg[1] == 'B6' && $out['loopid'] == '2110') {
+            } elseif ($segid == 'AMT' && $seg[1] == 'B6' && $out['loopid'] == '2110') {
                 $i = count($out['svc']) - 1;
                 $out['svc'][$i]['allowed'] = $seg[2]; // report this amount as a note
-            } else if ($segid == 'AMT' && $out['loopid'] == '2110') {
+            } elseif ($segid == 'AMT' && $out['loopid'] == '2110') {
                 $out['warnings'] .= "$inline at service level ignored.\n";
-            } else if ($segid == 'LQ' && $seg[1] == 'HE' && $out['loopid'] == '2110') {
+            } elseif ($segid == 'LQ' && $seg[1] == 'HE' && $out['loopid'] == '2110') {
                 $i = count($out['svc']) - 1;
                 $out['svc'][$i]['remark'] = $seg[2];
-            } else if ($segid == 'QTY' && $out['loopid'] == '2110') {
+            } elseif ($segid == 'QTY' && $out['loopid'] == '2110') {
                 $out['warnings'] .= "QTY segment at service level ignored.\n";
-            } else if ($segid == 'PLB') {
+            } elseif ($segid == 'PLB') {
                 // Provider-level adjustments are a General Ledger thing and should not
                 // alter the A/R for the claim, so we just report them as notes.
                 for ($k = 3; $k < 15; $k += 2) {
@@ -430,8 +431,8 @@ class ParseERA
                         sprintf('%.2f', $seg[$k + 1]) . " with reason code " . $seg[$k] . "\n";
                     // Note: For PLB adjustment reason codes see IG pages 165-170.
                 }
-            } else if ($segid == 'SE') {
-                self::parse_era_2100($out, $cb);
+            } elseif ($segid == 'SE') {
+                self::parseERA2100($out, $cb);
                 $out['loopid'] = '';
                 if ($out['st_control_number'] != trim($seg[2])) {
                     return 'Ending transaction set control number mismatch';
@@ -440,7 +441,7 @@ class ParseERA
                 if (($out['st_segment_count'] + 1) != trim($seg[1])) {
                     return 'Ending transaction set segment count mismatch';
                 }
-            } else if ($segid == 'GE') {
+            } elseif ($segid == 'GE') {
                 if ($out['loopid']) {
                     return 'Unexpected GE segment';
                 }
@@ -448,7 +449,7 @@ class ParseERA
                 if ($out['gs_control_number'] != trim($seg[2])) {
                     return 'Ending functional group control number mismatch';
                 }
-            } else if ($segid == 'IEA') {
+            } elseif ($segid == 'IEA') {
                 if ($out['loopid']) {
                     return 'Unexpected IEA segment';
                 }
@@ -471,7 +472,7 @@ class ParseERA
     }
 
     //for getting the check details and provider details
-    public static function parse_era_for_check($filename)
+    public static function parseERAForCheck($filename)
     {
         $delimiter1 = '~';
         $delimiter2 = '|';
@@ -513,18 +514,18 @@ class ParseERA
             $segid = $seg[0];
 
             if ($segid == 'ISA') {
-            } else if ($segid == 'BPR') {
+            } elseif ($segid == 'BPR') {
                 ++$check_count;
                 //if ($out['loopid']) return 'Unexpected BPR segment';
                 $out['check_amount' . $check_count] = trim($seg[2]);
                 $out['check_date' . $check_count] = trim($seg[16]); // yyyymmdd
                 // TBD: BPR04 is a payment method code.
-            } else if ($segid == 'N1' && $seg[1] == 'PE') {
+            } elseif ($segid == 'N1' && $seg[1] == 'PE') {
                 //if ($out['loopid'] != '1000A') return 'Unexpected N1|PE segment';
                 $out['loopid'] = '1000B';
                 $out['payee_name' . $check_count] = trim($seg[2]);
                 $out['payee_tax_id' . $check_count] = trim($seg[4]);
-            } else if ($segid == 'TRN') {
+            } elseif ($segid == 'TRN') {
                 //if ($out['loopid']) return 'Unexpected TRN segment';
                 $out['check_number' . $check_count] = trim($seg[2]);
                 $out['payer_tax_id' . $check_count] = substr($seg[3], 1); // 9 digits

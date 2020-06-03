@@ -1,4 +1,5 @@
 <?php
+
 /**
  * dupecheck index.php
  *
@@ -9,10 +10,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../../interface/globals.php");
 require_once("./Utils.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -25,7 +26,7 @@ if (!empty($_POST)) {
     }
 }
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt("Not Authorized"));
 }
 
@@ -42,10 +43,12 @@ if (! isset($parameters['limit'])) {
     $parameters['limit'] = 100;
 }
 
-if (! isset($parameters['match_name']) &&
+if (
+    ! isset($parameters['match_name']) &&
     ! isset($parameters['match_dob']) &&
     ! isset($parameters['match_sex']) &&
-    ! isset($parameters['match_ssn'])) {
+    ! isset($parameters['match_ssn'])
+) {
     $parameters['match_name'] = 'on';
     $parameters['match_dob'] = 'on';
 }
@@ -101,17 +104,17 @@ Matching criteria:
 <label for="match_sex">Gender</label>
 <input type="checkbox" name="match_ssn" id="match_ssn" <?php echo ($parameters['match_ssn']) ? "CHECKED" : ""; ?>>
 <label for="match_ssn">SSN</label>
-<br>
+<br />
 Order results by:
-<input type='radio' name='sortby' value='name' id="name" <?php echo ($parameters['sortby']=='name') ? "CHECKED" : ""; ?>>
+<input type='radio' name='sortby' value='name' id="name" <?php echo ($parameters['sortby'] == 'name') ? "CHECKED" : ""; ?>>
 <label for="name">Name</label>
-<input type='radio' name='sortby' value='dob' id="dob" <?php echo ($parameters['sortby']=='dob') ? "CHECKED" : ""; ?>>
+<input type='radio' name='sortby' value='dob' id="dob" <?php echo ($parameters['sortby'] == 'dob') ? "CHECKED" : ""; ?>>
 <label for="dob">DOB</label>
-<input type='radio' name='sortby' value='sex' id="sex" <?php echo ($parameters['sortby']=='sex') ? "CHECKED" : ""; ?>>
+<input type='radio' name='sortby' value='sex' id="sex" <?php echo ($parameters['sortby'] == 'sex') ? "CHECKED" : ""; ?>>
 <label for="sex">Gender</label>
-<input type='radio' name='sortby' value='ssn' id="ssn" <?php echo ($parameters['sortby']=='ssn') ? "CHECKED" : ""; ?>>
+<input type='radio' name='sortby' value='ssn' id="ssn" <?php echo ($parameters['sortby'] == 'ssn') ? "CHECKED" : ""; ?>>
 <label for="ssn">SSN</label>
-<br>
+<br />
 Limit search to first <input type='textbox' size='5' name='limit' id="limit" value='<?php echo attr($parameters['limit']); ?>'> records
 <input type="button" name="do_search" id="do_search" value="Go">
 </form>
@@ -156,7 +159,7 @@ if ($parameters['go'] == "Go") {
         }
 
         $sqlBindArray = array();
-        $sqlstmt = "select id, pid, fname, lname, dob, sex, ss ".
+        $sqlstmt = "select id, pid, fname, lname, dob, sex, ss " .
                     " from patient_data where ";
         $sqland = "";
         if ($parameters['match_name']) {
@@ -198,7 +201,7 @@ if ($parameters['go'] == "Go") {
         echo "<div class='match_block' style='padding: 5px 0px 5px 0px;' id='dupediv" . attr($dupecount) . "'>";
         echo "<table>";
 
-        echo "<tr class='onerow' id='" . attr($row['id']) . "' oemrid='" .attr($row['id']) . "' dupecount='" . attr($dupecount) . "' title='Merge duplicates into this record'>";
+        echo "<tr class='onerow' id='" . attr($row['id']) . "' oemrid='" . attr($row['id']) . "' dupecount='" . attr($dupecount) . "' title='Merge duplicates into this record'>";
         echo "<td>" . text($row['lname']) . ", " . text($row['fname']) . "</td>";
         echo "<td>" . text($row['dob']) . "</td>";
         echo "<td>" . text($row['sex']) . "</td>";
@@ -242,7 +245,7 @@ if ($parameters['go'] == "Go") {
 
 <script language="javascript">
 
-$(function(){
+$(function () {
 
     // capture RETURN keypress
     $("#limit").on("keypress", function(evt) { if (evt.keyCode == 13) $("#do_search").click(); });

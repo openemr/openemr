@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRConceptMap;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRConceptMap;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -202,8 +204,8 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
             if (isset($data['display'])) {
                 $this->setDisplay($data['display']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

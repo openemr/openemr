@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Upload and install a designated code set to the codes table.
  *
@@ -11,16 +12,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 set_time_limit(0);
 
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
 }
 
@@ -31,11 +32,21 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 
 <head>
 <title><?php echo xlt('Install Code Set'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 
-<style type="text/css">
- .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+<style>
+ .dehead {
+   color: var(--black);
+   font-family: sans-serif;
+   font-size: 0.8125rem;
+   font-weight: bold;
+  }
+ .detail {
+   color: var(--black);
+   font-family: sans-serif;
+   font-size: 0.8125rem;
+   font-weight:normal;
+ }
 </style>
 
 </head>
@@ -62,7 +73,7 @@ if (!empty($_POST['bn_upload'])) {
     $seen_codes = array();
 
     if (is_uploaded_file($tmp_name) && $_FILES['form_file']['size']) {
-        $zipin = new ZipArchive;
+        $zipin = new ZipArchive();
         $eres = null;
         if ($zipin->open($tmp_name) === true) {
             // Must be a zip archive.
@@ -146,82 +157,84 @@ if (!empty($_POST['bn_upload'])) {
         $zipin->close();
     }
 
-    echo "<p style='color:green'>" .
+    echo "<p class='text-success'>" .
        xlt('LOAD SUCCESSFUL. Codes inserted') . ": " . text($inscount) . ", " .
        xlt('replaced') . ": " . text($repcount) .
        "</p>\n";
 }
 
 ?>
-<form method='post' action='load_codes.php' enctype='multipart/form-data'
- onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <div class="container">
 
-<center>
+        <form method='post' action='load_codes.php' enctype='multipart/form-data'
+        onsubmit='return top.restoreSession()'>
 
-<p class='text'>
-<table border='1' cellpadding='4'>
- <tr bgcolor='#dddddd' class='dehead'>
-  <td align='center' colspan='2'>
-    <?php echo xlt('Install Code Set'); ?>
-  </td>
- </tr>
- <tr>
-  <td class='detail' nowrap>
-    <?php echo xlt('Code Type'); ?>
-  </td>
-  <td>
-   <select name='form_code_type'>
-<?php
-foreach (array('RXCUI') as $codetype) {
-    echo "    <option value='" . attr($codetype) . "'>" . text($codetype) . "</option>\n";
-}
-?>
-   </select>
-  </td>
- </tr>
- <tr>
-  <td class='detail' nowrap>
-    <?php echo xlt('Source File'); ?>
-   <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
-  </td>
-  <td class='detail' nowrap>
-   <input type="file" name="form_file" size="40" />
-  </td>
- </tr>
- <tr>
-  <td class='detail' >
-    <?php echo xlt('Replace entire code set'); ?>
-  </td>
-  <td class='detail' >
-   <input type='checkbox' name='form_replace' value='1' checked />
-  </td>
- </tr>
- <tr bgcolor='#dddddd'>
-  <td align='center' class='detail' colspan='2'>
-   <input type='submit' name='bn_upload' value='<?php echo xlt('Upload and Install') ?>' />
-  </td>
- </tr>
-</table>
-</p>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<p class='bold'><?php echo xlt('Be patient, some files can take several minutes to process!'); ?></p>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr class="dehead">
+                            <th colspan="2" class='text-center'><?php echo xlt('Install Code Set'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <?php echo xlt('Code Type'); ?>
+                            </td>
+                            <td>
+                                <select name='form_code_type'>
+                                    <?php
+                                    foreach (array('RXCUI') as $codetype) {
+                                        echo "    <option value='" . attr($codetype) . "'>" . text($codetype) . "</option>\n";
+                                    }
+                                    ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="detail">
+                                <?php echo xlt('Source File'); ?>
+                                <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
+                            </td>
+                            <td class="detail">
+                                <input type="file" name="form_file" size="40" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="detail">
+                                <?php echo xlt('Replace entire code set'); ?>
+                            </td>
+                            <td class="detail">
+                                <input type='checkbox' name='form_replace' value='1' checked />
+                            </td>
+                        </tr>
+                        <tr class="bg-secondary">
+                            <td colspan="2" class="text-center detail">
+                                <input type='submit' class='btn btn-primary' name='bn_upload' value='<?php echo xlt('Upload and Install') ?>' />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class='font-weight-bold text-center'>
+                <?php echo xlt('Be patient, some files can take several minutes to process!'); ?>
+            </p>
 
-</center>
+            <!-- No translation because this text is long and US-specific and quotes other English-only text. -->
+            <p class='text'>
+            <span class="font-weight-bold">RXCUI codes</span> may be downloaded from
+            <a href='https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' rel="noopener" target='_blank'>
+            www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html</a>.
+            Get the "Current Prescribable Content Monthly Release" zip file, marked "no license required".
+            Then you can upload that file as-is here, or extract the file RXNCONSO.RRF from it and upload just
+            that (zipped or not). You may do the same with the weekly updates, but for those uncheck the
+            "<?php echo xlt('Replace entire code set'); ?>" checkbox above.
+            </p>
 
-<!-- No translation because this text is long and US-specific and quotes other English-only text. -->
-<p class='text'>
-<b>RXCUI codes</b> may be downloaded from
-<a href='https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' rel="noopener" target='_blank'>
-www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html</a>.
-Get the "Current Prescribable Content Monthly Release" zip file, marked "no license required".
-Then you can upload that file as-is here, or extract the file RXNCONSO.RRF from it and upload just
-that (zipped or not). You may do the same with the weekly updates, but for those uncheck the
-"<?php echo xlt('Replace entire code set'); ?>" checkbox above.
-</p>
-
-<!-- TBD: Another paragraph of instructions here for each code type. -->
-
-</form>
+            <!-- TBD: Another paragraph of instructions here for each code type. -->
+        </form>
+    </div>
 </body>
 </html>

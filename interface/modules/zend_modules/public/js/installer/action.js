@@ -5,6 +5,8 @@
  * @link      https://www.open-emr.org
  * @author    Jacob T.Paul <jacob@zhservices.com>
  * @author    Vipin Kumar <vipink@zhservices.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @author    Remesh Babu S <remesh@zhservices.com>
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -25,6 +27,14 @@ function register(status,title,name,method,type){
 }
 
 function manage(id,action){
+    if (action == 'unregister') {
+        if (!confirm("Please Confirm with OK to Unregister this Module.")) {
+            return false;
+        }
+    }
+    install_upgrade_log = $("#install_upgrade_log");
+    install_upgrade_log.empty();
+
 	if(document.getElementById('mod_enc_menu'))
 		modencmenu = document.getElementById('mod_enc_menu').value;
 	else
@@ -33,27 +43,65 @@ function manage(id,action){
 		modnickname = document.getElementById('mod_nick_name_'+id).value;
 	else
 		modnickname = '';
-	$.post("./Installer/manage", { modId: id, modAction: action,mod_enc_menu:modencmenu,mod_nick_name:modnickname},
-		function(data) {
-			if(data=="Success"){
-				if (parent.left_nav.location) {
-					parent.left_nav.location.reload();
-					parent.Title.location.reload();
-					if(self.name=='RTop'){
-						parent.RBot.location.reload();
-					}
-					else{
-						parent.RTop.location.reload();
-					}
-					top.document.getElementById('fsright').rows = '*,*';
-				}
-				window.location.reload();
-			}
-			else{
-				alert(data);
-			}
-		}
-	);
+    $.ajax({
+        type: 'POST',
+        url: "./Installer/manage",
+        data: { modId: id, modAction: action,mod_enc_menu:modencmenu,mod_nick_name:modnickname},
+        beforeSend: function(){
+            $('.modal').show();
+        },
+        success: function(data){
+            try{
+                var data_json = JSON.parse(data);
+                if(data_json.status == "Success") {
+                    if(data_json.output != undefined && data_json.output.length > 1) {
+                        install_upgrade_log.empty()
+                                           .show()
+                                           .append(data_json.output);
+
+                        $(".show_hide_log").click(function(event) {
+                            $(event.target).next("div.spoiler").toggle("slow");
+                        });
+                    }
+
+                    if (parent.left_nav.location) {
+                        parent.left_nav.location.reload();
+                        parent.Title.location.reload();
+                        if(self.name=='RTop') {
+                            parent.RBot.location.reload();
+                        }
+                        else{
+                            parent.RTop.location.reload();
+                        }
+                        top.document.getElementById('fsright').rows = '*,*';
+                    }
+                    if(data_json.output == undefined || data_json.output.length <= 1) {
+                        window.location.reload();
+                    }
+                }
+                else{
+                    alert(data_json.status);
+                }
+            } catch (e) {
+                    if (e instanceof SyntaxError) {
+                        install_upgrade_log.append(data);
+                    } else {
+                        console.log(e);
+                        install_upgrade_log.append(data);
+                    }
+            }
+
+        },
+        complete: function() {
+            $('.modal').hide();
+        }
+    });
+}
+
+var blockInput = function(element) {
+    $(element).prop('disabled', true);
+    $(element).css("background-color", "#c9c6c6");
+    $(element).closest("a").click(function(){return false;});
 }
 
 function configure(id,imgpath){
@@ -99,7 +147,7 @@ function SaveMe(frmId,mod_id){
 				$.each(data, function(jsonIndex, jsonValue){
 					if (jsonValue['return'] == 1) {
 						$("#hook_response"+mod_id).html(jsonValue['msg']).fadeIn().fadeOut(1000);
-						$(document).ready(function(){
+						$(function () {
 						if(Tabtitle)
 						$('#tab'+mod_id).tabs('select',Tabtitle);
 						});
@@ -130,7 +178,7 @@ function DeleteACL(aclID,user,mod_id,msg){
 							$("#ConfigRow_"+mod_id).hide();
 							configure(mod_id,'');
 							alert(jsonValue['msg']);
-							$(document).ready(function(){
+							$(function () {
 								if(Acctitle)
 									$('#configaccord'+mod_id).accordion('select',Acctitle);
 							});
@@ -158,7 +206,7 @@ function DeleteHooks(hooksID,mod_id,msg){
            $("#ConfigRow_"+mod_id).hide();
            configure(mod_id,'');
            alert(jsonValue['msg']);
-           $(document).ready(function(){
+           $(function () {
            if(Tabtitle)
            $('#tab'+mod_id).tabs('select',Tabtitle);
            });

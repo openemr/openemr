@@ -1,6 +1,5 @@
 <?php
 
-
 class C_Hl7 extends Controller
 {
 
@@ -26,7 +25,7 @@ class C_Hl7 extends Controller
         $err = $hp->parse();
         //print_r($hp);
         if (!empty($err)) {
-            $this->assign("hl7_message_err", nl2br("Error:<br>" . $err));
+            $this->assign("hl7_message_err", nl2br("Error:<br />" . $err));
         }
 
         $this->assign("hl7_array", $hp->composite_array());
@@ -45,5 +44,5 @@ PV1|1|I|2000^2053^01||||004777^FISHER^BEN^J.|||SUR||||ADM|A0|
 EOF;
 $hp = new Parser_HL7v2($msg);
 print_r($hp->MSH);
-echo "<br><br>";
+echo "<br /><br />";
 print_r($hp->EVN);*/

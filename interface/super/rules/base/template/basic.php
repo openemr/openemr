@@ -1,4 +1,5 @@
 <?php
+
  // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -11,6 +12,7 @@ use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
+    <!-- TODO: FIX No Bootstrap header !-->
     <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
 
     <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">

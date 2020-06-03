@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Signature form view script for form module
  *
@@ -20,6 +21,7 @@
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
 ?>
 <div id='esign-form-container'>
     <form id='esign-signature-form' method='post' action='<?php echo attr($this->form->action); ?>'>
@@ -28,25 +30,26 @@
               <span id='esign-signature-form-prompt'><?php echo xlt("Your password is your signature"); ?></span> 
         </div>
 
-        <div class="esign-signature-form-element">
-              <label for='password'><?php echo xlt('Password');?></label> 
-              <input type='password' id='password' name='password' size='10' />
+        <div class="esign-signature-form-element form-group">
+            <label for='password'><?php echo xlt('Password'); ?></label> 
+            <input type='password' class="form-control" id='password' name='password' size='10' placeholder="<?php echo xla("Enter your password to sign the form"); ?>" />
         </div>
         
         <?php if ($this->form->showLock) { ?>
-        <div class="esign-signature-form-element">
+        <div class="esign-signature-form-element form-group">
               <label for='lock'><?php echo xlt('Lock?');?></label> 
               <input type="checkbox" id="lock" name="lock" />
         </div>
         <?php } ?>
         
-        <div class="esign-signature-form-element">
-              <textarea name='amendment' id='amendment' placeholder='<?php echo xlt("Enter an amendment..."); ?>'></textarea> 
+        <div class="esign-signature-form-element form-group">
+            <label for='amendment'><?php echo xlt("Amendment"); ?></label>
+            <textarea class="form-control" name='amendment' id='amendment' placeholder='<?php echo xla("Enter an amendment..."); ?>'></textarea> 
         </div>
         
         <div class="esign-signature-form-element">
-              <input type='submit' value='<?php echo xla('Back'); ?>' id='esign-back-button' /> 
-              <input type='button' value='<?php echo xla('Sign'); ?>' id='esign-sign-button-form' />
+              <input type='submit' class="btn btn-secondary btn-sm" value='<?php echo xla('Back'); ?>' id='esign-back-button' /> 
+              <input type='button' class="btn btn-primary btn-sm" value='<?php echo xla('Sign'); ?>' id='esign-sign-button-form' />
         </div>
         
         <input type='hidden' id='formId' name='formId' value='<?php echo attr($this->form->formId); ?>' /> 

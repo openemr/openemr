@@ -10,30 +10,24 @@
 <html>
 <head>
 
-{headerTemplate assets='datetime-picker|jquery-ui|jquery-ui-lightness'}
+{headerTemplate assets='datetime-picker|select2'}
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
 {literal}
-<style type="text/css">
+<style>
+.select2-selection {
+height: 35px!important;
+border-radius: 4px 0 0 4px!important;
+}
 .warn_diagnostic {
     margin: 10 auto 10 auto;
     color: rgb(255, 0, 0);
-    font-size: 1.5em;
+    font-size: 1.5rem;
 }
-.ui-autocomplete {
-    position: absolute;
-    top: 0;
-    left: 0;
-    min-width:200px;
-    cursor: default;
-}
-.ui-menu-item{
-     min-width:200px;
-}
-.fixed-height{
-min-width:200px;
-padding: 1px;
-max-height: 35%;
-overflow: auto;
+.fixed-height {
+    min-width: 200px;
+    padding: 1px;
+    max-height: 35%;
+    overflow: auto;
 }
 </style>
 {/literal}
@@ -41,7 +35,14 @@ overflow: auto;
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js"></script>
 
 <script type="text/javascript">
-    // dropzone javascript asset translation(s)
+	function callTemplateModule() {literal}{{/literal}
+		top.restoreSession();
+		let tele  = document.getElementById("template_filename");
+		let tname = encodeURIComponent(tele.options[tele.selectedIndex].value);
+        let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?pid=' + {$patient_id|js_url} + '&catid=' + {$category_id|js_url} + '&is_module=true&new=' + tname;
+		location.assign(callUrl);
+	{literal}}{/literal}
+	// dropzone javascript asset translation(s)
     Dropzone.prototype.defaultOptions.dictDefaultMessage = {xlj t='Drop files here to upload'};
 </script>
 <title>{xlt t='Documents'}</title>
@@ -55,8 +56,8 @@ overflow: auto;
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-sm-12">
-			<div class="page-header">
-					<h2>{xlt t='Documents'}&nbsp;&nbsp;  <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()'  title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
+			<div class="title">
+					<h2>{xlt t='Documents'} <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()' title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
 			</div>
 		</div>
 	</div>
@@ -66,15 +67,16 @@ overflow: auto;
 				<fieldset>
 				<legend>{xlt t='Documents List'}</legend>
                 <div style="padding: 0 10px">
-                    <div class="ui-widget"style="float:right;">
-                        <button id='pid' class="pBtn" type="button" style="float:right;">0</button>
-                         <input id="selectPatient" type="text" placeholder="{$place_hld|attr}">
+                    <div class="ui-widget form-inline" class='float-right'>
+                         <select id="selectPatient" class="form-control" type="text" data-placeholder="{$place_hld|attr}" style="width:150px;" >
+                            <option></option></select>
+                        <button id='pid' class="btn btn-primary pBtn" type="button" class='float-right' style="border-radius: 0 0.25rem 0.25rem 0">0</button>
                     </div>
                     <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xlt t='Collapse all'})</a>
                     {$tree_html}
                 </div>
-			</div>
 			</fieldset>
+            </div>
 		</div>
 
 		<div class="col-sm-9">
@@ -85,10 +87,10 @@ overflow: auto;
 					<legend>{xlt t='Document Uploader/Viewer'}</legend>
                     <div style="padding: 0 10px">
 						{if $message}
-							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$message|text}</i></div><br>
+							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$message|text}</i></div><br />
 						{/if}
 						{if $messages}
-							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$messages|text}</i></div><br>
+							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$messages|text}</i></div><br />
 						{/if}
 						{$activity}
 					</div>
@@ -110,30 +112,52 @@ if(curpid == demoPid && !newVersion){
 else{
     $("#pid").text(curpid);
 }
-$(function() {
-    $( "#selectPatient" ).autocomplete({
-    	source: "{/literal}{$GLOBALS.webroot}/library/ajax/document_helpers.php?csrf_token_form=" + {$CSRF_TOKEN_FORM|js_url}{literal},
-    	focus: function(event, sel) {
-            event.preventDefault();
+$(function () {
+    $("#selectPatient").select2({
+        ajax: {
+            url: "{/literal}{$GLOBALS.webroot}/library/ajax/document_helpers.php{literal}",
+            dataType: 'json',
+            data: function(params) {
+                return {
+                  {/literal}
+                  csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
+                  {literal}
+                  term: params.term
+                };
+            },
+            processResults: function(data) {
+                return  {
+                    results: $.map(data, function(item, index) {
+                        return {
+                            text: item.label,
+                            id: index,
+                            value: item.value,
+                            label: item.label
+                        }
+                    })
+                };
+                return x;
+            },
+            cache: true
         },
-        select: function(event, sel) {
-            event.preventDefault();
-            if (sel.item.value == '00' && ! sel.item.label.match({/literal}{xlj t="Reset"}{literal})){
-            	alert(inUseMsg);
-            	return false;
-            }
-            $(this).val(sel.item.label);
-            location.href = "{/literal}{$GLOBALS.webroot}{literal}/controller.php?document&list&patient_id=" + encodeURIComponent(sel.item.value) + "&patient_name=" + encodeURIComponent(sel.item.label);
-            $("#pid").text(sel.item.value);
-        },
-        minLength: 3
-    }).autocomplete("widget").addClass("fixed-height");
- });
-$(".pBtn").click(function(event) {
+        minimumInputLength: 3
+    });
+
+    $('#selectPatient').on('select2:select', function (e) {
+        e.preventDefault();
+        if (e.params.data.value == '00' && ! e.params.data.label.match({/literal}{xlj t="Reset"}{literal})){
+            alert(inUseMsg);
+            return false;
+        }
+        $(this).val(e.params.data.label);
+        location.href  = "{/literal}{$GLOBALS.webroot}{literal}/controller.php?document&list&patient_id=" + encodeURIComponent(e.params.data.value) + "&patient_name=" + encodeURIComponent(e.params.data.label);
+        $("#pid").text(e.params.data.value);
+    });
+
+    $(".pBtn").click(function(event) {
     var $input = $("#selectPatient");
-        $input.val('*');
-        $input.autocomplete('search'," ");
-        $input.val('');
+    $input.val('');
+    });
 });
 $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
 
@@ -171,8 +195,8 @@ $(function () {
         }
         dlgopen(popsrc, 'popdoc', size, 600, '', '', {
             buttons: [
-                {text: btnText, close: true, style: 'primary btn-xs', click: poContentModal},
-                {text: btnClose, close: true, style: 'default btn-xs'}
+                {text: btnText, close: true, style: 'primary btn-sm', click: poContentModal},
+                {text: btnClose, close: true, style: 'default btn-sm'}
             ],
             sizeHeight: sizeHeight,
             allowResize: true,
@@ -184,7 +208,7 @@ $(function () {
     });
 });
 
-$(function(){{/literal}
+$(function () {{/literal}
     {datetimepickerSupport}
 {literal}});{/literal}
 

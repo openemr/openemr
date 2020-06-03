@@ -1,15 +1,12 @@
 <?php
 //First make sure user has access
 require_once("../../interface/globals.php");
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
+
 //ensure user has proper access
-if (!acl_check('admin', 'acl')) {
+if (!AclMain::aclCheckCore('admin', 'acl')) {
         echo xlt('ACL Administration Not Authorized');
-        exit;
-}
-//ensure php is installed
-if (!isset($phpgacl_location)) {
-        echo xlt('php-GACL access controls are turned off');
         exit;
 }
 
@@ -196,8 +193,8 @@ switch ($_POST['action']) {
 			}
 		}
 
-		//echo "Section ID: $section_id<br>\n";
-		//echo "Section Value: ". $acl_section_value ."<br>\n";
+		//echo "Section ID: $section_id<br />\n";
+		//echo "Section Value: ". $acl_section_value ."<br />\n";
 
 		$smarty->assign('options_acl_sections', $options_acl_sections);
 		$smarty->assign('acl_section_value', $acl_section_value);

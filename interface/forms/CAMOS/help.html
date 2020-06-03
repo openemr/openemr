@@ -108,7 +108,7 @@ After leaving the CAMOS form, Your entries will show with a link titled 'rx'.  C
 For the advanced user
 </p>
 <p>
-<b>Accessing CAMOS from outside of an encounter.</b><br>
+<b>Accessing CAMOS from outside of an encounter.</b><br />
 </p>
 <p>
 The CAMOS form has uses that are not related to a patient encounter.  For example, you may maintain a list of referral sources to submit in a patient's chart if you wish to refer the patient, but you may want to look at referral data in CAMOS without going into the chart.  This would be like CAMOS doubling as a phone book.  Another use is to build up content data for future use without having to go into a patient's chart.  To access CAMOS externally, setup a bookmark or link with the following url:
@@ -118,7 +118,7 @@ http://webroot/interface/forms/CAMOS/new.php?mode=external
 This will hide buttons which should not be used if you are not in an encounter.
 </p>
 <p>
-<b>Comments</b><br>
+<b>Comments</b><br />
 </p>
 <p>
 CAMOS supports C style comments.  Here is how they work.  A comment opens with /* and closes with */.  You cannot nest comments.  You cannot overlap comments.  Anything in a comment will be seen within CAMOS in the item window, but it will not show when you enter it into the patient's chart.  This is useful for making notes on items that are not appropriate to go in the chart.  You may want, for example, to document which insurance a particular facility accepts.
@@ -135,19 +135,19 @@ CAMOS supports C style comments.  Here is how they work.  A comment opens with /
 </div>
 </div>
 <p>
-<b>Special Double Clicking</b><br>
+<b>Special Double Clicking</b><br />
 </p>
 <p>
 Double clicking between the comment delimiters /* and */ in the content box will select the delimiters and text between them.  Double clicking again, will remove surrounding text other than what was selected (crop to selection).  Double clicking a third time will return removed text to the content box.  This is useful for managing data formatted as embedded functions as described below and with the submit selected content button.
 </p>
 <p>
-<b>Embedded functions</b><br>
+<b>Embedded functions</b><br />
 </p>
 <p>
 Embedded functions are contained within comments.  The first word is the function name.  A '::' follows, and then a list of function arguments, each seperated by '::'.
 </p>
 <p>
-The <b>billing</b> function<br><br>
+The <b>billing</b> function<br /><br />
 If you want to enter an entry into the billing table to have, for example, a CPT4 or ICD9 code come up after entering a CAMOS form into a patient's chart, do this:
 </p>
 <b>billing function signature</b>

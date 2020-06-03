@@ -1,7 +1,5 @@
 <?php
 
-
-
 /* +-----------------------------------------------------------------------------+
 * Copyright 2016 matrix israel
 * LICENSE: This program is free software; you can redistribute it and/or
@@ -22,13 +20,13 @@
 namespace Patientvalidation;
 
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
 use Patientvalidation\Controller\PatientvalidationController;
 use Patientvalidation\Model\PatientDataTable;
 use Patientvalidation\Model\PatientData;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\TableGateway;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\TableGateway;
 
 return array(
 
@@ -74,7 +72,7 @@ return array(
     'service_manager' => [
         'factories' => array(
             PatientDataTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Zend\Db\Adapter\Adapter::class);
+                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $resultSetPrototype = new ResultSet();
                 $resultSetPrototype->setArrayObjectPrototype(new PatientData());
                 $tableGateway = new TableGateway('patient_data', $dbAdapter, null, $resultSetPrototype);

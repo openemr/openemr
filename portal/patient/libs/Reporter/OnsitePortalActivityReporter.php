@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsitePortalActivityReporter.php
  *

@@ -1,10 +1,12 @@
 <?php
+
 /**
  * This file is part of OpenEMR.
  *
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace PatientFilterEventHookTest;
 
 use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
@@ -13,8 +15,8 @@ use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Zend\ModuleManager\ModuleManager;
-use Zend\Mvc\MvcEvent;
+use Laminas\ModuleManager\ModuleManager;
+use Laminas\Mvc\MvcEvent;
 
 /**
  * Module for creating a blacklist on the patient finder, which can restrict certain
@@ -29,10 +31,10 @@ class Module
     public function getAutoloaderConfig()
     {
         return array(
-            'Zend\Loader\ClassMapAutoloader' => array(
+            'Laminas\Loader\ClassMapAutoloader' => array(
                 __DIR__ . '/autoload_classmap.php',
             ),
-            'Zend\Loader\StandardAutoloader' => array(
+            'Laminas\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
 
@@ -86,7 +88,7 @@ class Module
      */
     public function getBlacklist($username)
     {
-        $blacklist = include __DIR__."/config/blacklist.php";
+        $blacklist = include __DIR__ . "/config/blacklist.php";
         $pids = [];
         foreach ($blacklist as $item) {
             if ($username == $item['username']) {

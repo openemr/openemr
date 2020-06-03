@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -28,12 +29,14 @@
 
 
 require_once("../../interface/globals.php");
+
+use OpenEMR\Core\Header;
+
 $list_id = $_REQUEST['list_id'];
 ?>
 <html>
     <head>
-        <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+        <?php Header::setupHeader(); ?>
         <script type="text/javascript">
         function add_template(){
                 top.restoreSession();
@@ -85,22 +88,22 @@ $list_id = $_REQUEST['list_id'];
                                     "AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) ORDER BY lname, fname";
                             $res = sqlStatement($query);
                             $sel_query = "SELECT tu_user_id FROM template_users WHERE tu_template_id=?";
-                            $row_sel =sqlQuery($sel_query, array($list_id));
+                            $row_sel = sqlQuery($sel_query, array($list_id));
                             while ($row = sqlFetchArray($res)) {
                                 foreach ($row_sel as $key => $value) {
-                                    if ($value==$row['id']) {
-                                        $sel="selected";
+                                    if ($value == $row['id']) {
+                                        $sel = "selected";
                                     } else {
-                                        $sel='';
+                                        $sel = '';
                                     }
                                 }
-                                echo "<option value='".htmlspecialchars($row['id'], ENT_QUOTES)."' $sel>".htmlspecialchars($row['lname'].",".$row['fname'], ENT_QUOTES)."</option>";
+                                echo "<option value='" . htmlspecialchars($row['id'], ENT_QUOTES) . "' $sel>" . htmlspecialchars($row['lname'] . "," . $row['fname'], ENT_QUOTES) . "</option>";
                             }
                             ?>
                         </select>
                     </td>
                     <td>
-                    <a href="#" onclick="add_template()" class="css_button"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?></span></a>
+                    <a href="#" onclick="add_template()" class="btn btn-primary"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?></span></a>
                     </td>
                 </tr>
             </table>

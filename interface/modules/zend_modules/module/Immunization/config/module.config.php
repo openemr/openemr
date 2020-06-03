@@ -1,13 +1,14 @@
 <?php
+
 namespace Immunization;
 
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
 use Immunization\Controller\ImmunizationController;
 use Interop\Container\ContainerInterface;
 use Immunization\Model\ImmunizationTable;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\TableGateway;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\TableGateway;
 use Immunization\Model\Immunization;
 
 return array(
@@ -41,7 +42,7 @@ return array(
     'service_manager' => [
         'factories' => array(
             \Immunization\Model\ImmunizationTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get('Zend\Db\Adapter\Adapter');
+                $dbAdapter = $container->get('Laminas\Db\Adapter\Adapter');
                 $resultSetPrototype = new ResultSet();
                 $resultSetPrototype->setArrayObjectPrototype(new Immunization());
                 $tableGateway = new TableGateway('module_menu', $dbAdapter, null, $resultSetPrototype);

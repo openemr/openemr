@@ -1,11 +1,12 @@
 <?php
+
 namespace Installer\Model;
 
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\ResultSet\ResultSetInterface;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\TableIdentifier;
+use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Db\Adapter\AdapterInterface;
+use Laminas\Db\ResultSet\ResultSetInterface;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\Sql\TableIdentifier;
 
 class InstModuleTableGateway extends TableGateway
 {

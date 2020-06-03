@@ -1,11 +1,12 @@
 <?php
+
 namespace Syndromicsurveillance;
 
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\TableGateway;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\TableGateway;
 use Syndromicsurveillance\Controller\SyndromicsurveillanceController;
 use Syndromicsurveillance\Model\Syndromicsurveillance;
 use Syndromicsurveillance\Model\SyndromicsurveillanceTable;
@@ -54,7 +55,7 @@ return array(
     'service_manager' => [
         'factories' => array(
             SyndromicsurveillanceTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Zend\Db\Adapter\Adapter::class);
+                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $resultSetPrototype = new ResultSet();
                 $resultSetPrototype->setArrayObjectPrototype(new Syndromicsurveillance());
                 $tableGateway = new TableGateway('module_menu', $dbAdapter, null, $resultSetPrototype);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Print Amendments
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -34,28 +34,28 @@ function printAmendment($amendmentID, $lastAmendment)
     echo "<table>";
     echo "<tr class=text>";
     echo "<td class=bold>" . xlt("Requested Date") . ":"  . "</td>";
-    echo "<td>". text(oeFormatShortDate($resultSet['amendment_date'])) . "</td>";
+    echo "<td>" . text(oeFormatShortDate($resultSet['amendment_date'])) . "</td>";
     echo "</tr>";
 
     echo "<tr class=text>";
     echo "<td class=bold>" . xlt("Requested By") . ":"  . "</td>";
-    echo "<td>". generate_display_field(array('data_type'=>'1','list_id'=>'amendment_from'), $resultSet['amendment_by']) . "</td>";
+    echo "<td>" . generate_display_field(array('data_type' => '1','list_id' => 'amendment_from'), $resultSet['amendment_by']) . "</td>";
     echo "</tr>";
 
     echo "<tr class=text>";
     echo "<td class=bold>" . xlt("Request Status") . ":"  . "</td>";
-    echo "<td>". generate_display_field(array('data_type'=>'1','list_id'=>'amendment_status'), $resultSet['amendment_status']) . "</td>";
+    echo "<td>" . generate_display_field(array('data_type' => '1','list_id' => 'amendment_status'), $resultSet['amendment_status']) . "</td>";
     echo "</tr>";
 
     echo "<tr class=text>";
     echo "<td class=bold>" . xlt("Request Description") . ":"  . "</td>";
-    echo "<td>". text($resultSet['amendment_desc']) . "</td>";
+    echo "<td>" . text($resultSet['amendment_desc']) . "</td>";
     echo "</tr>";
 
     echo "</table>";
 
     echo "<hr>";
-    echo "<span class='bold'>" . xlt("History") . "</span><br>";
+    echo "<span class='bold'>" . xlt("History") . "</span><br />";
     $pageBreak = ( $lastAmendment ) ? "" : "page-break-after:always";
     echo "<table border='1' cellspacing=0 cellpadding=3 style='width:75%;margin-top:10px;margin-bottom:20px;" . $pageBreak . "'>";
     echo "<tr class='text bold'>";
@@ -81,7 +81,7 @@ function printAmendment($amendmentID, $lastAmendment)
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome']); ?>
+    <?php Header::setupHeader(); ?>
 </head>
 
 <body class="body_top">

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  $Id$
  *
@@ -24,6 +25,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
+
 $modversion['name']             = 'PostCalendar';
 $modversion['id']               = '44';
 $modversion['version']          = '4.0.0';

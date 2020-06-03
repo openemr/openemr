@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This reports checkins and checkouts for a specified patient's chart.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -34,7 +34,7 @@ $form_patient_id = trim($_POST['form_patient_id']);
 
     <?php Header::setupHeader(); ?>
 
-    <style type="text/css">
+    <style>
     /* specifically include & exclude from printing */
     @media print {
         #report_parameters {
@@ -59,8 +59,8 @@ $form_patient_id = trim($_POST['form_patient_id']);
     }
     </style>
 
-    <script language="JavaScript">
-        $(function() {
+    <script>
+        $(function () {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
         });
@@ -84,7 +84,7 @@ if (!empty($form_patient_id)) {
     } else {
         $curr_pid = $ptrow['pid'];
     }
-} else if (!empty($curr_pid)) {
+} elseif (!empty($curr_pid)) {
     $query = "SELECT pid, pubpid, fname, mname, lname FROM patient_data WHERE " .
     "pid = ?";
     $ptrow = sqlQuery($query, array($curr_pid));
@@ -115,7 +115,7 @@ if (!empty($ptrow)) {
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Patient ID'); ?>:
             </td>
             <td>
@@ -128,17 +128,17 @@ if (!empty($ptrow)) {
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
                         <?php if ($_POST['form_refresh'] || !empty($ptrow)) { ?>
-              <a href='#' class='btn btn-default btn-print' id='printbutton'>
+              <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
                         <?php } ?>
@@ -157,8 +157,8 @@ if (!empty($ptrow)) {
 if ($_POST['form_refresh'] || !empty($ptrow)) {
     ?>
 <div id="report_results">
-<table>
-<thead>
+<table class='table'>
+<thead class='thead-light'>
 <th> <?php echo xlt('Time'); ?> </th>
 <th> <?php echo xlt('Destination'); ?> </th>
 </thead>
@@ -176,8 +176,8 @@ if ($_POST['form_refresh'] || !empty($ptrow)) {
   <td>
             <?php
             if (!empty($row['ct_location'])) {
-                echo generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $row['ct_location']);
-            } else if (!empty($row['ct_userid'])) {
+                echo generate_display_field(array('data_type' => '1','list_id' => 'chartloc'), $row['ct_location']);
+            } elseif (!empty($row['ct_userid'])) {
                 echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']);
             }
             ?>

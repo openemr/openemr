@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -36,7 +37,7 @@ if ($action == "updateRecordsListings") {
     $listingCounter = 1;
     foreach ($updateRecordsArray as $recordIDValue) {
         $query = "UPDATE template_users SET tu_template_order = ? WHERE tu_template_id = ? AND tu_user_id=?";
-        sqlStatement($query, array($listingCounter,$recordIDValue,$_SESSION['authId']));
+        sqlStatement($query, array($listingCounter,$recordIDValue,$_SESSION['authUserID']));
         $listingCounter = $listingCounter + 1;
     }
 }

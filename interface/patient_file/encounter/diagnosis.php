@@ -1,4 +1,5 @@
 <?php
+
 /**
  * diagnosis.php
  *
@@ -9,12 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $mode              = $_REQUEST['mode'];
 $type              = $_REQUEST['type'];
@@ -119,7 +120,7 @@ if (isset($mode)) {
                     $justify_string .= $diag . ":";
                 }
 
-                $sql[] = "UPDATE billing set justify = concat(justify,'" . add_escape_custom($justify_string)  ."') where encounter = '" . add_escape_custom($_POST['encounter_id']) . "' and pid = '" . add_escape_custom($_POST['patient_id']) . "' and code = '" . add_escape_custom($proc) . "'";
+                $sql[] = "UPDATE billing set justify = concat(justify,'" . add_escape_custom($justify_string)  . "') where encounter = '" . add_escape_custom($_POST['encounter_id']) . "' and pid = '" . add_escape_custom($_POST['patient_id']) . "' and code = '" . add_escape_custom($proc) . "'";
             }
         }
 
@@ -150,9 +151,9 @@ if (isset($mode)) {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 
-<script language="JavaScript">
+<script>
 
 function validate(f) {
  for (var lino = 1; f['ndc['+lino+'][code]']; ++lino) {
@@ -204,18 +205,18 @@ function validate(f) {
 <body class="body_bottom">
 
 <?php
- $thisauth = acl_check('encounters', 'coding_a');
+ $thisauth = AclMain::aclCheckCore('encounters', 'coding_a');
 if (!$thisauth) {
     $erow = sqlQuery("SELECT user FROM forms WHERE " .
     "encounter = ? AND formdir = 'newpatient' LIMIT 1", array($encounter));
     if ($erow['user'] == $_SESSION['authUser']) {
-        $thisauth = acl_check('encounters', 'coding');
+        $thisauth = AclMain::aclCheckCore('encounters', 'coding');
     }
 }
 
 if ($thisauth) {
     $tmp = getPatientData($pid, "squad");
-    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+    if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
         $thisauth = 0;
     }
 }
@@ -229,20 +230,20 @@ if (!$thisauth) {
 
 <form name="diagnosis" method="post" action="diagnosis.php?mode=justify&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
  onsubmit="return validate(this)">
-<table border=0 cellspacing=0 cellpadding=0 height=100%>
+<table class="table-borderless h-100" cellspacing='0' cellpadding='0'>
 <tr>
 
-<td valign=top>
+<td class="align-top">
 
 <dl>
 <dt>
 <a href="diagnosis_full.php" target="<?php echo attr($target); ?>" onclick="top.restoreSession()">
-<span class=title><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Billing') : xlt('Coding'); ?></span>
-<font class=more><?php echo text($tmore); ?></font></a>
+<span class='title'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Billing') : xlt('Coding'); ?></span>
+<span class='more'><?php echo text($tmore); ?></span></a>
 
 <?php
 if (!empty($_GET["back"]) || !empty($_POST["back"])) {
-    print "&nbsp;<a href=\"superbill_codes.php\" target=\"" . attr($target) . "\" onclick=\"top.restoreSession()\"><font class=more>" . text($tback) . "</font></a>";
+    print "&nbsp;<a href=\"superbill_codes.php\" target=\"" . attr($target) . "\" onclick=\"top.restoreSession()\"><span class='more'>" . text($tback) . "</span></a>";
     print "<input type=\"hidden\" name=\"back\" value=\"1\">";
 }
 ?>
@@ -256,7 +257,7 @@ if (!empty($_GET["back"]) || !empty($_POST["back"])) {
 <a href="cash_receipt.php?csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
 [<?php echo xlt('Receipt'); ?>]
 </a>
-<table border="0">
+<table class="table-borderless">
 <?php
 if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     $billing_html = array();
@@ -265,12 +266,12 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     foreach ($result as $iter) {
         if ($iter["code_type"] == "ICD9") {
                 $html = "<tr>";
-                $html .= "<td valign=\"middle\">" .
-                    '<input  style="width: 11px;height: 11px;" name="code[diag][' .
+                $html .= "<td class='align-middle'>" .
+                    '<input  style="width: 11px; height: 11px;" name="code[diag][' .
                     attr($iter["code"]) . ']" type="checkbox" value="' . attr($iter["code"]) . '">' .
                     "</td><td><div><a target='" . attr($target) . "' class='small' " .
             "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                    text($iter{"code"}) . "</b> " . text($iter{"code_text"}) .
+                    text($iter["code"]) . "</b> " . text($iter["code_text"]) .
                     "</a></div></td></tr>\n";
                 $billing_html[$iter["code_type"]] .= $html;
                 $counter++;
@@ -284,12 +285,12 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                 text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . "</a></td></tr>\n";
         } else {
             $billing_html[$iter["code_type"]] .=
-                "<tr><td>" . '<input  style="width: 11px;height: 11px;" name="code[proc][' .
+                "<tr><td>" . '<input  style="width: 11px; height: 11px;" name="code[proc][' .
                 attr($iter["code"]) . ']" type="checkbox" value="' . attr($iter["code"]) . '">' .
                 "</td><td><a target='$target' class='small' " .
             "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter{"code"}) . ' ' . text($iter['modifier']) . "</b> " .
-                text(ucwords(strtolower($iter{"code_text"}))) . ' ' . text(oeFormatMoney($iter['fee'])) .
+                text($iter["code"]) . ' ' . text($iter['modifier']) . "</b> " .
+                text(ucwords(strtolower($iter["code_text"]))) . ' ' . text(oeFormatMoney($iter['fee'])) .
                 "</a><span class=\"small\">";
             $total += $iter['fee'];
             $js = explode(":", $iter['justify']);
@@ -324,11 +325,11 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                       "<tr><td>&nbsp;</td><td class='small'>NDC:&nbsp;\n" .
                       "<input type='hidden' name='ndc[" . attr($ndclino) . "][code]' value='" . attr($iter["code"]) . "'>" .
                       "<input type='text' name='ndc[" . attr($ndclino) . "][ndcnum]' value='" . attr($ndcnum) . "' " .
-                      "size='11' style='background-color:transparent'>" .
+                      "size='11' class='bg-transparent'>" .
                       " &nbsp;Qty:&nbsp;" .
                       "<input type='text' name='ndc[" . attr($ndclino) . "][ndcqty]' value='" . attr($ndcqty) . "' " .
-                      "size='3' style='background-color:transparent;text-align:right'> " .
-                      "<select name='ndc[" . attr($ndclino) . "][ndcuom]' style='background-color:transparent'>";
+                      "size='3' class='bg-transparent text-right'> " .
+                      "<select name='ndc[" . attr($ndclino) . "][ndcuom]' class='bg-transparent'>";
                 foreach ($ndc_uom_choices as $key => $value) {
                     $billing_html[$iter["code_type"]] .= "<option value='" . attr($key) . "'";
                     if ($key == $ndcuom) {
@@ -352,8 +353,8 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
 </tr></table>
 </td>
 </tr>
-<input type="hidden" name="encounter_id" value="<?php echo attr($encounter); ?>">
-<input type="hidden" name="patient_id" value="<?php echo attr($pid); ?>">
+<input type="hidden" name="encounter_id" value="<?php echo attr($encounter); ?>" />
+<input type="hidden" name="patient_id" value="<?php echo attr($pid); ?>" />
 </form>
 </table>
 

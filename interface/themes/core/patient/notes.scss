@@ -4,30 +4,34 @@
  *============================================================*/
 
 #pnotes .billing {
-    background-color: #dfd;
-}
-#pnotes .highlight {
-    background-color: #fff;
-}
-#pnotes table {
-    border-collapse: collapse;
-}
-#pnotes .noterow td {
-    border-bottom: 1px dashed black;
-    vertical-align: top;
-    padding: 5px;
-    margin: 5px;
-}
-#pnotes_ps_expand div.tab table td {
-    padding-right: 10px;
+  background-color: lighten($success, 70%);
 }
 
-#pnotes #pnotes_title{
-    float:$left;
-    margin-right: 5px
+#pnotes .highlight {
+  background-color: $white;
+}
+
+#pnotes table {
+  border-collapse: collapse;
+}
+
+#pnotes .noterow td {
+  border-bottom: 1px dashed $black;
+  margin: 5px;
+  padding: 5px;
+  vertical-align: top;
+}
+
+#pnotes_ps_expand div.tab table td {
+  padding-right: 10px;
+}
+
+#pnotes #pnotes_title {
+  float: $left;
+  margin-right: 5px;
 }
 
 #pnotes #namecontainer_pnotes {
-    float:$left;
-    margin-right:10px
+  float: $left;
+  margin-right: 10px;
 }

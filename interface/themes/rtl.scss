@@ -1,341 +1,310 @@
-
-
 //    RTL adjustments for style*.css files
+//    Author: Amiel Elboim, Matrix
 
-//    Author     : Amiel Elboim, Matrix
-
-
-/* General RTL calsses */
+// Warning: Do not put Bootstrap variables in here as the file will break
+/* General RTL classes */
 @mixin rtl_style {
+  body {
+    direction: rtl;
+  }
 
-    body{
-        direction: rtl;
-    }
+  tr,
+  td,
+  th {
+    text-align: right !important;
+  }
 
-    tr, td, th{
-        text-align: right !important;
+  #navigation-slide,
+  #navigation-slide * {
+    margin-right: 0;
+    padding-right: 0;
+  }
 
-    }
+  #navigation-slide a {
+    padding: 5px 2px 5px 10px;
+  }
 
-    /*Bootstrap 3 classes modified for rtl*/
-    .text-center {
-        text-align: center !important;
-    }
+  /* Calander */
+  #bottomLeft {
+    float: right !important;
+  }
 
-    .css_button span {
-        padding: 5px 0 5px 10px;
-    }
+  /*miscellaneous*/
+  .misc-internet-search {
+    float: right !important;
+  }
 
-    #navigation-slide, #navigation-slide *{
-        padding-right:0px;
-        margin-right:0px;
-    }
+  /* record_disclosure.php */
+  #record-disclosure,
+  #record-disclosure > div {
+    float: none !important;
 
-    #navigation-slide a{
+  }
 
-        padding: 5px 2px 5px 10px;
-    }
-
-    /* Calander */
-    #bottomLeft{
-
-        float: right !important;
-    }
-    #bigCal{
-        border-right: 1px solid black !important;
-    }
-
-
-    /*miscellaneous*/
-    .misc-internet-search{
-        float: right !important;
-    }
-
-    /* record_disclosure.php */
-    #record-disclosure, #record-disclosure>div {
-
-        float:none !important;
-
+  /* /patient_file/encounter/forms.php  */
+  #encounter_forms {
+    .encounter-summary-column {
+      float: right !important;
     }
 
-    /* /patient_file/encounter/forms.php  */
-    #encounter_forms .encounter-summary-column{
-        float: right !important;
+    .form_header_controls,
+    .form_header {
+      float: none !important;
     }
-    #encounter_forms .form_header_controls, #encounter_forms .form_header{
-        float: none !important;
-    }
+  }
 
+  /* /interface/patient_file/summary/demographics.php */
+  .demographics-box {
+    position: relative;
 
-    /* /interface/main/main_title.php */
-    table#main-title tr td:nth-child(1){
-        text-align: left !important;
-    }
-    table#main-title tr td:nth-child(2){
-        text-align: center !important;
-    }
-    table#main-title tr td:nth-child(2) div, table#main-title tr td:nth-child(3) div{
-        float: none !important;
-    }
-    table#main-title tr td:nth-child(3){
-        text-align: center !important;
-    }
-    table#main-title tr td:nth-child(4){
-        text-align: right !important;
-    }
-    table#main-title tr td:nth-child(4) table{
-        float: left;
-    }
+    > div {
+      float: none !important;
+      position: absolute;
 
-    /* /interface/patient_file/summary/demographics.php */
-    .demographics-box{
-        position: relative
-    }
-    .demographics-box>div{
-        float: none !important;
-        position: absolute;
-    }
-    .demographics-box>div:first-child{
+      &:first-child {
         width: 55% !important;
-    }
-    .demographics-box>div:last-child{
-        margin-right: 75%
-    }
+      }
 
-
-    #tdallday3>span{
-        direction: ltr;
-        display: inline-block;
+      &:last-child {
+        margin-right: 75%;
+      }
     }
-    #tdallday3>span>input{
-        text-align: right;
-    }
+  }
 
-    /* /interface/clickmap/template/general_new.html */
-    .graphic-pain-map{
-        float: none !important;
-        width: 600px;
-    }
-    .graphic-pain-map img{
-        width: 100%;
-    }
-    body>.nav{
-        margin-right: 40px;
-    }
+  #tdallday3 > span {
+    direction: ltr;
+    display: inline-block;
 
-
-    /* ajax_template.html */
-
-    #dateNAV img{
-        display: none;
+    > input {
+      text-align: right;
     }
-    #dateNav>a:nth-child(2), #dateNav>a:nth-child(3){
-        display: inline-block;
-        width: 16px;
-        height: 15.5px;
-    }
-    #dateNav>a:nth-child(2){
+  }
 
-        background-image: url(../../public/images/rightbtn.gif);
-        margin-right: 10px;
-    }
-    #dateNav>a:nth-child(3){
+  /* /interface/clickmap/template/general_new.html */
+  .graphic-pain-map {
+    float: none !important;
+    width: 600px;
+  }
 
-        background-image: url(../../public/images/leftbtn.gif);
+  .graphic-pain-map img {
+    width: 100%;
+  }
 
+  /* ajax_template.html */
+
+  #dateNAV {
+    img {
+      display: none;
     }
 
-    /* /main/messages/messages.php */
-    td.amount-msg{
-
-        text-align: left !important;
-        direction: ltr;
+    > a:nth-child(2),
+    > a:nth-child(3) {
+      display: inline-block;
+      height: 15.5px;
+      width: 16px;
     }
 
-    /*  /interface/billing/edih_view.php  */
-    #tabs ul.ui-tabs-nav li.ui-state-default{
-        float: right;
+    > a:nth-child(2) {
+      background-image: url('../../public/images/rightbtn.gif');
+      margin-right: 10px;
     }
 
-
-    /* /interface/code_systems/dataloads_ajax.php */
-
-    #accordion .left_wrpr, #accordion .wrpr{
-        float: right !important;
+    > a:nth-child(3) {
+      background-image: url('../../public/images/leftbtn.gif');
     }
-    .ui-dialog .ui-dialog-title{
+  }
 
-        float: none !important;
+  /* /main/messages/messages.php */
+  td.amount-msg {
+    direction: ltr;
+    text-align: left !important;
+  }
+
+  /*  /interface/billing/edih_view.php  */
+  #tabs ul.ui-tabs-nav li.ui-state-default {
+    float: right;
+  }
+
+  /* /interface/code_systems/dataloads_ajax.php */
+
+  #accordion .left_wrpr,
+  #accordion .wrpr {
+    float: right !important;
+  }
+
+  .ui-dialog .ui-dialog-title,
+  .cancel-float {
+    float: none !important;
+  }
+
+  /* /templates/documents/general_view.html */
+  #documents_actions form[name^=document] > div > div,
+  #documents_actions form[name=notes] > div > div {
+    display: inline-block;
+    float: none !important;
+  }
+
+  #documents_list img[src*=branch],
+  #documents_list img[src*=line],
+  #documents_list img[src*=plus],
+  #documents_list img[src*=minus] {
+    transform: rotate(180deg);
+  }
+
+  #documents_list img[src*=branchbottom] {
+    transform: translate(2px, 0) rotate(-90deg);
+  }
+
+  .tabs-container ul.tabs {
+    width: 100%;
+
+    li {
+      float: none !important;
+    }
+  }
+
+  .container_body .viewport .overview {
+    left: initial !important;
+  }
+
+  .top-menu-carecoordination li,
+  .setup-carecoordination .top-menu-carecoordination li,
+  .setup-carecoordination .ca-ca-in-1,
+  .setup-carecoordination ul.virtualpage_system_based_forms {
+    float: right !important;
+  }
+
+  .setup-carecoordination {
+    .ca-ca-in-2 {
+      float: right !important;
+      padding-right: 2% !important;
     }
 
-    .cancel-float{
-        float: none !important;
-    }
-
-    /* /templates/documents/general_view.html */
-    #documents_actions form[name^=document]>div>div, #documents_actions form[name=notes]>div>div{
-
-        float: none !important;
-        display: inline-block;
-    }
-
-
-    #documents_list img[src*=branch], #documents_list img[src*=line], #documents_list img[src*=plus], #documents_list img[src*=minus]{
-        -webkit-transform: rotate(180deg);
-        -moz-transform: rotate(180deg);
-        -o-transform: rotate(180deg);
-        -ms-transform: rotate(180deg);
-        transform: rotate(180deg);
-    }
-    #documents_list img[src*=branchbottom]{
-        -webkit-transform:  translate(2px ,0) rotate(-90deg);
-        -moz-transform:  translate(2px ,0) rotate(-90deg);
-        -o-transform:  translate(2px ,0) rotate(-90deg);
-        -ms-transform:  translate(2px ,0) rotate(-90deg);
-        transform: translate(2px ,0) rotate(-90deg);
-    }
-
-
-    .tabs-container ul.tabs{
-        width: 100%;
-    }
-
-    .tabs-container ul.tabs li{
-
-        float: none !important;
-    }
-    .container_body .viewport .overview{
-        left: initial !important;
-    }
-
-    .top-menu-carecoordination li{
-        float: right !important;
-    }
-
-
-    .setup-carecoordination .top-menu-carecoordination li{
-        float: right !important;
-    }
-    .setup-carecoordination .ca-ca-in-1{
-        float: right !important;
-    }
-    .setup-carecoordination ul.virtualpage_system_based_forms{
-
-        float: right !important;
-    }
-    .setup-carecoordination .ca-ca-in-2{
-
-        float: right;
-        padding-right: 2% !important;
-        float: right !important;
-    }
-    .setup-carecoordination #paginatediv_database_tables a[rel=next]{
+    #paginatediv_database_tables {
+      a[rel=next] {
         float: left !important;
         transform: rotate(180deg);
-    }
-    .setup-carecoordination #paginatediv_database_tables a[rel=previous]{
+      }
+
+      a[rel=previous] {
         float: right !important;
         transform: rotate(180deg);
+      }
+    }
+  }
+
+  /* online - portal */
+
+  /* patients/summary_pat_portal.php */
+  div#portal-buttons-bottom {
+    padding: 5px 15px;
+  }
+
+  #DEM .label_custom,
+  #report_parameters table table td.label_custom {
+    text-align: left !important;
+  }
+
+  /* flow board */
+  form#pattrk {
+    h2 > span {
+      float: right !important;
     }
 
-    /* online - portal */
+    #inanewwindow > span {
+      float: left !important;
+    }
+  }
 
-    /* patients/summary_pat_portal.php */
-    div#portal-buttons-bottom{
-        padding: 5px 15px;
+  /* cdr Groups */
+  .cdr-rules-class .ui-multiselect .ui-state-default {
+    padding: 0 20px;
+  }
+
+  .rule_detail {
+    &.edit.summry .left_col {
+      float: none;
+      margin: 5px;
     }
 
-    #DEM .label_custom, #report_parameters table table td.label_custom {
-        text-align: left !important;
+    .left_col,
+    .mid_col,
+    .end_col {
+      display: inline-block;
+      float: none;
+    }
+  }
+
+  #namecontainer_preminders,
+  #namecontainer_creminders {
+    float: right !important;
+  }
+
+  .xdsoft_datepicker .xdsoft_mounthpicker {
+    button,
+    > div {
+      float: right;
     }
 
-    /* flow board */
-    form#pattrk h2>span{
-        float: right !important;
+    button.xdsoft_prev,
+    button.xdsoft_next {
+      transform: rotate(180deg);
     }
-    form#pattrk #inanewwindow>span{
-        float: left !important;
-    }
+  }
 
-    /* cdr Groups */
-    .cdr-rules-class .ui-multiselect .ui-state-default {
-        padding: 0 20px;
-    }
+  div.formname {
+    float: right !important;
+    padding-left: 10px !important;
+  }
 
-    .rule_detail.edit.summry .left_col {
-        float: none;
-        margin: 5px;
-    }
+  .select2-search,
+  .select2-results {
+    direction: rtl !important;
+  }
 
-    .rule_detail .left_col,
-    .rule_detail .mid_col,
-    .rule_detail .end_col {
-        float: none;
-        display: inline-block;
-    }
+  [name="userlist"] .checkbox input[type=checkbox] {
+    margin-left: 0 !important;
+  }
 
-    #namecontainer_preminders {
-        float: right !important;
-    }
-
-    #namecontainer_creminders {
-        float: right !important;
-    }
-
-    .xdsoft_datepicker .xdsoft_mounthpicker button, .xdsoft_datepicker .xdsoft_mounthpicker > div{
-        float: right;
-    }
-
-    .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_prev, .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_next{
-        -webkit-transform: rotate(180deg);     /* Chrome and other webkit browsers */
-        -moz-transform: rotate(180deg);        /* FF */
-        -o-transform: rotate(180deg);          /* Opera */
-        -ms-transform: rotate(180deg);         /* IE9 */
-        transform: rotate(180deg);             /* W3C compliant browsers */
-
-        /* IE8 and below */
-        filter: progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=0, M21=0, M22=-1, DX=0, DY=0, SizingMethod='auto expand');
-    }
-
-
-
-    div.formname{
-        float: right !important;
-        padding-left: 10px !important;
-    }
-
-    .select2-search, .select2-results{
-        direction: rtl !important;
-    }
-
-    [name="userlist"] .checkbox input[type=checkbox] {
-        margin-left: 0px !important;
-    }
-
-    #create_patient_btn {
-        float: left;
-    }
+  #create_patient_btn {
+    float: left;
+  }
 }
+
+
+@mixin portal_style {
+  // None needed at the moment
+}
+
 /*expandable search rtl in main.php*/
-.oe-expandable-search button.btn-search1 {
-    right: 0;
-    padding: 4px 6px 4px 0 !important;
+
+.oe-expandable-search {
+  button {
+    &.btn-search1 {
+      padding: 4px 6px 4px 0 !important;
+      right: 0;
+    }
+
+    &.btn-globals-legacy {
+      right: 110px;
+    }
+
+    &.btn-globals-modern {
+      right: 0;
+    }
+  }
+
+  input:focus ~ button.btn-search1 {
+    outline: 0;
+    right: 245px;
+  }
 }
 
-.oe-expandable-search input:focus~button.btn-search1 {
-    right: 245px;
-    outline: 0;
-}
-.oe-expandable-search button.btn-globals-legacy {
-    right: 110px;
-}
-.oe-expandable-search button.btn-globals-modern {
-    right: 0;
-}
 /*expandable search rtl in main.php*/
 /*vertical main menu */
 
 .appMenu_small .menuSection > .menuEntries {
-    right:40px ! important; 
+  right: 40px !important;
 }
+
 /*vertical main menu */

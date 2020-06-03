@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Therapy group data template.
  *
@@ -14,12 +15,13 @@
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 
 <script type="text/html" id="therapy-group-template">
     <div>
         <span class="patientDataColumn">
-            <span style="float:left;"><a data-bind="click: viewTgFinder" href="#" class="btn btn-default btn-sm">
+            <span class="float-left"><a data-bind="click: viewTgFinder" href="#" class="btn btn-secondary btn-sm">
                 <i class="fa fa-search" aria-hidden="true"></i>
             </a></span>
             <div class="patientInfo">
@@ -34,7 +36,7 @@
                     <?php echo xlt("None{{Therapy Group}}");?>
                 <!-- /ko -->
                 <!-- ko if: therapy_group -->
-                    <a class="btn btn-xs btn-link" href="#" data-bind="click:clearTherapyGroup" title="<?php echo xla("Clear") ?>">
+                    <a class="btn btn-sm btn-link" href="#" data-bind="click:clearTherapyGroup" title="<?php echo xla("Clear") ?>">
                         <i class="fa fa-times"></i>
                     </a>
                 <!-- /ko -->
@@ -43,7 +45,7 @@
         <span class="patientDataColumn">
         <!-- ko if: therapy_group -->
         <!-- ko with: therapy_group -->
-            <a class="btn btn-xs btn-link" data-bind="click: clickNewGroupEncounter" href="#" title="<?php echo xla("New Encounter");?>">
+            <a class="btn btn-sm btn-link" data-bind="click: clickNewGroupEncounter" href="#" title="<?php echo xla("New Encounter");?>">
                 <i class="fa fa-plus"></i>
             </a>
             <div class="patientCurrentEncounter">
@@ -59,20 +61,16 @@
                 <!-- /ko -->
             </div>
             <!-- ko if: encounterArray().length > 0 -->
-            <br>
+            <br />
             <div class="btn-group dropdown">
-                <button class="btn btn-default btn-sm dropdown-toggle"
-                        type="button" id="pastEncounters"
-                        data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="true">
+                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="pastEncounters" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                     <?php echo xlt("View Past Encounters"); ?>&nbsp;
                     (<span data-bind="text:encounterArray().length"></span>)
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->
-                    <li style="display: inline-flex;">
+                    <li class="d-inline-flex">
                         <a href="#" data-bind="click:chooseEncounterEvent">
                             <span data-bind="text:date"></span>
                             <span data-bind="text:category"></span>
@@ -92,13 +90,12 @@
         <!-- ko with: user -->
         <!-- ko if:messages() -->
             <span class="messagesColumn">
-                <a class="btn btn-default" href="#" data-bind="click: viewMessages" title="<?php echo xla("View Messages");?>">
-                    <i class="fa fa-envelope"></i>&nbsp;<span style="display:inline" data-bind="text: messages()"></span>
+                <a class="btn btn-secondary" href="#" data-bind="click: viewMessages" title="<?php echo xla("View Messages");?>">
+                    <i class="fa fa-envelope"></i>&nbsp;<span class="d-inline" data-bind="text: messages()"></span>
                 </a>
             </span>
         <!-- /ko -->
         <!-- /ko -->
         <!-- /ko -->
     </div>
-    <!-- /ko -->
 </script>

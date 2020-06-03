@@ -19,11 +19,11 @@
  */
 namespace Multipledb\Controller;
 
-use Zend\InputFilter\InputFilter;
-use Zend\Mvc\Controller\AbstractActionController;
+use Laminas\InputFilter\InputFilter;
+use Laminas\Mvc\Controller\AbstractActionController;
 use Application\Listener\Listener;
-use Zend\Mvc\Controller\ActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\ActionController;
+use Laminas\View\Model\ViewModel;
 
 class BaseController extends AbstractActionController
 {
@@ -34,10 +34,10 @@ class BaseController extends AbstractActionController
      */
     protected $jsFiles = array(
         //jquery
-        '/jquery-1-9-1/jquery.min.js',
+        '/jquery/dist/jquery.min.js',
         //bootstrap
-        '/bootstrap/dist/js/bootstrap.min.js',
-        '/jquery-validation/dist/jquery.validate.min.js',
+        '/bootstrap/dist/js/bootstrap.bundle.min.js',
+        '/jquery-validation/jquery.validate.min.js',
 
     );
 
@@ -121,7 +121,7 @@ class BaseController extends AbstractActionController
      * @param $data
      * @param bool $convertToJson
      * @param int $responsecode
-     * @return \Zend\Stdlib\ResponseInterface
+     * @return \Laminas\Stdlib\ResponseInterface
      * @comment to use this function return this $response in your controller
      */
     public function responseWithNoLayout($data, $convertToJson = true, $responsecode = 200)

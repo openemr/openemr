@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form to track any clinical parameter.
  *
@@ -11,8 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -69,9 +69,9 @@ echo "<html><head>";
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'dygraphs']); ?>
+<?php Header::setupHeader('dygraphs'); ?>
 
-<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="stylesheet" href="style.css" type="text/css" />
 
 <script type="text/javascript">
 //-------------- checkboxes checked checker --------------------
@@ -161,12 +161,12 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='css_button' href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>".xlt('Back to encounter')."</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
 }
 
 if ($fromencounter == 0) {
     echo "<td>&nbsp;&nbsp;&nbsp;<a href='../../patient_file/summary/demographics.php' ";
-    echo " class='css_button' onclick='top.restoreSession()'>";
+    echo " class='btn btn-primary' onclick='top.restoreSession()'>";
     echo "<span>" . xlt('Back to Patient') . "</span></a></td>";
 }
 
@@ -229,7 +229,7 @@ while ($myrow = sqlFetchArray($query)) {
 
 
     // get every single tracks
-    echo "<div id='graph" . attr($track_count) . "' class='chart-dygraphs'> </div><br>"; // here goes the graph
+    echo "<div id='graph" . attr($track_count) . "' class='chart-dygraphs'> </div><br />"; // here goes the graph
     echo "<small>[" . xlt('Data from') . " ";
     echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr_url($the_encounter) . "' target='RBot'>" . xlt('encounter') . " #" . text($the_encounter) . "</a>]";
     echo "</small>";
@@ -254,7 +254,7 @@ while ($myrow = sqlFetchArray($query)) {
 
         // print local <table>-heads
         // ----------------------------
-        if ($shownameflag==1) {
+        if ($shownameflag == 1) {
             echo "<tr><th class='time'>" . xlt('Time') . "</th>";
             while ($myrow3 = sqlFetchArray($query3)) {
                 echo "<th class='item'>&nbsp;" . text($myrow3['the_name']) . "&nbsp;</th>"; //
@@ -303,7 +303,7 @@ while ($myrow = sqlFetchArray($query)) {
     echo "<td class='check'>" . xlt('Check items to graph') . " </td>"; //
     for ($col_i = 0; $col_i < $col; $col_i++) {
         echo "<td class='check'>";
-        for ($row_b=0; $row_b <$row_lc; $row_b++) {
+        for ($row_b = 0; $row_b < $row_lc; $row_b++) {
             if (is_numeric($value_local[$col_i][$row_b])) {
                 $localplot_c[$col_i]++; // count more than 1 to show graph-button
                 $globalplot_c[$col_i]++;
@@ -335,7 +335,7 @@ while ($myrow = sqlFetchArray($query)) {
     }
 
     if ($localplot > 0 && $globalplot > 0) {
-            echo "<br>";
+            echo "<br />";
     }
 
     if ($globalplot > 0) {
@@ -345,7 +345,7 @@ while ($myrow = sqlFetchArray($query)) {
     echo "</td>";
     echo "</tr>";
     echo "</table>";
-    echo "<br><hr>";
+    echo "<br /><hr>";
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // onClick create graph javascript method
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -409,12 +409,12 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='css_button' href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>".xlt('Back to encounter')."</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
 }
 
 if ($fromencounter == 0) {
     echo "<td>&nbsp;&nbsp;&nbsp;<a href='../../patient_file/summary/demographics.php' ";
-    echo " class='css_button' onclick='top.restoreSession()'>";
+    echo " class='btn btn-primary' onclick='top.restoreSession()'>";
     echo "<span>" . xlt('Back to Patient') . "</span></a></td>";
 }
 

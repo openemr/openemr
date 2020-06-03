@@ -1,154 +1,174 @@
-/*~~~~~~~~~~openemr5_tabs-Full~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/* OpenEMR tabs-Full Override */
 
-#mainBox>.body_top, .body_top_tabs {
-    background-color: $dark !important;
+#mainBox > .body_top,
+.body_top_tabs {
+  background-color: $dark !important;
 }
-#mainBox_vertical > .body_top, .body_top_tabs {
-    background-color: $midpale !important;
+
+#mainBox_vertical > .body_top,
+.body_top_tabs {
+  background-color: $midpale !important;
 }
-.tabSpan, .tabSpan_tabs {
-    border-top: 5px solid $dark !important;
-    border-left: 1px solid $dark !important;
-    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0) !important;
-    border-right: 1px solid $dark !important;
-    border-radius: 3px 6px 0px 0px !important;
+
+.tabSpan,
+.tabSpan_tabs {
+  border-left: 1px solid $dark !important;
+  border-radius: 3px 6px 0 0 !important;
+  border-right: 1px solid $dark !important;
+  border-top: 5px solid $dark !important;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0) !important;
 }
+
 .tabNotchosen {
-    border-bottom: 2px solid $dark !important;
-    border-top: 5px solid $pale !important;
-    border-left: 1px solid $pale !important;
-    border-right: 1px solid $pale !important;
+  border-bottom: 2px solid $dark !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-top: 0 !important;
 }
+
 .tabsNoHover {
-    border-bottom: 2px solid $dark !important;
+  border-bottom: 2px solid $dark !important;
 }
+
 .tabNotchosen:hover {
-    background: transparent !important;
+  background: transparent !important;
 }
+
 .tabSpan_tabs:hover {
-    background: $palepale !important;
+  background: $palepale !important;
 }
+
 .tabControls_tabs {
-    border-bottom: none !important;
+  border-bottom: 0 !important;
 }
+
 .ptName {
-    font-size: 20px;
-    background: #ffff9e;
-    padding: 0px 5px 0px 5px;
+  @include font-size("20px !important");
+  background: #ffff9e;
+  padding: 0 5px;
 }
+
 .patientInfo {
-    padding: 1px 1px 1px 10px;
-    font-size: 16px;
-    font-weight: 600;
+  @include font-size("16px !important");
+  font-weight: 600;
+  padding: 1px 1px 1px 10px;
 }
+
 .patientCurrentEncounter {
-    font-size: 16px;
-    font-weight: 600;
+  @include font-size("16px !important");
+  font-weight: 600;
 }
+
 .menuLabel {
-    color: #000000 !important;
-    font-weight: 700 !important;
-    font-size: 14px !important;
-    /*padding: 5px 10px !important;*/
+  @include font-size("14px !important");
+  color: $black !important;
 }
+
 .patientEncounterList {
-    border: 1px solid $darker;
-    background: white;
+  background: $white;
+  border: 1px solid $darker;
 }
-/*.patientEncounterList {
-    background: #ffff9e !important;
-    border: 1px solid $darker;
 
-}
- .patientEncounterList:hover{
-    background: $palepale !important;
-    border-color: $darkest !important;
-    box-shadow: 0 0 3px $midpale;
-    outline: none;
-    -webkit-transition: 0.2s linear all;
-    -moz-transition: 0.2s linear all;
-    transition: 0.2s linear all;
-
-    overflow: visible;
-    height: auto;
-    z-index:4;
-}*/
-
-.appMenu>span:hover {
-    background-color: $palepale !important;
-}
+.appMenu > span:hover,
 .menuSection:hover {
-    background-color: $palepale !important;
+  background-color: $palepale !important;
 }
+
 .menuLabel:hover {
-    background: $palepale !important;
+  background: $palepale !important;
 }
-.menuSection>.menuEntries {
-    box-shadow: 0px 2px 2px $midpale !important;
-    border: none !important;
-    border-radius: 0px !important;
+
+.menuSection > .menuEntries {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: 0 2px 2px $midpale !important;
 }
+
 .menuEntries li .menuLabel {
-    padding: 5px 10px !important;
+  padding: 5px 10px !important;
 }
+
 .menuEntres li .menuLabel:hover {
-    background-color: $palepale !important;
-    color: #333;
+  background-color: $palepale !important;
+  color: $bs-dark;
 }
+
 .appMenu li:hover {
-    background-color: $palepale !important;
+  background-color: $palepale !important;
 }
-.menuSection>.menuEntries {
-    background-color: $paler !important;
-}
-.body_title, .body_title_tabs {
-    background-color: $midpale !important;
-}
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-.tabs_body, #searchCriteria {
-    background-color: $pale;
+.menuSection > .menuEntries {
+  background-color: $paler !important;
 }
+
+.body_title,
+.body_title_tabs {
+  background-color: $midpale !important;
+}
+
+/* tabs body */
+
+.tabs_body,
+#searchCriteria {
+  background-color: $pale;
+}
+
 .tabs_body_light {
-    background-color: $palepale;
+  background-color: $palepale;
 }
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~*/
+/* tabs calendar */
 
 #calsearch_params {
-    background-color: $palepale !important;
-    width: 98% !important;
+  background-color: $palepale !important;
+  width: 98% !important;
 }
-.calsearch_body {
-    background-color: $paler !important;
-}
-.chevron_color {
-    color: $darker;
-}
-div#providerPicker select {
-    margin: 0px;
-}
-#calsearch_results_header {
-    margin-top: 5px;
-    width: 99% !important;
-}
-#calsearch_results_data {
-    width: 99% !important;
-}
-#topToolbarRight {
-    padding: 3px;
-}
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~*/
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~*/
+.calsearch_body {
+  background-color: $paler !important;
+}
+
+.chevron_color {
+  color: $darker;
+}
+
+div#providerPicker select {
+  margin: 0;
+}
+
+#calsearch_results_header {
+  margin-top: 5px;
+  width: 99% !important;
+}
+
+#calsearch_results_data {
+  width: 99% !important;
+}
+
+#topToolbarRight {
+  padding: 3px;
+}
+
+/* calendar icon */
 
 img[src *="show_calendar.gif"] {
-    margin-bottom: 3px;
+  margin-bottom: 3px;
 }
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~*/
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 tabs menu , user and logout icon~~~~*/
-#menu_icon, #logout_icon, #user_icon {
-    color:$darker !important;
+/* tabs menu, user, and logout icon */
+#menu_icon,
+#logout_icon,
+#user_icon {
+  color: $darker !important;
+}
+
+/* Search Globals Button */
+#search_globals,
+.oe-expandable-search .any-search-legacy {
+  background: $dark !important;
+}
+
+/* Patient Panel Toggler Override */
+#patient_caret {
+  margin-right: 4px !important;
 }

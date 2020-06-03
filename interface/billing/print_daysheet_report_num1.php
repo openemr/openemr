@@ -1,4 +1,5 @@
 <?php
+
 /*
  * interface/billing/print_daysheet_report.php Genetating an end of day report.
  *
@@ -15,13 +16,15 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/../interface/reports/report.inc.php");
 require_once("$srcdir/daysheet.inc.php");
+
+use OpenEMR\Billing\BillingReport;
+use OpenEMR\Core\Header;
 
 //global variables:
 if (!isset($_GET["mode"])) {
     if (!isset($_GET["from_date"])) {
-        $from_date=date("Y-m-d");
+        $from_date = date("Y-m-d");
     } else {
         $from_date = $_GET["from_date"];
     }
@@ -33,7 +36,7 @@ if (!isset($_GET["mode"])) {
     }
 
     if (!isset($_GET["code_type"])) {
-        $code_type="all";
+        $code_type = "all";
     } else {
         $code_type = $_GET["code_type"];
     }
@@ -62,13 +65,13 @@ if (!isset($_GET["mode"])) {
 <html>
 <head>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 
 </head>
-<body bgcolor="#ffffff" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
 
-<a href="javascript:window.close();" target=Main><font class=title><?php echo xlt('Day Sheet Report')?></font></a>
-<br>
+<a href="javascript:window.close();" target="Main"><font class="title"><?php echo xlt('Day Sheet Report')?></font></a>
+<br />
 
 <?php
 if ($my_authorized === 'on') {
@@ -89,7 +92,7 @@ if ($code_type === 'all') {
 
 if (!isset($_GET["mode"])) {
     if (!isset($_GET["from_date"])) {
-        $from_date=date("Y-m-d");
+        $from_date = date("Y-m-d");
     } else {
         $from_date = $_GET["from_date"];
     }
@@ -101,7 +104,7 @@ if (!isset($_GET["mode"])) {
     }
 
     if (!isset($_GET["code_type"])) {
-        $code_type="all";
+        $code_type = "all";
     } else {
         $code_type = $_GET["code_type"];
     }
@@ -164,8 +167,8 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 
 // this loop gathers the user and provider numbers
     foreach ($ret as $iter) {
-          $catch_user[] = $iter{'user'};
-          $catch_provider[] = $iter{'provider_id'};
+          $catch_user[] = $iter['user'];
+          $catch_provider[] = $iter['provider_id'];
     }
 
 //This statment uniques the arrays removing duplicates
@@ -191,973 +194,974 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 
     foreach ($all4 as $iter) {
         // Case statment to tally information by user
-        switch ($iter{'user'}) {
-            case $iter{'user'} = $user_final_list[0]:
-                $us0_user = $iter{'user'};
-                $us0_fee = $us0_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us0_inspay = $us0_inspay + $iter{'ins_code'};
+        switch ($iter['user']) {
+            case $iter['user'] = $user_final_list[0]:
+                $us0_user = $iter['user'];
+                $us0_fee = $us0_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us0_inspay = $us0_inspay + $iter['ins_code'];
                 }
 
-                $us0_insadj = $us0_insadj + $iter{'ins_adjust_dollar'};
-                $us0_patadj = $us0_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us0_patpay = $us0_patpay + $iter{'pat_code'};
+                $us0_insadj = $us0_insadj + $iter['ins_adjust_dollar'];
+                $us0_patadj = $us0_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us0_patpay = $us0_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us0_insref = $us0_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us0_insref = $us0_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us0_patref = $us0_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us0_patref = $us0_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[1]:
-                $us1_user = $iter{'user'};
-                $us1_fee = $us1_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us1_inspay = $us1_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[1]:
+                $us1_user = $iter['user'];
+                $us1_fee = $us1_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us1_inspay = $us1_inspay + $iter['ins_code'];
                 }
 
-                $us1_insadj = $us1_insadj + $iter{'ins_adjust_dollar'};
-                $us1_patadj = $us1_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us1_patpay = $us1_patpay + $iter{'pat_code'};
+                $us1_insadj = $us1_insadj + $iter['ins_adjust_dollar'];
+                $us1_patadj = $us1_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us1_patpay = $us1_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us1_insref = $us1_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us1_insref = $us1_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us1_patref = $us1_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us1_patref = $us1_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[2]:
-                $us2_user = $iter{'user'};
-                $us2_fee = $us2_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us2_inspay = $us2_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[2]:
+                $us2_user = $iter['user'];
+                $us2_fee = $us2_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us2_inspay = $us2_inspay + $iter['ins_code'];
                 }
 
-                $us2_insadj = $us2_insadj + $iter{'ins_adjust_dollar'};
-                $us2_patadj = $us2_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us2_patpay = $us2_patpay + $iter{'pat_code'};
+                $us2_insadj = $us2_insadj + $iter['ins_adjust_dollar'];
+                $us2_patadj = $us2_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us2_patpay = $us2_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us2_insref = $us2_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us2_insref = $us2_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us2_patref = $us2_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us2_patref = $us2_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[3]:
-                $us3_user = $iter{'user'};
-                $us3_fee = $us3_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us3_inspay = $us3_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[3]:
+                $us3_user = $iter['user'];
+                $us3_fee = $us3_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us3_inspay = $us3_inspay + $iter['ins_code'];
                 }
 
-                $us3_insadj = $us3_insadj + $iter{'ins_adjust_dollar'};
-                $us3_patadj = $us3_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us3_patpay = $us3_patpay + $iter{'pat_code'};
+                $us3_insadj = $us3_insadj + $iter['ins_adjust_dollar'];
+                $us3_patadj = $us3_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us3_patpay = $us3_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us3_insref = $us3_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us3_insref = $us3_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us3_patref = $us3_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us3_patref = $us3_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[4]:
-                $us4_user = $iter{'user'};
-                $us4_fee = $us4_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us4_inspay = $us4_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[4]:
+                $us4_user = $iter['user'];
+                $us4_fee = $us4_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us4_inspay = $us4_inspay + $iter['ins_code'];
                 }
 
-                $us4_insadj = $us4_insadj + $iter{'ins_adjust_dollar'};
-                $us4_patadj = $us4_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us4_patpay = $us4_patpay + $iter{'pat_code'};
+                $us4_insadj = $us4_insadj + $iter['ins_adjust_dollar'];
+                $us4_patadj = $us4_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us4_patpay = $us4_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us4_insref = $us4_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us4_insref = $us4_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us4_patref = $us4_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us4_patref = $us4_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[5]:
-                $us5_user = $iter{'user'};
-                $us5_fee = $us5_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us5_inspay = $us5_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[5]:
+                $us5_user = $iter['user'];
+                $us5_fee = $us5_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us5_inspay = $us5_inspay + $iter['ins_code'];
                 }
 
-                $us5_insadj = $us5_insadj + $iter{'ins_adjust_dollar'};
-                $us5_patadj = $us5_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us5_patpay = $us5_patpay + $iter{'pat_code'};
+                $us5_insadj = $us5_insadj + $iter['ins_adjust_dollar'];
+                $us5_patadj = $us5_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us5_patpay = $us5_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us5_insref = $us5_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us5_insref = $us5_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us5_patref = $us5_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us5_patref = $us5_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[6]:
-                $us6_user = $iter{'user'};
-                $us6_fee = $us6_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us6_inspay = $us6_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[6]:
+                $us6_user = $iter['user'];
+                $us6_fee = $us6_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us6_inspay = $us6_inspay + $iter['ins_code'];
                 }
 
-                $us6_insadj = $us6_insadj + $iter{'ins_adjust_dollar'};
-                $us6_patadj = $us6_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us6_patpay = $us6_patpay + $iter{'pat_code'};
+                $us6_insadj = $us6_insadj + $iter['ins_adjust_dollar'];
+                $us6_patadj = $us6_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us6_patpay = $us6_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us6_insref = $us6_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us6_insref = $us6_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us6_patref = $us6_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us6_patref = $us6_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[7]:
-                $us7_user = $iter{'user'};
-                $us7_fee = $us7_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us7_inspay = $us7_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[7]:
+                $us7_user = $iter['user'];
+                $us7_fee = $us7_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us7_inspay = $us7_inspay + $iter['ins_code'];
                 }
 
-                $us7_insadj = $us7_insadj + $iter{'ins_adjust_dollar'};
-                $us7_patadj = $us7_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us7_patpay = $us7_patpay + $iter{'pat_code'};
+                $us7_insadj = $us7_insadj + $iter['ins_adjust_dollar'];
+                $us7_patadj = $us7_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us7_patpay = $us7_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us7_insref = $us7_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us7_insref = $us7_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us7_patref = $us7_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us7_patref = $us7_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[8]:
-                $us8_user = $iter{'user'};
-                $us8_fee = $us8_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us8_inspay = $us8_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[8]:
+                $us8_user = $iter['user'];
+                $us8_fee = $us8_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us8_inspay = $us8_inspay + $iter['ins_code'];
                 }
 
-                $us8_insadj = $us8_insadj + $iter{'ins_adjust_dollar'};
-                $us8_patadj = $us8_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us8_patpay = $us8_patpay + $iter{'pat_code'};
+                $us8_insadj = $us8_insadj + $iter['ins_adjust_dollar'];
+                $us8_patadj = $us8_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us8_patpay = $us8_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us8_insref = $us8_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us8_insref = $us8_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us8_patref = $us8_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us8_patref = $us8_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[9]:
-                $us9_user = $iter{'user'};
-                $us9_fee = $us9_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us9_inspay = $us9_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[9]:
+                $us9_user = $iter['user'];
+                $us9_fee = $us9_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us9_inspay = $us9_inspay + $iter['ins_code'];
                 }
 
-                $us9_insadj = $us9_insadj + $iter{'ins_adjust_dollar'};
-                $us9_patadj = $us9_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us9_patpay = $us9_patpay + $iter{'pat_code'};
+                $us9_insadj = $us9_insadj + $iter['ins_adjust_dollar'];
+                $us9_patadj = $us9_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us9_patpay = $us9_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us9_insref = $us9_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us9_insref = $us9_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us9_patref = $us9_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us9_patref = $us9_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[10]:
-                $us10_user = $iter{'user'};
-                $us10_fee = $us10_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us10_inspay = $us10_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[10]:
+                $us10_user = $iter['user'];
+                $us10_fee = $us10_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us10_inspay = $us10_inspay + $iter['ins_code'];
                 }
 
-                $us10_insadj = $us10_insadj + $iter{'ins_adjust_dollar'};
-                $us10_patadj = $us10_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us10_patpay = $us10_patpay + $iter{'pat_code'};
+                $us10_insadj = $us10_insadj + $iter['ins_adjust_dollar'];
+                $us10_patadj = $us10_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us10_patpay = $us10_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us10_insref = $us10_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us10_insref = $us10_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us10_patref = $us10_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us10_patref = $us10_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[11]:
-                $us11_user = $iter{'user'};
-                $us11_fee = $us11_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us11_inspay = $us11_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[11]:
+                $us11_user = $iter['user'];
+                $us11_fee = $us11_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us11_inspay = $us11_inspay + $iter['ins_code'];
                 }
 
-                $us11_insadj = $us11_insadj + $iter{'ins_adjust_dollar'};
-                $us11_patadj = $us11_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us11_patpay = $us11_patpay + $iter{'pat_code'};
+                $us11_insadj = $us11_insadj + $iter['ins_adjust_dollar'];
+                $us11_patadj = $us11_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us11_patpay = $us11_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us11_insref = $us11_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us11_insref = $us11_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us11_patref = $us11_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us11_patref = $us11_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[12]:
-                $us12_user = $iter{'user'};
-                $us12_fee = $us12_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us12_inspay = $us12_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[12]:
+                $us12_user = $iter['user'];
+                $us12_fee = $us12_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us12_inspay = $us12_inspay + $iter['ins_code'];
                 }
 
-                $us12_insadj = $us12_insadj + $iter{'ins_adjust_dollar'};
-                $us12_patadj = $us12_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us12_patpay = $us12_patpay + $iter{'pat_code'};
+                $us12_insadj = $us12_insadj + $iter['ins_adjust_dollar'];
+                $us12_patadj = $us12_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us12_patpay = $us12_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us12_insref = $us12_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us12_insref = $us12_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us12_patref = $us12_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us12_patref = $us12_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[13]:
-                $us13_user = $iter{'user'};
-                $us13_fee = $us13_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us13_inspay = $us13_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[13]:
+                $us13_user = $iter['user'];
+                $us13_fee = $us13_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us13_inspay = $us13_inspay + $iter['ins_code'];
                 }
 
-                $us13_insadj = $us13_insadj + $iter{'ins_adjust_dollar'};
-                $us13_patadj = $us13_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us13_patpay = $us13_patpay + $iter{'pat_code'};
+                $us13_insadj = $us13_insadj + $iter['ins_adjust_dollar'];
+                $us13_patadj = $us13_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us13_patpay = $us13_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us13_insref = $us13_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us13_insref = $us13_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us13_patref = $us13_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us13_patref = $us13_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[14]:
-                $us14_user = $iter{'user'};
-                $us14_fee = $us14_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us14_inspay = $us14_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[14]:
+                $us14_user = $iter['user'];
+                $us14_fee = $us14_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us14_inspay = $us14_inspay + $iter['ins_code'];
                 }
 
-                $us14_insadj = $us14_insadj + $iter{'ins_adjust_dollar'};
-                $us14_patadj = $us14_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us14_patpay = $us14_patpay + $iter{'pat_code'};
+                $us14_insadj = $us14_insadj + $iter['ins_adjust_dollar'];
+                $us14_patadj = $us14_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us14_patpay = $us14_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us14_insref = $us14_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us14_insref = $us14_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us14_patref = $us14_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us14_patref = $us14_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[15]:
-                $us15_user = $iter{'user'};
-                $us15_fee = $us15_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us15_inspay = $us15_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[15]:
+                $us15_user = $iter['user'];
+                $us15_fee = $us15_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us15_inspay = $us15_inspay + $iter['ins_code'];
                 }
 
-                $us15_insadj = $us15_insadj + $iter{'ins_adjust_dollar'};
-                $us15_patadj = $us15_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us15_patpay = $us15_patpay + $iter{'pat_code'};
+                $us15_insadj = $us15_insadj + $iter['ins_adjust_dollar'];
+                $us15_patadj = $us15_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us15_patpay = $us15_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us15_insref = $us15_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us15_insref = $us15_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us15_patref = $us15_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us15_patref = $us15_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[16]:
-                $us16_user = $iter{'user'};
-                $us16_fee = $us16_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us16_inspay = $us16_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[16]:
+                $us16_user = $iter['user'];
+                $us16_fee = $us16_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us16_inspay = $us16_inspay + $iter['ins_code'];
                 }
 
-                $us16_insadj = $us16_insadj + $iter{'ins_adjust_dollar'};
-                $us16_patadj = $us16_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us16_patpay = $us16_patpay + $iter{'pat_code'};
+                $us16_insadj = $us16_insadj + $iter['ins_adjust_dollar'];
+                $us16_patadj = $us16_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us16_patpay = $us16_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us16_insref = $us16_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us16_insref = $us16_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us16_patref = $us16_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us16_patref = $us16_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[17]:
-                $us17_user = $iter{'user'};
-                $us17_fee = $us17_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us17_inspay = $us17_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[17]:
+                $us17_user = $iter['user'];
+                $us17_fee = $us17_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us17_inspay = $us17_inspay + $iter['ins_code'];
                 }
 
-                $us17_insadj = $us17_insadj + $iter{'ins_adjust_dollar'};
-                $us17_patadj = $us17_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us17_patpay = $us17_patpay + $iter{'pat_code'};
+                $us17_insadj = $us17_insadj + $iter['ins_adjust_dollar'];
+                $us17_patadj = $us17_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us17_patpay = $us17_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us17_insref = $us17_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us17_insref = $us17_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us17_patref = $us17_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us17_patref = $us17_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $user_final_list[18]:
-                $us18_user = $iter{'user'};
-                $us18_fee = $us18_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us18_inspay = $us18_inspay + $iter{'ins_code'};
+            case $iter['user'] = $user_final_list[18]:
+                $us18_user = $iter['user'];
+                $us18_fee = $us18_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us18_inspay = $us18_inspay + $iter['ins_code'];
                 }
 
-                $us18_insadj = $us18_insadj + $iter{'ins_adjust_dollar'};
-                $us18_patadj = $us18_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us18_patpay = $us18_patpay + $iter{'pat_code'};
+                $us18_insadj = $us18_insadj + $iter['ins_adjust_dollar'];
+                $us18_patadj = $us18_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us18_patpay = $us18_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us18_insref = $us18_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us18_insref = $us18_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us18_patref = $us18_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us18_patref = $us18_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'user'} = $fuser_final_list[19]:
-                $us19_user = $iter{'user'};
-                $us19_fee = $us19_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us19_inspay = $us19_inspay + $iter{'ins_code'};
+            case $iter['user'] = $fuser_final_list[19]:
+                $us19_user = $iter['user'];
+                $us19_fee = $us19_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us19_inspay = $us19_inspay + $iter['ins_code'];
                 }
 
-                $us19_insadj = $us19_insadj + $iter{'ins_adjust_dollar'};
-                $us19_patadj = $us19_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $us19_patpay = $us19_patpay + $iter{'pat_code'};
+                $us19_insadj = $us19_insadj + $iter['ins_adjust_dollar'];
+                $us19_patadj = $us19_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $us19_patpay = $us19_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $us19_insref = $us19_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $us19_insref = $us19_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $us19_patref = $us19_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $us19_patref = $us19_patref + $iter['pat_code'];
                 }
                 break;
         }
 
         // Case statment to tally information by Provider
-        switch ($iter{'provider_id'}) {
-            case $iter{'provider_id'} = $provider_final_list[0]:
-                 $pro0_user = $iter{'provider_id'};
-                 $pro0_fee = $pro0_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro0_inspay = $pro0_inspay + $iter{'ins_code'};
+        switch ($iter['provider_id']) {
+            case $iter['provider_id'] = $provider_final_list[0]:
+                 $pro0_user = $iter['provider_id'];
+                 $pro0_fee = $pro0_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro0_inspay = $pro0_inspay + $iter['ins_code'];
                 }
 
-                    $pro0_insadj = $pro0_insadj + $iter{'ins_adjust_dollar'};
-                    $pro0_patadj = $pro0_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro0_patpay = $pro0_patpay + $iter{'pat_code'};
+                    $pro0_insadj = $pro0_insadj + $iter['ins_adjust_dollar'];
+                    $pro0_patadj = $pro0_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro0_patpay = $pro0_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro0_insref = $pro0_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro0_insref = $pro0_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro0_patref = $pro0_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro0_patref = $pro0_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[1]:
-                $pro1_user = $iter{'provider_id'};
-                $pro1_fee = $pro1_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro1_inspay = $pro1_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[1]:
+                $pro1_user = $iter['provider_id'];
+                $pro1_fee = $pro1_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro1_inspay = $pro1_inspay + $iter['ins_code'];
                 }
 
-                $pro1_insadj = $pro1_insadj + $iter{'ins_adjust_dollar'};
-                $pro1_patadj = $pro1_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro1_patpay = $pro1_patpay + $iter{'pat_code'};
+                $pro1_insadj = $pro1_insadj + $iter['ins_adjust_dollar'];
+                $pro1_patadj = $pro1_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro1_patpay = $pro1_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro1_insref = $pro1_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro1_insref = $pro1_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro1_patref = $pro1_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro1_patref = $pro1_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[2]:
-                $pro2_user = $iter{'provider_id'};
-                $pro2_fee = $pro2_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro2_inspay = $pro2_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[2]:
+                $pro2_user = $iter['provider_id'];
+                $pro2_fee = $pro2_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro2_inspay = $pro2_inspay + $iter['ins_code'];
                 }
 
-                $pro2_insadj = $pro2_insadj + $iter{'ins_adjust_dollar'};
-                $pro2_patadj = $pro2_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro2_patpay = $pro2_patpay + $iter{'pat_code'};
+                $pro2_insadj = $pro2_insadj + $iter['ins_adjust_dollar'];
+                $pro2_patadj = $pro2_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro2_patpay = $pro2_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro2_insref = $pro2_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro2_insref = $pro2_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro2_patref = $pro2_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro2_patref = $pro2_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[3]:
-                $pro3_user = $iter{'provider_id'};
-                $pro3_fee = $pro3_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro3_inspay = $pro3_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[3]:
+                $pro3_user = $iter['provider_id'];
+                $pro3_fee = $pro3_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro3_inspay = $pro3_inspay + $iter['ins_code'];
                 }
 
-                $pro3_insadj = $pro3_insadj + $iter{'ins_adjust_dollar'};
-                $pro3_patadj = $pro3_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro3_patpay = $pro3_patpay + $iter{'pat_code'};
+                $pro3_insadj = $pro3_insadj + $iter['ins_adjust_dollar'];
+                $pro3_patadj = $pro3_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro3_patpay = $pro3_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro3_insref = $pro3_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro3_insref = $pro3_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro3_patref = $pro3_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro3_patref = $pro3_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[4]:
-                $pro4_user = $iter{'provider_id'};
-                $pro4_fee = $pro4_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro4_inspay = $pro4_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[4]:
+                $pro4_user = $iter['provider_id'];
+                $pro4_fee = $pro4_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro4_inspay = $pro4_inspay + $iter['ins_code'];
                 }
 
-                $pro4_insadj = $pro4_insadj + $iter{'ins_adjust_dollar'};
-                $pro4_patadj = $pro4_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro4_patpay = $pro4_patpay + $iter{'pat_code'};
+                $pro4_insadj = $pro4_insadj + $iter['ins_adjust_dollar'];
+                $pro4_patadj = $pro4_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro4_patpay = $pro4_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro4_insref = $pro4_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro4_insref = $pro4_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro4_patref = $pro4_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro4_patref = $pro4_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[5]:
-                $pro5_user = $iter{'provider_id'};
-                $pro5_fee = $pro5_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro5_inspay = $pro5_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[5]:
+                $pro5_user = $iter['provider_id'];
+                $pro5_fee = $pro5_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro5_inspay = $pro5_inspay + $iter['ins_code'];
                 }
 
-                $pro5_insadj = $pro5_insadj + $iter{'ins_adjust_dollar'};
-                $pro5_patadj = $pro5_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                        $pro5_patpay = $pro5_patpay + $iter{'pat_code'};
+                $pro5_insadj = $pro5_insadj + $iter['ins_adjust_dollar'];
+                $pro5_patadj = $pro5_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                        $pro5_patpay = $pro5_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro5_insref = $pro5_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro5_insref = $pro5_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro5_patref = $pro5_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro5_patref = $pro5_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[6]:
-                $pro6_user = $iter{'provider_id'};
-                $pro6_fee = $pro6_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro6_inspay = $pro6_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[6]:
+                $pro6_user = $iter['provider_id'];
+                $pro6_fee = $pro6_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro6_inspay = $pro6_inspay + $iter['ins_code'];
                 }
 
-                $pro6_insadj = $pro6_insadj + $iter{'ins_adjust_dollar'};
-                $pro6_patadj = $pro6_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro6_patpay = $pro6_patpay + $iter{'pat_code'};
+                $pro6_insadj = $pro6_insadj + $iter['ins_adjust_dollar'];
+                $pro6_patadj = $pro6_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro6_patpay = $pro6_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro6_insref = $pro6_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro6_insref = $pro6_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro6_patref = $pro6_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro6_patref = $pro6_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[7]:
-                $pro7_user = $iter{'provider_id'};
-                $pro7_fee = $pro7_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro7_inspay = $pro7_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[7]:
+                $pro7_user = $iter['provider_id'];
+                $pro7_fee = $pro7_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro7_inspay = $pro7_inspay + $iter['ins_code'];
                 }
 
-                $pro7_insadj = $pro7_insadj + $iter{'ins_adjust_dollar'};
-                $pro7_patadj = $pro7_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro7_patpay = $pro7_patpay + $iter{'pat_code'};
+                $pro7_insadj = $pro7_insadj + $iter['ins_adjust_dollar'];
+                $pro7_patadj = $pro7_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro7_patpay = $pro7_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro7_insref = $pro7_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro7_insref = $pro7_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro7_patref = $pro7_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro7_patref = $pro7_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[8]:
-                $pro8_user = $iter{'provider_id'};
-                $pro8_fee = $pro8_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro8_inspay = $pro8_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[8]:
+                $pro8_user = $iter['provider_id'];
+                $pro8_fee = $pro8_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro8_inspay = $pro8_inspay + $iter['ins_code'];
                 }
 
-                $pro8_insadj = $pro8_insadj + $iter{'ins_adjust_dollar'};
-                $pro8_patadj = $pro8_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro8_patpay = $pro8_patpay + $iter{'pat_code'};
+                $pro8_insadj = $pro8_insadj + $iter['ins_adjust_dollar'];
+                $pro8_patadj = $pro8_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro8_patpay = $pro8_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro8_insref = $pro8_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro8_insref = $pro8_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro8_patref = $pro8_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro8_patref = $pro8_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[9]:
-                $pro9_user = $iter{'provider_id'};
-                $pro9_fee = $pro9_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro9_inspay = $pro9_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[9]:
+                $pro9_user = $iter['provider_id'];
+                $pro9_fee = $pro9_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro9_inspay = $pro9_inspay + $iter['ins_code'];
                 }
 
-                $pro9_insadj = $pro9_insadj + $iter{'ins_adjust_dollar'};
-                $pro9_patadj = $pro9_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro9_patpay = $pro9_patpay + $iter{'pat_code'};
+                $pro9_insadj = $pro9_insadj + $iter['ins_adjust_dollar'];
+                $pro9_patadj = $pro9_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro9_patpay = $pro9_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro9_insref = $pro9_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro9_insref = $pro9_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro9_patref = $pro9_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro9_patref = $pro9_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[10]:
-                $pro10_user = $iter{'provider_id'};
-                $pro10_fee = $pro10_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro10_inspay = $pro0_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[10]:
+                $pro10_user = $iter['provider_id'];
+                $pro10_fee = $pro10_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro10_inspay = $pro0_inspay + $iter['ins_code'];
                 }
 
-                $pro10_insadj = $pro10_insadj + $iter{'ins_adjust_dollar'};
-                $pro10_patadj = $pro10_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro10_patpay = $pro10_patpay + $iter{'pat_code'};
+                $pro10_insadj = $pro10_insadj + $iter['ins_adjust_dollar'];
+                $pro10_patadj = $pro10_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro10_patpay = $pro10_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro10_insref = $pro10_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro10_insref = $pro10_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro10_patref = $pro10_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro10_patref = $pro10_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[11]:
-                $pro11_user = $iter{'provider_id'};
-                $pro11_fee = $pro11_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro11_inspay = $pro11_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[11]:
+                $pro11_user = $iter['provider_id'];
+                $pro11_fee = $pro11_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro11_inspay = $pro11_inspay + $iter['ins_code'];
                 }
 
-                $pro11_insadj = $pro11_insadj + $iter{'ins_adjust_dollar'};
-                $pro11_patadj = $pro11_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro11_patpay = $pro11_patpay + $iter{'pat_code'};
+                $pro11_insadj = $pro11_insadj + $iter['ins_adjust_dollar'];
+                $pro11_patadj = $pro11_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro11_patpay = $pro11_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro11_insref = $pro11_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro11_insref = $pro11_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro11_patref = $pro11_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro11_patref = $pro11_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[12]:
-                $pro12_user = $iter{'provider_id'};
-                $pro12_fee = $pro12_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro12_inspay = $pro12_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[12]:
+                $pro12_user = $iter['provider_id'];
+                $pro12_fee = $pro12_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro12_inspay = $pro12_inspay + $iter['ins_code'];
                 }
 
-                $pro12_insadj = $pro12_insadj + $iter{'ins_adjust_dollar'};
-                $pro12_patadj = $pro12_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro12_patpay = $pro12_patpay + $iter{'pat_code'};
+                $pro12_insadj = $pro12_insadj + $iter['ins_adjust_dollar'];
+                $pro12_patadj = $pro12_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro12_patpay = $pro12_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro12_insref = $pro12_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro12_insref = $pro12_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro12_patref = $pro12_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro12_patref = $pro12_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[13]:
-                $pro13_user = $iter{'provider_id'};
-                $pro13_fee = $pro13_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro13_inspay = $pro13_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[13]:
+                $pro13_user = $iter['provider_id'];
+                $pro13_fee = $pro13_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro13_inspay = $pro13_inspay + $iter['ins_code'];
                 }
 
-                $pro13_insadj = $pro13_insadj + $iter{'ins_adjust_dollar'};
-                $pro13_patadj = $pro13_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro13_patpay = $pro13_patpay + $iter{'pat_code'};
+                $pro13_insadj = $pro13_insadj + $iter['ins_adjust_dollar'];
+                $pro13_patadj = $pro13_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro13_patpay = $pro13_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro13_insref = $pro13_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro13_insref = $pro13_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro13_patref = $pro13_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro13_patref = $pro13_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[14]:
-                $pro14_user = $iter{'provider_id'};
-                $pro14_fee = $pro14_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro14_inspay = $pro14_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[14]:
+                $pro14_user = $iter['provider_id'];
+                $pro14_fee = $pro14_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro14_inspay = $pro14_inspay + $iter['ins_code'];
                 }
 
-                $pro14_insadj = $pro14_insadj + $iter{'ins_adjust_dollar'};
-                $pro14_patadj = $pro14_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro14_patpay = $pro14_patpay + $iter{'pat_code'};
+                $pro14_insadj = $pro14_insadj + $iter['ins_adjust_dollar'];
+                $pro14_patadj = $pro14_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro14_patpay = $pro14_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro14_insref = $pro14_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro14_insref = $pro14_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro14_patref = $pro14_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro14_patref = $pro14_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[15]:
-                $pro15_user = $iter{'provider_id'};
-                $pro15_fee = $pro15_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro15_inspay = $pro15_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[15]:
+                $pro15_user = $iter['provider_id'];
+                $pro15_fee = $pro15_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro15_inspay = $pro15_inspay + $iter['ins_code'];
                 }
 
-                $pro15_insadj = $pro15_insadj + $iter{'ins_adjust_dollar'};
-                $pro15_patadj = $pro15_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro15_patpay = $pro15_patpay + $iter{'pat_code'};
+                $pro15_insadj = $pro15_insadj + $iter['ins_adjust_dollar'];
+                $pro15_patadj = $pro15_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro15_patpay = $pro15_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro15_insref = $pro15_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro15_insref = $pro15_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro15_patref = $pro15_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro15_patref = $pro15_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[16]:
-                $pro16_user = $iter{'provider_id'};
-                $pro16_fee = $pro16_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro16_inspay = $pro16_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[16]:
+                $pro16_user = $iter['provider_id'];
+                $pro16_fee = $pro16_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro16_inspay = $pro16_inspay + $iter['ins_code'];
                 }
 
-                $pro16_insadj = $pro16_insadj + $iter{'ins_adjust_dollar'};
-                $pro16_patadj = $pro16_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro16_patpay = $pro16_patpay + $iter{'pat_code'};
+                $pro16_insadj = $pro16_insadj + $iter['ins_adjust_dollar'];
+                $pro16_patadj = $pro16_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro16_patpay = $pro16_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro16_insref = $pro16_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro16_insref = $pro16_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro16_patref = $pro16_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro16_patref = $pro16_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[17]:
-                $pro17_user = $iter{'provider_id'};
-                $pro17_fee = $pro17_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro17_inspay = $pro17_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[17]:
+                $pro17_user = $iter['provider_id'];
+                $pro17_fee = $pro17_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro17_inspay = $pro17_inspay + $iter['ins_code'];
                 }
 
-                $pro17_insadj = $pro17_insadj + $iter{'ins_adjust_dollar'};
-                $pro17_patadj = $pro17_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro17_patpay = $pro17_patpay + $iter{'pat_code'};
+                $pro17_insadj = $pro17_insadj + $iter['ins_adjust_dollar'];
+                $pro17_patadj = $pro17_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro17_patpay = $pro17_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro17_insref = $pro17_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro17_insref = $pro17_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro17_patref = $pro17_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro17_patref = $pro17_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[18]:
-                $pro18_user = $iter{'provider_id'};
-                $pro18_fee = $pro18_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro18_inspay = $pro18_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[18]:
+                $pro18_user = $iter['provider_id'];
+                $pro18_fee = $pro18_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro18_inspay = $pro18_inspay + $iter['ins_code'];
                 }
 
-                $pro18_insadj = $pro18_insadj + $iter{'ins_adjust_dollar'};
-                $pro18_patadj = $pro18_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro18_patpay = $pro18_patpay + $iter{'pat_code'};
+                $pro18_insadj = $pro18_insadj + $iter['ins_adjust_dollar'];
+                $pro18_patadj = $pro18_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro18_patpay = $pro18_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro18_insref = $pro18_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro18_insref = $pro18_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro18_patref = $pro18_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro18_patref = $pro18_patref + $iter['pat_code'];
                 }
                 break;
-            case $iter{'provider_id'} = $provider_final_list[19]:
-                $pro19_user = $iter{'provider_id'};
-                $pro19_fee = $pro19_fee + $iter{'fee'};
-                if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro19_inspay = $pro19_inspay + $iter{'ins_code'};
+            case $iter['provider_id'] = $provider_final_list[19]:
+                $pro19_user = $iter['provider_id'];
+                $pro19_fee = $pro19_fee + $iter['fee'];
+                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro19_inspay = $pro19_inspay + $iter['ins_code'];
                 }
 
-                $pro19_insadj = $pro19_insadj + $iter{'ins_adjust_dollar'};
-                $pro19_patadj = $pro19_patadj + $iter{'pat_adjust_dollar'};
-                if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                    $pro19_patpay = $pro19_patpay + $iter{'pat_code'};
+                $pro19_insadj = $pro19_insadj + $iter['ins_adjust_dollar'];
+                $pro19_patadj = $pro19_patadj + $iter['pat_adjust_dollar'];
+                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment') {
+                    $pro19_patpay = $pro19_patpay + $iter['pat_code'];
                 }
 
-                if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                    $pro19_insref = $pro19_insref + $iter{'ins_code'};
+                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                    $pro19_insref = $pro19_insref + $iter['ins_code'];
                 }
 
-                if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                    $pro19_patref = $pro19_patref + $iter{'pat_code'};
+                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                    $pro19_patref = $pro19_patref + $iter['pat_code'];
                 }
                 break;
         }
 
         if ($the_first_time === 1) {
-              $user = $iter{'user'};
-              $new_old_pid = $iter{'pid'};
+              $user = $iter['user'];
+              $new_old_pid = $iter['pid'];
               $the_first_time = 0;
         }
 
         if ($totals_only != 1) {
-            if ($old_pid != $iter{'pid'} and ($iter{'code_type'} != 'payment_info')) {
+            if ($old_pid != $iter['pid'] and ($iter['code_type'] != 'payment_info')) {
                 if ($old_pid === $new_old_pid) {
                     $line_total = 0;
                     $line_total_pay = 0;
                 }
 
                 if ($first_time) {
-                    print "<table border=0><tr>\n";     // small table
-                    $first_time=0;
+                    print "<table border='0'><tr>\n";     // small table
+                    $first_time = 0;
                 }
-
-                print "<td width=70><span class=text><b><center>" . xlt("Date"). "</b></center>";
-                print "</span></td><td width=50><span class=text><center><b>" . xlt("Acct").'#'. "</b></center>";
-                print "</span></td><td width=100><span class=text><center><b>" . xlt("Name") . "</b></center>";
-                print "</span></td><td width=100><span class=text><b><center>" . xlt("Source"). "</b></center>";
-                print "</span></td><td width=100><span class=text><b><center>" . xlt("CPT"). "</b></center>";
-                print "</span></td><td width=100><span class=small><center><b>" . xlt("ICD"). "</b></center>";
-                print "</span></td><td width=100><span class=small><center><b>". xlt("Charges"). "</b></center>";
-                print "</span></td><td width=100><span class=small><center><b>". xlt("Payments").'/'.xlt("Adj").".". "</b></center>";
-                print "</span></td><td><br></tr><tr>\n";
+                
+                // TODO: Further replace with classes
+                print "<td width='70'><span class='text text-center font-weight-bold'>" . xlt("Date") . "</span></td>";
+                print "<td width='50'><span class='text text-center font-weight-bold'>" . xlt("Acct") . '#' . "</span></td>";
+                print "<td width='100'><span class='text text-center font-weight-bold'>" . xlt("Name") . "</span></td>";
+                print "<td width='100'><span class='text text-center font-weight-bold'>" . xlt("Source") . "</span></td>";
+                print "<td width='100'><span class='text text-center font-weight-bold'>" . xlt("CPT") . "</span></td>";
+                print "<td width='100'><span class='small text-center font-weight-bold'>" . xlt("ICD") . "</span></td>";
+                print "<td width='100'><span class='small text-center font-weight-bold'>" . xlt("Charges") . "</span></td>";
+                print "<td width='100'><span class='small text-center font-weight-bold'>" . xlt("Payments") . '/' . xlt("Adj") . "." . "</span></td>";
+                print "<td><br /></tr><tr>\n";
               //Next patient
-                $old_pid = $iter{'pid'};
+                $old_pid = $iter['pid'];
             }
 
             // get dollar amounts to appear on pat,ins payments and copays
 
-            if ($iter{'code_type'} != 'payment_info') {
-                if ($iter{'code_type'} === 'COPAY' || $iter{'code_type'} === 'Patient Payment' || $iter{'code_type'} === 'Insurance Payment') {
-                     print "<td width=70><span class=text><center>" . text(date("Y-m-d", strtotime($iter{'date'}))). "</center>" ;
-                     print "</span></td><td width=50><span class=text><center>" . text($iter{'pid'}) . "</center>";
-                     print "</span></td><td width=180><span class=text><center>" . text($iter{'last'}) . ", " . text($iter{'first'}) ."</center>";
-                    if (($iter{'ins_adjust_dollar'}) != 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                        print  "</span></td><td width=180><span class=text><center>" . xlt('Insurance Adjustment'). "</center>";
+            if ($iter['code_type'] != 'payment_info') {
+                if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
+                     print "<td width='70'><span class='text'><center>" . text(date("Y-m-d", strtotime($iter['date']))) . "</center>" ;
+                     print "</span></td><td width='50'><span class='text'><center>" . text($iter['pid']) . "</center>";
+                     print "</span></td><td width='180'><span class='text'><center>" . text($iter['last']) . ", " . text($iter['first']) . "</center>";
+                    if (($iter['ins_adjust_dollar']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
+                        print  "</span></td><td width='180'><span class='text'><center>" . xlt('Insurance Adjustment') . "</center>";
                     }
 
-                    if (($iter{'pat_adjust_dollar'}) != 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                        print  "</span></td><td width=180><span class=text><center>" . xlt('Patient Adjustment'). "</center>";
+                    if (($iter['pat_adjust_dollar']) != 0 and ($iter['code_type']) === 'Patient Payment') {
+                        print  "</span></td><td width='180'><span class='text'><center>" . xlt('Patient Adjustment') . "</center>";
                     }
 
-                    if (($iter{'ins_code'}) > 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                        print  "</span></td><td width=180><span class=text><center>" . xlt('Insurance Payment'). "</center>";
+                    if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
+                        print  "</span></td><td width='180'><span class='text'><center>" . xlt('Insurance Payment') . "</center>";
                     }
 
-                    if (($iter{'pat_code'}) > 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                        print  "</span></td><td width=180><span class=text><center>" . xlt('Patient Payment'). "</center>";
+                    if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                        print  "</span></td><td width='180'><span class='text'><center>" . xlt('Patient Payment') . "</center>";
                     }
 
-                    if (($iter{'ins_code'}) < 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                        print  "</span></td><td width=180><span class=text><center>" . xlt('Insurance Credit'). "</center>";
+                    if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
+                        print  "</span></td><td width='180'><span class='text'><center>" . xlt('Insurance Credit') . "</center>";
                     }
 
-                    if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                        print  "</span></td><td width=180><span class=text><center>" . xlt('Patient Credit'). "</center>";
+                    if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                        print  "</span></td><td width='180'><span class='text'><center>" . xlt('Patient Credit') . "</center>";
                     }
 
-                    if ($iter{'paytype'} === 'PCP') {
-                        print  "</span></td><td width=180><span class=text><center>" . xlt('COPAY'). "</center>";
+                    if ($iter['paytype'] === 'PCP') {
+                        print  "</span></td><td width='180'><span class='text'><center>" . xlt('COPAY') . "</center>";
                     }
 
-                    print  "</span></td><td width=100><span class=text>";
-                    print  "</span></td><td width=100><span class=text>";
-                    print  "</span></td><td width=100><span class=text>";
-                    if (($iter{'ins_adjust_dollar'}) != 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                        $line_total_pay = $line_total_pay + $iter{'ins_adjust_dollar'};
-                        print  "</span></td><td width=100><span class=text><center>" . text($iter{'ins_adjust_dollar'}). "</center>";
+                    print  "</span></td><td width='100'><span class='text'>";
+                    print  "</span></td><td width='100'><span class='text'>";
+                    print  "</span></td><td width='100'><span class='text'>";
+                    if (($iter['ins_adjust_dollar']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
+                        $line_total_pay = $line_total_pay + $iter['ins_adjust_dollar'];
+                        print  "</span></td><td width='100'><span class='text'><center>" . text($iter['ins_adjust_dollar']) . "</center>";
                     }
 
-                    if (($iter{'ins_code'}) != 0 and ($iter{'code_type'}) === 'Insurance Payment') {
-                        $line_total_pay = $line_total_pay + $iter{'ins_code'};
-                        print  "</span></td><td width=100><span class=text><center>" . text($iter{'ins_code'}). "</center>";
+                    if (($iter['ins_code']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
+                        $line_total_pay = $line_total_pay + $iter['ins_code'];
+                        print  "</span></td><td width='100'><span class='text'><center>" . text($iter['ins_code']) . "</center>";
                     }
 
-                    if (($iter{'code_type'}) != 'Patient Payment' and ($iter{'code_type'}) != 'Insurance Payment') {
-                        $line_total_pay = $line_total_pay + $iter{'code'};
-                        print  "</span></td><td width=100><span class=text><center>" . text($iter{'code'}). "</center>";
+                    if (($iter['code_type']) != 'Patient Payment' and ($iter['code_type']) != 'Insurance Payment') {
+                        $line_total_pay = $line_total_pay + $iter['code'];
+                        print  "</span></td><td width='100'><span class='text'><center>" . text($iter['code']) . "</center>";
                     }
 
-                    if (($iter{'pat_adjust_dollar'}) != 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                        $line_total_pay = $line_total_pay + $iter{'pat_adjust_dollar'};
-                        print  "</span></td><td width=100><span class=text><center>" . text($iter{'pat_adjust_dollar'}). "</center>";
+                    if (($iter['pat_adjust_dollar']) != 0 and ($iter['code_type']) === 'Patient Payment') {
+                        $line_total_pay = $line_total_pay + $iter['pat_adjust_dollar'];
+                        print  "</span></td><td width='100'><span class='text'><center>" . text($iter['pat_adjust_dollar']) . "</center>";
                     }
 
-                    if (($iter{'pat_code'}) != 0 and ($iter{'code_type'}) === 'Patient Payment') {
-                        $line_total_pay = $line_total_pay + $iter{'pat_code'};
-                        print  "</span></td><td width=100><span class=text><center>" . text($iter{'pat_code'}). "</center>";
+                    if (($iter['pat_code']) != 0 and ($iter['code_type']) === 'Patient Payment') {
+                        $line_total_pay = $line_total_pay + $iter['pat_code'];
+                        print  "</span></td><td width='100'><span class='text'><center>" . text($iter['pat_code']) . "</center>";
                     }
 
-                    if (($iter{'code_type'}) != 'Insurance Payment' and ($iter{'code_type'}) != 'Patient Payment' and $iter{'paytype'} != 'PCP') {
-                        print  "</span></td><td width=100><span class=text><center>" . text($iter{'code_type'}). "</center>";
+                    if (($iter['code_type']) != 'Insurance Payment' and ($iter['code_type']) != 'Patient Payment' and $iter['paytype'] != 'PCP') {
+                        print  "</span></td><td width='100'><span class='text'><center>" . text($iter['code_type']) . "</center>";
                     }
 
-                    print  "</span></td><td width=100><span class=text>";
+                    print  "</span></td><td width='100'><span class='text'>";
                     print  "</span></td>\n";
                 } else {
-                    if ($iter{'fee'} != 0) {
-                        $line_total = $line_total + $iter{'fee'};
-                        print "<td width=70><span class=text><center>" . text(date("Y-m-d", strtotime($iter{'date'}))) . "</center>";
-                        print "</span></td><td width=50><span class=text><center>" . text($iter{'pid'}) . "</center>";
-                        print "</span></td><td width=180><span class=text><center>" . text($iter{'last'}) . ", " . text($iter{'first'}) . "</center>";
+                    if ($iter['fee'] != 0) {
+                        $line_total = $line_total + $iter['fee'];
+                        print "<td width='70'><span class='text'><center>" . text(date("Y-m-d", strtotime($iter['date']))) . "</center>";
+                        print "</span></td><td width='50'><span class='text'><center>" . text($iter['pid']) . "</center>";
+                        print "</span></td><td width='180'><span class='text'><center>" . text($iter['last']) . ", " . text($iter['first']) . "</center>";
                         if ($GLOBALS['language_default'] === 'English (Standard)') {
-                               print "</span></td><td width=100><span class=text><center>" . text(ucwords(strtolower(substr($iter{'code_text'}, 0, 25)))) . "</center>";
+                               print "</span></td><td width='100'><span class='text'><center>" . text(ucwords(strtolower(substr($iter['code_text'], 0, 25)))) . "</center>";
                         } else {
-                            print "</span></td><td width=100><span class=text><center>" . text(substr($iter{'code_text'}, 0, 25)) . "</center>";
+                            print "</span></td><td width='100'><span class='text'><center>" . text(substr($iter['code_text'], 0, 25)) . "</center>";
                         }
 
-                        print "</span></td><td width=100><span class=text><center>" . text($iter{'code'}) . "</center>";
-                        print "</span></td><td width=100><span class=small><center>" . text(substr($iter{'justify'}, 5, 3)) . "</center>";
-                        print "</span></td><td width=100><span class=small><center>" . text($iter{'fee'}). "</center>";
+                        print "</span></td><td width='100'><span class='text'><center>" . text($iter['code']) . "</center>";
+                        print "</span></td><td width='100'><span class=small><center>" . text(substr($iter['justify'], 5, 3)) . "</center>";
+                        print "</span></td><td width='100'><span class=small><center>" . text($iter['fee']) . "</center>";
                         print "</span></td>\n";
                     }
                 }
 
-                if ($iter{'code_type'} === 'COPAY' || $iter{'code_type'} === 'Patient Payment' || $iter{'code_type'} === 'Insurance Payment' || $iter{'fee'} != 0) {
+                if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment' || $iter['fee'] != 0) {
                      $res_count++;
                 }
 
@@ -1168,7 +1172,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 
                 $itero = $iter;
 
-                if ($old_pid != $new_old_pid and ($iter{'code_type'} != 'payment_info')) {
+                if ($old_pid != $new_old_pid and ($iter['code_type'] != 'payment_info')) {
                      $new_old_pid = $old_pid;
                 }
             }
@@ -1673,153 +1677,153 @@ if ($run_provider === 1) {
 if ($totals_only === 1) {
     $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
     $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));
-    print "<br><br>";
-    ?><font size = 5 ><?php echo xlt('Totals for '). text($from_date) . ' '. xlt('To{{Range}}'). ' ' . text($to_date) ?></font><?php
+    print "<br /><br />";
+    ?><font size = 5 ><?php echo xlt('Totals for ') . text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></font><?php
 }
 
 if ($run_provider != 1) {
-    print "<table border=0><tr>\n";
-    print "<br><br>";
-    print  "<td width=25><span class=text>";
-    print  "</span></td><td width=250><span class=text><b><center>". xlt("User"). "</center></b>";
-    print  "</span></td><td width=125><span class=text>";
-    print  "</span></td><td width=250><span class=text><b>" . xlt("Charges"). "</b>";
-    print  "</span></td><td width=125><span class=text>";
-    print  "</span></td><td width=250><span class=text><b>" . xlt("Payments"). "</b>";
-    print  "</span></td><td width=25><span class=text>";
+    print "<table border='0'><tr>\n";
+    print "<br /><br />";
+    print  "<td width='25'><span class='text'>";
+    print  "</span></td><td width='250'><span class='text'><b><center>" . xlt("User") . "</center></b>";
+    print  "</span></td><td width='125'><span class='text'>";
+    print  "</span></td><td width='250'><span class='text'><b>" . xlt("Charges") . "</b>";
+    print  "</span></td><td width='125'><span class='text'>";
+    print  "</span></td><td width='250'><span class='text'><b>" . xlt("Payments") . "</b>";
+    print  "</span></td><td width='25'><span class='text'>";
 
-    for ($i=1; $i<$k;) {
-        print "</br></td>";
-        print "<table border=0><tr>\n";
-        print  "<td width=25><span class=text>" ;
-        Printf("</span></td><td width=250><span class=text><center>".text($user_info[user][$i])). "</center>";
-        print  "</span></td><td width=125><span class=text>" ;
-        printf("</span></td><td width=250><span class=text><b>" . xlt("Total Charges") .': '." %1\$.2f ", text($user_info[fee][$i])). "</b>";
-        print  "</span></td><td width=125><span class=text>";
-        printf("</span></td><td width=250><span class=text><b>"  . xlt("Total Payments").': '. "(%1\$.2f)", text($user_info[inspay][$i] + $user_info[patpay][$i])) . "</b>";
-        print  "</span></td><td width=25><span class=text>" ;
-        print "</br></td>";
-        print "<table border=0><tr>\n";
-        print "<td width=25><span class=text>" ;
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>" ;
-        printf("</span></td><td width=250><span class=text><b>" . xlt("Total Adj").'.: '."(%1\$.2f)", text($user_info[patadj][$i] + $user_info[insadj][$i])). "</b>";
-        print "</span></td><td width=125><span class=text>" ;
-        printf("</span></td><td width=250><span class=text><b>" . xlt("Refund").': '."(%1\$.2f)", text($user_info[patref][$i] + $user_info[insref][$i]))."</b>";
-        print "</span></td><td width=25><span class=text>";
-        print "</br></td>";
-        print "<table border=0><tr>\n";
-        print "<td width=25><span class=text>" ;
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=175 height=5><span class=text><b><hr noshade size=3>";
-        print "</b></hr></span></td><td width=25><span class=text>";
-        print "</br></td>";
-        print "<table border=0><tr>\n";
-        print "<td width=25><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        printf("</span></td><td width=250><span class=text><b>" . xlt("Actual Receipts").': '."(%1\$.2f)", text($user_info[patref][$i] + $user_info[insref][$i] + $user_info[inspay][$i] + $user_info[patpay][$i])). "</b>";
-        print "</span></td><td width=25><span class=text>";
-        print "</br></td>";
-        print "<table border=0><tr>\n";
-        print "<td width=25><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=25><span class=text>";
+    for ($i = 1; $i < $k;) {
+        print "<br /></td>";
+        print "<table border='0'><tr>\n";
+        print  "<td width='25'><span class='text'>" ;
+        Printf("</span></td><td width='250'><span class='text'><center>" . text($user_info['user'][$i])) . "</center>";
+        print  "</span></td><td width='125'><span class='text'>" ;
+        printf("</span></td><td width='250'><span class='text'><b>" . xlt("Total Charges") . ': ' . " %1\$.2f ", text($user_info['fee'][$i])) . "</b>";
+        print  "</span></td><td width='125'><span class='text'>";
+        printf("</span></td><td width='250'><span class='text'><b>"  . xlt("Total Payments") . ': ' . "(%1\$.2f)", text($user_info['inspay'][$i] + $user_info['patpay'][$i])) . "</b>";
+        print  "</span></td><td width='25'><span class='text'>" ;
+        print "<br /></td>";
+        print "<table border='0'><tr>\n";
+        print "<td width='25'><span class='text'>" ;
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>" ;
+        printf("</span></td><td width='250'><span class='text'><b>" . xlt("Total Adj") . '.: ' . "(%1\$.2f)", text($user_info['patadj'][$i] + $user_info['insadj'][$i])) . "</b>";
+        print "</span></td><td width='125'><span class='text'>" ;
+        printf("</span></td><td width='250'><span class='text'><b>" . xlt("Refund") . ': ' . "(%1\$.2f)", text($user_info['patref'][$i] + $user_info['insref'][$i])) . "</b>";
+        print "</span></td><td width='25'><span class='text'>";
+        print "<br /></td>";
+        print "<table border='0'><tr>\n";
+        print "<td width='25'><span class='text'>" ;
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width=175 height=5><span class='text'><b><hr noshade size=3>";
+        print "</b></hr></span></td><td width='25'><span class='text'>";
+        print "<br /></td>";
+        print "<table border='0'><tr>\n";
+        print "<td width='25'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        printf("</span></td><td width='250'><span class='text'><b>" . xlt("Actual Receipts") . ': ' . "(%1\$.2f)", text($user_info['patref'][$i] + $user_info['insref'][$i] + $user_info['inspay'][$i] + $user_info['patpay'][$i])) . "</b>";
+        print "</span></td><td width='25'><span class='text'>";
+        print "<br /></td>";
+        print "<table border='0'><tr>\n";
+        print "<td width='25'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width='25'><span class='text'>";
 
-        $gtotal_fee = $gtotal_fee + $user_info[fee][$i];
-        $gtotal_insadj = $gtotal_insadj + $user_info[insadj][$i];
-        $gtotal_inspay = $gtotal_inspay + $user_info[inspay][$i];
-        $gtotal_patadj = $gtotal_patadj + $user_info[patadj][$i];
-        $gtotal_patpay = $gtotal_patpay + $user_info[patpay][$i];
+        $gtotal_fee = $gtotal_fee + $user_info['fee'][$i];
+        $gtotal_insadj = $gtotal_insadj + $user_info['insadj'][$i];
+        $gtotal_inspay = $gtotal_inspay + $user_info['inspay'][$i];
+        $gtotal_patadj = $gtotal_patadj + $user_info['patadj'][$i];
+        $gtotal_patpay = $gtotal_patpay + $user_info['patpay'][$i];
 
         ++$i;
 
-        print "</br></td></tr>";
+        print "<br /></td></tr>";
     }
 
-    print "</br></td>";
+    print "<br /></td>";
     print "</table>";
 } else {
-    print "<table border=0><tr>\n";
-    print "<br><br>";
-    print  "<td width=25><span class=text>";
-    print  "</span></td><td width=250><span class=text><b><center>". xlt("Provider"). "</center></b>";
-    print  "</span></td><td width=125><span class=text>";
-    print  "</span></td><td width=250><span class=text><b>" . xlt("Charges"). "</b>";
-    print  "</span></td><td width=125><span class=text>";
-    print  "</span></td><td width=250><span class=text><b>" . xlt("Payments"). "</b>";
-    print  "</span></td><td width=25><span class=text>";
+    print "<table border='0'><tr>\n";
+    print "<br /><br />";
+    print  "<td width='25'><span class='text'>";
+    print  "</span></td><td width='250'><span class='text'><b><center>" . xlt("Provider") . "</center></b>";
+    print  "</span></td><td width='125'><span class='text'>";
+    print  "</span></td><td width='250'><span class='text'><b>" . xlt("Charges") . "</b>";
+    print  "</span></td><td width='125'><span class='text'>";
+    print  "</span></td><td width='250'><span class='text'><b>" . xlt("Payments") . "</b>";
+    print  "</span></td><td width='25'><span class='text'>";
 
-    for ($i=1; $i<$k;) {
-        print "</br></td>";
-        print "<table border=0><tr>\n";
-        print  "<td width=25><span class=text>";
-        Printf("</span></td><td width=250><span class=text><center>".text($provider_info[user][$i])). "</center>";
-        print  "</span></td><td width=125><span class=text>";
-        printf("</span></td><td width=250><span class=text><b>" . xlt("Total Charges").': '." %1\$.2f ", text($provider_info[fee][$i])). "</b>";
-        print  "</span></td><td width=125><span class=text>";
-        printf("</span></td><td width=250><span class=text><b>"  . xlt("Total Payments").': '. "(%1\$.2f)", text($provider_info[inspay][$i] + $provider_info[patpay][$i])) . "</b>";
-        print  "</span></td><td width=25><span class=text>";
-        print "</br></td>";
-        print "<table border=0><tr>\n";
-        print "<td width=25><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        printf("</span></td><td width=250><span class=text><b>" . xlt("Total Adj").'.: '."(%1\$.2f)", text($provider_info[patadj][$i] + $provider_info[insadj][$i])). "</b>";
-        print "</span></td><td width=125><span class=text>";
-        printf("</span></td><td width=250><span class=text><b>" . xlt("Refund").': '."(%1\$.2f)", text($provider_info[patref][$i] + $provider_info[insref][$i]))."</b>";
-        print "</span></td><td width=25><span class=text>";
-        print "</br></td>";
-        print "<table border=0><tr>\n";
-        print "<td width=25><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=175 height=5><span class=text><b><hr noshade size=3>";
-        print "</b></hr></span></td><td width=25><span class=text>";
-        print "</br></td>";
-        print "<table border=0><tr>\n";
-        print "<td width=25><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        printf("</span></td><td width=250><span class=text><b>" . xlt("Actual Receipts").': '."(%1\$.2f)", text($provider_info[patref][$i] + $provider_info[insref][$i] + $provider_info[inspay][$i] + $provider_info[patpay][$i])). "</b>";
-        print "</span></td><td width=25><span class=text>";
-        print "</br></td>";
-        print "<table border=0><tr>\n";
-        print "<td width=25><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=250><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=125><span class=text>";
-        print "</span></td><td width=25><span class=text>";
+    for ($i = 1; $i < $k;) {
+        print "<br /></td>";
+        print "<table border='0'><tr>\n";
+        print  "<td width='25'><span class='text'>";
+        Printf("</span></td><td width='250'><span class='text'><center>" . text($provider_info['user'][$i])) . "</center>";
+        print  "</span></td><td width='125'><span class='text'>";
+        printf("</span></td><td width='250'><span class='text'><b>" . xlt("Total Charges") . ': ' . " %1\$.2f ", text($provider_info['fee'][$i])) . "</b>";
+        print  "</span></td><td width='125'><span class='text'>";
+        printf("</span></td><td width='250'><span class='text'><b>"  . xlt("Total Payments") . ': ' . "(%1\$.2f)", text($provider_info['inspay'][$i] + $provider_info['patpay'][$i])) . "</b>";
+        print  "</span></td><td width='25'><span class='text'>";
+        print "<br /></td>";
+        print "<table border='0'><tr>\n";
+        print "<td width='25'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        printf("</span></td><td width='250'><span class='text'><b>" . xlt("Total Adj") . '.: ' . "(%1\$.2f)", text($provider_info['patadj'][$i] + $provider_info['insadj'][$i])) . "</b>";
+        print "</span></td><td width='125'><span class='text'>";
+        printf("</span></td><td width='250'><span class='text'><b>" . xlt("Refund") . ': ' . "(%1\$.2f)", text($provider_info['patref'][$i] + $provider_info['insref'][$i])) . "</b>";
+        print "</span></td><td width='25'><span class='text'>";
+        print "<br /></td>";
+        print "<table border='0'><tr>\n";
+        print "<td width='25'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width='175' height='5'><span class='text'><b><hr noshade size='3'>";
+        print "</b></hr></span></td><td width='25'><span class='text'>";
+        print "<br /></td>";
+        print "<table border='0'><tr>\n";
+        print "<td width='25'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        printf("</span></td><td width='250'><span class='text'><b>" . xlt("Actual Receipts") . ': ' . "(%1\$.2f)", text($provider_info['patref'][$i] + $provider_info['insref'][$i] + $provider_info['inspay'][$i] + $provider_info['patpay'][$i])) . "</b>";
+        print "</span></td><td width='25'><span class='text'>";
+        print "<br /></td>";
+        print "<table border='0'><tr>\n";
+        print "<td width='25'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width='250'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width='125'><span class='text'>";
+        print "</span></td><td width='25'><span class='text'>";
 
-        $gtotal_fee = $gtotal_fee + $provider_info[fee][$i];
-        $gtotal_insadj = $gtotal_insadj + $provider_info[insadj][$i];
-        $gtotal_inspay = $gtotal_inspay + $provider_info[inspay][$i];
-        $gtotal_insref = $gtotal_insref + $provider_info[insref][$i];
-        $gtotal_patadj = $gtotal_patadj + $provider_info[patadj][$i];
-        $gtotal_patpay = $gtotal_patpay + $provider_info[patpay][$i];
-        $gtotal_patref = $gtotal_patref + $provider_info[patref][$i];
+        $gtotal_fee = $gtotal_fee + $provider_info['fee'][$i];
+        $gtotal_insadj = $gtotal_insadj + $provider_info['insadj'][$i];
+        $gtotal_inspay = $gtotal_inspay + $provider_info['inspay'][$i];
+        $gtotal_insref = $gtotal_insref + $provider_info['insref'][$i];
+        $gtotal_patadj = $gtotal_patadj + $provider_info['patadj'][$i];
+        $gtotal_patpay = $gtotal_patpay + $provider_info['patpay'][$i];
+        $gtotal_patref = $gtotal_patref + $provider_info['patref'][$i];
 
         ++$i;
 
-        print "</br></td></tr>";
+        print "<br /></td></tr>";
     }
 
-    print "</br></td>";
+    print "<br /></td>";
     print "</table>";
 }
 ?>

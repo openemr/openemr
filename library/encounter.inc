@@ -1,6 +1,6 @@
 <?php
-include_once("../../globals.php");
-include_once("$srcdir/forms.inc");
+
+require_once(__DIR__ . "/forms.inc");
 
 //function called to set the global session variable for encounter number
 function setencounter($enc)
@@ -25,8 +25,8 @@ function setencounter($enc)
         }
     }
 
-    $_SESSION['encounter']=$enc;
-    $encounter=$enc;
+    $_SESSION['encounter'] = $enc;
+    $encounter = $enc;
 
 
     //returns 1 on successful global set, or 0 if there was no
@@ -44,4 +44,16 @@ function fetchCategoryIdByEncounter($encounter)
     $sql = "SELECT pc_catid FROM " . escape_table_name($table) . " WHERE encounter = ? limit 1";
     $result = sqlQuery($sql, array($encounter));
     return $result['pc_catid'];
+}
+
+/**
+ * @param $encounter
+ * @return mixed
+ */
+function fetchDateService($encounter)
+{
+    $sql = "select date from form_encounter where encounter = ?";
+    $result = sqlQuery($sql, [$encounter]);
+    $result = explode(" ", $result['date']);
+    return $result[0];
 }

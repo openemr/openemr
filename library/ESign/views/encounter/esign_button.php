@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ESign button view script for encounter module
  *
@@ -20,7 +21,6 @@
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
 ?>
-<a target="<?php echo attr($this->target); ?>" href="#"
-    class="esign-button-encounter css_button"
-    data-encounterid="<?php echo attr($this->encounterId); ?>"><span><?php echo xlt('eSign'); ?></span></a>
+<a target="<?php echo attr($this->target); ?>" href="#" class="esign-button-encounter btn btn-primary" data-encounterid="<?php echo attr($this->encounterId); ?>"><?php echo xlt('eSign'); ?></a>

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExplanationOfBenefit;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExplanationOfBenefit;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -196,8 +198,8 @@ class FHIRExplanationOfBenefitAccident extends FHIRBackboneElement implements \J
             if (isset($data['locationReference'])) {
                 $this->setLocationReference($data['locationReference']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Fee Sheet report.php
  *
@@ -10,8 +11,8 @@
  */
 
 
-require_once(dirname(__FILE__).'/../../globals.php');
-require_once($GLOBALS["srcdir"]."/api.inc");
+require_once(dirname(__FILE__) . '/../../globals.php');
+require_once($GLOBALS["srcdir"] . "/api.inc");
 
 function fee_sheet_report($pid, $encounter, $cols, $id)
 {
@@ -28,8 +29,8 @@ function fee_sheet_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
-            $key=ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>" . attr($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+            $key = ucwords(str_replace("_", " ", $key));
+            print "<td><span class='bold'>" . attr($key) . ": </span><span class='text'>" . text($value) . "</span></td>";
             $count++;
             if ($count == $cols) {
                 $count = 0;

@@ -19,11 +19,10 @@
  * @link    http://www.open-emr.org
  */
 
-
 namespace PrescriptionTemplates\Controller;
 
 use Interop\Container\ContainerInterface;
-use Zend\View\Model\ViewModel;
+use Laminas\View\Model\ViewModel;
 
 /**
  * Class HtmlTemplatesController
@@ -35,11 +34,6 @@ use Zend\View\Model\ViewModel;
  */
 class HtmlTemplatesController extends PrescriptionTemplatesController
 {
-    public function __construct(ContainerInterface $container)
-    {
-             parent::__construct($container);
-    }
-
     public function defaultAction()
     {
         $id = $this->params()->fromQuery('id');

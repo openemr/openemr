@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImmunizationRecommendation;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImmunizationRecommendation;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -444,7 +446,7 @@ class FHIRImmunizationRecommendationRecommendation extends FHIRBackboneElement i
                         $this->addVaccineCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"vaccineCode" must be array of objects or null, '.gettype($data['vaccineCode']).' seen.');
+                    throw new \InvalidArgumentException('"vaccineCode" must be array of objects or null, ' . gettype($data['vaccineCode']) . ' seen.');
                 }
             }
             if (isset($data['targetDisease'])) {
@@ -456,7 +458,7 @@ class FHIRImmunizationRecommendationRecommendation extends FHIRBackboneElement i
                         $this->addContraindicatedVaccineCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"contraindicatedVaccineCode" must be array of objects or null, '.gettype($data['contraindicatedVaccineCode']).' seen.');
+                    throw new \InvalidArgumentException('"contraindicatedVaccineCode" must be array of objects or null, ' . gettype($data['contraindicatedVaccineCode']) . ' seen.');
                 }
             }
             if (isset($data['forecastStatus'])) {
@@ -468,7 +470,7 @@ class FHIRImmunizationRecommendationRecommendation extends FHIRBackboneElement i
                         $this->addForecastReason($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"forecastReason" must be array of objects or null, '.gettype($data['forecastReason']).' seen.');
+                    throw new \InvalidArgumentException('"forecastReason" must be array of objects or null, ' . gettype($data['forecastReason']) . ' seen.');
                 }
             }
             if (isset($data['dateCriterion'])) {
@@ -477,7 +479,7 @@ class FHIRImmunizationRecommendationRecommendation extends FHIRBackboneElement i
                         $this->addDateCriterion($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"dateCriterion" must be array of objects or null, '.gettype($data['dateCriterion']).' seen.');
+                    throw new \InvalidArgumentException('"dateCriterion" must be array of objects or null, ' . gettype($data['dateCriterion']) . ' seen.');
                 }
             }
             if (isset($data['description'])) {
@@ -504,7 +506,7 @@ class FHIRImmunizationRecommendationRecommendation extends FHIRBackboneElement i
                         $this->addSupportingImmunization($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"supportingImmunization" must be array of objects or null, '.gettype($data['supportingImmunization']).' seen.');
+                    throw new \InvalidArgumentException('"supportingImmunization" must be array of objects or null, ' . gettype($data['supportingImmunization']) . ' seen.');
                 }
             }
             if (isset($data['supportingPatientInformation'])) {
@@ -513,11 +515,11 @@ class FHIRImmunizationRecommendationRecommendation extends FHIRBackboneElement i
                         $this->addSupportingPatientInformation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"supportingPatientInformation" must be array of objects or null, '.gettype($data['supportingPatientInformation']).' seen.');
+                    throw new \InvalidArgumentException('"supportingPatientInformation" must be array of objects or null, ' . gettype($data['supportingPatientInformation']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * find_drug_popup.php
  *
@@ -11,12 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $info_msg = "";
 $codetype = $_REQUEST['codetype'];
@@ -25,7 +26,7 @@ $form_code_type = $_POST['form_code_type'];
 <html>
 <head>
 <title><?php echo xlt('Drug Finder'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 
 <style>
 td { font-size:10pt; }
@@ -155,7 +156,7 @@ function check_search_str()
     $query = "SELECT count(*) as count FROM drugs " .
       "WHERE (drug_id LIKE ? OR " .
       "name LIKE ?) ";
-    $res = sqlStatement($query, array('%'.$search_term.'%', '%'.$search_term.'%'));
+    $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
     if ($row = sqlFetchArray($res)) {
         $no_of_items = $row['count'];
         if ($no_of_items < 1) {
@@ -172,14 +173,14 @@ function check_search_str()
         "WHERE (drug_id LIKE ? OR " .
         "name LIKE ?) " .
         "ORDER BY drug_id";
-        $res = sqlStatement($query, array('%'.$search_term.'%', '%'.$search_term.'%'));
+        $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
         $row_count = 0;
         while ($row = sqlFetchArray($res)) {
               $row_count = $row_count + 1;
               $itercode = $row['drug_id'];
               $itertext = ucfirst(strtolower(trim($row['name'])));
             ?>
-               <input type="checkbox" id="chkbox" name ="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "</br>";
+               <input type="checkbox" id="chkbox" name ="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "<br />";
         }
     }
 

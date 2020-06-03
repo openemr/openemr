@@ -1,55 +1,79 @@
 /*-----------------------openemr5.0.2 help files styling---------------------- */
 
-.oe-help-container a , .oe-help-container a:not(.btn), .oe-help-container a:not(oe-help-redirect){
-    text-decoration: none !important;
-    color: #676666;
-    font-weight: 700;
+.oe-help-container a,
+.oe-help-container a:not(.btn),
+.oe-help-container a:not(oe-help-redirect) {
+  color: $gray;
+  font-weight: 700;
+  text-decoration: none !important;
 }
-.oe-help-container h2>a {
-    font-weight: 500 !important;
+
+.oe-help-container h2 > a {
+  font-weight: 500 !important;
 }
+
 .oe-help-heading {
-    color:#676666;
-    background-color: #E4E2E0;
-    border-color: #DADADA;
-    padding: 10px 5px;
-    border-radius: 5px;
+  background-color: $gray-200;
+  border-color: $gray-300;
+  border-radius: 5px;
+  color: $gray;
+  padding: 10px 5px;
 }
+
 .oe-text-orange {
-    color: orange;
+  color: $orange;
 }
+
 .oe-text-red {
-    color: red;
+  color: $danger;
 }
+
 .oe-text-green {
-    color: green;
+  color: $success;
 }
+
 .oe-text-black {
-    color: black;
+  color: $black;
 }
+
 .oe-no-float {
-    float: none !important;
+  float: none !important;
 }
+
 .oe-inline {
-    display: inline !important;
+  display: inline !important;
 }
+
 .oe-superscript {
-    position: relative;
-    top: -0.5em;
-    font-size: 70% !important;
+  font-size: 70% !important;
+  position: relative;
+  top: -0.5em;
 }
+
 .oe-superscript-small {
-position: relative;
-top: -1.2em;
-font-size: 50%!important;
+  font-size: 50% !important;
+  position: relative;
+  top: -1.2em;
 }
+
 .oe-pull-toward {
-    float:$left !important;
+  float: $left !important;
 }
+
+.oe-pull-toward-unimportant {
+  float: $left;
+}
+
 .oe-pull-away {
-    float: $right !important;
+  float: $right !important;
 }
+
+.oe-pull-away-unimportant {
+  float: $right;
+}
+
 .oe-margin-toward {
-    margin-#{$left}:30px;
+  margin-#{$left}: 30px;
 }
+
 /*-----------------------openemr5.0.2 help files styling---------------------- */

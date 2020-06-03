@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Script to configure the Rules.
  *
@@ -10,19 +11,17 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__)."/../../../../../../library/acl.inc");
-global $phpgacl_location;
-require_once("$phpgacl_location/gacl_api.class.php");
+use OpenEMR\Gacl\GaclApi;
+
 ?>
 
-<table class="header">
+<table class="table header">
   <tr>
         <td class="title"><?php echo xlt('Clinical Decision Rules Alert Manager'); ?></td>
-
   </tr>
   <tr>
         <td>
-            <a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo xlt('Reset'); ?></span></a>
+            <a href="javascript:document.cdralertmgr.submit();" class="btn btn-primary" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="btn btn-secondary" onclick="top.restoreSession()"><span><?php echo xlt('Reset'); ?></span></a>
         </td>
   </tr>
 </table>
@@ -30,7 +29,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
 &nbsp;
 
 <form name="cdralertmgr" method="post" action="index.php?action=alerts!submitactmgr" onsubmit="return top.restoreSession()">
-<table cellpadding="1" cellspacing="0" class="showborder">
+<table cellpadding="1" cellspacing="0" class="table table-bordered">
         <tr class="showborder_head">
                 <th width="250px"><?php echo xlt('Title'); ?></th>
                 <th width="40px">&nbsp;</th>
@@ -69,7 +68,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
                  <td>&nbsp;</td>
                  <td>
                         <?php //Place the ACO selector here
-                        $gacl_temp = new gacl_api();
+                        $gacl_temp = new GaclApi();
                         $list_aco_objects = $gacl_temp->get_objects(null, 0, 'ACO');
                         foreach ($list_aco_objects as $key => $value) {
                             asort($list_aco_objects[$key]);
@@ -84,7 +83,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
                                 $aco_data = $gacl_temp->get_object_data($aco_id, 'ACO');
                                 $aco_title = $aco_data[0][3];
                                 $select = '';
-                                if ($rule->access_control() == $section.":".$aco) {
+                                if ($rule->access_control() == $section . ":" . $aco) {
                                     $select = 'selected';
                                 }
 

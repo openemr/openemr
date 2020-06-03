@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -248,7 +250,7 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
                         $this->addType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"type" must be array of objects or null, '.gettype($data['type']).' seen.');
+                    throw new \InvalidArgumentException('"type" must be array of objects or null, ' . gettype($data['type']) . ' seen.');
                 }
             }
             if (isset($data['schedule'])) {
@@ -257,7 +259,7 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
                         $this->addSchedule($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"schedule" must be array of objects or null, '.gettype($data['schedule']).' seen.');
+                    throw new \InvalidArgumentException('"schedule" must be array of objects or null, ' . gettype($data['schedule']) . ' seen.');
                 }
             }
             if (isset($data['nutrient'])) {
@@ -266,7 +268,7 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
                         $this->addNutrient($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"nutrient" must be array of objects or null, '.gettype($data['nutrient']).' seen.');
+                    throw new \InvalidArgumentException('"nutrient" must be array of objects or null, ' . gettype($data['nutrient']) . ' seen.');
                 }
             }
             if (isset($data['texture'])) {
@@ -275,7 +277,7 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
                         $this->addTexture($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"texture" must be array of objects or null, '.gettype($data['texture']).' seen.');
+                    throw new \InvalidArgumentException('"texture" must be array of objects or null, ' . gettype($data['texture']) . ' seen.');
                 }
             }
             if (isset($data['fluidConsistencyType'])) {
@@ -284,14 +286,14 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
                         $this->addFluidConsistencyType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"fluidConsistencyType" must be array of objects or null, '.gettype($data['fluidConsistencyType']).' seen.');
+                    throw new \InvalidArgumentException('"fluidConsistencyType" must be array of objects or null, ' . gettype($data['fluidConsistencyType']) . ' seen.');
                 }
             }
             if (isset($data['instruction'])) {
                 $this->setInstruction($data['instruction']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

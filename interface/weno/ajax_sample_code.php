@@ -1,4 +1,5 @@
 <?php
+
 /**
  * weno rx ajax sample code
  *
@@ -9,7 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../globals.php');
 
 use OpenEMR\Core\Header;
@@ -19,7 +19,7 @@ use OpenEMR\Core\Header;
 <html>
 <head>
 <title><?php print xlt("Weno Sample Code") ?></title>
-<?php Header::setupHeader(['jquery-ui', 'jquery-ui-sunny']); ?>
+<?php Header::setupHeader(); ?>
 
 </head>
 
@@ -28,7 +28,7 @@ use OpenEMR\Core\Header;
 <h3><?php print xlt("Convert a JavaScript object into a JSON string, and send it to the server.") ?></h3>
 
   <div id="confirm">
-  <br><br>
+  <br /><br />
       <input type='submit' id='confirm_btn' value='<?php print xla("Confirm") ?>' >
   </div>
    <div id="transmit">
@@ -38,7 +38,7 @@ use OpenEMR\Core\Header;
 
 <script>
 
-$(function(){
+$(function () {
 
 
     $("#transmit").hide();
@@ -52,7 +52,7 @@ $(function(){
       });
 
     $('#order').click(function(){
-        $('#success').html("<i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>");
+        $('#success').html("<i class="fa fa-sync fa-spin fa-3x fa-fw"></i>");
         var patient = { "patient": {
                      "lname" : "Ike",
                      "fname" : "Turner",

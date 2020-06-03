@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_views/appointmentComponent.php contains widget for group appointments.
  *
@@ -14,11 +15,14 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Acl\AclMain;
+
 ?>
 
 
-<?php $edit = acl_check("groups", "gcalendar", false, 'write');?>
-<?php $view = acl_check("groups", "gcalendar", false, 'view');?>
+<?php $edit = AclMain::aclCheckCore("groups", "gcalendar", false, 'write');?>
+<?php $view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');?>
 
 
 <?php if ($view || $edit) :?>
@@ -61,22 +65,22 @@
                 ?>
                 <div class="event_details">
                         <?php if ($edit) :?>
-                            <a onclick="goToEvent(<?php echo attr_js("{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=".urlencode($groupId)."&date=".urlencode($date_for_url)."&eid=".urlencode($event['pc_eid'])); ?>)">
+                            <a onclick="goToEvent(<?php echo attr_js("{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . urlencode($groupId) . "&date=" . urlencode($date_for_url) . "&eid=" . urlencode($event['pc_eid'])); ?>)">
                         <?php endif;?>
                         <span><b><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></b></span>
-                        </br>
+                        <br />
                         <span>
                             <?php echo text($disphour) . ":" . text($dispmin) . " " . text($dispampm);
                             if ($event['pc_recurrtype'] > 0) {
-                                echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".xla("Repeating event")."' alt='".xla("Repeating event")."'>";
+                                echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "'>";
                             }
 
                             echo " (  " . text($event['pc_apptstatus']) . "  )" ;?></span>
-                        </br>
+                        <br />
                         <span><?php echo xlt($event['pc_catname']);?></span>
-                        </br>
+                        <br />
                         <span><?php echo text($event['ufname']) . "  " . text($event['ulname']) ;?></span>
-                        </br></br>
+                        <br /><br />
                     </a>
                 </div>
             <?php } ?>

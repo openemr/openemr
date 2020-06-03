@@ -9,7 +9,7 @@ function moveOptions_11(theSelFrom, theSelTo){
     document.getElementById(theSelFrom).style.color="red";
     document.getElementById(theSelFrom).style.fontStyle="italic";
     var str=document.getElementById(theSelFrom).innerHTML;
-    if(window.frames[0].document.body.innerHTML=='<br>')
+    if(window.frames[0].document.body.innerHTML=='<br />')
     window.frames[0].document.body.innerHTML="";
     var patt=/\?\?/;
     var result=patt.test(str);
@@ -126,6 +126,26 @@ function removeHTMLTags(strInputCode){
             });
             var strTagStrippedText = strInputCode.replace(/<\/?[^>]+(>|$)/g, "");
 }
+
+function supportDragAndDrop(thedata){
+    let tempEl = document.createElement( 'div' ),finalEl='';
+    tempEl.innerHTML = thedata;
+    for (let i=0; i< tempEl.children.length; i++) {
+        let ele = tempEl.children[i],temp;
+        if(ele.id){
+            ele.classList.add("draggable")
+            temp = document.createElement( 'div' )
+            temp.classList.add("droppable");
+            temp.appendChild(ele.cloneNode(true));
+            finalEl += temp.outerHTML;
+        }
+        else{
+            finalEl += ele.outerHTML;
+        }
+    }
+    return finalEl;
+}
+
 function TemplateSentence(val){
     if(val){
         document.getElementById('share').style.display='';
@@ -142,7 +162,7 @@ function TemplateSentence(val){
     },
     success: function(thedata){
                 //alert(thedata)
-                document.getElementById('template_sentence').innerHTML = thedata;
+                document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
                 },
     error:function(){
         //alert("fail");
@@ -164,7 +184,7 @@ function delete_item(id){
     },
     success: function(thedata){
                 //alert(thedata)
-                document.getElementById('template_sentence').innerHTML = thedata;
+                document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
                 },
     error:function(){
         //alert("fail");
@@ -197,7 +217,7 @@ function save_item(){
     },
     success: function(thedata){
                 //alert(thedata)
-                document.getElementById('template_sentence').innerHTML = thedata;
+                document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);;
                 cancel_item('');
                 },
     error:function(){
@@ -224,7 +244,7 @@ function update_item(id){
     },
     success: function(thedata){
                 //alert(thedata)
-                document.getElementById('template_sentence').innerHTML = thedata;
+                document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);;
                 cancel_item(id);
                 },
     error:function(){

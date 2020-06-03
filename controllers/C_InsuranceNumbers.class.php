@@ -1,4 +1,5 @@
 <?php
+
 /**
  * C_InsuranceNumbers class
  *
@@ -23,8 +24,8 @@ class C_InsuranceNumbers extends Controller
         $this->providers = array();
         $this->insurance_numbers = array();
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
-        $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_numbers&");
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_numbers&");
         $this->assign("STYLE", $GLOBALS['style']);
     }
 
@@ -134,7 +135,7 @@ class C_InsuranceNumbers extends Controller
         $_POST['process'] = "";
 
         if (!is_numeric($_POST['id'])) {//Z&H
-            header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_numbers&action=list");//Z&H
+            header('Location:' . $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_numbers&action=list");//Z&H
         }//Z&H
     }
 }

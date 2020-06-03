@@ -1,4 +1,5 @@
 <?php
+
 /**
  * load_form.php
  *
@@ -11,7 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$special_timeout = 3600;
 require_once("../../globals.php");
 if (substr($_GET["formname"], 0, 3) === 'LBF') {
     // Use the List Based Forms engine for all LBFxxxxx forms.

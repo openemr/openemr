@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -31,7 +32,7 @@ class PhysicalExam extends ClinicalType
         $type = $this->getListType();
         foreach ($data as $codeType => $codes) {
             foreach ($codes as $code) {
-                if (exist_lists_item($patient->id, $type, $codeType.'::'.$code, $endDate)) {
+                if (exist_lists_item($patient->id, $type, $codeType . '::' . $code, $endDate)) {
                     return true;
                 }
             }

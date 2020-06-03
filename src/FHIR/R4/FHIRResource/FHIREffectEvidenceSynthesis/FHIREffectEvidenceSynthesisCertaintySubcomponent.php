@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIREffectEvidenceSynthesis;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIREffectEvidenceSynthesis;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -173,7 +175,7 @@ class FHIREffectEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneEleme
                         $this->addRating($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"rating" must be array of objects or null, '.gettype($data['rating']).' seen.');
+                    throw new \InvalidArgumentException('"rating" must be array of objects or null, ' . gettype($data['rating']) . ' seen.');
                 }
             }
             if (isset($data['note'])) {
@@ -182,11 +184,11 @@ class FHIREffectEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneEleme
                         $this->addNote($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"note" must be array of objects or null, '.gettype($data['note']).' seen.');
+                    throw new \InvalidArgumentException('"note" must be array of objects or null, ' . gettype($data['note']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

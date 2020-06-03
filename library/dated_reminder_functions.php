@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Contains functions used in the dated reminders.
  *
@@ -55,7 +56,7 @@ function GetPortalAlertCounts()
 function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authId'];
+        $userID = $_SESSION['authUserID'];
     }
 
     global $hasAlerts;
@@ -126,7 +127,7 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
 function GetDueReminderCount($days_to_show, $today, $userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authId'];
+        $userID = $_SESSION['authUserID'];
     }
 
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)
@@ -156,7 +157,7 @@ function GetDueReminderCount($days_to_show, $today, $userID = false)
 function GetAllReminderCount($userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authId'];
+        $userID = $_SESSION['authUserID'];
     }
 
 // ----- sql statement for getting uncompleted reminders
@@ -196,23 +197,23 @@ function getRemindersHTML($today, $reminders = array())
 
 // --------- check if reminder is  overdue
         if (strtotime($r['dueDate']) < $today) {
-            $warning = '<i class=\'fa fa-exclamation-triangle fa-lg\' style=\'color:red\' aria-hidden=\'true\'></i> ' . xlt('OVERDUE');
+            $warning = '<i class=\'fa fa-exclamation-triangle fa-lg text-danger\' aria-hidden=\'true\'></i> ' . xlt('OVERDUE');
             //$class = 'bold alert dr';
             $class = '';
         } elseif (strtotime($r['dueDate']) == $today) {
             // --------- check if reminder is due
-            $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color:orange\' aria-hidden=\'true\'></i> ' . xlt('TODAY');
+            $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color: var(--orange)\' aria-hidden=\'true\'></i> ' . xlt('TODAY');
             $class = '';
         } elseif (strtotime($r['dueDate']) > $today) {
-            $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color:green\' aria-hidden=\'true\'></i> ' . xlt('UPCOMING');
+            $warning = '<i class=\'fa fa-exclamation-circle fa-lg text-success\' aria-hidden=\'true\'></i> ' . xlt('UPCOMING');
             $class = '';
         }
 
         // end check if reminder is due or overdue
         // apend to html string
         $pdHTML .= '<p id="p_' . attr($r['messageID']) . '">
-            <a onclick="openAddScreen(' . attr(addslashes($r['messageID'])) . ')" class="dnForwarder btn btn-default btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
-            <a class="dnRemover btn btn-default btn-save" onclick="updateme(' . "'" . attr(addslashes($r['messageID'])) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
+            <a onclick="openAddScreen(' . attr(addslashes($r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
+            <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . "'" . attr(addslashes($r['messageID'])) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
             <span>' . xlt('Set As Completed') . '</span>
             </a>
             <span title="' . ($r['PatientID'] > 0 ? xla('Click Patient Name to Open Patient File') : '') . '" class="' . attr($class) . '">' .
@@ -225,7 +226,7 @@ function getRemindersHTML($today, $reminders = array())
             </p>';
     }
 
-    return ($pdHTML == '' ? '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color:green\' aria-hidden=\'true\'></i> ' . xlt('No Reminders') : $pdHTML);
+    return ($pdHTML == '' ? '<i class=\'fa fa-exclamation-circle fa-lg text-success\' aria-hidden=\'true\'></i> ' . xlt('No Reminders') : $pdHTML);
 }
 
 // ------------------------------------------------
@@ -240,7 +241,7 @@ function getRemindersHTML($today, $reminders = array())
 function setReminderAsProcessed($rID, $userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authId'];
+        $userID = $_SESSION['authUserID'];
     }
 
     if (is_numeric($rID) and $rID > 0) {
@@ -269,7 +270,7 @@ function setReminderAsProcessed($rID, $userID = false)
 function getReminderById($mID, $userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authId'];
+        $userID = $_SESSION['authUserID'];
     }
 
     $rdrSQL = sqlStatement("SELECT * FROM `dated_reminders` dr 
@@ -301,7 +302,8 @@ function getReminderById($mID, $userID = false)
 // ------------------------------------------------
 function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority)
 {
-    if (// ------- Should run data checks before running this function for more accurate error reporting
+    if (
+// ------- Should run data checks before running this function for more accurate error reporting
 // ------- check sendTo is not empty
         !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker

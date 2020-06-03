@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -13,9 +14,10 @@
  *
  */
 
-include_once('../../globals.php');
-include_once("$srcdir/patient.inc");
+require_once('../../globals.php');
+require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
 $info_msg = "";
@@ -47,29 +49,23 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
 
 <style>
 form {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
 }
 #searchCriteria {
     text-align: center;
     width: 100%;
-    /*font-size: 0.8em;*/
-    background-color: #ddddff;
     font-weight: bold;
     padding: 3px;
 }
 #searchResultsHeader {
     width: 100%;
-    /*background-color: #fff;*/
     border-collapse: collapse;
-}
-#searchResultsHeader th {
-    /*font-size: 0.7em;*/
 }
 #searchResults {
     width: 100%;
     border-collapse: collapse;
-    background-color: white;
+    background-color: var(--white);
     overflow: auto;
 }
 
@@ -79,23 +75,20 @@ form {
 }
 #searchResults td {
     /*font-size: 0.7em;*/
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--light);
 }
-.oneResult { }
-.billing { color: red; font-weight: bold; }
+.billing {
+    color: var(--danger);
+    font-weight: bold;
+}
 
 /* for search results or 'searching' notification */
 #searchstatus {
-    font-size: 0.8em;
     font-weight: bold;
-    padding: 1px 1px 10px 1px;
     font-style: italic;
-    color: black;
+    color: var(--black);
     text-align: center;
 }
-.noResults { background-color: #ccc; }
-.tooManyResults { background-color: #fc0; }
-.howManyResults { background-color: #9f6; }
 #searchspinner {
     display: inline;
     visibility: hidden;
@@ -104,7 +97,7 @@ form {
 /* highlight for the mouse-over */
 .highlight {
     background-color: #336699;
-    color: white;
+    color: var(--white);
 }
 </style>
 
@@ -112,40 +105,27 @@ form {
 <?php
 if (isset($_GET["res"])) {
     echo '
-<script language="Javascript">
-			// Pass the variable to parent hidden type and submit
-			opener.document.theform.resname.value = "noresult";
-			opener.document.theform.submit();
-			// Close the window
-			window.self.close();
+<script>
+    // Pass the variable to parent hidden type and submit
+    opener.document.theform.resname.value = "noresult";
+    opener.document.theform.submit();
+    // Close the window
+    window.self.close();
 </script>';
 }
 ?>
 <!-- ViSolve: Verify the noresult parameter -->
 
-<script language="JavaScript">
-
- function selpid(pid, lname, fname, dob) {
-  if (opener.closed || ! opener.setpatient)
-   alert("<?php echo htmlspecialchars(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
-  else
-   opener.setpatient(pid, lname, fname, dob);
-  dlgclose();
-  return false;
- }
-
-</script>
-
 </head>
 
 <body class="body_top">
 <div class="container-responsive">
-<div id="searchCriteria">
-<form class="form-inline" method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if (isset($_GET['pflag'])) {
-    echo "pflag=0";
-                                                                                                   } ?>'>
-    <?php echo htmlspecialchars(xl('Search by:'), ENT_NOQUOTES); ?>
-   <select name='searchby' class="input-sm">
+<div id="searchCriteria" class="bg-light p-2 pt-3">
+<form method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if (isset($_GET['pflag'])) {
+    echo "pflag=0"; } ?>'>
+    <div class="form-row">
+    <label for="searchby" class="col-form-label col-form-label-sm col"><?php echo htmlspecialchars(xl('Search by:'), ENT_NOQUOTES); ?></label>
+   <select name='searchby' id='searchby' class="form-control form-control-sm col">
     <option value="Last"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></option>
     <!-- (CHEMED) Search by phone number -->
     <option value="Phone"<?php if ($searchby == 'Phone') {
@@ -160,39 +140,40 @@ if (isset($_GET["res"])) {
     <option value="DOB"<?php if ($searchby == 'DOB') {
         echo ' selected';
                        } ?>><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></option>
-   </select>
-    <?php echo htmlspecialchars(xl('for:'), ENT_NOQUOTES); ?>
-   <input type='text' class="input-sm" id='searchparm' name='searchparm' size='12' value='<?php echo htmlspecialchars($_REQUEST['searchparm'], ENT_QUOTES); ?>'
-    title='<?php echo htmlspecialchars(xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>'>
-   &nbsp;
-   <input type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>'>
-   <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
+    </select>
+    <label for="searchparm" class="col-form-label col-form-label-sm col"><?php echo htmlspecialchars(xl('for:'), ENT_NOQUOTES); ?></label>
+   <input type='text' class="form-control form-control-sm col" id='searchparm' name='searchparm' size='12' value='<?php echo htmlspecialchars($_REQUEST['searchparm'], ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>' />
+    <div class="col">
+    <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>' />
+        <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif" /></div>
+    </div>
+    </div>
 </form>
 </div>
 
 <?php if (! isset($_REQUEST['searchparm'])) : ?>
 <div id="searchstatus"><?php echo htmlspecialchars(xl('Enter your search criteria above'), ENT_NOQUOTES); ?></div>
 <?php elseif (count($result) == 0) : ?>
-<div id="searchstatus" class="noResults"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
-<br>
+<div id="searchstatus" class="alert alert-danger rounded-0"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
+<br />
 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
-<a class="noresult" href='find_patient_popup.php?res=noresult' 
+<a class="noresult" href='find_patient_popup.php?res=noresult'
     <?php
-    if (isset($_GET['pflag']) || (!acl_check('patients', 'demo', '', array('write','addonly')))) {
-        ?> style="display:none;" 
+    if (isset($_GET['pflag']) || (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly')))) {
+        ?> style="display: none;"
         <?php
     }
     ?>  >
     <?php echo htmlspecialchars(xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
 </div>
-<?php elseif (count($result)>=100) : ?>
-<div id="searchstatus" class="tooManyResults"><?php echo htmlspecialchars(xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
-<?php elseif (count($result)<100) : ?>
-<div id="searchstatus" class="howManyResults"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES); ?> <?php echo htmlspecialchars(xl('records found.'), ENT_NOQUOTES); ?></div>
+<?php elseif (count($result) >= 100) : ?>
+<div id="searchstatus" class="alert alert-danger rounded-0"><?php echo htmlspecialchars(xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
+<?php elseif (count($result) < 100) : ?>
+<div id="searchstatus" class="alert alert-success rounded-0"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES); ?> <?php echo htmlspecialchars(xl('records found.'), ENT_NOQUOTES); ?></div>
 <?php endif; ?>
 
 <?php if (isset($result)) : ?>
-<table class="table table-condensed">
+<table class="table table-sm">
 <thead id="searchResultsHeader" class="head">
  <tr>
   <th class="srName"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></th>
@@ -218,11 +199,11 @@ if (isset($_GET["res"])) {
             $trClass .= " billing";
         }
 
-        echo " <tr class='".$trClass."' id='" .
-        htmlspecialchars($iterpid."~".$iterlname."~".$iterfname."~".$iterdob, ENT_QUOTES) . "'>";
-        echo "  <td class='srName'>" . htmlspecialchars($iterlname.", ".$iterfname." ".$itermname, ENT_NOQUOTES);
+        echo " <tr class='" . $trClass . "' id='" .
+        htmlspecialchars($iterpid . "~" . $iterlname . "~" . $iterfname . "~" . $iterdob, ENT_QUOTES) . "'>";
+        echo "  <td class='srName'>" . htmlspecialchars($iterlname . ", " . $iterfname . " " . $itermname, ENT_NOQUOTES);
         if (!empty($iter['billing_note'])) {
-            echo "<br>" . htmlspecialchars($iter['billing_note'], ENT_NOQUOTES);
+            echo "<br />" . htmlspecialchars($iter['billing_note'], ENT_NOQUOTES);
         }
 
         echo "</td>\n";
@@ -238,11 +219,11 @@ if (isset($_GET["res"])) {
 
 <?php endif; ?>
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function () {
     $("#searchparm").focus();
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
@@ -253,7 +234,7 @@ $(function(){
     //$(".event").dblclick(function() { EditEvent(this); });
     $("#theform").submit(function() { SubmitForm(this); });
 
-    $('[name="searchby"').on('change', function () {
+    $('select[name="searchby"]').on('change', function () {
         if($(this).val() === 'DOB'){
             $('#searchparm').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
@@ -266,8 +247,16 @@ $(function(){
             $('#searchparm').datetimepicker("destroy");
         }
     });
-
 });
+
+function selpid(pid, lname, fname, dob) {
+    if (opener.closed || ! opener.setpatient)
+        alert("<?php echo htmlspecialchars(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
+    else
+        opener.setpatient(pid, lname, fname, dob);
+    dlgclose();
+    return false;
+}
 
 // show the 'searching...' status and submit the form
 var SubmitForm = function(eObj) {

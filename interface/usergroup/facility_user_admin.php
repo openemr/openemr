@@ -1,4 +1,5 @@
 <?php
+
 /**
  * edit per-facility user information.
  *
@@ -11,16 +12,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Ensure authorized
-if (!acl_check('admin', 'users')) {
+if (!AclMain::aclCheckCore('admin', 'users')) {
     die(xlt("Unauthorized"));
 }
 
@@ -36,10 +36,10 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 
     <title><?php echo xlt("Edit Facility Specific User Information"); ?></title>
 
-    <?php Header::setupHeader(['common','jquery-ui','datetime-picker','opener']); ?>
+    <?php Header::setupHeader(['common','datetime-picker','opener']); ?>
 
     <script language="JavaScript">
-        $(function(){
+        $(function () {
             $("#form_facility_user").submit(function (event) {
                 top.restoreSession();
                 event.preventDefault();
@@ -63,6 +63,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
@@ -70,6 +72,44 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datepicker-past').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datetimepicker-past').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datepicker-future').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+                <?php $datetimepicker_maxDate = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datetimepicker-future').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+                <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
@@ -90,14 +130,14 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                           "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
                           "ORDER BY group_id, seq");
     $l_arr = array();
-    for ($i=0; $row=sqlFetchArray($l_res); $i++) {
-        $l_arr[$i]=$row;
+    for ($i = 0; $row = sqlFetchArray($l_res); $i++) {
+        $l_arr[$i] = $row;
     }
     ?>
 
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-title">
                     <h3><?php echo xlt('Edit Facility Specific User Information'); ?></h3>
                 </div>
@@ -145,7 +185,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                     <tr>
                         <td>&nbsp;</td>
                         <td>
-                            <button type="submit" class="btn btn-default btn-save" name='form_save' id='form_save' href='#' >
+                            <button type="submit" class="btn btn-secondary btn-save" name='form_save' id='form_save' href='#' >
                                 <?php echo xlt('Save');?>
                             </button>
                             <a class="btn btn-link btn-cancel oe-opt-btn-separate-left" id='cancel' href='#'>

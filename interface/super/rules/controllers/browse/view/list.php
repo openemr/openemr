@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/browse/view/list.php
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 
 <script language="javascript" src="<?php js_src('list.js') ?>"></script>
@@ -20,11 +22,11 @@
     list.init();
 </script>
 
-<table class="header">
+<table class="table header">
     <tr>
         <td class="title"><?php echo xlt('Plans Configuration'); ?></td>
         <td>
-            <a href="index.php?action=browse!plans_config" class="iframe_medium css_button">
+            <a href="index.php?action=browse!plans_config" class="iframe_medium btn btn-primary">
                 <span><?php echo xlt('Go'); ?></span>
             </a>
         </td>
@@ -32,7 +34,7 @@
     <tr>
         <td class="title"><?php echo xlt('Rules Configuration'); ?></td>
         <td>
-            <a href="index.php?action=edit!summary" class="iframe_medium css_button" onclick="top.restoreSession()">
+            <a href="index.php?action=edit!summary" class="iframe_medium btn btn-primary" onclick="top.restoreSession()">
                 <span><?php echo xlt('Add new{{Rule}}'); ?></span>
             </a>
         </td>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Generic script to list stored reports. Part of the module to allow the tracking,
  * storing, and viewing of reports.
@@ -9,7 +10,6 @@
  * @copyright Copyright (c) 2012-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -38,8 +38,8 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
     <?php Header::setupHeader('datetime-picker'); ?>
 
-    <script LANGUAGE="JavaScript">
-        $( document ).ready(function(){
+    <script>
+        $(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
@@ -96,7 +96,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
     <table class='text'>
 
                    <tr>
-                      <td class='control-label'>
+                      <td class='col-form-label'>
                             <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
@@ -106,7 +106,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                    </tr>
 
                 <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                                 <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
@@ -118,16 +118,16 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-            <a href='#' id='search_button' class='btn btn-default btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
+            <a href='#' id='search_button' class='btn btn-secondary btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
                 <?php echo xlt('Search'); ?>
             </a>
-            <a href='#' id='refresh_button' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+            <a href='#' id='refresh_button' class='btn btn-secondary btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
                 <?php echo xlt('Refresh'); ?>
             </a>
           </div>
@@ -141,23 +141,23 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
 </div>  <!-- end of search parameters -->
 
-<br>
+<br />
 
 
 
 <div id="report_results">
-<table>
+<table class='table'>
 
- <thead>
-  <th align='center'>
+ <thead class='thead-light'>
+  <th class='text-center'>
     <?php echo xlt('Title'); ?>
   </th>
 
-  <th align='center'>
+  <th class='text-center'>
     <?php echo xlt('Date'); ?>
   </th>
 
-  <th align='center'>
+  <th class='text-center'>
     <?php echo xlt('Status'); ?>
   </th>
 
@@ -174,108 +174,108 @@ while ($row = sqlFetchArray($res)) {
         }
 
         $type_title = xl('Clinical Quality Measures (CQM)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } else if ($row['type'] == "cqm_2011") {
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+    } elseif ($row['type'] == "cqm_2011") {
         if (!$GLOBALS['enable_cqm']) {
             continue;
         }
 
         $type_title = xl('2011 Clinical Quality Measures (CQM)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } else if ($row['type'] == "cqm_2014") {
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+    } elseif ($row['type'] == "cqm_2014") {
         if (!$GLOBALS['enable_cqm']) {
             continue;
         }
 
         $type_title = xl('2014 Clinical Quality Measures (CQM)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } else if ($row['type'] == "amc") {
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+    } elseif ($row['type'] == "amc") {
         if (!$GLOBALS['enable_amc']) {
             continue;
         }
 
         $type_title = xl('Automated Measure Calculations (AMC)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } else if ($row['type'] == "amc_2011") {
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+    } elseif ($row['type'] == "amc_2011") {
         if (!$GLOBALS['enable_amc']) {
             continue;
         }
 
         $type_title = xl('2011 Automated Measure Calculations (AMC)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } else if ($row['type'] == "amc_2014") {
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+    } elseif ($row['type'] == "amc_2014") {
         if (!$GLOBALS['enable_amc']) {
             continue;
         }
 
         $type_title = xl('2014 Automated Measure Calculations (AMC)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } else if ($row['type'] == "amc_2014_stage1") {
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+    } elseif ($row['type'] == "amc_2014_stage1") {
         if (!$GLOBALS['enable_amc']) {
             continue;
         }
 
         $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage I');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } else if ($row['type'] == "amc_2014_stage2") {
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+    } elseif ($row['type'] == "amc_2014_stage2") {
         if (!$GLOBALS['enable_amc']) {
             continue;
         }
 
         $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage II');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } else if ($row['type'] == "process_reminders") {
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+    } elseif ($row['type'] == "process_reminders") {
         if (!$GLOBALS['enable_cdr']) {
             continue;
         }
 
         $type_title = xl('Processing Patient Reminders');
-        $link="../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
-    } else if ($row['type'] == "process_send_reminders") {
+        $link = "../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
+    } elseif ($row['type'] == "process_send_reminders") {
         if (!$GLOBALS['enable_cdr']) {
             continue;
         }
 
         $type_title = xl('Processing and Sending Patient Reminders');
-        $link="../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
-    } else if ($row['type'] == "passive_alert") {
+        $link = "../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
+    } elseif ($row['type'] == "passive_alert") {
         if (!$GLOBALS['enable_cdr']) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Passive Alerts)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } else if ($row['type'] == "active_alert") {
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+    } elseif ($row['type'] == "active_alert") {
         if (!$GLOBALS['enable_cdr']) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Active Alerts)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } else if ($row['type'] == "patient_reminder") {
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+    } elseif ($row['type'] == "patient_reminder") {
         if (!$GLOBALS['enable_cdr']) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Patient Reminders)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else {
         // Not identified, so give an unknown title
         $type_title = xl('Unknown') . "-" . $row['type'];
-        $link="";
+        $link = "";
     }
     ?>
 <tr>
     <?php if ($row["progress"] == "complete") { ?>
-      <td align='center'><a href='<?php echo $link; ?>' onclick='top.restoreSession()'><?php echo text($type_title); ?></a></td>
+      <td class='text-center'><a href='<?php echo $link; ?>' onclick='top.restoreSession()'><?php echo text($type_title); ?></a></td>
     <?php } else { ?>
-      <td align='center'><?php echo text($type_title); ?></td>
+      <td class='text-center'><?php echo text($type_title); ?></td>
     <?php } ?>
-  <td align='center'><?php echo text(oeFormatDateTime($row["date_report"], "global", true)); ?></td>
+  <td class='text-center'><?php echo text(oeFormatDateTime($row["date_report"], "global", true)); ?></td>
     <?php if ($row["progress"] == "complete") { ?>
-      <td align='center'><?php echo xlt("Complete") . " (" . xlt("Processing Time") . ": " . text($row['report_time_processing']) . " " . xlt("Minutes") . ")"; ?></td>
+      <td class='text-center'><?php echo xlt("Complete") . " (" . xlt("Processing Time") . ": " . text($row['report_time_processing']) . " " . xlt("Minutes") . ")"; ?></td>
     <?php } else { ?>
-      <td align='center'><?php echo xlt("Pending") . " (" . text($row["progress_items"]) . " / " . text($row["total_items"]) . " " . xlt("Patients Processed") . ")"; ?></td>
+      <td class='text-center'><?php echo xlt("Pending") . " (" . text($row["progress_items"]) . " / " . text($row["total_items"]) . " " . xlt("Patients Processed") . ")"; ?></td>
     <?php } ?>
 
 </tr>

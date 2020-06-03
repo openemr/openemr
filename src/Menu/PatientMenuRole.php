@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PatientMenuRole class.
  *
@@ -13,6 +14,7 @@
 
 namespace OpenEMR\Menu;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\UserService;
 
 class PatientMenuRole extends MenuRole
@@ -28,7 +30,7 @@ class PatientMenuRole extends MenuRole
         //   constructor. Adding to this array will link special menu items
         //   to functions in this class.
         parent::__construct();
-        $this->menu_update_map["Modules"]="updateModulesDemographicsMenu";
+        $this->menu_update_map["Modules"] = "updateModulesDemographicsMenu";
     }
 
     /**
@@ -68,7 +70,7 @@ class PatientMenuRole extends MenuRole
         }
         $menu_parsed = json_decode(json_encode($menu_parsed));
         $this->menuUpdateEntries($menu_parsed);
-        $menu_restrictions=array();
+        $menu_restrictions = array();
         $this->menuApplyRestrictions($menu_parsed, $menu_restrictions);
         return $menu_restrictions;
     }
@@ -143,7 +145,7 @@ class PatientMenuRole extends MenuRole
                     $modulePath = $GLOBALS['zendModDir'];
                 }
 
-                if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
                     continue;
                 }
 
@@ -164,55 +166,52 @@ class PatientMenuRole extends MenuRole
         }
     }
     /**
-     * displays a bootstrap3 horizontal nav bar
+     * displays a bootstrap4 horizontal nav bar
      */
-    
+
     public function displayHorizNavBarMenu()
     {
         $pid = $_SESSION['pid'];
         $menu_restrictions = $this->getMenu();
         $li_id = 1;
         $str_top = <<<EOT
-        <nav class="navbar navbar-default navbar-color navbar-static-top patient-menu">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
-                </div>
-                <div class="collapse navbar-collapse" id="myNavbar" >
-                    <ul class="nav navbar-nav">
+        <!--navbar-light is needed for color override in other themes-->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#myNavbar" aria-controls="myNavbar" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="myNavbar">
+                    <ul class="navbar-nav">
 EOT;
-        echo $str_top. "\r\n";
+        echo $str_top . "\r\n";
         foreach ($menu_restrictions as $key => $value) {
             if (!empty($value->children)) {
                 // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
                 $class = isset($value->class) ? $value->class : '';
-                $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id) . '" class="dropdown-toggle oe-bold-black ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
-                $list .='<ul class="dropdown-menu">';
+                $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id) . '" class="nav-link dropdown-toggle font-weight-bold text-body ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
+                $list .= '<ul class="dropdown-menu">';
                 foreach ($value->children as $children_key => $children_value) {
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
                     $class = isset($children_value->class) ? $children_value->class : '';
-                    $list .= '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
-                    $list .= '<a class="oe-bold-black"  href="' . attr($link) . '" onclick="' . $children_value->on_click .'"> ' . text($children_value->label) . ' </a>';
+                    $list .= '<li class="nav-item ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
+                    $list .= '<a class="nav-link font-weight-bold text-body"  href="' . attr($link) . '" onclick="' . $children_value->on_click . '"> ' . text($children_value->label) . ' </a>';
                     $list .= '</li>';
                 }
                 $list .= '</ul>';
             } else {
                 $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
                 $class = isset($value->class) ? $value->class : '';
-                $list = '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
-                $list .= '<a href="' . attr($link) . '" onclick="' . $value->on_click .'"> ' . text($value->label) . ' </a>';
+                $list = '<li class="nav-item ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
+                $list .= '<a class="nav-link font-weight-bold text-body" href="' . attr($link) . '" onclick="' . $value->on_click . '"> ' . text($value->label) . ' </a>';
                 $list .= '</li>';
             }
-            echo $list. "\r\n";
+            echo $list . "\r\n";
             $li_id++;
         }
         $str_bot = <<<EOB
-                    </ul>
-                </div>
+                </ul>
             </div>
         </nav>
 EOB;
-        echo $str_bot. "\r\n";
+        echo $str_bot . "\r\n";
         return;
     }
 

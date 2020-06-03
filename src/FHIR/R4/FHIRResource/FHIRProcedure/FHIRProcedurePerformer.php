@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRProcedure;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRProcedure;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -173,8 +175,8 @@ class FHIRProcedurePerformer extends FHIRBackboneElement implements \JsonSeriali
             if (isset($data['onBehalfOf'])) {
                 $this->setOnBehalfOf($data['onBehalfOf']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -104,13 +104,8 @@ START
 my $date_field_exists = 0;
 my $date_header =<<'START';
 
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-
 <script language='JavaScript'>
-$(function (){
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -129,12 +124,12 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 formHeader("Form: FORM_NAME");
 ?>
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+<?php Header::setupHeader('datetime-picker'); ?>
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 DATE_HEADER
@@ -159,11 +154,12 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 formHeader("Form: FORM_NAME");
 ?>
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader('datetime-picker'); ?>
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?php echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
@@ -328,6 +324,7 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 formHeader("Form: FORM_NAME");
 $obj = formFetch("form_FORM_NAME", $_GET["id"]);  //#Use the formFetch function from api.inc to get values for existing form.
@@ -350,7 +347,7 @@ function chkdata_Radio(&$obj, $nam, $var) {
 
 ?>
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader('datetime-picker'); ?>
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 DATE_HEADER
@@ -660,7 +657,7 @@ sub make_form #MAKE_FORM
 {
 	my @data = @_;
 	my $return = submit(-name=>'submit form');
-	$return .= '<br>'."\n";
+	$return .= '<br />'."\n";
 	$return .= "\n".'<table>'."\n\n" if $bigtable;
 	for (@data)
 	{
@@ -767,8 +764,8 @@ START
 		elsif (!$bigtable) #probably an html tag or something -- Get to this point if no Field_name and Field_type found in array.
 		{
 
-			  if ($_->[0] !~ /<br>\s*$|<\/td>\s*$|<\/tr>\s*$|<\/p>\s*$/) {
-			    $return .= '<br>'."\n";
+			  if ($_->[0] !~ /<br />\s*$|<\/td>\s*$|<\/tr>\s*$|<\/p>\s*$/) {
+			    $return .= '<br />'."\n";
 			  }
 
 			  $return .= $_->[0]."\n";

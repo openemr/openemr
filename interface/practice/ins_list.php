@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The purpose of this module is to show a list of insurance
  * companies that match the passed-in search strings, and to allow
@@ -13,10 +14,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -52,29 +53,35 @@ $where = addwhere($where, 'a.zip', $_GET['form_zip']);
 $phone_parts = array();
 
 // Search by area code if there is one.
-if (preg_match(
-    "/(\d\d\d)/",
-    $_GET['form_phone'],
-    $phone_parts
-)) {
+if (
+    preg_match(
+        "/(\d\d\d)/",
+        $_GET['form_phone'],
+        $phone_parts
+    )
+) {
     $where = addwhere($where, 'p.area_code', $phone_parts[1]);
 }
 
 // If there is also an exchange, search for that too.
-if (preg_match(
-    "/\d\d\d\D*(\d\d\d)/",
-    $_GET['form_phone'],
-    $phone_parts
-)) {
+if (
+    preg_match(
+        "/\d\d\d\D*(\d\d\d)/",
+        $_GET['form_phone'],
+        $phone_parts
+    )
+) {
     $where = addwhere($where, 'p.prefix', $phone_parts[1]);
 }
 
 // If the last 4 phone number digits are given, search for that too.
-if (preg_match(
-    "/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
-    $_GET['form_phone'],
-    $phone_parts
-)) {
+if (
+    preg_match(
+        "/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
+        $_GET['form_phone'],
+        $phone_parts
+    )
+) {
     $where = addwhere($where, 'p.number', $phone_parts[1]);
 }
 
@@ -90,13 +97,15 @@ if (preg_match(
 <html>
 <head>
 <title><?php echo xlt('List Insurance Companies');?></title>
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 
 <style>
-td { font-size:10pt; }
+td {
+    font-size: 0.8125rem;
+}
 </style>
 
-<script language="JavaScript">
+<script>
 
  // This is invoked when an insurance company name is clicked.
  function setins(ins_id, ins_name) {
@@ -113,16 +122,16 @@ td { font-size:10pt; }
 <form method='post' name='theform'>
 <center>
 
-<table class="table table-condensed" border='0' width='100%'>
+<table class="table table-sm border-0 w-100">
  <tr>
-  <td><b><?php echo xlt('Name');?></b>&nbsp;</td>
-  <td><b><?php echo xlt('Attn');?></b>&nbsp;</td>
-  <td><b><?php echo xlt('Address');?></b>&nbsp;</td>
-  <td><b>&nbsp;</b>&nbsp;</td>
-  <td><b><?php echo xlt('City');?></b>&nbsp;</td>
-  <td><b><?php echo xlt('State');?></b>&nbsp;</td>
-  <td><b><?php echo xlt('Zip');?></b>&nbsp;</td>
-  <td><b><?php echo xlt('Phone');?></b></td>
+  <td class='font-weight-bold'><?php echo xlt('Name');?>&nbsp;</td>
+  <td class='font-weight-bold'><?php echo xlt('Attn');?>&nbsp;</td>
+  <td class='font-weight-bold'><?php echo xlt('Address');?>&nbsp;</td>
+  <td class='font-weight-bold'>&nbsp;&nbsp;</td>
+  <td class='font-weight-bold'><?php echo xlt('City');?>&nbsp;</td>
+  <td class='font-weight-bold'><?php echo xlt('State');?>&nbsp;</td>
+  <td class='font-weight-bold'><?php echo xlt('Zip');?>&nbsp;</td>
+  <td class='font-weight-bold'><?php echo xlt('Phone');?></td>
  </tr>
 
 <?php

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient Portal
  *
@@ -13,63 +14,92 @@
 
 //Need to unwrap data to ensure user/patient is authorized
 $data = (array)(json_decode(file_get_contents("php://input")));
-$pid = $data['pid'];
+$req_pid = $data['pid'];
 $user = $data['user'];
 $type = $data['type'];
-$signer = $data['signer'];
+$isPortal = $data['is_portal'];
+$signer = '';
+$ignoreAuth = false;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
-if ($type == 'patient-signature') {
-    // authorize via patient portal
-
-    // Will start the (patient) portal OpenEMR session/cookie.
+if ($isPortal) {
     require_once(dirname(__FILE__) . "/../../../src/Common/Session/SessionUtil.php");
     OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         // authorized by patient portal
-        $pid = $_SESSION['pid'];
+        $req_pid = $_SESSION['pid'];
         $ignoreAuth = true;
     } else {
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        echo js_escape("error");
         exit();
     }
-} else if ($type == 'admin-signature') {
-    // authorize via main openemr
-    $ignoreAuth = false;
-} else {
-    exit();
 }
 require_once("../../../interface/globals.php");
-
 
 $created = time();
 $lastmod = date('Y-m-d H:i:s');
 $status = 'filed';
+$info_query = array();
+$isAdmin = ($type === 'admin-signature');
+if ($isAdmin) {
+    $req_pid = 0;
+}
 
-if ($pid == 0 || empty($user)) {
-    if ($type != 'admin-signature' || empty($user)) {
-        echo(text('error'));
-        return;
+if ($req_pid === 0 || empty($user)) {
+    if (!$isAdmin || empty($user)) {
+        echo(js_escape('error'));
+        exit();
     }
 }
 
-if ($type == 'admin-signature') {
-    $pid = 0;
+if ($data['mode'] === 'fetch_info') {
+    $stmt = "Select CONCAT(IFNULL(fname,''), ' ',IFNULL(lname,'')) as userName From users Where id = ?";
+    $user_result = sqlQuery($stmt, array($user));
+    $stmt = "Select CONCAT(IFNULL(fname,''), ' ',IFNULL(lname,'')) as ptName From patient_data Where pid = ?";
+    $pt_result = sqlQuery($stmt, array($req_pid));
+    $signature = [];
+    if ($pt_result) {
+        $info_query = array_merge($pt_result, $user_result, $signature);
+    } else {
+        $info_query = array_merge($user_result, $signature);
+    }
+
+    if ($isAdmin) {
+        $signer = $user_result['userName'];
+    } else {
+        $signer = $pt_result['ptName'];
+    }
+    if (!$signer) {
+        echo js_escape("error");
+        exit();
+    }
+}
+
+if ($isAdmin) {
+    $req_pid = 0;
     $row = sqlQuery("SELECT pid,status,sig_image,type,user FROM onsite_signatures WHERE user=? && type=?", array($user, $type));
 } else {
-    $row = sqlQuery("SELECT pid,status,sig_image,type,user FROM onsite_signatures WHERE pid=?", array($pid));
+    $row = sqlQuery("SELECT pid,status,sig_image,type,user FROM onsite_signatures WHERE pid=? And user=?", array($req_pid, $user));
 }
 
 if (!$row['pid'] && !$row['user']) {
     $status = 'waiting';
     $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator,created) VALUES (?,?,?,?,?,?,?)";
-    sqlStatement($qstr, array($pid, $lastmod, $status, $type, $user, $signer, $created));
+    sqlStatement($qstr, array($req_pid, $lastmod, $status, $type, $user, $signer, $created));
 }
 
 if ($row['status'] == 'filed') {
+    if ($data['mode'] === 'fetch_info') {
+        $info_query['signature'] = $row['sig_image'];
+        echo js_escape($info_query);
+        exit();
+    }
     echo js_escape($row['sig_image']);
 } elseif ($row['status'] == 'waiting' || $status == 'waiting') {
-    echo js_escape('waiting');
+    $info_query['message'] = 'waiting';
+    echo js_escape($info_query);
 }
 
 exit();

@@ -9,7 +9,7 @@
  */
 
 
-$(document).ready(function(){
+$(function () {
 	$(".file-uploader-progress-close").click(function(){
 		$(this).parents().eq(1).hide();
 	});

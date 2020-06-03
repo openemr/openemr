@@ -1,6 +1,6 @@
 <?php
 /*
- * phpGACL - Generic Access Control List - Hashed Directory Caching. 
+ * phpGACL - Generic Access Control List - Hashed Directory Caching.
  * Copyright (C) 2002 Mike Benoit
  *
  * This library is free software; you can redistribute it and/or
@@ -48,15 +48,15 @@ class Hashed_Cache_Lite extends Cache_Lite
 		// CRC32 with SUBSTR is still faster then MD5.
 		$encoded_id = substr(crc32($id),1);
 		// $encoded_id = md5($id);
-		
+
 		// Generate just the directory, so it can be created.
 		// Groups will have their own top level directory, for quick/easy purging of an entire group.
 		$dir = $this->_cacheDir.$group.'/'.substr($encoded_id,0,3);
 		$this->_create_dir_structure($dir);
-		
+
 		$this->_file = $dir.'/'.$encoded_id;
 	}
-	
+
 	/**
 	* Create full directory structure, Ripped straight from the Smarty Template engine.
 	* Version:     2.3.0
@@ -69,29 +69,29 @@ class Hashed_Cache_Lite extends Cache_Lite
 	{
 		if (!@file_exists($dir)) {
 			$dir_parts = preg_split('![\/]+!', $dir, -1, PREG_SPLIT_NO_EMPTY);
-			$new_dir = ($dir{0} == DIR_SEP) ? DIR_SEP : '';
+			$new_dir = ($dir[0] == DIR_SEP) ? DIR_SEP : '';
 			foreach ($dir_parts as $dir_part) {
 				$new_dir .= $dir_part;
 				if (!file_exists($new_dir) && !mkdir($new_dir, 0771)) {
-					Cache_Lite::raiseError('Cache_Lite : problem creating directory \"$dir\" !', -3);   
+					Cache_Lite::raiseError('Cache_Lite : problem creating directory \"$dir\" !', -3);
 					return false;
 				}
 				$new_dir .= DIR_SEP;
 			}
 		}
 	}
-	
+
 	function _remove_dir_structure($dir,$remove_dir = false)
 	{
 		if (in_array(substr($dir,-1),array(DIR_SEP,'/','\\'))) {
 			$dir = substr($dir,0,-1);
 		}
-		
+
 		if (!($dh = opendir($dir))) {
 			$this->raiseError('Cache_Lite : Unable to open cache directory !', -4);
 			return false;
 		}
-		
+
 		while ($file = readdir($dh)) {
 			if ($file == '.' || $file == '..') {
 				continue;
@@ -110,9 +110,9 @@ class Hashed_Cache_Lite extends Cache_Lite
 				continue;
 			}
 		}
-		
+
 		closedir($dh);
-		
+
 		if ($remove_dir) {
 			clearstatcache();
 			if (!@rmdir($dir)) {
@@ -120,10 +120,10 @@ class Hashed_Cache_Lite extends Cache_Lite
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	* Clean the cache
 	*
@@ -138,7 +138,7 @@ class Hashed_Cache_Lite extends Cache_Lite
 	{
 		if ($group) {
 			$motif = $this->_cacheDir.$group.'/';
-			
+
 			if ($this->_memoryCaching) {
 				foreach ($this->_memoryCachingArray as $key => $value) {
 					if (strpos($key, $motif, 0)) {
@@ -150,10 +150,10 @@ class Hashed_Cache_Lite extends Cache_Lite
 					return true;
 				}
 			}
-			
+
 			return $this->_remove_dir_structure($motif);
 		}
-		
+
 		if ($this->_memoryCaching) {
 			$this->_memoryCachingArray   = array();
 			$this->_memoryCachingCounter = 0;
@@ -161,12 +161,12 @@ class Hashed_Cache_Lite extends Cache_Lite
 				return true;
 			}
 		}
-		
+
 		if (!($dh = opendir($this->_cacheDir))) {
 			$this->raiseError('Cache_Lite : Unable to open cache directory !', -4);
 			return false;
 		}
-		
+
 		while ($file = readdir($dh)) {
 			if ($file == '.' || $file == '..') {
 				continue;
@@ -176,7 +176,7 @@ class Hashed_Cache_Lite extends Cache_Lite
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 }

@@ -1,10 +1,12 @@
-<?php echo "<!-- footer -->"; ?>
+<?php
+
+echo "<!-- footer -->\n"; ?>
 <div class="container">
-    <hr>
+    <hr id="footer-hr" />
     <footer>
-        <p class="muted">
-            <small><?php echo xlt('Onsite Patient Portal'); ?> Rel v3.0.0 Copyright &copy <?php echo date('Y'); ?> By
-                sjpadgett@gmail.com
+        <p class="muted text-sm-center">
+            <small><?php echo xlt('Patient Portal'); ?> v5.0.3 Copyright &copy; <?php echo date('Y'); ?> By
+                sjpadgett@gmail.com License GPLv3
             </small>
         </p>
     </footer>

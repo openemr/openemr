@@ -1,5 +1,7 @@
 <?php
+
 /** @package    verysimple::Authentication */
+
 require_once "oauth/OAuthStore.php";
 require_once "oauth/OAuthRequester.php";
 require_once "verysimple/String/VerySimpleStringUtil.php";

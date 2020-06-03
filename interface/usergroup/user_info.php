@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User password change tool
  *
@@ -7,8 +8,9 @@
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
- * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
@@ -17,14 +19,15 @@ require_once("../globals.php");
 require_once("$srcdir/auth.inc");
 require_once("$srcdir/user.inc");
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
-if ($GLOBALS['use_active_directory']) {
+if (AuthUtils::useActiveDirectory()) {
     exit();
 }
-$userid = $_SESSION['authId'];
+$userid = $_SESSION['authUserID'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 ?>
@@ -82,9 +85,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 <?php
 
-$res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION["authId"]));
+$res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION['authUserID']));
 $row = sqlFetchArray($res);
-      $iter=$row;
+      $iter = $row;
 ?>
 <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
     <div class="row">
@@ -104,7 +107,7 @@ $row = sqlFetchArray($res);
             <form method='post' action='user_info.php' class='form-horizontal' onsubmit='return update_password()'>
                 <input type=hidden name=secure_pwd value="<?php echo attr($GLOBALS['secure_password']); ?>">
                 <fieldset>
-                    <legend><?php echo xlt('Change Password for') . " " . $user_full_name; ?></legend>
+                    <legend><?php echo xlt('Change Password for') . " " . text($user_full_name); ?></legend>
                     <div class="form-group">
                         <label class='control-label col-sm-2'><?php echo xlt('Full Name') . ":"; ?></label>
                         <div class="col-sm-10">
@@ -137,8 +140,8 @@ $row = sqlFetchArray($res);
                     </div>
                 </fieldset>
                 <div class="form-group">
-                    <div class='col-sm-offset-2 col-sm-10'>
-                        <button type="Submit" class='btn btn-default btn-save'><?php echo xlt('Save Changes'); ?></button>
+                    <div class='offset-sm-2 col-sm-10'>
+                        <button type="Submit" class='btn btn-secondary btn-save'><?php echo xlt('Save Changes'); ?></button>
                     </div>
                 </div>
             </form>

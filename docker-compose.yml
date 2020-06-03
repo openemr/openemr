@@ -1,14 +1,15 @@
 # Use admin/pass as user/password credentials to login to openemr (from OE_USER and OE_PASS below)
 # MYSQL_HOST and MYSQL_ROOT_PASS are required for openemr
-# FLEX_REPOSITORY and (FLEX_REPOSITORY_BRANCH or FLEX_REPOSITORY_TAG) are required for flex openemr
 # EASY_DEV_MODE prevents issues with permissions when mounting volumes
+# EAST_DEV_MODE_NEW with value of 'yes' expands EASY_DEV_MODE by not requiring downloading
+#  code from github (uses local repo).
 # MYSQL_USER, MYSQL_PASS, OE_USER, MYSQL_PASS are optional for openemr and
 #   if not provided, then default to openemr, openemr, admin, and pass respectively.
 version: '3.1'
 services:
   mysql:
     restart: always
-    image: mariadb:10.2
+    image: mariadb:10.4
     command: ['mysqld','--character-set-server=utf8']
     ports:
     - 8320:3306
@@ -25,17 +26,15 @@ services:
     ports:
     - 8300:80
     - 9300:443
-    - 3000:3000 # browsersync
-    - 3001:3001 # browsersync-admin
     volumes:
+    - .:/openemr:ro
     - .:/var/www/localhost/htdocs/openemr:rw
-    - assetsvolume01:/var/www/localhost/htdocs/openemr/public:rw
-    - configvolume01:/var/www/localhost/htdocs/openemr/sites/default:rw
-    - configvolume02:/var/www/localhost/htdocs/openemr/interface/modules/zend_modules/config:rw
-    - logvolume01:/var/log
+    - publicvolume:/var/www/localhost/htdocs/openemr/public:rw
+    - sitesvolume:/var/www/localhost/htdocs/openemr/sites/default:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
+    - logvolume:/var/log
     environment:
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
@@ -43,9 +42,15 @@ services:
       MYSQL_PASS: openemr
       OE_USER: admin
       OE_PASS: pass
-      FLEX_REPOSITORY: https://github.com/openemr/openemr.git
-      FLEX_REPOSITORY_BRANCH: master
       EASY_DEV_MODE: "yes"
+      EASY_DEV_MODE_NEW: "yes"
+      DEVELOPER_TOOLS: "yes"
+      OPENEMR_SETTING_rest_api: 1
+      OPENEMR_SETTING_rest_fhir_api: 1
+      OPENEMR_SETTING_rest_portal_api: 1
+      OPENEMR_SETTING_rest_portal_fhir_api: 1
+      OPENEMR_SETTING_portal_onsite_two_enable: 1
+      GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
     depends_on:
     - mysql
   phpmyadmin:
@@ -57,10 +62,9 @@ services:
       PMA_HOSTS: mysql
 volumes:
   databasevolume: {}
-  assetsvolume01: {}
-  configvolume01: {}
-  configvolume02: {}
-  logvolume01: {}
+  publicvolume: {}
+  sitesvolume: {}
   nodemodules: {}
   vendordir: {}
   ccdamodule: {}
+  logvolume: {}

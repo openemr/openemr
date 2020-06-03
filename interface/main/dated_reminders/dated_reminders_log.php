@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Used for adding dated reminders.
  *
@@ -10,15 +11,14 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  */
 
-
     require_once("../../globals.php");
-    require_once("$srcdir/acl.inc");
     require_once("$srcdir/dated_reminder_functions.php");
 
+    use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
     use OpenEMR\Core\Header;
 
-    $isAdmin =acl_check('admin', 'users');
+    $isAdmin = AclMain::aclCheckCore('admin', 'users');
 ?>
 <?php
   /*
@@ -31,24 +31,24 @@ if ($_GET) {
 
     if (!$isAdmin) {
         if (empty($_GET['sentBy']) and empty($_GET['sentTo'])) {
-            $_GET['sentTo'] = array(intval($_SESSION['authId']));
+            $_GET['sentTo'] = array(intval($_SESSION['authUserID']));
         }
     }
 
-    echo '  <div class="col-xs-12">
-            <h4>'.xlt('Click and drag bottom right corner to resize this display').'</h4>
+    echo '  <div class="col-12">
+            <h4>' . xlt('Click and drag bottom right corner to resize this display') . '</h4>
             <table class="table table-bordered"  id="logTable">
                 <thead>
                   <tr>
-                    <th>'.xlt('ID').'</th>
-                    <th>'.xlt('Sent Date').'</th>
-                    <th>'.xlt('From').'</th>
-                    <th>'.xlt('To').'</th>
-                    <th>'.xlt('Patient').'</th>
-                    <th>'.xlt('Message').'</th>
-                    <th>'.xlt('Due Date').'</th>
-                    <th>'.xlt('Processed Date').'</th>
-                    <th>'.xlt('Processed By').'</th>
+                    <th>' . xlt('ID') . '</th>
+                    <th>' . xlt('Sent Date') . '</th>
+                    <th>' . xlt('From') . '</th>
+                    <th>' . xlt('To{{Destination}}') . '</th>
+                    <th>' . xlt('Patient') . '</th>
+                    <th>' . xlt('Message') . '</th>
+                    <th>' . xlt('Due Date') . '</th>
+                    <th>' . xlt('Processed Date') . '</th>
+                    <th>' . xlt('Processed By') . '</th>
                   </tr>
                 </thead>
                 <tbody>';
@@ -56,7 +56,7 @@ if ($_GET) {
     $TempRemindersArray = logRemindersArray();
     foreach ($TempRemindersArray as $RA) {
         $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
-        $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'].', '.$RA['ToName'] : $RA['ToName']);
+        $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'] . ', ' . $RA['ToName'] : $RA['ToName']);
         $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
         $remindersArray[$RA['messageID']]['message'] = $RA['message'];
         $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
@@ -68,15 +68,15 @@ if ($_GET) {
 
     foreach ($remindersArray as $RA) {
         echo '<tr class="heading">
-              <td>'.text($RA['messageID']).'</td>
-              <td>'.text(oeFormatDateTime($RA['sDate'])).'</td>
-              <td>'.text($RA['fromName']).'</td>
-              <td>'.text($RA['ToName']).'</td>
-              <td>'.text($RA['PatientName']).'</td>
-              <td>'.text($RA['message']).'</td>
-              <td>'.text(oeFormatShortDate($RA['dDate'])).'</td>
-              <td>'.text(oeFormatDateTime($RA['pDate'])).'</td>
-              <td>'.text($RA['processedByName']).'</td>
+              <td>' . text($RA['messageID']) . '</td>
+              <td>' . text(oeFormatDateTime($RA['sDate'])) . '</td>
+              <td>' . text($RA['fromName']) . '</td>
+              <td>' . text($RA['ToName']) . '</td>
+              <td>' . text($RA['PatientName']) . '</td>
+              <td>' . text($RA['message']) . '</td>
+              <td>' . text(oeFormatShortDate($RA['dDate'])) . '</td>
+              <td>' . text(oeFormatDateTime($RA['pDate'])) . '</td>
+              <td>' . text($RA['processedByName']) . '</td>
             </tr>';
     }
 
@@ -92,12 +92,12 @@ if ($_GET) {
         @media only screen and (max-width: 680px) {
             [class*="col-"] {
                 width: 100%;
-                text-align: left!Important;
+                text-align: left !important;
             }
         }
     </style>
-    <script language="JavaScript">
-      $(function (){
+    <script>
+      $(function () {
         $("#submitForm").click(function(){
           // top.restoreSession(); --> can't use this as it negates this ajax refresh
           $.get("dated_reminders_log.php?"+$("#logForm").serialize(),
@@ -130,66 +130,66 @@ if ($_GET) {
     <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
     <?php
       $allUsers = array();
-      $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authId'])));
-    for ($i=0; $uRow=sqlFetchArray($uSQL); $i++) {
+      $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
+    for ($i = 0; $uRow = sqlFetchArray($uSQL); $i++) {
         $allUsers[] = $uRow;
     }
     ?>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h2><?php echo xlt('Dated Message Log');?> &nbsp;<i id="show_hide" class="fa fa-eye-slash fa-2x small" title="<?php echo xla('Click to Hide Filters'); ?>"></i></h2>
                 </div>
             </div>
         </div>
         <div class="row hideaway">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <form method="get" id="logForm" onsubmit="return top.restoreSession()">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                     <fieldset>
                         <legend><?php echo xlt('Filters') ?></legend>
-                        <div class="col-xs-12">
+                        <div class="col-12">
                             <h5><?php echo xlt('Date The Message Was Sent');?></h5>
-                            <div class="col-xs-6">
-                                <label class="control-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
+                            <div class="col-6">
+                                <label class="col-form-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
                                 <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
-                            <div class="col-xs-6">
-                                <label class="control-label" for="ed"><?php echo xlt('End Date') ?>:</label>
+                            <div class="col-6">
+                                <label class="col-form-label" for="ed"><?php echo xlt('End Date') ?>:</label>
                                 <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
                         </div>
-                        <div class="col-xs-12">
-                            <div class="col-xs-6">
-                                <label class="control-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
+                        <div class="col-12">
+                            <div class="col-6">
+                                <label class="col-form-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
                                 <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
-                                    <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
+                                    <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php
                                     if ($isAdmin) {
                                         foreach ($allUsers as $user) {
-                                            echo '<option value="'.attr($user['id']).'">'.text($user['fname'].' '.$user['mname'].' '.$user['lname']).'</option>';
+                                            echo '<option value="' . attr($user['id']) . '">' . text($user['fname'] . ' ' . $user['mname'] . ' ' . $user['lname']) . '</option>';
                                         }
                                     }
                                     ?>
                                 </select>
                             </div>
-                            <div class="col-xs-6">
-                                <label class="control-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
+                            <div class="col-6">
+                                <label class="col-form-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
                                 <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
-                                    <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
+                                    <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php
                                     if ($isAdmin) {
                                         foreach ($allUsers as $user) {
-                                            echo '<option value="'.attr($user['id']).'">'.text($user['fname'].' '.$user['mname'].' '.$user['lname']).'</option>';
+                                            echo '<option value="' . attr($user['id']) . '">' . text($user['fname'] . ' ' . $user['mname'] . ' ' . $user['lname']) . '</option>';
                                         }
                                     }
                                     ?>
                                 </select>
                             </div>
                         </div>
-                        <div class="col-xs-12">
-                            <div class="col-xs-12 form-group">
+                        <div class="col-12">
+                            <div class="col-12 form-group">
                                 <div class="checkbox">
                                     <label>
                                         <input type="checkbox" name="processed" id="processed"><?php echo xlt('Processed') ?>
@@ -204,7 +204,7 @@ if ($_GET) {
                     <div class="form-group">
                         <div class="col-sm-12 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch form-group" role="group">
-                                <button type="button" value="Refresh" id="submitForm" class="btn btn-default btn-refresh" ><?php echo xlt('Refresh') ?></button>
+                                <button type="button" value="Refresh" id="submitForm" class="btn btn-secondary btn-refresh" ><?php echo xlt('Refresh') ?></button>
                             </div>
                         </div>
                     </div>
@@ -212,7 +212,7 @@ if ($_GET) {
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div id="resultsDiv"></div>
             </div>
         </div>

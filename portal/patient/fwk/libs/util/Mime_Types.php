@@ -1,4 +1,5 @@
 <?php
+
 // NOTE: This code has been licensed for use to verysimple, inc. by
 // Keyvan Minoukadeh under the terms of the LGPL license on 8/10/05.
 //
@@ -207,7 +208,8 @@ class Mime_Types
                 $result = strtolower($result);
                 $pattern = '[a-z0-9.+_-]';
                 if (preg_match('!((' . $pattern . '+)/' . $pattern . '+)!', $result, $match)) {
-                    if (in_array($match [2], array (
+                    if (
+                        in_array($match [2], array (
                             'application',
                             'audio',
                             'image',
@@ -217,7 +219,8 @@ class Mime_Types
                             'video',
                             'chemical',
                             'model'
-                    )) || (substr($match [2], 0, 2) == 'x-')) {
+                        )) || (substr($match [2], 0, 2) == 'x-')
+                    ) {
                         $type = $match [1];
                     }
                 }

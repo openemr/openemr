@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Purpose: to be run by cron every hour, look for appointments
  * in the pre-notification period and send an email reminder
@@ -14,12 +15,12 @@
 exit;
 
 // larry :: hack add for command line version
-$_SERVER['REQUEST_URI']=$_SERVER['PHP_SELF'];
-$_SERVER['SERVER_NAME']='localhost';
+$_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
+$_SERVER['SERVER_NAME'] = 'localhost';
 $backpic = "";
 
 // email notification
-$ignoreAuth=1;
+$ignoreAuth = 1;
 require_once("../../interface/globals.php");
 require_once("cron_functions.php");
 
@@ -30,7 +31,7 @@ $CRON_TIME = 5;
 $vectNotificationSettings = cron_GetNotificationSettings();
 $CRON_TIME = $vectNotificationSettings['Send_Email_Before_Hours'];
 
-$check_date = date("Y-m-d", mktime(date("h")+$EMAIL_NOTIFICATION_HOUR, 0, 0, date("m"), date("d"), date("Y")));
+$check_date = date("Y-m-d", mktime(date("h") + $EMAIL_NOTIFICATION_HOUR, 0, 0, date("m"), date("d"), date("Y")));
 
 
 // get data from automatic_notification table
@@ -39,9 +40,9 @@ $db_email_msg = cron_getNotificationData($TYPE);
 
 // get patient data for send alert
 $db_patient = cron_getAlertpatientData($TYPE);
-echo "<br>Total ".count($db_patient)." Records Found\n";
-for ($p=0; $p<count($db_patient); $p++) {
-    $prow =$db_patient[$p];
+echo "<br />Total " . count($db_patient) . " Records Found\n";
+for ($p = 0; $p < count($db_patient); $p++) {
+    $prow = $db_patient[$p];
     //my_print_r($prow);
     /*
     if($prow['pc_eventDate'] < $check_date)
@@ -51,17 +52,17 @@ for ($p=0; $p<count($db_patient); $p++) {
         $app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
     }
     */
-    $app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
+    $app_date = $prow['pc_eventDate'] . " " . $prow['pc_startTime'];
     $app_time = strtotime($app_date);
 
-    $app_time_hour = round($app_time/3600);
-    $curr_total_hour = round(time()/3600);
+    $app_time_hour = round($app_time / 3600);
+    $curr_total_hour = round(time() / 3600);
 
     $remaining_app_hour = round($app_time_hour - $curr_total_hour);
     $remain_hour = round($remaining_app_hour - $EMAIL_NOTIFICATION_HOUR);
 
-    $strMsg = "\n========================".$TYPE." || ".date("Y-m-d H:i:s")."=========================";
-    $strMsg .= "\nSEND NOTIFICATION BEFORE:".$EMAIL_NOTIFICATION_HOUR." || CRONJOB RUN EVERY:".$CRON_TIME." || APPDATETIME:".$app_date." || REMAINING APP HOUR:".($remaining_app_hour)." || SEND ALERT AFTER:".($remain_hour);
+    $strMsg = "\n========================" . $TYPE . " || " . date("Y-m-d H:i:s") . "=========================";
+    $strMsg .= "\nSEND NOTIFICATION BEFORE:" . $EMAIL_NOTIFICATION_HOUR . " || CRONJOB RUN EVERY:" . $CRON_TIME . " || APPDATETIME:" . $app_date . " || REMAINING APP HOUR:" . ($remaining_app_hour) . " || SEND ALERT AFTER:" . ($remain_hour);
 
     if ($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME) {
         // insert entry in notification_log table
@@ -81,8 +82,8 @@ for ($p=0; $p<count($db_patient); $p++) {
         //update entry >> pc_sendalertemail='Yes'
         cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
 
-        $strMsg .= " || ALERT SENT SUCCESSFULLY TO ".$prow['email'];
-        $strMsg .= "\n".$patient_info."\n".$smsgateway_info."\n".$data_info."\n".$db_email_msg['message'];
+        $strMsg .= " || ALERT SENT SUCCESSFULLY TO " . $prow['email'];
+        $strMsg .= "\n" . $patient_info . "\n" . $smsgateway_info . "\n" . $data_info . "\n" . $db_email_msg['message'];
     }
 
     WriteLog($strMsg);

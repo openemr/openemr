@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Immunization/src/Immunization/Form/ImmunizationForm.php
  *
@@ -11,7 +12,7 @@
 
 namespace Immunization\Form;
 
-use Zend\Form\Form;
+use Laminas\Form\Form;
 
 class ImmunizationForm extends Form
 {
@@ -24,7 +25,7 @@ class ImmunizationForm extends Form
      // Codes
         $this->add(array(
                 'name'          => 'codes',
-                'type'          => 'Zend\Form\Element\Select',
+                'type'          => 'Laminas\Form\Element\Select',
                 'attributes'        => array(
                                         'multiple'      => 'multiple',
                                         'size'          => '3',
@@ -41,11 +42,11 @@ class ImmunizationForm extends Form
 
         $this->add(array(
                             'name' => 'from_date',
-                            'type' => 'Zend\Form\Element\Text',
+                            'type' => 'Laminas\Form\Element\Text',
                             'attributes' => array(
                                             'id'          => 'from_date',
                                             'placeholder' => 'From Date',
-                                            'value'       => date('Y-m-d', strtotime(date('Ymd')) - (86400*7)),
+                                            'value'       => date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7)),
                                             'class'       => 'date_field',
                                             'style'       => 'width: 42%;cursor:not-allowed;',
                             ),
@@ -87,7 +88,7 @@ class ImmunizationForm extends Form
                         'attributes' => array(
                                         'value' => \Application\Listener\Listener::z_xlt('GET HL7'),
                                         'id'    => 'hl7button',
-                                        'onclick'=> 'getHl7(this.value);',
+                                        'onclick' => 'getHl7(this.value);',
                                         // the button is hidden as we apparently use it to submit the form when the
                                         // shared sendTo will trigger this button to click...
                                         // @see sendTo.js and immunization.js and search for #hl7button

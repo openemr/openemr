@@ -1,4 +1,5 @@
 <?php
+
 /**
  * stats_full.php
  *
@@ -11,13 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'].'/lists.inc');
-require_once($GLOBALS['srcdir'].'/acl.inc');
-require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
-require_once($GLOBALS['srcdir'].'/options.inc.php');
+require_once($GLOBALS['srcdir'] . '/lists.inc');
+require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
@@ -26,7 +26,7 @@ use OpenEMR\OeUI\OemrUI;
 // Check if user has permission for any issue type.
 $auth = false;
 foreach ($ISSUE_TYPES as $type => $dummy) {
-    if (acl_check_issue($type)) {
+    if (AclMain::aclCheckIssue($type)) {
         $auth = true;
         break;
     }
@@ -34,7 +34,7 @@ foreach ($ISSUE_TYPES as $type => $dummy) {
 
 if ($auth) {
     $tmp = getPatientData($pid, "squad");
-    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+    if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
         die(xlt('Not authorized'));
     }
 } else {
@@ -121,28 +121,24 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php") ?>
             </div>
         </div>
-        <div class="row" >
-            <div class="col-sm-12">
-                <?php
-                $list_id = "issues"; // to indicate nav item is active, count and give correct id
-                // Collect the patient menu then build it
-                $menuPatient = new PatientMenuRole();
-                $menuPatient->displayHorizNavBarMenu();
-                ?>
-            </div>
-        </div>
+        <?php
+        $list_id = "issues"; // to indicate nav item is active, count and give correct id
+        // Collect the patient menu then build it
+        $menuPatient = new PatientMenuRole();
+        $menuPatient->displayHorizNavBarMenu();
+        ?>
 
         <div id='patient_stats'>
             <form method='post' action='stats_full.php' onsubmit='return top.restoreSession()'>
 
-            <table>
+            <table class="table">
 
             <?php
             $encount = 0;
             $lasttype = "";
             $first = 1; // flag for first section
             foreach ($ISSUE_TYPES as $focustype => $focustitles) {
-                if (!acl_check_issue($focustype)) {
+                if (!AclMain::aclCheckIssue($focustype)) {
                     continue;
                 }
 
@@ -161,40 +157,41 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // Show header
                 $disptype = $focustitles[0];
-                if (acl_check_issue($focustype, '', array('write', 'addonly'))) {
-                    if (($focustype=='allergy' || $focustype=='medication') && $GLOBALS['erx_enable']) {
-                        echo "<a href='../../eRx.php?page=medentry' class='css_button_small' onclick='top.restoreSession()' ><span>" .
-                        xlt('Add') . "</span></a>\n";
+                if (AclMain::aclCheckIssue($focustype, '', array('write', 'addonly'))) {
+                    if (($focustype == 'allergy' || $focustype == 'medication') && $GLOBALS['erx_enable']) {
+                        echo "<a href='../../eRx.php?page=medentry' class='btn btn-primary btn-sm' onclick='top.restoreSession()' >" .
+                        xlt('Add') . "</a>\n";
                     } else {
-                        echo "<a href='javascript:;' class='css_button_small' onclick='dopclick(0," .
-                        attr_js($focustype)  . ")'><span>" . xlt('Add') . "</span></a>\n";
+                        echo "<a href='javascript:;' class='btn btn-primary btn-sm' onclick='dopclick(0," .
+                        attr_js($focustype)  . ")'>" . xlt('Add') . "</a>\n";
                     }
                 }
 
                 echo "  <span class='title'>" . text($disptype) . "</span>\n";
-                // echo " <table style='margin-bottom:1em;text-align:center'>";
-                echo " <table style='margin-bottom:1em;'>";
+                echo " <table class='table' style='margin-bottom: 1em;'>";
                 ?>
-              <tr class='head'>
-                <th style='text-align:left'><?php echo xlt('Title'); ?></th>
-                <th style='text-align:left'><?php echo xlt('Begin'); ?></th>
-                <th style='text-align:left'><?php echo xlt('End'); ?></th>
-                <th style='text-align:left'><?php echo xlt('Coding (click for education)'); ?></th>
-                <th style='text-align:left'><?php echo xlt('Status'); ?></th>
-                <th style='text-align:left'><?php echo xlt('Occurrence'); ?></th>
+            <thead>
+              <tr>
+                <th scope="col"><?php echo xlt('Title'); ?></th>
+                <th scope="col"><?php echo xlt('Begin'); ?></th>
+                <th scope="col"><?php echo xlt('End'); ?></th>
+                <th scope="col"><?php echo xlt('Coding (click for education)'); ?></th>
+                <th scope="col"><?php echo xlt('Status'); ?></th>
+                <th scope="col"><?php echo xlt('Occurrence'); ?></th>
                 <?php if ($focustype == "allergy") { ?>
-                  <th style='text-align:left'><?php echo xlt('Reaction'); ?></th>
+                  <th scope="col"><?php echo xlt('Reaction'); ?></th>
                 <?php } ?>
-                <th style='text-align:left'><?php echo xlt('Referred By'); ?></th>
-                <th style='text-align:left'><?php echo xlt('Modify Date'); ?></th>
-                <th style='text-align:left'><?php echo xlt('Comments'); ?></th>
-                <th><?php echo xlt('Enc'); ?></th>
+                <th scope="col"><?php echo xlt('Referred By'); ?></th>
+                <th scope="col"><?php echo xlt('Modify Date'); ?></th>
+                <th scope="col"><?php echo xlt('Comments'); ?></th>
+                <th scope="col"><?php echo xlt('Enc'); ?></th>
                 </tr>
+            </thead>
                 <?php
 
               // collect issues
                 $condition = '';
-                if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype=='medication') {
+                if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype == 'medication') {
                     $condition .= "and erx_uploaded != '1' ";
                 }
 
@@ -205,16 +202,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 if (sqlNumRows($pres) < 1) {
                     if (getListTouch($pid, $focustype)) {
                         // Data entry has happened to this type, so can display an explicit None.
-                        echo "<tr><td class='text'><b>" . xlt("None") . "</b></td></tr>";
+                        echo "<tr><td class='text font-weight-bold'>" . xlt("None{{Issue}}") . "</td></tr>";
                     } else {
                           // Data entry has not happened to this type, so can show the none selection option.
                           echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" .
                         attr($focustype) . "' value='none'";
-                        if (!acl_check_issue($focustype, '', 'write')) {
+                        if (!AclMain::aclCheckIssue($focustype, '', 'write')) {
                             echo " disabled";
                         }
 
-                          echo " /><b>" . xlt("None") . "</b></td></tr>";
+                          echo " /><b>" . xlt("None{{Issue}}") . "</b></td></tr>";
                     }
                 }
 
@@ -231,7 +228,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     ++$encount;
                     $bgclass = (($encount & 1) ? "bg1" : "bg2");
 
-                    $colorstyle = empty($row['enddate']) ? "style='color:red'" : "";
+                    $colorstyle = empty($row['enddate']) ? "style='color: var(--danger)'" : "";
 
                     // look up the diag codes
                     $codetext = "";
@@ -252,40 +249,40 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // calculate the status
                     if ($row['outcome'] == "1" && $row['enddate'] != null) {
                           // Resolved
-                          $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
+                          $statusCompute = generate_display_field(array('data_type' => '1','list_id' => 'outcome'), $row['outcome']);
                     } elseif ($row['enddate'] == null) {
                           $statusCompute = xlt("Active");
                     } else {
                           $statusCompute = xlt("Inactive");
                     }
 
-                    $click_class='statrow';
-                    if ($row['erx_source']==1 && $focustype=='allergy') {
-                        $click_class='';
-                    } elseif ($row['erx_uploaded']==1 && $focustype=='medication') {
-                        $click_class='';
+                    $click_class = 'statrow';
+                    if ($row['erx_source'] == 1 && $focustype == 'allergy') {
+                        $click_class = '';
+                    } elseif ($row['erx_uploaded'] == 1 && $focustype == 'medication') {
+                        $click_class = '';
                     }
 
                     echo " <tr class='" . attr($bgclass) . " detail' $colorstyle>\n";
-                    echo "  <td style='text-align:left' class='" . attr($click_class) . "' id='" . attr($rowid) . "'>" . text($disptitle) . "</td>\n";
-                    echo "  <td>" . text($row['begdate']) . "&nbsp;</td>\n";
-                    echo "  <td>" . text($row['enddate']) . "&nbsp;</td>\n";
+                    echo "  <td class='text-left " . attr($click_class) . "' id='" . attr($rowid) . "'>" . text($disptitle) . "</td>\n";
+                    echo "  <td>" . text(oeFormatShortDate($row['begdate'])) . "&nbsp;</td>\n";
+                    echo "  <td>" . text(oeFormatShortDate($row['enddate'])) . "&nbsp;</td>\n";
                     // both codetext and statusCompute have already been escaped above with htmlspecialchars)
                     echo "  <td>" . $codetext . "</td>\n";
                     echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
                     echo "  <td class='nowrap'>";
-                    echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
+                    echo generate_display_field(array('data_type' => '1','list_id' => 'occurrence'), $row['occurrence']);
                     echo "</td>\n";
                     if ($focustype == "allergy") {
                           echo "  <td>";
-                            echo generate_display_field(array('data_type'=>'1','list_id'=>'reaction'), $row['reaction']);
+                            echo generate_display_field(array('data_type' => '1','list_id' => 'reaction'), $row['reaction']);
                           echo "</td>\n";
                     }
 
                     echo "  <td>" . text($row['referredby']) . "</td>\n";
-                    echo "  <td>" . text($row['modifydate']) . "</td>\n";
+                    echo "  <td>" . text(oeFormatDateTime($row['modifydate'])) . "</td>\n";
                     echo "  <td>" . text($row['comments']) . "</td>\n";
-                    echo "  <td id='e_" . attr($rowid) . "' class='noclick center' title='" . xla('View related encounters') . "'>";
+                    echo "  <td id='e_" . attr($rowid) . "' class='noclick text-center' title='" . xla('View related encounters') . "'>";
                     echo "  <input type='button' value='" . attr($ierow['count']) . "' class='editenc' id='" . attr($rowid) . "' />";
                     echo "  </td>";
                     echo " </tr>\n";
@@ -304,10 +301,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 </body>
 
-<script language="javascript">
+<script>
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function () {
     $(".statrow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".statrow").mouseout(function() { $(this).toggleClass("highlight"); });
 
@@ -341,7 +338,7 @@ var GoBack = function () {
 }
 
 var listId = '#' + <?php echo js_escape($list_id); ?>;
-$(document).ready(function(){
+$(function () {
     $(listId).addClass("active");
 });
 </script>

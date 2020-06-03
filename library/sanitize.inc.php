@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Function to check and/or sanitize things for security such as
  * directories names, file names, etc.
@@ -28,7 +29,7 @@ function collectIpAddresses()
     return array(
         'ip_string' => $stringIp,
         'ip' => $mainIp,
-        'forward_ip' => $forwardIp
+        'forward_ip' => $forwardIp ?? ''
     );
 }
 
@@ -48,7 +49,7 @@ function check_file_dir_name($label)
 {
     if (empty($label) || preg_match('/[^A-Za-z0-9_.-]/', $label)) {
         error_log("ERROR: The following variable contains invalid characters:" . errorLogEscape($label));
-        die(xlt("ERROR: The following variable contains invalid characters").": ". attr($label));
+        die(xlt("ERROR: The following variable contains invalid characters") . ": " . attr($label));
     } else {
         return $label;
     }
@@ -64,6 +65,12 @@ function convert_safe_file_dir_name($label)
 function convert_very_strict_label($label)
 {
     return preg_replace('/[^A-Za-z0-9]/', '_', $label);
+}
+
+// Check integer
+function check_integer($value)
+{
+    return (empty(preg_match('/[^0-9]/', $value)));
 }
 
 //Basename functionality for nonenglish languages (without this, basename function omits nonenglish characters).
@@ -108,7 +115,7 @@ function isWhiteFile($file)
     } else {
         $splitMimeType = explode('/', $mimetype);
         $categoryType = $splitMimeType[0];
-        if (in_array($categoryType. '/*', $white_list)) {
+        if (in_array($categoryType . '/*', $white_list)) {
             return true;
         }
     }
@@ -119,12 +126,40 @@ function isWhiteFile($file)
 // Sanitize a value to ensure it is a number.
 function sanitizeNumber($number)
 {
-    $clean_number = $number +0 ;
+    $clean_number = $number + 0 ;
 
-    if ($clean_number==$number) {
+    if ($clean_number == $number) {
         return $clean_number;
     } else {
         error_log('Custom validation error: Parameter contains non-numeric value (A numeric value expected)');
         return $clean_number;
     }
+}
+
+/**
+ * Function to get sql statement for empty datetime check.
+ *
+ * @param  string  $sqlColumn     SQL column/field name
+ * @param  boolean  $time         flag used to determine if it's a datetime or a date
+ * @param  boolean  $rev          flag used to reverse the condition
+ * @return string                 SQL statement checking if passed column is empty
+ */
+
+function dateEmptySql($sqlColumn, $time = false, $rev = false)
+{
+    if (!$rev) {
+        if ($time) {
+            $stat = " (`"  .  $sqlColumn . "` IS NULL OR `" .  $sqlColumn . "`= '0000-00-00 00:00:00') ";
+        } else {
+            $stat = " (`"  .  $sqlColumn . "` IS NULL OR `" .  $sqlColumn . "`= '0000-00-00') ";
+        }
+    } else {
+        if ($time) {
+            $stat = " (`"  .  $sqlColumn . "` IS NOT NULL AND `" .  $sqlColumn . "`!= '0000-00-00 00:00:00') ";
+        } else {
+            $stat = " (`"  .  $sqlColumn . "` IS NOT NULL AND `" .  $sqlColumn . "`!= '0000-00-00') ";
+        }
+    }
+
+    return $stat;
 }

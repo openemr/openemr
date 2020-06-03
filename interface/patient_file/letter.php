@@ -1,4 +1,5 @@
 <?php
+
 /**
  * letter.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once($GLOBALS['srcdir'] . "/patient.inc");
@@ -89,7 +89,7 @@ $patdata = sqlQuery("SELECT " .
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Generate button was clicked...
-if ($_POST['formaction']=="generate") {
+if ($_POST['formaction'] == "generate") {
     $form_pid      = $_POST['form_pid'];
     $form_from     = $_POST['form_from'];
     $form_to       = $_POST['form_to'];
@@ -113,7 +113,7 @@ if ($_POST['formaction']=="generate") {
     $temp_bodytext = $cpstring;
 
     foreach ($FIELD_TAG as $key => $value) {
-        $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
+        $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
     if ($GLOBALS['drive_encryption']) {
@@ -128,44 +128,44 @@ if ($_POST['formaction']=="generate") {
 
     fclose($fh);
 
-    $cpstring = str_replace('{'.$FIELD_TAG['DATE'].'}', $datestr, $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_TITLE'].'}', $from_title, $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_FNAME'].'}', $frow['fname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_LNAME'].'}', $frow['lname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_MNAME'].'}', $frow['mname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_STREET'].'}', $frow['street'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_CITY'].'}', $frow['city'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_STATE'].'}', $frow['state'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_POSTAL'].'}', $frow['zip'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_VALEDICTORY'].'}', $frow['valedictory'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_PHONECELL'].'}', $frow['phonecell'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_PHONE'].'}', $frow['phone'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_EMAIL'].'}', $frow['email'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_TITLE'].'}', $to_title, $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_FNAME'].'}', $trow['fname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_LNAME'].'}', $trow['lname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_MNAME'].'}', $trow['mname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_STREET'].'}', $trow['street'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_CITY'].'}', $trow['city'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_STATE'].'}', $trow['state'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_POSTAL'].'}', $trow['zip'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_VALEDICTORY'].'}', $trow['valedictory'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_FAX'].'}', $trow['fax'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_PHONE'].'}', $trow['phone'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_PHONECELL'].'}', $trow['phonecell'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_ORGANIZATION'].'}', $trow['organization'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_FNAME'].'}', $patdata['fname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_LNAME'].'}', $patdata['lname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_MNAME'].'}', $patdata['mname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_STREET'].'}', $patdata['street'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_CITY'].'}', $patdata['city'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_STATE'].'}', $patdata['state'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_POSTAL'].'}', $patdata['postal_code'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_PHONE_HOME'].'}', $patdata['phone_home'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_PHONE_CELL'].'}', $patdata['phone_cell'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_SSN'].'}', $patdata['ss'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_EMAIL'].'}', $patdata['email'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_DOB'].'}', $patdata['DOB'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['DATE'] . '}', $datestr, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_TITLE'] . '}', $from_title, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_FNAME'] . '}', $frow['fname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_LNAME'] . '}', $frow['lname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_MNAME'] . '}', $frow['mname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_STREET'] . '}', $frow['street'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_CITY'] . '}', $frow['city'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_STATE'] . '}', $frow['state'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_POSTAL'] . '}', $frow['zip'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_VALEDICTORY'] . '}', $frow['valedictory'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_PHONECELL'] . '}', $frow['phonecell'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_PHONE'] . '}', $frow['phone'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_EMAIL'] . '}', $frow['email'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_TITLE'] . '}', $to_title, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_FNAME'] . '}', $trow['fname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_LNAME'] . '}', $trow['lname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_MNAME'] . '}', $trow['mname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_STREET'] . '}', $trow['street'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_CITY'] . '}', $trow['city'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_STATE'] . '}', $trow['state'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_POSTAL'] . '}', $trow['zip'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_VALEDICTORY'] . '}', $trow['valedictory'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_FAX'] . '}', $trow['fax'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_PHONE'] . '}', $trow['phone'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_PHONECELL'] . '}', $trow['phonecell'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_ORGANIZATION'] . '}', $trow['organization'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_FNAME'] . '}', $patdata['fname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_LNAME'] . '}', $patdata['lname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_MNAME'] . '}', $patdata['mname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_STREET'] . '}', $patdata['street'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_CITY'] . '}', $patdata['city'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_STATE'] . '}', $patdata['state'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_POSTAL'] . '}', $patdata['postal_code'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_PHONE_HOME'] . '}', $patdata['phone_home'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_PHONE_CELL'] . '}', $patdata['phone_cell'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_SSN'] . '}', $patdata['ss'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_EMAIL'] . '}', $patdata['email'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_DOB'] . '}', $patdata['DOB'], $cpstring);
 
     if ($form_format == "pdf") {
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
@@ -181,7 +181,7 @@ if ($_POST['formaction']=="generate") {
         exit;
     } else { // $form_format = html
         $cpstring = text($cpstring); //escape to prevent stored cross script attack
-        $cpstring = str_replace("\n", "<br>", $cpstring);
+        $cpstring = str_replace("\n", "<br />", $cpstring);
         $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
         ?>
         <html>
@@ -224,7 +224,7 @@ if ($_POST['formaction']=="generate") {
         <?php
         exit;
     }
-} else if (isset($_GET['template']) && $_GET['template'] != "") {
+} elseif (isset($_GET['template']) && $_GET['template'] != "") {
     // utilized to go back to autosaved template
     $bodytext = "";
     $fh = fopen("$template_dir/" . convert_very_strict_label($_GET['template']), 'r');
@@ -234,7 +234,7 @@ if ($_POST['formaction']=="generate") {
     }
 
     while (!feof($fh)) {
-        $bodytext.= fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
@@ -245,9 +245,9 @@ if ($_POST['formaction']=="generate") {
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
-        $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
+        $bodytext = str_replace("{" . $key . "}", "{" . $value . "}", $bodytext);
     }
-} else if ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
+} elseif ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
     $bodytext = "";
     $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['form_template']), 'r');
 
@@ -256,7 +256,7 @@ if ($_POST['formaction']=="generate") {
     }
 
     while (!feof($fh)) {
-        $bodytext.= fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
@@ -267,15 +267,15 @@ if ($_POST['formaction']=="generate") {
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
-        $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
+        $bodytext = str_replace("{" . $key . "}", "{" . $value . "}", $bodytext);
     }
-} else if ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "") {
+} elseif ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "") {
     // attempt to save the template
     $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['newtemplatename']), 'w');
     // translate from definition to the constant
     $temp_bodytext = $_POST['form_body'];
     foreach ($FIELD_TAG as $key => $value) {
-        $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
+        $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
     if ($GLOBALS['drive_encryption']) {
@@ -298,7 +298,7 @@ if ($_POST['formaction']=="generate") {
     }
 
     while (!feof($fh)) {
-        $bodytext.= fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
@@ -309,15 +309,15 @@ if ($_POST['formaction']=="generate") {
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
-        $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
+        $bodytext = str_replace("{" . $key . "}", "{" . $value . "}", $bodytext);
     }
-} else if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != "") {
+} elseif ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != "") {
     // attempt to save the template
     $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['form_template']), 'w');
     // translate from definition to the constant
     $temp_bodytext = $_POST['form_body'];
     foreach ($FIELD_TAG as $key => $value) {
-        $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
+        $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
     if ($GLOBALS['drive_encryption']) {
@@ -339,7 +339,7 @@ if ($_POST['formaction']=="generate") {
     }
 
     while (!feof($fh)) {
-        $bodytext.= fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
@@ -350,7 +350,7 @@ if ($_POST['formaction']=="generate") {
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
-        $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
+        $bodytext = str_replace("{" . $key . "}", "{" . $value . "}", $bodytext);
     }
 }
 
@@ -377,7 +377,7 @@ while ($urow = sqlFetchArray($ures)) {
     }
 
     $optfrom .= $tmp1 . $tmp2;
-    $ulist .= "ulist[" . attr($i) . "] = " . js_escape($uname."|".$urow['id']."|".$urow['specialty']) . ";\n";
+    $ulist .= "ulist[" . attr($i) . "] = " . js_escape($uname . "|" . $urow['id'] . "|" . $urow['specialty']) . ";\n";
     ++$i;
 }
 
@@ -488,16 +488,16 @@ function insertAtCursor(myField, myValue) {
 
  <tr>
   <td colspan='4' align='center'>
-   &nbsp;<br>
+   &nbsp;<br />
    <b><?php echo xlt('Generate Letter regarding ') . text($patdata['fname']) . " " .
     text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></b>
-    <br>&nbsp;
+    <br />&nbsp;
   </td>
  </tr>
 
  <tr>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('From'); ?>:
   </td>
 
@@ -507,7 +507,7 @@ function insertAtCursor(myField, myValue) {
    </select>
   </td>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Date'); ?>:
   </td>
 
@@ -521,7 +521,7 @@ function insertAtCursor(myField, myValue) {
 
  <tr>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Specialty'); ?>:
   </td>
 
@@ -531,7 +531,7 @@ function insertAtCursor(myField, myValue) {
    </select>
   </td>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Template'); ?>:
   </td>
 
@@ -589,8 +589,8 @@ closedir($dh);
 
  <tr>
 
-  <td class='control-label'>
-    <?php echo xlt('To'); ?>:
+  <td class='col-form-label'>
+    <?php echo xlt('To{{Destination}}'); ?>:
   </td>
 
   <td>
@@ -599,7 +599,7 @@ closedir($dh);
    </select>
   </td>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Print Format'); ?>:
   </td>
 
@@ -615,46 +615,46 @@ closedir($dh);
  <tr>
   <td colspan='4'>
     <div id="letter_toolbar" class='text' style="width: 100%; background-color: #ddd; padding: 5px; margin: 0px;">
-    <span class='control-label'><?php echo xlt('Insert special field'); ?>:</span>
+    <span class='col-form-label'><?php echo xlt('Insert special field'); ?>:</span>
     <select id="letter_field" class='form-control'>
     <option value="">- <?php echo xlt('Choose'); ?> -</option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['DATE']).'}'; ?>"><?php echo xlt('Today\'s Date'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_TITLE']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Title'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_FNAME']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('First name'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_MNAME']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Middle name'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_LNAME']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Last name'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_STREET']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Street'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_CITY']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('City'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_STATE']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('State'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_POSTAL']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Postal Code'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_VALEDICTORY']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Valedictory'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_PHONECELL']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Cell Phone'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_PHONE']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Phone'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['FROM_EMAIL']).'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('email'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_TITLE']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Title'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_FNAME']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('First name'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_MNAME']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Middle name'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_LNAME']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Last name'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_STREET']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Street'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_CITY']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('City'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_STATE']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('State'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_POSTAL']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Postal Code'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_VALEDICTORY']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Valedictory'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_ORGANIZATION']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Organization'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_FAX']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Fax number'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_PHONE']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Phone number'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['TO_PHONECELL']).'}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Cell phone number'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['PT_FNAME']).'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('First name'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['PT_MNAME']).'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Middle name'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['PT_LNAME']).'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Last name'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['PT_STREET']).'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Street'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['PT_CITY']).'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('City'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['PT_STATE']).'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('State'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['PT_POSTAL']).'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Postal Code'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['PT_PHONE_HOME']).'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Phone Home'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['PT_PHONE_CELL']).'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Phone Cell'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['PT_SSN']).'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('SSN'); ?></option>
-    <option value="<?php echo '{'.attr($FIELD_TAG['PT_DOB']).'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Date of birth'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['DATE']) . '}'; ?>"><?php echo xlt('Today\'s Date'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_TITLE']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Title'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_FNAME']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('First name'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_MNAME']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Middle name'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_LNAME']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Last name'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_STREET']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Street'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_CITY']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('City'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_STATE']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('State'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_POSTAL']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Postal Code'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_VALEDICTORY']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Valedictory'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_PHONECELL']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Cell Phone'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_PHONE']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Phone'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['FROM_EMAIL']) . '}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('email'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_TITLE']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Title'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_FNAME']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('First name'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_MNAME']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Middle name'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_LNAME']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Last name'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_STREET']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Street'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_CITY']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('City'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_STATE']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('State'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_POSTAL']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Postal Code'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_VALEDICTORY']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Valedictory'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_ORGANIZATION']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Organization'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_FAX']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Fax number'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_PHONE']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Phone number'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['TO_PHONECELL']) . '}'; ?>"><?php echo xlt('TO{{Destination}}'); ?> - <?php echo xlt('Cell phone number'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['PT_FNAME']) . '}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('First name'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['PT_MNAME']) . '}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Middle name'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['PT_LNAME']) . '}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Last name'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['PT_STREET']) . '}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Street'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['PT_CITY']) . '}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('City'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['PT_STATE']) . '}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('State'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['PT_POSTAL']) . '}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Postal Code'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['PT_PHONE_HOME']) . '}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Phone Home'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['PT_PHONE_CELL']) . '}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Phone Cell'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['PT_SSN']) . '}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('SSN'); ?></option>
+    <option value="<?php echo '{' . attr($FIELD_TAG['PT_DOB']) . '}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Date of birth'); ?></option>
     </select>
     </div>
    <textarea name='form_body' id="form_body" class='form-control' rows='20' cols='30' style='width:100%'
@@ -665,19 +665,19 @@ closedir($dh);
 </table>
 
 <div class="btn-group" role="group">
-    <button type='button' class='addtemplate btn btn-default btn-save'><?php echo xlt('Save as New'); ?></button>
-    <button type='button' class='btn btn-default btn-save' name='savetemplate' id="savetemplate"><?php echo xlt('Save Changes'); ?></button>
-    <button type='button' class='btn btn-default btn-transmit' name='form_generate' id="form_generate"><?php echo xlt('Generate Letter'); ?></button>
+    <button type='button' class='addtemplate btn btn-secondary btn-save'><?php echo xlt('Save as New'); ?></button>
+    <button type='button' class='btn btn-secondary btn-save' name='savetemplate' id="savetemplate"><?php echo xlt('Save Changes'); ?></button>
+    <button type='button' class='btn btn-secondary btn-transmit' name='form_generate' id="form_generate"><?php echo xlt('Generate Letter'); ?></button>
 </div>
 
 </center>
 
 <!-- template DIV that appears when user chooses to add a new letter template -->
 <div id="newtemplatedetail" style="margin-top: 4em; display: none; visibility: hidden;">
-    <span class='control-label'><?php echo xlt('Template Name'); ?>:</span> <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename" class="form-control">
-    <br>
+    <span class='col-form-label'><?php echo xlt('Template Name'); ?>:</span> <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename" class="form-control">
+    <br />
     <div class="btn-group" role="group">
-        <button type="button" class="savenewtemplate btn btn-default btn-save"><?php echo xlt('Save new template'); ?></button>
+        <button type="button" class="savenewtemplate btn btn-secondary btn-save"><?php echo xlt('Save new template'); ?></button>
         <button type="button" class="cancelnewtemplate btn btn-link btn-cancel"><?php echo xlt('Cancel'); ?></button>
     </div>
 </div>
@@ -689,7 +689,7 @@ closedir($dh);
 
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function () {
     $("#form_generate").click(function() { $("#formaction").val("generate"); $("#theform").submit(); });
     $("#form_template").change(function() { $("#formaction").val("loadtemplate"); $("#theform").submit(); });
 

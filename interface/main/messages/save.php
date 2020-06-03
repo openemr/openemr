@@ -1,4 +1,5 @@
 <?php
+
 /**
  * /interface/main/messages/save.php
  *
@@ -10,11 +11,12 @@
  */
 
 require_once "../../globals.php";
-require_once "$srcdir/acl.inc";
 require_once "$srcdir/lists.inc";
 require_once "$srcdir/forms.inc";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/MedEx/API.php";
+
+use OpenEMR\Common\Acl\AclMain;
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 if ($_REQUEST['go'] == 'sms_search') {
@@ -34,13 +36,13 @@ if ($_REQUEST['go'] == 'sms_search') {
         $data['medex_uid'] = $result2['medex_uid'];
         $results[] = $data;
     }
-    
+
     echo json_encode($results);
     exit;
 }
 //you need admin privileges to update this.
 if ($_REQUEST['go'] == 'Preferences') {
-    if (acl_check('admin', 'super')) {
+    if (AclMain::aclCheckCore('admin', 'super')) {
         $sql = "UPDATE `medex_prefs` SET `ME_facilities`=?,`ME_providers`=?,`ME_hipaa_default_override`=?,
 			`PHONE_country_code`=? ,`MSGS_default_yes`=?,
 			`POSTCARDS_local`=?,`POSTCARDS_remote`=?,
@@ -68,7 +70,7 @@ if ($_REQUEST['go'] == 'Preferences') {
     exit;
 }
 if ($_REQUEST['MedEx'] == "start") {
-    if (acl_check('admin', 'super')) {
+    if (AclMain::aclCheckCore('admin', 'super')) {
         $query = "SELECT * FROM users WHERE id = ?";
         $user_data = sqlQuery($query, array($_SESSION['authUserID']));
         $query = "SELECT * FROM facility WHERE primary_business_entity='1' LIMIT 1";
@@ -125,7 +127,7 @@ if ($_REQUEST['MedEx'] == "start") {
 								PHONE_country_code,LABELS_local,LABELS_choice)
 							VALUES (?,?,?,?,?,?,?,?,?,?)";
             sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "1", "5160"));
-            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='library/MedEx/MedEx_background.php' WHERE `name`='MedEx'");
+            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx'");
 
             $info = $MedEx->login('1');
 
@@ -137,8 +139,8 @@ if ($_REQUEST['MedEx'] == "start") {
         } else {
             $response_prob = array();
             $response_prob['show'] = xlt("We ran into some problems connecting your EHR to the MedEx servers") . ".<br >
-				" .xlt('Most often this is due to a Username/Password mismatch')."<br />"
-                .xlt('Run Setup again or contact support for assistance').
+				" . xlt('Most often this is due to a Username/Password mismatch') . "<br />"
+                . xlt('Run Setup again or contact support for assistance') .
                 " <a href='https://medexbank.com/cart/upload/'>MedEx Bank</a>.<br />";
             echo json_encode($response_prob);
             sqlQuery("UPDATE `background_services` SET `active`='0' WHERE `name`='MedEx'");
@@ -165,7 +167,7 @@ if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
      *  And when that day comes we'll put it here...
      *  The other option is to use Visit Categories here.  Maybe both?  Consensus?
      */
-    $query = "SELECT ORDER_DETAILS FROM form_eye_mag_orders WHERE PID=? AND ORDER_DATE_PLACED < NOW() ORDER BY ORDER_DATE_PLACED DESC LIMIT 1";
+    $query = "SELECT ORDER_DETAILS FROM form_eye_mag_orders WHERE pid=? AND ORDER_DATE_PLACED < NOW() ORDER BY ORDER_DATE_PLACED DESC LIMIT 1";
     $result2 = sqlQuery($query, array($_REQUEST['pid']));
     if (!empty($result2)) {
         $result['PLAN'] = $result2['ORDER_DETAILS'];

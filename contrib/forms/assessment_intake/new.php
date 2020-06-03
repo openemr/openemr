@@ -1,311 +1,699 @@
 <?php
+
 /**
  * assessment_intake new.php.
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @package OpenEMR
+ * @linkhttp://www.open-emr.org
+ * @author Brady Miller <brady.g.miller@gmail.com>
+ * @author Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 formHeader("Form: assessment_intake");
 ?>
-<html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<html>
+
+<head>
+    <?php Header::setupHeader(); ?>
+    <title><?php echo xlt("Assessment Intake Form"); ?></title>
 </head>
-<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?php echo $rootdir;?>/forms/assessment_intake/save.php?mode=new" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<br>
-<span class="title"><center>Assessment and Intake</center></span><br><br>
-<center><a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
-<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
- onclick="top.restoreSession()">[Don't Save]</a></center>
-<br>
 
-<?php $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = ?", array($pid));
-$result = SqlFetchArray($res); ?>
-<b>Name:</b>&nbsp; <?php echo text($result['fname']) . '&nbsp' . text($result['mname']) . '&nbsp;' . text($result['lname']);?>
-<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="572" height="1">
-<b>Date:</b>&nbsp; <?php print date('m/d/y'); ?><br><br>
-<b>SSN:</b>&nbsp;<?php echo text($result['ss']);?><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="172" height="1">
-<label><b>DCN:</b>&nbsp;<input type="text" name="dcn"></label><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="125" height="1">
-<label><b>Location:</b>&nbsp;<input type="text" name="location"></label><br><br>
-<b>Address:</b>&nbsp; <?php echo text($result['street']) . ',&nbsp' . text($result['city'])  . ',&nbsp' . text($result['state']) . '&nbsp;' . text($result['postal_code']);?><br><br>
-<b>Telephone Number:</b>&nbsp; <?php echo text($result['phone_home']);?><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="400" height="1">
-<b>Date of Birth:</b>&nbsp;<?php echo text($result['DOB']);?><br><br>
-<label><b>Time In:</b>&nbsp;<input type="text" name="time_in"></label><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="65" height="1">
-<label><b>Time Out:</b>&nbsp;<input type="text" name="time_out"></label><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="65" height="1">
-<label><b>Referral Source:</b>&nbsp;<input type="text" name="referral_source"></label><br><br>
-<b>Purpose:</b>&nbsp; <input type=checkbox name='new_client_eval'  ><b>New client evaluation</b><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="10" height="1">
-<input type=checkbox name='readmission'  ><b>Readmission</b><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="35" height="1">
-<input type=checkbox name='consultation' ><b>Consultation</b><br><br>
-<label><b>Copy sent to:</b>&nbsp;<input type="text" name="copy_sent_to"></label><br><br>
-<b>Why is Assessment being requested (Goals and treatment expectations of the individual requesting services):</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="reason_why" ></textarea><br>
-<b>Behavior that led to Assessment:</b><br>
-<textarea cols=100 rows=5 wrap=virtual name="behavior_led_to" ></textarea><br><br>
-<b><u></u>Areas of Functioning:</b><br><br>
-<b>School/Work:</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="school_work" ></textarea><br><br>
-<b>Personal Relationships (Intimate):</b>&nbsp;
-<textarea cols=100 rows=4 wrap=virtual name="personal_relationships" ></textarea><br><br>
-<b>Family Relationships:</b>&nbsp; &nbsp;
-<input type=checkbox name='fatherc'  >&nbsp;<b>Father involved/present/absent (Describe relationship)</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="father_involved" ></textarea><br>
-<input type=checkbox name='motherc'  >&nbsp;<b>Mother involved/present/absent (Describe relationship)</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="mother_involved" ></textarea><br><br>
-<b>Number of children:</b>&nbsp;<input type="text" name="number_children"><br><b>Names, ages, quality of relationship(s):</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="siblings" ></textarea><br><br>
-<b>Other family relationships:</b><br>
-<textarea cols=100 rows=2 wrap=virtual name="other_relationships" ></textarea><br><br>
-<b>Social Relationships (Peers/Friends):</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="social_relationships" ></textarea><br><br>
-<b>Psychological/Personal Functioning (Current symptons):</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="current_symptoms" ></textarea><br><br>
-<b>Personal resources and strengths (including the availability & use of family and peers):</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="personal_strengths" ></textarea><br><br>
-<b>Spiritual:</b>&nbsp;<input type="text" name="spiritual">&nbsp;<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="35" height="1">
-<b>Legal:</b>&nbsp;<input type="text" name="legal"><br><br>
-<b>Prior Mental Health History/Treatment:</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="prior_history" ></textarea><br><br>
-<b>Number of admissions:</b>&nbsp;<input type="text" name="number_admitt">&nbsp;<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="35" height="1">
-<b>Types of admissions:</b>&nbsp;<input type="text" name="type_admitt"><br><br>
-<b>Alcohol and substance use for the past 30 days:</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="substance_use" ></textarea><br><br>
-<b>Substance abuse history (Include duration, patterns, and consequences of use):</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="substance_abuse" ></textarea><br><br>
-<b><u>Diagnoses</u></b><br><br>
-<b>Axis I:</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="axis1" ></textarea><br><br>
-<b>Axis II:</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="axis2" ></textarea><br><br>
-<b>Axis III:</b><br>
-<textarea cols=100 rows=3 wrap=virtual name="axis3" ></textarea><br><br>
-<b><u>Allergies/Adverse reactions to medications:</u></b>&nbsp;<input type="text" name="allergies"><br><br>
-<b>Axis IV Psychosocial and environmental problems in the last year:</b><br>
-<input type=checkbox name='ax4_prob_support_group'  >&nbsp;<b>Problems with primary support group</b>
-<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="35" height="1">
-<input type=checkbox name='ax4_prob_soc_env'  >&nbsp;<b>Problems related to the social environment</b><br>
+<body class="m-0 body_top">
+    <div class="container">
+        <form method="post" action="<?php echo $rootdir;?>/forms/assessment_intake/save.php?mode=new" name="my_form">
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <br />
+            <h3 class="title text-center">Assessment and Intake</h3>
+            <div class="text-center">
+                <a href="javascript:top.restoreSession();document.my_form.submit();" class="btn btn-primary"><?php echo xlt("Save"); ?></a>
+                <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt("Don't Save"); ?></a>
+            </div>
+            <br />
 
-<input type=checkbox name='ax4_educational_prob'  >&nbsp;<b>Educational problems</b>
-<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-<input type=checkbox name='ax4_occ_prob'  >&nbsp;<b>Occupational problems</b>
-<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-<input type=checkbox name='ax4_housing'  >&nbsp;<b>Housing problems</b>
-<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-<input type=checkbox name='ax4_economic'  >&nbsp;<b>Economic problems</b><br>
-<input type=checkbox name='ax4_access_hc'  >&nbsp;<b>Problems with access to health care services</b>
-<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-<input type=checkbox name='ax4_legal'  >&nbsp;<b>Problems related to interaction with the legal system/crime</b><br>
-<input type=checkbox name='ax4_other_cb'  >&nbsp;<b>Other (specify):</b><br>
-<textarea cols=100 rows=2 wrap=virtual name="ax4_other" ></textarea><br><br>
-<b>Axis V Global Assessment of Functioning (GAF) Scale (100 down to 0):</b>
-<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1"><br>
-<b>Currently</b><input type="text" name="ax5_current">
-<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-<b>Past Year</b><input type="text" name="ax5_past"><br><br>
-<b><u>Assessment of Currently Known Risk Factors:</u></b><br><br>
-<b>Suicide:</b><br><input type=checkbox name='risk_suicide_na'  >&nbsp;<b>Not Assessed</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <b>Behaviors:</b>&nbsp;
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_suicide_nk'  >&nbsp;<b>Not Known</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_suicide_io'  >&nbsp;<b>Ideation only</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_suicide_plan'  >&nbsp;<b>Plan</b><br>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="100" height="1">
-    <input type=checkbox name='risk_suicide_iwom'  >&nbsp;<b>Intent without means</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_suicide_iwm'  >&nbsp;<b>Intent with means</b><br>
-<br>
-<b>Homocide:</b><br><input type=checkbox name='risk_homocide_na'  >&nbsp;<b>Not Assessed</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <b>Behaviors:</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_homocide_nk'  >&nbsp;<b>Not Known</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_homocide_io'  >&nbsp;<b>Ideation only</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_homocide_plan'  >&nbsp;<b>Plan</b><br>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="100" height="1">
-    <input type=checkbox name='risk_homocide_iwom'  >&nbsp;<b>Intent without means</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_homocide_iwm'  >&nbsp;<b>Intent with means</b><br>
-<br>
-<b>Compliance with treatment:</b><br><input type=checkbox name='risk_compliance_na'  >&nbsp;<b>Not Assessed</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_compliance_fc'  >&nbsp;<b>Full compliance</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_compliance_mc'  >&nbsp;<b>Minimal compliance</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_compliance_moc'  >&nbsp;<b>Moderate compliance</b><br>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="100" height="1">
-    <input type=checkbox name='risk_compliance_var'  >&nbsp;<b>Variable</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_compliance_no'  >&nbsp;<b>Little or no compliance</b><br>
-<br>
-<b>Substance Abuse:</b><br><input type=checkbox name='risk_substance_na'  >&nbsp;<b>Not Assessed</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_substance_none'  >&nbsp;<b>None/normal use:</b><br>
-    <textarea cols=100 rows=1 wrap=virtual name="risk_normal_use" ></textarea><br>
-    <input type=checkbox name='risk_substance_ou'  >&nbsp;<b>Overuse</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_substance_dp'  >&nbsp;<b>Dependence</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_substance_ur'  >&nbsp;<b>Unstable remission of abuse</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_substance_ab'  >&nbsp;<b>Abuse</b><br>
-<br>
-<b>Current physical or sexual abuse:</b><br><input type=checkbox name='risk_sexual_na'  >&nbsp;<b>Not Assessed</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_sexual_y'>&nbsp;<b>Yes</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_sexual_n'>&nbsp;<b>No</b><br>
-    <b>Legally reportable?</b>&nbsp;<input type=checkbox name='risk_sexual_ry'>&nbsp;<b>Yes</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_sexual_rn'>&nbsp;<b>No</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <b>If yes, client is </b>&nbsp;<input type=checkbox name='risk_sexual_cv'>&nbsp;<b>victum</b>
-    &nbsp;<input type=checkbox name='risk_sexual_cp'>&nbsp;<b>perpetrator</b><br>
-    <input type=checkbox name='risk_sexual_b'>&nbsp;<b>Both</b>&nbsp;
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_sexual_nf'>&nbsp;<b>neither, but abuse exists in family</b>&nbsp;<br>
-<br>
-<b>Current child/elder abuse:</b><br><input type=checkbox name='risk_neglect_na'  >&nbsp;<b>Not Assessed</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_neglect_y'>&nbsp;<b>Yes</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_neglect_n'>&nbsp;<b>No</b><br>
-    <b>Legally reportable?</b>&nbsp;<input type=checkbox name='risk_neglect_ry'>&nbsp;<b>Yes</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_neglect_rn'>&nbsp;<b>No</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <b>If yes, client is </b>&nbsp;<input type=checkbox name='risk_neglect_cv'>&nbsp;<b>victum</b>
-    &nbsp;<input type=checkbox name='risk_neglect_cp'>&nbsp;<b>perpetrator</b><br>
-    <input type=checkbox name='risk_neglect_cb'>&nbsp;<b>Both</b>&nbsp;
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_neglect_cn'>&nbsp;<b>neither, but abuse exists in family</b>&nbsp;<br>
-<br>
+            <?php
+            $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = ?", array($pid));
+            $result = SqlFetchArray($res);
+            ?>
 
-    <b>If risk exists:</b>&nbsp;client&nbsp;<input type=checkbox name='risk_exists_c'><b>can</b>&nbsp;
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_exists_cn'>&nbsp;<b>cannot</b>&nbsp;
-    <b>meaningfully agree to a contract not to harm</b><br>
-    <input type=checkbox name='risk_exists_s'>&nbsp;<b>self</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_exists_o'>&nbsp;<b>others</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='risk_exists_b'>&nbsp;<b>both</b><br><br>
+            <p><label class="font-weight-bold">Name:</label>&nbsp; <?php echo text($result['fname']) . '&nbsp' . text($result['mname']) . '&nbsp;' . text($result['lname']);?></p>
 
-    <b>Risk to community (criminal):</b><br>
-    <textarea cols=100 rows=3 wrap=virtual name="risk_community" ></textarea><br>
+            <p><label class="font-weight-bold">Date:</label>&nbsp; <?php print date('m/d/y'); ?></p>
 
-<b><u>Assessment Recommendations:</u></b><br><br>
+            <p><label class="font-weight-bold">SSN:</label>&nbsp;<?php echo text($result['ss']);?></p>
 
-<b>Outpatient Psychotherapy:</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='recommendations_psy_i'>&nbsp;<b>Individual</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='recommendations_psy_f'>&nbsp;<b>Family</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='recommendations_psy_m'>&nbsp;<b>Marital/relational</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='recommendations_psy_o'>&nbsp;<b>Other</b><br>
-    <textarea cols=100 rows=3 wrap=virtual name="recommendations_psy_notes" ></textarea><br>
+            <div class="form-group">
+                <label class="font-weight-bold" for="dcn">DCN:</label>
+                <input type="text" class="form-control" name="dcn" id="dcn" />
+            </div>
 
-<b>Date report sent to referral source:</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=text name='refer_date'>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <b>Parent/Guardian:</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=text name='parent'>
-<br>
+            <div class="form-group">
+                <label class="font-weight-bold" for="location">Location:</label>
+                <input type="text" class="form-control" name="location" id="location" />
+            </div>
 
-<b>Level of supervision needed:</b>
-    <br>
-    <textarea cols=100 rows=1 wrap=virtual name="supervision_level" ></textarea><br>
-    <b>Type of program:</b><br>
-    <textarea cols=100 rows=1 wrap=virtual name="supervision_type" ></textarea><br>
+            <p><label class="font-weight-bold">Address:</label>&nbsp; <?php echo text($result['street']) . ',&nbsp' . text($result['city']) . ',&nbsp' . text($result['state']) . '&nbsp;' . text($result['postal_code']);?></p>
 
-<b>Residential or long-term placement recommended:</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <textarea cols=100 rows=1 wrap=virtual name="supervision_res" ></textarea><br>
-    <b>Support services needed:</b><br>
-    <textarea cols=100 rows=1 wrap=virtual name="supervision_services" ></textarea><br>
+            <p><label class="font-weight-bold">Telephone Number:</label>&nbsp; <?php echo text($result['phone_home']);?></p>
 
-    <input type=checkbox name='support_ps'>&nbsp;<b>Parenting skills/child management</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='support_cs'>&nbsp;<b>Communication skills</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='support_sm'>&nbsp;<b>Stress management</b><br>
+            <p><label class="font-weight-bold">Date of Birth:</label>&nbsp;<?php echo text($result['DOB']);?></p>
 
-    <input type=checkbox name='support_a'>&nbsp;<b>Assertiveness</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='support_o'>&nbsp;<b>Other</b><br>
-    <textarea cols=100 rows=1 wrap=virtual name="support_ol" ></textarea><br><br>
+            <div class="form-group">
+                <label class="font-weight-bold" for="time_in">Time In:</label>
+                <input type="text" class="form-control" name="time_in" id="time_in" />
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold" for="time_out">Time Out:</label>
+                <input type="text" class="form-control" name="time_out" id="time_out" />
+            </div>
 
-<b>Legal Services:</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='legal_op'>&nbsp;<b>Offender program</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='legal_so'>&nbsp;<b>Sex Offender Groups</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='legal_sa'>&nbsp;<b>Substance abuse</b><br>
+            <div class="form-group">
+                <label class="font-weight-bold">Referral Source:</label>
+                <input type="text" class="form-control" name="referral_source" />
+            </div>
 
-    <input type=checkbox name='legal_ve'>&nbsp;<b>Victum empathy group</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=checkbox name='legal_ad'>&nbsp;<b>Referral to advocate</b>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-    <input type=text name='legal_adl'>
-    <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1"><br>
-    <input type=checkbox name='legal_o'>&nbsp;<b>Other:</b>
+            <p class="font-weight-bold">Purpose:</p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='new_client_eval' />
+                <label class="font-weight-bold custom-control-label">New client evaluation</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='readmission' />
+                <label class="font-weight-bold custom-control-label">Readmission</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='consultation' />
+                <label class="font-weight-bold custom-control-label">Consultation</label>
+            </div>
 
-    <br>
+            <div class="form-group">
+                <label class="font-weight-bold">Copy sent to:</label>
+                <input type="text" class="form-control" name="copy_sent_to" />
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Why is Assessment being requested (Goals and treatment expectations of the individual requesting services):</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="reason_why"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Behavior that led to Assessment:</label>
+                <textarea class="form-control" cols="100" rows="5" wrap="virtual" name="behavior_led_to"></textarea>
+            </div>
 
-    <b>Other:</b><br>
-    <textarea cols=100 rows=1 wrap=virtual name="legal_ol" ></textarea><br><br>
+            <h5 class="font-weight-bold mt-3" style="text-decoration: underline;">Areas of Functioning:</h5>
 
-<b><u>Referrals for Continuing Services</u></b><br><br>
+            <div class="form-group">
+                <label class="font-weight-bold">School/Work:</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="school_work"></textarea>
+            </div>
 
-<b>Psychiatric Evaluation Psychotropic Medications:</b><br>
-    <textarea cols=100 rows=2 wrap=virtual name="referrals_pepm" ></textarea><br><br>
+            <div class="form-group">
+                <label class="font-weight-bold">Personal Relationships (Intimate):</label>
+                <textarea class="form-control" cols="100" rows="4" wrap="virtual" name="personal_relationships"></textarea>
+            </div>
 
-<b>Medical Care:</b><br>
-    <textarea cols=100 rows=2 wrap=virtual name="referrals_mc" ></textarea><br><br>
+            <p class="font-weight-bold">Family Relationships:</p>
+            <div class="form-inline">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class='custom-control-input' name='fatherc' />
+                    <label class="font-weight-bold custom-control-label">Father involved/present/absent (Describe relationship)</label>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="father_involved"></textarea>
+                </div>
+            </div>
+            <div class="form-inline">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class='custom-control-input' name='motherc' />
+                    <label class="font-weight-bold custom-control-label">Mother involved/present/absent (Describe relationship)</label>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="mother_involved"></textarea>
+                </div>
+            </div>
 
-<b>Educational/vocational services:</b><br>
-    <textarea cols=100 rows=2 wrap=virtual name="referrals_vt" ></textarea><br><br>
+            <div class="form-group">
+                <label class="font-weight-bold">Number of children:</label>
+                <input type="text" class="form-control" name="number_children" />
+            </div>
 
-<b>Other:</b><br>
-    <textarea cols=100 rows=2 wrap=virtual name="referrals_o" ></textarea><br><br>
+            <div class="form-group">
+                <label class="font-weight-bold">Names, ages, quality of relationship(s):</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="siblings"></textarea>
+            </div>
 
-<b>Current use of resources/services from other community agencies:</b><br>
-    <textarea cols=100 rows=2 wrap=virtual name="referrals_cu" ></textarea><br><br>
+            <div class="form-group">
+                <label class="font-weight-bold">Other family relationships:</label>
+                <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="other_relationships"></textarea>
+            </div>
 
-<b>Documents to be obtainded (Release of Information Required):</b><br>
-    <textarea cols=100 rows=2 wrap=virtual name="referrals_docs" ></textarea><br><br>
+            <div class="form-group">
+                <label class="font-weight-bold">Social Relationships (Peers/Friends):</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="social_relationships"></textarea>
+            </div>
 
-<b>Other needed resources and services:</b><br>
-    <textarea cols=100 rows=2 wrap=virtual name="referrals_or" ></textarea><br><br>
+            <div class="form-group">
+                <label class="font-weight-bold">Psychological/Personal Functioning (Current symptons):</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="current_symptoms"></textarea>
+            </div>
 
+            <div class="form-group">
+                <label class="font-weight-bold">Personal resources and strengths (including the availability and use of family and peers):</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="personal_strengths"></textarea>
+            </div>
 
-<center><a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
-<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
- onclick="top.restoreSession()">[Don't Save]</a></center>
-<br>
-</form>
-<?php
-formFooter();
-?>
+            <div class="form-group">
+                <label class="font-weight-bold">Spiritual:</label>
+                <input type="text" class="form-control" name="spiritual" />
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Legal:</label>
+                <input type="text" class="form-control" name="legal" />
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Prior Mental Health History/Treatment:</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="prior_history"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Number of admissions:</label>
+                <input type="text" class="form-control" name="number_admitt" />
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Types of admissions:</label>
+                <input type="text" class="form-control" name="type_admitt" />
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Alcohol and substance use for the past 30 days:</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="substance_use"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Substance abuse history (Include duration, patterns, and consequences of use):</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="substance_abuse"></textarea>
+            </div>
+
+            <h5 class="font-weight-bold mt-3" style="text-decoration: underline;">Diagnoses</h5>
+            <div class="form-group">
+                <label class="font-weight-bold">Axis I:</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="axis1"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Axis II:</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="axis2"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Axis III:</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="axis3"></textarea>
+            </div>
+
+            <h5 class="font-weight-bold mt-3" style="text-decoration: underline;">Allergies/Adverse reactions to medications:</h5>
+            <div class="form-group">
+                <input type="text" class="form-control" name="allergies" />
+            </div>
+            <p class="font-weight-bold">Axis IV Psychosocial and environmental problems in the last year:</p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='ax4_prob_support_group' />
+                <label class="font-weight-bold custom-control-label">Problems with primary support group</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='ax4_prob_soc_env' />
+                <label class="font-weight-bold custom-control-label">Problems related to the social environment</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='ax4_educational_prob' />
+                <label class="font-weight-bold custom-control-label">Educational problems</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='ax4_occ_prob' />
+                <label class="font-weight-bold custom-control-label">Occupational problems</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='ax4_housing' />
+                <label class="font-weight-bold custom-control-label">Housing problems</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='ax4_economic' />
+                <label class="font-weight-bold custom-control-label">Economic problems</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='ax4_access_hc' />
+                <label class="font-weight-bold custom-control-label">Problems with access to health care services</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='ax4_legal' />
+                <label class="font-weight-bold custom-control-label">Problems related to interaction with the legal system/crime</label>
+            </div>
+            <div class="form-inline">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class='custom-control-input' name='ax4_other_cb' />
+                    <label class="font-weight-bold custom-control-label">Other (specify):</label>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="ax4_other"></textarea>
+                </div>
+            </div>
+            <p class="font-weight-bold">Axis V Global Assessment of Functioning (GAF) Scale (100 down to 0):</p>
+            <div class="form-group">
+                <label class="font-weight-bold">Currently</label>
+                <input type="text" class="form-control" name="ax5_current" />
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Past Year</label>
+                <input type="text" class="form-control" name="ax5_past" />
+            </div>
+
+            <h5 class="font-weight-bold mt-3" style="text-decoration: underline;">Assessment of Currently Known Risk Factors:</h5>
+
+            <p class="font-weight-bold">Suicide:</p>
+            
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_suicide_na' />
+                <label class="font-weight-bold custom-control-label">Not Assessed</label>
+            </div>
+
+            <p class="font-weight-bold mt-3">Behaviors:</p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_suicide_nk' />
+                <label class="font-weight-bold custom-control-label">Not Known</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_suicide_io' />
+                <label class="font-weight-bold custom-control-label">Ideation only</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_suicide_plan' />
+                <label class="font-weight-bold custom-control-label">Plan</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_suicide_iwom' />
+                <label class="font-weight-bold custom-control-label">Intent without means</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_suicide_iwm' />
+                <label class="font-weight-bold custom-control-label">Intent with means</label>
+            </div>
+
+            <p class="font-weight-bold mt-3">Homocide:</p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_homocide_na' />
+                <label class="font-weight-bold custom-control-label">Not Assessed</label>
+            </div>
+
+            <p class="font-weight-bold mt-3">Behaviors:</p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_homocide_nk' />
+                <label class="font-weight-bold custom-control-label">Not Known</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_homocide_io' />
+                <label class="font-weight-bold custom-control-label">Ideation only</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_homocide_plan' />
+                <label class="font-weight-bold custom-control-label">Plan</label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_homocide_iwom' />
+                <label class="font-weight-bold custom-control-label">Intent without means</label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_homocide_iwm' />
+                <label class="font-weight-bold custom-control-label">Intent with means</label>
+            </div>
+
+            <p class="font-weight-bold mt-3">Compliance with treatment:</p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_compliance_na' />
+                <label class="font-weight-bold custom-control-label">Not Assessed</label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_compliance_fc' />
+                <label class="font-weight-bold custom-control-label">Full compliance</label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_compliance_mc' />
+                <label class="font-weight-bold custom-control-label">Minimal compliance</label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_compliance_moc' />
+                <label class="font-weight-bold custom-control-label">Moderate compliance</label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_compliance_var' />
+                <label class="font-weight-bold custom-control-label">Variable</label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_compliance_no' />
+                <label class="font-weight-bold custom-control-label">Little or no compliance</label>
+            </div>
+
+            <p class="font-weight-bold mt-3">Substance Abuse:</p>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_substance_na' />
+                <label class="font-weight-bold custom-control-label">Not Assessed</label>
+            </div>
+
+            <div class="form-inline">
+                <div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class='custom-control-input' name='risk_substance_none' />
+                        <label class="font-weight-bold custom-control-label">None/normal use:</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="risk_normal_use"></textarea>
+                </div>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_substance_ou' />
+                <label class="font-weight-bold custom-control-label">Overuse</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_substance_dp' />
+                <label class="font-weight-bold custom-control-label">Dependence</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_substance_ur' />
+                <label class="font-weight-bold custom-control-label">Unstable remission of abuse</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_substance_ab' />
+                <label class="font-weight-bold custom-control-label">Abuse</label>
+            </div>
+
+            <p class="font-weight-bold mt-3">Current physical or sexual abuse:</p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_sexual_na' />
+                <label class="font-weight-bold custom-control-label">Not Assessed</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_sexual_y' />
+                <label class="font-weight-bold custom-control-label">Yes</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_sexual_n' />
+                <label class="font-weight-bold custom-control-label">No</label>
+            </div>
+
+            <p class="font-weight-bold mt-3">Legally reportable?</p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_sexual_ry' />
+                <label class="font-weight-bold custom-control-label">Yes</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_sexual_rn' />
+                <label class="font-weight-bold custom-control-label">No</label>
+            </div>
+
+            <p class="font-weight-bold mt-3">If yes, client is </p>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_sexual_cv' />
+                <label class="font-weight-bold custom-control-label">victim</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_sexual_cp' />
+                <label class="font-weight-bold custom-control-label">perpetrator</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_sexual_b' />
+                <label class="font-weight-bold custom-control-label">Both</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_sexual_nf' />
+                <label class="font-weight-bold custom-control-label">neither, but abuse exists in family</label>
+            </div>
+
+            <p class="font-weight-bold mt-3">Current child/elder abuse:</p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_neglect_na' />
+                <label class="font-weight-bold custom-control-label">Not Assessed</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_neglect_y' />
+                <label class="font-weight-bold custom-control-label">Yes</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_neglect_n' />
+                <label class="font-weight-bold custom-control-label">No</label>
+            </div>
+
+            <label class="font-weight-bold mt-3">Legally reportable?</label>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_neglect_ry' />
+                <label class="font-weight-bold custom-control-label"><?php echo xlt("Yes"); ?></label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_neglect_rn' />
+                <label class="font-weight-bold custom-control-label"><?php echo xlt("No"); ?></label>
+            </div>
+
+            <p class="font-weight-bold mt-3"><?php echo xlt("If yes, client is "); ?></p>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_neglect_cv' />
+                <label class="font-weight-bold custom-control-label"><?php echo xlt("victim"); ?></label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_neglect_cp' />
+                <label class="font-weight-bold custom-control-label"><?php echo xlt("perpetrator"); ?></label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_neglect_cb' />
+                <label class="font-weight-bold custom-control-label"><?php echo xlt("Both"); ?></label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='risk_neglect_cn' />
+                <label class="font-weight-bold custom-control-label"><?php echo xlt("neither, but abuse exists in family"); ?></label>
+            </div>
+
+            <div class="row align-items-center">
+                <div class="col-2">
+                    <p class="font-weight-bold">If risk exists the client:</p>
+                </div>
+                <div class="col-4">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class='custom-control-input' name='risk_exists_c' id='risk_exists_c' />
+                        <label class="font-weight-bold custom-control-label">can meaningfully agree to a contract not to harm</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class='custom-control-input' name='risk_exists_cn' id='risk_exists_cn' />
+                        <label class="font-weight-bold custom-control-label">cannot meaningfully agree to a contract not to harm</label>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class='custom-control-input' name='risk_exists_s' />
+                        <label class="font-weight-bold custom-control-label">self</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class='custom-control-input' name='risk_exists_o' />
+                        <label class="font-weight-bold custom-control-label">others</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class='custom-control-input' name='risk_exists_b' />
+                        <label class="font-weight-bold custom-control-label">both</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Risk to community (criminal):</label>
+                <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="risk_community"></textarea>
+            </div>
+
+            <h5 class="font-weight-bold mt-3" style="text-decoration: underline;">Assessment Recommendations:</h5>
+
+            <p class="font-weight-bold">Outpatient Psychotherapy:</p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='recommendations_psy_i' />
+                <label class="font-weight-bold custom-control-label">Individual</label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='recommendations_psy_f' />
+                <label class="font-weight-bold custom-control-label">Family</label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='recommendations_psy_m' />
+                <label class="font-weight-bold custom-control-label">Marital/relational</label>
+            </div>
+
+            <div class="form-inline">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class='custom-control-input' name='recommendations_psy_o' />
+                    <label class="font-weight-bold custom-control-label">Other</label>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="recommendations_psy_notes"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Date report sent to referral source:</label>
+                <input type="text" class="form-control" name='refer_date' />
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Parent/Guardian:</label>
+                <input type="text" class="form-control" name='parent' />
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold" for="supervision_level">Level of supervision needed:</label>
+                <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="supervision_level" id="supervision_level"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold" for="supervision_type">Type of program:</label>
+                <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="supervision_type" id="supervision_type"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold" for="supervision_res"><?php echo xlt("Residential or long-term placement recommended:"); ?></label>
+                <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="supervision_res" id="supervision_res"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold" for="supervision_services"><?php echo xlt("Support services needed:"); ?></label>
+                <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="supervision_services" id="supervision_services"></textarea>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='support_ps' id='support_ps' />
+                <label class="font-weight-bold custom-control-label" for="support_ps"><?php echo xlt("Parenting skills/child management"); ?></label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='support_cs' id='support_cs' />
+                <label class="font-weight-bold custom-control-label" for="support_cs"><?php echo xlt("Communication skills"); ?></label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='support_sm' id='support_sm' />
+                <label class="font-weight-bold custom-control-label" for="support_sm"><?php echo xlt("Stress management"); ?></label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='support_a' id='support_a' />
+                <label class="font-weight-bold custom-control-label" for="support_a"><?php echo xlt("Assertiveness"); ?></label>
+            </div>
+
+            <div class="form-inline">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class='custom-control-input' name='support_o' id='support_o' />
+                    <label class="font-weight-bold custom-control-label" for="support_o"><?php echo xlt("Other"); ?></label>
+                </div>
+                <div class="ml-1">
+                    <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="support_ol" id="support_ol"></textarea>
+                </div>
+            </div>
+
+            <h5 class="font-weight-bold mt-3" style="text-decoration: underline;"><?php echo xlt("Legal Services:"); ?></h5>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class='custom-control-input' name='legal_op' id='legal_op' />
+                <label class="font-weight-bold custom-control-label" for="legal_op"><?php echo xlt("Offender program"); ?></label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" name='legal_so' id='legal_so' />
+                <label class="font-weight-bold custom-control-label" for="legal_so"><?php echo xlt("Sex Offender Groups"); ?></label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" name='legal_sa' id='legal_sa' />
+                <label class="font-weight-bold custom-control-label" for="legal_sa"><?php echo xlt("Substance abuse"); ?></label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" name='legal_ve' id='legal_ve' />
+                <label class="font-weight-bold custom-control-label" for="legal_ve"><?php echo xlt("Victim empathy group"); ?></label>
+            </div>
+            <div class="form-inline">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" name='legal_ad' id='legal_ad' />
+                    <label class="font-weight-bold custom-control-label" for="legal_ad"><?php echo xlt("Referral to advocate"); ?></label>
+                </div>
+                <div>
+                    <input type="text" class="form-control" name='legal_adl' />
+                </div>
+            </div>
+            <div class="form-inline">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" name='legal_o' id="legal_o" />
+                    <label class="font-weight-bold custom-control-label" for="legal_o"><?php echo xlt("Other:"); ?></label>
+                </div>
+                <div class="ml-1">
+                    <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="legal_ol" id="legal_ol"></textarea>
+                </div>
+            </div>
+
+            <h5 class="font-weight-bold mt-3" style="text-decoration: underline;"><?php echo xlt("Referrals for Continuing Services"); ?></h5>
+
+            <div class="form-group">
+                <label class="font-weight-bold" for="referrals_pepm"><?php echo xlt("Psychiatric Evaluation Psychotropic Medications:"); ?></label>
+                <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_pepm" id="referrals_pepm"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold"><?php echo xlt("Medical Care:"); ?></label>
+                <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_mc" id="referrals_mc"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold" for="referrals_vt"><?php echo xlt("Educational/vocational services:"); ?></label>
+                <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_vt" id="referrals_vt"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold" for="referrals_o"><?php echo xlt("Other:"); ?></label>
+                <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_o" id="referrals_o"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold" for="referrals_cu"><?php echo xlt("Current use of resources/services from other community agencies:"); ?></label>
+                <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_cu" id="referrals_cu"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold" for="referrals_docs"><?php echo xlt("Documents to be obtainded (Release of Information Required):"); ?></label>
+                <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_docs" id="referrals_docs"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold" for="referrals_or"><?php echo xlt("Other needed resources and services:"); ?></label>
+                <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_or" id="referrals_or"></textarea>
+            </div>
+
+            <div class="text-center">
+                <a href="javascript:top.restoreSession();document.my_form.submit();" class="btn btn-primary"><?php echo xlt("Save"); ?></a>
+                <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt("Don't Save"); ?></a>
+            </div>
+            <br />
+        </form>
+    </div>
+    <?php
+    formFooter();
+    ?>

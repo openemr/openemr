@@ -1,4 +1,5 @@
 <?php
+
 /**
  * blank.php
  *
@@ -9,15 +10,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
+
+use OpenEMR\Core\Header;
 
 ?>
 <html>
 <head>
 
-
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 
 </head>
 <body class="body_bottom">

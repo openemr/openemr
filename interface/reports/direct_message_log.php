@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Report to view the Direct Message log.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2013-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -51,7 +51,7 @@ if (isset($_POST['lognext']) && $_POST['lognext']) {
         display: inline;
     }
     #report_results table {
-       margin-top: 0px;
+       margin-top: 0;
     }
 }
 
@@ -78,14 +78,14 @@ if (isset($_POST['lognext']) && $_POST['lognext']) {
     <table>
         <tr>
             <td width='470px'>
-                <div class="btn-group pull-left" role="group">
-                    <a id='refresh_button' href='#' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+                <div class="btn-group float-left" role="group">
+                    <a id='refresh_button' href='#' class='btn btn-secondary btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
                         <?php echo xlt('Refresh'); ?>
                     </a>
-                    <a id='prev_button' href='#' class='btn btn-default btn-transmit' onclick='top.restoreSession(); $("#lognext").val(-100); $("#theform").submit()'>
+                    <a id='prev_button' href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#lognext").val(-100); $("#theform").submit()'>
                         <?php echo xlt('Older'); ?>
                     </a>
-                    <a id='next_button' href='#' class='btn btn-default btn-transmit' onclick='top.restoreSession(); $("#lognext").val(100); $("#theform").submit()'>
+                    <a id='next_button' href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#lognext").val(100); $("#theform").submit()'>
                         <?php echo xlt('Newer'); ?>
                     </a>
                 </div>
@@ -94,14 +94,14 @@ if (isset($_POST['lognext']) && $_POST['lognext']) {
     </table>
 </div>  <!-- end of search parameters -->
 
-<br>
+<br />
 
 
 
 <div id="report_results">
-<table>
+<table class='table'>
 
- <thead>
+ <thead class='thead-light'>
 
   <th align='center'>
     <?php echo xlt('ID'); ?>
@@ -140,7 +140,7 @@ if (!$logtop) {
 } else {
     $res = sqlStatement(
         "SELECT * FROM `direct_message_log` WHERE `id` BETWEEN ? AND ? ORDER BY `id` DESC",
-        array($logtop-99,$logtop)
+        array($logtop - 99,$logtop)
     );
 }
 
@@ -155,7 +155,7 @@ while ($row = sqlFetchArray($res)) {
 
     <?php if ($row['msg_type'] == "R") { ?>
           <td align='center'><?php echo xlt("Received") ?></td>
-    <?php } else if ($row['msg_type'] == "S") { ?>
+    <?php } elseif ($row['msg_type'] == "S") { ?>
           <td align='center'><?php echo xlt("Sent") ?></td>
     <?php } else {?>
           <td align='center'>&nbsp;</td>
@@ -167,13 +167,13 @@ while ($row = sqlFetchArray($res)) {
 
     <?php if ($row['status'] == "Q") { ?>
           <td align='center'><?php echo xlt("Queued") ?></td>
-    <?php } else if ($row['status'] == "S") { ?>
+    <?php } elseif ($row['status'] == "S") { ?>
           <td align='center'><?php echo xlt("Sent") ?></td>
-    <?php } else if ($row['status'] == "D") { ?>
+    <?php } elseif ($row['status'] == "D") { ?>
           <td align='center'><?php echo xlt("Sent - Confirmed") ?></td>
-    <?php } else if ($row['status'] == "R") { ?>
+    <?php } elseif ($row['status'] == "R") { ?>
           <td align='center'><?php echo xlt("Received") ?></td>
-    <?php } else if ($row['status'] == "F") { ?>
+    <?php } elseif ($row['status'] == "F") { ?>
           <td align='center'><?php echo xlt("Failed") ?></td>
     <?php } else {?>
           <td align='center'>&nbsp;</td>

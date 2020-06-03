@@ -19,11 +19,11 @@
  */
 namespace Patientvalidation\Controller;
 
-use Zend\InputFilter\InputFilter;
-use Zend\Mvc\Controller\AbstractActionController;
+use Laminas\InputFilter\InputFilter;
+use Laminas\Mvc\Controller\AbstractActionController;
 use Application\Listener\Listener;
-use Zend\Mvc\Controller\ActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\ActionController;
+use Laminas\View\Model\ViewModel;
 
 class BaseController extends AbstractActionController
 {
@@ -34,9 +34,9 @@ class BaseController extends AbstractActionController
      */
     protected $jsFiles = array(
         //jquery
-        '/jquery-1-9-1/jquery.min.js',
+        '/jquery/dist/jquery.min.js',
         //bootstrap
-        '/bootstrap/dist/js/bootstrap.min.js',
+        '/bootstrap/dist/js/bootstrap.bundle.min.js',
 
     );
 
@@ -64,7 +64,7 @@ class BaseController extends AbstractActionController
     {
 
                 $this->jsFiles[] = '/datatables.net/js/jquery.dataTables.js';
-                $this->jsFiles[] = '/datatables.net-bs/js/dataTables.bootstrap.js';
+                $this->jsFiles[] = '/datatables.net-bs4/js/dataTables.bootstrap4.min.js';
 
         return $this->jsFiles;
     }
@@ -79,11 +79,11 @@ class BaseController extends AbstractActionController
 
         //adding bootstrap rtl for rtl languages
         if ($_SESSION['language_direction'] == 'rtl') {
-            $this->cssFiles[] = '/bootstrap-rtl/dist/css/bootstrap-rtl.min.css';
+            $this->cssFiles[] = '/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css';
         }
 
 
-                $this->cssFiles[] = '/datatables.net-bs/css/dataTables.bootstrap.min.css';
+                $this->cssFiles[] = '/datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 
 
         return $this->cssFiles;
@@ -128,7 +128,7 @@ class BaseController extends AbstractActionController
      * @param $data
      * @param bool $convertToJson
      * @param int $responsecode
-     * @return \Zend\Stdlib\ResponseInterface
+     * @return \Laminas\Stdlib\ResponseInterface
      * @comment to use this function return this $response in your controller
      */
     public function responseWithNoLayout($data, $convertToJson = true, $responsecode = 200)

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form to track any clinical parameter.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
@@ -27,7 +27,7 @@ function track_anything_report($pid, $encounter, $cols, $id)
     $dummy = array(); // counter to decide if graph-button is shown
     $formid = $id;
     $shownameflag = 0;
-    echo "<div id='graph" . attr($formid) . "' class='chart-dygraphs'> </div><br>";
+    echo "<div id='graph" . attr($formid) . "' class='chart-dygraphs'> </div><br />";
     echo "<table border='1'>";
 
     // get name of selected track, used for GraphTitle
@@ -58,7 +58,7 @@ function track_anything_report($pid, $encounter, $cols, $id)
         $query2  = sqlStatement($spell, array($formid, $thistime));
 
         // is this the <tbale>-head?
-        if ($shownameflag==1) {
+        if ($shownameflag == 1) {
             echo "<tr><th class='time'>" . xlt('Time') . "</th>";
             while ($myrow2 = sqlFetchArray($query2)) {
                 echo "<th class='item'>&nbsp;" . text($myrow2['the_name']) . "&nbsp;</th>";
@@ -99,7 +99,7 @@ function track_anything_report($pid, $encounter, $cols, $id)
         echo "<td class='check'><div class='navigateLink'>" . xlt('Check items to graph') . "</div></td>";
     for ($col_i = 0; $col_i < $col; $col_i++) {
         echo "<td class='check'><div class='navigateLink'>";
-        for ($row_b=0; $row_b <$row; $row_b++) {
+        for ($row_b = 0; $row_b < $row; $row_b++) {
             // count more than 1 to show graph-button
             if (is_numeric($ofc_value[$col_i][$row_b])) {
                 $dummy[$col_i]++;
@@ -119,7 +119,7 @@ function track_anything_report($pid, $encounter, $cols, $id)
 
     // end Graph-Button-Row---------
 
-    if ($showbutton>0) {
+    if ($showbutton > 0) {
         echo "<tr><td></td>";
         echo "<td colspan='" . attr($col) . "'><div class='navigateLink'>";
         echo "<input type='button' class='graph_button' ";
@@ -130,10 +130,10 @@ function track_anything_report($pid, $encounter, $cols, $id)
 
     //---/end graph button------------------
         echo "</table>";
-        echo "<br>";
+        echo "<br />";
     echo "<div class='navigateLink'>"; // see custom_report.php
         echo "<form method='post' action='../../forms/track_anything/history.php' onsubmit='return top.restoreSession()'>";
-        echo "<input type='hidden' name='formid' value='". attr($formid) . "'>";
+        echo "<input type='hidden' name='formid' value='" . attr($formid) . "'>";
         echo "<input type='submit' name='history' value='" . xla('Show track history') . "' />";
         echo "</form>";
     echo "</div>"; // end hide for report

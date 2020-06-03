@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form new script.
  *
@@ -13,22 +14,22 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/lists.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 // todo -include_once("$srcdir/groups.inc");
 
 
 /*// todo Check permission to create encounters.
 $tmp = getGroupData($pid, "squad");
-if (($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) ||
-     ! (acl_check('encounters', 'notes_a' ) ||
-        acl_check('encounters', 'notes'   ) ||
-        acl_check('encounters', 'coding_a') ||
-        acl_check('encounters', 'coding'  ) ||
-        acl_check('encounters', 'relaxed' )))
+if (($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) ||
+     ! (AclMain::aclCheckCore('encounters', 'notes_a' ) ||
+        AclMain::aclCheckCore('encounters', 'notes'   ) ||
+        AclMain::aclCheckCore('encounters', 'coding_a') ||
+        AclMain::aclCheckCore('encounters', 'coding'  ) ||
+        AclMain::aclCheckCore('encounters', 'relaxed' )))
 {
   echo "<body>\n<html>\n";
   echo "<p>(" . xlt('New encounters not authorized'). ")</p>\n";
@@ -37,7 +38,7 @@ if (($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) ||
 }*/
 
 $viewmode = false;
-if (acl_check("groups", "glog", false, 'write')) {
+if (AclMain::aclCheckCore("groups", "glog", false, 'write')) {
     require_once("common.php");
 } else {
     echo xlt("access not allowed");

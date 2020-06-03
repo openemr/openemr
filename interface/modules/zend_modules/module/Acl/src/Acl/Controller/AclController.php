@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php
  *
@@ -12,8 +13,8 @@
 
 namespace Acl\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Application\Listener\Listener;
 
 class AclController extends AbstractActionController
@@ -26,11 +27,11 @@ class AclController extends AbstractActionController
     protected $listenerObject;
     private $htmlEscaper;
 
-    public function __construct(\Zend\View\Helper\HelperInterface $htmlEscaper, \Acl\Model\AclTable $aclTable)
+    public function __construct(\Laminas\View\Helper\HelperInterface $htmlEscaper, \Acl\Model\AclTable $aclTable)
     {
         $this->htmlEscaper = $htmlEscaper;
         // TODO: we should probably inject the Listener object as well so we can mock it in unit tests or at least make the dependency explicit.
-        $this->listenerObject = new Listener;
+        $this->listenerObject = new Listener();
         $this->aclTable = $aclTable;
     }
 
@@ -63,7 +64,7 @@ class AclController extends AbstractActionController
             'user_group_allowed'    => $user_group_allowed,
             'user_group_denied'     => $user_group_denied,
             'sections'              => $sections,
-            'component_id'          => "0-".$module_id,
+            'component_id'          => "0-" . $module_id,
             'module_id'             => $module_id,
             'listenerObject'            => $this->listenerObject,
             'active_modules'        => $array_active_modules,
@@ -274,7 +275,7 @@ class AclController extends AbstractActionController
         $escapeHtml         = $this->htmlEscaper;
 
         foreach ($array as $categoryId => $category) {
-            if ($category['name']=='') {
+            if ($category['name'] == '') {
                 continue;
             }
 
@@ -287,8 +288,8 @@ class AclController extends AbstractActionController
                     echo " </li> ";
                 }
 
-                $class="";
-                echo '<li id="'.$category['parent_id']."-".$category['id'].'" value="'.$escapeHtml($category['name']).'" '.$escapeHtml($class).' ><div onclick="selectThis(\''.$escapeHtml($category['parent_id']).'-'.$escapeHtml($category['id']).'\');rebuild();" class="list">'.$escapeHtml($category['name'])."</div>";
+                $class = "";
+                echo '<li id="' . $category['parent_id'] . "-" . $category['id'] . '" value="' . $escapeHtml($category['name']) . '" ' . $escapeHtml($class) . ' ><div onclick="selectThis(\'' . $escapeHtml($category['parent_id']) . '-' . $escapeHtml($category['id']) . '\');rebuild();" class="list">' . $escapeHtml($category['name']) . "</div>";
                 if ($currLevel > $prevLevel) {
                     $prevLevel = $currLevel;
                 }
@@ -328,22 +329,22 @@ class AclController extends AbstractActionController
             $tempList[$row['group_id']]['items'][] = $row;
         }
 
-        $output_string .='<ul>';
+        $output_string .= '<ul>';
         foreach ($tempList as $groupID => $tempListRow) {
-            $output_string .='<li '.$li_class.' id="li_'.$id.$tempListRow['group_id'].'-0" style="'.$visibility.'"><div class="'.$escapeHtml($dragabble).'" id="'.$id.$tempListRow['group_id'].'-0" >' . $escapeHtml($tempListRow['group_name']).'</div>';
+            $output_string .= '<li ' . $li_class . ' id="li_' . $id . $tempListRow['group_id'] . '-0" style="' . $visibility . '"><div class="' . $escapeHtml($dragabble) . '" id="' . $id . $tempListRow['group_id'] . '-0" >' . $escapeHtml($tempListRow['group_name']) . '</div>';
             if (!empty($tempListRow['items'])) {
-                $output_string .='<ul>';
+                $output_string .= '<ul>';
                 foreach ($tempListRow['items'] as $key => $itemRow) {
-                     $output_string .='<li '.$li_class.' id="li_'.$id.$itemRow['group_id'].'-'.$itemRow['user_id'].'" style="'.$visibility.'"><div class="'.$escapeHtml($dragabble).'" id="'.$id.$itemRow['group_id'].'-'.$itemRow['user_id'].'">' . $escapeHtml($itemRow['display_name']) . '</div></li>';
+                     $output_string .= '<li ' . $li_class . ' id="li_' . $id . $itemRow['group_id'] . '-' . $itemRow['user_id'] . '" style="' . $visibility . '"><div class="' . $escapeHtml($dragabble) . '" id="' . $id . $itemRow['group_id'] . '-' . $itemRow['user_id'] . '">' . $escapeHtml($itemRow['display_name']) . '</div></li>';
                 }
 
-                $output_string .='</ul>';
+                $output_string .= '</ul>';
             }
 
-            $output_string .='</li>';
+            $output_string .= '</li>';
         }
 
-        $output_string .='</ul>';
+        $output_string .= '</ul>';
         return $output_string;
     }
 

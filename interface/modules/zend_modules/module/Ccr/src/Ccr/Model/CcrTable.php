@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php
  *
@@ -8,16 +9,15 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Ccr\Model;
 
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
-use Zend\Db\Adapter\Driver\Pdo\Result;
-use Zend\XmlRpc\Generator;
-
+use Laminas\Db\Adapter\Driver\Pdo\Result;
+use Laminas\XmlRpc\Generator;
 use DOMDocument;
 use DOMXpath;
-
 use Document;
 use CouchDB;
 
@@ -157,7 +157,7 @@ class CcrTable extends AbstractTableGateway
         }
 
         $detail_query = substr($detail_query, 0, -1);
-        $detail_query = $detail_query.';';
+        $detail_query = $detail_query . ';';
         $appTable->zQuery($detail_query, $detail_query_array);
         return $audit_master_id;
     }
@@ -171,7 +171,7 @@ class CcrTable extends AbstractTableGateway
     public function parseXmlStream($content, $field_mapping)
     {
         $res    = array();
-        $xml    = new DOMDocument;
+        $xml    = new DOMDocument();
         $xml->loadXML($content);
         $xpath  = new DOMXpath($xml);
         $rootNamespace = $xml->lookupNamespaceUri($xml->namespaceURI);
@@ -385,7 +385,7 @@ class CcrTable extends AbstractTableGateway
         foreach ($data as $key => $val) {
             if (substr($key, -4) == '-sel') {
                 if (is_array($val)) {
-                    for ($i=0; $i<count($val); $i++) {
+                    for ($i = 0; $i < count($val); $i++) {
                         if ($val[$i] == 'insert') {
                             if (substr($key, 0, -4) == 'lists1') {
                                 if ($data['lists1-activity'][$i] == 'Active') {
@@ -430,7 +430,7 @@ class CcrTable extends AbstractTableGateway
                         if ($val == 'update') {
                             $var_name = substr($key, 0, -4);
                             $field_name = substr($var_name, 13);
-                            $patient_data_fields .= $field_name.'=?,';
+                            $patient_data_fields .= $field_name . '=?,';
                             array_push($patient_data_values, $data[$var_name]);
                         }
                     }

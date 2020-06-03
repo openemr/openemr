@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -147,11 +149,11 @@ class FHIRSubstancePolymerMonomerSet extends FHIRBackboneElement implements \Jso
                         $this->addStartingMaterial($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"startingMaterial" must be array of objects or null, '.gettype($data['startingMaterial']).' seen.');
+                    throw new \InvalidArgumentException('"startingMaterial" must be array of objects or null, ' . gettype($data['startingMaterial']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaireResponse;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaireResponse;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -231,7 +233,7 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
                         $this->addAnswer($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"answer" must be array of objects or null, '.gettype($data['answer']).' seen.');
+                    throw new \InvalidArgumentException('"answer" must be array of objects or null, ' . gettype($data['answer']) . ' seen.');
                 }
             }
             if (isset($data['item'])) {
@@ -240,11 +242,11 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
                         $this->addItem($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"item" must be array of objects or null, '.gettype($data['item']).' seen.');
+                    throw new \InvalidArgumentException('"item" must be array of objects or null, ' . gettype($data['item']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

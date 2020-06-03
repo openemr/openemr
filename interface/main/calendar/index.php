@@ -1,4 +1,5 @@
 <?php
+
 /**
  * POST-NUKE Content Management System
  * Based on:
@@ -15,12 +16,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/patient.inc");
 require_once 'includes/pnAPI.php';
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 // From Michael Brinson 2006-09-19:
 if (isset($_POST['pc_username'])) {
@@ -59,7 +60,7 @@ if ($GLOBALS['login_into_facility']) {
 
 // override the cookie if the user doesn't have access to that facility any more
 if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
-    $facilities = getUserFacilities($_SESSION['authId']);
+    $facilities = getUserFacilities($_SESSION['authUserID']);
     // use the first facility the user has access to, unless...
     $_SESSION['pc_facility'] = $facilities[0]['id'];
     // if the cookie is in the users' facilities, use that.
@@ -97,13 +98,7 @@ if (isset($_REQUEST['viewtype'])) {
 pnInit();
 
 // Get variables
-list($module,
-     $func,
-     $type) = pnVarCleanFromInput(
-         'module',
-         'func',
-         'type'
-     );
+list($module, $func, $type) = pnVarCleanFromInput('module', 'func', 'type');
 
 if ($module != "PostCalendar") {
     // exit if not using PostCalendar module
@@ -111,16 +106,18 @@ if ($module != "PostCalendar") {
 }
 
 if ($type == "admin") {
-    if (!acl_check('admin', 'calendar')) {
+    if (!AclMain::aclCheckCore('admin', 'calendar')) {
         // exit if do not have access
         exit;
     }
-    if (($func != "modifyconfig") &&
+    if (
+        ($func != "modifyconfig") &&
         ($func != "clearCache") &&
         ($func != "testSystem") &&
         ($func != "categories") &&
         ($func != "categoriesConfirm") &&
-        ($func != "categoriesUpdate")) {
+        ($func != "categoriesUpdate")
+    ) {
         // only support certain functions in admin use
         exit;
     }
@@ -131,8 +128,10 @@ if (empty($type)) {
 }
 
 if ($type == "user") {
-    if (($func != "view") &&
-        ($func != "search")) {
+    if (
+        ($func != "view") &&
+        ($func != "search")
+    ) {
         // only support view and search functions in for non-admin use
         exit;
     }
@@ -167,7 +166,7 @@ if ((empty($return)) || ($return == false)) {
     // Failed to load the module
     $output = new pnHTML();
     $output->StartPage();
-    $output->Text('Failed to load module ' . text($module) .' ( At function: "' . text($func) . '" )');
+    $output->Text('Failed to load module ' . text($module) . ' ( At function: "' . text($func) . '" )');
     $output->EndPage();
     $output->PrintPage();
     exit;

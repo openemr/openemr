@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The outside frame that holds all of the OpenEMR User Interface.
  *
@@ -16,6 +17,7 @@
 /* Include our required headers */
 require_once('../globals.php');
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -88,7 +90,7 @@ function input_focus()
 {
     ?>
     <script>
-        $(function() {
+        $(function () {
                 $('#totp').focus();
         });
     </script>
@@ -105,7 +107,6 @@ function generate_html_top()
 function generate_html_middle()
 {
     posted_to_hidden('new_login_session_management');
-    posted_to_hidden('authProvider');
     posted_to_hidden('languageChoice');
     posted_to_hidden('authUser');
     posted_to_hidden('clearPass');
@@ -129,7 +130,7 @@ if (isset($_POST['new_login_session_management'])) {
     $res1 = sqlStatement(
         "SELECT a.name, a.method, a.var1 FROM login_mfa_registrations AS a " .
         "WHERE a.user_id = ? AND (a.method = 'TOTP' OR a.method = 'U2F') ORDER BY a.name",
-        array($_SESSION['authId'])
+        array($_SESSION['authUserID'])
     );
 
     $registrationAttempt = false;
@@ -157,7 +158,7 @@ if (isset($_POST['new_login_session_management'])) {
             $appId = $scheme . $_SERVER['HTTP_HOST'];
             $u2f = new u2flib_server\U2F($appId);
         }
-        $userid = $_SESSION['authId'];
+        $userid = $_SESSION['authUserID'];
         $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
         if ($form_response) {
             // TOTP METHOD enabled if TOTP is visible in post request
@@ -168,7 +169,7 @@ if (isset($_POST['new_login_session_management'])) {
 
                 $res1 = sqlQuery(
                     "SELECT a.var1 FROM login_mfa_registrations AS a WHERE a.user_id = ? AND a.method = 'TOTP'",
-                    array($_SESSION['authId'])
+                    array($_SESSION['authUserID'])
                 );
                 $registrationSecret = false;
                 if (!empty($res1['var1'])) {
@@ -208,7 +209,7 @@ if (isset($_POST['new_login_session_management'])) {
                     // Keep track of when challenges were last answered correctly.
                     privStatement(
                         "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-                        array($_SESSION['authId'])
+                        array($_SESSION['authUserID'])
                     );
                 } else {
                     $errormsg = xl("The code you entered was not valid");
@@ -238,7 +239,7 @@ if (isset($_POST['new_login_session_management'])) {
                     // Keep track of when challenges were last answered correctly.
                     sqlStatement(
                         "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-                        array($_SESSION['authId'])
+                        array($_SESSION['authUserID'])
                     );
                 } catch (u2flib_server\Error $e) {
                     // Authentication failed so we will build the U2F form again.
@@ -279,7 +280,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Provide TOTP code') . '</legend>';
                 echo '                  <div class="form-group">';
-                echo '                      <div class="col-sm-6 col-sm-offset-3">';
+                echo '                      <div class="col-sm-6 offset-sm-3">';
                 echo '                          <label for="totp">' . xlt('Enter the code from your authentication application on your device') . ':</label>';
                 echo '                          <input type="text" name="totp" class="form-control input-lg" id="totp" maxlength="12" required>';
                 echo '                          <input type="hidden" name="form_response" value="true" />';
@@ -288,7 +289,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '              </fieldset>';
                 echo '                  <div class="form-group clearfix">';
                 echo '                      <div class="col-sm-12 text-left position-override">';
-                echo '                          <button type="submit" class="btn btn-default btn-save">' . xlt('Authenticate TOTP') . '</button>';
+                echo '                          <button type="submit" class="btn btn-secondary btn-save">' . xlt('Authenticate TOTP') . '</button>';
                 echo '                  </div>';
                 echo '              </div>';
                 echo '          </div>';
@@ -322,7 +323,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Insert U2F Key') . '</legend>';
                 echo '                  <div class="form-group">';
-                echo '                      <div class="col-sm-6 col-sm-offset-3">';
+                echo '                      <div class="col-sm-6 offset-sm-3">';
                 echo '                          <ul>';
                 echo '                              <li>' . xlt('Insert your key into a USB port and click the Authenticate button below.') . '</li>';
                 echo '                              <li>' . xlt('Then press the flashing button on your key within 1 minute.') . '</li>';
@@ -331,7 +332,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '              </fieldset>';
                 echo '                  <div class="form-group clearfix">';
                 echo '                      <div class="col-sm-12 text-left position-override">';
-                echo '                          <button type="button"  id="authutf" class="btn btn-default btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</button>';
+                echo '                          <button type="button"  id="authutf" class="btn btn-secondary btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</button>';
                 echo '                          <input type="hidden" name="form_requests" value="' . attr($requests) . '" />';
                 echo '                          <input type="hidden" name="form_response" value="" />';
                 generate_html_middle();
@@ -388,45 +389,46 @@ if ($GLOBALS['login_into_facility']) {
     }
 }
 
-// Fetch the password expiration date
-$is_expired=false;
-if ($GLOBALS['password_expiration_days'] != 0) {
-    $is_expired=false;
-    $q= (isset($_POST['authUser'])) ? $_POST['authUser'] : '';
-    $result = sqlStatement("select pwd_expiration_date from users where username = ?", array($q));
+// Fetch the password expiration date (note LDAP skips this)
+$is_expired = false;
+if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days']))) {
+    $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
     $current_date = date('Y-m-d');
-    $pwd_expires_date = $current_date;
-    if ($row = sqlFetchArray($result)) {
-        $pwd_expires_date = $row['pwd_expiration_date'];
+    if (!empty($result['last_update_password'])) {
+        $pwd_last_update = $result['last_update_password'];
+    } else {
+        error_log("OpenEMR ERROR: there is a problem with recording of last_update_password entry in users_secure table");
+        $pwd_last_update = $current_date;
     }
 
-  // Display the password expiration message (starting from 7 days before the password gets expired)
-    $pwd_alert_date = date('Y-m-d', strtotime($pwd_expires_date . '-7 days'));
+    // Display the password expiration message (will show during the grace time)
+    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . $GLOBALS['password_expiration_days'] . ' days'));
 
-    if (strtotime($pwd_alert_date) != '' &&
-      strtotime($current_date) >= strtotime($pwd_alert_date) &&
-      (!isset($_SESSION['expiration_msg'])
-      or $_SESSION['expiration_msg'] == 0)) {
+    if (empty(strtotime($pwd_alert_date))) {
+        error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");
+    } elseif (strtotime($current_date) >= strtotime($pwd_alert_date)) {
         $is_expired = true;
-        $_SESSION['expiration_msg'] = 1; // only show the expired message once
     }
 }
 
 if ($is_expired) {
-  //display the php file containing the password expiration message.
+    //display the php file containing the password expiration message.
     $frame1url = "pwd_expires_alert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken());
     $frame1target = "adm";
+    $frame1label = "";
 } elseif (!empty($_POST['patientID'])) {
     $patientID = 0 + $_POST['patientID'];
     if (empty($_POST['encounterID'])) {
         // Open patient summary screen (without a specific encounter)
         $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
         $frame1target = "pat";
+        $frame1label = xl('Patient Search/Add Screen');
     } else {
         // Open patient summary screen with a specific encounter
         $encounterID = 0 + $_POST['encounterID'];
         $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID) . "&set_encounterid=" . attr_url($encounterID);
         $frame1target = "pat";
+        $frame1label = xl('Patient Search/Add Screen');
     }
 } elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
     $frame1url = "calendar/index.php?pid=" . attr_url($_GET['pid']);
@@ -435,18 +437,30 @@ if ($is_expired) {
     }
 
     $frame1target = "cal";
+    $frame1label = xl('Calendar Screen');
 } else {
     // standard layout
     $map_paths_to_targets = array(
-        'main_info.php' => ('cal'),
-        '../new/new.php' => ('pat'),
-        '../../interface/main/finder/dynamic_finder.php' => ('fin'),
-        '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => ('flb'),
-        '../../interface/main/messages/messages.php?form_active=1' => ('msg')
+        'main_info.php' => array(
+            'target' => 'cal' , "label" => xl('Calendar Screen')
+        ),
+        '../new/new.php' => array(
+            'target' => 'pat' , "label" => xl('Patient Search/Add Screen')
+        ),
+        '../../interface/main/finder/dynamic_finder.php' => array(
+            'target' => 'fin' , "label" => xl('Patient Finder Screen')
+        ),
+        '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => array(
+            'target' => 'flb' , "label" => xl('Patient Flow Board')
+        ),
+        '../../interface/main/messages/messages.php?form_active=1' => array(
+            'target' => 'msg' , "label" => xl('Messages Screen')
+        )
     );
     if ($GLOBALS['default_top_pane']) {
-        $frame1url=attr($GLOBALS['default_top_pane']);
-        $frame1target = $map_paths_to_targets[$GLOBALS['default_top_pane']];
+        $frame1url = attr($GLOBALS['default_top_pane']);
+        $frame1target = $map_paths_to_targets[$GLOBALS['default_top_pane']]['target'];
+        $frame1label = $map_paths_to_targets[$GLOBALS['default_top_pane']]['label'];
         if (empty($frame1target)) {
             $frame1target = "msc";
         }
@@ -455,14 +469,16 @@ if ($is_expired) {
         $frame1target = "cal";
     }
     if ($GLOBALS['default_second_tab']) {
-        $frame2url=attr($GLOBALS['default_second_tab']);
-        $frame2target = $map_paths_to_targets[$GLOBALS['default_second_tab']];
+        $frame2url = attr($GLOBALS['default_second_tab']);
+        $frame2target = $map_paths_to_targets[$GLOBALS['default_second_tab']]['target'];
+        $frame2label = $map_paths_to_targets[$GLOBALS['default_second_tab']]['label'];
         if (empty($frame2target)) {
             $frame2target = "msc";
         }
     } else {
-        $frame2url = "../../interface/main/messages/messages.php?form_active=1";
-        $frame2target = "msg";
+        // In the case where no second default tab is specified, set these session variables to null
+        $frame2url = null;
+        $frame2target = null;
     }
 }
 
@@ -471,127 +487,20 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) {
     $nav_area_width = $GLOBALS['gbl_nav_area_width'];
 }
 
-// This is where will decide whether to use tabs layout or non-tabs layout
-// Will also set Session variables to communicate settings to tab layout
-if ($GLOBALS['new_tabs_layout']) {
-    $_SESSION['frame1url'] = $frame1url;
-    $_SESSION['frame1target'] = $frame1target;
-    $_SESSION['frame2url'] = $frame2url;
-    $_SESSION['frame2target'] = $frame2target;
-    // mdsupport - Apps processing invoked for valid app selections from list
-    if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
-        $_SESSION['app1'] = $_POST['appChoice'];
-    }
-
-    // Pass a unique token, so main.php script can not be run on its own
-    $_SESSION['token_main_php'] = RandomGenUtils::createUniqueToken();
-    header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($_SESSION['token_main_php']));
-    exit();
+// Will set Session variables to communicate settings to tab layout
+$_SESSION['frame1url'] = $frame1url;
+$_SESSION['frame1target'] = $frame1target;
+$_SESSION['frame1label'] = $frame1label;
+$_SESSION['frame2url'] = $frame2url;
+$_SESSION['frame2target'] = $frame2target;
+$_SESSION['frame2label'] = $frame2label;
+// mdsupport - Apps processing invoked for valid app selections from list
+if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
+    $_SESSION['app1'] = $_POST['appChoice'];
 }
 
+// Pass a unique token, so main.php script can not be run on its own
+$_SESSION['token_main_php'] = RandomGenUtils::createUniqueToken();
+header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($_SESSION['token_main_php']));
+exit();
 ?>
-<html>
-<head>
-<title>
-<?php echo text($openemr_name) ?>
-</title>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-    <script type="text/javascript" src="tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
-
-<link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
-
-<script language='JavaScript'>
-
-// Flag that tab mode is off
-var tab_mode=false;
-// some globals to access using top.variable
-var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
-var webroot_url = <?php echo js_escape($web_root); ?>;
-var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
-
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
-
-// Since this should be the parent window, this is to prevent calls to the
-// window that opened this window. For example when a new window is opened
-// from the Patient Flow Board or the Patient Finder.
-window.opener = null;
-
-// This flag indicates if another window or frame is trying to reload the login
-// page to this top-level window.  It is set by javascript returned by auth.inc
-// and is checked by handlers of beforeunload events.
-var timed_out = false;
-
-// This counts the number of frames that have reported themselves as loaded.
-// Currently only left_nav and Title do this, so the maximum will be 2.
-// This is used to determine when those frames are all loaded.
-var loadedFrameCount = 0;
-
-function allFramesLoaded() {
- // Change this number if more frames participate in reporting.
- return loadedFrameCount >= 2;
-}
-</script>
-
-</head>
-
-<?php
-/*
- * for RTL layout we need to change order of frames in framesets
- */
-$lang_dir = $_SESSION['language_direction'];
-
-$sidebar_tpl = "<frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
-   <frame src='left_nav.php' name='left_nav' />
-   <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
-    border='0' framespacing='0' />
-  </frameset>";
-
-$main_tpl = "<frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1'>" ;
-$main_tpl .= "<frame src='". $frame1url ."' name='RTop' scrolling='auto' />
-   <frame src='messages/messages.php?form_active=1' name='RBot' scrolling='auto' /></frameset>";
-
-// Please keep in mind that border (mozilla) and framespacing (ie) are the
-// same thing. use both.
-// frameborder specifies a 3d look, not whether there are borders.
-
-if (empty($GLOBALS['gbl_tall_nav_area'])) {
-    // not tall nav area ?>
-<frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
- <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
-    <?php if ($lang_dir != 'rtl') { ?>
-     <frameset cols='<?php echo attr($nav_area_width) . ',*'; ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
-        <?php echo $sidebar_tpl ?>
-        <?php echo $main_tpl ?>
-     </frameset>
-
-    <?php } else { ?>
-     <frameset cols='<?php echo  '*,' . attr($nav_area_width); ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
-        <?php echo $main_tpl ?>
-        <?php echo $sidebar_tpl ?>
-     </frameset>
-
-    <?php } ?>
-
- </frameset>
-</frameset>
-
-<?php } else { // use tall nav area ?>
-<frameset cols='<?php echo attr($nav_area_width); ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4' onunload='imclosing()'>
- <frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
-  <frame src='left_nav.php' name='left_nav' />
-  <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
-   border='0' framespacing='0' />
- </frameset>
- <frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1'>
-  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' />
-  <frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1' border='4' framespacing='4'>
-   <frame src='<?php echo $frame1url ?>' name='RTop' scrolling='auto' />
-   <frame src='messages/messages.php?form_active=1' name='RBot' scrolling='auto' />
-  </frameset>
- </frameset>
-</frameset>
-
-<?php } // end tall nav area ?>
-
-</html>

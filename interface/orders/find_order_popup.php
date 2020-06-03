@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Script to pick a procedure order type from the compendium.
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -53,7 +53,7 @@ if (isset($_GET['typeid'])) {
             $t = 0;
             do {
                 if (!isset($grporders[$i]['procedure_type_id'])) {
-                    echo "opener.set_proc_type(" . js_escape($typeid) .", " . js_escape($name) . ", " . js_escape($codes) . ");\n";
+                    echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", " . js_escape($codes) . ");\n";
                 } else {
                     $t = count($grporders) - $i;
                     $typeid = $grporders[$i]['procedure_type_id'] + 0;
@@ -127,24 +127,23 @@ if (isset($_GET['typeid'])) {
     }
     ?>'>
         <div class="row">
-            <div class="col-sm-8 col-sm-offset-2">
+            <div class="col-sm-8 offset-sm-2">
                 <div class="input-group">
                     <input type="hidden" name='isfav' value='<?php echo attr($_REQUEST['ordLookup']); ?>'>
-                    <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term']); ?>'
-                        title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;"/>
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-default btn-search" name='bn_search' value="true"><?php echo xlt('Search'); ?></button>
+                    <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term']); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;"/>
+                    <span class="input-group-append">
+                        <button type="submit" class="btn btn-secondary btn-search" name='bn_search' value="true"><?php echo xlt('Search'); ?></button>
                         <?php if (!isset($_REQUEST['addfav'])) { ?>
-                            <button type="submit" class="btn btn-default btn-search" name='bn_grpsearch' value="true"><?php echo xlt('Favorites'); ?></button>
+                            <button type="submit" class="btn btn-secondary btn-search" name='bn_grpsearch' value="true"><?php echo xlt('Favorites'); ?></button>
                         <?php } ?>
-                        <button type="button" class="btn btn-default btn-delete" onclick="selcode(0)"><?php echo xlt('Erase'); ?></button>
+                        <button type="button" class="btn btn-secondary btn-delete" onclick="selcode(0)"><?php echo xlt('Erase'); ?></button>
                     </span>
                 </div>
             </div>
         </div>
         <?php if ($_REQUEST['bn_search'] || $_REQUEST['bn_grpsearch']) { ?>
             <div class="table-responsive">
-                <table class="table table-striped table-condensed">
+                <table class="table table-striped table-sm">
                     <thead>
                     <th><?php echo xlt('Code'); ?></th>
                     <th><?php echo xlt('Description'); ?></th>

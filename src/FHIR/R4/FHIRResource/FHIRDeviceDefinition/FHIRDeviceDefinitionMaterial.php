@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDeviceDefinition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDeviceDefinition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -173,8 +175,8 @@ class FHIRDeviceDefinitionMaterial extends FHIRBackboneElement implements \JsonS
             if (isset($data['allergenicIndicator'])) {
                 $this->setAllergenicIndicator($data['allergenicIndicator']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

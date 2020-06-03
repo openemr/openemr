@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsitePortalActivityListView.tpl.php
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Onsite Portal Activities"));
     $this->assign('nav', 'onsiteportalactivities');
 
@@ -16,7 +18,7 @@
 
 <script type="text/javascript">
     $LAB.script("scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
-        $(function(){
+        $(function () {
             page.init();
         });
 
@@ -31,12 +33,12 @@
 <h1>
     <i class="icon-th-list"></i> <?php echo xlt('Onsite Portal Activities'); ?>
     <span id="loader" class="loader progress progress-striped active"><span class="progress-bar"></span></span>
-            <div class="col-sm-3 col-md-3 pull-right">
+            <div class="col-sm-3 col-md-3 float-right">
         <form class="navbar-form" role="search">
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="<?php echo xla('Search'); ?>" name="srch-term" id="srch-term">
-            <div class="input-group-btn">
-                <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+            <input type="text" class="form-control" placeholder="<?php echo xla('Search'); ?>" name="srch-term" id="srch-term" />
+            <div class="input-group-append">
+                <button class="btn btn-secondary" type="submit"><i class="glyphicon glyphicon-search"></i></button>
             </div>
         </div>
         </form>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * New patient or search patient.
  *
@@ -7,31 +8,29 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009-2017 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Check authorization.
-if (!acl_check('patients', 'demo', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
     die(xlt("Adding demographics is not authorized."));
 }
 
 $CPR = 4; // cells per row
 
 $searchcolor = empty($GLOBALS['layout_search_color']) ?
-  '#ffff55' : $GLOBALS['layout_search_color'];
+  'var(--yellow)' : $GLOBALS['layout_search_color'];
 
 $WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' );
 $SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
@@ -78,20 +77,20 @@ $fres = getLayoutRes();
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['common','datetime-picker', 'jquery-ui']); ?>
+<?php Header::setupHeader(['common','datetime-picker']); ?>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
-
+<?php require_once("$srcdir/erx_javascript.inc.php"); ?>
 <style>
 body {
- padding: 5pt 5pt 5pt 5pt;
+    padding: 7px;
 }
 
 div.section {
  border: solid;
  border-width: 1px;
- border-color: #0000ff;
- margin: 0 0 0 10pt;
- padding: 5pt;
+ border-color: var(--primary);
+ margin: 0 0 0 13px;
+ padding: 7px;
 }
 
 .form-control {
@@ -103,7 +102,7 @@ div.section {
 
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
-<SCRIPT LANGUAGE="JavaScript"><!--
+<script><!--
 //Visolve - sync the radio buttons - Start
 if((top.window.parent) && (parent.window)){
         var wname = top.window.parent.left_nav;
@@ -134,7 +133,7 @@ function replace(string,text,by) {
  return newstr;
 }
 
-<?php for ($i=1; $i<=3; $i++) { ?>
+<?php for ($i = 1; $i <= 3; $i++) { ?>
 function auto_populate_employer_address<?php echo $i ?>(){
  var f = document.demographics_form;
  if (f.form_i<?php echo $i?>subscriber_relationship.options[f.form_i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self") {
@@ -408,32 +407,18 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <script> var constraints = <?php echo $constraints;?>; </script>
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h2><?php echo xlt('Search or Add Patient');?></h2>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="btn-group">
-                    <?php if ($WITH_SEARCH) { ?>
-                        <button type="button" class="btn btn-default btn-search" id="search" value="<?php echo xla('Search'); ?>">
-                            <?php echo xlt('Search'); ?>
-                        </button>
-                    <?php } ?>
-                    <button type="button" class="btn btn-default btn-save" name='create' id="create" value="<?php echo xla('Create New Patient'); ?>">
-                        <?php echo xlt('Create New Patient'); ?>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <br>
+        <br />
         <div class="row">
             <div class="col-sm-12">
                 <form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <table width='100%' cellpadding='0' cellspacing='8'>
+                    <table class='w-100' cellpadding='0' cellspacing='8'>
                     <tr>
                       <td align='left' valign='top'>
                     <?php
@@ -529,10 +514,10 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 echo " /><b>" . text(xl_layout_label($group_name)) . "</b></span>\n";
 
                                 echo "<div id='div_" . attr($group_seq) . "' class='section' style='display:$display_style;'>\n";
-                                echo " <table border='0' cellpadding='0'>\n";
+                                echo " <table class='border-0' cellpadding='0'>\n";
                                 $display_style = 'none';
                             } elseif (strlen($last_group) == 0) {
-                                echo " <table border='0' cellpadding='0'>\n";
+                                echo " <table class='border-0' cellpadding='0'>\n";
                             }
 
                                 $last_group = $this_group;
@@ -548,14 +533,14 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             $titlecols = 1;
                         }
 
-                        $field_id_label='label_'.$frow['field_id'];
+                        $field_id_label = 'label_' . $frow['field_id'];
                       // Handle starting of a new label cell.
                         if ($titlecols > 0) {
                             end_cell();
                             echo "<td colspan='" . attr($titlecols) . "' id='" . attr($field_id_label) . "'";
                             echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
                             if ($cell_count == 2) {
-                                echo " style='padding-left:10pt'";
+                                echo " style='padding-left: 13px'";
                             }
 
                             echo ">";
@@ -577,11 +562,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                       // Handle starting of a new data cell.
                         if ($datacols > 0) {
-                            $id_field_text = "text_".$frow['field_id'];
+                            $id_field_text = "text_" . $frow['field_id'];
                             end_cell();
                             echo "<td colspan='" . attr($datacols) . "' class='text data'";
                             if ($cell_count > 0) {
-                                echo " style='padding-left:5pt'". " id='" . attr($id_field_text) . "'";
+                                echo " style='padding-left: 7px'" . " id='" . attr($id_field_text) . "'";
                             }
 
                             echo ">";
@@ -596,15 +581,20 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     ?>
 
                     <?php
-                    if (! $GLOBALS['simplified_demographics']) {
+                    if (!$GLOBALS['simplified_demographics']) {
                         $insurancei = getInsuranceProviders();
                         $pid = 0;
-                        $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
-                        $insurance_info = array();
-                        $insurance_info[1] = getInsuranceData($pid, "primary");
-                        $insurance_info[2] = getInsuranceData($pid, "secondary");
-                        $insurance_info[3] = getInsuranceData($pid, "tertiary");
-
+                        if ($GLOBALS['insurance_only_one']) {
+                            $insurance_headings = array(xl("Primary Insurance Provider"));
+                            $insurance_info = array();
+                            $insurance_info[1] = getInsuranceData($pid, "primary");
+                        } else {
+                            $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
+                            $insurance_info = array();
+                            $insurance_info[1] = getInsuranceData($pid, "primary");
+                            $insurance_info[2] = getInsuranceData($pid, "secondary");
+                            $insurance_info[3] = getInsuranceData($pid, "tertiary");
+                        }
                         echo "<br /><span class='bold'><input type='checkbox' name='form_cb_ins' value='1' " .
                         "onclick='return divclick(this,\"div_ins\");'";
                         if ($display_style == 'block') {
@@ -612,21 +602,21 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         }
 
                         echo " /><b>" . xlt('Insurance') . "</b></span>\n";
-                        echo "<div id='div_ins' class='section' style='display:$display_style;'>\n";
+                        echo "<div id='div_ins' class='section' style='display: $display_style;'>\n";
 
-                        for ($i=1; $i<=3; $i++) {
+                        for ($i = 1; $i <= sizeof($insurance_info); $i++) {
                             $result3 = $insurance_info[$i];
                             ?>
-                        <table border="0">
+                        <table class="border-0">
                             <tr>
                                 <td valign='top' colspan='2'>
-                                    <span class='required'><?php echo text($insurance_headings[$i -1]).":"?></span>
+                                    <span class='required'><?php echo text($insurance_headings[$i - 1]) . ":"?></span>
                                     <select name="i<?php echo attr($i); ?>provider" class="form-control">
                                         <option value=""><?php echo xlt('Unassigned'); ?></option>
                                         <?php
                                         foreach ($insurancei as $iid => $iname) {
                                             echo "<option value='" . attr($iid) . "'";
-                                            if (strtolower($iid) == strtolower($result3{"provider"})) {
+                                            if (strtolower($iid) == strtolower($result3["provider"])) {
                                                 echo " selected";
                                             }
                                             echo ">" . text($iname) . "</option>\n";
@@ -637,15 +627,14 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 </td>
                             </tr>
                             <tr>
-                                <td valign=top>
-                                    <table border="0">
+                                <td valign='top'>
+                                    <table class="border-0">
                                         <tr>
                                             <td>
                                                 <span class='required'><?php echo xlt('Plan Name'); ?>: </span>
                                             </td>
                                             <td>
-                                                <input type='entry' class='form-control' size='20' name='i<?php echo attr($i); ?>plan_name' value="<?php echo attr($result3{"plan_name"}); ?>"
-                                                onchange="capitalizeMe(this);" />&nbsp;&nbsp;
+                                                <input type='entry' class='form-control' size='20' name='i<?php echo attr($i); ?>plan_name' value="<?php echo attr($result3["plan_name"]); ?>" onchange="capitalizeMe(this);" />&nbsp;&nbsp;
                                             </td>
                                         </tr>
 
@@ -654,66 +643,77 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                                 <span class='required'><?php echo xlt('Effective Date'); ?>: </span>
                                             </td>
                                             <td>
-                                                <input type='entry' size='11' class='datepicker form-control' name='i<?php echo attr($i); ?>effective_date'
-                                                id='i<?php echo attr($i); ?>effective_date'
-                                                value='<?php echo attr($result3['date']); ?>' />
+                                                <input type='entry' size='11' class='datepicker form-control' name='i<?php echo attr($i); ?>effective_date' id='i<?php echo attr($i); ?>effective_date' value='<?php echo attr($result3['date']); ?>' />
                                             </td>
                                         </tr>
 
                                         <tr>
-                                            <td><span class=required><?php echo xlt('Policy Number'); ?>: </span></td>
-                                            <td><input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>policy_number' value="<?php echo attr($result3{"policy_number"}); ?>"
-                                                onkeyup='policykeyup(this)'>
+                                            <td><span class='required'><?php echo xlt('Policy Number'); ?>: </span></td>
+                                            <td>
+                                                <input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>policy_number' value="<?php echo attr($result3["policy_number"]); ?>" onkeyup='policykeyup(this)' />
                                             </td>
                                         </tr>
 
                                         <tr>
-                                            <td><span class=required><?php echo xlt('Group Number'); ?>: </span></td>
-                                            <td><input type=entry class='form-control' size=16 name='i<?php echo attr($i); ?>group_number' value="<?php echo attr($result3{"group_number"}); ?>" onkeyup='policykeyup(this)'></td>
+                                            <td>
+                                                <span class='required'><?php echo xlt('Group Number'); ?>: </span>
+                                            </td>
+                                            <td>
+                                                <input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>group_number' value="<?php echo attr($result3["group_number"]); ?>" onkeyup='policykeyup(this)' />
+                                            </td>
                                         </tr>
 
-                                        <tr <?php echo ($GLOBALS['omit_employers']) ? " style='display:none'" : ""; ?>>
-                                            <td class='required'><?php echo xlt('Subscriber Employer (SE)'); ?><br><span style='font-weight:normal'>
-                                              (<?php echo xlt('if unemployed enter Student'); ?>,<br><?php echo xlt('PT Student, or leave blank'); ?>): </span>
+                                        <tr <?php echo ($GLOBALS['omit_employers']) ? " class='d-none'" : ""; ?>>
+                                            <td class='required'><?php echo xlt('Subscriber Employer (SE)'); ?><br /><span class='font-weight-normal'>
+                                              (<?php echo xlt('if unemployed enter Student'); ?>,<br /><?php echo xlt('PT Student, or leave blank'); ?>): </span>
                                             </td>
-                                            <td><input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_employer
-                                                value="<?php echo attr($result3{"subscriber_employer"}); ?>"
-                                                onchange="capitalizeMe(this);" />
+                                            <td>
+                                                <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_employer' value="<?php echo attr($result3["subscriber_employer"]); ?>" onchange="capitalizeMe(this);" />
                                            </td>
                                         </tr>
 
-                                        <tr <?php echo ($GLOBALS['omit_employers']) ? " style='display:none'" : ""; ?>>
-                                            <td><span class=required><?php echo xlt('SE Address'); ?>: </span></td>
-                                            <td><input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_employer_street
-                                            value="<?php echo attr($result3{"subscriber_employer_street"}); ?>"
-                                            onchange="capitalizeMe(this);" /></td>
+                                        <tr <?php echo ($GLOBALS['omit_employers']) ? " class='d-none'" : ""; ?>>
+                                            <td>
+                                                <span class='required'><?php echo xlt('SE Address'); ?>: </span>
+                                            </td>
+                                            <td>
+                                                <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_employer_street' value="<?php echo attr($result3["subscriber_employer_street"]); ?>" onchange="capitalizeMe(this);" />
+                                            </td>
                                         </tr>
 
-                                        <tr <?php echo ($GLOBALS['omit_employers']) ? " style='display:none'" : ""; ?>>
+                                        <tr <?php echo ($GLOBALS['omit_employers']) ? " class='d-none'" : ""; ?>>
                                             <td colspan="2">
                                                 <table>
                                                     <tr>
-                                                        <td><span class=required><?php echo xlt('SE City'); ?>: </span></td>
-                                                        <td><input type=entry class='form-control' size=15 name=i<?php echo attr($i); ?>subscriber_employer_city
-                                                            value="<?php echo attr($result3{"subscriber_employer_city"}); ?>"
-                                                            onchange="capitalizeMe(this);" />
+                                                        <td>
+                                                            <span class='required'><?php echo xlt('SE City'); ?>: </span>
                                                         </td>
-                                                        <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE State') : xlt('SE Locality') ?>: </span></td>
+                                                        <td>
+                                                            <input type='entry' class='form-control' size='15' name='i<?php echo attr($i); ?>subscriber_employer_city' value="<?php echo attr($result3["subscriber_employer_city"]); ?>" onchange="capitalizeMe(this);" />
+                                                        </td>
+                                                        <td>
+                                                            <span class='required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE State') : xlt('SE Locality') ?>: </span></td>
                                                         <td>
                                                         <?php
                                                         // Modified 7/2009 by BM to incorporate data types
-                                                        generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_employer_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_state']);
+                                                        generate_form_field(array('data_type' => $GLOBALS['state_data_type'],'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => $GLOBALS['state_list'],'fld_length' => '15','max_length' => '63','edit_options' => 'C'), $result3['subscriber_employer_state']);
                                                         ?>
                                                         </td>
                                                     </tr>
                                                     <tr>
-                                                        <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </span></td>
-                                                        <td><input type=entry class='form-control' size=10 name=i<?php echo $i?>subscriber_employer_postal_code value="<?php echo attr($result3{"subscriber_employer_postal_code"}); ?>"></td>
-                                                        <td><span class=required><?php echo xlt('SE Country'); ?>: </span></td>
+                                                        <td>
+                                                            <span class='required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </span>
+                                                        </td>
+                                                        <td>
+                                                            <input type='entry' class='form-control' size='10' name='i<?php echo $i?>subscriber_employer_postal_code' value="<?php echo attr($result3["subscriber_employer_postal_code"]); ?>" />
+                                                        </td>
+                                                        <td>
+                                                            <span class='required'><?php echo xlt('SE Country'); ?>: </span>
+                                                        </td>
                                                         <td>
                                                             <?php
                                                           // Modified 7/2009 by BM to incorporate data types
-                                                            generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_employer_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_country']);
+                                                            generate_form_field(array('data_type' => $GLOBALS['country_data_type'],'field_id' => ('i' . $i . 'subscriber_employer_country'),'list_id' => $GLOBALS['country_list'],'fld_length' => '10','max_length' => '63','edit_options' => 'C'), $result3['subscriber_employer_country']);
                                                             ?>
                                                         </td>
                                                     </tr>
@@ -723,70 +723,58 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                     </table>
                                 </td>
 
-                                <td valign=top>
-                                    <span class=required><?php echo xlt('Subscriber'); ?>: </span>
-                                    <input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_fname
-                                    value="<?php echo attr($result3{"subscriber_fname"}); ?>"
-                                    onchange="capitalizeMe(this);" />
-                                    <input type=entry class='form-control' size=3 name=i<?php echo attr($i); ?>subscriber_mname
-                                    value="<?php echo attr($result3{"subscriber_mname"}); ?>"
-                                    onchange="capitalizeMe(this);" />
-                                    <input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_lname
-                                    value="<?php echo attr($result3{"subscriber_lname"}); ?>"
-                                    onchange="capitalizeMe(this);" />
-                                    <br>
-                                    <span class=required><?php echo xlt('Relationship'); ?>: </span>
+                                <td valign='top'>
+                                    <span class='required'><?php echo xlt('Subscriber'); ?>: </span>
+                                    <input type='entry' class='form-control' size='10' name='i<?php echo attr($i); ?>subscriber_fname' value="<?php echo attr($result3["subscriber_fname"]); ?>" onchange="capitalizeMe(this);" />
+                                    <input type='entry' class='form-control' size='3' name='i<?php echo attr($i); ?>subscriber_mname' value="<?php echo attr($result3["subscriber_mname"]); ?>" onchange="capitalizeMe(this);" />
+                                    <input type='entry' class='form-control' size='10' name='i<?php echo attr($i); ?>subscriber_lname' value="<?php echo attr($result3["subscriber_lname"]); ?>" onchange="capitalizeMe(this);" />
+                                    <br />
+                                    <span class='required'><?php echo xlt('Relationship'); ?>: </span>
                                     <?php
                                     // Modified 6/2009 by BM to use list_options and function
-                                    generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_relationship'),'list_id'=>'sub_relation','empty_title'=>' '), $result3['subscriber_relationship']);
+                                    generate_form_field(array('data_type' => 1,'field_id' => ('i' . $i . 'subscriber_relationship'),'list_id' => 'sub_relation','empty_title' => ' '), $result3['subscriber_relationship']);
                                     ?>
-                                    <a href="javascript:popUp('../../interface/patient_file/summary/browse.php?browsenum=<?php echo attr_url($i); ?>')" class=text>(<?php echo xlt('Browse'); ?>)</a><br />
+                                    <a href="javascript:popUp('../../interface/patient_file/summary/browse.php?browsenum=<?php echo attr_url($i); ?>')" class='text'>(<?php echo xlt('Browse'); ?>)</a><br />
 
-                                    <span class=bold><?php echo xlt('D.O.B.'); ?>: </span>
-                                    <input type='entry' size='11' class='datepicker form-control' name='i<?php echo attr($i); ?>subscriber_DOB'
-                                    id='i<?php echo attr($i); ?>subscriber_DOB'
-                                    value='<?php echo attr($result3['subscriber_DOB']); ?>' />
+                                    <span class='bold'><?php echo xlt('D.O.B.'); ?>: </span>
+                                    <input type='entry' size='11' class='datepicker form-control' name='i<?php echo attr($i); ?>subscriber_DOB' id='i<?php echo attr($i); ?>subscriber_DOB' value='<?php echo attr($result3['subscriber_DOB']); ?>' />
 
-                                    <span class=bold><?php echo xlt('S.S.'); ?>: </span>
-                                    <input type=entry class='form-control' size=11 name=i<?php echo attr($i); ?>subscriber_ss value="<?php echo attr($result3{"subscriber_ss"}); ?>">&nbsp;
-                                    <span class=bold><?php echo xlt('Sex'); ?>: </span>
+                                    <span class='bold'><?php echo xlt('S.S.'); ?>: </span>
+                                    <input type='entry' class='form-control' size='11' name='i<?php echo attr($i); ?>subscriber_ss' value="<?php echo attr($result3["subscriber_ss"]); ?>">&nbsp;
+                                    <span class='bold'><?php echo xlt('Sex'); ?>: </span>
                                     <?php
                                     // Modified 6/2009 by BM to use list_options and function
-                                    generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_sex'),'list_id'=>'sex'), $result3['subscriber_sex']);
-                                    ?>
-                                    <br>
-                                    <span class=required><?php echo xlt('Subscriber Address'); ?>: </span>
-                                    <input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_street
-                                    value="<?php echo attr($result3{"subscriber_street"}); ?>"
-                                    onchange="capitalizeMe(this);" /><br>
-                                    <span class=required><?php echo xlt('City'); ?>: </span>
-                                    <input type=entry class='form-control' size=15 name=i<?php echo attr($i); ?>subscriber_city
-                                    value="<?php echo attr($result3{"subscriber_city"}); ?>"
-                                    onchange="capitalizeMe(this);" />
-                                    <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('State') : xlt('Locality') ?>: </span>
-                                    <?php
-                                    // Modified 7/2009 by BM to incorporate data types
-                                    generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_state']);
+                                    generate_form_field(array('data_type' => 1,'field_id' => ('i' . $i . 'subscriber_sex'),'list_id' => 'sex'), $result3['subscriber_sex']);
                                     ?>
                                     <br />
-                                    <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Zip Code') : xlt('Postal Code') ?>: </span>
-                                    <input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_postal_code value="<?php echo attr($result3{"subscriber_postal_code"}); ?>">
-                                    <span class='required'<?php echo ($GLOBALS['omit_employers']) ? " style='display:none'" : ""; ?>>
+                                    <span class='required'><?php echo xlt('Subscriber Address'); ?>: </span>
+                                    <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_street' value="<?php echo attr($result3["subscriber_street"]); ?>" onchange="capitalizeMe(this);" /><br />
+                                    <span class='required'><?php echo xlt('City'); ?>: </span>
+                                    <input type='entry' class='form-control' size='15' name='i<?php echo attr($i); ?>subscriber_city' value="<?php echo attr($result3["subscriber_city"]); ?>" onchange="capitalizeMe(this);" />
+                                    <span class='required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('State') : xlt('Locality') ?>: </span>
+                                    <?php
+                                    // Modified 7/2009 by BM to incorporate data types
+                                    generate_form_field(array('data_type' => $GLOBALS['state_data_type'],'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => $GLOBALS['state_list'],'fld_length' => '15','max_length' => '63','edit_options' => 'C'), $result3['subscriber_state']);
+                                    ?>
+                                    <br />
+                                    <span class='required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Zip Code') : xlt('Postal Code') ?>: </span>
+                                    <input type='entry' class='form-control' size='10' name='i<?php echo attr($i); ?>subscriber_postal_code' value="<?php echo attr($result3["subscriber_postal_code"]); ?>">
+                                    <span class='required'<?php echo ($GLOBALS['omit_employers']) ? " class='d-none'" : ""; ?>>
                                     <?php echo xlt('Country'); ?>: </span>
                                     <?php
                                     // Modified 7/2009 by BM to incorporate data types
-                                    generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
+                                    generate_form_field(array('data_type' => $GLOBALS['country_data_type'],'field_id' => ('i' . $i . 'subscriber_country'),'list_id' => $GLOBALS['country_list'],'fld_length' => '10','max_length' => '63','edit_options' => 'C'), $result3['subscriber_country']);
                                     ?>
                                     <br />
-                                    <span class=bold><?php echo xlt('Subscriber Phone'); ?>:
+                                    <span class='bold'><?php echo xlt('Subscriber Phone'); ?>:
                                     <input type='text' class='form-control' size='20' name='i<?php echo attr($i); ?>subscriber_phone' value='<?php echo attr($result3["subscriber_phone"]); ?>' onkeyup='phonekeyup(this,mypcc)' />
                                     </span><br />
-                                    <span class=bold><?php echo xlt('CoPay'); ?>: <input type=text class='form-control' size="6" name=i<?php echo attr($i); ?>copay value="<?php echo attr($result3{"copay"}); ?>">
+                                    <span class='bold'><?php echo xlt('CoPay'); ?>: <input type='text' class='form-control' size="6" name='i<?php echo attr($i); ?>copay' value="<?php echo attr($result3["copay"]); ?>" />
                                     </span><br />
                                     <span class='required'><?php echo xlt('Accept Assignment'); ?>: </span>
-                                    <select class='form-control' name=i<?php echo attr($i); ?>accept_assignment>
-                                        <option value="TRUE" <?php echo (strtoupper($result3{"accept_assignment"}) == "TRUE") ? "selected" : ""; ?>><?php echo xlt('YES'); ?></option>
-                                        <option value="FALSE" <?php echo (strtoupper($result3{"accept_assignment"}) == "FALSE") ? "selected" : ""; ?>><?php echo xlt('NO'); ?></option>
+                                    <select class='form-control' name='i<?php echo attr($i); ?>accept_assignment'>
+                                        <option value="TRUE" <?php echo (strtoupper($result3["accept_assignment"]) == "TRUE") ? "selected" : ""; ?>><?php echo xlt('YES'); ?></option>
+                                        <option value="FALSE" <?php echo (strtoupper($result3["accept_assignment"]) == "FALSE") ? "selected" : ""; ?>><?php echo xlt('NO'); ?></option>
                                     </select>
                                 </td>
                             </tr>
@@ -813,13 +801,24 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 </form>
             </div>
         </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="btn-group">
+                    <?php if ($WITH_SEARCH) { ?>
+                        <button type="button" class="btn btn-secondary btn-search" id="search" value="<?php echo xla('Search'); ?>">
+                            <?php echo xlt('Search'); ?>
+                        </button>
+                    <?php } ?>
+                    <button type="button" class="btn btn-primary btn-save" name='create' id="create" value="<?php echo xla('Create New Patient'); ?>">
+                        <?php echo xlt('Create New Patient'); ?>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div> <!--end of container div -->
 <!-- include support for the list-add selectbox feature -->
-<?php include($GLOBALS['fileroot']."/library/options_listadd.inc"); ?>
-
-</body>
-
-<script language="JavaScript">
+<?php include($GLOBALS['fileroot'] . "/library/options_listadd.inc"); ?>
+<script>
 
 // hard code validation for old validation, in the new validation possible to add match rules
 <?php if ($GLOBALS['new_validate'] == 0) { ?>
@@ -855,7 +854,7 @@ $(function () {
         });
     });
     // added to integrate insurance stuff
-    <?php for ($i=1; $i<=3; $i++) { ?>
+    <?php for ($i = 1; $i <= 3; $i++) { ?>
     $("#form_i<?php echo $i?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo $i?>(); });
     <?php } ?>
 
@@ -863,11 +862,11 @@ $(function () {
     $('#create').click(function() { check()});
 
     var check = function(e) {
+        var f = document.forms[0];
         <?php if ($GLOBALS['new_validate']) {?>
             var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,e,"DEM",constraints);
         <?php } else {?>
             top.restoreSession();
-            var f = document.forms[0];
             var valid = validate(f);
         <?php }?>
         if (valid) {
@@ -901,7 +900,7 @@ $(function () {
         ?>
         <?php if (($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive())) :?>
             // Use zend module patient validation hook to open the controller and send the dup-checker fields.
-            var url ='<?php echo $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation"; ?>';
+            var url ='<?php echo $GLOBALS['web_root'] . "/interface/modules/zend_modules/public/patientvalidation"; ?>';
         <?php else :?>
             // Build and invoke the URL to create the dup-checker dialog.
             var url = 'new_search_popup.php';
@@ -917,8 +916,12 @@ $(function () {
                 url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
             }
         }
-        url+="&close"
-        dlgopen(url, '_blank', 700, 500);
+        if (flds == '') {
+            url += "?close";
+        } else {
+            url+="&close";
+        }
+        dlgopen(url, '_blank', 875, 500);
         } // end function
     } // end function
 
@@ -933,11 +936,11 @@ while ($lrow = sqlFetchArray($lres)) {
 
     switch (getSearchClass($lrow['data_type'])) {
         case 1:
-            echo "    \$(" . js_escape("#form_".$field_id) . ").click(function() { toggleSearch(this); });\n";
+            echo "    \$(" . js_escape("#form_" . $field_id) . ").click(function() { toggleSearch(this); });\n";
             break;
         case 2:
-            echo "    \$(" . js_escape("#form_".$field_id) . ").click(function() { selClick(this); });\n";
-            echo "    \$(" . js_escape("#form_".$field_id) . ").blur(function() { selBlur(this); });\n";
+            echo "    \$(" . js_escape("#form_" . $field_id) . ").click(function() { selClick(this); });\n";
+            echo "    \$(" . js_escape("#form_" . $field_id) . ").blur(function() { selBlur(this); });\n";
             break;
     }
 }
@@ -947,6 +950,8 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = false; ?>
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
@@ -954,9 +959,48 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_timepicker = true; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = false; ?>
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
+  $('.datepicker-past').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker-past').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datepicker-future').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+    <?php $datetimepicker_maxDate = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker-future').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+    <?php $datetimepicker_maxDate = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+
 
 }); // end document.ready
 
@@ -968,14 +1012,14 @@ function srcConfirmSave() {
 
 </script>
 <?php /*Include the validation script and rules for this form*/
-$form_id="DEM";
+$form_id = "DEM";
 ?>
 
 <?php
 //LBF forms use the new validation depending on the global value
-$use_validate_js=$GLOBALS['new_validate'];
+$use_validate_js = $GLOBALS['new_validate'];
 include_once("$srcdir/validation/validation_script.js.php");?>
-<script language='JavaScript'>
+<script>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
         <?php echo $condition_str; ?>
@@ -988,5 +1032,5 @@ include_once("$srcdir/validation/validation_script.js.php");?>
         checkSkipConditions();
     });
 </script>
-
+</body>
 </html>

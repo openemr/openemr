@@ -1,4 +1,5 @@
 <?php
+
 /**
  * new_search_popup.php
  *
@@ -6,16 +7,18 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2010-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -30,77 +33,66 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
 ?>
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader('opener'); ?>
+
 <style>
-form {
- padding: 0px;
- margin: 0px;
-}
-#searchCriteria {
- text-align: center;
- width: 100%;
- font-size: 0.8em;
- background-color: #ddddff;
- font-weight: bold;
- padding: 3px;
-}
-#searchResultsHeader {
- width: 100%;
- background-color: lightgrey;
-}
-#searchResultsHeader table {
- width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
- border-collapse: collapse;
-}
-#searchResultsHeader th {
- font-size: 0.7em;
-}
-#searchResults {
- width: 100%;
- height: 80%;
- overflow: auto;
-}
+    form {
+        padding: 0;
+        margin: 0;
+    }
 
-.srName  { width: 12%; }
-.srPhone { width: 11%; }
-.srSS    { width: 11%; }
-.srDOB   { width:  8%; }
-.srID    { width:  7%; }
-.srMisc  { width: 10%; }
+    #searchCriteria {
+        text-align: center;
+        width: 100%;
+        font-size: 0.8rem;
+        background-color: var(--gray300);
+        font-weight: bold;
+        padding: 3px;
+    }
 
-#searchResults table {
- width: 100%;
- border-collapse: collapse;
- background-color: white;
-}
-#searchResults tr {
- cursor: hand;
- cursor: pointer;
-}
-#searchResults td {
- font-size: 0.7em;
- border-bottom: 1px solid #eee;
-}
-.oneResult {
-}
-.topResult {
- background-color: <?php echo attr($searchcolor); ?>;
-}
-.billing {
- color: red;
- font-weight: bold;
-}
-.highlight {
- background-color: #336699;
- color: white;
-}
+    #searchResultsHeader th {
+        font-size: 0.7rem;
+    }
+
+    #searchResults {
+        width: 100%;
+        height: 80%;
+        overflow: auto;
+    }
+
+    #searchResults table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: var(--white);
+    }
+
+    #searchResults tr {
+        cursor: pointer;
+    }
+
+    #searchResults td {
+        font-size: 0.7rem;
+        border-bottom: 1px solid var(--gray200);
+    }
+
+    .topResult {
+        background-color: <?php echo attr($searchcolor);
+        ?>;
+    }
+
+    .billing {
+        color: var(--danger);
+        font-weight: bold;
+    }
+
+    .highlight {
+        background-color: var(--info);
+        color: var(--white);
+    }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-
-<script language="JavaScript">
+<script>
 
 // This is called when forward or backward paging is done.
 //
@@ -148,16 +140,16 @@ foreach ($_REQUEST as $key => $value) {
     $fldname = substr($key, 3);
   // pubpid requires special treatment.  Match on that is fatal.
     if ($fldname == 'pubpid') {
-        $relevance .= " + 1000 * ( ".add_escape_custom($fldname)." LIKE ? )";
+        $relevance .= " + 1000 * ( " . add_escape_custom($fldname) . " LIKE ? )";
         array_push($sqlBindArray, $value);
     } else {
-        $relevance .= " + ( ".add_escape_custom($fldname)." LIKE ? )";
+        $relevance .= " + ( " . add_escape_custom($fldname) . " LIKE ? )";
         array_push($sqlBindArray, $value);
     }
 
-    $where .= " OR ".add_escape_custom($fldname)." LIKE ?";
+    $where .= " OR " . add_escape_custom($fldname) . " LIKE ?";
     array_push($sqlBindArraySpecial, $value);
-    echo "<input type='hidden' name='".attr($key)."' value='".attr($value)."' />\n";
+    echo "<input type='hidden' name='" . attr($key) . "' value='" . attr($value) . "' />\n";
     ++$numfields;
 }
 
@@ -165,7 +157,7 @@ $sql = "SELECT *, ( $relevance ) AS relevance, " .
   "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS " .
   "FROM patient_data WHERE $where " .
   "ORDER BY relevance DESC, lname, fname, mname " .
-  "LIMIT ".escape_limit($fstart).", ".escape_limit($MAXSHOW)."";
+  "LIMIT " . escape_limit($fstart) . ", " . escape_limit($MAXSHOW) . "";
 
 $sqlBindArray = array_merge($sqlBindArray, $sqlBindArraySpecial);
 $rez = sqlStatement($sql, $sqlBindArray);
@@ -179,17 +171,18 @@ _set_patient_inc_count($MAXSHOW, count($result), $where, $sqlBindArraySpecial);
 
 </form>
 
-<table border='0' cellpadding='5' cellspacing='0' width='100%'>
+<div class="table-responsive">
+<table class="table border-0" cellpadding='5' cellspacing='0'>
  <tr>
   <td class='text'>
    &nbsp;
   </td>
-  <td class='text' align='center'>
+  <td class='text text-center'>
 <?php if ($message) {
-    echo "<font color='red'><b>".text($message)."</b></font>\n";
+    echo "<span class='text-danger font-weight-bold'>" . text($message) . "</span>\n";
 } ?>
   </td>
-  <td class='text' align='right'>
+  <td class='text text-right'>
 <?php
 // Show start and end row number, and number of rows, with paging links.
 $count = $GLOBALS['PATIENT_INC_COUNT'];
@@ -214,12 +207,14 @@ if ($fend > $count) {
   </td>
  </tr>
 </table>
+</div>
 
-<div id="searchResultsHeader" class="head">
-<table>
+<div id="searchResultsHeader" class="table-responsive">
+<table class="table">
+<thead class="thead-light">
 <tr>
-<th class="srID"   ><?php echo xlt('Hits');?></th>
-<th class="srName" ><?php echo xlt('Name');?></th>
+<th class="srID" scope="col"><?php echo xlt('Hits');?></th>
+<th class="srName" scope="col"><?php echo xlt('Name');?></th>
 <?php
 // This gets address plus other fields that are mandatory, up to a limit of 5.
 $extracols = array();
@@ -232,18 +227,13 @@ $tres = sqlStatement("SELECT field_id, title FROM layout_options " .
 
 while ($trow = sqlFetchArray($tres)) {
     $extracols[$trow['field_id']] = $trow['title'];
-    echo "<th class='srMisc'>" . text(xl_layout_label($trow['title'])) . "</th>\n";
+    echo "<th class='srMisc' scope='col'>" . text(xl_layout_label($trow['title'])) . "</th>\n";
 }
 ?>
 
 </tr>
-</table>
-</div>
-
-<div id="searchResults">
-
-<table>
-<tr>
+</thead>
+<tr id="searchResults">
 <?php
 $pubpid_matched = false;
 if ($result) {
@@ -266,24 +256,23 @@ if ($result) {
     }
 }
 ?>
+</tr>
 </table>
-</div>  <!-- end searchResults DIV -->
 
 <center>
 <?php if ($pubpid_matched) { ?>
-<input type='button' value='<?php echo xla('Cancel'); ?>'
+<input class='btn btn-primary' type='button' value='<?php echo xla('Cancel'); ?>'
  onclick='dlgclose();' />
 <?php } else { ?>
-<input type='button' value='<?php echo xla('Confirm Create New Patient'); ?>'
- onclick='dlgclose("srcConfirmSave", false);' />
+<input class='btn btn-primary' type='button' value='<?php echo xla('Confirm Create New Patient'); ?>' onclick='dlgclose("srcConfirmSave", false);' />
 <?php } ?>
 </center>
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 
-$(function() {
+$(function () {
   $(".oneresult").mouseover(function() { $(this).addClass("highlight"); });
   $(".oneresult").mouseout(function() { $(this).removeClass("highlight"); });
   $(".oneresult").click(function() { SelectPatient(this); });
@@ -308,8 +297,10 @@ var f = opener.document.forms[0];
 <?php if ($pubpid_matched) { ?>
 alert(<?php echo xlj('A patient with this ID already exists.'); ?>);
 <?php } else { ?>
-opener.force_submit = true;
+    // unclear if still needed.
+    if (typeof f.create !== 'undefined') {
 f.create.value = <?php echo xlj('Confirm Create New Patient'); ?>;
+    }
 <?php } ?>
 
 <?php if (!count($result)) { ?>

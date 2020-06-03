@@ -1,10 +1,13 @@
 <?php
+
 /**
  * Software version identification.
  *
- * @link http://open-emr.org/wiki
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package OpenEMR
+ * @link https://www.open-emr.org/wiki
  * @author Robert Down <robertdown@live.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
  */
 
 // Software version identification.
@@ -25,7 +28,7 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 295;
+$v_database = 327;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -36,7 +39,7 @@ $v_database = 295;
 $v_acl = 9;
 
 //Offsite Portal SOAP functions version, which are at myportal directory.
-$v_offsite_portal='1.47';
+$v_offsite_portal = '1.47';
 
 // Version for JavaScript and stylesheet includes. Increment whenever a .js or .css file changes.
 // Also whenever you change a .js or .css file, make sure that all URLs referencing it
@@ -47,7 +50,7 @@ if (getenv('OPENEMR__ENVIRONMENT') === 'dev') {
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping
-    $v_js_includes = 44;
+    $v_js_includes = 60;
 }
 
 // Do note modify below

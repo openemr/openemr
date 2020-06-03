@@ -1,16 +1,22 @@
 $colorname: "Olive";
 
-$darkest: #353F29;
+$darkest: #353f29;
 $darker: #405626;
-$dark: #6A7F52;
+$dark: #6a7f52;
 $mid: #879874;
-$midpale: #A5B297;
-$pale: #D2D8CB;
-$midpalepale: #DFE3DA;
-$palepale: #E5E8E1;
-$palepurple: #E7E6F9;
-$paler: #EFF1EC;
-$midnightblue: #2F2F7D;
-$white: #FFFFFF;
+$midpale: #a5b297;
+$pale: #d2d8cb;
+$midpalepale: #dfe3da;
+$palepale: #e5e8e1;
+$palepurple: #e7e6f9;
+$paler: #eff1ec;
+$midnightblue: #2f2f7d;
+$white: #fff;
+
+// Enables responsive text for Bootstrap
+$enable-responsive-font-sizes: true;
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
 
 @import "../color_base";

@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -56,26 +57,26 @@ class Medication extends ClinicalType
         $return = false;
         $listOptions = Codes::lookup($this->getOptionId(), 'CVX');
         if (count($listOptions) > 0) {
-            $sqlQueryBind= array();
+            $sqlQueryBind = array();
             $query = "SELECT * " .
             "FROM immunizations " .
                 "WHERE patient_id = ? AND added_erroneously = '0' " .
                 "AND administered_date >= ? " .
                 "AND administered_date <= ? ";
-            $query.= "AND ( ";
+            $query .= "AND ( ";
             $count = 0;
             array_push($sqlQueryBind, $patient->id, $beginDate, $endDate);
             foreach ($listOptions as $option_id) {
-                $query.= "cvx_code = ? ";
+                $query .= "cvx_code = ? ";
                 $count++;
                 if ($count < count($listOptions)) {
-                    $query.= "OR ";
+                    $query .= "OR ";
                 }
 
                 array_push($sqlQueryBind, $option_id);
             }
 
-            $query.= " ) ";
+            $query .= " ) ";
 
             $result = sqlStatement($query, $sqlQueryBind);
             $rows = array();
@@ -83,11 +84,15 @@ class Medication extends ClinicalType
                     $rows[$iter] = $row;
             }
             
-            if (isset($options[self::OPTION_COUNT]) &&
-                count($rows) >= $options[self::OPTION_COUNT] ) {
+            if (
+                isset($options[self::OPTION_COUNT]) &&
+                count($rows) >= $options[self::OPTION_COUNT]
+            ) {
                 $return = true;
-            } else if (!isset($options[self::OPTION_COUNT]) &&
-                count($rows) > 0 ) {
+            } elseif (
+                !isset($options[self::OPTION_COUNT]) &&
+                count($rows) > 0
+            ) {
                 $return = true;
             }
         }

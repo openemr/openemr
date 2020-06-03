@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Flexible script for graphing entities in OpenEMR.
  *
@@ -11,9 +12,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -33,14 +34,14 @@ $is_lbf = substr($table, 0, 3) === 'LBF';
 // acl checks here
 //  For now, only allow access for med aco.
 //  This can be expanded depending on which table is accessed.
-if (!acl_check('patients', 'med')) {
-      exit;
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    exit;
 }
 
 // Conversion functions/constants
 function convertFtoC($a)
 {
-    return ($a-32)*0.5556;
+    return ($a - 32) * 0.5556;
 }
 function getLbstoKgMultiplier()
 {
@@ -52,13 +53,13 @@ function getIntoCmMultiplier()
 }
 function getIdealYSteps($a)
 {
-    if ($a>1000) {
+    if ($a > 1000) {
         return 200;
-    } else if ($a>500) {
+    } elseif ($a > 500) {
         return 100;
-    } else if ($a>100) {
+    } elseif ($a > 100) {
         return 20;
-    } else if ($a>50) {
+    } elseif ($a > 50) {
         return 10;
     } else {
         return 5;
@@ -110,66 +111,66 @@ if ($is_lbf) {
 } else {
     switch ($name) {
         case "weight":
-             $titleGraph = $title." (".xl("lbs").")";
+             $titleGraph = $title . " (" . xl("lbs") . ")";
             break;
         case "weight_metric":
-             $titleGraph = $title." (".xl("kg").")";
+             $titleGraph = $title . " (" . xl("kg") . ")";
              $multiplier = getLbstoKgMultiplier();
              $name = "weight";
             break;
         case "height":
-             $titleGraph = $title." (".xl("in").")";
+             $titleGraph = $title . " (" . xl("in") . ")";
             break;
         case "height_metric":
-             $titleGraph = $title." (".xl("cm").")";
+             $titleGraph = $title . " (" . xl("cm") . ")";
              $multiplier = getIntoCmMultiplier();
              $name = "height";
             break;
         case "bps":
-             $titleGraph = xl("Blood Pressure")." (".xl("mmHg").")";
+             $titleGraph = xl("Blood Pressure") . " (" . xl("mmHg") . ")";
              $titleGraphLine1 = xl("BP Systolic");
              $titleGraphLine2 = xl("BP Diastolic");
             break;
         case "bpd":
-             $titleGraph = xl("Blood Pressure")." (".xl("mmHg").")";
+             $titleGraph = xl("Blood Pressure") . " (" . xl("mmHg") . ")";
              $titleGraphLine1 = xl("BP Diastolic");
              $titleGraphLine2 = xl("BP Systolic");
             break;
         case "pulse":
-             $titleGraph = $title." (".xl("per min").")";
+             $titleGraph = $title . " (" . xl("per min") . ")";
             break;
         case "respiration":
-             $titleGraph = $title." (".xl("per min").")";
+             $titleGraph = $title . " (" . xl("per min") . ")";
             break;
         case "temperature":
-             $titleGraph = $title." (".xl("F").")";
+             $titleGraph = $title . " (" . xl("F") . ")";
             break;
         case "temperature_metric":
-             $titleGraph = $title." (".xl("C").")";
+             $titleGraph = $title . " (" . xl("C") . ")";
              $isConvertFtoC = 1;
-             $name="temperature";
+             $name = "temperature";
             break;
         case "oxygen_saturation":
-             $titleGraph = $title." (".xl("%").")";
+             $titleGraph = $title . " (" . xl("%") . ")";
             break;
         case "head_circ":
-             $titleGraph = $title." (".xl("in").")";
+             $titleGraph = $title . " (" . xl("in") . ")";
             break;
         case "head_circ_metric":
-             $titleGraph = $title." (".xl("cm").")";
+             $titleGraph = $title . " (" . xl("cm") . ")";
              $multiplier = getIntoCmMultiplier();
-             $name="head_circ";
+             $name = "head_circ";
             break;
         case "waist_circ":
-             $titleGraph = $title." (".xl("in").")";
+             $titleGraph = $title . " (" . xl("in") . ")";
             break;
         case "waist_circ_metric":
-             $titleGraph = $title." (".xl("cm").")";
+             $titleGraph = $title . " (" . xl("cm") . ")";
              $multiplier = getIntoCmMultiplier();
-             $name="waist_circ";
+             $name = "waist_circ";
             break;
         case "BMI":
-             $titleGraph = $title." (".xl("kg/m^2").")";
+             $titleGraph = $title . " (" . xl("kg/m^2") . ")";
             break;
         default:
              $titleGraph = $title;
@@ -225,16 +226,16 @@ if ($is_lbf) {
 $data = array();
 while ($row = sqlFetchArray($values)) {
     if ($row["$name"]) {
-        $x=$row['date'];
+        $x = $row['date'];
         if ($multiplier) {
             // apply unit conversion multiplier
-            $y=$row["$name"]*$multiplier;
-        } else if ($isConvertFtoC) {
+            $y = $row["$name"] * $multiplier;
+        } elseif ($isConvertFtoC) {
             // apply temp F to C conversion
-            $y=convertFtoC($row["$name"]);
+            $y = convertFtoC($row["$name"]);
         } else {
            // no conversion, so use raw value
-            $y=$row["$name"];
+            $y = $row["$name"];
         }
 
         $data[$x][$name] = $y;
@@ -245,16 +246,16 @@ if ($isBP) {
   //set up the other blood pressure line
     while ($row = sqlFetchArray($values_alt)) {
         if ($row["$name_alt"]) {
-            $x=$row['date'];
+            $x = $row['date'];
             if ($multiplier) {
                 // apply unit conversion multiplier
-                $y=$row["$name_alt"]*$multiplier;
-            } else if ($isConvertFtoC) {
+                $y = $row["$name_alt"] * $multiplier;
+            } elseif ($isConvertFtoC) {
                 // apply temp F to C conversion
-                $y=convertFtoC($row["$name_alt"]);
+                $y = convertFtoC($row["$name_alt"]);
             } else {
                // no conversion, so use raw value
-                $y=$row["$name_alt"];
+                $y = $row["$name_alt"];
             }
 
             $data[$x][$name_alt] = $y;

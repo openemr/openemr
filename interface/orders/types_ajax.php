@@ -1,4 +1,5 @@
 <?php
+
 /**
  * types_ajax.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -46,22 +46,22 @@ while ($row = sqlFetchArray($res)) {
     // for proper indentation
     if (($isOrder == 'grp' || $isOrder == 'fgp') && $row['parent'] == 0) {
          $classes .= ' oe-grp';
-         $classes .= ' oe-pl'.($level * 10) ;
+         $classes .= ' oe-pl' . ($level * 10) ;
     } elseif (($isOrder == 'grp' || $isOrder == 'fgp') && $row['parent'] != 0) {
         $classes .= ' oe-bold';
-        $classes .= ' oe-pl'.($level * 10) ;
+        $classes .= ' oe-pl' . ($level * 10) ;
     } elseif ($isOrder == 'ord' || $isOrder == 'for') {
          $classes .= ' oe-ord';
-          $classes .= ' oe-pl'.($level * 10) ;
+          $classes .= ' oe-pl' . ($level * 10) ;
     } else {
-        $classes .= ' oe-pl'.($level * 10) ;
+        $classes .= ' oe-pl' . ($level * 10) ;
     }
 
     echo "<tr>";
     echo "<td id=\"td" . attr($chid) . "\"";
     echo " onclick=\"toggle(" . attr_js($chid) . ")\"";
     echo " class=\"" . attr($classes) . "\">";
-    echo "<span style=\"margin:0 4 0 " . ($level * 9) . "pt\" class=\"plusminus\">";
+    echo "<span style=\"margin: 0 4 0 " . round(($level * 9) * 1.3333) . "px\" class=\"plusminus\">";
     echo "<span class=\"plusminus\">";
     echo $iscontainer ? "+ " : '| ';
     echo "</span>";
@@ -110,7 +110,7 @@ while ($row = sqlFetchArray($res)) {
     if (($isOrder != 'grp' && $isOrder != 'fgp') &&  !empty($row['procedure_code'])) {
         echo "<td class=\"col3\">" . text($row['procedure_code']) . "</td>";
     } elseif (($isOrder != 'grp' && $isOrder != 'fgp') &&  empty($row['procedure_code'])) {
-        echo "<td class=\"col3\" style=\"padding-left:15px\"><span class=\"required-tooltip\" title=\"".xla("Missing Identifying Code")."\"><i class=\"fa fa-exclamation-triangle text-center oe-text-red\" aria-hidden=\"true\" > </i></span></td>";
+        echo "<td class=\"col3\" style=\"padding-left: 15px\"><span class=\"required-tooltip\" title=\"" . xla("Missing Identifying Code") . "\"><i class=\"fa fa-exclamation-triangle text-center text-danger\" aria-hidden=\"true\" > </i></span></td>";
     } elseif ($isOrder == 'grp' || $isOrder == 'fgp') {
         echo "<td class=\"col3\">" . text($row['procedure_code']) . "</td>";
     }
@@ -124,11 +124,11 @@ while ($row = sqlFetchArray($res)) {
     echo "<td class=\"col6\">" . text($level + 1) . "</td>";
     echo "<td class=\"col4\">" . text($row['description']) . "</td>";
     echo "<td class=\"col5\">";
-    echo "<span style=\"color:#000000;\" onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",false," . attr_js($thislab) . ")\" class=\"haskids fa fa-pencil fa-lg\" title=".xla("Edit")."></span>";
+    echo "<span onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",false," . attr_js($thislab) . ")\" class=\"text-body haskids fa fa-pencil-alt fa-lg\" title=" . xla("Edit") . "></span>";
     echo "</td>";
     echo "<td class=\"col5\">";
     //if ($isOrder != 'for') {//RP_MODIFIED 2018-08-03 to allow for manual lab entry
-        echo "<span style=\"color:#000000; margin-left:30px\" onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",true," . attr_js($thislab) . ")\" class=\"haskids fa fa-plus fa-lg\" title=" . xla("Add") . " ></span>";
+        echo "<span style=\"margin-left: 30px\" onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",true," . attr_js($thislab) . ")\" class=\"haskids text-body fa fa-plus fa-lg\" title=" . xla("Add") . " ></span>";
     //}//RP_MODIFIED 2018-08-03
     echo "</td>";
     echo "</tr>";

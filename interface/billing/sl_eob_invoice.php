@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This provides for manual posting of EOBs.  It is invoked from
  * sl_eob_search.php.  For automated (X12 835) remittance posting
@@ -13,19 +14,18 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/user.inc";
 
+use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -89,152 +89,185 @@ function row_delete($table, $where)
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'opener', 'no_dialog']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
     <title><?php echo xlt('EOB Posting - Invoice') ?></title>
-    <script language="JavaScript">
-    var adjDisable = <?php echo js_escape($posting_adj_disable); ?>;
-    // An insurance radio button is selected.
-    function setins(istr) {
-        return true;
-    }
+    <script>
 
-    function goEncounterSummary(pid) {
-        if(pid) {
-            if(typeof opener.toEncSummary  === 'function') {
-                opener.toEncSummary(pid);
-            }
+        const adjDisable = <?php echo js_escape($posting_adj_disable); ?>;
+        // An insurance radio button is selected.
+        function setins(istr) {
+            return true;
         }
-        window.close();
-    }
-    function doClose() {
-        window.close();
-    }
-    // Compute an adjustment that writes off the balance:
-    function writeoff(code) {
-        var f = document.forms[0];
-        var belement = f['form_line[' + code + '][bal]'];
-        var pelement = f['form_line[' + code + '][pay]'];
-        var aelement = f['form_line[' + code + '][adj]'];
-        var relement = f['form_line[' + code + '][reason]'];
-        var tmp = belement.value - pelement.value;
-        aelement.value = Number(tmp).toFixed(2);
-        if (aelement.value && !relement.value) relement.selectedIndex = 1;
-        return false;
-    }
 
-    // Onsubmit handler.  A good excuse to write some JavaScript.
-    function validate(f) {
-        let delcount = 0;
-        let allempty = true;
-
-        for (var i = 0; i < f.elements.length; ++i) {
-            let ename = f.elements[i].name;
-            // Count deletes.
-            if (ename.substring(0, 9) == 'form_del[') {
-                if (f.elements[i].checked) ++delcount;
-                continue;
-            }
-            let pfxlen = ename.indexOf('[pay]');
-            if (pfxlen < 0) continue;
-            let pfx = ename.substring(0, pfxlen);
-            let code = pfx.substring(pfx.indexOf('[') + 1, pfxlen - 1);
-            let cPay = parseFloat(f[pfx + '[pay]'].value).toFixed(2);
-            let cAdjust = parseFloat(f[pfx + '[adj]'].value).toFixed(2);
-
-            if ((cPay != 0) || cAdjust != 0) {
-                allempty = false;
-            }
-            if(adjDisable) {
-                if ((cAdjust == 0 && f[pfx + '[reason]'].value)) {
-                    allempty = false;
+        function goEncounterSummary(pid) {
+            if(pid) {
+                if(typeof opener.toEncSummary  === 'function') {
+                    opener.toEncSummary(pid);
                 }
             }
-            if ((cPay != 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
-                alert(<?php echo xlj('Payment value for code ') ?> + code + <?php echo xlj(' is not a number') ?>);
-                return false;
-            }
-            if ((cAdjust != 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
-                alert(<?php echo xlj('Adjustment value for code ') ?> + code + <?php echo xlj(' is not a number') ?>);
-                return false;
-            }
-            if ((cAdjust != 0) && !f[pfx + '[reason]'].value) {
-                alert(<?php echo xlj('Please select an adjustment reason for code ') ?> + code);
-                return false;
-            }
-// TBD: validate the date format
+            doClose();
         }
-// Check if save is clicked with nothing to post.
-        if (allempty && delcount === 0) {
-            alert(<?php echo xlj('Nothing to Post! Please review entries or use Cancel to exit transaction')?>);
+
+        function doClose() {
+            window.close();
+        }
+
+        // Compute an adjustment that writes off the balance:
+        function writeoff(code) {
+            const f = document.forms[0];
+            const belement = f['form_line[' + code + '][bal]'];
+            const pelement = f['form_line[' + code + '][pay]'];
+            const aelement = f['form_line[' + code + '][adj]'];
+            const relement = f['form_line[' + code + '][reason]'];
+            const tmp = belement.value - pelement.value;
+            aelement.value = Number(tmp).toFixed(2);
+            if (aelement.value && !relement.value) {
+                relement.selectedIndex = 1;
+            }
             return false;
         }
-// Demand confirmation if deleting anything.
-        if (delcount > 0) {
-            if (!confirm(<?php echo xlj('Really delete'); ?> + ' ' + delcount +
-                ' ' + <?php echo xlj('transactions'); ?> + '?' +
-                ' ' + <?php echo xlj('This action will be logged'); ?> + '!')
-            ) return false;
+
+        // Onsubmit handler.  A good excuse to write some JavaScript.
+        function validate(f) {
+            let delcount = 0;
+            let allempty = true;
+
+            for (let i = 0; i < f.elements.length; ++i) {
+                let ename = f.elements[i].name;
+                // Count deletes.
+                if (ename.substring(0, 9) == 'form_del[') {
+                    if (f.elements[i].checked) {
+                        ++delcount;
+                    }
+                    continue;
+                }
+                let pfxlen = ename.indexOf('[pay]');
+                if (pfxlen < 0) {
+                    continue
+                };
+                let pfx = ename.substring(0, pfxlen);
+                let code = pfx.substring(pfx.indexOf('[') + 1, pfxlen - 1);
+                let cPay = parseFloat(f[pfx + '[pay]'].value).toFixed(2);
+                let cAdjust = parseFloat(f[pfx + '[adj]'].value).toFixed(2);
+
+                if ((cPay !== 0) || cAdjust !== 0) {
+                    allempty = false;
+                }
+                if(adjDisable) {
+                    if ((cAdjust == 0 && ins_done.value == 'changed')) {
+                        allempty = false;
+                    }
+                }
+                if ((cPay !== 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
+                    let message = <?php echo xlj('Payment value for code') ?> + " " + code + " " + <?php echo xlj('is not a number') ?>;
+                    (async (message, time) => {
+                        await asyncAlertMsg(message, time, 'danger', 'lg');
+                    })(message, 3000)
+                    .then(res => { });
+                    return false;
+                }
+                if ((cAdjust !== 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
+                    let message = <?php echo xlj('Adjustment value for code') ?> + " " + code  + " " <?php echo xlj('is not a number') ?>;
+                    (async (message, time) => {
+                        await asyncAlertMsg(message, time, 'danger', 'lg');
+                    })(message, 3000)
+                    .then(res => { });
+                    return false;
+                }
+                if ((cAdjust !== 0) && !f[pfx + '[reason]'].value && !adjDisable) {
+                    let message = <?php echo xlj('Please select an adjustment reason for code') ?> + " " + code;
+                    (async (message, time) => {
+                        await asyncAlertMsg(message, time, 'danger', 'lg');
+                    })(message, 3000)
+                    .then(res => { });
+                    return false;
+                }
+            // TBD: validate the date format
+            }
+            // Check if save is clicked with nothing to post.
+            if (allempty && delcount === 0) {
+                let message = <?php echo xlj('Nothing to Post! Please review entries or use Cancel to exit transaction') ?>;
+                (async (message, time) => {
+                    await asyncAlertMsg(message, time, 'danger', 'lg');
+                })(message, 3000)
+                .then(res => { });
+                return false;
+            }
+            // Demand confirmation if deleting anything.
+            if (delcount > 0) {
+                if (!confirm(<?php echo xlj('Really delete'); ?> + ' ' + delcount +
+                    ' ' + <?php echo xlj('transactions'); ?> + '?' +
+                    ' ' + <?php echo xlj('This action will be logged'); ?> + '!')
+                ) return false;
+            }
+            return true;
         }
 
-        return true;
-    }
-
-    <!-- Get current date -->
-
-    function getFormattedToday() {
-        let today = new Date();
-        let dd = today.getDate();
-        let mm = today.getMonth() + 1; //January is 0!
-        let yyyy = today.getFullYear();
-        if (dd < 10) {
-            dd = '0' + dd
-        }
-        if (mm < 10) {
-            mm = '0' + mm
+        // Get current date
+        function getFormattedToday() {
+            let today = new Date();
+            let dd = today.getDate();
+            let mm = today.getMonth() + 1; //January is 0!
+            let yyyy = today.getFullYear();
+            if (dd < 10) {
+                dd = '0' + dd;
+            }
+            if (mm < 10) {
+                mm = '0' + mm;
+            }
+            return (yyyy + '-' + mm + '-' + dd);
         }
 
-        return (yyyy + '-' + mm + '-' + dd);
-    }
+        // Update Payment Fields
+        function updateFields(payField, adjField, balField, coPayField, isFirstProcCode) {
+            let payAmount = 0.0;
+            let adjAmount = 0.0;
+            let balAmount = 0.0;
+            let coPayAmount = 0.0;
 
-    <!-- Update Payment Fields -->
+            // coPayFiled will be null if there is no co-pay entry in the fee sheet
+            if (coPayField) {
+                coPayAmount = coPayField.value;
+            }
 
-    function updateFields(payField, adjField, balField, coPayField, isFirstProcCode) {
-        let payAmount = 0.0;
-        let adjAmount = 0.0;
-        let balAmount = 0.0;
-        let coPayAmount = 0.0;
+            // if balance field is 0.00, its value comes back as null, so check for nul-ness first
+            if (balField) {
+                balAmount = (balField.value) ? balField.value : 0;
+            }
 
-// coPayFiled will be null if there is no co-pay entry in the fee sheet
-        if (coPayField)
-            coPayAmount = coPayField.value;
+            if (payField) {
+                payAmount = (payField.value) ? payField.value : 0;
+            }
 
-// if balance field is 0.00, its value comes back as null, so check for nul-ness first
-        if (balField)
-            balAmount = (balField.value) ? balField.value : 0;
-        if (payField)
-            payAmount = (payField.value) ? payField.value : 0;
+            // alert('balance = >' + balAmount +'<  payAmount = ' + payAmount + '  copay = ' + coPayAmount + '  isFirstProcCode = ' + isFirstProcCode);
 
-//alert('balance = >' + balAmount +'<  payAmount = ' + payAmount + '  copay = ' + coPayAmount + '  isFirstProcCode = ' + isFirstProcCode);
+            // subtract the co-pay only from the first procedure code
+            if (isFirstProcCode == 1) {
+                balAmount = parseFloat(balAmount) + parseFloat(coPayAmount);
+            }
 
-// subtract the co-pay only from the first procedure code
-        if (isFirstProcCode == 1)
-            balAmount = parseFloat(balAmount) + parseFloat(coPayAmount);
-        if (adjDisable) return;
+            if (adjDisable) {
+                return;
+            }
 
-        adjAmount = balAmount - payAmount;
-// Assign rounded adjustment value back to TextField
-        adjField.value = adjAmount = Math.round(adjAmount * 100) / 100;
-    }
+            adjAmount = balAmount - payAmount;
+            // Assign rounded adjustment value back to TextField
+            adjField.value = adjAmount = Math.round(adjAmount * 100) / 100;
+        }
 
-    $(function () {
-        $('.datepicker').datetimepicker({
-            <?php $datetimepicker_timepicker = false; ?>
-            <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        $(function () {
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
         });
-    });
+
+        $("#ins_done").on("change", function() {
+            $("#ins_done").val('changed');
+        });
 
     </script>
     <style>
@@ -255,7 +288,7 @@ function row_delete($table, $where)
         }
 
         .last_detail {
-            border-bottom: 1px black solid;
+            border-bottom: 1px var(--black) solid;
             margin-top: 2px;
         }
 
@@ -264,14 +297,6 @@ function row_delete($table, $where)
                 width: 1000px !Important;
             }
         }
-
-        /*.modalclass {
-        overflow-x: hidden !Important;
-        }
-        .oe-ckbox-label{
-        padding-left: 30px;
-        font-weight: 500;
-        }*/
     </style>
 </head>
 <body>
@@ -369,9 +394,11 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
 
 // Be sure to record adjustment reasons, even for zero adjustments if
 // they happen to be comments.
-            if ((0.0 + $thisadj) ||
+            if (
+                (0.0 + $thisadj) ||
                 ($reason && $reason_type == 5) ||
-                ($reason && ($reason_type > 1 && $reason_type < 6))) {
+                ($reason && ($reason_type > 1 && $reason_type < 6))
+            ) {
 // "To copay" and "To ded'ble" need to become a comment in a zero
 // adjustment, formatted just like sl_eob_process.php.
                 if ($reason_type == '2') {
@@ -407,7 +434,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
         if ($_POST['form_secondary']) {
             SLEOB::arSetupSecondary($patient_id, $encounter_id, $debug);
         }
-        echo "<script language='JavaScript'>\n";
+        echo "<script>\n";
         echo " if (opener.document.forms[0] != undefined) {\n";
         echo "   if (opener.document.forms[0].form_amount) {\n";
         echo "     var tmp = opener.document.forms[0].form_amount.value - " . attr($paytotal) . ";\n";
@@ -415,7 +442,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
         echo "   }\n";
         echo " }\n";
     } else {
-        echo "<script language='JavaScript'>\n";
+        echo "<script>\n";
     }
     if ($info_msg) {
         echo " alert(" . js_escape($info_msg) . ");\n";
@@ -430,32 +457,32 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
 }
 
 // Get invoice charge details.
-$codes = ar_get_invoice_summary($patient_id, $encounter_id, true);
+$codes = InvoiceSummary::arGetInvoiceSummary($patient_id, $encounter_id, true);
 $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1", array($patient_id));
 ?>
 
-<div class="container">
+<div class="container-fluid">
     <div class="row">
         <div class="page-header">
             <h2><?php echo xlt('EOB Invoice'); ?></h2>
         </div>
     </div>
-    <div class="row">
-        <form action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>
+    <div class="container-fluid">
+        <form class="form" action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
             <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>"/>
-            <fieldset>
+            <fieldset class="px-2">
                 <legend><?php echo xlt('Invoice Actions'); ?></legend>
-                <div class="col-xs-12 oe-custom-line">
-                    <div class="col-xs-3">
-                        <label class="control-label" for="form_name"><?php echo xlt('Patient'); ?>:</label>
-                        <input type="text" class="form-control" class="form-control" class="form-control" id='form_name'
+                <div class="form-row">
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="form_name"><?php echo xlt('Patient'); ?>:</label>
+                        <input type="text" class="form-control" id='form_name'
                                name='form_name'
                                value="<?php echo attr($ferow['fname']) . ' ' . attr($ferow['mname']) . ' ' . attr($ferow['lname']); ?>"
                                disabled>
                     </div>
-                    <div class="col-xs-3">
-                        <label class="control-label" for="form_provider"><?php echo xlt('Provider'); ?>:</label>
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="form_provider"><?php echo xlt('Provider'); ?>:</label>
                         <?php
                         $tmp = sqlQuery("SELECT fname, mname, lname " .
                             "FROM users WHERE id = ?", array($ferow['provider_id']));
@@ -465,52 +492,58 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             "activity = 1 ORDER BY fee DESC, id ASC LIMIT 1", array($patient_id, $encounter_id));
                         $billdate = substr(($tmp['bill_date'] . "Not Billed"), 0, 10);
                         ?>
-                        <input type="text" class="form-control" class="form-control" id='form_provider'
+                        <input type="text" class="form-control" id='form_provider'
                                name='form_provider' value="<?php echo attr($provider); ?>" disabled>
                     </div>
-                    <div class="col-xs-2">
-                        <label class="control-label" for="form_invoice"><?php echo xlt('Invoice'); ?>:</label>
-                        <input type="text" class="form-control" class="form-control" id='form_provider'
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="form_invoice"><?php echo xlt('Invoice'); ?>:</label>
+                        <input type="text" class="form-control" id='form_provider'
                                name='form_provider' value='<?php echo attr($patient_id) . "." . attr($encounter_id); ?>'
                                disabled>
                     </div>
-                    <div class="col-xs-2">
-                        <label class="control-label" for="svc_date"><?php echo xlt('Svc Date'); ?>:</label>
-                        <input type="text" class="form-control" class="form-control" id='svc_date' name='form_provider'
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="svc_date"><?php echo xlt('Svc Date'); ?>:</label>
+                        <input type="text" class="form-control" id='svc_date' name='form_provider'
                                value='<?php echo attr($svcdate); ?>' disabled>
                     </div>
-                    <div class="col-xs-2">
-                        <label class="control-label" for="insurance_name"><?php echo xlt('Insurance'); ?>:</label>
+                    <div class="card bg-light col-lg-4">
+                        <div class="card-title mx-auto"><?php echo xlt('Insurance'); ?></div>
                         <?php
                         for ($i = 1; $i <= 3; ++$i) {
                             $payerid = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
                             if ($payerid) {
                                 $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ?", array($payerid));
-                                $insurance .= "$i: " . $tmp['name'] . "\n";
+                                echo "$i: " . $tmp['name'] . "<br />";
                             }
                         }
                         ?>
-                        <textarea name="insurance_name" id="insurance_name" class="form-control" cols="5" rows="2"
-                                  readonly><?php echo attr($insurance); ?></textarea>
                     </div>
                 </div>
-                <div class="col-xs-12 oe-custom-line">
-                    <div class="col-xs-3">
-                        <label class="control-label" for="form_stmt_count"><?php echo xlt('Statements Sent'); ?>
+                <div class="form-group mt-3">
+                     <textarea name="insurance_name" id="insurance_name" class="form-control" cols="5" rows="2" readonly><?php echo attr($insurance); ?></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="form_stmt_count"><?php echo xlt('Statements Sent'); ?>
                             :</label>
-                        <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control"
-                               value='<?php echo attr((0 + $ferow['stmt_count'])); ?>'/>
+                        <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control" value='<?php echo attr((0 + $ferow['stmt_count'])); ?>'/>
                     </div>
-                    <div class="col-xs-3">
-                        <label class="control-label" for="form_reference"><?php echo xlt('Check/EOB No.'); ?>:</label>
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="form_last_bill"><?php echo xlt('Last Bill Date'); ?>
+                        :</label>
+                        <input type='text' name="form_last_bill" id='form_last_bill' class="form-control"
+                               value ='<?php echo attr($billdate); ?>' disabled/>
+                    </div>
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="form_reference"><?php echo xlt('Check/EOB No.'); ?>:</label>
                         <input type='text' name='form_reference' id='form_reference' class="form-control" value=''/>
                     </div>
-                    <div class="col-xs-2">
-                        <label class="control-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
                         <input type='text' name='form_check_date' class='form-control datepicker' value=''/>
                     </div>
-                    <div class="col-xs-2">
-                        <label class="control-label" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                         <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value=''/>
                         <input type='hidden' name='form_payer_id' value=''/>
                         <input type='hidden' name='form_orig_reference' value=''/>
@@ -519,10 +552,10 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <input type='hidden' name='form_pay_total' value=''/>
                     </div>
                 </div>
-                <div class="col-xs-12 oe-custom-line">
-                    <div class="col-xs-4">
-                        <label class="control-label" for="type_code"><?php echo xlt('Now posting for'); ?>:</label>
-                        <div style="padding-left:15px">
+                <div class="form-row">
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="type_code"><?php echo xlt('Now posting for'); ?>:</label>
+                        <div style="padding-left: 15px">
                             <?php
                                 $last_level_closed = 0 + $ferow['last_level_closed'];
                             ?>
@@ -548,8 +581,8 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             <input name='form_eobs' type='hidden' value='<?php echo attr($arrow['shipvia']) ?>'/>
                         </div>
                     </div>
-                    <div class="col-xs-4">
-                        <label class="control-label" for=""><?php echo xlt('Done with'); ?>:</label>
+                    <div class="form-group col-lg" id='ins_done'>
+                        <label class="col-form-label" for=""><?php echo xlt('Done with'); ?>:</label>
                         <div style="padding-left:15px">
                             <?php
                             // Write a checkbox for each insurance.  It is to be checked when
@@ -567,12 +600,11 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             ?>
                         </div>
                     </div>
-                    <div class="col-xs-4">
-                        <label class="control-label" for=""><?php echo xlt('Secondary billing'); ?>:</label>
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for=""><?php echo xlt('Secondary billing'); ?>:</label>
                         <div style="padding-left:15px">
                             <label class="checkbox-inline">
-                                <input name="form_secondary" type="checkbox"
-                                       value="1"><?php echo xlt('Needs secondary billing') ?>
+                                <input name="form_secondary" type="checkbox" value="1"><?php echo xlt('Needs secondary billing') ?>
                             </label>
                         </div>
                     </div>
@@ -582,12 +614,12 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
             <fieldset>
                 <legend><?php echo xlt('Invoice Details'); ?></legend>
                 <div class="table-responsive">
-                    <table class="table table-condensed">
+                    <table class="table table-sm">
                         <thead>
                         <tr>
                             <th><?php echo xlt('Code') ?></th>
-                            <th align="right"><?php echo xlt('Charge') ?></th>
-                            <th align="right"><?php echo xlt('Balance') ?>&nbsp;</th>
+                            <th class="text-right"><?php echo xlt('Charge') ?></th>
+                            <th class="text-right"><?php echo xlt('Balance') ?>&nbsp;</th>
                             <th><?php echo xlt('By/Source') ?></th>
                             <th><?php echo xlt('Date') ?></th>
                             <th><?php echo xlt('Pay') ?></th>
@@ -631,11 +663,9 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                 }
                                 ?>
                                 <tr>
-                                    <td class="detail"
-                                        style="background:<?php echo $dispcode ? 'lightyellow' : ''; ?>"><?php echo text($dispcode);
-                                        $dispcode = "" ?></td>
-                                    <td class="detail" class="detail"><?php echo text(bucks($tmpchg)); ?></td>
-                                    <td class="detail" class="detail">&nbsp;</td>
+                                    <td class="detail" style="background:<?php echo $dispcode ? 'lightyellow' : ''; ?>"><?php echo text($dispcode); $dispcode = "" ?></td>
+                                    <td class="detail"><?php echo text(bucks($tmpchg)); ?></td>
+                                    <td class="detail">&nbsp;</td>
                                     <td class="detail">
                                         <?php
                                         if (isset($ddata['plv'])) {
@@ -695,8 +725,8 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                            value='<?php echo attr($totalAdjAmount ? $totalAdjAmount : '0.00'); ?>'
                                            onclick="this.select()">
                                 </td>
-                                <td class="last_detail" align="center"><a href=""
-                                                                          onclick="return writeoff(<?php echo attr_js($code); ?>)">WO</a>
+                                <td class="last_detail text-center">
+                                    <a href="#" class="text-decoration-none" onclick="return writeoff(<?php echo attr_js($code); ?>)">WO</a>
                                 </td>
                                 <td class="last_detail">
                                     <select class="form-control" name="form_line[<?php echo attr($code); ?>][reason]">
@@ -727,19 +757,22 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </table>
                 </div>
             </fieldset>
+        </div>
+
+            </div>
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-            <div class="form-group clearfix">
+            <div class="form-group col-lg clearfix">
                 <div class="col-sm-12 text-left position-override" id="search-btn">
                     <div class="btn-group" role="group">
-                        <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save-stay"
+                        <button type='submit' class="btn btn-primary btn-save" name='form_save' id="btn-save-stay"
                             onclick="this.value='1';"><?php echo xlt("Save Current"); ?></button>
-                        <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save"
+                        <button type='submit' class="btn btn-primary btn-save" name='form_save' id="btn-save"
                             onclick="this.value='2';"><?php echo xlt("Save & Exit"); ?></button>
-                        <button type='button' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel'
+                        <button type='button' class="btn btn-secondary btn-cancel btn-separate-left" name='form_cancel'
                             id="btn-cancel" onclick='doClose()'><?php echo xlt("Close"); ?></button>
                     </div>
-                    <?php if ($GLOBALS['new_tabs_layout'] && $from_posting) { ?>
-                        <button type='button' class="btn btn-default btn-view pull-right" name='form_goto' id="btn-goto"
+                    <?php if ($from_posting) { ?>
+                        <button type='button' class="btn btn-secondary btn-view float-right" name='form_goto' id="btn-goto"
                             onclick="goEncounterSummary(<?php echo attr_js($patient_id) ?>)"><?php echo xlt("Past Encounters"); ?></button>
                     <?php } ?>
                 </div>
@@ -748,7 +781,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
     </div>
 </div><!--End of container div-->
 <?php if ($from_posting) { ?>
-<script language="JavaScript">
+<script>
     var f1 = opener.document.forms[0];
     var f2 = document.forms[0];
     if (f1.form_source) {

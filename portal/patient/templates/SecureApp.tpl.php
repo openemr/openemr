@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SecureApp.tpl.php
  *
@@ -39,7 +40,7 @@
             </p>
         </div>
 
-        <form class="well" method="post" action="login">
+        <form class="jumbotron jumbotron-fluid" method="post" action="login">
             <fieldset>
             <legend><?php echo xlt('Enter your credentials'); ?></legend>
                 <div class="control-group">

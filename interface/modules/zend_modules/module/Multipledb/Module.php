@@ -1,4 +1,5 @@
 <?php
+
 /* +-----------------------------------------------------------------------------+
  * Copyright 2016 matrix israel
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -18,7 +19,7 @@
  */
 namespace Multipledb;
 
-use Zend\ModuleManager\ModuleManager;
+use Laminas\ModuleManager\ModuleManager;
 
 class Module
 {
@@ -27,10 +28,10 @@ class Module
     public function getAutoloaderConfig()
     {
         return array(
-            'Zend\Loader\ClassMapAutoloader' => array(
+            'Laminas\Loader\ClassMapAutoloader' => array(
                 __DIR__ . '/autoload_classmap.php',
             ),
-            'Zend\Loader\StandardAutoloader' => array(
+            'Laminas\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
 
@@ -56,7 +57,7 @@ class Module
         $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
             $controller = $e->getTarget();
             //$controller->layout()->setVariable('status', null);
-            // @see https://framework.zend.com/apidoc/2.0/classes/Zend.Mvc.Controller.Plugin.Layout.html
+            // @see https://framework.zend.com/apidoc/2.0/classes/Laminas.Mvc.Controller.Plugin.Layout.html
             $controller->layout('multipledb/layout/layout');
 
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient history form.
  *
@@ -9,15 +10,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
@@ -25,14 +25,14 @@ use OpenEMR\OeUI\OemrUI;
 $CPR = 4; // cells per row
 
 // Check authorization.
-if (acl_check('patients', 'med')) {
+if (AclMain::aclCheckCore('patients', 'med')) {
     $tmp = getPatientData($pid, "squad");
-    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+    if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
         die(xlt("Not authorized for this squad."));
     }
 }
 
-if (!acl_check('patients', 'med', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {
     die(xlt("Not authorized"));
 }
 ?>
@@ -50,7 +50,7 @@ if (!acl_check('patients', 'med', '', array('write','addonly'))) {
     $smoke_codes = getSmokeCodes();
 
     foreach ($smoke_codes as $val => $code) {
-            echo "code_options_js"."[" . js_escape($val) . "]=" . js_escape($code) . ";\n";
+            echo "code_options_js" . "[" . js_escape($val) . "]=" . js_escape($code) . ";\n";
     }
     ?>
 
@@ -172,7 +172,7 @@ function sel_related(e) {
 
 <script type="text/javascript">
 /// todo, move this to a common library
-$(document).ready(function(){
+$(function () {
     if($("#form_tobacco").val()!=""){
         if(code_options_js[$("#form_tobacco").val()]!=""){
             $("#smoke_code").html(" ( "+code_options_js[$("#form_tobacco").val()]+" )");
@@ -236,7 +236,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             <?php
             $result = getHistoryData($pid);
             if (!is_array($result)) {
@@ -256,7 +256,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <input type='hidden' name='mode' value='save'>
 
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
+                    <button type="submit" class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
                     <a href="history.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
                         <?php echo xlt('Cancel'); ?>
                     </a>
@@ -277,7 +277,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </form>
 
             <!-- include support for the list-add selectbox feature -->
-            <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
+            <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
         </div>
     </div>
 </div><!--end of container div-->
@@ -310,9 +310,9 @@ var skipArray = [
 </script>
 
 <?php /*Include the validation script and rules for this form*/
-$form_id="HIS";
+$form_id = "HIS";
 //LBF forms use the new validation depending on the global value
-$use_validate_js=$GLOBALS['new_validate'];
+$use_validate_js = $GLOBALS['new_validate'];
 
 ?><?php include_once("$srcdir/validation/validation_script.js.php");?>
 

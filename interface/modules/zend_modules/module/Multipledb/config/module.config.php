@@ -1,4 +1,5 @@
 <?php
+
 /* +-----------------------------------------------------------------------------+
  * Copyright 2016 matrix israel
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -18,14 +19,14 @@
  */
 namespace Multipledb;
 
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
 use Multipledb\Controller\MultipledbController;
 use Multipledb\Controller\ModuleconfigController;
 use Multipledb\Model\Multipledb;
 use Multipledb\Model\MultipledbTable;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\TableGateway;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\TableGateway;
 use Interop\Container\ContainerInterface;
 
 return array(
@@ -74,7 +75,7 @@ return array(
     'service_manager' => [
         'factories' => array(
             MultipledbTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Zend\Db\Adapter\Adapter::class);
+                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $resultSetPrototype = new ResultSet();
                 $resultSetPrototype->setArrayObjectPrototype(new Multipledb());
                 $tableGateway = new TableGateway('multiple_db', $dbAdapter, null, $resultSetPrototype);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/view/custom.php
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <head>
     <script language="javascript" src="<?php js_src('custom.js') ?>"></script>
@@ -48,7 +50,7 @@
 <p class="row">
     <span class="left_col colhead req" data-field="fld_value"><?php echo xlt('Value'); ?></span>
     <span class="end_col">
-        <select data-grp-tgt="" type="dropdown" name="fld_value_comparator" id="">
+        <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_value_comparator" id="">
             <option id="" value="">--<?php echo xlt("Select"); ?>--</option>
             <option id="le" value="le" <?php echo $criteria->valueComparator == "le" ? "SELECTED" : "" ?>><?php echo "<=" ;?></option>
             <option id="lt" value="lt" <?php echo $criteria->valueComparator == "lt" ? "SELECTED" : "" ?>><?php echo "<" ;?></option>
@@ -58,10 +60,7 @@
             <option id="ne" value="ne" <?php echo $criteria->valueComparator == "ne" ? "SELECTED" : "" ?>><?php echo "!=" ;?></option>
         </select>
 
-        <input data-grp-tgt="fld_value" class="field short"
-           type="text"
-           name="fld_value"
-           value="<?php echo attr($criteria->value); ?>" />
+        <input data-grp-tgt="fld_value" class="form-control field short" type="text" name="fld_value" value="<?php echo attr($criteria->value); ?>" />
     </span>
 </p>
 
@@ -69,7 +68,7 @@
 <p class="row">
     <span class="left_col colhead req" data-field="fld_frequency"><?php echo xlt('Frequency'); ?></span>
     <span class="end_col">
-        <select data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">
+        <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">
             <option id="" value="">--<?php echo xlt("Select"); ?>--</option>
             <option id="le" value="le" <?php echo $criteria->frequencyComparator == "le" ? "SELECTED" : "" ?>><?php echo "<=" ;?></option>
             <option id="lt" value="lt" <?php echo $criteria->frequencyComparator == "lt" ? "SELECTED" : "" ?>><?php echo "<" ;?></option>
@@ -79,10 +78,7 @@
             <option id="ne" value="ne" <?php echo $criteria->frequencyComparator == "ne" ? "SELECTED" : "" ?>><?php echo "!=" ;?></option>
         </select>
 
-        <input data-grp-tgt="fld_frequency" class="field short"
-           type="text"
-           name="fld_frequency"
-           value="<?php echo attr($criteria->frequency); ?>" />
+        <input data-grp-tgt="fld_frequency" class="form-control field short" type="text" name="fld_frequency" value="<?php echo attr($criteria->frequency); ?>" />
     </span>
 </p>
 

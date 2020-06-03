@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ProviderController.php
  *
@@ -36,12 +37,12 @@ class ProviderController extends AppBaseController
      */
     public function Home()
     {
-        $cpid=$cuser=0;
+        $cpid = $cuser = 0;
         if (isset($_SESSION['authUserID'])) {
             $cuser = $_SESSION['authUserID'];
         } else {
             header("refresh:5;url= ./provider");
-            echo 'Shared session not allowed with Portal!!!  <br>Onsite portal is using this session<br>Waiting until Onsite Portal is logged out........';
+            echo 'Shared session not allowed with Portal!!!  <br />Onsite portal is using this session<br />Waiting until Onsite Portal is logged out........';
             exit;
         }
 

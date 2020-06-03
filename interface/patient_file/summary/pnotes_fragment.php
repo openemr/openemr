@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Display patient notes.
  *
@@ -9,13 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -48,10 +48,10 @@ if (isset($_GET['docUpdateId'])) {
     <?php
 
      $has_note = 0;
-     $thisauth = acl_check('patients', 'notes');
+     $thisauth = AclMain::aclCheckCore('patients', 'notes');
     if ($thisauth) {
         $tmp = getPatientData($pid, "squad");
-        if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+        if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
             $thisauth = 0;
         }
     }
@@ -79,15 +79,15 @@ if (isset($_GET['docUpdateId'])) {
         if ($result != null) {
             $notes_count = 0;//number of notes so far displayed
             echo "<tr class='text' style='border-bottom:2px solid #000;' >\n";
-            echo "<td valign='top' class='text' ><b>". xlt('From') . "</b></td>\n";
-            echo "<td valign='top' class='text' ><b>". xlt('To') . "</b></td>\n";
+            echo "<td valign='top' class='text' ><b>" . xlt('From') . "</b></td>\n";
+            echo "<td valign='top' class='text' ><b>" . xlt('To{{Destination}}') . "</b></td>\n";
             if ($GLOBALS['messages_due_date']) {
-                echo "<td valign='top' class='text' ><b>". xlt('Due date') . "</b></td>\n";
+                echo "<td valign='top' class='text' ><b>" . xlt('Due date') . "</b></td>\n";
             } else {
-                echo "<td valign='top' class='text' ><b>". xlt('Date') . "</b></td>\n";
+                echo "<td valign='top' class='text' ><b>" . xlt('Date') . "</b></td>\n";
             }
-            echo "<td valign='top' class='text' ><b>". xlt('Subject') . "</b></td>\n";
-            echo "<td valign='top' class='text' ><b>". xlt('Content') . "</b></td>\n";
+            echo "<td valign='top' class='text' ><b>" . xlt('Subject') . "</b></td>\n";
+            echo "<td valign='top' class='text' ><b>" . xlt('Content') . "</b></td>\n";
             echo "<td valign='top' class='text' ></td>\n";
             echo "</tr>\n";
             foreach ($result as $iter) {
@@ -95,7 +95,7 @@ if (isset($_GET['docUpdateId'])) {
 
                 $body = $iter['body'];
                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '', $body);
-                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}'.$patientname.'${2}', $body);
+                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
                 echo " <tr class='text' id='" . text($iter['id']) . "' style='border-bottom:1px dashed;height:30px;' >\n";
 
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
@@ -103,7 +103,7 @@ if (isset($_GET['docUpdateId'])) {
                 echo "<td valign='top' class='text'>" . text($iter['assigned_to']) . "</td>\n";
                 echo "<td valign='top' class='text'>" . text(oeFormatDateTime(date('Y-m-d H:i', strtotime($iter['date'])))) . "</td>\n";
                 echo "  <td valign='top' class='text'><b>";
-                echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
+                echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
                 echo "</b></td>\n";
 
                 echo "  <td valign='top' class='text'>" . text($body) . "</td>\n";
@@ -121,7 +121,7 @@ if (isset($_GET['docUpdateId'])) {
             <span class='text'>
             <?php
                 echo xlt("There are no messages on file for this patient.");
-            if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
+            if (AclMain::aclCheckCore('patients', 'notes', '', array('write', 'addonly'))) {
                 echo " ";
                 echo "<a href='pnotes_full.php' onclick='top.restoreSession()'>";
                 echo xlt("To add messages, please click here");
@@ -133,7 +133,7 @@ if (isset($_GET['docUpdateId'])) {
             <br/>
             <span class='text'>
             <?php echo xlt('Displaying the following number of most recent messages'); ?>:
-            <b><?php echo text($N);?></b><br>
+            <b><?php echo text($N);?></b><br />
             <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'>
             <?php echo xlt('Click here to view them all.'); ?></a>
         </span><?php
@@ -170,14 +170,14 @@ if (isset($_GET['docUpdateId'])) {
                     if ($result_sent != null) {
                         $notes_sent_count = 0;//number of notes so far displayed
                         echo "<tr class='text' style='border-bottom:2px solid #000;' >\n";
-                        echo "<td valign='top' class='text' ><b>". xlt('To') ."</b></td>\n";
+                        echo "<td valign='top' class='text' ><b>" . xlt('To{{Destination}}') . "</b></td>\n";
                         if ($GLOBALS['messages_due_date']) {
-                            echo "<td valign='top' class='text' ><b>". xlt('Due date') ."</b></td>\n";
+                            echo "<td valign='top' class='text' ><b>" . xlt('Due date') . "</b></td>\n";
                         } else {
-                            echo "<td valign='top' class='text' ><b>". xlt('Date') ."</b></td>\n";
+                            echo "<td valign='top' class='text' ><b>" . xlt('Date') . "</b></td>\n";
                         }
-                        echo "<td valign='top' class='text' ><b>". xlt('Subject') ."</b></td>\n";
-                        echo "<td valign='top' class='text' ><b>". xlt('Content') ."</b></td>\n";
+                        echo "<td valign='top' class='text' ><b>" . xlt('Subject') . "</b></td>\n";
+                        echo "<td valign='top' class='text' ><b>" . xlt('Content') . "</b></td>\n";
                         echo "</tr>\n";
                         foreach ($result_sent as $iter) {
                             $has_sent_note = 1;
@@ -190,14 +190,14 @@ if (isset($_GET['docUpdateId'])) {
                                     nl2br(text(oeFormatPatientNote($body)));
                             }
 
-                            $body = preg_replace('/(:\d{2}\s\()'.$iter['pid'].'(\sto\s)/', '${1}'.$patientname.'${2}', $body);
-                            $body = strlen($body) > 120 ? substr($body, 0, 120)."<b>.......</b>" : $body;
+                            $body = preg_replace('/(:\d{2}\s\()' . $iter['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
+                            $body = strlen($body) > 120 ? substr($body, 0, 120) . "<b>.......</b>" : $body;
                             echo " <tr class='text' id='" . attr($iter['id']) . "' style='border-bottom:1px dashed;height:30px;' >\n";
                             // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                             echo "<td valign='top' class='text'>" . text($iter['assigned_to']) . "</td>\n";
                             echo "<td valign='top' class='text'>" . text($iter['date']) . "</td>\n";
                             echo "  <td valign='top' class='text'><b>";
-                            echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
+                            echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
                             echo "</b></td>\n";
                             echo "  <td valign='top' class='text'>" . text($body) . "</td>\n";
                             echo " </tr>\n";
@@ -210,7 +210,7 @@ if (isset($_GET['docUpdateId'])) {
                     <span class='text'>
                     <?php
                     echo xlt("There are no notes on file for this patient.");
-                    if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
+                    if (AclMain::aclCheckCore('patients', 'notes', '', array('write', 'addonly'))) {
                         echo " ";
                         echo "<a href='pnotes_full.php' onclick='top.restoreSession()'>";
                         echo xlt("To add notes, please click here");
@@ -222,7 +222,7 @@ if (isset($_GET['docUpdateId'])) {
                     <br/>
                     <span class='text'>
                     <?php echo text('Displaying the following number of most recent notes') . ":"; ?>
-                        <b><?php echo text($M);?></b><br>
+                        <b><?php echo text($M);?></b><br />
         <a href='pnotes_full.php?s=1' onclick='top.restoreSession()'><?php echo xlt('Click here to view them all.'); ?></a>
         </span>
                     <?php
@@ -239,7 +239,7 @@ if (isset($_GET['docUpdateId'])) {
 
 tabbify();
 
-$(document).ready(function(){
+$(function () {
     $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
 

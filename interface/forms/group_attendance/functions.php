@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/forms/group_attendance/functions.php functions for form
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "/../../../library/api.inc");
 require_once(dirname(__FILE__) . "/../../../library/forms.inc");
@@ -92,7 +92,7 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
     } else {
         $insert_sql =
             "INSERT INTO openemr_postcalendar_events " .
-            "(pc_catid, pc_aid, pc_pid, pc_gid, pc_title, pc_informant, pc_eventDate, pc_recurrspec, pc_startTime, pc_sharing, pc_apptstatus) ".
+            "(pc_catid, pc_aid, pc_pid, pc_gid, pc_title, pc_informant, pc_eventDate, pc_recurrspec, pc_startTime, pc_sharing, pc_apptstatus) " .
             "VALUES (?, ?, ?, ?, 'Group Therapy', 1, ?, ?, ?, 0, ?); ";
         $recurrspec = 'a:6:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";s:6:"exdate";s:0:"";}';
         $sqlBindArray = array();
@@ -121,11 +121,11 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
         return $result_array['encounter'];
     } else {
         $insert_encounter_sql =
-            "INSERT INTO form_encounter (date, reason, pid, encounter, pc_catid, provider_id, external_id) ".
+            "INSERT INTO form_encounter (date, reason, pid, encounter, pc_catid, provider_id, external_id) " .
             "VALUES (?, ?, ?, ?, ?, ?, ?);";
         $enc_id = generate_id();
         $sqlBindArray = array();
-        $user = (is_null($pc_aid)) ? $_SESSION["authId"] : $pc_aid;
+        $user = (is_null($pc_aid)) ? $_SESSION['authUserID'] : $pc_aid;
         array_push($sqlBindArray, $group_encounter_date, $participantData['comment'], $pid, $enc_id, get_groups_cat_id(), $user, $gid);
         $form_id = sqlInsert($insert_encounter_sql, $sqlBindArray);
 

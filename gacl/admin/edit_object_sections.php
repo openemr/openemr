@@ -1,15 +1,12 @@
 <?php
 //First make sure user has access
 require_once("../../interface/globals.php");
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
+
 //ensure user has proper access
-if (!acl_check('admin', 'acl')) {
+if (!AclMain::aclCheckCore('admin', 'acl')) {
             echo xlt('ACL Administration Not Authorized');
-            exit;
-}
-//ensure php is installed
-if (!isset($phpgacl_location)) {
-            echo xlt('php-GACL access controls are turned off');
             exit;
 }
 
@@ -40,7 +37,7 @@ switch(strtolower(trim($object_type))) {
 		$object_sections_table = $gacl_api->_db_table_prefix . 'acl_sections';
         break;
     default:
-        echo "ERROR: Must select an object type<br>\n";
+        echo "ERROR: Must select an object type<br />\n";
         exit();
         break;
 }

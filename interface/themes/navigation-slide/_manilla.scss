@@ -1,51 +1,46 @@
-#navigation-slide, #navigation-slide * {
-    padding-left: 1px;
-    margin-left: 0px;
+#navigation-slide,
+#navigation-slide * {
+  margin-#{$left}: 0;
+  padding-#{$left}: 1px;
 }
+
 #navigation-slide li {
-    list-style: none;
+  list-style: none;
 }
+
 #navigation-slide a {
-    background: #FFFFFF;
-    border-top: 0px solid #EAE6FF;
-    border-left: 1pt solid black;
-    border-bottom: 1pt solid black;
-    color: #000;
-    display: block;
-    padding: 5px 2px 5px 10px;
-    width: 150px;
+  background: $white;
+  border-bottom: 1px solid $black;
+  border-#{$left}: 1px solid $black;
+  border-top: 0;
+  color: $body-color;
+  display: block;
+  padding: 5px 2px 5px 10px;
+  width: 150px;
 }
+
 #navigation-slide li a.collapsed {
-    color: #fff;
-    background: none repeat scroll 0% 0% #16558C;
+  background: none repeat scroll 0% 0% #16558c;
+  color: $white;
 }
+
 #navigation-slide li a.expanded {
-    background: none repeat scroll 0% 0% rgb(22, 85, 140);
-    color: rgb(255, 255, 51);
+  background: none repeat scroll 0% 0% rgb(22, 85, 140);
+  color: rgb(255, 255, 51);
 }
+
 #navigation-slide ul li a.collapsed_lv2 {
-    background: none repeat scroll 0% 0% #FEF3CF;
+  background: none repeat scroll 0% 0% #fef3cf;
 }
+
 #navigation-slide ul li a.collapsed_lv3 {
-    background: none repeat scroll 0% 0% #eeeeee;
+  background: none repeat scroll 0% 0% #eee;
 }
+
 #navigation-slide ul li a.expanded_lv2 {
-    background: #999;
-    /* for non-css3 browsers */
-    filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#fefdcf')");
-    /* for IE */
-    background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#fefdcf));
-    /* for webkit browsers */
-    background: -moz-linear-gradient(center top, #fefdcf, #fefdcf) repeat scroll 0% 0% transparent;
-    background: none repeat scroll 0% 0% #fefdcf;
+  background: linear-gradient(center top, #fefdcf, #fefdcf) repeat scroll 0% 0% transparent;
 }
+
 #navigation-slide ul li a.expanded_lv3 {
-    background: #999;
-    /* for non-css3 browsers */
-    filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#eeeeee')");
-    /* for IE */
-    background: -webkit-gradient(linear, left top, left bottom, from(#eeeeee), to(#eeeeee));
-    /* for webkit browsers */
-    background: -moz-linear-gradient(center top, #eeeeee, #eeeeee) repeat scroll 0% 0% transparent;
-    background: none repeat scroll 0% 0% #eeeeee;
+  background: linear-gradient(center top, #eee, #eee) repeat scroll 0% 0% transparent;
 }

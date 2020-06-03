@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  Daily Summary Report. (/interface/reports/daily_summary_report.php)
  *
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once "$srcdir/options.inc.php";
@@ -67,7 +67,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                 }
             }
 
-            $( document ).ready(function(){
+            $(function () {
                 $('.datepicker').datetimepicker({
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
@@ -94,21 +94,21 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                             <div style='float: left'>
                                 <table class='text'>
                                     <tr>
-                                        <td class='control-label'><?php echo xlt('Facility'); ?>:</td>
+                                        <td class='col-form-label'><?php echo xlt('Facility'); ?>:</td>
                                         <td><?php dropdown_facility($selectedFacility, 'form_facility', false); ?></td>
-                                        <td class='control-label'><?php echo xlt('From'); ?>:</td>
+                                        <td class='col-form-label'><?php echo xlt('From'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_from_date' id="form_from_date"
                                                    class='datepicker form-control'
                                                    size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
                                         </td>
-                                        <td class='control-label'><?php echo xlt('To{{Range}}'); ?>:</td>
+                                        <td class='col-form-label'><?php echo xlt('To{{Range}}'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_to_date' id="form_to_date"
                                                    class='datepicker form-control'
                                                    size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
                                         </td>
-                                        <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
+                                        <td class='col-form-label'><?php echo xlt('Provider'); ?>:</td>
                                         <td>
                                             <?php
                                             generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
@@ -118,16 +118,16 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                 </table>
                             </div>
                         </td>
-                        <td align='left' valign='middle' height="100%">
-                            <table style='border-left: 1px solid; width: 100%; height: 100%'>
+                        <td class='h-100' align='left' valign='middle'>
+                            <table class='w-100 h-100' style='border-left: 1px solid;'>
                                 <tr>
                                     <td>
                                         <div class="text-center">
                                             <div class="btn-group" role="group">
-                                                <a href='#' class='btn btn-default btn-save' onclick='return submitForm();'>
+                                                <a href='#' class='btn btn-secondary btn-save' onclick='return submitForm();'>
                                                     <?php echo xlt('Submit'); ?>
                                                 </a>
-                                                <a href='' class="btn btn-default btn-refresh" id='new0' onClick=" top.restoreSession(); window.location = window.location.href;">
+                                                <a href='' class="btn btn-secondary btn-refresh" id='new0' onClick=" top.restoreSession(); window.location = window.location.href;">
                                                     <?php echo xlt('Reset'); ?>
                                                 </a>
                                             </div>
@@ -319,10 +319,10 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         ?>
 
         <div id="report_results" style="font-size: 12px">
-            <?php echo '<b>' . xlt('From') . '</b> ' . text(oeFormatShortDate($from_date)) . ' <b>' . xlt('To{{Range}}') . '</b> ' . text(oeFormatShortDate($to_date)); ?>
+            <?php echo '<strong>' . xlt('From') . '</strong> ' . text(oeFormatShortDate($from_date)) . ' <strong>' . xlt('To{{Range}}') . '</strong> ' . text(oeFormatShortDate($to_date)); ?>
 
-            <table class="flowboard" cellpadding='5' cellspacing='2' id="ds_report">
-                <tr class="head">
+            <table class="table flowboard" cellpadding='5' cellspacing='2' id="ds_report">
+                <tr class="head thead-light">
 
                     <td><?php echo xlt('Date'); ?></td>
                     <td><?php echo xlt('Facility'); ?></td>
