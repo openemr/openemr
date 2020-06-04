@@ -582,7 +582,7 @@ if ($_POST["mode"] == "create_client_certificate") {
 
     <?php Header::setupHeader(); ?>
 
-    <style type="text/css">
+    <style>
       div.borderbox {
         margin: 5px 5px;
         padding: 5px 5px;

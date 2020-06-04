@@ -114,7 +114,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
                     forms.form_id=form_eye_postseg.id and
                     forms.form_id=form_eye_neuro.id and
                     forms.form_id=form_eye_locking.id and
-                    forms.encounter=? and 
+                    forms.encounter=? and
                     forms.pid=? ";
     $objQuery = sqlQuery($query, array($encounter,$pid));
     @extract($objQuery);
@@ -240,7 +240,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     forms.form_id=form_eye_postseg.id and
                     forms.form_id=form_eye_neuro.id and
                     forms.form_id=form_eye_locking.id and
-                    forms.encounter=? and 
+                    forms.encounter=? and
                     forms.pid=? ";
 
     $encounter_data = sqlQuery($query, array($encounter,$pid));
@@ -253,7 +253,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     ?>
 
     <?php Header::setupHeader(['no_dialog','no_jquery']); ?>
-  <link rel="stylesheet" href="../../forms/<?php echo attr($form_folder); ?>/css/report.css" type="text/css">
+  <link rel="stylesheet" href="../../forms/<?php echo attr($form_folder); ?>/css/report.css">
   <style>
 
     <?php if ($PDF_OUTPUT) { ?>

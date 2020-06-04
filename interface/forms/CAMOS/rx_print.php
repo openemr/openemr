@@ -149,7 +149,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 <title>
         <?php echo xlt('CAMOS'); ?>
 </title>
-<link rel="stylesheet" type="text/css" href="./rx.css" />
+<link rel="stylesheet" href="./rx.css" />
 </head>
 <body onload='init()'>
 <img src='./hline.jpg' id='hline'>
@@ -470,7 +470,7 @@ return count_turnoff;
 }
 
 </script>
-<link rel="stylesheet" type="text/css" href="./rx.css" />
+<link rel="stylesheet" href="./rx.css" />
 </head>
 <h1><?php echo xlt('Select CAMOS Entries for Printing'); ?></h1>
 <form method=POST name='pick_items' target=_new>

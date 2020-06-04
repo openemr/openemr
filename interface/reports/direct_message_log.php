@@ -38,7 +38,7 @@ if (isset($_POST['lognext']) && $_POST['lognext']) {
 
 <title><?php echo xlt('Direct Message Log'); ?></title>
 
-<style type="text/css">
+<style>
 
 /* specifically include & exclude from printing */
 @media print {

@@ -59,7 +59,7 @@ $returnurl = 'encounter_top.php';
 <!-- assets -->
 <?php Header::setupHeader(); ?>
 <!-- Form Specific Stylesheet. -->
-<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css"/>
+<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css">
 <title><?php echo htmlspecialchars('Print '.$form_name); ?></title>
 
 </head>

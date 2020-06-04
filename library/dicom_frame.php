@@ -39,7 +39,7 @@ $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&doc
     <!-- i18n dwv wrapper -->
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/dwv/dwv_i18n.js"></script>
 </head>
-<style type="text/css">
+<style>
     .warn_diagnostic {
         margin: 10px auto 10px auto;
         color: rgb(255, 0, 0);

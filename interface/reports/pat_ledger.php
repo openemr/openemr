@@ -398,7 +398,7 @@ if ($_REQUEST['form_csvexport']) {
         }
     </script>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {
