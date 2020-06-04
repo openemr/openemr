@@ -291,7 +291,7 @@ if ($_REQUEST['dispensed']) {
 
         <?php Header::setupHeader(['opener', 'pure', 'jscolor']); ?>
 
-        <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['rootdir']; ?>/forms/<?php echo $form_folder; ?>/css/style.css">
 
         <style>
             .title {

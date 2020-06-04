@@ -782,18 +782,33 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
     <div class="form-row mt-2">
         <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Quality'); ?></label>
         <div class="col-10">
-            <input type='radio' name='form_finemode' value=''><?php echo xlt('Normal'); ?>
-            <input type='radio' name='form_finemode' value='1' checked><?php echo xlt('Fine'); ?>
+            <div class="form-check form-check-inline">
+                <input type='radio' class='form-check-input' name='form_finemode' value=''>
+                <label class="form-check-label"><?php echo xlt('Normal'); ?></label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type='radio' class='form-check-input' name='form_finemode' value='1' checked>
+                <label class="form-check-label"><?php echo xlt('Fine'); ?></label>
+            </div>
         </div>
     </div>
 </div>
 
-<p><span class="font-weight-bold"><?php echo xlt('Delete Pages'); ?>:</span>&nbsp;
-<input type='radio' name='form_cb_delete' value='2' />All&nbsp;
-<input type='radio' name='form_cb_delete' value='1' checked />Selected&nbsp;
-<input type='radio' name='form_cb_delete' value='0' />None
-</p>
-
+<div class="form-group form-inline">
+    <label class="font-weight-bold"><?php echo xlt('Delete Pages'); ?>:</label>
+    <div class="form-check form-check-inline">
+        <input type='radio' class='form-check-input' name='form_cb_delete' value='2' />
+        <label class="form-check-label">All</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input type='radio' class='form-check-input' name='form_cb_delete' value='1' checked />
+        <label class="form-check-label">Selected</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input type='radio' class='form-check-input' name='form_cb_delete' value='0' />
+        <label class="form-check-label">None</label>
+    </div>
+</div>
 
 <div class="btn-group">
     <button type='submit' class='btn btn-primary btn-save' name='form_save' value='<?php echo xla('OK'); ?>'><?php echo xla('OK'); ?></button>
