@@ -1694,7 +1694,7 @@ CREATE TABLE `form_dictation` (
 DROP TABLE IF EXISTS `form_encounter`;
 CREATE TABLE `form_encounter` (
   `id` bigint(20) NOT NULL auto_increment,
-  `uuid` binary(16) NOT NULL default '',
+  `uuid` binary(16) DEFAULT NULL,
   `date` datetime default NULL,
   `reason` longtext,
   `facility` longtext,
