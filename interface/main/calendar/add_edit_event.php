@@ -46,7 +46,6 @@ require_once($GLOBALS['srcdir'] . '/forms.inc');
 require_once($GLOBALS['srcdir'] . '/calendar.inc');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['srcdir'] . '/encounter_events.inc.php');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'] . '/patient_tracker.inc.php');
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'] . '/group.inc');
