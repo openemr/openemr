@@ -72,7 +72,6 @@ ksort($versions);
     <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css">
     <script src="public/assets/jquery/dist/jquery.min.js"></script>
     <script src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="shortcut icon" href="public/images/favicon.ico" />
 </head>
 <body>

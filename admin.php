@@ -203,7 +203,7 @@ function sqlQuery($statement, $link)
                                 allowtransparency="true"></iframe>
                         </div>
                     <div class="modal-footer mt-0">
-                        <button class="btn btn-secondary btn-cancel" data-dismiss="modal" type="button">Close</button>
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
                     </div>
                 </div>
             </div>
