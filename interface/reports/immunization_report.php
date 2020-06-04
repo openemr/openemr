@@ -286,7 +286,7 @@ if ($_POST['form_get_hl7'] === 'true') {
         });
     </script>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {

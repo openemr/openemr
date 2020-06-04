@@ -561,7 +561,7 @@ function toencounter(enc, datestr, topframe) {
     ?>
 <title><?php echo xlt('Record Payment'); ?></title>
 
-<style type="text/css">
+<style>
  body    { font-family:sans-serif; font-size:10pt; font-weight:normal }
  .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }

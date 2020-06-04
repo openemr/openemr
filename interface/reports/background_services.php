@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 
 <title><?php echo xlt('Background Services'); ?></title>
 
-<style type="text/css">
+<style>
 
 /* specifically include & exclude from printing */
 @media print {

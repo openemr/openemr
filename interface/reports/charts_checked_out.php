@@ -25,7 +25,7 @@ use OpenEMR\Services\PatientService;
 
     <?php Header::setupHeader(); ?>
 
-    <style type="text/css">
+    <style>
 
     /* specifically include & exclude from printing */
     @media print {
