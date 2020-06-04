@@ -41,7 +41,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - To fix PSR12 code styling issues (this takes several minutes):
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools psr12-fix'
-      ```      
+      ```
     - To create a report of theme styling issues:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools lint-themes-report'
@@ -49,7 +49,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - To fix theme styling issues:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools lint-themes-fix'
-      ```      
+      ```
     - To check PHP parsing errors (this takes several minutes):
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools php-parserror'
@@ -82,17 +82,29 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools controllers-test'
       ```
-8. To run the entire dev tool suite (PSR12 fix, lint themes fix, PHP parse error, unit/API/e2e/services/fixtures/validators/controllers tests) in one command, run
+    - To run common testing:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools common-test'
+      ```
+8. To run the entire dev tool suite (PSR12 fix, lint themes fix, PHP parse error, unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep'
     ```
-9. To run only all the automated tests (unit/API/e2e/services/fixtures/validators/controllers tests) in one command, run
+9. To run only all the automated tests (unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep-tests'
     ```
-10. When you're done, it's best to clean up after yourself with `docker-compose down -v`
+10. Xdebug and profiling is also supported for PHPStorm.
+    - Firefox install xdebug helper add on (configure for PHPSTORM)
+    - PHPStorm Settings->Language & Frameworks->PHP->Debug
+        - Start listening
+        - Untoggle "Break at first line in PHP scripts"
+        - Untoggle both settings that start with "Force Break at first line..."
+     - Make sure port 9000 is open on your host operating system
+     - Profiling output can be found in /tmp directory in the docker
+11. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
-11. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+12. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 We look forward to your contribution...
 
