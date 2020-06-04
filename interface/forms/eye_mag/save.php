@@ -381,7 +381,7 @@ if ($_REQUEST["mode"] == "new") {
         }
         ob_start();
         ?>
-        <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
+        <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css">
     <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
         <?php
         echo report_header($pid);
@@ -1033,7 +1033,7 @@ if ($_REQUEST["mode"] == "new") {
             `OSHPD`,`OSHBASE`,`OSVPD`,`OSVBASE`,`OSSLABOFF`,`OSVERTEXDIST`,
             `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
             `LENS_TREATMENTS`
-            ) VALUES 
+            ) VALUES
             (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             $LENS_TREATMENTS_1 = implode("|", (empty($_POST['LENS_TREATMENTS_1']) ? array() : $_POST['LENS_TREATMENTS_1']));
             sqlQuery($query, array($encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_1'], $_POST['ODCYL_1'], $_POST['ODAXIS_1'],
@@ -1160,7 +1160,7 @@ if ($_REQUEST["mode"] == "new") {
 
             //$result = sqlStatement($sql, array($pid, $_REQUEST['orig_id']));
 
-            $sql = "SELECT id from form_eye_refraction where 
+            $sql = "SELECT id from form_eye_refraction where
                       id in (SELECT id from form_eye_base where pid=? ORDER BY `date` DESC)
                       ORDER by id DESC LIMIT 10;
             ";

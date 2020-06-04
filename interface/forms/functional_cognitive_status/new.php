@@ -43,7 +43,7 @@ $check_res = $formid ? $check_res : array();
 
         <?php Header::setupHeader(['datetime-picker']);?>
 
-        <style title="mystyles" media="all">
+        <style>
             @media only screen and (max-width: 768px) {
                 [class*="col-"] {
                 width: 100%;

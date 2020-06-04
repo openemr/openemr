@@ -34,7 +34,6 @@ if ($showit == 'ext') {
     <meta name="description" content="Eye Exam Help" />
     <meta name="author" content="openEMR: ophthalmology help" />
     <?php Header::setupHeader(); ?>
-
     </head>
     <body>
         <!-- Navbar Section -->

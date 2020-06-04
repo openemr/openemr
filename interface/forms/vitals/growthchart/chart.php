@@ -258,8 +258,8 @@ function cssHeader()
     ?>
     <html>
     <head>
-    <link rel="stylesheet" type="text/css" title="page1" href="page1.css">
-    <link rel="stylesheet" type="text/css" title="page2" href="page2.css">
+    <link rel="stylesheet" title="page1" href="page1.css">
+    <link rel="stylesheet" title="page2" href="page2.css">
     <style>
         html {
             padding: 0;

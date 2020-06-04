@@ -47,7 +47,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
         });
     </script>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {

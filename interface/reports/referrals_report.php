@@ -63,7 +63,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
         }
     </script>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {

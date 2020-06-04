@@ -14,7 +14,7 @@
 
 ?>
 <script type="text/html" id="review-display">
-    <link rel="stylesheet" href="<?php echo $web_root;?>/interface/forms/fee_sheet/review/views/review.css" type="text/css" />
+    <link rel="stylesheet" href="<?php echo $web_root;?>/interface/forms/fee_sheet/review/views/review.css">
     <div data-bind="visible: $data.show">
     <div data-bind="visible: encounters().length==0"><?php echo xlt("No prior encounters."); ?></div>
     <select data-bind="options:encounters, optionsText: 'date', value: selectedEncounter, event: {change: choose_encounter}, visible: encounters().length>0"></select>

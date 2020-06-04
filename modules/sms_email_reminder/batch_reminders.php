@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 <html>
 <head>
 <?php Header::setupHeader(); ?>
-<link rel="stylesheet" href="batchcom.css" type="text/css">
+<link rel="stylesheet" href="batchcom.css">
 </head>
 <body class="body_top">
 <span class="title"><?php echo xlt('Patient Reminder Batch Job'); ?></span>

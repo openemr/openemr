@@ -16,7 +16,7 @@ echo $this->doctype(); ?>
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <link rel="stylesheet" href="<?php echo  $GLOBALS['css_header'];?>" type="text/css">
+        <link rel="stylesheet" href="<?php echo  $GLOBALS['css_header'];?>">
         <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
 				<?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
 			->prependStylesheet($this->basePath() . '/css/easyui.css')

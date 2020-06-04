@@ -69,7 +69,7 @@ $returnurl = "../../forms/$form_folder/view.php?mode=noencounter";
 <!-- assets -->
 <?php Header::setupHeader(); ?>
 <!-- Form Specific Stylesheet. -->
-<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css"/>
+<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css">
 
 <script type="text/javascript">
 

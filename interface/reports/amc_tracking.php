@@ -141,7 +141,7 @@ $provider  = trim($_POST['form_provider']);
 
 </script>
 
-<style type="text/css">
+<style>
 
 /* specifically include & exclude from printing */
 @media print {

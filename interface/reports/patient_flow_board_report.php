@@ -114,7 +114,7 @@ if ($form_patient == '') {
         }
     </script>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {

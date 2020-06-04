@@ -12,7 +12,7 @@ function formHeader($title = "My Form")
     ?>
     <html>
     <head>
-    <link rel=stylesheet href="<?php echo $GLOBALS['css_header']?>" type="text/css">
+    <link rel=stylesheet href="<?php echo $GLOBALS['css_header']?>">
     <title><?php echo text($title); ?></title>
     </head>
     <body background="<?php echo $GLOBALS['backpic']?>" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>

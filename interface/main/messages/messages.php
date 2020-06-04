@@ -79,7 +79,7 @@ if (
     <meta name="description" content="MedEx Bank" />
     <meta name="author" content="OpenEMR: MedExBank" />
     <?php Header::setupHeader(['datetime-picker', 'opener', 'moment', 'select2']); ?>
-    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css" />
+    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>">
 
     <script>
         var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';

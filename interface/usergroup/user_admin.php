@@ -209,7 +209,7 @@ function authorized_clicked() {
 }
 
 </script>
-<style type="text/css">
+<style>
   .physician_type_class{
     width: 150px !important;
   }

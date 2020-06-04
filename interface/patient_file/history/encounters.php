@@ -167,7 +167,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 <html>
 <head>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
-<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/encounters.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/encounters.css">
 <!-- Not sure why we don't want this ui to be B.S responsive. -->
 <?php Header::setupHeader(['no_textformat']); ?>
 
