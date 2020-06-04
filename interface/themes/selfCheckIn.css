@@ -1,0 +1,107 @@
+#welcomeText {
+
+    text-align: center;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 24pt;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+.col-sm-6 {
+
+    text-align: center;
+}
+
+body {
+    font-family: sans-serif;
+    background-color: #638fd0;
+
+    background: -webkit-radial-gradient(circle, white, #638fd0);
+    background: -moz-radial-gradient(circle, white, #638fd0);
+}
+
+h2 { 
+
+    text-align: center; 
+
+}
+
+.col-sm-6 a { 
+    
+    width: 400px;
+    height: 300px;
+
+}
+
+
+.col-sm-3 .btn-lg {
+
+    width: 200px;
+    height: 150px;
+    margin: 10px;
+    font-size: 30px;
+    
+}
+
+.col-sm-3 {
+
+    text-align: center;
+    
+}
+
+.welcome { 
+
+    text-align: center; 
+}
+
+.welcome .row .btn {
+
+    width: 300px;
+    height: 100px;
+    font-size: 24pt;
+
+}
+
+.dates .row .btn-lg {
+
+    width: 150px;
+    height: 100px;
+    margin: 5;
+    font-size: 30px;
+
+}
+
+.surname .row .btn-lg {
+
+    width: 150px;
+    height: 100px;
+    margin: 5;
+    font-size: 30px;
+
+}
+
+img {
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+}
+
+p {
+    text-align: center;
+}
+
+.step5 {
+
+    text-align: center;
+    font-size: 24pt;
+}
