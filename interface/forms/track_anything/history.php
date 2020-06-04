@@ -71,7 +71,7 @@ echo "<html><head>";
 
 <?php Header::setupHeader('dygraphs'); ?>
 
-<link rel="stylesheet" href="style.css" type="text/css" />
+<link rel="stylesheet" href="style.css">
 
 <script type="text/javascript">
 //-------------- checkboxes checked checker --------------------

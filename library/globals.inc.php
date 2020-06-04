@@ -979,7 +979,7 @@ $GLOBALS_METADATA = array(
         'expand_form' => array(
             xl('Expand Form'),
             'bool',                           // data type
-            '0',                              // default false
+            '1',                              // default false
             xl('Open all expandable forms in expanded state')
         ),
 

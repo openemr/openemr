@@ -40,7 +40,7 @@ if ($_POST['form_labels']) {
 <html>
 <head>
 
-<style type="text/css">
+<style>
 /* specifically include & exclude from printing */
 @media print {
    #report_parameters {
@@ -85,7 +85,7 @@ $(function () {
 
 </script>
 
-<style type="text/css">
+<style>
 
 /* specifically include & exclude from printing */
 @media print {

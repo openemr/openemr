@@ -52,7 +52,7 @@ function make_task($ajax_req)
         $sql = "DELETE from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
         $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
     }
-    
+
     if ($task['ID'] && $task['COMPLETED'] == '2') {
         $send['comments'] = xlt('This fax has already been sent.') . " " .
                             xlt('If you made changes and want to re-send it, delete the original (in Communications) or wait 60 seconds, and try again.') . " " .
@@ -76,12 +76,12 @@ function make_task($ajax_req)
             //we need to resend this fax????  Remake it with latest data and send ot out.
             $sql = "DELETE from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
             $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
-            
+
             $sql = "INSERT into form_taskman
 				(REQ_DATE, FROM_ID,  TO_ID,  PATIENT_ID,  DOC_TYPE,  DOC_ID,  ENC_ID) VALUES
 				(NOW(), ?, ?, ?, ?, ?, ?)";
             sqlQuery($sql, array($from_id, $to_id, $patient_id, $doc_type, $doc_id, $enc));
-    
+
             $send['comments'] = xlt('Resending this report.');
             echo json_encode($send);
         } else { //DOC_TYPE is a Report
@@ -109,7 +109,7 @@ function process_tasks($task)
      */
     $task = make_document($task);
     update_taskman($task, 'created', '1');
-    
+
     if (($task['DOC_TYPE'] == 'Fax') || ($task['DOC_TYPE'] == 'Fax-resend')) {
         deliver_document($task);
     }
@@ -167,7 +167,7 @@ function update_taskman($task, $action, $value)
 function deliver_document($task)
 {
     global $facilityService;
-    
+
     $query          = "SELECT * FROM users WHERE id=?";
     $to_data        =  sqlQuery($query, array($task['TO_ID']));
     $from_data      =  sqlQuery($query, array($task['FROM_ID']));
@@ -259,8 +259,8 @@ function make_document($task)
     $pt_name    = $patientData['fname'] . ' ' . $patientData['lname'];
     $encounter = $task['ENC_ID'];
     $query = "select  *,form_encounter.date as encounter_date
-              
-               from forms,form_encounter,form_eye_base, 
+
+               from forms,form_encounter,form_eye_base,
                 form_eye_hpi,form_eye_ros,form_eye_vitals,
                 form_eye_acuity,form_eye_refraction,form_eye_biometrics,
                 form_eye_external, form_eye_antseg,form_eye_postseg,
@@ -283,7 +283,7 @@ function make_document($task)
                     forms.form_id=form_eye_locking.id and
                     forms.encounter =? and
                     forms.pid=?";
-    
+
     $encounter_data = sqlQuery($query, array($encounter,$task['PATIENT_ID']));
     @extract($encounter_data);
     $providerID  =  getProviderIdOfEncounter($encounter);
@@ -300,7 +300,7 @@ function make_document($task)
     //So delete any prior report if that is what we are doing. and replace it.
     //If it is a fax, can we check to see if the report is already here, and if it is add it, or do we have to
     // always remake it?  For now, REMAKE IT...
-    
+
     if (($task['DOC_TYPE'] == 'Fax') || ($task['DOC_TYPE'] == 'Fax-resend')) {
         $category_name = "Communication"; //Faxes are stored in the Documents->Communication category.  Do we need to translate this?
         //$category_name = xl('Communication');
@@ -378,7 +378,7 @@ function make_document($task)
                 padding:10px;
             }
         </style>
-        <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
+        <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css">
     </head>
     <body>
     <?php

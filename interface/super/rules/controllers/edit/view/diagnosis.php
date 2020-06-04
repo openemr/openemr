@@ -15,7 +15,7 @@
 ?>
 
 <head>
-    <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">
+    <link rel="stylesheet" href="<?php css_src('rules.css') ?>">
     <script language="javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript">
         // This invokes the find-code popup.

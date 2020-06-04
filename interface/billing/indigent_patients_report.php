@@ -38,7 +38,7 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 <html>
 <head>
 
-<style type="text/css">
+<style>
 
 /* specifically include & exclude from printing */
 @media print {

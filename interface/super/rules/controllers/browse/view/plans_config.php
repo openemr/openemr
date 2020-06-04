@@ -18,10 +18,10 @@
 
 ?>
 
-<link type="text/css" rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-themes/themes/ui-lightness/jquery-ui.min.css'; ?>" />
-<link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/common.css') ?>" />
-<link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/ui.multiselect.css') ?>" />
-<link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/plans_config.css') ?>" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-themes/themes/ui-lightness/jquery-ui.min.css'; ?>" />
+<link rel="stylesheet" href="<?php css_src('cdr-multiselect/common.css') ?>" />
+<link rel="stylesheet" href="<?php css_src('cdr-multiselect/ui.multiselect.css') ?>" />
+<link rel="stylesheet" href="<?php css_src('cdr-multiselect/plans_config.css') ?>" />
 
 <script language="javascript" src="<?php js_src('/cdr-multiselect/jquery.min.js') ?>"></script>
 <script language="javascript" src="<?php js_src('/cdr-multiselect/jquery-ui.min.js') ?>"></script>

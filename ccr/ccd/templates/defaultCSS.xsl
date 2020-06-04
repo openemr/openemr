@@ -32,7 +32,7 @@ License :
 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:a="urn:astm-org:CCR"  xmlns:fo="http://www.w3.org/1999/XSL/Format">
 <xsl:template name="defaultCCS">
-<style type="text/css">
+<style>
 *{
 	font-size: x-small;
 	font-family: Arial, sans-serif;
@@ -74,7 +74,7 @@ table.list td {
 	vertical-align: top;
 }
 table.internal {
-	border: none;	
+	border: none;
 }
 table.internal td {
 	vertical-align: top;

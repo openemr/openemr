@@ -37,7 +37,7 @@ $(function () {
 
 <?php require_once("$srcdir/options.js.php"); ?> <!-- Don't include inside of script tags. Include already have.-->
 
-<style type="text/css">
+<style>
 <?php
 // This is for layout font size override.
 $grparr = array();

@@ -218,7 +218,7 @@ if (false) { // if PDF output is desired
 <html>
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <head>
-<style type="text/css">
+<style>
 body {
     font-family: sans-serif;
     font-size: 9pt;

@@ -301,7 +301,7 @@ if ($form_output == 3) {
 
     <?php Header::setupHeader(['datetime-picker', 'textformat', 'jquery']); ?>
 
-<style type="text/css">
+<style>
 .dehead    {
     font-family: sans-serif;
     font-weight: bold;
@@ -437,7 +437,7 @@ $(function () {
     </div>
 </div>
 <br>
-   
+
     <?php
 } // end not export
 

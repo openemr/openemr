@@ -75,7 +75,7 @@ echo "<html><head>";
 
 <?php Header::setupHeader('dygraphs'); ?>
 
-<link rel="stylesheet" href="<?php echo $web_root; ?>/interface/themes/labdata.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $web_root; ?>/interface/themes/labdata.css">
 
 <script>
 function checkAll(bx) {

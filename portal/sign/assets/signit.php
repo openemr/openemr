@@ -28,7 +28,7 @@ use OpenEMR\Core\Header;
     <?php Header::setupHeader([]); ?>
 
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>"
-          rel="stylesheet" type="text/css"/>
+          rel="stylesheet">
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js"
             type="text/javascript"></script>
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"
