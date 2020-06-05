@@ -34,7 +34,7 @@ $textarea_cols = 90;
 ?>
 <html><head>
     <?php Header::setupHeader(); ?>
-<script type="text/javascript">
+<script>
 function checkall(){
   var f = document.my_form;
   var x = f.elements.length;

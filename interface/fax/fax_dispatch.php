@@ -486,7 +486,7 @@ div.section {
 
 </style>
 
-<script language="JavaScript">
+<script>
 
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 

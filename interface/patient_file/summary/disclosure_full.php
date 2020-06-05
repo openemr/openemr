@@ -166,7 +166,7 @@ if ($n >= $N && $noOfRecordsLeft != $N) {
  </tr>
 </table>
 </div>
-<script type="text/javascript">
+<script>
 $(function () {
     // todo, move this to a common library
     //for row highlight.

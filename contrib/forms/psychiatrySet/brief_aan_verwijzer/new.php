@@ -184,7 +184,7 @@ if ($vectAutosaveBAV['id']) {
 }
 
 ?>
-<script type="text/javascript">
+<script>
 $(function () {
         autosave();
         $('.datepicker').datetimepicker({

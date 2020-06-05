@@ -141,7 +141,7 @@ if ($formid) {
 <html>
 <head>
 <?php Header::setupHeader(); ?>
-<script language="JavaScript">
+<script>
 
  function seldiag(selobj, line_id) {
   var i = selobj.selectedIndex;

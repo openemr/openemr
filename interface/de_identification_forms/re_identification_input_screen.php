@@ -37,7 +37,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     text-align: center;
 }
 </style>
-<script language="JavaScript">
+<script>
 function form_validate()
 {
 

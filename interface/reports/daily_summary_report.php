@@ -44,7 +44,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
 
         <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-        <script type="text/javascript">
+        <script>
             function submitForm() {
                 var fromDate = $("#form_from_date").val();
                 var toDate = $("#form_to_date").val();

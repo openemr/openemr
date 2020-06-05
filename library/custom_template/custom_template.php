@@ -60,7 +60,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
     }
 </style>
 <?php Header::setupHeader(['common', 'opener', 'select2', 'ckeditor']); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
+<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
 
 <script>
     let allowTemplateWarning = <?php echo $allowTemplateWarning; ?>;
@@ -148,7 +148,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
         });
     });
 </script>
-<script type="text/javascript">
+<script>
     $(function () {
         function sortableCallback(elem){
             let clorder  = [];

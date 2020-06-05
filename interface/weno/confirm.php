@@ -103,7 +103,7 @@ $mailOrder = $tData->mailOrderPharmacy();
     <div id="success"></div>
 </div>
 
-<script type="text/javascript">
+<script>
 
 
     $(function () {

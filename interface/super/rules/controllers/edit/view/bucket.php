@@ -14,9 +14,9 @@
 
 ?>
 <head>
-    <script language="javascript" src="<?php js_src('bucket.js') ?>"></script>
+    <script src="<?php js_src('bucket.js') ?>"></script>
 
-    <script type="text/javascript">
+    <script>
         var bucket = new bucket( {} );
         bucket.init();
     </script>

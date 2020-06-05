@@ -1,5 +1,5 @@
-{include file="phpgacl/header.tpl"} 
-<script LANGUAGE="JavaScript">
+{include file="phpgacl/header.tpl"}
+<script>
 {$js_array}
 </script>
 {include file="phpgacl/acl_admin_js.tpl"}

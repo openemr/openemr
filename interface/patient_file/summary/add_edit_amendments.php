@@ -130,7 +130,7 @@ tr.selected {
 }
 </style>
 
-<script type="text/javascript">
+<script>
 
 function formValidation() {
     if ( $("#amendment_date").val() == "" ) {

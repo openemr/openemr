@@ -201,7 +201,7 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
         }
     }
 </style>
-<script type="text/javascript">
+<script>
 function transmit(){
     // get a public key to encrypt the password info and send
     document.getElementById('form_save').value='submit';

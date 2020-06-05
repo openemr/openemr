@@ -175,7 +175,7 @@ if ($result != null) {
 
 </body>
 
-<script language="javascript">
+<script>
 // jQuery stuff to make the page a little easier to use
 
 $(function () {

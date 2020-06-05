@@ -243,7 +243,7 @@ if ($parameters['go'] == "Go") {
 
 </body>
 
-<script language="javascript">
+<script>
 
 $(function () {
 
