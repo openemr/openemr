@@ -302,14 +302,32 @@ function doPublish() {
     });
 }
 
+async function fetchHtml(url,  embedded = false) {
+    let csrf = new FormData;
+    csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+    if(embedded === true) {
+        csrf.append("embeddedScreen", true);
+    }
+    const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: csrf
+    });
+    return await response.text();
+}
+async function placeHtml(url, divId,  embedded = false) {
+    const contentDiv = document.getElementById(divId);
+    fetchHtml(url, embedded).then(fragment => {
+        contentDiv.innerHTML = fragment;
+    });
+}
+
 $(function () {
   var msg_updation='';
     <?php
     if ($GLOBALS['erx_enable']) {
-        //$soap_status=sqlQuery("select soap_import_status from patient_data where pid=?",array($pid));
         $soap_status = sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", array($pid));
-        while ($row_soapstatus = sqlFetchArray($soap_status)) {
-            //if($soap_status['soap_import_status']=='1' || $soap_status['soap_import_status']=='3'){ ?>
+        while ($row_soapstatus = sqlFetchArray($soap_status)) { ?>
             top.restoreSession();
             $.ajax({
                 type: "POST",
@@ -353,29 +371,20 @@ $(function () {
               alert(msg_updation);
                 <?php
             }
-
-            //}
         }
     }
     ?>
+
     // load divs
-    $("#stats_div").load("stats.php",
-        {
-            embeddedScreen : true,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        },
-        function() {}
-    );
-    $("#pnotes_ps_expand").load("pnotes_fragment.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );
-    $("#disclosures_ps_expand").load("disc_fragment.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );
+    placeHtml("stats.php", "stats_div", true);
+    placeHtml("pnotes_fragment.php", 'pnotes_ps_expand');
+    placeHtml("disc_fragment.php", "disclosures_ps_expand");
+    placeHtml("labdata_fragment.php", "labdata_ps_expand");
+    placeHtml("track_anything_fragment.php", "track_anything_ps_expand");
+    <?php if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) { ?>
+    // Initialize the Vitals form if it is registered and user is authorized.
+    placeHtml("vitals_fragment.php", "vitals_ps_expand");
+    <?php } ?>
 
     <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) { ?>
       top.restoreSession();
@@ -412,29 +421,6 @@ $(function () {
       );
     <?php } // end prw?>
 
-<?php if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) { ?>
-    // Initialize the Vitals form if it is registered and user is authorized.
-    $("#vitals_ps_expand").load("vitals_fragment.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );
-<?php } ?>
-
-    // Initialize track_anything
-    $("#track_anything_ps_expand").load("track_anything_fragment.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );
-
-
-    // Initialize labdata
-    $("#labdata_ps_expand").load("labdata_fragment.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );
 <?php
 // Initialize for each applicable LBF form.
 $gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .

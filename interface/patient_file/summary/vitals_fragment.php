@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+$sessionTask = 2;
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -39,7 +40,7 @@ if (!$result) { //If there are no disclosures recorded
   <br />
   <br />
     <?php include_once($GLOBALS['incdir'] . "/forms/vitals/report.php");
-    call_user_func("vitals_report", '', '', 2, $result['id']);
+    vitals_report('', '', 2, $result['id']);
     ?>  <span class='text'>
   <br />
   <a href='../encounter/trend_form.php?formname=vitals' onclick='top.restoreSession()'><?php echo xlt('Click here to view and graph all vitals.');?></a>

@@ -8,13 +8,14 @@
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once('../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 
 use Esign\Api;
@@ -61,7 +62,7 @@ $esignApi = new Api();
 
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-        var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] == 1; ?>";
+        var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] === 1; ?>";
 
         // Since this should be the parent window, this is to prevent calls to the
         // window that opened this window. For example when a new window is opened
@@ -75,41 +76,30 @@ $esignApi = new Api();
 
         function goRepeaterServices() {
             // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
-            //  timing out mechanism in OpenEMR.
+            // timing out mechanism in OpenEMR.
 
             // Send the skip_timeout_reset parameter to not count this as a manual entry in the
-            //  timing out mechanism in OpenEMR.
-            top.restoreSession();
+            // timing out mechanism in OpenEMR. Notify App for various portal and reminder alerts.
+            // Combined portal and reminders ajax sjp 06-01-2020.
+            restoreSession();
             $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
                 {
                     skip_timeout_reset: "1",
+                    isPortal: isPortalEnabled,
                     csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
                 },
-                function (data) {
-                    // Go knockout.js
-                    app_view_model.application_data.user().messages(data);
-                }
-            );
-            // Notify App for various portal alerts
-            if (isPortalEnabled) {
-                top.restoreSession();
-                $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
-                    {
-                        skip_timeout_reset: "1",
-                        isPortal: "1",
-                        csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
-                    },
-                    function (counts) {
-                        data = JSON.parse(counts);
+                function (counts) {
+                    let data = JSON.parse(counts);
+                    if (isPortalEnabled) {
                         let mail = data.mailCnt;
                         let chats = data.chatCnt;
                         let audits = data.auditCnt;
                         let payments = data.paymentCnt;
                         let total = data.total;
-                        let enable = (1 * mail) + (1 * audits); // payments are among audits.
-
+                        let enable = "" + ((1 * mail) + (1 * audits)); // payments are among audits.
+                        // Send portal counts to notification button model
                         app_view_model.application_data.user().portal(enable);
-                        if (enable) {
+                        if (enable > 0) {
                             app_view_model.application_data.user().portalAlerts(total);
                             app_view_model.application_data.user().portalAudits(audits);
                             app_view_model.application_data.user().portalMail(mail);
@@ -117,10 +107,12 @@ $esignApi = new Api();
                             app_view_model.application_data.user().portalPayments(payments);
                         }
                     }
-                );
-            }
+                    // Always send reminder count text to model
+                    app_view_model.application_data.user().messages(data.reminderText);
+                }
+            );
 
-            top.restoreSession();
+            restoreSession();
             // run background-services
             $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
                 {
@@ -139,7 +131,7 @@ $esignApi = new Api();
             // If encounter locking is enabled, make a syncronous call (async=false) to check the
             // DB to see if the encounter is locked.
             // Call restore session, just in case
-            top.restoreSession();
+            restoreSession();
             $.ajax({
                 type: 'POST',
                 url: '<?php echo $GLOBALS['webroot']?>/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked',
@@ -217,7 +209,7 @@ $esignApi = new Api();
 
         // set up global translations for js
         function setupI18n(lang_id) {
-            top.restoreSession();
+            restoreSession();
             return fetch(<?php echo js_escape($GLOBALS['webroot'])?> +"/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
                 credentials: 'same-origin',
                 method: 'GET'
@@ -326,8 +318,6 @@ $esignApi = new Api();
             <a class="navbar-brand mt-2 mt-xl-0 mr-3 mr-xl-2" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
                 <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/menu-logo.svg"); ?>
             </a>
-            <!--<a href="../../logout.php" target="logoutinnerframe" class="d-lg-none" id="logout_link" onclick="top.restoreSession()" title="<?php /*echo xla("Logout"); */ ?>"><i class="fa fa-2x fa-sign-out oe-pull-toward" aria-hidden="true" id="logout_icon"></i>
-                    </a>-->
             <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>

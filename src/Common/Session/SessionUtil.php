@@ -50,26 +50,27 @@ class SessionUtil
     private static $use_cookies = true;
     private static $use_only_cookies = true;
 
-    public static function coreSessionStart($web_root)
+    public static function coreSessionStart($web_root, $sessionTask = null): void
     {
         if (version_compare(phpversion(), '7.3.0', '>=')) {
             session_start([
+                'read_and_close' => $sessionTask === 2,
                 'cookie_samesite' => "Strict",
                 'name' => 'OpenEMR',
                 'cookie_httponly' => false,
-                'cookie_path' => $web_root ? $web_root : '/',
+                'cookie_path' => $web_root ?: '/',
                 'gc_maxlifetime' => self::$gc_maxlifetime,
                 'sid_bits_per_character' => self::$sid_bits_per_character,
                 'sid_length' => self::$sid_length,
                 'use_strict_mode' => self::$use_strict_mode,
                 'use_cookies' => self::$use_cookies,
-                'use_only_cookies' => self::$use_only_cookies
+                'use_only_cookies' => self::$use_only_cookies,
             ]);
         } else {
             session_start([
                 'name' => 'OpenEMR',
                 'cookie_httponly' => false,
-                'cookie_path' => $web_root ? $web_root : '/',
+                'cookie_path' => $web_root ?: '/',
                 'gc_maxlifetime' => self::$gc_maxlifetime,
                 'sid_bits_per_character' => self::$sid_bits_per_character,
                 'sid_length' => self::$sid_length,
@@ -80,17 +81,17 @@ class SessionUtil
         }
     }
 
-    public static function coreSessionDestroy()
+    public static function coreSessionDestroy(): void
     {
         self::standardSessionCookieDestroy();
     }
 
-    public static function apiSessionCookieDestroy()
+    public static function apiSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
     }
 
-    public static function portalSessionStart()
+    public static function portalSessionStart(): void
     {
         if (version_compare(phpversion(), '7.3.0', '>=')) {
             session_start([
@@ -118,12 +119,12 @@ class SessionUtil
         }
     }
 
-    public static function portalSessionCookieDestroy()
+    public static function portalSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
     }
 
-    private static function standardSessionCookieDestroy()
+    private static function standardSessionCookieDestroy(): void
     {
         // Destroy the cookie
         $params = session_get_cookie_params();

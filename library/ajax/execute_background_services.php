@@ -55,7 +55,7 @@ $isAjaxCall = isset($_POST['ajax']);
 if (!$isAjaxCall && (php_sapi_name() === 'cli')) {
     $ignoreAuth = 1;
     //process optional arguments when called from cron
-    $_GET['site'] = (isset($argv[1])) ? $argv[1] : 'default';
+    $_GET['site'] = $argv[1] ?? 'default';
     if (isset($argv[2]) && $argv[2] != 'all') {
         $_GET['background_service'] = $argv[2];
     }
@@ -65,10 +65,12 @@ if (!$isAjaxCall && (php_sapi_name() === 'cli')) {
     }
 
     //an additional require file can be specified for each service in the background_services table
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    $sessionTask = 2;
+    require_once(__DIR__ . "/../../interface/globals.php");
 } else {
     //an additional require file can be specified for each service in the background_services table
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    $sessionTask = 2;
+    require_once(__DIR__ . "/../../interface/globals.php");
 
     // not calling from cron job so ensure passes csrf check
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -80,7 +82,7 @@ if (!$isAjaxCall && (php_sapi_name() === 'cli')) {
 set_time_limit(0);
 
 //Release session lock to prevent freezing of other scripts
-session_write_close();
+//session_write_close();
 
 //Safety in case one of the background functions tries to output data
 ignore_user_abort(1);
