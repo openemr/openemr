@@ -511,9 +511,9 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <label class="control-label" for="form_reference"><?php echo xlt('Check/EOB No.'); ?>:</label>
                         <input type='text' name='form_reference' id='form_reference' class="form-control" value=''/>
                     </div>
-                    <div class="col-xs-2">
-                        <label class="control-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
-                        <input type='text' name='form_check_date' class='form-control datepicker' value=''/>
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
+                        <input type='text' name='form_check_date' id='form_check_date" class='form-control datepicker' value=''/>
                     </div>
                     <div class="col-xs-2">
                         <label class="control-label" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
