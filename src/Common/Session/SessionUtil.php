@@ -68,6 +68,7 @@ class SessionUtil
             ]);
         } else {
             session_start([
+                'read_and_close' => $sessionTask === 2,
                 'name' => 'OpenEMR',
                 'cookie_httponly' => false,
                 'cookie_path' => $web_root ?: '/',
