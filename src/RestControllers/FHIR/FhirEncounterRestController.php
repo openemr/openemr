@@ -30,40 +30,39 @@ class FhirEncounterRestController
 
     // implement put post in future
 
-    public function getOne($eid)
+    /**
+     * Queries for a single FHIR encounter resource by FHIR id
+     * @param $fhirId The FHIR encounter resource id (uuid)
+     * @returns 200 if the operation completes successfully
+     */
+    public function getOne($fhirId)
     {
-        $oept = $this->fhirEncounterService->getEncounter($eid);
-        $encounterResource = $this->fhirEncounterService->createEncounterResource($eid, $oept, false);
-
-        return RestControllerHelper::responseHandler($encounterResource, null, 200);
+        $processingResult = $this->fhirEncounterService->getOne($fhirId);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
-    public function getAll($search)
+    /**
+     * Queries for FHIR encounter resources using various search parameters.
+     * Search parameters include:
+     * - _id (euuid)
+     * - patient (puuid)
+     * - date {gt|lt|ge|le}
+     * @return FHIR bundle with query results, if found
+     */
+    public function getAll($searchParams)
     {
-        $resourceURL = \RestConfig::$REST_FULL_URL;
-        if (strpos($resourceURL, '?') > 0) {
-            $resourceURL = strstr($resourceURL, '?', true);
+        $processingResult = $this->fhirEncounterService->getAll($searchParams);
+        $bundleEntries = array();
+        foreach ($processingResult->getData() as $index => $searchResult) {
+            $bundleEntry = [
+                'fullUrl' =>  \RestConfig::$REST_FULL_URL . '/' . $searchResult->getId(),
+                'resource' => $searchResult
+            ];
+            $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
+            array_push($bundleEntries, $fhirBundleEntry);
         }
-
-        $searchParam = array(
-            'pid' => $search['patient'],
-            'provider_id' => $search['practitioner']);
-
-        $searchResult = $this->fhirEncounterService->getEncountersBySearch($searchParam);
-        if ($searchResult === false) {
-            http_response_code(404);
-            exit;
-        }
-        $entries = array();
-        foreach ($searchResult as $oept) {
-            $entryResource = $this->fhirEncounterService->createEncounterResource($oept['encounter'], $oept, false);
-            $entry = array(
-                'fullUrl' => $resourceURL . "/" . $oept['encounter'],
-                'resource' => $entryResource
-            );
-            $entries[] = new FHIRBundleEntry($entry);
-        }
-        $searchResult = $this->fhirService->createBundle('Encounter', $entries, false);
-        return RestControllerHelper::responseHandler($searchResult, null, 200);
+        $bundleSearchResult = $this->fhirService->createBundle('Encounter', $bundleEntries, false);
+        $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
+        return $searchResponseBody;
     }
 }

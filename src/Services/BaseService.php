@@ -24,6 +24,18 @@ class BaseService
     private $fields;
     private $autoIncrements;
 
+    private const PREFIXES = array(
+        'eq' => "=",
+        'ne' => "!=",
+        'gt' => ">",
+        'lt' => "<",
+        'ge' => ">=",
+        'le' => "<=",
+        'sa' => "",
+        'eb' => "",
+        'ap' => ""
+    );
+
     /**
      * Default constructor.
      */
@@ -244,16 +256,59 @@ class BaseService
 
 
     /**
-     * Check and Return SQl (AND | OR) Operators
+     * Fetch ID by UUID of Resource
      *
-     * @param $condition              - Boolean to check AND | OR
-     * @return string of (AND | OR) Operator
+     * @param string $uuid              - UUID of Resource
+     * @param string $table             - Table reffering to the ID field
+     * @param string $field             - Identifier field
+     * @return false if nothing found otherwise return ID
      */
     public static function getIdByUuid($uuid, $table, $field)
     {
         $sql = "SELECT $field from $table WHERE uuid = ?";
         $result = sqlQuery($sql, array($uuid));
-        $rtn = $result[$field];
-        return $rtn > 0 ? $rtn : false;
+        return $result[$field] ?? false;
+    }
+
+    /**
+     * Fetch UUID by ID of Resource
+     *
+     * @param string $id                - ID of Resource
+     * @param string $table             - Table reffering to the UUID field
+     * @param string $field             - Identifier field
+     * @return false if nothing found otherwise return UUID
+     */
+    public static function getUuidById($id, $table, $field)
+    {
+        $sql = "SELECT uuid from $table WHERE $field = ?";
+        $result = sqlQuery($sql, array($id));
+        return $result['uuid'] ?? false;
+    }
+
+    /**
+     * Process DateTime as per FHIR Standard
+     *
+     * @param string $date             - DateTime String
+     * @return array processed prefix with value
+     */
+    public static function processDateTime($date)
+    {
+        $processedDate = array();
+        $result = substr($date, 0, 2);
+
+        // Assign Default
+        $processedDate['prefix'] = self::PREFIXES['eq'];
+        $processedDate['value'] = $date;
+
+        foreach (self::PREFIXES as $prefix => $value) {
+            if ($prefix == $result) {
+                $date = substr($date, 2);
+                $processedDate['prefix'] = $value;
+                $processedDate['value'] = $date;
+                return $processedDate;
+            }
+        }
+
+        return $processedDate;
     }
 }
