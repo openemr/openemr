@@ -186,7 +186,7 @@ if ($formid) {
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
 </style>
-<script language="JavaScript">
+<script>
 
 </script>
 </head>

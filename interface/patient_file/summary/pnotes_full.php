@@ -213,7 +213,7 @@ $result_sent = getSentPnotesByDate(
 
     <?php Header::setupHeader(['common', 'opener']); ?>
 
-<script type="text/javascript">
+<script>
 /// todo, move this to a common library
 
 $(function () {
@@ -773,7 +773,7 @@ if ($noteid /* && $title == 'New Document' */) {
 
 </body>
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 

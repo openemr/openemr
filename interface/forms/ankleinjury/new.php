@@ -112,7 +112,7 @@ formHeader("Form: ankleinjury");
 
 </tr>
 </table>
- <script language="javascript">
+ <script>
  <!--
  function doCPT(select) {
     var numchecked = 0;

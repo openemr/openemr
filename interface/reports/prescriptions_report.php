@@ -41,7 +41,7 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
 
 <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-<script language="JavaScript">
+<script>
 
     $(function () {
         oeFixedHeaderSetup(document.getElementById('mymaintable'));

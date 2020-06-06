@@ -451,7 +451,7 @@ if ($_POST["mode"] == "create_client_certificate") {
 
 <html>
   <head>
-    <script language="Javascript">
+    <script>
 
 
     /* If Enable User Certificate Authentication is set to "Yes", check the following:

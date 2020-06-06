@@ -64,7 +64,7 @@ function checkCreateCDB()
 
         $couch = new CouchDB();
         if (!$couch->check_connection()) {
-            echo "<script type='text/javascript'>alert(" . xlj("CouchDB Connection Failed.") . ");</script>";
+            echo "<script>alert(" . xlj("CouchDB Connection Failed.") . ");</script>";
             return false;
         }
 
@@ -156,7 +156,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
         }
     }
 
-    echo "<script type='text/javascript'>";
+    echo "<script>";
     echo "if (parent.left_nav.location) {";
     echo "  parent.left_nav.location.reload();";
     echo "  parent.Title.location.reload();";

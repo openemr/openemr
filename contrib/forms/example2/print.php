@@ -123,7 +123,7 @@ Date of signature:
 
 </body>
 
-<script language="javascript">
+<script>
 window.print();
 window.close();
 </script>

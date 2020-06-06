@@ -236,7 +236,7 @@ if ($exclude_policy != "") {
 
         </style>
 
-        <script type="text/javascript">
+        <script>
 
             var stringDelete = <?php echo xlj('Do you want to remove this record?'); ?>;
             var stringBatch  = <?php echo xlj('Please select X12 partner, required to create the 270 batch'); ?>;

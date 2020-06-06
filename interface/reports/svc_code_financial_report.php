@@ -91,7 +91,7 @@ if ($_POST['form_csvexport']) {
         }
     </style>
 
-    <script language="JavaScript">
+    <script>
         $(function () {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;

@@ -25,7 +25,7 @@ use OpenEMR\Core\Header;
 <head>
     <?php Header::setupAssets('jquery'); ?>
 
-    <script language="JavaScript">
+    <script>
         function testAjaxApi() {
             $.ajax({
                 type: 'GET',

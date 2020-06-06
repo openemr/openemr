@@ -375,7 +375,7 @@ if ($_REQUEST['dispensed']) {
                 width: 300px;
             }
         </style>
-        <script language="JavaScript">
+        <script>
         <?php
         require_once("$srcdir/restoreSession.php");  ?>
 
@@ -695,7 +695,7 @@ if ($_REQUEST['dispensed']) {
 <html>
 <head>
     <?php Header::setupHeader([ 'opener', 'jquery-ui', 'jquery-ui-redmond', 'pure', 'jscolor' ]); ?>
-    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css>
+    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css">
 
     <style>
         .title {
@@ -792,7 +792,7 @@ if ($_REQUEST['dispensed']) {
     </style>
     <!-- jQuery library -->
 
-    <script language="JavaScript">
+    <script>
         <?php require_once("$srcdir/restoreSession.php"); ?>
         function pick_rxType(rxtype, id) {
             var url = "../../forms/eye_mag/SpectacleRx.php";

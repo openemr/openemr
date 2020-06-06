@@ -16,7 +16,7 @@ require_once("./globals.php");
 <html>
 <body>
 
-<script LANGUAGE="JavaScript">
+<script>
  top.location.href='<?php echo "$rootdir/login/login.php?site="; ?>' + <?php echo js_url($_SESSION['site_id']); ?>;
 </script>
 

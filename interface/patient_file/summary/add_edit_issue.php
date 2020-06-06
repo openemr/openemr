@@ -25,7 +25,7 @@ use OpenEMR\Core\Header;
 
 // TBD - Resolve functional issues if opener is included in Header
 ?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <script><?php require($GLOBALS['srcdir'] . '/formatting_DateToYYYYMMDD_js.js.php'); ?></script>
 <?php
 
@@ -384,7 +384,7 @@ ul.tabNav li.current a {
 }
 </style>
 
-<script language="JavaScript">
+<script>
  var aitypes = new Array(); // issue type attributes
  var aopts   = new Array(); // Option objects
 <?php

@@ -51,7 +51,7 @@ $check_res = $formid ? $check_res : array();
             }
         </style>
 
-        <script type="text/javascript">
+        <script>
 
             function duplicateRow(e) {
                 var newRow = e.cloneNode(true);

@@ -127,7 +127,7 @@ div.section {
 
 </style>
 
-<script language="JavaScript">
+<script>
 
 // Supports customizable forms (currently just for IPPF).
 function divclick(cb, divid) {
