@@ -52,7 +52,7 @@ function sqlQuery($statement, $link)
     <div class='container mt-3'>
         <div class="row">
             <div class="col-12">
-                <div class="page-header d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between align-items-center">
                     <h2>OpenEMR Multi Site Administration</h2>
                     <a class="text-secondary" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href">
                         <i class="fa fa-question-circle fa-lg" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Click to view Help"></i>
