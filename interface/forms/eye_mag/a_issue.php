@@ -653,39 +653,39 @@ foreach (explode(',', $given) as $item) {
             <div class="borderShadow text-left">
                 <table class='border-0 w-100'>
                     <tr id='row_quick_picks'>
-                        <td valign='top' nowrap>&nbsp;</td>
-                        <td valign='top' colspan="1">
+                        <td class="text-nowrap align-top">&nbsp;</td>
+                        <td class="align-top" colspan="1">
                             <select name='form_titles' size='7' onchange='top.restoreSession();set_text();'>
                             </select>
                         </td>
                         <td>
                     </tr>
                     <tr id="row_title">
-                        <td valign='top' class="right font-weight-bold" id='title_diagnosis' nowrap style="vertical-align:middle;"><?php echo xlt('Title'); ?>:</td>
+                        <td class="right font-weight-bold text-nowrap align-top" id='title_diagnosis' style="vertical-align:middle;"><?php echo xlt('Title'); ?>:</td>
                         <td colspan="3">
                             <input type='text' size='40' name='form_title' id='form_title' value='<?php echo attr($irow['title']) ?>' />
                         </td>
                     </tr>
                     <tr id="row_diagnosis">
-                        <td valign='top' class="right font-weight-bold" nowrap style="vertical-align:middle;"><strong><?php echo xlt('Code'); ?>:</strong></td>
+                        <td class="right font-weight-bold text-nowrap align-top" style="vertical-align:middle;"><strong><?php echo xlt('Code'); ?>:</strong></td>
                         <td colspan="3">
                             <input type='text' size='50' name='form_diagnosis' id='form_diagnosis' value='<?php echo attr($irow['diagnosis']) ?>' onclick='top.restoreSession();sel_diagnosis();' title='<?php echo xla('Click to select or change diagnoses'); ?>' />
                         </td>
                     </tr>
                     <tr id='row_begindate'>
-                        <td nowrap class="right"><strong id="onset"><?php echo xlt('Onset'); ?>:</strong></td>
+                        <td class="right text-nowrap"><strong id="onset"><?php echo xlt('Onset'); ?>:</strong></td>
                         <td>
                             <input type='text' class='datepicker' size='10' name='form_begin' id='form_begin' style="max-width: 100px;" value='<?php echo attr(oeFormatShortDate($irow['begdate'])); ?>' ¸  title='<?php echo xla('Date of onset, surgery or start of medication'); ?>' />
 
                         </td>
-                        <td id='row_enddate' nowrap>
+                        <td class="text-nowrap" id='row_enddate'>
                             <input type='checkbox' name='form_active' id='form_active' value='1' <?php echo attr($irow['enddate']) ? " checked" : ""; ?> onclick='top.restoreSession();resolvedClicked(this);' title='<?php echo xla('Indicates if this issue is currently active'); ?>' />
                             <strong id="resolved"><?php echo xlt('Resolved'); ?>:</strong>&nbsp;<input type='text' class='datepicker' size='10' name='form_end' id='form_end' style="max-width: 100px;" value='<?php echo attr(oeFormatShortDate($irow['enddate'])); ?>' title='<?php echo xla('Date of recovery or end of medication'); ?>' />
                         </td>
                     </tr>
 
                     <tr id='row_occurrence'>
-                        <td valign='top' class="right" nowrap><strong><?php echo xlt('Course'); ?>:</strong></td>
+                        <td class="right text-nowrap align-top"><strong><?php echo xlt('Course'); ?>:</strong></td>
                         <td colspan="2">
                             <?php
 // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
@@ -703,7 +703,7 @@ foreach (explode(',', $given) as $item) {
                     </tr>
 
                     <tr id='row_classification'>
-                        <td valign='top' class="right" nowrap><strong><?php echo xlt('Classification'); ?>:</strong></td>
+                        <td class="right text-nowrap align-top"><strong><?php echo xlt('Classification'); ?>:</strong></td>
                         <td colspan="3">
                             <select name='form_classification' id='form_classification'>
                                 <?php
@@ -720,19 +720,19 @@ foreach (explode(',', $given) as $item) {
                         </td>
                     </tr>
                     <tr id='row_reaction'>
-                        <td valign='top' class="right" nowrap><strong><?php echo xlt('Reaction'); ?>:</strong></td>
+                        <td class="right text-nowrap align-top"><strong><?php echo xlt('Reaction'); ?>:</strong></td>
                         <td colspan="3">
                             <input type='text' size='40' name='form_reaction' id='form_reaction' value='<?php echo attr($irow['reaction']) ?>' title='<?php echo xla('Allergy Reaction'); ?>' />
                         </td>
                     </tr>
                     <tr id='row_referredby'>
-                        <td class="right" nowrap><strong id="by_whom"><?php echo xlt('Referred by'); ?>:</strong></td>
+                        <td class="right text-nowrap"><strong id="by_whom"><?php echo xlt('Referred by'); ?>:</strong></td>
                         <td colspan="3">
                             <input type='text' size='40' name='form_referredby' id='form_referredby' value='<?php echo attr($irow['referredby']) ?>' title='<?php echo xla('Referring physician and practice'); ?>' />
                         </td>
                     </tr>
                     <tr id='row_eye_med'>
-                        <td class="right" nowrap><strong id="by_whom"><?php echo xlt('Eye Med'); ?>:</strong></td>
+                        <td class="right text-nowrap"><strong id="by_whom"><?php echo xlt('Eye Med'); ?>:</strong></td>
                         <td colspan="3"><?php echo $irow['subtype']; ?>
                             <input type='checkbox' name='form_eye_subtype' id='form_eye_subtype' value='1' <?php
                             if ($irow['subtype'] == 'eye') {
@@ -743,13 +743,13 @@ foreach (explode(',', $given) as $item) {
                     </tr>
 
                     <tr id='row_comments'>
-                        <td valign='top' class="right align-self-center" nowrap><strong><?php echo xlt('Comments'); ?>:</strong></td>
+                        <td class="right align-self-center text-nowrap align-top"><strong><?php echo xlt('Comments'); ?>:</strong></td>
                         <td colspan="3">
                             <textarea name='form_comments' id='form_comments' cols='40' wrap='virtual'><?php echo text($irow['comments']) ?></textarea>
                         </td>
                     </tr>
                     <tr id="row_outcome">
-                        <td class="right align-self-center" nowrap><strong><?php echo xlt('Outcome'); ?>:</strong></td>
+                        <td class="right align-self-center text-nowrap"><strong><?php echo xlt('Outcome'); ?>:</strong></td>
                         <td>
                             <?php
                             echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
@@ -757,7 +757,7 @@ foreach (explode(',', $given) as $item) {
                         </td>
                     </tr>
                     <tr id="row_destination">
-                        <td valign='top' class="right" nowrap><strong><?php echo xlt('Destination'); ?>:</strong></td>
+                        <td class="right text-nowrap align-top"><strong><?php echo xlt('Destination'); ?>:</strong></td>
                         <td colspan="3">
                             <?php if (true) { ?>
                             <input type='text' size='40' name='form_destination' value='<?php echo attr($irow['destination']) ?>' title='GP, Secondary care specialist, etc.' />
@@ -873,7 +873,7 @@ foreach (explode(',', $given) as $item) {
 
                     <tbody>
                         <tr>
-                            <td class="right" nowrap><?php echo xlt('Marital'); ?>:</td>
+                            <td class="right text-nowrap"><?php echo xlt('Marital'); ?>:</td>
                             <td colspan="3"><input type="text" style="width:75px;" name="marital_status" id="marital_status" value="<?php echo attr($patient['status']); ?>" />
                                 &nbsp;<?php echo xlt('Occupation'); ?>:&nbsp;<input type="text" style="width:175px;" name="occupation" id="occupation" value="<?php echo attr($patient['occupation']); ?>" /></td>
                         </tr>
@@ -910,13 +910,13 @@ foreach (explode(',', $given) as $item) {
                                                        } ?>><?php echo xlt('Light tobacco smoker'); ?></option>
                                 </select>
                             </td>
-                            <td nowrap><span style="text-decoration:underline;">Never</span></td>
+                            <td class="text-nowrap"><span style="text-decoration:underline;">Never</span></td>
                             <td>
                                 <span style="text-decoration:underline;"><?php echo xlt('N/A{{not applicable}}'); ?></span></td>
                         </tr>
 
                         <tr>
-                            <td class="right" nowrap><?php echo xlt('Tobacco'); ?>:</td>
+                            <td class="right text-nowrap"><?php echo xlt('Tobacco'); ?>:</td>
                             <td class="text data" colspan="4">
                                 <table>
                                     <tr>
@@ -946,7 +946,7 @@ foreach (explode(',', $given) as $item) {
                         </tr>
 
                         <tr>
-                            <td class="right" nowrap><?php echo xlt('Coffee'); ?>:</td>
+                            <td class="right text-nowrap"><?php echo xlt('Coffee'); ?>:</td>
                             <td class="text data" colspan="4">
                                 <table>
                                     <tbody>
@@ -974,7 +974,7 @@ foreach (explode(',', $given) as $item) {
                         </tr>
 
                         <tr>
-                            <td class="right" nowrap><?php echo xlt('Alcohol'); ?>:</td>
+                            <td class="right text-nowrap"><?php echo xlt('Alcohol'); ?>:</td>
                             <td class="text data" colspan="4">
                                 <table>
                                     <tbody>
@@ -1001,7 +1001,7 @@ foreach (explode(',', $given) as $item) {
                         </tr>
 
                         <tr>
-                            <td class="right" nowrap><?php echo xlt('Drugs'); ?>:</td>
+                            <td class="right text-nowrap"><?php echo xlt('Drugs'); ?>:</td>
                             <td class="text data" colspan="4">
                                 <table>
                                     <tbody>
@@ -1027,8 +1027,8 @@ foreach (explode(',', $given) as $item) {
                             </td>
                         </tr>
 
-                        <tr class="">
-                            <td class="right" nowrap><?php echo xlt('Counseling'); ?>:</td>
+                        <tr>
+                            <td class="right text-nowrap"><?php echo xlt('Counseling'); ?>:</td>
                             <td class="text data" colspan="4">
                                 <table>
                                     <tbody>
@@ -1055,7 +1055,7 @@ foreach (explode(',', $given) as $item) {
                         </tr>
 
                         <tr>
-                            <td class="right" nowrap>
+                            <td class="right text-nowrap">
                                 <?php echo xlt('Exercise'); ?>:</td>
                             <td class="text data" colspan="4">
                                 <table>
@@ -1082,7 +1082,7 @@ foreach (explode(',', $given) as $item) {
                         </tr>
 
                         <tr>
-                            <td class="right" nowrap><?php echo xlt('Risky Beh.'); ?>:</td>
+                            <td class="right text-nowrap"><?php echo xlt('Risky Beh.'); ?>:</td>
                             <td class="text data" colspan="4">
                                 <table>
                                     <tbody>
@@ -1106,14 +1106,14 @@ foreach (explode(',', $given) as $item) {
                         </tr>
 
                         <tr>
-                            <td class="right" nowrap><?php echo xlt('Sleep'); ?>:</td>
+                            <td class="right text-nowrap"><?php echo xlt('Sleep'); ?>:</td>
                             <td class="text data" colspan="4">
                                 <table>
                                     <tbody>
                                         <tr>
                                             <td><input type="text" name="form_sleep_patterns" id="form_box" size="20" title="<?php echo xla('Sleep patterns'); ?>" value="<?php echo attr($result2['sleep_patterns']['resnote']); ?>" /></td>
                                             <td></td>
-                            <td class="left" nowrap><?php echo xlt('Seatbelt'); ?>:
+                            <td class="left text-nowrap"><?php echo xlt('Seatbelt'); ?>:
                             </td>
                             <td><input type="text" name="form_seatbelt_use" id="form_box" size="20" title="<?php echo xla('Seatbelt use'); ?>" value="<?php echo attr($result2['seatbelt_use']['resnote']); ?>" />
                             </td>
@@ -1126,48 +1126,48 @@ foreach (explode(',', $given) as $item) {
                 </table>
                 <table id="row_FH" name="row_FH" width="90%">
                     <tr>
-                        <td class="right" nowrap><?php echo xlt('Glaucoma'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('Glaucoma'); ?>:</td>
                         <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext11" name="radio_usertext11" <?php if (!$result1['usertext11']) {
                             echo " checked='checked'";
                                                                                                                                               } ?> />
                             <input type="text" name="usertext11" id="usertext11" onclick='clear_option(this)' value="<?php echo attr($result1['usertext11']); ?>" /></td>
-                        <td class="right" nowrap><?php echo xlt('Cataract'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('Cataract'); ?>:</td>
                         <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext12" name="radio_usertext12" <?php if (!$result1['usertext12']) {
                             echo " checked='checked'";
                                                                                                                                               } ?> />
                             <input type="text" name="usertext12" id="usertext12" onclick='clear_option(this)' value="<?php echo attr($result1['usertext12']); ?>" /></td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><?php echo xlt('AMD{{age related macular degeneration}}'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('AMD{{age related macular degeneration}}'); ?>:</td>
                         <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext13" name="radio_usertext13" <?php if (!$result1['usertext13']) {
                             echo " checked='checked'";
                                                                                                                                               } ?> />
                             <input type="text" name="usertext13" id="usertext13" onclick='clear_option(this)' value="<?php echo attr($result1['usertext13']); ?>" /></td>
-                        <td class="right" nowrap><?php echo xlt('RD{{retinal detachment}}'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('RD{{retinal detachment}}'); ?>:</td>
                         <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext14" name="radio_usertext14" <?php if (!$result1['usertext14']) {
                             echo " checked='checked'";
                                                                                                                                               } ?> />
                             <input type="text" name="usertext14" id="usertext14" onclick='clear_option(this)' value="<?php echo attr($result1['usertext14']); ?>" /></td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><?php echo xlt('Blindness'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('Blindness'); ?>:</td>
                         <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext15" name="radio_usertext15" <?php if (!$result1['usertext15']) {
                             echo " checked='checked'";
                                                                                                                                               } ?> />
                             <input type="text" name="usertext15" id="usertext15" onclick='clear_option(this)' value="<?php echo attr($result1['usertext15']); ?>" /></td>
-                        <td class="right" nowrap><?php echo xlt('Amblyopia'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('Amblyopia'); ?>:</td>
                         <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext16" name="radio_usertext16" <?php if (!$result1['usertext16']) {
                             echo " checked='checked'";
                                                                                                                                               } ?> />
                             <input type="text" name="usertext16" id="usertext16" onclick='clear_option(this)' value="<?php echo attr($result1['usertext16']); ?>" /></td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><?php echo xlt('Strabismus'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('Strabismus'); ?>:</td>
                         <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext17" name="radio_usertext17" <?php if (!$result1['usertext17']) {
                             echo " checked='checked'";
                                                                                                                                               } ?> />
                             <input type="text" name="usertext17" id="usertext17" onclick='clear_option(this)' value="<?php echo attr($result1['usertext17']); ?>" /></td>
-                        <td class="right" nowrap><?php echo xlt('Epilepsy'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('Epilepsy'); ?>:</td>
                         <td class="text data">
                             <input type="radio" onclick='negate_radio(this);' id="radio_relatives_epilepsy" name="radio_relatives_epilepsy" <?php if (!$result1['relatives_epilepsy']) {
                                 echo " checked='checked'";
@@ -1175,13 +1175,13 @@ foreach (explode(',', $given) as $item) {
                             <input type="text" name="relatives_epilepsy" id="relatives_epilepsy" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_epilepsy']); ?>" /></td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><?php echo xlt('Cancer'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('Cancer'); ?>:</td>
                         <td class="text data">
                             <input type="radio" onclick='negate_radio(this);' id="radio_relatives_cancer" name="radio_relatives_cancer" <?php if (!$result1['relatives_cancer']) {
                                 echo " checked='checked'";
                                                                                                                                         } ?> />
                             <input type="text" name="relatives_cancer" id="relatives_cancer" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_cancer']); ?>" /></td>
-                        <td class="right" nowrap><?php echo xlt('Diabetes'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('Diabetes'); ?>:</td>
                         <td class="text data">
                             <input type="radio" onclick='negate_radio(this);' id="radio_relatives_diabetes" name="radio_relatives_diabetes" <?php if (!$result1['relatives_diabetes']) {
                                 echo " checked='checked'";
@@ -1189,24 +1189,24 @@ foreach (explode(',', $given) as $item) {
                             <input type="text" name="relatives_diabetes" id="relatives_diabetes" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_diabetes']); ?>" /></td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><?php echo xlt('HTN{{hypertension}}'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('HTN{{hypertension}}'); ?>:</td>
                         <td class="text data">
                             <input type="radio" onclick='negate_radio(this);' id="radio_relatives_high_blood_pressure" name="radio_relatives_high_blood_pressure" <?php if (!$result1['relatives_high_blood_pressure']) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="relatives_high_blood_pressure" id="relatives_high_blood_pressure" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_high_blood_pressure']); ?>" /></td>
-                        <td class="right" nowrap><?php echo xlt('Cardiac'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('Cardiac'); ?>:</td>
                         <td class="text data">
                             <input type="radio" onclick='negate_radio(this);' id="radio_relatives_heart_problems" name="radio_relatives_heart_problems" <?php if (!$result1['relatives_heart_problems']) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="relatives_heart_problems" id="relatives_heart_problems" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_heart_problems']); ?>" /></td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><?php echo xlt('Stroke'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('Stroke'); ?>:</td>
                         <td class="text data">
                             <input type="radio" onclick='negate_radio(this);' id="radio_relatives_stroke" name="radio_relatives_stroke" <?php if (!$result1['relatives_stroke']) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="relatives_stroke" id="relatives_stroke" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_stroke']); ?>" /></td>
-                        <td class="right" nowrap><?php echo xlt('Other'); ?>:</td>
+                        <td class="right text-nowrap"><?php echo xlt('Other'); ?>:</td>
                         <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext18" name="radio_usertext18" <?php if (!$result1['usertext18']) {
                             echo " checked='checked'"; } ?> />
                             <input type="text" name="usertext18" id="usertext18" onclick='clear_option(this)' value="<?php echo attr($result1['usertext18']); ?>" /></td>
@@ -1223,72 +1223,72 @@ foreach (explode(',', $given) as $item) {
                         </td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('General'); ?>:</label></td>
+                        <td class="right text-nowrap"><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('General'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSGENERAL" name="radio_ROSGENERAL" <?php if (!$ROSGENERAL) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="ROSGENERAL" id="ROSGENERAL" onclick='clear_option(this)' value="<?php echo attr($ROSGENERAL); ?>" /></td>
-                        <td class="right" nowrap><label for="ROSHEENT" class="input-helper input-helper--checkbox"><?php echo xlt('HEENT'); ?>:</td>
+                        <td class="right text-nowrap"><label for="ROSHEENT" class="input-helper input-helper--checkbox"><?php echo xlt('HEENT'); ?>:</td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSHEENT" name="radio_ROSHEENT" <?php if (!$ROSHEENT) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="ROSHEENT" id="ROSHEENT" onclick='clear_option(this)' value="<?php echo attr($ROSHEENT); ?>" /></td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><label for="ROSCV" class="input-helper input-helper--checkbox"><?php echo xlt('CV{{Cardiovascular}}'); ?>:</label></td>
+                        <td class="right text-nowrap"><label for="ROSCV" class="input-helper input-helper--checkbox"><?php echo xlt('CV{{Cardiovascular}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSCV" name="radio_ROSCV" <?php if (!$ROSCV) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="ROSCV" id="ROSCV" onclick='clear_option(this)' value="<?php echo attr($ROSCV); ?>" /></td>
-                        <td class="right" nowrap><label for="ROSPULM" class="input-helper input-helper--checkbox"><?php echo xlt('Pulmonary'); ?>:</label></td>
+                        <td class="right text-nowrap"><label for="ROSPULM" class="input-helper input-helper--checkbox"><?php echo xlt('Pulmonary'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSPULM" name="radio_ROSPULM" <?php if (!$ROSPULM) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="ROSPULM" id="ROSPULM" onclick='clear_option(this)' value="<?php echo attr($ROSPULM); ?>" /></td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><label for="ROSGI" class="input-helper input-helper--checkbox"><?php echo xlt('GI{{Gastrointestinal}}'); ?>:</label></td>
+                        <td class="right text-nowrap"><label for="ROSGI" class="input-helper input-helper--checkbox"><?php echo xlt('GI{{Gastrointestinal}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSGI" name="radio_ROSGI" <?php if (!$ROSGI) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="ROSGI" id="ROSGI" onclick='clear_option(this)' value="<?php echo attr($ROSGI); ?>" /></td>
-                        <td class="right" nowrap><label for="ROSGU" class="input-helper input-helper--checkbox"><?php echo xlt('GU{{Genitourinary}}'); ?>:</label></td>
+                        <td class="right text-nowrap"><label for="ROSGU" class="input-helper input-helper--checkbox"><?php echo xlt('GU{{Genitourinary}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSGU" name="radio_ROSGU" <?php if (!$ROSGU) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="ROSGU" id="ROSGU" onclick='clear_option(this)' value="<?php echo attr($ROSGU); ?>" /></td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><label for="ROSDERM" class="input-helper input-helper--checkbox"><?php echo xlt('Derm{{dermatologic}}'); ?>:</label></td>
+                        <td class="right text-nowrap"><label for="ROSDERM" class="input-helper input-helper--checkbox"><?php echo xlt('Derm{{dermatologic}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSDERM" name="radio_ROSDERM" <?php if (!$ROSDERM) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="ROSDERM" id="ROSDERM" onclick='clear_option(this)' value="<?php echo attr($ROSDERM); ?>" /></td>
-                        <td class="right" nowrap><label for="ROSNEURO" class="input-helper input-helper--checkbox"><?php echo xlt('Neuro{{neurologic}}'); ?>:</label></td>
+                        <td class="right text-nowrap"><label for="ROSNEURO" class="input-helper input-helper--checkbox"><?php echo xlt('Neuro{{neurologic}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSNEURO" name="radio_ROSNEURO" <?php if (!$ROSNEURO) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="ROSNEURO" id="ROSNEURO" onclick='clear_option(this)' value="<?php echo attr($ROSNEURO); ?>" /></td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><label for="ROSPSYCH" class="input-helper input-helper--checkbox"><?php echo xlt('Psych{{psychiatric}}'); ?>:</label></td>
+                        <td class="right text-nowrap"><label for="ROSPSYCH" class="input-helper input-helper--checkbox"><?php echo xlt('Psych{{psychiatric}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSPSYCH" name="radio_ROSPSYCH" <?php if (!$ROSPSYCH) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="ROSPSYCH" id="ROSPSYCH" onclick='clear_option(this)' value="<?php echo attr($ROSPSYCH); ?>" /></td>
-                        <td class="right" nowrap><label for="ROSMUSCULO" class="input-helper input-helper--checkbox"><?php echo xlt('Musculo{{musculoskeletal}}'); ?>:</label></td>
+                        <td class="right text-nowrap"><label for="ROSMUSCULO" class="input-helper input-helper--checkbox"><?php echo xlt('Musculo{{musculoskeletal}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSMUSCULO" name="radio_ROSMUSCULO" <?php if (!$ROSMUSCULO) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="ROSMUSCULO" id="ROSMUSCULO" onclick='clear_option(this)' value="<?php echo attr($ROSMUSCULO); ?>" /></td>
                     </tr>
                     <tr>
-                        <td class="right" nowrap><label for="ROSIMMUNO" class="input-helper input-helper--checkbox"><?php echo xlt('Immuno{{immunologic}}'); ?>:</label></td>
+                        <td class="right text-nowrap"><label for="ROSIMMUNO" class="input-helper input-helper--checkbox"><?php echo xlt('Immuno{{immunologic}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSIMMUNO" name="radio_ROSIMMUNO" <?php if (!$ROSIMMUNO) {
                                 echo " checked='checked'"; } ?> />
                             <input type="text" name="ROSIMMUNO" id="ROSIMMUNO" onclick='clear_option(this)' value="<?php echo attr($ROSIMMUNO); ?>" /></td>
-                        <td class="right" nowrap><label for="ROSENDOCRINE" class="input-helper input-helper--checkbox"><?php echo xlt('Endocrine'); ?>:</label></td>
+                        <td class="right text-nowrap"><label for="ROSENDOCRINE" class="input-helper input-helper--checkbox"><?php echo xlt('Endocrine'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSENDOCRINE" name="radio_ROSENDOCRINE" <?php if (!$ROSENDOCRINE) {
                                 echo " checked='checked'"; } ?> />

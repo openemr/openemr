@@ -593,7 +593,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 </head>
 
-<body class="body_top" onunload='imclosing()'>
+<body class="body_top">
 <h2 class="text-center"><?php echo xlt('Dispatch Received Document'); ?></h2>
 
 <form method='post' name='theform'
@@ -708,7 +708,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                 </div>
                 <!-- To Section -->
                 <div class="form-row mt-2">
-                    <label class="col-2 col-form-label font-weight-bold">To</label>
+                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('To'); ?></label>
                     <div class="col-10">
                     <select name='form_note_to' class='form-control'>
                         <?php
