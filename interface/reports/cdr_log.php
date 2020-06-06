@@ -35,7 +35,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
     <?php Header::setupHeader('datetime-picker'); ?>
 
-    <script LANGUAGE="JavaScript">
+    <script>
         $(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>

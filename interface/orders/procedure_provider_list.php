@@ -36,7 +36,7 @@ $res = sqlStatement($query);
     <?php Header::setupAssets('topdialog'); ?>
 <?php } ?>
 
-<script language="JavaScript">
+<script>
 
 <?php if ($popup) {
     require($GLOBALS['srcdir'] . "/restoreSession.php");

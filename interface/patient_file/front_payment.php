@@ -419,7 +419,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
     <?php Header::setupHeader(); ?>
-<script language="JavaScript">
+<script>
 
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
@@ -582,13 +582,13 @@ function toencounter(enc, datestr, topframe) {
     var mypcc = '1';
 </script>
     <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-<script language="javascript" type="text/javascript">
+<script>
     document.onclick=HideTheAjaxDivs;
 </script>
 
     <?php Header::setupAssets('topdialog'); ?>
 
-<script language="JavaScript">
+<script>
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 function closeHow(e) {
     if (opener) {
@@ -1251,7 +1251,7 @@ function make_insurance() {
                 </form>
             </div>
         </div>
-        <script language="JavaScript">
+        <script>
         calctotal();
         </script>
     </div><!--end of container div of accept payment i.e the form-->

@@ -96,7 +96,7 @@ if (isset($_POST['submit'])) {
         echo "<script>dlgclose();</script>\n";
     }
     ?>
-    <script type="text/javascript">
+    <script>
         function checkUserName() {
             let vacct = document.getElementById('uname').value;
             let vsuname = document.getElementById('login_uname').value;

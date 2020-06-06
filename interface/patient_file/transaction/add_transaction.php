@@ -155,7 +155,7 @@ $trow = $transid ? getTransById($transid) : array();
 
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
-<script type="text/javascript">
+<script>
 $(function () {
   if(window.tabbify){
     tabbify();
@@ -605,7 +605,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 
-<script language="JavaScript">
+<script>
 
 // Array of action conditions for the checkSkipConditions() function.
 var skipArray = [

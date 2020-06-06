@@ -40,7 +40,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 </div>
 
 
-<script language="javascript">
+<script>
 
     // collect the custom state widget flag
     var stateCustomFlag = <?php echo json_encode($GLOBALS['state_custom_addlist_widget']); ?>;

@@ -15,7 +15,7 @@
  */
 
 ?>
-<script type="text/javascript">
+<script>
 
 // JavaScript support for date types when the A or B edit option is used.
 // Called to recompute displayed age dynamically when the corresponding date is

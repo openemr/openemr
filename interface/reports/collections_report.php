@@ -344,7 +344,7 @@ if ($_POST['form_csvexport']) {
         }
     </style>
 
-    <script language="JavaScript">
+    <script>
         function reSubmit() {
             $("#form_refresh").attr("value","true");
             $("#form_csvexport").val("");

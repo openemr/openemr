@@ -14,8 +14,8 @@
 
 $rule = $viewBean->rule ?>
 
-<script language="javascript" src="<?php js_src('edit.js') ?>"></script>
-<script type="text/javascript">
+<script src="<?php js_src('edit.js') ?>"></script>
+<script>
     var edit = new rule_edit( {});
     edit.init();
 </script>

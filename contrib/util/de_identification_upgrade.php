@@ -205,7 +205,7 @@ if (!empty($_POST['form_submit'])) {
 }
 ?>
 
-<script language="JavaScript">
+<script>
 function form_validate()
 {
  if(document.forms[0].root_user_name.value == "")

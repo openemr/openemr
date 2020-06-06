@@ -14,10 +14,10 @@
 
 ?>
 
-<script language="javascript" src="<?php js_src('list.js') ?>"></script>
-<script language="javascript" src="<?php js_src('jQuery.fn.sortElements.js') ?>"></script>
+<script src="<?php js_src('list.js') ?>"></script>
+<script src="<?php js_src('jQuery.fn.sortElements.js') ?>"></script>
 
-<script type="text/javascript">
+<script>
     var list = new list_rules();
     list.init();
 </script>

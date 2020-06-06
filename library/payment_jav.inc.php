@@ -29,7 +29,7 @@
 //This section handles payment related javascript functios.Add, Search and Edit screen uses these functions.
 //===============================================================================
 ?>
-<script type="text/javascript">
+<script>
 function CheckVisible(MakeBlank)
  {//Displays and hides the check number text box.Add and edit page uses the same function.
  //In edit its value should not be lost on just a change.It is controlled be the 'MakeBlank' argument.

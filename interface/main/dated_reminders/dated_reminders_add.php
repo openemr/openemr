@@ -119,7 +119,7 @@ if ($_POST) {
         } else {
       // --------- echo javascript
             echo '<html><body>'
-            . "<script type=\"text/javascript\" src=\"" . $webroot . "/interface/main/tabs/js/include_opener.js\"></script>"
+            . "<script src=\"" . $webroot . "/interface/main/tabs/js/include_opener.js\"></script>"
             . '<script>';
       // ------------ 1) refresh parent window this updates if sent to self
             echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';

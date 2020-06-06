@@ -26,7 +26,7 @@
 //
 // +------------------------------------------------------------------------------+
 ?>
-<script type="text/javascript">
+<script>
     function checkLength(eleName, eleVal, len) {
         eleName = eleName.replace('form_', '');
         var m = '';

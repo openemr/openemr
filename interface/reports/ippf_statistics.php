@@ -1031,7 +1031,7 @@ body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
 .detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
 
-<script language="JavaScript">
+<script>
 
 // Begin experimental code
 

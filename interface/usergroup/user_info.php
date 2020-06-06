@@ -36,7 +36,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('Change Password'); ?></title>
 
-<script src="checkpwd_validation.js" type="text/javascript"></script>
+<script src="checkpwd_validation.js"></script>
 
 <script language='JavaScript'>
 //Validating password and display message if password field is empty - starts

@@ -199,7 +199,7 @@ Do you wish to commit these changes to the database?
 
 </body>
 <?php if ($commitchanges == true) : ?>
-<script language="javascript">
+<script>
 window.opener.removedupe(<?php echo js_escape($parameters['dupecount']); ?>);
 window.close();
 </script>

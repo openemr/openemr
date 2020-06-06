@@ -368,7 +368,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
     <?php echo lbf_canvas_head(); ?>
     <?php echo signer_head(); ?>
 
-    <script language="JavaScript">
+    <script>
 
         // Support for beforeunload handler.
         var somethingChanged = false;
@@ -1589,7 +1589,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
     <!-- include support for the list-add selectbox feature -->
     <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
 
-    <script language="JavaScript">
+    <script>
 
         // Array of action conditions for the checkSkipConditions() function.
         var skipArray = [

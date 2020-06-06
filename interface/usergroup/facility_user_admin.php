@@ -38,7 +38,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 
     <?php Header::setupHeader(['common','datetime-picker','opener']); ?>
 
-    <script language="JavaScript">
+    <script>
         $(function () {
             $("#form_facility_user").submit(function (event) {
                 top.restoreSession();
@@ -200,7 +200,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
     <!-- include support for the list-add selectbox feature -->
     <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
 
-    <script language="JavaScript">
+    <script>
     <?php echo $date_init; ?>
     </script>
 </body>

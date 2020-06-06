@@ -56,7 +56,7 @@ $language = $tmp['language'];
 
 <title><?php echo xlt('Patient Issues'); ?></title>
 
-<script language="JavaScript">
+<script>
 
 // callback from add_edit_issue.php:
 function refreshIssue(issue, title) {

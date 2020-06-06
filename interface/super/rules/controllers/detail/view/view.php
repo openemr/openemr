@@ -14,8 +14,8 @@
 
 $rule = $viewBean->rule ?>
 
-<script language="javascript" src="<?php js_src('detail.js') ?>"></script>
-<script type="text/javascript">
+<script src="<?php js_src('detail.js') ?>"></script>
+<script>
     var detail = new rule_detail( {editable: <?php echo $rule->isEditable() ? "true" : "false"; ?>});
     detail.init();
 </script>

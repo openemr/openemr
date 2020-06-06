@@ -1,11 +1,11 @@
 {include file="phpgacl/header.tpl"}
-<script LANGUAGE="JavaScript">
+<script>
 {$js_array}
 </script>
 {include file="phpgacl/acl_admin_js.tpl"}
   </head>
   <body onload="populate(document.assign_group.{$group_type}_section,document.assign_group.elements['objects[]'], '{$js_array_name}')">
-    {include file="phpgacl/navigation.tpl"}    
+    {include file="phpgacl/navigation.tpl"}
     <form method="post" name="assign_group" action="assign_group.php">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
