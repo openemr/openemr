@@ -8,6 +8,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
@@ -85,8 +86,15 @@ class FhirEncounterService extends FhirServiceBase
         $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
         $encounterResource->setPeriod($period);
 
+        if (!empty($dataRecord['class_code'])) {
+            $class = new FHIRCoding();
+            $class->setSystem("http://terminology.hl7.org/CodeSystem/v3-ActCode");
+            $class->setCode($dataRecord['class_code']);
+            $class->setDisplay($dataRecord['class_title']);
+            $encounterResource->setClass($class);
+        }
+
         // TODO:
-        // class
         // type
         // reasonCode (not mandatory)
 

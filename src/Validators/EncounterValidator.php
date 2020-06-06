@@ -25,9 +25,16 @@ class EncounterValidator extends BaseValidator
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context) {
                 $context->required('pc_catid');
-                $context->required("puuid", "Patient UUID")->callback(function ($value) {
-                    return $this->validateId('uuid', "patient_data", $value, true);
-                })->uuid();
+                $context->required('class_code')->callback(
+                    function ($value) {
+                        return $this->validateCode($value, "list_options", "_ActEncounterCode");
+                    }
+                );
+                $context->required("puuid", "Patient UUID")->callback(
+                    function ($value) {
+                        return $this->validateId('uuid', "patient_data", $value, true);
+                    }
+                )->uuid();
             }
         );
 
@@ -51,6 +58,11 @@ class EncounterValidator extends BaseValidator
                 $context->required("puuid", "Patient UUID")->callback(function ($value) {
                     return $this->validateId('uuid', "patient_data", $value, true);
                 })->uuid();
+                $context->optional('class_code')->callback(
+                    function ($value) {
+                        return $this->validateCode($value, "list_options", "_ActEncounterCode");
+                    }
+                );
             }
         );
     }

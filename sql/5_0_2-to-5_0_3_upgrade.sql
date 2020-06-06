@@ -669,3 +669,7 @@ ALTER TABLE `form_encounter` ADD `uuid` binary(16) DEFAULT NULL;
 #IfNotIndex form_encounter uuid
 CREATE UNIQUE INDEX `uuid` ON `form_encounter` (`uuid`);
 #EndIf
+
+#IfMissingColumn form_encounter class_code
+ALTER TABLE `form_encounter` ADD `class_code` VARCHAR(10) NOT NULL  DEFAULT "AMB";
+#EndIf

@@ -92,12 +92,15 @@ class EncounterService extends BaseService
                        fe.billing_facility,
                        fe.external_id,
                        fe.pos_code,
+                       fe.class_code,
+                       class.title as class_title,
                        opc.pc_catname,
                        fa.name AS billing_facility_name
                        FROM form_encounter as fe
                        LEFT JOIN openemr_postcalendar_categories as opc
                        ON opc.pc_catid = fe.pc_catid
                        LEFT JOIN facility as fa ON fa.id = fe.billing_facility
+                       LEFT JOIN list_options as class ON class.option_id = fe.class_code
                        WHERE fe.pid=? and fe.uuid=?
                        ORDER BY fe.id
                        DESC";
@@ -149,12 +152,15 @@ class EncounterService extends BaseService
                        fe.billing_facility,
                        fe.external_id,
                        fe.pos_code,
+                       fe.class_code,
+                       class.title as class_title,
                        opc.pc_catname,
                        fa.name AS billing_facility_name
                        FROM form_encounter as fe
                        LEFT JOIN openemr_postcalendar_categories as opc
                        ON opc.pc_catid = fe.pc_catid
                        LEFT JOIN facility as fa ON fa.id = fe.billing_facility
+                       LEFT JOIN list_options as class ON class.option_id = fe.class_code
                        WHERE pid=?
                        ORDER BY fe.id
                        DESC";
@@ -206,12 +212,15 @@ class EncounterService extends BaseService
                        fe.billing_facility,
                        fe.external_id,
                        fe.pos_code,
+                       fe.class_code,
+                       class.title as class_title,
                        opc.pc_catname,
                        fa.name AS billing_facility_name
                        FROM form_encounter as fe
                        LEFT JOIN openemr_postcalendar_categories as opc
                        ON opc.pc_catid = fe.pc_catid
                        LEFT JOIN facility as fa ON fa.id = fe.billing_facility
+                       LEFT JOIN list_options as class ON class.option_id = fe.class_code
                        WHERE fe.uuid=?
                        ORDER BY fe.id
                        DESC";
@@ -296,11 +305,14 @@ class EncounterService extends BaseService
                        fe.billing_facility,
                        fe.external_id,
                        fe.pos_code,
+                       fe.class_code,
+                       class.title as class_title,
                        opc.pc_catname,
                        fa.name AS billing_facility_name
                        FROM form_encounter as fe
                        LEFT JOIN openemr_postcalendar_categories as opc
                        ON opc.pc_catid = fe.pc_catid
+                       LEFT JOIN list_options as class ON class.option_id = fe.class_code
                        LEFT JOIN facility as fa ON fa.id = fe.billing_facility";
 
         if (!empty($search)) {

@@ -1717,6 +1717,7 @@ CREATE TABLE `form_encounter` (
   `external_id` VARCHAR(20) DEFAULT NULL,
   `pos_code` tinyint(4) default NULL,
   `parent_encounter_id` BIGINT(20) NULL DEFAULT NULL,
+  `class_code` VARCHAR(10) NOT NULL DEFAULT "AMB",
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
@@ -4757,6 +4758,19 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('lists', 'Sort_Direction', 'Sort Direction', 1, 0, 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '0', 'asc', 10, 1, 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '1', 'desc', 20, 0, 1);
+
+-- ActEncounterCode [FHIR Encounter.class]
+INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','AMB');
+INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','EMER');
+INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','FLD','field');
+INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','HH','home health');
+INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','IMP','inpatient encounter');
+INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','ACUTE','inpatient acute');
+INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','NONAC','inpatient non-acute');
+INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','OBSENC','observation encounter');
+INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','PRENC','pre-admission');
+INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','SS','short stay');
+INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','VR','virtual');
 
 -- --------------------------------------------------------
 
