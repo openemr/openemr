@@ -2906,17 +2906,17 @@ $GLOBALS_METADATA = array(
     'Portal' => array(
 
         'portal_onsite_two_enable' => array(
-            xl('Enable Onsite Patient Portal'),
+            xl('Enable Patient Portal'),
             'bool',                           // data type
             '0',
-            xl('Enable Onsite Patient Portal')
+            xl('Enable Patient Portal')
         ),
 
         'portal_onsite_two_address' => array(
-            xl('Onsite Patient Portal Site Address'),
+            xl('Patient Portal Site Address'),
             'text',                           // data type
             'https://your_web_site.com/openemr/portal',
-            xl('Website link for the Onsite Patient Portal.')
+            xl('Website link for the Patient Portal.')
         ),
 
         'portal_onsite_two_basepath' => array(
@@ -2934,52 +2934,52 @@ $GLOBALS_METADATA = array(
         ),
 
         'portal_onsite_two_register' => array(
-            xl('Allow Onsite New Patient Registration Widget'),
+            xl('Allow New Patient Registration Widget'),
             'bool',                           // data type
             '1',
-            xl('Enable Onsite Patient Portal new patient to self register.')
+            xl('Enable Patient Portal new patient to self register.')
         ),
 
         'allow_portal_appointments' => array(
-            xl('Allow Onsite Online Appointments'),
+            xl('Allow Online Appointments'),
             'bool',                           // data type
             '1',
-            xl('Allow Onsite Patient to make and view appointments online.')
+            xl('Allow Patient to make and view appointments online.')
         ),
 
         'allow_portal_chat' => array(
-            xl('Allow Onsite Online Secure Chat'),
+            xl('Allow Online Secure Chat'),
             'bool',                           // data type
             '1',
-            xl('Allow Onsite Patient to use Secure Chat Application.')
+            xl('Allow Patient to use Secure Chat Application.')
         ),
 
         'portal_two_ledger' => array(
-            xl('Allow Onsite Patient Ledger'),
+            xl('Allow Patient Ledger'),
             'bool',                           // data type
             '1',
-            xl('Allow Onsite Patient to view their accounting ledger online.')
+            xl('Allow Patient to view their accounting ledger online.')
         ),
 
         'portal_two_payments' => array(
-            xl('Allow Onsite Online Payments'),
+            xl('Allow Online Payments'),
             'bool',                           // data type
             '0',
-            xl('Allow Onsite Patient to make payments online.')
+            xl('Allow Patient to make payments online.')
         ),
 
         'portal_two_pass_reset' => array(
-            xl('Allow Onsite Patients to Reset Credentials'),
+            xl('Allow Patients to Reset Credentials'),
             'bool',                           // data type
             '0',
             xl('Patient may change their logon from portal login dialog.')
         ),
 
         'portal_onsite_document_download' => array(
-            xl('Enable Onsite Patient Portal Document Download'),
+            xl('Enable Patient Portal Document Download'),
             'bool',                           // data type
             '1',
-            xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
+            xl('Enables the ability to download documents in the Patient Portal by the user.')
         ),
     ),
 
