@@ -193,8 +193,8 @@ function zip_content($source, $destination, $content = '', $create = true)
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
+<link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css?v=<?php echo $v_js_includes; ?>">
+<link rel="stylesheet" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
 <?php } else {?>
 <html>
 <head>
@@ -230,14 +230,14 @@ input[type="radio"] {
 </style>
 
 <?php if (!$PDF_OUTPUT) { ?>
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
     <!-- Unclear where a conflict occurs but if jquery is already in scope then !!!! removed noconflict sjp 12-1-2019-->
 <script>var $j = '$';</script>
 
     <?php // if the track_anything form exists, then include the styling
     if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
- <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+ <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css?v=<?php echo $v_js_includes; ?>">
     <?php  } ?>
 
 <script>

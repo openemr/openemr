@@ -82,7 +82,7 @@ if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
 
 <?php Header::setupHeader(); ?>
 
-<style type="text/css">
+<style>
 /* specifically include & exclude from printing */
 @media print {
     #report_parameters {

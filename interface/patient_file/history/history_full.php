@@ -201,7 +201,7 @@ $(function () {
 });
 </script>
 
-<style type="text/css">
+<style>
 .form-control {
     width: auto;
     display: inline;
