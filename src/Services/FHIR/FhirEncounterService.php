@@ -82,9 +82,11 @@ class FhirEncounterService extends FhirServiceBase
             $encounterResource->setSubject($patient);
         }
 
-        $period = new FHIRPeriod();
-        $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
-        $encounterResource->setPeriod($period);
+        if (!empty($dataRecord['date'])) {
+            $period = new FHIRPeriod();
+            $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
+            $encounterResource->setPeriod($period);
+        }
 
         if (!empty($dataRecord['class_code'])) {
             $class = new FHIRCoding();
@@ -94,9 +96,13 @@ class FhirEncounterService extends FhirServiceBase
             $encounterResource->setClass($class);
         }
 
-        // TODO:
-        // type
-        // reasonCode (not mandatory)
+        // Encounter.type
+        $type = new FHIRCodeableConcept();
+        $type->addCoding(array(
+            "system" => "http://snomed.info/sct",
+            "code" => "185349003"
+        ));
+        $type->setText("Encounter for check up (procedure)");
 
         if ($encode) {
             return json_encode($encounterResource);
