@@ -4760,17 +4760,18 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '1', 'desc', 20, 0, 1);
 
 -- ActEncounterCode [FHIR Encounter.class]
-INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','AMB');
-INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','EMER');
-INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','FLD','field');
-INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','HH','home health');
-INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','IMP','inpatient encounter');
-INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','ACUTE','inpatient acute');
-INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','NONAC','inpatient non-acute');
-INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','OBSENC','observation encounter');
-INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','PRENC','pre-admission');
-INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','SS','short stay');
-INSERT INTO list_options(list_id,option_id,title) VALUES ('_ActEncounterCode','VR','virtual');
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('lists', '_ActEncounterCode', 'Value Set ActEncounterCode', 1);
+INSERT INTO list_options(list_id,option_id,title,notes,seq,is_default) VALUES ('_ActEncounterCode', 'AMB', 'Outpatient', 'ambulatory', 10, 1);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','EMER','Emergency Dept','emergency',11);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','FLD','Out in Field','field',12);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','HH','Home Health','home health',13);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','IMP','Inpatient Encounter','inpatient encounter',14);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','ACUTE','Inpatient Acute','inpatient acute',15);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','NONAC','Inpatient Non-Acute','inpatient non-acute',16);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','OBSENC','Observation Encounter','observation encounter',17);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','PRENC','Pre-Admission','pre-admission',18);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','SS','Short Stay','short stay',19);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','VR','Virtual Encounter','virtual',20);
 
 -- --------------------------------------------------------
 
