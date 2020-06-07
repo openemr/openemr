@@ -6545,6 +6545,20 @@ INSERT INTO `sequences` VALUES (1);
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `session_tracker`
+--
+
+DROP TABLE IF EXISTS `session_tracker`;
+CREATE TABLE `session_tracker` (
+  `uuid` binary(16) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  `last_updated` timestamp NULL,
+  PRIMARY KEY (`uuid`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `supported_external_dataloads`
 --
 

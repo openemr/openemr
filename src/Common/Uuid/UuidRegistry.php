@@ -34,10 +34,12 @@ class UuidRegistry
     const MAX_TRIES = 100;
 
     private $table_name;
+    private $disable_tracker;
 
     public function __construct($associations = [])
     {
         $this->table_name = $associations['table_name'] ?? '';
+        $this->disable_tracker = $associations['disable_tracker'] ?? false;
     }
 
     /**
@@ -84,7 +86,9 @@ class UuidRegistry
             */
 
             // Check to ensure uuid is unique in uuid_registry
-            $checkUniqueRegistry = sqlQueryNoLog("SELECT * FROM `uuid_registry` WHERE `uuid` = ?", [$uuid]);
+            if (!$this->disable_tracker) {
+                $checkUniqueRegistry = sqlQueryNoLog("SELECT * FROM `uuid_registry` WHERE `uuid` = ?", [$uuid]);
+            }
             if (empty($checkUniqueRegistry)) {
                 // If using $this->table_name, then ensure uuid is unique in that table
                 if (!empty($this->table_name)) {
@@ -99,7 +103,9 @@ class UuidRegistry
         }
 
         // Insert the uuid into uuid_registry
-        sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `created`) VALUES (?, ?, NOW())", [$uuid, $this->table_name]);
+        if (!$this->disable_tracker) {
+            sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `created`) VALUES (?, ?, NOW())", [$uuid, $this->table_name]);
+        }
 
         // Return the uuid
         return $uuid;

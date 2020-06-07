@@ -21,6 +21,7 @@ require_once('../globals.php');
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -372,6 +373,9 @@ if (isset($_POST['new_login_session_management'])) {
 //  Note this key always remains private and never leaves server session. It is used to create
 //  the csrf tokens.
 CsrfUtils::setupCsrfKey();
+// Set up the session uuid. This will be used for mapping session setting to database.
+//  At this time only used for lastupdate tracking
+SessionTracker::setupSessionDatabaseTracker();
 
 $_SESSION["encounter"] = '';
 
