@@ -2906,17 +2906,17 @@ $GLOBALS_METADATA = array(
     'Portal' => array(
 
         'portal_onsite_two_enable' => array(
-            xl('Enable Onsite Patient Portal'),
+            xl('Enable Patient Portal'),
             'bool',                           // data type
             '0',
-            xl('Enable Onsite Patient Portal')
+            xl('Enable Patient Portal')
         ),
 
         'portal_onsite_two_address' => array(
-            xl('Onsite Patient Portal Site Address'),
+            xl('Patient Portal Site Address'),
             'text',                           // data type
             'https://your_web_site.com/openemr/portal',
-            xl('Website link for the Onsite Patient Portal.')
+            xl('Website link for the Patient Portal.')
         ),
 
         'portal_onsite_two_basepath' => array(
@@ -2934,126 +2934,53 @@ $GLOBALS_METADATA = array(
         ),
 
         'portal_onsite_two_register' => array(
-            xl('Allow Onsite New Patient Registration Widget'),
+            xl('Allow New Patient Registration Widget'),
             'bool',                           // data type
             '1',
-            xl('Enable Onsite Patient Portal new patient to self register.')
+            xl('Enable Patient Portal new patient to self register.')
         ),
 
         'allow_portal_appointments' => array(
-            xl('Allow Onsite Online Appointments'),
+            xl('Allow Online Appointments'),
             'bool',                           // data type
             '1',
-            xl('Allow Onsite Patient to make and view appointments online.')
+            xl('Allow Patient to make and view appointments online.')
         ),
 
         'allow_portal_chat' => array(
-            xl('Allow Onsite Online Secure Chat'),
+            xl('Allow Online Secure Chat'),
             'bool',                           // data type
             '1',
-            xl('Allow Onsite Patient to use Secure Chat Application.')
+            xl('Allow Patient to use Secure Chat Application.')
         ),
 
         'portal_two_ledger' => array(
-            xl('Allow Onsite Patient Ledger'),
+            xl('Allow Patient Ledger'),
             'bool',                           // data type
             '1',
-            xl('Allow Onsite Patient to view their accounting ledger online.')
+            xl('Allow Patient to view their accounting ledger online.')
         ),
 
         'portal_two_payments' => array(
-            xl('Allow Onsite Online Payments'),
+            xl('Allow Online Payments'),
             'bool',                           // data type
             '0',
-            xl('Allow Onsite Patient to make payments online.')
+            xl('Allow Patient to make payments online.')
         ),
 
         'portal_two_pass_reset' => array(
-            xl('Allow Onsite Patients to Reset Credentials'),
+            xl('Allow Patients to Reset Credentials'),
             'bool',                           // data type
             '0',
             xl('Patient may change their logon from portal login dialog.')
         ),
 
         'portal_onsite_document_download' => array(
-            xl('Enable Onsite Patient Portal Document Download'),
+            xl('Enable Patient Portal Document Download'),
             'bool',                           // data type
             '1',
-            xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
+            xl('Enables the ability to download documents in the Patient Portal by the user.')
         ),
-
-        'portal_offsite_enable' => array(
-            xl('Enable Offsite Patient Portal'),
-            'bool',                           // data type
-            '0',
-            xl('Enable Offsite Patient Portal.')
-        ),
-        'portal_offsite_providerid' => array(
-            xl('Offsite Patient Portal Provider ID'),
-            'text',                           // data type
-            '',
-            xl('Offsite Patient Portal Provider ID(Put Blank If not Registered).')
-        ),
-
-        'portal_offsite_username' => array(
-            xl('Offsite Patient Portal Username'),
-            'text',                           // data type
-            '',
-            xl('Offsite Patient Portal Username(Put Blank If not Registered).')
-        ),
-
-        'portal_offsite_password' => array(
-            xl('Offsite Patient Portal Password'),
-            'pwd',                           // data type
-            '',
-            xl('Offsite Patient Portal Password(Put Blank If not Registered).')
-        ),
-
-        'portal_offsite_address' => array(
-            xl('Offsite Patient Portal Site Address'),
-            'text',                           // data type
-            'https://ssh.mydocsportal.com/provider.php',
-            xl('Offsite Https link for the Patient Portal.')
-        ),
-
-        'portal_offsite_address_patient_link' => array(
-            xl('Offsite Patient Portal Site Address (Patient Link)'),
-            'text',                           // data type
-            'https://ssh.mydocsportal.com',
-            xl('Offsite Https link for the Patient Portal.(Patient Link)')
-        ),
-
-        // Currently the "CMS Portal" supports WordPress.  Other Content Management
-        // Systems may be supported in the future.
-
-        'gbl_portal_cms_enable' => array(
-            xl('Enable CMS Portal'),
-            'bool',                           // data type
-            '0',
-            xl('Enable support for the open source WordPress Portal by Sunset Systems')
-        ),
-
-        'gbl_portal_cms_address' => array(
-            xl('CMS Portal Site Address'),
-            'text',                           // data type
-            'https://your_cms_site.com/',
-            xl('URL for the WordPress site that supports the portal')
-        ),
-
-        'gbl_portal_cms_username' => array(
-            xl('CMS Portal Username'),
-            'text',                           // data type
-            '',
-            xl('Login name of WordPress user for portal access')
-        ),
-
-        'gbl_portal_cms_password' => array(
-            xl('CMS Portal Password'),
-            'encrypted',                      // data type
-            '',
-            xl('Password for the above user')
-        ),
-
     ),
 
     // Connectors Tab
