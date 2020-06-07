@@ -66,12 +66,12 @@ function sqlQuery($statement, $link)
                 <div class="table-responsive">
                     <table class='table table-striped text-center'>
                         <tr>
-                            <th >Site ID</th>
-                            <th >DB Name</th>
-                            <th >Site Name</th>
-                            <th >Version</th>
-                            <th >Is Current</th>
-                            <th >Log In</th>
+                            <th>Site ID</th>
+                            <th>DB Name</th>
+                            <th>Site Name</th>
+                            <th>Version</th>
+                            <th>Is Current</th>
+                            <th>Log In</th>
                         </tr>
                         <?php
                         $dh = opendir($OE_SITES_BASE);
@@ -167,7 +167,7 @@ function sqlQuery($statement, $link)
                                     echo "  <td><i class='fa fa-check fa-lg text-success' aria-hidden='true' ></i></a></td>\n";
                                 }
                                 if (($v_database == $database_version) && ($v_acl <= $database_acl) && ($v_realpatch == $database_patch)) {
-                                    echo "  <td><a href='interface/login/login.php?site=$sfname' class='text-decoration-none'><i class='fa fa-sign-in fa-lg' aria-hidden='true' data-toggle='tooltip' data-placement='top' title ='Login to site $sfname'></i></a></td>\n";
+                                    echo "  <td><a href='interface/login/login.php?site=$sfname' class='text-decoration-none'><i class='fa fa-sign-in-alt fa-lg' aria-hidden='true' data-toggle='tooltip' data-placement='top' title ='Login to site $sfname'></i></a></td>\n";
                                 } else {
                                     echo "  <td><i class='fa fa-ban fa-lg text-secondary' aria-hidden='true'></i></td>\n";
                                 }
