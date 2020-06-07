@@ -580,8 +580,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 "<?php echo addslashes($fs->genProviderOptionList('-- ' . xl('Default') . ' --')) ?>" +
                 "</select>&nbsp;" +
                 "</td>" +
-                "<td class='text border-top-0' align='right'>" + price + "&nbsp;</td>" +
-                "<td class='text border-top-0' align='right'>" +
+                "<td class='text border-top-0 text-right'>" + price + "&nbsp;</td>" +
+                "<td class='text border-top-0 text-right'>" +
                 "<input type='checkbox' name='form_fs_bill[" + lino + "][del]' value='1' />" +
                 "<input type='hidden' name='form_fs_bill[" + lino + "][code_type]' value='" + code_type + "' />" +
                 "<input type='hidden' name='form_fs_bill[" + lino + "][code]'      value='" + code + "' />" +
@@ -603,11 +603,11 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 "<td class='text border-top-0'>" +
                 "<select name='form_fs_prod[" + lino + "][warehouse]'>" + warehouses + "</select>&nbsp;" +
                 "</td>" +
-                "<td class='text border-top-0' align='right'>" +
+                "<td class='text border-top-0 text-right'>" +
                 "<input type='text' name='form_fs_prod[" + lino + "][units]' size='3' value='1' />&nbsp;" +
                 "</td>" +
-                "<td class='text border-top-0' align='right'>" + price + "&nbsp;</td>" +
-                "<td class='text border-top-0' align='right'>" +
+                "<td class='text border-top-0 text-right'>" + price + "&nbsp;</td>" +
+                "<td class='text border-top-0 text-right'>" +
                 "<input type='checkbox' name='form_fs_prod[" + lino + "][del]'     value='1' />" +
                 "<input type='hidden'   name='form_fs_prod[" + lino + "][drug_id]' value='" + code + "' />" +
                 "<input type='hidden'   name='form_fs_prod[" + lino + "][price]'   value='" + price + "' />" +
@@ -623,7 +623,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             trelem.innerHTML =
                 "<td class='text border-top-0'>" + code + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" + desc + "&nbsp;</td>" +
-                "<td class='text border-top-0' align='right'>" +
+                "<td class='text border-top-0 text-right'>" +
                 "<input type='checkbox' name='form_fs_bill[" + lino + "][del]' value='1' />" +
                 "<input type='hidden' name='form_fs_bill[" + lino + "][code_type]' value='" + code_type + "' />" +
                 "<input type='hidden' name='form_fs_bill[" + lino + "][code]'      value='" + code + "' />" +
@@ -1024,7 +1024,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     $historical_ids = array();
                     if ($formhistory > 0) {
                         echo " <tr>";
-                        echo "<td colspan='" . attr($CPR) . "' align='right' class='font-weight-bold border-top-0'>";
+                        echo "<td colspan='" . attr($CPR) . "' class='font-weight-bold border-top-0 text-right'>";
                         if (empty($is_lbf)) {
                             // Including actual date per IPPF request 2012-08-23.
                             echo text(oeFormatShortDate(substr($enrow['date'], 0, 10)));
@@ -1046,7 +1046,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         // We sort these sensibly, however only the encounter date is shown here;
                         // at some point we may wish to show also the data entry date/time.
                         while ($hrow = sqlFetchArray($hres)) {
-                            echo "<td colspan='" . attr($CPR) . "' align='right' class='font-weight-bold border-top-0'>&nbsp;" .
+                            echo "<td colspan='" . attr($CPR) . "' class='font-weight-bold border-top-0 text-right'>&nbsp;" .
                                 text(oeFormatShortDate(substr($hrow['date'], 0, 10))) . "</td>\n";
                             $historical_ids[$hrow['form_id']] = '';
                         }
@@ -1088,9 +1088,9 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     if (isOption($edit_options, 'SP')) {
                         $datacols = 0;
                         $titlecols = $CPR;
-                        echo "<td class='border-top-0' valign='top' colspan='" . attr($titlecols) . "'";
+                        echo "<td class='border-top-0 align-top' colspan='" . attr($titlecols) . "'";
                     } else {
-                        echo "<td class='border-top-0' valign='top' colspan='" . attr($titlecols) . "' nowrap";
+                        echo "<td class='border-top-0 align-top text-nowrap' colspan='" . attr($titlecols) . "'";
                     }
                     echo " class='";
                     echo ($frow['uor'] == 2) ? "required" : "font-weight-bold";
@@ -1108,7 +1108,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     echo ">";
 
                     foreach ($historical_ids as $key => $dummy) {
-                        $historical_ids[$key] .= "<td valign='top' colspan='" . attr($titlecols) . "' class='text border-top-0' nowrap>";
+                        $historical_ids[$key] .= "<td colspan='" . attr($titlecols) . "' class='text border-top-0 align-top text-nowrap'>";
                     }
 
                     $cell_count += $titlecols;
@@ -1135,12 +1135,12 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 if ($datacols > 0) {
                     end_cell();
                     if (isOption($edit_options, 'DS')) {
-                        echo "<td valign='top' colspan='" . attr($datacols) . "' class='border-top-0 text RS'";
+                        echo "<td colspan='" . attr($datacols) . "' class='border-top-0 align-top text RS'";
                     }
                     if (isOption($edit_options, 'DO')) {
-                        echo "<td valign='top' colspan='" . attr($datacols) . "' class='border-top-0 text RO'";
+                        echo "<td colspan='" . attr($datacols) . "' class='border-top-0 align-top text RO'";
                     } else {
-                        echo "<td valign='top' colspan='" . attr($datacols) . "' class='border-top-0 text'";
+                        echo "<td colspan='" . attr($datacols) . "' class='border-top-0 align-top text'";
                     }
                     // This ID is used by action conditions.
                     echo " id='value_id_" . attr($field_id) . "'";
@@ -1151,7 +1151,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     echo ">";
 
                     foreach ($historical_ids as $key => $dummy) {
-                        $historical_ids[$key] .= "<td valign='top' align='right' colspan='" . attr($datacols) . "' class='text border-top-0'>";
+                        $historical_ids[$key] .= "<td colspan='" . attr($datacols) . "' class='text border-top-0 align-top text-right'>";
                     }
 
                     $cell_count += $datacols;
@@ -1283,8 +1283,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 echo " <tr>\n";
                 echo "  <td class='border-top-0 font-weight-bold' colspan='2'>" . xlt('Services Provided') . "&nbsp;</td>\n";
                 echo "  <td class='border-top-0 font-weight-bold'>" . xlt('Provider') . "&nbsp;</td>\n";
-                echo "  <td class='border-top-0 font-weight-bold' align='right'>" . xlt('Price') . "&nbsp;</td>\n";
-                echo "  <td class='border-top-0 font-weight-bold' align='right'>" . xlt('Delete') . "</td>\n";
+                echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Price') . "&nbsp;</td>\n";
+                echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Delete') . "</td>\n";
                 echo " </tr>\n";
                 foreach ($fs->serviceitems as $lino => $li) {
                     // Skip diagnoses; those would be in the Diagnoses section below.
@@ -1297,8 +1297,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     echo "  <td class='border-top-0 text'>" .
                         $fs->genProviderSelect("form_fs_bill[$lino][provid]", '-- ' . xl("Default") . ' --', $li['provid']) .
                         "  &nbsp;</td>\n";
-                    echo "  <td class='border-top-0 text' align='right'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 text' align='right'>\n" .
+                    echo "  <td class='border-top-0 text text-right'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 text text-right'>\n" .
                         "   <input type='checkbox' name='form_fs_bill[" . attr($lino) . "][del]' " .
                         "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
                     foreach ($li['hidden'] as $hname => $hvalue) {
@@ -1377,9 +1377,9 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 echo " <tr>\n";
                 echo "  <td class='border-top-0 font-weight-bold'>" . xlt('Products Provided') . "&nbsp;</td>\n";
                 echo "  <td class='border-top-0 font-weight-bold'>" . xlt('Warehouse') . "&nbsp;</td>\n";
-                echo "  <td class='border-top-0 font-weight-bold' align='right'>" . xlt('Quantity') . "&nbsp;</td>\n";
-                echo "  <td class='border-top-0 font-weight-bold' align='right'>" . xlt('Price') . "&nbsp;</td>\n";
-                echo "  <td class='border-top-0 font-weight-bold' align='right'>" . xlt('Delete') . "</td>\n";
+                echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Quantity') . "&nbsp;</td>\n";
+                echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Price') . "&nbsp;</td>\n";
+                echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Delete') . "</td>\n";
                 echo " </tr>\n";
                 $fs->loadProductItems();
                 foreach ($fs->productitems as $lino => $li) {
@@ -1388,11 +1388,11 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     echo "  <td class='border-top-0 text'>" .
                         $fs->genWarehouseSelect("form_fs_prod[$lino][warehouse]", '', $li['warehouse'], false, $li['hidden']['drug_id'], true) .
                         "  &nbsp;</td>\n";
-                    echo "  <td class='border-top-0 text' align='right'>" .
+                    echo "  <td class='border-top-0 text text-right'>" .
                         "<input type='text' name='form_fs_prod[" . attr($lino) . "][units]' size='3' value='" . attr($li['units']) . "' />" .
                         "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 text' align='right'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 text' align='right'>\n" .
+                    echo "  <td class='border-top-0 text text-right'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 text text-right'>\n" .
                         "   <input type='checkbox' name='form_fs_prod[" . attr($lino) . "][del]' " .
                         "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
                     foreach ($li['hidden'] as $hname => $hvalue) {
@@ -1466,7 +1466,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 echo "<table cellpadding='0' cellspacing='2' id='fs_diags_table'>\n";
                 echo " <tr>\n";
                 echo "  <td class='border-top-0 font-weight-bold' colspan='2'>" . xlt('Diagnosis') . "&nbsp;</td>\n";
-                echo "  <td class='border-top-0 font-weight-bold' align='right'>" . xlt('Delete') . "</td>\n";
+                echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Delete') . "</td>\n";
                 echo " </tr>\n";
                 foreach ($fs->serviceitems as $lino => $li) {
                     // Skip anything that is not a diagnosis; those are in the Services section above.
@@ -1477,7 +1477,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     echo "  <td class='border-top-0 text'>" . text($li['code']) . "&nbsp;</td>\n";
                     echo "  <td class='border-top-0 text'>" . text($li['code_text']) . "&nbsp;</td>\n";
                     // The Diagnoses section shares the form_fs_bill array with the Services section.
-                    echo "  <td class='border-top-0 text' align='right'>\n" .
+                    echo "  <td class='border-top-0 text text-right'>\n" .
                         "   <input type='checkbox' name='form_fs_bill[" . attr($lino) . "][del]' " .
                         "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
                     foreach ($li['hidden'] as $hname => $hvalue) {

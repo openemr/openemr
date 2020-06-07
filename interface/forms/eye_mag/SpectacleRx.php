@@ -366,14 +366,14 @@ if ($_REQUEST['dispensed']) {
     </head>
     <?php echo report_header($pid, "web"); ?>
     <div class="row">
-        <div class="col-sm-8 offset-sm-2 text-center" style="margin:5;width:560px;">
+        <div class="col-sm-8 offset-sm-2 text-center m-3">
             <table>
                 <tr>
                     <td colspan="2"><h4 class="underline"><?php echo xlt('Rx History'); ?></h4></td>
                 </tr>
                 <?php
                 if (sqlNumRows($dispensed) == 0) {
-                    echo "<tr><td colspan='2' class='text-center' style='font-size:1.2em;padding:25px;'>" . xlt('There are no Glasses or Contact Lens Presciptions on file for this patient') . "</td></tr>";
+                    echo "<tr><td colspan='2' class='text-center p-3' style='font-size:1.2em;'>" . xlt('There are no Glasses or Contact Lens Presciptions on file for this patient') . "</td></tr>";
                 }
                 ?>
             </table>
@@ -410,34 +410,33 @@ if ($_REQUEST['dispensed']) {
                 $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
 
                 ?>
-                    <div class="position-relative text-center" id="RXID_<?php echo attr($row['id']); ?>"
-                         style="margin: 10 auto;">
+                    <div class="position-relative text-center mt-2 mb-2 mx-auto" id="RXID_<?php echo attr($row['id']); ?>">
                         <i class="float-right fas fa-times"
                            onclick="delete_me('<?php echo attr(addslashes($row['id'])); ?>');"
                            title="<?php echo xla('Remove this Prescription from the list of RXs dispensed'); ?>"></i>
                         <div class="table-responsive">
-                            <table style="margin:2px auto;">
+                            <table class="table mt-1 mb-1 mx-auto">
                                 <tr>
-                                    <td class="right font-weight-bold" style="width:250px;">
+                                    <td class="text-right align-middle font-weight-bold" style="width:250px;">
                                         <?php echo xlt('RX Print Date'); ?>:
                                     </td>
                                     <td>&nbsp;&nbsp;<?php echo text($row['date']); ?></td>
                                 </tr>
                                 <tr>
-                                    <td class="right font-weight-bold">
+                                    <td class="text-right align-middle font-weight-bold">
                                         <?php echo xlt('Visit Date'); ?>:
                                     </td>
                                     <td>&nbsp;&nbsp;<?php echo text($row['REFDATE']); ?></td>
                                 </tr>
                                 <tr>
-                                    <td class="right font-weight-bold">
+                                    <td class="text-right align-middle font-weight-bold">
                                         <?php echo xlt('Expiration Date'); ?>:
                                     </td>
                                     <td>&nbsp;&nbsp;<?php echo text($expir_date); ?></td>
                                 </tr>
 
                                 <tr>
-                                    <td class="right font-weight-bold"><?php echo xlt('Refraction Method'); ?>:</td>
+                                    <td class="text-right align-middle font-weight-bold"><?php echo xlt('Refraction Method'); ?>:</td>
                                     <td>&nbsp;&nbsp;<?php
                                     if ($row['REFTYPE'] == "W") {
                                         echo xlt('Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}');
@@ -465,7 +464,7 @@ if ($_REQUEST['dispensed']) {
                                                         <td class="center font-weight-bold underline"><?php echo xlt('Sph{{Sphere}}'); ?></td>
                                                         <td class="center font-weight-bold underline"><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                                                         <td class="center font-weight-bold underline"><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
-                                                        <td rowspan="5" class="right font-weight-bold underline" colspan="2"
+                                                        <td rowspan="5" class="text-right align-middle font-weight-bold underline" colspan="2"
                                                             style="min-width:100px;">
                                                             <?php echo xlt('Rx Type'); ?><br/><br/>
                                                             <?php echo xlt('Single'); ?>
@@ -507,11 +506,11 @@ if ($_REQUEST['dispensed']) {
                                                         <td class="WAdd2"><?php echo text($row['OSADD2']); ?></td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="2" class="up" class="font-weight-bold text-right"
-                                                            style="vertical-align:top;top:0px;"><?php echo xlt('Comments'); ?>
+                                                        <td colspan="2" class="up" class="font-weight-bold text-right align-top"
+                                                            style="top:0px;"><?php echo xlt('Comments'); ?>
                                                             :
                                                         </td>
-                                                        <td colspan="4" class="up left"></td>
+                                                        <td colspan="4" class="up text-left"></td>
                                                         <?php echo text($row['CRCOMMENTS']); ?>
                                                         </td>
                                                     </tr>
@@ -527,7 +526,7 @@ if ($_REQUEST['dispensed']) {
                                                 <table id="CTLRx" name="CTLRx" class="refraction">
                                                     <tr>
                                                         <td colspan="4"
-                                                            class="font-weight-bold left text-uppercase text-top" style="display: flex;
+                                                            class="font-weight-bold text-left align-middle text-uppercase text-top" style="display: flex;
                                                 align-items:top"><u><?php echo xlt('Right Lens'); ?></u>
                                                         </td>
                                                     </tr>
@@ -559,11 +558,11 @@ if ($_REQUEST['dispensed']) {
                                                             <?php } ?>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="2" class="right font-weight-bold">
+                                                        <td colspan="2" class="text-right align-middle font-weight-bold">
                                                             <?php echo xlt('Brand'); ?>: <br />
                                                             <?php echo xlt('Quantity'); ?>: <br />
                                                             <?php echo xlt('Supplier'); ?>: </td>
-                                                        <td colspan="5" class="left" style="padding-left:10px;vertical-align:top;">
+                                                        <td colspan="5" class="text-left align-middle align-middle align-top" style="padding-left:10px;">
                                                             <?php echo text($row['CTLBRANDOD']); ?>
                                                             <?php
                                                             if (!empty($row['CTLMANUFACTUREROD'])) {
@@ -581,7 +580,7 @@ if ($_REQUEST['dispensed']) {
                                                     </tr>
                                                     <tr>
                                                         <td colspan="4"
-                                                            class="font-weight-bold left text-uppercase text-top d-flex align-items-start">
+                                                            class="font-weight-bold text-left align-middle text-uppercase text-top d-flex align-items-start">
                                                             <u><?php echo xlt('Left Lens'); ?></u>
                                                         </td>
                                                     </tr>
@@ -614,11 +613,11 @@ if ($_REQUEST['dispensed']) {
                                                         } ?>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="2" class="right font-weight-bold">
+                                                        <td colspan="2" class="text-right align-middle font-weight-bold">
                                                             <?php echo xlt('Brand'); ?>: <br />
                                                             <?php echo xlt('Quantity'); ?>: <br />
                                                             <?php echo xlt('Supplier'); ?>: </td>
-                                                        <td colspan="5" class="left" style="padding-left:10px;vertical-align:top;"><?php echo text($row['CTLBRANDOS']); ?>
+                                                        <td colspan="5" class="text-left align-middle align-top" style="padding-left:10px;"><?php echo text($row['CTLBRANDOS']); ?>
                                                             <?php
                                                             if (!empty($row['CTLMANUFACTUREROS'])) {
                                                                 echo "(" . text($row['CTLMANUFACTUREROS']) . ")";
@@ -631,9 +630,9 @@ if ($_REQUEST['dispensed']) {
                                                     <?php if (!empty($row['COMMENTS'])) { ?>
                                                         <tr><td colspan="7"><hr /></td></tr>
                                                         <tr>
-                                                            <td colspan="3" class="font-weight-bold right"><?php echo xlt('Comments'); ?>:
+                                                            <td colspan="3" class="font-weight-bold text-right align-middle"><?php echo xlt('Comments'); ?>:
                                                             </td>
-                                                            <td colspan="3" class="left" style="padding-left:10px;vertical-align:middle;top:0px;">
+                                                            <td colspan="3" class="text-left align-middle" style="padding-left:10px;top:0px;">
                                                                 <?php echo text($row['COMMENTS']); ?>
                                                             </td>
                                                         </tr>
@@ -868,7 +867,7 @@ if ($REFTYPE == "CTL") {
                                     <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                                     <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                                     <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
-                                    <td rowspan="5" class="right font-weight-bold" colspan="1" >
+                                    <td rowspan="5" class="text-right align-middle font-weight-bold" colspan="1" >
                                         <span class="font-weight-bold underline"><?php echo xlt('Rx Type'); ?></span>
                                         <br/><br/>
                                         <span id="SingleVision_span" name="SingleVision_span">
@@ -908,32 +907,32 @@ if ($REFTYPE == "CTL") {
                                     <td></td>
                                 </tr>
                                 <tr class="center">
-                                    <td rowspan="2" colspan="1" class="right font-weight-bold"><?php echo xlt('Distance'); ?>: </td>
-                                    <td class="right font-weight-bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                                    <td><input type=text id="ODSPH" name="ODSPH" value="<?php echo attr($ODSPH); ?>"></td>
-                                    <td><input type=text id="ODCYL" name="ODCYL" value="<?php echo attr($ODCYL); ?>"></td>
-                                    <td><input type=text id="ODAXIS" name="ODAXIS" value="<?php echo attr($ODAXIS); ?>">
+                                    <td rowspan="2" colspan="1" class="text-right align-middle font-weight-bold"><?php echo xlt('Distance'); ?>: </td>
+                                    <td class="text-right align-middle font-weight-bold"><?php echo xlt('OD{{right eye}}'); ?></td>
+                                    <td><input type="text" id="ODSPH" name="ODSPH" value="<?php echo attr($ODSPH); ?>"></td>
+                                    <td><input type="text" id="ODCYL" name="ODCYL" value="<?php echo attr($ODCYL); ?>"></td>
+                                    <td><input type="text" id="ODAXIS" name="ODAXIS" value="<?php echo attr($ODAXIS); ?>">
                                     </td>
                                 </tr>
                                 <tr class="center">
-                                    <td name="W_wide" class="right font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
-                                    <td><input type=text id="OSSPH" name="OSSPH" value="<?php echo attr($OSSPH); ?>"></td>
-                                    <td><input type=text id="OSCYL" name="OSCYL" value="<?php echo attr($OSCYL); ?>"></td>
-                                    <td><input type=text id="OSAXIS" name="OSAXIS" value="<?php echo attr($OSAXIS); ?>">
+                                    <td name="W_wide" class="text-right align-middle font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
+                                    <td><input type="text" id="OSSPH" name="OSSPH" value="<?php echo attr($OSSPH); ?>"></td>
+                                    <td><input type="text" id="OSCYL" name="OSCYL" value="<?php echo attr($OSCYL); ?>"></td>
+                                    <td><input type="text" id="OSAXIS" name="OSAXIS" value="<?php echo attr($OSAXIS); ?>">
                                     </td>
                                 </tr>
                                 <tr class="NEAR center">
-                                    <td rowspan="2" colspan="1" class="right font-weight-bold text-nowrap"><?php echo xlt('ADD'); ?>:<br/>
+                                    <td rowspan="2" colspan="1" class="text-right align-middle font-weight-bold text-nowrap"><?php echo xlt('ADD'); ?>:<br/>
                                         <?php echo xlt("Mid{{Middle segment in a trifocal glasses prescription}}"); ?>
                                         /<?php echo xlt("Near"); ?></td>
-                                    <td class="right font-weight-bold"><?php echo xlt('OD{{right eye}}'); ?></td>
+                                    <td class="text-right align-middle font-weight-bold"><?php echo xlt('OD{{right eye}}'); ?></td>
                                     <td name="COLADD1"><input type="text" id="ODMIDADD" name="ODMIDADD"
                                                               value="<?php echo attr($ODMIDADD); ?>"></td>
                                     <td class="WAdd2"><input type="text" id="ODADD2" name="ODADD2"
                                                              value="<?php echo attr($ODADD2); ?>"></td>
                                 </tr>
                                 <tr class="NEAR center">
-                                    <td class="right font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
+                                    <td class="text-right align-middle font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
                                     <td name="COLADD1">
                                         <input type="text" id="OSMIDADD" name="OSMIDADD" value="<?php echo attr($OSMIDADD); ?>"></td>
                                     <td class="WAdd2">
@@ -1046,17 +1045,11 @@ if ($REFTYPE == "CTL") {
                                                              value="<?php echo attr($ODMPDD); ?>"></td>
                                     <td name="W_wide"><input type="text" class="prism" id="ODMPDN" name="ODMPDN"
                                                              value="<?php echo attr($ODMPDN); ?>"></td>
-                                    <td name="W_wide" rowspan="2" style="vertical-align:middle;"><input type="text"
-                                                                                                        class="prism"
-                                                                                                        id="BPDD"
-                                                                                                        name="BPDD"
-                                                                                                        value="<?php echo attr($BPDD); ?>">
+                                    <td name="W_wide" rowspan="2">
+                                        <input type="text" class="prism align-middle" id="BPDD" name="BPDD" value="<?php echo attr($BPDD); ?>" />
                                     </td>
-                                    <td name="W_wide" rowspan="2" style="vertical-align:middle;"><input type="text"
-                                                                                                        class="prism"
-                                                                                                        id="BPDN"
-                                                                                                        name="BPDN"
-                                                                                                        value="<?php echo attr($BPDN); ?>">
+                                    <td name="W_wide" rowspan="2" class="align-middle">
+                                        <input type="text" class="prism" id="BPDN" name="BPDN" value="<?php echo attr($BPDN); ?>" />
                                     </td>
                                     <td colspan="2">   <?php
                                         echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', array('style' => 'width:120px'));
@@ -1076,8 +1069,8 @@ if ($REFTYPE == "CTL") {
                                     <td colspan="3"><?php echo xlt('Lens Treatments'); ?>
                                     </td>
                                 </tr>
-                                <tr class="text-left" style="vertical-align:top;">
-                                    <td colspan="4" class="font-weight-bold left">
+                                <tr class="text-left align-top">
+                                    <td colspan="4" class="font-weight-bold text-left align-middle">
                                         <?php echo generate_lens_treatments($W, $LENS_TREATMENTS); ?>
                                     </td>
                                 </tr>
@@ -1092,11 +1085,11 @@ if ($REFTYPE == "CTL") {
                         ?>
                             <table id="CTLRx" name="CTLRx" class="refraction bordershadow">
                                 <tr class="font-weight-bold center">
-                                    <td class="right font-weight-bold underline"><?php echo xlt('Right Lens'); ?></td>
+                                    <td class="text-right align-middle font-weight-bold underline"><?php echo xlt('Right Lens'); ?></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" class="right font-weight-bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
-                                    <td colspan="4" class="left"><?php echo text($CTLBRANDOD); ?> <?php if ($CTLMANUFACTUREROD) {
+                                    <td colspan="2" class="text-right align-middle font-weight-bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
+                                    <td colspan="4" class="text-left align-middle"><?php echo text($CTLBRANDOD); ?> <?php if ($CTLMANUFACTUREROD) {
                                         echo "(" . text($CTLMANUFACTUREROD) . ")";} ?></td>
                                 </tr>
                                 <tr class="font-weight-bold">
@@ -1112,26 +1105,26 @@ if ($REFTYPE == "CTL") {
                                         <?php } ?>
                                 </tr>
                                 <tr>
-                                    <td><input type=text id="CTLODSPH" name="CTLODSPH" value="<?php echo attr($ODSPH); ?>">
+                                    <td><input type="text" id="CTLODSPH" name="CTLODSPH" value="<?php echo attr($ODSPH); ?>">
                                     </td>
-                                    <td><input type=text id="CTLODCYL" name="CTLODCYL" value="<?php echo attr($ODCYL); ?>">
+                                    <td><input type="text" id="CTLODCYL" name="CTLODCYL" value="<?php echo attr($ODCYL); ?>">
                                     </td>
-                                    <td><input type=text id="CTLODAXIS" name="CTLODAXIS"
+                                    <td><input type="text" id="CTLODAXIS" name="CTLODAXIS"
                                                value="<?php echo attr($ODAXIS); ?>"></td>
-                                    <td><input type=text id="CTLODBC" name="CTLODBC" value="<?php echo attr($ODBC); ?>">
+                                    <td><input type="text" id="CTLODBC" name="CTLODBC" value="<?php echo attr($ODBC); ?>">
                                     </td>
-                                    <td><input type=text id="CTLODDIAM" name="CTLODDIAM"
+                                    <td><input type="text" id="CTLODDIAM" name="CTLODDIAM"
                                                value="<?php echo attr($ODDIAM); ?>"></td>
                                     <?php
                                     if ($adds) {
                                         ?>
-                                            <td><input type=text id="CTLODADD" name="CTLODADD" value="<?php echo attr($ODADD); ?>">
+                                            <td><input type="text" id="CTLODADD" name="CTLODADD" value="<?php echo attr($ODADD); ?>">
                                             </td>
                                         <?php } ?>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" class="right font-weight-bold text-uppercase"><?php echo xlt('Quantity:'); ?></td>
-                                    <td colspan="4" class="left"><input id="CTLODQUANTITY" name="CTLODQUANTITY" value="<?php echo attr($CTLODQUANTITY); ?>" type="text" class="left" /></td>
+                                    <td colspan="2" class="text-right align-middle font-weight-bold text-uppercase"><?php echo xlt('Quantity:'); ?></td>
+                                    <td colspan="4" class="text-left align-middle"><input id="CTLODQUANTITY" name="CTLODQUANTITY" value="<?php echo attr($CTLODQUANTITY); ?>" type="text" class="text-left" /></td>
                                 </tr>
                                 <tr>
                                     <td colspan="7">
@@ -1139,11 +1132,11 @@ if ($REFTYPE == "CTL") {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="right font-weight-bold large underline"><?php echo xlt('Left Lens'); ?></td>
+                                    <td class="text-right align-middle font-weight-bold large underline"><?php echo xlt('Left Lens'); ?></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" class="right font-weight-bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
-                                    <td colspan="4" class="left"><?php echo text($CTLBRANDOS); ?> <?php if ($CTLMANUFACTUREROS) {
+                                    <td colspan="2" class="text-right align-middle font-weight-bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
+                                    <td colspan="4" class="text-left align-middle"><?php echo text($CTLBRANDOS); ?> <?php if ($CTLMANUFACTUREROS) {
                                         echo "(" . text($CTLMANUFACTUREROS) . ")";} ?></td>
                                 </tr>
                                 <tr class="font-weight-bold" style="line-height:0.3em;font-size:0.6em;">
@@ -1159,25 +1152,25 @@ if ($REFTYPE == "CTL") {
                                         <?php } ?>
                                 </tr>
                                 <tr>
-                                    <td><input type=text id="CTLOSSPH" name="CTLOSSPH" value="<?php echo attr($OSSPH); ?>">
+                                    <td><input type="text" id="CTLOSSPH" name="CTLOSSPH" value="<?php echo attr($OSSPH); ?>">
                                     </td>
-                                    <td><input type=text id="CTLOSCYL" name="CTLOSCYL" value="<?php echo attr($OSCYL); ?>">
+                                    <td><input type="text" id="CTLOSCYL" name="CTLOSCYL" value="<?php echo attr($OSCYL); ?>">
                                     </td>
-                                    <td><input type=text id="CTLOSAXIS" name="CTLOSAXIS"
+                                    <td><input type="text" id="CTLOSAXIS" name="CTLOSAXIS"
                                                value="<?php echo attr($OSAXIS); ?>"></td>
-                                    <td><input type=text id="CTLOSBC" name="CTLOSBC" value="<?php echo attr($OSBC); ?>">
+                                    <td><input type="text" id="CTLOSBC" name="CTLOSBC" value="<?php echo attr($OSBC); ?>">
                                     </td>
-                                    <td><input type=text id="CTLOSDIAM" name="CTLOSDIAM"
+                                    <td><input type="text" id="CTLOSDIAM" name="CTLOSDIAM"
                                                value="<?php echo attr($OSDIAM); ?>"></td>
                                     <?php
                                     if ($adds) {
                                         ?>
-                                            <td><input type=text id="CTLOSADD" name="CTLOSADD" value="<?php echo attr($OSADD); ?>"></td>
+                                            <td><input type="text" id="CTLOSADD" name="CTLOSADD" value="<?php echo attr($OSADD); ?>"></td>
                                         <?php } ?>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" class="right font-weight-bold text-uppercase"><?php echo xlt('Quantity:'); ?></td>
-                                    <td colspan="4" class="left"><input id="CTLOSQUANTITY" name="CTLOSQUANTITY" value="<?php echo attr($CTLOSQUANTITY); ?>" type="text" class="left" /></td>
+                                    <td colspan="2" class="text-right align-middle font-weight-bold text-uppercase"><?php echo xlt('Quantity:'); ?></td>
+                                    <td colspan="4" class="text-left align-middle"><input id="CTLOSQUANTITY" name="CTLOSQUANTITY" value="<?php echo attr($CTLOSQUANTITY); ?>" type="text" class="text-left" /></td>
                                 </tr>
 
                                 <?php if ($CTL_COMMENTS > '') { ?>
@@ -1187,9 +1180,10 @@ if ($REFTYPE == "CTL") {
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="right font-weight-bold red" colspan="2"
-                                            style="vertical-align:top;"><?php echo xlt('Comments'); ?>:</u></td>
-                                        <td colspan="4" class="left">
+                                        <td class="text-right align-middle font-weight-bold align-top red" colspan="2">
+                                            <u><?php echo xlt('Comments'); ?>:</u>
+                                        </td>
+                                        <td colspan="4" class="text-left align-middle">
                                             <textarea cols="30" rows="4" id="COMMENTS" name="COMMENTS"><?php echo text($CTL_COMMENTS); ?></textarea>
                                         </td>
                                     </tr>
@@ -1214,7 +1208,7 @@ if ($REFTYPE == "CTL") {
                 } else {
                     ?>
                 <td class="center">
-                    <hr class="w-50" style="border:solid 1px black;margin:0.5in auto 0;" />
+                    <hr class="w-50" style="border:solid 1px black;margin:3rem auto 0;" />
                     <?php
                 } ?>
 
