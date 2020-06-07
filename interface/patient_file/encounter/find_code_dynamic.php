@@ -274,20 +274,22 @@ var SelectItem = function(jobj) {
             echo "</div>\n";
             ?>
 
-        <table id="my_data_table" class="table table-striped table-hover table-sm">
-            <thead>
-                <tr>
-                    <th><?php echo xlt('Code'); ?></th>
-                    <th><?php echo xlt('Description'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-                    <td colspan="2" class="dataTables_empty">...</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table id="my_data_table" class="table table-striped table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th><?php echo xlt('Code'); ?></th>
+                        <th><?php echo xlt('Description'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
+                        <td colspan="2" class="dataTables_empty">...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
         <?php if ($what == 'fields' && $source == 'E') { ?>
             <div class="row">
