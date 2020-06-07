@@ -30,7 +30,7 @@ if ($this->trow) {
     $this->display('_modalFormHeader.tpl.php');
 ?>
 
-<script type="text/javascript">
+<script>
 
     // bring in the datepicker and datetimepicker localization and setting elements
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
@@ -61,7 +61,7 @@ if ($this->trow) {
     // Fixes iFrame in Patient Registratiion
     setInterval(function() {
         window.top.postMessage(document.body.scrollHeight, "*");
-    }, 500); 
+    }, 500);
 </script>
 <?php }?>
 <body>

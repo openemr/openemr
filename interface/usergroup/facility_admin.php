@@ -28,9 +28,9 @@ if (isset($_GET["fid"])) {
 <head>
     <?php Header::setupHeader(['opener']); ?>
 
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
 
     <!-- validation library -->
     <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->

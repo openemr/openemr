@@ -135,7 +135,7 @@ tr.detail {
 }
 </style>
 
-<script language="JavaScript">
+<script>
 
 function myRestoreSession() {
  // This works whether we are a popup or in the OpenEMR frameset.

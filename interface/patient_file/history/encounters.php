@@ -171,7 +171,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 <!-- Not sure why we don't want this ui to be B.S responsive. -->
 <?php Header::setupHeader(['no_textformat']); ?>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajtooltip.js"></script>
+<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajtooltip.js"></script>
 
 <script>
 // open dialog to edit an invoice w/o opening encounter.

@@ -32,7 +32,7 @@ $form_code_type = $_POST['form_code_type'];
 td { font-size:10pt; }
 </style>
 
-<script language="JavaScript">
+<script>
 //pass value selected to the parent window
  function window_submit(chk)
  {

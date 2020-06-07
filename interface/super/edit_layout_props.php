@@ -39,7 +39,7 @@ $group_id  = empty($_GET['group_id' ]) ? '' : $_GET['group_id' ];
 td { font-size:10pt; }
 </style>
 
-<script language="JavaScript">
+<script>
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 

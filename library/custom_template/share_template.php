@@ -37,7 +37,7 @@ $list_id = $_REQUEST['list_id'];
 <html>
     <head>
         <?php Header::setupHeader(); ?>
-        <script type="text/javascript">
+        <script>
         function add_template(){
                 top.restoreSession();
                 len = document.getElementById('provider').options.length;

@@ -106,7 +106,7 @@ tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
 tr.detail { font-size:10pt; background-color:#eeeeee; }
 </style>
 
-<script language="JavaScript">
+<script>
 
 // These are the possible colors for table rows.
 var trcolors = new Object();

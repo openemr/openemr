@@ -82,7 +82,7 @@ $returnurl = 'encounter_top.php';
 </div><!-- end print_form_container -->
 
 </form>
-<script type="text/javascript">
+<script>
 window.print();
 window.close();
 </script>

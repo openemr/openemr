@@ -51,7 +51,7 @@ if ($GLOBALS['enable_cdr']) {
             foreach ($new_allergy_alerts as $new_allergy_alert) {
                 $pod_warnings .= js_escape($new_allergy_alert) . ' + "\n"';
             }
-            echo '<script type="text/javascript">alert(' . xlj('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ' + "\n" + ' . $pod_warnings . ')</script>';
+            echo '<script>alert(' . xlj('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ' + "\n" + ' . $pod_warnings . ')</script>';
         }
     }
 

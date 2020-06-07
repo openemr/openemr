@@ -58,7 +58,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
 
     <?php Header::setupHeader(['common']); ?>
 
-    <script type="text/javascript">
+    <script>
         function refreshme() {
             top.restoreSession();
             document.location.reload();

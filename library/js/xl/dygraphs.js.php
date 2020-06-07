@@ -15,7 +15,7 @@
 
 ?>
 
-<script type="text/javascript">
+<script>
     // Support for translations of months in graphing dygraphs scripts
     var SHORT_MONTH_NAMES_CUSTOM = [<?php echo xlj('Jan'); ?>, <?php echo xlj('Feb'); ?>, <?php echo xlj('Mar'); ?>, <?php echo xlj('Apr'); ?>, <?php echo xlj('May'); ?>, <?php echo xlj('Jun'); ?>, <?php echo xlj('Jul'); ?>, <?php echo xlj('Aug'); ?>, <?php echo xlj('Sep'); ?>, <?php echo xlj('Oct'); ?>, <?php echo xlj('Nov'); ?>, <?php echo xlj('Dec'); ?>];
     // Dygraph xlabel translation

@@ -366,7 +366,7 @@ foreach ($insurance_layout as $lorow) {
 
 </form>
 
-<script language="JavaScript">
+<script>
 
 // Fix inconsistently formatted phone numbers from the database.
 var f = document.forms[0];

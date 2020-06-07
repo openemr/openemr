@@ -301,7 +301,7 @@ class Header
     private static function createElement($path, $type, $alreadyBuilt)
     {
 
-        $script = "<script type=\"text/javascript\" src=\"%path%\"></script>\n";
+        $script = "<script src=\"%path%\"></script>\n";
         $link = "<link rel=\"stylesheet\" href=\"%path%\" type=\"text/css\">\n";
 
         $template = ($type == 'script') ? $script : $link;

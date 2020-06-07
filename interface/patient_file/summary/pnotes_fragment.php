@@ -234,7 +234,7 @@ if (isset($_GET['docUpdateId'])) {
     <?php } ?>
 </div>
 
-<script language="javascript">
+<script>
 // jQuery stuff to make the page a little easier to use
 
 tabbify();

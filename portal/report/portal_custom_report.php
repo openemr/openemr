@@ -231,7 +231,7 @@ input[type="radio"] {
 
 <?php if (!$PDF_OUTPUT) { ?>
 <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
     <!-- Unclear where a conflict occurs but if jquery is already in scope then !!!! removed noconflict sjp 12-1-2019-->
 <script>var $j = '$';</script>
 

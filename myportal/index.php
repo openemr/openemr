@@ -68,7 +68,7 @@ for ($i = 1; $i <= 5; $i++) {//some times php is continuing without getting the 
 ?>
 <html>
 <head>
-<script type="text/javascript">
+<script>
  function getshansubmit(){
     document.forms[0].submit();
  }

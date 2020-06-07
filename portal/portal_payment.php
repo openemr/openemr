@@ -76,7 +76,7 @@ $invdata = array();
 if ($edata) {
     $ccdata = json_decode($cryptoGen->decryptStandard($edata['checksum']), true);
     $invdata = json_decode($edata['table_args'], true);
-    echo "<script  type='text/javascript'>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
+    echo "<script>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }
 
 function bucks($amount)
@@ -437,7 +437,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
     ?>
 
     <title><?php echo xlt('Receipt for Payment'); ?></title>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
     <script>
 
         function goHome() {
@@ -542,9 +542,9 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             font-weight: normal
         }
     </style>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript">
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+    <script src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');

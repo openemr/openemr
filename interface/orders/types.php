@@ -33,10 +33,8 @@ if ($popup && $_POST['form_save']) {
     $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE procedure_type_id = ?", [$form_order]);
     $name = $ptrow['name'];
     ?>
-    <script type="text/javascript"
-        src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js">
-    </script>
-    <script language="JavaScript">
+    <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script>
     if (opener.closed || ! opener.set_proc_type) {
         alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
     } else {
@@ -132,7 +130,7 @@ if ($popup && $_POST['form_save']) {
     <?php } ?>
 
 
-    <script type="text/javascript">
+    <script>
 
     <?php
     if ($popup) {

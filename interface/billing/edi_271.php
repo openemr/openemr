@@ -105,7 +105,7 @@ if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
     }
 }
 </style>
-<script type="text/javascript">
+<script>
     function edivalidation() {
         var mypcc = <?php echo xlj('Required Field Missing: Please choose the EDI-271 file to upload'); ?>;
         if (document.getElementById('uploaded').value == "") {

@@ -37,7 +37,7 @@ $alertmsg = '';
 
 <?php Header::setupHeader(['common','opener']); ?>
 
-<script src="checkpwd_validation.js" type="text/javascript"></script>
+<script src="checkpwd_validation.js"></script>
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
@@ -53,7 +53,7 @@ if (empty($collectthis)) {
     $collectthis = json_sanitize($collectthis["new_user"]["rules"]);
 }
 ?>
-<script language="JavaScript">
+<script>
 
 /*
 * validation on the form with new client side validation (using validate.js).

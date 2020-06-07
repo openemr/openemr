@@ -73,7 +73,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 
     <?php Header::setupHeader(['common', 'opener']); ?>
 
-    <script type="text/javascript">
+    <script>
 
         function refreshme() {
             top.restoreSession();

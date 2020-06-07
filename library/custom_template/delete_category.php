@@ -38,9 +38,9 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
     <head>
         <title><!-- Insert your title here --></title>
         <?php Header::setupHeader('opener'); ?>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
+        <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
 
-        <script type='text/javascript'>
+        <script>
         function delete_full_category(id){
                 top.restoreSession();
                 $.ajax({

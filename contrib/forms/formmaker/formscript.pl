@@ -104,7 +104,7 @@ START
 my $date_field_exists = 0;
 my $date_header =<<'START';
 
-<script language='JavaScript'>
+<script>
 $(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>

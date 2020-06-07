@@ -82,7 +82,7 @@ else
 <!-- Form Specific Stylesheet. -->
 <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css">
 
-<script type="text/javascript">
+<script>
 // this line is to assist the calendar text boxes
 var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 
@@ -134,7 +134,7 @@ function PrintForm() {
 </fieldset>
 </div><!-- end bottom_buttons -->
 </form>
-<script type="text/javascript">
+<script>
 // jQuery stuff to make the page a little easier to use
 
 $(function () {

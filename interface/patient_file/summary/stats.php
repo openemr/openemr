@@ -24,7 +24,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 <div id="patient_stats_summary">
 
-<script type='text/javascript'>
+<script>
     function load_location( location ) {
         top.restoreSession();
         if ( !top.frames["RTop"] ) {
