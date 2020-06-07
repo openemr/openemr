@@ -163,7 +163,7 @@ if (!empty($_POST['form_submit'])) {
         }
     }
 
-    echo "<p><font color='green'>Done. Inserted $insert_count visit forms.</font></p>\n";
+    echo "<p class='text-success'>Done. Inserted $insert_count visit forms.</p>\n";
     echo "</body></html>\n";
     exit();
 }
