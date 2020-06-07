@@ -14,7 +14,7 @@
  */
 
 ?>
-<script type="text/javascript">
+<script>
     //Calendar Functions to set From and To dates
     function calendar_function(val, from, to) {
 

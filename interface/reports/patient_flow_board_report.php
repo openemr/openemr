@@ -80,7 +80,7 @@ if ($form_patient == '') {
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-    <script type="text/javascript">
+    <script>
         $(function () {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));

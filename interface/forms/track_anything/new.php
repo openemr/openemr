@@ -39,7 +39,7 @@ echo "<html><head>";
 ?>
 <?php Header::setupHeader(['datetime-picker', 'track-anything']); ?>
 
-<script type="text/javascript">
+<script>
 $(function () {
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>

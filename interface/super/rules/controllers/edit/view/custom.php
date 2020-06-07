@@ -14,9 +14,9 @@
 
 ?>
 <head>
-    <script language="javascript" src="<?php js_src('custom.js') ?>"></script>
+    <script src="<?php js_src('custom.js') ?>"></script>
 
-    <script type="text/javascript">
+    <script>
         var custom = new custom( { selectedColumn: <?php echo js_escape($criteria->column); ?> } );
         custom.init();
     </script>

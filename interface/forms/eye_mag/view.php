@@ -4048,7 +4048,7 @@ if ($refresh and $refresh != 'fullscreen') {
     <!-- Undo code -->
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/undone.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/jquery.undone.js"></script>
-    <script language="JavaScript">
+    <script>
         function openNewForm(sel, label) {
             top.restoreSession();
             FormNameValueArray = sel.split('formname=');
@@ -4181,10 +4181,10 @@ if ($refresh and $refresh != 'fullscreen') {
         }
         var base = '<?php echo $GLOBALS['webroot']; ?>';
     </script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
+    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>
+    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>"></script>
+    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
     <div id="right-panel" name="right-panel" class="panel_side">
       <div style="margin-top:20px;text-align:center;font-size:1.2em;">
         <span class="fa fa-file-text-o" id="PANEL_TEXT" name="PANEL_TEXT" style="margin:2px;"></span>

@@ -593,7 +593,7 @@ foreach (explode(',', $given) as $item) {
     <?php Header::setupHeader(['datetime-picker', 'purecss', 'shortcut', 'opener']); ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['rootdir']; ?>/forms/<?php echo $form_folder; ?>/css/style.css">
     <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
+    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
 </head>
 
 <body>

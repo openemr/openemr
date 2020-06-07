@@ -29,10 +29,8 @@ use OpenEMR\Core\Header;
 
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>"
           rel="stylesheet">
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js"
-            type="text/javascript"></script>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"
-            type="text/javascript"></script>
+    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js"></script>
+    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"></script>
     <script>
         const remoteDevice = '' + <?php echo js_escape($thisDevice) ?>;
         let currentAuth = '';

@@ -216,7 +216,7 @@ if (false) { // if PDF output is desired
 } else { // HTML output
     ?>
 <html>
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <head>
 <style>
 body {
@@ -255,7 +255,7 @@ body {
  </td></tr>
 </table>
 </center>
-<script language="JavaScript">
+<script>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);
 </script>

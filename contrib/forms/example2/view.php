@@ -55,7 +55,7 @@ if ($record['sig_date'] != "") {
 
 <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css?v=<?php echo $v_js_includes; ?>">
 
-<script language="JavaScript">
+<script>
 function PrintForm() {
     newwin = window.open("<?php echo "http://" . $_SERVER['SERVER_NAME'] . $rootdir . "/forms/" . $form_folder . "/print.php?id=" ?>" + <?php echo js_url($_GET["id"]); ?>,"mywin");
 }
@@ -136,7 +136,7 @@ Date of signature:
 
 </body>
 
-<script language="javascript">
+<script>
 // jQuery stuff to make the page a little easier to use
 
 $(function () {

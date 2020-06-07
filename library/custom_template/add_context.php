@@ -67,7 +67,7 @@ if (trim($_POST['contextname']) != '' && $_POST['action'] == 'add') {
                 background-color: #b1c0a5;
             }
         </style>
-        <script type="text/javascript">
+        <script>
             $(function () {
             $('#contextadd').hide();
             $('#contextupdate').hide();

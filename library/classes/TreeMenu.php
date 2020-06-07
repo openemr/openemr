@@ -629,7 +629,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
         $menuObj     = 'objTreeMenu_' . ++$count;
 
         $html  = "\n";
-        $html .= '<script language="javascript" type="text/javascript">' . "\n\t";
+        $html .= '<script>' . "\n\t";
         $html .= sprintf(
             '%s = new TreeMenu("%s", "%s", "%s", "%s", %s, %s);',
             $menuObj,

@@ -269,7 +269,7 @@ if ($_POST['form_get_hl7'] === 'true') {
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-    <script language="JavaScript">
+    <script>
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
         $(function () {

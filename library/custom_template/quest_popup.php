@@ -37,7 +37,7 @@ $content = $_REQUEST['content'];
 <html>
     <head>
         <?php Header::setupHeader('opener'); ?>
-        <script type="text/javascript">
+        <script>
     function showWhereInTextarea(){
     opener.restoreSession();
     var textarea = document.getElementById('quest');

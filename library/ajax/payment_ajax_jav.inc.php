@@ -16,7 +16,7 @@
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 ?>
-<script type="text/javascript">
+<script>
 $(function () {
   $("#type_code").keyup(function(e){
       if (e.which == 9 || e.which == 13)

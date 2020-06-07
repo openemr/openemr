@@ -114,8 +114,8 @@ body {
 }
 </style>
 
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-<script language="JavaScript">
+<script src="../../library/topdialog.js"></script>
+<script>
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>
 
