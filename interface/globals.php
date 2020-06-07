@@ -102,19 +102,18 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 * If a session already exists, then this means portal is being used, which
 *   has already created a portal session/cookie, so will bypass setting of
 *   the core OpenEMR session/cookie.
-* $sessionTask = null | 0 then normal operation
-* $sessionTask = 1 session start then session_write_close at end of this script
-* $sessionTask = 2 session start for read only then auto immediate session_write_close.
-* When using option 1 or 2, ensure no session writes are used within the calling
+* $sessionAllowWrite = 1 | true | string then normal operation
+* $sessionAllowWrite = undefined | null | 0  session start for read only then auto
+*   immediate session_write_close.
+* Unless $sessionAllowWrite is true, ensure no session writes are used within the calling
 *   scope of this globals instance. Goal is to unlock session file as quickly as possible
 *   instead of waiting for calling script to complete before releasing flock.
  */
-$sessionTask = $sessionTask ?? null;
+$read_only = empty($sessionAllowWrite);
 if (session_status() === PHP_SESSION_NONE) {
     //error_log("1. LOCK ".GetCallingScriptName()); // debug start lock
-    //$sessionTask = 0;
     require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::coreSessionStart($web_root, $sessionTask);
+    OpenEMR\Common\Session\SessionUtil::coreSessionStart($web_root, $read_only);
     //error_log("2. FREE ".GetCallingScriptName()); // debug unlocked
 }
 
@@ -168,11 +167,6 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
         $_SESSION['site_id'] = $tmp;
         // error_log("Session site ID has been set to '$tmp'"); // debugging
     }
-}
-// currently last possible session write in this script.
-if ($sessionTask === 1) {
-    session_write_close();
-    //error_log("session_write_close for: " . GetCallingScriptName()); // debugging
 }
 
 // Set the site-specific directory path.
@@ -568,14 +562,12 @@ if (!$ignoreAuth) {
     require_once("$srcdir/auth.inc");
 }
 
-
 // This is the background color to apply to form fields that are searchable.
 // Currently it is applicable only to the "Search or Add Patient" form.
 $GLOBALS['layout_search_color'] = '#ff9919';
 
 //EMAIL SETTINGS
 $SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
-
 
 //module configurations
 $GLOBALS['baseModDir'] = "interface/modules/"; //default path of modules

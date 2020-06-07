@@ -50,11 +50,11 @@ class SessionUtil
     private static $use_cookies = true;
     private static $use_only_cookies = true;
 
-    public static function coreSessionStart($web_root, $sessionTask = null): void
+    public static function coreSessionStart($web_root, $read_only = true): void
     {
         if (version_compare(phpversion(), '7.3.0', '>=')) {
             session_start([
-                'read_and_close' => $sessionTask === 2,
+                'read_and_close' => $read_only,
                 'cookie_samesite' => "Strict",
                 'name' => 'OpenEMR',
                 'cookie_httponly' => false,
@@ -68,7 +68,7 @@ class SessionUtil
             ]);
         } else {
             session_start([
-                'read_and_close' => $sessionTask === 2,
+                'read_and_close' => $read_only,
                 'name' => 'OpenEMR',
                 'cookie_httponly' => false,
                 'cookie_path' => $web_root ?: '/',

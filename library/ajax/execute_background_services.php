@@ -65,11 +65,9 @@ if (!$isAjaxCall && (php_sapi_name() === 'cli')) {
     }
 
     //an additional require file can be specified for each service in the background_services table
-    $sessionTask = 2;
     require_once(__DIR__ . "/../../interface/globals.php");
 } else {
     //an additional require file can be specified for each service in the background_services table
-    $sessionTask = 2;
     require_once(__DIR__ . "/../../interface/globals.php");
 
     // not calling from cron job so ensure passes csrf check

@@ -148,8 +148,8 @@ if (isset($entryID)) {
 <tr>
 <td><span class="title"><?php echo generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category) .
 " - " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $item); ?></span>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="javascript:submitme();" class="btn btn-primary btn-lg"><?php echo xlt('Save'); ?></a></td>
-<td><a href="#" id="cancel" class="btn btn-secondary btn-lg"><?php echo xlt('Cancel'); ?></a></td>
+<td><a href="javascript:submitme();" class="btn btn-primary"><?php echo xlt('Save'); ?></a></td>
+<td><a href="#" id="cancel" class="btn btn-secondary"><?php echo xlt('Cancel'); ?></a></td>
 </tr>
 </table>
 

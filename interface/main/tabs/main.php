@@ -15,6 +15,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+$sessionAllowWrite = true;
 require_once(__DIR__ . '/../../globals.php');
 require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 
@@ -49,7 +50,6 @@ $esignApi = new Api();
     <title><?php echo text($openemr_name); ?></title>
 
     <script>
-
         // This is to prevent users from losing data by refreshing or backing out of OpenEMR.
         //  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
         <?php if ($GLOBALS['prevent_browser_refresh'] > 0) { ?>
@@ -168,7 +168,7 @@ $esignApi = new Api();
     <script type="text/javascript" src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript" src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 
-    <script type="text/javascript">
+    <script>
         // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
         // will fullfill json and return promise if needed
@@ -267,7 +267,7 @@ $esignApi = new Api();
     <?php require_once("menu/menu_json.php"); ?>
     <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 
-    <script type="text/javascript">
+    <script>
         <?php if (!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
         // Use session variables and tabStatus object to set up initial/default first tab
         app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> +"...",<?php echo json_encode("../" . $_SESSION['frame1url']); ?>,<?php echo json_encode($_SESSION['frame1target']); ?>,<?php echo xlj("Loading"); ?> +" " + <?php echo json_encode($_SESSION['frame1label']); ?>, true, true, false));
@@ -348,6 +348,7 @@ $esignApi = new Api();
                 $(this).removeClass('dropdown-menu-right');
               });
             }
+
         });
         $(function () {
             $('#logo_menu').focus();

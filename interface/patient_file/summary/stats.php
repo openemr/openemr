@@ -10,7 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$sessionTask = 2;
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/options.inc.php");
@@ -23,18 +22,16 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 }
 ?>
 
-<div id="patient_stats_summary">
-
-<script type='text/javascript'>
-    function load_location( location ) {
-        top.restoreSession();
-        if ( !top.frames["RTop"] ) {
-            document.location=location;
-        } else {
-            top.frames["RTop"].location=location;
+<script>
+    if(typeof load_location === 'undefined') {
+        function load_location(location) {
+            top.restoreSession();
+            document.location = location;
         }
     }
 </script>
+
+<div id="patient_stats_summary">
 
 <table id="patient_stats_issues">
 

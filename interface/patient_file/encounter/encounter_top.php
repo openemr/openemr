@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+$sessionAllowWrite = true;
 require_once(dirname(__FILE__) . '/../../globals.php');
 require_once("$srcdir/pid.inc");
 require_once("$srcdir/encounter.inc");

@@ -18,4 +18,5 @@
 //    2. Closes the php session
 //    3. Redirects user to the login screen (maintains the site id)
 $_GET['auth'] = "logout";
+$sessionAllowWrite = true;
 require_once("globals.php");

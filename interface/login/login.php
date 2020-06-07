@@ -21,6 +21,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $ignoreAuth = true;
+$sessionAllowWrite = true;
 require_once("../globals.php");
 
 // mdsupport - Add 'App' functionality for user interfaces without standard menu and frames

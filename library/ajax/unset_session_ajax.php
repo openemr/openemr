@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+$sessionAllowWrite = true;
 require_once("../../interface/globals.php");
 require_once("../pid.inc");
 require_once("../group.inc");
