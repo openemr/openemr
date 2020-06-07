@@ -45,9 +45,12 @@ if (php_sapi_name() === 'cli' && count($argv) != 0) {
         }
     }
     $_GET['site'] = $siteDefault;
-};
-
+    $sessionAllowWrite = true;
+}
 require_once(dirname(__FILE__) . "/../../../globals.php");
+if (php_sapi_name() === 'cli' && count($argv) != 0) {
+    session_write_close();
+}
 require_once(dirname(__FILE__) . "/../../../../library/forms.inc");
 require_once(dirname(__FILE__) . "/../../../../library/options.inc.php");
 

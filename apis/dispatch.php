@@ -77,6 +77,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     }
 }
 
+$sessionAllowWrite = true;
 require_once("./../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -153,10 +154,8 @@ if ($gbl::is_fhir_request($resource)) {
     exit();
 }
 
-if ($isLocalApi) {
-    // Ensure that a local process does not hold up other processes
-    session_write_close();
-}
+// TODO - Goal in future is to be able to remove this along with the above $sessionAllowWrite flag in the future
+session_write_close();
 
 if (!$isLocalApi) {
     $gbl::authentication_check($resource);

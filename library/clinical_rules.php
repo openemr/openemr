@@ -3,10 +3,6 @@
 /**
  * Clinical Decision Rules(CDR) engine functions.
  *
- * These functions should not ever attempt to write to
- * session variables, because the session_write_close() function
- * is typically called before utilizing these functions.
- *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>

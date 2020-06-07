@@ -40,3 +40,6 @@ $_POST = $_REQUEST;
 
 // Ignore auth checks
 $ignoreAuth = true;
+
+// Allow session writing (needed to set up site_id correctly)
+$sessionAllowWrite = true;

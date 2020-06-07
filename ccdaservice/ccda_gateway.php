@@ -27,6 +27,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
+    $sessionAllowWrite = true;
     require_once(dirname(__FILE__) . "/../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
@@ -68,6 +69,8 @@ if (!isset($_SESSION['site_id'])) {
     $_SESSION ['site_id'] = 'default';
 }
 
+session_write_close();
+
 $server_url = $_SERVER['HTTP_HOST'] . $GLOBALS['webroot'];
 // CCM returns entire cda with service doing templates
 $ccdaxml = portalccdafetching($pid, $server_url, $parameterArray);
@@ -85,7 +88,6 @@ exit;
 
 function portalccdafetching($pid, $server_url, $parameterArray)
 {
-    session_write_close();
     $site_id = $_SESSION['site_id'];
     $parameters = http_build_query($parameterArray); // future use
     try {

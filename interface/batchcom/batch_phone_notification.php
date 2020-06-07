@@ -26,6 +26,7 @@ $current_dir = dirname($_SERVER['SCRIPT_FILENAME']);
 chdir($current_dir);
 
 require_once("../../interface/globals.php");
+session_write_close();
 require_once("$srcdir/maviq_phone_api.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;

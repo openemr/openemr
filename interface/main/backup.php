@@ -45,10 +45,6 @@ if (!empty($_POST)) {
     }
 }
 
-// Prevent scripts calling Globals from being blocked.
-//
-session_write_close();
-
 if (!extension_loaded('zlib')) {
       die('Abort ' . basename(__FILE__) . ' : Missing zlib extensions');
 }

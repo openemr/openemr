@@ -230,6 +230,7 @@ if (php_sapi_name() == 'cli') {
     $_SERVER['SERVER_NAME'] = 'localhost';
     $backpic = "";
     $ignoreAuth = 1;
+    $sessionAllowWrite = true;
 }
 
 $get_count = extract($_GET, EXTR_OVERWRITE);
@@ -244,6 +245,9 @@ function get_openemr_globals($libdir)
     }
 
     require_once("$libdir/../interface/globals.php");
+    if (php_sapi_name() == 'cli') {
+        session_write_close();
+    }
 }
 function sftp_status($msg, $val)
 {

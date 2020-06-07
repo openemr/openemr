@@ -65,7 +65,9 @@ if (!$isAjaxCall && (php_sapi_name() === 'cli')) {
     }
 
     //an additional require file can be specified for each service in the background_services table
+    $sessionAllowWrite = true;
     require_once(__DIR__ . "/../../interface/globals.php");
+    session_write_close();
 } else {
     //an additional require file can be specified for each service in the background_services table
     require_once(__DIR__ . "/../../interface/globals.php");
@@ -78,9 +80,6 @@ if (!$isAjaxCall && (php_sapi_name() === 'cli')) {
 
 //Remove time limit so script doesn't time out
 set_time_limit(0);
-
-//Release session lock to prevent freezing of other scripts
-//session_write_close();
 
 //Safety in case one of the background functions tries to output data
 ignore_user_abort(1);
