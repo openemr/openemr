@@ -3,7 +3,7 @@ This module/service will provide the necessary template engine to create a Patie
 CCD's can be generated from the Onsite Patient Portal or the Carecoordination Module.
 ## Prepare
 * If not already completed, you must install/initialize the CCM features by going to the Modules->Manage Modules top menu then click Unregistered tab and install the necessary components.
-* The Carecoordination module setting for Mirth IP must be set to localhost. Menu item: Modules->Manage Modules click in Carecoordination Config, the settings tab. Also add any other appropriate settings like granting Access Control for the appropriate users. Menu item: Modules->Manage Modules->Access Control->General->Care Coordination.
+* Add any appropriate settings like granting Access Control for the appropriate users. Menu item: Modules->Manage Modules->Access Control->General->Care Coordination.
 * Ignore any errors that do not throw you back to command prompt when using npm install as some libs need to be compiled and is verbose about it.
 ## Updating
 Whenever there are new versions or updates, be sure to navigate into the ccdaservice directory and run:
