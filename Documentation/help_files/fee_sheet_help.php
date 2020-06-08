@@ -14,7 +14,7 @@ use OpenEMR\Core\Header;
 
 require_once("../../interface/globals.php");
 ?>
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
     <head>
     <?php Header::setupHeader();?>
@@ -143,7 +143,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("Clicking on 'Review' will list all the codes entered for previous encounters"); ?>.
                     <button class="oe-no-float oe-inline"><?php echo xlt("Review"); ?></button>
                 </p>
-                
+
                 <p><?php echo xlt("By default all codes are selected, uncheck the codes you do not want and click 'Add'. These codes will then be added to the current encounter"); ?>.</p>
 
                 <p><?php echo xlt("Another way to select an ICD code to justify the CPT4 code is to click on the label CPT4 at the beginning of the row"); ?>.</p>
