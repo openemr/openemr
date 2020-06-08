@@ -18,11 +18,13 @@ endpoint to the OpenEMR controller which handles the request, and also handles t
 ```
 
 At a high level, the request processing flow consists of the following steps:
+
 ```
 JSON Request -> Controller Component -> Validation -> Service Component -> Database
 ```
 
 The logical response flow begins with the database result:
+
 ```
 Database Result -> Service Component -> Controller Component -> RequestControllerHelper -> JSON Response
 ```
@@ -44,38 +46,62 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 }
 ```
 
-- `validationErrors` contain "client based" data validation errors
-- `internalErrors` contain server related  errors
-- `data` is the response payload, represented as an object/`{}` for single results or an array/`[]` for multiple results
+-   `validationErrors` contain "client based" data validation errors
+-   `internalErrors` contain server related errors
+-   `data` is the response payload, represented as an object/`{}` for single results or an array/`[]` for multiple results
 
 ### Sections
-* [facility API](API_README.md#post-apifacility)
-* [provider API](API_README.md#get-apiprovider)
-* [patient API](API_README.md#post-apipatient)
-* [insurance API](API_README.md#get-apipatientpidinsurance)
-* [appointment API](API_README.md#get-apiappointment)
-* [document API](API_README.md#get-apipatientpiddocument)
-* [message API](API_README.md#post-apipatientpidmessage)
-* [patient portal API](API_README.md#portal-Endpoints)
-* [dev notes](API_README.md#dev-notes)
-* [todos](API_README.md#project-management)
+
+-   [Standard API Endpoints](API_README.md#api-endpoints)
+    -   [Facility API](API_README.md#post-apifacility)
+    -   [Provider API](API_README.md#get-apiprovider)
+    -   [Patient API](API_README.md#post-apipatient)
+    -   [Insurance API](API_README.md#get-apipatientpidinsurance)
+    -   [Appointment API](API_README.md#get-apiappointment)
+    -   [Document API](API_README.md#get-apipatientpiddocument)
+    -   [Message API](API_README.md#post-apipatientpidmessage)
+-   [Portal API Endpoints](API_README.md#portal-Endpoints)
+    -   [Patient API](API_README.md#get-portalpatient)
+-   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
+    -   [FHIR Patient API](FHIR_README.md#get-fhirpatient)
+    -   [FHIR Encounter API](FHIR_README.md#get-fhirencounter)
+    -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
+    -   [FHIR AllergyIntolerance API](FHIR_README.md#get-fhirallergyintolerance)
+    -   [FHIR Observation API](FHIR_README.md#get-fhirobservation)
+    -   [FHIR QuestionnaireResponse API](FHIR_README.md#get-fhirquestionnaireresponse)
+    -   [FHIR Immunization API](FHIR_README.md#get-fhirimmunization)
+    -   [FHIR Condition API](FHIR_README.md#get-fhircondition)
+    -   [FHIR Procedure API](FHIR_README.md#get-fhirprocedure)
+    -   [FHIR MedicationStatement API](FHIR_README.md#get-fhirmedicationstatement)
+    -   [FHIR Medication API](FHIR_README.md#get-fhirmedication)
+-   [Portal FHIR API Endpoints](FHIR_README.md#portalfhir-endpoints)
+    -   [Patient API](FHIR_README.md#get-portalfhirpatient)
+-   [Dev notes](API_README.md#dev-notes)
+-   [Todos](API_README.md#project-management)
 
 ### Prerequisite
+
 Enable the Standard API service (/api/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Standard REST API"
 Enable the Patient Portal API service (/portal/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal REST API"
 
 ### Using API Internally
+
 There are several ways to make API calls from an authorized session and maintain security:
-* See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
+
+-   See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
 
 ### /api/ Endpoints
+
 OpenEMR standard endpoints Use `http://localhost:8300/apis/api as base URI.`
 
 _Example:_ `http://localhost:8300/apis/api/patient` returns a resource of all Patients.
+
 #### POST /api/auth
 
-The OpenEMR API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory.  If additional sites have not been created, set the scope
+The OpenEMR API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory. If additional sites have not been created, set the scope
 to 'default'.
+
+Request:
 
 ```sh
 curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/api/auth' \
@@ -86,7 +112,9 @@ curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/api
     "scope":"site id"
 }'
 ```
+
 Response:
+
 ```json
 {
     "token_type": "Bearer",
@@ -97,7 +125,10 @@ Response:
     }
 }
 ```
+
 The Bearer token is required for each OpenEMR API request, and is conveyed using an Authorization header.
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem' \
@@ -105,6 +136,8 @@ curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem' \
 ```
 
 #### POST /api/facility
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/facility' -d \
@@ -125,6 +158,8 @@ curl -X POST 'http://localhost:8300/apis/api/facility' -d \
 
 #### PUT /api/facility/:fid
 
+Request:
+
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/facility/1' -d \
 '{
@@ -144,11 +179,15 @@ curl -X PUT 'http://localhost:8300/apis/api/facility/1' -d \
 
 #### GET /api/facility
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/facility'
 ```
 
 #### GET /api/facility/:fid
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/facility/1'
@@ -156,17 +195,23 @@ curl -X GET 'http://localhost:8300/apis/api/facility/1'
 
 #### GET /api/provider
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/provider'
 ```
 
 #### GET /api/provider/:prid
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/provider/1'
 ```
 
 #### POST /api/patient
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient' -d \
@@ -188,7 +233,8 @@ curl -X POST 'http://localhost:8300/apis/api/patient' -d \
 }'
 ```
 
-Response
+Response:
+
 ```json
 {
     "validationErrors": [],
@@ -200,6 +246,8 @@ Response
 ```
 
 #### PUT /api/patient/:puuid
+
+Request:
 
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
@@ -221,7 +269,8 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b
 }'
 ```
 
-Response
+Response:
+
 ```json
 {
     "validationErrors": [],
@@ -259,48 +308,48 @@ Response
 
 #### GET /api/patient
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient'
 ```
 
-Response
+Response:
+
 ```json
 {
     "validationErrors": [],
     "internalErrors": [],
-    "data": [
-        { patientRecord },
-        { patientRecord },
-        etc
-    ]
+    "data": [{ patientRecord }, { patientRecord }, etc]
 }
 ```
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient&fname=...&lname=...&dob=...'
 ```
 
-Response
+Response:
+
 ```json
 {
     "validationErrors": [],
     "internalErrors": [],
-    "data": [
-        { patientRecord },
-        { patientRecord },
-        etc
-    ]
+    "data": [{ patientRecord }, { patientRecord }, etc]
 }
 ```
 
-
 #### GET /api/patient/:puuid
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7'
 ```
 
-Response
+Response:
+
 ```json
 {
     "validationErrors": [],
@@ -336,8 +385,9 @@ Response
 }
 ```
 
-
 #### POST /api/patient/:pid/encounter
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter' -d \
@@ -360,6 +410,8 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter' -d \
 
 #### PUT /api/patient/:pid/encounter/:eid
 
+Request:
+
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1' -d \
 '{
@@ -378,17 +430,23 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1' -d \
 
 #### GET /api/patient/:pid/encounter
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter'
 ```
 
 #### GET /api/patient/:pid/encounter/:eid
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1'
 ```
 
 #### POST /api/patient/:pid/encounter/:eid/vital
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/vital' -d \
@@ -410,6 +468,8 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/vital' -d \
 
 #### PUT /api/patient/:pid/encounter/:eid/vital/:vid
 
+Request:
+
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/vital/1' -d \
 '{
@@ -430,17 +490,23 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/vital/1' -d \
 
 #### GET /api/patient/:pid/encounter/:eid/vital
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/vital'
 ```
 
 #### GET /api/patient/:pid/encounter/:eid/vital/:vid
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/vital/1'
 ```
 
 #### POST /api/patient/:pid/encounter/:eid/soap_note
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note' -d \
@@ -454,6 +520,8 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note' -d
 
 #### PUT /api/patient/:pid/encounter/:eid/soap_note/:sid
 
+Request:
+
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note/1' -d \
 '{
@@ -466,17 +534,23 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note/1' -
 
 #### GET /api/patient/:pid/encounter/:eid/soap_note
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note'
 ```
 
 #### GET /api/patient/:pid/encounter/:eid/soap_note/:sid
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note/1'
 ```
 
 #### POST /api/patient/:pid/medical_problem
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/medical_problem' -d \
@@ -490,6 +564,8 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/medical_problem' -d \
 
 #### PUT /api/patient/:pid/medical_problem/:mid
 
+Request:
+
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/medical_problem/1' -d \
 '{
@@ -502,11 +578,15 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/medical_problem/1' -d \
 
 #### GET /api/patient/:pid/medical_problem
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem'
 ```
 
 #### GET /api/patient/:pid/medical_problem/:mid
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
@@ -514,11 +594,15 @@ curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
 
 #### DELETE /api/patient/:pid/medical_problem/:mid
 
+Request:
+
 ```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
 ```
 
 #### POST /api/patient/:pid/allergy
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/allergy' -d \
@@ -531,6 +615,8 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/allergy' -d \
 
 #### PUT /api/patient/:pid/allergy/:aid
 
+Request:
+
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/allergy/1' -d \
 '{
@@ -542,11 +628,15 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/allergy/1' -d \
 
 #### GET /api/patient/:pid/allergy
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/allergy'
 ```
 
 #### GET /api/patient/:pid/allergy/:aid
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/allergy/1'
@@ -554,11 +644,15 @@ curl -X GET 'http://localhost:8300/apis/api/patient/1/allergy/1'
 
 #### DELETE /api/patient/:pid/allergy/:aid
 
+Request:
+
 ```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/allergy/1'
 ```
 
 #### POST /api/patient/:pid/medication
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/medication' -d \
@@ -571,6 +665,8 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/medication' -d \
 
 #### PUT /api/patient/:pid/medication/:mid
 
+Request:
+
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/medication/1' -d \
 '{
@@ -582,11 +678,15 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/medication/1' -d \
 
 #### GET /api/patient/:pid/medication
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medication'
 ```
 
 #### GET /api/patient/:pid/medication/:mid
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medication/1'
@@ -594,11 +694,15 @@ curl -X GET 'http://localhost:8300/apis/api/patient/1/medication/1'
 
 #### DELETE /api/patient/:pid/medication/:mid
 
+Request:
+
 ```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/medication/1'
 ```
 
 #### POST /api/patient/:pid/surgery
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/surgery' -d \
@@ -612,6 +716,8 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/surgery' -d \
 
 #### PUT /api/patient/:pid/surgery/:sid
 
+Request:
+
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/surgery/1' -d \
 '{
@@ -624,11 +730,15 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/surgery/1' -d \
 
 #### GET /api/patient/:pid/surgery
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/surgery'
 ```
 
 #### GET /api/patient/:pid/surgery/:sid
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/surgery/1'
@@ -636,11 +746,15 @@ curl -X GET 'http://localhost:8300/apis/api/patient/1/surgery/1'
 
 #### DELETE /api/patient/:pid/surgery/:sid
 
+Request:
+
 ```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/surgery/1'
 ```
 
 #### POST /api/patient/:pid/dental_issue
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/dental_issue' -d \
@@ -653,6 +767,8 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/dental_issue' -d \
 
 #### PUT /api/patient/:pid/dental_issue/:did
 
+Request:
+
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/dental_issue/1' -d \
 '{
@@ -664,11 +780,15 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/dental_issue/1' -d \
 
 #### GET /api/patient/:pid/dental_issue
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/dental_issue'
 ```
 
 #### GET /api/patient/:pid/dental_issue/:did
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/dental_issue/1'
@@ -676,11 +796,15 @@ curl -X GET 'http://localhost:8300/apis/api/patient/1/dental_issue/1'
 
 #### DELETE /api/patient/:pid/dental_issue/:did
 
+Request:
+
 ```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/dental_issue/1'
 ```
 
 #### GET /api/patient/:pid/insurance
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/insurance'
@@ -688,11 +812,15 @@ curl -X GET 'http://localhost:8300/apis/api/patient/1/insurance'
 
 #### GET /api/patient/:pid/insurance/:type
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/insurance/secondary'
 ```
 
 #### POST /api/patient/:pid/insurance/:type
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/10/insurance/primary' -d \
@@ -729,12 +857,14 @@ curl -X POST 'http://localhost:8300/apis/api/patient/10/insurance/primary' -d \
 ```
 
 Notes:
-- `provider` is the insurance company id
-- `state` can be found by querying `resource=/api/list/state`
-- `country` can be found by querying `resource=/api/list/country`
 
+-   `provider` is the insurance company id
+-   `state` can be found by querying `resource=/api/list/state`
+-   `country` can be found by querying `resource=/api/list/country`
 
 #### PUT /api/patient/:pid/insurance/:type
+
+Request:
 
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/10/insurance/primary' -d \
@@ -771,11 +901,14 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/10/insurance/primary' -d \
 ```
 
 Notes:
-- `provider` is the insurance company id
-- `state` can be found by querying `resource=/api/list/state`
-- `country` can be found by querying `resource=/api/list/country`
+
+-   `provider` is the insurance company id
+-   `state` can be found by querying `resource=/api/list/state`
+-   `country` can be found by querying `resource=/api/list/country`
 
 #### GET /api/list/:list_name
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/list/medical_problem_issue_list'
@@ -783,11 +916,15 @@ curl -X GET 'http://localhost:8300/apis/api/list/medical_problem_issue_list'
 
 #### GET /api/version
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/version'
 ```
 
 #### GET /api/product
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/product'
@@ -795,17 +932,23 @@ curl -X GET 'http://localhost:8300/apis/api/product'
 
 #### GET /api/insurance_company
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/insurance_company'
 ```
 
 #### GET /api/insurance_type
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/insurance_type'
 ```
 
 #### POST /api/insurance_company
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/insurance_company' -d \
@@ -830,6 +973,8 @@ Notes: `ins_type_code` can be found by inspecting the above route (/api/insuranc
 
 #### PUT /api/insurance_company/:iid
 
+Request:
+
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/insurance_company/1' -d \
 '{
@@ -853,11 +998,15 @@ Notes: `ins_type_code` can be found by inspecting the above route (/api/insuranc
 
 #### GET /api/appointment
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/appointment'
 ```
 
 #### GET /api/appointment/:eid
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/appointment/1'
@@ -865,17 +1014,23 @@ curl -X GET 'http://localhost:8300/apis/api/appointment/1'
 
 #### GET /api/patient/:pid/appointment
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/appointment'
 ```
 
 #### GET /api/patient/:pid/appointment/:eid
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/appointment/1'
 ```
 
 #### POST /api/patient/:pid/appointment
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/appointment' -d \
@@ -895,11 +1050,15 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/appointment' -d \
 
 #### DELETE /api/patient/:pid/appointment/:eid
 
+Request:
+
 ```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/appointment/1' -d \
 ```
 
 #### GET /api/patient/:pid/document
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/document&path=/eye_module/imaging-eye/drawings-eye'
@@ -907,10 +1066,12 @@ curl -X GET 'http://localhost:8300/apis/api/patient/1/document&path=/eye_module/
 
 Note: The `path` query string represents the OpenEMR documents paths with two exceptions:
 
-- Spaces are represented with `_`
-- All characters are lowercase
+-   Spaces are represented with `_`
+-   All characters are lowercase
 
 #### POST /api/patient/:pid/document
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/document&path=/eye_module/imaging-eye/drawings-eye' \
@@ -919,16 +1080,20 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/document&path=/eye_module
 
 Note: The `path` query string represents the OpenEMR documents paths with two exceptions:
 
-- Spaces are represented with `_`
-- All characters are lowercase
+-   Spaces are represented with `_`
+-   All characters are lowercase
 
 #### GET /api/patient/:pid/document/:did
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/document/1'
 ```
 
 #### POST /api/patient/:pid/message
+
+Request:
 
 ```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/message' -d \
@@ -943,10 +1108,13 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/message' -d \
 ```
 
 Notes:
-- For `title`, use `resource=/api/list/note_type`
-- For `message_type`, use `resource=/api/list/message_status`
+
+-   For `title`, use `resource=/api/list/note_type`
+-   For `message_type`, use `resource=/api/list/message_status`
 
 #### PUT /api/patient/:pid/message/:mid
+
+Request:
 
 ```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/message/1' -d \
@@ -961,23 +1129,30 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/message/1' -d \
 ```
 
 Notes:
-- For `title`, use `resource=/api/list/note_type`
-- For `message_type`, use `resource=/api/list/message_status`
+
+-   For `title`, use `resource=/api/list/note_type`
+-   For `message_type`, use `resource=/api/list/message_status`
 
 #### DELETE /api/patient/:pid/message/:mid
+
+Request:
 
 ```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
 ```
 
 ### /portal/ Endpoints
+
 OpenEMR patient portal endpoints Use `http://localhost:8300/apis/portal as base URI.`
 
 _Example:_ `http://localhost:8300/apis/portal/patient` returns a resource of the patient.
 
 #### POST /portal/auth
-The OpenEMR Patient Portal API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory.  If additional sites have not been created, set the scope
+
+The OpenEMR Patient Portal API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory. If additional sites have not been created, set the scope
 to 'default'. If the patient portal is set to require email address on authenticate, then need to also include an `email` field in the request.
+
+Request:
 
 ```sh
 curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/portal/auth' \
@@ -988,7 +1163,9 @@ curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/por
     "scope":"site id"
 }'
 ```
+
 Response:
+
 ```json
 {
     "token_type": "Bearer",
@@ -999,7 +1176,10 @@ Response:
     }
 }
 ```
+
 The Bearer token is required for each OpenEMR Patient Portal API request, and is conveyed using an Authorization header.
+
+Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/portal/patient' \
@@ -1008,11 +1188,14 @@ curl -X GET 'http://localhost:8300/apis/portal/patient' \
 
 #### GET /portal/patient
 
+Request:
+
 ```sh
 curl -X GET 'http://localhost:8300/apis/portal/patient'
 ```
 
-Response
+Response:
+
 ```json
 {
     "validationErrors": [],
@@ -1050,21 +1233,18 @@ Response
 
 ### Dev Notes
 
-- For business logic, make or use the services [here](src/Services)
-- For controller logic, make or use the classes [here](src/RestControllers)
-- For routing declarations, use the class [here](_rest_routes.inc.php).
-
+-   For business logic, make or use the services [here](src/Services)
+-   For controller logic, make or use the classes [here](src/RestControllers)
+-   For routing declarations, use the class [here](_rest_routes.inc.php).
 
 ### Project Management
 
 #### General API
 
-- TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
-- TODO(?): API for fee sheets
-- TODO(?): API for pharmacies
-- TODO(?): API for immunizations
-- TODO(?): API for prescriptions
-- TODO(?): Drug search API
-- TODO(?): API for onotes
-
-
+-   TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
+-   TODO(?): API for fee sheets
+-   TODO(?): API for pharmacies
+-   TODO(?): API for immunizations
+-   TODO(?): API for prescriptions
+-   TODO(?): Drug search API
+-   TODO(?): API for onotes
