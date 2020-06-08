@@ -390,7 +390,7 @@ Response:
 Request:
 
 ```sh
-curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter' -d \
+curl -X POST 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7/encounter' -d \
 '{
     "date":"2020-11-10",
     "onset_date": "",
@@ -403,17 +403,30 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter' -d \
     "referral_source": "",
     "pos_code": "0",
     "external_id": "",
-    "provider_id": "1"
+    "provider_id": "1",
+    "class_code" : "AMB"
 }'
 ```
 
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "encounter": 1,
+        "uuid": "90c196f2-51cc-4655-8858-3a80aebff3ef"
+    }
+}
+```
 
 #### PUT /api/patient/:pid/encounter/:eid
 
 Request:
 
 ```sh
-curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1' -d \
+curl -X POST 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7/encounter/90c196f2-51cc-4655-8858-3a80aebff3ef' -d \
 '{
     "date":"2019-09-14",
     "onset_date": "2019-04-20 00:00:00",
@@ -427,13 +440,59 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1' -d \
 }'
 ```
 
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "id": "1",
+        "uuid": "90c196f2-51cc-4655-8858-3a80aebff3ef",
+        "date": "2019-09-14 00:00:00",
+        "reason": "Pregnancy Test",
+        "facility": "Owerri General Hospital",
+        "facility_id": "3",
+        "pid": "1",
+        "onset_date": "2019-04-20 00:00:00",
+        "sensitivity": "normal",
+        "billing_note": null,
+        "pc_catid": "5",
+        "last_level_billed": "0",
+        "last_level_closed": "0",
+        "last_stmt_date": null,
+        "stmt_count": "0",
+        "provider_id": "1",
+        "supervisor_id": "0",
+        "invoice_refno": "",
+        "referral_source": "",
+        "billing_facility": "3",
+        "external_id": "",
+        "pos_code": "0",
+        "class_code": "AMB",
+        "class_title": "ambulatory",
+        "pc_catname": "Office Visit",
+        "billing_facility_name": "Owerri General Hospital"
+    }
+}
+```
 
 #### GET /api/patient/:pid/encounter
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter'
+curl -X GET 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7/encounter'
+```
+
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": [{ encounterRecord }, { encounterRecord }, etc]
+}
 ```
 
 #### GET /api/patient/:pid/encounter/:eid
@@ -441,7 +500,44 @@ curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1'
+curl -X GET 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7/encounter/90c196f2-51cc-4655-8858-3a80aebff3ef'
+```
+
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "id": "1",
+        "uuid": "90c196f2-51cc-4655-8858-3a80aebff3ef",
+        "date": "2019-09-14 00:00:00",
+        "reason": "Pregnancy Test",
+        "facility": "Owerri General Hospital",
+        "facility_id": "3",
+        "pid": "1",
+        "onset_date": "2019-04-20 00:00:00",
+        "sensitivity": "normal",
+        "billing_note": null,
+        "pc_catid": "5",
+        "last_level_billed": "0",
+        "last_level_closed": "0",
+        "last_stmt_date": null,
+        "stmt_count": "0",
+        "provider_id": "1",
+        "supervisor_id": "0",
+        "invoice_refno": "",
+        "referral_source": "",
+        "billing_facility": "3",
+        "external_id": "",
+        "pos_code": "0",
+        "class_code": "AMB",
+        "class_title": "ambulatory",
+        "pc_catname": "Office Visit",
+        "billing_facility_name": "Owerri General Hospital"
+    }
+}
 ```
 
 #### POST /api/patient/:pid/encounter/:eid/vital

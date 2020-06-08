@@ -194,7 +194,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Encounter'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Encounter/1'
+curl -X GET 'http://localhost:8300/apis/fhir/Encounter/90c196f2-51cc-4655-8858-3a80aebff3ef'
 ```
 
 #### GET /fhir/Organization
