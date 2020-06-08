@@ -42,7 +42,6 @@ if ($GLOBALS['prevent_browser_refresh'] > 1) {
 }
 
 $esignApi = new Api();
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
@@ -62,17 +61,26 @@ $esignApi = new Api();
 
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-        var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] === 1; ?>";
-
         // Since this should be the parent window, this is to prevent calls to the
         // window that opened this window. For example when a new window is opened
         // from the Patient Flow Board or the Patient Finder.
         window.opener = null;
+        window.name = "main";
 
         // This flag indicates if another window or frame is trying to reload the login
         // page to this top-level window.  It is set by javascript returned by auth.inc
         // and is checked by handlers of beforeunload events.
         var timed_out = false;
+        // some globals to access using top.variable
+        // note that 'let' or 'const' does not allow global scope here.
+        // only use var
+        var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] ?>";
+        // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
+        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+        var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
+        var webroot_url = <?php echo js_escape($web_root); ?>;
+        var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
+        var jsGlobals = {};
 
         function goRepeaterServices() {
             // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
@@ -80,47 +88,63 @@ $esignApi = new Api();
 
             // Send the skip_timeout_reset parameter to not count this as a manual entry in the
             // timing out mechanism in OpenEMR. Notify App for various portal and reminder alerts.
-            // Combined portal and reminders ajax sjp 06-01-2020.
+            // Combined portal and reminders ajax to fetch sjp 06-07-2020.
             restoreSession();
-            $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
-                {
-                    skip_timeout_reset: "1",
-                    isPortal: isPortalEnabled,
-                    csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
-                },
-                function (counts) {
-                    let data = JSON.parse(counts);
-                    if (isPortalEnabled) {
-                        let mail = data.mailCnt;
-                        let chats = data.chatCnt;
-                        let audits = data.auditCnt;
-                        let payments = data.paymentCnt;
-                        let total = data.total;
-                        let enable = "" + ((1 * mail) + (1 * audits)); // payments are among audits.
-                        // Send portal counts to notification button model
-                        app_view_model.application_data.user().portal(enable);
-                        if (enable > 0) {
-                            app_view_model.application_data.user().portalAlerts(total);
-                            app_view_model.application_data.user().portalAudits(audits);
-                            app_view_model.application_data.user().portalMail(mail);
-                            app_view_model.application_data.user().portalChats(chats);
-                            app_view_model.application_data.user().portalPayments(payments);
-                        }
+            let request = new FormData;
+            request.append("skip_timeout_reset", "1");
+            request.append("isPortal", isPortalEnabled);
+            request.append("csrf_token_form", csrf_token_js);
+            fetch(webroot_url + "/library/ajax/dated_reminders_counter.php", {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: request
+            }).then((response) => {
+                if (response.status !== 200) {
+                    console.log('Reminders start failed. Status Code: ' + response.status);
+                    return;
+                }
+                return response.json();
+            }).then((data) => {
+                if (isPortalEnabled) {
+                    let mail = data.mailCnt;
+                    let chats = data.chatCnt;
+                    let audits = data.auditCnt;
+                    let payments = data.paymentCnt;
+                    let total = data.total;
+                    let enable = "" + ((1 * mail) + (1 * audits)); // payments are among audits.
+                    // Send portal counts to notification button model
+                    app_view_model.application_data.user().portal(enable);
+                    if (enable > 0) {
+                        app_view_model.application_data.user().portalAlerts(total);
+                        app_view_model.application_data.user().portalAudits(audits);
+                        app_view_model.application_data.user().portalMail(mail);
+                        app_view_model.application_data.user().portalChats(chats);
+                        app_view_model.application_data.user().portalPayments(payments);
                     }
-                    // Always send reminder count text to model
-                    app_view_model.application_data.user().messages(data.reminderText);
                 }
-            );
+                // Always send reminder count text to model
+                app_view_model.application_data.user().messages(data.reminderText);
+            }).catch(function(error) {
+                console.log('Request failed', error)
+            });
 
-            restoreSession();
             // run background-services
-            $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
-                {
-                    skip_timeout_reset: "1",
-                    ajax: "1",
-                    csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
+            restoreSession();
+            request = new FormData;
+            request.append("skip_timeout_reset", "1");
+            request.append("ajax", "1");
+            request.append("csrf_token_form", csrf_token_js);
+            fetch(webroot_url + "/library/ajax/execute_background_services.php", {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: request
+            }).then((response) => {
+                if (response.status !== 200) {
+                    console.log('Background Service start failed. Status Code: ' + response.status);
                 }
-            );
+            }).catch(function(error) {
+                console.log('Request failed', error)
+            });
 
             // auto run this function every 60 seconds
             var repeater = setTimeout("goRepeaterServices()", 60000);
@@ -131,10 +155,12 @@ $esignApi = new Api();
             // If encounter locking is enabled, make a syncronous call (async=false) to check the
             // DB to see if the encounter is locked.
             // Call restore session, just in case
+            // @TODO next clean up pass, turn into await promise then modify tabs_view_model.js L-309
             restoreSession();
+            let url = webroot_url + "/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked";
             $.ajax({
                 type: 'POST',
-                url: '<?php echo $GLOBALS['webroot']?>/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked',
+                url: url,
                 data: {encounterId: encounterId},
                 success: function (data) {
                     encounter_locked = data;
@@ -148,65 +174,18 @@ $esignApi = new Api();
             return false;
             <?php } ?>
         }
-
-        // some globals to access using top.variable
-        window.name = "main";
-        // note that 'let' or 'const' does not allow global scope here.
-        // only use var
-        var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
-        var webroot_url = <?php echo js_escape($web_root); ?>;
-        var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
-        var jsGlobals = {};
     </script>
 
     <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next']); ?>
 
     <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
-    <script type="text/javascript" src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <script>
-        // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
-        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
-        // will fullfill json and return promise if needed
-        // to call elsewhere for a local scope ie
-        // let localJson = top.jsFetchGlobals().then(data => {do something with parsed json data});
-        // will use post here due to content type and length.
-        function jsFetchGlobals(scope) {
-            let url = webroot_url + "/library/ajax/phpvars_to_js.php";
-            return new Promise((resolve, reject) => {
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {
-                        scope: scope,
-                        csrf_token_form: csrf_token_js,
-                    },
-                    beforeSend: function () {
-                        top.restoreSession;
-                    },
-                    success: function (data) {
-                        // I.E Edge auto parses response json thus this!
-                        data = typeof data === 'object' ? data : JSON.parse(data);
-                        resolve(data);
-                    },
-                    error: function (error) {
-                        reject(error);
-                    },
-                })
-            })
-        }
-
-        jsFetchGlobals('top').then(globalJson => {
-            jsGlobals = globalJson;
-        }).catch(error => {
-            console.log(error.message);
-        });
-
         // set up global translations for js
         function setupI18n(lang_id) {
             restoreSession();
@@ -215,7 +194,6 @@ $esignApi = new Api();
                 method: 'GET'
             }).then(response => response.json())
         }
-
         setupI18n(<?php echo js_escape($_SESSION['language_choice']); ?>).then(translationsJson => {
             i18next.init({
                 lng: 'selected',
@@ -231,13 +209,19 @@ $esignApi = new Api();
         }).catch(error => {
             console.log(error.message);
         });
-
     </script>
-    <script type="text/javascript" src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next']); ?>
 
-    <script type="text/javascript" src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
+    <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
+
+    <script src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu
@@ -284,7 +268,6 @@ $esignApi = new Api();
             . ',' . json_encode($_SESSION['authProvider']); ?>));
 
     </script>
-
 <style>
     html, body {
         width: max-content;
@@ -292,7 +275,6 @@ $esignApi = new Api();
         height: 100% !important;
     }
 </style>
-
 </head>
 <body class="min-vw-100">
     <!-- Below iframe is to support auto logout when timeout is reached -->

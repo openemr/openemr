@@ -25,7 +25,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 $portal_count = array();
 // if portal is enabled get various alerts
-if (isset($_POST['isPortal'])) {
+if (!empty($_POST['isPortal'])) {
     $portal_count = GetPortalAlertCounts();
 }
 
