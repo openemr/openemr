@@ -180,11 +180,6 @@ $esignApi = new Api();
 
     <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
-    <script src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-
     <script>
         // set up global translations for js
         function setupI18n(lang_id) {
@@ -210,9 +205,6 @@ $esignApi = new Api();
             console.log(error.message);
         });
     </script>
-    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next']); ?>
-
-    <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
     <script src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
