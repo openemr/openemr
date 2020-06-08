@@ -16,7 +16,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Acl\AclMain;
 
 //ensure user has proper access
-if (!AclMain::aclCheckCore('admin', 'acl', 'super', 'patients')) {
+if (!AclMain::aclCheckCore('patient', 'rx', '', 'write')) {
     echo xlt('ACL Administration Not Authorized');
     exit;
 }
