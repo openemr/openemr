@@ -12,8 +12,8 @@
 
 require_once "../interface/globals.php";
 
-use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patient', 'rx', '', 'write')) {

@@ -93,7 +93,7 @@ function deleteDrug(d) {
                 type: 'POST',
                 data: {
                     drugId: d,
-                    csrf_token_form: {$CSRF_TOKEN_FORM|js_url}
+                    csrf_token_form: {$CSRF_TOKEN_FORM|js_escape}
             },
             success: function(data) {
             console.log(data);
