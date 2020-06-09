@@ -200,7 +200,7 @@ if (!$GLOBALS['insurance_only_one']) {
 ?>
 <html>
 <body>
-<script language="Javascript">
+<script>
 <?php
 if ($alertmsg) {
     echo "alert(" . js_escape($alertmsg) . ");\n";

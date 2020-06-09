@@ -84,7 +84,7 @@ if (count($missingExtensions) > 0) {
         ob_end_flush();
 
         ?>
-        <script type="text/javascript">
+        <script>
             window.setTimeout(function() {
                 window.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics_full.php";
             }, <?php echo (count($messages) * 2000) + 3000; ?>);
@@ -135,14 +135,14 @@ if (count($missingExtensions) > 0) {
             $eRxPage->updatePatientData();
 
             ?>
-        <script type="text/javascript">
+        <script>
             <?php require($GLOBALS['srcdir'] . '/restoreSession.php'); ?>
         </script>
         <form name="info" method="post" action="<?php echo $GLOBALS['erx_newcrop_path']; ?>" onsubmit="return top.restoreSession()">
             <input type="submit" style="display:none">
             <input type="hidden" id="RxInput" name="RxInput" value="<?php echo attr($xml); ?>">
         </form>
-        <script type="text/javascript">
+        <script>
             window.setTimeout(function() {
                 document.forms[0].submit();
             }, <?php echo $delay; ?>);

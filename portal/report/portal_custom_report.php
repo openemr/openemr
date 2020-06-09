@@ -47,9 +47,6 @@ require_once("$srcdir/classes/Note.class.php");
 require_once(dirname(__file__) . "/../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
-if ($GLOBALS['gbl_portal_cms_enable']) {
-    require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
-}
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
 use ESign\Api;
@@ -231,7 +228,7 @@ input[type="radio"] {
 
 <?php if (!$PDF_OUTPUT) { ?>
 <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
     <!-- Unclear where a conflict occurs but if jquery is already in scope then !!!! removed noconflict sjp 12-1-2019-->
 <script>var $j = '$';</script>
 

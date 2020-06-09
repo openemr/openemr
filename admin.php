@@ -41,218 +41,191 @@ function sqlQuery($statement, $link)
 ?>
 <html>
 <head>
-<title>OpenEMR Site Administration</title>
-<link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css">
-<script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css">
-<link rel="shortcut icon" href="public/images/favicon.ico" />
-<style>
-    .oe-pull-away{
-        float:right;
-    }
-    .oe-help-x {
-        color: grey;
-        padding: 0 5px;
-    }
-    .oe-superscript {
-        position: relative;
-        top: -.5em;
-        font-size: 70%!important;
-    }
-    .oe-setup-legend{
-        background-color:  WHITESMOKE;
-        padding:0 10px;
-    }
-    .oe-text-green {
-        color: green;
-    }
-    button {
-    font-weight:bold;
-    }
-    .button-wait {
-        color: grey;
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-    @media only screen {
-        fieldset > [class*="col-"] {
-            width: 100%;
-            text-align:left!Important;
-        }
-    }
-</style>
+    <title>OpenEMR Site Administration</title>
+    <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css">
+    <script src="public/assets/jquery/dist/jquery.min.js"></script>
+    <script src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="shortcut icon" href="public/images/favicon.ico" />
 </head>
 <body>
-    <div class='container'>
+    <div class='container mt-3'>
         <div class="row">
-            <div class="col-sm-12">
-                <div class="page-header">
-                    <h2>OpenEMR Multi Site Administration <a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="Click to view Help"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2>OpenEMR Multi Site Administration</h2>
+                    <a class="text-secondary" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href">
+                        <i class="fa fa-question-circle fa-lg" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Click to view Help"></i>
+                    </a>
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-12">
-                <table class='table table-striped'>
-                 <tr class='head'>
-                  <td>Site ID</td>
-                  <td>DB Name</td>
-                  <td>Site Name</td>
-                  <td>Version</td>
-                  <td align='center'>Is Current</td>
-                  <td align='center'>Log In</td>
-                 </tr>
-                <?php
-                $dh = opendir($OE_SITES_BASE);
-                if (!$dh) {
-                    die("Cannot read directory '$OE_SITES_BASE'.");
-                }
-
-                $siteslist = array();
-
-                while (false !== ($sfname = readdir($dh))) {
-                    if (substr($sfname, 0, 1) == '.') {
-                        continue;
-                    }
-
-                    if ($sfname == 'CVS') {
-                        continue;
-                    }
-
-                    $sitedir = "$OE_SITES_BASE/$sfname";
-                    if (!is_dir($sitedir)) {
-                        continue;
-                    }
-
-                    if (!is_file("$sitedir/sqlconf.php")) {
-                        continue;
-                    }
-
-                    $siteslist[$sfname] = $sfname;
-                }
-
-                closedir($dh);
-                ksort($siteslist);
-
-                $encount = 0;
-                foreach ($siteslist as $sfname) {
-                    $sitedir = "$OE_SITES_BASE/$sfname";
-                    $errmsg = '';
-                    ++$encount;
-                    $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-
-                    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-
-                  // Access the site's database.
-                    include "$sitedir/sqlconf.php";
-
-                    if ($config) {
-                        $dbh = mysqli_connect("$host", "$login", "$pass", $dbase, $port);
-                        if (!$dbh) {
-                            $errmsg = "MySQL connect failed";
+                <div class="table-responsive">
+                    <table class='table table-striped text-center'>
+                        <tr>
+                            <th>Site ID</th>
+                            <th>DB Name</th>
+                            <th>Site Name</th>
+                            <th>Version</th>
+                            <th>Is Current</th>
+                            <th>Log In</th>
+                        </tr>
+                        <?php
+                        $dh = opendir($OE_SITES_BASE);
+                        if (!$dh) {
+                            die("Cannot read directory '$OE_SITES_BASE'.");
                         }
-                    }
 
-                    echo "  <td>$sfname</td>\n";
-                    echo "  <td>$dbase</td>\n";
+                        $siteslist = array();
 
-                    if (!$config) {
-                        echo "  <td colspan='3'><a href='setup.php?site=$sfname'>Needs setup, click here to run it</a></td>\n";
-                    } elseif ($errmsg) {
-                        echo "  <td colspan='3' style='color:red'>$errmsg</td>\n";
-                    } else {
-                        // Get site name for display.
-                        $row = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'openemr_name' LIMIT 1", $dbh);
-                        $openemr_name = $row ? $row['gl_value'] : '';
-
-                        // Get version indicators from the database.
-                        $row = sqlQuery("SHOW TABLES LIKE 'version'", $dbh);
-                        if (empty($row)) {
-                            $openemr_version = 'Unknown';
-                            $database_version = 0;
-                        } else {
-                            $row = sqlQuery("SELECT * FROM version LIMIT 1", $dbh);
-                            $database_patch_txt = "";
-                            if (!(empty($row['v_realpatch'])) && $row['v_realpatch'] != 0) {
-                                $database_patch_txt = " (" . $row['v_realpatch'] . ")";
+                        while (false !== ($sfname = readdir($dh))) {
+                            if (substr($sfname, 0, 1) == '.') {
+                                continue;
                             }
 
-                            $openemr_version = $row['v_major'] . "." . $row['v_minor'] . "." .
-                            $row['v_patch'] . $row['v_tag'] . $database_patch_txt;
-                            $database_version = 0 + $row['v_database'];
-                            $database_acl = 0 + $row['v_acl'];
-                            $database_patch = 0 + $row['v_realpatch'];
+                            if ($sfname == 'CVS') {
+                                continue;
+                            }
+
+                            $sitedir = "$OE_SITES_BASE/$sfname";
+                            if (!is_dir($sitedir)) {
+                                continue;
+                            }
+
+                            if (!is_file("$sitedir/sqlconf.php")) {
+                                continue;
+                            }
+
+                            $siteslist[$sfname] = $sfname;
                         }
 
-                        // Display relevant columns.
-                        echo "  <td>$openemr_name</td>\n";
-                        echo "  <td>$openemr_version</td>\n";
-                        if ($v_database != $database_version) {
-                            echo "  <td align='center'><a href='sql_upgrade.php?site=$sfname'>Upgrade Database</a></td>\n";
-                        } elseif (($v_acl > $database_acl)) {
-                            echo "  <td align='center'><a href='acl_upgrade.php?site=$sfname'>Upgrade Access Controls</a></td>\n";
-                        } elseif (($v_realpatch != $database_patch)) {
-                            echo "  <td align='center'><a href='sql_patch.php?site=$sfname'>Patch Database</a></td>\n";
-                        } else {
-                            echo "  <td align='center'><i class='fa fa-check fa-lg oe-text-green' aria-hidden='true' ></i></a></td>\n";
-                        }
-                        if (($v_database == $database_version) && ($v_acl <= $database_acl) && ($v_realpatch == $database_patch)) {
-                            echo "  <td align='center'><a href='interface/login/login.php?site=$sfname' title =' Login to site $sfname' ><i class='fa fa-sign-in fa-lg' aria-hidden='true'></i></a></td>\n";
-                        } else {
-                            echo "  <td align='center'><i class='fa fa-ban fa-lg button-wait' aria-hidden='true'></i></td>\n";
-                        }
-                    }
+                        closedir($dh);
+                        ksort($siteslist);
 
-                    echo " </tr>\n";
+                        $encount = 0;
+                        foreach ($siteslist as $sfname) {
+                            $sitedir = "$OE_SITES_BASE/$sfname";
+                            $errmsg = '';
+                            ++$encount;
 
-                    if ($config && $dbh !== false) {
-                        mysqli_close($dbh);
-                    }
-                }
-                ?>
-                </table>
+                            echo " <tr>\n";
+
+                        // Access the site's database.
+                            include "$sitedir/sqlconf.php";
+
+                            if ($config) {
+                                $dbh = mysqli_connect("$host", "$login", "$pass", $dbase, $port);
+                                if (!$dbh) {
+                                    $errmsg = "MySQL connect failed";
+                                }
+                            }
+
+                            echo "  <td>$sfname</td>\n";
+                            echo "  <td>$dbase</td>\n";
+
+                            if (!$config) {
+                                echo "  <td colspan='3'><a href='setup.php?site=$sfname' class='text-decoration-none'>Needs setup, click here to run it</a></td>\n";
+                            } elseif ($errmsg) {
+                                echo "  <td colspan='3' class='text-danger'>$errmsg</td>\n";
+                            } else {
+                                // Get site name for display.
+                                $row = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'openemr_name' LIMIT 1", $dbh);
+                                $openemr_name = $row ? $row['gl_value'] : '';
+
+                                // Get version indicators from the database.
+                                $row = sqlQuery("SHOW TABLES LIKE 'version'", $dbh);
+                                if (empty($row)) {
+                                    $openemr_version = 'Unknown';
+                                    $database_version = 0;
+                                } else {
+                                    $row = sqlQuery("SELECT * FROM version LIMIT 1", $dbh);
+                                    $database_patch_txt = "";
+                                    if (!(empty($row['v_realpatch'])) && $row['v_realpatch'] != 0) {
+                                        $database_patch_txt = " (" . $row['v_realpatch'] . ")";
+                                    }
+
+                                    $openemr_version = $row['v_major'] . "." . $row['v_minor'] . "." .
+                                    $row['v_patch'] . $row['v_tag'] . $database_patch_txt;
+                                    $database_version = 0 + $row['v_database'];
+                                    $database_acl = 0 + $row['v_acl'];
+                                    $database_patch = 0 + $row['v_realpatch'];
+                                }
+
+                                // Display relevant columns.
+                                echo "  <td>$openemr_name</td>\n";
+                                echo "  <td>$openemr_version</td>\n";
+                                if ($v_database != $database_version) {
+                                    echo "  <td><a href='sql_upgrade.php?site=$sfname' class='text-decoration-none'>Upgrade Database</a></td>\n";
+                                } elseif (($v_acl > $database_acl)) {
+                                    echo "  <td><a href='acl_upgrade.php?site=$sfname' class='text-decoration-none'>Upgrade Access Controls</a></td>\n";
+                                } elseif (($v_realpatch != $database_patch)) {
+                                    echo "  <td><a href='sql_patch.php?site=$sfname' class='text-decoration-none'>Patch Database</a></td>\n";
+                                } else {
+                                    echo "  <td><i class='fa fa-check fa-lg text-success' aria-hidden='true' ></i></a></td>\n";
+                                }
+                                if (($v_database == $database_version) && ($v_acl <= $database_acl) && ($v_realpatch == $database_patch)) {
+                                    echo "  <td><a href='interface/login/login.php?site=$sfname' class='text-decoration-none'><i class='fa fa-sign-in-alt fa-lg' aria-hidden='true' data-toggle='tooltip' data-placement='top' title ='Login to site $sfname'></i></a></td>\n";
+                                } else {
+                                    echo "  <td><i class='fa fa-ban fa-lg text-secondary' aria-hidden='true'></i></td>\n";
+                                }
+                            }
+
+                            echo " </tr>\n";
+
+                            if ($config && $dbh !== false) {
+                                mysqli_close($dbh);
+                            }
+                        }
+                        ?>
+                    </table>
+                </div>
                 <form method='post' action='setup.php'>
-                     <button type='submit' name='form_submit' value='Add New Site'><b>Add New Site</b></button>
+                    <button type='submit' class='btn btn-primary font-weight-bold' name='form_submit' value='Add New Site'>Add New Site</button>
                 </form>
             </div>
         </div>
     </div><!--end of container div-->
+
     <div class="row">
-            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content  oe-modal-content" style="height:700px">
-                        <div class="modal-header clearfix">
-                            <button type="button" class="close" data-dismiss="modal" aria-label=Close>
-                            <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span></button>
-                        </div>
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content" style="height:700px">
+                    <div class="modal-header clearfix">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span>
+                        </button>
+                    </div>
                         <div class="modal-body" style="height:80%;">
-                            <iframe src="" id="targetiframe" style="height:100%; width:100%; overflow-x: hidden; border:none"
-                            allowtransparency="true"></iframe>
+                            <iframe src="" id="targetiframe" class="h-100 w-100" style="overflow-x: hidden; border:none"
+                                allowtransparency="true"></iframe>
                         </div>
-                        <div class="modal-footer" style="margin-top:0px;">
-                           <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">Close</button>
-                           <!--<button class="btn btn-secondary btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">Print</button>-->
-                        </div>
+                    <div class="modal-footer mt-0">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
                     </div>
                 </div>
             </div>
         </div>
-        <script>
-            $(function () {
-                $('#help-href').click (function(){
-                    document.getElementById('targetiframe').src = "Documentation/help_files/openemr_multisite_admin_help.php";
-                })
+    </div>
+    <script>
+        $(function () {
+            $('#help-href').click (function() {
+                document.getElementById('targetiframe').src = "Documentation/help_files/openemr_multisite_admin_help.php";
             });
-            $(function () {
-                $('#print-help-href').click (function(){
-                    $("#targetiframe").get(0).contentWindow.print();
-                })
+        });
+        $(function () {
+            $('#print-help-href').click (function(){
+                $("#targetiframe").get(0).contentWindow.print();
             });
-            // Jquery draggable
-            $(".modal-dialog").addClass('drag-action');
-            $(".modal-content").addClass('resize-action');
-        </script>
+        });
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+        // Jquery draggable
+        $(".modal-dialog").addClass('drag-action');
+        $(".modal-content").addClass('resize-action');
+    </script>
 </body>
 </html>

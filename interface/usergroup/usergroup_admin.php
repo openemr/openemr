@@ -423,7 +423,7 @@ $form_inactive = empty($_POST['form_inactive']) ? false : true;
 
 <?php Header::setupHeader(['common']); ?>
 
-<script type="text/javascript">
+<script>
 
 $(function () {
 
@@ -592,7 +592,7 @@ function authorized_clicked() {
         </div>
     </div>
 </div>
-<script language="JavaScript">
+<script>
 <?php
 if ($alertmsg = trim($alertmsg)) {
     echo "alert(" . js_escape($alertmsg) . ");\n";

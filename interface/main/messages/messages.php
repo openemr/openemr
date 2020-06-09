@@ -466,11 +466,6 @@ if (!empty($_REQUEST['go'])) { ?>
                                                             }
                                                             echo "</option>\n";
                                                         }
-                                                        if ($GLOBALS['portal_offsite_enable']) {
-                                                            echo "<option value='-" . xla('patient') . "-'";
-                                                            echo ">-" . xlt('Patient') . "-";
-                                                            echo "</option>\n";
-                                                        }
                                                         ?>
                                                     </select>
                                                 </div>

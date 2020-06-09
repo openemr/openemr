@@ -64,7 +64,7 @@ function validateUsingPageRules($fileNamePath)
         $use_validate_js = 1;
         require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
         echo("\r\n");
-        print '<script type="text/javascript">';
+        print '<script>';
         echo ("$(function () {");
         echo("\r\n");
         foreach ($collectThis as $key => $value) {

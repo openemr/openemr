@@ -92,7 +92,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 
 <?php include_once($GLOBALS['srcdir'] . "/options.js.php"); ?>
 
-<script type="text/javascript">
+<script>
 
 // Support for beforeunload handler.
 var somethingChanged = false;

@@ -38,8 +38,8 @@ if (isset($_GET['typeid'])) {
         }
     }
     ?>
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-    <script language="JavaScript">
+    <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script>
         if (opener.closed) {
             alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
         }
@@ -94,7 +94,7 @@ if (isset($_GET['typeid'])) {
     <?php Header::setupHeader(['opener']); ?>
     <title><?php echo xlt('Procedure Picker'); ?></title>
 
-    <script language="JavaScript">
+    <script>
         // Reload the script with the select procedure type ID.
         function selcode(typeid) {
             location.href = 'find_order_popup.php?order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid);

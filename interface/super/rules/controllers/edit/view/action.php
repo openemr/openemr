@@ -16,9 +16,9 @@
 <?php $action = $viewBean->action?>
 <?php $rule = $viewBean->rule?>
 
-<script language="javascript" src="<?php js_src('edit.js') ?>"></script>
-<script language="javascript" src="<?php js_src('bucket.js') ?>"></script>
-<script type="text/javascript">
+<script src="<?php js_src('edit.js') ?>"></script>
+<script src="<?php js_src('bucket.js') ?>"></script>
+<script>
     var edit = new rule_edit( {});
     edit.init();
 

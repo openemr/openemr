@@ -26,6 +26,8 @@ $ignoreAuth = true; // no login required
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
+
+use OpenEMR\Core\Header;
 use OpenEMR\Services\VersionService;
 
 $versionService = new VersionService();
@@ -69,101 +71,105 @@ ksort($versions);
 <html>
 <head>
 <title>OpenEMR Database Upgrade</title>
-<link rel='STYLESHEET' href='interface/themes/style_blue.css'>
-<link rel="shortcut icon" href="public/images/favicon.ico" />
+    <?php Header::setupHeader(); ?>
+    <link rel="shortcut icon" href="public/images/favicon.ico" />
 </head>
 <body>
-<center>
-<span class='title'>OpenEMR Database Upgrade</span>
-<br />
-</center>
-<?php
-if (!empty($_POST['form_submit'])) {
-    $form_old_version = $_POST['form_old_version'];
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <h2>OpenEMR Database Upgrade</h2>
+            </div>
+        </div>
+        <div class="jumbotron p-4">
+            <form class="form-inline" method='post' action='sql_upgrade.php'>
+                <div class="form-group mb-3">
+                    <label>Please select the prior release you are converting from:</label>
+                    <select class='ml-3 form-control' name='form_old_version'>
+                        <?php
+                        foreach ($versions as $version => $filename) {
+                            echo " <option value='$version'";
+                            // Defaulting to most recent version, which is now 5.0.2.
+                            if ($version === '5.0.2') {
+                                echo " selected";
+                            }
+                            echo ">$version</option>\n";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <p>If you are unsure or were using a development version between two
+                    releases, then choose the older of possible releases.</p>
+                <p class="text-danger">If you are upgrading from a version below 5.0.0 to version 5.0.0 or greater, do note that this upgrade can take anywhere from several minutes to several hours (you will only see a whitescreen until it is complete; do not stop the script before it is complete or you risk corrupting your data).</p>
+                <button type='submit' class='btn btn-primary btn-transmit' name='form_submit' value='Upgrade Database'>Upgrade Database</button>
+            </form>
+        </div>
 
-    foreach ($versions as $version => $filename) {
-        if (strcmp($version, $form_old_version) < 0) {
-            continue;
-        }
+        <?php
+        if (!empty($_POST['form_submit'])) {
+            echo '<div class="jumbotron p-4">';
+            $form_old_version = $_POST['form_old_version'];
 
-        upgradeFromSqlFile($filename);
-    }
+            foreach ($versions as $version => $filename) {
+                if (strcmp($version, $form_old_version) < 0) {
+                    continue;
+                }
 
-    if (!empty($GLOBALS['ippf_specific'])) {
-        // Upgrade custom stuff for IPPF.
-        upgradeFromSqlFile('ippf_upgrade.sql');
-    }
+                upgradeFromSqlFile($filename);
+            }
 
-    if ((!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0)) {
-        // This release contains a patch file, so process it.
-        upgradeFromSqlFile('patch.sql');
-    }
+            if (!empty($GLOBALS['ippf_specific'])) {
+                // Upgrade custom stuff for IPPF.
+                upgradeFromSqlFile('ippf_upgrade.sql');
+            }
 
-    flush();
+            if ((!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0)) {
+                // This release contains a patch file, so process it.
+                upgradeFromSqlFile('patch.sql');
+            }
 
-    echo "<font color='green'>Updating global configuration defaults...</font><br />\n";
-    $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
-    require_once("library/globals.inc.php");
-    foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-        foreach ($grparr as $fldid => $fldarr) {
-            list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-            if (is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_')) {
-                $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
-                if (empty($row['count'])) {
-                    sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                    "VALUES ( '$fldid', '0', '$flddef' )");
+            flush();
+
+            echo "<p class='text-success'>Updating global configuration defaults...</p><br />\n";
+            $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
+            require_once("library/globals.inc.php");
+            foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+                foreach ($grparr as $fldid => $fldarr) {
+                    list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                    if (is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_')) {
+                        $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
+                        if (empty($row['count'])) {
+                            sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+                            "VALUES ( '$fldid', '0', '$flddef' )");
+                        }
+                    }
                 }
             }
+
+            echo "<p class='text-success'>Updating Access Controls...</p><br />\n";
+            require("acl_upgrade.php");
+            echo "<br />\n";
+
+            $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
+            $line = "Updating version indicators";
+
+            if ($canRealPatchBeApplied) {
+                $line = $line . ". Patch was also installed, updating version patch indicator";
+            }
+
+            echo "<p class='text-success'>" . $line . "...</p><br />\n";
+            $result = $versionService->update($desiredVersion);
+
+            if (!$result) {
+                echo "<p class='text-danger'>Version could not be updated</p><br />\n";
+                exit();
+            }
+
+            echo "<p><p class='text-success'>Database and Access Control upgrade finished.</p></p>\n";
+            echo "</div></body></html>\n";
+            exit();
         }
-    }
-
-    echo "<font color='green'>Updating Access Controls...</font><br />\n";
-    require("acl_upgrade.php");
-    echo "<br />\n";
-
-    $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
-    $line = "Updating version indicators";
-
-    if ($canRealPatchBeApplied) {
-        $line = $line . ". Patch was also installed, updating version patch indicator";
-    }
-
-    echo "<font color='green'>" . $line . "...</font><br />\n";
-    $result = $versionService->update($desiredVersion);
-
-    if (!$result) {
-        echo "<font color='red'>Version could not be updated</font><br />\n";
-        exit();
-    }
-
-    echo "<p><font color='green'>Database and Access Control upgrade finished.</font></p>\n";
-    echo "</body></html>\n";
-    exit();
-}
-
-?>
-<center>
-<form method='post' action='sql_upgrade.php'>
-<p>Please select the prior release you are converting from:
-<select name='form_old_version'>
-<?php
-foreach ($versions as $version => $filename) {
-    echo " <option value='$version'";
-    // Defaulting to most recent version, which is now 5.0.2.
-    if ($version === '5.0.2') {
-        echo " selected";
-    }
-
-    echo ">$version</option>\n";
-}
-?>
-</select>
-</p>
-<p>If you are unsure or were using a development version between two
-releases, then choose the older of possible releases.</p>
-<p style="color:red">If you are upgrading from a version below 5.0.0 to version 5.0.0 or greater, do note that this upgrade can take anywhere from several minutes to several hours (you will only see a whitescreen until it is complete; do not stop the script before it is complete or you risk corrupting your data).</p>
-<p><input type='submit' name='form_submit' value='Upgrade Database' /></p>
-</form>
-</center>
+        ?>
+    </div>
 </body>
 </html>

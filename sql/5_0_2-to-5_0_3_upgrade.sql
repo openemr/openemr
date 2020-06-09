@@ -654,6 +654,10 @@ CREATE UNIQUE INDEX `token` ON `api_token` (`token`);
 CREATE UNIQUE INDEX `pid` ON `patient_access_onsite` (`pid`);
 #EndIf
 
+#IfTable patient_access_offsite
+DROP TABLE `patient_access_offsite`;
+#EndIf
+
 #IfNotTable session_tracker
 CREATE TABLE `session_tracker` (
   `uuid` binary(16) NOT NULL DEFAULT '',
@@ -662,3 +666,4 @@ CREATE TABLE `session_tracker` (
   PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
 #EndIf
+

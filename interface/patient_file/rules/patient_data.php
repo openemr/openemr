@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 
     <?php Header::setupHeader(['datetime-picker', 'opener', 'common']); ?>
 
-<SCRIPT LANGUAGE="JavaScript">
+<script>
 
 function validate(f) {
   var bValid = true;

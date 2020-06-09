@@ -48,7 +48,7 @@ use OpenEMR\Core\Header;
     }
     ?>
 
-    <script type="text/javascript" language="JavaScript">
+    <script>
         function validate(f) {
             if (f.form_adreviewed.value == "") {
                   alert(<?php echo xlj('Please enter a date for Last Reviewed.'); ?>);

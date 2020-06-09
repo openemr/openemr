@@ -123,7 +123,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
 
     <?php Header::setupHeader(['common']); ?>
 
-<script type="text/javascript">
+<script>
 
 function refreshme() {
     top.restoreSession();

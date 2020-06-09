@@ -33,7 +33,7 @@ tr.selected {
 }
 </style>
 
-<script type="text/javascript">
+<script>
     function checkForAmendments() {
         var amendments = "";
         $("#list_amendments input:checkbox:checked").each(function() {

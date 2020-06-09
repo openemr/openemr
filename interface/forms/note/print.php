@@ -76,7 +76,7 @@ if ($obj['date_of_signature'] != "") {
 
 </body>
 
-<script language="javascript">
+<script>
 // jQuery stuff to make the page a little easier to use
 
 $(function () {

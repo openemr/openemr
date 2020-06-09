@@ -94,7 +94,7 @@ if (count($emr_app)) {
 
     <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
-    <script type="text/javascript">
+    <script>
         var registrationTranslations = <?php echo json_encode(array(
             'title' => xla('OpenEMR Product Registration'),
             'pleaseProvideValidEmail' => xla('Please provide a valid email address'),
@@ -113,10 +113,10 @@ if (count($emr_app)) {
         )); ?>;
     </script>
 
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
 
-    <script type="text/javascript">
+    <script>
         $(function () {
             init();
 
