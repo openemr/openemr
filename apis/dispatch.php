@@ -154,8 +154,12 @@ if ($gbl::is_fhir_request($resource)) {
     exit();
 }
 
-// TODO - Goal in future is to be able to remove this along with the above $sessionAllowWrite flag in the future
-session_write_close();
+if ($isLocalApi) {
+    // Ensure that a local process does not hold up other processes
+    //  Note can not do this for non $isLocalApi since need to be able to set
+    //  session variables and it won't help performance anyways.
+    session_write_close();
+}
 
 if (!$isLocalApi) {
     $gbl::authentication_check($resource);

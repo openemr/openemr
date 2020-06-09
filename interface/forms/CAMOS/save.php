@@ -46,7 +46,6 @@ if ($_GET["mode"] == "delete") {
     }
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

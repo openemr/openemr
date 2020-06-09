@@ -15,7 +15,6 @@
  */
 
 $sessionAllowWrite = true;
-/* Include our required headers */
 require_once('../globals.php');
 
 use OpenEMR\Common\Auth\AuthUtils;

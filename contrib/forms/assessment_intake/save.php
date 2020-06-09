@@ -35,8 +35,8 @@ if ($_GET["mode"] == "new") {
         "update form_assessment_intake set pid = ?,
         groupname=?,
         user=?,
-        authorized=?, activity=1, date = NOW(), 
-        dcn=?, 
+        authorized=?, activity=1, date = NOW(),
+        dcn=?,
         location=?,
         time_in=?,
         time_out=?,
@@ -301,7 +301,6 @@ if ($_GET["mode"] == "new") {
     );
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

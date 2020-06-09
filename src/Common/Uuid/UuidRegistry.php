@@ -33,8 +33,8 @@ class UuidRegistry
     // Maximum tries to create a unique uuid before failing (this should never happen)
     const MAX_TRIES = 100;
 
-    private $table_name;
-    private $disable_tracker;
+    private $table_name;      // table to check if uuid has already been used in
+    private $disable_tracker; // disable check and storage of uuid in the main uuid_registry table
 
     public function __construct($associations = [])
     {
@@ -85,7 +85,7 @@ class UuidRegistry
             error_log(bin2hex((\Ramsey\Uuid\Uuid::fromString($test_uuid))->getBytes())); // convert string uuid to byte and log hex
             */
 
-            // Check to ensure uuid is unique in uuid_registry
+            // Check to ensure uuid is unique in uuid_registry (unless $this->disable_tracker is set to true)
             if (!$this->disable_tracker) {
                 $checkUniqueRegistry = sqlQueryNoLog("SELECT * FROM `uuid_registry` WHERE `uuid` = ?", [$uuid]);
             }
@@ -102,7 +102,7 @@ class UuidRegistry
             }
         }
 
-        // Insert the uuid into uuid_registry
+        // Insert the uuid into uuid_registry (unless $this->disable_tracker is set to true)
         if (!$this->disable_tracker) {
             sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `created`) VALUES (?, ?, NOW())", [$uuid, $this->table_name]);
         }

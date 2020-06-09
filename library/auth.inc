@@ -83,8 +83,7 @@ if ($skipSessionExpirationCheck !== true) {
         }
     } else {
         // User has timed out.
-        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0,
-            "timeout, so force logout");
+        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
         authCloseSession();
         authLoginScreen(true);
     }

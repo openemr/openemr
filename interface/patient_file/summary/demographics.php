@@ -63,6 +63,7 @@ if ($GLOBALS['enable_cdr']) {
             $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser'], true);
         }
     }
+    $_SESSION['alert_notify_pid'] = $pid;
 }
 //Check to see is only one insurance is allowed
 if ($GLOBALS['insurance_only_one']) {

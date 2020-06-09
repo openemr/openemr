@@ -27,7 +27,6 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
-    $sessionAllowWrite = true;
     require_once(dirname(__FILE__) . "/../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
@@ -69,6 +68,7 @@ if (!isset($_SESSION['site_id'])) {
     $_SESSION ['site_id'] = 'default';
 }
 
+// This is to close session write access when called from portal (core session already can not write to session)
 session_write_close();
 
 $server_url = $_SERVER['HTTP_HOST'] . $GLOBALS['webroot'];
