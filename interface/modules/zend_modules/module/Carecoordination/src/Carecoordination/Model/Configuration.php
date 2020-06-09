@@ -11,12 +11,12 @@ use Laminas\Form\Form;
 class Configuration extends Form implements InputFilterAwareInterface
 {
     protected $inputFilter;
-    
+
     public function __construct()
     {
         parent::__construct('configuration');
         $this->setAttribute('method', 'post');
-        
+
     /*
     * Automatic SignOff settings
     */
@@ -30,7 +30,7 @@ class Configuration extends Form implements InputFilterAwareInterface
                     'label'     => \Application\Listener\Listener::z_xlt('Auto Sign-Off [days]'),
                 ),
         ));
-    
+
     /*
     * Automatic Tranfer settings
     */
@@ -46,7 +46,7 @@ class Configuration extends Form implements InputFilterAwareInterface
                     'unchecked_value'   => 'no'
                 ),
         ));
-    
+
     /*
     * Author settings
     */
@@ -65,7 +65,7 @@ class Configuration extends Form implements InputFilterAwareInterface
             'value_options' => $this->getUsers(),
             ),
         ));
-    
+
     /*
     * Data Enterer settings
     */
@@ -84,7 +84,7 @@ class Configuration extends Form implements InputFilterAwareInterface
             'value_options' => $this->getUsers(),
             ),
         ));
-    
+
     /*
     * Informant settings
     */
@@ -103,7 +103,7 @@ class Configuration extends Form implements InputFilterAwareInterface
             'value_options' => $this->getUsers(),
             ),
         ));
-    
+
     /*
     * Personal Informant settings
     */
@@ -117,7 +117,7 @@ class Configuration extends Form implements InputFilterAwareInterface
                     'label' => \Application\Listener\Listener::z_xlt('Informant'),
                 ),
         ));
-    
+
     /*
     * Custodian settings
     */
@@ -136,7 +136,7 @@ class Configuration extends Form implements InputFilterAwareInterface
             'value_options' => $this->getUsers(),
             ),
         ));
-    
+
     /*
     * Recipient settings
     */
@@ -155,7 +155,7 @@ class Configuration extends Form implements InputFilterAwareInterface
             'value_options' => $this->getUsers(),
             ),
         ));
-    
+
     /*
     * Legal Authenticator settings
     */
@@ -174,7 +174,7 @@ class Configuration extends Form implements InputFilterAwareInterface
             'value_options' => $this->getUsers(),
             ),
         ));
-    
+
     /*
     * Authenticator settings
     */
@@ -193,7 +193,7 @@ class Configuration extends Form implements InputFilterAwareInterface
             'value_options' => $this->getUsers(),
             ),
         ));
-    
+
     /*
     * Primary Care Provider settings
     */
@@ -211,20 +211,6 @@ class Configuration extends Form implements InputFilterAwareInterface
                 'label'     => \Application\Listener\Listener::z_xlt('Primary Care Provider'),
             'value_options' => $this->getUsers(),
             ),
-        ));
-    
-    /*
-    * MIRTH IP settings
-    */
-        $this->add(array(
-            'name'  => 'hie_mirth_ip',
-            'attributes' => array(
-                    'type'  => 'text',
-                    'id'    => 'hie_mirth_ip'
-                ),
-            'options' => array(
-                    'label' => \Application\Listener\Listener::z_xlt('Mirth IP'),
-                ),
         ));
     }
 
@@ -252,7 +238,7 @@ class Configuration extends Form implements InputFilterAwareInterface
 
         return $this->inputFilter;
     }
-    
+
     public function getHookConfig()
     {
     //SOECIFY HOOKS DETAILS OF A MODULE IN AN ARRAY, WITH MODULE NAME AS KEY
@@ -264,10 +250,10 @@ class Configuration extends Form implements InputFilterAwareInterface
                         'path'  => "encountermanager",
                     ),
                );
-    
+
         return $hooks;
     }
-    
+
     public function getUsers()
     {
         $users = array('0' => '');
@@ -278,11 +264,11 @@ class Configuration extends Form implements InputFilterAwareInterface
 
         return $users;
     }
-    
+
     public function getDependedModulesConfig()
     {
     }
-    
+
     public function getAclConfig()
     {
         $acl = array(
