@@ -83,6 +83,29 @@ function Check(chk) {
     }
 }
 
+function deleteDrug(d) {
+    let msg = {/literal}{xlj t='Do you really want to delete?'}{literal};
+    let choice = confirm(msg + d);
+    if (choice == true) {
+        top.restoreSession();
+        $.ajax({
+                url: "./library/deleteDrug.php",
+                type: 'POST',
+                data: {
+                    drugId: d,
+                    csrf_token_form: {$CSRF_TOKEN_FORM|js_url}
+            },
+            success: function(data) {
+            console.log(data);
+            location.reload();
+        },
+        error: function(error) {
+            console.log(error)
+        },
+    });
+    }
+}
+
 function Uncheck(chk) {
     var len=chk.length;
     if (len==undefined) {chk.checked=false;}
@@ -219,6 +242,7 @@ $(function () {
             <th>{xlt t='Refill Rx'}</th>
             <th>{xlt t='Last Tx Date'}</th>
         {/if}
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -289,6 +313,7 @@ $(function () {
         {$prescription->txDate|text}
         </td>
     {/if}
+      <td><a href="#" id="deleteDrug" onclick="deleteDrug({$prescription->id|attr})">{xlt t='delete'}</a></td>
   </tr>
     {/foreach}
     </tbody>
