@@ -21,6 +21,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
+$sessionAllowWrite = true;
 require_once("../globals.php");
 
 use OpenEMR\Common\Auth\AuthUtils;

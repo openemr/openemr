@@ -14,6 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
+$sessionAllowWrite = true;
 require_once('../globals.php');
 require_once("$srcdir/classes/Totp.class.php");
 require_once("$srcdir/options.inc.php");
