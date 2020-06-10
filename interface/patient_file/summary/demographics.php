@@ -28,6 +28,7 @@ require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Menu\PatientMenuRole;
@@ -62,7 +63,7 @@ if ($GLOBALS['enable_cdr']) {
             $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser'], true);
         }
     }
-    $_SESSION['alert_notify_pid'] = $pid;
+    SessionUtil::setSession('alert_notify_pid', $pid);
 }
 //Check to see is only one insurance is allowed
 if ($GLOBALS['insurance_only_one']) {
@@ -639,7 +640,7 @@ require_once("$srcdir/options.js.php");
         parent.left_nav.syncRadios();
         <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
             $encounter = intval($_GET['set_encounterid']);
-            $_SESSION['encounter'] = $encounter;
+            SessionUtil::setSession('encounter', $encounter);
             $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", array($encounter)); ?>
         encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter);?> +'&pid=' + <?php echo js_url($pid);?>;
         parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');

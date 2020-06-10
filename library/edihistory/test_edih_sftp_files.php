@@ -230,6 +230,7 @@ if (php_sapi_name() == 'cli') {
     $_SERVER['SERVER_NAME'] = 'localhost';
     $backpic = "";
     $ignoreAuth = 1;
+    //since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
     $sessionAllowWrite = true;
 }
 
@@ -245,9 +246,6 @@ function get_openemr_globals($libdir)
     }
 
     require_once("$libdir/../interface/globals.php");
-    if (php_sapi_name() == 'cli') {
-        session_write_close();
-    }
 }
 function sftp_status($msg, $val)
 {

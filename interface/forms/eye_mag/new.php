@@ -12,9 +12,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$sessionAllowWrite = true;
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+
+use OpenEMR\Common\Session\SessionUtil;
 
 $form_name = "Eye Exam";
 $table_name = "form_eye_base";
@@ -28,7 +29,7 @@ $pid = $_REQUEST['pid'];
 if (!$pid) {
     $pid = $_SESSION['pid'];
 } else {
-    $_SESSION['pid'] = $pid;
+    SessionUtil::setSession('pid', $pid);
 }
 
 if (!$user) {

@@ -10,14 +10,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$sessionAllowWrite = true;
 require_once("../globals.php");
 require_once("$srcdir/registry.inc");
 require_once("language.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\Header;
 
 //START OUT OUR PAGE....
 ?>
@@ -70,7 +70,7 @@ use OpenEMR\Common\Utils\RandomGenUtils;
                             // Pass a unique variable, so below scripts can
                             // not be run on their own
                             $unique_id = RandomGenUtils::createUniqueToken();
-                            $_SESSION['lang_module_unique_id'] = $unique_id;
+                            SessionUtil::setSession('lang_module_unique_id', $unique_id);
 
                             switch ($_GET['m']) :
                                 case 'definition':

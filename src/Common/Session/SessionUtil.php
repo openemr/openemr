@@ -31,6 +31,10 @@
  *  8. Centralize session/cookie destroy.
  *     a.  For core OpenEMR, destroy the session, but keep the cookie.
  *     b.  For api OpenEMR and (patient) portal OpenEMR, destroy the session and cookie.
+ *  9. Session locking. To prevent session locking, which markedly decreases performance in core OpenEMR
+ *     there are 3 functions for setting and unsetting session variables. These allow
+ *     running OpenEMR core without session lock (by not allowing writing to session) unless need to
+ *     write to session (it will then re-open the session for this).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -82,17 +86,41 @@ class SessionUtil
         }
     }
 
-    public static function setSession($web_root, $session_key, $session_value): void
+    public static function setSession($session_key_or_array, $session_value = null): void
     {
-        self::coreSessionStart($web_root, false);
-        $_SESSION[$session_key] = $session_value;
+        self::coreSessionStart($GLOBALS['webroot'], false);
+        if (is_array($session_key_or_array)) {
+            foreach ($session_key_or_array as $key => $value) {
+                $_SESSION[$key] = $value;
+            }
+        } else {
+            $_SESSION[$session_key_or_array] = $session_value;
+        }
         session_write_close();
     }
 
-    public static function unsetSession($web_root, $session_key): void
+    public static function unsetSession($session_key_or_array): void
     {
-        self::coreSessionStart($web_root, false);
-        unset($_SESSION[$session_key]);
+        self::coreSessionStart($GLOBALS['webroot'], false);
+        if (is_array($session_key_or_array)) {
+            foreach ($session_key_or_array as $value) {
+                unset($_SESSION[$value]);
+            }
+        } else {
+            unset($_SESSION[$session_key_or_array]);
+        }
+        session_write_close();
+    }
+
+    public static function setUnsetSession($setArray, $unsetArray) : void
+    {
+        self::coreSessionStart($GLOBALS['webroot'], false);
+        foreach ($setArray as $key => $value) {
+            $_SESSION[$key] = $value;
+        }
+        foreach ($unsetArray as $value) {
+            unset($_SESSION[$value]);
+        }
         session_write_close();
     }
 

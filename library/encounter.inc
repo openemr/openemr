@@ -2,6 +2,8 @@
 
 require_once(__DIR__ . "/forms.inc");
 
+use OpenEMR\Common\Session\SessionUtil;
+
 //function called to set the global session variable for encounter number
 function setencounter($enc)
 {
@@ -13,7 +15,6 @@ function setencounter($enc)
     global $encounter;
     global $pid;
     global $attendant_type;
-    global $web_root;
 
     $attendant_id = $attendant_type == 'pid' ? $pid : $_SESSION['therapy_group'];
     if ($enc == "") {
@@ -26,7 +27,7 @@ function setencounter($enc)
         }
     }
 
-    OpenEMR\Common\Session\SessionUtil::setSession($web_root, 'encounter', $enc);
+    SessionUtil::setSession('encounter', $enc);
     $encounter = $enc;
 
     //returns 1 on successful global set, or 0 if there was no

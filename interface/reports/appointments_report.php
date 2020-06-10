@@ -17,7 +17,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$sessionAllowWrite = true;
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once "$srcdir/options.inc.php";
@@ -25,6 +24,7 @@ require_once "$srcdir/appointments.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -492,8 +492,10 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     }
 
     // assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
-        $_SESSION['pidList'] = $pid_list;
-        $_SESSION['apptdateList'] = $apptdate_list;
+    $sessionSetArray['pidList'] = $pid_list;
+    $sessionSetArray['apptdateList'] = $apptdate_list;
+    SessionUtil::setSession($sessionSetArray);
+
     ?>
     <tr>
         <td colspan="10" align="left"><?php echo xlt('Total number of appointments'); ?>:&nbsp;<?php echo text($totalAppontments);?></td>

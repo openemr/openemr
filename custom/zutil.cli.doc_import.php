@@ -53,7 +53,6 @@ foreach ($arg as $key => $def) {
 }
 
 require_once(dirname(__FILE__, 2) . "/interface/globals.php");
-session_write_close();
 require_once("$srcdir/documents.php");
 
 if (isset($GLOBALS[$arg['path']])) {
