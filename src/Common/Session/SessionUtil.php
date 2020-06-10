@@ -82,6 +82,20 @@ class SessionUtil
         }
     }
 
+    public static function setSession($web_root, $session_key, $session_value): void
+    {
+        self::coreSessionStart($web_root, false);
+        $_SESSION[$session_key] = $session_value;
+        session_write_close();
+    }
+
+    public static function unsetSession($web_root, $session_key): void
+    {
+        self::coreSessionStart($web_root, false);
+        unset($_SESSION[$session_key]);
+        session_write_close();
+    }
+
     public static function coreSessionDestroy(): void
     {
         self::standardSessionCookieDestroy();

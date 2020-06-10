@@ -15,7 +15,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 // Function called to set the global session variable for patient id (pid) number.
 function setpid($new_pid)
 {
-    global $pid, $encounter;
+    global $pid, $encounter, $web_root;
 
   // Escape $new_pid by forcing it to an integer to protect from sql injection
     $new_pid_int = intval($new_pid);
@@ -28,18 +28,17 @@ function setpid($new_pid)
 
   // Be careful not to clear the encounter unless the pid is really changing.
     if (!isset($_SESSION['pid']) || $pid != $new_pid_int || $pid != $_SESSION['pid']) {
-        $_SESSION['encounter'] = $encounter = 0;
+        $encounter = 0;
+        OpenEMR\Common\Session\SessionUtil::setSession($web_root, 'encounter', 0);
     }
 
   // unset therapy_group session when set session for patient
     if ($_SESSION['pid'] != 0 && isset($_SESSION['therapy_group'])) {
-        unset($_SESSION['therapy_group']);
+        OpenEMR\Common\Session\SessionUtil::unsetSession($web_root, 'therapy_group');
     }
 
-
   // Set pid to the escaped pid
-    $_SESSION['pid'] = $new_pid_int;
+    OpenEMR\Common\Session\SessionUtil::setSession($web_root, 'pid', $new_pid_int);
     $pid = $new_pid_int;
-
     EventAuditLogger::instance()->newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $pid);
 }

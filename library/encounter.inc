@@ -13,21 +13,21 @@ function setencounter($enc)
     global $encounter;
     global $pid;
     global $attendant_type;
+    global $web_root;
 
     $attendant_id = $attendant_type == 'pid' ? $pid : $_SESSION['therapy_group'];
     if ($enc == "") {
         $enc = date("Ymd");
         if (getFormByEncounter($attendant_id, $enc)) {
-            //there is an encounter enterred for today
+            //there is an encounter entered for today
         } else {
             //addForm($enc, "New Patient Encounter", 0, $pid, 1);
             $return_val = 0;
         }
     }
 
-    $_SESSION['encounter'] = $enc;
+    OpenEMR\Common\Session\SessionUtil::setSession($web_root, 'encounter', $enc);
     $encounter = $enc;
-
 
     //returns 1 on successful global set, or 0 if there was no
     //current encounter, signifying that the interface should load
