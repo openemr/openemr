@@ -572,6 +572,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                     resolve(dlgContainer);
                 }
             }).on('hidden.bs.modal', function (e) {
+                // clear cursor
+                e.target.style.cursor = "pointer";
                 // remove our dialog
                 jQuery(this).remove();
                 // now we can run functions in our window.

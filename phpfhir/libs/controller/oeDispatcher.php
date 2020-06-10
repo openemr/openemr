@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+
 abstract class oeDispatchController
 {
     private $_request, $_response, $_query, $_post, $_server, $_cookies, $_session;
@@ -155,7 +157,7 @@ abstract class oeDispatchController
 
     public function setSession($key, $value)
     {
-        $_SESSION[$key] = $value;
+        SessionUtil::setSession($key, $value);
         return $this;
     }
 

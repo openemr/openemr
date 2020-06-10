@@ -80,7 +80,6 @@
     "autoload": {
         "exclude-from-classmap": [
             "src/Common/Compatibility/Checker.php",
-            "src/Common/Session/SessionUtil.php",
             "library/classes/ClinicalTypes/",
             "library/classes/rulesets/",
             "library/classes/smtp/"

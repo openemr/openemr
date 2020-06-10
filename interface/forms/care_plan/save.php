@@ -88,7 +88,6 @@ if (!empty($count)) {
     endforeach;
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

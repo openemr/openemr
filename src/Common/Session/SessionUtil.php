@@ -31,6 +31,13 @@
  *  8. Centralize session/cookie destroy.
  *     a.  For core OpenEMR, destroy the session, but keep the cookie.
  *     b.  For api OpenEMR and (patient) portal OpenEMR, destroy the session and cookie.
+ *  9. Session locking. To prevent session locking, which markedly decreases performance in core OpenEMR
+ *     there are 3 functions for setting and unsetting session variables. These allow
+ *     running OpenEMR core without session lock (by not allowing writing to session) unless need to
+ *     write to session (it will then re-open the session for this). In OpenEMR core, the general strategy
+ *     is to use the standard php session locking on code that works on critical session variables during
+ *     authorization related scripts and in cases of single process use (such as with command line scripts
+ *     and non-local api calls) since there is no performance benefit in single process use.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -50,26 +57,28 @@ class SessionUtil
     private static $use_cookies = true;
     private static $use_only_cookies = true;
 
-    public static function coreSessionStart($web_root)
+    public static function coreSessionStart($web_root, $read_only = true): void
     {
         if (version_compare(phpversion(), '7.3.0', '>=')) {
             session_start([
+                'read_and_close' => $read_only,
                 'cookie_samesite' => "Strict",
                 'name' => 'OpenEMR',
                 'cookie_httponly' => false,
-                'cookie_path' => $web_root ? $web_root : '/',
+                'cookie_path' => $web_root ?: '/',
                 'gc_maxlifetime' => self::$gc_maxlifetime,
                 'sid_bits_per_character' => self::$sid_bits_per_character,
                 'sid_length' => self::$sid_length,
                 'use_strict_mode' => self::$use_strict_mode,
                 'use_cookies' => self::$use_cookies,
-                'use_only_cookies' => self::$use_only_cookies
+                'use_only_cookies' => self::$use_only_cookies,
             ]);
         } else {
             session_start([
+                'read_and_close' => $read_only,
                 'name' => 'OpenEMR',
                 'cookie_httponly' => false,
-                'cookie_path' => $web_root ? $web_root : '/',
+                'cookie_path' => $web_root ?: '/',
                 'gc_maxlifetime' => self::$gc_maxlifetime,
                 'sid_bits_per_character' => self::$sid_bits_per_character,
                 'sid_length' => self::$sid_length,
@@ -80,17 +89,55 @@ class SessionUtil
         }
     }
 
-    public static function coreSessionDestroy()
+    public static function setSession($session_key_or_array, $session_value = null): void
+    {
+        self::coreSessionStart($GLOBALS['webroot'], false);
+        if (is_array($session_key_or_array)) {
+            foreach ($session_key_or_array as $key => $value) {
+                $_SESSION[$key] = $value;
+            }
+        } else {
+            $_SESSION[$session_key_or_array] = $session_value;
+        }
+        session_write_close();
+    }
+
+    public static function unsetSession($session_key_or_array): void
+    {
+        self::coreSessionStart($GLOBALS['webroot'], false);
+        if (is_array($session_key_or_array)) {
+            foreach ($session_key_or_array as $value) {
+                unset($_SESSION[$value]);
+            }
+        } else {
+            unset($_SESSION[$session_key_or_array]);
+        }
+        session_write_close();
+    }
+
+    public static function setUnsetSession($setArray, $unsetArray): void
+    {
+        self::coreSessionStart($GLOBALS['webroot'], false);
+        foreach ($setArray as $key => $value) {
+            $_SESSION[$key] = $value;
+        }
+        foreach ($unsetArray as $value) {
+            unset($_SESSION[$value]);
+        }
+        session_write_close();
+    }
+
+    public static function coreSessionDestroy(): void
     {
         self::standardSessionCookieDestroy();
     }
 
-    public static function apiSessionCookieDestroy()
+    public static function apiSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
     }
 
-    public static function portalSessionStart()
+    public static function portalSessionStart(): void
     {
         if (version_compare(phpversion(), '7.3.0', '>=')) {
             session_start([
@@ -118,12 +165,12 @@ class SessionUtil
         }
     }
 
-    public static function portalSessionCookieDestroy()
+    public static function portalSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
     }
 
-    private static function standardSessionCookieDestroy()
+    private static function standardSessionCookieDestroy(): void
     {
         // Destroy the cookie
         $params = session_get_cookie_params();

@@ -17,6 +17,7 @@ require_once "$srcdir/patient.inc";
 require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionUtil;
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 if ($_REQUEST['go'] == 'sms_search') {
@@ -225,9 +226,11 @@ if ($_REQUEST['action'] == "process") {
         return "done";
     }
     $pc_eidList = json_decode($_POST['pc_eid'], true);
-    $_SESSION['pc_eidList'] = $pc_eidList[0];
     $pidList = json_decode($_POST['parameter'], true);
-    $_SESSION['pidList'] = $pidList;
+    $sessionSetArray['pc_eidList'] = $pc_eidList[0];
+    $sessionSetArray['pidList'] = $pidList;
+    SessionUtil::setSession($sessionSetArray);
+
     if ($_POST['item'] == "postcards") {
         foreach ($pidList as $pid) {
             $sql = "INSERT INTO medex_outgoing (msg_pc_eid, msg_type, msg_reply, msg_extra_text) VALUES (?,?,?,?)";

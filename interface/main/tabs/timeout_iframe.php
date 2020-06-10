@@ -18,7 +18,7 @@
 // event every time we run.
 $GLOBALS['DAEMON_FLAG'] = true;
 
-require_once(dirname(__FILE__)) . "/../../globals.php";
+require_once(__DIR__ . "/../../globals.php");
 
 $daemon_interval = 120; // Interval in seconds between reloads.
 ?>

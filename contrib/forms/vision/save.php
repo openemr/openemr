@@ -34,7 +34,6 @@ if ($_GET["mode"] == "new") {
         $_POST["additional_notes"], $id));
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

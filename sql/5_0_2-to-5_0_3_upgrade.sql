@@ -658,4 +658,12 @@ CREATE UNIQUE INDEX `pid` ON `patient_access_onsite` (`pid`);
 DROP TABLE `patient_access_offsite`;
 #EndIf
 
+#IfNotTable session_tracker
+CREATE TABLE `session_tracker` (
+  `uuid` binary(16) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  `last_updated` timestamp NULL,
+  PRIMARY KEY (`uuid`)
+) ENGINE=InnoDB;
+#EndIf
 
