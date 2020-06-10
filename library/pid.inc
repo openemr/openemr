@@ -39,7 +39,6 @@ function setpid($new_pid)
 
   // unset therapy_group session when set session for patient
     if ($_SESSION['pid'] != 0 && isset($_SESSION['therapy_group'])) {
-        SessionUtil::unsetSession('therapy_group');
         $sessionUnsetArray[] = 'therapy_group';
     }
 
