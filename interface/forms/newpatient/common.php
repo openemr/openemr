@@ -462,7 +462,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             <label for='provider_id' class="oe-text-to-right"><?php echo xlt('Encounter Provider'); ?>:</label>
                         </div>
                         <div class="col-sm">
-                            <select name='provider_id' id='provider_id' class='form-control col-sm-9' onChange="newUserSelected()">
+                            <select name='provider_id' id='provider_id' class='form-control' onChange="newUserSelected()">
                                 <?php
                                 if ($viewmode) {
                                     $provider_id = $result['provider_id'];
@@ -490,6 +490,12 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 }
                                 ?>
                             </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label for='class' class="oe-text-to-right"><?php echo xlt('Class'); ?>:</label>
+                        </div>
+                        <div class="col-sm">
+                            <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : 'AMB', ''); ?>
                         </div>
                     </div>
                     <div class="form-row align-items-center mt-2">
