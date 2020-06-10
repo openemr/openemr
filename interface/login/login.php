@@ -21,6 +21,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $ignoreAuth = true;
+// Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
 $sessionAllowWrite = true;
 require_once("../globals.php");
 

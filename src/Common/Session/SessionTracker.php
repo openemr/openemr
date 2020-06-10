@@ -2,7 +2,10 @@
 
 /**
  * For tracking session in database
- *  At this time only used for lastupdate tracking
+ *  At this time only used for lastupdate tracking. Using for this case since this is used on essentially
+ *   every script and avoiding use of functions in SessionUtil that prevent session locking since may
+ *   cause session concurrency issues.
+ *  Note these are maintained automatically and cleared out after 7 days of inactivity.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

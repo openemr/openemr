@@ -34,7 +34,10 @@
  *  9. Session locking. To prevent session locking, which markedly decreases performance in core OpenEMR
  *     there are 3 functions for setting and unsetting session variables. These allow
  *     running OpenEMR core without session lock (by not allowing writing to session) unless need to
- *     write to session (it will then re-open the session for this).
+ *     write to session (it will then re-open the session for this). In OpenEMR core, the general strategy
+ *     is to use the standard php session locking on code that works on critical session variables during
+ *     authorization related scripts and in cases of single process use (such as with command line scripts
+ *     and non-local api calls) since there is no performance benefit in single process use.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -112,7 +115,7 @@ class SessionUtil
         session_write_close();
     }
 
-    public static function setUnsetSession($setArray, $unsetArray) : void
+    public static function setUnsetSession($setArray, $unsetArray): void
     {
         self::coreSessionStart($GLOBALS['webroot'], false);
         foreach ($setArray as $key => $value) {

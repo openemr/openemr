@@ -338,6 +338,7 @@ require_once("$srcdir/options.js.php");
      * async function placeHtml(...) will await fetch of html then place in divId.
      * This function will return a promise for use to init various items regarding
      * inserted HTML if needed.
+     * If divId does not exist, then will skip.
      * Example
      *
      * @param {*} url
@@ -348,12 +349,14 @@ require_once("$srcdir/options.js.php");
      */
     async function placeHtml(url, divId, embedded = false, sessionRestore = false) {
         const contentDiv = document.getElementById(divId);
-        await fetchHtml(url, embedded, sessionRestore).then(fragment => {
-            contentDiv.innerHTML = fragment;
-        });
+        if (contentDiv) {
+            await fetchHtml(url, embedded, sessionRestore).then(fragment => {
+                contentDiv.innerHTML = fragment;
+            });
+        }
     }
 
-    if(typeof load_location === 'undefined') {
+    if (typeof load_location === 'undefined') {
         function load_location(location) {
             top.restoreSession();
             document.location = location;

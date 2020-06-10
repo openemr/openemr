@@ -32,7 +32,7 @@ if (!$_SERVER['HTTP_HOST']) {
 // Check if running as a cronjob
 if (php_sapi_name() === 'cli') {
     $ignoreAuth = 1;
-    //since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
+    // Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
     $sessionAllowWrite = true;
 }
 require_once(__DIR__ . "/../../globals.php");

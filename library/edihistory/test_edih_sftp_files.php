@@ -230,7 +230,7 @@ if (php_sapi_name() == 'cli') {
     $_SERVER['SERVER_NAME'] = 'localhost';
     $backpic = "";
     $ignoreAuth = 1;
-    //since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
+    // Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
     $sessionAllowWrite = true;
 }
 
