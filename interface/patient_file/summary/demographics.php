@@ -35,9 +35,14 @@ use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Reminder\BirthdayReminder;
 
+// Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
-    include_once("$srcdir/pid.inc");
+    require_once("$srcdir/pid.inc");
     setpid($_GET['set_pid']);
+    if (isset($_GET['set_encounterid']) && (intval($_GET['set_encounterid']) > 0)) {
+        $encounter = intval($_GET['set_encounterid']);
+        SessionUtil::setSession('encounter', $encounter);
+    }
 }
 
 $active_reminders = false;
@@ -52,11 +57,11 @@ if ($GLOBALS['enable_cdr']) {
             foreach ($new_allergy_alerts as $new_allergy_alert) {
                 $pod_warnings .= js_escape($new_allergy_alert) . ' + "\n"';
             }
-            echo '<script>alert(' . xlj('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ' + "\n" + ' . $pod_warnings . ')</script>';
+            $allergyWarningMessage = '<script>alert(' . xlj('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ' + "\n" + ' . $pod_warnings . ')</script>';
         }
     }
 
-    if ((!isset($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
+    if ((empty($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
         // showing a new patient, so check for active reminders and allergy conflicts, which use in active reminder popup
         $active_reminders = active_alert_summary($pid, "reminders-due", '', 'default', $_SESSION['authUser'], true);
         if ($GLOBALS['enable_allergy_check']) {
@@ -64,6 +69,10 @@ if ($GLOBALS['enable_cdr']) {
         }
     }
     SessionUtil::setSession('alert_notify_pid', $pid);
+    // can not output html until after above setSession call
+    if (!empty($allergyWarningMessage)) {
+        echo $allergyWarningMessage;
+    }
 }
 //Check to see is only one insurance is allowed
 if ($GLOBALS['insurance_only_one']) {
@@ -642,13 +651,11 @@ require_once("$srcdir/options.js.php");
         } // end setting new pid ?>
         parent.left_nav.syncRadios();
         <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
-            $encounter = intval($_GET['set_encounterid']);
-            SessionUtil::setSession('encounter', $encounter);
             $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", array($encounter)); ?>
-        encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter);?> +'&pid=' + <?php echo js_url($pid);?>;
-        parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
-        top.restoreSession();
-        parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
+            encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter);?> +'&pid=' + <?php echo js_url($pid);?>;
+            parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
+            top.restoreSession();
+            parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
         <?php } // end setting new encounter id (only if new pid is also set) ?>
     }
 
