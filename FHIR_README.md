@@ -201,6 +201,10 @@ curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/ap
 ]'
 ```
 
+### Encounter Resource
+
+---
+
 #### GET [base]/Encounter
 
 Request:
