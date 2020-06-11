@@ -58,13 +58,15 @@ There are several ways to make API calls from an authorized session and maintain
 
 -   See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
 
-### /fhir/ Endpoints
+## FHIR Endpoints
 
 Standard FHIR endpoints Use `http://localhost:8300/apis/fhir as base URI.`
 
 _Example:_ `http://localhost:8300/apis/fhir/Patient` returns a Patient's bundle resource, etc
 
-#### POST /fhir/auth
+### FHIR Authorization
+
+#### POST [base]/auth
 
 The OpenEMR FHIR API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory. If additional sites have not been created, set the scope to 'default'.
 
@@ -102,7 +104,11 @@ curl -X GET 'http://localhost:8300/apis/fhir/Patient' \
   -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNnZ3eGJZYmFrOXlxUjF4U290Y1g4QVVDd3JOcG5yYXZEaFlqaHFjWXJXRGNDQUtFZmJONkh2cElTVkJiaWFobHBqOTBYZmlNRXpiY2FtU01pSHk1UzFlMmgxNmVqZEhcL1ZENlNtaVpTRFRLMmtsWDIyOFRKZzNhQmxMdUloZmNJM3FpMGFKZ003OXdtOGhYT3dpVkx5b3BFRXQ1TlNYNTE3UW5TZ0dsUVdQbG56WjVxOVYwc21tdDlSQ3RvcDV3TEkiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6ImZoaXIifQ=='
 ```
 
-#### GET /fhir/Patient
+### Patient Resource
+
+---
+
+#### GET [base]/Patient
 
 Request:
 
@@ -110,7 +116,7 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Patient'
 ```
 
-#### GET /fhir/Patient/:id
+#### GET [base]/Patient[id]
 
 Request:
 
@@ -118,7 +124,21 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7'
 ```
 
-#### POST /fhir/Patient
+-   Supported Search Parameters
+    -   address
+    -   address-city
+    -   address-postalcode
+    -   address-state
+    -   birthdate
+    -   email
+    -   family
+    -   gender
+    -   given
+    -   name
+    -   phone
+    -   telecom
+
+#### POST [base]/Patient
 
 Request:
 
@@ -136,7 +156,7 @@ curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/api
 }'
 ```
 
-#### PUT /fhir/Patient/:id
+#### PUT [base]/Patient/[id]
 
 Request:
 
@@ -161,7 +181,7 @@ curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis
 }'
 ```
 
-#### PATCH /fhir/Patient/:id
+#### PATCH [base]/Patient/[id]
 
 Request:
 
@@ -181,7 +201,7 @@ curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/ap
 ]'
 ```
 
-#### GET /fhir/Encounter
+#### GET [base]/Encounter
 
 Request:
 
@@ -189,13 +209,18 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Encounter'
 ```
 
-#### GET /fhir/Encounter/:id
+#### GET [base]/Encounter[id]
 
 Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/fhir/Encounter/90c196f2-51cc-4655-8858-3a80aebff3ef'
 ```
+
+-   Supported Search Parameters
+    -   \_id
+    -   patient
+    -   date {gt|lt|ge|le}
 
 #### GET /fhir/Organization
 
