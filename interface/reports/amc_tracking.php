@@ -40,7 +40,7 @@ $provider  = trim($_POST['form_provider']);
 
 <?php Header::setupHeader('datetime-picker') ?>
 
-<script LANGUAGE="JavaScript">
+<script>
 
  $(function () {
   var win = top.printLogSetup ? top : opener.top;
@@ -141,7 +141,7 @@ $provider  = trim($_POST['form_provider']);
 
 </script>
 
-<style type="text/css">
+<style>
 
 /* specifically include & exclude from printing */
 @media print {

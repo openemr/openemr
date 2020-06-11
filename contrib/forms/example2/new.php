@@ -31,7 +31,7 @@ $returnurl = 'encounter_top.php';
 
 <!-- assets -->
 <?php Header::setupHeader('datetime-picker'); ?>
-<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css?v=<?php echo $v_js_includes; ?>">
 
 </head>
 
@@ -101,7 +101,7 @@ Date of signature:
 
 </body>
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 

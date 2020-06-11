@@ -170,12 +170,12 @@ if (!$_REQUEST['flb_table']) {
     <meta name="author" content="OpenEMR: MedExBank">
     <?php Header::setupHeader(['datetime-picker', 'opener', 'purecss']); ?>
     <title><?php echo xlt('Flow Board'); ?></title>
-    <script type="text/javascript">
+    <script>
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-    <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>">
+    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
     <style>
@@ -943,7 +943,7 @@ exit;
 function myLocalJS()
 {
     ?>
-    <script type="text/javascript">
+    <script>
         var auto_refresh = null;
         //this can be refined to redact HIPAA material using @media print options.
         top.restoreSession();

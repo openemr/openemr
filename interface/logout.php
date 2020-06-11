@@ -18,4 +18,6 @@
 //    2. Closes the php session
 //    3. Redirects user to the login screen (maintains the site id)
 $_GET['auth'] = "logout";
+// Set $sessionAllowWrite to true to prevent session concurrency issues during authorization/logout related code
+$sessionAllowWrite = true;
 require_once("globals.php");

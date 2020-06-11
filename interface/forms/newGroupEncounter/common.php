@@ -70,7 +70,7 @@ $use_validate_js = 1;
 require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
 <?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
-<script language="JavaScript">
+<script>
 
 /*
  // Process click on issue title.
@@ -381,7 +381,7 @@ $help_icon = '';
 
 </body>
 
-<script language="javascript">
+<script>
 <?php
 if (!$viewmode) { ?>
  function duplicateVisit(enc, datestr) {

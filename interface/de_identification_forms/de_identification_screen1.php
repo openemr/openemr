@@ -31,12 +31,12 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 <head>
 <title><?php echo xlt('De Identification'); ?></title>
     <?php Header::setupHeader('datetime-picker'); ?>
-<style type="text/css">
+<style>
 .style1 {
     text-align: center;
 }</style>
 
-<script language="JavaScript">
+<script>
 //get value from popup window
 function set_related(s,type) {
  var list;

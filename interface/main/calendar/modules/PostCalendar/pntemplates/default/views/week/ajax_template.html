@@ -330,7 +330,7 @@ if ($_SESSION['authorizeduser'] == 1) {
 } else {
   $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
  	if (count($facilities) == 1)
-    $_SESSION['pc_facility'] = key($facilities);
+    OpenEMR\Common\Session\SessionUtil::setSession($_SESSION['pc_facility'], key($facilities));
 }
 if (count($facilities) > 1) {
     echo "   <select name='pc_facility' id='pc_facility'  class='view1 form-control' >\n";
@@ -366,7 +366,7 @@ if($_SESSION['pc_facility'] == 0){
  <table>
 [-php-]
 foreach ($facilities as $f){
-echo "   <tr><td><div class='view1 bg-info font-weight-bold text-ovr-dark'>" . text($f['name'])."</div></td></tr>";
+echo "   <tr><td><div class='view1 font-weight-bold text-ovr-dark' style='background-color:".$f['color'].";'>" . text($f['name'])."</div></td></tr>";
 }
 [-/php-]
  </table>
@@ -730,7 +730,7 @@ foreach ($providers as $provider) {
                 $divTitle .= "\n[".$atitle ."]";
                 //$content .= "<a href='javascript:oldEvt(" . attr_js($eventdate) . "," . attr_js($eventid) . ")' title='" . attr($atitle) . "'>";
                 $content .= text($catname);
-                if ($event['recurrtype'] > 0) $content .= "<img class='border-0' src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' style='margin: 0 2px 0 2px;' title='Repeating event' alt='Repeating event' />";
+                if ($event['recurrtype'] > 0) $content .= " <img class='border-0' src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' style='margin: 0 2px 0 2px;' title='Repeating event' alt='Repeating event' />";
                 if ($comment) $content .= " " . text($comment);
                 //$content .= "</a>";
             }

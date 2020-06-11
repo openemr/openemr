@@ -22,18 +22,16 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 }
 ?>
 
-<div id="patient_stats_summary">
-
-<script type='text/javascript'>
-    function load_location( location ) {
-        top.restoreSession();
-        if ( !top.frames["RTop"] ) {
-            document.location=location;
-        } else {
-            top.frames["RTop"].location=location;
+<script>
+    if(typeof load_location === 'undefined') {
+        function load_location(location) {
+            top.restoreSession();
+            document.location = location;
         }
     }
 </script>
+
+<div id="patient_stats_summary">
 
 <table id="patient_stats_issues">
 

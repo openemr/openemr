@@ -69,9 +69,9 @@ $returnurl = "../../forms/$form_folder/view.php?mode=noencounter";
 <!-- assets -->
 <?php Header::setupHeader(); ?>
 <!-- Form Specific Stylesheet. -->
-<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css"/>
+<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css">
 
-<script type="text/javascript">
+<script>
 
 <!-- FIXME: this needs to detect access method, and construct a URL appropriately! -->
 function PrintForm() {
@@ -118,7 +118,7 @@ function PrintForm() {
 </div><!-- end button_bar -->
 
 </form>
-<script type="text/javascript">
+<script>
 // jQuery stuff to make the page a little easier to use
 
 $(function () {

@@ -45,12 +45,15 @@ services:
       EASY_DEV_MODE: "yes"
       EASY_DEV_MODE_NEW: "yes"
       DEVELOPER_TOOLS: "yes"
+      XDEBUG_IDE_KEY: PHPSTORM
+      XDEBUG_PROFILER_ON: 1
+      GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
       OPENEMR_SETTING_rest_api: 1
       OPENEMR_SETTING_rest_fhir_api: 1
       OPENEMR_SETTING_rest_portal_api: 1
       OPENEMR_SETTING_rest_portal_fhir_api: 1
       OPENEMR_SETTING_portal_onsite_two_enable: 1
-      GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
+      OPENEMR_SETTING_ccda_alt_service_enable: 3
     depends_on:
     - mysql
   phpmyadmin:

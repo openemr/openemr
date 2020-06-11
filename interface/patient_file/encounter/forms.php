@@ -56,11 +56,11 @@ $esignApi = new Api();
 
 <?php // if the track_anything form exists, then include the styling and js functions (and js variable) for graphing
 if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
- <script type="text/javascript">
+ <script>
  var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
  </script>
- <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/report.js"></script>
- <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css" type="text/css" />
+ <script src="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/report.js"></script>
+ <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css">
 <?php } ?>
 
 <?php
@@ -332,7 +332,7 @@ function refreshVisitDisplay() {
 
 </script>
 
-<style type="text/css">
+<style>
     div.tab {
         min-height: 50px;
         padding: 8px;
@@ -378,7 +378,7 @@ function refreshVisitDisplay() {
     button:focus {
         outline: none;
     }
-    
+
     button::-moz-focus-inner {
         border: 0;
     }

@@ -32,12 +32,12 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
     <?php Header::setupHeader(); ?>
 
-<style type="text/css">
+<style>
 .style1 {
     text-align: center;
 }
 </style>
-<script language="JavaScript">
+<script>
 function form_validate()
 {
 

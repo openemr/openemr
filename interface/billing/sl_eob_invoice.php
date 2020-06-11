@@ -167,7 +167,7 @@ function row_delete($table, $where)
                     return false;
                 }
                 if ((cAdjust !== 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
-                    let message = <?php echo xlj('Adjustment value for code') ?> + " " + code  + " " <?php echo xlj('is not a number') ?>;
+                    let message = <?php echo xlj('Adjustment value for code') ?> + " " + code  + " " + <?php echo xlj('is not a number') ?>;
                     (async (message, time) => {
                         await asyncAlertMsg(message, time, 'danger', 'lg');
                     })(message, 3000)
@@ -540,7 +540,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
-                        <input type='text' name='form_check_date' class='form-control datepicker' value=''/>
+                        <input type='text' name='form_check_date' id='form_check_date" class='form-control datepicker' value=''/>
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>

@@ -124,7 +124,7 @@ $display_collapse_msg = "display:inline;";
 
 </script>
 
-<style type="text/css">
+<style>
 
 .linkcell {
     max-width: 250px;

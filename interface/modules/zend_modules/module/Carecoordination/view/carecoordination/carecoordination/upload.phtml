@@ -13,7 +13,7 @@
 echo $this->headLink()->prependStylesheet($this->basePath() . '/css/autosuggest/autosuggest.css');
 echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autosuggest.js');
 ?>
-<style type="text/css">
+<style>
   #patient_select{
     width     : 410px;
     height    : 110px;
@@ -27,7 +27,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     box-shadow: 1px 4px 4px 1px #8B8B8B;
   }
 </style>
-<script type="text/javascript">
+<script>
     $(function ()
     {
         height_value = parent.window.innerHeight-100;

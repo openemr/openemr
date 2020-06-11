@@ -163,7 +163,7 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
         }
     </style>
 
-    <script language="JavaScript">
+    <script
 
         function selgid(gid, name, end_date) {
             if (opener.closed || !opener.setgroup)
@@ -245,7 +245,7 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
     </div>
 <?php endif; ?>
 
-<script language="javascript">
+<script>
 
     // jQuery stuff to make the page a little easier to use
 

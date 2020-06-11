@@ -30,9 +30,9 @@ require_once($GLOBALS['srcdir'] . "/validation/LBF_Validation.php");
 /*Other pages depend if the page in the lists options (page validation)is active and exists)*/
 if ($use_validate_js) {
     ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment/moment.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_modified.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment/moment.js"></script>
+    <script src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_modified.js"></script>
+    <script src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
     <?php
 }
 ?>

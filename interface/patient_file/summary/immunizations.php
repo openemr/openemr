@@ -827,7 +827,7 @@ while ($row = sqlFetchArray($result)) {
 
   </body>
 
-<script language="javascript">
+<script>
 var tr_count = $('#tr_count').val();
 
 // jQuery stuff to make the page a little easier to use

@@ -66,7 +66,7 @@ if ($_POST['form_csvexport']) {
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {
@@ -91,7 +91,7 @@ if ($_POST['form_csvexport']) {
         }
     </style>
 
-    <script language="JavaScript">
+    <script>
         $(function () {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;

@@ -17,13 +17,13 @@
 // ===================================================================
 
 
-/* 
+/*
 ColorPicker.js
 Author: Matt Kruse
 Last modified: 6/19/01
 
-DESCRIPTION: This widget is used to select a color, in hexadecimal #RRGGBB 
-form. It uses a color "swatch" to display the standard 216-color web-safe 
+DESCRIPTION: This widget is used to select a color, in hexadecimal #RRGGBB
+form. It uses a color "swatch" to display the standard 216-color web-safe
 palette. The user can then click on a color to select it.
 
 COMPATABILITY: See notes in AnchorPosition.js and PopupWindow.js.
@@ -53,18 +53,18 @@ function pickColor(color) {
 NOTES:
 1) Requires the functions in AnchorPosition.js and PopupWindow.js
 
-2) Your anchor tag MUST contain both NAME and ID attributes which are the 
+2) Your anchor tag MUST contain both NAME and ID attributes which are the
    same. For example:
    <A NAME="test" ID="test"> </A>
 
-3) There must be at least a space between <A> </A> for IE5.5 to see the 
+3) There must be at least a space between <A> </A> for IE5.5 to see the
    anchor tag correctly. Do not do <A></A> with no space.
 
 4) When a ColorPicker object is created, a handler for 'onmouseup' is
    attached to any event handler you may have already defined. Do NOT define
    an event handler for 'onmouseup' after you define a ColorPicker object or
    the color picker will not hide itself correctly.
-*/ 
+*/
 
 function ColorPicker_writeDiv() {
 	document.writeln("<DIV ID=\"colorPickerDiv\" STYLE=\"position:absolute;visibility:hidden;\"> </DIV>");
@@ -83,7 +83,7 @@ function ColorPicker_pickColor(color,obj) {
 		alert("You must define a function named 'pickColor' to receive the value clicked!");
 		}
 	}
-	
+
 // This function runs when you move your mouse over a color block, if you have a newer browser
 function ColorPicker_highlightColor(c) {
 	var thedoc = (arguments.length>1)?arguments[1]:window.document;
@@ -106,7 +106,7 @@ function ColorPicker() {
 	else {
 		var divname = arguments[0];
 		}
-	
+
 	if (divname != "") {
 		var cp = new PopupWindow(divname);
 		}
@@ -117,7 +117,7 @@ function ColorPicker() {
 
 	// Object variables
 	cp.currentValue = "#FFFFFF";
-	
+
 	// Method Mappings
 	cp.writeDiv = ColorPicker_writeDiv;
 	cp.highlightColor = ColorPicker_highlightColor;
@@ -159,7 +159,7 @@ function ColorPicker() {
 		if (use_highlight) { var mo = 'onMouseOver="'+windowRef+'ColorPicker_highlightColor(\''+colors[i]+'\',window.document)"'; }
 		else { mo = ""; }
 		cp_contents += '<TD BGCOLOR="'+colors[i]+'"><FONT SIZE="-3"><A HREF="#" onClick="'+windowRef+'ColorPicker_pickColor(\''+colors[i]+'\','+windowRef+'window.popupWindowObjects['+cp.index+']);return false;" '+mo+' STYLE="text-decoration:none;">&nbsp;&nbsp;&nbsp;</A></FONT></TD>';
-		if ( ((i+1)>=total) || (((i+1) % width) == 0)) { 
+		if ( ((i+1)>=total) || (((i+1) % width) == 0)) {
 			cp_contents += "</TR>";
 			}
 		}

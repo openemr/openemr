@@ -49,7 +49,7 @@ $iter = $result[0];
 
 <?php Header::setupHeader(['common','opener']); ?>
 
-<script src="checkpwd_validation.js" type="text/javascript"></script>
+<script src="checkpwd_validation.js"></script>
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
@@ -66,7 +66,7 @@ if (empty($collectthis)) {
 }
 ?>
 
-<script language="JavaScript">
+<script>
 
 /*
  * validation on the form with new client side validation (using validate.js).
@@ -209,7 +209,7 @@ function authorized_clicked() {
 }
 
 </script>
-<style type="text/css">
+<style>
   .physician_type_class{
     width: 150px !important;
   }
@@ -498,7 +498,7 @@ Display red alert if entered password matched one of last three passwords/Displa
 
 <INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo attr($GLOBALS['secure_password']); ?>">
 </FORM>
-<script language="JavaScript">
+<script>
 $(function () {
     $("#cancel").click(function() {
           dlgclose();

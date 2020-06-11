@@ -1501,7 +1501,7 @@ fclose($fileQRDAOPen);
 <?php Header::setupHeader('opener'); ?>
 <title><?php echo xlt('Export QRDA Report'); ?></title>
 
-<script type="text/javascript">
+<script>
     //Close Me function
     function closeme() {
       window.close();

@@ -258,8 +258,8 @@ function cssHeader()
     ?>
     <html>
     <head>
-    <link rel="stylesheet" type="text/css" title="page1" href="page1.css">
-    <link rel="stylesheet" type="text/css" title="page2" href="page2.css">
+    <link rel="stylesheet" title="page1" href="page1.css">
+    <link rel="stylesheet" title="page2" href="page2.css">
     <style>
         html {
             padding: 0;
@@ -305,7 +305,7 @@ function cssHeader()
         }
     }
     </style>
-    <SCRIPT LANGUAGE="JavaScript">
+    <script>
         function FormSetup()    {
         changeStyle('page1')
     }
@@ -325,7 +325,7 @@ function cssHeader()
     var win = top.printLogPrint ? top : opener.top;
     win.printLogPrint(window);
   }
-    </SCRIPT>
+    </script>
     <title><?php echo xlt('Growth Chart'); ?></title>
     </head>
     <body Onload="FormSetup()">

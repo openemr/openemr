@@ -338,7 +338,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 }
 </style>
 
-<script language="JavaScript">
+<script>
 
  var ssChanged = false; // if they have changed anything in the spreadsheet
  var startDate = '<?php echo $start_date ? $start_date : date('Y-m-d'); ?>';

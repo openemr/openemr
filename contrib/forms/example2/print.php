@@ -54,7 +54,7 @@ if ($record['sig_date'] != "") {
 
 <?php Header::setupHeader(); ?>
 
-<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">
+<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css">
 
 </head>
 
@@ -123,7 +123,7 @@ Date of signature:
 
 </body>
 
-<script language="javascript">
+<script>
 window.print();
 window.close();
 </script>

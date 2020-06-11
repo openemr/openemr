@@ -7,6 +7,7 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -102,8 +103,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
     require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
     <?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
-    <script language="JavaScript">
-        const mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+    <script>
+        const mypcc = '' + <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
         // Process click on issue title.
         function newissue() {
@@ -131,7 +132,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             $collectthis = json_sanitize($collectthis["new_encounter"]["rules"]);
         }
         ?>
-        const collectvalidation = <?php echo $collectthis; ?>;
+        let collectvalidation = <?php echo $collectthis; ?>;
         $(function () {
             window.saveClicked = function (event) {
                 const submit = submitme(1, event, 'new-encounter-form', collectvalidation);
@@ -165,9 +166,13 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             });
         });
 
+        const isPosEnabled = "" + <?php echo js_escape($GLOBALS['set_pos_code_encounter']); ?>;
+
         function getPOS() {
+            if (!isPosEnabled) {
+                return false;
+            }
             let facility = document.forms[0].facility_id.value;
-            <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
             $.ajax({
                 url: "./../../../library/ajax/facility_ajax_code.php",
                 method: "GET",
@@ -181,7 +186,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             }).fail(function (xhr) {
                 console.log('error', xhr);
             });
-            <?php } ?>
         }
 
         function newUserSelected() {
@@ -197,7 +201,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             }).done(function (data) {
                 let rtn = JSON.parse(data);
                 document.forms[0].facility_id.value = rtn[0];
-                document.forms[0].pos_code.value = rtn[1];
+                if (isPosEnabled) {
+                    document.forms[0].pos_code.value = rtn[1];
+                }
                 if (Number(rtn[2]) === 1) {
                     document.forms[0]['billing_facility'].value = rtn[0];
                 }
@@ -464,12 +470,23 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 $userService = new UserService();
                                 $users = $userService->getActiveUsers();
                                 foreach ($users as $activeUser) {
-                                    echo "<option value='" . attr($activeUser->getId()) . "'";
-                                    if ((int)$provider_id === $activeUser->getId()) {
-                                        echo " selected";
+                                    $p_id = (int)$activeUser->getId();
+                                    // Check for the case where an encounter is created by non-auth user
+                                    // but has permissions to create/edit encounter.
+                                    $flag_it = "";
+                                    if ($activeUser->getAuthorized() !== true) {
+                                        if ($p_id === (int)$result['provider_id']) {
+                                            $flag_it = " (" . xlt("Non Provider") . ")";
+                                        } else {
+                                            continue;
+                                        }
+                                    }
+                                    echo "<option value='" . attr($p_id) . "'";
+                                    if ((int)$provider_id === $p_id) {
+                                        echo "selected";
                                     }
                                     echo ">" . text($activeUser->getLname()) . ' ' .
-                                        text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) . "</option>\n";
+                                        text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) . $flag_it . "</option>\n";
                                 }
                                 ?>
                             </select>
@@ -661,14 +678,14 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
     <?php
     if ($GLOBALS['enable_group_therapy']) { ?>
     /* hide / show group name input */
-    const groupCategories = <?php echo json_encode($therapyGroupCategories); ?>;
+    let groupCategories = <?php echo json_encode($therapyGroupCategories); ?>;
     $('#pc_catid').on('change', function () {
         if (groupCategories.indexOf($(this).val()) > -1) {
             $('#therapy_group_name').show();
         } else {
             $('#therapy_group_name').hide();
         }
-    })
+    });
 
     function sel_group() {
         top.restoreSession();

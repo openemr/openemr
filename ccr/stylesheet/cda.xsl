@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Title: CDA XSL StyleSheet
-  Original Filename: cda.xsl 
+  Original Filename: cda.xsl
   Version: 3.0
   Revision History: 08/12/08 Jingdong Li updated
-  Revision History: 12/11/09 KH updated 
+  Revision History: 12/11/09 KH updated
   Revision History:  03/30/10 Jingdong Li updated.
   Revision History:  08/25/10 Jingdong Li updated
   Revision History:  09/17/10 Jingdong Li updated
   Revision History:  01/05/11 Jingdong Li updated
-  Specification: ANSI/HL7 CDAR2  
-  The current version and documentation are available at http://www.lantanagroup.com/resources/tools/. 
+  Specification: ANSI/HL7 CDAR2
+  The current version and documentation are available at http://www.lantanagroup.com/resources/tools/.
   We welcome feedback and contributions to tools@lantanagroup.com
-  The stylesheet is the cumulative work of several developers; the most significant prior milestones were the foundation work from HL7 
-  Germany and Finland (Tyylitiedosto) and HL7 US (Calvin Beebe), and the presentation approach from Tony Schaller, medshare GmbH provided at IHIC 2009. 
+  The stylesheet is the cumulative work of several developers; the most significant prior milestones were the foundation work from HL7
+  Germany and Finland (Tyylitiedosto) and HL7 US (Calvin Beebe), and the presentation approach from Tony Schaller, medshare GmbH provided at IHIC 2009.
 -->
 <!-- LICENSE INFORMATION
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at  http://www.apache.org/licenses/LICENSE-2.0 
+  You may obtain a copy of the License at  http://www.apache.org/licenses/LICENSE-2.0
 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:n1="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <xsl:output method="html" indent="yes" version="4.01" encoding="ISO-8859-1" doctype-system="http://www.w3.org/TR/html4/strict.dtd" doctype-public="-//W3C//DTD HTML 4.01//EN"/>
@@ -1276,7 +1276,7 @@
          <xsl:apply-templates/>
       </span>
    </xsl:template>
-   <!--   RenderMultiMedia 
+   <!--   RenderMultiMedia
     this currently only handles GIF's and JPEG's.  It could, however,
     be extended by including other image MIME types in the predicate
     and/or by generating <object> or <applet> tag with the correct
@@ -1306,7 +1306,7 @@
          </xsl:otherwise>
       </xsl:choose>
    </xsl:template>
-   <!--    Stylecode processing   
+   <!--    Stylecode processing
     Supports Bold, Underline and Italics display
     -->
    <xsl:template match="//n1:*[@styleCode]">
@@ -1850,7 +1850,7 @@
          </xsl:when>
       </xsl:choose>
    </xsl:template>
-   <!-- show code 
+   <!-- show code
     if originalText present, return it, otherwise, check and return attribute: display name
     -->
    <xsl:template name="show-code">
@@ -2204,7 +2204,7 @@
       </xsl:choose>
    </xsl:template>
    <xsl:template name="addCSS">
-      <style type="text/css">
+      <style>
          <xsl:text>
 body {
   color: #003366;

@@ -212,7 +212,7 @@ foreach ($msgs as $i) {
                     {text: 'Cancel', close: true, style: 'btn-sm btn-secondary'},
                 ],
                 allowDrag: false,
-                sizeHeight: 550,
+                sizeHeight: 'full',
                 size: 750,
                 title: title,
                 type: "GET",

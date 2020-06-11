@@ -28,7 +28,7 @@ if (isset($_GET['editlid'])) {
 <head>
 <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
 
-<script type="text/javascript">
+<script>
 //function to validate fields in record disclosure page
 function submitform() {
     if (document.forms[0].dates.value.length <= 0) {

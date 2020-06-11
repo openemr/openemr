@@ -34,7 +34,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 
     <?php Header::setupHeader(['datetime-picker', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-scroller']); ?>
 
-    <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
+    <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css">
 
 </head>
 <!-- style for OpenEMR color -->

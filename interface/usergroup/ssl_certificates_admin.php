@@ -20,6 +20,7 @@ require_once("../../library/create_ssl_certificate.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -397,13 +398,13 @@ function create_and_download_certificates()
     /* Create a zip file containing the CertificateAuthority, Server, and admin files */
     try {
         if (! (class_exists('ZipArchive'))) {
-             $_SESSION["zip_error"] = "Error, Class ZipArchive does not exist";
+            SessionUtil::setSession('zip_error', "Error, Class ZipArchive does not exist");
             return;
         }
 
         $zip = new ZipArchive();
         if (!($zip)) {
-             $_SESSION["zip_error"] = "Error, Could not create file archive";
+            SessionUtil::setSession('zip_error', "Error, Could not create file archive");
              return;
         }
 
@@ -414,7 +415,7 @@ function create_and_download_certificates()
                  $zip->addFile($tempDir . "/" . $file, $file);
             }
         } else {
-            $_SESSION["zip_error"] = "Error, unable to create zip file with all the certificates";
+            SessionUtil::setSession('zip_error', "Error, unable to create zip file with all the certificates");
             return;
         }
 
@@ -424,7 +425,7 @@ function create_and_download_certificates()
             ini_set('zlib.output_compression', 'Off');
         }
     } catch (Exception $e) {
-        $_SESSION["zip_error"] = "Error, Could not create file archive";
+        SessionUtil::setSession('zip_error', "Error, Could not create file archive");
         return;
     }
 
@@ -451,7 +452,7 @@ if ($_POST["mode"] == "create_client_certificate") {
 
 <html>
   <head>
-    <script language="Javascript">
+    <script>
 
 
     /* If Enable User Certificate Authentication is set to "Yes", check the following:
@@ -582,7 +583,7 @@ if ($_POST["mode"] == "create_client_certificate") {
 
     <?php Header::setupHeader(); ?>
 
-    <style type="text/css">
+    <style>
       div.borderbox {
         margin: 5px 5px;
         padding: 5px 5px;

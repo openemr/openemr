@@ -56,7 +56,7 @@ $communication = trim($_POST["communication"]);
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-    <script language="JavaScript">
+    <script>
         $(function () {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
@@ -111,7 +111,7 @@ $communication = trim($_POST["communication"]);
         }
     </script>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
         #report_parameters {
@@ -144,7 +144,7 @@ $communication = trim($_POST["communication"]);
             ?>
         }
     </style>
-    <script language="javascript" type="text/javascript">
+    <script>
         function checkType() {
             if($('#type').val() == 'Service Codes')
             {

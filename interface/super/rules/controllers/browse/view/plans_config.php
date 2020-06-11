@@ -18,17 +18,17 @@
 
 ?>
 
-<link type="text/css" rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-themes/themes/ui-lightness/jquery-ui.min.css'; ?>" />
-<link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/common.css') ?>" />
-<link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/ui.multiselect.css') ?>" />
-<link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/plans_config.css') ?>" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-themes/themes/ui-lightness/jquery-ui.min.css'; ?>" />
+<link rel="stylesheet" href="<?php css_src('cdr-multiselect/common.css') ?>" />
+<link rel="stylesheet" href="<?php css_src('cdr-multiselect/ui.multiselect.css') ?>" />
+<link rel="stylesheet" href="<?php css_src('cdr-multiselect/plans_config.css') ?>" />
 
-<script language="javascript" src="<?php js_src('/cdr-multiselect/jquery.min.js') ?>"></script>
-<script language="javascript" src="<?php js_src('/cdr-multiselect/jquery-ui.min.js') ?>"></script>
-<script language="javascript" src="<?php js_src('/cdr-multiselect/plugins/localisation/jquery.localisation-min.js') ?>"></script>
-<script language="javascript" src="<?php js_src('/cdr-multiselect/plugins/scrollTo/jquery.scrollTo-min.js') ?>"></script>
-<script language="javascript" src="<?php js_src('/cdr-multiselect/ui.multiselect.js') ?>"></script>
-<script type="text/javascript">
+<script src="<?php js_src('/cdr-multiselect/jquery.min.js') ?>"></script>
+<script src="<?php js_src('/cdr-multiselect/jquery-ui.min.js') ?>"></script>
+<script src="<?php js_src('/cdr-multiselect/plugins/localisation/jquery.localisation-min.js') ?>"></script>
+<script src="<?php js_src('/cdr-multiselect/plugins/scrollTo/jquery.scrollTo-min.js') ?>"></script>
+<script src="<?php js_src('/cdr-multiselect/ui.multiselect.js') ?>"></script>
+<script>
 // Below variables are to be used in the javascript for the cdr-multiselect(from cdr-multiselect/locale/ui-multiselect-cdr.js)
 $.extend($.ui.multiselect.locale, {
     addAll:<?php echo xlj('Add all rules to plan'); ?>,
@@ -37,10 +37,10 @@ $.extend($.ui.multiselect.locale, {
 });
 </script>
 
-<script language="javascript" src="<?php js_src('list.js') ?>"></script>
-<script language="javascript" src="<?php js_src('jQuery.fn.sortElements.js') ?>"></script>
+<script src="<?php js_src('list.js') ?>"></script>
+<script src="<?php js_src('jQuery.fn.sortElements.js') ?>"></script>
 
-<script type="text/javascript">
+<script>
     $(function () {
         //load plans
         $("#cdr-plans").load('<?php library_src('RulesPlanMappingEventHandlers_ajax.php') ?>');

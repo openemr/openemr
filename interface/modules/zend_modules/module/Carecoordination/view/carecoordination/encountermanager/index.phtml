@@ -154,7 +154,7 @@ foreach($this->status_details as $row_status){
                         <td nowrap>
                                 <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_from" id="form_date_from" class="dateClass"/>
                                 <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_to" id="form_date_to" class="dateClass"/>
-                                <script type="text/javascript">
+                                <script>
                                         $(function () {
                                                 $( "#form_date_from" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>' );
                                                 $( "#form_date_to" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
@@ -217,12 +217,12 @@ foreach($this->status_details as $row_status){
             <!-- body content  -->
             <div class="clear"></div>
             <div class="se_in_8">
-                <style type="text/css">
+                <style>
                 select{
                         line-height: 17px !important;
                 }
                 </style>
-                <script type="text/javascript">
+                <script>
                 $(function () {
                         $('.expand_details').click(function(){
                                 var arr = (this.id).split('_');

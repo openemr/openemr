@@ -691,3 +691,16 @@ INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncount
 INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','SS','Short Stay','short stay',19);
 INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','VR','Virtual Encounter','virtual',20);
 #EndIf
+
+#IfTable patient_access_offsite
+DROP TABLE `patient_access_offsite`;
+#EndIf
+
+#IfNotTable session_tracker
+CREATE TABLE `session_tracker` (
+  `uuid` binary(16) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  `last_updated` timestamp NULL,
+  PRIMARY KEY (`uuid`)
+) ENGINE=InnoDB;
+#EndIf

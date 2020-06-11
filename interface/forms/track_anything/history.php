@@ -71,9 +71,9 @@ echo "<html><head>";
 
 <?php Header::setupHeader('dygraphs'); ?>
 
-<link rel="stylesheet" href="style.css" type="text/css" />
+<link rel="stylesheet" href="style.css">
 
-<script type="text/javascript">
+<script>
 //-------------- checkboxes checked checker --------------------
 // Pass the checkbox name to the function
 function getCheckedBoxes(chkboxName) {
@@ -351,7 +351,7 @@ while ($myrow = sqlFetchArray($query)) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ?>
-<script type="text/javascript">
+<script>
 function get_my_graph<?php echo attr($track_count); ?>(where){
     top.restoreSession();
     if(where=="local"){

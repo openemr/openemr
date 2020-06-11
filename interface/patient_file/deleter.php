@@ -207,7 +207,7 @@ function delete_document($document)
     <?php Header::setupHeader('opener'); ?>
 <title><?php echo xlt('Delete Patient, Encounter, Form, Issue, Document, Payment, Billing or Transaction'); ?></title>
 
-<script language="javascript">
+<script>
 function submit_form()
 {
 top.restoreSession();

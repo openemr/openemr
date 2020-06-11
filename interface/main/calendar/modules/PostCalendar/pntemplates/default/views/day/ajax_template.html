@@ -320,7 +320,7 @@ if ($_SESSION['authorizeduser'] == 1) {
 } else {
   $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
   if (count($facilities) == 1)
-    $_SESSION['pc_facility'] = key($facilities);
+    OpenEMR\Common\Session\SessionUtil::setSession($_SESSION['pc_facility'], key($facilities));
 }
 /********************************************************************/
 if (count($facilities) > 1) {
@@ -356,7 +356,7 @@ if($_SESSION['pc_facility'] == 0){
  <table>
 [-php-]
 foreach ($facilities as $f){
-echo "\n<tr><td><div class='view1 bg-info font-weight-bold text-ovr-dark'>" . text($f['name']) . "</div></td></tr>\n";
+echo "\n<tr><td><div class='view1 font-weight-bold text-ovr-dark' style='background-color:".$f['color'].";'>" . text($f['name']) . "</div></td></tr>\n";
 }
 [-/php-]
  </table>
@@ -466,7 +466,7 @@ foreach ($providers as $provider) {
                 // skip events for other providers
                 // $e1['aid']!=0 :With the holidays we included clinic events, they have provider id =0
                 // we dont want to exclude those events from being displayed
-                if ($providerid != $e1['aid']  && $e1['aid'] != 0) { continue; }
+                if ($providerid != $e1['aid'] && $e1['aid'] != 0) { continue; }
 
                 // specially handle all-day events
                 if ($e1['alldayevent'] == 1) {
@@ -711,7 +711,9 @@ foreach ($providers as $provider) {
                 if ($comment) $atitle .= " $comment";
                 $divTitle .= "\n[".$atitle ."]";
                 $content .= text($catname);
-                if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "'>";
+                if ($event['recurrtype'] > 0) {
+                    $content .= "<img class='border-0' src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' style='margin: 0 2px 0 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "' />";
+                }
                 if ($comment) $content .= " " . text($comment);
             }
             else {
@@ -837,7 +839,7 @@ foreach ($providers as $provider) {
                    "' title='" . attr($divTitle) . "'".
                    " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
                    ">";
-               $content = text($dispstarth) . ':' . text($startm) . " " . text($content);
+               $content = text($dispstarth) . ':' . text($startm) . " " . $content;
                echo $content;
                echo "</div>\n";
            }

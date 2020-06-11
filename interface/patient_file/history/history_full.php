@@ -42,7 +42,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {
 <title><?php echo xlt("History & Lifestyle");?></title>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
-<script LANGUAGE="JavaScript">
+<script>
  //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
  var code_options_js = Array();
 
@@ -170,7 +170,7 @@ function sel_related(e) {
 
 </script>
 
-<script type="text/javascript">
+<script>
 /// todo, move this to a common library
 $(function () {
     if($("#form_tobacco").val()!=""){
@@ -201,7 +201,7 @@ $(function () {
 });
 </script>
 
-<style type="text/css">
+<style>
 .form-control {
     width: auto;
     display: inline;
@@ -284,7 +284,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 
-<script language="JavaScript">
+<script>
 
 // Array of skip conditions for the checkSkipConditions() function.
 var skipArray = [

@@ -121,11 +121,10 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
     <html>
     <head>
         <title>OpenEMR Setup Tool</title>
-        <!--<link rel=stylesheet href="interface/themes/style_blue.css">-->
-        <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
-        <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
-        <script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        <link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css" type="text/css">
+        <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css">
+        <script src="public/assets/jquery/dist/jquery.min.js"></script>
+        <script src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css">
         <link rel="shortcut icon" href="public/images/favicon.ico" />
         <style>
         .oe-pull-away {
@@ -230,10 +229,10 @@ if (file_exists($OE_SITE_DIR)) {
 <head>
 <title>OpenEMR Setup Tool</title>
 <!--<link rel=stylesheet href="interface/themes/style_blue.css">-->
-<link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
-<script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css" type="text/css">
+<link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css">
+<script src="public/assets/jquery/dist/jquery.min.js"></script>
+<script src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css">
 <link rel="shortcut icon" href="public/images/favicon.ico" />
 
 <style>
@@ -315,7 +314,7 @@ if (file_exists($OE_SITE_DIR)) {
         }
     }
 </style>
-<script language="javascript">
+<script>
 // onclick handler for "clone database" checkbox
 function cloneClicked() {
  var cb = document.forms[0].clone_database;
@@ -1591,7 +1590,7 @@ BOT;
 
         });
     </script>
-    <script type = "text/javascript" >
+    <script>
         $(function () {
             $("input[type='radio']").click(function() {
                 var radioValue = $("input[name='stylesheet']:checked").val();

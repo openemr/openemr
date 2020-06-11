@@ -13,7 +13,7 @@
  */
 
 // removed as jquery is already called in messages page (if you need to use jQuery, uncomment it futher down)
-require_once('../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
