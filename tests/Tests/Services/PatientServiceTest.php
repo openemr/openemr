@@ -163,7 +163,7 @@ class PatientServiceTest extends TestCase
         $this->assertEquals(0, count($actualResult->getData()));
 
         // getAll
-        $actualResult = $this->patientService->getAll(array("state" => "CA"));
+        $actualResult = $this->patientService->getAll(array("postal_code" => "90210"));
         $this->assertNotNull($actualResult);
         $this->assertGreaterThan(1, count($actualResult->getData()));
 
@@ -173,7 +173,7 @@ class PatientServiceTest extends TestCase
             $this->assertArrayHasKey("sex", $resultData);
             $this->assertArrayHasKey("DOB", $resultData);
             $this->assertArrayHasKey("uuid", $resultData);
-            $this->assertEquals("CA", $patientRecord["state"]);
+            $this->assertEquals("90210", $patientRecord["postal_code"]);
         }
     }
 }

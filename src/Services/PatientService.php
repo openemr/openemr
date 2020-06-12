@@ -215,7 +215,7 @@ class PatientService extends BaseService
         if (!empty($search)) {
             $sql .= ' WHERE ';
             $whereClauses = array();
-            $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state');
+            $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title');
             foreach ($search as $fieldName => $fieldValue) {
                 // support wildcard match on specific fields
                 if (in_array($fieldName, $wildcardFields)) {

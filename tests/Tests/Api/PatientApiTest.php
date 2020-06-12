@@ -158,7 +158,7 @@ class PatientApiTest extends TestCase
     {
         $this->fixtureManager->installPatientFixtures();
 
-        $actualResponse = $this->testClient->get(self::PATIENT_API_ENDPOINT, array("state" => "CA"));
+        $actualResponse = $this->testClient->get(self::PATIENT_API_ENDPOINT, array("postal_code" => "90210"));
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);
@@ -169,7 +169,7 @@ class PatientApiTest extends TestCase
         $this->assertGreaterThan(1, $searchResults);
 
         foreach ($searchResults as $index => $searchResult) {
-            $this->assertEquals("CA", $searchResult["state"]);
+            $this->assertEquals("90210", $searchResult["postal_code"]);
         }
     }
 }
