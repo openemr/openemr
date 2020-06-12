@@ -674,22 +674,22 @@ CREATE UNIQUE INDEX `uuid` ON `form_encounter` (`uuid`);
 ALTER TABLE `form_encounter` ADD `class_code` VARCHAR(10) NOT NULL  DEFAULT "AMB";
 #EndIf
 
-#IfNotRow list_options option_id _ActEncounterCode
+#IfNotRow2D list_options list_id lists option_id _ActEncounterCode
 INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('lists', '_ActEncounterCode', 'Value Set ActEncounterCode', 1);
 #EndIf
 
 #IfNotRow list_options list_id _ActEncounterCode
 INSERT INTO list_options(list_id,option_id,title,notes,seq,is_default) VALUES ('_ActEncounterCode', 'AMB', 'Outpatient', 'ambulatory', 10, 1);
-INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','EMER','Emergency Dept','emergency',11);
-INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','FLD','Out in Field','field',12);
-INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','HH','Home Health','home health',13);
-INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','IMP','Inpatient Encounter','inpatient encounter',14);
-INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','ACUTE','Inpatient Acute','inpatient acute',15);
-INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','NONAC','Inpatient Non-Acute','inpatient non-acute',16);
-INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','OBSENC','Observation Encounter','observation encounter',17);
-INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','PRENC','Pre-Admission','pre-admission',18);
-INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','SS','Short Stay','short stay',19);
-INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','VR','Virtual Encounter','virtual',20);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','EMER','Emergency Dept','emergency',20);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','FLD','Out in Field','field',30);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','HH','Home Health','home health',40);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','IMP','Inpatient Encounter','inpatient encounter',50);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','ACUTE','Inpatient Acute','inpatient acute',60);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','NONAC','Inpatient Non-Acute','inpatient non-acute',70);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','OBSENC','Observation Encounter','observation encounter',80);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','PRENC','Pre-Admission','pre-admission',90);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','SS','Short Stay','short stay',100);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','VR','Virtual Encounter','virtual',110);
 #EndIf
 
 #IfTable patient_access_offsite

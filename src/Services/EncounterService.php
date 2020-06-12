@@ -93,7 +93,7 @@ class EncounterService extends BaseService
                        fe.external_id,
                        fe.pos_code,
                        fe.class_code,
-                       class.title as class_title,
+                       class.note as class_title,
                        opc.pc_catname,
                        fa.name AS billing_facility_name
                        FROM form_encounter as fe
@@ -153,7 +153,7 @@ class EncounterService extends BaseService
                        fe.external_id,
                        fe.pos_code,
                        fe.class_code,
-                       class.title as class_title,
+                       class.note as class_title,
                        opc.pc_catname,
                        fa.name AS billing_facility_name
                        FROM form_encounter as fe
@@ -213,7 +213,7 @@ class EncounterService extends BaseService
                        fe.external_id,
                        fe.pos_code,
                        fe.class_code,
-                       class.title as class_title,
+                       class.note as class_title,
                        opc.pc_catname,
                        fa.name AS billing_facility_name
                        FROM form_encounter as fe
@@ -306,7 +306,7 @@ class EncounterService extends BaseService
                        fe.external_id,
                        fe.pos_code,
                        fe.class_code,
-                       class.title as class_title,
+                       class.note as class_title,
                        opc.pc_catname,
                        fa.name AS billing_facility_name
                        FROM form_encounter as fe
