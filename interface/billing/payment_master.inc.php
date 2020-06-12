@@ -259,7 +259,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
                 <div class="form-group">
                     <div class="col-sm-12 text-left position-override">
                         <div class="btn-group btn-group-pinch" role="group">
-                            <button onClick="javascript:return SavePayment();" class="btn btn-secondary btn-save"><?php echo xlt('Save Changes');?></button>
+                            <input type="button" onClick="javascript:return SavePayment();" class="btn btn-primary btn-save" value="<?php echo xla('Save Changes');?>"></input>
                             <button class="btn btn-secondary btn-save" onClick="javascript:OpenEOBEntry();"><?php echo xlt('Allocate');?></button>
                             <button onclick="ResetForm(); return false;" class="btn btn-link btn-cancel btn-separate-left"><?php echo xlt('Cancel Changes');?></button>
                             <br />

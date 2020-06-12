@@ -2848,7 +2848,7 @@ $GLOBALS_METADATA = array(
             xl('Financial Close Date (yyyy-mm-dd)'),
             'text',                           // data type
             date('Y-m-d', time() - (10 * 24 * 60 * 60)),                // default
-            xl('The payments posted cannot go below this date.This ensures that after taking the final report nobody post for previous dates.')
+            xl('Payments posted cannot go before this date.')
         ),
 
         'enable_hylafax' => array(

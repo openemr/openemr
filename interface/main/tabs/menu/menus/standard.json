@@ -457,7 +457,7 @@
       {
         "label": "Batch Payments",
         "menu_id": "npa0",
-        "target": "pat",
+        "target": "enc",
         "url": "/interface/billing/new_payment.php",
         "children": [],
         "requirement": 0,

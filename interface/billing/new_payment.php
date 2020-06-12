@@ -60,6 +60,12 @@ if ($mode == "new_payment" || $mode == "distribute") {
     if ($_POST['deposit_date'] == '') {
         $deposit_date = $post_to_date;
     }
+    if ($check_date == '') {
+        $check_date = date('Y-m-d');
+    }
+    if ($_POST['check_date'] == '') {
+        $check_date = $post_to_date;
+    }
       $payment_id = sqlInsert("insert into ar_session set "    .
         $QueryPart .
         "', user_id = '"     . trim(add_escape_custom($user_id))  .
