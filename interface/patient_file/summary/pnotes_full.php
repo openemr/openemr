@@ -223,14 +223,6 @@ $(function () {
     });
 
     // load divs
-
-    // I can't find a reason to load this!
-    /*$("#stats_div").load("stats.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );*/
-
     $("#notes_div").load("pnotes_fragment.php",
         {
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
