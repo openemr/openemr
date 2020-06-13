@@ -36,19 +36,18 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 
 if (isset($_GET['set_pid'])) {
-    include_once("$srcdir/pid.inc");
+    require_once("$srcdir/pid.inc");
     setpid($_GET['set_pid']);
     if (isset($_GET['set_encounterid']) && (intval($_GET['set_encounterid']) > 0)) {
         $encounter = intval($_GET['set_encounterid']);
         $_SESSION['encounter'] = $encounter;
     }
 }
-session_write_close();
 
 $active_reminders = false;
 $all_allergy_alerts = false;
 if ($GLOBALS['enable_cdr']) {
-    //CDR Engine stuff
+//CDR Engine stuff
     if ($GLOBALS['enable_allergy_check'] && $GLOBALS['enable_alert_log']) {
         //Check for new allergies conflicts and throw popup if any exist(note need alert logging to support this)
         $new_allergy_alerts = allergy_conflict($pid, 'new', $_SESSION['authUser']);
@@ -57,23 +56,24 @@ if ($GLOBALS['enable_cdr']) {
             foreach ($new_allergy_alerts as $new_allergy_alert) {
                 $pod_warnings .= js_escape($new_allergy_alert) . ' + "\n"';
             }
-            echo '<script type="text/javascript">alert(' . xlj('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ' + "\n" + ' . $pod_warnings . ')</script>';
+            $allergyWarningMessage = '<script>alert(' . xlj('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ' + "\n" + ' . $pod_warnings . ')</script>';
         }
     }
 
-    if ((!isset($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
+    if ((empty($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
         // showing a new patient, so check for active reminders and allergy conflicts, which use in active reminder popup
         $active_reminders = active_alert_summary($pid, "reminders-due", '', 'default', $_SESSION['authUser'], true);
         if ($GLOBALS['enable_allergy_check']) {
             $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser'], true);
         }
     }
-    OpenEMR\Common\Session\SessionUtil::setSession('alert_notify_pid', $pid);
+    $_SESSION['alert_notify_pid'] = $pid;
     // can not output html until after above setSession call
     if (!empty($allergyWarningMessage)) {
         echo $allergyWarningMessage;
     }
 }
+session_write_close();
 
 function print_as_money($money)
 {
