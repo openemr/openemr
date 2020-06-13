@@ -428,7 +428,9 @@ require_once("$srcdir/options.js.php");
         placeHtml("pnotes_fragment.php", 'pnotes_ps_expand');
         placeHtml("disc_fragment.php", "disclosures_ps_expand");
         placeHtml("labdata_fragment.php", "labdata_ps_expand");
+        <?php if (file_exists($GLOBALS['file_root'] . "/interface/forms/track_anything/info.txt")) { ?>
         placeHtml("track_anything_fragment.php", "track_anything_ps_expand");
+        <?php } ?>
         <?php if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) { ?>
         // Initialize the Vitals form if it is registered and user is authorized.
         placeHtml("vitals_fragment.php", "vitals_ps_expand");
