@@ -600,6 +600,11 @@ DROP TABLE `uuid_registry`;
 ALTER TABLE `patient_data` DROP `uuid`;
 #EndIf
 
+-- Note the below block will also be skipped if the patient_data uuid does not yet exist
+#IfNotColumnTypeDefault patient_data uuid binary(16) NULL
+ALTER TABLE `patient_data` DROP `uuid`;
+#EndIf
+
 #IfNotTable uuid_registry
 CREATE TABLE `uuid_registry` (
   `uuid` binary(16) NOT NULL DEFAULT '',
@@ -610,7 +615,7 @@ CREATE TABLE `uuid_registry` (
 #EndIf
 
 #IfMissingColumn patient_data uuid
-ALTER TABLE `patient_data` ADD `uuid` binary(16) NOT NULL default '';
+ALTER TABLE `patient_data` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
 #IfUuidNeedUpdate patient_data
@@ -654,6 +659,39 @@ CREATE UNIQUE INDEX `token` ON `api_token` (`token`);
 CREATE UNIQUE INDEX `pid` ON `patient_access_onsite` (`pid`);
 #EndIf
 
+#IfMissingColumn form_encounter uuid
+ALTER TABLE `form_encounter` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate form_encounter
+#EndIf
+
+#IfNotIndex form_encounter uuid
+CREATE UNIQUE INDEX `uuid` ON `form_encounter` (`uuid`);
+#EndIf
+
+#IfMissingColumn form_encounter class_code
+ALTER TABLE `form_encounter` ADD `class_code` VARCHAR(10) NOT NULL  DEFAULT "AMB";
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id _ActEncounterCode
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('lists', '_ActEncounterCode', 'Value Set ActEncounterCode', 1);
+#EndIf
+
+#IfNotRow list_options list_id _ActEncounterCode
+INSERT INTO list_options(list_id,option_id,title,notes,seq,is_default) VALUES ('_ActEncounterCode', 'AMB', 'Outpatient', 'ambulatory', 10, 1);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','EMER','Emergency Dept','emergency',20);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','FLD','Out in Field','field',30);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','HH','Home Health','home health',40);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','IMP','Inpatient Encounter','inpatient encounter',50);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','ACUTE','Inpatient Acute','inpatient acute',60);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','NONAC','Inpatient Non-Acute','inpatient non-acute',70);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','OBSENC','Observation Encounter','observation encounter',80);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','PRENC','Pre-Admission','pre-admission',90);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','SS','Short Stay','short stay',100);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','VR','Virtual Encounter','virtual',110);
+#EndIf
+
 #IfTable patient_access_offsite
 DROP TABLE `patient_access_offsite`;
 #EndIf
@@ -666,4 +704,3 @@ CREATE TABLE `session_tracker` (
   PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
 #EndIf
-

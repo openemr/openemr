@@ -77,7 +77,7 @@ class RestConfig
     {
         if (!self::$IS_INITIALIZED) {
             self::setPaths();
-            self::$REST_FULL_URL = $_SERVER['REQUEST_SCHEME'] . "//" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']; // @todo unsure here!
+            self::$REST_FULL_URL = $_SERVER['REQUEST_SCHEME'] . "//" . $_SERVER['SERVER_NAME'] . $_SERVER['REDIRECT_URL']; // @todo unsure here!
             self::$ROOT_URL = self::$web_root . "/apis";
             self::$VENDOR_DIR = self::$webserver_root . "/vendor";
             self::$IS_INITIALIZED = true;

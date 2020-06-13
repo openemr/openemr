@@ -1694,6 +1694,7 @@ CREATE TABLE `form_dictation` (
 DROP TABLE IF EXISTS `form_encounter`;
 CREATE TABLE `form_encounter` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `date` datetime default NULL,
   `reason` longtext,
   `facility` longtext,
@@ -1716,7 +1717,9 @@ CREATE TABLE `form_encounter` (
   `external_id` VARCHAR(20) DEFAULT NULL,
   `pos_code` tinyint(4) default NULL,
   `parent_encounter_id` BIGINT(20) NULL DEFAULT NULL,
+  `class_code` VARCHAR(10) NOT NULL DEFAULT "AMB",
   PRIMARY KEY  (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
   KEY `encounter_date` (`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
@@ -4756,6 +4759,20 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '0', 'asc', 10, 1, 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '1', 'desc', 20, 0, 1);
 
+-- ActEncounterCode [FHIR Encounter.class]
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('lists', '_ActEncounterCode', 'Value Set ActEncounterCode', 1);
+INSERT INTO list_options(list_id,option_id,title,notes,seq,is_default) VALUES ('_ActEncounterCode', 'AMB', 'Outpatient', 'ambulatory', 10, 1);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','EMER','Emergency Dept','emergency',20);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','FLD','Out in Field','field',30);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','HH','Home Health','home health',40);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','IMP','Inpatient Encounter','inpatient encounter',50);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','ACUTE','Inpatient Acute','inpatient acute',60);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','NONAC','Inpatient Non-Acute','inpatient non-acute',70);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','OBSENC','Observation Encounter','observation encounter',80);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','PRENC','Pre-Admission','pre-admission',90);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','SS','Short Stay','short stay',100);
+INSERT INTO list_options(list_id,option_id,title,notes,seq) VALUES ('_ActEncounterCode','VR','Virtual Encounter','virtual',110);
+
 -- --------------------------------------------------------
 
 --
@@ -5353,7 +5370,7 @@ CREATE TABLE `patient_access_onsite`(
 DROP TABLE IF EXISTS `patient_data`;
 CREATE TABLE `patient_data` (
   `id` bigint(20) NOT NULL auto_increment,
-  `uuid` binary(16) NOT NULL default '',
+  `uuid` binary(16) DEFAULT NULL,
   `title` varchar(255) NOT NULL default '',
   `language` varchar(255) NOT NULL default '',
   `financial` varchar(255) NOT NULL default '',
