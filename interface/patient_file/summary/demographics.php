@@ -1681,10 +1681,14 @@ while ($gfrow = sqlFetchArray($gfres)) {
                         foreach ($events as $row) { //////
                             $count++;
                             $dayname = date("l", strtotime($row['pc_eventDate'])); //////
-                            $dispampm = "am";
+                            if ($GLOBALS['time_display_format'] == 0) {
+                                $dispampm = "";
+                            } else {
+                                $dispampm = "am";
+                            }
                             $disphour = substr($row['pc_startTime'], 0, 2) + 0;
                             $dispmin = substr($row['pc_startTime'], 3, 2);
-                            if ($disphour >= 12) {
+                            if ($disphour >= 12 && $GLOBALS['time_display_format'] == 1) {
                                 $dispampm = "pm";
                                 if ($disphour > 12) {
                                     $disphour -= 12;
@@ -1864,7 +1868,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                             $dispmin = substr($row['pc_startTime'], 3, 2);
                             if ($disphour >= 12) {
                                 $dispampm = "pm";
-                                if ($disphour > 12) {
+                                if ($disphour > 12 && $GLOBALS['time_display_format'] == 1) {
                                     $disphour -= 12;
                                 }
                             }
