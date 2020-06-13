@@ -74,9 +74,6 @@ if (isset($_GET['prov'])) {
 $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date']);
 $_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate']);
 
-// Check preferences for time format
-$timeformat = 0;
-
 if ($date) {
     $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
 } else {
@@ -90,7 +87,7 @@ if (isset($_GET['starttimem'])) {
 
 if (isset($_GET['starttimeh'])) {
     $starttimeh = $_GET['starttimeh'];
-    if ( $GLOBALS['time_display_format']  == 1 && isset($_GET['startampm'])) {
+    if ($GLOBALS['time_display_format']  == 1 && isset($_GET['startampm'])) {
         if ($_GET['startampm'] == '2' && $starttimeh < 12) {
             $starttimeh += 12;
         }
@@ -1632,7 +1629,7 @@ function isRegularRepeat($repeat)
         </div>
         <input class='col-sm form-control' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>' title='<?php echo xla('Event start time'); ?>' />
         <input class='col-sm form-control' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>' title='<?php echo xla('Event start time'); ?>' />
-        <?php if ( $GLOBALS['time_display_format'] == 1): ?>
+        <?php if ($GLOBALS['time_display_format'] == 1) : ?>
         <select class='input-sm' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
             <option value='1'><?php echo xlt('AM'); ?></option>
             <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
@@ -1976,7 +1973,8 @@ function SubmitForm() {
     if (f.form_action.value != 'delete') {
         // Check slot availability.
         var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
-        <?php if( $GLOBALS['time_display_format']  == 1):?>if (f.form_ampm.value == '2' && mins < 720) mins += 720;<?php endif ?>
+        <?php if ($GLOBALS['time_display_format']  == 1) :
+            ?>if (f.form_ampm.value == '2' && mins < 720) mins += 720;<?php endif ?>
         find_available('&cktime=' + mins);
     }
     else {
