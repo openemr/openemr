@@ -29,6 +29,8 @@ require_once dirname(__FILE__) . '/base_controller.php';
 require_once("{$GLOBALS['srcdir']}/appointments.inc.php");
 require_once("{$GLOBALS['srcdir']}/pid.inc");
 
+use OpenEMR\Common\Session\SessionUtil;
+
 class TherapyGroupsController extends BaseController
 {
 
@@ -410,7 +412,7 @@ class TherapyGroupsController extends BaseController
 
         setpid(0);
         if ($_SESSION['therapy_group'] != $groupId) {
-            $_SESSION['therapy_group'] = $groupId;
+            SessionUtil::setSession('therapy_group', $groupId);
         }
     }
 }

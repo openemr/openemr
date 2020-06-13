@@ -103,7 +103,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
     require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
     <?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
-    <script language="JavaScript">
+    <script>
         const mypcc = '' + <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
         // Process click on issue title.

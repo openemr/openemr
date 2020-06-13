@@ -27,8 +27,8 @@ use OpenEMR\Core\Header;
 <?php $rule = $viewBean->rule ?>
 <?php $criteria = $viewBean->criteria ?>
 
-<script language="javascript" src="<?php js_src('edit.js') ?>"></script>
-<script type="text/javascript">
+<script src="<?php js_src('edit.js') ?>"></script>
+<script>
     var edit = new rule_edit( {});
     edit.init();
 </script>

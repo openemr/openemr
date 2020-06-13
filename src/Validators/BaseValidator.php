@@ -2,8 +2,10 @@
 
 namespace OpenEMR\Validators;
 
-use Particle\Validator\Validator;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\ProcessingResult;
+use Particle\Validator\Validator;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 /**
  * Base class for OpenEMR object validation.
@@ -66,12 +68,68 @@ abstract class BaseValidator
         if (!$this->isValidContext($context)) {
             throw new \RuntimeException("unsupported context: " . $context);
         }
-        
+
         $validationResult = $this->validator->validate($dataFields, $context);
 
         $result = new ProcessingResult();
         $result->setValidationMessages($validationResult->getMessages());
 
         return $result;
+    }
+
+    /**
+     * Validates that a ID exists in the database.
+     *
+     * @param $field The identifier field in database
+     * @param $table The table in database
+     * @param $lookupId The identifier to validateId
+     * @param $isUuid true if the lookupId is UUID, otherwise false
+     * @return true if the lookupId is a valid existing id, otherwise Validation Message
+     */
+    public function validateId($field, $table, $lookupId, $isUuid = false)
+    {
+        $validationResult = new ProcessingResult();
+
+        // Error Message
+        $validationMessages = [
+            $field => ["invalid or nonexisting value" => "value " . $lookupId],
+        ];
+        $validationResult->setValidationMessages($validationMessages);
+
+        // Check if $id is not UUID or a Valid Integer
+        if ($isUuid) {
+            try {
+                $lookupId = UuidRegistry::uuidToBytes($lookupId);
+            } catch (InvalidUuidStringException $e) {
+                return $validationResult;
+            }
+        } elseif (!is_int($lookupId)) {
+            return $validationResult;
+        }
+
+        $result = sqlQuery(
+            "SELECT $field FROM $table WHERE $field = ?",
+            array($lookupId)
+        );
+
+        return $result[$field] ? true : $validationResult;
+    }
+
+    /**
+     * Validates that a Code from Valueset exists in the database.
+     *
+     * @param $code The code which needs to be verified
+     * @param $table The table in database
+     * @param $valueset Name of the particular Valueset
+     * @return boolean
+     */
+    public function validateCode($code, $table, $valueset)
+    {
+        $sql = "SELECT option_id FROM $table WHERE list_id = ? AND option_id = ?";
+        $result = sqlQuery(
+            $sql,
+            array($valueset, $code)
+        );
+        return $result['option_id'] ? true : false;
     }
 }

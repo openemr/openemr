@@ -77,6 +77,10 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     }
 }
 
+// Set $sessionAllowWrite to true here for following reasons:
+//  1. !$isLocalApi - in this case setting sessions far downstream and no benefit to set to false since single process
+//  2. $isLocalApi - in this case, basically setting this to true downstream after some session sets via session_write_close() call
+$sessionAllowWrite = true;
 require_once("./../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -155,6 +159,8 @@ if ($gbl::is_fhir_request($resource)) {
 
 if ($isLocalApi) {
     // Ensure that a local process does not hold up other processes
+    //  Note can not do this for !$isLocalApi since need to be able to set
+    //  session variables and it won't help performance anyways.
     session_write_close();
 }
 

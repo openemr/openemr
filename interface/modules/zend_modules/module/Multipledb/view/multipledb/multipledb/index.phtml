@@ -46,7 +46,7 @@
         $html .= <<<html
     <tr>
         <td><a href="{$this->basePath()}/multipledb/edit?id={$id}">{$editLang}</a> | <a href="{$this->basePath()}/multipledb/remove?id={$id}"  onclick="save($(this),'{$namespace}')">{$removeLang}</a></td>
-        <td>{$namespace}</td> 
+        <td>{$namespace}</td>
         <td>{$username}</td>
         <td>{$dbname}</td>
         <td>{$host}</td>
@@ -79,7 +79,7 @@ html;
 
 </table>
 
-<script type="text/javascript">
+<script>
     function save(box,table){
         var href = box.prop('href');
         event.preventDefault()
@@ -89,6 +89,6 @@ html;
             window.location = href;
         }
     }
-    
+
 </script>
 

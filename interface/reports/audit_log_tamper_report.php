@@ -316,7 +316,7 @@ $check_sum = isset($_GET['check_sum']);
      </TR>
         <?php
     } else {?>
-    <script type="text/javascript">$('#display_tamper').css('display', 'block');</script>
+    <script>$('#display_tamper').css('display', 'block');</script>
         <?php
     }
 
@@ -325,7 +325,7 @@ $check_sum = isset($_GET['check_sum']);
 </div>
 <?php } ?>
 </body>
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 $(function () {

@@ -125,7 +125,6 @@
 	GRANT ALL ON openemr.openemr_postcalendar_limits to 'openemr'@'localhost';
 	GRANT ALL ON openemr.openemr_postcalendar_topics to 'openemr'@'localhost';
 	GRANT ALL ON openemr.openemr_session_info to 'openemr'@'localhost';
-	GRANT ALL ON openemr.patient_access_offsite to 'openemr'@'localhost';
 	GRANT ALL ON openemr.patient_access_onsite to 'openemr'@'localhost';
 	GRANT ALL ON openemr.patient_data to 'openemr'@'localhost';
 	GRANT ALL ON openemr.patient_reminders to 'openemr'@'localhost';

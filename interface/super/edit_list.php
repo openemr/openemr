@@ -1090,7 +1090,7 @@ function writeITLine($it_array)
                 </div>
 
                 <!--Added filter-->
-                <script type="text/javascript">
+                <script>
                     function lister() {
                         var queryParams = getQueryStringAsObject();
                         var list_from = parseInt($("#list-from").val());

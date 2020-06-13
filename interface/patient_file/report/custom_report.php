@@ -24,9 +24,6 @@ require_once("$srcdir/report.inc");
 require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
-if ($GLOBALS['gbl_portal_cms_enable']) {
-    require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
-}
 require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
@@ -959,7 +956,7 @@ if ($PDF_OUTPUT) {
 } else {
     ?>
     <?php if (!$printable) { // Set up translated strings for use by interactive search ?>
-<script type="text/javascript">
+<script>
 var xl_string = <?php echo json_encode(array(
     'spcl_chars' => xla('Special characters are not allowed') . '.',
     'not_found'  => xla('No results found') . '.',
@@ -968,7 +965,7 @@ var xl_string = <?php echo json_encode(array(
 ));
                 ?>;
 </script>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="<?php echo $GLOBALS['web_root']?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php } ?>
 </body>
 </html>

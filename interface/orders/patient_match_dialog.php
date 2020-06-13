@@ -34,7 +34,7 @@ $form_DOB = $args['DOB'];
     .oneResult {
     }
 </style>
-<script language="JavaScript">
+<script>
 
     $(function () {
         $(".oneresult").mouseover(function () {

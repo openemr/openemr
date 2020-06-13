@@ -31,7 +31,7 @@ $form_name = "note";
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
-<script language="JavaScript">
+<script>
 // required for textbox date verification
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 </script>
@@ -97,7 +97,7 @@ var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
 </body>
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 

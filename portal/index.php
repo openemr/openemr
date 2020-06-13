@@ -75,7 +75,7 @@ if (isset($_GET['forward'])) {
     $_SESSION['pin'] = substr($parse, 0, 6);
     $_SESSION['forward'] = $auth['portal_onetime'];
     $_SESSION['portal_username'] = $auth['portal_username'];
-    $_SESSION['portal_login_username'] = '';
+    $_SESSION['portal_login_username'] = $auth['portal_login_username'];
     $_SESSION['password_update'] = 2;
     $_SESSION['onetime'] = $auth['portal_pwd'];
     unset($auth);
@@ -243,7 +243,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 </div>
                             </div>
                             <div class="form-row my-3">
-                                <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('New User Name'); ?></label>
+                                <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('Use Username'); ?></label>
                                 <div class="col-md">
                                     <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be 12 to 80 characters'); ?>" pattern=".{12,80}" value="<?php echo attr($_SESSION['portal_login_username']); ?>" onblur="checkUserName()" />
                                 </div>

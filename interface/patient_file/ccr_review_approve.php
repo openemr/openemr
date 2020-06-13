@@ -106,7 +106,7 @@ table table tbody tr {
 }
 
 </style>
-<script type="text/javascript" >
+<script>
 
 function submit_form(val){
     document.getElementById('setval').value = val;

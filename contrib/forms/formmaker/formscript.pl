@@ -104,7 +104,7 @@ START
 my $date_field_exists = 0;
 my $date_header =<<'START';
 
-<script language='JavaScript'>
+<script>
 $(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
@@ -284,7 +284,6 @@ $encounter = date("Ymd");
 if ($_GET["mode"] == "new"){
 reset($field_names);
 NOREDIRECT
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

@@ -17,7 +17,7 @@
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 ?>
-<script type="text/javascript">
+<script>
 function ajax_bill_loc(pid,date,facility){
 top.restoreSession();
 $.ajax({

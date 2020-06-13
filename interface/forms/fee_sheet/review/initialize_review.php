@@ -35,10 +35,10 @@ if (!$isBilled) {
         return this;
     }
 </script>
-<script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/initialize_review.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/js/fee_sheet_core.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_review_view_model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_justify_view_model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/initialize_review.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/js/fee_sheet_core.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_review_view_model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_justify_view_model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
 
     <?php
     // knockoutjs template files

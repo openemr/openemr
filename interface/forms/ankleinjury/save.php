@@ -81,7 +81,6 @@ if ($_GET["mode"] == "new") {
     );
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

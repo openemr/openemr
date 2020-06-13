@@ -17,9 +17,6 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
-if ($GLOBALS['gbl_portal_cms_enable']) {
-    require_once("$include_root/cmsportal/portal.inc.php");
-}
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once("$srcdir/FeeSheetHtml.class.php");
 
@@ -368,7 +365,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
     <?php echo lbf_canvas_head(); ?>
     <?php echo signer_head(); ?>
 
-    <script language="JavaScript">
+    <script>
 
         // Support for beforeunload handler.
         var somethingChanged = false;
@@ -847,14 +844,6 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
             <?php $cmsportal_login = $enrow['cmsportal_login'];
     } // end not from trend form
-
-            // If loading data from portal, get the data.
-    if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
-        $portalres = cms_portal_call(array('action' => 'getpost', 'postid' => $portalid));
-        if ($portalres['errmsg']) {
-            die(text($portalres['errmsg']));
-        }
-    }
     ?>
 
             <!-- This is where a chart might display. -->
@@ -1589,7 +1578,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
     <!-- include support for the list-add selectbox feature -->
     <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
 
-    <script language="JavaScript">
+    <script>
 
         // Array of action conditions for the checkSkipConditions() function.
         var skipArray = [
@@ -1600,23 +1589,6 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         <?php
         if (function_exists($formname . '_javascript_onload')) {
             call_user_func($formname . '_javascript_onload');
-        }
-
-        // New form and this patient has a portal login and we have not loaded portal data.
-        // Check if there is portal data pending for this patient and form type.
-        if (!$alertmsg && !$formid && $GLOBALS['gbl_portal_cms_enable'] && $cmsportal_login && !$portalid) {
-            $portalres = cms_portal_call(array('action' => 'checkptform', 'form' => $formname, 'patient' => $cmsportal_login));
-            if ($portalres['errmsg']) {
-                die(text($portalres['errmsg'])); // TBD: Change to alertmsg
-            }
-
-            $portalid = $portalres['postid'];
-            if ($portalid) {
-                echo "if (confirm(" . xlj('The portal has data for this patient and form. Load it now?') . ")) {\n";
-                echo " top.restoreSession();\n";
-                echo " document.location.href = 'load_form.php?formname=" . attr_url($formname) . "&portalid=" . attr_url($portalid) . "';\n";
-                echo "}\n";
-            }
         }
 
         if ($alertmsg) {

@@ -55,7 +55,7 @@ if ($_POST['form_csvexport']) {
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-<script language="JavaScript">
+<script>
 
 $(function () {
     oeFixedHeaderSetup(document.getElementById('mymaintable'));

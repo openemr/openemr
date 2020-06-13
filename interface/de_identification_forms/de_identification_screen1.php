@@ -36,7 +36,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     text-align: center;
 }</style>
 
-<script language="JavaScript">
+<script>
 //get value from popup window
 function set_related(s,type) {
  var list;

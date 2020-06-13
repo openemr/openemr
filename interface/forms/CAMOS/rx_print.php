@@ -416,7 +416,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 <title>
     <?php echo xlt('CAMOS'); ?>
 </title>
-<script type="text/javascript">
+<script>
 //below init function just to demonstrate how to do it.
 //now need to create 'cycle' function triggered by button to go by fours
 //through selected types of subcategories.
