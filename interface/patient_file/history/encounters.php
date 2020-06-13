@@ -11,7 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
+$sessionReadOnly = true;
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
@@ -442,8 +442,8 @@ while ($result4 = sqlFetchArray($res4)) {
 
         $raw_encounter_date = '';
 
-        $raw_encounter_date = date("Y-m-d", strtotime($result4{"date"}));
-        $encounter_date = date("D F jS", strtotime($result4{"date"}));
+        $raw_encounter_date = date("Y-m-d", strtotime($result4["date"]));
+        $encounter_date = date("D F jS", strtotime($result4["date"]));
 
         //fetch acl for given pc_catid
         $postCalendarCategoryACO = fetchPostCalendarCategoryACO($result4['pc_catid']);
@@ -455,8 +455,8 @@ while ($result4 = sqlFetchArray($res4)) {
     }
 
         // if ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser']))
-    if (!empty($result4{"reason"})) {
-        $reason_string .= text($result4{"reason"}) . "<br>\n";
+    if (!empty($result4["reason"])) {
+        $reason_string .= text($result4["reason"]) . "<br>\n";
     }
 
         // else
@@ -765,22 +765,22 @@ while ($result4 = sqlFetchArray($res4)) {
                     $responsible = ar_responsible_party($pid, $result4['encounter']);
             }
             $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
-            if ($subresult5 && $subresult5{"provider_name"}) {
+            if ($subresult5 && $subresult5["provider_name"]) {
                 $style = $responsible == 1 ? " style='color:red'" : "";
                 $insured = "<span class='text'$style>&nbsp;" . xlt('Primary') . ": " .
-                text($subresult5{"provider_name"}) . "</span><br>\n";
+                text($subresult5["provider_name"]) . "</span><br>\n";
             }
             $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
-            if ($subresult6 && $subresult6{"provider_name"}) {
+            if ($subresult6 && $subresult6["provider_name"]) {
                 $style = $responsible == 2 ? " style='color:red'" : "";
                 $insured .= "<span class='text'$style>&nbsp;" . xlt('Secondary') . ": " .
-                text($subresult6{"provider_name"}) . "</span><br>\n";
+                text($subresult6["provider_name"]) . "</span><br>\n";
             }
             $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
-            if ($subresult6 && $subresult7{"provider_name"}) {
+            if ($subresult6 && $subresult7["provider_name"]) {
                 $style = $responsible == 3 ? " style='color:red'" : "";
                 $insured .= "<span class='text'$style>&nbsp;" . xlt('Tertiary') . ": " .
-                text($subresult7{"provider_name"}) . "</span><br>\n";
+                text($subresult7["provider_name"]) . "</span><br>\n";
             }
             if ($responsible == 0) {
                 $insured .= "<span class='text' style='color:red'>&nbsp;" . xlt('Patient') .

@@ -9,7 +9,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
+$sessionReadOnly = true;
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
@@ -24,13 +24,15 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 <div id="patient_stats_summary">
 
-<script type='text/javascript'>
-    function load_location( location ) {
-        top.restoreSession();
-        if ( !top.frames["RTop"] ) {
-            document.location=location;
-        } else {
-            top.frames["RTop"].location=location;
+<script>
+    if(typeof load_location === 'undefined') {
+        function load_location(location) {
+            top.restoreSession();
+            if (!top.frames["RTop"]) {
+                document.location = location;
+            } else {
+                top.frames["RTop"].location = location;
+            }
         }
     }
 </script>
@@ -48,7 +50,6 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     if (!acl_check_issue($key)) {
         continue;
     }
-
 
     $query = "SELECT * FROM lists WHERE pid = ? AND type = ? AND ";
     $query .= dateEmptySql('enddate');

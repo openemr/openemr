@@ -88,14 +88,23 @@ if (preg_match("/^[^\/]/", $web_root)) {
 // This is the directory that contains site-specific data.  Change this
 // only if you have some reason to.
 $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
-
+/* Handy Debug function. Can expand for longer trace or additional file info.*/
+function GetCallingScriptName()
+{
+    $e = new Exception();
+    $trace = $e->getTrace();
+    return $trace[1]['file'] . ":" . $trace[1]['line'];
+}
 // If a session does not yet exist, then will start the core OpenEMR session.
 //  If a session already exists, then this means portal is being used, which
 //  has already created a portal session/cookie, so will bypass setting of
 //  the core OpenEMR session/cookie.
+$read_only = $sessionReadOnly ?? false;
 if (session_status() === PHP_SESSION_NONE) {
-    require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::coreSessionStart($web_root);
+    //error_log("1. LOCK ".GetCallingScriptName()); // debug start lock
+    require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
+    OpenEMR\Common\Session\SessionUtil::coreSessionStart($web_root, $read_only);
+    //error_log("2. FREE ".GetCallingScriptName()); // debug unlocked
 }
 
 // Set the site ID if required.  This must be done before any database
@@ -388,7 +397,7 @@ if (!empty($glrow)) {
     $rtl_override = false;
     if (isset($_SESSION['language_direction'])) {
         if ($_SESSION['language_direction'] == 'rtl' &&
-        !strpos($GLOBALS['css_header'], 'rtl')  ) {
+        !strpos($GLOBALS['css_header'], 'rtl')) {
             // the $css_header_value is set above
             $rtl_override = true;
         }

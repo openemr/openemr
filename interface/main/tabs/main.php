@@ -59,12 +59,20 @@ $esignApi = new Api();
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] == 1; ?>";
 
 // Since this should be the parent window, this is to prevent calls to the
 // window that opened this window. For example when a new window is opened
 // from the Patient Flow Board or the Patient Finder.
 window.opener = null;
+// some globals to access using top.variable
+window.name = "main";
+var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] ?>";
+var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
+var webroot_url = <?php echo js_escape($web_root); ?>;
+var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
+var jsGlobals = {};
+// Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
+var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
 
 // This flag indicates if another window or frame is trying to reload the login
 // page to this top-level window.  It is set by javascript returned by auth.inc
@@ -79,62 +87,69 @@ function allFramesLoaded() {
  return true;
 }
 
-function goRepeaterServices(){
+function goRepeaterServices() {
     // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
-    //  timing out mechanism in OpenEMR.
+    // timing out mechanism in OpenEMR.
 
     // Send the skip_timeout_reset parameter to not count this as a manual entry in the
-    //  timing out mechanism in OpenEMR.
-    top.restoreSession();
-    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
-        {
-            skip_timeout_reset: "1",
-            csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
-        },
-        function(data) {
-            // Go knockout.js
-            app_view_model.application_data.user().messages(data);
+    // timing out mechanism in OpenEMR. Notify App for various portal and reminder alerts.
+    // Combined portal and reminders ajax to fetch sjp 06-07-2020.
+    restoreSession();
+    let request = new FormData;
+    request.append("skip_timeout_reset", "1");
+    request.append("isPortal", isPortalEnabled);
+    request.append("csrf_token_form", csrf_token_js);
+    fetch(webroot_url + "/library/ajax/dated_reminders_counter.php", {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: request
+    }).then((response) => {
+        if (response.status !== 200) {
+            console.log('Reminders start failed. Status Code: ' + response.status);
+            return;
         }
-    );
-    // Notify App for various portal alerts
-    if (isPortalEnabled) {
-        top.restoreSession();
-        $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
-            {
-                skip_timeout_reset: "1",
-                isPortal: "1",
-                csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
-            },
-            function (counts) {
-                data = JSON.parse(counts);
-                let mail = data.mailCnt;
-                let chats = data.chatCnt;
-                let audits = data.auditCnt;
-                let payments = data.paymentCnt;
-                let total = data.total;
-                let enable = (1 * mail) + (1 * audits); // payments are among audits.
-
-                app_view_model.application_data.user().portal(enable);
-                if (enable) {
-                    app_view_model.application_data.user().portalAlerts(total);
-                    app_view_model.application_data.user().portalAudits(audits);
-                    app_view_model.application_data.user().portalMail(mail);
-                    app_view_model.application_data.user().portalChats(chats);
-                    app_view_model.application_data.user().portalPayments(payments);
-                }
+        return response.json();
+    }).then((data) => {
+        if (isPortalEnabled) {
+            let mail = data.mailCnt;
+            let chats = data.chatCnt;
+            let audits = data.auditCnt;
+            let payments = data.paymentCnt;
+            let total = data.total;
+            let enable = "" + ((1 * mail) + (1 * audits)); // payments are among audits.
+            // Send portal counts to notification button model
+            app_view_model.application_data.user().portal(enable);
+            if (enable > 0) {
+                app_view_model.application_data.user().portalAlerts(total);
+                app_view_model.application_data.user().portalAudits(audits);
+                app_view_model.application_data.user().portalMail(mail);
+                app_view_model.application_data.user().portalChats(chats);
+                app_view_model.application_data.user().portalPayments(payments);
             }
-        );
-    }
-
-    top.restoreSession();
-    // run background-services
-    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
-        {
-            skip_timeout_reset: "1",
-            ajax: "1",
-            csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
         }
-    );
+        // Always send reminder count text to model
+        app_view_model.application_data.user().messages(data.reminderText);
+    }).catch(function(error) {
+        console.log('Request failed', error)
+    });
+
+    // run background-services
+    restoreSession();
+    request = new FormData;
+    request.append("skip_timeout_reset", "1");
+    request.append("ajax", "1");
+    request.append("csrf_token_form", csrf_token_js);
+    fetch(webroot_url + "/library/ajax/execute_background_services.php", {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: request
+    }).then((response) => {
+        if (response.status !== 200) {
+            console.log('Background Service start failed. Status Code: ' + response.status);
+        }
+    }).catch(function(error) {
+        console.log('Request failed', error)
+    });
 
     // auto run this function every 60 seconds
     var repeater = setTimeout("goRepeaterServices()", 60000);
@@ -162,14 +177,6 @@ function isEncounterLocked( encounterId ) {
     return false;
     <?php } ?>
 }
-// some globals to access using top.variable
-window.name = "main";
-// note that 'let' or 'const' does not allow global scope here.
-// only use var
-var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
-var webroot_url = <?php echo js_escape($web_root); ?>;
-var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
-var jsGlobals = {};
 </script>
 
 <?php Header::setupHeader(["knockout","tabs-theme",'jquery-ui']); ?>
@@ -191,8 +198,7 @@ var xl_strings_tabs_view_model = <?php echo json_encode(array(
     'new' => xla('New')
 ));
                                                                             ?>;
-// Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
-var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+
 // will fullfill json and return promise if needed
 // to call elsewhere for a local scope ie
 // let localJson = top.jsFetchGlobals().then(data => {do something with parsed json data});
@@ -276,7 +282,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
     app_view_model.application_data.tabs.tabsList()[1].name(<?php echo json_encode($_SESSION['frame2target']); ?>);
     <?php } ?>
 
-    app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION{"authUser"})
+    app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION["authUser"])
         .',' . json_encode($userQuery['fname'])
         .',' . json_encode($userQuery['lname'])
         .',' . json_encode($_SESSION['authGroup']); ?>));
@@ -284,7 +290,6 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
 </script>
 <script>
     $(window).on('resize', function() {
-
      var win = $(this);
      var winWidth = $(this).width();
         if (winWidth >  <?php echo js_escape($width); ?>) {
