@@ -218,6 +218,8 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
     $actions = test_rules_clinic('', 'active_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, array(), 'primary', null, null, $user);
 
     if (empty($actions)) {
+        // when there are no actions we have to update alert_notify_pid session variable
+        OpenEMR\Common\Session\SessionUtil::setSession('alert_notify_pid', $patient_id);
         return false;
     }
 
