@@ -28,10 +28,14 @@ body.login {
 }
 
 .login .container {
+  -webkit-border-radius: 10px 10px 10px 10px;
+  border-radius: 10px 10px 10px 10px;
   background: $white;
   margin-top: 75px;
   max-width: 785px;
   padding: 25px;
+  -webkit-box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
+  box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
 }
 
 .logo-left {
