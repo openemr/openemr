@@ -217,7 +217,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
 
     if (empty($actions)) {
         // when there are no actions we have to update alert_notify_pid session variable
-        $_SESSION['alert_notify_pid'] = $pid;
+        OpenEMR\Common\Session\SessionUtil::setSession('alert_notify_pid', $patient_id);
         return false;
     }
 

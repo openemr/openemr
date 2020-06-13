@@ -68,6 +68,11 @@ if ($GLOBALS['enable_cdr']) {
             $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser'], true);
         }
     }
+    OpenEMR\Common\Session\SessionUtil::setSession('alert_notify_pid', $pid);
+    // can not output html until after above setSession call
+    if (!empty($allergyWarningMessage)) {
+        echo $allergyWarningMessage;
+    }
 }
 
 function print_as_money($money)
