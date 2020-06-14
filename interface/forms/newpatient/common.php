@@ -495,7 +495,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             <label for='class' class="oe-text-to-right"><?php echo xlt('Class'); ?>:</label>
                         </div>
                         <div class="col-sm">
-                            <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : 'AMB', ''); ?>
+                            <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
+
                         </div>
                     </div>
                     <div class="form-row align-items-center mt-2">
