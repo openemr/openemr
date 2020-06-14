@@ -30,7 +30,7 @@ services:
     - .:/openemr:ro
     - .:/var/www/localhost/htdocs/openemr:rw
     - publicvolume:/var/www/localhost/htdocs/openemr/public:rw
-    - sitesvolume:/var/www/localhost/htdocs/openemr/sites/default:rw
+    - sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
