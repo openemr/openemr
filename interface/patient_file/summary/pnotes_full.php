@@ -26,6 +26,7 @@ if ($_GET['set_pid']) {
     require_once($GLOBALS['srcdir'].'/pid.inc');
     setpid($_GET['set_pid']);
 }
+session_write_close();
 
 // form parameter docid can be passed to restrict the display to a document.
 $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
@@ -223,11 +224,6 @@ $(document).ready(function(){
     });
 
     // load divs
-    $("#stats_div").load("stats.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );
     $("#notes_div").load("pnotes_fragment.php",
         {
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>

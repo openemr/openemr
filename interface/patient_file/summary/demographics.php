@@ -16,7 +16,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
@@ -37,14 +36,18 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 
 if (isset($_GET['set_pid'])) {
-    include_once("$srcdir/pid.inc");
+    require_once("$srcdir/pid.inc");
     setpid($_GET['set_pid']);
+    if (isset($_GET['set_encounterid']) && (intval($_GET['set_encounterid']) > 0)) {
+        $encounter = intval($_GET['set_encounterid']);
+        $_SESSION['encounter'] = $encounter;
+    }
 }
 
 $active_reminders = false;
 $all_allergy_alerts = false;
 if ($GLOBALS['enable_cdr']) {
-    //CDR Engine stuff
+//CDR Engine stuff
     if ($GLOBALS['enable_allergy_check'] && $GLOBALS['enable_alert_log']) {
         //Check for new allergies conflicts and throw popup if any exist(note need alert logging to support this)
         $new_allergy_alerts = allergy_conflict($pid, 'new', $_SESSION['authUser']);
@@ -53,18 +56,24 @@ if ($GLOBALS['enable_cdr']) {
             foreach ($new_allergy_alerts as $new_allergy_alert) {
                 $pod_warnings .= js_escape($new_allergy_alert) . ' + "\n"';
             }
-            echo '<script type="text/javascript">alert(' . xlj('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ' + "\n" + ' . $pod_warnings . ')</script>';
+            $allergyWarningMessage = '<script>alert(' . xlj('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ' + "\n" + ' . $pod_warnings . ')</script>';
         }
     }
 
-    if ((!isset($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
+    if ((empty($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
         // showing a new patient, so check for active reminders and allergy conflicts, which use in active reminder popup
         $active_reminders = active_alert_summary($pid, "reminders-due", '', 'default', $_SESSION['authUser'], true);
         if ($GLOBALS['enable_allergy_check']) {
             $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser'], true);
         }
     }
+    $_SESSION['alert_notify_pid'] = $pid;
+    // can not output html until after above setSession call
+    if (!empty($allergyWarningMessage)) {
+        echo $allergyWarningMessage;
+    }
 }
+session_write_close();
 
 function print_as_money($money)
 {
@@ -300,6 +309,66 @@ function doPublish() {
         type: 'iframe'
     });
 }
+/**
+ * async function fetchHtml(...)
+ *
+ * @param {*} url
+ * @param {boolean} embedded
+ * @param {boolean} sessionRestore
+ * @returns {text}
+ */
+async function fetchHtml(url, embedded = false, sessionRestore = false) {
+    if (sessionRestore === true) {
+        // restore cookie before fetch.
+        top.restoreSession();
+    }
+    let csrf = new FormData;
+    // a security given.
+    csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+    if (embedded === true) {
+        // special formatting in certain widgets.
+        csrf.append("embeddedScreen", true);
+    }
+
+    const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: csrf
+    });
+    return await response.text();
+}
+
+/**
+ * async function placeHtml(...) will await fetch of html then place in divId.
+ * This function will return a promise for use to init various items regarding
+ * inserted HTML if needed.
+ * Example
+ *
+ * @param {*} url
+ * @param {string} divId id
+ * @param {boolean} embedded
+ * @param {boolean} sessionRestore
+ * @returns {object} promise
+ */
+async function placeHtml(url, divId, embedded = false, sessionRestore = false) {
+    const contentDiv = document.getElementById(divId);
+    if (contentDiv) {
+        await fetchHtml(url, embedded, sessionRestore).then(fragment => {
+            contentDiv.innerHTML = fragment;
+        });
+    }
+}
+
+if(typeof load_location === 'undefined') {
+    function load_location(location) {
+        top.restoreSession();
+        if (!top.frames["RTop"]) {
+            document.location = location;
+        } else {
+            top.frames["RTop"].location = location;
+        }
+    }
+}
 
 $(document).ready(function(){
   var msg_updation='';
@@ -352,88 +421,45 @@ $(document).ready(function(){
               alert(msg_updation);
                 <?php
             }
-
-            //}
         }
     }
     ?>
-    // load divs
-    $("#stats_div").load("stats.php",
-        {
-            embeddedScreen : true,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        },
-        function() {}
-    );
-    $("#pnotes_ps_expand").load("pnotes_fragment.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );
-    $("#disclosures_ps_expand").load("disc_fragment.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );
 
     <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) { ?>
-      top.restoreSession();
-      $("#clinical_reminders_ps_expand").load("clinical_reminders_fragment.php",
-          {
-              embeddedScreen : true,
-              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-          },
-          function() {
-          // (note need to place javascript code here also to get the dynamic link to work)
-          $(".medium_modal").on('click', function(e) {
-              e.preventDefault();e.stopPropagation();
-              dlgopen('', '', 800, 200, '', '', {
-                  buttons: [
-                      {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
-                  ],
-                  onClosed: 'refreshme',
-                  allowResize: false,
-                  allowDrag: true,
-                  dialogId: 'demreminder',
-                  type: 'iframe',
-                  url: $(this).attr('href')
-              });
-          });
-      });
+    placeHtml("clinical_reminders_fragment.php", "clinical_reminders_ps_expand", true, true).then(() => {
+        // (note need to place javascript code here also to get the dynamic link to work)
+        $(".medium_modal").on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dlgopen('', '', 800, 200, '', '', {
+                buttons: [
+                    {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
+                ],
+                onClosed: 'refreshme',
+                allowResize: false,
+                allowDrag: true,
+                dialogId: 'demreminder',
+                type: 'iframe',
+                url: $(this).attr('href')
+            });
+        });
+    });
     <?php } // end crw?>
 
     <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) { ?>
-      top.restoreSession();
-      $("#patient_reminders_ps_expand").load("patient_reminders_fragment.php",
-          {
-              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-          }
-      );
+    placeHtml("patient_reminders_fragment.php", "patient_reminders_ps_expand", false, true);
     <?php } // end prw?>
 
-<?php if ($vitals_is_registered && acl_check('patients', 'med')) { ?>
+    // load divs
+    placeHtml("stats.php", "stats_div", true);
+    placeHtml("pnotes_fragment.php", 'pnotes_ps_expand');
+    placeHtml("disc_fragment.php", "disclosures_ps_expand");
+    placeHtml("labdata_fragment.php", "labdata_ps_expand");
+    placeHtml("track_anything_fragment.php", "track_anything_ps_expand");
+    <?php if ($vitals_is_registered && acl_check('patients', 'med')) { ?>
     // Initialize the Vitals form if it is registered and user is authorized.
-    $("#vitals_ps_expand").load("vitals_fragment.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );
-<?php } ?>
-
-    // Initialize track_anything
-    $("#track_anything_ps_expand").load("track_anything_fragment.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );
-
-
-    // Initialize labdata
-    $("#labdata_ps_expand").load("labdata_fragment.php",
-        {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        }
-    );
+    placeHtml("vitals_fragment.php", "vitals_ps_expand");
+    <?php } ?>
 <?php
 // Initialize for each applicable LBF form.
 $gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
@@ -561,7 +587,6 @@ while ($gfrow = sqlFetchArray($gfres)) {
       });
   }
 
-
 <?php if ($GLOBALS['patient_birthday_alert']) {
     // To display the birthday alert:
     //  1. The patient is not deceased
@@ -629,19 +654,17 @@ if (isset($_GET['set_pid'])) {
 } // end setting new pid ?>
  parent.left_nav.syncRadios();
 <?php if ((isset($_GET['set_pid']) ) && (isset($_GET['set_encounterid'])) && ( intval($_GET['set_encounterid']) > 0 )) {
-    $encounter = intval($_GET['set_encounterid']);
-    $_SESSION['encounter'] = $encounter;
     $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", array($encounter)); ?>
- encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter);?> + '&pid=' + <?php echo js_url($pid);?>;
+    encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter);?> + '&pid=' + <?php echo js_url($pid);?>;
     <?php if ($GLOBALS['new_tabs_layout']) { ?>
-  parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
+    parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
     top.restoreSession();
-  parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
+    parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
     <?php } else { ?>
-  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
-  parent.left_nav.setEncounter(<?php echo js_escape(attr(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date']))))); ?>, <?php echo js_escape($encounter); ?>, othername);
+    var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
+    parent.left_nav.setEncounter(<?php echo js_escape(attr(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date']))))); ?>, <?php echo js_escape($encounter); ?>, othername);
     top.restoreSession();
-  parent.frames[othername].location.href = '../' + encurl;
+    parent.frames[othername].location.href = '../' + encurl;
     <?php } ?>
 <?php } // end setting new encounter id (only if new pid is also set) ?>
 }

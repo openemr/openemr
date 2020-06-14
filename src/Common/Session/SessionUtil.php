@@ -50,26 +50,28 @@ class SessionUtil
     private static $use_cookies = true;
     private static $use_only_cookies = true;
 
-    public static function coreSessionStart($web_root)
+    public static function coreSessionStart($web_root, $sessionReadOnly = false): void
     {
         if (version_compare(phpversion(), '7.3.0', '>=')) {
             session_start([
+                'read_and_close' => $sessionReadOnly,
                 'cookie_samesite' => "Strict",
-                'name'=> 'OpenEMR',
+                'name' => 'OpenEMR',
                 'cookie_httponly' => false,
-                'cookie_path' => $web_root ? $web_root : '/',
+                'cookie_path' => $web_root ?: '/',
                 'gc_maxlifetime' => self::$gc_maxlifetime,
                 'sid_bits_per_character' => self::$sid_bits_per_character,
                 'sid_length' => self::$sid_length,
                 'use_strict_mode' => self::$use_strict_mode,
                 'use_cookies' => self::$use_cookies,
-                'use_only_cookies' => self::$use_only_cookies
+                'use_only_cookies' => self::$use_only_cookies,
             ]);
         } else {
             session_start([
+                'read_and_close' => $sessionReadOnly,
                 'name' => 'OpenEMR',
                 'cookie_httponly' => false,
-                'cookie_path' => $web_root ? $web_root : '/',
+                'cookie_path' => $web_root ?: '/',
                 'gc_maxlifetime' => self::$gc_maxlifetime,
                 'sid_bits_per_character' => self::$sid_bits_per_character,
                 'sid_length' => self::$sid_length,
@@ -78,6 +80,31 @@ class SessionUtil
                 'use_only_cookies' => self::$use_only_cookies
             ]);
         }
+    }
+
+    public static function setSession($session_key_or_array, $session_value = null): void
+    {
+        self::coreSessionStart($GLOBALS['webroot'], false);
+        if (is_array($session_key_or_array)) {
+            foreach ($session_key_or_array as $key => $value) {
+                $_SESSION[$key] = $value;
+            }
+        } else {
+            $_SESSION[$session_key_or_array] = $session_value;
+        }
+        session_write_close();
+    }
+
+    public static function setUnsetSession($setArray, $unsetArray): void
+    {
+        self::coreSessionStart($GLOBALS['webroot'], false);
+        foreach ($setArray as $key => $value) {
+            $_SESSION[$key] = $value;
+        }
+        foreach ($unsetArray as $value) {
+            unset($_SESSION[$value]);
+        }
+        session_write_close();
     }
 
     public static function coreSessionDestroy()
