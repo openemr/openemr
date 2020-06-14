@@ -99,6 +99,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools dev-reset'
       ```
+        - When running setup.php, need to use `mysql` for 'Server Host', `root` for 'Root Password', and `%` for 'User Hostname'.
     - To reset and reinstall OpenEMR:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools dev-reset-install'
@@ -107,6 +108,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools dev-reset-install-demodata'
       ```
+        - hint: this is also a great way to test any changes a developer has made to the sql upgrade stuff (ie. such as sql/5_0_2-to-6_0_0_upgrade.sql)
 11. Developer tools to turn on and turn off support for multisite feature.
     - Turn on support for multisite:
       ```sh
