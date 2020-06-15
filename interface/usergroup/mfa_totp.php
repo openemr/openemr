@@ -1,4 +1,5 @@
 <?php
+
 /**
  * App Based TOTP Support
  *
@@ -13,7 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
-
+// Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
+$sessionAllowWrite = true;
 require_once('../globals.php');
 require_once("$srcdir/classes/Totp.class.php");
 require_once("$srcdir/options.inc.php");
@@ -52,7 +54,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
             window.location.href = 'mfa_registrations.php';
         }
 
-        $(function() {
+        $(function () {
             $('#clearPass').focus();
         });
     </script>
@@ -139,7 +141,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             }
 
                             // Redirect back to step 1 if user password is incorrect
-                            if (!(new AuthUtils)->confirmUserPassword($_SESSION['authUser'], $_POST['clearPass'])) {
+                            if (!(new AuthUtils())->confirmPassword($_SESSION['authUser'], $_POST['clearPass'])) {
                                 header("Location: mfa_totp.php?action=reg1&error=auth");
                                 exit();
                             }

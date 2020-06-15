@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Facility user-specific settings.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -56,15 +56,15 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
 
     <title><?php echo xlt("Facility Specific User Information"); ?></title>
 
-    <?php Header::setupHeader(['common','jquery-ui']); ?>
+    <?php Header::setupHeader(['common']); ?>
 
-    <script type="text/javascript">
+    <script>
         function refreshme() {
             top.restoreSession();
             document.location.reload();
         }
 
-        $(function(){
+        $(function () {
             $(".small_modal").on('click', function(e) {
                 e.preventDefault();e.stopPropagation();
                 dlgopen('', '', 500, 200, '', '', {
@@ -88,8 +88,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
     // Collect all facilities and store them in an array
     $f_res = sqlStatement("select * from `facility` order by `name`");
     $f_arr = array();
-    for ($i=0; $row=sqlFetchArray($f_res); $i++) {
-        $f_arr[$i]=$row;
+    for ($i = 0; $row = sqlFetchArray($f_res); $i++) {
+        $f_arr[$i] = $row;
     }
 
     // Collect layout information and store them in an array
@@ -97,8 +97,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
                           "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
                           "ORDER BY group_id, seq");
     $l_arr = array();
-    for ($i=0; $row=sqlFetchArray($l_res); $i++) {
-        $l_arr[$i]=$row;
+    for ($i = 0; $row = sqlFetchArray($l_res); $i++) {
+        $l_arr[$i] = $row;
     }
     ?>
 

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRContract;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRContract;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -352,7 +354,7 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['party'])) {
@@ -361,7 +363,7 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
                         $this->addParty($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"party" must be array of objects or null, '.gettype($data['party']).' seen.');
+                    throw new \InvalidArgumentException('"party" must be array of objects or null, ' . gettype($data['party']) . ' seen.');
                 }
             }
             if (isset($data['topic'])) {
@@ -379,7 +381,7 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
                         $this->addDecisionMode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"decisionMode" must be array of objects or null, '.gettype($data['decisionMode']).' seen.');
+                    throw new \InvalidArgumentException('"decisionMode" must be array of objects or null, ' . gettype($data['decisionMode']) . ' seen.');
                 }
             }
             if (isset($data['answer'])) {
@@ -388,7 +390,7 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
                         $this->addAnswer($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"answer" must be array of objects or null, '.gettype($data['answer']).' seen.');
+                    throw new \InvalidArgumentException('"answer" must be array of objects or null, ' . gettype($data['answer']) . ' seen.');
                 }
             }
             if (isset($data['text'])) {
@@ -400,7 +402,7 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
                         $this->addLinkId($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"linkId" must be array of objects or null, '.gettype($data['linkId']).' seen.');
+                    throw new \InvalidArgumentException('"linkId" must be array of objects or null, ' . gettype($data['linkId']) . ' seen.');
                 }
             }
             if (isset($data['securityLabelNumber'])) {
@@ -409,11 +411,11 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
                         $this->addSecurityLabelNumber($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"securityLabelNumber" must be array of objects or null, '.gettype($data['securityLabelNumber']).' seen.');
+                    throw new \InvalidArgumentException('"securityLabelNumber" must be array of objects or null, ' . gettype($data['securityLabelNumber']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

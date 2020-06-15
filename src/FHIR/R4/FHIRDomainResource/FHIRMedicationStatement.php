@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -577,7 +579,7 @@ class FHIRMedicationStatement extends FHIRDomainResource implements \JsonSeriali
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['basedOn'])) {
@@ -586,7 +588,7 @@ class FHIRMedicationStatement extends FHIRDomainResource implements \JsonSeriali
                         $this->addBasedOn($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"basedOn" must be array of objects or null, '.gettype($data['basedOn']).' seen.');
+                    throw new \InvalidArgumentException('"basedOn" must be array of objects or null, ' . gettype($data['basedOn']) . ' seen.');
                 }
             }
             if (isset($data['partOf'])) {
@@ -595,7 +597,7 @@ class FHIRMedicationStatement extends FHIRDomainResource implements \JsonSeriali
                         $this->addPartOf($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"partOf" must be array of objects or null, '.gettype($data['partOf']).' seen.');
+                    throw new \InvalidArgumentException('"partOf" must be array of objects or null, ' . gettype($data['partOf']) . ' seen.');
                 }
             }
             if (isset($data['status'])) {
@@ -607,7 +609,7 @@ class FHIRMedicationStatement extends FHIRDomainResource implements \JsonSeriali
                         $this->addStatusReason($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"statusReason" must be array of objects or null, '.gettype($data['statusReason']).' seen.');
+                    throw new \InvalidArgumentException('"statusReason" must be array of objects or null, ' . gettype($data['statusReason']) . ' seen.');
                 }
             }
             if (isset($data['category'])) {
@@ -643,7 +645,7 @@ class FHIRMedicationStatement extends FHIRDomainResource implements \JsonSeriali
                         $this->addDerivedFrom($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"derivedFrom" must be array of objects or null, '.gettype($data['derivedFrom']).' seen.');
+                    throw new \InvalidArgumentException('"derivedFrom" must be array of objects or null, ' . gettype($data['derivedFrom']) . ' seen.');
                 }
             }
             if (isset($data['reasonCode'])) {
@@ -652,7 +654,7 @@ class FHIRMedicationStatement extends FHIRDomainResource implements \JsonSeriali
                         $this->addReasonCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"reasonCode" must be array of objects or null, '.gettype($data['reasonCode']).' seen.');
+                    throw new \InvalidArgumentException('"reasonCode" must be array of objects or null, ' . gettype($data['reasonCode']) . ' seen.');
                 }
             }
             if (isset($data['reasonReference'])) {
@@ -661,7 +663,7 @@ class FHIRMedicationStatement extends FHIRDomainResource implements \JsonSeriali
                         $this->addReasonReference($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"reasonReference" must be array of objects or null, '.gettype($data['reasonReference']).' seen.');
+                    throw new \InvalidArgumentException('"reasonReference" must be array of objects or null, ' . gettype($data['reasonReference']) . ' seen.');
                 }
             }
             if (isset($data['note'])) {
@@ -670,7 +672,7 @@ class FHIRMedicationStatement extends FHIRDomainResource implements \JsonSeriali
                         $this->addNote($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"note" must be array of objects or null, '.gettype($data['note']).' seen.');
+                    throw new \InvalidArgumentException('"note" must be array of objects or null, ' . gettype($data['note']) . ' seen.');
                 }
             }
             if (isset($data['dosage'])) {
@@ -679,11 +681,11 @@ class FHIRMedicationStatement extends FHIRDomainResource implements \JsonSeriali
                         $this->addDosage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"dosage" must be array of objects or null, '.gettype($data['dosage']).' seen.');
+                    throw new \InvalidArgumentException('"dosage" must be array of objects or null, ' . gettype($data['dosage']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

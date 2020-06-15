@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Menu loader.
  *
@@ -18,7 +19,7 @@ use OpenEMR\Menu\MainMenuRole;
 $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
 $menu_restrictions = $menuMain->getMenu();
 ?>
-<script type="text/javascript">
+<script>
 
     function menu_entry(object)
     {

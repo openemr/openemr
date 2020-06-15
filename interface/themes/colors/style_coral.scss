@@ -1,16 +1,21 @@
 $colorname: "Coral";
 
-$darkest: #A5564B;
-$darker: #CE3E29;
-$dark: #ED7C6C;
-$mid: #F09689;
-$midpale: #F4B0A6;
-$pale: #F7CAC4;
-$midpalepale: #FBE4E1;
-$palepale: #FBE7E4;
-$palepurple: #E7E6F9;
-$paler: #FDF3F1;
-$midnightblue: #2F2F7D;
-$white: #FFFFFF;
+$darkest: #a5564b;
+$darker: #ce3e29;
+$dark: #ed7c6c;
+$mid: #f09689;
+$midpale: #f4b0a6;
+$pale: #f7cac4;
+$midpalepale: #fbe4e1;
+$palepale: #fbe7e4;
+$palepurple: #e7e6f9;
+$paler: #fdf3f1;
+$midnightblue: #2f2f7d;
+$white: #fff;
 
+// Enables responsive text for Bootstrap
+$enable-responsive-font-sizes: true;
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
 @import "../color_base";

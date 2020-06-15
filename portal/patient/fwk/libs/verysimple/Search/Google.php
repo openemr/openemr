@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Search */
 
 /**
@@ -76,7 +77,7 @@ class Google extends SearchEngine
         $rank->Query = $query;
         
         while ($rank->Position == 0 && $result_counter <= $maxresults) {
-            $current_page ++;
+            $current_page++;
             
             $result = $this->DoSearch($query, $result_counter, $page_size);
             
@@ -123,12 +124,12 @@ class Google extends SearchEngine
         $counter = 0;
         
         foreach ($result->resultElements as $element) {
-            $counter ++;
+            $counter++;
             // print "<div>$url :: $counter = ".$element->URL."</div>";
             $normalizedurl = str_replace("/", "\\/", $url);
             
             if ($rank->Position == 0 && preg_match("/$normalizedurl/i", $element->URL)) {
-                $rank->Position = ( int ) $counter;
+                $rank->Position = (int) $counter;
                 $rank->Title = $element->title;
                 $rank->Snippet = $element->snippet;
                 $rank->Url = $element->URL;
@@ -159,7 +160,7 @@ class Google extends SearchEngine
         $counter = 0;
         
         while ($continue) {
-            $counter ++;
+            $counter++;
             try {
                 $result = $this->_googleSoap($query, $start, $max, $filter, $restrict, $safe, $lr, $ie, $oe);
                 $continue = false;

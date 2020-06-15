@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php
  *
@@ -353,7 +354,7 @@ class ApplicationTable extends AbstractTableGateway
     * @param    Date format set in GLOBALS
     * @return   Date format in PHP
     **/
-    public function dateFormat($format = null)
+    public static function dateFormat($format = null)
     {
         if ($format == "0") {
             $date_format = 'yyyy/mm/dd';
@@ -405,7 +406,7 @@ class ApplicationTable extends AbstractTableGateway
 
         $output_date = implode($seperator_output, $output_date_arr);
 
-        $output_date = $temp[1] ? $output_date." ".$temp[1] : $output_date; //append the time, if exists, with the new formatted date
+        $output_date = $temp[1] ? $output_date . " " . $temp[1] : $output_date; //append the time, if exists, with the new formatted date
         return $output_date;
     }
 

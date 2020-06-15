@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2010 OpenEMR Support LLC
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -9,9 +10,9 @@
 exit;
 
 $backpic = "";
-$ignoreAuth=1;
+$ignoreAuth = 1;
 
-require_once(dirname(__FILE__)."/../../interface/globals.php");
+require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once($GLOBALS['srcdir'] . "/maviq_phone_api.php");
 require_once($GLOBALS['srcdir'] . "/reminders.php");
 
@@ -22,7 +23,7 @@ use OpenEMR\Core\Header;
 <html>
 <head>
 <?php Header::setupHeader(); ?>
-<link rel="stylesheet" href="batchcom.css" type="text/css">
+<link rel="stylesheet" href="batchcom.css">
 </head>
 <body class="body_top">
 <span class="title"><?php echo xlt('Patient Reminder Batch Job'); ?></span>

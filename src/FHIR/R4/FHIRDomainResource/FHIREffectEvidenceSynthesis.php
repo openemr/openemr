@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -954,7 +956,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['version'])) {
@@ -981,7 +983,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addContact($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"contact" must be array of objects or null, '.gettype($data['contact']).' seen.');
+                    throw new \InvalidArgumentException('"contact" must be array of objects or null, ' . gettype($data['contact']) . ' seen.');
                 }
             }
             if (isset($data['description'])) {
@@ -993,7 +995,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addNote($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"note" must be array of objects or null, '.gettype($data['note']).' seen.');
+                    throw new \InvalidArgumentException('"note" must be array of objects or null, ' . gettype($data['note']) . ' seen.');
                 }
             }
             if (isset($data['useContext'])) {
@@ -1002,7 +1004,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addUseContext($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"useContext" must be array of objects or null, '.gettype($data['useContext']).' seen.');
+                    throw new \InvalidArgumentException('"useContext" must be array of objects or null, ' . gettype($data['useContext']) . ' seen.');
                 }
             }
             if (isset($data['jurisdiction'])) {
@@ -1011,7 +1013,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addJurisdiction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"jurisdiction" must be array of objects or null, '.gettype($data['jurisdiction']).' seen.');
+                    throw new \InvalidArgumentException('"jurisdiction" must be array of objects or null, ' . gettype($data['jurisdiction']) . ' seen.');
                 }
             }
             if (isset($data['copyright'])) {
@@ -1032,7 +1034,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addTopic($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"topic" must be array of objects or null, '.gettype($data['topic']).' seen.');
+                    throw new \InvalidArgumentException('"topic" must be array of objects or null, ' . gettype($data['topic']) . ' seen.');
                 }
             }
             if (isset($data['author'])) {
@@ -1041,7 +1043,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addAuthor($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"author" must be array of objects or null, '.gettype($data['author']).' seen.');
+                    throw new \InvalidArgumentException('"author" must be array of objects or null, ' . gettype($data['author']) . ' seen.');
                 }
             }
             if (isset($data['editor'])) {
@@ -1050,7 +1052,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addEditor($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"editor" must be array of objects or null, '.gettype($data['editor']).' seen.');
+                    throw new \InvalidArgumentException('"editor" must be array of objects or null, ' . gettype($data['editor']) . ' seen.');
                 }
             }
             if (isset($data['reviewer'])) {
@@ -1059,7 +1061,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addReviewer($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"reviewer" must be array of objects or null, '.gettype($data['reviewer']).' seen.');
+                    throw new \InvalidArgumentException('"reviewer" must be array of objects or null, ' . gettype($data['reviewer']) . ' seen.');
                 }
             }
             if (isset($data['endorser'])) {
@@ -1068,7 +1070,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addEndorser($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"endorser" must be array of objects or null, '.gettype($data['endorser']).' seen.');
+                    throw new \InvalidArgumentException('"endorser" must be array of objects or null, ' . gettype($data['endorser']) . ' seen.');
                 }
             }
             if (isset($data['relatedArtifact'])) {
@@ -1077,7 +1079,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addRelatedArtifact($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"relatedArtifact" must be array of objects or null, '.gettype($data['relatedArtifact']).' seen.');
+                    throw new \InvalidArgumentException('"relatedArtifact" must be array of objects or null, ' . gettype($data['relatedArtifact']) . ' seen.');
                 }
             }
             if (isset($data['synthesisType'])) {
@@ -1107,7 +1109,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addResultsByExposure($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"resultsByExposure" must be array of objects or null, '.gettype($data['resultsByExposure']).' seen.');
+                    throw new \InvalidArgumentException('"resultsByExposure" must be array of objects or null, ' . gettype($data['resultsByExposure']) . ' seen.');
                 }
             }
             if (isset($data['effectEstimate'])) {
@@ -1116,7 +1118,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addEffectEstimate($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"effectEstimate" must be array of objects or null, '.gettype($data['effectEstimate']).' seen.');
+                    throw new \InvalidArgumentException('"effectEstimate" must be array of objects or null, ' . gettype($data['effectEstimate']) . ' seen.');
                 }
             }
             if (isset($data['certainty'])) {
@@ -1125,11 +1127,11 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
                         $this->addCertainty($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"certainty" must be array of objects or null, '.gettype($data['certainty']).' seen.');
+                    throw new \InvalidArgumentException('"certainty" must be array of objects or null, ' . gettype($data['certainty']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

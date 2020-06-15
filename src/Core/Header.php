@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OpenEMR <https://open-emr.org>.
  *
@@ -164,7 +165,7 @@ class Header
     {
         foreach ($map as $k => $opts) {
             $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
-            $allowNoLoad= (isset($opts['allowNoLoad'])) ? $opts['allowNoLoad'] : false;
+            $allowNoLoad = (isset($opts['allowNoLoad'])) ? $opts['allowNoLoad'] : false;
             $alreadyBuilt = (isset($opts['alreadyBuilt'])) ? $opts['alreadyBuilt'] : false;
             $loadInFile = (isset($opts['loadInFile'])) ? $opts['loadInFile'] : false;
             $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
@@ -191,7 +192,7 @@ class Header
                     }
                 }
 
-                if ($rtl && $_SESSION['language_direction'] == 'rtl') {
+                if ($rtl && !empty($_SESSION['language_direction']) && $_SESSION['language_direction'] == 'rtl') {
                     $tmpRtl = self::buildAsset($rtl, $alreadyBuilt);
                     foreach ($tmpRtl['scripts'] as $s) {
                         self::$scripts[] = $s;
@@ -300,7 +301,7 @@ class Header
     private static function createElement($path, $type, $alreadyBuilt)
     {
 
-        $script = "<script type=\"text/javascript\" src=\"%path%\"></script>\n";
+        $script = "<script src=\"%path%\"></script>\n";
         $link = "<link rel=\"stylesheet\" href=\"%path%\" type=\"text/css\">\n";
 
         $template = ($type == 'script') ? $script : $link;
@@ -348,6 +349,6 @@ class Header
     private static function getCurrentFile()
     {
         //remove web root and query string
-        return str_replace($GLOBALS['webroot'].'/', '', strtok($_SERVER["REQUEST_URI"], '?'));
+        return str_replace($GLOBALS['webroot'] . '/', '', strtok($_SERVER["REQUEST_URI"], '?'));
     }
 }

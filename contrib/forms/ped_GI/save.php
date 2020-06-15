@@ -1,4 +1,5 @@
 <?php
+
 //
 
 require_once("../../globals.php");
@@ -17,8 +18,8 @@ if ($_GET["mode"] == "new") {
 	groupname = ?,
 	user = ?,
 	authorized = ?,
-	activity =1,     
-	date = NOW(), 
+	activity =1,
+	date = NOW(),
 	diarrhea = ?,
 	with_every_bowel_movement = ?,
 	after_every_meal = ?,
@@ -28,10 +29,10 @@ if ($_GET["mode"] == "new") {
 	vomits = ?,
 	duration = ?,
 	projectile = ?,
-	more_often_than_2_hours = ?, 
-	vomit_after_every_meal = ?, 
-	blood_in_vomitus = ?,  
-	taking_medication = ?, 
+	more_often_than_2_hours = ?,
+	vomit_after_every_meal = ?,
+	blood_in_vomitus = ?,
+	taking_medication = ?,
 	oral_rehydration = ?,
 	eating_solid_food = ?,
 	fever = ?,
@@ -55,7 +56,6 @@ if ($_GET["mode"] == "new") {
     $_POST["siblings_affected"], $_POST["immunization_up_to_date"], $_POST["notes"], $id));
 }
 
-$_SESSION["encounter"] = $encounter;
 
 formHeader("Redirecting....");
 formJump();

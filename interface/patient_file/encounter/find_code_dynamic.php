@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Interactive code finder.
  * For DataTables documentation see: http://legacy.datatables.net/
@@ -44,21 +45,16 @@ $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
 <head>
 <title><?php echo xlt('Code Finder'); ?></title>
 
-<?php Header::setupHeader(['opener']); ?>
+<?php Header::setupHeader(['opener', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-colreorder']); ?>
 
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt/css/jquery.dataTables.css" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt/css/colReorder.dataTables.css" type="text/css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net/js/jquery.dataTables.js"></script>
-
-<script language="JavaScript">
+<script>
 
 var oTable;
 
 // Keeps track of which items have been selected during this session.
 var oChosenIDs = {};
 
-$(function() {
+$(function () {
 
  // Initializing the DataTable.
  oTable = $('#my_data_table').dataTable({
@@ -77,9 +73,9 @@ $(function() {
 <?php if ($what == 'codes') { ?>
     aoData.push({"name": "codetype", "value": document.forms[0].form_code_type.value});
     aoData.push({"name": "inactive", "value": (document.forms[0].form_include_inactive.checked ? 1 : 0)});
-<?php } else if ($what == 'fields') { ?>
+<?php } elseif ($what == 'fields') { ?>
     aoData.push({"name": "source", "value": <?php echo js_escape($source); ?>});
-<?php } else if ($what == 'groups') { ?>
+<?php } elseif ($what == 'groups') { ?>
     aoData.push({"name": "layout_id", "value": <?php echo js_escape($layout_id); ?>});
 <?php } ?>
   },
@@ -117,11 +113,11 @@ $(function() {
   // this.id is of the form "CID|jsonstring".
   var codesel = jobj['code'].split('|');
   selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description']);
-<?php } else if ($what == 'fields') { ?>
+<?php } elseif ($what == 'fields') { ?>
   selectField(jobj);
-<?php } else if ($what == 'lists') { ?>
+<?php } elseif ($what == 'lists') { ?>
   SelectList(jobj);
-<?php } else if ($what == 'groups') { ?>
+<?php } elseif ($what == 'groups') { ?>
   SelectItem(jobj);
 <?php } ?>
 
@@ -173,7 +169,7 @@ function delcode() {
  }
 }
 
-<?php } else if ($what == 'fields') { ?>
+<?php } elseif ($what == 'fields') { ?>
 function selectField(jobj) {
   if (opener.closed || ! opener.SetField) {
     alert('The destination form was closed; I cannot act on your selection.');
@@ -203,7 +199,7 @@ function newField() {
   });
 }
 
-<?php } else if ($what == 'lists') { ?>
+<?php } elseif ($what == 'lists') { ?>
 function SelectList(jobj) {
   if (opener.closed || ! opener.SetList)
     alert('The destination form was closed; I cannot act on your selection.');
@@ -213,7 +209,7 @@ function SelectList(jobj) {
   return false;
 };
 
-<?php } else if ($what == 'groups') { ?>
+<?php } elseif ($what == 'groups') { ?>
 var SelectItem = function(jobj) {
   if (opener.closed)
     alert('The destination form was closed; I cannot act on your selection.');
@@ -230,76 +226,85 @@ var SelectItem = function(jobj) {
 </head>
 
 <body id="codes_search" class="body_top">
+    <div class="container-fluid">
+        <?php
+            $string_target_element = empty($target_element) ? '?' : "?target_element=" . attr_url($target_element) . "&";
+        ?>
 
-<?php
-$string_target_element = empty($target_element) ? '?' : "?target_element=" . attr_url($target_element) . "&";
-?>
-
-<form method='post' name='theform'>
-<?php
-echo "<p>\n";
-if ($what == 'codes') {
-    if (isset($allowed_codes)) {
-        if (count($allowed_codes) == 1) {
-            echo "<input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly>\n";
-        } else {
-            echo "<select name='form_code_type' onchange='oTable.fnDraw()'>\n";
-            foreach ($allowed_codes as $code) {
-                echo " <option value='" . attr($code) . "'>" . xlt($code_types[$code]['label']) . "</option>\n";
+        <form method='post' name='theform'>
+            <?php
+            echo "<div class='form-group row mb-3'>\n";
+            if ($what == 'codes') {
+                if (isset($allowed_codes)) {
+                    if (count($allowed_codes) == 1) {
+                        echo "<div class='col'><input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly /></div>\n";
+                    } else {
+                        echo "<div class='col'><select name='form_code_type' onchange='oTable.fnDraw()'>\n";
+                        foreach ($allowed_codes as $code) {
+                            echo " <option value='" . attr($code) . "'>" . xlt($code_types[$code]['label']) . "</option>\n";
+                        }
+                        echo "</select></div>\n";
+                    }
+                } else {
+                    echo "<div class='col'><select class='form-control' name='form_code_type' onchange='oTable.fnDraw()'>\n";
+                    foreach ($code_types as $key => $value) {
+                        echo " <option value='" . attr($key) . "'";
+                        echo ">" . xlt($value['label']) . "</option>\n";
+                    }
+                    echo " <option value='PROD'";
+                    echo ">" . xlt("Product") . "</option>\n";
+                    echo "   </select></div>\n";
+                }
+                echo "\n";
+                echo "<div class='col'>";
+                echo "<input type='checkbox' name='form_include_inactive' value='1' onclick='oTable.fnDraw()' />" .
+                xlt('Include Inactive') . "\n";
+                echo "\n";
+                echo "<button class='btn btn-secondary btn-sm btn-delete' value='" . xla('Delete') . "' onclick='delcode()'>" . xla('Delete') . "</button>\n";
+                echo "<select name='form_delcodes'>\n";
+                echo " <option value=''>" . xlt('All') . "</option>\n";
+                echo "</select>\n";
+                echo "\n";
+                echo "<button class='btn btn-secondary btn-sm btn-cancel' value='" . xla('Close') . "' onclick='dlgclose()'>" . xla('Close') . "</button>\n";
+                echo "</div>";
             }
-            echo "</select>\n";
-        }
-    } else {
-        echo "<select name='form_code_type' onchange='oTable.fnDraw()'>\n";
-        foreach ($code_types as $key => $value) {
-            echo " <option value='" . attr($key) . "'";
-            echo ">" . xlt($value['label']) . "</option>\n";
-        }
-        echo " <option value='PROD'";
-        echo ">" . xlt("Product") . "</option>\n";
-        echo "   </select>\n";
-    }
-    echo "&nbsp;&nbsp;\n";
-    echo "<input type='checkbox' name='form_include_inactive' value='1' onclick='oTable.fnDraw()' />" .
-    xlt('Include Inactive') . "\n";
-    echo "&nbsp;&nbsp;\n";
-    echo "<input type='button' value='" . xla('Delete') . "' onclick='delcode()' />\n";
-    echo "<select name='form_delcodes'>\n";
-    echo " <option value=''>" . xlt('All') . "</option>\n";
-    echo "</select>\n";
-    echo "&nbsp;&nbsp;\n";
-    echo "<input type='button' value='" . xla('Close') . "' onclick='dlgclose()' />\n";
-}
-if ($what == 'lists') {
-    echo "<input type='button' value='" . xla('Delete') . "' onclick='SelectList({\"code\":\"\"})' />\n";
-}
-echo "</p>\n";
-?>
+            if ($what == 'lists') {
+                echo "<button class='btn btn-secondary btn-sm btn-delete' value='" . xla('Delete') . "' onclick='SelectList({\"code\":\"\"})'>" . xla('Delete') . "</button>\n";
+            }
+            echo "</div>\n";
+            ?>
 
-<table id="my_data_table" class="table table-striped table-hover table-sm" style="width: 90%;">
- <thead>
-  <tr>
-   <th><?php echo xlt('Code'); ?></th>
-   <th><?php echo xlt('Description'); ?></th>
-  </tr>
- </thead>
- <tbody>
-  <tr>
-   <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-   <td colspan="2" class="dataTables_empty">...</td>
-  </tr>
- </tbody>
-</table>
+        <div class="table-responsive">
+            <table id="my_data_table" class="table table-striped table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th><?php echo xlt('Code'); ?></th>
+                        <th><?php echo xlt('Description'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
+                        <td colspan="2" class="dataTables_empty">...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-<?php if ($what == 'fields' && $source == 'E') { ?>
-<center>
-<p>
-<input type='text' name='new_field_id' size='20' />&nbsp;
-<input type='button' value='<?php echo xla('Or create this new field ID') ?>' onclick='newField()' />
-</p>
-</center>
-<?php } ?>
+        <?php if ($what == 'fields' && $source == 'E') { ?>
+            <div class="row">
+                <div class="col">
+                    <input type='text' class="form-control" name='new_field_id' size='20' />
+                </div>
+                <div class="col">
+                    <button class="btn btn-secondary" value='<?php echo xla('Or create this new field ID') ?>' onclick='newField()'>
+                        <?php echo xla('Or create this new field ID') ?>
+                    </button>
+                </div>
+            </div>
+        <?php } ?>
 
-</form>
+        </form>
+    </div>
 </body>
 </html>

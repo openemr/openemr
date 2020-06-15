@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/view/summary.php
  *
@@ -13,8 +14,8 @@
 
 $rule = $viewBean->rule ?>
 
-<script language="javascript" src="<?php js_src('edit.js') ?>"></script>
-<script type="text/javascript">
+<script src="<?php js_src('edit.js') ?>"></script>
+<script>
     var edit = new rule_edit( {});
     edit.init();
 </script>
@@ -46,7 +47,7 @@ $rule = $viewBean->rule ?>
     <span class="left_col colhead" data-fld="fld_ruleTypes[]"><?php echo xlt('Type'); ?></span>
     <span class="end_col">
         <?php foreach (RuleType::values() as $type) {?>
-        <input name="fld_ruleTypes[]" value="<?php echo attr($type); ?>" type="checkbox" <?php echo $rule->hasRuleType(RuleType::from($type)) ? "CHECKED": "" ?>>
+        <input name="fld_ruleTypes[]" value="<?php echo attr($type); ?>" type="checkbox" <?php echo $rule->hasRuleType(RuleType::from($type)) ? "CHECKED" : "" ?>>
             <?php echo text(RuleType::from($type)->lbl); ?>
         <?php } ?>
     </span>

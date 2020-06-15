@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * AMC 314g_1_2_14 STAGE2 Numerator
@@ -27,7 +28,7 @@ class AMC_314g_1_2_14_STG2_Numerator implements AmcFilterIF
     {
         return "AMC_314g_1_2_14_STG2 Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Need to meet following criteria:
@@ -35,15 +36,17 @@ class AMC_314g_1_2_14_STG2_Numerator implements AmcFilterIF
         //  -Patient permits having access to the patient portal.
         //  -Patient has an account on the offsite patient portal.
 
-        if ($GLOBALS['portal_offsite_enable'] != 1) {
-            return false;
-        }
+        // This now always returns false since there is no offsite patient portal
+        //  TODO - For MU3, will need to use onsite patient portal mechanism
+        return false;
 
         $portal_permission = sqlQuery("SELECT `allow_patient_portal` FROM `patient_data` WHERE pid = ?", array($patient->id));
         if ($portal_permission['allow_patient_portal'] != "YES") {
             return false;
         }
-                
+
+        // Note below query will break if run since patient_access_offsite no longer exists
+        //  (will never get here since returning false above)
         $portalQry = "SELECT count(*) as cnt FROM `patient_access_offsite` WHERE pid=?";
         $check = sqlQuery($portalQry, array($patient->id));
         if ($check['cnt'] > 0) {

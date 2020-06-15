@@ -1,4 +1,5 @@
 <?php
+
 /**
  * clinical reminders gui
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2011 Ensofttek, LLC
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -95,7 +95,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
             }
             ?>
           <tr>
-            <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $plan['id']); ?></td>
+            <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $plan['id']); ?></td>
             <td align="center">
                 <?php
 
@@ -107,7 +107,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
                 } else {
                     if ($patient_plan['normal_flag'] == "1") {
                         $select = "on";
-                    } else if ($patient_plan['normal_flag'] == "0") {
+                    } elseif ($patient_plan['normal_flag'] == "0") {
                         $select = "off";
                     } else { // $patient_rule['normal_flag'] == NULL
                         $select = "default";
@@ -151,7 +151,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         </tr>
         <?php foreach ($rules_default as $rule) { ?>
           <tr>
-            <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $rule['id']); ?></td>
+            <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $rule['id']); ?></td>
             <td align="center">
                 <?php
                 $patient_rule = collect_rule($rule['id'], $patient_id);
@@ -161,7 +161,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
                 } else {
                     if ($patient_rule['passive_alert_flag'] == "1") {
                         $select = "on";
-                    } else if ($patient_rule['passive_alert_flag'] == "0") {
+                    } elseif ($patient_rule['passive_alert_flag'] == "0") {
                         $select = "off";
                     } else { // $patient_rule['passive_alert_flag'] == NULL
                         $select = "default";
@@ -192,7 +192,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
                 } else {
                     if ($patient_rule['active_alert_flag'] == "1") {
                         $select = "on";
-                    } else if ($patient_rule['active_alert_flag'] == "0") {
+                    } elseif ($patient_rule['active_alert_flag'] == "0") {
                         $select = "off";
                     } else { // $patient_rule['active_alert_flag'] == NULL
                         $select = "default";
@@ -224,7 +224,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 </div>
 
 <script>
-  $(function() {
+  $(function () {
 
     tabbify();
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for implementing tabs. Currently based on jQuery UI Tabs.
  *
@@ -70,7 +71,7 @@ EOD;
             .tabs { direction: rtl; }
             .tabs .tabs-nav li.tabs-tab {float: right; }
             .tabs .tabs-nav li a { float: right; }
-                
+
 EOD;
             }
         }
@@ -83,22 +84,22 @@ EOD;
   cursor: pointer;
 }
 #{$this->tabsid} li .icon-close:hover {
-  color: red!important;
+  color: var(--danger) !important;
 }
 .tabs-anchor {
   margin-right: 3px;
-  color: white;
+  color: var(--white);
   display: block;
-  background: grey;
+  background: var(--gray);
   text-decoration: none !important;
 }
 .tabs-anchor:hover {
-  color: white;
+  color: var(--white);
   text-decoration: none !important;
 }
 a.active {
-  color: white ;
-  background: #007FFF;
+  color: var(--white);
+  background: var(--primary);
 }
 </style>
 EOD;
@@ -113,9 +114,13 @@ EOD;
         $s = '';
         if (!defined('INCLUDED_TW_ONETIME_JS')) {
             define('INCLUDED_TW_ONETIME_JS', true);
+            $modalTitle = xla("Warning");
+            $modalContent = xla("Do you want to close the tabs?");
+            $modalCancel = xla("Cancel");
+            $modalClose = xla("Close");
+            $message = xlj("Fee sheet tab is already opened");
             $s .= <<<EOD
 <script>
-
 // We use one object to contain an object of context for each tab set.
 // Most windows will have only one tab set but we cater to a more general case.
 // This avoids excessive pollution of the window's name space.
@@ -132,9 +137,32 @@ function twSetup(tabsid) {
   twObject[tabsid].counter = 100;
   // Close icon: removing the tab on click
   nav.on("click", "span.icon-close", function() {
-    var panelId = $(this).parent().attr("href").substring(1);
-    top.restoreSession();
-    twCloseTab(tabsid, panelId);
+    const self = $(this);
+    const closeTab = function() {
+        const panelId = self.parent().attr("href").substring(1);
+        top.restoreSession();
+        twCloseTab(tabsid, panelId);
+    }
+
+    const closeSoap = function() {
+        top.isSoapEdit = false;
+        closeTab();
+    }
+
+    if (self[0].id === 'SOAP' && top.isSoapEdit === true) {
+        dlgopen('', '', 450, 125, '', '<div class="text-danger">$modalTitle</div>', {
+            type: 'Alert',
+            html: '<p>$modalContent</p>',
+            buttons: [
+                {text: '$modalCancel', close: true, style: 'default btn-sm'},
+                {text: '$modalClose', close: true, style: 'danger btn-sm', click: closeSoap},
+            ],
+            allowDrag: false,
+            allowResize: false,
+        });
+    } else {
+        closeTab();
+    }
   });
 }
 
@@ -153,7 +181,7 @@ function nextPanelId(tabsid){
 function twAddTab(tabsid, label, content) {
   var oldcount = twObject[tabsid].nav.find(".nav-tabs li").length;
   var panelId = nextPanelId(tabsid);
-  var li = "<li class='tabs-tabs'><a data-toggle='tab' class='tabs-anchor' href='#" + panelId + "'>" + label + "<span aria-label='close' class='icon-close' role='close'>X</span></a> </li>";
+  var li = "<li class='tabs-tabs'><a data-toggle='tab' class='tabs-anchor' href='#" + panelId + "'>" + label + "<span aria-label='close' class='icon-close' id='" + label + "' role='close'>&times;</span></a> </li>";
   twObject[tabsid].nav.append(li);
   top.restoreSession();
   twObject[tabsid].content.append("<div class='tab-pane tabs-panel' id='" + panelId + "'>" + content + "</div>");
@@ -162,16 +190,36 @@ function twAddTab(tabsid, label, content) {
   return panelId;
 }
 
+var execute = false;
+var temp;
 // Add a new tab using an iframe loading a specified URL.
 function twAddFrameTab(tabsid, label, url) {
   var panelId = nextPanelId(tabsid);
   top.restoreSession();
-  twAddTab(
-    tabsid,
-    label,
-    "<iframe name='" + panelId + "' frameborder='0' style='height:95.3%;width:100%;' src='" + url + "'>Oops</iframe>"
-  );
-  return panelId;
+  if (label === "Fee Sheet") {
+    if (!execute) {
+      twAddTab(
+        tabsid,
+        label,
+        "<iframe name='" + panelId + "' frameborder='0' class='w-100' style='height:94.5%' src='" + url + "'>Oops</iframe>"
+      );
+      execute = true;
+      temp = panelId;
+      return panelId;
+    } else {
+      asyncAlertMsg($message, 3000, 'warning','') ;
+      return false;
+    }
+  } else {
+    twAddTab(
+      tabsid,
+      label,
+      "<iframe name='" + panelId + "' frameborder='0' class='w-100' style='height:94.5%' src='" + url + "'>Oops</iframe>"
+    );
+    return panelId;
+  }
+  
+  
 }
 
 // Remove the specified tab from the specified tab set.
@@ -181,6 +229,10 @@ function twCloseTab(tabsid, panelId) {
   twObject[tabsid].content.find("#" + panelId).remove();
   top.restoreSession();
   activateTab(lastTabId);
+
+  if(panelId === temp){
+    execute = false;
+  }
 }
 
 </script>
@@ -199,18 +251,20 @@ EOD;
         $i = 0;
         foreach ($this->tabs as $val) {
             ++$i;
-            $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor active' href='#{$this->tabsid}-$i'>" . text($val['title']) . "</a>";
+            $activateTab = count($this->tabs) == $i ? 'active' : '';
+            $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor {$activateTab}' href='#{$this->tabsid}-$i'>" . text($val['title']);
             if ($val['closeable']) {
-                $s .= " <span class='icon icon-close' role='presentation'>" . xlt('Remove Tab') . "</span>";
+                $s .= " <span aria-label='close' class='icon-close' role='close'>&times;</span>";
             }
-            $s .= "</li>\n";
+            $s .= "</a> </li>\n";
         }
         $s .= "</ul>\n";
         $s .= "<div class='tab-content' id='{$this->tabsid}-tabs'>";
         $i = 0;
         foreach ($this->tabs as $val) {
             ++$i;
-            $s .= "<div class='tab-pane tabs-panel active' id='{$this->tabsid}-$i'>\n";
+            $activateTab = count($this->tabs) == $i ? 'active' : '';
+            $s .= "<div class='tab-pane tabs-panel {$activateTab}' id='{$this->tabsid}-$i'>\n";
             $s .= $val['content'];
             $s .= "</div>\n";
         }

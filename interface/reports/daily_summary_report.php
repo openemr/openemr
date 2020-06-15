@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  Daily Summary Report. (/interface/reports/daily_summary_report.php)
  *
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once "$srcdir/options.inc.php";
@@ -44,7 +44,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
 
         <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-        <script type="text/javascript">
+        <script>
             function submitForm() {
                 var fromDate = $("#form_from_date").val();
                 var toDate = $("#form_to_date").val();
@@ -67,7 +67,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                 }
             }
 
-            $( document ).ready(function(){
+            $(function () {
                 $('.datepicker').datetimepicker({
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -379,7 +381,7 @@ class FHIREndpoint extends FHIRDomainResource implements \JsonSerializable
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['status'])) {
@@ -400,7 +402,7 @@ class FHIREndpoint extends FHIRDomainResource implements \JsonSerializable
                         $this->addContact($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"contact" must be array of objects or null, '.gettype($data['contact']).' seen.');
+                    throw new \InvalidArgumentException('"contact" must be array of objects or null, ' . gettype($data['contact']) . ' seen.');
                 }
             }
             if (isset($data['period'])) {
@@ -412,7 +414,7 @@ class FHIREndpoint extends FHIRDomainResource implements \JsonSerializable
                         $this->addPayloadType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"payloadType" must be array of objects or null, '.gettype($data['payloadType']).' seen.');
+                    throw new \InvalidArgumentException('"payloadType" must be array of objects or null, ' . gettype($data['payloadType']) . ' seen.');
                 }
             }
             if (isset($data['payloadMimeType'])) {
@@ -421,7 +423,7 @@ class FHIREndpoint extends FHIRDomainResource implements \JsonSerializable
                         $this->addPayloadMimeType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"payloadMimeType" must be array of objects or null, '.gettype($data['payloadMimeType']).' seen.');
+                    throw new \InvalidArgumentException('"payloadMimeType" must be array of objects or null, ' . gettype($data['payloadMimeType']) . ' seen.');
                 }
             }
             if (isset($data['address'])) {
@@ -433,11 +435,11 @@ class FHIREndpoint extends FHIRDomainResource implements \JsonSerializable
                         $this->addHeader($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"header" must be array of objects or null, '.gettype($data['header']).' seen.');
+                    throw new \InvalidArgumentException('"header" must be array of objects or null, ' . gettype($data['header']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExplanationOfBenefit;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExplanationOfBenefit;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -442,7 +444,7 @@ class FHIRExplanationOfBenefitSubDetail extends FHIRBackboneElement implements \
                         $this->addModifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, '.gettype($data['modifier']).' seen.');
+                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, ' . gettype($data['modifier']) . ' seen.');
                 }
             }
             if (isset($data['programCode'])) {
@@ -451,7 +453,7 @@ class FHIRExplanationOfBenefitSubDetail extends FHIRBackboneElement implements \
                         $this->addProgramCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"programCode" must be array of objects or null, '.gettype($data['programCode']).' seen.');
+                    throw new \InvalidArgumentException('"programCode" must be array of objects or null, ' . gettype($data['programCode']) . ' seen.');
                 }
             }
             if (isset($data['quantity'])) {
@@ -472,7 +474,7 @@ class FHIRExplanationOfBenefitSubDetail extends FHIRBackboneElement implements \
                         $this->addUdi($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"udi" must be array of objects or null, '.gettype($data['udi']).' seen.');
+                    throw new \InvalidArgumentException('"udi" must be array of objects or null, ' . gettype($data['udi']) . ' seen.');
                 }
             }
             if (isset($data['noteNumber'])) {
@@ -481,7 +483,7 @@ class FHIRExplanationOfBenefitSubDetail extends FHIRBackboneElement implements \
                         $this->addNoteNumber($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"noteNumber" must be array of objects or null, '.gettype($data['noteNumber']).' seen.');
+                    throw new \InvalidArgumentException('"noteNumber" must be array of objects or null, ' . gettype($data['noteNumber']) . ' seen.');
                 }
             }
             if (isset($data['adjudication'])) {
@@ -490,11 +492,11 @@ class FHIRExplanationOfBenefitSubDetail extends FHIRBackboneElement implements \
                         $this->addAdjudication($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"adjudication" must be array of objects or null, '.gettype($data['adjudication']).' seen.');
+                    throw new \InvalidArgumentException('"adjudication" must be array of objects or null, ' . gettype($data['adjudication']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

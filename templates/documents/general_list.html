@@ -31,10 +31,10 @@ border-radius: 4px 0 0 4px!important;
 }
 </style>
 {/literal}
-<script type="text/javascript" src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js"></script>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js"></script>
+<script src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js"></script>
+<script src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js"></script>
 
-<script type="text/javascript">
+<script>
 	function callTemplateModule() {literal}{{/literal}
 		top.restoreSession();
 		let tele  = document.getElementById("template_filename");
@@ -100,7 +100,7 @@ border-radius: 4px 0 0 4px!important;
 		</div>
 	</div>
 </div><!--end of container div-->
-<script type="text/javascript">
+<script>
 var curpid = {$cur_pid|js_escape};
 var newVersion= {$is_new|js_escape};
 var demoPid = {$demo_pid|js_escape};
@@ -112,7 +112,7 @@ if(curpid == demoPid && !newVersion){
 else{
     $("#pid").text(curpid);
 }
-$(function() {
+$(function () {
     $("#selectPatient").select2({
         ajax: {
             url: "{/literal}{$GLOBALS.webroot}/library/ajax/document_helpers.php{literal}",
@@ -208,7 +208,7 @@ $(function () {
     });
 });
 
-$(function(){{/literal}
+$(function () {{/literal}
     {datetimepickerSupport}
 {literal}});{/literal}
 

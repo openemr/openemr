@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This program saves data from the misc_billing_form
  *
@@ -29,7 +30,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 if (isset($_SESSION['billencounter'])) {
     $pid = $_SESSION['billpid'];
     $encounter = $_SESSION['billencounter'];
-    echo "<script type='text/javascript' src='" . $webroot . "/interface/main/tabs/js/include_opener.js'></script>";
+    echo "<script src='" . $webroot . "/interface/main/tabs/js/include_opener.js'></script>";
 }
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  $Id$
  *
@@ -50,7 +51,7 @@ function smarty_function_pc_url($args)
 
     $ampm = 1;
     if ($starth >= 12) {
-        $ampm= 2;
+        $ampm = 2;
     }
 
     $template_view = pnVarCleanFromInput('tplview');
@@ -79,14 +80,14 @@ function smarty_function_pc_url($args)
     switch ($action) {
         case 'submit':
             if (!empty($starth)) {
-                $link = pnModURL(__POSTCALENDAR__, 'user', 'submit', array('tplview'=>$template_view,'Date'=>$Date, 'event_starttimeh' => $starth, 'event_startampm' => $ampm));
+                $link = pnModURL(__POSTCALENDAR__, 'user', 'submit', array('tplview' => $template_view,'Date' => $Date, 'event_starttimeh' => $starth, 'event_startampm' => $ampm));
             } else {
-                $link = pnModURL(__POSTCALENDAR__, 'user', 'submit', array('tplview'=>$template_view,'Date'=>$Date));
+                $link = pnModURL(__POSTCALENDAR__, 'user', 'submit', array('tplview' => $template_view,'Date' => $Date));
             }
             break;
 
         case 'submit-admin':
-            $link = pnModURL(__POSTCALENDAR__, 'admin', 'submit', array('tplview'=>$template_view,'Date'=>$Date));
+            $link = pnModURL(__POSTCALENDAR__, 'admin', 'submit', array('tplview' => $template_view,'Date' => $Date));
             break;
 
         case 'search':
@@ -94,47 +95,47 @@ function smarty_function_pc_url($args)
             break;
 
         case 'day':
-            $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview'=>$template_view,
-                                                                  'viewtype'=>'day',
-                                                                  'Date'=>$Date,
-                                                                  'pc_facility'=>$pc_facility,
-                                                                  'pc_username'=>$pc_username,
-                                                                  'pc_category'=>$category,
-                                                                  'pc_topic'=>$topic,
-                                                                  'print'=>$print), $localpath);
+            $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview' => $template_view,
+                                                                  'viewtype' => 'day',
+                                                                  'Date' => $Date,
+                                                                  'pc_facility' => $pc_facility,
+                                                                  'pc_username' => $pc_username,
+                                                                  'pc_category' => $category,
+                                                                  'pc_topic' => $topic,
+                                                                  'print' => $print), $localpath);
             break;
 
         case 'week':
-            $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview'=>$template_view,
-                                                                  'viewtype'=>'week',
-                                                                  'Date'=>$Date,
-                                                                  'pc_facility'=>$pc_facility,
-                                                                  'pc_username'=>$pc_username,
-                                                                  'pc_category'=>$category,
-                                                                  'pc_topic'=>$topic,
-                                                                  'print'=>$print));
+            $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview' => $template_view,
+                                                                  'viewtype' => 'week',
+                                                                  'Date' => $Date,
+                                                                  'pc_facility' => $pc_facility,
+                                                                  'pc_username' => $pc_username,
+                                                                  'pc_category' => $category,
+                                                                  'pc_topic' => $topic,
+                                                                  'print' => $print));
             break;
 
         case 'month':
-            $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview'=>$template_view,
-                                                                  'viewtype'=>'month',
-                                                                  'Date'=>$Date,
-                                                                  'pc_facility'=>$pc_facility,
-                                                                  'pc_username'=>$pc_username,
-                                                                  'pc_category'=>$category,
-                                                                  'pc_topic'=>$topic,
-                                                                  'print'=>$print));
+            $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview' => $template_view,
+                                                                  'viewtype' => 'month',
+                                                                  'Date' => $Date,
+                                                                  'pc_facility' => $pc_facility,
+                                                                  'pc_username' => $pc_username,
+                                                                  'pc_category' => $category,
+                                                                  'pc_topic' => $topic,
+                                                                  'print' => $print));
             break;
 
         case 'year':
-            $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview'=>$template_view,
-                                                                  'viewtype'=>'year',
-                                                                  'Date'=>$Date,
-                                                                  'pc_facility'=>$pc_facility,
-                                                                  'pc_username'=>$pc_username,
-                                                                  'pc_category'=>$category,
-                                                                  'pc_topic'=>$topic,
-                                                                  'print'=>$print));
+            $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview' => $template_view,
+                                                                  'viewtype' => 'year',
+                                                                  'Date' => $Date,
+                                                                  'pc_facility' => $pc_facility,
+                                                                  'pc_username' => $pc_username,
+                                                                  'pc_category' => $category,
+                                                                  'pc_topic' => $topic,
+                                                                  'print' => $print));
             break;
 
         case 'detail':
@@ -142,11 +143,11 @@ function smarty_function_pc_url($args)
                 if (_SETTING_OPEN_NEW_WINDOW && !$popup) {
                     $link = "javascript:opencal($eid,'$Date');";
                 } else {
-                    $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('Date'=>$Date,
-                                                                          'tplview'=>$template_view,
-                                                                          'viewtype'=>'details',
-                                                                          'eid'=>$eid,
-                                                                          'print'=>$print), $localpath);
+                    $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('Date' => $Date,
+                                                                          'tplview' => $template_view,
+                                                                          'viewtype' => 'details',
+                                                                          'eid' => $eid,
+                                                                          'print' => $print), $localpath);
                 }
             } else {
                 $link = '';

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRClaim;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRClaim;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -289,14 +291,14 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
                         $this->addPreAuthRef($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"preAuthRef" must be array of objects or null, '.gettype($data['preAuthRef']).' seen.');
+                    throw new \InvalidArgumentException('"preAuthRef" must be array of objects or null, ' . gettype($data['preAuthRef']) . ' seen.');
                 }
             }
             if (isset($data['claimResponse'])) {
                 $this->setClaimResponse($data['claimResponse']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

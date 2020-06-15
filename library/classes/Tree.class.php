@@ -92,9 +92,9 @@ class Tree
             }
 
             // only check stack if there is one
-            if (count($right)>0) {
+            if (count($right) > 0) {
                 // check if we should remove a node from the stack
-                while ($right[count($right)-1]<$row['rght']) {
+                while ($right[count($right) - 1] < $row['rght']) {
                     array_pop($right);
                 }
             }
@@ -104,7 +104,7 @@ class Tree
             $loop = 0;
 
             //this is a string that gets evaled below to create the array representing the tree
-            $ar_string = "[\"".($row['id']) ."\"] = \$row[\"value\"]";
+            $ar_string = "[\"" . ($row['id']) . "\"] = \$row[\"value\"]";
 
             //if parent is 0 then the node has no parents, the number of nodes in the id_name lookup always includes any nodes
             //that could be the parent of any future node in the record set, the order is deterministic because of the algorithm
@@ -169,7 +169,7 @@ class Tree
         $result = $this->_db->Execute($sql, [$parent]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         // the right value of this node is the left value + 1
-        $right = $left+1;
+        $right = $left + 1;
 
         while ($result && !$result->EOF) {
             $row = $result->fields;
@@ -188,7 +188,7 @@ class Tree
         $this->_db->Execute($sql, [$left, $right, $parent]) or die("Error: " . text($sql) . " " . text($this->_db->ErrorMsg()));
 
         // return the right value of this node + 1
-        return $right+1;
+        return $right + 1;
     }
 
 
@@ -207,7 +207,7 @@ class Tree
         $result = $this->_db->Execute($sql, [$parent_id, $name]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         if ($result && !$result->EOF) {
-            die("You cannot add a node with the name '" . text($name) ."' because one already exists under parent " . text($parent_id) . "<br />");
+            die("You cannot add a node with the name '" . text($name) . "' because one already exists under parent " . text($parent_id) . "<br />");
         }
 
         $sql = "SELECT * from " . $this->_table . " where id = ?";
@@ -290,7 +290,7 @@ class Tree
         $this->_db->Execute($sql, [$left, $right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         //only update the childrens parent setting if the node has children
-        if ($right > ($left +1)) {
+        if ($right > ($left + 1)) {
             $sql = "UPDATE " . $this->_table . " SET parent=? WHERE parent=?";
             //echo $sql . "<br />";
             $this->_db->Execute($sql, [$new_parent, $id]) or die("Error: " . text($this->_db->ErrorMsg()));

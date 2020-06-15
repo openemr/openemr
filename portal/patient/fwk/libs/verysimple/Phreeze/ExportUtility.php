@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Phreeze */
 
 /**
@@ -93,7 +94,7 @@ class ExportUtility
                 $worksheet->getStyle($current_column . $current_row)->getFont()->setBold(true)->setSize(11);
                 $worksheet->getStyle($current_column . $current_row)->getFont()->setName('Arial');
                 
-                $current_column ++;
+                $current_column++;
             }
         }
         
@@ -109,10 +110,10 @@ class ExportUtility
                     $worksheet->setCellValue($current_column . $current_row, $object->$column);
                 }
                 
-                $current_column ++;
+                $current_column++;
             }
 
-            $current_row ++;
+            $current_row++;
         }
         
         // lastly write to the footer to sum the numeric columns
@@ -128,7 +129,7 @@ class ExportUtility
                 $worksheet->getStyle($current_column . $current_row)->getFont()->setName('Arial');
             }
             
-            $current_column ++;
+            $current_column++;
         }
         
         $workbook->getDefaultStyle()->getFont()->setName('Arial')->setSize(11);

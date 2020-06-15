@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -55,7 +56,7 @@ class CqmResult implements RsResultIF
         }
         
         $rowFormat = array(
-            'is_main'=>true, // TO DO: figure out way to do this when multiple groups.
+            'is_main' => true, // TO DO: figure out way to do this when multiple groups.
             'population_label' => $this->populationLabel,
             'numerator_label' => $this->numeratorLabel,
             'concatenated_label' => $concatenated_label,

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * add and edit lot
  *
@@ -10,6 +11,8 @@
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+ // TODO: Replace tables with BS4 grid classes for GSoC
 
 
 require_once("../globals.php");
@@ -45,12 +48,12 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
     $lres = sqlStatement("SELECT * FROM list_options " .
     "WHERE list_id = 'warehouse' AND activity = 1 ORDER BY seq, title");
 
-    echo "<select name='".attr($tag_name)."' id='".attr($tag_name)."'";
+    echo "<select name='" . attr($tag_name) . "' id='" . attr($tag_name) . "'";
     if ($class) {
-        echo " class='".attr($class)."'";
+        echo " class='" . attr($class) . "'";
     }
 
-    echo " title='".attr($title)."'>";
+    echo " title='" . attr($title) . "'>";
 
     $got_selected = false;
     $count = 0;
@@ -66,9 +69,11 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
             continue;
         }
 
-        echo "<option value='".attr($whid)."'";
-        if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
-        (strlen($currvalue)  > 0 && $whid == $currvalue)) {
+        echo "<option value='" . attr($whid) . "'";
+        if (
+            (strlen($currvalue) == 0 && $lrow['is_default']) ||
+            (strlen($currvalue)  > 0 && $whid == $currvalue)
+        ) {
             echo " selected";
             $got_selected = true;
         }
@@ -79,11 +84,11 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
     }
 
     if (!$got_selected && strlen($currvalue) > 0) {
-        echo "<option value='".attr($currvalue)."' selected>* ".text($currvalue)." *</option>";
+        echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
         echo "</select>";
-        echo " <font color='red' title='" .
+        echo " <span class='text-danger' title='" .
         xla('Please choose a valid selection from the list.') . "'>" .
-        xlt('Fix this') . "!</font>";
+        xlt('Fix this') . "!</span>";
     } else {
         echo "</select>";
     }
@@ -113,10 +118,12 @@ echo " " . xlt('Lot'); ?></title>
 <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
 
 <style>
-td { font-size:10pt; }
+td {
+    font-size: 0.8125rem;
+}
 </style>
 
-<script language="JavaScript">
+<script>
 
  function validate() {
   var f = document.forms[0];
@@ -173,7 +180,7 @@ td { font-size:10pt; }
   document.getElementById('row_distributor').style.display = showDistributor ? '' : 'none';
  }
 
-    $(function(){
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -209,12 +216,12 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
     if ($form_trans_type == '3') { // return
         $form_quantity = 0 - $form_quantity;
         $form_cost = 0 - $form_cost;
-    } else if ($form_trans_type == '5') { // adjustment
+    } elseif ($form_trans_type == '5') { // adjustment
         $form_cost = 0;
-    } else if ($form_trans_type == '0') { // no transaction
+    } elseif ($form_trans_type == '0') { // no transaction
         $form_quantity = 0;
         $form_cost = 0;
-    } else if ($form_trans_type == '6') { // distribution
+    } elseif ($form_trans_type == '6') { // distribution
         $form_quantity = 0 - $form_quantity;
         $form_cost = 0 - $form_cost;
     }
@@ -343,10 +350,10 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 
                 foreach (array('lot_number', 'manufacturer', 'expiration', 'vendor_id') as $item) {
                             sqlStatement("UPDATE drug_inventory AS di1, drug_inventory AS di2 " .
-                              "SET di1.".add_escape_custom($item)." = di2.".add_escape_custom($item)." " .
+                              "SET di1." . add_escape_custom($item) . " = di2." . add_escape_custom($item) . " " .
                               "WHERE di1.inventory_id = ? AND " .
                               "di2.inventory_id = ? AND " .
-                              "( di1.".add_escape_custom($item)." IS NULL OR di1.".add_escape_custom($item)." = '' OR di1.".add_escape_custom($item)." = '0' )", array($lot_id,$form_source_lot));
+                              "( di1." . add_escape_custom($item) . " IS NULL OR di1." . add_escape_custom($item) . " = '' OR di1." . add_escape_custom($item) . " = '0' )", array($lot_id,$form_source_lot));
                 }
             }
         }
@@ -354,9 +361,9 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 
   // Close this window and redisplay the updated list of drugs.
   //
-    echo "<script language='JavaScript'>\n";
+    echo "<script>\n";
     if ($info_msg) {
-        echo " alert('".addslashes($info_msg)."');\n";
+        echo " alert('" . addslashes($info_msg) . "');\n";
     }
 
     echo " window.close();\n";
@@ -364,40 +371,38 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
     echo "</script></body></html>\n";
     exit();
 }
+$title = $lot_id ? xl("Update Lot") : xl("Add Lot");
 ?>
-
-<form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>'
- onsubmit='return validate()'>
+<h3 class="ml-1"><?php echo text($title);?></h3>
+<form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>' onsubmit='return validate()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<center>
 
-<table border='0' width='100%'>
-
+<table class="table table-borderless w-100">
  <tr>
-  <td valign='top' width='1%' nowrap><b><?php echo xlt('Lot Number'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Lot Number'); ?>:</td>
   <td>
-   <input type='text' size='40' name='form_lot_number' maxlength='40' value='<?php echo attr($row['lot_number']) ?>' style='width:100%' />
+   <input class="form-control w-100" type='text' size='40' name='form_lot_number' maxlength='40' value='<?php echo attr($row['lot_number']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php echo xlt('Manufacturer'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Manufacturer'); ?>:</td>
   <td>
-   <input type='text' size='40' name='form_manufacturer' maxlength='250' value='<?php echo attr($row['manufacturer']) ?>' style='width:100%' />
+   <input class="form-control w-100" type='text' size='40' name='form_manufacturer' maxlength='250' value='<?php echo attr($row['manufacturer']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php echo xlt('Expiration'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Expiration'); ?>:</td>
   <td>
-   <input type='text' class='datepicker' size='10' name='form_expiration' id='form_expiration'
+   <input type='text' class='datepicker form-control w-50' size='10' name='form_expiration' id='form_expiration'
     value='<?php echo attr($row['expiration']) ?>'
     title='<?php echo xla('yyyy-mm-dd date of expiration'); ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php echo xlt('Vendor'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Vendor'); ?>:</td>
   <td>
 <?php
 // Address book entries for vendors.
@@ -412,16 +417,19 @@ generate_form_field(
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php echo xlt('Warehouse'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Warehouse'); ?>:</td>
   <td>
 <?php
   // generate_select_list("form_warehouse_id", 'warehouse',
   //   $row['warehouse_id'], xl('Location of this lot'), xl('Unassigned'));
-if (!genWarehouseList(
-    "form_warehouse_id",
-    $row['warehouse_id'],
-    xl('Location of this lot')
-)) {
+if (
+    !genWarehouseList(
+        "form_warehouse_id",
+        $row['warehouse_id'],
+        xl('Location of this lot'),
+        "form-control"
+    )
+) {
     $info_msg = xl('This product allows only one lot per warehouse.');
 }
 ?>
@@ -429,25 +437,27 @@ if (!genWarehouseList(
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php echo xlt('On Hand'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('On Hand'); ?>:</td>
   <td>
-    <?php echo text($row['on_hand'] + 0); ?>
+    <span><?php echo text($row['on_hand'] + 0); ?></span>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php echo xlt('Transaction'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Transaction'); ?>:</td>
   <td>
-   <select name='form_trans_type' onchange='trans_type_changed()'>
+   <select class="form-control" name='form_trans_type' onchange='trans_type_changed()'>
 <?php
-foreach (array(
-  '0' => xl('None{{Transaction}}'),
-  '2' => xl('Purchase'),
-  '3' => xl('Return'),
-  '6' => xl('Distribution'),
-  '4' => xl('Transfer'),
-  '5' => xl('Adjustment'),
-) as $key => $value) {
+foreach (
+    array(
+    '0' => xl('None{{Transaction}}'),
+    '2' => xl('Purchase'),
+    '3' => xl('Return'),
+    '6' => xl('Distribution'),
+    '4' => xl('Transfer'),
+    '5' => xl('Adjustment'),
+    ) as $key => $value
+) {
     echo "<option value='" . attr($key) . "'";
     if ($key == $form_trans_type) {
         echo " selected";
@@ -461,7 +471,7 @@ foreach (array(
  </tr>
 
  <tr id='row_distributor'>
-  <td valign='top' nowrap><b><?php echo xlt('Distributor'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Distributor'); ?>:</td>
   <td>
 <?php
 // Address book entries for distributors.
@@ -473,32 +483,32 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'distributor_id',
  </tr>
 
  <tr id='row_sale_date'>
-  <td valign='top' nowrap><b><?php echo xlt('Date'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Date'); ?>:</td>
   <td>
-   <input type='text' class='datepicker' size='10' name='form_sale_date' id='form_sale_date'
+   <input type='text' class='datepicker form-control w-50' size='10' name='form_sale_date' id='form_sale_date'
     value='<?php echo attr(date('Y-m-d')) ?>'
     title='<?php echo xla('yyyy-mm-dd date of purchase or transfer'); ?>' />
   </td>
  </tr>
 
  <tr id='row_quantity'>
-  <td valign='top' nowrap><b><?php echo xlt('Quantity'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Quantity'); ?>:</td>
   <td>
-   <input type='text' size='5' name='form_quantity' maxlength='7' />
+   <input class="form-control" type='text' size='5' name='form_quantity' maxlength='7' />
   </td>
  </tr>
 
  <tr id='row_cost'>
-  <td valign='top' nowrap><b><?php echo xlt('Total Cost'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Total Cost'); ?>:</td>
   <td>
-   <input type='text' size='7' name='form_cost' maxlength='12' />
+   <input class="form-control" type='text' size='7' name='form_cost' maxlength='12' />
   </td>
  </tr>
 
  <tr id='row_source_lot'>
-  <td valign='top' nowrap><b><?php echo xlt('Source Lot'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Source Lot'); ?>:</td>
   <td>
-   <select name='form_source_lot'>
+   <select class="form-control" name='form_source_lot'>
     <option value='0'> </option>
 <?php
 $lres = sqlStatement("SELECT " .
@@ -525,33 +535,30 @@ while ($lrow = sqlFetchArray($lres)) {
  </tr>
 
  <tr id='row_notes'>
-  <td valign='top' nowrap><b><?php echo xlt('Comments'); ?>:</b></td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Comments'); ?>:</td>
   <td>
-   <input type='text' size='40' name='form_notes' maxlength='255' style='width:100%' />
+   <input class="form-control w-100" type='text' size='40' name='form_notes' maxlength='255' />
   </td>
  </tr>
 
 </table>
 
-<p>
-<input type='submit' name='form_save' value='<?php echo xla('Save'); ?>' />
+<div class="btn-group mt-3">
+<input type='submit' class="btn btn-primary" name='form_save' value='<?php echo $lot_id ? xla('Update') : xla('Add') ?>' />
 
 <?php if ($lot_id) { ?>
-&nbsp;
-<input type='button' value='<?php echo xla('Destroy...'); ?>'
+<input type='button' class="btn btn-danger" value='<?php echo xla('Destroy'); ?>'
  onclick="window.location.href='destroy_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>'" />
 <?php } ?>
 
-&nbsp;
-<input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
-</p>
+<input type='button' class="btn btn-warning" value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
+</div>
 
-</center>
 </form>
-<script language='JavaScript'>
+<script>
 <?php
 if ($info_msg) {
-    echo " alert('".addslashes($info_msg)."');\n";
+    echo " alert('" . addslashes($info_msg) . "');\n";
     echo " window.close();\n";
 }
 ?>

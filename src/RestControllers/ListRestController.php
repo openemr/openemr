@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ListRestController
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\RestControllers;
 
@@ -50,7 +50,8 @@ class ListRestController
         $validationResult = $this->listService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $serviceResult = $this->listService->insert($data);
         return RestControllerHelper::responseHandler($serviceResult, array('id' => $serviceResult), 201);
@@ -65,7 +66,8 @@ class ListRestController
         $validationResult = $this->listService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
 
         $serviceResult = $this->listService->update($data);

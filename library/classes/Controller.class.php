@@ -1,7 +1,5 @@
 <?php
 
-
-
 class Controller extends Smarty
 {
 
@@ -93,7 +91,7 @@ class Controller extends Smarty
             $c_action = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
             $args = array_reverse($args);
 
-        if (!call_user_func(array("Controller","i_once"), $GLOBALS['fileroot'] ."/controllers/C_" . $c_name . ".class.php")) {
+        if (!call_user_func(array("Controller","i_once"), $GLOBALS['fileroot'] . "/controllers/C_" . $c_name . ".class.php")) {
             echo "Unable to load controller $name\n, please check the first argument supplied in the URL and try again";
             exit;
         }
@@ -112,7 +110,7 @@ class Controller extends Smarty
             $arg = preg_replace("/[^A-Za-z0-9_]/", "", $arg);
             //this is a workaround because call user func does funny things with passing args if they have no assigned value
             //2013-02-10 EMR Direct: workaround modified since "0" is also considered empty;
-            if (empty($qarray[$arg]) && $qarray[$arg]!="0") {
+            if (empty($qarray[$arg]) && $qarray[$arg] != "0") {
                 //if argument is empty pass null as value and arg as assoc array key
                 $args_array[$arg] = null;
             } else {
@@ -122,7 +120,7 @@ class Controller extends Smarty
 
             $output = "";
             //print_r($args_array);
-        if (isset($_POST['process']) && ($_POST['process']== "true")) {
+        if (isset($_POST['process']) && ($_POST['process'] == "true")) {
             if (is_callable(array(&$c_obj,$c_action . "_action_process"))) {
                 //echo "ca: " . $c_action . "_action_process";
                 $output .= call_user_func_array(array(&$c_obj,$c_action . "_action_process"), $args_array);
@@ -138,7 +136,7 @@ class Controller extends Smarty
                 //echo "ca: " . $c_action . "_action";
                 $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
             } else {
-                echo "The action trying to be performed: " . $c_action ." does not exist controller: ". $name;
+                echo "The action trying to be performed: " . $c_action . " does not exist controller: " . $name;
             }
         }
 

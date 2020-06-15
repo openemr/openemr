@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form for entering procedure orders.
  *

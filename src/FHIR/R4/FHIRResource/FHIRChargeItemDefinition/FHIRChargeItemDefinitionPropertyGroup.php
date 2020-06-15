@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRChargeItemDefinition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRChargeItemDefinition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -144,7 +146,7 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
                         $this->addApplicability($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"applicability" must be array of objects or null, '.gettype($data['applicability']).' seen.');
+                    throw new \InvalidArgumentException('"applicability" must be array of objects or null, ' . gettype($data['applicability']) . ' seen.');
                 }
             }
             if (isset($data['priceComponent'])) {
@@ -153,11 +155,11 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
                         $this->addPriceComponent($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"priceComponent" must be array of objects or null, '.gettype($data['priceComponent']).' seen.');
+                    throw new \InvalidArgumentException('"priceComponent" must be array of objects or null, ' . gettype($data['priceComponent']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

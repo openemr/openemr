@@ -10,26 +10,37 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function tabStatus(title,url,name,closable,visible,locked)
+function tabStatus(title,url,name,loading_label,closable,visible,locked)
 {
     var self=this;
     self.visible=ko.observable(visible);
     self.locked=ko.observable(locked);
     self.closable=ko.observable(closable);
     self.title=ko.observable(title);
+    //Start Spinning motor
+    self.spinner=ko.observable("fa-spin");
     self.url=ko.observable(url);
     self.name=ko.observable(name);
+    self.loading_text=ko.observable(loading_label + "...");
+    self.loading_text_status = ko.observable(true);
+    self.title.subscribe(function() {
+        self.loading_text_status(false);
+        //Stop Spinning motor
+        self.spinner("");
+    });
     self.window=null;
     return this;
 }
 
+/**
+ *
+ * @returns {tabs_view_model}
+ *
+ * Initial setup of the tabs view model to be an observable array
+ */
 function tabs_view_model()
 {
     this.tabsList=ko.observableArray();
-    this.tabsList.push(new tabStatus("Loading...",webroot_url+"/interface/main/main_info.php","cal",true,true,false));
-    this.tabsList.push(new tabStatus("Loading...",webroot_url+"/interface/main/messages/messages.php?form_active=1","msg",true,false,false));
-//    this.tabsList.push(new tabStatus("Three"));
-    this.text=ko.observable("Test");
     return this;
 }
 
@@ -111,11 +122,10 @@ function tabCloseByName(name)
     }
 }
 
-function navigateTab(url,name,afterLoadFunction)
+function navigateTab(url,name,afterLoadFunction,loading_label='')
 {
 
     top.restoreSession();
-    var curTab;
     if($("iframe[name='"+name+"']").length>0)
     {
         if(typeof afterLoadFunction !== 'function'){
@@ -125,11 +135,11 @@ function navigateTab(url,name,afterLoadFunction)
                 afterLoadFunction();
             });
         }
-       $("iframe[name='"+name+"']").get(0).contentWindow.location=url;
+        openExistingTab(url,name);
     }
     else
     {
-        curTab=new tabStatus(xl('New'),url,name,true,false,false);
+        let curTab=new tabStatus(xl("Loading") + "...",url,name,loading_label,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
         if(typeof afterLoadFunction === 'function'){
             afterLoadFunction();
@@ -305,6 +315,7 @@ function menuActionClick(data,evt)
 
         // Fixups for loading a new encounter form, as these are now in tabs.
         var dataurl = data.url();
+        var dataLabel = data.label()
         var matches = dataurl.match(/load_form.php\?formname=(\w+)/);
         if (matches) {
           // If the encounter frameset already exists, just tell it to add a tab for this form.
@@ -319,10 +330,10 @@ function menuActionClick(data,evt)
           dataurl = '/interface/patient_file/encounter/encounter_top.php?formname=' +
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
         }
-
+        
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
-        });
+        },xl("Loading") + " " + dataLabel);
 
         var par = $(evt.currentTarget).closest("ul.menuEntries");
         par.wrap("<ul class='timedReplace' style='display:none;'></ul>");
@@ -397,4 +408,43 @@ function clearTherapyGroup()
 
         }
     });
+}
+
+function openExistingTab(url, name) {
+    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx++) {
+        let currTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
+        let currTabUrl = currTab.url();
+        let currTabName = currTab.name();
+        //Check if URL is from $GLOBAL['default_tab']
+        switch (currTabUrl) {
+            case '../main_info.php':
+                currTabUrl = webroot_url + '/interface/main/main_info.php';
+                break;
+            case '../../new/new.php':
+                currTabUrl = webroot_url + '/interface/new/new.php';
+                break;
+            case '../../../interface/main/finder/dynamic_finder.php':
+                currTabUrl = webroot_url + '/interface/main/finder/dynamic_finder.php';
+                break;
+            case '../../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1':
+                currTabUrl = webroot_url + '/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1';
+                break;
+            case '../../../interface/main/messages/messages.php?form_active=1':
+                currTabUrl = webroot_url + '/interface/main/messages/messages.php?form_active=1';
+                break;
+        }
+        if (url === currTabUrl) {
+            currTab.visible(true);
+            exist = true;
+        }
+        else if (url !== currTabUrl && currTabName == name) {
+            currTab.visible(true);
+            currTab.url(url);
+        }
+        else {
+            if (!currTab.locked()) {
+                currTab.visible(false);
+            }
+        }
+    }
 }

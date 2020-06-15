@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ajax Handler for Register
  *
@@ -15,9 +16,11 @@
 require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
-if ($_SESSION['register'] === true && isset($_SESSION['pid']) ||
+if (
+    $_SESSION['register'] === true && isset($_SESSION['pid']) ||
     ($_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
-    ($_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))) {
+    ($_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
+) {
     $ignoreAuth_onsite_portal_two = true;
 }
 
@@ -34,8 +37,10 @@ if ($action == 'set_lang') {
     echo 'okay';
     exit();
 } elseif ($action == 'userIsUnique') {
-    if (($_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
-        ($_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))) {
+    if (
+        ($_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
+        ($_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
+    ) {
         // The above comparisons will not allow querying for usernames if not authorized (ie. not including the register stuff)
         if (empty(trim($_REQUEST['account']))) {
             echo "0";

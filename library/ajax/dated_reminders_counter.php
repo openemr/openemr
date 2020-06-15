@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Returns a count of due messages for current user.
  *
@@ -6,13 +7,13 @@
  * @link      https://www.open-emr.org
  * @author    Craig Bezuidenhout <https://www.tajemo.co.za/>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2012 tajemo.co.za <https://www.tajemo.co.za/>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once("../../interface/globals.php");
+require_once(__DIR__ . "/../../interface/globals.php");
 require_once("$srcdir/dated_reminder_functions.php");
 require_once("$srcdir/pnotes.inc");
 
@@ -22,10 +23,10 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-// if portal is enable get various alerts
-if (isset($_POST['isPortal'])) {
-    echo GetPortalAlertCounts();
-    exit();
+$portal_count = array();
+// if portal is enabled get various alerts
+if (!empty($_POST['isPortal'])) {
+    $portal_count = GetPortalAlertCounts();
 }
 
 //Collect number of due reminders
@@ -35,4 +36,6 @@ $dueReminders = GetDueReminderCount(5, strtotime(date('Y/m/d')));
 $activeMessages = getPnotesByUser("1", "no", $_SESSION['authUser'], true);
 
 $totalNumber = $dueReminders + $activeMessages;
-echo ($totalNumber > 0 ? '('.text(intval($totalNumber)).')' : '');
+$portal_count['reminderText'] = ($totalNumber > 0 ? '(' . text((int)$totalNumber) . ')' : '');
+
+echo json_encode($portal_count);

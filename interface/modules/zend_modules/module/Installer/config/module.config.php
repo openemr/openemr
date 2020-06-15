@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Installer/config/module.config.php
  *
@@ -9,6 +10,7 @@
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
@@ -54,6 +56,7 @@ return array(
     'console' => array(
         'router' => array(
             'routes' => array(
+
                 'zfc-module' => array(
                     'options' => array(
                         'route' => 'zfc-module --site= --modaction= --modname= ',
@@ -63,6 +66,17 @@ return array(
                         ),
                     )
                 ),
+
+                'register' => array(
+                    'options' => array(
+                        'route'    => 'register --mtype= --modname=',
+                        'defaults' => array(
+                            'controller' => Installer\Controller\InstallerController::class,
+                            'action'     => 'register',
+                        ),
+                    ),
+                ),
+
             )
         )
     ),

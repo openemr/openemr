@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form to track any clinical parameter.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
@@ -71,9 +71,9 @@ echo "<html><head>";
 
 <?php Header::setupHeader('dygraphs'); ?>
 
-<link rel="stylesheet" href="style.css" type="text/css" />
+<link rel="stylesheet" href="style.css">
 
-<script type="text/javascript">
+<script>
 //-------------- checkboxes checked checker --------------------
 // Pass the checkbox name to the function
 function getCheckedBoxes(chkboxName) {
@@ -161,7 +161,7 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>".xlt('Back to encounter')."</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
 }
 
 if ($fromencounter == 0) {
@@ -254,7 +254,7 @@ while ($myrow = sqlFetchArray($query)) {
 
         // print local <table>-heads
         // ----------------------------
-        if ($shownameflag==1) {
+        if ($shownameflag == 1) {
             echo "<tr><th class='time'>" . xlt('Time') . "</th>";
             while ($myrow3 = sqlFetchArray($query3)) {
                 echo "<th class='item'>&nbsp;" . text($myrow3['the_name']) . "&nbsp;</th>"; //
@@ -303,7 +303,7 @@ while ($myrow = sqlFetchArray($query)) {
     echo "<td class='check'>" . xlt('Check items to graph') . " </td>"; //
     for ($col_i = 0; $col_i < $col; $col_i++) {
         echo "<td class='check'>";
-        for ($row_b=0; $row_b <$row_lc; $row_b++) {
+        for ($row_b = 0; $row_b < $row_lc; $row_b++) {
             if (is_numeric($value_local[$col_i][$row_b])) {
                 $localplot_c[$col_i]++; // count more than 1 to show graph-button
                 $globalplot_c[$col_i]++;
@@ -351,7 +351,7 @@ while ($myrow = sqlFetchArray($query)) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ?>
-<script type="text/javascript">
+<script>
 function get_my_graph<?php echo attr($track_count); ?>(where){
     top.restoreSession();
     if(where=="local"){
@@ -409,7 +409,7 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>".xlt('Back to encounter')."</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
 }
 
 if ($fromencounter == 0) {

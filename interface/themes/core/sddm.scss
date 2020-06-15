@@ -1,39 +1,39 @@
 #sddm li {
-    margin: 0;
-    list-style: none;
-    float: $left;
-    background: lighten($gray-100, 10%);
+  background: lighten($gray-100, 10%);
+  float: $left;
+  list-style: none;
+  margin: 0;
 }
 
 #sddm li a {
-    display: block;
-    margin: 0 1px 0 0;
-    text-align: $left;
-    text-decoration: none;
+  display: block;
+  margin: 0 1px 0 0;
+  text-align: $left;
+  text-decoration: none;
 }
 
 #sddm li a:hover {
-    background: $gray-300;
+  background: $gray-300;
 }
 
 #sddm div {
-    position: absolute;
-    visibility: hidden;
+  position: absolute;
+  visibility: hidden;
 }
 
 #sddm div a {
-    position: relative;
-    display: block;
-    margin: 0;
-    padding: 5px 10px;
-    width: 170px;
-    white-space: normal;
-    text-align: $left;
-    text-decoration: none;
-    @include font-size("0.8rem !important");
-    font-weight: normal;
+  @include font-size("0.8rem !important");
+  display: block;
+  font-weight: normal;
+  margin: 0;
+  padding: 5px 10px;
+  position: relative;
+  text-align: $left;
+  text-decoration: none;
+  white-space: normal;
+  width: 170px;
 }
 
 #sddm div a:hover {
-    color: $white;
+  color: $white;
 }

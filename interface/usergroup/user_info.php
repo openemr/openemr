@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User password change tool
  *
@@ -35,7 +36,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('Change Password'); ?></title>
 
-<script src="checkpwd_validation.js" type="text/javascript"></script>
+<script src="checkpwd_validation.js"></script>
 
 <script language='JavaScript'>
 //Validating password and display message if password field is empty - starts
@@ -86,7 +87,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 $res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION['authUserID']));
 $row = sqlFetchArray($res);
-      $iter=$row;
+      $iter = $row;
 ?>
 <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
     <div class="row">
@@ -106,7 +107,7 @@ $row = sqlFetchArray($res);
             <form method='post' action='user_info.php' class='form-horizontal' onsubmit='return update_password()'>
                 <input type=hidden name=secure_pwd value="<?php echo attr($GLOBALS['secure_password']); ?>">
                 <fieldset>
-                    <legend><?php echo xlt('Change Password for') . " " . $user_full_name; ?></legend>
+                    <legend><?php echo xlt('Change Password for') . " " . text($user_full_name); ?></legend>
                     <div class="form-group">
                         <label class='control-label col-sm-2'><?php echo xlt('Full Name') . ":"; ?></label>
                         <div class="col-sm-10">

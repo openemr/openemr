@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -147,11 +149,11 @@ class FHIRMedicationKnowledgeRelatedMedicationKnowledge extends FHIRBackboneElem
                         $this->addReference($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"reference" must be array of objects or null, '.gettype($data['reference']).' seen.');
+                    throw new \InvalidArgumentException('"reference" must be array of objects or null, ' . gettype($data['reference']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

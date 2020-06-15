@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -36,7 +37,7 @@ $content = $_REQUEST['content'];
 <html>
     <head>
         <?php Header::setupHeader('opener'); ?>
-        <script type="text/javascript">
+        <script>
     function showWhereInTextarea(){
     opener.restoreSession();
     var textarea = document.getElementById('quest');

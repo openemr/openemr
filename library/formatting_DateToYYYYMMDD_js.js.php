@@ -1,4 +1,5 @@
 <?php
+
 /**
  * javascripts function to allow date internationalization
  * and converts date back to YYYY-MM-DD and YYYY-MM-DD HH:MM:SS (SS is optional)
@@ -14,6 +15,7 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 
 function DateToYYYYMMDD_js(value){

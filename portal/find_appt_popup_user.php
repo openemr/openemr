@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Modified from main codebase for the patient portal.
@@ -39,7 +40,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-    header('Location: '.$landingpage.'&w');
+    header('Location: ' . $landingpage . '&w');
     exit();
 }
 
@@ -49,7 +50,7 @@ $ignoreAuth = 1;
 
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
-require_once(dirname(__FILE__)."/../library/appointments.inc.php");
+require_once(dirname(__FILE__) . "/../library/appointments.inc.php");
 
 use OpenEMR\Core\Header;
 
@@ -90,7 +91,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
             }
 
             break; // ignore any positive duration for IN
-        } else if ($catid == 3) { // out of office
+        } elseif ($catid == 3) { // out of office
             $slots[$i] |= 2;
             break; // ignore any positive duration for OUT
         } else { // all other events reserve time
@@ -118,11 +119,13 @@ if ($_REQUEST['searchdays']) {
 }
 
  // Get a start date.
-if ($_REQUEST['startdate'] && preg_match(
-    "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
-    $_REQUEST['startdate'],
-    $matches
-)) {
+if (
+    $_REQUEST['startdate'] && preg_match(
+        "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
+        $_REQUEST['startdate'],
+        $matches
+    )
+) {
     $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
 } else {
     $sdate = date("Y-m-d");
@@ -225,16 +228,15 @@ function setappt(year,mon,mday,hours,minutes) {
  <style>
      form {
          /* this eliminates the padding normally around a FORM tag */
-         padding: 0px;
-         margin: 0px;
+         padding: 0;
+         margin: 0;
      }
 
      #searchCriteria {
          text-align: center;
          width: 100%;
-         background-color: #bfe6ff4d;
          font-weight: bold;
-         padding: 3px;
+         padding: 0.1875rem;
      }
 
      #searchResults {
@@ -243,41 +245,31 @@ function setappt(year,mon,mday,hours,minutes) {
          overflow: auto;
      }
 
-     .srDate {
-         background-color: #bfe6ff4d;
-     }
-
      #searchResults table {
          width: 100%;
          border-collapse: collapse;
-         background-color: white;
+         background-color: var(--white);
      }
 
      #searchResults td {
-         border-bottom: 1px solid gray;
-         padding: 1px 5px 1px 5px;
-     }
-
-     .highlight {
-         background-color: #ffff994d;
+         border-bottom: 1px solid var(--gray600);
+         padding: 1px 5px;
      }
 
      .blue_highlight {
          background-color: #BBCCDD;
-         color: white;
+         color: var(--white);
      }
 
-     #am {
-         border-bottom: 1px solid lightgrey;
-         color: #00c;
+     #am a, #am a:hover {
+       padding: 4px;
+       text-decoration: none;
      }
 
-     #pm {
-         color: #c00;
-     }
-
-     #pm a {
-         color: #c00;
+     #pm a, #pm a:hover {
+       color: var(--danger);
+       padding: 4px;
+       text-decoration: none;
      }
  </style>
 
@@ -285,18 +277,23 @@ function setappt(year,mon,mday,hours,minutes) {
 
 <body class="body_top">
 
-<div id="searchCriteria">
+<div class="table-primary" id="searchCriteria">
 <form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo attr_url($providerid); ?>&catid=<?php echo attr_url($input_catid); ?>'>
    <input type="hidden" name='bypatient' />
-
-    <?php echo xlt('Start date:'); ?>
-
-   <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate); ?>' title='yyyy-mm-dd starting date for search' />
-
-    <?php echo xlt('for'); ?>
-   <input type='text' name='searchdays' size='3' value='<?php echo attr($searchdays); ?>' title='Number of days to search from the start date' />
-    <?php echo xlt('days'); ?>&nbsp;
-   <input type='submit' value='<?php echo xla('Search'); ?>' />
+   <div class="form-row mx-0 align-items-center">
+     <label for="startdate" class="col-1 mx-2 col-form-label"><?php echo xlt('Start date:'); ?></label>
+     <div class="col-auto">
+       <input type='text' class='datepicker form-control' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate); ?>' title='yyyy-mm-dd starting date for search' />
+     </div>
+     <label for="searchdays" class="col-auto col-form-label"><?php echo xlt('for'); ?></label>
+     <div class="col-auto">
+       <input type='text' class="form-control" name='searchdays' id='searchdays' size='3' value='<?php echo attr($searchdays); ?>' title='Number of days to search from the start date' />
+     </div>
+     <label for="searchdays" class="col-auto col-form-label"><?php echo xlt('days'); ?></label>
+     <div class="col-auto">
+       <input type='submit' class="btn btn-primary btn-sm btn-block" value='<?php echo xla('Search'); ?>' />
+     </div>
+ </div>
 </div>
 
 <?php if (!empty($slots)) : ?>
@@ -307,10 +304,10 @@ function setappt(year,mon,mday,hours,minutes) {
 </div>
 
 <div id="searchResults" class="container">
-<table class='table table-inversed table-bordered'>
+<table class='table table-bordered'>
     <thead id="searchResultsHeader">
     <tr>
-        <th class="srDate"><?php echo xlt('Day'); ?></th>
+        <th class="table-primary"><?php echo xlt('Day'); ?></th>
         <th class="srTimes"><?php echo xlt('Available Times'); ?></th>
     </tr>
     </thead>
@@ -341,28 +338,30 @@ function setappt(year,mon,mday,hours,minutes) {
 
             $lastdate = $thisdate;
             echo " <tr class='oneresult'>\n";
-            echo "  <td class='srDate'>" . date("l", $utime)."<br />".date("Y-m-d", $utime) . "</td>\n";
+            echo "  <td class='table-primary'>" . date("l", $utime) . "<br />" . date("Y-m-d", $utime) . "</td>\n";
             echo "  <td class='srTimes'>";
-            echo "<div id='am'>AM ";
+            echo "<div id='am'>AM<hr class='m-0 p-0 mb-n3'/><br/>";
             $ampmFlag = "am";  // reset the AMPM flag
         }
 
         $ampm = date('a', $utime);
         if ($ampmFlag != $ampm) {
-            echo "</div><div id='pm'>PM ";
+            echo "</div><div id='pm'><hr class='m-0 p-0' />PM<hr class='m-0 p-0 mb-n3' /><br/>";
         }
 
         $ampmFlag = $ampm;
 
-        $atitle = "Choose ".date("h:i a", $utime);
+        $atitle = "Choose " . date("h:i a", $utime);
         $adate = getdate($utime);
+
         $anchor = "<a href='' onclick='return setappt(" .
-        attr_js($adate['year']) . "," .
+        attr_js(date("Y", $utime)) . "," .
         attr_js($adate['mon']) . "," .
         attr_js($adate['mday']) . "," .
-        attr_js($adate['hours']) . "," .
-        attr_js($adate['minutes']) . ")'".
-        " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'".
+        attr_js(date("G", $utime)) . "," .
+        attr_js(date("i", $utime)) . "," .
+        attr_js(date('a', $utime)) . ")'" .
+        " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'" .
         ">";
         echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
         $anchor . date("g:i", $utime) . "</a> ";
@@ -386,14 +385,22 @@ function setappt(year,mon,mday,hours,minutes) {
 
 </form>
 
-<script type='text/javascript'>
+<script>
 
 // jQuery stuff to make the page a little easier to use
-$(function() {
-    $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".oneresult a").mouseover(function () { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
-    $(".oneresult a").mouseout(function() { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
+$(function () {
+    $(".oneresult").hover(function() {
+      $(this).toggleClass("highlight");
+    }, function() {
+      $(this).toggleClass("highlight");
+    });
+    $(".oneresult a").hover(function () {
+      $(this).toggleClass("blue_highlight");
+      $(this).children().toggleClass("blue_highlight");
+    }, function() {
+      $(this).toggleClass("blue_highlight");
+      $(this).children().toggleClass("blue_highlight");
+    });
 
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>

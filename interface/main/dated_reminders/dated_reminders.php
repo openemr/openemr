@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Used for displaying dated reminders.
  *
@@ -11,9 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 // removed as jquery is already called in messages page (if you need to use jQuery, uncomment it futher down)
-require_once('../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -85,7 +85,7 @@ if (isset($_POST['drR'])) {
          }
       </style>
       <script>
-         $(function (){
+         $(function () {
             $(".hideDR").click(function(){
               if($(this).html() == "<span><?php echo xla('Hide Reminders') ?></span>"){
                 $(this).html("<span><?php echo xla('Show Reminders') ?></span>");
@@ -159,12 +159,12 @@ if (isset($_POST['drR'])) {
         <?php
           // initialize html string
           $pdHTML = '<div class="container">
-                            <div class="drHide col-12">'.
-                                '<a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="btn btn-secondary btn-show" href="#">' . xlt('View Log') . '</a>&nbsp;' . '<a onclick="openAddScreen(0)" class="btn btn-secondary btn-add" href="#">'.xlt('Create A Dated Reminder').'</a>
+                            <div class="drHide col-12">' .
+                                '<a title="' . xla('View Past and Future Reminders') . '" onclick="openLogScreen()" class="btn btn-secondary btn-show" href="#">' . xlt('View Log') . '</a>&nbsp;' . '<a onclick="openAddScreen(0)" class="btn btn-secondary btn-add" href="#">' . xlt('Create A Dated Reminder') . '</a>
                             </div>
                             <div class="col-12 pre-scrollable oe-margin-t-10">
                             <fieldset>
-                            <legend>'.xla('Dated Reminders').'</legend>
+                            <legend>' . xla('Dated Reminders') . '</legend>
                            <table class="table-sm">
                             </tr>
                                 <td class="drHide drTD">';

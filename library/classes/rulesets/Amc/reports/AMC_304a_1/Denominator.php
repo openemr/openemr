@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * AMC 304a_1 Denominator

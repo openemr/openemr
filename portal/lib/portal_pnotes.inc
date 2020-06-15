@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file contains functions for handling on-site portal notes attached to patient files.
  *
@@ -32,8 +33,8 @@ function addPortalMailboxPnote(
         $activity = 0;
     }
 
-    $user = $_SESSION['authUser']?$_SESSION['authUser']:$pid;
-    $pname = $_SESSION['ptName']?$_SESSION['ptName']:$user;
+    $user = $_SESSION['authUser'] ? $_SESSION['authUser'] : $pid;
+    $pname = $_SESSION['ptName'] ? $_SESSION['ptName'] : $user;
 
     /* $body =  " ($pname";
     if ($assigned_to) $body .= " to $assigned_to";
@@ -51,7 +52,7 @@ function addPortalMailboxPnote(
 function getPortalPatientNotes($pid = '', $limit = '', $offset = 0, $search = '')
 {
     if ($limit) {
-        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
     }
 
     $sql = "
@@ -90,7 +91,7 @@ function getPortalPatientNotes($pid = '', $limit = '', $offset = 0, $search = ''
 function getPortalPatientNotifications($pid = '', $limit = '', $offset = 0, $search = '')
 {
     if ($limit) {
-        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
     }
 
     $sql = "
@@ -128,7 +129,7 @@ function getPortalPatientNotifications($pid = '', $limit = '', $offset = 0, $sea
 function getPortalPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
 {
     if ($limit) {
-        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
     }
 
     $sql = "
@@ -217,8 +218,11 @@ function getMailDetails($id)
     }
 }
 
-function sendMail($pid, $note, $title = 'Unassigned', $to, $noteid)
+function sendMail($pid, $note, string $title = null, $to, $noteid)
 {
+    if (!$title) {
+        $title = 'Unassigned';
+    }
     if ($pid) {
         addPortalMailboxPnote($pid, $note, '1', '1', $title, $to, '', 'New', $noteid);
         return 1;

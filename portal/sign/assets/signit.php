@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -6,6 +7,7 @@
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 // check if authenticated
 require_once(dirname(__FILE__) . "/../../../interface/globals.php");
 $thisuser = $_SESSION['authUser'];
@@ -26,11 +28,9 @@ use OpenEMR\Core\Header;
     <?php Header::setupHeader([]); ?>
 
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>"
-          rel="stylesheet" type="text/css"/>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js"
-            type="text/javascript"></script>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"
-            type="text/javascript"></script>
+          rel="stylesheet">
+    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js"></script>
+    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"></script>
     <script>
         const remoteDevice = '' + <?php echo js_escape($thisDevice) ?>;
         let currentAuth = '';

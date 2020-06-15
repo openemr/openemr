@@ -18,44 +18,44 @@
 */
 
 body.login {
-    background: $light;
+  background: $light;
 }
 
 .login-failure {
-    background-color: $danger;
-    color: $white;
-    font-weight: bold;
+  background-color: $danger;
+  color: $white;
+  font-weight: bold;
 }
 
 .login .container {
-    margin-top: 75px;
-    padding: 25px;
-    max-width: 785px;
-    background: $white;
+  background: $white;
+  margin-top: 75px;
+  max-width: 785px;
+  padding: 25px;
 }
 
 .logo-left {
-    float: left;
+  float: left;
 }
 
 .login-title-label {
-    margin-bottom: 10px;
-    margin-left: 30px;
-    font-weight: bold;
-    font-size: 130%;
+  font-size: 130%;
+  font-weight: bold;
+  margin-bottom: 10px;
+  margin-left: 30px;
 }
 
 .login-logo-wrapper {
-    max-width: 400px;
+  max-width: 400px;
 }
 
 .tinylogopng {
-    width: 86px;
-    height: 43px;
-    margin-bottom: 10px;
+  height: 43px;
+  margin-bottom: 10px;
+  width: 86px;
 }
 
 #ui-id-1 > .message {
-    color: $danger;
-    font-weight: bold;
+  color: $danger;
+  font-weight: bold;
 }

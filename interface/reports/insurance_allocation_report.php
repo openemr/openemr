@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This module shows relative insurance usage by unique patients
  * that are seen within a given time period.  Each patient that had
@@ -51,7 +52,7 @@ if ($_POST['form_csvexport']) {
     <?php Header::setupHeader('datetime-picker'); ?>
 
 <script>
-    $(function() {
+    $(function () {
     var win = top.printLogSetup ? top : opener.top;
     win.printLogSetup(document.getElementById('printbutton'));
 
@@ -101,7 +102,7 @@ if ($_POST['form_csvexport']) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Patient Insurance Distribution'); ?></span>
 
 <div id="report_parameters_daterange">
-    <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt("to{{Range}}") . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt("to{{Range}}") . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' method='post' action='insurance_allocation_report.php' id='theform' onsubmit='return top.restoreSession()'>
@@ -199,7 +200,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         "FROM insurance_data, insurance_companies WHERE " .
         "insurance_data.pid = ? AND " .
         "insurance_data.type = 'primary' AND " .
-        "insurance_data.date <= ? AND " .
+        "(insurance_data.date <= ? OR insurance_data.date IS NULL) AND " .
         "insurance_companies.id = insurance_data.provider " .
         "ORDER BY insurance_data.date DESC LIMIT 1", array($patient_id, $encounter_date));
         $plan = $irow['name'] ? $irow['name'] : '-- No Insurance --';

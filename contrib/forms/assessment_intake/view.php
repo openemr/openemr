@@ -1,4 +1,5 @@
 <?php
+
 /**
  * assessment_intake view.php.
  *

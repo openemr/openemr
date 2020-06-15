@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -380,7 +382,7 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['productCategory'])) {
@@ -398,7 +400,7 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
                         $this->addRequest($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"request" must be array of objects or null, '.gettype($data['request']).' seen.');
+                    throw new \InvalidArgumentException('"request" must be array of objects or null, ' . gettype($data['request']) . ' seen.');
                 }
             }
             if (isset($data['quantity'])) {
@@ -410,7 +412,7 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
                         $this->addParent($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"parent" must be array of objects or null, '.gettype($data['parent']).' seen.');
+                    throw new \InvalidArgumentException('"parent" must be array of objects or null, ' . gettype($data['parent']) . ' seen.');
                 }
             }
             if (isset($data['collection'])) {
@@ -422,7 +424,7 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
                         $this->addProcessing($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"processing" must be array of objects or null, '.gettype($data['processing']).' seen.');
+                    throw new \InvalidArgumentException('"processing" must be array of objects or null, ' . gettype($data['processing']) . ' seen.');
                 }
             }
             if (isset($data['manipulation'])) {
@@ -434,11 +436,11 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
                         $this->addStorage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"storage" must be array of objects or null, '.gettype($data['storage']).' seen.');
+                    throw new \InvalidArgumentException('"storage" must be array of objects or null, ' . gettype($data['storage']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

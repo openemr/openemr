@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Trending script for graphing objects.
  *
@@ -54,18 +55,26 @@ Header::setupAssets(['dygraphs', 'jquery']);
 // Also customize the 'graph' class to look like links.
 ?>
 <style>
-  .currentvalues { display: none;}
-  .valuesunfocus { display: none;}
-  .editonly      { display: none !important;}
+  .currentvalues {
+    display: none;
+  }
+  .valuesunfocus {
+    display: none;
+  }
+  .editonly {
+    display: none !important;
+  }
 
-  .graph {color:#0000cc;}
+  .graph {
+    color: #0000cc;
+  }
 
   #chart {
     margin:0em 1em 2em 2em;
   }
 </style>
 
-<script type="text/javascript">
+<script>
 
 
 // Show the selected chart in the 'chart' div element
@@ -114,7 +123,7 @@ function show_graph(table_graph, name_graph, title_graph)
     });
 }
 
-$(function (){
+$(function () {
 
   // Use jquery to show the 'readonly' class entries
   $('.readonly').show();

@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -36,7 +37,7 @@ $list_id = $_REQUEST['list_id'];
 <html>
     <head>
         <?php Header::setupHeader('opener'); ?>
-        <script type="text/javascript">
+        <script>
         function add_template(){
             top.restoreSession();
             mainform=window.opener.opener.document;
@@ -98,8 +99,8 @@ $list_id = $_REQUEST['list_id'];
                         <select multiple name="multi_context[]" id="multi_context" size="5">
                             <?php
                             $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
-                            while ($row=sqlFetchArray($res)) {
-                                echo "<option value='".htmlspecialchars($row['cl_list_id'], ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</option>";
+                            while ($row = sqlFetchArray($res)) {
+                                echo "<option value='" . htmlspecialchars($row['cl_list_id'], ENT_QUOTES) . "'>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</option>";
                             }
                             ?>
                         </select>

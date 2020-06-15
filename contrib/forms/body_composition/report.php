@@ -1,4 +1,5 @@
 <?php
+
 /**
  * body_composition report.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
@@ -22,9 +22,11 @@ function body_composition_report($pid, $encounter, $cols, $id)
     if ($data) {
         print "<table cellpadding='0' cellspacing='0'>\n<tr>\n";
         foreach ($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
-             $key == "authorized" || $key == "activity" || $key == "date" ||
-             $value == "" || $value == "0" || $value == "0.00") {
+            if (
+                $key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
+                $key == "authorized" || $key == "activity" || $key == "date" ||
+                $value == "" || $value == "0" || $value == "0.00"
+            ) {
                 continue;
             }
 
@@ -32,7 +34,7 @@ function body_composition_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
-            $key=ucwords(str_replace("_", " ", $key));
+            $key = ucwords(str_replace("_", " ", $key));
             print "<td valign='top'><span class='bold'>" . text($key) . ": </span><span class='text'>" . text($value) . " &nbsp;</span></td>\n";
             $count++;
             if ($count == $cols) {

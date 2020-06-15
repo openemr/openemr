@@ -1,36 +1,36 @@
 .logout {
-    color: $body-color;
-    text-decoration: none;
-    text-align: $left;
+  color: $body-color;
+  text-align: $left;
+  text-decoration: none;
 }
 
 .more {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .back {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .link_selected {
-    text-decoration: none;
-    color: $primary;
+  color: $primary;
+  text-decoration: none;
 }
 
 .link_selected:visited {
-    text-decoration: none;
-    color: $primary;
+  color: $primary;
+  text-decoration: none;
 }
 
 .link_submit {
-    text-decoration: none;
+  color: darken($primary, 20%);
+  text-decoration: none;
+
+  a:visited {
     color: darken($primary, 20%);
+  }
 
-    a:visited {
-        color: darken($primary, 20%);
-    }
-
-    a:hover {
-        color: lighten($danger, 10%);
-    }
+  a:hover {
+    color: lighten($danger, 10%);
+  }
 }

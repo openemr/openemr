@@ -1,4 +1,5 @@
 <?php
+
 /**
  * /interface/main/messages/save.php
  *
@@ -16,6 +17,7 @@ require_once "$srcdir/patient.inc";
 require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionUtil;
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 if ($_REQUEST['go'] == 'sms_search') {
@@ -126,7 +128,7 @@ if ($_REQUEST['MedEx'] == "start") {
 								PHONE_country_code,LABELS_local,LABELS_choice)
 							VALUES (?,?,?,?,?,?,?,?,?,?)";
             sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "1", "5160"));
-            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='library/MedEx/MedEx_background.php' WHERE `name`='MedEx'");
+            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx'");
 
             $info = $MedEx->login('1');
 
@@ -138,8 +140,8 @@ if ($_REQUEST['MedEx'] == "start") {
         } else {
             $response_prob = array();
             $response_prob['show'] = xlt("We ran into some problems connecting your EHR to the MedEx servers") . ".<br >
-				" .xlt('Most often this is due to a Username/Password mismatch')."<br />"
-                .xlt('Run Setup again or contact support for assistance').
+				" . xlt('Most often this is due to a Username/Password mismatch') . "<br />"
+                . xlt('Run Setup again or contact support for assistance') .
                 " <a href='https://medexbank.com/cart/upload/'>MedEx Bank</a>.<br />";
             echo json_encode($response_prob);
             sqlQuery("UPDATE `background_services` SET `active`='0' WHERE `name`='MedEx'");
@@ -224,9 +226,11 @@ if ($_REQUEST['action'] == "process") {
         return "done";
     }
     $pc_eidList = json_decode($_POST['pc_eid'], true);
-    $_SESSION['pc_eidList'] = $pc_eidList[0];
     $pidList = json_decode($_POST['parameter'], true);
-    $_SESSION['pidList'] = $pidList;
+    $sessionSetArray['pc_eidList'] = $pc_eidList[0];
+    $sessionSetArray['pidList'] = $pidList;
+    SessionUtil::setSession($sessionSetArray);
+
     if ($_POST['item'] == "postcards") {
         foreach ($pidList as $pid) {
             $sql = "INSERT INTO medex_outgoing (msg_pc_eid, msg_type, msg_reply, msg_extra_text) VALUES (?,?,?,?)";

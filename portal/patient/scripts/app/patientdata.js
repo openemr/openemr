@@ -336,11 +336,11 @@ var page = {
 	 */
 	getEditedPatient: function(m) {
 		page.portalpatient = m ? m : new model.PortalPatientModel();
-		page.portalpatient.set('id','1')
+		page.portalpatient.set('id', page.patient.get('id'))
 			page.portalpatient.fetch({
 				data: { 'patientId': cpid },
 				success: function() {
-					// audit profil data returned render needs to be here due to chaining
+					// audit profile data returned. render needs to be here due to chaining
 					page.renderModelView(false);
 					return true;
 				},

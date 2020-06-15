@@ -1,4 +1,5 @@
 <?php
+
 /**
  * oeDispatchController class
  *
@@ -8,6 +9,8 @@
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Session\SessionUtil;
 
 abstract class oeDispatchController
 {
@@ -154,7 +157,7 @@ abstract class oeDispatchController
 
     public function setSession($key, $value)
     {
-        $_SESSION[$key] = $value;
+        SessionUtil::setSession($key, $value);
         return $this;
     }
 

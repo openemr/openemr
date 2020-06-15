@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/view/action.php
  *
@@ -10,13 +11,14 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <?php $action = $viewBean->action?>
 <?php $rule = $viewBean->rule?>
 
-<script language="javascript" src="<?php js_src('edit.js') ?>"></script>
-<script language="javascript" src="<?php js_src('bucket.js') ?>"></script>
-<script type="text/javascript">
+<script src="<?php js_src('edit.js') ?>"></script>
+<script src="<?php js_src('bucket.js') ?>"></script>
+<script>
     var edit = new rule_edit( {});
     edit.init();
 

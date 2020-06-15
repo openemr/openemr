@@ -1,81 +1,73 @@
 {if !$reportMode}
     <html>
     <head>
-	{headerTemplate assets='jquery-ui|jquery-ui-lightness'}
-{else}
-    {assetsTemplate assets='jquery-ui|jquery-ui-lightness'}
+    {headerTemplate}
 {/if}
-<script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/clickmap.js"></script>
-<link rel="stylesheet" type="text/css" href="{$form->template_dir}/css/clickmap.css" />
+<script src="{php}echo $GLOBALS['webroot'];{/php}/library/js/clickmap.js"></script>
+<link rel="stylesheet" href="{$form->template_dir}/css/clickmap.css" />
 {if !$reportMode}
 	</head>
 	<body>
 {/if}
-<div class="outer-container">
-	<div id="container" class="container graphic-pain-map">
-		<img src="{$form->image}"/>
-	</div>
-	<div id="legend" class="legend graphic-pain-map">
-		<div class="body">
-			<ul></ul>
-		</div>
-	</div>
-</div>
-<p style="clear:both">
-
-<div class="nav">
-	<button id="btn_save">{xl t="Save"}</button>
-	<button id="btn_clear">{xl t="Clear"}</button>
-	<button id="cancel">{xl t="Cancel"}</button>
-	<p>
-        {xl t="Click a spot on the graphic to add a new annotation, click it again to remove it"} <br/>
-        {xl t="The 'Clear' button will remove all annotations."}
-    </p>
-</div>
-
-<div class="dialog-form" style="display:none">
-	<fieldset>
-	<label for="label">{xl t="Label"}</label>
-	<input type="text" name="label" id="label" class="text ui-widget-content ui-corner-all label" />
-	<label for="options"></label>
-	<select name="options">
-	</select>
-	<label for="detail">{xl t="Detail"}</label>
-	<textarea name="detail" id="detail" class="textarea ui-widget-content ui-corner-all detail"></textarea>
-	</fieldset>
+<div class="container">
+    <div class="row">
+        <div class="col-9">
+            <div id="container" class="container graphic-pain-map">
+                <img src="{$form->image}"/>
+            </div>
+        </div>
+        <div class="col-3">
+            <div id="legend" class="legend graphic-pain-map">
+                <div class="body">
+                    <ul></ul>
+                </div>
+            </div>
+        </div>
+        {if !$reportMode}
+            <div class="col-12">
+                <div class="btn-group">
+                    <button class="btn btn-primary btn-save" id="btn_save">{xl t="Save"}</button>
+                    <button class="btn btn-secondary btn-delete" id="btn_clear">{xl t="Clear"}</button>
+                    <button class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); location.href='javascript:parent.closeTab(window.name, false)'">{xl t="Cancel"}</button>
+                </div>
+                <p>
+                    {xl t="Click a spot on the graphic to add a new annotation, click it again to remove it"} <br/>
+                    {xl t="The 'Clear' button will remove all annotations."}
+                </p>
+            </div>
+        {/if}
+    </div>
 </div>
 
-<div class="marker-template" style="display:none">
+<div class="marker-template d-none">
 	<span class='count'></span>
 </div>
 
-<script type="text/javascript">
-var cancellink = '{$DONT_SAVE_LINK}';
+<script>
 {literal}
-    $( function() {
-                $("#cancel").click(function() { location.href=cancellink; });
+    $(function () {
 		var optionsLabel = {/literal}{$form->optionsLabel}{literal};
 		var options = {/literal}{$form->optionList}{literal};
 		var data = {/literal}{$form->data}{literal};
 		var hideNav = {/literal}{$form->hideNav}{literal};
 
-		clickmap( {
-                        hideNav: hideNav,
-                        data: data,
+		clickmap({
+            hideNav: hideNav,
+            data: data,
 			dropdownOptions: { label: optionsLabel, options: options },
 			container: $("#container")
-		} );
+		});
 	});
 {/literal}
 </script>
 
-<form id="submitForm" name="submitForm" method="post" action="{$form->saveAction}" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="id" value="{$form->get_id()}" />
-    <input type="hidden" name="pid" value="{$form->get_pid()}" />
-    <input type="hidden" name="process" value="true" />
-    <input type="hidden" name="data" id="data" value=""/>
-</form>
 {if !$reportMode}
-	</body>
-	</html>
+    <form id="submitForm" name="submitForm" method="post" action="{$form->saveAction}" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="id" value="{$form->get_id()}" />
+        <input type="hidden" name="pid" value="{$form->get_pid()}" />
+        <input type="hidden" name="process" value="true" />
+        <input type="hidden" name="data" id="data" value=""/>
+    </form>
+    </body>
+    </html>
 {/if}

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * List Amendments
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -33,7 +33,7 @@ tr.selected {
 }
 </style>
 
-<script type="text/javascript">
+<script>
     function checkForAmendments() {
         var amendments = "";
         $("#list_amendments input:checkbox:checked").each(function() {
@@ -96,8 +96,8 @@ if (sqlNumRows($resultSet)) { ?>
                 <td><input id="check_list[]" name="check_list[]" type="checkbox" value="<?php echo attr($row['amendment_id']); ?>"></td>
                 <td class=text><?php echo $amendmentLink; ?> </td>
                 <td class=text><?php echo text($row['amendment_desc']); ?> </td>
-                <td class=text><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'amendment_from'), $row['amendment_by']); ?> </td>
-                <td class=text><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'amendment_status'), $row['amendment_status']); ?> </td>
+                <td class=text><?php echo generate_display_field(array('data_type' => '1','list_id' => 'amendment_from'), $row['amendment_by']); ?> </td>
+                <td class=text><?php echo generate_display_field(array('data_type' => '1','list_id' => 'amendment_status'), $row['amendment_status']); ?> </td>
             </tr>
         <?php } ?>
         </table>

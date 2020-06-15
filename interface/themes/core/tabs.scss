@@ -3,99 +3,99 @@
 */
 
 ul.tabNav {
-    float: $left;
-    list-style: none;
-    width: 100%;
+  float: $left;
+  list-style: none;
+  width: 100%;
 }
 
 ul.tabNav li {
-    float: $left;
-    vertical-align: bottom;
-    text-align: $left;
+  float: $left;
+  text-align: $left;
+  vertical-align: bottom;
 }
 
 ul.tabNav a {
-    display: block;
+  display: block;
 }
 
 div.tabContainer {
-    clear: both;
-    float: $left;
-    width: 100%;
+  clear: both;
+  float: $left;
+  width: 100%;
 }
 
 div.tabContainer div.tab {
-    border: 1px solid $white;
-    color: $body-color;
-    display: none;
-    padding: 10px;
+  border: 1px solid $white;
+  color: $body-color;
+  display: none;
+  padding: 10px;
 }
 
 div.tabContainer div.current {
-    display: block;
+  display: block;
 }
 
 div.tab {
-    min-height: 180px;
-    background: $white none repeat scroll 0 0;
-    margin-bottom: 10px;
-    width: 665px;
+  background: $white none repeat scroll 0 0;
+  margin-bottom: 10px;
+  min-height: 180px;
+  width: 665px;
 }
 
 div.tab_long {
-    min-height: 180px;
-    background: $white none repeat scroll 0 0;
-    margin-bottom: 10px;
-    width: 100%;
+  background: $white none repeat scroll 0 0;
+  margin-bottom: 10px;
+  min-height: 180px;
+  width: 100%;
 }
 
 div.tab p:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 div.tab table td {
-    padding-right: 1px;
-    padding-bottom: 0;
+  padding-bottom: 0;
+  padding-#{$right}: 1px;
 }
 
 div.tab table td.label_custom {
-    min-width: 80px;
+  min-width: 80px;
 }
 
 div.tab table td.data {
-    min-width: 120px;
+  min-width: 120px;
 }
 
 div.notab {
-    background: $white none repeat scroll 0 0;
-    margin-bottom: 10px;
-    width: 100%;
+  background: $white none repeat scroll 0 0;
+  margin-bottom: 10px;
+  width: 100%;
 }
 
 div.notab-right {
-    background: $white none repeat scroll 0 0;
-    margin-bottom: 10px;
-    width: 100%;
+  background: $white none repeat scroll 0 0;
+  margin-bottom: 10px;
+  width: 100%;
 }
 
 .section-header {
-    margin-bottom: 5px;
-    width: 685px;
-    border-bottom: 1px solid;
+  border-bottom: 1px solid;
+  margin-bottom: 5px;
+  width: 685px;
 }
 
 .section-header-dynamic {
-    margin-bottom: 5px;
-    border-bottom: 1px solid;
+  border-bottom: 1px solid;
+  margin-bottom: 5px;
 }
 
 .summary_item {
-    background: $white;
-    padding: 8px;
+  background: $white;
+  padding: 8px;
 }
 
 @include if-rtl {
-    #sddm li a {
-        padding: 4px 10px;
-    }
+  #sddm li a {
+    padding: 4px 10px;
+  }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PatientController.php
  *
@@ -50,11 +51,16 @@ class PatientController extends AppBaseController
         $rid = $pid = $user = $encounter = $register = 0;
 
         if (isset($_GET['id'])) {
-            $rid = ( int ) $_GET['id'];
+            $rid = (int) $_GET['id'];
         }
 
         if (isset($_GET['pid'])) {
-            $pid = ( int ) $_GET['pid'];
+            $pid = (int) $_GET['pid'];
+        }
+
+        // only allow patient to see themself
+        if (!empty($GLOBALS['bootstrap_pid'])) {
+            $pid = $GLOBALS['bootstrap_pid'];
         }
 
         if (isset($_GET['user'])) {
@@ -90,7 +96,7 @@ class PatientController extends AppBaseController
     {
         try {
             $criteria = new PatientCriteria();
-            $recnum = ( int ) $pid;
+            $recnum = (int) $pid;
             $criteria->Pid_Equals = $recnum;
 
             $output = new stdClass();
@@ -111,6 +117,12 @@ class PatientController extends AppBaseController
         try {
             $criteria = new PatientCriteria();
             $pid = RequestUtil::Get('patientId');
+
+            // only allow patient to see themself
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                $pid = $GLOBALS['bootstrap_pid'];
+            }
+
             $criteria->Pid_Equals = $pid;
 
             $output = new stdClass();
@@ -375,9 +387,13 @@ class PatientController extends AppBaseController
             $audit['action_taken_time'] = date("Y-m-d H:i:s");
             $audit['checksum'] = "0";
 
+            // returns false for new audit
             $edata = $appsql->getPortalAudit($ja['pid'], 'review');
-            $audit['date'] = $edata['date'];
-            if ($edata['id'] > 0) {
+            if ($edata) {
+                if (empty($edata['id'])) {
+                    throw new Exception("Invalid ID on Save!");
+                }
+                $audit['date'] = $edata['date'] ?? null;
                 $appsql->portalAudit('update', $edata['id'], $audit);
             }
         } catch (Exception $ex) {

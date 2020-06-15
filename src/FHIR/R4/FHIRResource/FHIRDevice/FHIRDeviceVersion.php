@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDevice;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDevice;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -173,8 +175,8 @@ class FHIRDeviceVersion extends FHIRBackboneElement implements \JsonSerializable
             if (isset($data['value'])) {
                 $this->setValue($data['value']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

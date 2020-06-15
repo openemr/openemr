@@ -13,8 +13,8 @@ $code_list  = $this->code_list;
 $provider   = $this->provider;
 
 ?>
-<script type="text/javascript">
-    $(function (){
+<script>
+    $(function () {
         height_value = $('.responsive tr').length * 25 + 220;
         if(height_value < 300){ height_value = 300 };
         if (parent.document.getElementById('syndromicsurveillance_iframe')) {
@@ -47,8 +47,8 @@ $provider   = $this->provider;
                         <td nowrap>
                             <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_from" id="form_date_from" class="dateClass_syndrome"/>
                             <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_to" id="form_date_to" class="dateClass_syndrome"/>
-                            <script type="text/javascript">
-                                $(function (){
+                            <script>
+                                $(function () {
                                     $( "#form_date_from" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_date_from'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>' );
                                     $( "#form_date_to" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_date_to'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
                                 });

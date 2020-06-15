@@ -20,3 +20,6 @@ ccdaservice/node_modules
 /.idea/*
 /nbproject/*
 .DS_Store
+
+# testing
+.phpunit.result.cache

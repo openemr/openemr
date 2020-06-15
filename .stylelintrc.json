@@ -1,0 +1,20 @@
+{
+    "plugins": ["stylelint-order", "stylelint-scss"],
+    "extends": "stylelint-config-standard",
+    "extends": "stylelint-config-sass-guidelines",
+    "rules": {
+        "selector-no-qualifying-type": [true, {
+            "ignore": ["attribute", "class", "id"]
+        }],
+        "string-quotes": null,
+        "selector-class-pattern": null,
+        "selector-max-id": null,
+        "selector-max-compound-selectors": null,
+        "at-rule-no-unknown": null,
+        "declaration-empty-line-before": null,
+        "at-rule-empty-line-before": null,
+        "scss/at-mixin-pattern": null,
+        "max-nesting-depth": null,
+        "scss/at-extend-no-missing-placeholder": null
+    }
+}

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * find_drug_popup.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -32,7 +32,7 @@ $form_code_type = $_POST['form_code_type'];
 td { font-size:10pt; }
 </style>
 
-<script language="JavaScript">
+<script>
 //pass value selected to the parent window
  function window_submit(chk)
  {
@@ -156,7 +156,7 @@ function check_search_str()
     $query = "SELECT count(*) as count FROM drugs " .
       "WHERE (drug_id LIKE ? OR " .
       "name LIKE ?) ";
-    $res = sqlStatement($query, array('%'.$search_term.'%', '%'.$search_term.'%'));
+    $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
     if ($row = sqlFetchArray($res)) {
         $no_of_items = $row['count'];
         if ($no_of_items < 1) {
@@ -173,7 +173,7 @@ function check_search_str()
         "WHERE (drug_id LIKE ? OR " .
         "name LIKE ?) " .
         "ORDER BY drug_id";
-        $res = sqlStatement($query, array('%'.$search_term.'%', '%'.$search_term.'%'));
+        $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
         $row_count = 0;
         while ($row = sqlFetchArray($res)) {
               $row_count = $row_count + 1;

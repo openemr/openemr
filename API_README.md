@@ -1,37 +1,110 @@
-![img](./public/images/openemr-rest-api.png)
+# OpenEMR REST API Documentation
 
-### Goal
+## Overview
 
-This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's most common functions. All code will be done in classes and separate from the view to help with codebase modernization efforts.
+Easy-to-use JSON-based REST API for OpenEMR. All code is done in classes and separate from the view to help with codebase modernization efforts. FHIR is also supported, see FHIR API documentation [here](FHIR_README.md)
 
-### Team
+## Implementation
 
-- [@sjpadgett](https://github.com/sjpadgett)
-- [@matthewvita](https://github.com/matthewvita)
-- [@juggernautsei](https://github.com/juggernautsei)
-- [@kofiav](https://github.com/kofiav)
-- [@bradymiller](https://github.com/bradymiller)
+REST API endpoints are defined in the [primary routes file](_rest_routes.inc.php). The routes file maps an external, addressable
+endpoint to the OpenEMR controller which handles the request, and also handles the JSON data conversions.
 
-### Prerequsite
-Enable this API service in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR REST API"
+```php
+"POST /api/patient" => function () {
+    RestConfig::authorization_check("patients", "demo");
+    $data = (array)(json_decode(file_get_contents("php://input")));
+    return (new PatientRestController())->post($data);
+}
+```
+
+At a high level, the request processing flow consists of the following steps:
+
+```
+JSON Request -> Controller Component -> Validation -> Service Component -> Database
+```
+
+The logical response flow begins with the database result:
+
+```
+Database Result -> Service Component -> Controller Component -> RequestControllerHelper -> JSON Response
+```
+
+The [RequestControllerHelper class](./src/RestControllers/RestControllerHelper.php) evaluates the Service Component's
+result and maps it to a http response code and response payload. Existing APIs should be updated to utilize the
+`handleProcessingResult` method as it supports the [Validator](./src/Validators/BaseValidator.php) components.
+
+The [PatientRestController](./src/RestControllers/PatientRestController.php) may be used as a reference to see how APIs are
+integrated with `RequestControllerHelper::handleProcessingResult` and the `Validator` components.
+
+Finally, APIs which are integrated with the new `handleProcessingResult` method utilize a common response format.
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": < data payload >
+}
+```
+
+-   `validationErrors` contain "client based" data validation errors
+-   `internalErrors` contain server related errors
+-   `data` is the response payload, represented as an object/`{}` for single results or an array/`[]` for multiple results
+
+### Sections
+
+-   [Standard API Endpoints](API_README.md#api-endpoints)
+    -   [Facility API](API_README.md#post-apifacility)
+    -   [Provider API](API_README.md#get-apiprovider)
+    -   [Patient API](API_README.md#post-apipatient)
+    -   [Insurance API](API_README.md#get-apipatientpidinsurance)
+    -   [Appointment API](API_README.md#get-apiappointment)
+    -   [Document API](API_README.md#get-apipatientpiddocument)
+    -   [Message API](API_README.md#post-apipatientpidmessage)
+-   [Portal API Endpoints](API_README.md#portal-Endpoints)
+    -   [Patient API](API_README.md#get-portalpatient)
+-   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
+    -   [FHIR Patient API](FHIR_README.md#get-fhirpatient)
+    -   [FHIR Encounter API](FHIR_README.md#get-fhirencounter)
+    -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
+    -   [FHIR AllergyIntolerance API](FHIR_README.md#get-fhirallergyintolerance)
+    -   [FHIR Observation API](FHIR_README.md#get-fhirobservation)
+    -   [FHIR QuestionnaireResponse API](FHIR_README.md#get-fhirquestionnaireresponse)
+    -   [FHIR Immunization API](FHIR_README.md#get-fhirimmunization)
+    -   [FHIR Condition API](FHIR_README.md#get-fhircondition)
+    -   [FHIR Procedure API](FHIR_README.md#get-fhirprocedure)
+    -   [FHIR MedicationStatement API](FHIR_README.md#get-fhirmedicationstatement)
+    -   [FHIR Medication API](FHIR_README.md#get-fhirmedication)
+-   [Portal FHIR API Endpoints](FHIR_README.md#portalfhir-endpoints)
+    -   [Patient API](FHIR_README.md#get-portalfhirpatient)
+-   [Dev notes](API_README.md#dev-notes)
+-   [Todos](API_README.md#project-management)
+
+### Prerequisite
+
+Enable the Standard API service (/api/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Standard REST API"
+Enable the Patient Portal API service (/portal/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal REST API"
 
 ### Using API Internally
+
 There are several ways to make API calls from an authorized session and maintain security:
-* See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
 
-### Endpoints
-Note: FHIR endpoints follow normal FHIR REST endpoints. Use `https://domain/apis/fhir as base URI.`
+-   See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
 
-_Example:_ `https://domain/apis/fhir/Patient` returns a Patients bundle resource and etc..
+### /api/ Endpoints
+
+OpenEMR standard endpoints Use `http://localhost:8300/apis/api as base URI.`
+
+_Example:_ `http://localhost:8300/apis/api/patient` returns a resource of all Patients.
 
 #### POST /api/auth
 
-Obtain an API token with your login (returns an API token). For FHIR replace Uri component 'api' with 'fhir':
-Scope must match a site that has been setup in OpenEMR in the /sites/ directory.  If you haven't created additional sites
-then 'default' should be the scope.
+The OpenEMR API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory. If additional sites have not been created, set the scope
+to 'default'.
 
-```
-curl -X POST -H 'Content-Type: application/json' 'https://localhost:8300/apis/api/auth' \
+Request:
+
+```sh
+curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/api/auth' \
 -d '{
     "grant_type":"password",
     "username": "ServiceUser",
@@ -39,24 +112,34 @@ curl -X POST -H 'Content-Type: application/json' 'https://localhost:8300/apis/ap
     "scope":"site id"
 }'
 ```
+
 Response:
-```
+
+```json
 {
-"token_type":"Bearer",
-"access_token":"d2870cb522230dbb8946b2f47d2c7e6664656661756c74",
-"expires_in":"3600"
+    "token_type": "Bearer",
+    "access_token": "eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ==",
+    "expires_in": "3600",
+    "user_data": {
+        "user_id": "1"
+    }
 }
 ```
-Each call must include the token:
 
-```
+The Bearer token is required for each OpenEMR API request, and is conveyed using an Authorization header.
+
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem' \
-  -H 'Authorization: Bearer d2870cb522230dbb8946b2f47d2c7e6664656661756c74'
+  -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ=='
 ```
 
 #### POST /api/facility
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/facility' -d \
 '{
     "name": "Aquaria",
@@ -75,7 +158,9 @@ curl -X POST 'http://localhost:8300/apis/api/facility' -d \
 
 #### PUT /api/facility/:fid
 
-```
+Request:
+
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/facility/1' -d \
 '{
     "name": "Aquaria",
@@ -94,31 +179,41 @@ curl -X PUT 'http://localhost:8300/apis/api/facility/1' -d \
 
 #### GET /api/facility
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/facility'
 ```
 
 #### GET /api/facility/:fid
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/facility/1'
 ```
 
 #### GET /api/provider
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/provider'
 ```
 
 #### GET /api/provider/:prid
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/provider/1'
 ```
 
 #### POST /api/patient
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient' -d \
 '{
     "title": "Mr",
@@ -131,17 +226,31 @@ curl -X POST 'http://localhost:8300/apis/api/patient' -d \
     "state": "FL",
     "country_code": "US",
     "phone_contact": "123-456-7890",
-    "dob": "1992-02-02",
+    "DOB": "1992-02-02",
     "sex": "Male",
     "race": "",
     "ethnicity": ""
 }'
 ```
 
-#### PUT /api/patient/:pid
+Response:
 
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "pid": 1
+    }
+}
 ```
-curl -X PUT 'http://localhost:8300/apis/api/patient/1' -d \
+
+#### PUT /api/patient/:puuid
+
+Request:
+
+```sh
+curl -X PUT 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
 '{
     "title": "Mr",
     "fname": "Baz",
@@ -153,44 +262,289 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1' -d \
     "state": "FL",
     "country_code": "US",
     "phone_contact": "123-456-7890",
-    "dob": "1992-02-03",
+    "DOB": "1992-02-03",
     "sex": "Male",
     "race": "",
     "ethnicity": ""
 }'
 ```
 
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "id": "193",
+        "pid": "1",
+        "pubpid": "",
+        "title": "Mr",
+        "fname": "Baz",
+        "mname": "",
+        "lname": "Bop",
+        "ss": "",
+        "street": "456 Tree Lane",
+        "postal_code": "08642",
+        "city": "FooTown",
+        "state": "FL",
+        "county": "",
+        "country_code": "US",
+        "drivers_license": "",
+        "contact_relationship": "",
+        "phone_contact": "123-456-7890",
+        "phone_home": "",
+        "phone_biz": "",
+        "phone_cell": "",
+        "email": "",
+        "DOB": "1992-02-03",
+        "sex": "Male",
+        "race": "",
+        "ethnicity": "",
+        "status": ""
+    }
+}
+```
+
 #### GET /api/patient
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient'
 ```
 
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": [{ patientRecord }, { patientRecord }, etc]
+}
 ```
+
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient&fname=...&lname=...&dob=...'
 ```
 
-#### GET /api/patient/:pid
+Response:
 
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": [{ patientRecord }, { patientRecord }, etc]
+}
 ```
-curl -X GET 'http://localhost:8300/apis/api/patient/1'
+
+#### GET /api/patient/:puuid
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7'
+```
+
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "id": "193",
+        "pid": "1",
+        "pubpid": "",
+        "title": "Mr",
+        "fname": "Baz",
+        "mname": "",
+        "lname": "Bop",
+        "ss": "",
+        "street": "456 Tree Lane",
+        "postal_code": "08642",
+        "city": "FooTown",
+        "state": "FL",
+        "county": "",
+        "country_code": "US",
+        "drivers_license": "",
+        "contact_relationship": "",
+        "phone_contact": "123-456-7890",
+        "phone_home": "",
+        "phone_biz": "",
+        "phone_cell": "",
+        "email": "",
+        "DOB": "1992-02-03",
+        "sex": "Male",
+        "race": "",
+        "ethnicity": "",
+        "status": ""
+    }
+}
+```
+
+#### POST /api/patient/:pid/encounter
+
+Request:
+
+```sh
+curl -X POST 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7/encounter' -d \
+'{
+    "date":"2020-11-10",
+    "onset_date": "",
+    "reason": "Pregnancy Test",
+    "facility": "Owerri General Hospital",
+    "pc_catid": "5",
+    "facility_id": "3",
+    "billing_facility": "3",
+    "sensitivity": "normal",
+    "referral_source": "",
+    "pos_code": "0",
+    "external_id": "",
+    "provider_id": "1",
+    "class_code" : "AMB"
+}'
+```
+
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "encounter": 1,
+        "uuid": "90c196f2-51cc-4655-8858-3a80aebff3ef"
+    }
+}
+```
+
+#### PUT /api/patient/:pid/encounter/:eid
+
+Request:
+
+```sh
+curl -X POST 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7/encounter/90c196f2-51cc-4655-8858-3a80aebff3ef' -d \
+'{
+    "date":"2019-09-14",
+    "onset_date": "2019-04-20 00:00:00",
+    "reason": "Pregnancy Test",
+    "pc_catid": "5",
+    "facility_id": "3",
+    "billing_facility": "3",
+    "sensitivity": "normal",
+    "referral_source": "",
+    "pos_code": "0"
+}'
+```
+
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "id": "1",
+        "uuid": "90c196f2-51cc-4655-8858-3a80aebff3ef",
+        "date": "2019-09-14 00:00:00",
+        "reason": "Pregnancy Test",
+        "facility": "Owerri General Hospital",
+        "facility_id": "3",
+        "pid": "1",
+        "onset_date": "2019-04-20 00:00:00",
+        "sensitivity": "normal",
+        "billing_note": null,
+        "pc_catid": "5",
+        "last_level_billed": "0",
+        "last_level_closed": "0",
+        "last_stmt_date": null,
+        "stmt_count": "0",
+        "provider_id": "1",
+        "supervisor_id": "0",
+        "invoice_refno": "",
+        "referral_source": "",
+        "billing_facility": "3",
+        "external_id": "",
+        "pos_code": "0",
+        "class_code": "AMB",
+        "class_title": "ambulatory",
+        "pc_catname": "Office Visit",
+        "billing_facility_name": "Owerri General Hospital"
+    }
+}
 ```
 
 #### GET /api/patient/:pid/encounter
 
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7/encounter'
 ```
-curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter'
+
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": [{ encounterRecord }, { encounterRecord }, etc]
+}
 ```
 
 #### GET /api/patient/:pid/encounter/:eid
 
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7/encounter/90c196f2-51cc-4655-8858-3a80aebff3ef'
 ```
-curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1'
+
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "id": "1",
+        "uuid": "90c196f2-51cc-4655-8858-3a80aebff3ef",
+        "date": "2019-09-14 00:00:00",
+        "reason": "Pregnancy Test",
+        "facility": "Owerri General Hospital",
+        "facility_id": "3",
+        "pid": "1",
+        "onset_date": "2019-04-20 00:00:00",
+        "sensitivity": "normal",
+        "billing_note": null,
+        "pc_catid": "5",
+        "last_level_billed": "0",
+        "last_level_closed": "0",
+        "last_stmt_date": null,
+        "stmt_count": "0",
+        "provider_id": "1",
+        "supervisor_id": "0",
+        "invoice_refno": "",
+        "referral_source": "",
+        "billing_facility": "3",
+        "external_id": "",
+        "pos_code": "0",
+        "class_code": "AMB",
+        "class_title": "ambulatory",
+        "pc_catname": "Office Visit",
+        "billing_facility_name": "Owerri General Hospital"
+    }
+}
 ```
 
 #### POST /api/patient/:pid/encounter/:eid/vital
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/vital' -d \
 '{
     "bps": "130",
@@ -210,7 +564,9 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/vital' -d \
 
 #### PUT /api/patient/:pid/encounter/:eid/vital/:vid
 
-```
+Request:
+
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/vital/1' -d \
 '{
     "bps": "140",
@@ -230,19 +586,25 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/vital/1' -d \
 
 #### GET /api/patient/:pid/encounter/:eid/vital
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/vital'
 ```
 
 #### GET /api/patient/:pid/encounter/:eid/vital/:vid
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/vital/1'
 ```
 
 #### POST /api/patient/:pid/encounter/:eid/soap_note
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note' -d \
 '{
     "subjective": "...",
@@ -254,7 +616,9 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note' -d
 
 #### PUT /api/patient/:pid/encounter/:eid/soap_note/:sid
 
-```
+Request:
+
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note/1' -d \
 '{
     "subjective": "...",
@@ -266,19 +630,25 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note/1' -
 
 #### GET /api/patient/:pid/encounter/:eid/soap_note
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note'
 ```
 
 #### GET /api/patient/:pid/encounter/:eid/soap_note/:sid
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note/1'
 ```
 
 #### POST /api/patient/:pid/medical_problem
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/medical_problem' -d \
 '{
     "title": "Dermatochalasis",
@@ -290,7 +660,9 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/medical_problem' -d \
 
 #### PUT /api/patient/:pid/medical_problem/:mid
 
-```
+Request:
+
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/medical_problem/1' -d \
 '{
     "title": "Dermatochalasis",
@@ -302,25 +674,33 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/medical_problem/1' -d \
 
 #### GET /api/patient/:pid/medical_problem
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem'
 ```
 
 #### GET /api/patient/:pid/medical_problem/:mid
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
 ```
 
 #### DELETE /api/patient/:pid/medical_problem/:mid
 
-```
+Request:
+
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
 ```
 
 #### POST /api/patient/:pid/allergy
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/allergy' -d \
 '{
     "title": "Iodine",
@@ -331,7 +711,9 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/allergy' -d \
 
 #### PUT /api/patient/:pid/allergy/:aid
 
-```
+Request:
+
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/allergy/1' -d \
 '{
     "title": "Iodine",
@@ -342,25 +724,33 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/allergy/1' -d \
 
 #### GET /api/patient/:pid/allergy
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/allergy'
 ```
 
 #### GET /api/patient/:pid/allergy/:aid
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/allergy/1'
 ```
 
 #### DELETE /api/patient/:pid/allergy/:aid
 
-```
+Request:
+
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/allergy/1'
 ```
 
 #### POST /api/patient/:pid/medication
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/medication' -d \
 '{
     "title": "Norvasc",
@@ -371,7 +761,9 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/medication' -d \
 
 #### PUT /api/patient/:pid/medication/:mid
 
-```
+Request:
+
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/medication/1' -d \
 '{
     "title": "Norvasc",
@@ -382,25 +774,33 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/medication/1' -d \
 
 #### GET /api/patient/:pid/medication
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medication'
 ```
 
 #### GET /api/patient/:pid/medication/:mid
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medication/1'
 ```
 
 #### DELETE /api/patient/:pid/medication/:mid
 
-```
+Request:
+
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/medication/1'
 ```
 
 #### POST /api/patient/:pid/surgery
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/surgery' -d \
 '{
     "title": "Blepharoplasty",
@@ -412,7 +812,9 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/surgery' -d \
 
 #### PUT /api/patient/:pid/surgery/:sid
 
-```
+Request:
+
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/surgery/1' -d \
 '{
     "title": "Blepharoplasty",
@@ -424,25 +826,33 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/surgery/1' -d \
 
 #### GET /api/patient/:pid/surgery
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/surgery'
 ```
 
 #### GET /api/patient/:pid/surgery/:sid
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/surgery/1'
 ```
 
 #### DELETE /api/patient/:pid/surgery/:sid
 
-```
+Request:
+
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/surgery/1'
 ```
 
 #### POST /api/patient/:pid/dental_issue
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/dental_issue' -d \
 '{
     "title": "Halitosis",
@@ -453,7 +863,9 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/dental_issue' -d \
 
 #### PUT /api/patient/:pid/dental_issue/:did
 
-```
+Request:
+
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/dental_issue/1' -d \
 '{
     "title": "Halitosis",
@@ -464,37 +876,49 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/dental_issue/1' -d \
 
 #### GET /api/patient/:pid/dental_issue
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/dental_issue'
 ```
 
 #### GET /api/patient/:pid/dental_issue/:did
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/dental_issue/1'
 ```
 
 #### DELETE /api/patient/:pid/dental_issue/:did
 
-```
+Request:
+
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/dental_issue/1'
 ```
 
 #### GET /api/patient/:pid/insurance
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/insurance'
 ```
 
 #### GET /api/patient/:pid/insurance/:type
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/insurance/secondary'
 ```
 
 #### POST /api/patient/:pid/insurance/:type
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/10/insurance/primary' -d \
 '{
     "type": "primary",
@@ -529,14 +953,16 @@ curl -X POST 'http://localhost:8300/apis/api/patient/10/insurance/primary' -d \
 ```
 
 Notes:
-- `provider` is the insurance company id
-- `state` can be found by querying `resource=/api/list/state`
-- `country` can be found by querying `resource=/api/list/country`
 
+-   `provider` is the insurance company id
+-   `state` can be found by querying `resource=/api/list/state`
+-   `country` can be found by querying `resource=/api/list/country`
 
 #### PUT /api/patient/:pid/insurance/:type
 
-```
+Request:
+
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/10/insurance/primary' -d \
 '{
     "type": "primary",
@@ -571,43 +997,56 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/10/insurance/primary' -d \
 ```
 
 Notes:
-- `provider` is the insurance company id
-- `state` can be found by querying `resource=/api/list/state`
-- `country` can be found by querying `resource=/api/list/country`
+
+-   `provider` is the insurance company id
+-   `state` can be found by querying `resource=/api/list/state`
+-   `country` can be found by querying `resource=/api/list/country`
 
 #### GET /api/list/:list_name
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/list/medical_problem_issue_list'
 ```
 
 #### GET /api/version
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/version'
 ```
 
 #### GET /api/product
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/product'
 ```
 
 #### GET /api/insurance_company
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/insurance_company'
 ```
 
 #### GET /api/insurance_type
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/insurance_type'
 ```
 
 #### POST /api/insurance_company
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/insurance_company' -d \
 '{
     "name": "Cool Insurance Company",
@@ -630,7 +1069,9 @@ Notes: `ins_type_code` can be found by inspecting the above route (/api/insuranc
 
 #### PUT /api/insurance_company/:iid
 
-```
+Request:
+
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/insurance_company/1' -d \
 '{
     "name": "Super Insurance Company",
@@ -653,31 +1094,41 @@ Notes: `ins_type_code` can be found by inspecting the above route (/api/insuranc
 
 #### GET /api/appointment
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/appointment'
 ```
 
 #### GET /api/appointment/:eid
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/appointment/1'
 ```
 
 #### GET /api/patient/:pid/appointment
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/appointment'
 ```
 
 #### GET /api/patient/:pid/appointment/:eid
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/appointment/1'
 ```
 
 #### POST /api/patient/:pid/appointment
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/appointment' -d \
 '{
     "pc_eid":"1",
@@ -695,42 +1146,52 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/appointment' -d \
 
 #### DELETE /api/patient/:pid/appointment/:eid
 
-```
+Request:
+
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/appointment/1' -d \
 ```
 
 #### GET /api/patient/:pid/document
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/document&path=/eye_module/imaging-eye/drawings-eye'
 ```
 
 Note: The `path` query string represents the OpenEMR documents paths with two exceptions:
 
-- Spaces are represented with `_`
-- All characters are lowercase
+-   Spaces are represented with `_`
+-   All characters are lowercase
 
 #### POST /api/patient/:pid/document
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/document&path=/eye_module/imaging-eye/drawings-eye' \
  -F document=@/home/someone/Desktop/drawing.jpg
 ```
 
 Note: The `path` query string represents the OpenEMR documents paths with two exceptions:
 
-- Spaces are represented with `_`
-- All characters are lowercase
+-   Spaces are represented with `_`
+-   All characters are lowercase
 
 #### GET /api/patient/:pid/document/:did
 
-```
+Request:
+
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/document/1'
 ```
 
 #### POST /api/patient/:pid/message
 
-```
+Request:
+
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/message' -d \
 '{
     "body": "Test 123",
@@ -743,12 +1204,15 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/message' -d \
 ```
 
 Notes:
-- For `title`, use `resource=/api/list/note_type`
-- For `message_type`, use `resource=/api/list/message_status`
+
+-   For `title`, use `resource=/api/list/note_type`
+-   For `message_type`, use `resource=/api/list/message_status`
 
 #### PUT /api/patient/:pid/message/:mid
 
-```
+Request:
+
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/message/1' -d \
 '{
     "body": "Test 456",
@@ -761,39 +1225,122 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/message/1' -d \
 ```
 
 Notes:
-- For `title`, use `resource=/api/list/note_type`
-- For `message_type`, use `resource=/api/list/message_status`
+
+-   For `title`, use `resource=/api/list/note_type`
+-   For `message_type`, use `resource=/api/list/message_status`
 
 #### DELETE /api/patient/:pid/message/:mid
 
-```
+Request:
+
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
+```
+
+### /portal/ Endpoints
+
+OpenEMR patient portal endpoints Use `http://localhost:8300/apis/portal as base URI.`
+
+_Example:_ `http://localhost:8300/apis/portal/patient` returns a resource of the patient.
+
+#### POST /portal/auth
+
+The OpenEMR Patient Portal API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory. If additional sites have not been created, set the scope
+to 'default'. If the patient portal is set to require email address on authenticate, then need to also include an `email` field in the request.
+
+Request:
+
+```sh
+curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/portal/auth' \
+-d '{
+    "grant_type":"password",
+    "username": "ServiceUser",
+    "password": "password",
+    "scope":"site id"
+}'
+```
+
+Response:
+
+```json
+{
+    "token_type": "Bearer",
+    "access_token": "eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ==",
+    "expires_in": "3600",
+    "user_data": {
+        "user_id": "1"
+    }
+}
+```
+
+The Bearer token is required for each OpenEMR Patient Portal API request, and is conveyed using an Authorization header.
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/portal/patient' \
+  -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ=='
+```
+
+#### GET /portal/patient
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/portal/patient'
+```
+
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "id": "193",
+        "pid": "1",
+        "pubpid": "",
+        "title": "Mr",
+        "fname": "Baz",
+        "mname": "",
+        "lname": "Bop",
+        "ss": "",
+        "street": "456 Tree Lane",
+        "postal_code": "08642",
+        "city": "FooTown",
+        "state": "FL",
+        "county": "",
+        "country_code": "US",
+        "drivers_license": "",
+        "contact_relationship": "",
+        "phone_contact": "123-456-7890",
+        "phone_home": "",
+        "phone_biz": "",
+        "phone_cell": "",
+        "email": "",
+        "DOB": "1992-02-03",
+        "sex": "Male",
+        "race": "",
+        "ethnicity": "",
+        "status": ""
+    }
+}
 ```
 
 ### Dev Notes
 
-- For business logic, make or use the services [here](https://github.com/openemr/openemr/tree/master/services)
-- For controller logic, make or use the classes [here](https://github.com/openemr/openemr/tree/master/rest_controllers)
-- For routing declarations, use the class [here](https://github.com/openemr/openemr/blob/master/_rest_routes.inc.php).
-
+-   For business logic, make or use the services [here](src/Services)
+-   For controller logic, make or use the classes [here](src/RestControllers)
+-   For routing declarations, use the class [here](_rest_routes.inc.php).
 
 ### Project Management
 
-- TODO(sherwin): Encounter POST
-- TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
-- TODO(?): API for fee sheets
-- TODO(?): API for pharmacies
-- TODO(?): API for immunizations
-- TODO(?): API for prescriptions
-- TODO(?): Drug search API
-- TODO(?): API for onotes
+#### General API
 
-
-### What is that dog drawing?
-
-That is Peppy, an old OpenEMR mascot. Long live Peppy!
-
-
-### License
-
-[GNU GPL](../LICENSE)
+-   TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
+-   TODO(?): API for fee sheets
+-   TODO(?): API for pharmacies
+-   TODO(?): API for immunizations
+-   TODO(?): API for prescriptions
+-   TODO(?): Drug search API
+-   TODO(?): API for onotes

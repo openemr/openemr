@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Testing script for the local/internal use of the api
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 // comment below exit command to run this test script
 //  (when done, remember to uncomment it again)
@@ -25,7 +25,7 @@ use OpenEMR\Core\Header;
 <head>
     <?php Header::setupAssets('jquery'); ?>
 
-    <script language="JavaScript">
+    <script>
         function testAjaxApi() {
             $.ajax({
                 type: 'GET',
@@ -59,7 +59,7 @@ use OpenEMR\Core\Header;
             .catch(error => console.error(error))
         }
 
-        $(document).ready(function(){
+        $(function () {
             testAjaxApi();
             testFetchApi();
         });

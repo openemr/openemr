@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Script to pick a procedure order type from the compendium.
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -38,8 +38,8 @@ if (isset($_GET['typeid'])) {
         }
     }
     ?>
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-    <script language="JavaScript">
+    <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script>
         if (opener.closed) {
             alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
         }
@@ -53,7 +53,7 @@ if (isset($_GET['typeid'])) {
             $t = 0;
             do {
                 if (!isset($grporders[$i]['procedure_type_id'])) {
-                    echo "opener.set_proc_type(" . js_escape($typeid) .", " . js_escape($name) . ", " . js_escape($codes) . ");\n";
+                    echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", " . js_escape($codes) . ");\n";
                 } else {
                     $t = count($grporders) - $i;
                     $typeid = $grporders[$i]['procedure_type_id'] + 0;
@@ -94,7 +94,7 @@ if (isset($_GET['typeid'])) {
     <?php Header::setupHeader(['opener']); ?>
     <title><?php echo xlt('Procedure Picker'); ?></title>
 
-    <script language="JavaScript">
+    <script>
         // Reload the script with the select procedure type ID.
         function selcode(typeid) {
             location.href = 'find_order_popup.php?order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid);

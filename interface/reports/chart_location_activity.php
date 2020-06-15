@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This reports checkins and checkouts for a specified patient's chart.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -60,7 +60,7 @@ $form_patient_id = trim($_POST['form_patient_id']);
     </style>
 
     <script>
-        $(function() {
+        $(function () {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
         });
@@ -84,7 +84,7 @@ if (!empty($form_patient_id)) {
     } else {
         $curr_pid = $ptrow['pid'];
     }
-} else if (!empty($curr_pid)) {
+} elseif (!empty($curr_pid)) {
     $query = "SELECT pid, pubpid, fname, mname, lname FROM patient_data WHERE " .
     "pid = ?";
     $ptrow = sqlQuery($query, array($curr_pid));
@@ -176,8 +176,8 @@ if ($_POST['form_refresh'] || !empty($ptrow)) {
   <td>
             <?php
             if (!empty($row['ct_location'])) {
-                echo generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $row['ct_location']);
-            } else if (!empty($row['ct_userid'])) {
+                echo generate_display_field(array('data_type' => '1','list_id' => 'chartloc'), $row['ct_location']);
+            } elseif (!empty($row['ct_userid'])) {
                 echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']);
             }
             ?>

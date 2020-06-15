@@ -1,4 +1,5 @@
 <?php
+
 /**
  * patient_data.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2010-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 
     <?php Header::setupHeader(['datetime-picker', 'opener', 'common']); ?>
 
-<SCRIPT LANGUAGE="JavaScript">
+<script>
 
 function validate(f) {
   var bValid = true;
@@ -57,7 +57,7 @@ function submitme() {
  }
 }
 
-$(function(){
+$(function () {
   $("#cancel").click(function() {
       dlgclose();
   });
@@ -146,10 +146,10 @@ if (isset($entryID)) {
 ?>
 <table cellspacing='0' cellpadding='0' border='0'>
 <tr>
-<td><span class="title"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
-" - " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item); ?></span>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="javascript:submitme();" class="btn btn-primary btn-lg"><?php echo xlt('Save'); ?></a></td>
-<td><a href="#" id="cancel" class="btn btn-secondary btn-lg"><?php echo xlt('Cancel'); ?></a></td>
+<td><span class="title"><?php echo generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category) .
+" - " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $item); ?></span>&nbsp;&nbsp;&nbsp;</td>
+<td><a href="javascript:submitme();" class="btn btn-primary"><?php echo xlt('Save'); ?></a></td>
+<td><a href="#" id="cancel" class="btn btn-secondary"><?php echo xlt('Cancel'); ?></a></td>
 </tr>
 </table>
 
@@ -170,7 +170,7 @@ if (isset($entryID)) {
     echo "<tr><td class='required'>";
     echo xlt('Completed');
     echo ":</td><td class='text'>";
-    generate_form_field(array('data_type'=>1,'field_id'=>'complete','list_id'=>'yesno','empty_title'=>'SKIP'), ($form_complete) ? $form_complete : "YES");
+    generate_form_field(array('data_type' => 1,'field_id' => 'complete','list_id' => 'yesno','empty_title' => 'SKIP'), ($form_complete) ? $form_complete : "YES");
     echo "</td></tr>";
 
     echo "<tr><td class='bold'>";

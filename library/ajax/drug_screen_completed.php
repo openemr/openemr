@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Drug Screen Complete Update Database
  *
@@ -11,7 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -21,7 +21,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 }
 
 $drugval = '0';
-if ($_POST['testcomplete'] =='true') {
+if ($_POST['testcomplete'] == 'true') {
     $drugval = '1';
 }
 

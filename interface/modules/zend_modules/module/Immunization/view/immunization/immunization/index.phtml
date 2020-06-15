@@ -22,8 +22,8 @@ $form->setAttribute('action', $this->url('immunization', array('action' => 'inde
 $form->prepare();
 
 ?>
-    <script type="text/javascript">
-        $(function (){
+    <script>
+        $(function () {
             height_value = $('.responsive tr').length * 25 + 220;
             if(height_value < 245){ height_value = 245 };
             parent.iframeLoaded(height_value, 'immunization_iframe');
@@ -42,8 +42,8 @@ $form->prepare();
                     <td nowrap>
                             <?php echo  $this->formRow($form->get('from_date'));?>
                             <?php echo  $this->formRow($form->get('to_date'));?>
-                            <script type="text/javascript">
-                                $(function (){
+                            <script>
+                                $(function () {
                                         $( "#from_date" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>' );
                                         $( "#to_date" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
                                 });

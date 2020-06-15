@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Superbill Report
  *
@@ -9,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__file__)."/../globals.php");
+require_once(dirname(__file__) . "/../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
@@ -30,7 +31,7 @@ $facilityService = new FacilityService();
 $startdate = $enddate = "";
 if (empty($_POST['start']) || empty($_POST['end'])) {
     // set some default dates
-    $startdate = date('Y-m-d', (time() - 30*24*60*60));
+    $startdate = date('Y-m-d', (time() - 30 * 24 * 60 * 60));
     $enddate = date('Y-m-d', time());
 } else {
     // set dates
@@ -142,7 +143,7 @@ if ($form_patient == '') {
 </style>
 
 <script>
- $(function() {
+ $(function () {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
 
@@ -266,16 +267,16 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
                         "date between ? and ? " ;
                 array_push($sqlBindArray, $startdate, $enddate);
     if ($form_pid) {
-        $res_query.= " and pid=? ";
+        $res_query .= " and pid=? ";
         array_push($sqlBindArray, $form_pid);
     }
 
-        $res_query.=     " order by date DESC" ;
-        $res =sqlStatement($res_query, $sqlBindArray);
+        $res_query .=     " order by date DESC" ;
+        $res = sqlStatement($res_query, $sqlBindArray);
 
     while ($result = sqlFetchArray($res)) {
         if ($result["form_name"] == "New Patient Encounter") {
-            $newpatient[] = $result["form_id"].":".$result["encounter"];
+            $newpatient[] = $result["form_id"] . ":" . $result["encounter"];
             $pids[] = $result["pid"];
         }
     }
@@ -284,10 +285,10 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
 
     function postToGet($newpatient, $pids)
     {
-        $getstring="";
+        $getstring = "";
         $serialnewpatient = serialize($newpatient);
         $serialpids = serialize($pids);
-        $getstring = "newpatient=".urlencode($serialnewpatient)."&pids=".urlencode($serialpids);
+        $getstring = "newpatient=" . urlencode($serialnewpatient) . "&pids=" . urlencode($serialpids);
 
         return $getstring;
     }
@@ -306,30 +307,30 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
         */
 
         print "<div id='superbill_patientdata'>";
-        print "<h1>".xlt('Patient Data').":</h1>";
+        print "<h1>" . xlt('Patient Data') . ":</h1>";
         printRecDataOne($patient_data_array, getRecPatientData($pids[$iCounter]), $N);
         print "</div>";
 
         print "<div id='superbill_insurancedata'>";
-        print "<h1>".xlt('Insurance Data').":</h1>";
-        print "<h2>".xlt('Primary').":</h2>";
+        print "<h1>" . xlt('Insurance Data') . ":</h1>";
+        print "<h2>" . xlt('Primary') . ":</h2>";
         printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter], "primary"), $N);
-        print "<h2>".xlt('Secondary').":</h2>";
+        print "<h2>" . xlt('Secondary') . ":</h2>";
         printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter], "secondary"), $N);
-        print "<h2>".xlt('Tertiary').":</h2>";
+        print "<h2>" . xlt('Tertiary') . ":</h2>";
         printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter], "tertiary"), $N);
         print "</div>";
 
         print "<div id='superbill_billingdata'>";
-        print "<h1>".xlt('Billing Information').":</h1>";
+        print "<h1>" . xlt('Billing Information') . ":</h1>";
         if (count($patient) > 0) {
             $billings = array();
             echo "<table class='table w-100'>";
             echo "<tr>";
-            echo "<td class='bold' width='10%'>".xlt('Date')."</td>";
-            echo "<td class='bold' width='20%'>".xlt('Provider')."</td>";
-            echo "<td class='bold' width='40%'>".xlt('Code')."</td>";
-            echo "<td class='bold' width='10%'>".xlt('Fee')."</td></tr>\n";
+            echo "<td class='bold' width='10%'>" . xlt('Date') . "</td>";
+            echo "<td class='bold' width='20%'>" . xlt('Provider') . "</td>";
+            echo "<td class='bold' width='40%'>" . xlt('Code') . "</td>";
+            echo "<td class='bold' width='10%'>" . xlt('Fee') . "</td></tr>\n";
             $total = 0.00;
             $copays = 0.00;
             //foreach ($patient as $be) {
@@ -346,7 +347,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
                 echo "<td class='text' style='font-size: 0.8em'>" . text(oeFormatShortDate(date("Y-m-d", $bdate))) . "<BR>" . date("h:i a", $bdate) . "</td>";
                 echo "<td class='text'>" . text($b['provider_name']) . "</td>";
                 echo "<td class='text'>";
-                echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;" . text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                 echo "</td>\n";
                 echo "<td class='text'>";
                 echo oeFormatMoney($b['fee']);
@@ -359,9 +360,9 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
             $copays = BillingUtilities::getPatientCopay($pids[$iCounter], $ta[1]);
             //}
             echo "<tr><td>&nbsp;</td></tr>";
-            echo "<tr><td class='font-weight-bold text-right' colspan='3'>".xlt('Sub-Total')."</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-            echo "<tr><td class='font-weight-bold text-right' colspan='3'>".xlt('Copay Paid')."</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-            echo "<tr><td class='font-weight-bold text-right' colspan='3'>".xlt('Total')."</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
+            echo "<tr><td class='font-weight-bold text-right' colspan='3'>" . xlt('Sub-Total') . "</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+            echo "<tr><td class='font-weight-bold text-right' colspan='3'>" . xlt('Copay Paid') . "</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+            echo "<tr><td class='font-weight-bold text-right' colspan='3'>" . xlt('Total') . "</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
             echo "</table>";
             echo "<pre>";
             //print_r($billings);
@@ -371,7 +372,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
         echo "</div>";
 
         ++$iCounter;
-        print "<br/><br/>".xlt('Physician Signature').":  _______________________________________________";
+        print "<br/><br/>" . xlt('Physician Signature') . ":  _______________________________________________";
         print "<hr class='pagebreak' />";
     }
 }

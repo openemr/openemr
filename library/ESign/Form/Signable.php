@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Form implementation of SignableIF interface, which represents an
  * object that can be signed, locked and/or amended.
@@ -25,15 +23,17 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/DbRow/Signable.php';
-require_once $GLOBALS['srcdir'].'/ESign/SignableIF.php';
+namespace ESign;
+
+require_once $GLOBALS['srcdir'] . '/ESign/DbRow/Signable.php';
+require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
 
 class Form_Signable extends DbRow_Signable implements SignableIF
 {
     protected $_encounterId = null;
     protected $_formId = null;
     protected $_formDir = null;
-    
+
     public function __construct($formId, $formDir, $encounterId)
     {
         $this->_formId = $formId;
@@ -41,14 +41,14 @@ class Form_Signable extends DbRow_Signable implements SignableIF
         $this->_encounterId = $encounterId;
         parent::__construct($formId, 'forms');
     }
-    
+
     protected function getLastLockHash()
     {
         $hash = null;
         if ($this->isLocked()) {
             // Check to see if there was an explicit lock hash
             $hash = parent::getLastLockHash();
-            
+
             // If there was no explicit lock hash, then we must have been locked because
             // our encounter was locked, so get our last hash
             if ($hash === null) {
@@ -62,10 +62,10 @@ class Form_Signable extends DbRow_Signable implements SignableIF
                 }
             }
         }
-        
+
         return $hash;
     }
-    
+
     /**
      * Check to see if this table is locked (read-only)
      *
@@ -81,7 +81,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
         if ($GLOBALS['lock_esign_individual']) {
             $locked = parent::isLocked();
         }
-        
+
         // Check the "parent" encounter if signing is allowed at encounter level
         if (!$locked && $GLOBALS['lock_esign_all']) {
             $statement = "SELECT E.is_lock FROM esign_signatures E ";
@@ -92,10 +92,10 @@ class Form_Signable extends DbRow_Signable implements SignableIF
                 $locked = true;
             }
         }
-    
+
         return $locked;
     }
-    
+
     /**
      * Get the data in an array for this form.
      *
@@ -114,13 +114,13 @@ class Form_Signable extends DbRow_Signable implements SignableIF
             array('formdir_keys', $this->_formDir)
         );
         if (isset($row['title'])) {
-            $excp = json_decode("{".$row['title']."}");
+            $excp = json_decode("{" . $row['title'] . "}");
         }
 
-        $tbl = (isset($excp->tbl) ? $excp->tbl : "form_".$this->_formDir);
+        $tbl = (isset($excp->tbl) ? $excp->tbl : "form_" . $this->_formDir);
         $id = (isset($excp->id) ? $excp->id : 'id');
         $limit = (isset($excp->limit) ? $excp->limit : 1);
-      
+
       // Get form data based on key from forms table
         $sql = sprintf(
             "SELECT fd.* FROM %s fd
@@ -130,7 +130,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
             escape_sql_column_name($id, array($tbl))
         );
         if ($limit <> '*') {
-            $sql .= ' LIMIT '.escape_limit($limit);
+            $sql .= ' LIMIT ' . escape_limit($limit);
         }
 
         $rs = sqlStatement($sql, array( $this->_formId ));
@@ -142,7 +142,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
                 array_push($frs, $fr);
             }
         }
-      
+
         return $frs;
     }
 }

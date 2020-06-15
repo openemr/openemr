@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Common javascript functions are stored in this page.
  *
@@ -13,7 +14,7 @@
  */
 
 ?>
-<script type="text/javascript">
+<script>
     //Calendar Functions to set From and To dates
     function calendar_function(val, from, to) {
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This program creates the misc_billing_form
  *
@@ -275,7 +276,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
     </div>
 </div><!--End of container div-->
 <?php $oemr_ui->oeBelowContainerDiv();?>
-<script language="javascript">
+<script>
     // jQuery stuff to make the page a little easier to use
     $(function () {
         $(".dontsave").click(function () {

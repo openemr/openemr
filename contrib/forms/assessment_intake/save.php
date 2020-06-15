@@ -1,4 +1,5 @@
 <?php
+
 /**
  * assessment_intake save.php.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -35,8 +35,8 @@ if ($_GET["mode"] == "new") {
         "update form_assessment_intake set pid = ?,
         groupname=?,
         user=?,
-        authorized=?, activity=1, date = NOW(), 
-        dcn=?, 
+        authorized=?, activity=1, date = NOW(),
+        dcn=?,
         location=?,
         time_in=?,
         time_out=?,
@@ -301,7 +301,6 @@ if ($_GET["mode"] == "new") {
     );
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

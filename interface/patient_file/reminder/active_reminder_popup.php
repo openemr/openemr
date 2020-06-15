@@ -1,4 +1,5 @@
 <?php
+
 /**
  * active reminder popup gui
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/clinical_rules.php");
@@ -22,12 +22,7 @@ use OpenEMR\Core\Header;
 </head>
 
 <body class="body_top">
-<?php
 
-// Set the session flag to show that notification was last done with this patient
-$_SESSION['alert_notify_pid'] = $pid;
-
-?>
 <table class="border-0" cellspacing='0' cellpadding='0'>
 <tr>
 
@@ -45,7 +40,7 @@ $active_alerts = active_alert_summary($pid, "reminders-due", '', 'default', $_SE
 <?php
 if (!empty($active_alerts) && empty($all_allergy_alerts)) {
     echo xlt("Alerts/Reminders");
-} else if (!empty($active_alerts) && !empty($all_allergy_alerts)) {
+} elseif (!empty($active_alerts) && !empty($all_allergy_alerts)) {
     echo xlt("WARNINGS and Alerts/Reminders");
 } else { // empty($active_alerts) && !empty($all_allergy_alerts)
     echo xlt("WARNINGS");
@@ -60,11 +55,10 @@ if (!empty($active_alerts) && empty($all_allergy_alerts)) {
 </table>
 <br />
 <?php
-foreach ($all_allergy_alerts as $allergy) {
-    echo xlt("ALLERGY WARNING") . ":" . text($allergy) ."<br />";
-}
-
 if (!empty($all_allergy_alerts)) {
+    foreach ($all_allergy_alerts as $allergy) {
+        echo xlt("ALLERGY WARNING") . ":" . text($allergy) . "<br />";
+    }
     echo "<br />";
 }
 

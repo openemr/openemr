@@ -1,59 +1,59 @@
 /*vertical menu styling for edit globals - common for all themes*/
 /*All individual color options shifted to edit_globals_colors.scss, light.scss and manila.scss as appropriate*/
 #oe-nav-ul a {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 #oe-nav-ul.tabNav li {
-    float: left;
-    vertical-align: bottom;
-    padding: 0;
-    @include font-size("0.8rem !important");
+  @include font-size("0.8rem !important");
+  float: $left;
+  padding: 0;
+  vertical-align: bottom;
 }
 
 #oe-nav-ul.tabNav li.current {
-    padding-top: 0;
-    font-weight: 700;
-    vertical-align: bottom;
-    text-align: left;
-    margin-top: -4px;
+  font-weight: 700;
+  margin-top: -4px;
+  padding-top: 0;
+  text-align: $left;
+  vertical-align: bottom;
 }
 
 #oe-nav-ul.tabNav a {
-    color: $gray-800;
-    padding: 4px 4px 5px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    text-decoration: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  color: $gray-800;
+  padding: 4px 4px 5px;
+  text-decoration: none;
 }
 
 #oe-nav-ul.tabNav {
-    margin: 0;
-    padding: 4px 0 0;
+  margin: 0;
+  padding: 4px 0 0;
 }
 
 #oe-nav-ul.tabNav .current a {
-    border: solid;
-    border-width: 3px 0 0 2px;
+  border: solid;
+  border-width: 3px 0 0 2px;
 }
 
 #globals-div .tabContainer {
-    display: flex !important;
-    border: solid;
-    border-width: 3px 0 0 0;
-    width: auto;
-    float: none;
-    clear: none;
+  border: solid;
+  border-width: 3px 0 0;
+  clear: none;
+  display: flex !important;
+  float: none;
+  width: auto;
 }
 
 .oe-global-tab-heading {
-    font-weight: 600;
-    padding-bottom: 10px;
-    margin-top: -10px;
-    display: flex;
+  display: flex;
+  font-weight: 600;
+  margin-top: -10px;
+  padding-bottom: 10px;
 }
 
 .mark,
 mark {
-    background-color: $yellow;
+  background-color: $yellow;
 }

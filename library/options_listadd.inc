@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This include is just a HTML and JS *fragment* it CANNOT stand alone
  *
@@ -20,6 +21,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
 
 
@@ -38,7 +40,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 </div>
 
 
-<script language="javascript">
+<script>
 
     // collect the custom state widget flag
     var stateCustomFlag = <?php echo json_encode($GLOBALS['state_custom_addlist_widget']); ?>;
@@ -62,7 +64,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 // jQuery makes life easier (sometimes)
 
-$(document).ready(function(){
+$(function () {
 
     /********************************************************/
     /************ List-box modification functions ***********/

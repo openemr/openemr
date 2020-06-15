@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -225,7 +227,7 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
                         $this->addResource($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"resource" must be array of objects or null, '.gettype($data['resource']).' seen.');
+                    throw new \InvalidArgumentException('"resource" must be array of objects or null, ' . gettype($data['resource']) . ' seen.');
                 }
             }
             if (isset($data['page'])) {
@@ -234,7 +236,7 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
                         $this->addPage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"page" must be array of objects or null, '.gettype($data['page']).' seen.');
+                    throw new \InvalidArgumentException('"page" must be array of objects or null, ' . gettype($data['page']) . ' seen.');
                 }
             }
             if (isset($data['image'])) {
@@ -243,7 +245,7 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
                         $this->addImage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"image" must be array of objects or null, '.gettype($data['image']).' seen.');
+                    throw new \InvalidArgumentException('"image" must be array of objects or null, ' . gettype($data['image']) . ' seen.');
                 }
             }
             if (isset($data['other'])) {
@@ -252,11 +254,11 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
                         $this->addOther($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"other" must be array of objects or null, '.gettype($data['other']).' seen.');
+                    throw new \InvalidArgumentException('"other" must be array of objects or null, ' . gettype($data['other']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

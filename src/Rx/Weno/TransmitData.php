@@ -1,4 +1,5 @@
 <?php
+
 /**
  * TransmitData class.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\Rx\Weno;
 
@@ -60,8 +60,8 @@ class TransmitData
 
     public function oneDrug($id)
     {
-        $sql = "SELECT p.date_Added, p.date_Modified,p.drug, p.drug_id, p.dosage, p.refills, p.quantity, p.note,".
-               "ew.strength, ew.route, ew.potency_unit_code, ew.drug_db_code_qualifier,ew.dea_schedule FROM prescriptions AS p ".
+        $sql = "SELECT p.date_Added, p.date_Modified,p.drug, p.drug_id, p.dosage, p.refills, p.quantity, p.note," .
+               "ew.strength, ew.route, ew.potency_unit_code, ew.drug_db_code_qualifier,ew.dea_schedule FROM prescriptions AS p " .
                "RIGHT JOIN erx_weno_drugs AS ew ON p.drug_id = ew.rxcui_drug_coded WHERE p.id = ?";
         $res = sqlQuery($sql, array($id));
         return $res;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * search_code.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
@@ -33,22 +33,23 @@ $code_type = $_GET['type'];
 <body class="body_bottom">
 <div id="patient_search_code">
 
-<table border=0 cellspacing=0 cellpadding=0 height=100%>
+<table class="table-borderless h-100" cellspacing='0' cellpadding='0'>
 <tr>
 
-<td valign=top>
+<td class="align-top">
 
 <form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo attr_url($code_type); ?>">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<input type="hidden" name="mode" value="search">
+<input type="hidden" name="mode" value="search" />
 
 <span class="title"><?php echo text($code_type); ?> <?php echo xlt('Codes'); ?></span><br />
 
-<input type="textbox" id="text" name="text" size=15>
+<input type="textbox" id="text" name="text" size="15" />
 
-<input type='submit' id="submitbtn" name="submitbtn" value='<?php echo xla('Search'); ?>'>
-<div id="searchspinner" style="display: inline; visibility:hidden;"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
+<input type='submit' id="submitbtn" name="submitbtn" value='<?php echo xla('Search'); ?>' />
+<!-- TODO: Use BS4 classes here !-->
+<div id="searchspinner" style="display: inline; visibility: hidden;"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 
 </form>
 
@@ -58,7 +59,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "")
         CsrfUtils::csrfNotVerified();
     }
 
-    echo "<div id='resultsummary' style='background-color:lightgreen;'>";
+    echo "<div id='resultsummary bg-success'>";
     echo "Enter search criteria above</div>";
 }
 
@@ -80,19 +81,19 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
     "WHERE (code_text LIKE ? OR " .
     "code LIKE ?) AND " .
     "code_type = ? " .
-    "ORDER BY code ".
+    "ORDER BY code " .
     " LIMIT " . escape_limit(($M + 1)) .
     "";
 
-    if ($res = sqlStatement($sql, array($pid, "%".$_POST["text"]."%", "%".$_POST["text"]."%", $code_types[$code_type]['id']))) {
-        for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+    if ($res = sqlStatement($sql, array($pid, "%" . $_POST["text"] . "%", "%" . $_POST["text"] . "%", $code_types[$code_type]['id']))) {
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;
         }
 
-        echo "<div id='resultsummary' style='background-color:lightgreen;'>";
+        echo "<div id='resultsummary bg-success'>";
         if (count($result) > $M) {
             echo "Showing the first " . text($M) . " results";
-        } else if (count($result) == 0) {
+        } elseif (count($result) == 0) {
             echo "No results found";
         } else {
             echo "Showing all " . text(count($result)) . " results";
@@ -101,7 +102,9 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
         echo "</div>";
         ?>
 <div id="results">
-<table><tr class='text'><td valign='top'>
+<table>
+  <tr class='text'>
+    <td class='align-top'>
         <?php
         $count = 0;
         $total = 0;
@@ -109,11 +112,11 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
         if ($result) {
             foreach ($result as $iter) {
                 if ($count == $N) {
-                    echo "</td><td valign='top'>\n";
+                    echo "</td><td class='align-top'>\n";
                     $count = 0;
                 }
 
-                echo "<div class='oneresult' style='padding: 3px 0px 3px 0px;'>";
+                echo "<div class='oneresult' style='padding: 3px 0 3px 0;'>";
                 echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
                     "&type="     . attr_url($code_type) .
                     "&code="     . attr_url($iter["code"]) .
@@ -153,11 +156,11 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
 </div> <!-- end large outer patient_search_code DIV -->
 </body>
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 
-$(function (){
+$(function () {
     $("#text").trigger("focus");
     $(".oneresult").on("mouseover", function() { $(this).toggleClass("highlight"); });
     $(".oneresult").on("mouseout", function() { $(this).toggleClass("highlight"); });

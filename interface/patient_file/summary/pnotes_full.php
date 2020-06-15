@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Display, enter, modify and manage patient notes.
  *
@@ -9,12 +10,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'].'/pnotes.inc');
-require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/options.inc.php');
-require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
+require_once($GLOBALS['srcdir'] . '/pnotes.inc');
+require_once($GLOBALS['srcdir'] . '/patient.inc');
+require_once($GLOBALS['srcdir'] . '/options.inc.php');
+require_once($GLOBALS['srcdir'] . '/gprelations.inc.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
 
 if ($_GET['set_pid']) {
-    require_once($GLOBALS['srcdir'].'/pid.inc');
+    require_once($GLOBALS['srcdir'] . '/pid.inc');
     setpid($_GET['set_pid']);
 }
 
@@ -40,7 +40,7 @@ $userService = new UserService();
 if ($docid) {
     $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
     $patient_id = intval($row['foreign_id']);
-} else if ($orderid) {
+} elseif ($orderid) {
     $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
     $patient_id = intval($row['patient_id']);
 }
@@ -90,7 +90,7 @@ if (!isset($offset_sent)) {
 if ($form_active) {
     $active = '1';
     $activity_string_html = 'form_active=1';
-} else if ($form_inactive) {
+} elseif ($form_inactive) {
     $active = '0';
     $activity_string_html = 'form_inactive=1';
 } else {
@@ -153,7 +153,7 @@ if (isset($mode)) {
     } elseif ($mode == "delete") {
         if ($noteid) {
             deletePnote($noteid);
-            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id ".$noteid);
+            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $noteid);
         }
 
         $noteid = '';
@@ -213,21 +213,24 @@ $result_sent = getSentPnotesByDate(
 
     <?php Header::setupHeader(['common', 'opener']); ?>
 
-<script type="text/javascript">
+<script>
 /// todo, move this to a common library
 
-$(function(){
+$(function () {
 
     $("#dem_view").click( function() {
         toggle( $(this), "#DEM" );
     });
 
     // load divs
-    $("#stats_div").load("stats.php",
+
+    // I can't find a reason to load this!
+    /*$("#stats_div").load("stats.php",
         {
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
-    );
+    );*/
+
     $("#notes_div").load("pnotes_fragment.php",
         {
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
@@ -399,12 +402,6 @@ $title = text(getPatientName($patient_id));
     <input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo attr($form_doc_only); ?>">
 </form>
 
-<?php if ($GLOBALS['portal_offsite_enable']) { ?>
-<ul class="tabNav">
-  <li class="<?php echo $inbox; ?>" ><a onclick="show_div('inbox')" href="#"><?php echo xlt('Inbox'); ?></a></li>
-  <li class="<?php echo $outbox; ?>" ><a onclick="show_div('outbox')" href="#"><?php echo xlt('Sent Items'); ?></a></li>
-</ul>
-<?php } ?>
 <div class='tabContainer' >
   <div id='inbox_div' <?php echo $inbox_style; ?> >
 <form border='0' method='post' name='update_activity' id='update_activity'
@@ -453,7 +450,7 @@ if ($result != "") {
                     continue;
                 }
             }
-        } else if ($orderid) {
+        } elseif ($orderid) {
             if (isGpRelation(2, $orderid, 6, $row_note_id)) {
                 $linked = "checked";
             } else {
@@ -465,12 +462,12 @@ if ($result != "") {
         }
 
         $body = $iter['body'];
-        $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}'.$patientname.'${2}', $body);
+        $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
         $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
         if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
             $body = nl2br(text(oeFormatPatientNote($body)));
         } else {
-            $body = text(oeFormatSDFT(strtotime($iter['date'])).date(' H:i', strtotime($iter['date']))) .
+            $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
             ' (' . text($iter['user']) . ') ' . nl2br(text(oeFormatPatientNote($body)));
         }
 
@@ -489,7 +486,7 @@ if ($result != "") {
 
 
         echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
-        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') ."</span></a>\n";
+        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') . "</span></a>\n";
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
@@ -517,7 +514,7 @@ if ($result != "") {
         echo "  <td class='bold notecell' id='" . attr($row_note_id) . "'>" .
         "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-        echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
+        echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
         echo "  </a></td>\n";
 
         echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
@@ -552,8 +549,8 @@ if ($result != "") {
  <tr>
   <td>
 <?php
-if ($offset > ($N-1)) {
-    $offsetN = $offset-$N;
+if ($offset > ($N - 1)) {
+    $offsetN = $offset - $N;
     echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
     "&form_active=" . attr_url($form_active) .
@@ -567,7 +564,7 @@ if ($offset > ($N-1)) {
   <td align='right'>
 <?php
 if ($result_count == $N) {
-    $offsetN = $offset+$N;
+    $offsetN = $offset + $N;
     echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
     "&form_active=" . attr_url($form_active) .
@@ -622,7 +619,7 @@ if ($result_sent != "") {
                     continue;
                 }
             }
-        } else if ($orderid) {
+        } elseif ($orderid) {
             if (isGpRelation(2, $orderid, 6, $row_note_id)) {
                 $linked = "checked";
             } else {
@@ -637,7 +634,7 @@ if ($result_sent != "") {
         if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
             $body = nl2br(text(oeFormatPatientNote($body)));
         } else {
-            $body = text(oeFormatSDFT(strtotime($iter['date'])).date(' H:i', strtotime($iter['date']))) .
+            $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
             ' (' . text($iter['user']) . ') ' . nl2br(text(oeFormatPatientNote($body)));
         }
 
@@ -684,7 +681,7 @@ if ($result_sent != "") {
         echo "  <td class='bold notecell' id='" . attr($row_note_id) . "'>" .
         "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-        echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
+        echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
         echo "  </a></td>\n";
 
         echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
@@ -707,8 +704,8 @@ if ($result_sent != "") {
  <tr>
   <td>
 <?php
-if ($offset_sent > ($M-1)) {
-    $offsetSentM = $offset_sent-$M;
+if ($offset_sent > ($M - 1)) {
+    $offsetSentM = $offset_sent - $M;
     echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
     "&s=1" .
@@ -723,7 +720,7 @@ if ($offset_sent > ($M-1)) {
   <td align='right'>
 <?php
 if ($result_sent_count == $M) {
-    $offsetSentM = $offset_sent+$M;
+    $offsetSentM = $offset_sent + $M;
     echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
     "&s=1" .
@@ -746,7 +743,7 @@ if ($result_sent_count == $M) {
 if ($_GET['set_pid']) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
     ?>
- parent.left_nav.setPatient(<?php echo js_escape($ndata['fname']." ".$ndata['lname']) . "," .
+ parent.left_nav.setPatient(<?php echo js_escape($ndata['fname'] . " " . $ndata['lname']) . "," .
      js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name"; ?>);
     <?php
 }
@@ -773,11 +770,11 @@ if ($noteid /* && $title == 'New Document' */) {
 
 </body>
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function () {
     $("#appendnote").click(function() { AppendNote(); });
     $("#newnote").click(function() { NewNote(); });
     $("#printnote").click(function() { PrintNote(); });

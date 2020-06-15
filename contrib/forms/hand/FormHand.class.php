@@ -1,10 +1,12 @@
 <?php
+
 // Copyright (C) 2009 Aron Racho <aron@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 define("EVENT_VEHICLE", 1);
 define("EVENT_WORK_RELATED", 2);
@@ -73,7 +75,7 @@ class FormHand extends ORDataObject
 
     function toString($html = false)
     {
-        $string = "\n" ."ID: " . $this->id . "\n";
+        $string = "\n" . "ID: " . $this->id . "\n";
 
         if ($html) {
             return nl2br($string);

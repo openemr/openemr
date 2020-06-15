@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDeviceDefinition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDeviceDefinition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -147,11 +149,11 @@ class FHIRDeviceDefinitionCapability extends FHIRBackboneElement implements \Jso
                         $this->addDescription($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"description" must be array of objects or null, '.gettype($data['description']).' seen.');
+                    throw new \InvalidArgumentException('"description" must be array of objects or null, ' . gettype($data['description']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

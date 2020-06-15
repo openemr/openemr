@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMessageHeader;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMessageHeader;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -202,8 +204,8 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
             if (isset($data['receiver'])) {
                 $this->setReceiver($data['receiver']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

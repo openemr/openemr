@@ -1,4 +1,5 @@
 <?php
+
 /**
  * vitals growthchart chart.php
  *
@@ -37,9 +38,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../../../interface/globals.php");
-require_once($GLOBALS['fileroot']."/library/patient.inc");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
@@ -47,7 +47,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$chartpath = $GLOBALS['fileroot']."/interface/forms/vitals/growthchart/";
+$chartpath = $GLOBALS['fileroot'] . "/interface/forms/vitals/growthchart/";
 $name = "";
 $pid = $_GET['pid'];
 
@@ -62,7 +62,7 @@ if (isset($pid) && is_numeric($pid)) {
     $patient_data = getPatientData($pid, "fname, lname, sex, DATE_FORMAT(DOB,'%Y%m%d') as DOB");
     $nowAge = getPatientAge($patient_data['DOB']);
     $dob = $patient_data['DOB'];
-    $name = $patient_data['fname'] ." ".$patient_data['lname'];
+    $name = $patient_data['fname'] . " " . $patient_data['lname'];
 }
 
 // The first data point in the DATA set is significant. It tells date
@@ -78,13 +78,13 @@ if (isset($datapoints) && $datapoints != "") {
 
     $tmpAge = getPatientAgeInDays($patient_data['DOB'], $date);
     // use the birth-24 chart if the age-on-date-of-vitals is 24months or younger
-    if ($tmpAge < (365*2)) {
+    if ($tmpAge < (365 * 2)) {
         $charttype = "birth";
     }
 }
 
 if (isset($_GET['chart_type'])) {
-    $charttype=$_GET['chart_type'];
+    $charttype = $_GET['chart_type'];
 }
 
 //sort the datapoints
@@ -96,10 +96,10 @@ function unitsWt($wt)
 {
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
-        return (number_format(($wt*0.45359237), 2, '.', '').xl('kg', '', ' '));
+        return (number_format(($wt * 0.45359237), 2, '.', '') . xl('kg', '', ' '));
     } else {
     //keep US units
-        return $wt.xl('lb', '', ' ');
+        return $wt . xl('lb', '', ' ');
     }
 }
 
@@ -108,10 +108,10 @@ function unitsDist($dist)
 {
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
-        return (number_format(($dist*2.54), 2, '.', '').xl('cm', '', ' '));
+        return (number_format(($dist * 2.54), 2, '.', '') . xl('cm', '', ' '));
     } else {
         //keep US units
-        return $dist.xl('in', '', ' ');
+        return $dist . xl('in', '', ' ');
     }
 }
 
@@ -258,8 +258,8 @@ function cssHeader()
     ?>
     <html>
     <head>
-    <link rel="stylesheet" type="text/css" title="page1" href="page1.css">
-    <link rel="stylesheet" type="text/css" title="page2" href="page2.css">
+    <link rel="stylesheet" title="page1" href="page1.css">
+    <link rel="stylesheet" title="page2" href="page2.css">
     <style>
         html {
             padding: 0;
@@ -305,7 +305,7 @@ function cssHeader()
         }
     }
     </style>
-    <SCRIPT LANGUAGE="JavaScript">
+    <script>
         function FormSetup()    {
         changeStyle('page1')
     }
@@ -325,7 +325,7 @@ function cssHeader()
     var win = top.printLogPrint ? top : opener.top;
     win.printLogPrint(window);
   }
-    </SCRIPT>
+    </script>
     <title><?php echo xlt('Growth Chart'); ?></title>
     </head>
     <body Onload="FormSetup()">
@@ -372,12 +372,12 @@ function convertpoint($coord)
     global $cssWidth, $cssHeight;
 
     //manual offsets to help line up output
-    $Xoffset=-3;
-    $Yoffset=-2;
+    $Xoffset = -3;
+    $Yoffset = -2;
 
     //collect coordinates from input array
-    $Xcoord=$coord[0];
-    $Ycoord=$coord[1];
+    $Xcoord = $coord[0];
+    $Ycoord = $coord[1];
 
     //adjust with offsets
     $Xcoord = $Xcoord + $Xoffset;
@@ -393,9 +393,9 @@ function convertpoint($coord)
     }
 
     //calculate conversion to pt (decrease number of decimals)
-    $Xcoord = ($cssWidth*$Xcoord)/1000;
+    $Xcoord = ($cssWidth * $Xcoord) / 1000;
     $Xcoord = number_format($Xcoord, 1, '.', '');
-    $Ycoord = ($cssHeight*$Ycoord)/1294;
+    $Ycoord = ($cssHeight * $Ycoord) / 1294;
     $Ycoord = number_format($Ycoord, 1, '.', '');
 
     //return point
@@ -434,20 +434,20 @@ if ($_GET['html'] == 1) {
         // get age of patient at this data-point
         // to get data from function getPatientAgeYMD including $age,$age_in_months, $ageinYMD
         extract(getPatientAgeYMD($dob, $date));
-        if ($charttype=='birth') {
+        if ($charttype == 'birth') {
             // for birth style chart, we use the age in months
-            $age=$age_in_months;
+            $age = $age_in_months;
         }
 
         // exclude data points that do not belong on this chart
         // for example, a data point for a 18 month old can be excluded
         // from that patient's 2-20 yr chart
         $daysold = getPatientAgeInDays($dob, $date);
-        if ($daysold >= (365*2) && $charttype == "birth") {
+        if ($daysold >= (365 * 2) && $charttype == "birth") {
             continue;
         }
 
-        if ($daysold <= (365*2) && $charttype == "2-20") {
+        if ($daysold <= (365 * 2) && $charttype == "2-20") {
             continue;
         }
 
@@ -475,9 +475,9 @@ if ($_GET['html'] == 1) {
             $HT = $HT_x + $HT_delta_x * ($height - $HToffset);
             $point = convertpoint(array($HT,$WT));
             echo("<div id='" . attr($point[2]) . "' class='graphic' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'><img src='reddot.gif' /></div>\n");
-        } else if ($charttype == "2-20") {
+        } elseif ($charttype == "2-20") {
             // Draw BMI
-            $bmi = $weight/$height/$height*703;
+            $bmi = $weight / $height / $height * 703;
             $bmi_x = $bmi_dot_x + $bmi_delta_x * ($age - 2);
             $bmi_y = $bmi_dot_y - $bmi_delta_y * ($bmi - 10);
             $point = convertpoint(array($bmi_x,$bmi_y));
@@ -486,19 +486,19 @@ if ($_GET['html'] == 1) {
 
         // fill in data tables
 
-        $datestr = substr($date, 0, 4)."/".substr($date, 4, 2)."/".substr($date, 6, 2);
+        $datestr = substr($date, 0, 4) . "/" . substr($date, 4, 2) . "/" . substr($date, 6, 2);
 
         //birth to 24 mos chart has 8 rows to fill.
         if ($count < 8 && $charttype == "birth") {
             $point = convertpoint(array($datatable_x,$datatable_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($datestr) . "</div>\n");
-            $point = convertpoint(array($datatable_x+$datatable_age_offset,$datatable_y));
+            $point = convertpoint(array($datatable_x + $datatable_age_offset,$datatable_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($ageinYMD) . "</div>\n");
-            $point = convertpoint(array($datatable_x+$datatable_weight_offset,$datatable_y));
+            $point = convertpoint(array($datatable_x + $datatable_weight_offset,$datatable_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsWt($weight)) . "</div>\n");
-            $point = convertpoint(array($datatable_x+$datatable_height_offset,$datatable_y));
+            $point = convertpoint(array($datatable_x + $datatable_height_offset,$datatable_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
-            $point = convertpoint(array($datatable_x+$datatable_hc_offset,$datatable_y));
+            $point = convertpoint(array($datatable_x + $datatable_hc_offset,$datatable_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($head_circ)) . "</div>\n");
             $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
         }
@@ -507,13 +507,13 @@ if ($_GET['html'] == 1) {
         if ($count < 7  && $charttype == "2-20") {
             $point = convertpoint(array($datatable_x,$datatable_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($datestr) . "</div>\n");
-            $point = convertpoint(array($datatable_x+$datatable_age_offset,$datatable_y));
+            $point = convertpoint(array($datatable_x + $datatable_age_offset,$datatable_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($ageinYMD) . "</div>\n");
-            $point = convertpoint(array($datatable_x+$datatable_weight_offset,$datatable_y));
+            $point = convertpoint(array($datatable_x + $datatable_weight_offset,$datatable_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsWt($weight)) . "</div>\n");
-            $point = convertpoint(array($datatable_x+$datatable_height_offset,$datatable_y));
+            $point = convertpoint(array($datatable_x + $datatable_height_offset,$datatable_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
-            $point = convertpoint(array($datatable_x+$datatable_bmi_offset,$datatable_y));
+            $point = convertpoint(array($datatable_x + $datatable_bmi_offset,$datatable_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(substr($bmi, 0, 5)) . "</div>\n");
             $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
         }
@@ -522,13 +522,13 @@ if ($_GET['html'] == 1) {
         if ($count < 5 && $charttype == "birth") {
             $point = convertpoint(array($datatable2_x,$datatable2_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($datestr) . "</div>\n");
-            $point = convertpoint(array($datatable2_x+$datatable2_age_offset,$datatable2_y));
+            $point = convertpoint(array($datatable2_x + $datatable2_age_offset,$datatable2_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($ageinYMD) . "</div>\n");
-            $point = convertpoint(array($datatable2_x+$datatable2_weight_offset,$datatable2_y));
+            $point = convertpoint(array($datatable2_x + $datatable2_weight_offset,$datatable2_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsWt($weight)) . "</div>\n");
-            $point = convertpoint(array($datatable2_x+$datatable2_height_offset,$datatable2_y));
+            $point = convertpoint(array($datatable2_x + $datatable2_height_offset,$datatable2_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
-            $point = convertpoint(array($datatable2_x+$datatable2_hc_offset,$datatable2_y));
+            $point = convertpoint(array($datatable2_x + $datatable2_hc_offset,$datatable2_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($head_circ)) . "</div>\n");
             $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
         }
@@ -537,13 +537,13 @@ if ($_GET['html'] == 1) {
         if ($count < 14 && $charttype == "2-20") {
             $point = convertpoint(array($datatable2_x,$datatable2_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($datestr) . "</div>\n");
-            $point = convertpoint(array($datatable2_x+$datatable2_age_offset,$datatable2_y));
+            $point = convertpoint(array($datatable2_x + $datatable2_age_offset,$datatable2_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($ageinYMD) . "</div>\n");
-            $point = convertpoint(array($datatable2_x+$datatable2_weight_offset,$datatable2_y));
+            $point = convertpoint(array($datatable2_x + $datatable2_weight_offset,$datatable2_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsWt($weight)) . "</div>\n");
-            $point = convertpoint(array($datatable2_x+$datatable2_height_offset,$datatable2_y));
+            $point = convertpoint(array($datatable2_x + $datatable2_height_offset,$datatable2_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
-            $point = convertpoint(array($datatable2_x+$datatable2_bmi_offset,$datatable2_y));
+            $point = convertpoint(array($datatable2_x + $datatable2_bmi_offset,$datatable2_y));
             echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(substr($bmi, 0, 5)) . "</div>\n");
             $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
         }
@@ -560,7 +560,7 @@ if ($_GET['html'] == 1) {
 
 
 // create the graph
-$im     = imagecreatefrompng($chartpath.$chart);
+$im     = imagecreatefrompng($chartpath . $chart);
 $color1 = imagecolorallocate($im, 0, 0, 255); //blue - color scheme imagecolorallocate($im, Red, Green, Blue)
 $color  = imagecolorallocate($im, 255, 51, 51); //red
 
@@ -588,20 +588,20 @@ foreach ($datapoints as $data) {
     // get age of patient at this data-point
     // to get data from function getPatientAgeYMD including $age, $ageinYMD, $age_in_months
     extract(getPatientAgeYMD($dob, $date));
-    if ($charttype=='birth') {
+    if ($charttype == 'birth') {
         // for birth style chart, we use the age in months
-        $age=$age_in_months;
+        $age = $age_in_months;
     }
 
     // exclude data points that do not belong on this chart
     // for example, a data point for a 18 month old can be excluded
     // from that patient's 2-20 yr chart
     $daysold = getPatientAgeInDays($dob, $date);
-    if ($daysold > (365*2) && $charttype == "birth") {
+    if ($daysold > (365 * 2) && $charttype == "birth") {
         continue;
     }
 
-    if ($daysold < (365*2) && $charttype == "2-20") {
+    if ($daysold < (365 * 2) && $charttype == "2-20") {
         continue;
     }
 
@@ -626,9 +626,9 @@ foreach ($datapoints as $data) {
         $WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
         $HT = $HT_x + $HT_delta_x * ($height - $HToffset);
         imagefilledellipse($im, $HT, $WT, 10, 10, $color);
-    } else if ($charttype == "2-20") {
+    } elseif ($charttype == "2-20") {
         // Draw BMI
-        $bmi = $weight/$height/$height*703;
+        $bmi = $weight / $height / $height * 703;
         $bmi_x = $bmi_dot_x + $bmi_delta_x * ($age - 2);
         $bmi_y = $bmi_dot_y - $bmi_delta_y * ($bmi - 10);
         imagefilledellipse($im, $bmi_x, $bmi_y, 10, 10, $color1);
@@ -636,45 +636,45 @@ foreach ($datapoints as $data) {
 
     // fill in data tables
 
-    $datestr = substr($date, 0, 4)."/".substr($date, 4, 2)."/".substr($date, 6, 2);
+    $datestr = substr($date, 0, 4) . "/" . substr($date, 4, 2) . "/" . substr($date, 6, 2);
 
     //birth to 24 mos chart has 8 rows to fill.
     if ($count < 8 && $charttype == "birth") {
         imagestring($im, 2, $datatable_x, $datatable_y, $datestr, $color);
-        imagestring($im, 2, ($datatable_x+$datatable_age_offset), $datatable_y, $ageinYMD, $color);
-        imagestring($im, 2, ($datatable_x+$datatable_weight_offset), $datatable_y, unitsWt($weight), $color);
-        imagestring($im, 2, ($datatable_x+$datatable_height_offset), $datatable_y, unitsDist($height), $color);
-        imagestring($im, 2, ($datatable_x+$datatable_hc_offset), $datatable_y, unitsDist($head_circ), $color);
+        imagestring($im, 2, ($datatable_x + $datatable_age_offset), $datatable_y, $ageinYMD, $color);
+        imagestring($im, 2, ($datatable_x + $datatable_weight_offset), $datatable_y, unitsWt($weight), $color);
+        imagestring($im, 2, ($datatable_x + $datatable_height_offset), $datatable_y, unitsDist($height), $color);
+        imagestring($im, 2, ($datatable_x + $datatable_hc_offset), $datatable_y, unitsDist($head_circ), $color);
         $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
     }
 
     // 2 to 20 year-old chart has 7 rows to fill.
     if ($count < 7  && $charttype == "2-20") {
         imagestring($im, 2, $datatable_x, $datatable_y, $datestr, $color);
-        imagestring($im, 2, ($datatable_x+$datatable_age_offset), $datatable_y, $ageinYMD, $color);
-        imagestring($im, 2, ($datatable_x+$datatable_weight_offset), $datatable_y, unitsWt($weight), $color);
-        imagestring($im, 2, ($datatable_x+$datatable_height_offset), $datatable_y, unitsDist($height), $color);
-        imagestring($im, 2, ($datatable_x+$datatable_bmi_offset), $datatable_y, substr($bmi, 0, 5), $color);
+        imagestring($im, 2, ($datatable_x + $datatable_age_offset), $datatable_y, $ageinYMD, $color);
+        imagestring($im, 2, ($datatable_x + $datatable_weight_offset), $datatable_y, unitsWt($weight), $color);
+        imagestring($im, 2, ($datatable_x + $datatable_height_offset), $datatable_y, unitsDist($height), $color);
+        imagestring($im, 2, ($datatable_x + $datatable_bmi_offset), $datatable_y, substr($bmi, 0, 5), $color);
         $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
     }
 
     // Head Circumference chart has 5 rows to fill in
     if ($count < 5 && $charttype == "birth") {
         imagestring($im, 2, $datatable2_x, $datatable2_y, $datestr, $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_age_offset), $datatable2_y, $ageinYMD, $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_weight_offset), $datatable2_y, unitsWt($weight), $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_height_offset), $datatable2_y, unitsDist($height), $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_hc_offset), $datatable2_y, unitsDist($head_circ), $color);
+        imagestring($im, 2, ($datatable2_x + $datatable2_age_offset), $datatable2_y, $ageinYMD, $color);
+        imagestring($im, 2, ($datatable2_x + $datatable2_weight_offset), $datatable2_y, unitsWt($weight), $color);
+        imagestring($im, 2, ($datatable2_x + $datatable2_height_offset), $datatable2_y, unitsDist($height), $color);
+        imagestring($im, 2, ($datatable2_x + $datatable2_hc_offset), $datatable2_y, unitsDist($head_circ), $color);
         $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
     }
 
     // BMI chart has 14 rows to fill in.
     if ($count < 14 && $charttype == "2-20") {
         imagestring($im, 2, $datatable2_x, $datatable2_y, $datestr, $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_age_offset), $datatable2_y, $ageinYMD, $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_weight_offset), $datatable2_y, unitsWt($weight), $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_height_offset), $datatable2_y, unitsDist($height), $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_bmi_offset), $datatable2_y, substr($bmi, 0, 5), $color);
+        imagestring($im, 2, ($datatable2_x + $datatable2_age_offset), $datatable2_y, $ageinYMD, $color);
+        imagestring($im, 2, ($datatable2_x + $datatable2_weight_offset), $datatable2_y, unitsWt($weight), $color);
+        imagestring($im, 2, ($datatable2_x + $datatable2_height_offset), $datatable2_y, unitsDist($height), $color);
+        imagestring($im, 2, ($datatable2_x + $datatable2_bmi_offset), $datatable2_y, substr($bmi, 0, 5), $color);
         $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
     }
 
@@ -686,10 +686,10 @@ if ($_GET['pdf'] == 1) {
     $pdf->ezSetMargins(0, 0, 0, 0);
 
     // we start with one large image, break it into two pages
-    $page1 = imagecreate((imagesx($im)/2), imagesy($im));
-    $page2 = imagecreate((imagesx($im)/2), imagesy($im));
-    imagecopy($page1, $im, 0, 0, 0, 0, (imagesx($im)/2), imagesy($im));
-    imagecopy($page2, $im, 0, 0, (imagesx($im)/2), 0, imagesx($im), imagesy($im));
+    $page1 = imagecreate((imagesx($im) / 2), imagesy($im));
+    $page2 = imagecreate((imagesx($im) / 2), imagesy($im));
+    imagecopy($page1, $im, 0, 0, 0, 0, (imagesx($im) / 2), imagesy($im));
+    imagecopy($page2, $im, 0, 0, (imagesx($im) / 2), 0, imagesx($im), imagesy($im));
     imagedestroy($im);
 
     // each page is built

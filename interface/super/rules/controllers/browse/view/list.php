@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/browse/view/list.php
  *
@@ -10,12 +11,13 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 
-<script language="javascript" src="<?php js_src('list.js') ?>"></script>
-<script language="javascript" src="<?php js_src('jQuery.fn.sortElements.js') ?>"></script>
+<script src="<?php js_src('list.js') ?>"></script>
+<script src="<?php js_src('jQuery.fn.sortElements.js') ?>"></script>
 
-<script type="text/javascript">
+<script>
     var list = new list_rules();
     list.init();
 </script>

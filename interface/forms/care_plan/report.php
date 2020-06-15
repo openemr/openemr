@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Care plan form report.php
  *

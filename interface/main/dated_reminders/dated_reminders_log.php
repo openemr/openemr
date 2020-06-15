@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Used for adding dated reminders.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  */
 
-
     require_once("../../globals.php");
     require_once("$srcdir/dated_reminder_functions.php");
 
@@ -18,7 +18,7 @@
     use OpenEMR\Common\Csrf\CsrfUtils;
     use OpenEMR\Core\Header;
 
-    $isAdmin =AclMain::aclCheckCore('admin', 'users');
+    $isAdmin = AclMain::aclCheckCore('admin', 'users');
 ?>
 <?php
   /*
@@ -36,19 +36,19 @@ if ($_GET) {
     }
 
     echo '  <div class="col-12">
-            <h4>'.xlt('Click and drag bottom right corner to resize this display').'</h4>
+            <h4>' . xlt('Click and drag bottom right corner to resize this display') . '</h4>
             <table class="table table-bordered"  id="logTable">
                 <thead>
                   <tr>
-                    <th>'.xlt('ID').'</th>
-                    <th>'.xlt('Sent Date').'</th>
-                    <th>'.xlt('From').'</th>
-                    <th>'.xlt('To{{Destination}}').'</th>
-                    <th>'.xlt('Patient').'</th>
-                    <th>'.xlt('Message').'</th>
-                    <th>'.xlt('Due Date').'</th>
-                    <th>'.xlt('Processed Date').'</th>
-                    <th>'.xlt('Processed By').'</th>
+                    <th>' . xlt('ID') . '</th>
+                    <th>' . xlt('Sent Date') . '</th>
+                    <th>' . xlt('From') . '</th>
+                    <th>' . xlt('To{{Destination}}') . '</th>
+                    <th>' . xlt('Patient') . '</th>
+                    <th>' . xlt('Message') . '</th>
+                    <th>' . xlt('Due Date') . '</th>
+                    <th>' . xlt('Processed Date') . '</th>
+                    <th>' . xlt('Processed By') . '</th>
                   </tr>
                 </thead>
                 <tbody>';
@@ -56,7 +56,7 @@ if ($_GET) {
     $TempRemindersArray = logRemindersArray();
     foreach ($TempRemindersArray as $RA) {
         $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
-        $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'].', '.$RA['ToName'] : $RA['ToName']);
+        $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'] . ', ' . $RA['ToName'] : $RA['ToName']);
         $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
         $remindersArray[$RA['messageID']]['message'] = $RA['message'];
         $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
@@ -68,15 +68,15 @@ if ($_GET) {
 
     foreach ($remindersArray as $RA) {
         echo '<tr class="heading">
-              <td>'.text($RA['messageID']).'</td>
-              <td>'.text(oeFormatDateTime($RA['sDate'])).'</td>
-              <td>'.text($RA['fromName']).'</td>
-              <td>'.text($RA['ToName']).'</td>
-              <td>'.text($RA['PatientName']).'</td>
-              <td>'.text($RA['message']).'</td>
-              <td>'.text(oeFormatShortDate($RA['dDate'])).'</td>
-              <td>'.text(oeFormatDateTime($RA['pDate'])).'</td>
-              <td>'.text($RA['processedByName']).'</td>
+              <td>' . text($RA['messageID']) . '</td>
+              <td>' . text(oeFormatDateTime($RA['sDate'])) . '</td>
+              <td>' . text($RA['fromName']) . '</td>
+              <td>' . text($RA['ToName']) . '</td>
+              <td>' . text($RA['PatientName']) . '</td>
+              <td>' . text($RA['message']) . '</td>
+              <td>' . text(oeFormatShortDate($RA['dDate'])) . '</td>
+              <td>' . text(oeFormatDateTime($RA['pDate'])) . '</td>
+              <td>' . text($RA['processedByName']) . '</td>
             </tr>';
     }
 
@@ -97,7 +97,7 @@ if ($_GET) {
         }
     </style>
     <script>
-      $(function (){
+      $(function () {
         $("#submitForm").click(function(){
           // top.restoreSession(); --> can't use this as it negates this ajax refresh
           $.get("dated_reminders_log.php?"+$("#logForm").serialize(),
@@ -131,7 +131,7 @@ if ($_GET) {
     <?php
       $allUsers = array();
       $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
-    for ($i=0; $uRow=sqlFetchArray($uSQL); $i++) {
+    for ($i = 0; $uRow = sqlFetchArray($uSQL); $i++) {
         $allUsers[] = $uRow;
     }
     ?>
@@ -168,7 +168,7 @@ if ($_GET) {
                                     <?php
                                     if ($isAdmin) {
                                         foreach ($allUsers as $user) {
-                                            echo '<option value="'.attr($user['id']).'">'.text($user['fname'].' '.$user['mname'].' '.$user['lname']).'</option>';
+                                            echo '<option value="' . attr($user['id']) . '">' . text($user['fname'] . ' ' . $user['mname'] . ' ' . $user['lname']) . '</option>';
                                         }
                                     }
                                     ?>
@@ -181,7 +181,7 @@ if ($_GET) {
                                     <?php
                                     if ($isAdmin) {
                                         foreach ($allUsers as $user) {
-                                            echo '<option value="'.attr($user['id']).'">'.text($user['fname'].' '.$user['mname'].' '.$user['lname']).'</option>';
+                                            echo '<option value="' . attr($user['id']) . '">' . text($user['fname'] . ' ' . $user['mname'] . ' ' . $user['lname']) . '</option>';
                                         }
                                     }
                                     ?>

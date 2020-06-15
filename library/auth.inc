@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Authorization functions.
  *
@@ -15,11 +16,14 @@
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionTracker;
 
 $incoming_site_id = '';
 
-if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
-    isset($_POST['clearPass']) && isset($_POST['new_login_session_management'])) {
+if (
+    isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
+    isset($_POST['clearPass']) && isset($_POST['new_login_session_management'])
+) {
     // Attempt login
 
     // set the language
@@ -32,7 +36,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     // set language direction according to language choice. Later in globals.php we'll override main theme name if needed.
     $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
 
-    if (!(new AuthUtils('login'))->confirmUserPassword($_POST['authUser'], $_POST['clearPass'])) {
+    if (!(new AuthUtils('login'))->confirmPassword($_POST['authUser'], $_POST['clearPass'])) {
         // login attempt failed
         $_SESSION['loginfailure'] = 1;
         authLoginScreen();
@@ -42,9 +46,9 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     $_SESSION['loginfailure'] = null;
     unset($_SESSION['loginfailure']);
 
-    // store the very first initial timestamp for timeout errors
-    $_SESSION["last_update"] = time();
-} else if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
+    // skip the session expiration check below since the entry in session_tracker is not ready yet
+    $skipSessionExpirationCheck = true;
+} elseif ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
     // Logout
     // If session has timed out / been destroyed, logout record for null user/provider will be invalid.
     if (!empty($_SESSION['authUser']) && !empty($_SESSION['authProvider'])) {
@@ -71,26 +75,19 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
 // Have a mechanism to skip the timeout and timeout reset mechanisms if a skip_timeout_reset parameter exists. This
 //  can be used by scripts that continually request information from the server; for example the Messages
 //  and Reminders automated intermittent requests.
-if (!isset($_SESSION["last_update"])) {
-    // This should never happen
-    EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "last_update not set, so force logout");
-    error_log("OpenEMR ERROR: last_update not set, so forced logout");
-    authCloseSession();
-    authLoginScreen(true);
-} else {
-    if (((time() - $_SESSION["last_update"]) > $GLOBALS['timeout']) && empty($_REQUEST['skip_timeout_reset'])) {
+// Also skipping this all on login since entry in session_tracker is not ready yet
+if ($skipSessionExpirationCheck !== true) {
+    if (!SessionTracker::isSessionExpired()) {
+        if (empty($_REQUEST['skip_timeout_reset']) && empty($GLOBALS['DAEMON_FLAG'])) {
+            SessionTracker::updateSessionExpiration();
+        }
+    } else {
         // User has timed out.
         EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
         authCloseSession();
         authLoginScreen(true);
-    } else {
-        // User not timed out. Reset the timer, if applicable.
-        if (empty($GLOBALS['DAEMON_FLAG']) && empty($_REQUEST['skip_timeout_reset'])) {
-            $_SESSION["last_update"] = time();
-        }
     }
 }
-
 
 require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
 function authCloseSession()

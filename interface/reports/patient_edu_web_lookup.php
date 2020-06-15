@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Open websearch for patient education materials
  *
@@ -42,7 +43,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
 <head>
     <?php Header::setupHeader(); ?>
     <title><?php echo xlt('Web Search'); ?> - <?php echo xlt('Patient Education Materials'); ?></title>
-    <script type="text/javascript">
+    <script>
         function searchResultsPopup(search_term,link)
         {
             link_formatted = link.replace("[%]",encodeURIComponent(search_term));
@@ -104,7 +105,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
         </div>
     </div>
     <?php if (!empty($form_diagnosis) && !empty($form_lookup_at)) { ?>
-        <script type="text/javascript">
+        <script>
             searchResultsPopup(<?php echo js_escape($form_diagnosis); ?>,<?php echo js_escape($websites[$form_lookup_at]) ?>);
         </script>
     <?php } ?>

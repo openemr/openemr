@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This singleton class provides a pooled Doctrine connection to consumers. All connection data
  * is configurable via sqlconf.php.
@@ -39,8 +40,8 @@
 
 namespace OpenEMR\Common\Database;
 
-use \Doctrine\ORM\Tools\Setup;
-use \Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\EntityManager;
 use OpenEMR\Common\Database\Auditor;
 use OpenEMR\Common\Logging\Logger;
 
@@ -143,8 +144,10 @@ final class Connector
         // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
         if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
             $connection['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA ] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca";
-            if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
+            if (
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
+            ) {
                 $connection['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key";
                 $connection['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert";
             }

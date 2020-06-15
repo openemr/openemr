@@ -1,4 +1,5 @@
 <?php
+
 /********************************************************************************\
  * Copyright (C) ViCarePlus, Visolve (vicareplus_engg@visolve.com)              *
  *                                                                              *
@@ -83,7 +84,7 @@ function upgradeFromSqlFile_de($filename)
 
             echo xlt('Skipping section');
             echo " " . text($line) . "</font><br />\n";
-        } else if (preg_match('/^#EndIf/', $line)) {
+        } elseif (preg_match('/^#EndIf/', $line)) {
             $skipping = false;
         }
 
@@ -119,7 +120,7 @@ function upgradeFromSqlFile_de($filename)
             }
         }
 
-        if (substr($query, -1) == ';'and $proc == 0) {
+        if (substr($query, -1) == ';' and $proc == 0) {
             $query = rtrim($query, ';');
             echo text($query) . "<br />\n";  //executes sql statements
             if (!sqlStatement($query)) {
@@ -172,8 +173,8 @@ if (!empty($_POST['form_submit'])) {
         echo "\n";
         echo "<p>" . text(getSqlLastError()) . " (#" . text(getSqlLastErrorNo()) . ")\n";
         exit();
-    }  $login=$sqlconf["login"];
-    $loginhost=$sqlconf["host"];
+    }  $login = $sqlconf["login"];
+    $loginhost = $sqlconf["host"];
     generic_sql_select_db($sqlconf['dbase']) or die(text(getSqlLastError()));
     if (sqlStatement("GRANT FILE ON *.* TO '$login'@'$loginhost'") == false) {
         echo xlt("Error when granting file privilege to the OpenEMR user.");
@@ -204,7 +205,7 @@ if (!empty($_POST['form_submit'])) {
 }
 ?>
 
-<script language="JavaScript">
+<script>
 function form_validate()
 {
  if(document.forms[0].root_user_name.value == "")

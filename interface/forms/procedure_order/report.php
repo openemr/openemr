@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form for entering procedure orders.
  *
@@ -9,8 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once(dirname(__FILE__).'/../../globals.php');
+require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");

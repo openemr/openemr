@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Chart tracker entity.
  *

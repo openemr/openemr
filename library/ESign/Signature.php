@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Signature class
  *
@@ -24,8 +22,10 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/SignatureIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/Utils/Verification.php';
+namespace ESign;
+
+require_once $GLOBALS['srcdir'] . '/ESign/SignatureIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Utils/Verification.php';
 
 class Signature implements SignatureIF
 {
@@ -42,9 +42,20 @@ class Signature implements SignatureIF
     private $amendment = null; // note about the signature, if any
 
     private $_verification = null;
-    
-    public function __construct($id, $tid, $table, $isLock, $uid, $firstName, $lastName, $datetime, $hash, $amendment = null, $signatureHash = null)
-    {
+
+    public function __construct(
+        $id,
+        $tid,
+        $table,
+        $isLock,
+        $uid,
+        $firstName,
+        $lastName,
+        $datetime,
+        $hash,
+        $amendment = null,
+        $signatureHash = null
+    ) {
         $this->id = $id;
         $this->tid = $tid;
         $this->table = $table;
@@ -56,17 +67,17 @@ class Signature implements SignatureIF
         $this->hash = $hash;
         $this->amendment = $amendment;
         $this->signatureHash = $signatureHash;
-        
+
         $this->_verification = new Utils_Verification();
     }
-    
+
     public function getClass()
     {
         $class = "";
         if ($this->isLock() === true) {
             $class .= " locked";
         }
-       
+
         return $class;
     }
 
@@ -84,7 +95,7 @@ class Signature implements SignatureIF
     {
         $this->uid = $uid;
     }
-    
+
     public function getFirstName()
     {
         return $this->firstName;
@@ -94,32 +105,32 @@ class Signature implements SignatureIF
     {
         return $this->lastName;
     }
-    
+
     public function getDatetime()
     {
         return $this->datetime;
     }
-    
+
     public function isLock()
     {
         if ($this->isLock > 0) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     public function getAmendment()
     {
         return $this->amendment;
     }
-    
+
     public function getData()
     {
         $data = array( $this->tid, $this->table, $this->uid, $this->isLock, $this->hash, $this->amendment );
         return $data;
     }
-    
+
     public function verify()
     {
         return $this->_verification->verify($this->getData(), $this->signatureHash);

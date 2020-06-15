@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Used for adding dated reminders.
  *
@@ -46,11 +47,11 @@ $dateRanges['2_year'] = xl('2 Years From Now');
 // --- need to add a check to ensure the post is being sent from the correct location ???
 
 // default values for $this_message
-$this_message = array('message'=>'','message_priority'=>3,'dueDate'=>'');
+$this_message = array('message' => '','message_priority' => 3,'dueDate' => '');
 $forwarding = false;
 
 // default values for Max words to input in a reminder
-$max_reminder_words=160;
+$max_reminder_words = 160;
 
 // ---------------- FOR FORWARDING MESSAGES ------------->
 if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
@@ -86,16 +87,18 @@ if ($_POST) {
 
 // --------------------------------------------------------------------------------------------------------------------------
 // --- check for the post, if it is valid, commit to the database, close this window and run opener.Handeler
-    if (// ------- check sendTo is not empty
-    !empty($sendTo) and
+    if (
+// ------- check sendTo is not empty
+        !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-    isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', DateToYYYYMMDD($_POST['dueDate'])) and
+        isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', DateToYYYYMMDD($_POST['dueDate'])) and
 // ------- check priority, only allow 1-3
-    isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
+        isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
 // ------- check message, only up to 160 characters limited by Db
-    isset($_POST['message']) and mb_strlen($_POST['message']) <= $max_reminder_words and mb_strlen($_POST['message']) > 0 and
+        isset($_POST['message']) and mb_strlen($_POST['message']) <= $max_reminder_words and mb_strlen($_POST['message']) > 0 and
 // ------- check if PatientID is set and in numeric
-    isset($_POST['PatientID']) and is_numeric($_POST['PatientID'])) {
+        isset($_POST['PatientID']) and is_numeric($_POST['PatientID'])
+    ) {
         $dueDate = DateToYYYYMMDD($_POST['dueDate']);
         $priority = intval($_POST['priority']);
         $message = $_POST['message'];
@@ -112,16 +115,16 @@ if ($_POST) {
 
 // --------------------------------------------------------------------------------------------------------------------------
         if (!$ReminderSent) {
-            $output .= '<div class="text-center">* '.xlt('Please select a valid recipient').'</div> ';
+            $output .= '<div class="text-center">* ' . xlt('Please select a valid recipient') . '</div> ';
         } else {
       // --------- echo javascript
             echo '<html><body>'
-            ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
-            .'<script>';
+            . "<script src=\"" . $webroot . "/interface/main/tabs/js/include_opener.js\"></script>"
+            . '<script>';
       // ------------ 1) refresh parent window this updates if sent to self
             echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';
       // ------------ 2) communicate with user
-            echo '   alert("'.xls('Reminder Sent').'");';
+            echo '   alert("' . xls('Reminder Sent') . '");';
       // ------------ 3) close this window
             echo '  dlgclose();';
             echo '</script></body></html>';
@@ -132,7 +135,7 @@ if ($_POST) {
 // --------------------------------------------------------------------------------------------------------------------------
     } else {
 // ------- if POST error
-        $output .= '<div class="text-center">* '.xlt('Data Error').'</div> ';
+        $output .= '<div class="text-center">* ' . xlt('Data Error') . '</div> ';
     }
     $output .= '</fieldset></div>';
 // ------- if any errors, communicate with the user
@@ -158,7 +161,7 @@ if (isset($this_message['pid'])) {
     <?php Header::setupHeader(['datetime-picker', 'opener' ,'topdialog', 'common', 'moment']); ?>
 
     <script>
-      $(function (){
+      $(function () {
 
         $('#timeSpan').change(function(){
           var value = $(this).val();
@@ -332,7 +335,7 @@ if (isset($this_message['pid'])) {
                         <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                             <?php //
                             $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
-                            for ($i=2; $uRow=sqlFetchArray($uSQL); $i++) {
+                            for ($i = 2; $uRow = sqlFetchArray($uSQL); $i++) {
                                 echo '<option value="' . attr($uRow['id']) . '">' . text($uRow['fname'] . ' ' . $uRow['mname'] . ' ' . $uRow['lname']) . '</option>';
                             }
                             ?>
@@ -366,7 +369,7 @@ if (isset($this_message['pid'])) {
                         <?php
                         $optionTxt = '';
                         foreach ($dateRanges as $val => $txt) {
-                            $optionTxt .= '<option value="'.attr($val).'">'.text($txt).'</option>';
+                            $optionTxt .= '<option value="' . attr($val) . '">' . text($txt) . '</option>';
                         }
                         echo $optionTxt;
                         ?>
@@ -422,32 +425,32 @@ if (isset($this_message['pid'])) {
         $remindersArray = array();
     foreach ($TempRemindersArray as $RA) {
         $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
-        $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'].', '.$RA['ToName'] : $RA['ToName']);
+        $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'] . ', ' . $RA['ToName'] : $RA['ToName']);
         $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
         $remindersArray[$RA['messageID']]['message'] = $RA['message'];
         $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
     }
 
-        echo '<h4>'.xlt('Messages You have sent Today').'</h4>';
+        echo '<h4>' . xlt('Messages You have sent Today') . '</h4>';
         echo '<table class="table table-bordered" id="logTable">
                 <thead>
                   <tr>
-                    <th>'.xlt('ID').'</th>
-                    <th>'.xlt('To{{Destination}}').'</th>
-                    <th>'.xlt('Patient').'</th>
-                    <th>'.xlt('Message').'</th>
-                    <th>'.xlt('Due Date').'</th>
+                    <th>' . xlt('ID') . '</th>
+                    <th>' . xlt('To{{Destination}}') . '</th>
+                    <th>' . xlt('Patient') . '</th>
+                    <th>' . xlt('Message') . '</th>
+                    <th>' . xlt('Due Date') . '</th>
                   </tr>
                 </thead>
                 <tbody>';
 
     foreach ($remindersArray as $RA) {
         echo '<tr class="heading">
-                  <td>'.text($RA['messageID']).'</td>
-                  <td>'.text($RA['ToName']).'</td>
-                  <td>'.text($RA['PatientName']).'</td>
-                  <td>'.text($RA['message']).'</td>
-                  <td>'.text(oeFormatShortDate($RA['dDate'])).'</td>
+                  <td>' . text($RA['messageID']) . '</td>
+                  <td>' . text($RA['ToName']) . '</td>
+                  <td>' . text($RA['PatientName']) . '</td>
+                  <td>' . text($RA['message']) . '</td>
+                  <td>' . text(oeFormatShortDate($RA['dDate'])) . '</td>
                 </tr>';
     }
 
@@ -455,7 +458,7 @@ if (isset($this_message['pid'])) {
     ?>
     </div><!--end of container div-->
   <script>
-    $(function() {
+    $(function () {
         $('#link-tooltip').tooltip({title: "<?php echo xla('This message need not necessarily be linked to a patient'); ?>"});
         $('#select-tooltip').tooltip({title: "<?php echo xla('If the checkbox is checked then each individual of a group receiving this message will have to sign off by clicking the Set As Completed button'); ?>"});
     });

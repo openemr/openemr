@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -255,7 +257,7 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
                         $this->addCopolymerConnectivity($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"copolymerConnectivity" must be array of objects or null, '.gettype($data['copolymerConnectivity']).' seen.');
+                    throw new \InvalidArgumentException('"copolymerConnectivity" must be array of objects or null, ' . gettype($data['copolymerConnectivity']) . ' seen.');
                 }
             }
             if (isset($data['modification'])) {
@@ -264,7 +266,7 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
                         $this->addModification($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"modification" must be array of objects or null, '.gettype($data['modification']).' seen.');
+                    throw new \InvalidArgumentException('"modification" must be array of objects or null, ' . gettype($data['modification']) . ' seen.');
                 }
             }
             if (isset($data['monomerSet'])) {
@@ -273,7 +275,7 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
                         $this->addMonomerSet($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"monomerSet" must be array of objects or null, '.gettype($data['monomerSet']).' seen.');
+                    throw new \InvalidArgumentException('"monomerSet" must be array of objects or null, ' . gettype($data['monomerSet']) . ' seen.');
                 }
             }
             if (isset($data['repeat'])) {
@@ -282,11 +284,11 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
                         $this->addRepeat($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"repeat" must be array of objects or null, '.gettype($data['repeat']).' seen.');
+                    throw new \InvalidArgumentException('"repeat" must be array of objects or null, ' . gettype($data['repeat']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

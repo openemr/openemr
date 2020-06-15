@@ -1,4 +1,5 @@
 <?php
+
 /**
  * class FormEvaluation
  *
@@ -11,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class FormEvaluation extends ORDataObject
 {
@@ -84,7 +86,7 @@ class FormEvaluation extends ORDataObject
      */
     function toString($html = false)
     {
-        $string = "\n" ."ID: " . $this->id . "\n";
+        $string = "\n" . "ID: " . $this->id . "\n";
 
         if ($html) {
             return nl2br($string);

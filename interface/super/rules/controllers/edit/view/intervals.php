@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/view/intervals.php
  *
@@ -10,12 +11,13 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <?php require_once($GLOBALS["srcdir"] . "/../interface/super/rules/controllers/edit/helper/common.php"); ?>
 <?php $rule = $viewBean->rule ?>
 <?php $intervals = $rule->reminderIntervals ?>
-<script language="javascript" src="<?php js_src('edit.js') ?>"></script>
-<script type="text/javascript">
+<script src="<?php js_src('edit.js') ?>"></script>
+<script>
     var edit = new rule_edit( {});
     edit.init();
 </script>
@@ -55,7 +57,7 @@
                 <input class="form-control" data-grp-tgt="<?php echo attr($type->code) ?>" type="text" name="<?php echo attr($type->code); ?>-<?php echo attr($range->code); ?>" value="<?php echo is_null($detail) ? "" : attr($detail->amount); ?>" />
             </span>
             <span class="end_col">
-            <?php echo timeunit_select(array( "context"=>"rule_reminder_intervals", "target"=>$type->code, "name"=>$type->code."-".$range->code."-timeunit", "value" => $detail->timeUnit )); ?>
+            <?php echo timeunit_select(array( "context" => "rule_reminder_intervals", "target" => $type->code, "name" => $type->code . "-" . $range->code . "-timeunit", "value" => $detail->timeUnit )); ?>
             </span>
         </p>
             <?php $first = false; ?>

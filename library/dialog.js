@@ -1,5 +1,5 @@
 // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
-// Copyright (C) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
+// Copyright (C) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,16 +19,18 @@
         function ajax(data) {
             let opts = {
                 buttons: data.buttons,
-                sizeHeight: data.sizeHeight || '',
+                allowDrag: data.allowDrag,
+                allowResize: data.allowResize,
+                sizeHeight: data.sizeHeight,
                 type: data.type,
                 data: data.data,
                 url: data.url,
-                dataType: data.dataType || '' // xml/json/text etc.
+                dataType: data.dataType // xml/json/text etc.
             };
 
             let title = data.title;
 
-            return dlgopen('', '', data.size, 250, '', title, opts);
+            return dlgopen('', '', data.size, 300, '', title, opts);
         }
 
         function alert(data, title) {
@@ -49,11 +51,9 @@
     });
 
     if (typeof window.xl !== 'function') {
-        let utilfn = top.webroot_url + '/library/js/utility.js';
-        let load = async () => {
-            await includeScript(utilfn, false, 'script');
-        };
-        load().then(rtn => {
+        (async (utilfn) => {
+            await includeScript(utilfn, 'script');
+        })(top.webroot_url + '/library/js/utility.js').then(() => {
             console.log('Utilities Unavailable! loading:[ ' + utilfn + ' ] For: [ ' + location + ' ]');
         });
     }
@@ -164,56 +164,6 @@ function dialogID() {
     return s4() + s4() + s4() + s4() + s4() + +s4() + s4() + s4();
 }
 
-/*
-* function includeScript(url, async)
-*
-* @summary Dynamically include JS Scripts or Css.
-*
-* @param {string} url file location.
-* @param {boolean} async true/false load asynchronous/synchronous.
-* @param {string} 'script' | 'link'.
-*
-* */
-function includeScript(url, async, type) {
-    try {
-        let rqit = new XMLHttpRequest();
-        if (type === "link") {
-            let headElement = document.getElementsByTagName("head")[0];
-            let newScriptElement = document.createElement("link")
-            newScriptElement.type = "text/css";
-            newScriptElement.rel = "stylesheet";
-            newScriptElement.href = url;
-            headElement.appendChild(newScriptElement);
-            console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
-            return false;
-        }
-
-        if (async === false) {
-            console.log("The url of " + url + " is deprecated due to synchronous requests. Let's find a way to remediate this soon!");
-        }
-        rqit.open("GET", url, async); // false = synchronous.
-        rqit.send(null);
-
-        if (rqit.status === 200) {
-            if (type === "script") {
-                let headElement = document.getElementsByTagName("head")[0];
-                let newScriptElement = document.createElement("script");
-                newScriptElement.type = "text/javascript";
-                newScriptElement.text = rqit.responseText;
-                headElement.appendChild(newScriptElement);
-                console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
-                return false; // in case req comes from a submit form.
-            }
-        }
-
-        new Error("Failed to get URL:" + url);
-
-    } catch (e) {
-        throw e;
-    }
-
-}
-
 // test for and/or remove dependency.
 function inDom(dependency, type, remove) {
     let el = type;
@@ -274,37 +224,35 @@ if (typeof top.set_opener !== "function") {
 // universal alert popup message
 if (typeof alertMsg !== "function") {
     function alertMsg(message, timer = 5000, type = 'danger', size = '', persist = '') {
-        // example of get php to js variables.
-        let isPromise = top.jsFetchGlobals('alert');
-        isPromise.then(xl => {
+        // this xl() is just so cool.
+        let gotIt = xl("Got It");
+        let title = xl("Alert");
+        let dismiss = xl("Dismiss");
+        $('#alert_box').remove();
+        let oHidden = '';
+        oHidden = !persist ? "hidden" : '';
+        let oSize = (size == 'lg') ? 'left:10%;width:80%;' : 'left:25%;width:50%;';
+        let style = "position:fixed;top:25%;" + oSize + " bottom:0;z-index:9999;";
+        $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
+        let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
+            '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-dismiss="alert">' +
+            gotIt + '&nbsp;<i class="fa fa-thumbs-up"></i></button>' +
+            '<h4 class="alert-heading text-center">' + title + '!</h4><hr>' + '<p style="color:#000;">' + message + '</p>' +
+            '<button type="button" class="pull-right btn btn-link" data-dismiss="alert">' + dismiss + '</button><br /></div>';
+        $('#alert_box').append(mHtml);
+        $('#alertmsg').on('closed.bs.alert', function () {
+            clearTimeout(AlertMsg);
             $('#alert_box').remove();
-            let oHidden = '';
-            oHidden = !persist ? "hidden" : '';
-            let oSize = (size == 'lg') ? 'left:10%;width:80%;' : 'left:25%;width:50%;';
-            let style = "position:fixed;top:25%;" + oSize + " bottom:0;z-index:9999;";
-            $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
-            let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
-                '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-dismiss="alert">' +
-                xl.alert.gotIt + '&nbsp;<i class="fa fa-thumbs-up"></i></button>' +
-                '<h4 class="alert-heading text-center">' + xl.alert.title + '!</h4><hr>' + '<p style="color:#000;">' + message + '</p>' +
-                '<button type="button" class="pull-right btn btn-link" data-dismiss="alert">' + xl.alert.dismiss + '</button><br /></div>';
-            $('#alert_box').append(mHtml);
-            $('#alertmsg').on('closed.bs.alert', function () {
-                clearTimeout(AlertMsg);
-                $('#alert_box').remove();
-                return false;
-            });
-            $('#dontShowAgain').on('click', function (e) {
-                persistUserOption(persist, 1);
-            });
-            let AlertMsg = setTimeout(function () {
-                $('#alertmsg').fadeOut(800, function () {
-                    $('#alert_box').remove();
-                });
-            }, timer);
-        }).catch(error => {
-            console.log(error.message)
+            return false;
         });
+        $('#dontShowAgain').on('click', function (e) {
+            persistUserOption(persist, 1);
+        });
+        let AlertMsg = setTimeout(function () {
+            $('#alertmsg').fadeOut(800, function () {
+                $('#alert_box').remove();
+            });
+        }, timer);
     }
 
     const persistUserOption = function (option, value) {
@@ -386,7 +334,7 @@ if (typeof dlgclose !== "function") {
 * @param {Object} opts Dialogs options.
 * @returns {Object} dialog object reference.
 * */
-const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
+function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // First things first...
     top.restoreSession();
     // A matter of Legacy
@@ -401,7 +349,9 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
     //
     let jqurl = top.webroot_url + '/public/assets/jquery/dist/jquery.min.js';
     if (typeof jQuery === 'undefined') {
-        includeScript(jqurl, false, 'script'); // true is async
+        (async (utilfn) => {
+            await includeScript(utilfn, 'script');
+        })(jqurl);
     }
     jQuery(function () {
         // Check for dependencies we will need.
@@ -413,18 +363,28 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         let version = jQuery.fn.jquery.split(' ')[0].split('.');
         if ((version[0] < 2 && version[1] < 9) || (version[0] === 1 && version[1] === 9 && version[2] < 1)) {
             inDom('jquery-min', 'script', true);
-            includeScript(jqurl, false, 'script');
-            console.log('Replacing jQuery version:[ ' + version + ' ]');
+            (async (utilfn) => {
+                await includeScript(utilfn, 'script');
+            })(jqurl).then(() => {
+                console.log('Replacing jQuery version:[ ' + version + ' ]');
+            });
         }
         if (!isBootstrapCss()) {
-            includeScript(bscss, false, 'link');
-            if (top.jsLanguageDirection === 'rtl') {
-                includeScript(bscssRtl, false, 'link');
+            (async (utilfn) => {
+                await includeScript(utilfn, 'link');
+            })(bscss);
+            if (top.jsLanguageDirection == 'rtl') {
+                (async (utilfn) => {
+                    await includeScript(utilfn, 'link');
+                })(bscssRtl);
             }
         }
         if (typeof jQuery.fn.modal === 'undefined') {
-            if (!inDom('bootstrap.bundle.min.js', 'script', false))
-                includeScript(bsurl, false, 'script');
+            if (!inDom('bootstrap.bundle.min.js', 'script', false)) {
+                (async (utilfn) => {
+                    await includeScript(utilfn, 'script');
+                })(bsurl);
+            }
         }
     });
 
@@ -439,7 +399,8 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         sizeHeight: 'auto', // 'full' will use as much height as allowed
         // use is onClosed: fnName ... args not supported however, onClosed: 'reload' is auto defined and requires no function to be created.
         onClosed: false,
-        callBack: false // use {call: 'functionName, args: args, args} if known or use dlgclose.
+        callBack: false, // use {call: 'functionName, args: args, args} if known or use dlgclose.
+        resolvePromiseOn: 'init' // this may be useful values are init, shown, show and closed which coincide with dialog events.
     };
 
     if (!opts) {
@@ -450,7 +411,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
 
     var mHeight, mWidth, mSize, msSize, dlgContainer, fullURL, where; // a growing list...
 
-    where = opts.type === 'iframe' ? top : window;
+    where = (opts.type === 'iframe') ? top : window;
 
     // get url straight...
     fullURL = "";
@@ -511,15 +472,13 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         '</div>';
 
     var headerhtml =
-        ('<div class=modal-header>%title%<button type=button class="close" data-dismiss=modal>' +
+        ('<div class="modal-header">%title%<button type="button" class="close" data-dismiss="modal">' +
             '&times;</button></div>').replace('%title%', mTitle);
 
     var frameHtml =
-        ('<iframe id="modalframe" class="w-100 h-100 modalIframe" name="%winname%" %url% frameborder=0></iframe>')
-        .replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
+        ('<iframe id="modalframe" class="w-100 h-100 modalIframe" name="%winname%" %url% frameborder=0></iframe>').replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
 
-    var bodyStyles = (' style="overflow-y:auto;height:%initHeight%;max-height:92vh;"')
-        .replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '80vh');
+    var bodyStyles = ('style="height:%initHeight%;"').replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '80vh');
 
     var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
 
@@ -527,19 +486,8 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sizeStyle%' +
             '<style>.drag-resize {touch-action:none;user-select:none;}</style>' +
             '<div %dialogId% class="modal-dialog %drag-action% %sizeClass%" role="document">' +
-            '<div class="modal-content %resize-action%">' + '%head%' + '%altclose%' + '%wait%' +
-            '<div class="modal-body px-1" %bodyStyles%>' + '%body%' + '</div></div></div></div>')
-        .replace('%id%', winname)
-        .replace('%sizeStyle%', msSize ? msSize : '')
-        .replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '')
-        .replace('%sizeClass%', mSize ? mSize : '')
-        .replace('%head%', mTitle !== '' ? headerhtml : '')
-        .replace('%altclose%', mTitle === '' ? altClose : '')
-        .replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '')
-        .replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '')
-        .replace('%wait%', '')
-        .replace('%bodyStyles%', bodyStyles)
-        .replace('%body%', opts.type === 'iframe' ? frameHtml : '');
+            '<div class="modal-content %resize-action%" style="max-height: 92vh">' + '%head%' + '%altclose%' + '%wait%' +
+            '<div class="modal-body overflow-auto px-1" %bodyStyles%>' + '%body%' + '</div></div></div></div>').replace('%id%', winname).replace('%sizeStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%sizeClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '').replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '').replace('%wait%', '').replace('%bodyStyles%', bodyStyles).replace('%body%', opts.type === 'iframe' ? frameHtml : '');
 
     // Write modal template.
     dlgContainer = where.jQuery(mhtml);
@@ -594,6 +542,14 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
                         }
                     }, 800);
                 });
+            } else {
+                var modalwin = where.jQuery('body').find("[name='" + winname + "']");
+                jQuery('div.modal-dialog', modalwin).css({'margin': '15px auto auto'});
+                modalwin.on('show.bs.modal', function (e) {
+                    setTimeout(function () {
+                        sizing(e, height);
+                    }, 800);
+                });
             }
 
             // events chain.
@@ -601,13 +557,23 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
                 if (opts.allowResize || opts.allowDrag) {
                     initDragResize(where.document, where.document);
                 }
+
+                if (opts.resolvePromiseOn == 'show') {
+                    resolve(dlgContainer);
+                }
             }).on('shown.bs.modal', function () {
                 // Remove waitHtml spinner/loader etc.
                 jQuery(this).parent().find('div.loadProgress').fadeOut(function () {
                     jQuery(this).remove();
                 });
                 dlgContainer.modal('handleUpdate'); // allow for scroll bar
+
+                if (opts.resolvePromiseOn == 'shown') {
+                    resolve(dlgContainer);
+                }
             }).on('hidden.bs.modal', function (e) {
+                // clear cursor
+                e.target.style.cursor = "pointer";
                 // remove our dialog
                 jQuery(this).remove();
                 // now we can run functions in our window.
@@ -627,13 +593,11 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
                         window[opts.callBack.call](opts.callBack.args);
                     }
                 }
-                // We resolve on modal closing so we can run after action items.
-                // Todo: Move our closed and callback functions to new library function.
-                // then() continue promise chain back to calling script.
-                //
-                resolve(true);
 
-            }).modal({backdrop: 'static', keyboard: true}, 'show');// Show Modal
+                if (opts.resolvePromiseOn == 'close') {
+                    resolve(dlgContainer);
+                }
+            });
 
             // define local dialog close() function. openers scope
             window.dlgCloseAjax = function (calling, args) {
@@ -659,14 +623,17 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
             where.getOpener = function () {
                 return where;
             };
-
-            // Return the dialog ref. looking towards deferring...
-            return dlgContainer;
-
+            // dialog is completely built and events set
+            // this is default returning our dialog container reference.
+            if (opts.resolvePromiseOn == 'init') {
+                resolve(dlgContainer);
+            }
+            // Finally Show Dialog after DOM settles
+            dlgContainer.modal({backdrop: 'static', keyboard: true}, 'show');
         }); // end events
-    }); /* promise */
+    }); /* Returning Promise */
 
-    // Ajax call with promise
+    // Ajax call with promise via dialog
     function dialogAjax(data, $dialog, opts) {
         var params = {
             async: data.async,
@@ -752,23 +719,16 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         return oFoot; // jquery object of modal footer.
     }
 
-    // dynamic sizing - special case for full height - @todo use for fixed wt and ht
+    // dynamic sizing - special case for full height
     function sizing(e, height) {
         let viewPortHt = 0;
         let $idoc = jQuery(e.currentTarget);
-        viewPortHt = Math.max(top.window.document.documentElement.clientHeight, top.window.innerHeight || 0);
-        viewPortWt = Math.max(top.window.document.documentElement.clientWidth, top.window.innerWidth || 0);
+        viewPortHt = Math.max(window.document.documentElement.clientHeight, window.innerHeight || 0);
         let frameContentHt = opts.sizeHeight === 'full' ? viewPortHt : height;
-        frameContentHt = frameContentHt > viewPortHt ? viewPortHt : frameContentHt;
-        let hasHeader = $idoc.parents('div.modal-content').find('div.modal-header').height() || 0;
-        let hasFooter = $idoc.parents('div.modal-content').find('div.modal-footer').height() || 0;
-        frameContentHt = frameContentHt - hasHeader - hasFooter;
-        size = (frameContentHt / viewPortHt * 100).toFixed(4);
-        let maxsize = hasHeader ? 90 : hasFooter ? 86.5 : 95.5;
-        maxsize = hasHeader && hasFooter ? 80 : maxsize;
-        maxsize = maxsize + 'vh';
+        frameContentHt = frameContentHt >= viewPortHt ? viewPortHt : frameContentHt;
+        size = (frameContentHt / viewPortHt * 100).toFixed(2);
         size = size + 'vh';
-        $idoc.parents('div.modal-body').css({'height': size, 'max-height': maxsize, 'max-width': '96vw'});
+        $idoc.find('div.modal-content').css({'height': size});
 
         return size;
     }
@@ -777,22 +737,14 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
     function SizeModaliFrame(e, minSize) {
         let viewPortHt;
         let idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
-        jQuery(e.currentTarget).parents('div.modal-content').height('');
-        jQuery(e.currentTarget).parent('div.modal-body').css({'height': 0});
-        viewPortHt = top.window.innerHeight || 0;
-        //minSize = 100;
-        let frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight || 0) + 40;
+        jQuery(e.currentTarget).parents('div.modal-body').css({'height': 0});
+        viewPortHt = top.window.innerHeight;
+        let frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight) + 40;
         frameContentHt = frameContentHt < minSize ? minSize : frameContentHt;
-        frameContentHt = frameContentHt > viewPortHt ? viewPortHt : frameContentHt;
-        let hasHeader = jQuery(e.currentTarget).parents('div.modal-content').find('div.modal-header').length;
-        let hasFooter = jQuery(e.currentTarget).parents('div.modal-content').find('div.modal-footer').length;
+        frameContentHt = frameContentHt >= viewPortHt ? viewPortHt : frameContentHt;
         size = (frameContentHt / viewPortHt * 100).toFixed(1);
-        let maxsize = hasHeader ? 85 : hasFooter ? 85 : 95;
-        maxsize = hasHeader && hasFooter ? 76 : maxsize;
-        maxsize = maxsize + 'vh';
         size = size + 'vh'; // will start the dialog as responsive. Any resize by user turns dialog to absolute positioning.
-
-        jQuery(e.currentTarget).parent('div.modal-body').css({'height': size, 'max-height': maxsize}); // Set final size. Width was previously set.
+        jQuery(e.currentTarget).parents('div.modal-body').css({'height': size});
 
         return size;
     }

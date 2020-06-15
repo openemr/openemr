@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsitePortalActivityListView.tpl.php
  *
@@ -8,15 +9,16 @@
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Onsite Portal Activities"));
     $this->assign('nav', 'onsiteportalactivities');
 
     $this->display('_Header.tpl.php');
 ?>
 
-<script type="text/javascript">
+<script>
     $LAB.script("scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
-        $(function(){
+        $(function () {
             page.init();
         });
 

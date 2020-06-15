@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/view/diagnosis.php
  *
@@ -10,12 +11,13 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 
 <head>
-    <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">
-    <script language="javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript">
+    <link rel="stylesheet" href="<?php css_src('rules.css') ?>">
+    <script src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script>
         // This invokes the find-code popup.
         function sel_diagnosis() {
             dlgopen('../../patient_file/encounter/find_code_popup.php', '_blank', 500, 400);

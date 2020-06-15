@@ -1,4 +1,5 @@
 <?php
+
 /**
  * stats.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
@@ -22,26 +22,24 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 }
 ?>
 
-<div id="patient_stats_summary">
-
-<script type='text/javascript'>
-    function load_location( location ) {
-        top.restoreSession();
-        if ( !top.frames["RTop"] ) {
-            document.location=location;
-        } else {
-            top.frames["RTop"].location=location;
+<script>
+    if(typeof load_location === 'undefined') {
+        function load_location(location) {
+            top.restoreSession();
+            document.location = location;
         }
     }
 </script>
+
+<div id="patient_stats_summary">
 
 <table id="patient_stats_issues">
 
 <?php
 $numcols = '1';
 $erx_upload_complete = 0;
-$old_key="";
-$display_current_medications_below=1;
+$old_key = "";
+$display_current_medications_below = 1;
 
 foreach ($ISSUE_TYPES as $key => $arr) {
   // Skip if user has no access to this issue type.
@@ -52,18 +50,18 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 
     $query = "SELECT * FROM lists WHERE pid = ? AND type = ? AND ";
     $query .= dateEmptySql('enddate');
-    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $key=='medication') {
+    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $key == 'medication') {
         $query .= "and erx_uploaded != '1' ";
     }
 
-    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_allergy_display'] && $key=='allergy') {
+    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_allergy_display'] && $key == 'allergy') {
         $query .= "and erx_uploaded != '1' ";
     }
 
     $query .= "ORDER BY begdate";
     $pres = sqlStatement($query, array($pid, $key));
-    if ($old_key=="medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
-        $display_current_medications_below=0;
+    if ($old_key == "medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
+        $display_current_medications_below = 0;
         ?>
     <div>
         <table id="patient_stats_prescriptions">
@@ -94,7 +92,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
                 );
             }
 
-            $res=sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
+            $res = sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
             ?>
         <table>
             <?php
@@ -106,16 +104,16 @@ foreach ($ISSUE_TYPES as $key => $arr) {
                 <?php
             }
 
-            while ($row_currentMed=sqlFetchArray($res)) {
-                $runit = generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row_currentMed['unit']);
-                $rin = generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row_currentMed['form']);
-                $rroute = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row_currentMed['route']);
-                $rint = generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row_currentMed['interval']);
+            while ($row_currentMed = sqlFetchArray($res)) {
+                $runit = generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row_currentMed['unit']);
+                $rin = generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row_currentMed['form']);
+                $rroute = generate_display_field(array('data_type' => '1','list_id' => 'drug_route'), $row_currentMed['route']);
+                $rint = generate_display_field(array('data_type' => '1','list_id' => 'drug_interval'), $row_currentMed['interval']);
                 ?>
   <tr class=text >
 <td><?php echo text($row_currentMed['drug']);?></td>
 <td><?php
-        $unit='';
+        $unit = '';
 if ($row_currentMed['size'] > 0) {
     $unit = text($row_currentMed['size']) . " " . $runit . " ";
 }
@@ -130,11 +128,11 @@ if ($row_currentMed['size'] > 0) {
         </td></tr>
             <?php
         } // end erx_enable
-        $old_key='';
+        $old_key = '';
     }
 
     if (sqlNumRows($pres) > 0 || $arr[4] == 1) {
-        $old_key=$key;
+        $old_key = $key;
         if ($_POST['embeddedScreen']) {
             if ($GLOBALS['erx_enable'] && $key == "medication") {
                 $query_uploaded = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND ";
@@ -171,7 +169,7 @@ if ($row_currentMed['size'] > 0) {
             <tr class='issuetitle'>
             <td colspan='$numcols'>
             <span class="text font-weight-bold"><?php echo text($arr[0]); ?></span>
-            <a href="javascript:;" class="small font-weight-bold" onclick="load_location(<?php echo attr_js("stats_full.php?active=all&category=".urlencode($key)); ?>)">(<?php echo xlt('Manage'); ?>)</a>
+            <a href="javascript:;" class="small font-weight-bold" onclick="load_location(<?php echo attr_js("stats_full.php?active=all&category=" . urlencode($key)); ?>)">(<?php echo xlt('Manage'); ?>)</a>
             </td>
             </tr>
             <?php
@@ -191,10 +189,10 @@ if ($row_currentMed['size'] > 0) {
         while ($row = sqlFetchArray($pres)) {
             // output each issue for the $ISSUE_TYPE
             if (!$row['enddate'] && !$row['returndate']) {
-                $rowclass="noend_noreturn";
-            } else if (!$row['enddate'] && $row['returndate']) {
-                $rowclass="noend";
-            } else if ($row['enddate'] && !$row['returndate']) {
+                $rowclass = "noend_noreturn";
+            } elseif (!$row['enddate'] && $row['returndate']) {
+                $rowclass = "noend";
+            } elseif ($row['enddate'] && !$row['returndate']) {
                 $rowclass = "noreturn";
             }
 
@@ -204,7 +202,7 @@ if ($row_currentMed['size'] > 0) {
             if ($key == "allergy") {
                 $reaction = "";
                 if (!empty($row['reaction'])) {
-                    $reaction= " (" .getListItemTitle("reaction", $row['reaction']) . ")";
+                    $reaction = " (" . getListItemTitle("reaction", $row['reaction']) . ")";
                 }
 
                 echo "  <td colspan='" . attr($numcols) . "' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . text($row['title'] . $reaction) . "</td>\n";
@@ -231,7 +229,7 @@ if ($row_currentMed['size'] > 0) {
 //
 $need_head = true;
 foreach (array('treatment_protocols','injury_log') as $formname) {
-    if (sqlNumRows(sqlStatement("SHOW TABLES LIKE ?", array("form_".$formname))) > 0) {
+    if (sqlNumRows(sqlStatement("SHOW TABLES LIKE ?", array("form_" . $formname))) > 0) {
         $dres = sqlStatement("SELECT tp.id, tp.value FROM forms, " .
                             "form_" . add_escape_custom($formname) .
                 " AS tp WHERE forms.pid = ? AND " .
@@ -291,13 +289,13 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
     <?php } ?>
 
     <?php
-    $sql = "select i1.id as id, i1.immunization_id as immunization_id, i1.cvx_code as cvx_code, c.code_text_short as cvx_text, ".
-         " if (i1.administered_date, concat(i1.administered_date,' - ',c.code_text_short), IF(i1.note,substring(i1.note,1,20),c.code_text_short)) as immunization_data ".
-         " from immunizations i1 ".
-         " left join code_types ct on ct.ct_key = 'CVX' ".
-         " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code ".
-         " where i1.patient_id = ? ".
-         " and i1.added_erroneously = 0".
+    $sql = "select i1.id as id, i1.immunization_id as immunization_id, i1.cvx_code as cvx_code, c.code_text_short as cvx_text, " .
+         " if (i1.administered_date, concat(i1.administered_date,' - ',c.code_text_short), IF(i1.note,substring(i1.note,1,20),c.code_text_short)) as immunization_data " .
+         " from immunizations i1 " .
+         " left join code_types ct on ct.ct_key = 'CVX' " .
+         " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code " .
+         " where i1.patient_id = ? " .
+         " and i1.added_erroneously = 0" .
          " order by i1.administered_date desc";
 
     $result = sqlStatement($sql, array($pid));
@@ -308,20 +306,20 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
         echo " </tr></table>\n";
     }
 
-    while ($row=sqlFetchArray($result)) {
+    while ($row = sqlFetchArray($result)) {
         echo "&nbsp;&nbsp;";
         echo "<a class='link'";
-        echo "' href='javascript:;' onclick='javascript:load_location(" . attr_js("immunizations.php?mode=edit&id=".urlencode($row['id'])."&csrf_token_form=".urlencode(CsrfUtils::collectCsrfToken())) . ")'>" .
+        echo "' href='javascript:;' onclick='javascript:load_location(" . attr_js("immunizations.php?mode=edit&id=" . urlencode($row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken())) . ")'>" .
         text($row['immunization_data']);
 
         // Figure out which name to use (ie. from cvx list or from the custom list)
         if ($GLOBALS['use_custom_immun_list']) {
-            echo generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+            echo generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
         } else {
             if (!(empty($row['cvx_text']))) {
                 echo htmlspecialchars(xl($row['cvx_text']), ENT_NOQUOTES);
             } else {
-                echo generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+                echo generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
             }
         }
 
@@ -342,7 +340,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 <?php if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) { ?>
 <div>
 <table id="patient_stats_prescriptions">
-    <?php if ($GLOBALS['erx_enable'] && $display_current_medications_below==1) { ?>
+    <?php if ($GLOBALS['erx_enable'] && $display_current_medications_below == 1) { ?>
 <tr><td>
         <?php if ($_POST['embeddedScreen']) {
             $widgetTitle = '';
@@ -359,11 +357,11 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
         ?>
 
         <?php
-        $res=sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
+        $res = sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
         ?>
 <table>
         <?php
-        if (sqlNumRows($res)==0) {
+        if (sqlNumRows($res) == 0) {
             ?>
     <tr class="text">
         <td><?php echo xlt('None{{Prescriptions}}');?></td>
@@ -371,16 +369,16 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
             <?php
         }
 
-        while ($row_currentMed=sqlFetchArray($res)) {
-            $runit = generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row_currentMed['unit']);
-            $rin = generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row_currentMed['form']);
-            $rroute = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row_currentMed['route']);
-            $rint = generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row_currentMed['interval']);
+        while ($row_currentMed = sqlFetchArray($res)) {
+            $runit = generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row_currentMed['unit']);
+            $rin = generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row_currentMed['form']);
+            $rroute = generate_display_field(array('data_type' => '1','list_id' => 'drug_route'), $row_currentMed['route']);
+            $rint = generate_display_field(array('data_type' => '1','list_id' => 'drug_interval'), $row_currentMed['interval']);
             ?>
     <tr class="text">
         <td><?php echo text($row_currentMed['drug']); ?></td>
-        <td><?php $unit='';
-        if ($row_currentMed['size']>0) {
+        <td><?php $unit = '';
+        if ($row_currentMed['size'] > 0) {
             $unit = text($row_currentMed['size']) . " " . $runit . " ";
         }
 
@@ -414,7 +412,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
         }
 
         $bodyClass = "summary_item small";
-        $widgetAuth=AclMain::aclCheckCore('patients', 'rx', '', array('write','addonly'));
+        $widgetAuth = AclMain::aclCheckCore('patients', 'rx', '', array('write','addonly'));
         $fixedWidth = false;
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
     } else { ?>
@@ -424,7 +422,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
     <?php } ?>
 
     <?php
-    $cwd= getcwd();
+    $cwd = getcwd();
     chdir("../../../");
     $c = new Controller();
     echo $c->act(array("prescription" => "", "fragment" => "", "patient_id" => $pid));
@@ -459,10 +457,10 @@ if ($erx_upload_complete == 1) {
     while ($row = sqlFetchArray($res_uploaded_old)) {
     // output each issue for the $ISSUE_TYPE
         if (!$row['enddate'] && !$row['returndate']) {
-            $rowclass="noend_noreturn";
-        } else if (!$row['enddate'] && $row['returndate']) {
-            $rowclass="noend";
-        } else if ($row['enddate'] && !$row['returndate']) {
+            $rowclass = "noend_noreturn";
+        } elseif (!$row['enddate'] && $row['returndate']) {
+            $rowclass = "noend";
+        } elseif ($row['enddate'] && !$row['returndate']) {
             $rowclass = "noreturn";
         }
 

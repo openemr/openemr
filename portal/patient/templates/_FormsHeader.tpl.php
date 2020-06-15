@@ -1,4 +1,5 @@
 <?php
+
 /**
  * _FormsHeader.tpl.php
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 use OpenEMR\Core\Header;
 
 ?>
@@ -23,8 +25,8 @@ use OpenEMR\Core\Header;
 
 <!-- Styles -->
 <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'moment', 'patientportal-style']); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
-<script type="text/javascript">
+<script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+<script>
     $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").wait()
         .script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js")
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")

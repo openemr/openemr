@@ -1,4 +1,5 @@
 <?php
+
 //------------Forms generated from formsWiz
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -42,7 +43,6 @@ if ($_GET["mode"] == "new") {
     );
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

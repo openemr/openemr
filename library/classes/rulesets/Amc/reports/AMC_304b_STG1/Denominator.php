@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * AMC 304b STAGE1 Denominator

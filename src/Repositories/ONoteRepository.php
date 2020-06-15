@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Office note repository.
  *
@@ -120,7 +121,7 @@ class ONoteRepository extends EntityRepository
 
         if ($activity == 1) {
             $criteria["activity"] = 1;
-        } else if ($activity == 0) {
+        } elseif ($activity == 0) {
             $criteria["activity"] = 0;
         }
 

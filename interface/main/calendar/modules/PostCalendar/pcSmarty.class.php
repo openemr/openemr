@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  $Id$
  *
@@ -114,7 +115,7 @@ class pcSmarty extends Smarty
         $this->config_dir = "modules/$pcDir/pntemplates/$template_name/config/";
         $this->assign_by_ref('TPL_NAME', $template_name);
         $this->assign_by_ref('TPL_VIEW', $template_view);
-        $this->assign('TPL_IMAGE_PATH', $GLOBALS['rootdir']."/main/calendar/modules/$pcDir/pntemplates/$template_name/images");
+        $this->assign('TPL_IMAGE_PATH', $GLOBALS['rootdir'] . "/main/calendar/modules/$pcDir/pntemplates/$template_name/images");
         $this->assign('TPL_ROOTDIR', $GLOBALS['rootdir']);
         $this->assign('TPL_STYLE_PATH', "modules/$pcDir/pntemplates/$template_name/style");
     }

@@ -36,16 +36,8 @@ $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-cir
  function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
   dlgopen('add_edit_event.php?startampm=' + encodeURIComponent(startampm) +
    '&starttimeh=' + encodeURIComponent(starttimeh) + '&starttimem=' + encodeURIComponent(starttimem) +
-   '&date=' + encodeURIComponent(eventdate) + '&userid=' + encodeURIComponent(providerid) + '&catid=' + encodeURIComponent(catid)[-php-]
-    if(isset($_SESSION['pid']))
-        {
-            if($_SESSION['pid']>0)
-                {
-                    echo " + '&patientid=" . attr_url($_SESSION['pid']) . "'";
-                }
-        }
-    [-/php-]
-   ,'_blank', 780, 675);
+   '&date=' + encodeURIComponent(eventdate) + '&userid=' + encodeURIComponent(providerid) + '&catid=' + encodeURIComponent(catid)
+      ,'_blank', 780, 675, '', '', {onClosed: 'refreshme'});
  }
 
  function oldEvt(eventdate, eventid, pccattype) {
@@ -195,7 +187,7 @@ echo "   <a id='nextweek' href='$NEXT_WEEK_URL' onclick='top.restoreSession()' t
 [-php-]
 
 echo "  <a href='#' id='printview' title='" . xla("View Printable Version") . "' class='btn btn-primary btn-sm'><i class='fa fa-print' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xla("Refresh") . "' onclick='javascript:refreshme()' class='btn btn-primary btn-sm'><i class='fa fa-refresh' aria-hidden='true'></i></a>\n";
+echo "   <a href='#' title='" . xla("Refresh") . "' onclick='javascript:refreshme()' class='btn btn-primary btn-sm'><i class='fa fa-sync' aria-hidden='true'></i></a>\n";
 echo "   <a href='#' type='button' id='dayview' title='" . xla('Day View') . "' class='btn btn-primary btn-sm'>" . xlt('Day') . "</a>\n";
 echo "   <a href='#' type='button' id='weekview' title='" . xla('Week View') . "' class='btn btn-primary btn-sm'>" . xlt('Week') . "</a>\n";
 echo "   <a href='#' type='button' id='monthview' title='" . xla('Month View') . "' class='btn btn-primary btn-sm'>" . xlt('Month') . "</a>\n";
@@ -338,7 +330,7 @@ if ($_SESSION['authorizeduser'] == 1) {
 } else {
   $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
  	if (count($facilities) == 1)
-    $_SESSION['pc_facility'] = key($facilities);
+    OpenEMR\Common\Session\SessionUtil::setSession($_SESSION['pc_facility'], key($facilities));
 }
 if (count($facilities) > 1) {
     echo "   <select name='pc_facility' id='pc_facility'  class='view1 form-control' >\n";
@@ -374,7 +366,7 @@ if($_SESSION['pc_facility'] == 0){
  <table>
 [-php-]
 foreach ($facilities as $f){
-echo "   <tr><td><div class='view1 bg-info font-weight-bold text-ovr-dark'>" . text($f['name'])."</div></td></tr>";
+echo "   <tr><td><div class='view1 font-weight-bold text-ovr-dark' style='background-color:".$f['color'].";'>" . text($f['name'])."</div></td></tr>";
 }
 [-/php-]
  </table>
@@ -457,10 +449,17 @@ foreach ($providers as $provider) {
     echo "<tr>";
     echo "<td id='times'><div><table>\n";
 //==================================================================================================================
+     if ($GLOBALS['time_display_format'] == 1) {
+         $timeformat = 12;
+     } else {
+         $timeformat = 0;
+     }
+
+
     foreach ($times as $slottime) {
         $startampm = ($slottime['mer']) == "pm" ? 2 : 1;
         $starttimeh = $slottime['hour'];
-        $disptimeh = ($starttimeh > 12) ? ($starttimeh - 12) : $starttimeh;
+        $disptimeh = ($starttimeh > $timeformat) ? ($starttimeh - $timeformat) : $starttimeh;
         $starttimem = $slottime['minute'];
         $slotendmins = $starttimeh * 60 + $starttimem + $interval;
 
@@ -584,7 +583,7 @@ foreach ($providers as $provider) {
 
             $startm = substr($event['startTime'], 3, 2);
             $eStartMin = $starth * 60 + $startm;
-            $dispstarth = ($starth > 12) ? ($starth - 12) : $starth;
+            $dispstarth = ($starth > 12) ? ($starth - $timeformat) : $starth;
 
             // determine the class for the event DIV based on the event category
             $evtClass = "event_appointment";
@@ -738,7 +737,7 @@ foreach ($providers as $provider) {
                 $divTitle .= "\n[".$atitle ."]";
                 //$content .= "<a href='javascript:oldEvt(" . attr_js($eventdate) . "," . attr_js($eventid) . ")' title='" . attr($atitle) . "'>";
                 $content .= text($catname);
-                if ($event['recurrtype'] > 0) $content .= "<img class='border-0' src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' style='margin: 0 2px 0 2px;' title='Repeating event' alt='Repeating event' />";
+                if ($event['recurrtype'] > 0) $content .= " <img class='border-0' src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' style='margin: 0 2px 0 2px;' title='Repeating event' alt='Repeating event' />";
                 if ($comment) $content .= " " . text($comment);
                 //$content .= "</a>";
             }
@@ -894,7 +893,7 @@ foreach ($providers as $provider) {
     var tsHeight=[-php-] echo js_escape($timeslotHeightVal.$timeslotHeightUnit); [-/php-];
     var tsHeightNum=[-php-] echo js_escape($timeslotHeightVal); [-/php-];
 
-    $(function (){
+    $(function () {
         setupDirectTime();
         $("#pc_username").change(function() { ChangeProviders(this); });
         $("#pc_facility").change(function() { ChangeProviders(this); });

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * QRDA Download
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../interface/globals.php");
 require_once "$srcdir/report_database.inc";
@@ -37,14 +37,14 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 <html>
 
 <head>
-<?php Header::setupHeader(['common', 'opener', 'jquery-ui']); ?>
+<?php Header::setupHeader(['common', 'opener']); ?>
 
 <script>
     var reportID = <?php echo js_escape($report_id); ?>;
     var provider_id = <?php echo js_escape($provider_id);?>;
     var zipFileArray = new Array();
     var failureMessage = "";
-    $(function(){
+    $(function () {
         $("#checkAll").on("change", function() {
             var checked =  ( $("#checkAll").prop("checked") ) ? true : false;
             $("#thisForm input:checkbox").each(function() {
@@ -182,7 +182,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 echo "</td>";
                 echo "<td class='detail'>";
                 if (isset($row['is_main'])) {
-                    echo "<b>".generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id'])."</b>";
+                    echo "<b>" . generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']) . "</b>";
                     $tempCqmAmcString = "";
                     if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
                         if (!empty($row['cqm_pqri_code'])) {
@@ -195,11 +195,11 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                     }
 
                     if (!empty($tempCqmAmcString)) {
-                        echo "(".text($tempCqmAmcString).")";
+                        echo "(" . text($tempCqmAmcString) . ")";
                     }
                 } else {
-                    echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $row['action_category']);
-                    echo ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $row['action_item']);
+                    echo generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category']);
+                    echo ": " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $row['action_item']);
                 }
 
                 echo "<input type=hidden id=text" . attr($counter) . " name=text" . attr($counter) . " value='" . attr($row['cqm_nqf_code']) . "'/>";

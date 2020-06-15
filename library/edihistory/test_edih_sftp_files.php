@@ -1,4 +1,5 @@
 <?php
+
 /* ********** flow pattern for using sftp with edi_history
  *
  * 1.  database query for "x12 Partners"
@@ -59,25 +60,25 @@ function edih_upload_sftp()
     //if ( class_exists('finfo') )
     foreach ($fn_ar as $idx => $fn) {
         $fa = array();
-        $fa['tmp_name'] = tempnam($sftp_dir.DS.$fn, 'x12_');
-        $fa['name'] = $sftp_dir.DS.$fn;
-        $fa['type'] = mime_content_type($sftp_dir.DS.$fn);
-        $fa['size'] = filesize($sftp_dir.DS.$fn);
+        $fa['tmp_name'] = tempnam($sftp_dir . DS . $fn, 'x12_');
+        $fa['name'] = $sftp_dir . DS . $fn;
+        $fa['type'] = mime_content_type($sftp_dir . DS . $fn);
+        $fa['size'] = filesize($sftp_dir . DS . $fn);
         // now do verifications
         if (!in_array($fa['type'], $m_types)) {
             //$html_str .= "Error: mime-type {$fa['type']} not accepted for {$fa['name']} <br />" . PHP_EOL;
-            $f_ar['reject'][] = array('name'=>$fa['name'],'comment'=>'mime-type '.$fa['type']);
-            csv_edihist_log('edih_upload_sftp: error mime-type '.$fa['name'].' mime-type '.$fa['type']);
+            $f_ar['reject'][] = array('name' => $fa['name'],'comment' => 'mime-type ' . $fa['type']);
+            csv_edihist_log('edih_upload_sftp: error mime-type ' . $fa['name'] . ' mime-type ' . $fa['type']);
             unset($fn_ar[$idx]);
             continue;
         }
 
         // verify that we have a usable name
         $fext = (strpos($fa['name'], '.')) ? pathinfo($fa['name'], PATHINFO_EXTENSION) : '';
-        if ($fext && preg_match('/'.$ext_types.'\?/i', $fext)) {
+        if ($fext && preg_match('/' . $ext_types . '\?/i', $fext)) {
             //$html_str .= 'Error: uploaded_file error for '.$fa['name'].' extension '.$fext.'<br />'. PHP_EOL;
-            $f_ar['reject'][] = array('name'=>$fa['name'],'comment'=>'extension '.$fext);
-            csv_edihist_log('edih_upload_sftp: _FILES error name '.$fa['name'].' extension '.$fext);
+            $f_ar['reject'][] = array('name' => $fa['name'],'comment' => 'extension ' . $fext);
+            csv_edihist_log('edih_upload_sftp: _FILES error name ' . $fa['name'] . ' extension ' . $fext);
             unset($fn_ar[$idx]);
             continue;
         }
@@ -87,8 +88,8 @@ function edih_upload_sftp()
             if (strpos($fa['name'], '.') === 0 || strpos($fa['name'], "\0") !== false || strpos($fa['name'], "./") !== false) {
                 //$html_str .= "Error: uploaded_file error for " . $fa['name'] . "<br />". PHP_EOL;
                 $fname = preg_replace("/[^a-zA-Z0-9_.-]/", "_", $fa['name']);
-                $f_ar['reject'][] = array('name'=>$fname,'comment'=>'null byte, hidden, invalid');
-                csv_edihist_log('edih_upload_sftp: null byte, hidden, invalid '.$fname);
+                $f_ar['reject'][] = array('name' => $fname,'comment' => 'null byte, hidden, invalid');
+                csv_edihist_log('edih_upload_sftp: null byte, hidden, invalid ' . $fname);
                 unset($fn_ar[$idx]);
                 continue;
             }
@@ -99,14 +100,14 @@ function edih_upload_sftp()
         } else {
             // name is not a string
             //$html_str .= "Error: uploaded_file error for " . $fa['tmp_name'] . "<br />". PHP_EOL;
-            $f_ar['reject'][] = array('name'=>(string)$fa['name'],'comment'=>'invalid name');
+            $f_ar['reject'][] = array('name' => (string)$fa['name'],'comment' => 'invalid name');
             unset($fn_ar[$idx]);
             continue;
         }
 
         if (!$fa['tmp_name'] || !$fa['size']) {
             //$html_str .= "Error: file name or size error <br />" . PHP_EOL;
-            $f_ar['reject'][] = array('name'=>(string)$fa['name'],'comment'=>'php file upload error');
+            $f_ar['reject'][] = array('name' => (string)$fa['name'],'comment' => 'php file upload error');
             unset($files[$uplkey][$idx]);
             continue;
         }
@@ -129,14 +130,14 @@ function edih_upload_sftp()
                         // expect $fz to be an array of file names
                         foreach ($fz as $zf) {
                             $f_ar[$tp][] = $zf;
-                            $p_ct ++;
+                            $p_ct++;
                         }
                     }
                 }
             } else {
                 // nothing good from edih_ziptoarray()
                 // $html_str .= "error with zip file or no files accepted for " . $fa['name'] . "<br />" .PHP_EOL;
-                $f_ar['reject'][] = array('name'=>$fa['name'],'comment'=>'error with zip archive');
+                $f_ar['reject'][] = array('name' => $fa['name'],'comment' => 'error with zip archive');
                 unset($files[$uplkey][$idx]);
             }
 
@@ -152,8 +153,8 @@ function edih_upload_sftp()
             $p_ct++;
         } else {
             // verification failed
-            csv_edihist_log('edih_upload_file: verification failed for '. $fa['name']);
-            $f_ar['reject'][] = array('name'=>$fa['name'], 'comment'=>'verification failed');
+            csv_edihist_log('edih_upload_file: verification failed for ' . $fa['name']);
+            $f_ar['reject'][] = array('name' => $fa['name'], 'comment' => 'verification failed');
             unset($fn_ar[$idx]);
         }
     } // end foreach($files[$uplkey] as $idx=>$fa)
@@ -225,10 +226,12 @@ function edih_disp_sftp_upload()
 
 if (php_sapi_name() == 'cli') {
     parse_str(implode('&', array_slice($argv, 1)), $_GET);
-    $_SERVER['REQUEST_URI']=$_SERVER['PHP_SELF'];
-    $_SERVER['SERVER_NAME']='localhost';
+    $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
+    $_SERVER['SERVER_NAME'] = 'localhost';
     $backpic = "";
-    $ignoreAuth=1;
+    $ignoreAuth = 1;
+    // Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
+    $sessionAllowWrite = true;
 }
 
 $get_count = extract($_GET, EXTR_OVERWRITE);
@@ -247,7 +250,7 @@ function get_openemr_globals($libdir)
 function sftp_status($msg, $val)
 {
     if (php_sapi_name() == 'cli') {
-        fwrite(STDOUT, xl($msg).' '.$val.PHP_EOL);
+        fwrite(STDOUT, xl($msg) . ' ' . $val . PHP_EOL);
     }
 }
 $exitmsgs = array (
@@ -275,7 +278,7 @@ if (isset($ppid)) {
 
     $rsql = "SELECT * FROM procedure_providers WHERE protocol=? ";
     $rprm = array('SFTP');
-    if ($ppid !="*") {
+    if ($ppid != "*") {
         $rsql .= " AND ppid=?";
         $rprm[] = $ppid;
     }
@@ -297,10 +300,11 @@ if (isset($ppid)) {
     }
 }
 
-if ((!isset($sftp_hosts)) || (!isset($ldir)) ||
+if (
+    (!isset($sftp_hosts)) || (!isset($ldir)) ||
     (((!isset($actn)) || (!(in_array($actn, array_keys($pathmap)))))) ||
     (((isset($sub)) && (!(in_array($sub, array_keys($submap))))))
-   ) {
+) {
     $exitcd = 1;
 }
 
@@ -314,17 +318,17 @@ if (!$exitcd) {
 
         $cn = new \phpseclib\Net\SFTP($sftp_host['remote_host'], $sftp_host['port']);
         if (!$cn->login($sftp_host['login'], $sftp_host['password'])) {
-            sftp_status('Login error', $sftp_host['remote_host'].':'.$sftp_host['port']);
+            sftp_status('Login error', $sftp_host['remote_host'] . ':' . $sftp_host['port']);
         } else {
             $sdir = '';
             if ((isset($sub)) && (isset($sftp_host[$submap[$sub]]))) {
-                $sdir = '/'.$sftp_host[$submap[$sub]];
+                $sdir = '/' . $sftp_host[$submap[$sub]];
             }
 
             // Get the list of files.  TBD: Overwrite protection.
             if ($actn == 'get') {
                 $dir_from = $sftp_host[$pathmap[$actn]];
-                $dir_to = ($ldir.$sdir);
+                $dir_to = ($ldir . $sdir);
                 $full_list = $cn->rawlist($dir_from);
                 foreach ($full_list as $file_name => $file_rec) {
                     if ($file_rec['type'] == NET_SFTP_TYPE_REGULAR) {
@@ -333,7 +337,7 @@ if (!$exitcd) {
                 }
             } else {
                 $dir_to = $sftp_host[$pathmap[$actn]];
-                $dir_from = ($ldir.$sdir);
+                $dir_from = ($ldir . $sdir);
                 $full_list = new DirectoryIterator($dir_from);
                 foreach ($full_list as $fileinfo) {
                     if ($fileinfo->isFile()) {
@@ -350,18 +354,18 @@ if (!$exitcd) {
                     // if (($dir_file == '.') || ($dir_file == '..')) {}
                     // else {
                     if ($actn == 'get') {
-                        $sftp_ok = $cn->get(($dir_from.'/'.$dir_file), ($dir_to.'/'.$dir_file));
+                        $sftp_ok = $cn->get(($dir_from . '/' . $dir_file), ($dir_to . '/' . $dir_file));
                         if ($sftp_ok) {
-                            $sftp_del = $cn->delete(($dir_from.'/'.$dir_file));
+                            $sftp_del = $cn->delete(($dir_from . '/' . $dir_file));
                         }
                     } else {
-                        $sftp_ok = $cn->put(($dir_to.'/'.$dir_file), ($dir_from.'/'.$dir_file), NET_SFTP_LOCAL_FILE);
+                        $sftp_ok = $cn->put(($dir_to . '/' . $dir_file), ($dir_from . '/' . $dir_file), NET_SFTP_LOCAL_FILE);
                         if ($sftp_ok) {
-                            $sftp_del = unlink(($dir_from.'/'.$dir_file));
+                            $sftp_del = unlink(($dir_from . '/' . $dir_file));
                         }
                     }
 
-                                sftp_status('File transfer '.($sftp_ok ? 'ok' : 'error'), ($dir_from.'/'.$dir_file));
+                                sftp_status('File transfer ' . ($sftp_ok ? 'ok' : 'error'), ($dir_from . '/' . $dir_file));
                     if (isset($sftp_del) && (!$sftp_del)) {
                         sftp_status('File deletion error', $dir_file);
                     }
@@ -375,11 +379,11 @@ if (!$exitcd) {
             }
         }
 
-            sftp_status('Host action complete', " : $actn files from ".$sftp_host['remote_host'].':'.$sftp_host['port']. " $dir_to");
+            sftp_status('Host action complete', " : $actn files from " . $sftp_host['remote_host'] . ':' . $sftp_host['port'] . " $dir_to");
     }
 }
 
 if (php_sapi_name() == 'cli') {
-    fwrite(($exitcd ? STDERR : STDOUT), xl($exitmsgs[$exitcd]).PHP_EOL);
+    fwrite(($exitcd ? STDERR : STDOUT), xl($exitmsgs[$exitcd]) . PHP_EOL);
     exit($exitcd);
 }

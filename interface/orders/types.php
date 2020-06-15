@@ -1,4 +1,5 @@
 <?php
+
 /**
  * types.php
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -33,10 +33,8 @@ if ($popup && $_POST['form_save']) {
     $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE procedure_type_id = ?", [$form_order]);
     $name = $ptrow['name'];
     ?>
-    <script type="text/javascript"
-        src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js">
-    </script>
-    <script language="JavaScript">
+    <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script>
     if (opener.closed || ! opener.set_proc_type) {
         alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
     } else {
@@ -132,7 +130,7 @@ if ($popup && $_POST['form_save']) {
     <?php } ?>
 
 
-    <script type="text/javascript">
+    <script>
 
     <?php
     if ($popup) {
@@ -155,7 +153,7 @@ if ($popup && $_POST['form_save']) {
 
 
     // initiate by loading the top-level nodes
-    $(function (){
+    $(function () {
      nextOpen();
     });
 
@@ -239,7 +237,7 @@ if ($popup && $_POST['form_save']) {
 
     // edit/add a node
     function handleNode(id, type, add, lab) {
-        var editTitle = '<i class="fa fa-pencil" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
+        var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
         var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
         if (type > 0) {
             type = (type === 1 && !add) ? 'fgp' : 'for';
@@ -306,7 +304,7 @@ if ($popup && $_POST['form_save']) {
                     ?>'>
                     <div class="btn-group">
                         <button type="button" name="form_search" class="btn btn-secondary btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
-                        <button type="button" class="btn btn-secondary btn-add" name='add_node_btn' id='add_node_button'  onclick='handleNode(0,"","")'><?php echo xlt('Add Top Level');?></button>
+                        <button type="button" class="btn btn-secondary btn-add" name='add_node_btn' id='add_node_button'  onclick='handleNode(0,"",true,"")'><?php echo xlt('Add Top Level');?></button>
                     </div>
                     <br />
                     <br />
@@ -353,7 +351,7 @@ if ($popup && $_POST['form_save']) {
     ?>
     <script>
     //jqury-ui tooltip
-        $(function (){
+        $(function () {
             //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
             // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
             $('#name-tooltip').attr({"title": <?php echo xlj('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is a report of Financial Summary by Service Code.
  *
@@ -17,7 +18,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -55,7 +55,7 @@ if ($_POST['form_csvexport']) {
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
-    header("Content-Disposition: attachment; filename=svc_financial_report_".attr($form_from_date)."--".attr($form_to_date).".csv");
+    header("Content-Disposition: attachment; filename=svc_financial_report_" . attr($form_from_date) . "--" . attr($form_to_date) . ".csv");
     header("Content-Description: File Transfer");
     // CSV headers:
 } else { // end export
@@ -66,7 +66,7 @@ if ($_POST['form_csvexport']) {
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {
@@ -91,8 +91,8 @@ if ($_POST['form_csvexport']) {
         }
     </style>
 
-    <script language="JavaScript">
-        $(function() {
+    <script>
+        $(function () {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
@@ -131,14 +131,14 @@ if ($_POST['form_csvexport']) {
             <td><?php
                     // Build a drop-down list of providers.
                             //
-                            $query = "SELECT id, lname, fname FROM users WHERE ".
+                            $query = "SELECT id, lname, fname FROM users WHERE " .
                               "authorized = 1 ORDER BY lname, fname"; //(CHEMED) facility filter
                             $ures = sqlStatement($query);
                             echo "   <select name='form_provider' class='form-control'>\n";
                             echo "    <option value=''>-- " . xlt('All') . " --\n";
             while ($urow = sqlFetchArray($ures)) {
                 $provid = $urow['id'];
-                echo "    <option value='" . attr($provid) ."'";
+                echo "    <option value='" . attr($provid) . "'";
                 if ($provid == $_POST['form_provider']) {
                     echo " selected";
                 }
@@ -312,7 +312,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             $bgcolor = "#FFDDDD";
         }
 
-        $print = "<tr bgcolor='". attr($bgcolor) . "'><td class='detail'>".text($row['Procedure codes'])."</td><td class='detail'>".text($row['Units'])."</td><td class='detail'>".text(oeFormatMoney($row['Amt Billed']))."</td><td class='detail'>".text(oeFormatMoney($row['Paid Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Adjustment Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Balance Amt']))."</td>";
+        $print = "<tr bgcolor='" . attr($bgcolor) . "'><td class='detail'>" . text($row['Procedure codes']) . "</td><td class='detail'>" . text($row['Units']) . "</td><td class='detail'>" . text(oeFormatMoney($row['Amt Billed'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Paid Amt'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Adjustment Amt'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Balance Amt'])) . "</td>";
 
         $csv = csvEscape($row['Procedure codes']) . ',' . csvEscape($row['Units']) . ',' . csvEscape(oeFormatMoney($row['Amt Billed'])) . ',' . csvEscape(oeFormatMoney($row['Paid Amt'])) . ',' . csvEscape(oeFormatMoney($row['Adjustment Amt'])) . ',' . csvEscape(oeFormatMoney($row['Balance Amt'])) . "\n";
 

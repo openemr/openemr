@@ -1,4 +1,5 @@
 <?php
+
 //------------Forms generated from formsWiz
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -12,35 +13,35 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_reviewofs", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Review of Systems Checks", $newid, "reviewofs", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlStatement("update form_reviewofs set pid = ?, groupname= ?, user= ?, authorized= ?, activity=1, date = NOW(), fever=?,  
-    chills=?,  night_sweats=?,  weight_loss=?,  
-    poor_appetite=?,  insomnia=?,  
-    fatigued=?,  depressed=?,  hyperactive=?,  exposure_to_foreign_countries=?, 
-    cataracts=?,  cataract_surgery=?,  glaucoma=?,  double_vision=?,  
-    blurred_vision=?,  poor_hearing=?,  headaches=?,  ringing_in_ears=?,  
-    bloody_nose=?,  sinusitis=?,  sinus_surgery=?,  
-    dry_mouth=?,  strep_throat=?,  tonsillectomy=?,  swollen_lymph_nodes=?,  
-    throat_cancer=?,  throat_cancer_surgery=?,  heart_attack=?,  irregular_heart_beat=?, 
-    chest_pains=?,  shortness_of_breath=?,  high_blood_pressure=?, 
-    heart_failure=?,  poor_circulation=?,  vascular_surgery=?,  
-    cardiac_catheterization=?,  coronary_artery_bypass=?,  heart_transplant=?,  
-    stress_test=?,  emphysema=?,  chronic_bronchitis=?,  interstitial_lung_disease=?, 
-    shortness_of_breath_2=?,  lung_cancer=?,  lung_cancer_surgery=?,  pheumothorax=?, 
-    stomach_pains=?,  peptic_ulcer_disease=?,  gastritis=?,  endoscopy=?,  
-    polyps=?,  colonoscopy=?,  colon_cancer=?,  colon_cancer_surgery=?,  
-    ulcerative_colitis=?,  crohns_disease=?,  appendectomy=?,  divirticulitis=?, 
-    divirticulitis_surgery=?,  gall_stones=?,  cholecystectomy=?,  hepatitis=?,  
-    cirrhosis_of_the_liver=?,  splenectomy=?,  kidney_failure=?,  kidney_stones=?,  
-    kidney_cancer=?,  kidney_infections=?,  bladder_infections=?,  bladder_cancer=?,  
-    prostate_problems=?,  prostate_cancer=?,  kidney_transplant=?,  sexually_transmitted_disease=?, 
-    burning_with_urination=?,  discharge_from_urethra=?,  rashes=?,  
-    infections=?,  ulcerations=?,  pemphigus=?,  herpes=?, 
-    osetoarthritis=?,  rheumotoid_arthritis=?,  lupus=?,  ankylosing_sondlilitis=?, 
-    swollen_joints=?,  stiff_joints=?,  broken_bones=?,  neck_problems=?,  
-    back_problems=?,  back_surgery=?,  scoliosis=?,  herniated_disc=?,  
-    shoulder_problems=?,  elbow_problems=?,  wrist_problems=?,  hand_problems=?,  
-    hip_problems=?,  knee_problems=?,  ankle_problems=?,  foot_problems=?,  
-    insulin_dependent_diabetes=?,  noninsulin_dependent_diabetes=?,  hypothyroidism=?,  
+    sqlStatement("update form_reviewofs set pid = ?, groupname= ?, user= ?, authorized= ?, activity=1, date = NOW(), fever=?,
+    chills=?,  night_sweats=?,  weight_loss=?,
+    poor_appetite=?,  insomnia=?,
+    fatigued=?,  depressed=?,  hyperactive=?,  exposure_to_foreign_countries=?,
+    cataracts=?,  cataract_surgery=?,  glaucoma=?,  double_vision=?,
+    blurred_vision=?,  poor_hearing=?,  headaches=?,  ringing_in_ears=?,
+    bloody_nose=?,  sinusitis=?,  sinus_surgery=?,
+    dry_mouth=?,  strep_throat=?,  tonsillectomy=?,  swollen_lymph_nodes=?,
+    throat_cancer=?,  throat_cancer_surgery=?,  heart_attack=?,  irregular_heart_beat=?,
+    chest_pains=?,  shortness_of_breath=?,  high_blood_pressure=?,
+    heart_failure=?,  poor_circulation=?,  vascular_surgery=?,
+    cardiac_catheterization=?,  coronary_artery_bypass=?,  heart_transplant=?,
+    stress_test=?,  emphysema=?,  chronic_bronchitis=?,  interstitial_lung_disease=?,
+    shortness_of_breath_2=?,  lung_cancer=?,  lung_cancer_surgery=?,  pheumothorax=?,
+    stomach_pains=?,  peptic_ulcer_disease=?,  gastritis=?,  endoscopy=?,
+    polyps=?,  colonoscopy=?,  colon_cancer=?,  colon_cancer_surgery=?,
+    ulcerative_colitis=?,  crohns_disease=?,  appendectomy=?,  divirticulitis=?,
+    divirticulitis_surgery=?,  gall_stones=?,  cholecystectomy=?,  hepatitis=?,
+    cirrhosis_of_the_liver=?,  splenectomy=?,  kidney_failure=?,  kidney_stones=?,
+    kidney_cancer=?,  kidney_infections=?,  bladder_infections=?,  bladder_cancer=?,
+    prostate_problems=?,  prostate_cancer=?,  kidney_transplant=?,  sexually_transmitted_disease=?,
+    burning_with_urination=?,  discharge_from_urethra=?,  rashes=?,
+    infections=?,  ulcerations=?,  pemphigus=?,  herpes=?,
+    osetoarthritis=?,  rheumotoid_arthritis=?,  lupus=?,  ankylosing_sondlilitis=?,
+    swollen_joints=?,  stiff_joints=?,  broken_bones=?,  neck_problems=?,
+    back_problems=?,  back_surgery=?,  scoliosis=?,  herniated_disc=?,
+    shoulder_problems=?,  elbow_problems=?,  wrist_problems=?,  hand_problems=?,
+    hip_problems=?,  knee_problems=?,  ankle_problems=?,  foot_problems=?,
+    insulin_dependent_diabetes=?,  noninsulin_dependent_diabetes=?,  hypothyroidism=?,
     hyperthyroidism=?,  cushing_syndrom=?,  addison_syndrom=?,  additional_notes=?  where id=?", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST['weight_loss'], $_POST['poor_appetite'], $_POST['insomnia'], $_POST['fatigued'],
     $_POST['depressed'], $_POST['hyperactive'], $_POST['exposure_to_foreign_countries'], $_POST['cataracts'],
     $_POST['cataract_surgery'], $_POST['glaucoma'], $_POST['double_vision'], $_POST['blurred_vision'],
@@ -70,7 +71,6 @@ if ($_GET["mode"] == "new") {
     $_POST['additional_notes'], $_GET["id"]));
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Work/School Note Form new.php
  *
@@ -30,7 +31,7 @@ $form_name = "note";
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
-<script language="JavaScript">
+<script>
 // required for textbox date verification
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 </script>
@@ -40,7 +41,7 @@ var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 <body class="body_top">
 <?php echo text(date("F d, Y", time())); ?>
 
-<form method=post action="<?php echo $rootdir."/forms/".$form_name."/save.php?mode=new";?>" name="my_form" id="my_form">
+<form method=post action="<?php echo $rootdir . "/forms/" . $form_name . "/save.php?mode=new";?>" name="my_form" id="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />
@@ -75,7 +76,7 @@ var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 <table>
 <tr><td>
 <?php echo xlt('Doctor:'); ?>
-<input type="text" name="doctor" id="doctor" value="<?php echo attr($provider_results["fname"]).' '.attr($provider_results["lname"]); ?>">
+<input type="text" name="doctor" id="doctor" value="<?php echo attr($provider_results["fname"]) . ' ' . attr($provider_results["lname"]); ?>">
 </td>
 
 <td>
@@ -96,11 +97,11 @@ var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
 </body>
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function () {
     $(".save").click(function() { top.restoreSession(); $('#my_form').submit(); });
     $(".dontsave").click(function() { parent.closeTab(window.name, false); });
     //$("#printform").click(function() { PrintForm(); });

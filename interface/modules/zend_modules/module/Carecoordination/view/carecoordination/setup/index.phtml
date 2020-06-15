@@ -9,9 +9,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 ?>
-<script type="text/javascript">
+<script>
 var save_array = new Array();
-$(function() {
+$(function () {
     $( "ul.droptrue" ).sortable({
             connectWith: "ul",
             placeholder: "ui-state-highlight"
@@ -68,7 +68,7 @@ function rearrange(){
     });
 }
 
-$(function() {
+$(function () {
     $( "#tabs" ).tabs().addClass( "ui-tabs-vertical ui-helper-clearfix" );
     $( "#tabs li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" );
 
@@ -153,7 +153,7 @@ $(function() {
             }
             ?>
         </div>
-        <script type="text/javascript">
+        <script>
             var pagecontent = new virtualpaginate({
                 piececlass      : "virtualpage_<?php echo $this->escapeHtml($key);?>", //class of container for each piece of content
                 piececontainer  : "ul",                             //container element type (ie: "div", "p" etc)
@@ -193,7 +193,7 @@ $(function() {
                         <li class="ui-state-default ui-state-disabled sortable_li <?php echo $completed;?>" style="color: #f70428 !important;" id="ID<?php echo $this->escapeHtml($row['ccda_components_field']);?>">
                             <?php echo $this->listenerObject->z_xlt($row['ccda_components_name']);?>
                         </li>
-                        <script type="text/javascript">
+                        <script>
                             $('#ID<?php echo $this->escapeHtml($row['ccda_components_field']);?>').click(function(){
                                 $('.sub_<?php echo $this->escapeHtml($row['ccda_components_field']);?>').toggle('slow');
                             });

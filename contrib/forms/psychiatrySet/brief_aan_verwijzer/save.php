@@ -1,4 +1,5 @@
 <?php
+
 ////////////////////////////////////////////////////////////////////
 // Form:    form_brief_aan_verwijzer
 // Package: letter to - Dutch specific form
@@ -26,23 +27,22 @@ if ($_GET["mode"] == "new") {
     }
 } elseif ($_GET["mode"] == "update") {
     $strSql = "UPDATE form_brief_aan_verwijzer
-                SET pid = ?, groupname=?, user=?, 
-                authorized=?, activity=1, date = NOW(), 
+                SET pid = ?, groupname=?, user=?,
+                authorized=?, activity=1, date = NOW(),
                 introductie=?,
-                reden_van_aanmelding=?, 
+                reden_van_aanmelding=?,
                 anamnese=?,
                 psychiatrisch_onderzoek=?,
                 beschrijvend_conclusie=?,
                 advies_beleid=?,
-                autosave_flag=0, 
-                autosave_datetime=NOW() 
+                autosave_flag=0,
+                autosave_datetime=NOW()
                   WHERE id = ?;";
 
     sqlQuery($strSql, array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["introductie"], $_POST["reden_van_aanmelding"],
     $_POST["anamnese"], $_POST["psychiatrisch_onderzoek"], $_POST["beschrijvend_conclusie"], $_POST["advies_beleid"], $newid));
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

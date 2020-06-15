@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/patient_file/ccr_review_approve.php Approval screen for uploaded CCR XML.
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "/../globals.php");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
@@ -106,7 +106,7 @@ table table tbody tr {
 }
 
 </style>
-<script type="text/javascript" >
+<script>
 
 function submit_form(val){
     document.getElementById('setval').value = val;
@@ -141,7 +141,7 @@ function submit_form(val){
                                     $i++;
                                     $query_oldpd = sqlQuery("SELECT " . escape_sql_column_name($res_pd['field_name'], array("patient_data")) . " AS val FROM patient_data WHERE pid = ?", array($_REQUEST['pid']));
                                     if ($res_pd['field_name'] == 'sex') {
-                                        echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]): text($res_pd['field_name'])) . "</td>" .
+                                        echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]) : text($res_pd['field_name'])) . "</td>" .
                                             "<td><select name='" . attr($res_pd['table_name']) . "-" . attr($res_pd['field_name']) . "' style='width:150px;' >" .
                                         "<option value='Male' " . ($res_pd['field_value'] == 'Male' ? 'selected' : '' ) . " >" . xlt('Male') . "</option>" .
                                             "<option value='Female' " . ($res_pd['field_value'] == 'Female' ? 'selected' : '' ) . " >" . xlt('Female') . "</option></select>" .
@@ -150,15 +150,15 @@ function submit_form(val){
                                         "<option value='ignore' >" . xlt('Ignore') . "</option> " .
                                         "<option value='update' >" . xlt('Update') . "</option></select></td>";
                                     } else {
-                                        echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]): text($res_pd['field_name'])) . "</td>" .
+                                        echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]) : text($res_pd['field_name'])) . "</td>" .
                                             "<td><input type='text' name='" . attr($res_pd['table_name']) . "-" . attr($res_pd['field_name']) . "' value='" . attr($res_pd['field_value']) . "' >" .
                                         "<span style='color:red;padding-left:25px;' >" . text($query_oldpd['val']) . "</span></td>" .
                                             "<td><select name='" . attr($res_pd['table_name']) . "-" . attr($res_pd['field_name']) . "-sel' >" .
                                         "<option value='ignore' >" . xlt('Ignore') . "</option><option value='update' >" . xlt('Update') . "</option></select></td>";
                                     }
 
-                                    if ($i%2 == 0) {
-                                        if ($i%4 == 2) {
+                                    if ($i % 2 == 0) {
+                                        if ($i % 4 == 2) {
                                             echo "</tr><tr class='alternate' >";
                                         } else {
                                             echo "</tr><tr>";
@@ -206,7 +206,7 @@ function submit_form(val){
                             $cnt = 0;
                             foreach ($aud_res['lists1'] as $k => $v) {
                                 $cnt++;
-                                if ($cnt%2 == 0) {
+                                if ($cnt % 2 == 0) {
                                     $class = 'alternate';
                                 } else {
                                     $class = '';
@@ -342,8 +342,8 @@ function submit_form(val){
                             echo "<tr><td>" . xlt('Name') . "</td><td>" . text($res_existing_medications['drug']) . "</td>" .
                             "<td>" . xlt('Date') . "</td><td>" . text($res_existing_medications['date_added']) . "</td>" .
                             "<td>" . xlt('Status') . "</td><td>" . xlt($activity) . "</td><td rowspan='2' >&nbsp;</td></tr><tr><td>" . xlt('Form') . "</td>" .
-                            "<td>" . text($res_existing_medications['form'])."&nbsp;&nbsp;&nbsp;" . xlt('Strength') . "&nbsp;&nbsp;&nbsp;" . text($res_existing_medications['size']) . "</td>" .
-                            "<td>" . xlt('Quantity')."</td><td>" . text($res_existing_medications['quantity']) . "</td>" .
+                            "<td>" . text($res_existing_medications['form']) . "&nbsp;&nbsp;&nbsp;" . xlt('Strength') . "&nbsp;&nbsp;&nbsp;" . text($res_existing_medications['size']) . "</td>" .
+                            "<td>" . xlt('Quantity') . "</td><td>" . text($res_existing_medications['quantity']) . "</td>" .
                             "<td>" . xlt('Refills') . "</td><td>" . text($res_existing_medications['refills']) . "</td></tr>";
                         }
 

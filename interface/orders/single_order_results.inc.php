@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Script to display results for a given procedure order.
 *
@@ -429,12 +430,12 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 <?php } ?>
 
     <?php if ($input_form) { ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
+<script src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
 <?php } // end if input form
     ?>
 
     <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
-<script language="JavaScript">
+<script>
     var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
     if (typeof top.webroot_url === "undefined") {
         if (typeof opener.top.webroot_url !== "undefined") {
@@ -618,10 +619,12 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                         // result for a given result code is its *array* of result rows from *one* of the reports.
                         foreach ($rrowsets as $key => $rrowset) {
                             // When two reports have the same date, use the result date to decide which is "latest".
-                            if (isset($finals[$key]) &&
+                            if (
+                                isset($finals[$key]) &&
                                 $row['date_report'] == $finals[$key][0]['date_report'] &&
                                 !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
-                                $rrow['date'] < $finals[$key][1]['date']) {
+                                $rrow['date'] < $finals[$key][1]['date']
+                            ) {
                                 $finals[$key][2] = true; // see comment below
                                 continue;
                             }
@@ -688,7 +691,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                     <?php if ($input_form && !empty($ctx['priors_omitted']) /* empty($_POST['form_showall']) */) { ?>
                         <input type='submit' name='form_showall' value='<?php echo xla('Show All Results'); ?>'
                                title='<?php echo xla('Include all values reported for each result code'); ?>'/>
-                    <?php } else if ($input_form && !empty($_POST['form_showall'])) { ?>
+                    <?php } elseif ($input_form && !empty($_POST['form_showall'])) { ?>
                         <input type='submit' name='form_latest' value='<?php echo xla('Latest Results Only'); ?>'
                                title='<?php echo xla('Show only latest values reported for each result code'); ?>'/>
                     <?php } ?>
@@ -702,15 +705,6 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                         <input type='hidden' name='form_sign_list' value='<?php echo attr($ctx['sign_list']); ?>'/>
                         <input type='submit' name='form_sign' value='<?php echo xla('Sign Results'); ?>'
                                title='<?php echo xla('Mark these reports as reviewed'); ?>'/>
-                        <?php
-                        // If this is a portal patient, sending them a copy is an option.
-                        if ($GLOBALS['gbl_portal_cms_enable'] && $orow['cmsportal_login'] !== '') {
-                            echo "&nbsp;";
-                            echo "<input type='checkbox' name='form_send_to_portal' value='" .
-                                attr($orow['cmsportal_login']) . "' checked />\n";
-                            echo xlt('Send to portal');
-                        }
-                        ?>
                     <?php } ?>
                     <?php if ($input_form) { ?>
                         &nbsp;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient report
  *
@@ -43,12 +44,6 @@ $oefax = !empty($GLOBALS['oefax_enable']) ? $GLOBALS['oefax_enable'] : 0;
  * @var EventDispatcherInterface $eventDispatcher  The event dispatcher / listener object
  */
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-
-$cmsportal = false;
-if ($GLOBALS['gbl_portal_cms_enable']) {
-    $ptdata = getPatientData($pid, 'cmsportal_login');
-    $cmsportal = $ptdata['cmsportal_login'] !== '';
-}
 ?>
 <html>
 <head>
@@ -146,7 +141,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <!--<input type="button" class="generateCCR_raw" value="<?php echo xlt('Raw Report'); ?>" /> -->
                             <button type="button" class="generateCCR_download_p btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
                             <?php
-                            if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
+                            if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccr_enable'] == true) { ?>
                                 <button type="button" class="viewCCR_send_dialog btn btn-secondary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>"><?php echo xlt('Transmit'); ?></button>
                                 <br />
                                 <div id="ccr_send_dialog" style="display: none">
@@ -180,7 +175,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <button type="button" class="viewCCD btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
                         <button type="button" class="viewCCD_download btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
                         <?php
-                        if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
+                        if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccd_enable'] == true) { ?>
                             <button type="button" class="viewCCD_send_dialog btn btn-secondary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>" ><?php echo xlt('Transmit'); ?></button>
                             <br />
                             <div id="ccd_send_dialog" style="display: none">
@@ -261,9 +256,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <br />
             <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
             <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
-                <?php if ($cmsportal) { ?>
-            <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
-            <?php } ?>
             <?php
             if ($oefax) {
                 $eventDispatcher->dispatch(PatientReportEvent::ACTIONS_RENDER_POST, new GenericEvent());
@@ -311,7 +303,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $disptype = $ISSUE_TYPES[$lasttype][0];
 
                                         echo " <tr>\n";
-                                        echo "  <td colspan='4' class='font-weight-bold'><span class='oe-report-section-header'>" . xlt($disptype) .":</span></td>\n";
+                                        echo "  <td colspan='4' class='font-weight-bold'><span class='oe-report-section-header'>" . xlt($disptype) . ":</span></td>\n";
                                         echo " </tr>\n";
                                     }
 
@@ -363,11 +355,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $isfirst = 1;
                             $res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
                             "forms.formdir, forms.date AS fdate, form_encounter.date " .
-                            ",form_encounter.reason ".
+                            ",form_encounter.reason " .
                             "FROM forms, form_encounter WHERE " .
                             "forms.pid = ? AND form_encounter.pid = ? AND " .
                             "form_encounter.encounter = forms.encounter " .
-                            " AND forms.deleted=0 ". // --JRM--
+                            " AND forms.deleted=0 " . // --JRM--
                             "ORDER BY form_encounter.encounter DESC, form_encounter.date DESC, fdate ASC", array($pid, $pid));
                             $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
                             $html_strings = array();
@@ -393,11 +385,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     }
                                     $isfirst = 0;
                                     echo "<div class='encounter_data'>\n";
-                                    echo "<input type=checkbox ".
-                                    " name='" . attr($result["formdir"]) . "_" .  attr($result["form_id"]) . "'".
-                                    " id='" . attr($result["formdir"]) . "_" .  attr($result["form_id"]) . "'".
+                                    echo "<input type=checkbox " .
+                                    " name='" . attr($result["formdir"]) . "_" .  attr($result["form_id"]) . "'" .
+                                    " id='" . attr($result["formdir"]) . "_" .  attr($result["form_id"]) . "'" .
                                     " value='" . attr($result["encounter"]) . "'" .
-                                    " class='encounter'".
+                                    " class='encounter'" .
                                     " >";
                                     // show encounter reason, not just 'New Encounter'
                                     // trim to a reasonable length for display purposes --cfapress
@@ -434,11 +426,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     if (!is_array($html_strings[$form_name])) {
                                         $html_strings[$form_name] = array();
                                     }
-                                    array_push($html_strings[$form_name], "<input type='checkbox' ".
-                                        " name='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'".
-                                        " id='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'".
+                                    array_push($html_strings[$form_name], "<input type='checkbox' " .
+                                        " name='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'" .
+                                        " id='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'" .
                                         " value='" . attr($result["encounter"]) . "'" .
-                                        " class='encounter_form' ".
+                                        " class='encounter_form' " .
                                         ">" . text(xl_form_title($result["form_name"])) . "<br />\n");
                                 }
                             }
@@ -460,9 +452,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </table>
             <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
             <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
-            <?php if ($cmsportal) { ?>
-            <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
-            <?php } ?>
 
             <!-- Procedure Orders -->
             <hr/>
@@ -541,11 +530,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 </ul>
                 <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
                 <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
-                <?php
-                if ($cmsportal) { ?>
-                    <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
-                    <?php
-                } ?>
             </div>
             </div>
             </fieldset>
@@ -559,7 +543,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <script>
 
 // jQuery stuff to make the page a little easier to use
-$(function(){
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -660,7 +644,7 @@ $(function(){
                 raw[0].value = 'pure';
                 $("#ccr_form").submit();
         });
-<?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
+<?php if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccr_enable'] == true) { ?>
         $(".viewCCR_send_dialog").click(
         function() {
                 $("#ccr_send_dialog").toggle();
@@ -704,7 +688,7 @@ $(function(){
         });
 <?php }
 
-if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
+if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccd_enable'] == true) { ?>
         $(".viewCCD_send_dialog").click(
         function() {
                 $("#ccd_send_dialog").toggle();
@@ -789,7 +773,7 @@ function issueClick(issue) {
 }
 
 var listId = '#' + <?php echo js_escape($list_id); ?>;
-$(function(){
+$(function () {
     $(listId).addClass("active");
 });
 

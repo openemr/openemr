@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Intakeverslag - view
  * Report of First visit - Dutch specific form
@@ -118,8 +119,8 @@ if ($_GET["id"]) {
 }
 
 ?>
-<script type="text/javascript">
-$(function(){
+<script>
+$(function () {
         autosave();
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>

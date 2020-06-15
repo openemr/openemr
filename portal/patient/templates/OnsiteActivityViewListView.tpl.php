@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsiteActivityViewListView.tpl.php
  *
@@ -15,9 +16,9 @@
     $this->display('_FormsHeader.tpl.php');
     echo "<script>var cuser='" . $this->cuser . "';</script>";
 ?>
-<script type="text/javascript">
+<script>
     $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteactivityviews.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
-        $(function(){
+        $(function () {
             actpage.init();
         });
         setTimeout(function(){

@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright © 2010 by Andrew Moore */
 /* Licensing information appears at the end of this file. */
 

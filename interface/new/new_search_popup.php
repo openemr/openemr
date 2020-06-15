@@ -1,4 +1,5 @@
 <?php
+
 /**
  * new_search_popup.php
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -140,16 +140,16 @@ foreach ($_REQUEST as $key => $value) {
     $fldname = substr($key, 3);
   // pubpid requires special treatment.  Match on that is fatal.
     if ($fldname == 'pubpid') {
-        $relevance .= " + 1000 * ( ".add_escape_custom($fldname)." LIKE ? )";
+        $relevance .= " + 1000 * ( " . add_escape_custom($fldname) . " LIKE ? )";
         array_push($sqlBindArray, $value);
     } else {
-        $relevance .= " + ( ".add_escape_custom($fldname)." LIKE ? )";
+        $relevance .= " + ( " . add_escape_custom($fldname) . " LIKE ? )";
         array_push($sqlBindArray, $value);
     }
 
-    $where .= " OR ".add_escape_custom($fldname)." LIKE ?";
+    $where .= " OR " . add_escape_custom($fldname) . " LIKE ?";
     array_push($sqlBindArraySpecial, $value);
-    echo "<input type='hidden' name='".attr($key)."' value='".attr($value)."' />\n";
+    echo "<input type='hidden' name='" . attr($key) . "' value='" . attr($value) . "' />\n";
     ++$numfields;
 }
 
@@ -157,7 +157,7 @@ $sql = "SELECT *, ( $relevance ) AS relevance, " .
   "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS " .
   "FROM patient_data WHERE $where " .
   "ORDER BY relevance DESC, lname, fname, mname " .
-  "LIMIT ".escape_limit($fstart).", ".escape_limit($MAXSHOW)."";
+  "LIMIT " . escape_limit($fstart) . ", " . escape_limit($MAXSHOW) . "";
 
 $sqlBindArray = array_merge($sqlBindArray, $sqlBindArraySpecial);
 $rez = sqlStatement($sql, $sqlBindArray);
@@ -179,7 +179,7 @@ _set_patient_inc_count($MAXSHOW, count($result), $where, $sqlBindArraySpecial);
   </td>
   <td class='text text-center'>
 <?php if ($message) {
-    echo "<span class='text-danger font-weight-bold'>".text($message)."</span>\n";
+    echo "<span class='text-danger font-weight-bold'>" . text($message) . "</span>\n";
 } ?>
   </td>
   <td class='text text-right'>
@@ -272,7 +272,7 @@ if ($result) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(function() {
+$(function () {
   $(".oneresult").mouseover(function() { $(this).addClass("highlight"); });
   $(".oneresult").mouseout(function() { $(this).removeClass("highlight"); });
   $(".oneresult").click(function() { SelectPatient(this); });

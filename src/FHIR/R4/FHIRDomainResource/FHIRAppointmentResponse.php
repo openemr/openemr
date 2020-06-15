@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -301,7 +303,7 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['appointment'])) {
@@ -319,7 +321,7 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
                         $this->addParticipantType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"participantType" must be array of objects or null, '.gettype($data['participantType']).' seen.');
+                    throw new \InvalidArgumentException('"participantType" must be array of objects or null, ' . gettype($data['participantType']) . ' seen.');
                 }
             }
             if (isset($data['actor'])) {
@@ -331,8 +333,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
             if (isset($data['comment'])) {
                 $this->setComment($data['comment']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

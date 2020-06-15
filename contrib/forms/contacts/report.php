@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Forms generated from formsWiz
  *
@@ -13,9 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"]."/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 function contacts_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
@@ -31,7 +31,7 @@ function contacts_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
-            $key=ucwords(str_replace("_", " ", $key));
+            $key = ucwords(str_replace("_", " ", $key));
             print "<td><span class=bold>" . text($key) . ": </span><span class=text>" . text($value) . "</span></td>";
             $count++;
             if ($count == $cols) {

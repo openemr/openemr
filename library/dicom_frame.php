@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Dicom viewer wrapper script for documents
  *
@@ -36,9 +37,9 @@ $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&doc
 <head>
     <?php Header::setupHeader(['dwv', 'i18next', 'i18next-xhr-backend', 'i18next-browser-languagedetector', 'jszip', 'magic-wand', 'konva']); ?>
     <!-- i18n dwv wrapper -->
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/dwv/dwv_i18n.js"></script>
+    <script src="<?php echo $GLOBALS['web_root']?>/library/js/dwv/dwv_i18n.js"></script>
 </head>
-<style type="text/css">
+<style>
     .warn_diagnostic {
         margin: 10px auto 10px auto;
         color: rgb(255, 0, 0);
@@ -111,8 +112,8 @@ $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&doc
         <!-- /layerContainer -->
     </div><!-- /dwv -->
     <!-- Main -->
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_gui.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_launcher.js"></script>
+    <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_gui.js"></script>
+    <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_launcher.js"></script>
     <script>
         var msg = <?php echo xlj("Still Loading...") ?>;
         var canvas = document.getElementById("dwvimg");

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * While creating new encounter this code is used to change the "Billing Facility:".
  * This happens on change of the "Facility:" field.
@@ -14,8 +15,9 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
-<script type="text/javascript">
+<script>
 function ajax_bill_loc(pid,date,facility){
 top.restoreSession();
 $.ajax({

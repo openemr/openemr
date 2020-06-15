@@ -1,4 +1,5 @@
 <?php
+
 /**
  * HttpResponseHelper
  *
@@ -11,7 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Common\Http;
 
 class HttpRestRouteHandler
@@ -19,6 +19,7 @@ class HttpRestRouteHandler
     public static function dispatch(&$routes, $route, $request_method, $return_method = 'standard')
     {
         // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
+        $hasRoute = false;
         foreach ($routes as $routePath => $routeCallback) {
             $routePieces = explode(" ", $routePath);
             $method = $routePieces[0];
@@ -27,16 +28,18 @@ class HttpRestRouteHandler
             $matches = array();
             if ($method == $request_method && preg_match($pattern, $route, $matches)) {
                 array_shift($matches);
+                $hasRoute = true;
                 $result = call_user_func_array($routeCallback, $matches);
                 if ($return_method == 'standard') {
                     header('Content-Type: application/json');
                     echo json_encode($result);
-                } else if ($return_method == 'direct-json') {
+                } elseif ($return_method == 'direct-json') {
                     return json_encode($result);
                 } else { // $return_method == 'direct'
                     return $result;
                 }
             }
         }
+        return $hasRoute;
     }
 }

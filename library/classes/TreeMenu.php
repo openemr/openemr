@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------+
 // | Copyright (c) 2002-2003, Richard Heyes, Harald Radi                        |
 // | All rights reserved.                                                  |
@@ -166,7 +167,7 @@ class HTML_TreeMenu
 
                     // Add the item to the proper node
                     $thisNode = &$curNode[$aNode['level']]->addItem(new HTML_TreeNode($data, $events));
-                    $curNode[$aNode['level']+1] = &$thisNode;
+                    $curNode[$aNode['level'] + 1] = &$thisNode;
                 }
                 break;
 
@@ -628,7 +629,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
         $menuObj     = 'objTreeMenu_' . ++$count;
 
         $html  = "\n";
-        $html .= '<script language="javascript" type="text/javascript">' . "\n\t";
+        $html .= '<script>' . "\n\t";
         $html .= sprintf(
             '%s = new TreeMenu("%s", "%s", "%s", "%s", %s, %s);',
             $menuObj,
@@ -646,7 +647,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
         * Loop through subnodes
         */
         if (isset($this->menu->items)) {
-            for ($i=0; $i<count($this->menu->items); $i++) {
+            for ($i = 0; $i < count($this->menu->items); $i++) {
                 $html .= $this->_nodeToHTML($this->menu->items[$i], $menuObj);
             }
         }
@@ -705,7 +706,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
         * Loop through subnodes
         */
         if (!empty($nodeObj->items)) {
-            for ($i=0; $i<count($nodeObj->items); $i++) {
+            for ($i = 0; $i < count($nodeObj->items); $i++) {
                 $html .= $this->_nodeToHTML($nodeObj->items[$i], $return, $return . '_' . ($i + 1), $currentDepth + 1, $maxDepthPrefix);
             }
         }
@@ -789,7 +790,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
         * Loop through subnodes
         */
         if (isset($this->menu->items)) {
-            for ($i=0; $i<count($this->menu->items); $i++) {
+            for ($i = 0; $i < count($this->menu->items); $i++) {
                 $nodeHTML .= $this->_nodeToHTML($this->menu->items[$i]);
             }
         }
@@ -814,7 +815,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
         * Loop through subnodes
         */
         if (isset($node->items)) {
-            for ($i=0; $i<count($node->items); $i++) {
+            for ($i = 0; $i < count($node->items); $i++) {
                 $html .= $this->_nodeToHTML($node->items[$i], $prefix . str_repeat($this->indentChar, $this->indentNum));
             }
         }

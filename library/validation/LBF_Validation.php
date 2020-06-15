@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,7 +32,7 @@ class LBF_Validation
     public static function generate_validate_constraints($form_id)
     {
         //to prevent an empty form id error do :
-        if (!$form_id || $form_id=='') {
+        if (!$form_id || $form_id == '') {
             return json_encode(array());
         }
 
@@ -43,23 +44,23 @@ class LBF_Validation
               ORDER BY layout_options.group_id, layout_options.seq ",
             array($form_id)
         );
-        $constraints=array();
-        $validation_arr=array();
-        $required=array();
+        $constraints = array();
+        $validation_arr = array();
+        $required = array();
         while ($frow = sqlFetchArray($fres)) {
-            $id = 'form_'.$frow['field_id'];
-            $validation_arr=array();
-            $required=array();
+            $id = 'form_' . $frow['field_id'];
+            $validation_arr = array();
+            $required = array();
             //Keep "required" option from the LBF form
             if ($frow['uor'] == 2) {
-                $required = array(self::VJS_KEY_REQUIRED=>true);
+                $required = array(self::VJS_KEY_REQUIRED => true);
             }
 
             if ($frow['validation_json']) {
                 if (json_decode($frow['validation_json'])) {
-                    $validation_arr=json_decode($frow['validation_json'], true);
+                    $validation_arr = json_decode($frow['validation_json'], true);
                 } else {
-                    trigger_error($frow['validation_json']. " is not a valid json ", E_USER_WARNING);
+                    trigger_error($frow['validation_json'] . " is not a valid json ", E_USER_WARNING);
                 }
             }
 

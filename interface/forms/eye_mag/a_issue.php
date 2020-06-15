@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file presents the PMSFH control panel.
  * It uses ajax/javascript to add, delete or edit an issue.
@@ -53,10 +54,12 @@ if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
     die(xlt("Edit is not authorized!"));
 }
 
-if (!AclMain::aclCheckCore('patients', 'med', '', array(
+if (
+    !AclMain::aclCheckCore('patients', 'med', '', array(
     'write',
     'addonly'
-))) {
+    ))
+) {
     die(xlt("Add is not authorized!"));
 }
 
@@ -72,7 +75,7 @@ if ($issue) {
     $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", array(
         $issue
     ));
-} else if ($thistype) {
+} elseif ($thistype) {
     $irow['type'] = $thistype;
     $irow['subtype'] = $subtype;
 }
@@ -588,7 +591,7 @@ foreach (explode(',', $given) as $item) {
     <!-- Add Font stuff for the look and feel.  -->
 
     <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-excite-bike', 'purecss', 'shortcut', 'opener']); ?>
-    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css" />
+    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css">
 
     <style>
         td,
@@ -652,7 +655,7 @@ foreach (explode(',', $given) as $item) {
     </style>
 
     <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
+    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
 </head>
 
 <body>
@@ -756,7 +759,7 @@ foreach (explode(',', $given) as $item) {
                             ?>
                         </td>
                         <td class="indent20">
-                            <a class="text-body" href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop" title="<?php echo xla('Click here to Edit the Course/Occurrence List'); ?>"><i class="fa fa-pencil fa-fw"></i></a>
+                            <a class="text-body" href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop" title="<?php echo xla('Click here to Edit the Course/Occurrence List'); ?>"><i class="fa fa-pencil-alt fa-fw"></i></a>
                         </td>
                     </tr>
 
@@ -842,12 +845,12 @@ foreach (explode(',', $given) as $item) {
                             $dateStart,
                             $dateEnd
                         ));
-                    } else if ($dateStart && !$dateEnd) {
+                    } elseif ($dateStart && !$dateEnd) {
                         $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? order by date DESC limit 0,1", array(
                             $pid,
                             $dateStart
                         ));
-                    } else if (!$dateStart && $dateEnd) {
+                    } elseif (!$dateStart && $dateEnd) {
                         $result1 = sqlQuery("select $given from history_data where pid = ? and date <= ? order by date DESC limit 0,1", array(
                             $pid,
                             $dateEnd
@@ -902,7 +905,7 @@ foreach (explode(',', $given) as $item) {
                             $fldlength = htmlspecialchars($fldlength, ENT_QUOTES);
                             $result2[$field_id]['resnote'] = htmlspecialchars($result2[$field_id]['resnote'], ENT_QUOTES);
                             $result2[$field_id]['resdate'] = htmlspecialchars($result2[$field_id]['resdate'], ENT_QUOTES);
-                        } else if ($data_type == 2) {
+                        } elseif ($data_type == 2) {
                             $result2[$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
                         }
                     }
@@ -1384,14 +1387,33 @@ foreach (explode(',', $given) as $item) {
                  echo $type_index;
              } ?>');
     newtype('Eye Meds');
-    $(function() {
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
+            <?php $datetimepicker_minDate = false; ?>
+            <?php $datetimepicker_maxDate = false; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
-            ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
+        $('.datepicker-past').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
+            <?php $datetimepicker_minDate = false; ?>
+            <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
+        $('.datepicker-future').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
+            <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+            <?php $datetimepicker_maxDate = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
 

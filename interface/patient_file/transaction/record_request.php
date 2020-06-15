@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient Records Request.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 
@@ -23,8 +23,8 @@ use OpenEMR\Core\Header;
 
     <?php Header::setupHeader(); ?>
 
-    <script language="JavaScript">
-        $(function() {
+    <script>
+        $(function () {
             $("#req_button").click(function() {
                 // hide the button, show the message, and send the ajax call
                 $('#req_button').hide();

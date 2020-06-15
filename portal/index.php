@@ -1,4 +1,5 @@
 <?php
+
 /**
  * import_template.php
  *
@@ -24,9 +25,6 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 //don't require standard openemr authorization in globals.php
 $ignoreAuth = 1;
 
-//For redirect if the site on session does not match
-$landingpage = "index.php?site=" . urlencode($_GET['site']);
-
 //includes
 require_once '../interface/globals.php';
 require_once dirname(__FILE__) . "/lib/appsql.class.php";
@@ -34,6 +32,9 @@ $logit = new ApplicationTable();
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Core\Header;
+
+//For redirect if the site on session does not match
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 
 //exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
@@ -74,7 +75,7 @@ if (isset($_GET['forward'])) {
     $_SESSION['pin'] = substr($parse, 0, 6);
     $_SESSION['forward'] = $auth['portal_onetime'];
     $_SESSION['portal_username'] = $auth['portal_username'];
-    $_SESSION['portal_login_username'] = '';
+    $_SESSION['portal_login_username'] = $auth['portal_login_username'];
     $_SESSION['password_update'] = 2;
     $_SESSION['onetime'] = $auth['portal_pwd'];
     unset($auth);
@@ -108,21 +109,16 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     if ($GLOBALS['language_menu_login']) {
         // sorting order of language titles depends on language translation options.
         $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-        if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
-            $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
-            $res3 = SqlStatement($sql);
-        } else {
-            // Use and sort by the translated language name.
-            $sql = "SELECT ll.lang_id, " .
-                "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
-                "ll.lang_description " .
-                "FROM lang_languages AS ll " .
-                "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
-                "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-                "ld.lang_id = ? " .
-                "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-            $res3 = SqlStatement($sql, array($mainLangID));
-        }
+        // Use and sort by the translated language name.
+        $sql = "SELECT ll.lang_id, " .
+            "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
+            "ll.lang_description " .
+            "FROM lang_languages AS ll " .
+            "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
+            "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+            "ld.lang_id = ? " .
+            "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
+        $res3 = SqlStatement($sql, array($mainLangID));
         for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
             $result3[$iter] = $row;
         }
@@ -140,7 +136,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
     <?php
-    Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-gritter', 'patientportal-base', 'patientportal-register']);
+    Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-gritter', 'patientportal-style', 'patientportal-base', 'patientportal-register']);
     ?>
     <script>
         function checkUserName() {
@@ -231,7 +227,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
         }
     </script>
 </head>
-<body class="login container">
+<body class="login container mt-2">
     <div id="wrapper" class="container-fluid text-center">
                 <?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) {
                     $_SESSION['password_update'] = 1;
@@ -247,7 +243,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 </div>
                             </div>
                             <div class="form-row my-3">
-                                <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('New User Name'); ?></label>
+                                <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('Use Username'); ?></label>
                                 <div class="col-md">
                                     <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be 12 to 80 characters'); ?>" pattern=".{12,80}" value="<?php echo attr($_SESSION['portal_login_username']); ?>" onblur="checkUserName()" />
                                 </div>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_views/addGroup.php contains view for adding group.
  *
@@ -167,7 +168,7 @@ use OpenEMR\Common\Acl\AclMain;
     </div>
 </main>
 <script>
-    $(function(){
+    $(function () {
 
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>

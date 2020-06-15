@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient history form.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -42,7 +42,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {
 <title><?php echo xlt("History & Lifestyle");?></title>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
-<script LANGUAGE="JavaScript">
+<script>
  //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
  var code_options_js = Array();
 
@@ -50,7 +50,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {
     $smoke_codes = getSmokeCodes();
 
     foreach ($smoke_codes as $val => $code) {
-            echo "code_options_js"."[" . js_escape($val) . "]=" . js_escape($code) . ";\n";
+            echo "code_options_js" . "[" . js_escape($val) . "]=" . js_escape($code) . ";\n";
     }
     ?>
 
@@ -170,9 +170,9 @@ function sel_related(e) {
 
 </script>
 
-<script type="text/javascript">
+<script>
 /// todo, move this to a common library
-$(function(){
+$(function () {
     if($("#form_tobacco").val()!=""){
         if(code_options_js[$("#form_tobacco").val()]!=""){
             $("#smoke_code").html(" ( "+code_options_js[$("#form_tobacco").val()]+" )");
@@ -201,7 +201,7 @@ $(function(){
 });
 </script>
 
-<style type="text/css">
+<style>
 .form-control {
     width: auto;
     display: inline;
@@ -277,14 +277,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </form>
 
             <!-- include support for the list-add selectbox feature -->
-            <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
+            <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
         </div>
     </div>
 </div><!--end of container div-->
 <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 
-<script language="JavaScript">
+<script>
 
 // Array of skip conditions for the checkSkipConditions() function.
 var skipArray = [
@@ -310,9 +310,9 @@ var skipArray = [
 </script>
 
 <?php /*Include the validation script and rules for this form*/
-$form_id="HIS";
+$form_id = "HIS";
 //LBF forms use the new validation depending on the global value
-$use_validate_js=$GLOBALS['new_validate'];
+$use_validate_js = $GLOBALS['new_validate'];
 
 ?><?php include_once("$srcdir/validation/validation_script.js.php");?>
 

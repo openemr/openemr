@@ -1,4 +1,5 @@
 <?php
+
 /**
  * fax dispatch
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -34,7 +34,7 @@ if ($_GET['file']) {
     check_file_dir_name($filename);
 
     $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
-} else if ($_GET['scan']) {
+} elseif ($_GET['scan']) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -156,7 +156,7 @@ if ($_POST['form_save']) {
             $info_msg .= mergeTiffs();
             // The -j option here requires that libtiff is configured with libjpeg.
             // It could be omitted, but the output PDFs would then be quite large.
-            $tmp0 = exec("tiff2pdf -j -p letter -o " . escapeshellarg($target) . " " . escapeshellarg($faxcache.'/temp.tif'), $tmp1, $tmp2);
+            $tmp0 = exec("tiff2pdf -j -p letter -o " . escapeshellarg($target) . " " . escapeshellarg($faxcache . '/temp.tif'), $tmp1, $tmp2);
 
             if ($tmp2) {
                 $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
@@ -171,7 +171,7 @@ if ($_POST['form_save']) {
                 "?, 'file_url', ?, NOW(), ?, " .
                 "'application/pdf', ?, ? " .
                 ")";
-                sqlStatement($query, array($newid, $fsize, 'file://'.$target, $patient_id, $docdate));
+                sqlStatement($query, array($newid, $fsize, 'file://' . $target, $patient_id, $docdate));
                 $query = "INSERT INTO categories_to_documents ( " .
                 "category_id, document_id" .
                 " ) VALUES ( " .
@@ -246,7 +246,7 @@ if ($_POST['form_save']) {
                         die("mkdir returned " . text($tmp2) . ": " . text($tmp0));
                     }
 
-                        exec("touch " . escapeshellarg($imagedir."/index.html"));
+                        exec("touch " . escapeshellarg($imagedir . "/index.html"));
                 }
 
                 if (is_file($imagepath)) {
@@ -313,7 +313,7 @@ if ($_POST['form_save']) {
         $cpstring = str_replace('{MESSAGE}', $form_message, $cpstring);
         fwrite($tmph, $cpstring);
         fclose($tmph);
-        $tmp0 = exec("cd " . escapeshellarg($webserver_root.'/custom') . "; " . escapeshellcmd($GLOBALS['hylafax_enscript']) .
+        $tmp0 = exec("cd " . escapeshellarg($webserver_root . '/custom') . "; " . escapeshellcmd($GLOBALS['hylafax_enscript']) .
         " -o " . escapeshellarg($tmpfn2) . " " . escapeshellarg($tmpfn1), $tmp1, $tmp2);
         if ($tmp2) {
               $info_msg .= "enscript returned $tmp2: $tmp0 ";
@@ -325,7 +325,7 @@ if ($_POST['form_save']) {
         $info_msg .= mergeTiffs();
         $tmp0 = exec(
             "sendfax -A -n " . escapeshellarg($form_finemode) . " -d " .
-            escapeshellarg($form_fax) . " " . escapeshellarg($tmpfn2) . " " . escapeshellarg($faxcache.'/temp.tif'),
+            escapeshellarg($form_fax) . " " . escapeshellarg($tmpfn2) . " " . escapeshellarg($faxcache . '/temp.tif'),
             $tmp1,
             $tmp2
         );
@@ -429,7 +429,7 @@ if (! is_dir($faxcache)) {
         // convert's default density for PDF-to-TIFF conversion is 72 dpi which is
         // not very good, so we upgrade it to "fine mode" fax quality.  It's really
         // better and faster if the scanner produces TIFFs instead of PDFs.
-        $tmp0 = exec("convert -density 203x196 " . escapeshellarg($filepath) . " " . escapeshellarg($faxcache.'/deleteme.tif'), $tmp1, $tmp2);
+        $tmp0 = exec("convert -density 203x196 " . escapeshellarg($filepath) . " " . escapeshellarg($faxcache . '/deleteme.tif'), $tmp1, $tmp2);
         if ($tmp2) {
             die("convert returned " . text($tmp2) . ": " . text($tmp0));
         }
@@ -486,7 +486,7 @@ div.section {
 
 </style>
 
-<script language="JavaScript">
+<script>
 
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
@@ -600,7 +600,7 @@ div.section {
   }
  }
 
-    $(function(){
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -712,7 +712,7 @@ foreach ($categories as $catkey => $catname) {
        <td>
         <?php
          // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
-         generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'), '');
+         generate_form_field(array('data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'), '');
         ?>
        </td>
       </tr>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/template/criteria.php
  *
@@ -19,15 +20,15 @@ use OpenEMR\Core\Header;
     <!-- TODO: Why no bootstrap here????? !-->
     <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
 
-    <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">
+    <link rel="stylesheet" href="<?php css_src('rules.css') ?>">
 </head>
 
 <body class='body_top'>
 <?php $rule = $viewBean->rule ?>
 <?php $criteria = $viewBean->criteria ?>
 
-<script language="javascript" src="<?php js_src('edit.js') ?>"></script>
-<script type="text/javascript">
+<script src="<?php js_src('edit.js') ?>"></script>
+<script>
     var edit = new rule_edit( {});
     edit.init();
 </script>

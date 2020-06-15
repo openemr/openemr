@@ -1,4 +1,5 @@
 <?php
+
 /**
  * cronjob mapping to allow seamless use of scripts in background.
  *
@@ -39,3 +40,6 @@ $_POST = $_REQUEST;
 
 // Ignore auth checks
 $ignoreAuth = true;
+
+// Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
+$sessionAllowWrite = true;

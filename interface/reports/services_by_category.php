@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Services by category report.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
@@ -41,7 +41,7 @@ function bucks($amount)
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {
@@ -77,7 +77,7 @@ function bucks($amount)
 
     <script>
 
-     $(function() {
+     $(function () {
          oeFixedHeaderSetup(document.getElementById('mymaintable'));
          var win = top.printLogSetup ? top : opener.top;
          win.printLogSetup(document.getElementById('printbutton'));

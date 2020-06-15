@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This module provides for editing site-specific text files and
  * for uploading site-specific image files.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../globals.php');
 
@@ -145,8 +145,8 @@ if (isset($_POST['generate_thumbnails'])) {
     $thumbnail_msg = "<p class='text-success'>" . xlt('Generated thumbnail(s)') . " : " . text($results['sum_success']) . "</p>";
     $thumbnail_msg .= "<p class='text-danger'>" . xlt('Failed to generate') . " : " .  text($results['sum_failed']) . "</p>";
     foreach ($results['failed'] as $key => $file) {
-        $num = $key +1;
-        $thumbnail_msg .= "<p class='text-danger' style='font-size: 11px'> " .text($num) . ". " . text($file) . "</p>";
+        $num = $key + 1;
+        $thumbnail_msg .= "<p class='text-danger' style='font-size: 11px'> " . text($num) . ". " . text($file) . "</p>";
     }
 } else {
     $count_not_generated = ThumbnailGenerator::count_not_generated();
@@ -234,12 +234,12 @@ if ($GLOBALS['secure_upload']) {
 <style>
 .dehead {
     font-family: sans-serif;
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: bold;
 }
  .detail {
      font-family: sans-serif;
-     font-size: 13px;
+     font-size: 0.8125rem;
      font-weight: normal;
 }
 #generate_thumb {

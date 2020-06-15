@@ -1,4 +1,5 @@
 <?php
+
 //
 
 require_once("../../globals.php");
@@ -17,7 +18,7 @@ if ($_GET["mode"] == "new") {
 	groupname = ?,
 	user = ?
 	authorized =,
-	activity =1, 
+	activity =1,
 	date = NOW(),
 	measured = ?,
 	duration = ?,
@@ -43,7 +44,6 @@ if ($_GET["mode"] == "new") {
     $_POST["siblings_affected"], $_POST["immunization_up_to_date"], $_POST["notes"], $id ));
 }
 
-$_SESSION["encounter"] = $encounter;
 
 formHeader("Redirecting....");
 formJump();

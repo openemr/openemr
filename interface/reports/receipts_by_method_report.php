@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is a report of receipts by payer or payment method.
  *
@@ -19,7 +20,6 @@
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -249,7 +249,7 @@ $form_proc_code = $tmp_code_array[1];
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {
@@ -282,7 +282,7 @@ $form_proc_code = $tmp_code_array[1];
     </style>
 
     <script>
-        $(function() {
+        $(function () {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
@@ -489,7 +489,7 @@ if ($_POST['form_refresh']) {
             "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
             "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
             "fe.date >= ? AND fe.date <= ?";
-            array_push($sqlBindArray, $form_from_date.' 00:00:00', $form_to_date.' 23:59:59');
+            array_push($sqlBindArray, $form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59');
             // If a facility was specified.
             if ($form_facility) {
                 $query .= " AND fe.facility_id = ?";
@@ -532,20 +532,20 @@ if ($_POST['form_refresh']) {
         //
         if ($form_use_edate) {
             $query .= " AND fe.date >= ? AND fe.date <= ?";
-            array_push($sqlBindArray, $form_from_date.' 00:00:00', $form_to_date.' 23:59:59');
+            array_push($sqlBindArray, $form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59');
         } else {
             $query .= " AND ( ( s.deposit_date IS NOT NULL AND " .
             "s.deposit_date >= ? AND s.deposit_date <= ? ) OR " .
             "( s.deposit_date IS NULL AND a.post_time >= ? AND " .
             "a.post_time <= ? ) )";
-            array_push($sqlBindArray, $form_from_date, $form_to_date, $form_from_date.' 00:00:00', $form_to_date.' 23:59:59');
+            array_push($sqlBindArray, $form_from_date, $form_to_date, $form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59');
         }
 
         // If a procedure code was specified.
         if ($form_proc_code && $form_proc_codetype) {
           // if a code_type is entered into the ar_activity table, then use it. If it is not entered in, then do not use it.
             $query .= " AND ( a.code_type = ? OR a.code_type = '' ) AND a.code LIKE ?";
-            array_push($sqlBindArray, $form_proc_codetype, $form_proc_code.'%');
+            array_push($sqlBindArray, $form_proc_codetype, $form_proc_code . '%');
         }
 
         // If a facility was specified.
@@ -566,7 +566,7 @@ if ($_POST['form_refresh']) {
         while ($row = sqlFetchArray($res)) {
             if ($form_use_edate) {
                 $thedate = substr($row['date'], 0, 10);
-            } else if (!empty($row['deposit_date'])) {
+            } elseif (!empty($row['deposit_date'])) {
                 $thedate = $row['deposit_date'];
             } else {
                 $thedate = substr($row['post_time'], 0, 10);

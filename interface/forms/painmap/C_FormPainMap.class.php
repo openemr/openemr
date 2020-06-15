@@ -1,4 +1,5 @@
 <?php
+
 /**
  * C_FormPainMap.class.php, used to control a clickmap based form.
  *
@@ -60,7 +61,7 @@ class C_FormPainMap extends C_AbstractClickmap
      */
     function getImage()
     {
-        return $GLOBALS['webroot'] . "/interface/forms/" . C_FormPainMap::$FORM_CODE ."/templates/painmap.png";
+        return $GLOBALS['webroot'] . "/interface/forms/" . C_FormPainMap::$FORM_CODE . "/templates/painmap.png";
     }
 
     /**

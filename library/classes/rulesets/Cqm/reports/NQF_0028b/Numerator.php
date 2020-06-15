@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -28,9 +29,11 @@ class NQF_0028b_Numerator implements CqmFilterIF
                                        "AND `pid`=? AND `date`>=? AND `date`<=?", array($patient->id,$beginMinus24Months,$date));
                 // this is basically a check to see if the patient's action has occurred in the two years previous to encounter.
                 // TODO: how to check for the smoking cessation medication types (can also just be a smoking cessation order, ie. prescription)
-                if (!(empty($smoke_cess)) ||
+                if (
+                    !(empty($smoke_cess)) ||
                      Helper::checkMed(Medication::SMOKING_CESSATION, $patient, $beginMinus24Months, $date) ||
-                     Helper::checkMed(Medication::SMOKING_CESSATION_ORDER, $patient, $beginMinus24Months, $date)) {
+                     Helper::checkMed(Medication::SMOKING_CESSATION_ORDER, $patient, $beginMinus24Months, $date)
+                ) {
                     return true;
                 }
             }

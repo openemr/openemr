@@ -4,7 +4,7 @@
 *   @author Tyler Wrenn
 *
 *   Colors that are declared below have been inverted to show the dark theme.
-*   
+*
 */
 
 /* Bootstrap Magic Code */
@@ -36,42 +36,45 @@ $dark: $gray-800;
 $gray: $gray-600;
 
 $theme-colors: (
-    primary: $blue,
-    secondary: $gray-900,
-    success: $green,
-    info: $cyan,
-    warning: $yellow,
-    danger: $red,
-    light: $gray-100,
-    dark: $gray-800,
-    ovr-dark: $ovr-dark,
-    ovr-light: $ovr-light
-    /* Adds override class in case we HAVE to have a dark/light color */
+  primary: $blue,
+  secondary: $gray-900,
+  success: $green,
+  info: $cyan,
+  warning: $yellow,
+  danger: $red,
+  light: $gray-100,
+  dark: $gray-800,
+  ovr-dark: $ovr-dark,
+  ovr-light: $ovr-light
 );
+/* Above adds override class in case we HAVE to have a dark/light color */
+
 $colors: (
-    "blue": $blue,
-    "indigo": $indigo,
-    "purple": $purple,
-    "pink": $pink,
-    "red": $red,
-    "orange": $orange,
-    "yellow": $yellow,
-    "green": $green,
-    "teal": $teal,
-    "cyan": $cyan,
-    "white": $white,
-    "gray": $gray-600,
-    "gray-dark": $gray-800,
-    /* Overrides to allow regular CSS coloring */
-    "black": $black,
-    "gray100": $gray-100,
-    "gray200": $gray-200,
-    "gray300": $gray-300,
-    "gray400": $gray-400,
-    "gray500": $gray-500,
-    "gray700": $gray-700,
-    "gray900": $gray-900
+  "blue": $blue,
+  "indigo": $indigo,
+  "purple": $purple,
+  "pink": $pink,
+  "red": $red,
+  "orange": $orange,
+  "yellow": $yellow,
+  "green": $green,
+  "teal": $teal,
+  "cyan": $cyan,
+  "white": $white,
+  "gray": $gray-600,
+  "gray-dark": $gray-800,
+  "black": $black,
+  "gray100": $gray-100,
+  "gray200": $gray-200,
+  "gray300": $gray-300,
+  "gray400": $gray-400,
+  "gray500": $gray-500,
+  "gray600": $gray-600,
+  "gray700": $gray-700,
+  "gray800": $gray-800,
+  "gray900": $gray-900
 );
+/* Above adds overrides to allow regular CSS coloring */
 
 $body-bg: $white;
 /* This is actually dark */
@@ -86,32 +89,46 @@ $btn-link-disabled-color: $gray-400;
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 
+// Enables responsive text for Bootstrap
+$enable-responsive-font-sizes: true;
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
+
+// Fix Font Awesome fonts path
+$fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
+// Font Awesome Import
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/brands";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/regular";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/solid";
+
 @import "../core";
 
 /* Core defaults for themes */
 @import "../theme-defaults";
 
-@import "../navigation-slide/_future-bootstrap";
+@import "../navigation-slide/future-bootstrap";
 
 /* Overrides go here */
 .btn-secondary {
-    color: $ovr-dark !important;
+  color: $ovr-dark !important;
 }
 
 .menuLabel:hover {
-    color: $ovr-dark !important;
+  color: $ovr-dark !important;
 }
 
 .menuDisabled {
-    color: $ovr-dark !important;
+  color: $ovr-dark !important;
 }
 
 .menuEntries li .menuLabel:hover {
-    color: $ovr-dark !important;
+  color: $ovr-dark !important;
 }
 
 .documents_list a {
-    color: $body-color !important;
+  color: $body-color !important;
 }
 
 /* Changes all SVG colors to white to match theme */
@@ -119,12 +136,12 @@ $close-text-shadow: 0 1 0 $black;
 .login-emr-logo > #blue-color,
 .login-emr-logo > #gray-color,
 .about-review-image > #color {
-    fill: $black !important;
+  fill: $black !important;
 }
 
 #mainBox .logo .emr-menu-logo > #blue-color,
 #mainBox_vertical .logo .emr-menu-logo > #blue-color {
-    fill: $black !important;
+  fill: $black !important;
 }
 
 /*search any*/

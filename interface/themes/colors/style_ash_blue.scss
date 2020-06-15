@@ -1,16 +1,22 @@
 $colorname: "Ash Blue";
 
-$darkest: #404A6D;
-$darker: #3A4B84;
-$dark: #6B7CB6;
-$mid: #8896C4;
-$midpale: #A6B0D3;
-$pale: #B5BDDA;
-$midpalepale: #C3CAE1;
-$palepale: #E1E4F0;
-$palepurple: #E7E6F9;
-$paler: #F8F8FD;
-$midnightblue: #2F2F7D;
-$white: #FFFFFF;
+$darkest: #404a6d;
+$darker: #3a4b84;
+$dark: #6b7cb6;
+$mid: #8896c4;
+$midpale: #a6b0d3;
+$pale: #b5bdda;
+$midpalepale: #c3cae1;
+$palepale: #e1e4f0;
+$palepurple: #e7e6f9;
+$paler: #f8f8fd;
+$midnightblue: #2f2f7d;
+$white: #fff;
+
+// Enables responsive text for Bootstrap
+$enable-responsive-font-sizes: true;
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
 
 @import "../color_base";

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIREncounter;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIREncounter;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -338,7 +340,7 @@ class FHIREncounterHospitalization extends FHIRBackboneElement implements \JsonS
                         $this->addDietPreference($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"dietPreference" must be array of objects or null, '.gettype($data['dietPreference']).' seen.');
+                    throw new \InvalidArgumentException('"dietPreference" must be array of objects or null, ' . gettype($data['dietPreference']) . ' seen.');
                 }
             }
             if (isset($data['specialCourtesy'])) {
@@ -347,7 +349,7 @@ class FHIREncounterHospitalization extends FHIRBackboneElement implements \JsonS
                         $this->addSpecialCourtesy($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"specialCourtesy" must be array of objects or null, '.gettype($data['specialCourtesy']).' seen.');
+                    throw new \InvalidArgumentException('"specialCourtesy" must be array of objects or null, ' . gettype($data['specialCourtesy']) . ' seen.');
                 }
             }
             if (isset($data['specialArrangement'])) {
@@ -356,7 +358,7 @@ class FHIREncounterHospitalization extends FHIRBackboneElement implements \JsonS
                         $this->addSpecialArrangement($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"specialArrangement" must be array of objects or null, '.gettype($data['specialArrangement']).' seen.');
+                    throw new \InvalidArgumentException('"specialArrangement" must be array of objects or null, ' . gettype($data['specialArrangement']) . ' seen.');
                 }
             }
             if (isset($data['destination'])) {
@@ -365,8 +367,8 @@ class FHIREncounterHospitalization extends FHIRBackboneElement implements \JsonS
             if (isset($data['dischargeDisposition'])) {
                 $this->setDischargeDisposition($data['dischargeDisposition']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

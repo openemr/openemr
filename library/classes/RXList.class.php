@@ -1,4 +1,5 @@
 <?php
+
 /**
  * RXList.class.php
  *
@@ -63,7 +64,7 @@ class RxList
     function getPage($query)
     {
         $url = "https://rxnav.nlm.nih.gov/REST/Prescribe/drugs";
-        $response = oeHttp::get($url, ['name'=>$query]);
+        $response = oeHttp::get($url, ['name' => $query]);
         $buffer = $response->body();
         return $buffer ? $buffer : false;
     } // end function RxList::getPage
@@ -82,15 +83,15 @@ class RxList
             $rxcui = '';
 
             if (trim($my_data['rxcui']) !== '') {
-                $rxcui = " / ".trim($my_data['rxcui']);
+                $rxcui = " / " . trim($my_data['rxcui']);
             }
 
             $synonym = '';
             if (trim($my_data['synonym']) !== '') {
-                $synonym = " == (".trim($my_data['synonym']).$rxcui.")";
+                $synonym = " == (" . trim($my_data['synonym']) . $rxcui . ")";
             }
 
-            $list[trim($my_data['name']).$synonym] =
+            $list[trim($my_data['name']) . $synonym] =
                 trim($my_data['name']);
         }
 
@@ -141,7 +142,7 @@ class RxList
         unset($hash);
         $hash = [];
         unset($all);
-        for ($pos=0; $pos<count($tokens); $pos++) {
+        for ($pos = 0; $pos < count($tokens); $pos++) {
             if (!(strpos($tokens[$pos], "<name>") === false) && $pos !== 3) {
                 // found a brand line 'token'
                 $type = "name";

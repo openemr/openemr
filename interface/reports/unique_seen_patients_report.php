@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report lists patients that were seen within a given date
  * range.
@@ -39,7 +40,7 @@ if ($_POST['form_labels']) {
 <html>
 <head>
 
-<style type="text/css">
+<style>
 /* specifically include & exclude from printing */
 @media print {
    #report_parameters {
@@ -69,7 +70,7 @@ if ($_POST['form_labels']) {
 
 <script>
 
-$(function() {
+$(function () {
     var win = top.printLogSetup ? top : opener.top;
     win.printLogSetup(document.getElementById('printbutton'));
 
@@ -84,7 +85,7 @@ $(function() {
 
 </script>
 
-<style type="text/css">
+<style>
 
 /* specifically include & exclude from printing */
 @media print {
@@ -117,7 +118,7 @@ $(function() {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Unique Seen Patients'); ?></span>
 
 <div id="report_parameters_daterange">
-    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt("to{{Range}}") . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt("to{{Range}}") . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' method='post' action='unique_seen_patients_report.php' id='theform' onsubmit='return top.restoreSession()'>
@@ -234,14 +235,14 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
         if ($row['DOB']) {
             $dob = $row['DOB'];
             $tdy = $row['edate'];
-            $ageInMonths = (substr($tdy, 0, 4)*12) + substr($tdy, 5, 2) -
-                   (substr($dob, 0, 4)*12) - substr($dob, 5, 2);
+            $ageInMonths = (substr($tdy, 0, 4) * 12) + substr($tdy, 5, 2) -
+                   (substr($dob, 0, 4) * 12) - substr($dob, 5, 2);
             $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);
             if ($dayDiff < 0) {
                 --$ageInMonths;
             }
 
-            $age = intval($ageInMonths/12);
+            $age = intval($ageInMonths / 12);
         }
 
         if ($_POST['form_labels']) {

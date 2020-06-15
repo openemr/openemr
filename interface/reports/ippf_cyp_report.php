@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ippf_cyp_report.
  *
@@ -176,8 +177,8 @@ if ($_POST['form_csvexport']) {
 
     <?php Header::setupHeader(['datetime-picker']); ?>
 
-<script language="JavaScript">
-    $(function() {
+<script>
+    $(function () {
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));
 
@@ -296,7 +297,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
     "WHERE b.code_type = 'MA' AND b.activity = 1 AND " .
     "fe.date >= ? AND fe.date <= ?";
-    array_push($sqlBindArray, $from_date.' 00:00:00', $to_date.' 23:59:59');
+    array_push($sqlBindArray, $from_date . ' 00:00:00', $to_date . ' 23:59:59');
 
     // If a facility was specified.
     if ($form_facility) {
@@ -329,7 +330,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "fe.pid = s.pid AND fe.encounter = s.encounter AND " .
     "fe.date >= ? AND fe.date <= ? " .
     "WHERE s.fee != 0";
-    array_push($sqlBindArray, $from_date.' 00:00:00', $to_date.' 23:59:59');
+    array_push($sqlBindArray, $from_date . ' 00:00:00', $to_date . ' 23:59:59');
 
     // If a facility was specified.
     if ($form_facility) {

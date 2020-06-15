@@ -1,4 +1,5 @@
 <?php
+
     // $Id$
     // $Author$
 
@@ -22,7 +23,7 @@ class Handler_HL7v2
     function _StripToNumeric($string)
     {
         $target = '';
-        for ($pos=0; $pos<strlen($string); $pos++) {
+        for ($pos = 0; $pos < strlen($string); $pos++) {
             switch (substr($string, $pos, 1)) {
                 case '0':
                 case '1':

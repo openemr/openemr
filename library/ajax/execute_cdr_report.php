@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Run a CDR engine report.
  *
@@ -9,7 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../clinical_rules.php");
 
@@ -18,12 +18,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
-
-//To improve performance and not freeze the session when running this
-// report, turn off session writing. Note that php session variables
-// can not be modified after the line below. So, if need to do any php
-// session work in the future, then will need to remove this line.
-session_write_close();
 
 //Remove time limit, since script can take many minutes
 set_time_limit(0);
@@ -56,7 +50,7 @@ if (!empty($_POST['execute_report_id'])) {
         //   need to send a manual data entry option (number of labs)
         $array_date['dateBegin'] = $_POST['date_begin'];
         $array_date['dateTarget'] = $target_date;
-        $options = array('labs_manual'=>$_POST['labs']);
+        $options = array('labs_manual' => $_POST['labs']);
     } else {
         // For others, use the unmodified target date array and send an empty options array
         $array_date = $target_date;

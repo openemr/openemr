@@ -1,4 +1,5 @@
 <?php
+
 /**
  * de_identification script
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/lists.inc");
@@ -31,12 +31,12 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 <head>
 <title><?php echo xlt('De Identification'); ?></title>
     <?php Header::setupHeader('datetime-picker'); ?>
-<style type="text/css">
+<style>
 .style1 {
     text-align: center;
 }</style>
 
-<script language="JavaScript">
+<script>
 //get value from popup window
 function set_related(s,type) {
  var list;
@@ -240,7 +240,7 @@ function download_file()
  document.de_identification.submit();
 }
 
-$(function(){
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -326,7 +326,7 @@ if (empty($row)) {
        </tr>
        </table>
         <?php
-    } else if ($deIdentificationStatus == 2) {
+    } elseif ($deIdentificationStatus == 2) {
         //2 - The De Identification process completed and xls file is ready to download
         $query = "SELECT count(*) as count FROM de_identified_data ";
         $res = sqlStatement($query);
@@ -393,7 +393,7 @@ if (empty($row)) {
       </table>
             <?php
         }
-    } else if ($deIdentificationStatus == 3) {
+    } elseif ($deIdentificationStatus == 3) {
         //3 - The De Identification process completed with error
         ?>
       <table>  <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Helper for UB04 form.
  *

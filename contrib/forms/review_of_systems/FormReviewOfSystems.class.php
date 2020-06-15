@@ -1,12 +1,12 @@
 <?php
 
-
-
-
 /**
  * class Prosthesis
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class FormReviewOfSystems extends ORDataObject
 {
 

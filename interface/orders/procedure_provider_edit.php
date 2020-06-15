@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Maintenance for the list of procedure providers.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -80,7 +80,7 @@ function invalue($name)
             $org_res = sqlQuery($org_qry, array($_POST['form_name']));
             $org_name = $org_res['organization'];
             $sets =
-            "name = '"  .add_escape_custom($org_name). "', " .
+            "name = '"  . add_escape_custom($org_name) . "', " .
             "lab_director = "         . invalue('form_name')         . ", " .
             "npi = "          . invalue('form_npi')          . ", " .
             "send_app_id = "  . invalue('form_send_app_id')  . ", " .
@@ -137,7 +137,7 @@ function invalue($name)
                 }
             }
 
-            $optionsStr .= "<option value='" . attr($org_row['id']) . "' $selected>".  text($lab_org_name) . "</option>";
+            $optionsStr .= "<option value='" . attr($org_row['id']) . "' $selected>" .  text($lab_org_name) . "</option>";
         }
         ?>
 
@@ -200,10 +200,12 @@ function invalue($name)
                                     <div class="col-sm-6">
                                         <select name='form_DorP' id='form_DorP' class='form-control' title='<?php echo xla('HL7 - MSH-11 - Processing ID'); ?>'>
                                         <?php
-                                        foreach (array(
+                                        foreach (
+                                            array(
                                             'D' => xl('Debugging'),
                                             'P' => xl('Production'),
-                                            ) as $key => $value) {
+                                            ) as $key => $value
+                                        ) {
                                             echo "    <option value='" . attr($key) . "'";
                                             if ($key == $row['DorP']) {
                                                 echo " selected";
@@ -291,12 +293,14 @@ function invalue($name)
                                     <div class="col-sm-6">
                                         <select name='form_protocol' id='form_protocol' class='form-control'>
                                         <?php
-                                        foreach (array(
-                                          // Add to this list as more protocols are supported.
-                                          'DL'   => xl('Download'),
-                                          'SFTP' => xl('SFTP'),
-                                          'FS'   => xl('Local Filesystem'),
-                                          ) as $key => $value) {
+                                        foreach (
+                                            array(
+                                            // Add to this list as more protocols are supported.
+                                            'DL'   => xl('Download'),
+                                            'SFTP' => xl('SFTP'),
+                                            'FS'   => xl('Local Filesystem'),
+                                            ) as $key => $value
+                                        ) {
                                             echo "    <option value='" . attr($key) . "'";
                                             if ($key == $row['protocol']) {
                                                 echo " selected";
@@ -309,10 +313,12 @@ function invalue($name)
                                     <div class="col-sm-6">
                                         <select name='form_direction' id='form_direction' class='form-control'>
                                         <?php
-                                        foreach (array(
+                                        foreach (
+                                            array(
                                             'B' => xl('Bidirectional'),
                                             'R' => xl('Results Only'),
-                                            ) as $key => $value) {
+                                            ) as $key => $value
+                                        ) {
                                             echo "    <option value='" . attr($key) . "'";
                                             if ($key == $row['direction']) {
                                                 echo " selected";
@@ -435,10 +441,10 @@ function invalue($name)
                     <div class="form-group clearfix" id="button-container">
                         <div class="col-sm-12 text-left position-override">
                             <div class="btn-group btn-group-pinch" role="group">
-                                <button type='submit' name='form_save'  class="btn btn-secondary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
-                                <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
+                                <button type='submit' name='form_save'  class="btn btn-primary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
+                                <button type="button" class="btn btn-secondary btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
                                 <?php if ($ppid) { ?>
-                                    <button type='submit' name='form_delete' class="btn btn-secondary btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
+                                    <button type='submit' name='form_delete' class="btn btn-danger btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
                                 <?php } ?>
                             </div>
                         </div>

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRAuditEvent;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRAuditEvent;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -381,7 +383,7 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
                         $this->addRole($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"role" must be array of objects or null, '.gettype($data['role']).' seen.');
+                    throw new \InvalidArgumentException('"role" must be array of objects or null, ' . gettype($data['role']) . ' seen.');
                 }
             }
             if (isset($data['who'])) {
@@ -405,7 +407,7 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
                         $this->addPolicy($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"policy" must be array of objects or null, '.gettype($data['policy']).' seen.');
+                    throw new \InvalidArgumentException('"policy" must be array of objects or null, ' . gettype($data['policy']) . ' seen.');
                 }
             }
             if (isset($data['media'])) {
@@ -420,11 +422,11 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
                         $this->addPurposeOfUse($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"purposeOfUse" must be array of objects or null, '.gettype($data['purposeOfUse']).' seen.');
+                    throw new \InvalidArgumentException('"purposeOfUse" must be array of objects or null, ' . gettype($data['purposeOfUse']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

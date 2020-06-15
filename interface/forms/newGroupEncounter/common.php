@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Common script for the encounter form (new and view) scripts for therapy groups.
  *
@@ -29,7 +30,7 @@ $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
 $days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","14",
   "15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31");
 $thisyear = date("Y");
-$years = array($thisyear-1, $thisyear, $thisyear+1, $thisyear+2);
+$years = array($thisyear - 1, $thisyear, $thisyear + 1, $thisyear + 2);
 
 if ($viewmode) {
     $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
@@ -69,7 +70,7 @@ $use_validate_js = 1;
 require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
 <?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
-<script language="JavaScript">
+<script>
 
 /*
  // Process click on issue title.
@@ -96,7 +97,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     }
     ?>
  var collectvalidation = <?php echo $collectthis; ?>;
- $(function(){
+ $(function () {
    window.saveClicked = function(event) {
      var submit = submitme(1, event, 'new-encounter-form', collectvalidation);
      if (submit) {
@@ -141,7 +142,7 @@ function cancelClickedOld() {
 @media only screen and (max-width: 1024px) {
     #visit-details [class*="col-"], #visit-issues [class*="col-"]{
     width: 100%;
-    text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ': 'left '?> !Important;
+    text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ' : 'left '?> !Important;
 }
 </style>
 <?php
@@ -240,7 +241,7 @@ $help_icon = '';
                                         echo " selected";
                                     }
 
-                                    echo ">" . xlt('None{{Sensitivity}}'). "</option>\n";
+                                    echo ">" . xlt('None{{Sensitivity}}') . "</option>\n";
                                     ?>
                                 </select>
                                 <?php
@@ -269,7 +270,7 @@ $help_icon = '';
                                 <label for='form_onset_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Onset/hosp. date'); ?>:</label>
                                 <div class="col-sm-3">
                                     <input type='text' class='form-control datepicker col-sm-12' name='form_onset_date' id='form_onset_date'
-                                           value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>'
+                                           value='<?php echo $viewmode && $result['onset_date'] != '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>'
                                            title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                                 </div>
                             </div>
@@ -308,7 +309,7 @@ $help_icon = '';
                                             if ($pos["code"] == $result['pos_code'] || $pos["code"] == $posCode) {
                                                 echo "selected";
                                             }
-                                            echo ">" . text($pos['code'])  . ": ". xlt($pos['title']);
+                                            echo ">" . text($pos['code'])  . ": " . xlt($pos['title']);
                                             echo "</option>\n";
                                         }
                                         ?>
@@ -380,7 +381,7 @@ $help_icon = '';
 
 </body>
 
-<script language="javascript">
+<script>
 <?php
 if (!$viewmode) { ?>
  function duplicateVisit(enc, datestr) {

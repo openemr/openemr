@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/main/calendar/find_group_popup.php
  *
@@ -14,7 +15,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../../globals.php');
 require_once("$srcdir/group.inc");
@@ -163,7 +163,7 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
         }
     </style>
 
-    <script language="JavaScript">
+    <script
 
         function selgid(gid, name, end_date) {
             if (opener.closed || !opener.setgroup)
@@ -245,11 +245,11 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
     </div>
 <?php endif; ?>
 
-<script language="javascript">
+<script>
 
     // jQuery stuff to make the page a little easier to use
 
-    $(function(){
+    $(function () {
         $("#searchparm").trigger("focus");
         $(".oneresult").on("mouseover", function() { $(this).toggleClass("highlight"); });
         $(".oneresult").on("mouseout", function() { $(this).toggleClass("highlight"); });

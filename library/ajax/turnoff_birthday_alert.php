@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Turn off/on Birthday alert .
  *

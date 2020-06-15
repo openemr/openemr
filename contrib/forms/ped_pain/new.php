@@ -48,7 +48,7 @@ formHeader("Pediatric Pain Evaluation");
 
 <?php
 
-    $obj=array(); // just to avoid undeclared var warning
+    $obj = array(); // just to avoid undeclared var warning
 
     require('form.php'); // to use a single file for both, empty and editing
 

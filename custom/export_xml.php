@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Exports patient demographics to a custom XML format
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
-
 
  require_once("../interface/globals.php");
  require_once("../library/patient.inc");

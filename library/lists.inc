@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Issue list functions and data structure building.
  *

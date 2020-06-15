@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Viewing and modification/creation of office notes.
  *
@@ -35,7 +36,7 @@ if (isset($_POST['mode'])) {
                 $id = str_replace("act", "", $var);
                 if ($val == "true") {
                     $result = $oNoteService->enableNoteById($id);
-                } elseif ($val=="false") {
+                } elseif ($val == "false") {
                     $oNoteService->disableNoteById($id);
                 }
             }
@@ -60,9 +61,9 @@ if (isset($_POST['mode'])) {
             <?php
             /* BACK should go to the main Office Notes screen */
             if ($userauthorized) {
-                $backurl="office_comments.php";
+                $backurl = "office_comments.php";
             } else {
-                $backurl="../main_info.php";
+                $backurl = "../main_info.php";
             }
             ?>
 
@@ -86,15 +87,15 @@ if (isset($_POST['mode'])) {
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
             <?php //change the view on the current mode, whether all, active, or inactive
-            if ($active==="1") {
-                $inactive_class="_small";
-                $all_class="_small";
-            } elseif ($active==="0") {
-                $active_class="_small";
-                $all_class="_small";
+            if ($active === "1") {
+                $inactive_class = "_small";
+                $all_class = "_small";
+            } elseif ($active === "0") {
+                $active_class = "_small";
+                $all_class = "_small";
             } else {
-                    $active_class="_small";
-                    $inactive_class="_small";
+                    $active_class = "_small";
+                    $inactive_class = "_small";
             }
             ?>
 
@@ -135,11 +136,11 @@ if (isset($_POST['mode'])) {
                             $checked = "";
                         }
 
-                        print "<tr><td><input type=hidden value='' name='act".attr($note->getId())."' id='act".attr($note->getId())."'>";
-                        print "<input name='box".attr($note->getId())."' id='box".attr($note->getId())."' onClick='javascript:document.update_activity.act".attr($note->getId()).".value=this.checked' type=checkbox $checked></td>";
-                        print "<td><label for='box".attr($note->getId())."' class='bold'>".text($date_string) . "</label>";
-                        print " <label for='box".attr($note->getId())."' class='bold'>(". text($note->getUser()->getUsername()).")</label></td>";
-                        print "<td><label for='box".attr($note->getId())."' class='text'>" . nl2br(text($note->getBody())) . "&nbsp;</label></td></tr>";
+                        print "<tr><td><input type=hidden value='' name='act" . attr($note->getId()) . "' id='act" . attr($note->getId()) . "'>";
+                        print "<input name='box" . attr($note->getId()) . "' id='box" . attr($note->getId()) . "' onClick='javascript:document.update_activity.act" . attr($note->getId()) . ".value=this.checked' type=checkbox $checked></td>";
+                        print "<td><label for='box" . attr($note->getId()) . "' class='bold'>" . text($date_string) . "</label>";
+                        print " <label for='box" . attr($note->getId()) . "' class='bold'>(" . text($note->getUser()->getUsername()) . ")</label></td>";
+                        print "<td><label for='box" . attr($note->getId()) . "' class='text'>" . nl2br(text($note->getBody())) . "&nbsp;</label></td></tr>";
                     }
                     print "</tbody>\n";
                 } else {
@@ -157,14 +158,14 @@ if (isset($_POST['mode'])) {
         <table width="400" cellpadding="0" cellspacing="0" class="table">
             <tr><td>
             <?php
-            if ($offset>($N-1)) {
-                echo "<a class='btn btn-secondary' href=office_comments_full.php?active=".attr_url($active)."&offset=".attr_url($offset-$N)." onclick='top.restoreSession()'>".xlt('Previous')."</a>";
+            if ($offset > ($N - 1)) {
+                echo "<a class='btn btn-secondary' href=office_comments_full.php?active=" . attr_url($active) . "&offset=" . attr_url($offset - $N) . " onclick='top.restoreSession()'>" . xlt('Previous') . "</a>";
             }
             ?>
             </td><td align='right'>
             <?php
             if ($result_count == $N) {
-                echo "<a class='btn btn-secondary' href=office_comments_full.php?active=".attr_url($active)."&offset=".attr_url($offset+$N)." onclick='top.restoreSession()'>".xlt('Next')."</a>";
+                echo "<a class='btn btn-secondary' href=office_comments_full.php?active=" . attr_url($active) . "&offset=" . attr_url($offset + $N) . " onclick='top.restoreSession()'>" . xlt('Next') . "</a>";
             }
             ?>
             </td></tr>

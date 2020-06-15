@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2009 Aron Racho <aron@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -12,7 +13,7 @@ function snellen_report($pid, $encounter, $cols, $id)
     $count = 0;
     $cols = 2;
     $data = formFetch("form_snellen", $id);
-    $width = 100/$cols;
+    $width = 100 / $cols;
     if ($data) {
         ?>
 

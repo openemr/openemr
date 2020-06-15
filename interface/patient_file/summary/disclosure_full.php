@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient disclosures main screen.
  *
@@ -11,7 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
@@ -21,18 +21,18 @@ use OpenEMR\Core\Header;
 
 //retrieve the user name
 $res = sqlQuery("select username from users where username=?", array($_SESSION["authUser"]));
-$uname=$res["username"];
+$uname = $res["username"];
 //if the mode variable is set to disclosure, retrieve the values from 'disclosure_form ' in record_disclosure.php to store it in database.
 if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $dates=trim($_POST['dates']);
-    $event=trim($_POST['form_disclosure_type']);
-    $recipient_name=trim($_POST['recipient_name']);
-    $disclosure_desc=trim($_POST['desc_disc']);
-    $disclosure_id=trim($_POST['disclosure_id']);
+    $dates = trim($_POST['dates']);
+    $event = trim($_POST['form_disclosure_type']);
+    $recipient_name = trim($_POST['recipient_name']);
+    $disclosure_desc = trim($_POST['desc_disc']);
+    $disclosure_id = trim($_POST['disclosure_id']);
     if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update") {
         //update the recorded disclosure in the extended_log table.
         EventAuditLogger::instance()->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
@@ -49,7 +49,7 @@ if (isset($_GET['deletelid'])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $deletelid=$_GET['deletelid'];
+    $deletelid = $_GET['deletelid'];
     //function to delete the recorded disclosures
     EventAuditLogger::instance()->deleteDisclosure($deletelid);
 }
@@ -80,7 +80,7 @@ if (isset($_GET['deletelid'])) {
 <br />
 <br />
 <?php
-$N=15;
+$N = 15;
 $offset = $_REQUEST['offset'];
 if (!isset($offset)) {
     $offset = 0;
@@ -90,18 +90,18 @@ $disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CON
   " LEFT JOIN users u ON u.username = el.user " .
   " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id='disclosure_type' AND activity = 1)" .
   " ORDER BY el.date DESC ";
-$r2= sqlStatement($disclQry, array($pid));
-$totalRecords=sqlNumRows($r2);
+$r2 = sqlStatement($disclQry, array($pid));
+$totalRecords = sqlNumRows($r2);
 
 $disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
   " LEFT JOIN users u ON u.username = el.user" .
   " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
   " ORDER BY date DESC LIMIT " . escape_limit($offset) . " , " . escape_limit($N);
 
-$r1= sqlStatement($disclInnerQry, array($pid));
-$n=sqlNumRows($r1);
-$noOfRecordsLeft=($totalRecords - $offset);
-if ($n>0) {?>
+$r1 = sqlStatement($disclInnerQry, array($pid));
+$n = sqlNumRows($r1);
+$noOfRecordsLeft = ($totalRecords - $offset);
+if ($n > 0) {?>
     <table border='0' class="text">
         <tr>
         <td colspan='5' style="padding: 5px;"><a href="disclosure_full.php" class="" id='Submit' onclick="top.restoreSession()"><span><?php echo xlt('Refresh'); ?></span></a></td>
@@ -147,18 +147,18 @@ if ($n>0) {?>
  <tr>
   <td>
 <?php
-if ($offset > ($N-1) && $n!=0) {
+if ($offset > ($N - 1) && $n != 0) {
     echo "   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
-        "&offset=" . attr_url($offset-$N) . "' onclick='top.restoreSession()'>[" .
+        "&offset=" . attr_url($offset - $N) . "' onclick='top.restoreSession()'>[" .
         xlt('Previous') . "]</a>\n";
 }
 ?>
 
 <?php
 
-if ($n >= $N && $noOfRecordsLeft!=$N) {
+if ($n >= $N && $noOfRecordsLeft != $N) {
     echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
-        "&offset=" . attr_url($offset+$N)  ."&leftrecords=" . attr_url($noOfRecordsLeft) . "' onclick='top.restoreSession()'>[" .
+        "&offset=" . attr_url($offset + $N)  . "&leftrecords=" . attr_url($noOfRecordsLeft) . "' onclick='top.restoreSession()'>[" .
         xlt('Next') . "]</a>\n";
 }
 ?>
@@ -166,8 +166,8 @@ if ($n >= $N && $noOfRecordsLeft!=$N) {
  </tr>
 </table>
 </div>
-<script type="text/javascript">
-$(function() {
+<script>
+$(function () {
     // todo, move this to a common library
     //for row highlight.
     $(".noterow").mouseover(function () {

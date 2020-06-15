@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/view/custom.php
  *
@@ -10,11 +11,12 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <head>
-    <script language="javascript" src="<?php js_src('custom.js') ?>"></script>
+    <script src="<?php js_src('custom.js') ?>"></script>
 
-    <script type="text/javascript">
+    <script>
         var custom = new custom( { selectedColumn: <?php echo js_escape($criteria->column); ?> } );
         custom.init();
     </script>

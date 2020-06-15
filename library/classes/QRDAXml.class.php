@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * This program implements the XML Writer to generate QRDA Category I (or) III 2014 XML.
@@ -36,7 +37,7 @@ class QRDAXml extends XmlWriterOemr
 
     function open_clinicaldocument()
     {
-        $this->push('ClinicalDocument', array('xmlns'=>'urn:hl7-org:v3', 'xmlns:voc'=>'urn:hl7-org:v3/voc', 'xmlns:xsi'=>'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation'=>'urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/','xmlns:sdtc' => 'urn:hl7-org:sdtc'));
+        $this->push('ClinicalDocument', array('xmlns' => 'urn:hl7-org:v3', 'xmlns:voc' => 'urn:hl7-org:v3/voc', 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation' => 'urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/','xmlns:sdtc' => 'urn:hl7-org:sdtc'));
     }
 
     function close_clinicaldocument()
@@ -46,27 +47,27 @@ class QRDAXml extends XmlWriterOemr
 
     function self_realmcode()
     {
-        $this->emptyelement('realmCode', array('code'=>'US'));
+        $this->emptyelement('realmCode', array('code' => 'US'));
     }
 
     function self_typeid()
     {
-        $this->emptyelement('typeId', array('root'=>'2.16.840.1.113883.1.3', 'extension'=>'POCD_HD000040'));
+        $this->emptyelement('typeId', array('root' => '2.16.840.1.113883.1.3', 'extension' => 'POCD_HD000040'));
     }
 
     function self_templateid($id)
     {
-        $this->emptyelement('templateId', array('root'=>$id));
+        $this->emptyelement('templateId', array('root' => $id));
     }
 
     function self_id()
     {
-        $this->emptyelement('id', array('root'=>$this->unique_id));
+        $this->emptyelement('id', array('root' => $this->unique_id));
     }
 
     function self_code()
     {
-        $this->emptyelement('code', array( 'code'=>'55184-6', 'codeSystem'=>'2.16.840.1.113883.6.1', 'codeSystemName'=>'LOINC', 'displayName'=>'Quality Reporting Document Architecture Calculated Summary Report'));
+        $this->emptyelement('code', array( 'code' => '55184-6', 'codeSystem' => '2.16.840.1.113883.6.1', 'codeSystemName' => 'LOINC', 'displayName' => 'Quality Reporting Document Architecture Calculated Summary Report'));
     }
 
     function add_title($value)
@@ -76,40 +77,40 @@ class QRDAXml extends XmlWriterOemr
 
     function self_efftime($value)
     {
-        $this->emptyelement('effectiveTime', array('value'=>$value));
+        $this->emptyelement('effectiveTime', array('value' => $value));
     }
 
     function self_confidentcode()
     {
-        $this->emptyelement('confidentialityCode', array('codeSystem'=>'2.16.840.1.113883.5.25', 'code'=>'N', 'codeSystemName'=>'HL7Confidentiality'));
+        $this->emptyelement('confidentialityCode', array('codeSystem' => '2.16.840.1.113883.5.25', 'code' => 'N', 'codeSystemName' => 'HL7Confidentiality'));
     }
 
     function self_lang()
     {
-        $this->emptyelement('languageCode', array('code'=>'en'));
+        $this->emptyelement('languageCode', array('code' => 'en'));
     }
 
     function self_setid($id)
     {
-        $this->emptyelement('setId', array('root'=>$id));
+        $this->emptyelement('setId', array('root' => $id));
     }
 
     function self_version()
     {
-        $this->emptyelement('versionNumber', array('value'=>1));
+        $this->emptyelement('versionNumber', array('value' => 1));
     }
 
 
     function self_setpatientRoleid()
     {
-        $this->emptyelement('id', array('nullFlavor'=>'NA'));
+        $this->emptyelement('id', array('nullFlavor' => 'NA'));
     }
 
     function add_patientRole()
     {
         $this->push('patientRole');
 
-        $this->emptyelement('id', array('nullFlavor'=>'NA'));
+        $this->emptyelement('id', array('nullFlavor' => 'NA'));
 
         $this->pop();
     }
@@ -136,7 +137,7 @@ class QRDAXml extends XmlWriterOemr
 
     function self_authorTime($value)
     {
-        $this->emptyelement('time', array('value'=>$value));
+        $this->emptyelement('time', array('value' => $value));
     }
 
     function open_assignAuthor()
@@ -151,17 +152,17 @@ class QRDAXml extends XmlWriterOemr
 
     function self_customId($id)
     {
-        $this->emptyelement('id', array('root'=>$id));
+        $this->emptyelement('id', array('root' => $id));
     }
 
 
     function add_authReprestOrginisation($facilArr)
     {
         $this->push('representedOrganization');
-        $this->self_customTag('id', array('root' => '2.16.840.1.113883.19.5', 'extension' =>'223344'));
+        $this->self_customTag('id', array('root' => '2.16.840.1.113883.19.5', 'extension' => '223344'));
         $this->element('name', $facilArr['name']);
         if (!empty($facilArr['phone'])) {
-            $this->self_customTag('telecom', array('value' => $facilArr['phone'], 'use'=>'WP'));
+            $this->self_customTag('telecom', array('value' => $facilArr['phone'], 'use' => 'WP'));
         } else {
             $this->self_customTag('telecom', array("nullFlavor" => "UNK"));
         }
@@ -192,7 +193,7 @@ class QRDAXml extends XmlWriterOemr
 
     function self_reprsntCustId()
     {
-        $this->emptyelement('id', array('root'=>'2.16.840.1.113883.19.5'));
+        $this->emptyelement('id', array('root' => '2.16.840.1.113883.19.5'));
     }
 
     function add_represtCustodianOrginisation($facilArr)
@@ -201,7 +202,7 @@ class QRDAXml extends XmlWriterOemr
         $this->self_reprsntCustId();
         $this->element('name', $facilArr['name']);
         if (!empty($facilArr['phone'])) {
-            $this->self_customTag('telecom', array('value' => $facilArr['phone'], 'use'=>'WP'));
+            $this->self_customTag('telecom', array('value' => $facilArr['phone'], 'use' => 'WP'));
         } else {
             $this->self_customTag('telecom', array("nullFlavor" => "UNK"));
         }
@@ -222,7 +223,7 @@ class QRDAXml extends XmlWriterOemr
 
     function self_intendedId()
     {
-        $this->emptyelement('id', array('root'=>'2.16.840.1.113883.3.249.7', 'extension'=>'CPC'));
+        $this->emptyelement('id', array('root' => '2.16.840.1.113883.3.249.7', 'extension' => 'CPC'));
     }
 
     function add_indententRecipient()
@@ -244,7 +245,7 @@ class QRDAXml extends XmlWriterOemr
 
     function self_legalSignCode()
     {
-        $this->emptyelement('signatureCode', array('code'=>'S'));
+        $this->emptyelement('signatureCode', array('code' => 'S'));
     }
 
 
@@ -260,7 +261,7 @@ class QRDAXml extends XmlWriterOemr
 
     function self_represntOrgId()
     {
-        $this->emptyelement('id', array('root'=>'2.16.840.1.113883.19.5', 'extension'=>'223344'));
+        $this->emptyelement('id', array('root' => '2.16.840.1.113883.19.5', 'extension' => '223344'));
     }
 
     function add_represntOrgName($name)
@@ -278,7 +279,7 @@ class QRDAXml extends XmlWriterOemr
 
     function open_participant_data($code_type)
     {
-        $this->push('participant', array('typeCode'=>$code_type));
+        $this->push('participant', array('typeCode' => $code_type));
     }
 
     function close_participant_data()
@@ -288,7 +289,7 @@ class QRDAXml extends XmlWriterOemr
 
     function open_assocEntityData($class_code)
     {
-        $this->push('associatedEntity', array('classCode'=>$class_code));
+        $this->push('associatedEntity', array('classCode' => $class_code));
     }
 
     function close_assocEntityData()
@@ -298,12 +299,12 @@ class QRDAXml extends XmlWriterOemr
 
     function self_participantCodeDevice()
     {
-        $this->emptyelement('code', array('code'=>'129465004', 'displayName'=>'medical record, device', 'codeSystem'=>'2.16.840.1.113883.6.96', 'codeSystemName'=>'SNOMED-CT'));
+        $this->emptyelement('code', array('code' => '129465004', 'displayName' => 'medical record, device', 'codeSystem' => '2.16.840.1.113883.6.96', 'codeSystemName' => 'SNOMED-CT'));
     }
 
     function self_participantCodeLocation()
     {
-        $this->emptyelement('code', array('code'=>'394730007', 'displayName'=>'healthcare related organization', 'codeSystem'=>'2.16.840.1.113883.6.96', 'codeSystemName'=>'SNOMED-CT'));
+        $this->emptyelement('code', array('code' => '394730007', 'displayName' => 'healthcare related organization', 'codeSystem' => '2.16.840.1.113883.6.96', 'codeSystemName' => 'SNOMED-CT'));
     }
 
     function self_particpantIdInfo($arr)
@@ -422,7 +423,7 @@ class QRDAXml extends XmlWriterOemr
     function open_entry($code_type = '')
     {
         if ($code_type != "") {
-            $this->push('entry', array('typeCode'=>$code_type));
+            $this->push('entry', array('typeCode' => $code_type));
         } else {
             $this->push('entry');
         }
@@ -446,9 +447,9 @@ class QRDAXml extends XmlWriterOemr
     function add_entryEffectTime($arr)
     {
         $this->push('effectiveTime');
-        $this->emptyelement('low', array('value'=>$arr['low']));
+        $this->emptyelement('low', array('value' => $arr['low']));
         if (isset($arr['high'])) {
-            $this->emptyelement('high', array('value'=>$arr['high']));
+            $this->emptyelement('high', array('value' => $arr['high']));
         }
 
         $this->pop();
@@ -485,7 +486,7 @@ class QRDAXml extends XmlWriterOemr
 
     function innerContent($arr = array())
     {
-        $this->xml .= '<content styleCode="Bold">'.$arr['name'].'</content>:'.trim($arr['value']);
+        $this->xml .= '<content styleCode="Bold">' . $arr['name'] . '</content>:' . trim($arr['value']);
     }
 
     function self_customTag($tag, $arr)
@@ -495,7 +496,7 @@ class QRDAXml extends XmlWriterOemr
 
     function textDispContent($content)
     {
-        $this->xml .= '<text>'.$content.'</text>';
+        $this->xml .= '<text>' . $content . '</text>';
     }
 
     function add_providerName($nameArr)
@@ -596,9 +597,9 @@ class QRDAXml extends XmlWriterOemr
     function add_entryTime($arr)
     {
         $this->push('time');
-        $this->emptyelement('low', array('value'=>$arr['low']));
+        $this->emptyelement('low', array('value' => $arr['low']));
         if (isset($arr['high'])) {
-            $this->emptyelement('high', array('value'=>$arr['high']));
+            $this->emptyelement('high', array('value' => $arr['high']));
         }
 
         $this->pop();
@@ -607,11 +608,11 @@ class QRDAXml extends XmlWriterOemr
     function add_entryEffectTimeQRDA($arr)
     {
         $this->push('effectiveTime');
-        $this->emptyelement('low', array('value'=>$arr['low']));
+        $this->emptyelement('low', array('value' => $arr['low']));
         if ($arr['high'] != "") {
-            $this->emptyelement('high', array('value'=>$arr['high']));
+            $this->emptyelement('high', array('value' => $arr['high']));
         } else {
-            $this->emptyelement('high', array('nullFlavor'=>'NI'));
+            $this->emptyelement('high', array('nullFlavor' => 'NI'));
         }
 
         $this->pop();
@@ -621,11 +622,11 @@ class QRDAXml extends XmlWriterOemr
     {
         $arrPass = array('xsi:type' => 'IVL_TS');
         $this->push('effectiveTime', $arrPass);
-        $this->emptyelement('low', array('value'=>$arr['low']));
+        $this->emptyelement('low', array('value' => $arr['low']));
         if ($arr['high'] != "") {
-            $this->emptyelement('high', array('value'=>$arr['high']));
+            $this->emptyelement('high', array('value' => $arr['high']));
         } else {
-            $this->emptyelement('high', array('nullFlavor'=>'NI'));
+            $this->emptyelement('high', array('nullFlavor' => 'NI'));
         }
 
         $this->pop();

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/base/view/error.php
  *

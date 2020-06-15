@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <title>{label_webpage_title}</title>
-  <style type="text/css">
+  <style>
     body, td {
       font-family: sans-serif;
       font-weight: normal;
@@ -455,7 +455,7 @@
 </div></div>
 
 <!-- This should really be in the onload handler but that seems to be unreliable and can crash Firefox 3. -->
-<script type="text/javascript">
+<script>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);
 </script>

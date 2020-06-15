@@ -1,4 +1,5 @@
 <?php
+
 /**
  * dupecheck mergerecords.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../../interface/globals.php");
 require_once("../../../library/pnotes.inc");
@@ -110,7 +110,7 @@ foreach ($parameters['otherid'] as $otherID) {
     $sqlstmt = "show tables like 'form%'";
     $qResults = sqlStatement($sqlstmt);
     while ($row = sqlFetchArray($qResults)) {
-        UpdateTable($row['Tables_in_'.$sqlconf["dbase"].' (form%)'], "pid", $otherPID, $masterPID);
+        UpdateTable($row['Tables_in_' . $sqlconf["dbase"] . ' (form%)'], "pid", $otherPID, $masterPID);
     }
 
     // How to handle the data that should be unique to each patient:
@@ -122,7 +122,7 @@ foreach ($parameters['otherid'] as $otherID) {
     //UpdateTable("insurance_data", "pid", $otherPID, $masterPID);
 
     // alter the patient's last name to indicate they have been merged into another record
-    $newlname = "~~~MERGED~~~".$orow['lname'];
+    $newlname = "~~~MERGED~~~" . $orow['lname'];
     $sqlstmt = "update patient_data set lname=? where pid=?";
     if ($commitchanges == true) {
         $qResults = sqlStatement($sqlstmt, array($newlname, $otherPID));
@@ -131,13 +131,13 @@ foreach ($parameters['otherid'] as $otherID) {
     echo "<li>Altered last name of PID " . text($otherPID) . " to '" . text($newlname) . "'</li>";
 
     // add patient notes regarding the merged data
-    $notetext = "All related patient data has been merged into patient record PID# ".$masterPID;
+    $notetext = "All related patient data has been merged into patient record PID# " . $masterPID;
     echo "<li>Added note about the merge to the PID " . text($otherPID) . "</li>";
     if ($commitchanges == true) {
         addPnote($otherPID, $notetext);
     }
 
-    $notetext = "All related patient data has been merged from patient record PID# ".$otherPID;
+    $notetext = "All related patient data has been merged from patient record PID# " . $otherPID;
     echo "<li>Added note about the merge to the Master PID " . text($masterPID) . "</li>";
     if ($commitchanges == true) {
         addPnote($masterPID, $notetext);
@@ -145,7 +145,7 @@ foreach ($parameters['otherid'] as $otherID) {
 
     // add a log entry regarding the merged data
     if ($commitchanges == true) {
-        EventAuditLogger::instance()->newEvent("data_merge", $_SESSION['authUser'], "Default", 1, "Merged PID ".$otherPID." data into master PID ".$masterPID);
+        EventAuditLogger::instance()->newEvent("data_merge", $_SESSION['authUser'], "Default", 1, "Merged PID " . $otherPID . " data into master PID " . $masterPID);
     }
 
     echo "<li>Added entry to log</li>";
@@ -157,7 +157,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
 {
     global $commitchanges;
 
-    $sqlstmt = "select count(*) as numrows from ".$tablename." where ".$pid_col."='".$oldvalue."'";
+    $sqlstmt = "select count(*) as numrows from " . $tablename . " where " . $pid_col . "='" . $oldvalue . "'";
     $qResults = sqlStatement($sqlstmt);
 
     if ($qResults) {
@@ -199,7 +199,7 @@ Do you wish to commit these changes to the database?
 
 </body>
 <?php if ($commitchanges == true) : ?>
-<script language="javascript">
+<script>
 window.opener.removedupe(<?php echo js_escape($parameters['dupecount']); ?>);
 window.close();
 </script>

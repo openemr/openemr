@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ModuleconfigController.php
  * @package   OpenEMR
@@ -7,6 +8,7 @@
  * @copyright Copyright (c) 2019 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Ccr\Controller;
 
 use Laminas\Mvc\Controller\AbstractActionController;

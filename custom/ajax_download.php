@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * QRDA Ajax Download
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../interface/globals.php");
 require_once("$srcdir/report_database.inc");
@@ -37,7 +37,7 @@ if ($fileName) {
     //if ( strpos($fileName,",") !== FALSE ) {
     if (count($fileList) > 1) {
         // Multiple files, zip them together
-        $zip = new ZipArchive;
+        $zip = new ZipArchive();
         $currentTime = date("Y-m-d-H-i-s");
         global $qrda_file_path;
         $finalZip = $qrda_file_path . "QRDA_2014_1_" . $currentTime . ".zip";
@@ -47,16 +47,16 @@ if ($fileName) {
 
         foreach ($fileList as $eachFile) {
             check_file_dir_name($eachFile);
-            $zip->addFile($qrda_file_path.$eachFile, $eachFile);
+            $zip->addFile($qrda_file_path . $eachFile, $eachFile);
         }
 
         $zip->close();
         foreach ($fileList as $eachFile) {
-            unlink($qrda_file_path.$eachFile);
+            unlink($qrda_file_path . $eachFile);
         }
     } else {
         check_file_dir_name($fileList[0]);
-        $finalZip = $qrda_file_path.$fileList[0];
+        $finalZip = $qrda_file_path . $fileList[0];
     }
 
     header("Pragma: public");
@@ -80,11 +80,11 @@ $patients = $criteriaPatients[$ruleID];
 
 //var_dump($dataSheet);
 
-$from_date = date('Y', strtotime($target_date))."-01-01";
-$to_date =  date('Y', strtotime($target_date))."-12-31";
+$from_date = date('Y', strtotime($target_date)) . "-01-01";
+$to_date =  date('Y', strtotime($target_date)) . "-12-31";
 
 if (count($patients)) {
-    $zip = new ZipArchive;
+    $zip = new ZipArchive();
     global $qrda_file_path;
     $currentTime = date("Y-m-d-H-i-s");
     $zipFile = $reportID . "_NQF_" . $ruleID . "_" . $currentTime . ".zip";

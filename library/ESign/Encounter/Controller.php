@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Encounter controller implementation
  *
@@ -15,10 +13,12 @@ namespace ESign;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/Abstract/Controller.php';
-require_once $GLOBALS['srcdir'].'/ESign/Encounter/Configuration.php';
-require_once $GLOBALS['srcdir'].'/ESign/Encounter/Signable.php';
-require_once $GLOBALS['srcdir'].'/ESign/Encounter/Log.php';
+namespace ESign;
+
+require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Controller.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Configuration.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Signable.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Log.php';
 
 use OpenEMR\Common\Auth\AuthUtils;
 
@@ -41,9 +41,11 @@ class Encounter_Controller extends Abstract_Controller
         $form->action = '#';
         $signable = new Encounter_Signable($form->encounterId);
         $form->showLock = false;
-        if ($signable->isLocked() === false &&
+        if (
+            $signable->isLocked() === false &&
             $GLOBALS['lock_esign_all'] &&
-            $GLOBALS['esign_lock_toggle']) {
+            $GLOBALS['esign_lock_toggle']
+        ) {
             $form->showLock = true;
         }
 
@@ -83,7 +85,7 @@ class Encounter_Controller extends Abstract_Controller
         }
 
         $amendment = $this->getRequest()->getParam('amendment', '');
-        if ((new AuthUtils)->confirmUserPassword($_SESSION['authUser'], $password)) {
+        if ((new AuthUtils())->confirmPassword($_SESSION['authUser'], $password)) {
             $signable = new Encounter_Signable($encounterId);
             if ($signable->sign($_SESSION['authUserID'], $lock, $amendment)) {
                 $message = xlt("Form signed successfully");
@@ -99,7 +101,7 @@ class Encounter_Controller extends Abstract_Controller
         $response->encounterId = $encounterId;
         $response->locked = $lock;
         if ($lock) {
-            $response->editButtonHtml = "<a href=# class='btn btn-secondary btn-sm form-edit-button-locked'>".xlt('Locked')."</a>";
+            $response->editButtonHtml = "<a href=# class='btn btn-secondary btn-sm form-edit-button-locked'>" . xlt('Locked') . "</a>";
         }
 
         echo json_encode($response);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CAMOS rx_print.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../../globals.php');
 
@@ -80,7 +80,7 @@ if ($_POST['update']) { // OPTION update practice inf
     "phone = '" . add_escape_custom($_POST['practice_phone']) . "', " .
     "fax = '" . add_escape_custom($_POST['practice_fax']) . "', " .
     "federaldrugid = '" . add_escape_custom($_POST['practice_dea']) . "' " .
-    "where id ='" . add_escape_custom($_SESSION['authUserID']) ."'";
+    "where id ='" . add_escape_custom($_SESSION['authUserID']) . "'";
     sqlStatement($query);
 }
 
@@ -108,7 +108,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
     $camos_content = array();
     foreach ($_POST as $key => $val) {
         if (substr($key, 0, 3) == 'ch_') {
-            $query = sqlStatement("select content from ".mitigateSqlTableUpperCase("form_CAMOS")." where id =?", array(substr($key, 3)));
+            $query = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id =?", array(substr($key, 3)));
             if ($result = sqlFetchArray($query)) {
                 if ($_POST['print_html']) { //do this change to formatting only for html output
                             $content = preg_replace('|\n|', '<br/>', text($result['content']));
@@ -128,10 +128,10 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             . text($rx->drug) . ' '
             . text($rx->size) . ''
             . text($rx->unit_array[$rx->unit]) . '<br/>'
-            . text($rx->quantity). ' '
-            . text($rx->form_array[$rx->form]). '<br/>'
+            . text($rx->quantity) . ' '
+            . text($rx->form_array[$rx->form]) . '<br/>'
             . text($rx->dosage) . ' '
-            . text($rx->form_array[$rx->form]). ' '
+            . text($rx->form_array[$rx->form]) . ' '
             . text($rx->route_array[$rx->route]) . ' '
             . text($rx->interval_array[$rx->interval]) . '<br/>'
             . text($rx->note) . '<br/>'
@@ -149,7 +149,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 <title>
         <?php echo xlt('CAMOS'); ?>
 </title>
-<link rel="stylesheet" type="text/css" href="./rx.css" />
+<link rel="stylesheet" href="./rx.css" />
 </head>
 <body onload='init()'>
 <img src='./hline.jpg' id='hline'>
@@ -343,9 +343,9 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             print "<div style='font-weight:bold;'>";
             print text($physician_name) . "<br/>\n";
             print text($practice_address) . "<br/>\n";
-            print text($practice_city).', '.text($practice_state).' '.text($practice_zip) . "<br/>\n";
+            print text($practice_city) . ', ' . text($practice_state) . ' ' . text($practice_zip) . "<br/>\n";
             print text($practice_phone) . ' (' . xlt('Voice') . ')' . "<br/>\n";
-            print text($practice_phone) . ' ('. xlt('Fax') . ')' . "<br/>\n";
+            print text($practice_phone) . ' (' . xlt('Fax') . ')' . "<br/>\n";
             print "<br/>\n";
             print date("l, F jS, Y") . "<br/>\n";
             print "<br/>\n";
@@ -385,9 +385,9 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             $pdf->ezSetCmMargins(3, 1, 1, 1);
             $pdf->ezText($physician_name, 12);
             $pdf->ezText($practice_address, 12);
-            $pdf->ezText($practice_city.', '.$practice_state.' '.$practice_zip, 12);
+            $pdf->ezText($practice_city . ', ' . $practice_state . ' ' . $practice_zip, 12);
             $pdf->ezText($practice_phone . ' (' . xl('Voice') . ')', 12);
-            $pdf->ezText($practice_phone . ' ('. xl('Fax') . ')', 12);
+            $pdf->ezText($practice_phone . ' (' . xl('Fax') . ')', 12);
             $pdf->ezText('', 12);
             $pdf->ezText(date("l, F jS, Y"), 12);
             $pdf->ezText('', 12);
@@ -416,7 +416,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 <title>
     <?php echo xlt('CAMOS'); ?>
 </title>
-<script type="text/javascript">
+<script>
 //below init function just to demonstrate how to do it.
 //now need to create 'cycle' function triggered by button to go by fours
 //through selected types of subcategories.
@@ -470,7 +470,7 @@ return count_turnoff;
 }
 
 </script>
-<link rel="stylesheet" type="text/css" href="./rx.css" />
+<link rel="stylesheet" href="./rx.css" />
 </head>
 <h1><?php echo xlt('Select CAMOS Entries for Printing'); ?></h1>
 <form method=POST name='pick_items' target=_new>
@@ -489,13 +489,13 @@ return count_turnoff;
 //check if an encounter is set
     if ($_SESSION['encounter'] == null) {
         $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
-        mitigateSqlTableUpperCase("form_CAMOS")." as x join forms as y on (x.id = y.form_id) " .
+        mitigateSqlTableUpperCase("form_CAMOS") . " as x join forms as y on (x.id = y.form_id) " .
         "where y.pid = ?" .
         " and y.form_name like 'CAMOS%'" .
         " and x.activity = 1", array($_SESSION['pid']));
     } else {
         $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
-        mitigateSqlTableUpperCase("form_CAMOS")."  as x join forms as y on (x.id = y.form_id) " .
+        mitigateSqlTableUpperCase("form_CAMOS") . "  as x join forms as y on (x.id = y.form_id) " .
         "where y.encounter = ?" .
         " and y.pid = ?" .
         " and y.form_name like 'CAMOS%'" .

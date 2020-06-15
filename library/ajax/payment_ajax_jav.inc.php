@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This section handles ajax functions for insurance,patient and for encounters.
  *
@@ -13,9 +14,10 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
-<script type="text/javascript">
-$(function(){
+<script>
+$(function () {
   $("#type_code").keyup(function(e){
       if (e.which == 9 || e.which == 13)
          {//tab key,enter key.Prevent ajax activity.

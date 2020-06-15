@@ -1,4 +1,5 @@
 <?php
+
 /**
  * facilities_add.php
  *
@@ -23,10 +24,10 @@ $alertmsg = '';
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['opener', 'jquery-ui']); ?>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
+    <?php Header::setupHeader(['opener']); ?>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
@@ -46,7 +47,7 @@ if (empty($collectthis)) {
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility") {
     echo '
-<script type="text/javascript">
+<script>
 <!--
 dlgclose();
 //-->
@@ -55,7 +56,7 @@ dlgclose();
 	';
 }
 ?>
-<script type="text/javascript">
+<script>
 /// todo, move this to a common library
 
 var collectvalidation = <?php echo $collectthis; ?>;
@@ -128,18 +129,14 @@ function toggle( target, div ) {
 
 }
 
-$(function(){
+$(function () {
     $("#dem_view").click(function() {
         toggle($(this), "#DEM");
     });
 
 });
 
-$(function(){
-    $("#cancel").click(function() {
-          dlgclose();
-     });
-
+$(function () {
     /**
      * add required/star sign to required form fields
      */
@@ -175,8 +172,10 @@ function displayAlert() {
     <div class="container">
         <h5 class="title"><?php echo xlt('Add Facility'); ?></h5>
         <div class="py-3">
-            <a onclick="submitform();" class="btn btn-primary btn-lg" name='form_save' id='form_save' href='#'><?php echo xlt('Save'); ?></a>
-            <a class="btn btn-secondary btn-lg" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
+            <div class="btn-group">
+                <button class="btn btn-primary btn-save" name='form_save' id='form_save' onclick="submitform();"><?php echo xlt('Save'); ?></button>
+                <button class="btn btn-secondary btn-cancel" onclick="dlgclose();"><?php echo xlt('Cancel'); ?></button>
+            </div>
         </div>
 
         <form name='facility-add' id='facility-add' method='post' action="facilities.php">
@@ -239,10 +238,10 @@ function displayAlert() {
                     <div class="form-row custom-control custom-switch my-2">
                         <div class="col">
                         <?php
-                        $disabled='';
+                        $disabled = '';
                         $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-                        if (!empty($resPBE) && sizeof($resPBE)>0) {
-                            $disabled='disabled';
+                        if (!empty($resPBE) && sizeof($resPBE) > 0) {
+                            $disabled = 'disabled';
                         }
                         ?>
                         <input type='checkbox' class='custom-control-input' name='primary_business_entity' id='primary_business_entity' value='1' <?php echo ($facility['primary_business_entity'] == 1) ? 'checked' : ''; ?>
@@ -266,7 +265,7 @@ function displayAlert() {
 
                         foreach ($pc->get_pos_ref() as $pos) {
                             echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                            echo ">" . text($pos['code'])  . ": ". text($pos['title']);
+                            echo ">" . text($pos['code'])  . ": " . text($pos['title']);
                             echo "</option>\n";
                         }
 
@@ -325,16 +324,10 @@ function displayAlert() {
                         <label for="oid"><?php echo xlt('OID'); ?>: </label>
                         <input class="form-control" type="entry" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>" />
                     </div>
-                    
+
                 </div>
             </div>
-
             <hr />
-
-            
-            
-            
-            
             <div class="form-group">
                 <label for="mail_stret"><?php echo xlt('Mailing Address'); ?>: </label>
                 <input class="form-control" type="entry" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>" />
@@ -361,8 +354,14 @@ function displayAlert() {
             </div>
             <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
         </form>
+        <div class="py-3">
+            <div class="btn-group">
+                <button class="btn btn-primary btn-save" name='form_save' id='form_save' onclick="submitform();"><?php echo xlt('Save'); ?></button>
+                <button class="btn btn-secondary btn-cancel" onclick="dlgclose();"><?php echo xlt('Cancel'); ?></button>
+            </div>
+        </div>
     </div>
-    <script type="text/javascript">
+    <script>
     <?php
     if ($alertmsg = trim($alertmsg)) {
         echo "alert(" . js_escape($alertmsg) . ");\n";

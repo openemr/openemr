@@ -1,4 +1,5 @@
 <?php
+
 /**
  * pro.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "/../globals.php");
 require_once("$srcdir/patient.inc");
@@ -28,7 +28,7 @@ use OpenEMR\OeUI\OemrUI;
         <title><?php echo xlt('PRO{{Patient Reported Outcomes}}'); ?></title>
         <?php Header::setupHeader(); ?>
         <script>
-            $(function() {
+            $(function () {
                 $('#ext-proc-out').hide();
                 $('#ext-enc').on('click', function() {
                     $('#ext-enc').addClass('active');
@@ -87,7 +87,7 @@ use OpenEMR\OeUI\OemrUI;
 
                         // ascq
                         var ascq_me_container = "<div onclick='openCloseList(this)' style='cursor:pointer;'><div class='list-title-close'><b>ASCQ-Me ("+ascq_me_forms.length+")</b></div></div>"
-                        var alist = "<ul style='list-style:none;margin:0px;padding:0px;display:none'>"
+                        var alist = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < ascq_me_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+ascq_me_forms[i].OID+"' desc='"+ ascq_me_forms[i].Name +"'>"+ascq_me_forms[i].Name+"</input></li>";
                             alist += myform;
@@ -97,7 +97,7 @@ use OpenEMR\OeUI\OemrUI;
                         $('#form-list').append(alist);
                         // neuro_qol
                         var neuro_qol_container = "<div onclick='openCloseList(this)' style='cursor:pointer;'><div class='list-title-close'><b>Neuro-QOL ("+neuro_qol_forms.length+")</b></div></div>"
-                        var blist = "<ul style='list-style:none;margin:0px;padding:0px;display:none'>"
+                        var blist = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < neuro_qol_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+neuro_qol_forms[i].OID+"' desc='"+ neuro_qol_forms[i].Name +"'>"+neuro_qol_forms[i].Name+"</input></li>";
                             blist += myform;
@@ -107,7 +107,7 @@ use OpenEMR\OeUI\OemrUI;
                         $('#form-list').append(blist);
                         // nih tb
                         var nih_tb_container = "<div onclick='openCloseList(this)' style='cursor:pointer;'><div class='list-title-close'><b>NIH TB ("+nih_tb_forms.length+")</b></div></div>"
-                        var list = "<ul style='list-style:none;margin:0px;padding:0px;display:none'>"
+                        var list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < nih_tb_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+nih_tb_forms[i].OID+"' desc='"+ nih_tb_forms[i].Name +"'>"+nih_tb_forms[i].Name+"</input></li>";
                             list += myform;
@@ -117,7 +117,7 @@ use OpenEMR\OeUI\OemrUI;
                         $('#form-list').append(list);
                         //prmois
                         var promis_container = "<div onclick='openCloseList(this)' style='cursor:pointer;'><div class='list-title-close'><b>PROMIS ("+promis_forms.length+")</b></div></div>"
-                        var list = "<ul style='list-style:none;margin:0px;padding:0px;display:none'>"
+                        var list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < promis_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+promis_forms[i].OID+"' desc='"+ promis_forms[i].Name +"'>"+promis_forms[i].Name+"</input></li>";
                             list += myform;
@@ -127,8 +127,8 @@ use OpenEMR\OeUI\OemrUI;
                         $('#form-list').append(list);
 
                         // sci-fi
-                        var sci_fi_container = "<div onclick='openCloseList(this)' style='cursor:pointer;'><div class='list-title-close'><b>SCI-FI ("+sci_fi_forms.length+")</b></div></div>"
-                        var list = "<ul style='list-style:none;margin:0px;padding:0px;display:none'>"
+                        var sci_fi_container = "<div onclick='openCloseList(this)' style='cursor: pointer;'><div class='list-title-close'><b>SCI-FI ("+sci_fi_forms.length+")</b></div></div>"
+                        var list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < sci_fi_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+sci_fi_forms[i].OID+"' desc='"+ sci_fi_forms[i].Name +"'>"+sci_fi_forms[i].Name+"</input></li>";
                             list += myform;
@@ -138,8 +138,8 @@ use OpenEMR\OeUI\OemrUI;
                         $('#form-list').append(list);
 
                         // sci-qol
-                        var sci_qol_container = "<div onclick='openCloseList(this)' style='cursor:pointer;'><div class='list-title-close'><b>SCI-QOL ("+sci_qol_forms.length+")</b></div></div>"
-                        var list = "<ul style='list-style:none;margin:0px;padding:0px;display:none'>"
+                        var sci_qol_container = "<div onclick='openCloseList(this)' style='cursor: pointer;'><div class='list-title-close font-weight-bold'>SCI-QOL ("+sci_qol_forms.length+")</div></div>"
+                        var list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < sci_qol_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+sci_qol_forms[i].OID+"' desc='"+ sci_qol_forms[i].Name +"'>"+sci_qol_forms[i].Name+"</input></li>";
                             list += myform;
@@ -149,8 +149,8 @@ use OpenEMR\OeUI\OemrUI;
                         $('#form-list').append(list);
                         //
                         // tbi-qol
-                        var tbi_qol_container = "<div onclick='openCloseList(this)' style='cursor:pointer;'><div class='list-title-close'><b>TBI-QOL ("+tbi_qol_forms.length+")</b></div></div>"
-                        var list = "<ul style='list-style:none;margin:0px;padding:0px;display:none'>"
+                        var tbi_qol_container = "<div onclick='openCloseList(this)' style='cursor: pointer;'><div class='list-title-close font-weight-bold'>TBI-QOL ("+tbi_qol_forms.length+")</div></div>"
+                        var list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < tbi_qol_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+tbi_qol_forms[i].OID+"' desc='"+ tbi_qol_forms[i].Name +"'>"+tbi_qol_forms[i].Name+"</input></li>";
                             list += myform;
@@ -268,7 +268,7 @@ use OpenEMR\OeUI\OemrUI;
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
             </div>
         </div>
-        <div class="row" >
+        <div class="row">
             <div class="col-sm-12">
                 <?php
                 $list_id = "patient_reported_outcomes"; // to indicate nav item is active, count and give correct id
@@ -291,12 +291,14 @@ use OpenEMR\OeUI\OemrUI;
             $records1 = Easipro::assessmentsForPatient($pid);
             if (!empty($records1)) { ?>
                 <table class='table table-striped'>
+                  <thead>
                     <tr>
                         <th><?php echo xlt('Name'); ?></th>
                         <th><?php echo xlt('Deadline (CST)'); ?></th>
                         <th><?php echo xlt('Status'); ?></th>
                         <th><?php echo xlt('T-Score'); ?></th>
                     </tr>
+                  </thead>
                     <?php foreach ($records1 as $value1) { ?>
                         <tr>
                             <td><?php echo text($value1['form_name']); ?></td>
@@ -309,7 +311,7 @@ use OpenEMR\OeUI\OemrUI;
             <?php }?>
 
             <?php if (empty($records1)) { ?>
-                <h3 class="text-center"><strong><?php echo xlt('Nothing to display'); ?></strong></h3>
+                <h3 class="text-center font-weight-bold"><?php echo xlt('Nothing to display'); ?></h3>
             <?php } ?>
         </div>
         <div id="ext-proc-out">
@@ -321,7 +323,7 @@ use OpenEMR\OeUI\OemrUI;
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
-        $(function(){
+        $(function () {
             $(listId).addClass("active");
         });
     </script>

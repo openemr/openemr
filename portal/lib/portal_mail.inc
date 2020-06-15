@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file contains functions for handling on-site portal mail.
  *
@@ -41,7 +42,7 @@ function addPortalMailboxMail(
     $body = $newtext;
     if ($master_note == '0') {
         $n = sqlQueryNoLog("SELECT MAX(id) as newid from onsite_mail");
-        $master_note = $n['newid']+1;
+        $master_note = $n['newid'] + 1;
     }
 
     if ($replyid) {
@@ -52,8 +53,8 @@ function addPortalMailboxMail(
         } else {
             $replyid = $master_note;
         }
-    } else if ($owner != $sid) {
-        $replyid = $master_note-1;
+    } elseif ($owner != $sid) {
+        $replyid = $master_note - 1;
     } else {
         $replyid = $master_note;
     }
@@ -68,7 +69,7 @@ function addPortalMailboxMail(
 function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search = '')
 {
     if ($limit) {
-        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
     }
 
     $sql = "
@@ -111,7 +112,7 @@ function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search 
 function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = '')
 {
     if ($limit) {
-        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
     }
 
     $sql = "
@@ -154,7 +155,7 @@ function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = 
 function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $search = '')
 {
     if ($limit) {
-        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
     }
 
     $sql = "
@@ -193,7 +194,7 @@ function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $s
 function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $search = '')
 {
     if ($limit) {
-        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
     }
 
     $sql = "
@@ -311,8 +312,11 @@ function getMailDetails($id, $owner = '')
     }
 }
 
-function sendMail($owner, $note, $title = 'Unassigned', $to, $noteid, $sid, $sn, $rid, $rn, $status = 'New', $replyid = '')
+function sendMail($owner, $note, string $title = null, $to, $noteid, $sid, $sn, $rid, $rn, $status = 'New', $replyid = '')
 {
+    if (!$title) {
+        $title = 'Unassigned';
+    }
     if ($owner) {
         addPortalMailboxMail($owner, $note, '1', '1', $title, $to, '', $status, $noteid, $sid, $sn, $rid, $rn, $replyid);
         return 1;

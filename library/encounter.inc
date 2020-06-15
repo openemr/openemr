@@ -1,5 +1,8 @@
 <?php
-require_once(__DIR__."/forms.inc");
+
+require_once(__DIR__ . "/forms.inc");
+
+use OpenEMR\Common\Session\SessionUtil;
 
 //function called to set the global session variable for encounter number
 function setencounter($enc)
@@ -17,16 +20,15 @@ function setencounter($enc)
     if ($enc == "") {
         $enc = date("Ymd");
         if (getFormByEncounter($attendant_id, $enc)) {
-            //there is an encounter enterred for today
+            //there is an encounter entered for today
         } else {
             //addForm($enc, "New Patient Encounter", 0, $pid, 1);
             $return_val = 0;
         }
     }
 
-    $_SESSION['encounter']=$enc;
-    $encounter=$enc;
-
+    SessionUtil::setSession('encounter', $enc);
+    $encounter = $enc;
 
     //returns 1 on successful global set, or 0 if there was no
     //current encounter, signifying that the interface should load

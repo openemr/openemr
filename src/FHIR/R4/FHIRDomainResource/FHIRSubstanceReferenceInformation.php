@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -226,7 +228,7 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
                         $this->addGene($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"gene" must be array of objects or null, '.gettype($data['gene']).' seen.');
+                    throw new \InvalidArgumentException('"gene" must be array of objects or null, ' . gettype($data['gene']) . ' seen.');
                 }
             }
             if (isset($data['geneElement'])) {
@@ -235,7 +237,7 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
                         $this->addGeneElement($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"geneElement" must be array of objects or null, '.gettype($data['geneElement']).' seen.');
+                    throw new \InvalidArgumentException('"geneElement" must be array of objects or null, ' . gettype($data['geneElement']) . ' seen.');
                 }
             }
             if (isset($data['classification'])) {
@@ -244,7 +246,7 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
                         $this->addClassification($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"classification" must be array of objects or null, '.gettype($data['classification']).' seen.');
+                    throw new \InvalidArgumentException('"classification" must be array of objects or null, ' . gettype($data['classification']) . ' seen.');
                 }
             }
             if (isset($data['target'])) {
@@ -253,11 +255,11 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
                         $this->addTarget($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"target" must be array of objects or null, '.gettype($data['target']).' seen.');
+                    throw new \InvalidArgumentException('"target" must be array of objects or null, ' . gettype($data['target']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

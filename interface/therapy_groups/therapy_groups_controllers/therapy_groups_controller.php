@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php contains the main controller for therapy groups.
  *
@@ -27,6 +28,8 @@
 require_once dirname(__FILE__) . '/base_controller.php';
 require_once("{$GLOBALS['srcdir']}/appointments.inc.php");
 require_once("{$GLOBALS['srcdir']}/pid.inc");
+
+use OpenEMR\Common\Session\SessionUtil;
 
 class TherapyGroupsController extends BaseController
 {
@@ -294,7 +297,7 @@ class TherapyGroupsController extends BaseController
 
         $length = strlen($notes);
         if ($length > $this->notes_preview_proper_length) {
-            $notes = mb_substr($notes, 0, 50).'...';
+            $notes = mb_substr($notes, 0, 50) . '...';
         }
 
         return $notes;
@@ -409,7 +412,7 @@ class TherapyGroupsController extends BaseController
 
         setpid(0);
         if ($_SESSION['therapy_group'] != $groupId) {
-            $_SESSION['therapy_group'] = $groupId;
+            SessionUtil::setSession('therapy_group', $groupId);
         }
     }
 }

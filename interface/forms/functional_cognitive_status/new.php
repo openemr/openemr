@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Functional cognitive status form.
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
@@ -43,7 +43,7 @@ $check_res = $formid ? $check_res : array();
 
         <?php Header::setupHeader(['datetime-picker']);?>
 
-        <style title="mystyles" media="all">
+        <style>
             @media only screen and (max-width: 768px) {
                 [class*="col-"] {
                 width: 100%;
@@ -51,7 +51,7 @@ $check_res = $formid ? $check_res : array();
             }
         </style>
 
-        <script type="text/javascript">
+        <script>
 
             function duplicateRow(e) {
                 var newRow = e.cloneNode(true);

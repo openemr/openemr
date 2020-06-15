@@ -1,4 +1,5 @@
 <?php
+
 /**
  * forms/eye_mag/taskman.php
  *
@@ -13,32 +14,31 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-
 $form_name = "eye_mag";
-$form_folder="eye_mag";
+$form_folder = "eye_mag";
 // larry :: hack add for command line version
 if (!$_SERVER['REQUEST_URI']) {
-    $_SERVER['REQUEST_URI']=$_SERVER['PHP_SELF'];
+    $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
 }
 
 if (!$_SERVER['SERVER_NAME']) {
-    $_SERVER['SERVER_NAME']='localhost';
+    $_SERVER['SERVER_NAME'] = 'localhost';
 }
 
 if (!$_SERVER['HTTP_HOST']) {
-    $_SERVER['HTTP_HOST']='default'; //need to figure out how to do this for non-default installs
+    $_SERVER['HTTP_HOST'] = 'default'; //need to figure out how to do this for non-default installs
 }
 
 // Check if running as a cronjob
 if (php_sapi_name() === 'cli') {
-    $ignoreAuth=1;
+    $ignoreAuth = 1;
+    // Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
+    $sessionAllowWrite = true;
 }
-
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
-require_once("php/".$form_name."_functions.php");
+require_once("php/" . $form_name . "_functions.php");
 require_once($srcdir . "/../controllers/C_Document.class.php");
 require_once($srcdir . "/documents.php");
 
@@ -81,15 +81,15 @@ global $form_id;
 global $task;
 global $send;
 
-$PDF_OUTPUT='1';
+$PDF_OUTPUT = '1';
 // If this is a request to make a task, make it.
 $ajax_req = $_REQUEST;
 
-if ($_REQUEST['action']=='make_task') {
+if ($_REQUEST['action'] == 'make_task') {
     make_task($ajax_req);
 }
 
-if ($_REQUEST['action']=='show_task') {
+if ($_REQUEST['action'] == 'show_task') {
     show_task($ajax_req);
 }
 
@@ -100,9 +100,9 @@ if ($_REQUEST['action']=='show_task') {
 
 $query  = "SELECT * FROM form_taskman where PATIENT_ID=? AND (COMPLETED is NULL or COMPLETED != '1')  order by REQ_DATE";
 $result = sqlStatement($query, array($ajax_req['pid']));
-while ($task= sqlFetchArray($result)) {
+while ($task = sqlFetchArray($result)) {
     $send = process_tasks($task);
-    if ($_REQUEST['action']=='make_task') {
+    if ($_REQUEST['action'] == 'make_task') {
         echo json_encode($send);
         exit;
     }

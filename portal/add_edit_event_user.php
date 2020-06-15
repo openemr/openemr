@@ -1,19 +1,20 @@
 <?php
+
 /**
-*
-* Modified from interface/main/calendar/add_edit_event.php for
-* the patient portal.
-*
-* @package   OpenEMR
-* @link      http://www.open-emr.org
-* @author    Rod Roark <rod@sunsetsystems.com>
-* @author    Jerry Padgett <sjpadgett@gmail.com>
-* @author    Brady Miller <brady.g.miller@gmail.com>
-* @copyright Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
-* @copyright Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
-* @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
-* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
-*/
+ *
+ * Modified from interface/main/calendar/add_edit_event.php for
+ * the patient portal.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // Will start the (patient) portal OpenEMR session/cookie.
 require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
@@ -149,24 +150,24 @@ if ($_POST['form_action'] == "save") {
 
 // Useless garbage that we must save.
     $locationspec = 'a:6:{s:14:"event_location";N;s:13:"event_street1";N;' .
-    's:13:"event_street2";N;s:10:"event_city";N;s:11:"event_state";N;s:12:"event_postal";N;}';
+        's:13:"event_street2";N;s:10:"event_city";N;s:11:"event_state";N;s:12:"event_postal";N;}';
 
 // More garbage, but this time 1 character of it is used to save the
 // repeat type.
     if ($_POST['form_repeat']) {
         $recurrspec = 'a:5:{' .
-        's:17:"event_repeat_freq";s:1:"' . $_POST['form_repeat_freq'] . '";' .
-        's:22:"event_repeat_freq_type";s:1:"' . $_POST['form_repeat_type'] . '";' .
-        's:19:"event_repeat_on_num";s:1:"1";' .
-        's:19:"event_repeat_on_day";s:1:"0";' .
-        's:20:"event_repeat_on_freq";s:1:"0";}';
+            's:17:"event_repeat_freq";s:1:"' . $_POST['form_repeat_freq'] . '";' .
+            's:22:"event_repeat_freq_type";s:1:"' . $_POST['form_repeat_type'] . '";' .
+            's:19:"event_repeat_on_num";s:1:"1";' .
+            's:19:"event_repeat_on_day";s:1:"0";' .
+            's:20:"event_repeat_on_freq";s:1:"0";}';
     } else {
         $recurrspec = 'a:5:{' .
-        's:17:"event_repeat_freq";N;' .
-        's:22:"event_repeat_freq_type";s:1:"0";' .
-        's:19:"event_repeat_on_num";s:1:"1";' .
-        's:19:"event_repeat_on_day";s:1:"0";' .
-        's:20:"event_repeat_on_freq";s:1:"1";}';
+            's:17:"event_repeat_freq";N;' .
+            's:22:"event_repeat_freq_type";s:1:"0";' .
+            's:19:"event_repeat_on_num";s:1:"1";' .
+            's:19:"event_repeat_on_day";s:1:"0";' .
+            's:20:"event_repeat_on_freq";s:1:"1";}';
     }
 
 //The modification of the start date for events that take place on one day of the week
@@ -254,9 +255,9 @@ if ($_POST['form_action'] == "save") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
     }//if end
-/* =======================================================
-//                                  UPDATE EVENTS
-========================================================*/
+    /* =======================================================
+    //                                  UPDATE EVENTS
+    ========================================================*/
     if ($eid) {
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
@@ -290,27 +291,27 @@ if ($_POST['form_action'] == "save") {
                 foreach ($r2 as $to_be_inserted) {
                     sqlStatement("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility)
             VALUES ( " .
-                    "'" . add_escape_custom($_POST['form_category']) . "', " .
-                    "'" . add_escape_custom($row['pc_multiple']) . "', " .
-                    "'" . add_escape_custom($to_be_inserted) . "', " .
-                    "'" . add_escape_custom($_POST['form_pid']) . "', " .
-                    "'" . add_escape_custom($_POST['form_title']) . "', " .
-                    "NOW(), " .
-                    "'" . add_escape_custom($_POST['form_comments']) . "', " .
-                    "'" . add_escape_custom($_SESSION['providerId']) . "', " .
-                    "'" . add_escape_custom($event_date) . "', " .
-                    "'" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
-                    "'" . add_escape_custom(($duration * 60)) . "', " .
-                    "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-                    "'" . add_escape_custom($recurrspec) . "', " .
-                    "'" . add_escape_custom($starttime) . "', " .
-                    "'" . add_escape_custom($endtime) . "', " .
-                    "'" . add_escape_custom($_POST['form_allday']) . "', " .
-                    "'" . add_escape_custom($_POST['form_apptstatus']) . "', " .
-                    "'" . add_escape_custom($_POST['form_prefcat']) . "', " .
-                    "'" . add_escape_custom($locationspec) . "', " .
-                    "1, " .
-                    "1, " . (int)$_POST['facility'] . " )"); // FF stuff
+                        "'" . add_escape_custom($_POST['form_category']) . "', " .
+                        "'" . add_escape_custom($row['pc_multiple']) . "', " .
+                        "'" . add_escape_custom($to_be_inserted) . "', " .
+                        "'" . add_escape_custom($_POST['form_pid']) . "', " .
+                        "'" . add_escape_custom($_POST['form_title']) . "', " .
+                        "NOW(), " .
+                        "'" . add_escape_custom($_POST['form_comments']) . "', " .
+                        "'" . add_escape_custom($_SESSION['providerId']) . "', " .
+                        "'" . add_escape_custom($event_date) . "', " .
+                        "'" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
+                        "'" . add_escape_custom(($duration * 60)) . "', " .
+                        "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                        "'" . add_escape_custom($recurrspec) . "', " .
+                        "'" . add_escape_custom($starttime) . "', " .
+                        "'" . add_escape_custom($endtime) . "', " .
+                        "'" . add_escape_custom($_POST['form_allday']) . "', " .
+                        "'" . add_escape_custom($_POST['form_apptstatus']) . "', " .
+                        "'" . add_escape_custom($_POST['form_prefcat']) . "', " .
+                        "'" . add_escape_custom($locationspec) . "', " .
+                        "1, " .
+                        "1, " . (int)$_POST['facility'] . " )"); // FF stuff
                 } // foreach
             } //if count
 
@@ -319,7 +320,40 @@ if ($_POST['form_action'] == "save") {
             // those who are intersected in $providers_current and $providers_new
             foreach ($_POST['form_provider_ae'] as $provider) {
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                    "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
+                    "pc_pid = '" . add_escape_custom($_POST['form_pid']) . "', " .
+                    "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
+                    "pc_time = NOW(), " .
+                    "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
+                    "pc_informant = '" . add_escape_custom($_SESSION['providerId']) . "', " .
+                    "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
+                    "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
+                    "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
+                    "pc_recurrtype = '" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                    "pc_recurrspec = '" . add_escape_custom($recurrspec) . "', " .
+                    "pc_startTime = '" . add_escape_custom($starttime) . "', " .
+                    "pc_endTime = '" . add_escape_custom($endtime) . "', " .
+                    "pc_alldayevent = '" . add_escape_custom($_POST['form_allday']) . "', " .
+                    "pc_apptstatus = '" . add_escape_custom($_POST['form_apptstatus']) . "', " .
+                    "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "', " .
+                    "pc_facility = '" . (int)$_POST['facility'] . "' " . // FF stuff
+                    "WHERE pc_aid = '" . add_escape_custom($provider) . "' AND pc_multiple='" . add_escape_custom($row['pc_multiple']) . "'");
+            } // foreach
+
+            /* ==========================================
+          // multi providers EOS
+            ==========================================*/
+        } elseif (!$row['pc_multiple']) {
+            if ($GLOBALS['select_multi_providers']) {
+                $prov = $_POST['form_provider_ae'][0];
+            } else {
+                $prov = $_POST['form_provider_ae'];
+            }
+            $insert = false;
+            // simple provider case
+            sqlStatement("UPDATE openemr_postcalendar_events SET " .
                 "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
+                "pc_aid = '" . add_escape_custom($prov) . "', " .
                 "pc_pid = '" . add_escape_custom($_POST['form_pid']) . "', " .
                 "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                 "pc_time = NOW(), " .
@@ -336,40 +370,7 @@ if ($_POST['form_action'] == "save") {
                 "pc_apptstatus = '" . add_escape_custom($_POST['form_apptstatus']) . "', " .
                 "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "', " .
                 "pc_facility = '" . (int)$_POST['facility'] . "' " . // FF stuff
-                "WHERE pc_aid = '" . add_escape_custom($provider) . "' AND pc_multiple='" . add_escape_custom($row['pc_multiple']) . "'");
-            } // foreach
-
-            /* ==========================================
-          // multi providers EOS
-            ==========================================*/
-        } elseif (!$row['pc_multiple']) {
-            if ($GLOBALS['select_multi_providers']) {
-                $prov = $_POST['form_provider_ae'][0];
-            } else {
-                $prov = $_POST['form_provider_ae'];
-            }
-            $insert = false;
-            // simple provider case
-            sqlStatement("UPDATE openemr_postcalendar_events SET " .
-            "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
-            "pc_aid = '" . add_escape_custom($prov) . "', " .
-            "pc_pid = '" . add_escape_custom($_POST['form_pid']) . "', " .
-            "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
-            "pc_time = NOW(), " .
-            "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
-            "pc_informant = '" . add_escape_custom($_SESSION['providerId']) . "', " .
-            "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
-            "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
-            "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
-            "pc_recurrtype = '" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-            "pc_recurrspec = '" . add_escape_custom($recurrspec) . "', " .
-            "pc_startTime = '" . add_escape_custom($starttime) . "', " .
-            "pc_endTime = '" . add_escape_custom($endtime) . "', " .
-            "pc_alldayevent = '" . add_escape_custom($_POST['form_allday']) . "', " .
-            "pc_apptstatus = '" . add_escape_custom($_POST['form_apptstatus']) . "', " .
-            "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "', " .
-            "pc_facility = '" . (int)$_POST['facility'] . "' " . // FF stuff
-            "WHERE pc_eid = '" . add_escape_custom($eid) . "'");
+                "WHERE pc_eid = '" . add_escape_custom($eid) . "'");
         }
 
         // =======================================
@@ -396,14 +397,44 @@ if ($_POST['form_action'] == "save") {
 
             foreach ($_POST['form_provider_ae'] as $provider) {
                 sqlStatement("INSERT INTO openemr_postcalendar_events ( " .
-                "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
+                    "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
+                    "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
+                    "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
+                    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
+                    ") VALUES ( " .
+                    "'" . add_escape_custom($_POST['form_category']) . "', " .
+                    "'" . add_escape_custom($new_multiple_value) . "', " .
+                    "'" . add_escape_custom($provider) . "', " .
+                    "'" . add_escape_custom($_POST['form_pid']) . "', " .
+                    "'" . add_escape_custom($_POST['form_title']) . "', " .
+                    "NOW(), " .
+                    "'" . add_escape_custom($_POST['form_comments']) . "', " .
+                    "'" . add_escape_custom($_SESSION['providerId']) . "', " .
+                    "'" . add_escape_custom($event_date) . "', " .
+                    "'" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
+                    "'" . add_escape_custom(($duration * 60)) . "', " .
+                    "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                    "'" . add_escape_custom($recurrspec) . "', " .
+                    "'" . add_escape_custom($starttime) . "', " .
+                    "'" . add_escape_custom($endtime) . "', " .
+                    "'" . add_escape_custom($_POST['form_allday']) . "', " .
+                    "'" . add_escape_custom($_POST['form_apptstatus']) . "', " .
+                    "'" . add_escape_custom($_POST['form_prefcat']) . "', " .
+                    "'" . add_escape_custom($locationspec) . "', " .
+                    "1, " .
+                    "1, " . (int)$_POST['facility'] . " )"); // FF stuff
+            } // foreach
+        } else {
+            $_POST['form_apptstatus'] = '^';
+            $insert = true;
+            sqlStatement("INSERT INTO openemr_postcalendar_events ( " .
+                "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
                 "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
                 "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
                 "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
                 ") VALUES ( " .
                 "'" . add_escape_custom($_POST['form_category']) . "', " .
-                "'" . add_escape_custom($new_multiple_value) . "', " .
-                "'" . add_escape_custom($provider) . "', " .
+                "'" . add_escape_custom($_POST['form_provider_ae']) . "', " .
                 "'" . add_escape_custom($_POST['form_pid']) . "', " .
                 "'" . add_escape_custom($_POST['form_title']) . "', " .
                 "NOW(), " .
@@ -421,37 +452,7 @@ if ($_POST['form_action'] == "save") {
                 "'" . add_escape_custom($_POST['form_prefcat']) . "', " .
                 "'" . add_escape_custom($locationspec) . "', " .
                 "1, " .
-                "1, " . (int)$_POST['facility'] . " )"); // FF stuff
-            } // foreach
-        } else {
-            $_POST['form_apptstatus'] = '^';
-            $insert = true;
-            sqlStatement("INSERT INTO openemr_postcalendar_events ( " .
-            "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
-            "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
-            "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-            "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
-            ") VALUES ( " .
-            "'" . add_escape_custom($_POST['form_category']) . "', " .
-            "'" . add_escape_custom($_POST['form_provider_ae']) . "', " .
-            "'" . add_escape_custom($_POST['form_pid']) . "', " .
-            "'" . add_escape_custom($_POST['form_title']) . "', " .
-            "NOW(), " .
-            "'" . add_escape_custom($_POST['form_comments']) . "', " .
-            "'" . add_escape_custom($_SESSION['providerId']) . "', " .
-            "'" . add_escape_custom($event_date) . "', " .
-            "'" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
-            "'" . add_escape_custom(($duration * 60)) . "', " .
-            "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-            "'" . add_escape_custom($recurrspec) . "', " .
-            "'" . add_escape_custom($starttime) . "', " .
-            "'" . add_escape_custom($endtime) . "', " .
-            "'" . add_escape_custom($_POST['form_allday']) . "', " .
-            "'" . add_escape_custom($_POST['form_apptstatus']) . "', " .
-            "'" . add_escape_custom($_POST['form_prefcat']) . "', " .
-            "'" . add_escape_custom($locationspec) . "', " .
-            "1, " .
-            "1, " . (int)$_POST['facility'] . ")"); // FF stuff
+                "1, " . (int)$_POST['facility'] . ")"); // FF stuff
         } // INSERT single
     } // else - insert
 } elseif ($_POST['form_action'] == "delete") {
@@ -494,19 +495,19 @@ if ($_POST['form_action'] != "") {
 // If we get this far then we are displaying the form.
 
 $statuses = array(
-'-' => '',
-'*' => xl('* Reminder done'),
-'+' => xl('+ Chart pulled'),
-'x' => xl('x Cancelled'), // added Apr 2008 by JRM
-'?' => xl('? No show'),
-'@' => xl('@ Arrived'),
-'~' => xl('~ Arrived late'),
-'!' => xl('! Left w/o visit'),
-'#' => xl('# Ins/fin issue'),
-'<' => xl('< In exam room'),
-'>' => xl('> Checked out'),
-'$' => xl('$ Coding done'),
-'^' => xl('^ Pending'),
+    '-' => '',
+    '*' => xl('* Reminder done'),
+    '+' => xl('+ Chart pulled'),
+    'x' => xl('x Cancelled'), // added Apr 2008 by JRM
+    '?' => xl('? No show'),
+    '@' => xl('@ Arrived'),
+    '~' => xl('~ Arrived late'),
+    '!' => xl('! Left w/o visit'),
+    '#' => xl('# Ins/fin issue'),
+    '<' => xl('< In exam room'),
+    '>' => xl('> Checked out'),
+    '$' => xl('$ Coding done'),
+    '^' => xl('^ Pending'),
 );
 
 $repeats = 0; // if the event repeats
@@ -546,7 +547,7 @@ if ($eid) {
 // If we have a patient ID, get the name and phone numbers to display.
 if ($patientid) {
     $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
-    "FROM patient_data WHERE pid = ?", array($patientid));
+        "FROM patient_data WHERE pid = ?", array($patientid));
     $patientname = $prow['lname'] . ", " . $prow['fname'];
     if ($prow['phone_home']) {
         $patienttitle .= " H=" . $prow['phone_home'];
@@ -559,7 +560,7 @@ if ($patientid) {
 
 // Get the providers list.
 $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
-"authorized != 0 AND active = 1 ORDER BY lname, fname");
+    "authorized != 0 AND active = 1 ORDER BY lname, fname");
 
 //Set default facility for a new event based on the given 'userid'
 if ($userid) {
@@ -572,305 +573,278 @@ if ($userid) {
 <html>
 <head>
     <title><?php echo $eid ? xlt("Edit Event") : xlt("Add New Event"); ?></title>
-    <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'opener']); ?>
+    <?php // no header necessary. scope is home.php ?>
 </head>
 <script>
-var durations = Array();
-<?php
-// Read the event categories, generate their options list, and get
-// the default event duration from them if this is a new event.
-$cattype = 0;
+    var durations = Array();
+    <?php
+    // Read the event categories, generate their options list, and get
+    // the default event duration from them if this is a new event.
+    $cattype = 0;
 
-// Get event categories.
-$cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
-    "pc_recurrtype, pc_duration, pc_end_all_day " .
-    "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
-$catoptions = "";
-$prefcat_options = "    <option value='0'>-- " . xlt("None{{Category}}") . " --</option>\n";
-$thisduration = 0;
-if ($eid) {
-    $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
-}
-while ($crow = sqlFetchArray($cres)) {
-    $duration = round($crow['pc_duration'] / 60);
-    if ($crow['pc_end_all_day']) {
-        $duration = 1440;
+    // Get event categories.
+    $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
+        "pc_recurrtype, pc_duration, pc_end_all_day " .
+        "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
+    $catoptions = "";
+    $prefcat_options = "    <option value='0'>-- " . xlt("None{{Category}}") . " --</option>\n";
+    $thisduration = 0;
+    if ($eid) {
+        $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
     }
+    while ($crow = sqlFetchArray($cres)) {
+        $duration = round($crow['pc_duration'] / 60);
+        if ($crow['pc_end_all_day']) {
+            $duration = 1440;
+        }
 
-    // This section is to build the list of preferred categories:
-    if ($duration) {
-        $prefcat_options .= " <option value='" . attr($crow['pc_catid']) . "'";
+        // This section is to build the list of preferred categories:
+        if ($duration) {
+            $prefcat_options .= " <option value='" . attr($crow['pc_catid']) . "'";
+            if ($eid) {
+                if ($crow['pc_catid'] == $row['pc_prefcatid']) {
+                    $prefcat_options .= " selected";
+                }
+            }
+
+            $prefcat_options .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+        }
+
+        if ($crow['pc_cattype'] != $cattype) {
+            continue;
+        }
+
+        echo " durations[" . attr($crow['pc_catid']) . "] = " . attr($duration) . ";\n";
+        // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
+        $catoptions .= "    <option value='" . attr($crow['pc_catid']) . "'";
         if ($eid) {
-            if ($crow['pc_catid'] == $row['pc_prefcatid']) {
-                $prefcat_options .= " selected";
+            if ($crow['pc_catid'] == $row['pc_catid']) {
+                $catoptions .= " selected";
+            }
+        } else {
+            if ($crow['pc_catid'] == $default_catid) {
+                $catoptions .= " selected";
+                $thisduration = $duration;
             }
         }
 
-        $prefcat_options .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+        $catoptions .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
     }
-
-    if ($crow['pc_cattype'] != $cattype) {
-        continue;
-    }
-
-    echo " durations[" . attr($crow['pc_catid']) . "] = " . attr($duration) . ";\n";
-    // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
-    $catoptions .= "    <option value='" . attr($crow['pc_catid']) . "'";
-    if ($eid) {
-        if ($crow['pc_catid'] == $row['pc_catid']) {
-            $catoptions .= " selected";
-        }
-    } else {
-        if ($crow['pc_catid'] == $default_catid) {
-            $catoptions .= " selected";
-            $thisduration = $duration;
+    // Fix up the time format for AM/PM.
+    $startampm = '1';
+    if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
+        $startampm = '2';
+        if ($starttimeh > 12) {
+            $starttimeh -= 12;
         }
     }
 
-    $catoptions .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
-}
-// Fix up the time format for AM/PM.
-$startampm = '1';
-if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
-    $startampm = '2';
-    if ($starttimeh > 12) {
-        $starttimeh -= 12;
-    }
-}
-
-?>
+    ?>
 </script>
 <body class="skin-blue">
-<div class="card">
-    <form class="form-inline" method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
-        <input type="hidden" name="form_action" id="form_action" value="">
-        <input type='hidden' name='form_title' id='form_title' value='<?php echo $row['pc_catid'] ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
-        <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo $row['pc_apptstatus'] ? attr($row['pc_apptstatus']) : "^" ?>' />
-        <table border='0' width='100%'>
-            <tr>
-                <td width='1%' nowrap>
-                    <b><?php echo xlt('Visit'); ?>: </b>
-                </td>
-                <td nowrap style='padding:0px 5px 5px 0'>
-                    <select class="form-control" onchange='set_category()' id='form_category' name='form_category' value='<?php echo ($row['pc_catid'] > "") ? attr($row['pc_catid']) : '5'; ?>'>
-                        <?php echo $catoptions ?>
-                    </select>
-                </td>
-                <td></td>
-                <td width='1%' nowrap>
-                    <b><?php echo xlt('Date'); ?>:</b>
-                </td>
-                <td colspan='2' nowrap id='tdallday1'>
-                    <input class="form-control" type='text' size='10' name='form_date' readonly id='form_date'
-                        value='<?php echo (isset($eid) && $eid) ? attr($row['pc_eventDate']) : attr($date); ?>' />
-                </td>
-            </tr>
-            <tr>
-                <td nowrap>
-                    <b><?php //xl('Title','e'); ?></b>
-                </td>
-                <td style='padding:0px 5px 5px 0' nowrap>
-                </td>
-                <td nowrap>
-                </td>
-                <td width='1%' nowrap id='tdallday2'>
-                    <b><?php echo xlt('Time'); ?>:</b>
-                </td>
-                <td width='1%' nowrap id='tdallday3'>
-                    <input class="form-control inline" type='text' size='2' name='form_hour' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>'
-                        title='<?php echo xla('Event start time'); ?>' readonly /> :
-                    <input class="form-control inline" type='text' size='2' name='form_minute' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>'
-                        title='<?php echo xla('Event start time'); ?>' readonly />&nbsp; <!--  -->
-                    <select class="form-control" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
-                        <option value='1'><?php echo xlt('AM'); ?></option>
-                        <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td nowrap>
-                    <b><?php echo xlt('Patient'); ?>:</b>
-                </td>
-                <td style='padding: 0px 5px 5px 0' nowrap>
-                    <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo attr($patientname); ?>' title='Patient' readonly />
-                    <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
-                </td>
-                <td nowrap>
-                    &nbsp;
-                </td>
-                <td nowrap id='tdallday4'><?php echo xlt('Duration'); ?></td>
-                <td nowrap id='tdallday5'>
-                    <input class="form-control form-control-sm" type='text' size='1' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly /><?php echo "&nbsp" . xlt('minutes'); ?>
-                </td>
-            </tr>
-            <tr>
-            </tr>
-            <tr>
-                <td nowrap>
-                    <b><?php echo xlt('Provider'); ?>:</b>
-                </td>
-                <td style='padding:0px 5px 5px 0' nowrap>
-                    <select class="form-control" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
-                        <?php
-                        // present a list of providers to choose from
-                        // default to the currently logged-in user
-                        while ($urow = sqlFetchArray($ures)) {
-                            echo "    <option value='" . attr($urow['id']) . "'";
-                            if (($urow['id'] == $_GET['userid']) || ($urow['id'] == $userid)) {
-                                echo " selected";
-                            }
+    <div class="card">
+        <form method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
+            <input type="hidden" name="form_action" id="form_action" value="" />
+            <input type='hidden' name='form_title' id='form_title' value='<?php echo $row['pc_catid'] ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
+            <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo $row['pc_apptstatus'] ? attr($row['pc_apptstatus']) : "^" ?>' />
 
-                            echo ">" . text($urow['lname']);
-                            if ($urow['fname']) {
-                                echo ", " . text($urow['fname']);
-                            }
-
-                            echo "</option>\n";
+            <div class="form-row my-1">
+              <label for="form_category" class="col-2 col-form-label"><?php echo xlt('Visit'); ?>:</label>
+              <div class="col">
+                <select class="form-control" onchange='set_category()' id='form_category' name='form_category' value='<?php echo ($row['pc_catid'] > "") ? attr($row['pc_catid']) : '5'; ?>'>
+                  <?php echo $catoptions ?>
+                </select>
+              </div>
+              <label for="form_date" class="col-1 col-form-label"><?php echo xlt('Date'); ?>:</label>
+              <div class="col">
+                <input class="form-control" type='text' name='form_date' readonly id='form_date' value='<?php echo (isset($eid) && $eid) ? attr($row['pc_eventDate']) : attr($date); ?>' />
+              </div>
+            </div>
+            <div class="form-row my-1">
+              <label class="col-2 col-form-label"><?php echo xlt('Time'); ?>:</label>
+              <div class="col form-inline">
+                <input class="form-control" type='text' name='form_hour' size='2' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                <span>:</span>
+                <input class="form-control" type='text' name='form_minute' size='2' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                <select class="form-control" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
+                    <option value='1'><?php echo xlt('AM'); ?></option>
+                    <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
+                </select>
+              </div>
+              <label for="form_patient" class="col-1 col-form-label"><?php echo xlt('Patient'); ?>:</label>
+              <div class="col">
+                <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo attr($patientname); ?>' title='Patient' readonly />
+                <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
+              </div>
+            </div>
+            <div class="form-row my-1">
+              <label for="form_duration" class="col-2 col-form-label"><?php echo xlt('Duration'); ?></label>
+              <div class="col">
+                <div class="input-group">
+                  <input class="form-control" type='text' size='1' id='form_duration' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly />
+                  <div class="input-group-append">
+                    <span class="input-group-text"><?php echo "&nbsp;" . xlt('minutes'); ?></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row my-1">
+              <label for="form_provider_ae" class="col-2 col-form-label"><?php echo xlt('Provider'); ?>:</label>
+              <div class="col-8">
+                <select class="form-control" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
+                    <?php
+                    // present a list of providers to choose from
+                    // default to the currently logged-in user
+                    while ($urow = sqlFetchArray($ures)) {
+                        echo "    <option value='" . attr($urow['id']) . "'";
+                        if (($urow['id'] == $_GET['userid']) || ($urow['id'] == $userid)) {
+                            echo " selected";
                         }
-                        ?>
-                    </select>
-                </td>
-                <td nowrap style='font-size:8pt'>
-                </td>
-                <td>
-                    <input type='button' class='btn btn-success btn-sm' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
-                </td>
-                <td></td>
-            </tr>
-            <tr>
-                <td nowrap>
-                    <b><?php echo xlt('Reason'); ?>:</b>
-                </td>
-                <td style='padding:0px 5px 5px 0' colspan='4' nowrap>
-                    <input class="form-control w-100" type='text' size='40' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
-                </td>
-            </tr>
-        </table>
-        <div class="form-group">
-            <br />
-            <?php if ($_GET['eid'] && $row['pc_apptstatus'] !== 'x') { ?>
-                <input type='button' id='form_cancel' class='btn btn-danger' onsubmit='return false' value='<?php echo xla('Cancel Appointment'); ?>' onclick="cancel_appointment()" />
+
+                        echo ">" . text($urow['lname']);
+                        if ($urow['fname']) {
+                            echo ", " . text($urow['fname']);
+                        }
+
+                        echo "</option>\n";
+                    }
+                    ?>
+                </select>
+              </div>
+              <div class="col text-right">
+                <input type='button' class='btn btn-success' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
+              </div>
+            </div>
+            <div class="form-row my-1">
+              <label class="col-2 col-form-label"><?php echo xlt('Reason'); ?>:</label>
+              <div class="col">
+                <input class="form-control" type='text' size='40' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
+              </div>
+            </div>
+
+            <div class="form-group">
+                <br />
+                <?php if ($_GET['eid'] && $row['pc_apptstatus'] !== 'x') { ?>
+                    <input type='button' id='form_cancel' class='btn btn-danger' onsubmit='return false' value='<?php echo xla('Cancel Appointment'); ?>' onclick="cancel_appointment()" />
+                <?php } ?>
+                <input type='button' name='form_save' class='btn btn-success' onsubmit='return false' value='<?php echo xla('Save'); ?>' onclick="validate()" />
+
+            </div>
+        </form>
+        <script>
+            function change_provider() {
+                var f = document.forms.namedItem("theaddform");
+                f.form_date.value = '';
+                f.form_hour.value = '';
+                f.form_minute.value = '';
+            }
+
+            function set_display() {
+                var f = document.forms.namedItem("theaddform");
+                var si = document.getElementById('form_category');
+                if (si.selectedIndex >= 0) {
+                    var catid = si.options[si.selectedIndex].value;
+                    //var style_apptstatus = document.getElementById('title_apptstatus').style;
+                    //var style_prefcat = document.getElementById('title_prefcat').style;
+                    // will keep this for future. not needed now.
+                }
+            }
+
+            function cancel_appointment() {
+                let f = document.forms.namedItem("theaddform");
+                let msg = <?php echo xlj("Click Okay if you are sure you want to cancel this appointment?") . "\n" .
+                    xlj("It is prudent to follow up with provider if not contacted.") ?>;
+                let msg_reason = <?php echo xlj("You must enter a reason to cancel this appointment?") . "\n" .
+                    xlj("Reason must be at least 10 characters!") ?>;
+                if (f.form_comments.value.length <= 10) {
+                    alert(msg_reason);
+                    return false;
+                }
+                let yn = confirm(msg);
+                if (!yn) {
+                    return false;
+                }
+                document.getElementById('form_apptstatus').value = "x";
+                validate();
+            }
+
+            // Do whatever is needed when a new event category is selected.
+            // For now this means changing the event title and duration.
+            function set_category() {
+                var f = document.forms.namedItem("theaddform");
+                var s = f.form_category;
+                if (s.selectedIndex >= 0) {
+                    var catid = s.options[s.selectedIndex].value;
+                    f.form_title.value = s.options[s.selectedIndex].text;
+                    f.form_duration.value = durations[catid];
+                    set_display();
+                }
+            }
+
+            // This is for callback by the find-available popup.
+            function setappt(year, mon, mday, hours, minutes) {
+                var f = document.forms.namedItem("theaddform");
+                f.form_date.value = '' + year + '-' +
+                    ('' + (mon + 100)).substring(1) + '-' +
+                    ('' + (mday + 100)).substring(1);
+                f.form_ampm.selectedIndex = (hours > 12) ? 1 : 0;
+                if (hours == 0) {
+                  f.form_hour.value = 12;
+                } else {
+                  f.form_hour.value = (hours >= 13) ? hours - 12 : hours;
+                }
+                f.form_minute.value = minutes;
+            }
+
+            // Invoke the find-available popup.
+            function find_available() {
+                // when making an appointment for a specific provider
+                var se = document.getElementById('form_provider_ae');
+                <?php if ($userid != 0) { ?>
+                s = se.value;
+                <?php } else {?>
+                s = se.options[se.selectedIndex].value;
+                <?php }?>
+                var formDate = document.getElementById('form_date');
+                var url = 'find_appt_popup_user.php?bypatient&providerid=' + encodeURIComponent(s) + '&catid=5' + '&startdate=' + encodeURIComponent(formDate.value);
+                var params = {
+                    buttons: [
+                        {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'danger btn-sm'}
+
+                    ],
+                    allowResize: true,
+                    dialogId: 'apptDialog',
+                    type: 'iframe'
+                };
+                dlgopen(url, 'apptFind', 'modal-md', 300, '', 'Find Date', params);
+            }
+
+            // Check for errors when the form is submitted.
+            function validate() {
+                var f = document.getElementById('theaddform');
+                if (!f.form_date.value || !f.form_hour.value || !f.form_minute.value) {
+                    alert(<?php echo xlj('Please click on Openings to select a time.'); ?>);
+                    return false;
+                }
+
+                if (f.form_patient.value == '') {
+                    alert(<?php echo xlj('Your Id is missing. Cancel and try again.'); ?>);
+                    return false;
+                }
+
+                var form_action = document.getElementById('form_action');
+                form_action.value = "save";
+                f.submit();
+                return false;
+            }
+
+            <?php if ($eid) { ?>
+            set_display();
             <?php } ?>
-            <input type='button' name='form_save' class='btn btn-success' onsubmit='return false' value='<?php echo xla('Save'); ?>' onclick="validate()" />
+            $(function () {
 
-        </div>
-    </form>
-    <script>
-        function change_provider() {
-            var f = document.forms.namedItem("theaddform");
-            f.form_date.value = '';
-            f.form_hour.value = '';
-            f.form_minute.value = '';
-        }
-
-        function set_display() {
-            var f = document.forms.namedItem("theaddform");
-            var si = document.getElementById('form_category');
-            if (si.selectedIndex >= 0) {
-                var catid = si.options[si.selectedIndex].value;
-                var style_apptstatus = document.getElementById('title_apptstatus').style;
-                var style_prefcat = document.getElementById('title_prefcat').style;
-                // will keep this for future. not needed now.
-            }
-        }
-
-        function cancel_appointment() {
-            let f = document.forms.namedItem("theaddform");
-            let msg = <?php echo xlj("Click Okay if you are sure you want to cancel this appointment?") . "\n" .
-                xlj("It is prudent to follow up with provider if not contacted.") ?>;
-            let msg_reason = <?php echo xlj("You must enter a reason to cancel this appointment?") . "\n" .
-                xlj("Reason must be at least 10 characters!") ?>;
-            if (f.form_comments.value.length <= 10) {
-                alert(msg_reason);
-                return false;
-            }
-            let yn = confirm(msg);
-            if (!yn) {
-                return false;
-            }
-            document.getElementById('form_apptstatus').value = "x";
-            validate();
-        }
-
-        // Do whatever is needed when a new event category is selected.
-        // For now this means changing the event title and duration.
-        function set_category() {
-            var f = document.forms.namedItem("theaddform");
-            var s = f.form_category;
-            if (s.selectedIndex >= 0) {
-                var catid = s.options[s.selectedIndex].value;
-                f.form_title.value = s.options[s.selectedIndex].text;
-                f.form_duration.value = durations[catid];
-                set_display();
-            }
-        }
-
-        // This is for callback by the find-available popup.
-        function setappt(year, mon, mday, hours, minutes) {
-            var f = document.forms.namedItem("theaddform");
-            f.form_date.value = '' + year + '-' +
-                ('' + (mon + 100)).substring(1) + '-' +
-                ('' + (mday + 100)).substring(1);
-            f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
-            f.form_hour.value = (hours > 12) ? hours - 12 : hours;
-            f.form_minute.value = ('' + (minutes + 100)).substring(1);
-        }
-
-        // Invoke the find-available popup.
-        function find_available() {
-            // when making an appointment for a specific provider
-            var se = document.getElementById('form_provider_ae');
-            <?php if ($userid != 0) { ?>
-            s = se.value;
-            <?php } else {?>
-            s = se.options[se.selectedIndex].value;
-            <?php }?>
-            var formDate = document.getElementById('form_date');
-            var url = 'find_appt_popup_user.php?bypatient&providerid=' + encodeURIComponent(s) + '&catid=5' + '&startdate=' + encodeURIComponent(formDate.value);
-            var params = {
-                buttons: [
-                    {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'danger btn-sm'}
-
-                ],
-                allowResize: true,
-                dialogId: 'apptDialog',
-                type: 'iframe'
-            };
-            dlgopen(url, 'apptFind', 'modal-md', 300, '', 'Find Date', params);
-        }
-
-        // Check for errors when the form is submitted.
-        function validate() {
-            var f = document.getElementById('theaddform');
-            if (!f.form_date.value || !f.form_hour.value || !f.form_minute.value) {
-                alert(<?php echo xlj('Please click on Openings to select a time.'); ?>);
-                return false;
-            }
-
-            if (f.form_patient.value == '') {
-                alert(<?php echo xlj('Your Id is missing. Cancel and try again.'); ?>);
-                return false;
-            }
-
-            var form_action = document.getElementById('form_action');
-            form_action.value = "save";
-            f.submit();
-            return false;
-        }
-
-        <?php if ($eid) { ?>
-        set_display();
-        <?php } ?>
-        $(function () {
-            $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
-                <?php $datetimepicker_showseconds = false; ?>
-                <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
-        });
-    </script>
-</div>
+        </script>
+    </div>
 </body>
 </html>

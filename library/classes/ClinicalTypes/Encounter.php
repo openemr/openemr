@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -38,7 +39,7 @@ class Encounter extends ClinicalType
         $encounters = array();
         foreach ($constants as $constant) {
             if (strpos($constant, 'enc') === 0) {
-                $encounters[]= $constant;
+                $encounters[] = $constant;
             }
         }
 
@@ -63,7 +64,7 @@ class Encounter extends ClinicalType
         $dates = array();
         foreach ($encounters as $encounter) {
             $dateRow = getEncounterDateByEncounter($encounter['encounter']);
-            $dates []= $dateRow['date'];
+            $dates [] = $dateRow['date'];
         }
 
         return $dates;

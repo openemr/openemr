@@ -26,8 +26,9 @@ assets:
         link: css/bootstrap.min.css
         autoload: true
         allowNoLoad: true
+        # RTL only for no_main-theme which is rare
         rtl:
-            basePath: '%assets_static_relative%/bootstrap-v4-rtl/dist/'
+            basePath: '%assets_static_relative%/bootstrap-rtl/dist/'
             link: css/bootstrap-rtl.min.css
     # keep utility and javaScript translations near top of load order.
     i18next:
@@ -55,9 +56,15 @@ assets:
     patientportal-base:
         basePath: '%webroot%/public/themes/'
         link: patientportal-base.css
+        rtl:
+            basePath: '%webroot%/public/themes/'
+            link: rtl_patientportal-base.css
     patientportal-register:
         basePath: '%webroot%/public/themes/'
         link: patientportal-register.css
+        rtl:
+            basePath: '%webroot%/public/themes/'
+            link: rtl_patientportal-register.css
     patientportal-style:
         basePath: '%webroot%/public/themes/'
         link: patientportal-style.css
@@ -125,10 +132,8 @@ assets:
         basePath: '%assets_static_relative%/datatables.net-scroller-jqui/css/'
         link: scroller.jqueryui.css
     fontawesome:
-        basePath: '%assets_static_relative%/font-awesome/css/'
-        link: font-awesome.min.css
-        autoload: true
-        allowNoLoad: true
+        basePath: '%assets_static_relative%/@fortawesome/fontawesome-free/css/'
+        link: all.min.css
     datetime-picker:
         basePath: '%assets_static_relative%/jquery-datetimepicker/build/'
         script: jquery.datetimepicker.full.min.js
@@ -233,6 +238,9 @@ assets:
     jszip:
         basePath: '%assets_static_relative%/jszip/dist/'
         script: jszip.min.js
+    jspdf:
+        basePath: '%assets_static_relative%/jspdf/dist/'
+        script: jspdf.min.js
     dwv:
         basePath: '%assets_static_relative%/dwv/'
         script:

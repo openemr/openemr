@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This program sets the global variables.
  *
@@ -79,8 +80,8 @@
 //   Urdu                           // xl('Urdu')
 //   Vietnamese                     // xl('Vietnamese')
 
-use \OpenEMR\Services\Globals\GlobalsService;
-use \OpenEMR\Events\Globals\GlobalsInitializedEvent;
+use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -183,6 +184,7 @@ $GLOBALS_METADATA = array(
         'default_second_tab' => array(
             xl('Default Second Tab'),       // descriptive name
             array(
+                '' => xl('None'),
                 '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen'),
                 'main_info.php' => xl('Calendar Screen'),
                 '../new/new.php' => xl('Patient Search/Add Screen'),
@@ -194,7 +196,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'theme_tabs_layout' => array(
-            xl('Tabs Layout Theme').'*',
+            xl('Tabs Layout Theme') . '*',
             'tabs_css',
             'tabs_style_full.css',
             xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
@@ -202,14 +204,14 @@ $GLOBALS_METADATA = array(
 
         'css_header' => array(
             // Note: Do not change this as it is only for theme defaults and adding themes here does nothing
-            xl('General Theme') .'*',
+            xl('General Theme') . '*',
             'css',
             'style_light.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 
         'font-family' => array(
-            xl('Default font') .'*',
+            xl('Default font') . '*',
             array(
                 '__default__' => 'Use Theme Font',
                 '"Arial", "Helvetica", sans-serif' => "Arial",
@@ -226,7 +228,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'font-size' => array(
-            xl('Default font size').'*',
+            xl('Default font size') . '*',
             array(
                 '__default__' => 'Use Theme Font Size',
                 '0.625rem' => '10px',
@@ -237,32 +239,6 @@ $GLOBALS_METADATA = array(
             ),
             '__default__',
             xl("Select the default font size (need to logout/login after changing this setting)."),
-        ),
-
-        'vertical_responsive_menu' => array(
-            xl('Responsive Vertical Menu Style for Tabs')  .'*' ,
-            array(
-                '736' => xl('iPhone 6/7/8 Plus') . " -  736 X 414" . xl('px'),
-                '740' => xl('Galaxy S9/S9 Plus') . " -  740 X 360" . xl('px'),
-                '812' => xl('iPhone X/XS') . " -  812 X 375" . xl('px'),
-                '896' => xl('iPhone XR/XS Max') . " -  896 X 414" . xl('px'),
-                '1024' => xl('iPad/iPad Mini, XGA') . " -  1024 X 768" . xl('px'),
-                '1112' => xl('iPad Pro 10.5 inches') . " -  1112 X 834" . xl('px'),
-                '1280' => xl('Kindle Fire HDX, Laptop MDPI, WXGA') . " -  1280 X 800" . xl('px'),
-                '1336' => xl('iPad Pro 12.5 inches') . " -  1336 X 1024" . xl('px'),
-                '1366' => xl('HD') . " -  1366 X 768" . xl('px'),
-                '1440' => xl('Laptop HiDPI, WXGA+') . " -  1440 X 900" . xl('px'),
-                '1600' => xl('HD+') . " -  1600 X 900" . xl('px'),
-                '1680' => xl('WSXGA+') . " -  1680 X 1050" . xl('px'),
-                '1920' => xl('FHD, WUXGA') . " -  1920 X 1080, 1920 X 1200" . xl('px'),
-                '2048' => xl('QWXGA') . " -  2048 X 1152" . xl('px'),
-                '2560' => xl('QHD') . " -  2560 X 1440" . xl('px'),
-                '3840' => xl('4K UHD') . " -  3840 X 2160" . xl('px'),
-
-            ),
-
-            '1024', //default iPad/iPad mini
-            xl('Selecting the width for responsive vertical style menus in tab based layout (need to logout/login after changing this setting)')
         ),
 
         'menu_styling_vertical' => array(
@@ -365,13 +341,6 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default = true
             xl('Navigation area includes encounter forms')
-        ),
-
-        'simplified_demographics' => array(
-            xl('Simplified Demographics'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Omit insurance and some other things from the demographics form')
         ),
 
         'simplified_prescriptions' => array(
@@ -487,21 +456,6 @@ $GLOBALS_METADATA = array(
             xl('Special treatment for the Vitals form')
         ),
 
-        'insurance_information' => array(
-            xl('Show Additional Insurance Information'),               // descriptive name
-            array(
-                '0' => xl('None'),
-                '1' => xl('Address Only'),
-                '2' => xl('Address and Postal Code'),
-                '3' => xl('Address and State'),
-                '4' => xl('Address, State and Postal Code'),
-                '5' => xl('Address, City, State and Postal Code'),
-                '6' => xl('Postal Code and Box Number')
-            ),
-            '5',                              // default
-            xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
-        ),
-
         'gb_how_sort_list' => array(
             xl('How to sort a drop-lists'),
             array(
@@ -541,7 +495,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'prevent_browser_refresh' => array(
-            xl('Prevent Web Browser Refresh').'*',
+            xl('Prevent Web Browser Refresh') . '*',
             array(
                 '0' => xl('Do not warn or prevent web browser refresh'),
                 '1' => xl('Warn, but do not prevent web browser refresh'),
@@ -801,13 +755,6 @@ $GLOBALS_METADATA = array(
             xl('Enable follow-up encounters feature')
         ),
 
-        'disable_eligibility_log' => array(
-            xl('Disable Insurance Eligibility Reports Download'),
-            'bool',
-            '0',
-            xl('Do not allow insurance eligibility report log download')
-        ),
-
         'disable_chart_tracker' => array(
             xl('Disable Chart Tracker'),
             'bool',                           // data type
@@ -1032,9 +979,10 @@ $GLOBALS_METADATA = array(
         'expand_form' => array(
             xl('Expand Form'),
             'bool',                           // data type
-            '0',                              // default false
+            '1',                              // default false
             xl('Open all expandable forms in expanded state')
-        )
+        ),
+
     ),
     // Report Tab
     //
@@ -1806,7 +1754,7 @@ $GLOBALS_METADATA = array(
             xl('This Allows a Date Range to be Selected in Patient Flow Board.')
         ),
 
-        'ptkr_start_date'=> array(
+        'ptkr_start_date' => array(
             xl('Flow Board: Default Starting Date'),
             array(
                 'D0' => xl('Current Day'),
@@ -1886,7 +1834,51 @@ $GLOBALS_METADATA = array(
 
 
     ),
+    // Insurance Tab
+    'Insurance' => array(
+        'enable_oa' => array(
+            xl('Enable Office Ally Insurance Eligibility'),
+            'bool',
+            '0',
+            xl('Allow insurance eligibility checks using Office Ally')
+        ),
 
+        'simplified_demographics' => array(
+            xl('Simplified Demographics'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Omit insurance and some other things from the demographics form')
+        ),
+
+        'insurance_information' => array(
+            xl('Show Additional Insurance Information'),               // descriptive name
+            array(
+                '0' => xl('None'),
+                '1' => xl('Address Only'),
+                '2' => xl('Address and Postal Code'),
+                '3' => xl('Address and State'),
+                '4' => xl('Address, State and Postal Code'),
+                '5' => xl('Address, City, State and Postal Code'),
+                '6' => xl('Postal Code and Box Number')
+            ),
+            '5',                              // default
+            xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
+        ),
+
+        'disable_eligibility_log' => array(
+            xl('Disable Insurance Eligibility Reports Download'),
+            'bool',
+            '0',
+            xl('Do not allow insurance eligibility report log download')
+        ),
+
+        'insurance_only_one' => array(
+            xl('Allow only one insurance'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Allow more than one insurance')
+        ),
+    ),
     // Security Tab
     //
     'Security' => array(
@@ -2914,17 +2906,17 @@ $GLOBALS_METADATA = array(
     'Portal' => array(
 
         'portal_onsite_two_enable' => array(
-            xl('Enable Onsite Patient Portal'),
+            xl('Enable Patient Portal'),
             'bool',                           // data type
             '0',
-            xl('Enable Onsite Patient Portal')
+            xl('Enable Patient Portal')
         ),
 
         'portal_onsite_two_address' => array(
-            xl('Onsite Patient Portal Site Address'),
+            xl('Patient Portal Site Address'),
             'text',                           // data type
             'https://your_web_site.com/openemr/portal',
-            xl('Website link for the Onsite Patient Portal.')
+            xl('Website link for the Patient Portal.')
         ),
 
         'portal_onsite_two_basepath' => array(
@@ -2942,131 +2934,86 @@ $GLOBALS_METADATA = array(
         ),
 
         'portal_onsite_two_register' => array(
-            xl('Allow Onsite New Patient Registration Widget'),
+            xl('Allow New Patient Registration Widget'),
             'bool',                           // data type
             '1',
-            xl('Enable Onsite Patient Portal new patient to self register.')
+            xl('Enable Patient Portal new patient to self register.')
         ),
 
         'allow_portal_appointments' => array(
-            xl('Allow Onsite Online Appointments'),
+            xl('Allow Online Appointments'),
             'bool',                           // data type
             '1',
-            xl('Allow Onsite Patient to make and view appointments online.')
+            xl('Allow Patient to make and view appointments online.')
         ),
 
         'allow_portal_chat' => array(
-            xl('Allow Onsite Online Secure Chat'),
+            xl('Allow Online Secure Chat'),
             'bool',                           // data type
             '1',
-            xl('Allow Onsite Patient to use Secure Chat Application.')
+            xl('Allow Patient to use Secure Chat Application.')
         ),
 
         'portal_two_ledger' => array(
-            xl('Allow Onsite Patient Ledger'),
+            xl('Allow Patient Ledger'),
             'bool',                           // data type
             '1',
-            xl('Allow Onsite Patient to view their accounting ledger online.')
+            xl('Allow Patient to view their accounting ledger online.')
         ),
 
         'portal_two_payments' => array(
-            xl('Allow Onsite Online Payments'),
+            xl('Allow Online Payments'),
             'bool',                           // data type
             '0',
-            xl('Allow Onsite Patient to make payments online.')
+            xl('Allow Patient to make payments online.')
         ),
 
         'portal_two_pass_reset' => array(
-            xl('Allow Onsite Patients to Reset Credentials'),
+            xl('Allow Patients to Reset Credentials'),
             'bool',                           // data type
             '0',
             xl('Patient may change their logon from portal login dialog.')
         ),
 
         'portal_onsite_document_download' => array(
-            xl('Enable Onsite Patient Portal Document Download'),
+            xl('Enable Patient Portal Document Download'),
             'bool',                           // data type
             '1',
-            xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
+            xl('Enables the ability to download documents in the Patient Portal by the user.')
         ),
-
-        'portal_offsite_enable' => array(
-            xl('Enable Offsite Patient Portal'),
-            'bool',                           // data type
-            '0',
-            xl('Enable Offsite Patient Portal.')
-        ),
-        'portal_offsite_providerid' => array(
-            xl('Offsite Patient Portal Provider ID'),
-            'text',                           // data type
-            '',
-            xl('Offsite Patient Portal Provider ID(Put Blank If not Registered).')
-        ),
-
-        'portal_offsite_username' => array(
-            xl('Offsite Patient Portal Username'),
-            'text',                           // data type
-            '',
-            xl('Offsite Patient Portal Username(Put Blank If not Registered).')
-        ),
-
-        'portal_offsite_password' => array(
-            xl('Offsite Patient Portal Password'),
-            'pwd',                           // data type
-            '',
-            xl('Offsite Patient Portal Password(Put Blank If not Registered).')
-        ),
-
-        'portal_offsite_address' => array(
-            xl('Offsite Patient Portal Site Address'),
-            'text',                           // data type
-            'https://ssh.mydocsportal.com/provider.php',
-            xl('Offsite Https link for the Patient Portal.')
-        ),
-
-        'portal_offsite_address_patient_link' => array(
-            xl('Offsite Patient Portal Site Address (Patient Link)'),
-            'text',                           // data type
-            'https://ssh.mydocsportal.com',
-            xl('Offsite Https link for the Patient Portal.(Patient Link)')
-        ),
-
-        // Currently the "CMS Portal" supports WordPress.  Other Content Management
-        // Systems may be supported in the future.
-
-        'gbl_portal_cms_enable' => array(
-            xl('Enable CMS Portal'),
-            'bool',                           // data type
-            '0',
-            xl('Enable support for the open source WordPress Portal by Sunset Systems')
-        ),
-
-        'gbl_portal_cms_address' => array(
-            xl('CMS Portal Site Address'),
-            'text',                           // data type
-            'https://your_cms_site.com/',
-            xl('URL for the WordPress site that supports the portal')
-        ),
-
-        'gbl_portal_cms_username' => array(
-            xl('CMS Portal Username'),
-            'text',                           // data type
-            '',
-            xl('Login name of WordPress user for portal access')
-        ),
-
-        'gbl_portal_cms_password' => array(
-            xl('CMS Portal Password'),
-            'encrypted',                      // data type
-            '',
-            xl('Password for the above user')
-        ),
-
     ),
 
     // Connectors Tab
     //
     'Connectors' => array(
+
+        'rest_api' => array(
+            xl('Enable OpenEMR Standard REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Standard RESTful API.')
+        ),
+
+        'rest_fhir_api' => array(
+            xl('Enable OpenEMR Standard FHIR REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Standard FHIR RESTful API.')
+        ),
+
+        'rest_portal_api' => array(
+            xl('Enable OpenEMR Patient Portal REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Patient Portal RESTful API.')
+        ),
+
+        'rest_portal_fhir_api' => array(
+            xl('Enable OpenEMR Patient Portal FHIR REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Patient Portal FHIR RESTful API.')
+        ),
 
         'fhir_enable' => array(
             xl('Enable FHIR Provider Client Service'),
@@ -3084,20 +3031,6 @@ $GLOBALS_METADATA = array(
             'text',
             'https://hapi.fhir.org/baseDstu3/',
             xl('Base URL for FHIR Server.')
-        ),
-
-        'rest_api' => array(
-            xl('Enable OpenEMR REST API'),
-            'bool',
-            '0',
-            xl('Enable OpenEMR RESTful API. SSL Required')
-        ),
-
-        'enable_oa' => array(
-            xl('Enable Office Ally Insurance Eligibility'),
-            'bool',
-            '0',
-            xl('Allow insurance eligibility checks using Office Ally')
         ),
 
         'payment_gateway' => array(
@@ -3291,7 +3224,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'ccda_alt_service_enable' => array(
-            xl('Enable C-CDA Alternate Service'),
+            xl('Enable C-CDA Service'),
             array(
                 0 => xl('Off'),
                 1 => xl('Care Coordination Only'),
@@ -3299,7 +3232,7 @@ $GLOBALS_METADATA = array(
                 3 => xl('Both'),
             ),
             '0',
-            xl('Enable C-CDA Alternate Service')
+            xl('Enable C-CDA Service')
         ),
 
         'phimail_enable' => array(
@@ -3362,7 +3295,7 @@ $GLOBALS_METADATA = array(
             xl('Enable Easipro'),
             'bool',                           // data type
             '0',
-            xl('Enable Easipro. For licensing options for this feature, please contact').' api@assessmentcenter.net'
+            xl('Enable Easipro. For licensing options for this feature, please contact') . ' api@assessmentcenter.net'
         ),
 
         'easipro_server' => array(

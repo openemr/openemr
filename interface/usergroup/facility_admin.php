@@ -1,4 +1,5 @@
 <?php
+
 /**
  * facility_admin.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -28,9 +28,9 @@ if (isset($_GET["fid"])) {
 <head>
     <?php Header::setupHeader(['opener']); ?>
 
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
 
     <!-- validation library -->
     <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
@@ -102,10 +102,6 @@ if (isset($_GET["fid"])) {
         }
 
         $(function () {
-            $("#cancel").click(function () {
-                dlgclose();
-            });
-
             /**
              * add required/star sign to required form fields
              */
@@ -143,8 +139,8 @@ if (isset($_GET["fid"])) {
     <div class="container-fluid">
         <h5 class="title"><?php echo xlt('Edit Facility'); ?></h5>
         <div class="py-3">
-            <a class="btn btn-primary btn-lg" name='form_save' id='form_save' onclick='submitform()' href='#'><?php echo xlt('Save'); ?></a>
-            <a class="btn btn-secondary btn-lg" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
+            <a class="btn btn-primary" name='form_save' id='form_save' onclick='submitform();' href='#'><?php echo xlt('Save'); ?></a>
+            <a class="btn btn-secondary" id='cancel' onclick='dlgclose();' href='#'><?php echo xlt('Cancel'); ?></a>
         </div>
 
         <form name='facility-form' id="facility-form" method='post' action="facilities.php">
@@ -452,6 +448,10 @@ if (isset($_GET["fid"])) {
 
             <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
         </form>
+        <div class="py-3">
+            <a class="btn btn-primary" name='form_save' id='form_save' onclick='submitform();' href='#'><?php echo xlt('Save'); ?></a>
+            <a class="btn btn-secondary" id='cancel' onclick='dlgclose();' href='#'><?php echo xlt('Cancel'); ?></a>
+        </div>
     </div>
 </body>
 </html>

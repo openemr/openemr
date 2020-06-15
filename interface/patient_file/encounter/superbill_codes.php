@@ -1,4 +1,5 @@
 <?php
+
 /**
  * superbill_codes.php
  *
@@ -9,7 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 
@@ -18,7 +18,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 //the number of rows to display before resetting and starting a new column:
-$N=10;
+$N = 10;
 
 $mode     = $_GET['mode'];
 $type     = $_GET['type'];
@@ -50,27 +50,25 @@ if (isset($mode)) {
 </head>
 <body class="body_bottom">
 
-<table border=0 cellspacing=0 cellpadding=0 >
+<table class="table-borderless" cellspacing="0" cellpadding="0">
 <tr>
-<td valign=top>
+<td class="align-top">
 
 <dl>
 
 <dt>
 
 <a href="superbill_custom_full.php" onclick="top.restoreSession()">
-<span class=title><?php echo xlt('Superbill'); ?></span>
-<font class=more><?php echo text($tmore); ?></font></a>
+<span class='title'><?php echo xlt('Superbill'); ?></span>
+<span class='more'><?php echo text($tmore); ?></span></a>
 
-<a href="encounter_bottom.php" onclick="top.restoreSession()">
-
-<font class=more><?php echo text($tback); ?></font></a>
+<a href="encounter_bottom.php" onclick="top.restoreSession()"><span class='more'><?php echo text($tback); ?></span></a>
 
 </dt>
 </td></tr>
 </table>
 
-<table border=0 width=100% cellpadding=0 cellspacing=1>
+<table class='w-100 table-borderless' cellpadding='0' cellspacing='1'>
 <?php
 $res = sqlStatement("select * from codes where superbill = 1 order by code_type, code, code_text");
 
@@ -78,7 +76,7 @@ $codes = array();
 echo " <tr>\n";
 foreach ($code_types as $key => $value) {
     $codes[$key] = array();
-    echo "  <th align='left'>" . text($key) . " Codes</th>\n";
+    echo "  <th class='text-left'>" . text($key) . " Codes</th>\n";
 }
 
 echo " </tr>\n";
@@ -92,7 +90,7 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     }
 }
 
-$index=0;
+$index = 0;
 
 $numlines = 0;
 foreach ($codes as $value) {
@@ -102,7 +100,7 @@ foreach ($codes as $value) {
 while ($index < $numlines) {
     echo " <tr>\n";
     foreach ($codes as $key => $value) {
-        echo "  <td valign='top'>\n";
+        echo "  <td class='align-top'>\n";
         if (!empty($value[$index])) {
             $code = $value[$index];
             echo "   <dd><a class='text' ";
