@@ -172,7 +172,6 @@ function do_visit_form($irow, $encounter, $first)
                 echo "</body></html>\n";
                 exit();
             }
-
             ?>
             <p>
                 This converts your OpenEMR database to UTF-8 encoding if it is not already,
