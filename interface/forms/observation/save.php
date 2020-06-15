@@ -81,7 +81,7 @@ if (!empty($code_desc)) {
             groupname   = ?,
             user        = ?,
             encounter   = ?,
-            authorized  = ?, 
+            authorized  = ?,
             activity    = 1,
             observation = ?,
             code        = ?,
@@ -113,7 +113,6 @@ if (!empty($code_desc)) {
     endforeach;
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

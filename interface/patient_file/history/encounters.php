@@ -34,24 +34,23 @@ $is_group = ($attendant_type == 'gid') ? true : false;
 // case we only display encounters that are linked to the specified issue.
 $issue = empty($_GET['issue']) ? 0 : 0 + $_GET['issue'];
 
-
  //maximum number of encounter entries to display on this page:
  // $N = 12;
 
  //Get the default encounter from Globals
  $default_encounter = $GLOBALS['default_encounter_view']; //'0'=clinical, '1' = billing
 
- // Get relevant ACL info.
- $auth_notes_a  = AclMain::aclCheckCore('encounters', 'notes_a');
- $auth_notes    = AclMain::aclCheckCore('encounters', 'notes');
- $auth_coding_a = AclMain::aclCheckCore('encounters', 'coding_a');
- $auth_coding   = AclMain::aclCheckCore('encounters', 'coding');
- $auth_relaxed  = AclMain::aclCheckCore('encounters', 'relaxed');
- $auth_med      = AclMain::aclCheckCore('patients', 'med');
- $auth_demo     = AclMain::aclCheckCore('patients', 'demo');
- $glog_view_write = AclMain::aclCheckCore("groups", "glog", false, array('view','write'));
+// Get relevant ACL info.
+$auth_notes_a = AclMain::aclCheckCore('encounters', 'notes_a');
+$auth_notes = AclMain::aclCheckCore('encounters', 'notes');
+$auth_coding_a = AclMain::aclCheckCore('encounters', 'coding_a');
+$auth_coding = AclMain::aclCheckCore('encounters', 'coding');
+$auth_relaxed = AclMain::aclCheckCore('encounters', 'relaxed');
+$auth_med = AclMain::aclCheckCore('patients', 'med');
+$auth_demo = AclMain::aclCheckCore('patients', 'demo');
+$glog_view_write = AclMain::aclCheckCore("groups", "glog", false, array('view', 'write'));
 
- $tmp = getPatientData($pid, "squad");
+$tmp = getPatientData($pid, "squad");
 if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
     $auth_notes_a = $auth_notes = $auth_coding_a = $auth_coding = $auth_med = $auth_demo = $auth_relaxed = 0;
 }
@@ -467,7 +466,6 @@ while ($result4 = sqlFetchArray($res4)) {
         $authPostCalendarCategory = true;
     }
 
-        // if ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser']))
     if (!empty($result4["reason"])) {
         $reason_string .= text($result4["reason"]) . "<br />\n";
     }

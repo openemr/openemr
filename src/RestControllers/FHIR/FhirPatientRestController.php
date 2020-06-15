@@ -84,7 +84,7 @@ class FhirPatientRestController
     /**
      * Queries for FHIR patient resources using various search parameters.
      * Search parameters include:
-     * - address (stree, postal code, city, or state)
+     * - address (street, postal code, city, or state)
      * - address-city
      * - address-postalcode
      * - address-state
@@ -104,7 +104,7 @@ class FhirPatientRestController
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [
-                'fullUrl' =>  \RestConfig::$REST_FULL_URL . '/fhir/Patient/' . $searchResult->getId(),
+                'fullUrl' =>  \RestConfig::$REST_FULL_URL . '/' . $searchResult->getId(),
                 'resource' => $searchResult
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);

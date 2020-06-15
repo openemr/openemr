@@ -29,7 +29,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
     - Or you can directly connect to port 8320 via your favorite sql tool (Mysql Workbench etc.).
     - Use `username/user`: openemr, `password`: openemr .
-7. Developer tools and tricks.
+7. Developer tools for php syntax checking, psr12 checking, and automated testing.
     - To check PHP error logs:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools php-log'
@@ -94,7 +94,31 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep-tests'
     ```
-10. Xdebug and profiling is also supported for PHPStorm.
+10. Developer tools to reset openemr and to load demo data.
+    - To reset OpenEMR only (then can reinstall manually via setup.php in web browser):
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools dev-reset'
+      ```
+        - When running setup.php, need to use `mysql` for 'Server Host', `root` for 'Root Password', and `%` for 'User Hostname'.
+    - To reset and reinstall OpenEMR:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools dev-reset-install'
+      ```
+    - To reset and reinstall OpenEMR with demo data (this includes several users with access controls setup in addition to patient portal logins. [See HERE for those credentials](https://www.open-emr.org/wiki/index.php/Development_Demo#Demo_Credentials).):
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools dev-reset-install-demodata'
+      ```
+        - hint: this is also a great way to test any changes a developer has made to the sql upgrade stuff (ie. such as sql/5_0_2-to-6_0_0_upgrade.sql)
+11. Developer tools to turn on and turn off support for multisite feature.
+    - Turn on support for multisite:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools enable-multisite'
+      ```
+    - Turn off support for multisite:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools disable-multisite'
+      ```
+12. Xdebug and profiling is also supported for PHPStorm.
     - Firefox install xdebug helper add on (configure for PHPSTORM)
     - PHPStorm Settings->Language & Frameworks->PHP->Debug
         - Start listening
@@ -102,9 +126,9 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
         - Untoggle both settings that start with "Force Break at first line..."
      - Make sure port 9000 is open on your host operating system
      - Profiling output can be found in /tmp directory in the docker
-11. When you're done, it's best to clean up after yourself with `docker-compose down -v`
+13. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
-12. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+14. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 We look forward to your contribution...
 

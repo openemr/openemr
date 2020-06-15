@@ -204,62 +204,6 @@ class ModuleconfigForm extends Form
                     'value_options' => $this->getProviders(),
                 ),
             ));
-
-        /*
-        * MIRTH IP settings
-        */
-        $this->add(array(
-                'name'  => 'hie_mirth_ip',
-                'attributes' => array(
-                        'type'  => 'text',
-                        'id'    => 'hie_mirth_ip'
-                    ),
-                'options' => array(
-                        'label' => $this->zListener->z_xlt('Mirth IP'),
-                    ),
-            ));
-
-        /*
-        * MIRTH Client ID
-        */
-        $this->add(array(
-                'name'  => 'hie_mirth_clientid',
-                'attributes' => array(
-                        'type'  => 'text',
-                        'id'    => 'hie_mirth_clientid'
-                    ),
-                'options' => array(
-                        'label' => $this->zListener->z_xlt('Client ID'),
-                    ),
-            ));
-
-        /*
-        * MIRTH Username
-        */
-        $this->add(array(
-                'name'  => 'hie_mirth_username',
-                'attributes' => array(
-                        'type'  => 'text',
-                        'id'    => 'hie_mirth_username'
-                    ),
-                'options' => array(
-                        'label' => $this->zListener->z_xlt('Username'),
-                    ),
-            ));
-
-        /*
-        * MIRTH Password
-        */
-        $this->add(array(
-                'name'  => 'hie_mirth_password',
-                'attributes' => array(
-                        'type'  => 'password',
-                        'id'    => 'hie_mirth_password'
-                    ),
-                'options' => array(
-                        'label' => $this->zListener->z_xlt('Password'),
-                    ),
-            ));
     }
 
     /**

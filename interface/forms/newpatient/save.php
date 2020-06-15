@@ -35,6 +35,7 @@ $billing_facility = $_POST['billing_facility'] ?? null;
 $reason = $_POST['reason'] ?? null;
 $mode = $_POST['mode'] ?? null;
 $referral_source = $_POST['form_referral_source'] ?? null;
+$class_code = $_POST['class_code'] ?? null;
 $pos_code = $_POST['pos_code'] ?? null;
 $parent_enc_id = $_POST['parent_enc_id'] ?? null;
 $encounter_provider = $_POST['provider_id'] ?? null;
@@ -70,6 +71,7 @@ if ($mode == 'new') {
                 pid = ?,
                 encounter = ?,
                 pos_code = ?,
+                class_code = ?,
                 external_id = ?,
                 parent_encounter_id = ?,
                 provider_id = ?",
@@ -86,6 +88,7 @@ if ($mode == 'new') {
                 $pid,
                 $encounter,
                 $pos_code,
+                $class_code,
                 $external_id,
                 $parent_enc_id,
                 $provider_id,
@@ -122,6 +125,7 @@ if ($mode == 'new') {
         $billing_facility,
         $sensitivity,
         $referral_source,
+        $class_code,
         $pos_code,
         $id
     );
@@ -137,6 +141,7 @@ if ($mode == 'new') {
             billing_facility = ?,
             sensitivity = ?,
             referral_source = ?,
+            class_code = ?,
             pos_code = ? WHERE id = ?",
         $sqlBindArray
     );

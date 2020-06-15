@@ -45,8 +45,9 @@ if (php_sapi_name() === 'cli' && count($argv) != 0) {
         }
     }
     $_GET['site'] = $siteDefault;
-};
-
+    // Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
+    $sessionAllowWrite = true;
+}
 require_once(dirname(__FILE__) . "/../../../globals.php");
 require_once(dirname(__FILE__) . "/../../../../library/forms.inc");
 require_once(dirname(__FILE__) . "/../../../../library/options.inc.php");

@@ -30,7 +30,7 @@ services:
     - .:/openemr:ro
     - .:/var/www/localhost/htdocs/openemr:rw
     - publicvolume:/var/www/localhost/htdocs/openemr/public:rw
-    - sitesvolume:/var/www/localhost/htdocs/openemr/sites/default:rw
+    - sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
@@ -53,6 +53,7 @@ services:
       OPENEMR_SETTING_rest_portal_api: 1
       OPENEMR_SETTING_rest_portal_fhir_api: 1
       OPENEMR_SETTING_portal_onsite_two_enable: 1
+      OPENEMR_SETTING_ccda_alt_service_enable: 3
     depends_on:
     - mysql
   phpmyadmin:

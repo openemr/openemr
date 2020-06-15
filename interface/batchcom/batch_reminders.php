@@ -21,12 +21,6 @@ require_once($GLOBALS['srcdir'] . "/report_database.inc");
 
 use OpenEMR\Core\Header;
 
-//To improve performance and not freeze the session when running this
-// report, turn off session writing. Note that php session variables
-// can not be modified after the line below. So, if need to do any php
-// session work in the future, then will need to remove this line.
-session_write_close();
-
 //Remove time limit, since script can take many minutes
 set_time_limit(0);
 

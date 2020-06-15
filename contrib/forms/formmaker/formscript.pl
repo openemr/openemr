@@ -284,7 +284,6 @@ $encounter = date("Ymd");
 if ($_GET["mode"] == "new"){
 reset($field_names);
 NOREDIRECT
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

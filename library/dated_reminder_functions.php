@@ -7,11 +7,11 @@
  * @link      https://www.open-emr.org
  * @author    Craig Bezuidenhout <http://www.tajemo.co.za/>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2012 tajemo.co.za <http://www.tajemo.co.za/>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 /**
  * Get Portal Alerts function
@@ -22,17 +22,16 @@ function GetPortalAlertCounts()
 {
     $counts = array();
     $s_user = '%' . $_SESSION['authUser'] . '%';
-    $s_user_id = $_SESSION['authUserID'];
 
     $query = "SELECT Count(`m`.message_status) AS count_mail FROM onsite_mail `m` " .
         "WHERE `m`.owner LIKE ? AND `m`.recipient_id LIKE ? AND `m`.message_status LIKE ?  AND `m`.deleted = 0";
     $qrtn = sqlQueryNoLog($query, array($s_user, $s_user, '%new%'));
-    $counts['mailCnt'] = $qrtn['count_mail'] ? $qrtn['count_mail'] : "0";
+    $counts['mailCnt'] = $qrtn['count_mail'] ?: "0";
 
     $query = "SELECT Count(`m`.status) AS count_audits FROM onsite_portal_activity `m` " .
         "WHERE `m`.status LIKE ?";
     $qrtn = sqlQueryNoLog($query, array('%waiting%'));
-    $counts['auditCnt'] = $qrtn['count_audits'] ? $qrtn['count_audits'] : "0";
+    $counts['auditCnt'] = $qrtn['count_audits'] ?: "0";
 
     $query = "SELECT Count(`m`.id) AS count_chats FROM onsite_messages `m` " .
         "WHERE `m`.recip_id LIKE ? AND `m`.date > (CURRENT_DATE()-2) AND `m`.date < (CURRENT_DATE()+1)";
@@ -42,10 +41,11 @@ function GetPortalAlertCounts()
     $query = "SELECT Count(`m`.status) AS count_payments FROM onsite_portal_activity `m` " .
         "WHERE `m`.status LIKE ? AND `m`.activity = ?";
     $qrtn = sqlQueryNoLog($query, array('%waiting%', 'payment'));
-    $counts['paymentCnt'] = $qrtn['count_payments'] ? $qrtn['count_payments'] : "0";
+    $counts['paymentCnt'] = $qrtn['count_payments'] ?: "0";
 
     $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'] + $counts['paymentCnt'];
-    return json_encode($counts);
+
+    return $counts;
 }
 
 /**
@@ -53,7 +53,7 @@ function GetPortalAlertCounts()
  *
  * @returns array reminders for specified user, defaults to current user if none specified
  */
-function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
+function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
 {
     if (!$userID) {
         $userID = $_SESSION['authUserID'];
@@ -64,19 +64,13 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
     $reminders = array();
 
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)
-    $drSQL = sqlStatement(
-        "SELECT 
-                                    dr.pid, dr.dr_id, dr.dr_message_text,dr.dr_message_due_date, 
-                                    u.fname ffname, u.mname fmname, u.lname flname
-                            FROM `dated_reminders` dr 
-                            JOIN `users` u ON dr.dr_from_ID = u.id 
-                            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
-                            WHERE drl.to_id = ? 
-                            AND dr.`message_processed` = 0
-                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . escape_limit($days_to_show) . " DAY) 
-                            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT 0," . escape_limit($alerts_to_show),
-        array($userID)
-    );
+    $drSQL = sqlStatement("SELECT dr.pid, dr.dr_id, dr.dr_message_text,dr.dr_message_due_date,
+            u.fname ffname, u.mname fmname, u.lname flname FROM `dated_reminders` dr
+            JOIN `users` u ON dr.dr_from_ID = u.id
+            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id
+            WHERE drl.to_id = ? AND dr.`message_processed` = 0
+            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . escape_limit($days_to_show) . " DAY)
+            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT 0," . escape_limit($alerts_to_show), array($userID));
 
 // --------- loop through the results
     for ($i = 0; $drRow = sqlFetchArray($drSQL); $i++) {
@@ -133,10 +127,10 @@ function GetDueReminderCount($days_to_show, $today, $userID = false)
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)
     $drSQL = sqlStatement(
         "SELECT count(dr.dr_id) c
-                            FROM `dated_reminders` dr 
-                            JOIN `users` u ON dr.dr_from_ID = u.id 
-                            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
-                            WHERE drl.to_id = ? 
+                            FROM `dated_reminders` dr
+                            JOIN `users` u ON dr.dr_from_ID = u.id
+                            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id
+                            WHERE drl.to_id = ?
                             AND dr.`message_processed` = 0
                             AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . escape_limit($days_to_show) . " DAY)",
         array($userID)
@@ -163,10 +157,10 @@ function GetAllReminderCount($userID = false)
 // ----- sql statement for getting uncompleted reminders
     $drSQL = sqlStatement(
         "SELECT count(dr.dr_id) c
-                            FROM `dated_reminders` dr 
-                            JOIN `users` u ON dr.dr_from_ID = u.id 
-                            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
-                            WHERE drl.to_id = ? 
+                            FROM `dated_reminders` dr
+                            JOIN `users` u ON dr.dr_from_ID = u.id
+                            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id
+                            WHERE drl.to_id = ?
                             AND dr.`message_processed` = 0",
         array($userID)
     );
@@ -217,12 +211,12 @@ function getRemindersHTML($today, $reminders = array())
             <span>' . xlt('Set As Completed') . '</span>
             </a>
             <span title="' . ($r['PatientID'] > 0 ? xla('Click Patient Name to Open Patient File') : '') . '" class="' . attr($class) . '">' .
-            $warning . '         
+            $warning . '
             <span onclick="goPid(' . attr(addslashes($r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
             text($r['PatientName']) . '
             </span> ' .
             text($r['message']) . ' - [' . text($r['fromName']) . ']
-            </span> 
+            </span>
             </p>';
     }
 
@@ -273,8 +267,8 @@ function getReminderById($mID, $userID = false)
         $userID = $_SESSION['authUserID'];
     }
 
-    $rdrSQL = sqlStatement("SELECT * FROM `dated_reminders` dr 
-                            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
+    $rdrSQL = sqlStatement("SELECT * FROM `dated_reminders` dr
+                            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id
                             WHERE drl.to_id = ? AND dr.`dr_id` = ? LIMIT 0,1", array($userID, $mID));
     $rdrRow = sqlFetchArray($rdrSQL);
     if (!empty($rdrRow)) {
@@ -324,7 +318,7 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority)
         // ------- if no errors
         // --------- insert the new message
         $mID = sqlInsert(
-            "INSERT INTO `dated_reminders` 
+            "INSERT INTO `dated_reminders`
                              (`dr_from_ID` ,`dr_message_text` ,`dr_message_sent_date` ,`dr_message_due_date` ,`pid` ,`message_priority` ,`message_processed` ,`processed_date`)
                               VALUES (?, ?, NOW( ), ?, ?, ?, '0', '');",
             array($fromID, $message, $dueDate, $patID, $priority)
@@ -332,7 +326,7 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority)
 
         foreach ($sendTo as $st) {
             sqlStatement(
-                "INSERT INTO `dated_reminders_link` 
+                "INSERT INTO `dated_reminders_link`
                             (`dr_id` ,`to_id`)
                             VALUES (?, ?);",
                 array($mID, $st)
@@ -421,14 +415,14 @@ function logRemindersArray()
 
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)
     $drSQL = sqlStatement(
-        "SELECT 
+        "SELECT
                                     dr.pid, dr.dr_id, dr.dr_message_text, dr.dr_message_due_date dDate, dr.dr_message_sent_date sDate,dr.processed_date processedDate, dr.dr_processed_by,
                                     u.fname ffname, u.mname fmname, u.lname flname,
-                                    tu.fname tfname, tu.mname tmname, tu.lname tlname 
-                            FROM `dated_reminders` dr       
-                            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id        
-                            JOIN `users` u ON dr.dr_from_ID = u.id  
-                            JOIN `users` tu ON drl.to_id = tu.id        
+                                    tu.fname tfname, tu.mname tmname, tu.lname tlname
+                            FROM `dated_reminders` dr
+                            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id
+                            JOIN `users` u ON dr.dr_from_ID = u.id
+                            JOIN `users` tu ON drl.to_id = tu.id
                             $where",
         $input
     );

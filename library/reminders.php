@@ -3,10 +3,6 @@
 /**
  * Patient reminders functions.
  *
- * These functions should not ever attempt to write to
- * session variables, because the session_write_close() function
- * is typically called before utilizing these functions.
- *
  * Functions for collection/displaying/sending patient reminders. This is
  * part of the CDR engine, which can be found at library/clinical_rules.php.
  *

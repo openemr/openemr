@@ -18,10 +18,6 @@
  *   'date_report_complete'       - Set to date of the report completion (date and time)
  * </pre>
  *
- * These functions should not ever attempt to write to
- * session variables, because the session_write_close() function
- * is typically called before utilizing these functions.
- *
  * Copyright (C) 2012 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or

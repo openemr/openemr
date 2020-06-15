@@ -87,7 +87,7 @@ if (isset($_GET['starttimem'])) {
 
 if (isset($_GET['starttimeh'])) {
     $starttimeh = $_GET['starttimeh'];
-    if (isset($_GET['startampm'])) {
+    if ($GLOBALS['time_display_format']  == 1 && isset($_GET['startampm'])) {
         if ($_GET['startampm'] == '2' && $starttimeh < 12) {
             $starttimeh += 12;
         }
@@ -981,7 +981,7 @@ if ($groupid) {
     $startampm = '1';
     if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
         $startampm = '2';
-        if ($starttimeh > 12) {
+        if ($starttimeh > 12 && $GLOBALS['time_display_format'] == 1) {
             $starttimeh -= 12;
         }
     }
@@ -1629,10 +1629,12 @@ function isRegularRepeat($repeat)
         </div>
         <input class='col-sm form-control' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>' title='<?php echo xla('Event start time'); ?>' />
         <input class='col-sm form-control' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>' title='<?php echo xla('Event start time'); ?>' />
-        <select class='col-sm form-control' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
+        <?php if ($GLOBALS['time_display_format'] == 1) : ?>
+        <select class='input-sm' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
             <option value='1'><?php echo xlt('AM'); ?></option>
             <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
         </select>
+        <?php endif ?>
         <label class='col-sm col-form-label' id='tdallday4'><?php echo xlt('duration'); ?></label>
         <input class="col-sm form-control" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>' title='<?php echo xla('Event duration in minutes'); ?>' />
     </div>
@@ -1971,7 +1973,8 @@ function SubmitForm() {
     if (f.form_action.value != 'delete') {
         // Check slot availability.
         var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
-        if (f.form_ampm.value == '2' && mins < 720) mins += 720;
+        <?php if ($GLOBALS['time_display_format']  == 1) :
+            ?>if (f.form_ampm.value == '2' && mins < 720) mins += 720;<?php endif ?>
         find_available('&cktime=' + mins);
     }
     else {

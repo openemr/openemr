@@ -3,10 +3,6 @@
 /**
  * Clinical Decision Rules(CDR) engine functions.
  *
- * These functions should not ever attempt to write to
- * session variables, because the session_write_close() function
- * is typically called before utilizing these functions.
- *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -222,8 +218,6 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
     $actions = test_rules_clinic('', 'active_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, array(), 'primary', null, null, $user);
 
     if (empty($actions)) {
-        // when there are no actions we have to update alert_notify_pid session variable
-        $_SESSION['alert_notify_pid'] = $pid;
         return false;
     }
 

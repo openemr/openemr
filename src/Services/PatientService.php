@@ -215,10 +215,10 @@ class PatientService extends BaseService
         if (!empty($search)) {
             $sql .= ' WHERE ';
             $whereClauses = array();
-
+            $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title');
             foreach ($search as $fieldName => $fieldValue) {
                 // support wildcard match on specific fields
-                if (in_array($fieldName, array('fname', 'mname', 'lname', 'street', 'city'))) {
+                if (in_array($fieldName, $wildcardFields)) {
                     array_push($whereClauses, $fieldName . ' LIKE ?');
                     array_push($sqlBindArray, '%' . $fieldValue . '%');
                 } else {

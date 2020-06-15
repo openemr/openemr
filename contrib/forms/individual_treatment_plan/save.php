@@ -13,7 +13,7 @@ if ($_GET["mode"] == "new") {
 
     addForm($encounter, "Individual Treatment Plan", $newid, "individual_treatment_plan", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlStatement("update form_individual_treatment_plan set pid = ?, groupname= ?, user = ?, authorized = ?, activity=1, date = NOW(), 
+    sqlStatement("update form_individual_treatment_plan set pid = ?, groupname= ?, user = ?, authorized = ?, activity=1, date = NOW(),
 date_of_referal = ?,
 dcn = ?,
 icd9 = ?,
@@ -50,7 +50,6 @@ referrals_2 = ? where id=?", array($_SESSION["pid"], $_SESSION["authProvider"], 
     $_POST["medications_2"], $_POST["referrals_1"], $_POST["referrals_2"], $id));
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

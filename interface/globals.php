@@ -12,7 +12,7 @@
  */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/../src/Common/Compatibility/Checker.php");
+require_once(__DIR__ . "/../src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
@@ -55,7 +55,7 @@ if (!defined('IS_WINDOWS')) {
 // The webserver_root and web_root are now automatically collected.
 // If not working, can set manually below.
 // Auto collect the full absolute directory path for openemr.
-$webserver_root = dirname(dirname(__FILE__));
+$webserver_root = dirname(__FILE__, 2);
 if (IS_WINDOWS) {
  //convert windows path separators
     $webserver_root = str_replace("\\", "/", $webserver_root);
@@ -85,19 +85,36 @@ if (preg_match("/^[^\/]/", $web_root)) {
 //  set manually here:
 //   $webserver_root = "/var/www/openemr";
 //   $web_root =  "/openemr";
-//
+
+// Debug function. Can expand for longer trace or file info.
+function GetCallingScriptName()
+{
+    $e = new Exception();
+    return $e->getTrace()[1]['file'];
+}
 
 // This is the directory that contains site-specific data.  Change this
 // only if you have some reason to.
 $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 
-// If a session does not yet exist, then will start the core OpenEMR session.
-//  If a session already exists, then this means portal is being used, which
-//  has already created a portal session/cookie, so will bypass setting of
-//  the core OpenEMR session/cookie.
+/*
+* If a session does not yet exist, then will start the core OpenEMR session.
+* If a session already exists, then this means portal is being used, which
+*   has already created a portal session/cookie, so will bypass setting of
+*   the core OpenEMR session/cookie.
+* $sessionAllowWrite = 1 | true | string then normal operation
+* $sessionAllowWrite = undefined | null | 0  session start for read only then auto
+*   immediate session_write_close.
+* Unless $sessionAllowWrite is true, ensure no session writes are used within the calling
+*   scope of this globals instance. Goal is to unlock session file as quickly as possible
+*   instead of waiting for calling script to complete before releasing flock.
+ */
+$read_only = empty($sessionAllowWrite);
 if (session_status() === PHP_SESSION_NONE) {
-    require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::coreSessionStart($web_root);
+    //error_log("1. LOCK ".GetCallingScriptName()); // debug start lock
+    require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
+    OpenEMR\Common\Session\SessionUtil::coreSessionStart($web_root, $read_only);
+    //error_log("2. FREE ".GetCallingScriptName()); // debug unlocked
 }
 
 // Set the site ID if required.  This must be done before any database
@@ -148,7 +165,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
 
     if (!isset($_SESSION['site_id']) || $_SESSION['site_id'] != $tmp) {
         $_SESSION['site_id'] = $tmp;
-      //error_log("Session site ID has been set to '$tmp'"); // debugging
+        // error_log("Session site ID has been set to '$tmp'"); // debugging
     }
 }
 
@@ -163,7 +180,7 @@ require_once($GLOBALS['OE_SITE_DIR'] . "/config.php");
 // Collecting the utf8 disable flag from the sqlconf.php file in order
 // to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
 // then set to iso-8859-1.
-require_once(dirname(__FILE__) . "/../library/sqlconf.php");
+require_once(__DIR__ . "/../library/sqlconf.php");
 if (!$disable_utf8_flag) {
     ini_set('default_charset', 'utf-8');
     $HTML_CHARSET = "UTF-8";
@@ -247,10 +264,10 @@ if (file_exists("{$webserver_root}/.env")) {
 }
 
 // This will open the openemr mysql connection.
-require_once(dirname(__FILE__) . "/../library/sql.inc");
+require_once(__DIR__ . "/../library/sql.inc");
 
 // Include the version file
-require_once(dirname(__FILE__) . "/../version.php");
+require_once(__DIR__ . "/../version.php");
 
 // The logging level for common/logging/logger.php
 // Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
@@ -545,14 +562,12 @@ if (!$ignoreAuth) {
     require_once("$srcdir/auth.inc");
 }
 
-
 // This is the background color to apply to form fields that are searchable.
 // Currently it is applicable only to the "Search or Add Patient" form.
 $GLOBALS['layout_search_color'] = '#ff9919';
 
 //EMAIL SETTINGS
 $SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
-
 
 //module configurations
 $GLOBALS['baseModDir'] = "interface/modules/"; //default path of modules

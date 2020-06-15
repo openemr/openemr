@@ -152,7 +152,7 @@ class PatientRestControllerTest extends TestCase
     public function testGetAll()
     {
         $this->fixtureManager->installPatientFixtures();
-        $searchResult = $this->patientController->getAll(array("state" => "CA"));
+        $searchResult = $this->patientController->getAll(array("postal_code" => "90210"));
 
         $this->assertEquals(200, http_response_code());
         $this->assertEquals(0, count($searchResult["validationErrors"]));
@@ -160,7 +160,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertGreaterThan(1, count($searchResult["data"]));
 
         foreach ($searchResult["data"] as $index => $searchResult) {
-            $this->assertEquals("CA", $searchResult["state"]);
+            $this->assertEquals("90210", $searchResult["postal_code"]);
         }
     }
 }
