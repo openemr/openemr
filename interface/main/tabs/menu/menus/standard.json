@@ -1944,6 +1944,19 @@
         ]
       },
       {
+        "label": "CMS Portal",
+        "menu_id": "por1",
+        "target": "por",
+        "url": "/interface/cmsportal/list_requests.php",
+        "children": [],
+        "requirement": 0,
+        "global_req": "gbl_portal_cms_enable",
+        "acl_req": [
+          "patientportal",
+          "portal"
+        ]
+      },
+      {
         "label": "Dicom Viewer",
         "menu_id": "dvwr",
         "target": "msc",
@@ -1954,7 +1967,7 @@
             "patients",
             "docs"
         ]
-        },
+      },
       {
         "label": "Patient Education",
         "menu_id": "ped0",

@@ -47,6 +47,9 @@ require_once("$srcdir/classes/Note.class.php");
 require_once(dirname(__file__) . "/../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
+if ($GLOBALS['gbl_portal_cms_enable']) {
+    require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
+}
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
 use ESign\Api;
