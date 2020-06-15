@@ -58,18 +58,15 @@ if (IS_DASHBOARD) {
     $dashuser = getUserIDInfo($_SESSION['authUserID']);
 }
 
-function getAuthPortalUsers()
-{
+function getAuthPortalUsers() {
     $resultpd = $resultusers = $resultpatients = array();
     if (IS_DASHBOARD) { // admin can mail anyone
-        $authusers = sqlStatement("SELECT users.username as userid,
- CONCAT(users.fname,' ',users.lname) as username, 'user' as type FROM users WHERE authorized = 1");
+        $authusers = sqlStatement("SELECT users.username as userid, CONCAT(users.fname, ' ', users.lname) as username, 'user' as type FROM users WHERE facility_id != 0 AND active = 1");
         while ($row = sqlFetchArray($authusers)) {
             $resultusers[] = $row;
         }
 
-        $authpatients = sqlStatement("SELECT LOWER(CONCAT(patient_data.fname, patient_data.id)) as userid,
- CONCAT(patient_data.fname,' ',patient_data.lname) as username,'p' as type,patient_data.pid as pid FROM patient_data WHERE allow_patient_portal = 'YES'");
+        $authpatients = sqlStatement("SELECT LOWER(CONCAT(patient_data.fname, patient_data.id)) as userid, CONCAT(patient_data.fname, ' ', patient_data.lname) as username,'p' as type, patient_data.pid as pid FROM patient_data WHERE allow_patient_portal = 'YES'");
         while ($row = sqlFetchArray($authpatients)) {
             $resultpatients[] = $row;
         }
@@ -78,7 +75,7 @@ function getAuthPortalUsers()
         return $resultpd[0];
     } else {
         $resultpd = array();
-        $authusers = sqlStatement("SELECT users.username as userid, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1");
+        $authusers = sqlStatement("SELECT users.username as userid, CONCAT(users.fname, ' ', users.lname) as username FROM users WHERE facility_id != 0 AND active = 1");
         while ($row = sqlFetchArray($authusers)) {
             $resultpd[] = $row;
         }
@@ -90,11 +87,9 @@ function getAuthPortalUsers()
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <title><?php echo xlt("Secure Messaging"); ?></title>
-<meta name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <meta name="description" content="Mail Application" />
 
 <?php Header::setupHeader(['no_main-theme', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
@@ -108,7 +103,7 @@ function getAuthPortalUsers()
     app.controller('inboxCtrl', ['$scope', '$filter','$http','$window', function ($scope, $filter,$http,$window) {
     $scope.date = new Date;
     $scope.sortingOrder = 'id';
-    $scope.pageSizes = [5,10,20,50,100];
+    $scope.pageSizes = [5, 10, 20, 50, 100];
     $scope.reverse = false;
     $scope.filteredItems = [];
     $scope.groupedItems = [];
@@ -122,11 +117,11 @@ function getAuthPortalUsers()
     $scope.deletedItems = [];
     $scope.inboxItems = [];
     $scope.inboxItems = <?php echo json_encode($theresult);?>;
-    $scope.userproper = <?php echo $_SESSION['ptName'] ? js_escape($_SESSION['ptName']) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']) ;?>;
-    $scope.isPortal = "<?php echo IS_PORTAL;?>" ;
-    $scope.isDashboard = "<?php echo IS_DASHBOARD ? IS_DASHBOARD : 0;?>" ;
+    $scope.userproper = <?php echo $_SESSION['ptName'] ? js_escape($_SESSION['ptName']) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']); ?>;
+    $scope.isPortal = "<?php echo IS_PORTAL; ?>";
+    $scope.isDashboard = "<?php echo IS_DASHBOARD ? IS_DASHBOARD : 0; ?>";
     $scope.cUserId = $scope.isPortal ? $scope.isPortal : $scope.isDashboard;
-    $scope.authrecips = <?php echo json_encode(getAuthPortalUsers());?>;
+    $scope.authrecips = <?php echo json_encode(getAuthPortalUsers()); ?>;
     $scope.compose.task = 'add';
     $scope.xLate = [];
     $scope.xLate.confirm = [];
@@ -173,7 +168,7 @@ function getAuthPortalUsers()
             $scope.pagedItems = [];
             for (var i = 0; i < $scope.filteredItems.length; i++) {
               if (i % $scope.itemsPerPage === 0) {
-                $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [ $scope.filteredItems[i] ];
+                $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [$scope.filteredItems[i]];
               } else {
                 $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]);
               }
@@ -215,7 +210,7 @@ function getAuthPortalUsers()
             var itemToDelete = $scope.allItems[idx];
             var idxInItems = $scope.items.indexOf(itemToDelete);
             $scope.deleteMessage(itemToDelete.mail_chain); // Just this user's message
-            $scope.items.splice(idxInItems,1);
+            $scope.items.splice(idxInItems, 1);
             $scope.search();
             $scope.init()
             return false;
@@ -316,8 +311,7 @@ function getAuthPortalUsers()
             $scope.selected = null;
         };
 
-        $scope.renderMessageBody = function(html)
-        {
+        $scope.renderMessageBody = function(html) {
             return html;
         };
 
@@ -371,20 +365,20 @@ function getAuthPortalUsers()
         $scope.submitForm = function(compose){
             $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
             // re-enable title for submit
-            $("#title").prop( "disabled", false )
-            $("#selSendto").prop( "disabled", false )
+            $("#title").prop("disabled", false);
+            $("#selSendto").prop("disabled", false);
 
-            compose.owner = $scope.cUserId
-            compose.sender_id=$scope.cUserId
-            compose.sender_name=$scope.userproper
-            if( $scope.selrecip == compose.owner ){
+            compose.owner = $scope.cUserId;
+            compose.sender_id=$scope.cUserId;
+            compose.sender_name=$scope.userproper;
+            if($scope.selrecip == compose.owner) {
                 if(!confirm($scope.xLate.confirm.err))
                     return false;
             }
-            if( compose.task == 'add' ){
-                compose.recipient_name=$("#selSendto option:selected").text();
+            if(compose.task == 'add') {
+                compose.recipient_name = $("#selSendto option:selected").text();
             }
-            if( compose.task == 'forward' ){ // Just overwrite default reply but send to pnotes.
+            if(compose.task == 'forward') { // Just overwrite default reply but send to pnotes.
                 compose.sender_id=$("#selForwardto option:selected").val();
                 compose.sender_name=$("#selForwardto option:selected").text();
                 compose.selrecip = compose.recipient_id;
@@ -401,29 +395,29 @@ function getAuthPortalUsers()
                 $('#inputBody').summernote('destroy');
                 var mode = $(e.relatedTarget).attr('data-mode');
                 $scope.compose.task = mode;
-                if(mode == 'forward'){
+                if(mode == 'forward') {
                     $('#modalCompose .modal-header .modal-title').html("Forward Message");
                     $scope.compose.task = mode;
                     var recipId = $(e.relatedTarget).attr('data-whoto');
                     var title = $(e.relatedTarget).attr('data-mtitle');
                     var uname = $(e.relatedTarget).attr('data-username');
-                    $(e.currentTarget).find('select[id="selSendto"]').prop( "disabled", false );
-                    $(e.currentTarget).find('input[name="title"]').prop( "disabled", false );
+                    $(e.currentTarget).find('select[id="selSendto"]').prop("disabled", false);
+                    $(e.currentTarget).find('input[name="title"]').prop("disabled", false);
                     $scope.compose.title = title;
                     $scope.compose.selrecip = recipId;
                     $scope.compose.selrecip.username = uname;
                     $scope.compose.recipient_name = uname;
                     $scope.compose.recipient_id = recipId;
                     angular.forEach($scope.authrecips, function(o, key) {// Need the pid of patient for pnotes.
-                        if(o.userid == recipId){
+                        if(o.userid == recipId) {
                             $scope.compose.pid = o.pid;
                         }
-                    })
+                    });
                     var fmsg = '\n\n\n> ' + $scope.xLate.fwd+ title + ' by ' + uname + '\n> '+ $("#referMsg").text();
-                    $("textarea#finputBody").text(fmsg)
+                    $("textarea#finputBody").text(fmsg);
                     $scope.compose.noteid = $(e.relatedTarget).attr('data-noteid');
                 }
-                else if(mode == 'reply'){
+                else if(mode == 'reply') {
                     $('#inputBody').summernote({focus:true,height:'225px'});
                      $('#modalCompose .modal-header .modal-title').html("Compose Reply Message");
                      $scope.compose.task = mode;
@@ -433,7 +427,7 @@ function getAuthPortalUsers()
                     var recipId = $(e.relatedTarget).attr('data-whoto');
                     var title = $(e.relatedTarget).attr('data-mtitle');
                     var uname = $(e.relatedTarget).attr('data-username');
-                    $(e.currentTarget).find('select[id="selSendto"]').val(recipId)
+                    $(e.currentTarget).find('select[id="selSendto"]').val(recipId);
                     $(e.currentTarget).find('input[name="title"]').val(title);
                     // Set the modal var's
                     $scope.compose.title = title;
@@ -444,7 +438,7 @@ function getAuthPortalUsers()
                     $scope.compose.noteid = chain;
             }
             else{
-                $('#inputBody').summernote({focus:true,height:'225px'});
+                $('#inputBody').summernote({focus: true, height: '225px'});
                 $('#modalCompose .modal-header .modal-title').html("Compose New Message");
                 $scope.compose.task = 'add';
                 $(e.currentTarget).find('select[id="selSendto"]').prop( "disabled", false );
@@ -461,8 +455,8 @@ function getAuthPortalUsers()
             // cleanup
         });
         // initialize application
-        if( !$scope.isInit ){
-                $scope.init();
+        if(!$scope.isInit) {
+          $scope.init();
         }
     }])  /* end inbox functions */
     .filter('Chained', function () {
@@ -474,7 +468,7 @@ function getAuthPortalUsers()
             else {
                 angular.forEach(input, function (item) {
                     if (item.mail_chain == id) {
-                        output.push(item)
+                        output.push(item);
                     }
                 });
             }
@@ -510,8 +504,7 @@ function getAuthPortalUsers()
         <div class="row" ng-controller="inboxCtrl">
             <aside class="col-md-1"
                 style='padding: 0 0; margin: 0 0; text-align: left;'>
-                <ul class="nav nav-pills nav-stacked"
-                    style='padding: 0 0; margin: 0 0; text-align: left;'>
+                <ul class="nav nav-pills nav-stacked" style='padding: 0 0; margin: 0 0; text-align: left;'>
                     <li data-toggle="pill" class="active bg-info"><a
                         href="javascript:;" ng-click="isInboxSelected()"><span
                             class="badge pull-right">{{inboxItems.length}}</span><?php echo xlt('Inbox'); ?></a></li>
@@ -755,7 +748,7 @@ function getAuthPortalUsers()
                                                 <select class="form-control" id="selForwardto"
                                                     ng-hide="compose.task != 'forward'"
                                                     ng-model="compose.selrecip"
-                                                    ng-options="recip.userid as recip.username for recip in authrecips | filter:type = 'user'  track by recip.userid"></select>
+                                                    ng-options="recip.userid as recip.username for recip in authrecips | filter:type = 'user' track by recip.userid"></select>
                                                 <select class="form-control" id="selSendto"
                                                     ng-hide="compose.task == 'forward'"
                                                     ng-model="compose.selrecip"
