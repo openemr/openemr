@@ -1044,8 +1044,8 @@ function generate_form_field($frow, $currvalue)
         );
         // show the add button if user has access to correct list
         $inputValue = htmlspecialchars(xl('Add'), ENT_QUOTES);
-        $outputAddButton = "<input type='button' class='btn btn-primary btn-sm'  id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
-        $field_id_esc . "' class='addtolist' value='$inputValue' $disabled />";
+        $outputAddButton = "<input type='button' class='btn btn-primary btn-sm addtolist'  id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
+        $field_id_esc . "' value='$inputValue' $disabled />";
         if (AclExtended::acoExist('lists', $list_id)) {
             // a specific aco exist for this list, so ensure access
             if (AclMain::aclCheckCore('lists', $list_id)) {
