@@ -221,7 +221,7 @@ function analyze_menu()
             return;
         }
     }
-    var jqLeft=top.left_nav.$(top.left_nav.document)
+    var jqLeft=top.left_nav.$(top.left_nav.document);
     var $=top.left_nav.$;
     jqLeft.ready(function(){
 
@@ -268,7 +268,7 @@ function analyze_menu()
                     {
 
 
-                    };
+                    }
                     menu_entries.push(newEntry);
 
 

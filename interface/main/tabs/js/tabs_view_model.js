@@ -240,7 +240,7 @@ function newEncounter(data, evt) {
 
 function newTherapyGroupEncounter()
 {
-    var url=webroot_url+'/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc=='
+    var url=webroot_url+'/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc==';
     navigateTab(url, "enc", function () {
         activateTabByName("enc",true);
     });
@@ -252,7 +252,7 @@ function clickEncounterList(data,evt)
 }
 function encounterList()
 {
-    var url=webroot_url+'/interface/patient_file/history/encounters.php'
+    var url=webroot_url+'/interface/patient_file/history/encounters.php';
     navigateTab(url, "enc", function () {
         activateTabByName("enc",true);
     });
@@ -260,7 +260,7 @@ function encounterList()
 
 function loadCurrentPatient()
 {
-    var url=webroot_url+'/interface/patient_file/summary/demographics.php'
+    var url=webroot_url+'/interface/patient_file/summary/demographics.php';
     navigateTab(url, "pat", function () {
         activateTabByName("pat",true);
     });
@@ -268,7 +268,7 @@ function loadCurrentPatient()
 
 function loadCurrentTherapyGroup() {
 
-    var url=webroot_url+'/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session'
+    var url=webroot_url+'/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session';
     navigateTab(url,"gdg", function () {
         activateTabByName("gdg",true);
     });
@@ -315,7 +315,7 @@ function menuActionClick(data,evt)
 
         // Fixups for loading a new encounter form, as these are now in tabs.
         var dataurl = data.url();
-        var dataLabel = data.label()
+        var dataLabel = data.label();
         var matches = dataurl.match(/load_form.php\?formname=(\w+)/);
         if (matches) {
           // If the encounter frameset already exists, just tell it to add a tab for this form.
@@ -330,7 +330,7 @@ function menuActionClick(data,evt)
           dataurl = '/interface/patient_file/encounter/encounter_top.php?formname=' +
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
         }
-        
+
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
         },xl("Loading") + " " + dataLabel);
