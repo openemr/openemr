@@ -153,7 +153,8 @@ class ProductRegistration
      */
     public function __toString()
     {
-        return "email: '" . $this->getEmail() . "' " .
+        return "id: '" . $this->getId() . "' " .
+               "email: '" . $this->getEmail() . "' " .
                "statusAsString: '" . $this->getStatusAsString() . "' " .
                "optOut" . $this->getOptOut() . "' " ;
     }
