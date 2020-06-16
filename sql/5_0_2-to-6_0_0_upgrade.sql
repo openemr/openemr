@@ -712,3 +712,11 @@ ALTER TABLE `product_registration` DROP COLUMN `registration_id`;
 #IfMissingColumn product_registration id
 ALTER TABLE `product_registration` ADD `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT;
 #EndIf
+
+#IfMissingColumn users portal_user
+ALTER TABLE `users` ADD `portal_user` TINYINT(1) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfMissingColumn users supervisor_id
+ALTER TABLE `users` ADD `supervisor_id` INT(11) NOT NULL DEFAULT '0';
+#EndIf
