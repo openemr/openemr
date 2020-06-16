@@ -9744,10 +9744,10 @@ CREATE TABLE `form_taskman` (
 
 DROP TABLE IF EXISTS `product_registration`;
 CREATE TABLE `product_registration` (
-  `registration_id` char(36) NOT NULL DEFAULT '',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NULL,
   `opt_out` TINYINT(1) NULL,
-  PRIMARY KEY (`registration_id`)
+  PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------
