@@ -32,7 +32,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
  <div id="specificForm">
  </div>
  <div class="text-center">
-  <div style='margin-top: 0.5em;'>
+  <div style='margin-top: 0.5rem;'>
    <input type='button' class='btn btn-primary' name='newlistitem_submit' id='newlistitem_submit' value='<?php echo xla('Add'); ?>' />
    <input type='button' class='btn btn-secondary' name='newlistitem_cancel' id='newlistitem_cancel' value='<?php echo xla('Cancel'); ?>' />
   </div>
