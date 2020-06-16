@@ -58,7 +58,8 @@ if (IS_DASHBOARD) {
     $dashuser = getUserIDInfo($_SESSION['authUserID']);
 }
 
-function getAuthPortalUsers() {
+function getAuthPortalUsers()
+{
     $resultpd = $resultusers = $resultpatients = array();
     if (IS_DASHBOARD) { // admin can mail anyone
         $authusers = sqlStatement("SELECT users.username as userid, CONCAT(users.fname, ' ', users.lname) as username, 'user' as type FROM users WHERE facility_id != 0 AND active = 1");
