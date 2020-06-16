@@ -704,3 +704,11 @@ CREATE TABLE `session_tracker` (
   PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfColumn product_registration registration_id
+ALTER TABLE `product_registration` DROP COLUMN `registration_id`;
+#EndIf
+
+#IfMissingColumn product_registration id
+ALTER TABLE `product_registration` ADD `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT;
+#EndIf

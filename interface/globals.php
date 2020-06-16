@@ -535,6 +535,7 @@ if (!empty($version)) {
 } else {
     $openemr_version = xl('Unknown version');
 }
+$GLOBALS['openemr_version'] = $openemr_version;
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];

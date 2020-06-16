@@ -21,9 +21,7 @@
 
 $ignoreAuth = true;
 require_once("../globals.php");
-require_once($GLOBALS['fileroot'] . "/interface/main/exceptions/invalid_email_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
-require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/duplicate_registration_exception.php");
 
 use OpenEMR\Common\Http\HttpResponseHelper;
 use OpenEMR\Entities\ProductRegistration;
@@ -62,14 +60,9 @@ class ProductRegistrationController
 
         try {
             $response = new ProductRegistration();
-            $registrationId = $this->productRegistrationService->registerProduct($_POST['email']);
-            $response->setRegistrationId($registrationId);
-            $response->setEmail($_POST['email']);
+            $registrationEmail = $this->productRegistrationService->registerProduct($_POST['email']);
+            $response->setEmail($registrationEmail);
             $status = 201;
-        } catch (InvalidEmailException $emailException) {
-            $response = $emailException->errorMessage();
-        } catch (DuplicateRegistrationException $duplicateRegistrationException) {
-            $response = $duplicateRegistrationException->errorMessage();
         } catch (GenericProductRegistrationException $genericProductRegistrationException) {
             $response = $genericProductRegistrationException->errorMessage();
         }
