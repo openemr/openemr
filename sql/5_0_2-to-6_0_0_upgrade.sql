@@ -705,6 +705,14 @@ CREATE TABLE `session_tracker` (
 ) ENGINE=InnoDB;
 #EndIf
 
+#IfColumn product_registration registration_id
+ALTER TABLE `product_registration` DROP COLUMN `registration_id`;
+#EndIf
+
+#IfMissingColumn product_registration id
+ALTER TABLE `product_registration` ADD `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT;
+#EndIf
+
 #IfMissingColumn users portal_user
 ALTER TABLE `users` ADD `portal_user` TINYINT(1) NOT NULL DEFAULT '0';
 #EndIf
