@@ -227,7 +227,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update users set weno_prov_id = ? where id = ? ", array($_POST["erxprid"], $_POST["id"]));
         }
 
-        if ($_POST["supervisor_id"]) {
+        if (isset($_POST["supervisor_id"])) {
             sqlStatement("update users set supervisor_id = ? where id = ? ", array((int)$_POST["supervisor_id"], $_POST["id"]));
         }
 

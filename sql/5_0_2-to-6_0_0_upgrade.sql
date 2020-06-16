@@ -704,3 +704,11 @@ CREATE TABLE `session_tracker` (
   PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfMissingColumn users portal_user
+ALTER TABLE `users` ADD `portal_user` TINYINT(1) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfMissingColumn users supervisor_id
+ALTER TABLE `users` ADD `supervisor_id` INT(11) NOT NULL DEFAULT '0';
+#EndIf
