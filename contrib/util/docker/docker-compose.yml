@@ -79,6 +79,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
   openemr-7-2:
@@ -90,6 +91,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
   openemr-7-3-311:
@@ -101,6 +103,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
   openemr-7-3-312:
@@ -112,6 +115,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       EMPTY: "yes"
       DEVELOPER_TOOLS: "yes"
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
@@ -124,6 +128,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
   openemr-7-1-redis:
@@ -135,6 +140,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
@@ -147,6 +153,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
@@ -159,6 +166,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
@@ -171,6 +179,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
@@ -183,6 +192,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
@@ -316,84 +326,112 @@ services:
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-5-6/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-0:
     restart: always
     image: openemr/dev-php-fpm:7.0
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-0/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-1:
     restart: always
     image: openemr/dev-php-fpm:7.1
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-1/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-2:
     restart: always
     image: openemr/dev-php-fpm:7.2
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-2/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-3:
     restart: always
     image: openemr/dev-php-fpm:7.3
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-3/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-4:
     restart: always
     image: openemr/dev-php-fpm:7.4
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-4/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-0:
     restart: always
     image: openemr/dev-php-fpm:8.0
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-8-0/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-5-6-redis:
     restart: always
     image: openemr/dev-php-fpm:5.6-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-5-6-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-0-redis:
     restart: always
     image: openemr/dev-php-fpm:7.0-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-1-redis:
     restart: always
     image: openemr/dev-php-fpm:7.1-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-1-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-2-redis:
     restart: always
     image: openemr/dev-php-fpm:7.2-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-2-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-3-redis:
     restart: always
     image: openemr/dev-php-fpm:7.3-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-3-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-4-redis:
     restart: always
     image: openemr/dev-php-fpm:7.4-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-4-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-0-redis:
     restart: always
     image: openemr/dev-php-fpm:8.0-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-8-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   redis:
     restart: always
     image: redis
