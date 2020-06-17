@@ -6693,6 +6693,8 @@ CREATE TABLE `users` (
   `physician_type` VARCHAR(50) DEFAULT NULL,
   `main_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard',
   `patient_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard',
+  `portal_user` tinyint(1) NOT NULL DEFAULT '0',
+  `supervisor_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
