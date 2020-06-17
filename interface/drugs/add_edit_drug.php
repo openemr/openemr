@@ -378,7 +378,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 
     <div class="form-group mt-3">
         <label class="font-weight-bold"><?php echo xlt('Active{{Drug}}'); ?>:</label>
-        <input type='checkbox' class="form-check-input" name='form_active' value='1'<?php
+        <input type='checkbox' name='form_active' value='1'<?php
         if ($row['active']) {
             echo ' checked';
         } ?> />
