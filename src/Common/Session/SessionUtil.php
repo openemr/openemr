@@ -16,8 +16,9 @@
  *        vulnerabilities.
  *  2. If using php version 7.3.0 or above, then will set the cookie_samesite to Strict in
  *     order to prevent csrf vulnerabilities. Note this setting also is set in core
- *     OpenEMR restore_session() javascript function so it is maintained when the session id
- *     is changed in the cookie.
+ *     OpenEMR restoreSession() javascript function so it is maintained when the session id
+ *     is changed in the cookie (also is used in the transmit_form() function in login.php
+ *     and standardSessionCookieDestroy() function to avoid browser warnings).
  *  3. Using use_strict_mode, use_cookies, and use_only_cookies to optimize security.
  *  4. Using sid_bits_per_character of 6 to optimize security. This does allow comma to
  *     be used in the session id, so need to ensure properly escape it when modify it in
@@ -154,15 +155,30 @@ class SessionUtil
     {
         // Destroy the cookie
         $params = session_get_cookie_params();
-        setcookie(
-            session_name(),
-            '',
-            time() - 42000,
-            $params["path"],
-            $params["domain"],
-            $params["secure"],
-            $params["httponly"]
-        );
+        if (version_compare(phpversion(), '7.3.0', '>=')) {
+            setcookie(
+                session_name(),
+                '',
+                [
+                    'expires' => time() - 42000,
+                    'path' => $params["path"],
+                    'domain' => $params["domain"],
+                    'secure' => $params["secure"],
+                    'httponly' => $params["httponly"],
+                    'samesite' => $params["samesite"]
+                ]
+            );
+        } else {
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
 
         // Destroy the session.
         session_destroy();
