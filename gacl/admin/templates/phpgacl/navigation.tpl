@@ -12,7 +12,7 @@
 				<li{if $current eq 'acl_debug'} class="current"{/if}><a href="acl_debug.php">ACL Debug</a></li>
 				<li{if $current eq 'about'} class="current"{/if}><a href="about.php">About</a></li>
 				<li><a href="../docs/manual.html" rel="noopener" target="_blank">Manual</a></li>
-				<li><a href="../docs/phpdoc/" >API Guide</a></li>
+				<li><a href="../docs/phpdoc/" rel="noopener" target="_blank">API Guide</a></li>
 			</ul>
 {/if}
 		</div></div></div></div>
