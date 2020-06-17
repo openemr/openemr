@@ -10,7 +10,7 @@ use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 /**
  * Practitioner Service Tests
  * @coversDefaultClass OpenEMR\Services\PractitionerService
- * 
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
