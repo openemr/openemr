@@ -1,4 +1,5 @@
 <?php
+
 /**
  * main.php
  *
@@ -13,9 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../../globals.php');
-require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 
 use Esign\Api;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -23,9 +23,11 @@ use OpenEMR\Core\Header;
 
 // Ensure token_main matches so this script can not be run by itself
 //  If do not match, then destroy the session and go back to login screen
-if ((empty($_SESSION['token_main_php'])) ||
+if (
+    (empty($_SESSION['token_main_php'])) ||
     (empty($_GET['token_main'])) ||
-    ($_GET['token_main'] != $_SESSION['token_main_php'])) {
+    ($_GET['token_main'] != $_SESSION['token_main_php'])
+) {
     // Below functions are from auth.inc, which is included in globals.php
     authCloseSession();
     authLoginScreen(false);
@@ -116,7 +118,7 @@ function goRepeaterServices() {
             let audits = data.auditCnt;
             let payments = data.paymentCnt;
             let total = data.total;
-            let enable = "" + ((1 * mail) + (1 * audits)); // payments are among audits.
+            let enable = ((1 * mail) + (1 * audits)); // payments are among audits.
             // Send portal counts to notification button model
             app_view_model.application_data.user().portal(enable);
             if (enable > 0) {
@@ -273,19 +275,19 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
 ?>
 <script type="text/javascript">
     <?php if (!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
-        app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".$_SESSION['frame1url']); ?>);
+        app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../" . $_SESSION['frame1url']); ?>);
         app_view_model.application_data.tabs.tabsList()[0].name(<?php echo json_encode($_SESSION['frame1target']); ?>);
     <?php } ?>
 
     <?php if (!empty($_SESSION['frame2url']) && !empty($_SESSION['frame2target'])) { ?>
-    app_view_model.application_data.tabs.tabsList()[1].url(<?php echo json_encode("../".$_SESSION['frame2url']); ?>);
+    app_view_model.application_data.tabs.tabsList()[1].url(<?php echo json_encode("../" . $_SESSION['frame2url']); ?>);
     app_view_model.application_data.tabs.tabsList()[1].name(<?php echo json_encode($_SESSION['frame2target']); ?>);
     <?php } ?>
 
     app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION["authUser"])
-        .',' . json_encode($userQuery['fname'])
-        .',' . json_encode($userQuery['lname'])
-        .',' . json_encode($_SESSION['authGroup']); ?>));
+        . ',' . json_encode($userQuery['fname'])
+        . ',' . json_encode($userQuery['lname'])
+        . ',' . json_encode($_SESSION['authGroup']); ?>));
 
 </script>
 <script>
@@ -343,7 +345,7 @@ if (isset($_SESSION['app1'])) {
         array('apps', $_SESSION['app1'])
     );
     if ($rs['app_url'] != "main/main_screen.php") {
-        echo '<iframe name="app1" src="../../'.attr($rs['app_url']).'"
+        echo '<iframe name="app1" src="../../' . attr($rs['app_url']) . '"
     			style="position:absolute; left:0; top:0; height:100%; width:100%; border:none;" />';
         $disp_mainBox = 'style="display: none;"';
     }
