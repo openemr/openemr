@@ -719,4 +719,14 @@ ALTER TABLE `users` ADD `portal_user` TINYINT(1) NOT NULL DEFAULT '0';
 
 #IfMissingColumn users supervisor_id
 ALTER TABLE `users` ADD `supervisor_id` INT(11) NOT NULL DEFAULT '0';
+
+#IfMissingColumn users uuid
+ALTER TABLE `users` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate form_encounter
+#EndIf
+
+#IfNotIndex users uuid
+CREATE UNIQUE INDEX `uuid` ON `users` (`uuid`);
 #EndIf

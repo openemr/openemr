@@ -6698,6 +6698,7 @@ CREATE TABLE `transactions` (
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `username` varchar(255) default NULL,
   `password` longtext,
   `authorized` tinyint(4) default NULL,
