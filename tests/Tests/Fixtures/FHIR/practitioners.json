@@ -1,0 +1,57 @@
+[{
+    "id": "90cde167-7b9b-4ed1-bd55-533925cb2605",
+    "meta": {
+        "versionId": "1",
+        "lastUpdated": "2020-06-15T20:51:33+00:00"
+    },
+    "resourceType": "Practitioner",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <p>Yash Bothra</p></div>"
+    },
+    "identifier": [{
+        "system": "http://hl7.org.fhir/sid/us-npi",
+        "value": "1234567890"
+    }],
+    "active": true,
+    "name": [{
+        "use": "official",
+        "family": "Perez",
+        "given": [
+            "Eduardo",
+            "Kathy"
+        ],
+        "prefix": [
+            "Mrs."
+        ]
+    }],
+    "telecom": [{
+            "system": "phone",
+            "value": "(619) 555-4859",
+            "use": "home"
+        },
+        {
+            "system": "phone",
+            "value": "(619) 555-7821",
+            "use": "work"
+        },
+        {
+            "system": "phone",
+            "value": "(619) 555-7822",
+            "use": "mobile"
+        },
+        {
+            "system": "email",
+            "value": "info@pennfirm.com",
+            "use": "home"
+        }
+    ],
+    "address": [{
+        "line": [
+            "789 Third Avenue"
+        ],
+        "city": "San Diego",
+        "state": "CA",
+        "postalCode": "90210"
+    }]
+}]

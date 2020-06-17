@@ -157,6 +157,24 @@ class ApiTestClient
     }
 
     /**
+     * Submits a HTTP PATCH Request.
+     * @param $url - The target URL (relative)
+     * @param $id - The resource id
+     * @param $body - The PATCH request body (array)
+     * @return $patchResponse - HTTP response
+     */
+    public function patch($url, $id, $body)
+    {
+        $resourceUrl = $url . "/" . $id;
+
+        $patchResponse = $this->client->patch($resourceUrl, [
+            "headers" => $this->headers,
+            "body" => json_encode($body)
+        ]);
+        return $patchResponse;
+    }
+
+    /**
      * Submits a HTTP GET request for a single resource.
      * @param $url - The target URL (relative)
      * @param $id - The resource id
