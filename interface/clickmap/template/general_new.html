@@ -3,7 +3,7 @@
     <head>
     {headerTemplate}
 {/if}
-<script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/clickmap.js"></script>
+<script src="{php}echo $GLOBALS['webroot'];{/php}/library/js/clickmap.js"></script>
 <link rel="stylesheet" href="{$form->template_dir}/css/clickmap.css" />
 {if !$reportMode}
 	</head>
@@ -43,7 +43,7 @@
 	<span class='count'></span>
 </div>
 
-<script type="text/javascript">
+<script>
 {literal}
     $(function () {
 		var optionsLabel = {/literal}{$form->optionsLabel}{literal};

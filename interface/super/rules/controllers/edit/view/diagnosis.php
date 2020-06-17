@@ -16,8 +16,8 @@
 
 <head>
     <link rel="stylesheet" href="<?php css_src('rules.css') ?>">
-    <script language="javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript">
+    <script src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script>
         // This invokes the find-code popup.
         function sel_diagnosis() {
             dlgopen('../../patient_file/encounter/find_code_popup.php', '_blank', 500, 400);

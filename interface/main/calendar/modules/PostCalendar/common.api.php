@@ -287,7 +287,7 @@ function postcalendar_userapi_jsPopup()
 
     $output = <<<EOF
 
-<script language="javascript">
+<script>
 <!--
 function opencal(eid,date) {
     window.name='csCalendar';
@@ -326,7 +326,7 @@ function postcalendar_userapi_loadPopups()
 
     $output = <<<EOF
 
-<script language="JavaScript">
+<script>
 <!-- overLIB configuration -->
 ol_fgcolor = "$bgcolor1";
 ol_bgcolor = "$bgcolor2";
@@ -361,7 +361,7 @@ ol_hauto = 1;
 ol_vauto = 1;
 </script>
 <div id="overDiv" style="position:absolute; top:0px; left:0px; visibility:hidden; z-index:1000;"></div>
-<script language="JavaScript" src="modules/$pcDir/pnincludes/overlib_mini.js">
+<script src="modules/$pcDir/pnincludes/overlib_mini.js">
 <!-- overLIB (c) Erik Bosrup -->
 </script>
 

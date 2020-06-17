@@ -397,7 +397,7 @@ while ($srow = sqlFetchArray($sres)) {
 <title><?php echo xlt('Letter Generator'); ?></title>
 <?php Header::setupHeader(['datetime-picker', 'topdialog']); ?>
 
-<script language="JavaScript">
+<script>
 <?php echo $ulist; ?>
 
 // React to selection of a specialty.  This rebuilds the "to" users list

@@ -7,8 +7,8 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 ?>
-<script type="text/javascript">
+<script>
   top.restoreSession();
   window.location = "<?php echo $_redirect ?>";
 </script>
- 
+

@@ -88,7 +88,7 @@ if ($days_deceased) { ?>
                     $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
                     <?php $display_class = (empty($portalLogin)) ? "btn-save" : "btn-undo"; ?>
                     <a class='small_modal btn btn-secondary btn-sm <?php echo attr($display_class); ?>'
-                        href='<?php echo attr($portal_login_href); ?>?portalsite=on&patient=<?php echo attr_url($pid);?>'
+                        href='<?php echo attr($portal_login_href); ?>?patient=<?php echo attr_url($pid);?>'
                         onclick='top.restoreSession()'>
                         <?php $display = (empty($portalLogin)) ? xl('Create Onsite Portal Credentials') : xl('Reset Onsite Portal Credentials'); ?>
                         <span><?php echo text($display); ?></span>
@@ -99,25 +99,6 @@ if ($days_deceased) { ?>
                     $portalUserSetting = false;
                 } // allow patient portal
             } // Onsite Patient Portal
-            if ($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']) {
-                $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?", array($pid));
-                if ($portalStatus['allow_patient_portal'] == 'YES') {
-                    $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
-                    ?>
-                    <?php $display_class = (empty($portalLogin)) ? "btn-save" : "btn-undo"; ?>
-                    <a class='small_modal btn btn-secondary btn-sm <?php echo attr($display_class); ?>'
-                       href='<?php echo attr($portal_login_href); ?>?portalsite=off&patient=<?php echo attr_url($pid);?>'
-                       onclick='top.restoreSession()'>
-                        <span>
-                            <?php $text = (empty($portalLogin)) ? xl('Create Offsite Portal Credentials') : xl('Reset Offsite Portal Credentials'); ?>
-                            <?php echo text($text); ?>
-                        </span>
-                    </a>
-                    <?php
-                } else {
-                    $portalUserSetting = false;
-                } // allow_patient_portal
-            } // portal_offsite_enable
             if (!($portalUserSetting)) { // Show that the patient has not authorized portal access ?>
                 <p>
                     <i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo xlt('Patient has not authorized the Patient Portal.');?>

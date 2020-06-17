@@ -1496,7 +1496,7 @@ margin: 2px 0 2px 2px;">
         </div>
         <input type="hidden" name="PRIOR_PREFS_ACT_SHOW"  id="PRIOR_PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW); ?>">
 
-        <script type="text/javascript">
+        <script>
             $("#PRIOR_ACTTRIGGER").mouseover(function() {
                                                    $("#PRIOR_ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
                                                    });

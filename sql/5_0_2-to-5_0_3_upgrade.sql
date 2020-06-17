@@ -653,3 +653,9 @@ CREATE UNIQUE INDEX `token` ON `api_token` (`token`);
 #IfNotIndex patient_access_onsite pid
 CREATE UNIQUE INDEX `pid` ON `patient_access_onsite` (`pid`);
 #EndIf
+
+#IfTable patient_access_offsite
+DROP TABLE `patient_access_offsite`;
+#EndIf
+
+

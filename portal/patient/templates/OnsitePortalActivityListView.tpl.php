@@ -16,7 +16,7 @@
     $this->display('_Header.tpl.php');
 ?>
 
-<script type="text/javascript">
+<script>
     $LAB.script("scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
         $(function () {
             page.init();

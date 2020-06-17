@@ -5523,23 +5523,6 @@ CREATE TABLE `patient_reminders` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `patient_access_offsite`
---
-
-DROP TABLE IF EXISTS `patient_access_offsite`;
-CREATE TABLE  `patient_access_offsite` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `pid` bigint(20) NOT NULL,
-  `portal_username` varchar(100) NOT NULL,
-  `portal_pwd` varchar(255) NOT NULL,
-  `portal_pwd_status` tinyint(4) DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
-  `authorize_net_id` VARCHAR(20) COMMENT 'authorize.net profile id',
-  `portal_relation` VARCHAR(100) NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `pid` (`pid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
-
---
 -- Table structure for table `patient_tracker`
 --
 

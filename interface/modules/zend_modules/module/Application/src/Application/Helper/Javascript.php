@@ -30,7 +30,7 @@ class Javascript extends AbstractHelper
         }
 
         $basePath = str_replace("/index.php", "", $_SERVER['PHP_SELF']);
-        echo '<script type="text/javascript">';
+        echo '<script>';
         echo 'var basePath    = "' . $scheme . $_SERVER['SERVER_NAME'] . $basePath . '";';
         echo 'var dateFormat = "yy-mm-dd"';
         echo '</script>';

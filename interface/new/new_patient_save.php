@@ -146,7 +146,7 @@ if ($_POST['form_create']) {
 ?>
 <html>
 <body>
-<script language="Javascript">
+<script>
 <?php
 if ($alertmsg) {
     echo "alert(" . js_escape($alertmsg) . ");\n";

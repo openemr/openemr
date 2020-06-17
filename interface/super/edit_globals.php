@@ -20,7 +20,6 @@ require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
-require_once(__DIR__ . "/../../myportal/soap_service/portal_connectivity.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -64,7 +63,7 @@ function checkCreateCDB()
 
         $couch = new CouchDB();
         if (!$couch->check_connection()) {
-            echo "<script type='text/javascript'>alert(" . xlj("CouchDB Connection Failed.") . ");</script>";
+            echo "<script>alert(" . xlj("CouchDB Connection Failed.") . ");</script>";
             return false;
         }
 
@@ -156,7 +155,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
         }
     }
 
-    echo "<script type='text/javascript'>";
+    echo "<script>";
     echo "if (parent.left_nav.location) {";
     echo "  parent.left_nav.location.reload();";
     echo "  parent.Title.location.reload();";
@@ -168,50 +167,6 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
     echo "}";
     echo "self.location.href='edit_globals.php?mode=user&unique=yes';";
     echo "</script>";
-}
-
-if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
-
-    $client = portal_connection();
-    try {
-        $response = $client->getPortalConnectionFiles($credentials);
-    } catch (SoapFault $e) {
-        error_log('SoapFault Error');
-        error_log(errorLogEscape(var_dump(get_object_vars($e))));
-    } catch (Exception $e) {
-        error_log('Exception Error');
-        error_log(errorLogEscape(var_dump(get_object_vars($e))));
-    }
-
-    if (array_key_exists('status', $response) && $response['status'] == "1") {//WEBSERVICE RETURNED VALUE SUCCESSFULLY
-        $tmpfilename  = realpath(sys_get_temp_dir()) . "/" . date('YmdHis') . ".zip";
-        $fp           = fopen($tmpfilename, "wb");
-        fwrite($fp, base64_decode($response['value']));
-        fclose($fp);
-        $practice_filename    = $response['file_name'];//practicename.zip
-        ob_clean();
-        // Set headers
-        header("Cache-Control: public");
-        header("Content-Description: File Transfer");
-        header("Content-Disposition: attachment; filename=" . $practice_filename);
-        header("Content-Type: application/zip");
-        header("Content-Transfer-Encoding: binary");
-        // Read the file from disk
-        readfile($tmpfilename);
-        unlink($tmpfilename);
-        exit;
-    } else {//WEBSERVICE CALL FAILED AND RETURNED AN ERROR MESSAGE
-        ob_end_clean();
-        ?>
-    <script>
-        alert(<?php echo xlj('Offsite Portal web Service Failed') ?> + ":\\n" + <?php echo js_escape($response['value']); ?>);
-    </script>
-        <?php
-    }
 }
 ?>
 
@@ -345,30 +300,6 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 
 <?php Header::setupHeader(['common','jscolor']); ?>
 
-<script>
-function validate_file() {
-    $.ajax({
-        type: "POST",
-        url: "<?php echo $GLOBALS['webroot']?>/library/ajax/offsite_portal_ajax.php",
-        data: {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
-            action: 'check_file'
-        },
-        cache: false,
-        success: function(message) {
-            if (message == 'OK') {
-                document.getElementById('form_download').value = 1;
-                document.getElementById('file_error_message').innerHTML = '';
-                document.forms[0].submit();
-            } else {
-                document.getElementById('form_download').value = 0;
-                document.getElementById('file_error_message').innerHTML = message;
-                return false;
-            }
-        }
-    });
-}
-</script>
 <style>
 #oe-nav-ul.tabNav {
     display: flex !important;
@@ -800,16 +731,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                           echo " </div></div>\n";
                                             }
                                             ++$i;
-                                        }
-
-                                        if (trim(strtolower($fldid)) == 'portal_offsite_address_patient_link' && !empty($GLOBALS['portal_offsite_enable']) && !empty($GLOBALS['portal_offsite_providerid'])) {
-                                            echo "<div class='row'>";
-                                            echo "<div class='col-sm-12'>";
-                                            echo "<input type='hidden' name='form_download' id='form_download'>";
-                                            echo "<button onclick=\"return validate_file()\" type='button'>" . xlt('Download Offsite Portal Connection Files') . "</button>";
-                                            echo "<div id='file_error_message' class='alert alert-error'></div>";
-                                            echo "</div>";
-                                            echo "</div>";
                                         }
                                     }
 

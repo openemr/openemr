@@ -44,12 +44,6 @@ $oefax = !empty($GLOBALS['oefax_enable']) ? $GLOBALS['oefax_enable'] : 0;
  * @var EventDispatcherInterface $eventDispatcher  The event dispatcher / listener object
  */
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-
-$cmsportal = false;
-if ($GLOBALS['gbl_portal_cms_enable']) {
-    $ptdata = getPatientData($pid, 'cmsportal_login');
-    $cmsportal = $ptdata['cmsportal_login'] !== '';
-}
 ?>
 <html>
 <head>
@@ -262,9 +256,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <br />
             <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
             <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
-                <?php if ($cmsportal) { ?>
-            <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
-            <?php } ?>
             <?php
             if ($oefax) {
                 $eventDispatcher->dispatch(PatientReportEvent::ACTIONS_RENDER_POST, new GenericEvent());
@@ -461,9 +452,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </table>
             <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
             <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
-            <?php if ($cmsportal) { ?>
-            <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
-            <?php } ?>
 
             <!-- Procedure Orders -->
             <hr/>
@@ -542,11 +530,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 </ul>
                 <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
                 <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
-                <?php
-                if ($cmsportal) { ?>
-                    <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
-                    <?php
-                } ?>
             </div>
             </div>
             </fieldset>

@@ -170,7 +170,7 @@ function generate_receipt($patient_id, $encounter = 0)
 
         <?php Header::setupHeader(['datetime-picker']);?>
         <title><?php echo xlt('Receipt for Payment'); ?></title>
-        <script language="JavaScript">
+        <script>
 
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
@@ -717,7 +717,7 @@ function generate_receipt($patient_id, $encounter = 0)
 <!DOCTYPE html>
     <head>
             <?php Header::setupHeader(['datetime-picker']);?>
-            <script language="JavaScript">
+            <script>
             var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
             <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>

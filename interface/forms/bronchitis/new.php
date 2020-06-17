@@ -26,7 +26,7 @@ formHeader("Form: bronchitis");
 $returnurl = 'encounter_top.php';
 ?>
 <html><head>
-<SCRIPT LANGUAGE="JavaScript">
+<script>
 <!--
 
    function onset_check (form)   {
@@ -51,7 +51,7 @@ $returnurl = 'encounter_top.php';
     alert("OK, Bye!!!");
     return;
    }
-</SCRIPT>
+</script>
 
 <?php Header::setupHeader(); ?>
 </head>

@@ -25,7 +25,7 @@ $daemon_interval = 120; // Interval in seconds between reloads.
 
 <html>
 <body>
-<script type="text/javascript">
+<script>
 
 function timerint() {
     top.restoreSession();
