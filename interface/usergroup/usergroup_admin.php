@@ -181,10 +181,11 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         $tqvar  = $_POST["authorized"] ? 1 : 0;
         $actvar = $_POST["active"]     ? 1 : 0;
         $calvar = $_POST["calendar"]   ? 1 : 0;
+        $portalvar = $_POST["portal_user"] ? 1 : 0;
 
         sqlStatement("UPDATE users SET authorized = ?, active = ?, " .
-        "calendar = ?, see_auth = ? WHERE " .
-        "id = ? ", array($tqvar, $actvar, $calvar, $_POST['see_auth'], $_POST["id"]));
+        "calendar = ?, portal_user = ?, see_auth = ? WHERE " .
+        "id = ? ", array($tqvar, $actvar, $calvar, $portalvar, $_POST['see_auth'], $_POST["id"]));
       //Display message when Emergency Login user was activated
         $bg_count=count($_POST['access_group']);
         for ($i=0; $i<$bg_count; $i++) {
@@ -226,6 +227,10 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
             sqlStatement("update users set weno_prov_id = ? where id = ? ", array($_POST["erxprid"], $_POST["id"]));
         }
 
+        if (isset($_POST["supervisor_id"])) {
+            sqlStatement("update users set supervisor_id = ? where id = ? ", array((int)$_POST["supervisor_id"], $_POST["id"]));
+        }
+
         // Set the access control group of user
         $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
         set_user_aro(
@@ -246,6 +251,7 @@ if (isset($_POST["mode"])) {
         }
 
         $calvar = $_POST["calendar"] ? 1 : 0;
+        $portalvar = $_POST["portal_user"] ? 1 : 0;
 
         $res = sqlStatement("select distinct username from users where username != ''");
         $doit = true;
@@ -291,6 +297,8 @@ if (isset($_POST["mode"])) {
             "', irnpool = '"       . add_escape_custom(trim((isset($_POST['irnpool']) ? $_POST['irnpool'] : ''))) .
             "', calendar = '"      . add_escape_custom($calvar) .
             "', pwd_expiration_date = '" . add_escape_custom(trim($exp_date)) .
+            "', portal_user = '"   . add_escape_custom($portalvar) .
+            "', supervisor_id = '" . add_escape_custom((isset($_POST['supervisor_id']) ? (int)$_POST['supervisor_id'] : 0)) .
             "'";
 
             $clearAdminPass=$_POST['adminPass'];
@@ -407,7 +415,7 @@ if (isset($_GET["mode"])) {
         }
 
         foreach ($result as $iter) {
-            $un = $iter{"user"};
+            $un = $iter["user"];
         }
 
         $res = sqlStatement("select name, user from `groups` where user = ? " .
@@ -446,7 +454,7 @@ $(function(){
 
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
-        dlgopen('', '', 660, 450, '', '', {
+        dlgopen('', '', 'modal-mlg', 450, '', '', {
             type: 'iframe',
             url: $(this).attr('href')
         });

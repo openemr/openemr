@@ -25,7 +25,7 @@ $v_realpatch = '3';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 295;
+$v_database = 296;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used

@@ -316,3 +316,11 @@ VALUES ('U072', 'U07.2', '1', 'COVID-19, virus not identified', 'COVID-19, virus
 set @newMax = (SELECT MAX(revision) from icd10_dx_order_code);
 UPDATE `icd10_dx_order_code` SET `revision` = @newMax WHERE `dx_code` = 'U072';
 #EndIf
+
+#IfMissingColumn users portal_user
+ALTER TABLE `users` ADD `portal_user` TINYINT(1) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfMissingColumn users supervisor_id
+ALTER TABLE `users` ADD `supervisor_id` INT(11) NOT NULL DEFAULT '0';
+#EndIf

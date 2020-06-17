@@ -20,6 +20,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\UserService;
 
 $facilityService = new FacilityService();
 
@@ -246,10 +247,12 @@ foreach ($result2 as $iter) {
 }
 ?>
 </select></td>
-<td><span class="text"><?php echo xlt('Provider'); ?>: </span></td><td>
- <input type='checkbox' name='authorized' value='1' onclick='authorized_clicked()' />
- &nbsp;&nbsp;<span class='text'><?php echo xlt('Calendar'); ?>:
- <input type='checkbox' name='calendar' disabled />
+<td colspan="2"><span class="text"><?php echo xlt('Provider'); ?>: </span>
+<input type='checkbox' name='authorized' value='1' onclick='authorized_clicked()' />
+<span class='text'><?php echo xlt('Calendar'); ?>:
+<input type='checkbox' name='calendar' disabled /></span>
+<span class=text><?php echo xlt('Portal'); ?>:
+<input type="checkbox" name="portal_user" /></span>
 </td>
 </tr>
 <tr>
@@ -328,8 +331,29 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 <tr>
 <td><span class="text"><?php echo xlt('Taxonomy'); ?>: </span></td>
 <td><input type="entry" name="taxonomy" style="width:120px;" class="form-control" value="207Q00000X"></td>
-<td>&nbsp;</td><td>&nbsp;</td></tr>
-
+<td><span class="text"><?php echo xlt('Supervisor'); ?>: </span></td>
+<td>
+<select name="supervisor_id" style="width:150px;" class="form-control">
+    <option value=""><?php echo xlt("Select Supervisor") ?></option>
+    <?php
+    $userService = new UserService();
+    $users = $userService->getActiveUsers();
+    foreach ($users as $activeUser) {
+        $p_id = (int)$activeUser->getId();
+        if ($activeUser->getAuthorized() !== true) {
+            continue;
+        }
+        echo "<option value='" . attr($p_id) . "'";
+        if ((int)$iter["supervisor_id"] === $p_id) {
+            echo "selected";
+        }
+        echo ">" . text($activeUser->getLname()) . ' ' .
+            text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) . "</option>\n";
+    }
+    ?>
+</select>
+</td>
+</tr>
 <tr>
 <td><span class="text"><?php echo xlt('State License Number'); ?>: </span></td>
 <td><input type="text" name="state_license_number" style="width:120px;" class="form-control"></td>

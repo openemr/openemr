@@ -1435,10 +1435,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <div class="form-group col-lg-6 col-sm-12">
                                 <?php
                                 if (!$GLOBALS['ippf_specific']) { ?>
-                                    <label class='control-label col-lg-4 col-sm-3 text-left'> <?php echo xlt('Supervising'); ?> </label>
-                                    <?php echo $fs->genProviderSelect('SupervisorID', '-- '.xl("N/A").' --', $fs->supervisor_id, $isBilled);
-                                }
-                                ?>
+                                <label class='control-label col-lg-4 col-sm-3 text-left'> <?php echo xlt('Supervising'); ?> </label>
+                                    <?php
+                                    $super_id = sqlQuery("Select supervisor_id From users Where id = ?", array($default_rid))['supervisor_id'];
+                                    $select_id = !empty($fs->supervisor_id) ? $fs->supervisor_id : $super_id;
+                                    echo $fs->genProviderSelect('SupervisorID', '-- ' . xl("N/A") . ' --', $select_id, $isBilled); ?>
+                            <?php } ?>
                             </div>
                         </div>
                     </fieldset>

@@ -21,6 +21,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\UserService;
 
 if (!empty($_GET)) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -314,9 +315,14 @@ if ($password_exp != "0000-00-00") {
 
     if (!$iter["authorized"]) {
         echo " disabled";
-    } ?> />
- &nbsp;&nbsp;<span class='text'><?php echo xlt('Active'); ?>:
- <input type="checkbox" name="active"<?php echo ($iter["active"]) ? " checked" : ""; ?>/>
+    } ?> /></span>
+<span class=text><?php echo xlt('Portal'); ?>:
+<input type="checkbox" name="portal_user" <?php
+if ($iter["portal_user"]) {
+    echo " checked";
+} ?> /></span>
+<span class='text'><?php echo xlt('Active'); ?>:
+    <input type="checkbox" name="active"<?php echo ($iter["active"]) ? " checked" : ""; ?>/></span>
 </TD>
 </TR>
 
@@ -406,7 +412,29 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 <tr>
 <td><span class="text"><?php echo xlt('Taxonomy'); ?>: </span></td>
 <td><input type="text" name="taxonomy" style="width:150px;" class="form-control" value="<?php echo attr($iter["taxonomy"]); ?>"></td>
-<td>&nbsp;</td><td>&nbsp;</td></tr>
+<td><span class="text"><?php echo xlt('Supervisor'); ?>: </span></td>
+<td>
+    <select name="supervisor_id" style="width:150px;" class="form-control">
+        <option value=""><?php echo xlt("Select Supervisor") ?></option>
+        <?php
+        $userService = new UserService();
+        $users = $userService->getActiveUsers();
+        foreach ($users as $activeUser) {
+            $p_id = (int)$activeUser->getId();
+            if ($activeUser->getAuthorized() !== true) {
+                continue;
+            }
+            echo "<option value='" . attr($p_id) . "'";
+            if ((int)$iter["supervisor_id"] === $p_id) {
+                echo " selected";
+            }
+            echo ">" . text($activeUser->getLname()) . ' ' .
+                text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) . "</option>\n";
+        }
+        ?>
+    </select>
+</td>
+</tr>
 
 <tr>
 <td><span class="text"><?php echo xlt('State License Number'); ?>: </span></td>
