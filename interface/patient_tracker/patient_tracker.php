@@ -165,8 +165,6 @@ if (!$_REQUEST['flb_table']) {
     ?>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="author" content="OpenEMR: MedExBank">
     <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
     <title><?php echo xlt('Flow Board'); ?></title>
@@ -190,7 +188,7 @@ if (!$_REQUEST['flb_table']) {
     <div class="container mt-3">
         <div class="row" id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>;">
             <div class="col-12">
-                <h2><?php echo xlt('Flow Board'); ?></h2>
+                <h2 class="text-center"><?php echo xlt('Flow Board'); ?></h2>
             </div>
             <div class="col-12 jumbotron p-1">
                 <div class="showRFlow text-center" id="show_flows" name="kiosk_hide">
