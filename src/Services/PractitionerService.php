@@ -196,8 +196,6 @@ class PractitionerService extends BaseService
             return $processingResult;
         }
 
-        $freshPid = $this->getFreshId("id", "users");
-        $data['id'] = $freshPid;
         $data['uuid'] = (new UuidRegistry(['table_name' => 'users']))->createUuid();
 
         $query = $this->buildInsertColumns($data);
@@ -210,6 +208,7 @@ class PractitionerService extends BaseService
         );
 
         if ($results) {
+            $freshPid = $results['id'];
             $processingResult->addData(array(
                 'id' => $freshPid,
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])

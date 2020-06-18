@@ -8,7 +8,6 @@ use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 
 /**
  * Practitioner API Endpoint Test Cases.
- * NOTE: currently disabled (by naming convention) until work is completed to support running as part of Travis CI
  * @coversDefaultClass OpenEMR\Tests\Api\ApiTestClient
  * @package   OpenEMR
  * @link      http://www.open-emr.org

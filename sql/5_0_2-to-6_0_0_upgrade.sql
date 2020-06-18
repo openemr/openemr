@@ -724,7 +724,7 @@ ALTER TABLE `users` ADD `supervisor_id` INT(11) NOT NULL DEFAULT '0';
 ALTER TABLE `users` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate form_encounter
+#IfUuidNeedUpdate users
 #EndIf
 
 #IfNotIndex users uuid

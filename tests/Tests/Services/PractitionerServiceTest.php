@@ -35,15 +35,6 @@ class PractitionerServiceTest extends TestCase
     }
 
     /**
-     * @covers ::getFreshPid
-     */
-    public function testGetFreshPid()
-    {
-        $actualValue = $this->practitionerService->getFreshId("id", "users");
-        $this->assertGreaterThan(0, $actualValue);
-    }
-
-    /**
      * @covers ::insert when the data is invalid
      */
     public function testInsertFailure()
