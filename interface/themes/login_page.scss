@@ -17,8 +17,19 @@
 * @link    http://www.open-emr.org
 */
 
+$login-color-1: #fff !default;
+$login-color-2: #00d4ff !default;
+$login-color-3: #2c9cd4 !default;
+$login-text-color: #fff !default;
+$login-form-bg-color: $white !default;
+$login-button-primary: false !default;
+
 body.login {
   background: $light;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  resize: both;
 }
 
 .login-failure {
@@ -27,13 +38,72 @@ body.login {
   font-weight: bold;
 }
 
-.login .container {
-  background: $white;
-  border-radius: 10px;
+.login .login-row {
+  border-radius: 0.625rem;
+  background: $login-form-bg-color;
   box-shadow: 0 30px 60px 0 rgba($black, 0.3);
-  margin-top: 75px;
-  max-width: 785px;
-  padding: 25px;
+  resize: both;
+}
+
+.login-area {
+  background: $login-form-bg-color;
+}
+
+.login-bg {
+  background: linear-gradient(140deg, $login-color-1 0%, $login-color-2 35%, $login-color-3 100%);
+}
+
+@media (max-width: map-get($grid-breakpoints, "md")) {
+	.login-area {
+		border-bottom-left-radius: 0.625rem;
+		border-bottom-right-radius: 0.625rem;
+	}
+
+	.login-bg {
+		border-top-left-radius: 0.625rem;
+		border-top-right-radius: 0.625rem;
+	}
+}
+
+@media (min-width: map-get($grid-breakpoints, "md")) {
+	.login-area {
+		border-top-left-radius: 0.625rem;
+		border-bottom-left-radius: 0.625rem;
+	}
+
+	.login-bg {
+		border-top-right-radius: 0.625rem;
+		border-bottom-right-radius: 0.625rem;
+	}
+
+	// Makes size bigger to accommodate color bug
+	// Requires important tag to avoid collision with BS4
+	.py-md-login {
+		padding-top: 6.25rem !important;
+		padding-bottom: 6.25rem !important;
+	}
+}
+
+.btn-login {
+	@if ($login-button-primary) {
+		@extend .btn-primary;
+	} @else {
+		@extend .btn-secondary;
+	}
+}
+
+// Needed for logo
+.w-40 {
+	width: 40%;
+}
+
+// Needed for logo
+.w-15 {
+	width: 15%;
+}
+
+.login-bg-text-color {
+	color: $login-text-color !important;
 }
 
 .logo-left {
@@ -43,8 +113,6 @@ body.login {
 .login-title-label {
   font-size: 130%;
   font-weight: bold;
-  margin-bottom: 10px;
-  margin-left: 30px;
 }
 
 .login-logo-wrapper {
@@ -53,7 +121,6 @@ body.login {
 
 .tinylogopng {
   height: 43px;
-  margin-bottom: 10px;
   width: 86px;
 }
 

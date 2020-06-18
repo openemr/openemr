@@ -411,16 +411,19 @@ fieldset {
   background-color: $white !important;
 }
 
-.login-emr-logo > #red-color {
-  fill: #a40c04;
-}
-
-.login-emr-logo > #blue-color {
-  fill: #2c9cd4;
-}
-
-.login-emr-logo > #gray-color {
-  fill: #5c5c5c;
+.login-emr-logo {
+	> #red-color {
+	// Regular color: #a40c04
+	  fill: $white;
+	}
+	// Regular color: #2c9cd4
+	> #blue-color {
+	  fill: $white;
+	}
+	// Regular color: #5c5c5c
+	> #gray-color {
+	  fill: $white;
+	}
 }
 
 #mainBox .logo .emr-menu-logo > #blue-color,

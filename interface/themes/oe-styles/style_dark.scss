@@ -132,9 +132,6 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 }
 
 /* Changes all SVG colors to white to match theme */
-.login-emr-logo > #red-color,
-.login-emr-logo > #blue-color,
-.login-emr-logo > #gray-color,
 .about-review-image > #color {
   fill: $black !important;
 }
