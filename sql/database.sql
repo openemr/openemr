@@ -3,6 +3,52 @@
 --
 
 --
+-- Table structure for table `addressbook`
+--
+
+DROP TABLE IF EXISTS `addressbook`;
+CREATE TABLE `addressbook` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `fname` varchar(255) DEFAULT NULL,
+  `mname` varchar(255) DEFAULT NULL,
+  `lname` varchar(255) DEFAULT NULL,
+  `suffix` varchar(255) DEFAULT NULL,
+  `federaltaxid` varchar(255) DEFAULT NULL,
+  `upin` varchar(255) DEFAULT NULL,
+  `npi` varchar(15) DEFAULT NULL,
+  `title` varchar(30) DEFAULT NULL,
+  `specialty` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `email_direct` varchar(255) NOT NULL DEFAULT '',
+  `url` varchar(255) DEFAULT NULL,
+  `assistant` varchar(255) DEFAULT NULL,
+  `organization` varchar(255) DEFAULT NULL,
+  `valedictory` varchar(255) DEFAULT NULL,
+  `street` varchar(60) DEFAULT NULL,
+  `streetb` varchar(60) DEFAULT NULL,
+  `city` varchar(30) DEFAULT NULL,
+  `state` varchar(30) DEFAULT NULL,
+  `zip` varchar(20) DEFAULT NULL,
+  `street2` varchar(60) DEFAULT NULL,
+  `streetb2` varchar(60) DEFAULT NULL,
+  `city2` varchar(30) DEFAULT NULL,
+  `state2` varchar(30) DEFAULT NULL,
+  `zip2` varchar(20) DEFAULT NULL,
+  `phone` varchar(30) DEFAULT NULL,
+  `fax` varchar(30) DEFAULT NULL,
+  `phonew1` varchar(30) DEFAULT NULL,
+  `phonew2` varchar(30) DEFAULT NULL,
+  `phonecell` varchar(30) DEFAULT NULL,
+  `notes` text,
+  `taxonomy` varchar(30) NOT NULL DEFAULT '207Q00000X',
+  `abook_type` varchar(31) NOT NULL DEFAULT '',
+  `cpoe` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `addresses`
 --
 
