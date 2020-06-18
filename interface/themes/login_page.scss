@@ -29,6 +29,8 @@ body.login {
 
 .login .container {
   background: $white;
+  border-radius: 10px;
+  box-shadow: 0 30px 60px 0 rgba($black, 0.3);
   margin-top: 75px;
   max-width: 785px;
   padding: 25px;
