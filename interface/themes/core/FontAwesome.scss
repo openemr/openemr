@@ -187,9 +187,9 @@
 }
 
 .btn-setting {
-    &::before {
-      @extend %fa-defaults;
-      @extend .fas;
-      content: fa-content('#{$fa-var-cog}\00a0\00a0');
-    }
+  &::before {
+    @extend %fa-defaults;
+    @extend .fas;
+    content: fa-content('#{$fa-var-cog}\00a0\00a0');
   }
+}
