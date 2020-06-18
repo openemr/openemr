@@ -163,28 +163,28 @@ if (count($emr_app)) {
 
               <?php
               // collect default language id
-              $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
-              for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
-                  $result2[$iter] = $row;
-              }
+                $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
+                for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
+                    $result2[$iter] = $row;
+                }
 
-              if (count($result2) == 1) {
-                  $defaultLangID = $result2[0]["lang_id"];
-                  $defaultLangName = $result2[0]["lang_description"];
-              } else {
-                  //default to english if any problems
-                  $defaultLangID = 1;
-                  $defaultLangName = "English";
-              }
+                if (count($result2) == 1) {
+                    $defaultLangID = $result2[0]["lang_id"];
+                    $defaultLangName = $result2[0]["lang_description"];
+                } else {
+                    //default to english if any problems
+                    $defaultLangID = 1;
+                    $defaultLangName = "English";
+                }
 
               // set session variable to default so login information appears in default language
-              $_SESSION['language_choice'] = $defaultLangID;
+                $_SESSION['language_choice'] = $defaultLangID;
               // collect languages if showing language menu
-              if ($GLOBALS['language_menu_login']) {
-                  // sorting order of language titles depends on language translation options.
-                  $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-                  // Use and sort by the translated language name.
-                  $sql = "SELECT ll.lang_id, " .
+                if ($GLOBALS['language_menu_login']) {
+                    // sorting order of language titles depends on language translation options.
+                    $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+                    // Use and sort by the translated language name.
+                    $sql = "SELECT ll.lang_id, " .
                       "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
                       "ll.lang_description " .
                       "FROM lang_languages AS ll " .
@@ -192,31 +192,31 @@ if (count($emr_app)) {
                       "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
                       "ld.lang_id = ? " .
                       "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-                  $res3 = SqlStatement($sql, array($mainLangID));
+                    $res3 = SqlStatement($sql, array($mainLangID));
 
-                  for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
-                      $result3[$iter] = $row;
-                  }
+                    for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
+                        $result3[$iter] = $row;
+                    }
 
-                  if (count($result3) == 1) {
+                    if (count($result3) == 1) {
                         //default to english if only return one language
-                      echo "<input type='hidden' name='languageChoice' value='1' />\n";
-                  }
-              } else {
-                  echo "<input type='hidden' name='languageChoice' value='" . attr($defaultLangID) . "' />\n";
-              }
+                        echo "<input type='hidden' name='languageChoice' value='1' />\n";
+                    }
+                } else {
+                    echo "<input type='hidden' name='languageChoice' value='" . attr($defaultLangID) . "' />\n";
+                }
 
-              if ($GLOBALS['login_into_facility']) {
-                  $facilityService = new FacilityService();
-                  $facilities = $facilityService->getAll();
-                  $facilitySelected = ($GLOBALS['set_facility_cookie'] && isset($_COOKIE['pc_facility'])) ? $_COOKIE['pc_facility'] : null;
-              }
-              ?>
+                if ($GLOBALS['login_into_facility']) {
+                    $facilityService = new FacilityService();
+                    $facilities = $facilityService->getAll();
+                    $facilitySelected = ($GLOBALS['set_facility_cookie'] && isset($_COOKIE['pc_facility'])) ? $_COOKIE['pc_facility'] : null;
+                }
+                ?>
               <?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)) { // Begin relogin dialog ?>
               <div class="alert alert-info m-1 font-weight-bold">
-                  <?php echo xlt('Password security has recently been upgraded.') . '&nbsp;&nbsp;' . xlt('Please login again.'); ?>
+                    <?php echo xlt('Password security has recently been upgraded.') . '&nbsp;&nbsp;' . xlt('Please login again.'); ?>
               </div>
-                  <?php unset($_SESSION['relogin']);
+                    <?php unset($_SESSION['relogin']);
               }
               if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) { // Begin login failure block ?>
               <div class="alert alert-danger login-failure m-1">
@@ -304,9 +304,9 @@ if (count($emr_app)) {
                 $t1 = $GLOBALS['tiny_logo_1'];
                 $t2 = $GLOBALS['tiny_logo_2'];
                 if ($t1 && !$t2) {
-                  echo $tinylogocode1;
+                    echo $tinylogocode1;
                 } if ($t2 && !$t1) {
-                  echo $tinylogocode2;
+                    echo $tinylogocode2;
                 } if ($t1 && $t2) { ?>
                   <div class="row mb-3">
                     <div class="col-sm-6"><?php echo $tinylogocode1;?></div>
