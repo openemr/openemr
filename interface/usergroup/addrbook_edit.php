@@ -130,7 +130,7 @@ if ($_POST['form_save']) {
     }
 
     if ($userid) {
-        $query = "UPDATE users SET " .
+        $query = "UPDATE addressbook SET " .
         "abook_type = "   . invalue('form_abook_type')   . ", " .
         "title = "        . $form_title                  . ", " .
         "fname = "        . $form_fname                  . ", " .
@@ -168,31 +168,21 @@ if ($_POST['form_save']) {
         "WHERE id = '" . add_escape_custom($userid) . "'";
         sqlStatement($query);
     } else {
-        $userid = sqlInsert("INSERT INTO users ( " .
-        "username, password, authorized, info, source, " .
+        $userid = sqlInsert("INSERT INTO addressbook (" .
         "title, fname, lname, mname, suffix, " .
-        "federaltaxid, federaldrugid, upin, facility, see_auth, active, npi, taxonomy, cpoe, " .
-        "specialty, organization, valedictory, assistant, billname, email, email_direct, url, " .
+        "federaltaxid, upin, npi, taxonomy, cpoe, " .
+        "specialty, organization, valedictory, assistant, email, email_direct, url, " .
         "street, streetb, city, state, zip, " .
         "street2, streetb2, city2, state2, zip2, " .
         "phone, phonew1, phonew2, phonecell, fax, notes, abook_type "            .
         ") VALUES ( "                        .
-        "'', "                               . // username
-        "'', "                               . // password
-        "0, "                                . // authorized
-        "'', "                               . // info
-        "NULL, "                             . // source
         $form_title                   . ", " .
         $form_fname                   . ", " .
         $form_lname                   . ", " .
         $form_mname                   . ", " .
         $form_suffix                  . ", " .
         invalue('form_federaltaxid')  . ", " .
-        "'', "                               . // federaldrugid
         invalue('form_upin')          . ", " .
-        "'', "                               . // facility
-        "0, "                                . // see_auth
-        "1, "                                . // active
         invalue('form_npi')           . ", " .
         invalue('form_taxonomy')      . ", " .
         invalue('form_cpoe')          . ", " .
@@ -200,7 +190,6 @@ if ($_POST['form_save']) {
         invalue('form_organization')  . ", " .
         invalue('form_valedictory')   . ", " .
         invalue('form_assistant')     . ", " .
-        "'', "                               . // billname
         invalue('form_email')         . ", " .
         invalue('form_email_direct')  . ", " .
         invalue('form_url')           . ", " .
@@ -226,7 +215,7 @@ if ($_POST['form_save']) {
 } elseif ($_POST['form_delete']) {
     if ($userid) {
        // Be careful not to delete internal users.
-        sqlStatement("DELETE FROM users WHERE id = ? AND username = ''", array($userid));
+        sqlStatement("DELETE FROM addressbook WHERE id = ?", array($userid));
     }
 }
 
@@ -244,7 +233,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 }
 
 if ($userid) {
-    $row = sqlQuery("SELECT * FROM users WHERE id = ?", array($userid));
+    $row = sqlQuery("SELECT * FROM addressbook WHERE id = ?", array($userid));
 }
 
 if ($type) { // note this only happens when its new
@@ -541,18 +530,15 @@ if ($type) { // note this only happens when its new
 
 <br />
 
-<input type='submit' class='btn btn-primary' name='form_save' value='<?php echo xla('Save'); ?>' />
-
-<?php if ($userid && !$row['username']) { ?>
-&nbsp;
-<input type='submit' class='btn btn-danger' name='form_delete' value='<?php echo xla('Delete'); ?>' />
-<?php } ?>
-
-&nbsp;
-<input type='button' class='btn btn-secondary' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
-</p>
+<div class="btn-group">
+  <input type='submit' class='btn btn-primary' name='form_save' value='<?php echo xla('Save'); ?>' />
+  <?php if ($userid && !$row['username']) { ?>
+    <input type='submit' class='btn btn-danger' name='form_delete' value='<?php echo xla('Delete'); ?>' />
+  <?php } ?>
+  <input type='button' class='btn btn-secondary' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
+</div>
 </form>
-<?php    $use_validate_js = 1;?>
-<?php validateUsingPageRules($_SERVER['PHP_SELF']);?>
+<?php $use_validate_js = 1; ?>
+<?php validateUsingPageRules($_SERVER['PHP_SELF']); ?>
 </body>
 </html>

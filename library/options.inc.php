@@ -521,34 +521,13 @@ function generate_form_field($frow, $currvalue)
         } else {
             echo "</select>";
         }
-    } elseif ($data_type == 11) { // provider list, including address book entries with an NPI number
-        $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
-        "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-        "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
-        "ORDER BY lname, fname");
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
-        echo " $lbfonchange $disabled>";
-        echo "<option value=''>" . xlt('Unassigned') . "</option>";
-        $got_selected = false;
-        while ($urow = sqlFetchArray($ures)) {
-            $uname = text($urow['fname'] . ' ' . $urow['lname']);
-            $optionId = attr($urow['id']);
-            echo "<option value='$optionId'";
-            if ($urow['id'] == $currvalue) {
-                echo " selected";
-                $got_selected = true;
-            }
-
-            echo ">$uname</option>";
-        }
-
-        if (!$got_selected && $currvalue) {
-            echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
-            echo "</select>";
-            echo " <span class='text-danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
-        } else {
-            echo "</select>";
-        }
+    } elseif ($data_type == 11) { // Only address book entries with an NPI number
+      if ($currvalue) {
+          $ures = sqlQuery("SELECT fname, lname FROM addressbook WHERE id = " . $currvalue . " ORDER BY lname, fname");
+          $pseudooutput = $ures['lname'] . ", " . $ures['fname'];
+      }
+      echo "<input class='form-control' type='text' id='pseudoformfield_$field_id_esc' title='$description' style='cursor: pointer;' value='$pseudooutput' placeholder='" . xla('Click to select') . "' onclick='sel_addrbookcontact(\"$field_id_esc\")' />
+      <input type='hidden' name='form_$field_id_esc' id='form_$field_id_esc' value='$currvalue' />";
     } elseif ($data_type == 12) { // pharmacy list
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
@@ -627,14 +606,12 @@ function generate_form_field($frow, $currvalue)
             $tmp = "abook_type LIKE 'vendor%'";
         } elseif (isOption($frow['edit_options'], 'R') !== false) {
             $tmp = "abook_type LIKE 'dist'";
-        } else {
-            $tmp = "( username = '' OR authorized = 1 )";
         }
 
-        $ures = sqlStatement("SELECT id, fname, lname, organization, username FROM users " .
-        "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-        "AND $tmp " .
-        "ORDER BY organization, lname, fname");
+        // TODO: Find this use case and redo it to be an Address Book popup
+
+        $ures = sqlStatement("SELECT id, fname, lname, organization FROM addressbook " .
+        "WHERE $tmp " . "ORDER BY organization, lname, fname");
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
         echo "<option value=''>" . htmlspecialchars(xl('Unassigned'), ENT_NOQUOTES) . "</option>";
@@ -652,7 +629,7 @@ function generate_form_field($frow, $currvalue)
             echo "<option value='$optionValue'";
             // Failure to translate Local and External is not an error here;
             // they are only used as internal flags and must not be translated!
-            $title = $urow['username'] ? 'Local' : 'External';
+            $title = 'Local';
             $optionTitle = htmlspecialchars($title, ENT_QUOTES);
             echo " title='$optionTitle'";
             if ($urow['id'] == $currvalue) {
@@ -1463,7 +1440,7 @@ function generate_print_field($frow, $currvalue)
     } elseif ($data_type == 10 || $data_type == 11) { // provider list
         $tmp = '';
         if ($currvalue) {
-            $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+            $urow = sqlQuery("SELECT fname, lname, specialty FROM addressbook " .
             "WHERE id = ?", array($currvalue));
             $tmp = ucwords($urow['fname'] . " " . $urow['lname']);
             if (empty($tmp)) {
@@ -1551,7 +1528,7 @@ function generate_print_field($frow, $currvalue)
     } elseif ($data_type == 14) { // Address book.
         $tmp = '';
         if ($currvalue) {
-            $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+            $urow = sqlQuery("SELECT fname, lname, specialty FROM addressbook " .
             "WHERE id = ?", array($currvalue));
             $uname = $urow['lname'];
             if ($urow['fname']) {
@@ -2110,7 +2087,7 @@ function generate_display_field($frow, $currvalue)
             }
         }
     } elseif ($data_type == 10 || $data_type == 11) { // provider
-        $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+        $urow = sqlQuery("SELECT fname, lname, specialty FROM addressbook " .
         "WHERE id = ?", array($currvalue));
         $s = htmlspecialchars(ucwords($urow['fname'] . " " . $urow['lname']), ENT_NOQUOTES);
     } elseif ($data_type == 12) { // pharmacy list
@@ -2133,7 +2110,7 @@ function generate_display_field($frow, $currvalue)
             }
         }
     } elseif ($data_type == 14) { // address book
-        $urow = sqlQuery("SELECT fname, lname, specialty, organization FROM users " .
+        $urow = sqlQuery("SELECT fname, lname, specialty, organization FROM addressbook " .
         "WHERE id = ?", array($currvalue));
         //ViSolve: To display the Organization Name if it exist. Else it will display the user name.
         if ($urow['organization'] != "") {
@@ -2518,7 +2495,7 @@ function generate_plaintext_field($frow, $currvalue)
             $s .= ' ' . $tmp;
         }
     } elseif ($data_type == 10 || $data_type == 11) { // provider
-        $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+        $urow = sqlQuery("SELECT fname, lname, specialty FROM addressbook " .
         "WHERE id = ?", array($currvalue));
         $s = ucwords($urow['fname'] . " " . $urow['lname']);
     } elseif ($data_type == 12) { // pharmacy list
@@ -2532,7 +2509,7 @@ function generate_plaintext_field($frow, $currvalue)
             }
         }
     } elseif ($data_type == 14) { // address book
-        $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+        $urow = sqlQuery("SELECT fname, lname, specialty FROM addressbook " .
         "WHERE id = ?", array($currvalue));
         $uname = $urow['lname'];
         if ($urow['fname']) {

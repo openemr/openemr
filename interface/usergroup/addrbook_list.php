@@ -39,13 +39,11 @@ $form_lname = trim($_POST['form_lname']);
 $form_specialty = trim($_POST['form_specialty']);
 $form_organization = trim($_POST['form_organization']);
 $form_abook_type = trim($_REQUEST['form_abook_type']);
-$form_external = $_POST['form_external'] ? 1 : 0;
 
 $sqlBindArray = array();
-$query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM users AS u " .
+$query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM addressbook AS u " .
   "LEFT JOIN list_options AS lo ON " .
-  "list_id = 'abook_type' AND option_id = u.abook_type AND activity = 1 " .
-  "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) ";
+  "list_id = 'abook_type' AND option_id = u.abook_type AND activity = 1 ";
 if ($form_organization) {
     $query .= "AND u.organization LIKE ? ";
     array_push($sqlBindArray, $form_organization . "%");
@@ -69,10 +67,6 @@ if ($form_specialty) {
 if ($form_abook_type) {
     $query .= "AND u.abook_type LIKE ? ";
     array_push($sqlBindArray, $form_abook_type);
-}
-
-if ($form_external) {
-    $query .= "AND u.username = '' ";
 }
 
 if ($form_lname) {
@@ -107,45 +101,45 @@ $res = sqlStatement($query, $sqlBindArray);
         <div class="col-md-12">
             <h3><?php echo xlt('Address Book'); ?></h3>
 
-        <form class='navbar-form' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
+        <form method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-            
                 <div class="form-group">
-                <div class="row">
-                    <div class="col-sm-2">
+                <div class="row align-items-center">
+                  <div class="col-sm">
                     <label for="form_organization"><?php echo xlt('Organization') ?>:</label>
-                    <input type='text' class="form-control inputtext" name='form_organization' size='10' value='<?php echo attr($_POST['form_organization']); ?>'  title='<?php echo xla("All or part of the organization") ?>'/>&nbsp;
-                    </div>
-                    <div class="col-sm-2">
+                    <input type='text' class="form-control inputtext" name='form_organization' size='10' value='<?php echo attr($_POST['form_organization']); ?>' title='<?php echo xla("All or part of the organization") ?>'/>
+                  </div>
+                  <div class="col-sm">
                     <label for="form_fname"><?php echo xlt('First Name') ?>:</label>
-                    <input type='text' class="form-control inputtext" name='form_fname' size='10' value='<?php echo attr($_POST['form_fname']); ?>'  title='<?php echo xla("All or part of the first name") ?>'/>&nbsp;
-                    </div>
-                    <div class="col-sm-2">
+                    <input type='text' class="form-control inputtext" name='form_fname' size='10' value='<?php echo attr($_POST['form_fname']); ?>' title='<?php echo xla("All or part of the first name") ?>'/>
+                  </div>
+                  <div class="col-sm">
                     <label for="form_lname"><?php echo xlt('Last Name') ?>:</label>
-                    <input type='text' class="form-control inputtext" name='form_lname' size='10' value='<?php echo attr($_POST['form_lname']); ?>'  title='<?php echo xla("All or part of the last name") ?>'/>&nbsp;
-                    </div>
-                    <div class="col-sm-2">
+                    <input type='text' class="form-control inputtext" name='form_lname' size='10' value='<?php echo attr($_POST['form_lname']); ?>' title='<?php echo xla("All or part of the last name") ?>'/>
+                  </div>
+                  <div class="col-sm">
                     <label for="form_specialty"><?php echo xlt('Specialty') ?>:</label>
-                    <input type='text' class="form-control inputtext" name='form_specialty' size='10' value='<?php echo attr($_POST['form_specialty']); ?>' title='<?php echo xla("Any part of the desired specialty") ?>'/>&nbsp;
-                    </div>
-                    <div class="col-sm-2">
+                    <input type='text' class="form-control inputtext" name='form_specialty' size='10' value='<?php echo attr($_POST['form_specialty']); ?>' title='<?php echo xla("Any part of the desired specialty") ?>'/>
+                  </div>
+                  <div class="col-sm">
+                    <label for="abook_type"><?php echo xlt('Type'); ?>:</label>
                     <?php
-                    echo '<label>' . xlt('Type') . ": " . '</label>';
                     // Generates a select list named form_abook_type:
                     echo generate_select_list("form_abook_type", "abook_type", $_REQUEST['form_abook_type'], '', 'All');
                     ?>
-                    </div>
-                    </div>
-                    <input type='checkbox' id="formExternal" name='form_external' value='1'<?php echo ($form_external) ? ' checked ' : ''; ?> title='<?php echo xla("Omit internal users?") ?>' />
-                    <label for="formExternal"><?php echo xlt('External Only') ?></label>
-                    <input type='button' class='btn btn-primary' value='<?php echo xla("Add New"); ?>' onclick='doedclick_add(document.forms[0].form_abook_type.value)' />&nbsp;&nbsp;
-                    <input type='submit' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>' class='btn btn-primary btn-search' name='form_search' value='<?php echo xla("Search") ?>'/>
-                    </div>
+                  </div>
+                </div>
+                <div class="text-center mt-3">
+                  <div class="btn-group">
+                    <button class='btn btn-primary btn-add' onclick='doedclick_add(document.forms[0].form_abook_type.value)'><?php echo xlt("Add New"); ?></button>
+                    <input type='submit' class='btn btn-primary btn-search' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>' name='form_search' value='<?php echo xla("Search") ?>'/>
+                  </div>
+                </div>
+              </div>
         </form>
     </div>
     </div>
-<div style="margin-top: 110px;" class="table-responsive">
+<div class="mt-3 table-responsive">
 <table class="table table-sm table-bordered table-striped table-hover">
  <thead>
   <th title='<?php echo xla('Click to view or edit'); ?>'><?php echo xlt('Organization'); ?></th>
@@ -199,7 +193,6 @@ while ($row = sqlFetchArray($res)) {
     echo "  <td>" . text($row['street'])    . "</td>\n";
     echo "  <td>" . text($row['city'])      . "</td>\n";
     echo "  <td>" . text($row['state'])     . "</td>\n";
-    echo "  <td>" . text($row['zip'])       . "</td>\n";
     echo " </tr>\n";
 }
 ?>

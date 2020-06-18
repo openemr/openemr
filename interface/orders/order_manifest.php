@@ -86,7 +86,7 @@ function generate_order_summary($orderid)
         "LEFT JOIN patient_data AS pd ON pd.pid = po.patient_id " .
         "LEFT JOIN procedure_providers AS pp ON pp.ppid = po.lab_id " .
         "LEFT JOIN users AS u ON u.id = po.provider_id " .
-        "LEFT JOIN users AS ru ON ru.id = pd.ref_providerID " .
+        "LEFT JOIN addressbook AS ru ON ru.id = pd.ref_providerID " .
         "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
         "WHERE po.procedure_order_id = ?",
         array($orderid)

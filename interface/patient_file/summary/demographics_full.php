@@ -261,6 +261,17 @@ function popUp(URL) {
  eval("page" + id + " = window.open(URL, '" + id + "', 'toolbar=0,scrollbars=1,location=0,statusbar=0,menubar=0,resizable=1,width=400,height=300,left = 440,top = 362');");
 }
 
+function setAddrBook(htmlid, cid, fname, lname) {
+  $('#form_' + htmlid).val(cid);
+  $('#pseudoformfield_' + htmlid).val(lname + ", " + fname);
+}
+
+// This invokes the find in address book popup
+function sel_addrbookcontact(id) {
+    let title = '<?php echo xlt('Address Book Search'); ?>';
+    dlgopen('../../usergroup/find_contact_popup.php?id=' + id, 'findAddrBook', 800, 300, '', title);
+}    
+
 function checkNum () {
  var re= new RegExp();
  re = /^\d*\.?\d*$/;
