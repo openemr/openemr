@@ -208,9 +208,8 @@ class PractitionerService extends BaseService
         );
 
         if ($results) {
-            $freshPid = $results['id'];
             $processingResult->addData(array(
-                'id' => $freshPid,
+                'id' => $results,
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
             ));
         } else {

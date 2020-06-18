@@ -155,7 +155,7 @@ class FhirPractitionerService extends FhirServiceBase
         }
         if (isset($dataRecord['npi'])) {
             $fhirIdentifier = [
-                'system' => 'http://hl7.org.fhir/sid/us-npi',
+                'system' => "http://hl7.org/fhir/sid/us-npi",
                 'value' => $dataRecord['npi']
             ];
             $practitionerResource->addIdentifier($fhirIdentifier);
@@ -247,7 +247,7 @@ class FhirPractitionerService extends FhirServiceBase
         }
 
         foreach ($fhirResource['identifier'] as $index => $identifier) {
-            if ($identifier['system'] == "http://hl7.org.fhir/sid/us-npi") {
+            if ($identifier['system'] == "http://hl7.org/fhir/sid/us-npi") {
                 $data['npi'] = $identifier['value'];
             }
         }
