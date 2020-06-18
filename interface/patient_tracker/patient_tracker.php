@@ -958,6 +958,9 @@ function myLocalJS()
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
+                        if($("#flb_caret").hasClass('text-danger')) {
+                          $("#flb_caret").removeClass('text-danger');
+                        }
                         $("#flb_caret").addClass('text-body');
                 });
             } else {
@@ -967,6 +970,9 @@ function myLocalJS()
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
+                        if($("#flb_caret").hasClass('text-body')) {
+                          $("#flb_caret").removeClass('text-body');
+                        }
                         $("#flb_caret").addClass('text-danger');
                 });
             }
