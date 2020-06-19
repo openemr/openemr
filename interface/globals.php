@@ -498,11 +498,11 @@ $GLOBALS['restore_sessions'] = 1; // 0=no, 1=yes, 2=yes+debug
 //
 $top_bg_line = ' bgcolor="#dddddd" ';
 $GLOBALS['style']['BGCOLOR2'] = "#dddddd";
-$logocode = "<img class='img-responsive center-block' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/login_logo.gif'>";
+$logocode = "<img class='img-fluid' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/login_logo.gif' />";
 // optimal size for the tiny logo is height 43 width 86 px
 // inside the open emr they will be auto reduced
-$tinylogocode1 = "<img class='tinylogopng' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png'>";
-$tinylogocode2 = "<img class='tinylogopng' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_2.png'>";
+$tinylogocode1 = "<img class='img-responsive d-block mx-auto' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png'>";
+$tinylogocode2 = "<img class='img-responsive d-block mx-auto' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_2.png'>";
 
 $GLOBALS['style']['BGCOLOR1'] = "#cccccc";
 // The height in pixels of the Title bar:
@@ -535,6 +535,7 @@ if (!empty($version)) {
 } else {
     $openemr_version = xl('Unknown version');
 }
+$GLOBALS['openemr_version'] = $openemr_version;
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];

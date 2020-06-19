@@ -62,6 +62,12 @@ $font-size-base: 0.875rem;
 $rfs-base-value: 0.875rem;
 $font-family-base: $font-family-sans-serif;
 
+// Login form bg change
+$login-form-bg-color: $dark;
+$login-color-2: $primary;
+$login-color-3: darken($primary, 20%);
+$login-button-primary: true;
+
 // Enables responsive text for Bootstrap
 $enable-responsive-font-sizes: true;
 // Import Bootstrap 4 SCSS Files before doing anything
@@ -162,18 +168,8 @@ div.tab_long {
 }
 
 /* Changes all SVG colors to white to match theme */
-.login-emr-logo > #blue-color,
-.login-emr-logo > #gray-color {
-  fill: $white !important;
-}
-
 .about-review-image > #color {
   fill: $white !important;
-}
-
-/* show orange color in the logo */
-.login-emr-logo > #red-color {
-  fill: $primary !important;
 }
 
 #mainBox .logo .emr-menu-logo > #blue-color,

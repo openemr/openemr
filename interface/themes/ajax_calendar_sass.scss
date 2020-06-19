@@ -49,7 +49,7 @@ div.tiny {
   float: $left;
   min-width: 20%;
   padding: 0 0.3125rem;
-  margin-#{$right}: 0%;
+  margin-#{$right}: 0;
   /* added because of the width issue above */
 }
 
@@ -498,7 +498,7 @@ div.tiny {
   }
 
   .page-content-wrapper {
-    margin-#{$left}: 0%;
+    margin-#{$left}: 0;
     width: 100%;
   }
 
@@ -530,7 +530,7 @@ div.tiny {
   }
 
   #wrapper.toggled .page-content-wrapper {
-    margin-#{$left}: 0%;
+    margin-#{$left}: 0;
     width: 100%;
   }
 }

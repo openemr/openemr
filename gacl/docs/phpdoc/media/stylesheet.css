@@ -1,7 +1,5 @@
-a {
-  color: #000090;
-  text-decoration: none;
-}
+@import url("../../../../public/assets/bootstrap/dist/css/bootstrap.min.css");
+@import url("../../../../public/assets/@fortawesome/fontawesome-free/css/all.min.css");
 
 a:hover,
 a:active,
@@ -9,16 +7,6 @@ a:focus {
   background-color: highlight;
   color: highlighttext;
   text-decoration: none;
-}
-
-body {
-  background: #fff;
-}
-
-body,
-table {
-  font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-size: 10pt;
 }
 
 a img {

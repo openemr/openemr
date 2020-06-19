@@ -6753,6 +6753,8 @@ CREATE TABLE `users` (
   `physician_type` VARCHAR(50) DEFAULT NULL,
   `main_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard',
   `patient_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard',
+  `portal_user` tinyint(1) NOT NULL DEFAULT '0',
+  `supervisor_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
@@ -9742,10 +9744,10 @@ CREATE TABLE `form_taskman` (
 
 DROP TABLE IF EXISTS `product_registration`;
 CREATE TABLE `product_registration` (
-  `registration_id` char(36) NOT NULL DEFAULT '',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NULL,
   `opt_out` TINYINT(1) NULL,
-  PRIMARY KEY (`registration_id`)
+  PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------

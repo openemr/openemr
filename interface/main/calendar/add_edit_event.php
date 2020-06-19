@@ -1147,7 +1147,9 @@ function set_allday() {
     document.getElementById('tdallday5').style.color = color2;
     f.form_hour.disabled = disabled2;
     f.form_minute.disabled = disabled2;
-    f.form_ampm.disabled = disabled2;
+    <?php if ($GLOBALS['time_display_format'] == 1) { ?>
+        f.form_ampm.disabled = disabled2;
+    <?php } ?>
     f.form_duration.disabled = disabled2;
 }
 
@@ -1285,7 +1287,9 @@ function setappt(year,mon,mday,hours,minutes) {
         ('' + (mon  + 100)).substring(1) + '/' +
         '' + year;
     <?php } ?>
-    f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
+    <?php if ($GLOBALS['time_display_format'] == 1) { ?>
+        f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
+    <?php } ?>
     f.form_hour.value = (hours > 12) ? hours - 12 : hours;
     f.form_minute.value = ('' + (minutes + 100)).substring(1);
 }
