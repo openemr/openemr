@@ -268,7 +268,7 @@ Request:
 curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Practitioner' -d \
 '{
   "resourceType": "Practitioner",
-  "identifier": [ { "system": "http://hl7.org.fhir/sid/us-npi", "value": "1122334499" } ],
+  "identifier": [ { "system": "http://hl7.org/fhir/sid/us-npi", "value": "1122334499" } ],
   "name": [ {
       "use": "official",
       "family": "Chalmers",
@@ -285,7 +285,7 @@ Request:
 curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Practitioner/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
 '{
   "resourceType": "Practitioner",
-  "identifier": [ { "system": "http://hl7.org.fhir/sid/us-npi", "value": "1155667799" } ],
+  "identifier": [ { "system": "http://hl7.org/fhir/sid/us-npi", "value": "1155667799" } ],
   "name": [ {
       "use": "official",
       "family": "Theil",

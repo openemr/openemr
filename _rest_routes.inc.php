@@ -412,7 +412,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return (new FhirPractitionerRestController())->post($data);
     },
     "PATCH /fhir/Practitioner/:id" => function ($id) {
-        RestConfig::authorization_check("patients", "demo");
+        RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         return (new FhirPractitionerRestController())->patch($id, $data);
     },

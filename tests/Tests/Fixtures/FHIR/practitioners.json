@@ -94,7 +94,7 @@
             "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">\n      <p>Harold Hippocrates, MD</p>\n    </div>"
         },
         "identifier": [{
-            "system": "http://hl7.org.fhir/sid/us-npi",
+            "system": "http://hl7.org/fhir/sid/us-npi",
             "value": "9274253214"
         }],
         "name": [{
