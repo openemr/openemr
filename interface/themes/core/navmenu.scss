@@ -194,9 +194,9 @@ removed as doesn't make sense and ruins responsive sjp
   cursor: pointer;
   display: block;
   font-weight: bold;
-  margin-#{$left}: 0;
   padding: 2px 2px 2px 17px;
   width: 160px;
+  margin-#{$left}: 0;
 }
 
 .example_menu a.expanded {

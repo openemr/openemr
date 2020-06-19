@@ -1,5 +1,4 @@
 /* OpenEMR Bootstrap Override */
-
 fieldset {
   margin-bottom: 10px !important;
   padding: 0 0 15px !important;
@@ -120,11 +119,6 @@ input[type=radio] {
 
 .form-horizontal .col-form-label {
   padding-top: 2px !important;
-}
-
-.form-control {
-  height: 24px !important;
-  padding: 0 6px !important;
 }
 
 .checkbox input[type=checkbox],

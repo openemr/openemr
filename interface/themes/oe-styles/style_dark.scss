@@ -88,6 +88,7 @@ $font-family-base: $font-family-sans-serif;
 $btn-link-disabled-color: $gray-400;
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
+$login-text-color: #000;
 
 // Enables responsive text for Bootstrap
 $enable-responsive-font-sizes: true;
@@ -132,9 +133,6 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 }
 
 /* Changes all SVG colors to white to match theme */
-.login-emr-logo > #red-color,
-.login-emr-logo > #blue-color,
-.login-emr-logo > #gray-color,
 .about-review-image > #color {
   fill: $black !important;
 }
