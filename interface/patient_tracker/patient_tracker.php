@@ -165,9 +165,6 @@ if (!$_REQUEST['flb_table']) {
     ?>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="author" content="OpenEMR: MedExBank">
     <?php Header::setupHeader(['datetime-picker', 'opener', 'purecss']); ?>
     <title><?php echo xlt('Flow Board'); ?></title>
     <script>
@@ -179,10 +176,6 @@ if (!$_REQUEST['flb_table']) {
 
     <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
     <style>
-        label {
-            font-weight: 400;
-        }
-
         select {
             width: 170px;
         }
@@ -224,7 +217,7 @@ if (!$_REQUEST['flb_table']) {
             padding: 3px 10px;
             text-transform: uppercase;
             line-height: 1.5rem;
-            border-bottom: 2px solid var(--black);
+            border-bottom: 2px solid var(--body-color);
             margin: 0 auto;
             width: 70%;
         }
@@ -237,11 +230,8 @@ if (!$_REQUEST['flb_table']) {
             font-size: 1.0rem;
         }
 
-        body_top {
-            height: 100%;
-        }
         a:hover {
-            color: var(--black);
+            color: var(--body-color);
             text-decoration: none;
         }
     </style>
@@ -492,7 +482,7 @@ if (!$_REQUEST['flb_table']) {
                     <div class="table-responsive">
                     <table class="table table-sm table-bordered">
                     <thead>
-                    <tr bgcolor="#cccfff" class="small font-weight-bold text-center">
+                    <tr class="small font-weight-bold text-center table-primary">
                         <?php if ($GLOBALS['ptkr_show_pid']) { ?>
                             <td class="dehead text-center d-none d-sm-table-cell text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('PID'); ?>
@@ -828,10 +818,10 @@ if (!$_REQUEST['flb_table']) {
                         if (($yestime == '1') && ($timecheck >= 1) && (strtotime($newarrive) != '')) {
                             echo text($timecheck . ' ' . ($timecheck >= 2 ? xl('minutes') : xl('minute')));
                         } elseif ($icon_here || $icon2_here || $icon_CALL) {
-                            echo "<span style='font-size:0.7em;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode($icon_here) . $icon2_here . "</span> " . $icon_CALL;
+                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode($icon_here) . $icon2_here . "</span> " . $icon_CALL;
                         } elseif ($logged_in) {
                             $pat = $MedEx->display->possibleModalities($appointment);
-                            echo "<span style='font-size:0.7em;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
+                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
                         }
                         //end time in current status
                         echo "</td>";
@@ -968,7 +958,10 @@ function myLocalJS()
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
-                        $("#flb_caret").css('color', 'var(--black)');
+                        if($("#flb_caret").hasClass('text-danger')) {
+                          $("#flb_caret").removeClass('text-danger');
+                        }
+                        $("#flb_caret").addClass('text-body');
                 });
             } else {
                 $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
@@ -977,7 +970,10 @@ function myLocalJS()
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
-                        $("#flb_caret").css('color', 'var(--danger)');
+                        if($("#flb_caret").hasClass('text-body')) {
+                          $("#flb_caret").removeClass('text-body');
+                        }
+                        $("#flb_caret").addClass('text-danger');
                 });
             }
             $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');

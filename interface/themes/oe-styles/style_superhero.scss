@@ -23,7 +23,8 @@ $theme-colors: (
   warning: $yellow,
   danger: $red,
   light: $light,
-  dark: $dark
+  dark: $dark,
+  body-color: $body-color
 );
 $colors: (
   "blue": $blue,
@@ -116,7 +117,29 @@ div.tab_long {
 
 /* Makes tab font black */
 .menuLabel {
-  color: $dark !important;
+  color: $dark;
+}
+
+.menuEntries li .menuLabel {
+  color: $white;
+
+  &:hover {
+    color: $dark;
+  }
+}
+
+.appMenu ul .menuLabel,
+.appMenu_small ul .menuLabel {
+  color: $white !important;
+
+  &:hover {
+    color: $dark !important;
+  }
+}
+
+.section {
+  background: $gray-700 !important;
+  border-color: $gray-600 !important;
 }
 
 /* Calendar Overrides */

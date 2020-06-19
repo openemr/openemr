@@ -33,6 +33,9 @@ $light: $gray-100;
 $dark: $gray-800;
 $gray: $gray-600;
 
+$body-bg: $white;
+$body-color: $gray-900;
+
 /* Array of theme colors that can be added to */
 $theme-colors: (
   primary: $blue,
@@ -42,7 +45,8 @@ $theme-colors: (
   warning: $yellow,
   danger: $red,
   light: $gray-100,
-  dark: $gray-800
+  dark: $gray-800,
+  body-color: $body-color
 );
 
 /* Array of random colors that can be added to */
@@ -73,8 +77,6 @@ $colors: (
 );
 /* Above adds overrides to allow regular CSS coloring */
 
-$body-bg: $white;
-$body-color: $gray-900;
 $font-family-sans-serif: "source_sans_pro", "FontAwesome", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-size-base: 1rem;
 $rfs-base-value: 1rem;

@@ -13,6 +13,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+ // TODO: Make more intuitive
+
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'] . '/patient.inc');
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
@@ -274,7 +276,7 @@ var SelectItem = function(jobj) {
             echo "</div>\n";
             ?>
 
-        <div class="table-responsive">
+            <!-- Exception here: Do not use table-responsive as it breaks datatables !-->
             <table id="my_data_table" class="table table-striped table-hover table-sm">
                 <thead>
                     <tr>
@@ -289,7 +291,6 @@ var SelectItem = function(jobj) {
                     </tr>
                 </tbody>
             </table>
-        </div>
 
         <?php if ($what == 'fields' && $source == 'E') { ?>
             <div class="row">

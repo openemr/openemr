@@ -78,7 +78,11 @@ class Header
     public static function setupHeader($assets = [], $echoOutput = true)
     {
         // Required tag
-        $output = '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />';
+        $output = '<meta charset="utf-8" />';
+        // Makes only compatible with MS Edge
+        $output .= '<meta http-equiv="X-UA-Compatible" content="IE=edge" />';
+        // BS4 required tag
+        $output .= '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />';
         $output .= self::setupAssets($assets, true, false);
         if ($echoOutput) {
             echo $output;
