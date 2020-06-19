@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Default values for optional variables that are allowed to be set by callers.
  *
@@ -131,7 +130,10 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
                 $srcdir = "../library";
                 require_once("$srcdir/auth.inc");
             }
-            die("Site ID is missing from session data!");
+            // Site ID missing from session data
+            require_once("session_expired.php");
+            sessionExpired($web_root);
+            exit();
         }
 
         $tmp = $_SERVER['HTTP_HOST'];
