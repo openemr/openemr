@@ -224,7 +224,7 @@ function cron_getFacilitiesMap()
     $facility_msg_map = array();
     $facility_phone_map = array();
     //get facilities from the database
-    $fres = $facilityService->getAll();
+    $fres = $facilityService->getAllFacility();
     foreach ($fres as $frow) {
         $facility_msg_map[$frow['id']] = $message_map[$frow['name']];
         $facility_phone_map[$frow['id']] = $frow['phone'];

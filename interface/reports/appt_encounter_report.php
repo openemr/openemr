@@ -255,7 +255,7 @@ if ($_POST['form_refresh']) {
                 <?php
                  // Build a drop-down list of facilities.
                  //
-                $fres = $facilityService->getAll();
+                $fres = $facilityService->getAllFacility();
                 echo "   <select name='form_facility' class='form-control'>\n";
                 echo "    <option value=''>-- " . xlt('All Facilities') . " --\n";
                 foreach ($fres as $frow) {

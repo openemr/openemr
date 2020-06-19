@@ -61,7 +61,7 @@ class FacilityService extends BaseService
         return $validator->validate($facility);
     }
 
-    public function getAll()
+    public function getAllFacility()
     {
         return $this->get(array("order" => "ORDER BY FAC.name ASC"));
     }
@@ -170,7 +170,7 @@ class FacilityService extends BaseService
         ));
     }
 
-    public function update($data)
+    public function updateFacility($data)
     {
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE facility SET ";
@@ -183,7 +183,7 @@ class FacilityService extends BaseService
         );
     }
 
-    public function insert($data)
+    public function insertFacility($data)
     {
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO facility SET ";
