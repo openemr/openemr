@@ -399,15 +399,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return (new FhirEncounterRestController())->getOne($id);
     },
     "GET /fhir/Practitioner" => function () {
-        RestConfig::authorization_check("patients", "demo");
+        RestConfig::authorization_check("admin", "users");
         return (new FhirPractitionerRestController())->getAll($_GET);
     },
     "GET /fhir/Practitioner/:id" => function ($id) {
-        RestConfig::authorization_check("patients", "demo");
+        RestConfig::authorization_check("admin", "users");
         return (new FhirPractitionerRestController())->getOne($id);
     },
     "POST /fhir/Practitioner" => function () {
-        RestConfig::authorization_check("patients", "demo");
+        RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         return (new FhirPractitionerRestController())->post($data);
     },
