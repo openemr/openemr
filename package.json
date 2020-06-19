@@ -57,7 +57,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "~5.13.0",
     "@ttskch/select2-bootstrap4-theme": "1.3.2",
-    "angular": "1.7.9",
+    "angular": "1.8.0",
     "angular-sanitize": "1.7.9",
     "angular-summernote": "0.8.1",
     "backbone": "1.4.0",
