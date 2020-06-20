@@ -8,30 +8,30 @@ use Ramsey\Uuid\Uuid;
 /**
  * Provides OpenEMR Fixtures/Sample Records to test cases as Objects or Database Records.
  *
- * The FixtureManager generates sample records from JSON files located within the Fixture namespace.
+ * The PractitionerFixtureManager generates sample records from JSON files located within the Fixture namespace.
  * To provide support for additional record types:
  * - Add a JSON datafile to the Fixture namespace containing the sample records.
  * - Add public methods to get, install, and remove fixture records.
- * - The "patient" related methods provide clear working examples.
+ * - The "practitioner" related methods provide clear working examples.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Dixon Whitmire <dixonwh@gmail.com>
- * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
+ * @author    Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FixtureManager
+class PractitionerFixtureManager
 {
     // use a prefix so we can easily remove fixtures
-    const PATIENT_FIXTURE_PUBPID_PREFIX = "test-fixture";
+    const FIXTURE_PREFIX = "test-fixture";
 
-    private $patientFixtures;
-    private $fhirPatientFixtures;
+    private $practitionerFixtures;
+    private $fhirPractitionerFixtures;
 
     public function __construct()
     {
-        $this->patientFixtures = $this->loadJsonFile("patients.json");
-        $this->fhirPatientFixtures = $this->loadJsonFile("FHIR/patients.json");
+        $this->practitionerFixtures = $this->loadJsonFile("practitioners.json");
+        $this->fhirPractitionerFixtures = $this->loadJsonFile("FHIR/practitioners.json");
     }
 
     /**
@@ -60,14 +60,14 @@ class FixtureManager
     }
 
     /**
-     * @return the next available patient pid/identifier.
+     * @return the next available practitioner id/identifier.
      */
-    private function getNextPid()
+    private function getNextId()
     {
-        $pidQuery = "SELECT IFNULL(MAX(pid), 0) + 1 FROM patient_data";
-        $pidResult = sqlQueryNoLog($pidQuery);
-        $pidValue = intval(array_values($pidResult)[0]);
-        return $pidValue;
+        $idQuery = "SELECT IFNULL(MAX(id), 0) + 1 FROM users";
+        $idResult = sqlQueryNoLog($idQuery);
+        $idValue = intval(array_values($idResult)[0]);
+        return $idValue;
     }
 
     /**
@@ -91,19 +91,12 @@ class FixtureManager
                 array_push($sqlBinds, $fieldValue);
             }
 
-            if ($tableName == "patient_data") {
-                // add pid
-                $sqlColumnValues .= 'pid = ? ,';
-                $nextPidValue = $this->getNextPid();
-                array_push($sqlBinds, $nextPidValue);
-                // add uuid
-                $sqlColumnValues .= '`uuid` = ?';
-                $uuidPatient = $this->getUuid("patient_data");
-                array_push($sqlBinds, $uuidPatient);
-            }
+            // add uuid
+            $sqlColumnValues .= '`uuid` = ?';
+            $uuidPractitioner = $this->getUuid("users");
+            array_push($sqlBinds, $uuidPractitioner);
 
             $sqlColumnValues = rtrim($sqlColumnValues, " ,");
-
             $isInserted = sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
             if ($isInserted) {
                 $insertCount += 1;
@@ -113,27 +106,27 @@ class FixtureManager
     }
 
     /**
-     * @return array of fhir patient fixtures.
+     * @return array of fhir practitioner fixtures.
      */
-    public function getFhirPatientFixtures()
+    public function getFhirPractitionerFixtures()
     {
-        return $this->fhirPatientFixtures;
+        return $this->fhirPractitionerFixtures;
     }
 
     /**
-     * @return single/random fhir patient fixture
+     * @return single/random fhir practitioner fixture
      */
-    public function getSingleFhirPatientFixture()
+    public function getSingleFhirPractitionerFixture()
     {
-        return $this->getSingleEntry($this->fhirPatientFixtures);
+        return $this->getSingleEntry($this->fhirPractitionerFixtures);
     }
 
     /**
-     * @return array of patient fixtures.
+     * @return array of practitioner fixtures.
      */
-    public function getPatientFixtures()
+    public function getPractitionerFixtures()
     {
-        return $this->patientFixtures;
+        return $this->practitionerFixtures;
     }
 
     /**
@@ -146,47 +139,47 @@ class FixtureManager
     }
 
     /**
-     * @return a random patient fixture.
+     * @return a random practitioner fixture.
      */
-    public function getSinglePatientFixture()
+    public function getSinglePractitionerFixture()
     {
-        return $this->getSingleEntry($this->patientFixtures);
+        return $this->getSingleEntry($this->practitionerFixtures);
     }
 
     /**
-     * Installs Patient Fixtures into the OpenEMR DB.
+     * Installs Practitioner Fixtures into the OpenEMR DB.
      */
-    public function installPatientFixtures()
+    public function installPractitionerFixtures()
     {
-        return $this->installFixtures("patient_data", $this->getPatientFixtures());
+        return $this->installFixtures("users", $this->getPractitionerFixtures());
     }
 
     /**
-     * Installs a single Patient Fixtures into the OpenEMR DB.
-     * @param $patientFixture - The fixture to install.
+     * Installs a single Practitioner Fixtures into the OpenEMR DB.
+     * @param $practitionerFixture - The fixture to install.
      * @return count of records inserted.
      */
-    public function installSinglePatientFixture($patientFixture)
+    public function installSinglePractitionerFixture($practitionerFixture)
     {
-        return $this->installFixtures("patient_data", array($patientFixture));
+        return $this->installFixtures("users", array($practitionerFixture));
     }
 
     /**
-     * Removes Patient Fixtures from the OpenEMR DB.
+     * Removes Practitioner Fixtures from the OpenEMR DB.
      */
-    public function removePatientFixtures()
+    public function removePractitionerFixtures()
     {
-        $bindVariable = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $bindVariable = self::FIXTURE_PREFIX . "%";
 
         // remove the related uuids from uuid_registry
-        $select = "SELECT `uuid` FROM `patient_data` WHERE `pubpid` LIKE ?";
+        $select = "SELECT `uuid` FROM `users` WHERE `id` LIKE ?";
         $sel = sqlStatement($select, [$bindVariable]);
         while ($row = sqlFetchArray($sel)) {
-            sqlQuery("DELETE FROM `uuid_registry` WHERE `table_name` = 'patient_data' AND `uuid` = ?", [$row['uuid']]);
+            sqlQuery("DELETE FROM `uuid_registry` WHERE `table_name` = 'users' AND `uuid` = ?", [$row['uuid']]);
         }
 
-        // remove the patients
-        $delete = "DELETE FROM patient_data WHERE pubpid LIKE ?";
+        // remove the practitioners
+        $delete = "DELETE FROM users WHERE id LIKE ?";
         sqlStatement($delete, array($bindVariable));
     }
 

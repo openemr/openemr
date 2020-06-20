@@ -34,6 +34,7 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
 -   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
     -   [FHIR Patient API](FHIR_README.md#get-fhirpatient)
     -   [FHIR Encounter API](FHIR_README.md#get-fhirencounter)
+    -   [FHIR Practitioner API](FHIR_README.md#get-fhirpractitioner)
     -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
     -   [FHIR AllergyIntolerance API](FHIR_README.md#get-fhirallergyintolerance)
     -   [FHIR Observation API](FHIR_README.md#get-fhirobservation)
@@ -225,6 +226,79 @@ curl -X GET 'http://localhost:8300/apis/fhir/Encounter/90c196f2-51cc-4655-8858-3
     -   \_id
     -   patient
     -   date {gt|lt|ge|le}
+
+### Practitioner Resource
+
+---
+
+#### GET [base]/Practitioner
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Practitioner'
+```
+
+#### GET [base]/Practitioner[id]
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Practitioner/90a8923c-0b1c-4d0a-9981-994b143381a7'
+```
+
+-   Supported Search Parameters
+    -   address
+    -   address-city
+    -   address-postalcode
+    -   address-state
+    -   email
+    -   active
+    -   family
+    -   given
+    -   name
+    -   phone
+    -   telecom
+
+#### POST [base]/Practitioner
+
+Request:
+
+```sh
+curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Practitioner' -d \
+'{
+  "resourceType": "Practitioner",
+  "identifier": [ { "system": "http://hl7.org/fhir/sid/us-npi", "value": "1122334499" } ],
+  "name": [ {
+      "use": "official",
+      "family": "Chalmers",
+      "given": [ "Peter", "James" ]
+  } ]
+}'
+```
+
+#### PATCH [base]/Practitioner/[id]
+
+Request:
+
+```sh
+curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Practitioner/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
+'{
+  "resourceType": "Practitioner",
+  "identifier": [ { "system": "http://hl7.org/fhir/sid/us-npi", "value": "1155667799" } ],
+  "name": [ {
+      "use": "official",
+      "family": "Theil",
+      "given": [ "Katy", "Wilson" ]
+  } ],
+  "address": [ {
+      "line": [ "534 Erewhon St" ],
+      "city": "PleasantVille",
+      "state": "Vic",
+      "postalCode": "3999"
+  } ]
+}'
+```
 
 #### GET /fhir/Organization
 
