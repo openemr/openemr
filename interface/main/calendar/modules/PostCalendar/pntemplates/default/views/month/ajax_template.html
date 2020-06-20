@@ -296,7 +296,7 @@ if ($_SESSION['authorizeduser'] == 1) {
 } else {
   $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
   if (count($facilities) == 1)
-    OpenEMR\Common\Session\SessionUtil::setSession($_SESSION['pc_facility'], key($facilities));
+    OpenEMR\Common\Session\SessionUtil::setSession('pc_facility', key($facilities));
 }
 if (count($facilities) > 1) {
     echo "   <select name='pc_facility' id='pc_facility'  class='view1 form-control' >\n";
