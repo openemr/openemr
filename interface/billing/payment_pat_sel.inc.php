@@ -48,23 +48,22 @@ if (isset($_POST["mode"])) {
 }
 //===============================================================================
 ?>
-                    <br />
                     <fieldset>
                     <legend class=""><?php echo xlt('Distribute')?></legend>
-                    <div class="col-12" style="padding-bottom:5px">
-                        <div class="col-3">
+                    <div class="row pb-2">
+                        <div class="frames col-3">
                             <label class="control-label" for="patient_name"><?php echo xlt('Patient'); ?>:</label>
                             <input id="hidden_ajax_patient_close_value" type="hidden" value="<?php echo $Message == '' ? attr($NameNew) : '' ;?>" />
                             <!--<input autocomplete="off" class="form-control" type="text" id='patient_name' name='patient_name' onkeydown="PreventIt(event)" value="<?php echo $Message == '' ? attr($NameNew) : '' ;?>">-->
-                            <input name='patient_code' class="form-control" id='patient_code' class="text" onKeyDown="PreventIt(event)" value="<?php echo $Message == '' ? attr($NameNew) : '' ;?>" autocomplete="off" />
+                            <input name='patient_code' class="form-control text" id='patient_code' onKeyDown="PreventIt(event)" value="<?php echo $Message == '' ? attr($NameNew) : '' ;?>" autocomplete="off" />
                         </div>
-                        <div class="col-2">
+                        <div class="frames col-2">
                             <label class="control-label" for="patient_name"><?php echo xlt('Patient Id'); ?>:</label>
                             <div class="form-control" name="patient_name" id="patient_name">
                                 <?php echo ($Message == '') ? text($hidden_patient_code) : ''; ?>
                             </div>
                         </div>
-                        <div class="col-7">
+                        <div class="frames col-7">
                             <label class="control-label" for="type_code"><?php echo xlt('Select'); ?>:</label>
                             <div>
                                 <label class="radio-inline">
@@ -93,7 +92,7 @@ if (isset($_POST["mode"])) {
                 $PreviousPID = 0;
                 if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     ?>
-                <div class="col-12">
+                <div class="row">
                 <div class="table-responsive">
                 <table class="table-sm" id="TableDistributePortion">
                   <thead class="thead-light">
@@ -151,9 +150,9 @@ if (isset($_POST["mode"])) {
 
                         //Always associating the copay to a particular charge.
                         $BillingId = $RowSearch['id'];
-                        $resId = sqlStatement("SELECT b.id FROM billing AS b, code_types AS ct 
+                        $resId = sqlStatement("SELECT b.id FROM billing AS b, code_types AS ct
                                                WHERE b.code_type=ct.ct_key AND ct.ct_diag=0 AND
-                                               b.pid=? AND b.encounter=? 
+                                               b.pid=? AND b.encounter=?
                                                AND b.activity!=0 ORDER BY id", array($hidden_patient_code, $Encounter));
                         $rowId = sqlFetchArray($resId);
                         $Id = $rowId['id'];
@@ -167,7 +166,7 @@ if (isset($_POST["mode"])) {
                             $Copay = $rowCopay['copay'] * -1;
 
                             $resMoneyGot = sqlStatement("SELECT sum(pay_amount) as PatientPay FROM ar_activity where
-                            pid =?  and  encounter =? and  payer_type=0 and 
+                            pid =?  and  encounter =? and  payer_type=0 and
                             account_code='PCP'", array($hidden_patient_code, $Encounter));//new fees screen copay gives account_code='PCP'
                             $rowMoneyGot = sqlFetchArray($resMoneyGot);
                             $PatientPay = $rowMoneyGot['PatientPay'];
@@ -176,7 +175,7 @@ if (isset($_POST["mode"])) {
                         }
                             //payer_type!=0, supports both mapped and unmapped code_type in ar_activity
                             $resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where
-                            pid =? and (code_type=? or code_type='') and code=? and modifier=?  and  encounter  =? and  !(payer_type=0 and 
+                            pid =? and (code_type=? or code_type='') and code=? and modifier=?  and  encounter  =? and  !(payer_type=0 and
                             account_code='PCP')", array($hidden_patient_code, $Codetype, $Code, $Modifier, $Encounter));//new fees screen copay gives account_code='PCP'
                             $rowMoneyGot = sqlFetchArray($resMoneyGot);
                             $MoneyGot = $rowMoneyGot['MoneyGot'];
@@ -271,7 +270,6 @@ if (isset($_POST["mode"])) {
                 </table>
                 </div>
                 </div>
-                <br />
                     <?php
                 }//if($RowSearch = sqlFetchArray($ResultSearchNew))
                 ?>

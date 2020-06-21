@@ -249,7 +249,7 @@ if ($_FILES['form_erafile']['size']) {
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
-                        <div class="col-12 oe-custom-line">
+                        <div class="row">
                             <div class="form-group col-9 oe-file-div">
                                 <div class="input-group">
                                     <label class="input-group-prepend">
@@ -262,7 +262,7 @@ if ($_FILES['form_erafile']['size']) {
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 oe-custom-line">
+                        <div class="row">
                             <div class="form-group col-3">
                                 <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
                                 <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($check_date); ?>" />
@@ -283,7 +283,7 @@ if ($_FILES['form_erafile']['size']) {
                                 <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($deposit_date); ?>" />
                             </div>
                         </div>
-                        <div class="col-12 oe-custom-line">
+                        <div class="row">
                             <div class="form-group col-6">
                                 <label class="control-label" for="type_code"><?php echo xlt('Insurance'); ?>:</label>
                                 <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($type_code); ?>" />

@@ -283,41 +283,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     .class1 {
         width: 125px;
     }
-    .class2 {
-        width: 250px;
-    }
-    .class3 {
-        width: 75px;
-    }
-    .class4 {
-        width: 100px;
-    }
-    .bottom {
-        border-bottom: 1px solid var(--black);
-    }
-    .top {
-        border-top: 1px solid var(--black);
-    }
-    .left {
-        border-left: 1px solid var(--black);
-    }
-    .right {
-        border-right: 1px solid var(--black);
-    }
-    #ajax_div_insurance {
-        position: absolute;
-        z-index: 10;
-        background-color: #FBFDD0;
-        border: 1px solid var(--gray);
-        padding: 10px;
-    }
-    #ajax_div_patient {
-        position: absolute;
-        z-index: 10;
-        background-color: #FBFDD0;
-        border: 1px solid var(--gray);
-        padding: 10px;
-    }
+
     @media only screen and (max-width: 768px) {
         [class*="col-"] {
             width: 100%;
