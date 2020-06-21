@@ -751,10 +751,10 @@ if (!$_REQUEST['flb_table']) {
                         if (($yestime == '1') && ($timecheck >= 1) && (strtotime($newarrive) != '')) {
                             echo text($timecheck . ' ' . ($timecheck >= 2 ? xl('minutes') : xl('minute')));
                         } elseif ($icon_here || $icon2_here || $icon_CALL) {
-                            echo "<span style='font-size:0.7em;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode($icon_here) . $icon2_here . "</span> " . $icon_CALL;
+                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode($icon_here) . $icon2_here . "</span> " . $icon_CALL;
                         } elseif ($logged_in) {
                             $pat = $MedEx->display->possibleModalities($appointment);
-                            echo "<span style='font-size:0.7em;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
+                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
                         }
                         //end time in current status
                         echo "</td>";
@@ -890,7 +890,10 @@ function myLocalJS()
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
-                        $("#flb_caret").css('color', 'var(--black)');
+                        if($("#flb_caret").hasClass('text-danger')) {
+                          $("#flb_caret").removeClass('text-danger');
+                        }
+                        $("#flb_caret").addClass('text-body');
                 });
             } else {
                 $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
@@ -899,7 +902,10 @@ function myLocalJS()
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
-                        $("#flb_caret").css('color', 'var(--danger)');
+                        if($("#flb_caret").hasClass('text-body')) {
+                          $("#flb_caret").removeClass('text-body');
+                        }
+                        $("#flb_caret").addClass('text-danger');
                 });
             }
             $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');

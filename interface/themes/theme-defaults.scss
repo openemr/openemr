@@ -89,7 +89,7 @@ span.bold {
 /* styles taken out of templates/documents/general_list.html */
 #documents_list {
   border-right: dashed 1px;
-  float: left;
+  float: $left;
   height: 95%;
   overflow: auto;
   width: 100%;
@@ -237,7 +237,7 @@ ul.tabNav a:focus {
   border: 1px solid $black;
   height: 100px;
   overflow: auto;
-  text-align: left;
+  text-align: $left;
   width: 100%;
 }
 
@@ -256,7 +256,7 @@ ul.tabNav a:focus {
 
 
 .attach-input {
-  text-align: right;
+  text-align: $right;
 }
 
 .full-width {
@@ -291,7 +291,7 @@ div.category-display {
 }
 
 #create_patient_btn {
-  float: right;
+  float: $right;
   margin-top: 25px;
 }
 
@@ -411,16 +411,19 @@ fieldset {
   background-color: $white !important;
 }
 
-.login-emr-logo > #red-color {
-  fill: #a40c04;
-}
-
-.login-emr-logo > #blue-color {
-  fill: #2c9cd4;
-}
-
-.login-emr-logo > #gray-color {
-  fill: #5c5c5c;
+.login-emr-logo {
+  > #red-color {
+    // Regular color: #a40c04
+    fill: $white;
+  }
+  // Regular color: #2c9cd4
+  > #blue-color {
+    fill: $white;
+  }
+  // Regular color: #5c5c5c
+  > #gray-color {
+    fill: $white;
+  }
 }
 
 #mainBox .logo .emr-menu-logo > #blue-color,

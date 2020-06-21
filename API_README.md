@@ -54,7 +54,7 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 
 -   [Standard API Endpoints](API_README.md#api-endpoints)
     -   [Facility API](API_README.md#post-apifacility)
-    -   [Provider API](API_README.md#get-apiprovider)
+    -   [Practitioner API](API_README.md#get-apipractitioner)
     -   [Patient API](API_README.md#post-apipatient)
     -   [Insurance API](API_README.md#get-apipatientpidinsurance)
     -   [Appointment API](API_README.md#get-apiappointment)
@@ -65,6 +65,7 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 -   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
     -   [FHIR Patient API](FHIR_README.md#get-fhirpatient)
     -   [FHIR Encounter API](FHIR_README.md#get-fhirencounter)
+    -   [FHIR Practitioner API](API_README.md#get-apipractitioner)
     -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
     -   [FHIR AllergyIntolerance API](FHIR_README.md#get-fhirallergyintolerance)
     -   [FHIR Observation API](FHIR_README.md#get-fhirobservation)
@@ -193,20 +194,135 @@ Request:
 curl -X GET 'http://localhost:8300/apis/api/facility/1'
 ```
 
-#### GET /api/provider
+#### GET /api/practitioner
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/api/provider'
+curl -X GET 'http://localhost:8300/apis/api/practitioner'
 ```
 
-#### GET /api/provider/:prid
+#### GET /api/practitioner/:uuid
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/api/provider/1'
+curl -X GET 'http://localhost:8300/apis/api/practitioner/90cde167-7b9b-4ed1-bd55-533925cb2605'
+```
+
+#### POST /api/practitioner
+
+Request:
+
+```sh
+curl -X POST 'http://localhost:8300/apis/api/practitioner' -d \
+'{
+    "title": "Mrs.",
+    "fname": "Eduardo",
+    "mname": "Kathy",
+    "lname": "Perez",
+    "federaltaxid": "",
+    "federaldrugid": "",
+    "upin": "",
+    "facility_id": "3",
+    "facility": "Your Clinic Name Here",
+    "npi": "0123456789",
+    "email": "info@pennfirm.com",
+    "specialty": "",
+    "billname": null,
+    "url": null,
+    "assistant": null,
+    "organization": null,
+    "valedictory": null,
+    "street": "789 Third Avenue",
+    "streetb": "123 Cannaut Street",
+    "city": "San Diego",
+    "state": "CA",
+    "zip": "90210",
+    "phone": "(619) 555-9827",
+    "fax": null,
+    "phonew1": "(619) 555-7822",
+    "phonecell": "(619) 555-7821",
+    "notes": null,
+    "state_license_number": "123456"
+}'
+```
+
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "id": 7,
+        "uuid": "90d453fb-0248-4c0d-9575-d99d02b169f5"
+    }
+}
+```
+
+#### PATCH /api/practitioner/:uuid
+
+Request:
+
+```sh
+curl -X PATCH 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
+'{
+    "title": "Mr",
+    "fname": "Baz",
+    "mname": "",
+    "lname": "Bop",
+    "street": "456 Tree Lane",
+    "zip": "08642",
+    "city": "FooTown",
+    "state": "FL",
+    "phone": "123-456-7890"
+}'
+```
+
+Response:
+
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "id": "7",
+        "uuid": "90d453fb-0248-4c0d-9575-d99d02b169f5",
+        "title": "Mr",
+        "fname": "Baz",
+        "lname": "Bop",
+        "mname": "",
+        "federaltaxid": "",
+        "federaldrugid": "",
+        "upin": "",
+        "facility_id": "3",
+        "facility": "Your Clinic Name Here",
+        "npi": "0123456789",
+        "email": "info@pennfirm.com",
+        "active": "1",
+        "specialty": "",
+        "billname": "",
+        "url": "",
+        "assistant": "",
+        "organization": "",
+        "valedictory": "",
+        "street": "456 Tree Lane",
+        "streetb": "123 Cannaut Street",
+        "city": "FooTown",
+        "state": "FL",
+        "zip": "08642",
+        "phone": "123-456-7890",
+        "fax": "",
+        "phonew1": "(619) 555-7822",
+        "phonecell": "(619) 555-7821",
+        "notes": "",
+        "state_license_number": "123456",
+        "abook_title": null,
+        "physician_title": null,
+        "physician_code": null
+    }
+}
 ```
 
 #### POST /api/patient

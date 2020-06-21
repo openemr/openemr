@@ -131,6 +131,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div id='patient_stats'>
             <form method='post' action='stats_full.php' onsubmit='return top.restoreSession()'>
 
+            <div class="table-responsive">
             <table class="table">
 
             <?php
@@ -211,7 +212,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo " disabled";
                         }
 
-                          echo " /><b>" . xlt("None{{Issue}}") . "</b></td></tr>";
+                          echo " /><strong>" . xlt("None{{Issue}}") . "</strong></td></tr>";
                     }
                 }
 
@@ -283,7 +284,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     echo "  <td>" . text(oeFormatDateTime($row['modifydate'])) . "</td>\n";
                     echo "  <td>" . text($row['comments']) . "</td>\n";
                     echo "  <td id='e_" . attr($rowid) . "' class='noclick text-center' title='" . xla('View related encounters') . "'>";
-                    echo "  <input type='button' value='" . attr($ierow['count']) . "' class='editenc' id='" . attr($rowid) . "' />";
+                    echo "  <button value='" . attr($ierow['count']) . "' class='btn btn-primary btn-sm editenc' id='" . attr($rowid) . "'>" . xlt("Edit") . "</button>";
                     echo "  </td>";
                     echo " </tr>\n";
                 }
@@ -293,6 +294,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
 
             </table>
+          </div>
 
             </form>
         </div> <!-- end patient_stats -->

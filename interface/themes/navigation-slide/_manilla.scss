@@ -11,12 +11,12 @@
 #navigation-slide a {
   background: $white;
   border-bottom: 1px solid $black;
-  border-#{$left}: 1px solid $black;
   border-top: 0;
   color: $body-color;
   display: block;
   padding: 5px 2px 5px 10px;
   width: 150px;
+  border-#{$left}: 1px solid $black;
 }
 
 #navigation-slide li a.collapsed {

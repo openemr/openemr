@@ -103,7 +103,7 @@ abstract class BaseValidator
             } catch (InvalidUuidStringException $e) {
                 return $validationResult;
             }
-        } elseif (!is_int($lookupId)) {
+        } elseif (!is_int(intval($lookupId))) {
             return $validationResult;
         }
 
