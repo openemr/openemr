@@ -212,16 +212,19 @@ if (isset($_POST["mode"])) {
     <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
 
 <script>
-
+function refreshSearch() {
+    top.restoreSession();
+    SearchPayment();
+}
 $(function () {
     $(".medium_modal").on('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        dlgopen('', '', 1050, 350, '', '', {
+        dlgopen('', '', 1028, 700, '', '', {
             buttons: [
                 {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
             ],
-            onClosed: '',
+            onClosed: 'refreshSearch',
             type: 'iframe',
             url: $(this).attr('href')
         });
@@ -300,40 +303,10 @@ function SearchPayingEntityAction()
       document.getElementById('payment_method').style.display='';
    }
  }
-</script>
-<script>
+
 document.onclick=HideTheAjaxDivs;
 </script>
 <style>
-.class1 {
-    width:125px;
-}
-.class2 {
-    width:250px;
-}
-.class3 {
-    width:100px;
-}
-.class4 {
-    width:103px;
-}
-#ajax_div_insurance {
-    position: absolute;
-    z-index:10;
-    background-color: #FBFDD0;
-    border: 1px solid var(--gray);
-    padding: 10px;
-}
-#ajax_div_patient {
-    position: absolute;
-    z-index:10;
-    background-color: #FBFDD0;
-    border: 1px solid var(--gray);
-    padding: 10px;
-}
-.bottom {
-    border-bottom: 1px solid var(--black);
-}
 .top {
     border-top: 1px solid var(--black);
 }
@@ -360,15 +333,6 @@ document.onclick=HideTheAjaxDivs;
     .modal-lg {
         width: 1000px !Important;
     }
-}
-.oe-modal-dialog {
-    width: 65% !Important;
-}
-.oe-modal-content {
-    padding: 20px 0px 20px 0px;
-}
-.modalclass {
-    overflow-x: hidden !Important;
 }
 </style>
 <title><?php echo xlt("Search Payments"); ?></title>
@@ -419,7 +383,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="col-12 h3">
                         <?php echo xlt('Payment List'); ?>
                         </div>
-                        <div class="col-12 oe-custom-line">
+                        <div class="row oe-custom-line">
                             <div class="forms col-2">
                                 <label class="control-label" for="payment_date"><?php echo xlt('Payment date'); ?>:</label>
                                 <?php echo generate_select_list("payment_date", "payment_date", "$PaymentDate", "Payment Date", "", "");?>
@@ -441,7 +405,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <input autocomplete="off" class="form-control" id="check_number" name="check_number" type="text" value="<?php echo attr($_POST['check_number']); ?>" />
                             </div>
                         </div>
-                        <div class="col-12 oe-custom-line">
+                        <div class="row oe-custom-line">
                             <div class="forms col-4">
                                 <label class="control-label" for="payment_method"><?php echo xlt('Payment Amount'); ?>:</label>
                                 <input autocomplete="off" class="form-control" id="payment_amount" name="payment_amount" onkeyup="ValidateNumeric(this);"  type="text" value="<?php echo attr($_POST['payment_amount']);?>" />
@@ -459,7 +423,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <?php echo generate_select_list("PaymentStatus", "payment_status", "$PaymentStatus", "Pay Status", " ", "");?>
                             </div>
                         </div>
-                        <div class="col-12 oe-custom-line">
+                        <div class="row oe-custom-line">
                             <div class="forms col-4">
                                 <label class="control-label" for="type_code"><?php echo xlt('Payment From'); ?>:</label>
                                 <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($div_after_save);?>" />
@@ -554,13 +518,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <a href="#" onclick="javascript:return DeletePayments(<?php echo attr_js($RowSearch['session_id']); ?>);"><img border="0" src="../pic/Delete.gif"></a>
                             </td>
                             <td class="<?php echo attr($StringClass); ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text($RowSearch['session_id']); ?></a>
+                                <a class="medium_modal" href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php echo text($RowSearch['session_id']); ?></a>
                             </td>
                             <td class="<?php echo attr($StringClass); ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['check_date'] == '0000-00-00' ? '&nbsp;' : text(oeFormatShortDate($RowSearch['check_date'])); ?></a>
+                                <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo $RowSearch['check_date'] == '0000-00-00' ? '&nbsp;' : text(oeFormatShortDate($RowSearch['check_date'])); ?></a>
                             </td>
                             <td class="<?php echo attr($StringClass); ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')">
+                                <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'">
                                 <?php
                                     $frow['data_type'] = 1;
                                     $frow['list_id'] = 'payment_type';
@@ -577,10 +541,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </td>
                                 <td class="<?php echo attr($StringClass); ?>">
                                 <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php echo  $Payer == '' ? '&nbsp;' : htmlspecialchars($Payer) ;?></a>-->
-                                <a class="" data-target="#myModal1" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo  $Payer == '' ? '&nbsp;' : text($Payer) ;?></a><!--link to iframe-->
+                                <a class="medium_modal" data-target="#myModal1" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo  $Payer == '' ? '&nbsp;' : text($Payer) ;?></a><!--link to iframe-->
                                 </td>
                                 <td class="<?php echo attr($StringClass); ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['payer_id'] * 1 > 0 ? text($RowSearch['payer_id']) : '&nbsp;'; ?></a>
+                                <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo $RowSearch['payer_id'] * 1 > 0 ? text($RowSearch['payer_id']) : '&nbsp;'; ?></a>
                                 </td>
                                 <td align="left" class="<?php echo attr($StringClass); ?>">
                                 <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php
@@ -588,7 +552,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                         $frow['list_id'] = 'payment_method';
                                                         generate_print_field($frow, $RowSearch['payment_method']);
                                 ?></a>-->
-                                        <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')">
+                                        <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'">
                                         <?php
                                         $frow['data_type'] = 1;
                                         $frow['list_id'] = 'payment_method';
@@ -597,25 +561,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </td>
                                     <td align="left" class="<?php echo attr($StringClass); ?>">
                                     <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php echo $RowSearch['reference'] == '' ? '&nbsp;' : text($RowSearch['reference']); ?></a>-->
-                                    <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['reference'] == '' ? '&nbsp;' : text($RowSearch['reference']); ?></a>
+                                    <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo $RowSearch['reference'] == '' ? '&nbsp;' : text($RowSearch['reference']); ?></a>
                                     </td>
                                     <td align="left" class="<?php echo attr($StringClass); ?>">
-                                       <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php
-                                                        $rs = sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$RowSearch['session_id']]);
-                                                        $row = sqlFetchArray($rs);
-                                                        $pay_total = $row['pay_total'];
-                                                        $global_amount = $row['global_amount'];
-                                                        $rs = sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id=?", [$RowSearch['session_id']]);
-                                                        $row = sqlFetchArray($rs);
-                                                        $pay_amount = $row['sum_pay_amount'];
-                                                        $UndistributedAmount = $pay_total - $pay_amount - $global_amount;
-                                                        echo $UndistributedAmount * 1 == 0 ? xlt('Fully Paid') : xlt('Unapplied'); ?></a>
+                                       <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php
+                                        $rs = sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$RowSearch['session_id']]);
+                                        $row = sqlFetchArray($rs);
+                                        $pay_total = $row['pay_total'];
+                                        $global_amount = $row['global_amount'];
+                                        $rs = sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id=?", [$RowSearch['session_id']]);
+                                        $row = sqlFetchArray($rs);
+                                        $pay_amount = $row['sum_pay_amount'];
+                                        $UndistributedAmount = $pay_total - $pay_amount - $global_amount;
+                                        echo $UndistributedAmount * 1 == 0 ? xlt('Fully Paid') : xlt('Unapplied'); ?></a>
                                     </td>
                                     <td align="right" class="<?php echo attr($StringClass); ?>">
-                                        <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text($RowSearch['pay_total']); ?></a>
+                                        <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo text($RowSearch['pay_total']); ?></a>
                                     </td>
                                     <td align="right" class="<?php echo attr($StringClass); ?>right">
-                                        <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text(number_format($UndistributedAmount, 2)); ?></a>
+                                        <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo text(number_format($UndistributedAmount, 2)); ?></a>
                                     </td>
                                 </tr>
                                 <?php
@@ -647,23 +611,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div><!--end of container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModal1Label" aria-hidden="true">
-                <div class="modal-dialog oe-modal-dialog modal-lg">
-                    <div class="modal-content oe-modal-content">
-                        <!--<div class="modal-header" style="border:hidden"></div>-->
-                        <div class="modal-body">
-                            <iframe src="" id="targetiframe1" class="w-100 border-0" style="height:650px; overflow-x: hidden;" allowtransparency="true"></iframe>
-                        </div>
-                        <div class="modal-footer" class="mt-0">
-                           <button class="btn btn-link btn-cancel float-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     <script>
     function loadiframe(htmlHref) { //load iframe
          document.getElementById('targetiframe1').src = htmlHref;

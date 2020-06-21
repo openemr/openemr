@@ -1061,7 +1061,6 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
             <div class="form-group clearfix">
                 <div class="col-sm-12 text-left position-override">
-                    <br />
                     <div class="btn-group" role="group">
                         <a class="btn btn-secondary btn-save" href="#" onclick="return ModifyPayments();"><span><?php echo xlt('Modify Payments'); ?></span></a>
                         <a class="btn btn-secondary btn-save" href="#" onclick="return FinishPayments();"><span><?php echo xlt('Finish Payments'); ?></span></a>
