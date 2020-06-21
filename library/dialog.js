@@ -434,7 +434,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         width = "modal-xl";
     }
     // Convert dialog size to percentages and/or css class.
-    var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl'];
+    var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl', 'modal-full'];
     if (Math.abs(width) > 0) {
         width = Math.abs(width);
         mWidth = (width / where.innerWidth * 100).toFixed(1) + '%';
@@ -456,6 +456,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         msSize = '<style>.modal-custom-' + winname + ' {max-width:75% !important;}</style>';
     } else if (mSize === 'modal-xl') {
         msSize = '<style>.modal-custom-' + winname + ' {max-width:92% !important;}</style>';
+    } else if (mSize === 'modal-full') {
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:97% !important;}</style>';
     }
     mSize = 'modal-custom-' + winname;
 
@@ -486,7 +488,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sizeStyle%' +
             '<style>.drag-resize {touch-action:none;user-select:none;}</style>' +
             '<div %dialogId% class="modal-dialog %drag-action% %sizeClass%" role="document">' +
-            '<div class="modal-content %resize-action%" style="max-height: 92vh">' + '%head%' + '%altclose%' + '%wait%' +
+            '<div class="modal-content %resize-action%" style="max-height: 94vh">' + '%head%' + '%altclose%' + '%wait%' +
             '<div class="modal-body overflow-auto px-1" %bodyStyles%>' + '%body%' + '</div></div></div></div>').replace('%id%', winname).replace('%sizeStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%sizeClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '').replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '').replace('%wait%', '').replace('%bodyStyles%', bodyStyles).replace('%body%', opts.type === 'iframe' ? frameHtml : '');
 
     // Write modal template.

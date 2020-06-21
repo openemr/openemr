@@ -94,7 +94,7 @@ if (isset($_POST["mode"])) {
                     ?>
                 <div class="row">
                 <div class="table-responsive">
-                <table class="table-sm" id="TableDistributePortion">
+                <table class="table" id="TableDistributePortion">
                   <thead class="thead-light">
                     <td class="left top"><?php echo xlt('Post For'); ?></td>
                     <td class="left top"><?php echo xlt('Service Date'); ?></td>

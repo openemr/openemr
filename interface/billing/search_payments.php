@@ -220,10 +220,11 @@ $(function () {
     $(".medium_modal").on('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        dlgopen('', '', 1028, 700, '', '', {
+        dlgopen('', '', 'modal-full', 800, '', '', {
             buttons: [
                 {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
             ],
+            sizeHeight: '',
             onClosed: 'refreshSearch',
             type: 'iframe',
             url: $(this).attr('href')
@@ -307,6 +308,13 @@ function SearchPayingEntityAction()
 document.onclick=HideTheAjaxDivs;
 </script>
 <style>
+#ajax_div_insurance {
+    position: absolute;
+    z-index:10;
+    background-color: #FBFDD0;
+    border: 1px solid var(--gray);
+    padding: 10px;
+}
 .top {
     border-top: 1px solid var(--black);
 }
@@ -324,10 +332,6 @@ document.onclick=HideTheAjaxDivs;
         width: 100%;
         text-align: left !important;
     }
-}
-.table {
-    margin: auto;
-    width: 90% !important;
 }
 @media (min-width: 992px) {
     .modal-lg {
@@ -459,7 +463,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo "&nbsp;" . "<br />"; // do not remove else below div will not display !!
                         ?>
                 <div class="table-responsive">
-                  <table class="table">
+                  <table class="table-sm">
                         <?php
                         if (sqlNumRows($ResultSearch) > 0) {
                             ?>
