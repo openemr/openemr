@@ -760,7 +760,6 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
                             if ($CountPatient == 1) {
                                 $Table = 'yes';
                                 ?>
-                                <input id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr(round($RemainderJS, 2)); ?>">
                                 <br />
                                 <br />
                                 <div class="col-12">
@@ -967,6 +966,7 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
                                 $takebacktot = $takebacktot + $TakebackDB;
                                 $allowedtot = $allowedtot + $AllowedDB;
                                 ?>
+                                <input name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" value="<?php echo attr(round($Remainder, 2)); ?>" type="hidden" />
                             <tr bgcolor='<?php echo attr($bgcolor); ?>' class="text" id="trCharges<?php echo attr($CountIndex); ?>">
                                 <td align="left" class="<?php echo attr($StringClass); ?>">
                                     <a href="#" onclick="javascript:return DeletePaymentDistribution(<?php echo attr_js($payment_id . '_' . $PId . '_' . $Encounter . '_' . $Code . '_' . $Modifier . '_' . $Codetype); ?>);"><img border="0" src="../pic/Delete.gif"></a>

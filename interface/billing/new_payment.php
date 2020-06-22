@@ -94,8 +94,9 @@ if ($mode == "PostPayments" || $mode == "FinishPayments") {
         sqlStatement("update ar_session set global_amount=? where session_id =?", [(isset($_POST["HidUnappliedAmount"]) ? trim($_POST["HidUnappliedAmount"]) : ''), $payment_id]);
     }
     if ($mode == "FinishPayments") {
-        header("Location: edit_payment.php?payment_id=" . urlencode($payment_id) . "&ParentPage=new_payment");
-        die();
+        // @todo This is not useful. Gonna let fall through to form init.
+        //header("Location: edit_payment.php?payment_id=" . urlencode($payment_id) . "&ParentPage=new_payment");
+        //die();
     }
     $mode = "search";
     $_POST['mode'] = $mode;

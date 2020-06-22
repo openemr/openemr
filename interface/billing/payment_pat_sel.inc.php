@@ -90,8 +90,7 @@ if (isset($_POST["mode"])) {
                 $CountIndexBelow = 0;
                 $PreviousEncounter = 0;
                 $PreviousPID = 0;
-                if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
-                    ?>
+                if ($RowSearch = sqlFetchArray($ResultSearchNew)) { ?>
                 <div class="row">
                 <div class="table-responsive">
                 <table class="table" id="TableDistributePortion">
@@ -205,6 +204,7 @@ if (isset($_POST["mode"])) {
                             $bgcolor = '#AAFFFF';
                         }
                         ?>
+                    <input name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" value="<?php echo attr(round($Remainder, 2)); ?>" type="hidden" />
                   <tr class="text" bgcolor='<?php echo attr($bgcolor); ?>' id="trCharges<?php echo attr($CountIndex); ?>">
                     <td align="left" class="<?php echo attr($StringClass); ?>">
                         <input name="HiddenIns<?php echo attr($CountIndex); ?>" style="width:70px; text-align:right; font-size:12px" id="HiddenIns<?php echo attr($CountIndex); ?>" value="<?php echo attr($Ins); ?>" type="hidden"/><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient", '', 'oe-payment-select class3', 'ActionOnInsPat("' . $CountIndex . '")');?>
