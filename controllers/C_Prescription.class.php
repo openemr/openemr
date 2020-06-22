@@ -330,8 +330,24 @@ class C_Prescription extends Controller
         return $this->multiprint_header($pdf, $p);
     }
 
+    /**
+     * @param $p
+     * Sets the last printed date. This date will change with each printing
+     * sherwing
+     */
+    function updatePrnDate($p)
+    {
+        //change the modified date when printing
+        $printDateObj = date("Y-m-d");
+        $printDate = "UPDATE prescriptions SET prn = ? WHERE id = ?";
+        sqlQuery($printDate, [$printDateObj, $p->id]);
+
+    }
+
     function multiprint_header(&$pdf, $p)
     {
+        self::updatePrnDate($p);
+
         $this->providerid = $p->provider->id;
         //print header
         $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], '', '50', '', 'center', '');
@@ -407,6 +423,8 @@ class C_Prescription extends Controller
 
     function multiprintcss_header($p)
     {
+        self::updatePrnDate($p);
+        
         echo("<div class='paddingdiv'>\n");
         $this->providerid = $p->provider->id;
         echo ("<table cellspacing='0' cellpadding='0' width='100%'>\n");
