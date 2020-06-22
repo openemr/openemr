@@ -47,22 +47,22 @@
   bottom: 1px;
   cursor: se-resize;
   height: 12px;
-  #{$right}: 1px;
   width: 12px;
+  #{$right}: 1px;
 }
 
 .ui-resizable-s {
   bottom: -5px;
   cursor: s-resize;
   height: 7px;
-  #{$left}: 0;
   width: 100%;
+  #{$left}: 0;
 }
 
 .ui-resizable-e {
   cursor: e-resize;
   height: 100%;
-  #{$right}: -5px;
   top: 0;
   width: 7px;
+  #{$right}: -5px;
 }

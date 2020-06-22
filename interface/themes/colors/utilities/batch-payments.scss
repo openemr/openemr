@@ -2,7 +2,7 @@
 
 .oe-payment-select {
   @include font-size("12px !important");
-  text-align: right;
+  text-align: $right;
   width: 80px !important;
 }
 

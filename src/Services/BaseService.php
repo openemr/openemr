@@ -311,4 +311,35 @@ class BaseService
 
         return $processedDate;
     }
+
+    /**
+     * Generates New Primary Id
+     *
+     * @param string $idField                   - Name of Primary Id Field
+     * @param string $table                     - Name of Table
+     * @return string Generated Id
+     */
+    public function getFreshId($idField, $table)
+    {
+        $resultId = sqlQuery("SELECT MAX($idField)+1 AS $idField FROM $table");
+        return $resultId[$idField] === null ? 1 : intval($resultId[$idField]);
+    }
+
+    /**
+     * Filter all the Whitelisted Fields from the given Fields Array
+     *
+     * @param array $data                       - Fields passed by user
+     * @param array $whitelistedFields          - Whitelisted Fields
+     * @return array Filtered Data
+     */
+    public function filterData($data, $whitelistedFields)
+    {
+        return array_filter(
+            $data,
+            function ($key) use ($whitelistedFields) {
+                return in_array($key, $whitelistedFields);
+            },
+            ARRAY_FILTER_USE_KEY
+        );
+    }
 }

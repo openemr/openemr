@@ -23,7 +23,8 @@ $theme-colors: (
   warning: $yellow,
   danger: $red,
   light: $light,
-  dark: $dark
+  dark: $dark,
+  body-color: $body-color
 );
 $colors: (
   "blue": $blue,
@@ -60,6 +61,12 @@ $font-family-sans-serif: "Lato", -apple-system, "BlinkMacSystemFont", "Segoe UI"
 $font-size-base: 0.875rem;
 $rfs-base-value: 0.875rem;
 $font-family-base: $font-family-sans-serif;
+
+// Login form bg change
+$login-form-bg-color: $dark;
+$login-color-2: $primary;
+$login-color-3: darken($primary, 20%);
+$login-button-primary: true;
 
 // Enables responsive text for Bootstrap
 $enable-responsive-font-sizes: true;
@@ -110,7 +117,29 @@ div.tab_long {
 
 /* Makes tab font black */
 .menuLabel {
-  color: $dark !important;
+  color: $dark;
+}
+
+.menuEntries li .menuLabel {
+  color: $white;
+
+  &:hover {
+    color: $dark;
+  }
+}
+
+.appMenu ul .menuLabel,
+.appMenu_small ul .menuLabel {
+  color: $white !important;
+
+  &:hover {
+    color: $dark !important;
+  }
+}
+
+.section {
+  background: $gray-700 !important;
+  border-color: $gray-600 !important;
 }
 
 /* Calendar Overrides */
@@ -139,18 +168,8 @@ div.tab_long {
 }
 
 /* Changes all SVG colors to white to match theme */
-.login-emr-logo > #blue-color,
-.login-emr-logo > #gray-color {
-  fill: $white !important;
-}
-
 .about-review-image > #color {
   fill: $white !important;
-}
-
-/* show orange color in the logo */
-.login-emr-logo > #red-color {
-  fill: $primary !important;
 }
 
 #mainBox .logo .emr-menu-logo > #blue-color,

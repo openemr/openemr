@@ -1134,10 +1134,10 @@ function set_allday() {
     var color2 = 'var(--gray)';
     var disabled2 = true;
     if (document.getElementById('rballday1').checked) {
-        color1 = 'var(--black)';
+        color1 = '';
     }
     if (document.getElementById('rballday2').checked) {
-        color2 = 'var(--black)';
+        color2 = '';
         disabled2 = false;
     }
     document.getElementById('tdallday1').style.color = color1;
@@ -1147,7 +1147,9 @@ function set_allday() {
     document.getElementById('tdallday5').style.color = color2;
     f.form_hour.disabled = disabled2;
     f.form_minute.disabled = disabled2;
-    f.form_ampm.disabled = disabled2;
+    <?php if ($GLOBALS['time_display_format'] == 1) { ?>
+        f.form_ampm.disabled = disabled2;
+    <?php } ?>
     f.form_duration.disabled = disabled2;
 }
 
@@ -1285,7 +1287,9 @@ function setappt(year,mon,mday,hours,minutes) {
         ('' + (mon  + 100)).substring(1) + '/' +
         '' + year;
     <?php } ?>
-    f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
+    <?php if ($GLOBALS['time_display_format'] == 1) { ?>
+        f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
+    <?php } ?>
     f.form_hour.value = (hours > 12) ? hours - 12 : hours;
     f.form_minute.value = ('' + (minutes + 100)).substring(1);
 }
@@ -1766,7 +1770,7 @@ if ($_GET['prov'] != true) { ?>
         <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
     <?php } ?>
     <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-danger" type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
-    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='cancel' value='<?php echo xla('Cancel'); ?>' />
+    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='cancel' onclick="dlgclose()" value='<?php echo xla('Cancel'); ?>' />
     <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate'); ?>' />
 </div>
 <?php if ($informant) {
@@ -1803,10 +1807,6 @@ $(function () {
     $("#form_delete").click(function () {
         deleteEvent();
     });
-    $("#cancel").click(function () {
-        dlgclose();
-    });
-
     // buttons affecting the modification of a repeating event
     $("#all_events").click(function () {
         $("#recurr_affect").val("all");

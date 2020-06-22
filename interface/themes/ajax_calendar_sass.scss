@@ -47,9 +47,9 @@ div.tiny {
 
 #functions {
   float: $left;
-  margin-#{$right}: 0%;
   min-width: 20%;
   padding: 0 0.3125rem;
+  margin-#{$right}: 0;
   /* added because of the width issue above */
 }
 
@@ -117,8 +117,8 @@ div.tiny {
 
 #bigCal {
   background-color: $light;
-  border-#{$left}: 1px solid $black;
   overflow: hidden;
+  border-#{$left}: 1px solid $black;
 }
 
 #bigCal table {
@@ -241,9 +241,9 @@ div.tiny {
 /* the DIV of times */
 #times {
   background-color: lighten($yellow, 40%);
-  border-#{$right}: 1px solid $gray-600;
   padding: 0;
   width: 1%;
+  border-#{$right}: 1px solid $gray-600;
 }
 
 #times table {
@@ -407,14 +407,14 @@ div.tiny {
   background-color: $black;
   border: 1px solid $black;
   border-bottom: 2px solid $gray-700;
-  border-#{$left}: 1px solid $gray-600;
-  border-#{$right}: 2px solid $gray-700;
   border-top: 1px solid $gray-600;
   font-weight: bold;
   margin: -0.1875rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  border-#{$left}: 1px solid $gray-600;
+  border-#{$right}: 2px solid $gray-700;
 }
 
 .event_time {
@@ -451,14 +451,14 @@ div.tiny {
 .in_start.event_highlight {
   background-color: $yellow;
   border-bottom: 2px solid $gray-700;
-  border-#{$left}: 1px solid $gray-600;
-  border-#{$right}: 2px solid $gray-700;
   border-top: 1px solid $gray-600;
   cursor: pointer;
   font-weight: bold;
   margin: 0;
   opacity: 1;
   z-index: 2;
+  border-#{$left}: 1px solid $gray-600;
+  border-#{$right}: 2px solid $gray-700;
 }
 
 .event_out {
@@ -498,7 +498,7 @@ div.tiny {
   }
 
   .page-content-wrapper {
-    margin-#{$left}: 0%;
+    margin-#{$left}: 0;
     width: 100%;
   }
 
@@ -530,7 +530,7 @@ div.tiny {
   }
 
   #wrapper.toggled .page-content-wrapper {
-    margin-#{$left}: 0%;
+    margin-#{$left}: 0;
     width: 100%;
   }
 }
