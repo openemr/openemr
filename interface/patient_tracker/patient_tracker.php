@@ -324,7 +324,7 @@ if (!$_REQUEST['flb_table']) {
                                             </div>
                                         </div>
                                         <div class="form-group row" style="<?php echo $style; ?>">
-                                            <div class="col offset-6">
+                                            <div class="col text-right">
                                                 <button id="filter_submit" class="btn btn-primary btn-filter"><?php echo xlt('Filter'); ?></button>
                                                 <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>" />
                                             </div>
