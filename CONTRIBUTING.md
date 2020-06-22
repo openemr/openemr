@@ -109,7 +109,16 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools dev-reset-install-demodata'
       ```
         - hint: this is also a great way to test any changes a developer has made to the sql upgrade stuff (ie. such as sql/5_0_2-to-6_0_0_upgrade.sql)
-11. Developer tools to turn on and turn off support for multisite feature.
+11. Developer tools to backup and restore OpenEMR data (database and data on drive) via snapshots.
+    - Create a backup snapshot (using `example` below, but can use any alphanumeric identifier):
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools backup example'
+      ```
+    - Restore from a snapshot (using `example` below, but can use any alphanumeric identifier)
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools restore example'
+      ```
+12. Developer tools to turn on and turn off support for multisite feature.
     - Turn on support for multisite:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools enable-multisite'
@@ -118,7 +127,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools disable-multisite'
       ```
-12. Xdebug and profiling is also supported for PHPStorm.
+13. Xdebug and profiling is also supported for PHPStorm.
     - Firefox install xdebug helper add on (configure for PHPSTORM)
     - PHPStorm Settings->Language & Frameworks->PHP->Debug
         - Start listening
@@ -126,9 +135,9 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
         - Untoggle both settings that start with "Force Break at first line..."
      - Make sure port 9000 is open on your host operating system
      - Profiling output can be found in /tmp directory in the docker
-13. When you're done, it's best to clean up after yourself with `docker-compose down -v`
+14. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
-14. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+15. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 We look forward to your contribution...
 
