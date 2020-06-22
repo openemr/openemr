@@ -188,7 +188,7 @@ if (!$_REQUEST['flb_table']) {
     <div class="container mt-3">
         <div class="row" id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>;">
             <h2 class="text-center"><?php echo xlt('Flow Board'); ?></h2>
-            <div class="col-12 jumbotron p-1">
+            <div class="col-12 jumbotron p-4">
                 <div class="showRFlow text-center" id="show_flows" name="kiosk_hide">
                     <div name="div_response" id="div_response" class="nodisplay"></div>
                         <?php
@@ -312,19 +312,19 @@ if (!$_REQUEST['flb_table']) {
                                             $style = 'display:none;';
                                         } ?>
                                         <div class="form-group row mt-md-4" style="<?php echo $style; ?>">
-                                            <label for="flow_from" class="col-lg-2 col-sm-3 col-2 col-form-label text-sm-right mx-sm-0 px-sm-0"><?php echo xlt('From'); ?>:</label>
-                                            <div class="col-xl-3 col-lg-5 col-md-6 col-sm-7 col-4 ml-1 px-0">
+                                            <label for="flow_from" class="col"><?php echo xlt('From'); ?>:</label>
+                                            <div class="col">
                                                 <input type="text" id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>"/>
                                             </div>
                                         </div>
                                         <div class="form-group row" style="<?php echo $style; ?>">
-                                            <label for="flow_to" class="col-lg-2 col-sm-3 col-2 col-form-label text-sm-right mx-sm-0 px-sm-0"><?php echo xlt('To{{Range}}'); ?>:</label>
-                                            <div class="col-xl-3 col-lg-5 col-md-6 col-sm-7 col-4 ml-1 px-0">
+                                            <label for="flow_to" class="col"><?php echo xlt('To{{Range}}'); ?>:</label>
+                                            <div class="col">
                                                 <input type="text" id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>"/>
                                             </div>
                                         </div>
                                         <div class="form-group row" style="<?php echo $style; ?>">
-                                            <div class="col-sm-4 col-3">
+                                            <div class="col offset-6">
                                                 <button id="filter_submit" class="btn btn-primary btn-filter"><?php echo xlt('Filter'); ?></button>
                                                 <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>" />
                                             </div>
