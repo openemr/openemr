@@ -512,9 +512,9 @@ RestConfig::$PORTAL_FHIR_ROUTE_MAP = array(
         return (new FhirPatientRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']));
     },
     "GET /portalfhir/Encounter" => function () {
-        return (new FhirEncounterRestController(null))->getAll(['pid' => UuidRegistry::uuidToString($_SESSION['puuid'])]);
+        return (new FhirEncounterRestController(null))->getAll(['patient' => UuidRegistry::uuidToString($_SESSION['puuid'])]);
     },
     "GET /portalfhir/Encounter/:id" => function ($id) {
-        return (new FhirEncounterRestController(null))->getAll(['uuid' => $id, 'pid' => UuidRegistry::uuidToString($_SESSION['puuid'])]);
+        return (new FhirEncounterRestController(null))->getAll(['_id' => $id, 'patient' => UuidRegistry::uuidToString($_SESSION['puuid'])]);
     }
 );
