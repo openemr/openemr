@@ -61,7 +61,6 @@ class BaseFixtureManager
      */
     public function getUnregisteredUuid()
     {
-        $uuid4 = Uuid::uuid4();
-        return $uuid4->toString();
+        return (new UuidRegistry(['disable_tracker' => true]))->createUuid();
     }
 }

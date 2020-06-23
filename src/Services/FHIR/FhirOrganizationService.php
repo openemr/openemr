@@ -46,7 +46,8 @@ class FhirOrganizationService extends FhirServiceBase
             "address-city" => ["city"],
             "address-postalcode" => ["postal_code"],
             "address-state" => ["state"],
-            "name" => ["name"]
+            "name" => ["name"],
+            "active" => ["service_location"]
         ];
     }
 
@@ -64,7 +65,7 @@ class FhirOrganizationService extends FhirServiceBase
         $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
         $organizationResource->setMeta($meta);
 
-        $organizationResource->setActive(true);
+        $organizationResource->setActive($dataRecord['service_location'] == "1" ? true : false);
 
         $narrativeText = '';
         if (isset($dataRecord['name'])) {
@@ -164,9 +165,6 @@ class FhirOrganizationService extends FhirServiceBase
             }
             if (isset($fhirResource['address'][0]['state'][0])) {
                 $data['state'] = $fhirResource['address'][0]['state'];
-            }
-            if (isset($fhirResource['address'][0]['country'][0])) {
-                $data['country_code'] = $fhirResource['address'][0]['country'];
             }
         }
 
