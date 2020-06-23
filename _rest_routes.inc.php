@@ -87,7 +87,7 @@ RestConfig::$ROUTE_MAP = array(
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new EncounterRestController())->post($puuid, $data);
     },
-    "PUT /api/patient/:puuid/encounter/:eid" => function ($puuid, $euuid) {
+    "PUT /api/patient/:puuid/encounter/:euuid" => function ($puuid, $euuid) {
         RestConfig::authorization_check("encounters", "auth_a");
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new EncounterRestController())->put($puuid, $euuid, $data);
@@ -493,6 +493,12 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
     },
     "GET /portal/patient" => function () {
         return (new PatientRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']));
+    },
+    "GET /portal/patient/encounter" => function () {
+        return (new EncounterRestController())->getAll(UuidRegistry::uuidToString($_SESSION['puuid']));
+    },
+    "GET /portal/patient/encounter/:euuid" => function ($euuid) {
+        return (new EncounterRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']), $euuid);
     }
 );
 
@@ -504,5 +510,11 @@ RestConfig::$PORTAL_FHIR_ROUTE_MAP = array(
     },
     "GET /portalfhir/Patient" => function () {
         return (new FhirPatientRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']));
+    },
+    "GET /portalfhir/Encounter" => function () {
+        return (new FhirEncounterRestController(null))->getAll(['pid' => UuidRegistry::uuidToString($_SESSION['puuid'])]);
+    },
+    "GET /portalfhir/Encounter/:id" => function ($id) {
+        return (new FhirEncounterRestController(null))->getAll(['uuid' => $id, 'pid' => UuidRegistry::uuidToString($_SESSION['puuid'])]);
     }
 );
