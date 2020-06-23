@@ -1578,6 +1578,7 @@ CREATE TABLE `standardized_tables_track` (
 DROP TABLE IF EXISTS `facility`;
 CREATE TABLE `facility` (
   `id` int(11) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `name` varchar(255) default NULL,
   `phone` varchar(30) default NULL,
   `fax` varchar(30) default NULL,
@@ -1611,6 +1612,7 @@ CREATE TABLE `facility` (
   `oid` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted',
   `iban` varchar(50) default NULL,
   `info` TEXT,
+  UNIQUE KEY `uuid` (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4;
 

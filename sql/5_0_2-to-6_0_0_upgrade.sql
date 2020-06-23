@@ -730,3 +730,14 @@ ALTER TABLE `users` ADD `uuid` binary(16) DEFAULT NULL;
 #IfNotIndex users uuid
 CREATE UNIQUE INDEX `uuid` ON `users` (`uuid`);
 #EndIf
+
+#IfMissingColumn facility uuid
+ALTER TABLE `facility` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate facility
+#EndIf
+
+#IfNotIndex facility uuid
+CREATE UNIQUE INDEX `uuid` ON `facility` (`uuid`);
+#EndIf
