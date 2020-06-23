@@ -355,7 +355,7 @@ if (!$_REQUEST['flb_table']) {
 
     <div class="row-fluid">
         <div class="col-md-12">
-            <div class="text-center row divTable">
+            <div class="text-center row mx-auto divTable">
                 <div class="col-sm-12" id="loader">
                     <div class="text-center">
                         <i class="fa fa-spinner fa-pulse fa-fw" style="font-size: 140px; color: var(--gray700); padding: 20px"></i>
