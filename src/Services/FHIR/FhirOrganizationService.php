@@ -4,107 +4,252 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
-use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
 
-class FhirOrganizationService
+use OpenEMR\Services\FacilityService;
+
+/**
+ * FHIR Organization Service
+ *
+ * @coversDefaultClass OpenEMR\Services\FHIR\FhirOrganizationService
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ */
+class FhirOrganizationService extends FhirServiceBase
 {
-    
-    private $id;
-    
+    /**
+     * @var FacilityService
+     */
+    private $organizationService;
+
     public function __construct()
     {
+        parent::__construct();
+        $this->organizationService = new FacilityService();
     }
-    
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-    
-    public function getAll()
-    {
-        $facilitySQL = "SELECT id,
-                            name,
-                            phone,
-                            street,
-                            city,
-                            state,
-                            postal_code,
-                            country_code as country,
-                            email
-                        FROM facility;";
 
-        $facilityResults = sqlStatement($facilitySQL);
-        $results = array();
-        while ($row = sqlFetchArray($facilityResults)) {
-            $row['code'] = 'prov';
-            $row['display'] = "Healthcare Provider";
-            array_push($results, $row);
+    /**
+     * Returns an array mapping FHIR Organization Resource search parameters to OpenEMR Organization search parameters
+     * @return array The search parameters
+     */
+    protected function loadSearchParameters()
+    {
+        return  [
+            "email" => ["email"],
+            "phone" => ["phone"],
+            "telecom" => ["email", "phone",],
+            "address" => ["street", "postal_code", "city", "state", "country_code"],
+            "address-city" => ["city"],
+            "address-postalcode" => ["postal_code"],
+            "address-state" => ["state"],
+            "name" => ["name"]
+        ];
+    }
+
+    /**
+     * Parses an OpenEMR organization record, returning the equivalent FHIR Organization Resource
+     *
+     * @param array $dataRecord The source OpenEMR data record
+     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @return FHIROrganization
+     */
+    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    {
+        $organizationResource = new FHIROrganization();
+
+        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $organizationResource->setMeta($meta);
+
+        $organizationResource->setActive(true);
+
+        $narrativeText = '';
+        if (isset($dataRecord['name'])) {
+            $narrativeText = $dataRecord['name'];
         }
-        return $results;
-    }
-
-    public function getOne($oid)
-    {
-        $facilitySQL = "SELECT id, name, phone, street, city, state, postal_code, country_code as country, email FROM facility WHERE id = ?";
-
-        $result = sqlQuery($facilitySQL, $oid);
-        $result['code'] = 'prov';
-        $result['display'] = "Healthcare Provider";
-        return $result;
-    }
-
-    public function createOrganizationResource($oid = '', $data = '', $encode = true, $code = '', $display = '')
-    {
-        $id = new FhirId();
-        $id->setValue($oid);
-        $nowDate = date("Y-m-d\TH:i:s");
-        $meta = new FHIRMeta();
-        $meta->setVersionId('1');
-        $meta->setLastUpdated($nowDate);
-        $initResource = array(
-            'id' => $id,
-            'meta' => $meta
+        $text = array(
+            'status' => 'generated',
+            'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
         );
-        
-        $initResource['active'] = true;
+        $organizationResource->setText($text);
+
+        $id = new FHIRId();
+        $id->setValue($dataRecord['uuid']);
+        $organizationResource->setId($id);
+
+        if (isset($dataRecord['name'])) {
+            $organizationResource->setName($dataRecord['name']);
+        }
+
         $address = new FHIRAddress();
-        $address->addLine($data['line1'] . ' ' . $data['line2']);
-        $address->setCity($data['city']);
-        $address->setState($data['state']);
-        $address->setCountry($data['country']);
-        $address->setPostalCode($data['postal_code']);
-        $initResource['address'] = array();
-        array_push($initResource['address'], $address->jsonSerialize());
-        $initResource['name'] = $data['name'];
-        $coding = new FHIRCoding();
-        $coding->setSystem("http://terminology.hl7.org/CodeSystem/organization-type");
-        $coding->setCode($code);
-        $coding->setDisplay($display);
-        $initResource['type'] = array();
-        array_push($initResource['type'], $coding->jsonSerialize());
-        $initResource['telecom'] = array();
-        $email = array(
-            'system' => 'email',
-            'value' => $data["email"]
-        );
-        $phone = array(
-            'system' => 'phone',
-            'value' => $data['phone']
-        );
-        array_push($initResource['telecom'], $email);
-        array_push($initResource['telecom'], $phone);
-        $resource = new FHIROrganization($initResource);
-        if ($encode) {
-            return json_encode($resource);
-        } else {
-            return $resource;
+        if (!empty($dataRecord['street'])) {
+            $address->addLine($dataRecord['street']);
         }
+        if (!empty($dataRecord['city'])) {
+            $address->setCity($dataRecord['city']);
+        }
+        if (!empty($dataRecord['state'])) {
+            $address->setState($dataRecord['state']);
+        }
+        if (!empty($dataRecord['postal_code'])) {
+            $address->setPostalCode($dataRecord['postal_code']);
+        }
+        if (isset($dataRecord['country_code'])) {
+            $address->setCountry($dataRecord['country_code']);
+        }
+
+        $organizationResource->addAddress($address);
+
+        if (!empty($dataRecord['phone'])) {
+            $organizationResource->addTelecom(array(
+                'system' => 'phone',
+                'value' => $dataRecord['phone'],
+                'use' => 'work'
+            ));
+        }
+
+        if (isset($dataRecord['email'])) {
+            $organizationResource->addTelecom(array(
+                'system' => 'email',
+                'value' => $dataRecord['email'],
+                'use' => 'work'
+            ));
+        }
+
+        if (isset($dataRecord['facility_npi'])) {
+            $fhirIdentifier = [
+                'system' => "http://hl7.org/fhir/sid/us-npi",
+                'value' => $dataRecord['facility_npi']
+            ];
+            $organizationResource->addIdentifier($fhirIdentifier);
+        }
+
+        if ($encode) {
+            return json_encode($organizationResource);
+        } else {
+            return $organizationResource;
+        }
+    }
+
+    /**
+     * Parses a FHIR Organization Resource, returning the equivalent OpenEMR organization record.
+     *
+     * @param array $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record (array)
+     */
+    public function parseFhirResource($fhirResource = array())
+    {
+        $data = array();
+
+        if (isset($fhirResource['id'])) {
+            $data['uuid'] = $fhirResource['id'];
+        }
+
+        if (isset($fhirResource['name'])) {
+            $data['name'] = $fhirResource['name'];
+        }
+
+        if (isset($fhirResource['address'])) {
+            if (isset($fhirResource['address'][0]['line'][0])) {
+                $data['street'] = $fhirResource['address'][0]['line'][0];
+            }
+            if (isset($fhirResource['address'][0]['postalCode'][0])) {
+                $data['postal_code'] = $fhirResource['address'][0]['postalCode'];
+            }
+            if (isset($fhirResource['address'][0]['city'][0])) {
+                $data['city'] = $fhirResource['address'][0]['city'];
+            }
+            if (isset($fhirResource['address'][0]['state'][0])) {
+                $data['state'] = $fhirResource['address'][0]['state'];
+            }
+            if (isset($fhirResource['address'][0]['country'][0])) {
+                $data['country_code'] = $fhirResource['address'][0]['country'];
+            }
+        }
+
+        if (isset($fhirResource['telecom'])) {
+            foreach ($fhirResource['telecom'] as $telecom) {
+                switch ($telecom['system']) {
+                    case 'phone':
+                        switch ($telecom['use']) {
+                            case 'work':
+                                $data['phone'] = $telecom['value'];
+                                break;
+                        }
+                        break;
+                    case 'email':
+                        $data['email'] = $telecom['value'];
+                        break;
+                    default:
+                        //Should give Error for incapability
+                        break;
+                }
+            }
+        }
+
+        foreach ($fhirResource['identifier'] as $index => $identifier) {
+            if ($identifier['system'] == "http://hl7.org/fhir/sid/us-npi") {
+                $data['facility_npi'] = $identifier['value'];
+            }
+        }
+        return $data;
+    }
+
+
+    /**
+     * Inserts an OpenEMR record into the sytem.
+     *
+     * @param array $openEmrRecord OpenEMR organization record
+     * @return ProcessingResult
+     */
+    public function insertOpenEMRRecord($openEmrRecord)
+    {
+        return $this->organizationService->insert($openEmrRecord);
+    }
+
+
+    /**
+     * Updates an existing OpenEMR record.
+     *
+     * @param $fhirResourceId //The OpenEMR record's FHIR Resource ID.
+     * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
+     * @return ProcessingResult
+     */
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        $processingResult = $this->organizationService->update($fhirResourceId, $updatedOpenEMRRecord);
+        return $processingResult;
+    }
+
+    /**
+     * Performs a FHIR Organization Resource lookup by FHIR Resource ID
+     * @param $fhirResourceId //The OpenEMR record's FHIR Organization Resource ID.
+     */
+    public function getOne($fhirResourceId)
+    {
+        $processingResult = $this->organizationService->getOne($fhirResourceId);
+        if (!$processingResult->hasErrors()) {
+            if (count($processingResult->getData()) > 0) {
+                $openEmrRecord = $processingResult->getData()[0];
+                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
+                $processingResult->setData([]);
+                $processingResult->addData($fhirRecord);
+            }
+        }
+        return $processingResult;
+    }
+
+    /**
+     * Searches for OpenEMR records using OpenEMR search parameters
+     *
+     * @param array openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
+    public function searchForOpenEMRRecords($openEMRSearchParameters)
+    {
+        return $this->organizationService->getAll($openEMRSearchParameters, false);
     }
 }
