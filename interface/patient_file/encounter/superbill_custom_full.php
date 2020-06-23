@@ -489,14 +489,15 @@ if ($fend > $count) {
 
               <?php $external_sets = array(); ?>
               <?php foreach ($code_types as $key => $value) { ?>
-                  <?php if (!($value['external'])) { ?>
-                      <?php if ($mode != "modify") { ?>
-                          <option value="<?php  echo attr($value['id']) ?>"<?php if ($code_type == $value['id']) { echo " selected"; } ?>><?php echo xlt($value['label']) ?></option>
+                    <?php if (!($value['external'])) { ?>
+                        <?php if ($mode != "modify") { ?>
+                          <option value="<?php  echo attr($value['id']) ?>"<?php if ($code_type == $value['id']) {
+                                echo " selected"; } ?>><?php echo xlt($value['label']) ?></option>
                       <?php } ?>
                   <?php } ?>
-                  <?php if ($value['external']) {
-                      array_push($external_sets, $key);
-                  } ?>
+                    <?php if ($value['external']) {
+                        array_push($external_sets, $key);
+                    } ?>
               <?php } // end foreach ?>
 
               <?php if ($mode != "modify") { ?>
@@ -518,7 +519,7 @@ if ($fend > $count) {
         <?php if (modifiers_are_used()) { ?>
         <label for="modifier" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Modifier'); ?>:</label>
         <div class="col-md">
-          <?php if ($mode == "modify") { ?>
+            <?php if ($mode == "modify") { ?>
               <input type='text' size='6' class='form-control form-control-sm' name='modifier' readonly='readonly' value='<?php echo attr($modifier) ?>' />
           <?php } else { ?>
               <input type='text' size='6' class='form-control form-control-sm' name='modifier' value='<?php echo attr($modifier) ?>' />
@@ -528,7 +529,8 @@ if ($fend > $count) {
           <?php } ?>
         </div>
         <div class="col-md">
-          <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == null)) { echo ' checked'; } ?> />
+          <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == null)) {
+                echo ' checked'; } ?> />
           <?php echo xlt('Active'); ?>
         </div>
       </div>
@@ -558,21 +560,27 @@ if ($fend > $count) {
           <?php generate_form_field(array('data_type' => 1,'field_id' => 'superbill','list_id' => 'superbill', 'smallform' => 'true'), $superbill); ?>
         </div>
         <div class="col-md">
-          <input type='checkbox' title='<?php echo xla("Syndromic Surveillance Report") ?>' name='reportable' value='1'<?php if (!empty($reportable)) {  echo ' checked'; } ?> />
+          <input type='checkbox' title='<?php echo xla("Syndromic Surveillance Report") ?>' name='reportable' value='1'<?php if (!empty($reportable)) {
+                echo ' checked'; } ?> />
           <?php echo xlt('Diagnosis Reporting'); ?>
         </div>
         <div class="col-md">
-          <input type='checkbox' title='<?php echo xla("Service Code Finance Reporting") ?>' name='financial_reporting' value='1'<?php if (!empty($financial_reporting)) { echo ' checked'; } ?> />
+          <input type='checkbox' title='<?php echo xla("Service Code Finance Reporting") ?>' name='financial_reporting' value='1'<?php if (!empty($financial_reporting)) {
+                echo ' checked'; } ?> />
           <?php echo xlt('Service Reporting'); ?>
         </div>
       </div>
       <div class="form-group row">
-          <label class="col-form-label col-form-label-sm col-md-1 <?php if (empty($GLOBALS['ippf_specific'])) { echo 'd-none'; } ?>"><?php echo xlt('CYP Factor'); ?>:</label>
-          <div class="col-md <?php if (empty($GLOBALS['ippf_specific'])) { echo 'd-none'; } ?>">
+          <label class="col-form-label col-form-label-sm col-md-1 <?php if (empty($GLOBALS['ippf_specific'])) {
+                echo 'd-none'; } ?>"><?php echo xlt('CYP Factor'); ?>:</label>
+          <div class="col-md <?php if (empty($GLOBALS['ippf_specific'])) {
+                echo 'd-none'; } ?>">
             <input type='text' class='form-control form-control-sm' size='10' maxlength='20' name="cyp_factor" value='<?php echo attr($cyp_factor) ?>' />
           </div>
-          <label class="col-form-label col-form-label-sm col-md-1 <?php if (!related_codes_are_used()) { echo "d-none"; } ?>"><?php echo xlt('Relate To'); ?>:</label>
-          <div class="col-md <?php if (!related_codes_are_used()) { echo "d-none"; } ?>">
+          <label class="col-form-label col-form-label-sm col-md-1 <?php if (!related_codes_are_used()) {
+                echo "d-none"; } ?>"><?php echo xlt('Relate To'); ?>:</label>
+          <div class="col-md <?php if (!related_codes_are_used()) {
+                echo "d-none"; } ?>">
             <input type='text' class='form-control form-control-sm' size='50' name='related_desc'
                    value='<?php echo attr($related_desc) ?>' onclick="sel_related()"
                    title='<?php echo xla('Click to select related code'); ?>' readonly />
@@ -580,40 +588,40 @@ if ($fend > $count) {
           </div>
           <label class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Fees'); ?>:</label>
           <?php
-          $pres = sqlStatement("SELECT lo.option_id, lo.title, p.pr_price " .
+            $pres = sqlStatement("SELECT lo.option_id, lo.title, p.pr_price " .
               "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
               "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
               "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title", array($code_id));
-          for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
-              echo "<label class='col-form-label col-form-label-sm col-md-1'>" . text(xl_list_label($prow['title'])) . "</label>";
-              echo "<div class='col-md'><input type='text' class='form-control form-control-sm' size='6' name='fee[" . attr($prow['option_id']) . "]' " .
+            for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
+                echo "<label class='col-form-label col-form-label-sm col-md-1'>" . text(xl_list_label($prow['title'])) . "</label>";
+                echo "<div class='col-md'><input type='text' class='form-control form-control-sm' size='6' name='fee[" . attr($prow['option_id']) . "]' " .
                   "value='" . attr($prow['pr_price']) . "' /></div>\n";
-          }
-          ?>
+            }
+            ?>
           <?php
-          $taxline = '';
-          $pres = sqlStatement("SELECT option_id, title FROM list_options " .
+            $taxline = '';
+            $pres = sqlStatement("SELECT option_id, title FROM list_options " .
               "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
-          while ($prow = sqlFetchArray($pres)) {
-              $taxline .= "<input type='checkbox' name='taxrate[" . attr($prow['option_id']) . "]' value='1'";
-              if (strpos(":$taxrates", $prow['option_id']) !== false) {
-                  $taxline .= " checked";
-              }
+            while ($prow = sqlFetchArray($pres)) {
+                $taxline .= "<input type='checkbox' name='taxrate[" . attr($prow['option_id']) . "]' value='1'";
+                if (strpos(":$taxrates", $prow['option_id']) !== false) {
+                    $taxline .= " checked";
+                }
 
-              $taxline .= " />\n";
-              $taxline .=  text(xl_list_label($prow['title'])) . "\n";
-          }
+                $taxline .= " />\n";
+                $taxline .=  text(xl_list_label($prow['title'])) . "\n";
+            }
 
-          if ($taxline) { ?>
+            if ($taxline) { ?>
               <div class="col-md"><?php echo xlt('Taxes'); ?>: <?php echo $taxline; ?></div>
-            <?php } ?>
+              <?php } ?>
       </div>
       <input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>" />
       <input type="hidden" name="code_type_name_external" value="<?php echo attr($code_type_name_external) ?>" />
       <input type="hidden" name="code_external" value="<?php echo attr($code_external) ?>" />
       <?php if ($thisauthwrite) { ?>
         <p class="text-center">
-          <?php if ($mode == "modify") { ?>
+            <?php if ($mode == "modify") { ?>
               <a href='javascript:submitModifyComplete();' class='link'>[<?php echo xlt('Update'); ?>]</a>
           <?php } else { ?>
               <a href='javascript:submitUpdate();' class='link'>[<?php echo xlt('Update'); ?>]</a>
@@ -628,15 +636,15 @@ if ($fend > $count) {
         <div class="col-md-2">
           <select name='filter[]' class="form-control form-control-sm" multiple='multiple'>
               <?php
-              foreach ($code_types as $key => $value) {
-                  echo "<option value='" . attr($value['id']) . "'";
-                  if (isset($filter) && in_array($value['id'], $filter)) {
-                      echo " selected";
-                  }
+                foreach ($code_types as $key => $value) {
+                    echo "<option value='" . attr($value['id']) . "'";
+                    if (isset($filter) && in_array($value['id'], $filter)) {
+                        echo " selected";
+                    }
 
-                  echo ">" . xlt($value['label']) . "</option>\n";
-              }
-              ?>
+                    echo ">" . xlt($value['label']) . "</option>\n";
+                }
+                ?>
           </select>
         </div>
         <div class="col-md">
@@ -646,10 +654,12 @@ if ($fend > $count) {
           <input type="submit" class="btn btn-primary btn-sm" name="go" value='<?php echo xla('Search'); ?>' />
         </div>
         <div class="col-md">
-          <input type='checkbox' title='<?php echo xla("Only Show Diagnosis Reporting Codes") ?>' name='search_reportable' value='1'<?php if (!empty($search_reportable)) { echo ' checked'; } ?> /><?php echo xlt('Diagnosis Reporting Only'); ?>
+          <input type='checkbox' title='<?php echo xla("Only Show Diagnosis Reporting Codes") ?>' name='search_reportable' value='1'<?php if (!empty($search_reportable)) {
+                echo ' checked'; } ?> /><?php echo xlt('Diagnosis Reporting Only'); ?>
         </div>
         <div class="col-md">
-          <input type='checkbox' title='<?php echo xla("Only Show Service Code Finance Reporting Codes") ?>' name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) { echo ' checked'; } ?> /><?php echo xlt('Service Reporting Only'); ?>
+          <input type='checkbox' title='<?php echo xla("Only Show Service Code Finance Reporting Codes") ?>' name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) {
+                echo ' checked'; } ?> /><?php echo xlt('Service Reporting Only'); ?>
           <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>' />
         </div>
         <div class="col-md text-right">

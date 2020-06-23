@@ -11,6 +11,7 @@
  */
 
  use OpenEMR\Core\Header;
+
 ?>
 <!DOCTYPE html>
 <!-- Language grabbed by PDF var that has the correct format !-->
