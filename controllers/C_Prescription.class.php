@@ -341,7 +341,6 @@ class C_Prescription extends Controller
         $printDateObj = date("Y-m-d");
         $printDate = "UPDATE prescriptions SET prn = ? WHERE id = ?";
         sqlQuery($printDate, [$printDateObj, $p->id]);
-
     }
 
     function multiprint_header(&$pdf, $p)
@@ -424,7 +423,7 @@ class C_Prescription extends Controller
     function multiprintcss_header($p)
     {
         self::updatePrnDate($p);
-        
+
         echo("<div class='paddingdiv'>\n");
         $this->providerid = $p->provider->id;
         echo ("<table cellspacing='0' cellpadding='0' width='100%'>\n");
