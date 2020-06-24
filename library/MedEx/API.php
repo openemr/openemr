@@ -1878,8 +1878,7 @@ class Display extends base
         ?>
 
     <div class="container mt-3">
-    <!-- <div class="row" id="rcb_selectors" style="display: <?php echo attr($rcb_selectors); ?>"> -->
-        <div class="row" id="rcb_selectors">
+        <div class="row" id="rcb_selectors" style="display: <?php echo attr($rcb_selectors); ?>">
             <div class="col-12 text-center">
                 <h2><?php echo xlt('Recall Board'); ?></h2>
                 <p class="text-danger"><?php echo xlt('Persons needing a recall, no appt scheduled yet.'); ?></p>
