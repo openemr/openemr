@@ -118,6 +118,10 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools restore example'
       ```
+    - To list the snapshots
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools list-snapshots'
+      ```
 12. Developer tools to turn on and turn off support for multisite feature.
     - Turn on support for multisite:
       ```sh
