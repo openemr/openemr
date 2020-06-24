@@ -1743,7 +1743,7 @@ class Display extends base
                                                 <div class="divTableCell indent20">
                                                 <input type="checkbox" class="update" name="LABELS_local" id="LABELS_local" value="1" <?php if ($prefs['LABELS_local']) {
                                                         echo "checked='checked'";} ?> />
-                                                    <label for="LABELS_local" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='<?php echo xla('Check if you plan to use Avery Labels for Reminders or Recalls'); ?>'>
+                                                    <label for="LABELS_local" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto' title='<?php echo xla('Check if you plan to use Avery Labels for Reminders or Recalls'); ?>'>
                                                         <?php echo xlt('Use Avery Labels'); ?></label>
                                                     <select class="update form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="chart_label_type" name="chart_label_type">
                                                                     <option value='1' <?php if ($prefs['LABELS_choice'] == '1') {
@@ -2679,7 +2679,7 @@ class Display extends base
                         <input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="<?php echo attr($result_pat['phone_cell']); ?>" />
                     </div>
                     <div class="form-group col-12 col-md-6">
-                        <label data-placement="top" title="<?php echo xla('Text Message permission'); ?>"><?php echo xlt('SMS OK'); ?></label>
+                        <label data-toggle="tooltip" data-placement="top" title="<?php echo xla('Text Message permission'); ?>"><?php echo xlt('SMS OK'); ?></label>
                         <br />
                         <div class="form-check-inline">
                             <input type="radio" class="form-check-input" name="new_allowsms" id="new_allowsms_yes" value="YES" />
@@ -2691,7 +2691,7 @@ class Display extends base
                         </div>
                     </div>
                     <div class="form-group col-12 col-md-6">
-                        <label data-placement="top" title="<?php echo xla('Automated Voice Message permission'); ?>"><?php echo xlt('AVM OK'); ?></label>
+                        <label data-toggle="tooltip" data-placement="top" title="<?php echo xla('Automated Voice Message permission'); ?>"><?php echo xlt('AVM OK'); ?></label>
                         <br />
                         <div class="form-check-inline">
                             <input class="form-check-input" type="radio" name="new_voice" id="new_voice_yes" value="YES" />
@@ -2731,6 +2731,10 @@ class Display extends base
     </div>
         <script>
             $(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+
+            $(function () {
                 $('.datepicker').datetimepicker({
                         <?php $datetimepicker_timepicker = false; ?>
                         <?php $datetimepicker_showseconds = false; ?>
@@ -2738,7 +2742,6 @@ class Display extends base
                         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
-
             });
                 <?php
                 if ($_SESSION['pid'] > '') {
