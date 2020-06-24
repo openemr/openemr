@@ -74,6 +74,10 @@
 --    argument: table_name
 --    behavior: this will add and populate a uuid column into table
 
+--  #IfUuidNeedUpdateVertical
+--    argument: table_name table_columns
+--    behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
+
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
 
@@ -730,4 +734,19 @@ ALTER TABLE `users` ADD `uuid` binary(16) DEFAULT NULL;
 
 #IfNotIndex users uuid
 CREATE UNIQUE INDEX `uuid` ON `users` (`uuid`);
+#EndIf
+
+#IfMissingColumn facility_user_ids uuid
+ALTER TABLE `facility_user_ids` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdateVertical facility_user_ids uid:facility_id
+#EndIf
+
+#IfNotIndex facility_user_ids uuid
+CREATE INDEX `uuid` ON `facility_user_ids` (`uuid`);
+#EndIf
+
+#IfMissingColumn uuid_registry table_vertical
+ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '';
 #EndIf
