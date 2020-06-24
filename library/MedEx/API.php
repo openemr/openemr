@@ -2587,7 +2587,8 @@ class Display extends base
                     </div>
                     <div class="form-group col-12 col-md-6">
                         <label><?php echo xlt('Recall Reason'); ?></label>
-                        <input class="form-control" type="text" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') { echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>">
+                        <input class="form-control" type="text" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
+                             echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>">
                     </div>
                     <div class="form-group col-12 col-md-6">
                         <label><?php echo xlt('Provider'); ?></label>
