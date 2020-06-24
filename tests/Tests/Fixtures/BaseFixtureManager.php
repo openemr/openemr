@@ -54,13 +54,13 @@ class BaseFixtureManager
         $idValue = intval(array_values($idResult)[0]);
         return $idValue;
     }
-    
+
     /**
      * Returns an unregistered/unlogged UUID for use in testing fixtures
      * @return uuid4 string value
      */
     public function getUnregisteredUuid()
     {
-        return (new UuidRegistry(['disable_tracker' => true]))->createUuid();
+        return UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
     }
 }

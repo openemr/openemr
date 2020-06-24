@@ -5,7 +5,6 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-
 use OpenEMR\Services\FacilityService;
 
 /**

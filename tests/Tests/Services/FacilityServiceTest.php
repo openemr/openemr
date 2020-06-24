@@ -114,7 +114,7 @@ class FacilityServiceTest extends TestCase
         $sql = "SELECT `uuid`, `email` FROM `facility` WHERE `uuid` = ?";
         $result = sqlQuery($sql, [UuidRegistry::uuidToBytes($actualUuid)]);
         $this->assertEquals($actualUuid, UuidRegistry::uuidToString($result["uuid"]));
-        $this->assertEquals("info@pennfirm.com", $result["email"]);
+        $this->assertEquals("help@pennfirm.com", $result["email"]);
     }
 
     /**
