@@ -32,15 +32,28 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 ?>
 
 <html>
+
 <head>
 
     <title><?php echo xlt("Edit Facility Specific User Information"); ?></title>
 
-    <?php Header::setupHeader(['common','datetime-picker','opener']); ?>
+    <?php Header::setupHeader(['common', 'datetime-picker', 'opener', 'select2']); ?>
 
     <script>
-        $(function () {
-            $("#form_facility_user").submit(function (event) {
+        $(function() {
+            $(".select-dropdown").select2({
+                theme: "bootstrap4",
+                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+            });
+            if (typeof error !== 'undefined') {
+                if (error) {
+                    alertMsg(error);
+                }
+            }
+        });
+
+        $(function() {
+            $("#form_facility_user").submit(function(event) {
                 top.restoreSession();
                 event.preventDefault();
                 var post_url = $(this).attr("action");
@@ -50,7 +63,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                     url: post_url,
                     type: request_method,
                     data: form_data
-                }).done(function (r) {
+                }).done(function(r) {
                     dlgclose('refreshme', false);
                 });
             });
@@ -66,7 +79,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                ?>
             });
             $('.datetimepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
@@ -75,7 +89,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                ?>
             });
             $('.datepicker-past').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
@@ -84,7 +99,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                ?>
             });
             $('.datetimepicker-past').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
@@ -93,7 +109,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                ?>
             });
             $('.datepicker-future').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
@@ -102,7 +119,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                ?>
             });
             $('.datetimepicker-future').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
@@ -111,12 +129,14 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                ?>
             });
         });
     </script>
 
 </head>
+
 <body class="body_top">
     <?php
     // Collect user information
@@ -127,8 +147,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 
     // Collect layout information and store them in an array
     $l_res = sqlStatement("SELECT * FROM layout_options " .
-                          "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
-                          "ORDER BY group_id, seq");
+        "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
+        "ORDER BY group_id, seq");
     $l_arr = array();
     for ($i = 0; $row = sqlFetchArray($l_res); $i++) {
         $l_arr[$i] = $row;
@@ -140,6 +160,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
             <div class="col-12">
                 <div class="page-title">
                     <h3><?php echo xlt('Edit Facility Specific User Information'); ?></h3>
+                    &nbsp;
                 </div>
             </div>
         </div>
@@ -147,49 +168,54 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
             <form name='form_facility_user' id='form_facility_user' method='post' action="facility_user.php">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <input type=hidden name=mode value="facility_user_id">
-                <input type=hidden name=user_id value="<?php echo attr($_GET["user_id"]);?>">
-                <input type=hidden name=fac_id value="<?php echo attr($_GET["fac_id"]);?>">
+                <input type=hidden name=user_id value="<?php echo attr($_GET["user_id"]); ?>">
+                <input type=hidden name=fac_id value="<?php echo attr($_GET["fac_id"]); ?>">
                 <?php $iter = sqlQuery("select * from facility_user_ids where id=?", array($my_id)); ?>
 
                 <table border=0 cellpadding=0 cellspacing=0>
                     <tr>
                         <td>
-                            <?php echo xlt('User'); ?>:
+                            <p><?php echo xlt('User'); ?>:</p>
                         </td>
                         <td>
-                            <?php echo text($user_info['username']); ?>
+                            <p> <?php echo text($user_info['username']); ?> <p>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <?php echo xlt('Facility'); ?>:
+                            <p> <?php echo xlt('Facility'); ?>: </p>
                         </td>
                         <td>
-                            <?php echo text($fac_info['name']); ?>
+                            <p> <?php echo text($fac_info['name']); ?> </p>
                         </td>
                     </tr>
                     <?php foreach ($l_arr as $layout_entry) { ?>
                         <tr>
                             <td style="width:180px;">
-                                <?php echo text(xl_layout_label($layout_entry['title'])) ?>:
+                               <p> <?php echo text(xl_layout_label($layout_entry['title'])) ?>: </p>
                             </td>
                             <td style="width:270px;">
                                 <?php
                                 $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
-                                                       "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'],$fac_info['id'],$layout_entry['field_id']));
-                                echo "<td>" . generate_form_field($layout_entry, $entry_data['field_value']) . "&nbsp;</td>";
+                                    "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'], $fac_info['id'], $layout_entry['field_id']));
+                                if ($layout_entry['field_id'] === "role_code") {
+                                    echo generate_select_list("role", "us-core-provider-role", "", "", " ", "select-dropdown", "", "role");
+                                } else {
+                                    echo generate_form_field($layout_entry, $entry_data['field_value']);
+                                }
                                 ?>
+                                &nbsp;
                             </td>
                         </tr>
                     <?php } ?>
                     <tr>
                         <td>&nbsp;</td>
                         <td>
-                            <button type="submit" class="btn btn-secondary btn-save" name='form_save' id='form_save' href='#' >
-                                <?php echo xlt('Save');?>
+                            <button type="submit" class="btn btn-secondary btn-save" name='form_save' id='form_save' href='#'>
+                                <?php echo xlt('Save'); ?>
                             </button>
                             <a class="btn btn-link btn-cancel oe-opt-btn-separate-left" id='cancel' href='#'>
-                                <?php echo xlt('Cancel');?>
+                                <?php echo xlt('Cancel'); ?>
                             </a>
                         </td>
                     </tr>
@@ -201,7 +227,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
     <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
 
     <script>
-    <?php echo $date_init; ?>
+        <?php echo $date_init; ?>
     </script>
 </body>
+
 </html>

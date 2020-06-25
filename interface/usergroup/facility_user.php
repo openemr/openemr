@@ -33,25 +33,26 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 $alertmsg = '';
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POST["user_id"]) && isset($_POST["fac_id"])) {
-  // Inserting/Updating new facility specific user information
+    // Inserting/Updating new facility specific user information
     $fres = sqlStatement("SELECT * FROM `layout_options` " .
-                       "WHERE `form_id` = 'FACUSR' AND `uor` > 0 AND `field_id` != '' " .
-                       "ORDER BY `group_id`, `seq`");
+        "WHERE `form_id` = 'FACUSR' AND `uor` > 0 AND `field_id` != '' " .
+        "ORDER BY `group_id`, `seq`");
     while ($frow = sqlFetchArray($fres)) {
         $value = get_layout_form_value($frow);
-        $entry_id = sqlQuery("SELECT `id` FROM `facility_user_ids` WHERE `uid` = ? AND `facility_id` = ? AND `field_id` =?", array($_POST["user_id"],$_POST["fac_id"],$frow['field_id']));
+        $entry_id = sqlQuery("SELECT `id` FROM `facility_user_ids` WHERE `uid` = ? AND `facility_id` = ? AND `field_id` =?", array($_POST["user_id"], $_POST["fac_id"], $frow['field_id']));
         if (empty($entry_id)) {
             // Insert new entry
-            sqlStatement("INSERT INTO `facility_user_ids` (`uid`, `facility_id`, `field_id`, `field_value`) VALUES (?,?,?,?)", array($_POST["user_id"],$_POST["fac_id"],$frow['field_id'], $value));
+            sqlStatement("INSERT INTO `facility_user_ids` (`uid`, `facility_id`, `field_id`, `field_value`) VALUES (?,?,?,?)", array($_POST["user_id"], $_POST["fac_id"], $frow['field_id'], $value));
         } else {
             // Update existing entry
-            sqlStatement("UPDATE `facility_user_ids` SET `field_value` = ? WHERE `id` = ?", array($value,$entry_id['id']));
+            sqlStatement("UPDATE `facility_user_ids` SET `field_value` = ? WHERE `id` = ?", array($value, $entry_id['id']));
         }
     }
 }
 
 ?>
 <html>
+
 <head>
 
     <title><?php echo xlt("Facility Specific User Information"); ?></title>
@@ -64,10 +65,10 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
             document.location.reload();
         }
 
-        $(function () {
+        $(function() {
             $(".small_modal").on('click', function(e) {
                 e.preventDefault();e.stopPropagation();
-                dlgopen('', '', 500, 200, '', '', {
+                dlgopen('', '', 550, 550, '', '', {
                     //onClosed: 'refreshme',
                     sizeHeight: 'auto',
                     allowResize: true,
@@ -80,6 +81,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
         });
     </script>
 </head>
+
 <body class="body_top">
     <?php
     // Collect all users
@@ -94,8 +96,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
 
     // Collect layout information and store them in an array
     $l_res = sqlStatement("SELECT * FROM layout_options " .
-                          "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
-                          "ORDER BY group_id, seq");
+        "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
+        "ORDER BY group_id, seq");
     $l_arr = array();
     for ($i = 0; $row = sqlFetchArray($l_res); $i++) {
         $l_arr[$i] = $row;
@@ -137,9 +139,9 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
                         while ($user = sqlFetchArray($u_res)) {
                             foreach ($f_arr as $facility) { ?>
                                 <tr>
-                                    <td><a href="facility_user_admin.php?user_id=<?php echo attr_url($user['id']);?>&fac_id=<?php echo attr_url($facility['id']); ?>" class="small_modal" onclick="top.restoreSession()"><b><?php echo text($user['username']);?></b></a>&nbsp;</td>
-                                    <td><?php echo text($user['fname'] . " " . $user['lname']);?></td>
-                                    <td><?php echo text($facility['name']);?>&nbsp;</td>
+                                    <td><a href="facility_user_admin.php?user_id=<?php echo attr_url($user['id']); ?>&fac_id=<?php echo attr_url($facility['id']); ?>" class="small_modal" onclick="top.restoreSession()"><b><?php echo text($user['username']); ?></b></a>&nbsp;</td>
+                                    <td><?php echo text($user['fname'] . " " . $user['lname']); ?></td>
+                                    <td><?php echo text($facility['name']); ?>&nbsp;</td>
                                     <?php
                                     foreach ($l_arr as $layout_entry) {
                                         $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
@@ -148,7 +150,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
                                     }
                                     ?>
                                 </tr>
-                                <?php
+                        <?php
                             }
                         }
                         ?>
@@ -158,4 +160,5 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
         </div>
     </div>
 </body>
+
 </html>
