@@ -30,6 +30,10 @@ Send an email to brady.g.miller@gmail.com . If possible, please encrypt your ema
 
 Check out [API_README.md](API_README.md)
 
+### Docker
+
+Check out [DOCKER_README.md](DOCKER_README.md)
+
 ### For Developers
 
 If using OpenEMR directly from the code repository, then the following commands will build OpenEMR (Node.js version 10.* or 12.* is required) :
