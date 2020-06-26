@@ -50,7 +50,7 @@ while ($row = sqlFetchArray($res)) {
     $header .= text($title);
     $header .= "</th>\n";
     $header0 .= "   <td ><input type='text' size='20' ";
-    $header0 .= "value='' class='form-control' placeholder='" . xla("Search by") . " " . $title1 . "'/></td>\n";
+    $header0 .= "value='' class='form-control search_init' placeholder='" . xla("Search by") . " " . $title1 . "'/></td>\n";
     if ($coljson) {
         $coljson .= ", ";
     }
@@ -343,10 +343,9 @@ $loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
 </head>
 <body>
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?> mt-3">
-         <div class="row">
-            <div class="col-12">
-                <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-            </div>
+         <div class="w-100">
+
+            <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             <div class="col-12">
                 <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
                     <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
@@ -356,12 +355,12 @@ $loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
                 <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
                     <!-- Class "display" is defined in demo_table.css -->
                     <div class="table-responsive">
-                        <table class="table table-hover" cellpadding="0" cellspacing="0" class="border-0 display" id="pt_table">
+                        <table class="table" cellpadding="0" cellspacing="0" class="border-0 display" id="pt_table">
                             <thead>
                                 <tr id="advanced_search" class="hideaway"  style="display: none;">
                                     <?php echo $header0; ?>
                                 </tr>
-                                <tr class="head">
+                                <tr>
                                     <?php echo $header; ?>
                                 </tr>
                             </thead>
@@ -392,11 +391,11 @@ $loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
                 $("#pt_table").removeAttr("style");
             });
         });
+
         $(window).on("resize", function() { //portrait vs landscape
            $("#pt_table").removeAttr("style");
         });
-    </script>
-    <script>
+
         $(window).on('resize', function() {//hide superfluous elements on Smartphones
             var winWidth = $(this).width();
             if (winWidth <  750) {
@@ -413,9 +412,6 @@ $loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
                 $("#search_hide").addClass ("hidden");
             }
         });
-    </script>
-
-    <script>
         document.addEventListener('touchstart', {});
     </script>
 </body>
