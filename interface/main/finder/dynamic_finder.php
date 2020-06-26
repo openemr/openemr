@@ -50,7 +50,7 @@ while ($row = sqlFetchArray($res)) {
     $header .= text($title);
     $header .= "</th>\n";
     $header0 .= "   <td ><input type='text' size='20' ";
-    $header0 .= "value='' class='search_init' placeholder='" . xla("Search by") . " " . $title1 . "'/></td>\n";
+    $header0 .= "value='' class='form-control' placeholder='" . xla("Search by") . " " . $title1 . "'/></td>\n";
     if ($coljson) {
         $coljson .= ", ";
     }
@@ -75,6 +75,10 @@ $loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
         margin: 0;
         color: var(--danger);
         transform: translateX(-50%);
+    }
+    .card {
+        border: 0;
+        border-radius: 0;
     }
 
     @media screen and (max-width: 640px) {
@@ -337,48 +341,41 @@ $loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
-<body class="body_top">
-    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
+<body>
+    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?> mt-3">
          <div class="row">
-            <div class="col-sm-12">
-                <div class="page-header">
-                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-                </div>
+            <div class="col-12">
+                <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
+            <div class="col-12">
                 <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
-                    <button id="create_patient_btn1" class="btn btn-secondary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
+                    <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
                 <?php } ?>
             </div>
-            </div>
-        <br />
-        <div class="row">
-            <div class="col-sm-12">
+            <div class="col-12 jumbotron mt-3 p-4">
                 <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
                     <!-- Class "display" is defined in demo_table.css -->
-                    <table cellpadding="0" cellspacing="0" class="border-0 display" id="pt_table">
-                        <thead>
-                            <tr id="advanced_search" class="hideaway"  style="display: none;">
-                                <?php echo $header0; ?>
-                            </tr>
-                            <tr class="head">
-                                <?php echo $header; ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-                                <td class="dataTables_empty" colspan="<?php echo attr($colcount); ?>">...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-hover" cellpadding="0" cellspacing="0" class="border-0 display" id="pt_table">
+                            <thead>
+                                <tr id="advanced_search" class="hideaway"  style="display: none;">
+                                    <?php echo $header0; ?>
+                                </tr>
+                                <tr class="head">
+                                    <?php echo $header; ?>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
+                                    <td class="dataTables_empty" colspan="<?php echo attr($colcount); ?>">...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
+            <div class="col-12">
                 <!-- form used to open a new top level window when a patient row is clicked -->
                 <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
