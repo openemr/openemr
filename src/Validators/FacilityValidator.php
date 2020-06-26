@@ -33,6 +33,7 @@ class FacilityValidator extends BaseValidator
             function (Validator $context) {
                 $context->required('name')->lengthBetween(2, 255);
                 $context->required('facility_npi')->numeric()->lengthBetween(10, 15);
+                $context->optional('domain_identifier')->numeric();
                 $context->optional('phone')->lengthBetween(3, 30);
                 $context->optional('city')->lengthBetween(2, 255);
                 $context->optional('state')->lengthBetween(2, 50);

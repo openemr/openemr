@@ -119,10 +119,26 @@ class FhirOrganizationService extends FhirServiceBase
             ));
         }
 
+        if (isset($dataRecord['fax'])) {
+            $organizationResource->addTelecom(array(
+                'system' => 'fax',
+                'value' => $dataRecord['fax'],
+                'use' => 'work'
+            ));
+        }
+
         if (isset($dataRecord['facility_npi'])) {
             $fhirIdentifier = [
                 'system' => "http://hl7.org/fhir/sid/us-npi",
                 'value' => $dataRecord['facility_npi']
+            ];
+            $organizationResource->addIdentifier($fhirIdentifier);
+        }
+
+        if (isset($dataRecord['domain_identifier'])) {
+            $fhirIdentifier = [
+                'system' => "urn:oid:2.16.840.1.113883.4.7",
+                'value' => $dataRecord['domain_identifier']
             ];
             $organizationResource->addIdentifier($fhirIdentifier);
         }
@@ -178,7 +194,18 @@ class FhirOrganizationService extends FhirServiceBase
                         }
                         break;
                     case 'email':
-                        $data['email'] = $telecom['value'];
+                        switch ($telecom['use']) {
+                            case 'work':
+                                $data['email'] = $telecom['value'];
+                                break;
+                        }
+                        break;
+                    case 'fax':
+                        switch ($telecom['use']) {
+                            case 'work':
+                                $data['fax'] = $telecom['value'];
+                                break;
+                        }
                         break;
                     default:
                         //Should give Error for incapability
@@ -190,6 +217,9 @@ class FhirOrganizationService extends FhirServiceBase
         foreach ($fhirResource['identifier'] as $index => $identifier) {
             if ($identifier['system'] == "http://hl7.org/fhir/sid/us-npi") {
                 $data['facility_npi'] = $identifier['value'];
+            }
+            if ($identifier['system'] == "urn:oid:2.16.840.1.113883.4.7") {
+                $data['domain_identifier'] = $identifier['value'];
             }
         }
         return $data;

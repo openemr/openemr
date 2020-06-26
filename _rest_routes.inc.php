@@ -422,12 +422,12 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return (new FhirOrganizationRestController())->getOne($id);
     },
     "POST /fhir/Organization" => function () {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         return (new FhirOrganizationRestController())->post($data);
     },
     "PATCH /fhir/Organization/:id" => function ($id) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         return (new FhirOrganizationRestController())->patch($id, $data);
     },
