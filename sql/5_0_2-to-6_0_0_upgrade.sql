@@ -732,8 +732,12 @@ ALTER TABLE `users` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `users` (`uuid`);
 #EndIf
 
-#IfNotRow layout_options field_id role_code
+#IfNotRow2D layout_options form_id FACUSR field_id role_code
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'role_code', '1', 'Provider Role', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider Role at Specified Facility', 0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id us-core-provider-role
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq` ) VALUES ('lists' ,'us-core-provider-role', 'US Core Provider Role', 1);
 #EndIf
 
 #IfNotRow list_options list_id us-core-provider-role

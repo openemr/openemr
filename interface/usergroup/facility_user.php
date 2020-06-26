@@ -82,7 +82,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
     </script>
 </head>
 
-<body class="body_top">
+<body>
     <?php
     // Collect all users
     $u_res = sqlStatement("select * from `users` WHERE `username` != '' AND `active` = 1 order by `username`");

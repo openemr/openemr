@@ -137,7 +137,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 
 </head>
 
-<body class="body_top">
+<body>
     <?php
     // Collect user information
     $user_info = sqlQuery("select * from `users` WHERE `id` = ?", array($_GET["user_id"]));
@@ -160,7 +160,6 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
             <div class="col-12">
                 <div class="page-title">
                     <h3><?php echo xlt('Edit Facility Specific User Information'); ?></h3>
-                    &nbsp;
                 </div>
             </div>
         </div>
@@ -172,27 +171,27 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <input type=hidden name=fac_id value="<?php echo attr($_GET["fac_id"]); ?>">
                 <?php $iter = sqlQuery("select * from facility_user_ids where id=?", array($my_id)); ?>
 
-                <table border=0 cellpadding=0 cellspacing=0>
+                <table class="table table-borderless ">
                     <tr>
                         <td>
-                            <p><?php echo xlt('User'); ?>:</p>
+                            <?php echo xlt('User'); ?>:
                         </td>
                         <td>
-                            <p> <?php echo text($user_info['username']); ?> <p>
+                             <?php echo text($user_info['username']); ?> 
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <p> <?php echo xlt('Facility'); ?>: </p>
+                             <?php echo xlt('Facility'); ?>: 
                         </td>
                         <td>
-                            <p> <?php echo text($fac_info['name']); ?> </p>
+                             <?php echo text($fac_info['name']); ?> 
                         </td>
                     </tr>
                     <?php foreach ($l_arr as $layout_entry) { ?>
                         <tr>
                             <td style="width:180px;">
-                               <p> <?php echo text(xl_layout_label($layout_entry['title'])) ?>: </p>
+                                <?php echo text(xl_layout_label($layout_entry['title'])) ?>: 
                             </td>
                             <td style="width:270px;">
                                 <?php
@@ -204,7 +203,6 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                                     echo generate_form_field($layout_entry, $entry_data['field_value']);
                                 }
                                 ?>
-                                &nbsp;
                             </td>
                         </tr>
                     <?php } ?>
