@@ -131,12 +131,14 @@ span.bold {
   @include font-size("1.4rem !important");
 }
 
-#addressbook_list tr.evenrow {
-  background-color: $light;
-}
+#addressbook_list {
+	tr.evenrow {
+	  background-color: $light;
+	}
 
-#addressbook_list tr.oddrow {
-  background-color: $white;
+	tr.oddrow {
+	  background-color: $white;
+	}
 }
 
 tr.odd,
@@ -156,24 +158,20 @@ ul.tabNav {
   margin: 0;
   padding: 0;
   padding-top: 4px;
-}
-
-ul.tabNav li {
-  padding: 0 4px;
-}
-
-ul.tabNav li.current a {
-  background: $white;
-  color: $primary;
-}
-
-ul.tabNav a {
-  color: $white;
-  padding: 8px 17px;
-}
-
-ul.tabNav a:focus {
-  outline: none;
+  li {
+    padding: 0 4px;
+	&.current a {
+	  background: $white;
+	  color: $primary;
+	}
+  }
+  a {
+    color: $white;
+    padding: 8px 17px;
+	&:focus {
+	  outline: none;
+	}
+  }
 }
 
 /* Override BS4 dropdown toggle */
@@ -243,24 +241,18 @@ ul.tabNav a:focus {
 
 .example_menu {
   @include font-size("0.7rem !important");
-}
-
-.example_menu ul a:hover {
-  background: darken($light, 15%);
-  text-decoration: underline;
+  ul a:hover {
+    background: darken($light, 15%);
+    text-decoration: underline;
+  }
 }
 
 .error-message {
   @include font-size("0.8rem !important");
 }
 
-
 .attach-input {
   text-align: $right;
-}
-
-.full-width {
-  width: 100%;
 }
 
 .radio-pos {
@@ -270,10 +262,10 @@ ul.tabNav a:focus {
 .sidebar {
   @include font-size("0.95rem !important");
   background-color: lighten($light, 10%);
-}
 
-.sidebar .submenu {
-  @include font-size("0.9rem !important");
+  .submenu {
+    @include font-size("0.9rem !important");
+  }
 }
 
 .alert-danger-custom {
@@ -309,29 +301,30 @@ div.category-display {
   margin: 0;
 }
 
-#oe-nav-ul.tabNav li.current {
-  color: $primary;
-}
+#oe-nav-ul {
+	&.tabNav {
+		background: rgba($black, 0.05) !important;
 
-#oe-nav-ul.tabNav a {
-  background: $light;
-  border-bottom: 1px solid $gray-400;
-  border-left: 2px solid $primary;
-}
+		li.current {
+		  color: $primary;
+		}
 
-#oe-nav-ul.tabNav a:hover {
-  background-color: $white !important;
-  color: $primary;
-}
+		a {
+		  background: $light;
+		  border-bottom: 1px solid $gray-400;
+		  border-left: 2px solid $primary;
+		  &:hover {
+		    background-color: $white !important;
+		    color: $primary;
+		  }
+		}
 
-#oe-nav-ul.tabNav {
-  background: rgba($black, 0.05) !important;
-}
-
-#oe-nav-ul.tabNav .current a {
-  background: $white;
-  border-color: $primary;
-  color: $primary;
+		.current a {
+		  background: $white;
+		  border-color: $primary;
+		  color: $primary;
+		}
+	}
 }
 
 #globals-div .tabContainer {

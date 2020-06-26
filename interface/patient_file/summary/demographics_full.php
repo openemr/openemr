@@ -82,6 +82,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <title><?php echo xlt('Edit Current Patient'); ?></title>
 
 <style>
+    /* TODO: Find a way to remove this stylesheet */
     .form-control {
         width: auto;
         display: inline;
@@ -489,7 +490,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     <button type="submit" class="btn btn-secondary btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
                         <?php echo xlt('Save'); ?>
                     </button>
-                    <a class="btn btn-link btn-cancel" href="demographics.php" onclick="top.restoreSession()">
+                    <a class="btn btn-secondary btn-cancel" href="demographics.php" onclick="top.restoreSession()">
                         <?php echo xlt('Cancel'); ?>
                     </a>
                 </div>

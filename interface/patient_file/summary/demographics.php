@@ -10,10 +10,12 @@
 * @author    Sharon Cohen <sharonco@matrix.co.il>
 * @author    Stephen Waite <stephen.waite@cmsvt.com>
 * @author    Ranganath Pathak <pathak@scrs1.org>
+* @author    Tyler Wrenn <tyler@tylerwrenn.com>
 * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
 * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
 * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
 * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
+* @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -148,7 +150,7 @@ function image_widget($doc_id, $doc_catg)
         " onclick='top.restoreSession();' class='image_modal'>" .
         " <img src = '$web_root" .
         "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false'" .
-        " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file) . "'>  </a> </td> <td valign='center'>" .
+        " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file) . "'>  </a> </td> <td class='align-middle'>" .
         text($doc_catg) . '<br />&nbsp;' . text($image_file) .
         "</td>";
     } else {
@@ -305,7 +307,7 @@ require_once("$srcdir/options.js.php");
 
         dlgopen(url, 'publish', 'modal-mlg', 750, '', '', {
             buttons: [
-                {text: <?php echo xlj('Done'); ?>, close: true, style: 'default btn-sm'}
+                {text: <?php echo xlj('Done'); ?>, close: true, style: 'secondary btn-sm'}
             ],
             allowResize: true,
             allowDrag: true,
@@ -442,7 +444,7 @@ require_once("$srcdir/options.js.php");
                 e.stopPropagation();
                 dlgopen('', '', 800, 200, '', '', {
                     buttons: [
-                        {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
+                        {text: <?php echo xlj('Close'); ?>, close: true, style: 'secondary btn-sm'}
                     ],
                     onClosed: 'refreshme',
                     allowResize: false,
@@ -479,7 +481,7 @@ require_once("$srcdir/options.js.php");
             e.stopPropagation();
             dlgopen('', '', 1000, 600, '', '', {
                 buttons: [
-                    {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
+                    {text: <?php echo xlj('Close'); ?>, close: true, style: 'secondary btn-sm'}
                 ],
                 allowResize: true,
                 allowDrag: true,
@@ -503,9 +505,9 @@ require_once("$srcdir/options.js.php");
             var title = <?php echo xlj('Amendments'); ?>;
             dlgopen('', 'editAmendments', 800, 300, '', title, {
                 buttons: [
-                    {text: <?php echo xlj('Add'); ?>, close: false, style: 'primary  btn-sm', click: AddAmendment},
-                    {text: <?php echo xlj('List'); ?>, close: false, style: 'primary  btn-sm', click: ListAmendments},
-                    {text: <?php echo xlj('Done'); ?>, close: true, style: 'default btn-sm'}
+                    {text: <?php echo xlj('Add'); ?>, close: false, style: 'primary btn-sm', click: AddAmendment},
+                    {text: <?php echo xlj('List'); ?>, close: false, style: 'primary btn-sm', click: ListAmendments},
+                    {text: <?php echo xlj('Done'); ?>, close: true, style: 'secondary btn-sm'}
                 ],
                 onClosed: 'refreshme',
                 allowResize: true,
@@ -534,7 +536,7 @@ require_once("$srcdir/options.js.php");
             e.stopPropagation();
             dlgopen('', '', 600, 360, '', '', {
                 buttons: [
-                    {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
+                    {text: <?php echo xlj('Close'); ?>, close: true, style: 'secondary btn-sm'}
                 ],
                 //onClosed: 'imdeleted',
                 allowResize: false,
@@ -550,7 +552,7 @@ require_once("$srcdir/options.js.php");
             e.stopPropagation();
             dlgopen('', '', 350, 300, '', '', {
                 buttons: [
-                    {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
+                    {text: <?php echo xlj('Close'); ?>, close: true, style: 'secondary btn-sm'}
                 ],
                 allowResize: true,
                 allowDrag: true,
@@ -565,7 +567,7 @@ require_once("$srcdir/options.js.php");
             e.stopPropagation();
             dlgopen('', '', 380, 200, '', '', {
                 buttons: [
-                    {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
+                    {text: <?php echo xlj('Close'); ?>, close: true, style: 'secondary btn-sm'}
                 ],
                 allowResize: true,
                 allowDrag: true,
@@ -579,7 +581,7 @@ require_once("$srcdir/options.js.php");
             top.restoreSession()
             dlgopen('', 'reminders', 500, 250, '', '', {
                 buttons: [
-                    {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
+                    {text: <?php echo xlj('Close'); ?>, close: true, style: 'secondary btn-sm'}
                 ],
                 allowResize: true,
                 allowDrag: true,
@@ -665,7 +667,7 @@ require_once("$srcdir/options.js.php");
 
 </script>
 
-<style type="css/text">
+<style>
     #pnotes_ps_expand {
         height: auto;
         width: 100%;
@@ -717,7 +719,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
 
-<body class="body_top patient-demographics">
+<body class="mt-3 patient-demographics">
 <div id="container_div" class="<?php echo $oemr_ui->oeContainer(); ?>">
     <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none;' onclick='top.restoreSession()'></a>
 
@@ -746,10 +748,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
     <?php
     if ($thisauth) {?>
-    <div class="row">
-        <div class="col-sm-12">
-            <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
-        </div>
+    <div>
+        <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
     </div>
         <?php
     } // $thisauth
@@ -767,17 +767,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     }
     ?>
     <div style='margin-top: 10px' class="main"> <!-- start main content div -->
-        <table class="w-100 border-0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td class="demographics-box align-top" align="left">
-                    <!-- start left column div -->
-                    <div style='float: left; margin-right: 20px'>
-
-                        <table cellspacing="0" cellpadding="0">
+      <div class="row">
+      <div class="col-md-8">
+        <div class="demographics-box">
                             <?php
                             if (!$GLOBALS['hide_billing_widget']) { ?>
-                            <tr>
-                                <td>
                                     <?php
                                     // Billing expand collapse widget
                                     $widgetTitle = xl("Billing");
@@ -788,7 +782,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $linkMethod = "javascript";
                                     $bodyClass = "notab";
                                     $widgetAuth = false;
-                                    $fixedWidth = true;
+                                    $fixedWidth = false;
                                     if ($GLOBALS['force_billing_widget_open']) {
                                         $forceExpandAlways = true;
                                     } else {
@@ -816,88 +810,77 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
                                     $totalbalance = $patientbalance + $insurancebalance;
 
-                                    // Show current balance and billing note, if any.
-                                    echo "<table class='border-0'><tr><td>" .
-                                        "<table ><tr><td><span class='font-weight-bold text-danger'>" .
-                                        xlt('Patient Balance Due') .
-                                        " : " . text(oeFormatMoney($patientbalance)) .
-                                        "</span></td></tr>" .
-                                        "<tr><td><span class='font-weight-bold text-danger'>" .
-                                        xlt('Insurance Balance Due') .
-                                        " : " . text(oeFormatMoney($insurancebalance)) .
-                                        "</span></td></tr>" .
-                                        "<tr><td><span class='font-weight-bold text-danger'>" .
-                                        xlt('Total Balance Due') .
-                                        " : " . text(oeFormatMoney($totalbalance)) .
-                                        "</span></td></td></tr>";
-                                    if (!empty($result['billing_note'])) {
-                                        echo "<tr><td><span class='font-weight-bold text-danger'>" .
-                                            xlt('Billing Note') . ":" .
-                                            text($result['billing_note']) .
-                                            "</span></td></tr>";
-                                    }
-
-                                    if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
-                                        echo "<tr><td><span class='font-weight-bold'>" .
-                                            xlt('Primary Insurance') . ': ' . text($insco_name) .
-                                            "</span>&nbsp;&nbsp;&nbsp;";
-                                        if ($result3['copay'] > 0) {
-                                            echo "<span class='font-weight-bold'>" .
-                                                xlt('Copay') . ': ' . text($result3['copay']) .
-                                                "</span>&nbsp;&nbsp;&nbsp;";
-                                        }
-                                        echo "<span class='font-weight-bold'>" .
-                                            xlt('Effective Date') . ': ' . text(oeFormatShortDate($result3['effdate'])) .
-                                            "</span></td></tr>";
-                                    }
-
-                                    echo "</table></td></tr></td></tr></table><br />";
-
+                                    //Show current balance and billing note, if any.
                                     ?>
-                    </div> <!-- required for expand_collapse_widget -->
-                </td>
-            </tr>
-            <?php } ?>
+                                      <table>
+                                        <tr><td>
+                                        <span class='font-weight-bold text-danger'><?php echo xlt('Patient Balance Due') .
+                                        " : " . text(oeFormatMoney($patientbalance)); ?></span></td></tr>
+                                        <tr><td><span class='font-weight-bold text-danger'><?php echo xlt('Insurance Balance Due') .
+                                        " : " . text(oeFormatMoney($insurancebalance)); ?></span></td></tr>
+                                        <tr>
+                                          <td>
+                                            <span class='font-weight-bold text-danger'><?php echo xlt('Total Balance Due') .
+                                        " : " . text(oeFormatMoney($totalbalance)); ?></span>
+                                      </td>
+                                    <?php if (!empty($result['billing_note'])) { ?>
+                                        <tr>
+                                          <td>
+                                            <span class='font-weight-bold text-danger'><?php echo xlt('Billing Note') . ":" . text($result['billing_note']); ?></span>
+                                          </td>
+                                        </tr>
+                                    <?php } ?>
 
-            <?php if (AclMain::aclCheckCore('patients', 'demo')) { ?>
-                <tr>
-                    <td>
-                        <?php
-                        // Demographics expand collapse widget
-                        $widgetTitle = xl("Demographics");
-                        $widgetLabel = "demographics";
-                        $widgetButtonLabel = xl("Edit");
-                        $widgetButtonLink = "demographics_full.php";
-                        $widgetButtonClass = "";
-                        $linkMethod = "html";
-                        $bodyClass = "";
-                        $widgetAuth = AclMain::aclCheckCore('patients', 'demo', '', 'write');
-                        $fixedWidth = true;
-                        expand_collapse_widget(
-                            $widgetTitle,
-                            $widgetLabel,
-                            $widgetButtonLabel,
-                            $widgetButtonLink,
-                            $widgetButtonClass,
-                            $linkMethod,
-                            $bodyClass,
-                            $widgetAuth,
-                            $fixedWidth
-                        );
-                        ?>
-                        <div id="DEM">
-                            <ul class="tabNav">
-                                <?php display_layout_tabs('DEM', $result, $result2); ?>
-                            </ul>
-                            <div class="tabContainer">
-                                <?php display_layout_tabs_data('DEM', $result, $result2); ?>
-                            </div>
-                        </div>
-                        <!--</div>  required for expand_collapse_widget -->
-                    </td>
-                </tr>
-                <tr>
-                    <td>
+                                    <?php if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco ?>
+                                        <tr>
+                                          <td>
+                                          <span class='font-weight-bold'><?php echo xlt('Primary Insurance') . ': ' . text($insco_name); ?></span>&nbsp;&nbsp;&nbsp;
+                                        <?php if ($result3['copay'] > 0) { ?>
+                                            <span class='font-weight-bold'><?php echo xlt('Copay') . ': ' . text($result3['copay']); ?></span>&nbsp;&nbsp;&nbsp;
+                                        <?php } ?>
+                                        <span class='font-weight-bold'><?php echo xlt('Effective Date') . ': ' . text(oeFormatShortDate($result3['effdate'])); ?></span>
+                                      </td>
+                                    </tr>
+                                    <?php } ?>
+
+                                  </table>
+        </div>
+        <?php } ?>
+        <?php if (AclMain::aclCheckCore('patients', 'demo')) { ?>
+          <section>
+              <?php
+              // Demographics expand collapse widget
+              $widgetTitle = xl("Demographics");
+              $widgetLabel = "demographics";
+              $widgetButtonLabel = xl("Edit");
+              $widgetButtonLink = "demographics_full.php";
+              $widgetButtonClass = "";
+              $linkMethod = "html";
+              $bodyClass = "";
+              $widgetAuth = AclMain::aclCheckCore('patients', 'demo', '', 'write');
+              $fixedWidth = false;
+              expand_collapse_widget(
+                  $widgetTitle,
+                  $widgetLabel,
+                  $widgetButtonLabel,
+                  $widgetButtonLink,
+                  $widgetButtonClass,
+                  $linkMethod,
+                  $bodyClass,
+                  $widgetAuth,
+                  $fixedWidth
+              );
+              ?>
+              <div id="DEM">
+                  <ul class="tabNav">
+                      <?php display_layout_tabs('DEM', $result, $result2); ?>
+                  </ul>
+                  <div class="tabContainer">
+                      <?php display_layout_tabs_data('DEM', $result, $result2); ?>
+                  </div>
+              </div>
+            </section>
+            <section>
                         <?php
                         $insurance_count = 0;
                         foreach (array('primary', 'secondary', 'tertiary') as $instype) {
@@ -923,7 +906,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $linkMethod = "html";
                             $bodyClass = "";
                             $widgetAuth = AclMain::aclCheckCore('patients', 'demo', '', 'write');
-                            $fixedWidth = true;
+                            $fixedWidth = false;
                             expand_collapse_widget(
                                 $widgetTitle,
                                 $widgetLabel,
@@ -939,7 +922,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if ($insurance_count > 0) {
                                 ?>
 
-                                <ul class="tabNav"><?php
+                                <ul class="tabNav">
+                                <?php
                                 ///////////////////////////////// INSURANCE SECTION
                                 $first = true;
                                 foreach ($insurance_array as $instype) {
@@ -967,10 +951,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
 
                                 // Display the eligibility tab
-                                echo "<li><a id='eligibility' href='#'>" . xlt('Eligibility') . "</a></li>";
-
-                                ?></ul><?php
-                            } ?>
+                                ?>
+                                <li><a id='eligibility' href='#'><?php echo xlt('Eligibility'); ?></a></li>
+                              </ul>
+                                <?php } ?>
 
                             <div class="tabContainer">
                                 <?php
@@ -986,14 +970,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         if ($row['provider']) {
                                             ?>
                                             <div class="tab <?php echo $first ? 'current' : '' ?>">
-                                                <table border='0' cellpadding='0' width='100%'>
+                                                <table class="border-0 w-100">
                                                     <?php
                                                     $icobj = new InsuranceCompany($row['provider']);
                                                     $adobj = $icobj->get_address();
                                                     $insco_name = trim($icobj->get_name());
                                                     ?>
                                                     <tr>
-                                                        <td valign='top' colspan='3'>
+                                                    <td class="align-top" colspan='3'>
                                                       <span class='text'>
                                                         <?php
                                                         if (strcmp($enddate, 'Present') != 0) {
@@ -1010,7 +994,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                         </td>
                                                     </tr>
                                                     <tr>
-                                                        <td valign='top'>
+                                                        <td class="align-top">
                                                           <span class='text'>
                                                             <?php
                                                             if ($insco_name) {
@@ -1020,7 +1004,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                                     echo text($adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip());
                                                                 }
                                                             } else {
-                                                                echo "<font color='red'><b>" . xlt('Unassigned') . "</b></font>";
+                                                                echo "<span class='text-danger font-weight-bold'>" . xlt('Unassigned') . "</span>";
                                                             }
                                                             ?>
                                                           <br />
@@ -1029,7 +1013,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             <?php echo xlt('Group Number'); ?>: <?php echo text($row['group_number']); ?>
                                                           </span>
                                                         </td>
-                                                        <td valign='top'>
+                                                        <td class="align-top">
                                                             <span class='font-weight-bold'><?php echo xlt('Subscriber'); ?>: </span><br />
                                                             <span class='text'><?php echo text($row['subscriber_fname'] . ' ' . $row['subscriber_mname'] . ' ' . $row['subscriber_lname']); ?>
                                                                 <?php
@@ -1046,7 +1030,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                         <?php echo text($row['subscriber_phone']); ?>
                                                       </span>
                                                         </td>
-                                                        <td valign='top'>
+                                                        <td class="align-top">
                                                             <span class='font-weight-bold'><?php echo xlt('Subscriber Address'); ?>: </span><br />
                                                             <span class='text'><?php echo text($row['subscriber_street']); ?><br />
                                                         <?php echo text($row['subscriber_city']); ?>
@@ -1111,8 +1095,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                                 <span class='text'><?php echo text($policy_types[$row['policy_type']]); ?></span>
                                                             <?php } ?>
                                                         </td>
-                                                        <td valign='top'></td>
-                                                        <td valign='top'></td>
+                                                        <td class="align-top"></td>
+                                                        <td class="align-top"></td>
                                                     </tr>
 
                                                 </table>
@@ -1125,16 +1109,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 } // end foreach
 
                                 // Display the eligibility information
-                                echo "<div class='tab'>\n" .
-                                    "<div class='tab-content pre-scrollable' style='width:695px;overflow-x: hidden;'>\n";
+                              ?> <div class='tab'>
+                                    <div class='tab-content pre-scrollable' style='width:695px; overflow-x: hidden;'>
 
-                                if ($GLOBALS['enable_oa']) {
-                                    echo "<form method='post' action='./demographics.php'>\n";
-                                    echo "<div class='col col-sm-12'>";
-                                    echo "<button class='btn btn-success btn-sm btn-transmit float-right' name='status_update' value='true'>" .
-                                        xlt("Update Status") . "</button>";
-                                    echo "</div><br />\n";
-                                    if ($_POST['status_update'] === 'true') {
+                                <?php if ($GLOBALS['enable_oa']) { ?>
+                                    <form method='post' action='./demographics.php'>
+                                      <div>
+                                        <button class='btn btn-success btn-sm btn-transmit float-right' name='status_update' value='true'><?php echo xlt("Update Status"); ?></button>
+                                      </div><br />
+                                    <?php if ($_POST['status_update'] === 'true') {
                                         unset($_POST['status_update']);
                                         $showEligibility = true;
                                         $ok = EDI270::requestEligibleTransaction($pid);
@@ -1145,26 +1128,24 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
                                     } else {
                                         EDI270::showEligibilityInformation($pid, true);
-                                    }
-                                    echo "</form>";
-                                } else {
+                                    } ?>
+                                    </form>
+                                <?php } else {
                                     EDI270::showEligibilityInformation($pid, true);
-                                }
-                                echo "</div></div>";
-
+                                } ?>
+                              </div>
+                            </div>
+                                <?php
                                 ///////////////////////////////// END INSURANCE SECTION
                                 ?>
                             </div>
 
                         <?php } // ?>
-
-                    </td>
-                </tr>
+                    </section>
             <?php } // end if demographics authorized ?>
 
             <?php if (AclMain::aclCheckCore('patients', 'notes')) { ?>
-            <tr>
-                <td width='650px'>
+            <section>
                     <?php
                     // Notes expand collapse widget
                     $widgetTitle = xl("Messages");
@@ -1175,7 +1156,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $linkMethod = "html";
                     $bodyClass = "notab";
                     $widgetAuth = AclMain::aclCheckCore('patients', 'notes', '', 'write');
-                    $fixedWidth = true;
+                    $fixedWidth = false;
                     expand_collapse_widget(
                         $widgetTitle,
                         $widgetLabel,
@@ -1189,15 +1170,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     );
                     ?>
                     <br />
-                    <div class="text ml-2"><img src='../../pic/ajax-loader.gif' /></div>
+                    <div class="text ml-2"><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
                     <br />
-    </div>
-    </td>
-    </tr>
+                </div>
+              </section>
     <?php } // end if notes authorized ?>
 
-    <?php if (AclMain::aclCheckCore('patients', 'reminder') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) {
-        echo "<tr><td width='650px'>";
+    <?php if (AclMain::aclCheckCore('patients', 'reminder') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) { ?>
+    <section>
+          <?php
     // patient reminders collapse widget
         $widgetTitle = xl("Patient Reminders");
         $widgetLabel = "patient_reminders";
@@ -1207,19 +1188,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $linkMethod = "html";
         $bodyClass = "notab";
         $widgetAuth = AclMain::aclCheckCore('patients', 'reminder', '', 'write');
-        $fixedWidth = true;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
+        $fixedWidth = false;
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+    ?>
     <br />
-    <div class="text ml-2"><img src='../../pic/ajax-loader.gif' /></div>
+    <div class="text ml-2"><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
     <br />
-</div>
-</td>
-</tr>
+  </div>
+  </section>
 <?php } //end if prw is activated  ?>
 
 <?php if (AclMain::aclCheckCore('patients', 'disclosure')) { ?>
-    <tr>
-        <td width='650px'>
+    <section>
             <?php
             // disclosures expand collapse widget
             $widgetTitle = xl("Disclosures");
@@ -1230,7 +1210,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             $linkMethod = "html";
             $bodyClass = "notab";
             $widgetAuth = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');
-            $fixedWidth = true;
+            $fixedWidth = false;
             expand_collapse_widget(
                 $widgetTitle,
                 $widgetLabel,
@@ -1244,16 +1224,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             );
             ?>
             <br />
-            <div class="text ml-2"><img src='../../pic/ajax-loader.gif' /></div>
+            <div class="text ml-2"><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
             <br />
-            </div>
-        </td>
-    </tr>
+      </section>
 <?php } // end if disclosures authorized ?>
 
 <?php if ($GLOBALS['amendments'] && AclMain::aclCheckCore('patients', 'amendment')) { ?>
-    <tr>
-        <td width='650px'>
+    <section>
             <?php // Amendments widget
             $widgetTitle = xlt('Amendments');
             $widgetLabel = "amendments";
@@ -1268,26 +1245,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             $sql = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
             $result = sqlStatement($sql, array($pid));
 
-            if (sqlNumRows($result) == 0) {
-                echo " <table><tr>\n";
-                echo "  <td colspan='" . attr($numcols) . "' class='text'>&nbsp;&nbsp;" . xlt('None{{Amendment}}') . "</td>\n";
-                echo " </tr></table>\n";
-            }
-
-            while ($row = sqlFetchArray($result)) {
-                echo "&nbsp;&nbsp;";
-                echo "<a class= '" . attr($widgetButtonClass) . "' href='" . $GLOBALS['webroot'] . "/interface/patient_file/summary/add_edit_amendments.php?id=" . attr_url($row['amendment_id']) . "' onclick='top.restoreSession()'>" . text($row['amendment_date']);
-                echo "&nbsp; " . text($row['amendment_desc']);
-
-                echo "</a><br />\n";
-            } ?>
-        </td>
-    </tr>
+            if (sqlNumRows($result) == 0) { ?>
+              <p class="font-weight-bold text"><?php echo xlt('None{{Amendment}}'); ?></p>
+            <?php } while ($row = sqlFetchArray($result)) { ?>
+                &nbsp;&nbsp;
+                <a class='<?php echo attr($widgetButtonClass); ?>' href='<?php echo $GLOBALS['webroot'] . "/interface/patient_file/summary/add_edit_amendments.php?id=" . attr_url($row['amendment_id']); ?>' onclick='top.restoreSession()'><?php echo text($row['amendment_date']) . "&nbsp; " . text($row['amendment_desc']); ?></a><br />
+            <?php } ?>
+    </section>
 <?php } // end amendments authorized ?>
 
 <?php if (AclMain::aclCheckCore('patients', 'lab')) { ?>
-    <tr>
-        <td width='650px'>
+        <section>
             <?php // labdata expand collapse widget
             $widgetTitle = xl("Labs");
             $widgetLabel = "labdata";
@@ -1309,7 +1277,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $widgetAuth = false;
             }
 
-            $fixedWidth = true;
+            $fixedWidth = false;
             expand_collapse_widget(
                 $widgetTitle,
                 $widgetLabel,
@@ -1323,16 +1291,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             );
             ?>
             <br />
-            <div class="text ml-2"><img src='../../pic/ajax-loader.gif' /></div>
+            <div class="text ml-2"><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
             <br />
-            </div>
-        </td>
-    </tr>
+          </div>
+        </section>
 <?php } // end labs authorized ?>
 
 <?php if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) { ?>
-    <tr>
-        <td width='650px'>
+    <section>
             <?php // vitals expand collapse widget
             $widgetTitle = xl("Vitals");
             $widgetLabel = "vitals";
@@ -1349,7 +1315,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $widgetAuth = false;
             }
 
-            $fixedWidth = true;
+            $fixedWidth = false;
             expand_collapse_widget(
                 $widgetTitle,
                 $widgetLabel,
@@ -1363,11 +1329,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             );
             ?>
             <br />
-            <div class="text ml-2"><img src='../../pic/ajax-loader.gif' /></div>
+            <div class="text ml-2"><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
             <br />
-            </div>
-        </td>
-    </tr>
+          </div>
+          </section>
 <?php } // end if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) ?>
 
 <?php
@@ -1384,8 +1349,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
     if ($LBF_ACO && !AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
         continue;
     } ?>
-    <tr>
-        <td width='650px'>
+    <section>
             <?php // vitals expand collapse widget
             $vitals_form_id = $gfrow['option_id'];
             $widgetTitle = $gfrow['title'];
@@ -1405,7 +1369,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                 $widgetAuth = $existVitals;
             }
 
-            $fixedWidth = true;
+            $fixedWidth = false;
             expand_collapse_widget(
                 $widgetTitle,
                 $widgetLabel,
@@ -1418,28 +1382,19 @@ while ($gfrow = sqlFetchArray($gfres)) {
                 $fixedWidth
             ); ?>
             <br />
-            <div class="text ml-2">
-                <img src='../../pic/ajax-loader.gif' />
-            </div>
+            <div class="text ml-2"><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
             <br />
-            </div> <!-- This is required by expand_collapse_widget(). -->
-        </td>
-    </tr>
+          </div>
+          </section>
     <?php
 } // end while
 ?>
-
-</table>
-
+</div>
 </div>
 <!-- end left column div -->
 
 <!-- start right column div -->
-<div>
-    <table>
-        <tr>
-            <td>
-
+<div class="col-md-4">
                 <div>
                     <?php
 
@@ -1556,7 +1511,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                         $fixedWidth = false;
                         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
                         echo "<br />";
-                        echo "<div class='text ml-2'><img src='../../pic/ajax-loader.gif'/></div><br />";
+                        echo "<div class='text ml-2'><div class='spinner-border spinner-border-sm' role='status'><span class='sr-only'>" . xlt('Loading') . "...</span></div></div><br />";
                         echo "</div>";
                     } // end if crw
 
@@ -1736,7 +1691,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                             }
 
                             if ($row['pc_hometext']) {
-                                echo " <span style='color:green'> Com</span>";
+                                echo " <span class='text-success'> Com</span>";
                             }
 
                             echo "<br />" . text($row['ufname'] . " " . $row['ulname']);
@@ -1749,7 +1704,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                                 echo "&nbsp;&nbsp;" . xlt('No Appointments');
                             } else { //////
                                 if ($extraApptDate) {
-                                    echo "<div style='color:#0000cc;'><b>" . text($extraApptDate) . " ( + ) </b></div>";
+                                    echo "<div class='text-primary font-weight-bold'>" . text($extraApptDate) . " ( + ) </div>";
                                 }
                             }
                             // Show Recall if one exists
@@ -1758,7 +1713,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                             while ($result2 = sqlFetchArray($query)) {
                                 //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
                                 //parent.left_nav.loadFrame('1', tabNAME, url);
-                                echo "&nbsp;&nbsp<b>Recall: <a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">" . text(oeFormatShortDate($result2['r_eventDate'])) . " (" . text($result2['r_reason']) . ") </a></b>";
+                                echo "&nbsp;&nbsp<strong>Recall: <a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">" . text(oeFormatShortDate($result2['r_eventDate'])) . " (" . text($result2['r_reason']) . ") </a></strong>";
                                 $count2++;
                             }
                             //if there is no appt and no recall
@@ -1804,7 +1759,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                                 }
 
                                 echo "<div>";
-                                echo "<span>" . xlt('Appointment Category') . ": <b>" . xlt($row['pc_catname']) . "</b></span>";
+                                echo "<span>" . xlt('Appointment Category') . ": <strong>" . xlt($row['pc_catname']) . "</strong></span>";
                                 echo "<br />";
                                 echo "<span>" . xlt('Recurrence') . ': ' . text($row['pc_recurrspec']) . "</span>";
                                 echo "<br />";
@@ -1879,7 +1834,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                             }
 
                             echo "<a href='javascript:oldEvt(" . attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']) . ")' title='" . attr($petitle) . "'>";
-                            echo "<b>" . text(xl($dayname) . ", " . oeFormatShortDate($row['pc_eventDate'])) . "</b> " . xlt("Status") . "(";
+                            echo "<strong>" . text(xl($dayname) . ", " . oeFormatShortDate($row['pc_eventDate'])) . "</strong> " . xlt("Status") . "(";
                             echo " " . generate_display_field(array('data_type' => '1', 'list_id' => 'apptstat'), $row['pc_apptstatus']) . ")<br />";   // can't use special char parser on this
                             echo text("$disphour:$dispmin ") . xlt($dispampm) . " ";
                             echo text($row['fname'] . " " . $row['lname']) . "</a><br />\n";
@@ -1899,11 +1854,10 @@ while ($gfrow = sqlFetchArray($gfres)) {
 
 <div id='stats_div'>
     <br />
-    <div class="text ml-2"><img src='../../pic/ajax-loader.gif' /></div>
+    <div class="text ml-2"><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
     <br />
 </div>
-</td>
-</tr>
+<div>
 
 <?php // TRACK ANYTHING -----
 
@@ -1943,18 +1897,13 @@ if ($track_is_registered) {
     );
     ?>
     <br />
-    <div class="text ml-2"><img src='../../pic/ajax-loader.gif' /></div><br />
-    </td>
-    </tr><?php
+    <div class="text ml-2"><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
+    <br />
+  </div><?php
 }  // end track_anything ?>
-</table>
 
 </div> <!-- end right column div -->
 
-</td>
-
-</tr>
-</table>
 
 </div> <!-- end main content div -->
 </div><!-- end container div -->

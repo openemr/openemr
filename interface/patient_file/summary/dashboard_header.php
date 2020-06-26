@@ -101,7 +101,7 @@ if ($days_deceased) { ?>
             } // Onsite Patient Portal
             if (!($portalUserSetting)) { // Show that the patient has not authorized portal access ?>
                 <p>
-                    <i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo xlt('Patient has not authorized the Patient Portal.');?>
+                    <i class="fa fa-exclamation-circle oe-text-orange"></i> <?php echo xlt('Patient has not authorized the Patient Portal.');?>
                 </p>
                 <?php
             }

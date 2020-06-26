@@ -24,12 +24,12 @@ use OpenEMR\Common\Acl\AclMain;
 
 
 <?php require 'header.php'; ?>
-<?php if ($view || $edit) :?>
+<?php if ($view || $edit) { ?>
 <span class="hidden title"><?php echo xlt('Therapy Group Finder');?></span>
 <div id="therapy_groups_list_container" class="container">
 
     <!--------- ERRORS ----------->
-    <?php if ($deletion_try == 1 && $deletion_response['success'] == 0) :?>
+    <?php if ($deletion_try == 1 && $deletion_response['success'] == 0) { ?>
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <div class="alert alert-danger text-center">
@@ -37,12 +37,12 @@ use OpenEMR\Common\Acl\AclMain;
                 </div>
             </div>
         </div>
-    <?php endif ?>
+    <?php } ?>
 
     <!---------- FILTERS SECTION ------------->
-    <?php if ($edit) :?>
-    <button id="clear_filters" class="btn"><?php echo xlt("Clear Filters")?></button>
-    <?php endif;?>
+    <?php if ($edit) { ?>
+    <button id="clear_filters" class="btn btn-danger"><?php echo xlt("Clear Filters")?></button>
+  <?php } ?>
 
     <br /><br /><br />
     <div id="filters">
@@ -79,7 +79,7 @@ use OpenEMR\Common\Acl\AclMain;
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="counselors_filter"><?php echo xlt('Main Counselors');?>:</label>
-                <select type="text" class="form-control" id="counselors_filter" placeholder="" >
+                <select type="text" class="form-control" id="counselors_filter" placeholder="">
                     <option value=""><?php echo xlt('choose');?></option>
                     <?php foreach ($counselors as $counselor) :?>
                         <option value="<?php echo attr($counselor);?>"><?php echo text($counselor) ;?></option>
@@ -417,15 +417,11 @@ use OpenEMR\Common\Acl\AclMain;
 
 </script>
 
-    <?php require  'footer.php'; ?>
-<?php else :?>
+<?php } else { ?>
     <div class="container">
-
-        <div class="row alert alert-info">
-            <h1 class="col-md-12"><i class="col-md-3 glyphicon glyphicon-alert"></i><span class="col-md-6"><?php echo xlt("access not allowed");?></span></h1>
+        <div class="alert alert-info">
+          <h1 class="row"><span class="col-md-3"><i class="fas fa-exclamation-triangle"></i></span><span class="col-md-6"><?php echo xlt("access not allowed");?></span></h1>
         </div>
     </div>
-
-
-
-<?php endif;?>
+<?php } ?>
+<?php require 'footer.php'; ?>
