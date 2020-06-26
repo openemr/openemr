@@ -125,17 +125,23 @@ class UuidRegistry
         while ($row = sqlFetchArray($resultSet)) {
             if (!$this->table_vertical) {
                 // standard case, add missing uuid
-                sqlQuery("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `id` = ?", [$this->createUuid(), $row['id']]);
+                sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `id` = ?", [$this->createUuid(), $row['id']]);
             } else {
                 // more complicated case where setting uuid in a vertical table. In this case need a uuid for each combination of table columns stored in $this->table_vertical array
                 $stringQuery = "";
                 $arrayQuery = [];
+                $prependAnd = false;
                 foreach ($this->table_vertical as $column) {
-                    $stringQuery .= " AND `" . $column . "` = ? ";
+                    if ($prependAnd) {
+                        $stringQuery .= " AND `" . $column . "` = ? ";
+                    } else {
+                        $stringQuery .= " `" . $column . "` = ? ";
+                    }
                     $arrayQuery[] = $row[$column];
+                    $prependAnd = true;
                 }
                 // First, see if it has already been set
-                $setUuid = sqlQuery("SELECT `uuid` FROM `" . $this->table_name . "` WHERE `uuid` IS NOT NULL AND `uuid` != '' AND `uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' " . $stringQuery, $arrayQuery)['uuid'];
+                $setUuid = sqlQueryNoLog("SELECT `uuid` FROM `" . $this->table_name . "` WHERE `uuid` IS NOT NULL AND `uuid` != '' AND `uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' AND " . $stringQuery, $arrayQuery)['uuid'];
                 if (!empty($setUuid)) {
                     // Already set
                     array_unshift($arrayQuery, $setUuid);
@@ -144,7 +150,7 @@ class UuidRegistry
                     array_unshift($arrayQuery, $this->createUuid());
                 }
                 // Now populate
-                sqlQuery("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE 1 = 1 " . $stringQuery, $arrayQuery);
+                sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " . $stringQuery, $arrayQuery);
             }
         }
     }
