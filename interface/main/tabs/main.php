@@ -15,7 +15,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// Set $sessionAllowWrite to true to prevent session concurrency issues during authorization and app setup related code
 $sessionAllowWrite = true;
 require_once(__DIR__ . '/../../globals.php');
 require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
@@ -112,8 +111,9 @@ $esignApi = new Api();
                     let audits = data.auditCnt;
                     let payments = data.paymentCnt;
                     let total = data.total;
-                    let enable = "" + ((1 * mail) + (1 * audits)); // payments are among audits.
+                    let enable = ((1 * mail) + (1 * audits)); // payments are among audits.
                     // Send portal counts to notification button model
+                    // Will turn off button display if no notification!
                     app_view_model.application_data.user().portal(enable);
                     if (enable > 0) {
                         app_view_model.application_data.user().portalAlerts(total);
@@ -144,7 +144,7 @@ $esignApi = new Api();
                     console.log('Background Service start failed. Status Code: ' + response.status);
                 }
             }).catch(function(error) {
-                console.log('Request failed', error)
+                console.log('HTML Background Service start Request failed: ', error)
             });
 
             // auto run this function every 60 seconds
