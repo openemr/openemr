@@ -61,7 +61,7 @@ while ($row = sqlFetchArray($res)) {
     $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
-$loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
+$loading = "<div class='spinner-border spinner-border-sm' role='status'><span class='sr-only'>Loading...</span></div>";
 ?>
 <html>
 <head>
@@ -346,12 +346,10 @@ $loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
          <div class="w-100">
 
             <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-            <div class="col-12">
-                <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
-                    <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
-                <?php } ?>
-            </div>
-            <div class="col-12 jumbotron mt-3 p-4">
+            <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
+                <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
+            <?php } ?>
+            <div class="jumbotron mt-3 p-4">
                 <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
                     <!-- Class "display" is defined in demo_table.css -->
                     <div class="table-responsive">
@@ -374,13 +372,11 @@ $loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
                     </div>
                 </div>
             </div>
-            <div class="col-12">
-                <!-- form used to open a new top level window when a patient row is clicked -->
-                <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <input type='hidden' name='patientID' value='0'/>
-                </form>
-            </div>
+            <!-- form used to open a new top level window when a patient row is clicked -->
+            <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type='hidden' name='patientID' value='0'/>
+            </form>
         </div>
     </div> <!--End of Container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
