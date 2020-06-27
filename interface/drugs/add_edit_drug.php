@@ -474,14 +474,14 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
     </div>
 
     <div class="form-group mt-3 drugsonly">
-        <label class="font-weight-bold"><?php echo xlt('Pill Size'); ?>:</label>
+        <label class="font-weight-bold"><?php echo xlt('Form'); ?>:</label>
         <?php
             generate_form_field(array('data_type' => 1,'field_id' => 'form','list_id' => 'drug_form','empty_title' => 'SKIP'), $row['form']);
         ?>
     </div>
 
     <div class="form-group mt-3 drugsonly">
-        <label class="font-weight-bold"><?php echo xlt('Form'); ?>:</label>
+        <label class="font-weight-bold"><?php echo xlt('Pill Size'); ?>:</label>
         <input class="form-control" size="5" name="form_size" maxlength="7" value='<?php echo attr($row['size']) ?>' />
     </div>
 
