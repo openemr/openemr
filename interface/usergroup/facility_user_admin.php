@@ -177,31 +177,27 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                             <?php echo xlt('User'); ?>:
                         </td>
                         <td>
-                             <?php echo text($user_info['username']); ?> 
+                            <?php echo text($user_info['username']); ?>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                             <?php echo xlt('Facility'); ?>: 
+                            <?php echo xlt('Facility'); ?>:
                         </td>
                         <td>
-                             <?php echo text($fac_info['name']); ?> 
+                            <?php echo text($fac_info['name']); ?>
                         </td>
                     </tr>
                     <?php foreach ($l_arr as $layout_entry) { ?>
                         <tr>
                             <td style="width:180px;">
-                                <?php echo text(xl_layout_label($layout_entry['title'])) ?>: 
+                                <?php echo text(xl_layout_label($layout_entry['title'])) ?>:
                             </td>
                             <td style="width:270px;">
                                 <?php
                                 $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
                                     "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'], $fac_info['id'], $layout_entry['field_id']));
-                                if ($layout_entry['field_id'] === "role_code") {
-                                    echo generate_select_list("role", "us-core-provider-role", "", "", " ", "select-dropdown", "", "role");
-                                } else {
-                                    echo generate_form_field($layout_entry, $entry_data['field_value']);
-                                }
+                                echo generate_form_field($layout_entry, $entry_data['field_value']);
                                 ?>
                             </td>
                         </tr>

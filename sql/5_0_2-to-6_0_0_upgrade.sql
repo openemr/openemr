@@ -733,7 +733,7 @@ CREATE UNIQUE INDEX `uuid` ON `users` (`uuid`);
 #EndIf
 
 #IfNotRow2D layout_options form_id FACUSR field_id role_code
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'role_code', '1', 'Provider Role', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider Role at Specified Facility', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'role_code', '1', 'Provider Role', 1, 43, 1, 0, 0, 'us-core-provider-role', 1, 1, '', '', 'Provider Role at Specified Facility', 0);
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id us-core-provider-role

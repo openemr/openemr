@@ -1342,6 +1342,20 @@ function generate_form_field($frow, $currvalue)
         echo "<img class='signature' id='form_{$field_id_esc}_img' title='$description'
             data-pid='$cpid' data-user='$cuser' data-type='$datatype'
             data-action='fetch_signature' alt='Get Signature' src='" . attr($currvalue) . "'>\n";
+    } elseif ($data_type == 43) {
+        echo generate_select_list(
+            "form_$field_id",
+            $list_id,
+            $currvalue,
+            $description,
+            $showEmpty ? $empty_title : '',
+            "select-dropdown",
+            $lbfchange,
+            '',
+            null,
+            false,
+            $backup_list
+        );
     }
 }
 
@@ -2064,7 +2078,7 @@ function generate_display_field($frow, $currvalue)
 
     // generic selection list or the generic selection list with add on the fly
     // feature
-    if ($data_type == 1 || $data_type == 26 || $data_type == 33) {
+    if ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43) {
         $lrow = sqlQuery("SELECT title FROM list_options " .
         "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue));
           $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
