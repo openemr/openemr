@@ -1,5 +1,5 @@
 [{
-    "name": "Your Clinic Name Here",
+    "name": "test-fixture-Your Clinic Name Here",
     "phone": "(619) 555-4859",
     "fax": "(619) 555-7822",
     "street": "789 Third Avenue",
@@ -33,7 +33,7 @@
     "iban": "",
     "info": ""
 }, {
-    "name": "Saint Luke's Hospital of Kansas City",
+    "name": "test-fixture-Saint Luke's Hospital of Kansas City",
     "phone": "(816)932-2000",
     "fax": "(619) 555-7822",
     "street": "4401 Wornall Rd,",
@@ -67,7 +67,7 @@
     "iban": "",
     "info": ""
 }, {
-    "name": "Health Level Seven International",
+    "name": "test-fixture-Health Level Seven International",
     "phone": "(+1) 734-677-7777",
     "fax": "(619) 555-7822",
     "street": "3300 Washtenaw Avenue, Suite 227",
