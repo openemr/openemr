@@ -61,7 +61,9 @@ while ($row = sqlFetchArray($res)) {
     $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
-$loading = "<div class='spinner-border spinner-border-sm' role='status'><span class='sr-only'>Loading...</span></div>";
+$loading = "<div class='spinner-border spinner-border-sm' role='status'><span class='sr-only'>";
+$loading .= xlt('Loading data');
+$loading .= "...</span></div>";
 ?>
 <html>
 <head>
