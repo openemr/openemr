@@ -358,7 +358,7 @@ $loading = "<div class='spinner-border spinner-border-sm' role='status'><span cl
                                 <tr id="advanced_search" class="hideaway"  style="display: none;">
                                     <?php echo $header0; ?>
                                 </tr>
-                                <tr>
+                                <tr class="table-primary">
                                     <?php echo $header; ?>
                                 </tr>
                             </thead>
