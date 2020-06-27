@@ -402,7 +402,7 @@ if (!$_REQUEST['flb_table']) {
                     <a class="btn btn-primary btn-setting" data-toggle="collapse" href="#collapseSetting">
                         <?php echo xlt('Setting'); ?>
                     </a>
-                    <a class='btn btn-primary text-white btn-refresh' id='refreshme'>Refresh</a>
+                    <a class='btn btn-primary text-white btn-refresh' id='refreshme'><?php echo xlt('Refresh'); ?></a>
                     <a class='btn btn-primary text-white btn-print' onclick="print_FLB();"> <?php echo xlt('Print'); ?></a>
                     <a class='btn btn-primary text-white' onclick="kiosk_FLB();"> <?php echo xlt('Kiosk'); ?></a>
                     <div class="collapse mt-2 mb-2" id="collapseSetting">
