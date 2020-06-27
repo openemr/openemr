@@ -357,10 +357,10 @@ if (!$_REQUEST['flb_table']) {
         <div class="col-md-12">
             <div class="text-center row mx-auto divTable">
                 <div class="col-sm-12" id="loader">
-                    <div class="text-center">
-                        <i class="fa fa-spinner fa-pulse fa-fw" style="font-size: 140px; color: var(--gray700); padding: 20px"></i>
-                        <h2><?php echo xlt('Loading data'); ?>...</h2>
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
                     </div>
+                    <h2><?php echo xlt('Loading data'); ?>...</h2>
                 </div>
                 <div id="flb_table" name="flb_table">
             <?php
@@ -399,10 +399,10 @@ if (!$_REQUEST['flb_table']) {
                         <i id="print_caret" class='fa fa-caret-<?php echo $caret = ($setting_selectors == 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                     </span>
 
-                    <a class="btn btn-secondary btn-setting" data-toggle="collapse" href="#collapseSetting">
+                    <a class="btn btn-primary btn-setting" data-toggle="collapse" href="#collapseSetting">
                         <?php echo xlt('Setting'); ?>
                     </a>
-                    <a class='btn btn-secondary text-white btn-refresh' id='refreshme'>Refresh</a>
+                    <a class='btn btn-primary text-white btn-refresh' id='refreshme'>Refresh</a>
                     <a class='btn btn-primary text-white btn-print' onclick="print_FLB();"> <?php echo xlt('Print'); ?></a>
                     <a class='btn btn-primary text-white' onclick="kiosk_FLB();"> <?php echo xlt('Kiosk'); ?></a>
                     <div class="collapse mt-2 mb-2" id="collapseSetting">
@@ -414,7 +414,7 @@ if (!$_REQUEST['flb_table']) {
 
                     <div class="table-responsive mt-3">
                     <table class="table table-bordered">
-                    <thead>
+                    <thead class="table-primary">
                     <tr class="small font-weight-bold text-center">
                         <?php if ($GLOBALS['ptkr_show_pid']) { ?>
                             <td class="dehead text-center d-none d-sm-table-cell text-ovr-dark" name="kiosk_hide">
