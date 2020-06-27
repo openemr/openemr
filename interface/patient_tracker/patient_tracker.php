@@ -358,7 +358,7 @@ if (!$_REQUEST['flb_table']) {
             <div class="text-center row mx-auto divTable">
                 <div class="col-sm-12" id="loader">
                     <div class="spinner-border" role="status">
-                        <span class="sr-only">Loading...</span>
+                        <span class="sr-only"><?php echo xlt('Loading data'); ?>...</span>
                     </div>
                     <h2><?php echo xlt('Loading data'); ?>...</h2>
                 </div>
