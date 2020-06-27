@@ -372,11 +372,11 @@ if (!empty($_REQUEST['go'])) { ?>
                             ?>
                             <div class='col-md-12'>
                                 <div class="jumbotron jumbotron-fluid py-3">
-                                <h4><?php echo text($message_legend); ?></h4>
+                                    <h4><?php echo text($message_legend); ?></h4>
                                     <div class="row">
-                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 oe-custom-line">
+                                        <div class="col-12 oe-custom-line">
                                             <div class="row">
-                                                <div class="col-3 col-sm-3">
+                                                <div class="col-6 col-md-3">
                                                     <label for="form_note_type"><?php echo xlt('Type'); ?>:</label>
                                                     <?php
                                                     if ($title == "") {
@@ -386,7 +386,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     generate_form_field(array('data_type' => 1, 'field_id' => 'note_type', 'list_id' => 'note_type', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $title);
                                                     ?>
                                                 </div>
-                                                <div class="col-3 col-sm-3">
+                                                <div class="col-6 col-md-3">
                                                     <label for="form_message_status"><?php echo xlt('Status'); ?>:</label>
                                                     <?php
                                                     if ($form_message_status == "") {
@@ -394,7 +394,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     }
                                                     generate_form_field(array('data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_message_status); ?>
                                                 </div>
-                                                <div class="col-4">
+                                                <div class="col-6 col-md-4">
                                                     <label for="form_patient">
                                                         <?php
                                                         if ($task != "addnew" && $result['pid'] != 0) { ?>
@@ -423,7 +423,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     <input type='text' id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " . $background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly />
                                                     <input type='hidden' class="form-control" name='reply_to' id='reply_to' value='<?php echo attr($reply_to); ?>'/>
                                                 </div>
-                                                <div class="col-2 d-flex flex-wrap">
+                                                <div class="col-6 col-md-2 d-flex flex-wrap">
                                                     <?php
                                                     if ($task == "addnew" || $result['pid'] == 0) {
                                                         echo "<label class='oe-empty-label' for='clear_patients'></label>";
@@ -434,7 +434,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 oe-custom-line">
+                                        <div class="col-12 oe-custom-line">
                                             <div class="row">
                                                 <?php if ($GLOBALS['messages_due_date']) { ?>
                                                 <div class="col-6 col-sm-2">
