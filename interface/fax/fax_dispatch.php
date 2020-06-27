@@ -463,28 +463,8 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 <html>
 <head>
 
-    <?php Header::setupHeader(['opener', 'datetime-picker', 'jquery-ui']);?>
+    <?php Header::setupHeader(['opener', 'datetime-picker']);?>
     <title><?php echo xlt('Dispatch Received Document'); ?></title>
-
-<style>
-
-td, input, select, textarea {
- font-size: 10pt;
-}
-
-.itemtitle {
- font-weight: bold;
-}
-
-div.section {
- border: solid;
- border-width: 1px;
- border-color: #0000ff;
- margin-left: 2em;
- padding: 1em;
-}
-
-</style>
 
 <script>
 
@@ -613,9 +593,8 @@ div.section {
 
 </head>
 
-<body class="body_top" onunload='imclosing()'>
-
-<center><h2><?php echo xlt('Dispatch Received Document'); ?></h2></center>
+<body class="body_top">
+<h2 class="text-center"><?php echo xlt('Dispatch Received Document'); ?></h2>
 
 <form method='post' name='theform'
  action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo attr_url($filename); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit='return validate()'>
@@ -623,194 +602,222 @@ div.section {
 
 <p><input type='checkbox' name='form_cb_copy' value='1'
  onclick='return divclick(this,"div_copy");' />
-<b><?php echo xlt('Copy Pages to Patient Chart'); ?></b></p>
+<span class="font-weight-bold"><?php echo xlt('Copy Pages to Patient Chart'); ?></span></p>
 
-<div id='div_copy' class='section' style='display:none;'>
- <table>
-  <tr>
-   <td class='itemtitle' width='1%' nowrap><?php echo xlt('Patient'); ?></td>
-   <td>
-    <input type='text' size='10' name='form_patient' style='width:100%'
-     value=' (<?php echo xla('Click to select'); ?>)' onclick='sel_patient()'
-     title='<?php echo xla('Click to select patient'); ?>' readonly />
-    <input type='hidden' name='form_pid' value='0' />
-   </td>
-  </tr>
-  <tr>
-   <td colspan='2' style='padding-top:0.5em;'>
-    <input type='radio' name='form_cb_copy_type' value='1'
-     onclick='return divclick(this,"div_copy_doc");' checked />
-    <b><?php echo xlt('Patient Document'); ?></b>&nbsp;
-<?php if ($using_scanned_notes) { ?>
-    <input type='radio' name='form_cb_copy_type' value='2'
-     onclick='return divclick(this,"div_copy_sn");' />
-    <b><?php echo xlt('Scanned Encounter Note'); ?></b>
-<?php } ?>
-    <div id='div_copy_doc' class='section' style='margin-top:0.5em;'>
-     <table width='100%'>
-      <tr>
-       <td class='itemtitle' nowrap><?php echo xlt('Category'); ?></td>
-       <td>
-        <select name='form_category' style='width:100%'>
-<?php
-foreach ($categories as $catkey => $catname) {
-    echo "         <option value='" . attr($catkey) . "'";
-    echo ">" . text($catname) . "</option>\n";
-}
-?>
-        </select>
-       </td>
-      </tr>
-      <tr>
-       <td class='itemtitle' nowrap><?php echo xlt('Filename'); ?></td>
-       <td>
-        <input type='text' size='10' name='form_filename' style='width:100%'
-        value='<?php echo attr($filebase) . ".pdf" ?>'
-        title='Name for this document in the patient chart' />
-       </td>
-      </tr>
-      <tr>
-       <td class='itemtitle' nowrap><?php echo xlt('Document Date'); ?></td>
-       <td>
-        <input type='text' class='datepicker' size='10' name='form_docdate' id='form_docdate'
-        value='<?php echo date('Y-m-d'); ?>'
-        title='<?php echo xla('yyyy-mm-dd date associated with this document'); ?>' />
-       </td>
-      </tr>
-     </table>
-    </div><!-- end div_copy_doc -->
-    <div id='div_copy_sn' class='section' style='display:none;margin-top:0.5em;'>
-     <table width='100%'>
-      <tr>
-       <td class='itemtitle' width='1%' nowrap><?php echo xlt('Visit Date'); ?></td>
-       <td>
-        <select name='form_copy_sn_visit' style='width:100%'>
-        </select>
-       </td>
-      </tr>
-      <tr>
-       <td class='itemtitle' width='1%' nowrap><?php echo xlt('Comments'); ?></td>
-       <td>
-        <textarea name='form_copy_sn_comments' rows='3' cols='30' style='width:100%'
-         title='Comments associated with this scanned note'
-         /></textarea>
-       </td>
-      </tr>
-     </table>
-    </div><!-- end div_copy_sn -->
-   </td>
-  </tr>
-  <tr>
-   <td colspan='2' style='padding-top:0.5em;'>
-    <input type='checkbox' name='form_cb_note' value='1'
-     onclick='return divclick(this,"div_note");' />
-    <b><?php echo xlt('Create Patient Note'); ?></b>
-    <div id='div_note' class='section' style='display:none;margin-top:0.5em;'>
-     <table>
-      <tr>
-       <td class='itemtitle' width='1%' nowrap><?php echo xlt('Type'); ?></td>
-       <td>
-        <?php
-         // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
-         generate_form_field(array('data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'), '');
-        ?>
-       </td>
-      </tr>
-      <tr>
-       <td class='itemtitle' width='1%' nowrap>To</td>
-       <td>
-        <select name='form_note_to' style='width:100%'>
-<?php
-while ($urow = sqlFetchArray($ures)) {
-    echo "         <option value='" . attr($urow['username']) . "'";
-    echo ">" . text($urow['lname']);
-    if ($urow['fname']) {
-        echo ", " . text($urow['fname']);
-    }
+<!-- Copy Pages to Patient Chart Section -->
+<div id='div_copy' class='jumbotron' style='display:none;'>
+    <!-- Patient Section -->
+    <div class="form-row mt-2">
+        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Patient'); ?></label>
+        <div class="col-10">
+            <input type='text' size='10' name='form_patient' class='form-control bg-light'
+                value=' (<?php echo xla('Click to select'); ?>)' onclick='sel_patient()'
+                data-toggle='tooltip' data-placement='top'
+                title='<?php echo xla('Click to select patient'); ?>' readonly />
+            <input type='hidden' name='form_pid' value='0' />
+        </div>
+    </div>
+    <!-- Patient Document Section -->
+    <div class="form-row mt-2">
+        <div class="col-12 col-form-label">
+            <input type='radio' name='form_cb_copy_type' value='1'
+                onclick='return divclick(this,"div_copy_doc");' checked />
+            <label class="font-weight-bold"><?php echo xlt('Patient Document'); ?></label>
+            <?php if ($using_scanned_notes) { ?>
+                <input type='radio' name='form_cb_copy_type' value='2'
+                    onclick='return divclick(this,"div_copy_sn");' />
+                <label class="font-weight-bold"><?php echo xlt('Scanned Encounter Note'); ?></label>
+            <?php } ?>
+            <!-- div_copy_doc Section -->
+            <div id='div_copy_doc' class='bg-secondary border rounded p-2'>
+                <!-- Category Section -->
+                <div class="form-row mt-2">
+                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Category'); ?></label>
+                    <div class="col-10">
+                        <select name='form_category' class='form-control'>
+                            <?php
+                            foreach ($categories as $catkey => $catname) {
+                                echo "         <option value='" . attr($catkey) . "'";
+                                echo ">" . text($catname) . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+                <!-- Filename Section -->
+                <div class="form-row mt-2">
+                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Filename'); ?></label>
+                    <div class="col-10">
+                        <input type='text' size='10' name='form_filename' class='form-control'
+                            value='<?php echo attr($filebase) . ".pdf" ?>'
+                            data-toggle='tooltip' data-placement='top'
+                            title='Name for this document in the patient chart' />
+                    </div>
+                </div>
+                <!-- Document Date Section -->
+                <div class="form-row mt-2">
+                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Document Date'); ?></label>
+                    <div class="col-10">
+                        <input type='text' class='datepicker form-control' size='10' name='form_docdate' id='form_docdate'
+                            value='<?php echo date('Y-m-d'); ?>'
+                            data-toggle='tooltip' data-placement='top'
+                            title='<?php echo xla('yyyy-mm-dd date associated with this document'); ?>' />
+                    </div>
+                </div>
+            </div>
+            <!-- div_copy_sn Section -->
+            <div id='div_copy_sn' class='bg-secondary border rounded p-2' style='display:none;margin-top:0.5em;'>
+                <!-- Visit Date Section -->
+                <div class="form-row mt-2">
+                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Visit Date'); ?></label>
+                    <div class="col-10">
+                        <select name='form_copy_sn_visit' class='form-control'>
+                        </select>
+                    </div>
+                </div>
+                <!-- Comments Section -->
+                <div class="form-row mt-2">
+                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Comments'); ?></label>
+                    <div class="col-10">
+                        <textarea name='form_copy_sn_comments' rows='3' cols='30' class='form-control'
+                            data-toggle='tooltip' data-placement='top'
+                            title='Comments associated with this scanned note'>
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Create Patient Note Section -->
+    <div class="form-gruop row">
+        <div class="col-12 col-form-label">
+            <input type='checkbox' name='form_cb_note' value='1'
+                onclick='return divclick(this,"div_note");' />
+            <label class="font-weight-bold"><?php echo xlt('Create Patient Note'); ?></label>
+            <!-- div_note Section -->
+            <div id='div_note' class='bg-secondary border rounded p-2' style='display:none;'>
+                <!-- Type Section -->
+                <div class="form-row mt-2">
+                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Type'); ?></label>
+                    <div class="col-10">
+                        <?php
+                        // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
+                        generate_form_field(array('data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'), '');
+                        ?>
+                    </div>
+                </div>
+                <!-- To Section -->
+                <div class="form-row mt-2">
+                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('To'); ?></label>
+                    <div class="col-10">
+                    <select name='form_note_to' class='form-control'>
+                        <?php
+                        while ($urow = sqlFetchArray($ures)) {
+                            echo "         <option value='" . attr($urow['username']) . "'";
+                            echo ">" . text($urow['lname']);
+                            if ($urow['fname']) {
+                                echo ", " . text($urow['fname']);
+                            }
 
-    echo "</option>\n";
-}
-?>
-         <option value=''>** <?php echo xlt('Close'); ?> **</option>
-        </select>
-       </td>
-      </tr>
-      <tr>
-       <td class='itemtitle' nowrap><?php echo xlt('Message'); ?></td>
-       <td>
-        <textarea name='form_note_message' rows='3' cols='30' style='width:100%'
-         title='Your comments' /></textarea>
-       </td>
-      </tr>
-     </table>
-    </div><!-- end div_note -->
-   </td>
-  </tr>
- </table>
-</div><!-- end div_copy -->
+                            echo "</option>\n";
+                        }
+                        ?>
+                        <option value=''>** <?php echo xlt('Close'); ?> **</option>
+                    </select>
+                    </div>
+                </div>
+                <!-- Message Section -->
+                <div class="form-row mt-2">
+                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Message'); ?></label>
+                    <div class="col-10">
+                        <textarea name='form_note_message' rows='3' cols='30' class='form-control'
+                            data-toggle='tooltip' data-placement='top'
+                            title='Your comments'>
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <p><input type='checkbox' name='form_cb_forward' value='1'
  onclick='return divclick(this,"div_forward");' />
-<b><?php echo xlt('Forward Pages via Fax'); ?></b></p>
+<span class="font-weight-bold"><?php echo xlt('Forward Pages via Fax'); ?></span></p>
 
-<div id='div_forward' class='section' style='display:none;'>
- <table>
-  <tr>
-   <td class='itemtitle' width='1%' nowrap><?php echo xlt('From'); ?></td>
-   <td>
-    <input type='text' size='10' name='form_from' style='width:100%'
-     title='Type your name here' />
-   </td>
-  </tr>
-  <tr>
-   <td class='itemtitle' nowrap><?php echo xlt('To{{Destination}}'); ?></td>
-   <td>
-    <input type='text' size='10' name='form_to' style='width:100%'
-     title='Type the recipient name here' />
-   </td>
-  </tr>
-  <tr>
-   <td class='itemtitle' nowrap><?php echo xlt('Fax'); ?></td>
-   <td>
-    <input type='text' size='10' name='form_fax' style='width:100%'
-     title='The fax phone number to send this to' />
-   </td>
-  </tr>
-  <tr>
-   <td class='itemtitle' nowrap><?php echo xlt('Message'); ?></td>
-   <td>
-    <textarea name='form_message' rows='3' cols='30' style='width:100%'
-     title='Your comments to include with this message' /></textarea>
-   </td>
-  </tr>
-  <tr>
-   <td class='itemtitle' nowrap><?php echo xlt('Quality'); ?></td>
-   <td>
-    <input type='radio' name='form_finemode' value='' /><?php echo xlt('Normal'); ?> &nbsp;
-    <input type='radio' name='form_finemode' value='1' checked /><?php echo xlt('Fine'); ?> &nbsp;
-   </td>
-  </tr>
- </table>
-</div><!-- end div_forward -->
+<!-- Forward Pages via Fax Section -->
+<div id='div_forward' class='jumbotron' style='display:none;'>
+    <!-- From Section -->
+    <div class="form-row mt-2">
+        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('From'); ?></label>
+        <div class="col-10">
+            <input type='text' size='10' name='form_from' class='form-control' data-toggle='tooltip' data-placement='top' title='Type your name here'>
+        </div>
+    </div>
+    <!-- To Section -->
+    <div class="form-row mt-2">
+        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('To{{Destination}}'); ?></label>
+        <div class="col-10">
+            <input type='text' size='10' name='form_to' class='form-control' data-toggle='tooltip' data-placement='top' title='Type the recipient name here'>
+        </div>
+    </div>
+    <!-- Fax Section -->
+    <div class="form-row mt-2">
+        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Fax'); ?></label>
+        <div class="col-10">
+            <input type='text' size='10' name='form_fax' class='form-control' data-toggle='tooltip' data-placement='top' title='The fax phone number to send this to'>
+        </div>
+    </div>
+    <!-- Message Section -->
+    <div class="form-row mt-2">
+        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Message'); ?></label>
+        <div class="col-10">
+            <textarea name='form_message' rows='3' cols='30' class='form-control'
+                data-toggle='tooltip' data-placement='top'
+                title='Your comments to include with this message'>
+            </textarea>
+        </div>
+    </div>
+    <!-- Quality Section -->
+    <div class="form-row mt-2">
+        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Quality'); ?></label>
+        <div class="col-10">
+            <div class="form-check form-check-inline">
+                <input type='radio' class='form-check-input' name='form_finemode' value=''>
+                <label class="form-check-label"><?php echo xlt('Normal'); ?></label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type='radio' class='form-check-input' name='form_finemode' value='1' checked>
+                <label class="form-check-label"><?php echo xlt('Fine'); ?></label>
+            </div>
+        </div>
+    </div>
+</div>
 
-<p><b><?php echo xlt('Delete Pages'); ?>:</b>&nbsp;
-<input type='radio' name='form_cb_delete' value='2' />All&nbsp;
-<input type='radio' name='form_cb_delete' value='1' checked />Selected&nbsp;
-<input type='radio' name='form_cb_delete' value='0' />None
-</p>
+<div class="form-group form-inline">
+    <label class="font-weight-bold"><?php echo xlt('Delete Pages'); ?>:</label>
+    <div class="form-check form-check-inline">
+        <input type='radio' class='form-check-input' name='form_cb_delete' value='2' />
+        <label class="form-check-label">All</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input type='radio' class='form-check-input' name='form_cb_delete' value='1' checked />
+        <label class="form-check-label">Selected</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input type='radio' class='form-check-input' name='form_cb_delete' value='0' />
+        <label class="form-check-label">None</label>
+    </div>
+</div>
 
-<center>
-<p>
-<input type='submit' name='form_save' value='<?php echo xla('OK'); ?>' />
-&nbsp; &nbsp;
-<input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
-&nbsp; &nbsp;
-<input type='button' value='<?php echo xla('Select All'); ?>' onclick='allCheckboxes(true)' />
-&nbsp; &nbsp;
-<input type='button' value='<?php echo xla('Clear All'); ?>' onclick='allCheckboxes(false)' />
-</p>
+<div class="btn-group">
+    <button type='submit' class='btn btn-primary btn-save' name='form_save' value='<?php echo xla('OK'); ?>'><?php echo xla('OK'); ?></button>
+    <button type='button' class='btn btn-secondary btn-cancel' value='<?php echo xla('Cancel'); ?>' onclick='window.close()'><?php echo xla('Cancel'); ?></button>
+    <button type='button' class='btn btn-secondary' value='<?php echo xla('Select All'); ?>' onclick='allCheckboxes(true)'><?php echo xla('Select All'); ?></button>
+    <button type='button' class='btn btn-secondary' value='<?php echo xla('Clear All'); ?>' onclick='allCheckboxes(false)'><?php echo xla('Clear All'); ?></button>
+</div>
 
-<p><br /><b><?php echo xlt('Please select the desired pages to copy or forward:'); ?></b></p>
+<p class="mt-2 font-weight-bold"><?php echo xlt('Please select the desired pages to copy or forward:'); ?></p>
 <table>
 
 <?php
@@ -846,7 +853,11 @@ foreach ($jpgarray as $jfnamebase => $jfname) {
 ?>
 
 </table>
-</center>
 </form>
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
 </body>
 </html>

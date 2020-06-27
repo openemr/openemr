@@ -94,8 +94,9 @@ if ($mode == "PostPayments" || $mode == "FinishPayments") {
         sqlStatement("update ar_session set global_amount=? where session_id =?", [(isset($_POST["HidUnappliedAmount"]) ? trim($_POST["HidUnappliedAmount"]) : ''), $payment_id]);
     }
     if ($mode == "FinishPayments") {
-        header("Location: edit_payment.php?payment_id=" . urlencode($payment_id) . "&ParentPage=new_payment");
-        die();
+        // @todo This is not useful. Gonna let fall through to form init.
+        //header("Location: edit_payment.php?payment_id=" . urlencode($payment_id) . "&ParentPage=new_payment");
+        //die();
     }
     $mode = "search";
     $_POST['mode'] = $mode;
@@ -283,41 +284,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     .class1 {
         width: 125px;
     }
-    .class2 {
-        width: 250px;
-    }
-    .class3 {
-        width: 75px;
-    }
-    .class4 {
-        width: 100px;
-    }
-    .bottom {
-        border-bottom: 1px solid var(--black);
-    }
-    .top {
-        border-top: 1px solid var(--black);
-    }
-    .left {
-        border-left: 1px solid var(--black);
-    }
-    .right {
-        border-right: 1px solid var(--black);
-    }
-    #ajax_div_insurance {
-        position: absolute;
-        z-index: 10;
-        background-color: #FBFDD0;
-        border: 1px solid var(--gray);
-        padding: 10px;
-    }
-    #ajax_div_patient {
-        position: absolute;
-        z-index: 10;
-        background-color: #FBFDD0;
-        border: 1px solid var(--gray);
-        padding: 10px;
-    }
+
     @media only screen and (max-width: 768px) {
         [class*="col-"] {
             width: 100%;

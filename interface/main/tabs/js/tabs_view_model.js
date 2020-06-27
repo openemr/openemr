@@ -136,6 +136,7 @@ function navigateTab(url,name,afterLoadFunction,loading_label='')
             });
         }
         openExistingTab(url,name);
+        $("iframe[name='"+name+"']").get(0).contentWindow.location=url;
     }
     else
     {
@@ -246,10 +247,6 @@ function newTherapyGroupEncounter()
     });
 }
 
-function clickEncounterList(data,evt)
-{
-    encounterList();
-}
 function encounterList()
 {
     var url=webroot_url+'/interface/patient_file/history/encounters.php';

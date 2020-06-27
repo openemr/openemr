@@ -1633,10 +1633,12 @@ CREATE TABLE  `facility_user_ids` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `uid` bigint(20) DEFAULT NULL,
   `facility_id` bigint(20) DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
   `field_value` TEXT,
   PRIMARY KEY (`id`),
-  KEY `uid` (`uid`,`facility_id`,`field_id`)
+  KEY `uid` (`uid`,`facility_id`,`field_id`),
+  KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB  AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -6841,6 +6843,7 @@ DROP TABLE IF EXISTS `uuid_registry`;
 CREATE TABLE `uuid_registry` (
   `uuid` binary(16) NOT NULL DEFAULT '',
   `table_name` varchar(255) NOT NULL DEFAULT '',
+  `table_vertical` varchar(255) NOT NULL DEFAULT '',
   `created` timestamp NULL,
   PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
