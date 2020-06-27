@@ -736,6 +736,10 @@ ALTER TABLE `users` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `users` (`uuid`);
 #EndIf
 
+#IfMissingColumn uuid_registry table_vertical
+ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
 #IfMissingColumn facility_user_ids uuid
 ALTER TABLE `facility_user_ids` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
@@ -745,8 +749,4 @@ ALTER TABLE `facility_user_ids` ADD `uuid` binary(16) DEFAULT NULL;
 
 #IfNotIndex facility_user_ids uuid
 CREATE INDEX `uuid` ON `facility_user_ids` (`uuid`);
-#EndIf
-
-#IfMissingColumn uuid_registry table_vertical
-ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '';
 #EndIf
