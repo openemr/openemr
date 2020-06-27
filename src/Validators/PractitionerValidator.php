@@ -21,7 +21,7 @@ class PractitionerValidator extends BaseValidator
     /**
      * Configures validations for the Practitioner DB Insert and Update use-case.
      * The update use-case is comprised of the same fields as the insert use-case.
-     * The update use-case differs from the insert use-case in that fields other than pid are not required.
+     * The update use-case differs from the insert use-case in that fields other than uuid are not required.
      */
     protected function configureValidator()
     {
@@ -33,7 +33,7 @@ class PractitionerValidator extends BaseValidator
             function (Validator $context) {
                 $context->required("fname", "First Name")->lengthBetween(2, 255);
                 $context->required("lname", 'Last Name')->lengthBetween(2, 255);
-                $context->required("npi", "NPI")->numeric()->length(10);
+                $context->required("npi", "NPI")->numeric()->lengthBetween(10, 15);
                 $context->optional("facility_id", "Facility Id")->numeric()->callback(
                     // check if facility exist
                     function ($value) {

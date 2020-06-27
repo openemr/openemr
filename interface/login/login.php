@@ -208,7 +208,7 @@ if (count($emr_app)) {
 
                 if ($GLOBALS['login_into_facility']) {
                     $facilityService = new FacilityService();
-                    $facilities = $facilityService->getAll();
+                    $facilities = $facilityService->getAllFacility();
                     $facilitySelected = ($GLOBALS['set_facility_cookie'] && isset($_COOKIE['pc_facility'])) ? $_COOKIE['pc_facility'] : null;
                 }
                 ?>

@@ -131,7 +131,7 @@ if ($_POST['form_csvexport']) {
     <?php
   // Build a drop-down list of facilities.
   //
-    $fres = $facilityService->getAll();
+    $fres = $facilityService->getAllFacility();
     echo "   <select name='form_facility'>\n";
     echo "    <option value=''>-- All Facilities --\n";
     foreach ($fres as $frow) {
