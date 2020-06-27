@@ -132,13 +132,13 @@ span.bold {
 }
 
 #addressbook_list {
-	tr.evenrow {
-	  background-color: $light;
-	}
+  tr.evenrow {
+    background-color: $light;
+  }
 
-	tr.oddrow {
-	  background-color: $white;
-	}
+  tr.oddrow {
+    background-color: $white;
+  }
 }
 
 tr.odd,
@@ -158,19 +158,23 @@ ul.tabNav {
   margin: 0;
   padding: 0;
   padding-top: 4px;
+
   li {
     padding: 0 4px;
-	&.current a {
-	  background: $white;
-	  color: $primary;
-	}
+
+    &.current a {
+      background: $white;
+      color: $primary;
+    }
   }
+
   a {
     color: $white;
     padding: 8px 17px;
-	&:focus {
-	  outline: none;
-	}
+
+    &:focus {
+      outline: none;
+    }
   }
 }
 
@@ -241,6 +245,7 @@ ul.tabNav {
 
 .example_menu {
   @include font-size("0.7rem !important");
+
   ul a:hover {
     background: darken($light, 15%);
     text-decoration: underline;
@@ -302,29 +307,30 @@ div.category-display {
 }
 
 #oe-nav-ul {
-	&.tabNav {
-		background: rgba($black, 0.05) !important;
+  &.tabNav {
+    background: rgba($black, 0.05) !important;
 
-		li.current {
-		  color: $primary;
-		}
+    li.current {
+      color: $primary;
+    }
 
-		a {
-		  background: $light;
-		  border-bottom: 1px solid $gray-400;
-		  border-left: 2px solid $primary;
-		  &:hover {
-		    background-color: $white !important;
-		    color: $primary;
-		  }
-		}
+    a {
+      background: $light;
+      border-bottom: 1px solid $gray-400;
+      border-left: 2px solid $primary;
 
-		.current a {
-		  background: $white;
-		  border-color: $primary;
-		  color: $primary;
-		}
-	}
+      &:hover {
+        background-color: $white !important;
+        color: $primary;
+      }
+    }
+
+    .current a {
+      background: $white;
+      border-color: $primary;
+      color: $primary;
+    }
+  }
 }
 
 #globals-div .tabContainer {

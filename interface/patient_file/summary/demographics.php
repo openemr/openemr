@@ -821,7 +821,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <tr>
                                           <td>
                                             <span class='font-weight-bold text-danger'><?php echo xlt('Total Balance Due') .
-                                        " : " . text(oeFormatMoney($totalbalance)); ?></span>
+                                            " : " . text(oeFormatMoney($totalbalance)); ?></span>
                                       </td>
                                     <?php if (!empty($result['billing_note'])) { ?>
                                         <tr>
@@ -850,27 +850,27 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
           <section>
               <?php
               // Demographics expand collapse widget
-              $widgetTitle = xl("Demographics");
-              $widgetLabel = "demographics";
-              $widgetButtonLabel = xl("Edit");
-              $widgetButtonLink = "demographics_full.php";
-              $widgetButtonClass = "";
-              $linkMethod = "html";
-              $bodyClass = "";
-              $widgetAuth = AclMain::aclCheckCore('patients', 'demo', '', 'write');
-              $fixedWidth = false;
-              expand_collapse_widget(
-                  $widgetTitle,
-                  $widgetLabel,
-                  $widgetButtonLabel,
-                  $widgetButtonLink,
-                  $widgetButtonClass,
-                  $linkMethod,
-                  $bodyClass,
-                  $widgetAuth,
-                  $fixedWidth
-              );
-              ?>
+                $widgetTitle = xl("Demographics");
+                $widgetLabel = "demographics";
+                $widgetButtonLabel = xl("Edit");
+                $widgetButtonLink = "demographics_full.php";
+                $widgetButtonClass = "";
+                $linkMethod = "html";
+                $bodyClass = "";
+                $widgetAuth = AclMain::aclCheckCore('patients', 'demo', '', 'write');
+                $fixedWidth = false;
+                expand_collapse_widget(
+                    $widgetTitle,
+                    $widgetLabel,
+                    $widgetButtonLabel,
+                    $widgetButtonLink,
+                    $widgetButtonClass,
+                    $linkMethod,
+                    $bodyClass,
+                    $widgetAuth,
+                    $fixedWidth
+                );
+                ?>
               <div id="DEM">
                   <ul class="tabNav">
                       <?php display_layout_tabs('DEM', $result, $result2); ?>
@@ -1109,7 +1109,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 } // end foreach
 
                                 // Display the eligibility information
-                              ?> <div class='tab'>
+                                ?> <div class='tab'>
                                     <div class='tab-content pre-scrollable' style='width:695px; overflow-x: hidden;'>
 
                                 <?php if ($GLOBALS['enable_oa']) { ?>
@@ -1180,17 +1180,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <section>
           <?php
     // patient reminders collapse widget
-        $widgetTitle = xl("Patient Reminders");
-        $widgetLabel = "patient_reminders";
-        $widgetButtonLabel = xl("Edit");
-        $widgetButtonLink = "../reminder/patient_reminders.php?mode=simple&patient_id=" . attr_url($pid);
-        $widgetButtonClass = "";
-        $linkMethod = "html";
-        $bodyClass = "notab";
-        $widgetAuth = AclMain::aclCheckCore('patients', 'reminder', '', 'write');
-        $fixedWidth = false;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-    ?>
+            $widgetTitle = xl("Patient Reminders");
+            $widgetLabel = "patient_reminders";
+            $widgetButtonLabel = xl("Edit");
+            $widgetButtonLink = "../reminder/patient_reminders.php?mode=simple&patient_id=" . attr_url($pid);
+            $widgetButtonClass = "";
+            $linkMethod = "html";
+            $bodyClass = "notab";
+            $widgetAuth = AclMain::aclCheckCore('patients', 'reminder', '', 'write');
+            $fixedWidth = false;
+            expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+            ?>
     <br />
     <div class="text ml-2"><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
     <br />

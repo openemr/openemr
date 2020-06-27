@@ -136,7 +136,7 @@ use OpenEMR\Common\Acl\AclMain;
                                       <select name="group_patient_status[]" <?php echo $readonly; ?>>
                                           <?php foreach ($statuses as $key => $status) { ?>
                                               <option value="<?php echo attr($key);?>" <?php if ($key == $participant['group_patient_status']) {
-                                                  echo 'selected';
+                                                    echo 'selected';
                                                              } ?> > <?php echo text($status); ?> </option>
                                           <?php } ?>
                                       </select>
