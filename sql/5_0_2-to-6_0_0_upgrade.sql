@@ -1841,6 +1841,9 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "385HR2065X", "Respite Care, Physical Disabilities, Child", 8460);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "390200000X", "Student in an Organized Health Care Education/Training Program", 8470);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "405300000X", "Prevention Professional", 8480);
+
+#IfMissingColumn uuid_registry table_vertical
+ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
 #IfMissingColumn facility_user_ids uuid
@@ -1852,8 +1855,4 @@ ALTER TABLE `facility_user_ids` ADD `uuid` binary(16) DEFAULT NULL;
 
 #IfNotIndex facility_user_ids uuid
 CREATE INDEX `uuid` ON `facility_user_ids` (`uuid`);
-#EndIf
-
-#IfMissingColumn uuid_registry table_vertical
-ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '';
 #EndIf
