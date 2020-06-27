@@ -151,7 +151,7 @@ class FacilityServiceTest extends TestCase
         // getAll
         $actualResult = $this->facilityService->getAll(array("facility_npi" => "0123456789"));
         $this->assertNotNull($actualResult);
-        $this->assertGreaterThan(1, count($actualResult->getData()));
+        $this->assertEquals(2, count($actualResult->getData()));
 
         foreach ($actualResult->getData() as $index => $facilityRecord) {
             $this->assertArrayHasKey("name", $resultData);

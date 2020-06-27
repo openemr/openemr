@@ -133,14 +133,14 @@ class FacilityFixtureManager extends BaseFixtureManager
         $bindVariable = self::FIXTURE_PREFIX . "%";
 
         // remove the related uuids from uuid_registry
-        $select = "SELECT `uuid` FROM `facility` WHERE `id` LIKE ?";
+        $select = "SELECT `uuid` FROM `facility` WHERE `name` LIKE ?";
         $sel = sqlStatement($select, [$bindVariable]);
         while ($row = sqlFetchArray($sel)) {
             sqlQuery("DELETE FROM `uuid_registry` WHERE `table_name` = 'facility' AND `uuid` = ?", [$row['uuid']]);
         }
 
         // remove the facilitys
-        $delete = "DELETE FROM facility WHERE id LIKE ?";
-        sqlStatement($delete, array($bindVariable));
+        $delete = "DELETE FROM `facility` WHERE `name` LIKE ?";
+        sqlStatement($delete, [$bindVariable]);
     }
 }
