@@ -763,7 +763,7 @@ CREATE UNIQUE INDEX `uuid` ON `facility` (`uuid`);
 #EndIf
 
 #IfNotRow codes code_text respiratory syncytial virus monoclonal antibody (motavizumab), intramuscular
-SET @codetypeid = (SELECT `ct_id` FROM  `code_types` WHERE `ct_key` = 'CVX');
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
 INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
 VALUES
 (NULL, "respiratory syncytial virus monoclonal antibody (motavizumab), intramuscular", "RSV-MAb (new)", 145,  @codetypeid, '', 0, 0, '', '', '', 1),
