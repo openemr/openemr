@@ -731,7 +731,7 @@ ALTER TABLE `users` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `users` (`uuid`);
 #EndIf
 
-#IfNotRow codes code 145 code_type 100
+#IfNotRow codes code_text "respiratory syncytial virus monoclonal antibody (motavizumab), intramuscular"
 INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
 VALUES
 (NULL, "respiratory syncytial virus monoclonal antibody (motavizumab), intramuscular", "RSV-MAb (new)", 145, 100, '', 0, 0, '', '', '', 1),
