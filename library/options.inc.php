@@ -1352,7 +1352,7 @@ function generate_form_field($frow, $currvalue)
             "select-dropdown",
             $lbfchange,
             '',
-            null,
+            $disabled,
             false,
             $backup_list
         );
