@@ -43,22 +43,21 @@ RestConfig::$ROUTE_MAP = array(
     },
     "GET /api/facility" => function () {
         RestConfig::authorization_check("admin", "users");
-        return (new FacilityRestController())->getAll();
+        return (new FacilityRestController())->getAll($_GET);
     },
-    "GET /api/facility/:fid" => function ($fid) {
+    "GET /api/facility/:fuuid" => function ($fuuid) {
         RestConfig::authorization_check("admin", "users");
-        return (new FacilityRestController())->getOne($fid);
+        return (new FacilityRestController())->getOne($fuuid);
     },
     "POST /api/facility" => function () {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new FacilityRestController())->post($data);
     },
-    "PUT /api/facility/:fid" => function ($fid) {
+    "PATCH /api/facility/:fuuid" => function ($fuuid) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $data["fid"] = $fid;
-        return (new FacilityRestController())->put($data);
+        return (new FacilityRestController())->patch($fuuid, $data);
     },
     "GET /api/patient" => function () {
         RestConfig::authorization_check("patients", "demo");
@@ -87,7 +86,7 @@ RestConfig::$ROUTE_MAP = array(
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new EncounterRestController())->post($puuid, $data);
     },
-    "PUT /api/patient/:puuid/encounter/:eid" => function ($puuid, $euuid) {
+    "PUT /api/patient/:puuid/encounter/:euuid" => function ($puuid, $euuid) {
         RestConfig::authorization_check("encounters", "auth_a");
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new EncounterRestController())->put($puuid, $euuid, $data);
@@ -417,10 +416,20 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return (new FhirPractitionerRestController())->patch($id, $data);
     },
     "GET /fhir/Organization" => function () {
-        return (new FhirOrganizationRestController(null))->getAll($_GET);
+        return (new FhirOrganizationRestController())->getAll($_GET);
     },
     "GET /fhir/Organization/:id" => function ($id) {
-        return (new FhirOrganizationRestController(null))->getOne($id);
+        return (new FhirOrganizationRestController())->getOne($id);
+    },
+    "POST /fhir/Organization" => function () {
+        RestConfig::authorization_check("admin", "super");
+        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        return (new FhirOrganizationRestController())->post($data);
+    },
+    "PATCH /fhir/Organization/:id" => function ($id) {
+        RestConfig::authorization_check("admin", "super");
+        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        return (new FhirOrganizationRestController())->patch($id, $data);
     },
     "GET /fhir/AllergyIntolerance" => function () {
         RestConfig::authorization_check("patients", "med");
@@ -493,6 +502,12 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
     },
     "GET /portal/patient" => function () {
         return (new PatientRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']));
+    },
+    "GET /portal/patient/encounter" => function () {
+        return (new EncounterRestController())->getAll(UuidRegistry::uuidToString($_SESSION['puuid']));
+    },
+    "GET /portal/patient/encounter/:euuid" => function ($euuid) {
+        return (new EncounterRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']), $euuid);
     }
 );
 
@@ -504,5 +519,11 @@ RestConfig::$PORTAL_FHIR_ROUTE_MAP = array(
     },
     "GET /portalfhir/Patient" => function () {
         return (new FhirPatientRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']));
+    },
+    "GET /portalfhir/Encounter" => function () {
+        return (new FhirEncounterRestController(null))->getAll(['patient' => UuidRegistry::uuidToString($_SESSION['puuid'])]);
+    },
+    "GET /portalfhir/Encounter/:id" => function ($id) {
+        return (new FhirEncounterRestController(null))->getAll(['_id' => $id, 'patient' => UuidRegistry::uuidToString($_SESSION['puuid'])]);
     }
 );

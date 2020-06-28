@@ -582,7 +582,9 @@ if ($it_died != 0) {
             }
 
             $this->disconnect();
-            if (! $this->user_database_connection()) {
+            // Using @ in below call to hide the php warning in cases where the
+            //  below connection does not work, which is expected behavior.
+            if (! @$this->user_database_connection()) {
                 // Re-connect to mysql via root user
                 if (! $this->root_database_connection()) {
                     return false;
@@ -990,7 +992,7 @@ DSTD;
                         </div>
                         <div class="modal-body" style="height:80%;">
                             <iframe src="" id="targetiframe" style="height:100%; width:100%; overflow-x: hidden; border:none"
-                            allowtransparency="true"></iframe>  
+                            allowtransparency="true"></iframe>
                         </div>
                         <div class="modal-footer" style="margin-top:0px;">
                            <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">Close</button>
