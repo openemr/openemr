@@ -97,6 +97,7 @@ language: php
       echo "Main OpenEMR Build"
       echo "------------------"
       if $SKIP_COMPOSER_PLATFORM_REQS; then
+        echo "(For PHP8 build to work, using --ignore-platform-reqs parameter for composer install; this is temporary)"
         composer install --ignore-platform-reqs || failTest=true
       else
         composer install || failTest=true
