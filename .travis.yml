@@ -96,7 +96,11 @@ language: php
       echo "------------------"
       echo "Main OpenEMR Build"
       echo "------------------"
-      composer install || failTest=true
+      if $SKIP_COMPOSER_PLATFORM_REQS; then
+        composer install --ignore-platform-reqs || failTest=true
+      else
+        composer install || failTest=true
+      fi
       npm install || failTest=true
       npm run build || failTest=true
       composer global require phing/phing || failTest=true
@@ -631,6 +635,7 @@ jobs:
         - DOCKER_DIR=nginx_80
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
         - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - SKIP_COMPOSER_PLATFORM_REQS=true
       script:
         - failJob=false
         - *dockers_env_start
