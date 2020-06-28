@@ -3657,7 +3657,7 @@ function dropdown_facility(
     global $facilityService;
 
     $have_selected = false;
-    $fres = $facilityService->getAll();
+    $fres = $facilityService->getAllFacility();
 
     echo "   <select class='form-control' name='" . attr($name) . "' id='" . attr($name) . "'";
     if ($onchange) {
