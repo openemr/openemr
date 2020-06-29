@@ -98,7 +98,7 @@ language: php
       echo "------------------"
       if [ "$SKIP_COMPOSER_PLATFORM_REQS" = true ]; then
         echo "(For PHP8 build to work, using --ignore-platform-reqs parameter for composer install; this is temporary)"
-        composer install --ignore-platform-reqs || failTest=true
+        composer install || failTest=true
       else
         composer install || failTest=true
       fi
