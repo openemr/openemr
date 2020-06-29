@@ -15,7 +15,7 @@ use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FacilityRestControllerTestTest extends TestCase
+class FacilityRestControllerTest extends TestCase
 {
     const FACILITY_API_URL = "/apis/api/facility";
 
