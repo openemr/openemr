@@ -150,7 +150,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
                                     }
                                     ?>
                                 </tr>
-                        <?php
+                                <?php
                             }
                         }
                         ?>
