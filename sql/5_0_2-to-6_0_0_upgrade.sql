@@ -825,17 +825,17 @@ VALUES
 (NULL, "influenza, seasonal, Southern Hemisphere, quadrivalent, 0.5mL dose, no preservative", "influenza, Southern Hemisphere, preservative free", 201,  @codetypeid, '', 0, 0, '', '', '', 1),
 (NULL, "influenza, seasonal, Southern Hemisphere, quadrivalent, 0.5mL dose, with preservative", "influenza, Southern Hemisphere, quadrivalent, with preservative", 202,  @codetypeid, '', 0, 0, '', '', '', 1),
 (NULL, "AS03 Adjuvant", "AS03 Adjuvant", 801,  @codetypeid, '', 0, 0, '', '', '', 1);
-UPDATE `codes` SET `code_text` = "trivalent poliovirus vaccine, live, oral" WHERE `code` = '2';
-UPDATE `codes` SET `code_text` = "tetanus and diphtheria toxoids, adsorbed, preservative free, for adult use (2 Lf of tetanus toxoid and 2 Lf of diphtheria toxoid)"  WHERE `code` = '9';
-UPDATE `codes` SET `code_text_short` = "Td (adult), 2 Lf tetanus toxoid, preservative free, adsorbed" WHERE `code` = '9';
-UPDATE `codes` SET `code_text` = "rabies vaccine, for intramuscular injection RETIRED CODE" WHERE `code` = '18';
-UPDATE `codes` SET `code_text` = "cholera vaccine, unspecified formulation" WHERE `code` = '26';
-UPDATE `codes` SET `code_text_short` = "cholera, unspecified formulation" WHERE `code` = '26';
-UPDATE `codes` SET `code_text` = "meningococcal ACWY vaccine, unspecified formulation" WHERE `code` = '108';
-UPDATE `codes` SET `code_text_short` = "meningococcal ACWY, unspecified formulation" WHERE `code` = '108';
-UPDATE `codes` SET `code_text` = "tetanus and diphtheria toxoids, adsorbed, preservative free, for adult use (5 Lf of tetanus toxoid and 2 Lf of diphtheria toxoid)" WHERE `code` = '113';
-UPDATE `codes` SET `code_text_short` = "Td (adult), 5 Lf tetanus toxoid, preservative free, adsorbed" WHERE `code` = '113';
-UPDATE `codes` SET `code_text_short` = "zoster live" WHERE `code` = '121';
-UPDATE `codes` SET `code_text` = "Historical diphtheria and tetanus toxoids and acellular pertussis, poliovirus, Haemophilus b conjugate and hepatitis B (recombinant) vaccine." WHERE `code` = '132';
-UPDATE `codes` SET `code_text_short` = "DTaP-IPV-HIB-HEP B, historical" WHERE `code` = '132';
+UPDATE `codes` SET `code_text` = "trivalent poliovirus vaccine, live, oral" WHERE `code` = '2' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text` = "tetanus and diphtheria toxoids, adsorbed, preservative free, for adult use (2 Lf of tetanus toxoid and 2 Lf of diphtheria toxoid)"  WHERE `code` = '9' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text_short` = "Td (adult), 2 Lf tetanus toxoid, preservative free, adsorbed" WHERE `code` = '9' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text` = "rabies vaccine, for intramuscular injection RETIRED CODE" WHERE `code` = '18' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text` = "cholera vaccine, unspecified formulation" WHERE `code` = '26' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text_short` = "cholera, unspecified formulation" WHERE `code` = '26' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text` = "meningococcal ACWY vaccine, unspecified formulation" WHERE `code` = '108' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text_short` = "meningococcal ACWY, unspecified formulation" WHERE `code` = '108' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text` = "tetanus and diphtheria toxoids, adsorbed, preservative free, for adult use (5 Lf of tetanus toxoid and 2 Lf of diphtheria toxoid)" WHERE `code` = '113' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text_short` = "Td (adult), 5 Lf tetanus toxoid, preservative free, adsorbed" WHERE `code` = '113' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text_short` = "zoster live" WHERE `code` = '121' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text` = "Historical diphtheria and tetanus toxoids and acellular pertussis, poliovirus, Haemophilus b conjugate and hepatitis B (recombinant) vaccine." WHERE `code` = '132' AND `code_type` = @codetypeid;
+UPDATE `codes` SET `code_text_short` = "DTaP-IPV-HIB-HEP B, historical" WHERE `code` = '132' AND `code_type` = @codetypeid;
 #EndIf
