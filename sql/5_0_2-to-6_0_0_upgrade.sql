@@ -761,3 +761,80 @@ ALTER TABLE `facility` ADD `uuid` binary(16) DEFAULT NULL;
 #IfNotIndex facility uuid
 CREATE UNIQUE INDEX `uuid` ON `facility` (`uuid`);
 #EndIf
+
+#IfNotRow codes code_text respiratory syncytial virus monoclonal antibody (motavizumab), intramuscular
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "respiratory syncytial virus monoclonal antibody (motavizumab), intramuscular", "RSV-MAb (new)", 145,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Diphtheria and Tetanus Toxoids and Acellular Pertussis Adsorbed, Inactivated Poliovirus, Haemophilus b Conjugate (Meningococcal Protein Conjugate), and Hepatitis B (Recombinant) Vaccine.", "DTaP,IPV,Hib,HepB", 146,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Meningococcal, MCV4, unspecified conjugate formulation(groups A, C, Y and W-135)", "meningococcal MCV4, unspecified formulation", 147,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Meningococcal Groups C and Y and Haemophilus b Tetanus Toxoid Conjugate Vaccine", "Meningococcal C/Y-HIB PRP", 148,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "influenza, live, intranasal, quadrivalent", "influenza, live, intranasal, quadrivalent", 149,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Influenza, injectable, quadrivalent, preservative free", "influenza, injectable, quadrivalent, preservative free", 150,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "influenza nasal, unspecified formulation", "influenza nasal, unspecified formulation", 151,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Pneumococcal Conjugate, unspecified formulation", "Pneumococcal Conjugate, unspecified formulation", 152,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Influenza, injectable, Madin Darby Canine Kidney, preservative free", "Influenza, injectable, MDCK, preservative free", 153,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Hepatitis A immune globulin", "Hep A, IG", 154,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Seasonal, trivalent, recombinant, injectable influenza vaccine, preservative free", "influenza, recombinant, injectable, preservative free", 155,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Rho(D) Immune globulin- IV or IM", "Rho(D)-IG", 156,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Rho(D) Immune globulin - IM", "Rho(D) -IG IM", 157,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "influenza, injectable, quadrivalent, contains preservative", "influenza, injectable, quadrivalent", 158,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Rho(D) Unspecified formulation", "Rho(D) - Unspecified formulation", 159,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Influenza A monovalent (H5N1), adjuvanted, National stockpile 2013", "Influenza A monovalent (H5N1), ADJUVANTED-2013", 160,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Influenza, injectable,quadrivalent, preservative free, pediatric", "Influenza, injectable,quadrivalent, preservative free, pediatric", 161,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "meningococcal B vaccine, fully recombinant", "meningococcal B, recombinant", 162,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "meningococcal B vaccine, recombinant, OMV, adjuvanted", "meningococcal B, OMV", 163,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "meningococcal B, unspecified formulation", "meningococcal B, unspecified", 164,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Human Papillomavirus 9-valent vaccine", "HPV9", 165,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "influenza, intradermal, quadrivalent, preservative free, injectable", "influenza, intradermal, quadrivalent, preservative free", 166,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "meningococcal vaccine of unknown formulation and unknown serogroups", "meningococcal, unknown serogroups", 167,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Seasonal trivalent influenza vaccine, adjuvanted, preservative free", "influenza, trivalent, adjuvanted", 168,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Hep A, live attenuated-IM", "Hep A, live attenuated", 169,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "non-US diphtheria, tetanus toxoids and acellular pertussis vaccine, Haemophilus influenzae type b conjugate, and poliovirus vaccine, inactivated (DTaP-Hib-IPV)", "DTAP/IPV/HIB - non-US", 170,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Influenza, injectable, Madin Darby Canine Kidney, preservative free, quadrivalent", "Influenza, injectable, MDCK, preservative free, quadrivalent", 171,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "cholera, WC-rBS", "cholera, WC-rBS", 172,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "cholera, BivWC", "cholera, BivWC", 173,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "cholera, live attenuated", "cholera, live attenuated", 174,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Human Rabies vaccine from human diploid cell culture", "Rabies - IM Diploid cell culture", 175,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Human rabies vaccine from Chicken fibroblast culture", "Rabies - IM fibroblast culture", 176,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "pneumococcal conjugate vaccine, 10 valent", "PCV10", 177,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Non-US bivalent oral polio vaccine (types 1 and 3)", "OPV bivalent", 178,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Non-US monovalent oral polio vaccine, unspecified formulation", "OPV ,monovalent, unspecified", 179,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "tetanus immune globulin", "tetanus immune globulin", 180,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "anthrax immune globulin", "anthrax immune globulin", 181,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Oral Polio Vaccine, Unspecified formulation", "OPV, Unspecified", 182,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Yellow fever vaccine alternative formulation", "Yellow fever vaccine - alt", 183,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Yellow fever vaccine, unspecified formulation", "Yellow fever, unspecified formulation", 184,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Seasonal, quadrivalent, recombinant, injectable influenza vaccine, preservative free", "influenza, recombinant, quadrivalent,injectable, preservative free", 185,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Influenza, injectable, Madin Darby Canine Kidney, quadrivalent with preservative", "Influenza, injectable, MDCK, quadrivalent, preservative", 186,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "zoster vaccine recombinant", "zoster recombinant", 187,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "zoster vaccine, unspecified formulation", "zoster, unspecified formulation", 188,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Hepatitis B vaccine (recombinant), CpG adjuvanted", "HepB-CpG", 189,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Typhoid conjugate vaccine (non-US)", "Typhoid conjugate vaccine (TCV)", 190,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "meningococcal A polysaccharide vaccine (non-US)", "meningococcal A polysaccharide (non-US)", 191,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "meningococcal AC polysaccharide vaccine (non-US)", "meningococcal AC polysaccharide (non-US)", 192,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "hepatitis A and hepatitis B vaccine, pediatric/adolescent (non-US)", "Hep A-Hep B, pediatric/adolescent", 193,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Influenza, Southern Hemisphere, unspecified formulation (Non-US)", "Influenza, Southern Hemisphere", 194,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Diphtheria, Tetanus, Poliomyelitis adsorbed", "DT, IPV adsorbed", 195,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "tetanus and diphtheria toxoids, adsorbed, preservative free, for adult use, Lf unspecified", "Td, adsorbed, preservative free, adult use, Lf unspecified", 196,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "influenza, high-dose seasonal, quadrivalent, preservative free", "influenza, high-dose, quadrivalent", 197,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "Diphtheria, pertussis, tetanus, hepatitis B, Haemophilus Influenza Type b, (Pentavalent)", "DTP-hepB-Hib Pentavalent Non-US", 198,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "influenza, seasonal, Southern Hemisphere, quadrivalent, pediatric 0.25mL dose, preservative free", "influenza, Southern Hemisphere, pediatric, preservative free", 200,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "influenza, seasonal, Southern Hemisphere, quadrivalent, 0.5mL dose, no preservative", "influenza, Southern Hemisphere, preservative free", 201,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "influenza, seasonal, Southern Hemisphere, quadrivalent, 0.5mL dose, with preservative", "influenza, Southern Hemisphere, quadrivalent, with preservative", 202,  @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "AS03 Adjuvant", "AS03 Adjuvant", 801,  @codetypeid, '', 0, 0, '', '', '', 1);
+UPDATE `codes` SET `code_text` = "trivalent poliovirus vaccine, live, oral" WHERE `code` = '2';
+UPDATE `codes` SET `code_text` = "tetanus and diphtheria toxoids, adsorbed, preservative free, for adult use (2 Lf of tetanus toxoid and 2 Lf of diphtheria toxoid)"  WHERE `code` = '9';
+UPDATE `codes` SET `code_text_short` = "Td (adult), 2 Lf tetanus toxoid, preservative free, adsorbed" WHERE `code` = '9';
+UPDATE `codes` SET `code_text` = "rabies vaccine, for intramuscular injection RETIRED CODE" WHERE `code` = '18';
+UPDATE `codes` SET `code_text` = "cholera vaccine, unspecified formulation" WHERE `code` = '26';
+UPDATE `codes` SET `code_text_short` = "cholera, unspecified formulation" WHERE `code` = '26';
+UPDATE `codes` SET `code_text` = "meningococcal ACWY vaccine, unspecified formulation" WHERE `code` = '108';
+UPDATE `codes` SET `code_text_short` = "meningococcal ACWY, unspecified formulation" WHERE `code` = '108';
+UPDATE `codes` SET `code_text` = "tetanus and diphtheria toxoids, adsorbed, preservative free, for adult use (5 Lf of tetanus toxoid and 2 Lf of diphtheria toxoid)" WHERE `code` = '113';
+UPDATE `codes` SET `code_text_short` = "Td (adult), 5 Lf tetanus toxoid, preservative free, adsorbed" WHERE `code` = '113';
+UPDATE `codes` SET `code_text_short` = "zoster live" WHERE `code` = '121';
+UPDATE `codes` SET `code_text` = "Historical diphtheria and tetanus toxoids and acellular pertussis, poliovirus, Haemophilus b conjugate and hepatitis B (recombinant) vaccine." WHERE `code` = '132';
+UPDATE `codes` SET `code_text_short` = "DTaP-IPV-HIB-HEP B, historical" WHERE `code` = '132';
+#EndIf
