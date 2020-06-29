@@ -452,7 +452,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         width = "modal-xl";
     }
     // Convert dialog size to percentages and/or css class.
-    var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl'];
+    var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl', 'modal-full'];
     if (Math.abs(width) > 0) {
         width = Math.abs(width);
         mWidth = (width / where.innerWidth * 100).toFixed(4) + '%';
@@ -474,6 +474,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         msSize = '<style>.modal-custom-' + winname + ' {width:75%;}</style>';
     } else if (mSize === 'modal-xl') {
         msSize = '<style>.modal-custom-' + winname + ' {width:92%;}</style>';
+    } else if (mSize === 'modal-full') {
+        msSize = '<style>.modal-custom-' + winname + ' {width:97% !important;}</style>';
     }
     mSize = 'modal-custom-' + winname;
 

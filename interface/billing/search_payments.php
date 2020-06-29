@@ -208,22 +208,29 @@ if (isset($_POST["mode"])) {
 <html>
 <head>
 
-    <?php Header::setupHeader(['jquery-ui', 'datetime-picker']); ?>
+    <?php Header::setupHeader(['jquery-ui', 'datetime-picker', 'common']); ?>
 
     <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
     <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
 
 <script type='text/javascript'>
-
+function refreshSearch() {
+    top.restoreSession();
+    SearchPayment();
+}
 $(function() {
+    $('#myModal1').on('hidden.bs.modal', function () {
+        refreshSearch();
+    });
     $(".medium_modal").on('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        dlgopen('', '', 1050, 350, '', '', {
+        dlgopen('', '', 'modal-full', 800, '', '', {
             buttons: [
                 {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
             ],
-            onClosed: '',
+            sizeHeight: '',
+            onClosed: 'refreshSearch',
             type: 'iframe',
             url: $(this).attr('href')
         });
@@ -535,8 +542,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <div class = "table-responsive">
                   <table class="table">
                         <?php
-                        if (sqlNumRows($ResultSearch)>0) {
-                            ?>
+                        if (sqlNumRows($ResultSearch)>0) { ?>
                   <thead bgcolor="#DDDDDD" class="">
                     <td class="left top" width="25">&nbsp;</td>
                     <td class="left top"><?php echo xlt('ID'); ?></td>
@@ -592,25 +598,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <a href="#" onclick="javascript:return DeletePayments(<?php echo attr_js($RowSearch['session_id']); ?>);"><img border="0" src="../pic/Delete.gif"></a>
                             </td>
                             <td class="<?php echo attr($StringClass); ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text($RowSearch['session_id']); ?></a>
+                                <a class="medium_modal" href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php echo text($RowSearch['session_id']); ?></a>
                             </td>
                             <td class="<?php echo attr($StringClass); ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['check_date']=='0000-00-00' ? '&nbsp;' : text(oeFormatShortDate($RowSearch['check_date'])); ?></a>
+                                <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo $RowSearch['check_date'] == '0000-00-00' ? '&nbsp;' : text(oeFormatShortDate($RowSearch['check_date'])); ?></a>
                             </td>
                             <td class="<?php echo attr($StringClass); ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')">
+                                <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'">
                                 <?php
-                                    $frow['data_type']=1;
-                                    $frow['list_id']='payment_type';
-                                    $PaymentType='';
-                                if ($RowSearch['payment_type']=='insurance' || $RowSearch['payer_id']*1 >0) {
-                                    $PaymentType='insurance';
-                                } elseif ($RowSearch['payment_type']=='patient' || $RowSearch['patient_id']*1 >0) {
-                                    $PaymentType='patient';
-                                } elseif (($RowSearch['payer_id']*1 == 0 && $RowSearch['patient_id']*1 == 0)) {
-                                    $PaymentType='';
+                                $frow['data_type'] = 1;
+                                $frow['list_id'] = 'payment_type';
+                                $PaymentType = '';
+                                if ($RowSearch['payment_type'] == 'insurance' || $RowSearch['payer_id'] * 1 > 0) {
+                                    $PaymentType = 'insurance';
+                                } elseif ($RowSearch['payment_type'] == 'patient' || $RowSearch['patient_id'] * 1 > 0) {
+                                    $PaymentType = 'patient';
+                                } elseif (($RowSearch['payer_id'] * 1 == 0 && $RowSearch['patient_id'] * 1 == 0)) {
+                                    $PaymentType = '';
                                 }
-                                    generate_print_field($frow, $PaymentType);
+                                generate_print_field($frow, $PaymentType);
                                 ?></a>
                                 </td>
                                 <td class="<?php echo attr($StringClass); ?>">
@@ -639,15 +645,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </td>
                                     <td align="left" class="<?php echo attr($StringClass); ?>">
                                        <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php
-                                                        $rs= sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$RowSearch['session_id']]);
-                                                        $row=sqlFetchArray($rs);
-                                                        $pay_total=$row['pay_total'];
-                                                        $global_amount=$row['global_amount'];
-                                                        $rs= sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id=?", [$RowSearch['session_id']]);
-                                                        $row=sqlFetchArray($rs);
-                                                        $pay_amount=$row['sum_pay_amount'];
-                                                        $UndistributedAmount=$pay_total-$pay_amount-$global_amount;
-                                                        echo $UndistributedAmount*1==0 ? xlt('Fully Paid') : xlt('Unapplied'); ?></a>
+                                        $rs= sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$RowSearch['session_id']]);
+                                        $row=sqlFetchArray($rs);
+                                        $pay_total=$row['pay_total'];
+                                        $global_amount=$row['global_amount'];
+                                        $rs= sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id=?", [$RowSearch['session_id']]);
+                                        $row=sqlFetchArray($rs);
+                                        $pay_amount=$row['sum_pay_amount'];
+                                        $UndistributedAmount=$pay_total-$pay_amount-$global_amount;
+                                        echo $UndistributedAmount*1==0 ? xlt('Fully Paid') : xlt('Unapplied'); ?></a>
                                     </td>
                                     <td align="right" class="<?php echo attr($StringClass); ?>">
                                         <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text($RowSearch['pay_total']); ?></a>
