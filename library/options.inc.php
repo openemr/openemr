@@ -1377,8 +1377,7 @@ function generate_print_field($frow, $currvalue)
 
     // generic single-selection list
     //  Supports backup lists.
-    if (false && ($data_type == 1 || $data_type == 26
-        || $data_type == 33 || $data_type == 43)) {
+    if (false && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43)) {
         if (empty($fld_length)) {
             if ($list_id == 'titles') {
                 $fld_length = 3;
