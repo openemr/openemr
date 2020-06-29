@@ -766,7 +766,7 @@ CREATE UNIQUE INDEX `uuid` ON `facility` (`uuid`);
 SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
 INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
 VALUES
-(NULL, "seasonal influenza, intradermal, preservative free", "influenza, seasonal, intradermal, preservative free", 144, 100, '', 0, 0, '', '', '', 1),
+(NULL, "seasonal influenza, intradermal, preservative free", "influenza, seasonal, intradermal, preservative free", 144, @codetypeid, '', 0, 0, '', '', '', 1),
 (NULL, "respiratory syncytial virus monoclonal antibody (motavizumab), intramuscular", "RSV-MAb (new)", 145,  @codetypeid, '', 0, 0, '', '', '', 1),
 (NULL, "Diphtheria and Tetanus Toxoids and Acellular Pertussis Adsorbed, Inactivated Poliovirus, Haemophilus b Conjugate (Meningococcal Protein Conjugate), and Hepatitis B (Recombinant) Vaccine.", "DTaP,IPV,Hib,HepB", 146,  @codetypeid, '', 0, 0, '', '', '', 1),
 (NULL, "Meningococcal, MCV4, unspecified conjugate formulation(groups A, C, Y and W-135)", "meningococcal MCV4, unspecified formulation", 147,  @codetypeid, '', 0, 0, '', '', '', 1),
