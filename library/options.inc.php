@@ -392,7 +392,7 @@ function generate_form_field($frow, $currvalue)
             ($showEmpty ? $empty_title : ''),
             $smallform,
             $lbfchange,
-            '',
+            (($data_type == 43) ? $smallform . " select-dropdown" : $smallform),
             ($disabled ? array('disabled' => 'disabled') : null),
             false,
             $backup_list
@@ -1342,20 +1342,6 @@ function generate_form_field($frow, $currvalue)
         echo "<img class='signature' id='form_{$field_id_esc}_img' title='$description'
             data-pid='$cpid' data-user='$cuser' data-type='$datatype'
             data-action='fetch_signature' alt='Get Signature' src='" . attr($currvalue) . "'>\n";
-    } elseif ($data_type == 43) {
-        echo generate_select_list(
-            "form_$field_id",
-            $list_id,
-            $currvalue,
-            $description,
-            $showEmpty ? $empty_title : '',
-            "select-dropdown",
-            $lbfchange,
-            '',
-            $disabled,
-            false,
-            $backup_list
-        );
     }
 }
 
