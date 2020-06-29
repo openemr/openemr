@@ -23,7 +23,7 @@ use Ramsey\Uuid\Uuid;
 class PractitionerFixtureManager
 {
     // use a prefix so we can easily remove fixtures
-    const FIXTURE_PREFIX = "test-fixture";
+    const FIXTURE_PREFIX = "-";
 
     private $practitionerFixtures;
     private $fhirPractitionerFixtures;
