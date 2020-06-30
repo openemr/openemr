@@ -114,11 +114,11 @@ $(function () {
                             $disc_date = $dres["date"];
                             $recipient_name = $dres["recipient"];
                             ?>
-                            <input type=hidden name=disclosure_id value="<?php echo attr($editlid); ?>">
-                            <input type=hidden name=updatemode value="disclosure_update">
-                            <input type='entry' size='20' class='datepicker form-control' name='dates' id='dates' value='<?php echo attr($disc_date);?>' style="background-color:white"/>&nbsp; <?php
+                            <input type="hidden" name="disclosure_id" value="<?php echo attr($editlid); ?>">
+                            <input type="hidden" name="updatemode" value="disclosure_update">
+                            <input type='entry' size='20' class='datepicker form-control' name='dates' id='dates' value='<?php echo attr($disc_date);?>'/>&nbsp; <?php
                         } else {
-                            ?> <input type='entry' size='20' class='datepicker form-control' name='dates' id='dates' value='' style="background-color:white"/>&nbsp;<?php
+                            ?> <input type='entry' size='20' class='datepicker form-control' name='dates' id='dates' value=''/>&nbsp;<?php
                         } ?>
                     </div>
 
