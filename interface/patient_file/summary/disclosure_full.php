@@ -61,111 +61,115 @@ if (isset($_GET['deletelid'])) {
 
 </head>
 
-<body class="body_top">
-<div>
-    <span class="title"><?php echo xlt('Disclosures'); ?></span>
-</div>
-<div class="disclosure_wrap">
-<div style='float: left; margin-right: 10px'><?php echo xlt('for'); ?>&nbsp;
-    <span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php $pname = getPatientName($pid);
-    echo text($pname); ?></a></span>
-</div>
-<div>
-    <a href="record_disclosure.php" class="btn btn-primary iframe" onclick="top.restoreSession()"><?php echo xlt('Record'); ?></a>
-</div>
-<div>
-    <a href="demographics.php" class="btn btn-primary" onclick="top.restoreSession()"> <?php echo xlt('View Patient') ?></a>
-</div>
-</div>
-<br />
-<br />
-<?php
-$N = 15;
-$offset = $_REQUEST['offset'];
-if (!isset($offset)) {
-    $offset = 0;
-}
+<body>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="title">
+                <?php echo xlt('Disclosures'); ?>
+                <?php echo xlt('for'); ?>&nbsp;
+                <a href="../summary/demographics.php" onclick="top.restoreSession()">
+                    <?php $pname = getPatientName($pid);
+                    echo text($pname); ?>
+                </a>
+            </h2>
+        </div>
+        <div class="col-12">
+            <a href="record_disclosure.php" class="btn btn-primary iframe" onclick="top.restoreSession()"><?php echo xlt('Record'); ?></a>
+            <a href="demographics.php" class="btn btn-primary" onclick="top.restoreSession()"> <?php echo xlt('View Patient') ?></a>
+        </div>
+        <div class="col-12 jumbotron mt-3 p-4">
+            <?php
+            $N = 15;
+            $offset = $_REQUEST['offset'];
+            if (!isset($offset)) {
+                $offset = 0;
+            }
 
-$disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
-  " LEFT JOIN users u ON u.username = el.user " .
-  " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id='disclosure_type' AND activity = 1)" .
-  " ORDER BY el.date DESC ";
-$r2 = sqlStatement($disclQry, array($pid));
-$totalRecords = sqlNumRows($r2);
+            $disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
+            " LEFT JOIN users u ON u.username = el.user " .
+            " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id='disclosure_type' AND activity = 1)" .
+            " ORDER BY el.date DESC ";
+            $r2 = sqlStatement($disclQry, array($pid));
+            $totalRecords = sqlNumRows($r2);
 
-$disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
-  " LEFT JOIN users u ON u.username = el.user" .
-  " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
-  " ORDER BY date DESC LIMIT " . escape_limit($offset) . " , " . escape_limit($N);
+            $disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
+            " LEFT JOIN users u ON u.username = el.user" .
+            " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
+            " ORDER BY date DESC LIMIT " . escape_limit($offset) . " , " . escape_limit($N);
 
-$r1 = sqlStatement($disclInnerQry, array($pid));
-$n = sqlNumRows($r1);
-$noOfRecordsLeft = ($totalRecords - $offset);
-if ($n > 0) {?>
-    <table border='0' class="text">
-        <tr>
-        <td colspan='5' style="padding: 5px;"><a href="disclosure_full.php" class="" id='Submit' onclick="top.restoreSession()"><span><?php echo xlt('Refresh'); ?></span></a></td>
-        </tr>
-    </table>
-<div id='pnotes'>
-    <table border='0' cellpadding="1" width='80%'>
-        <tr class="showborder_head" align='left' height="22">
-            <th style='width: 120px';>&nbsp;</th>
-            <th style="border-style: 1px solid var(--black)" width="140px"><?php echo xlt('Recipient Name'); ?></th>
-            <th style="border-style: 1px solid var(--black)" width="140px"><?php echo xlt('Disclosure Type'); ?></th>
-            <th style="border-style: 1px solid var(--black)"><?php echo xlt('Description'); ?></th>
-            <th style="border-style: 1px solid var(--black)"><?php echo xlt('Provider'); ?></th>
-        </tr>
-    <?php
-    $result2 = array();
-    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
-        $result2[$iter] = $frow;
-    }
+            $r1 = sqlStatement($disclInnerQry, array($pid));
+            $n = sqlNumRows($r1);
+            $noOfRecordsLeft = ($totalRecords - $offset);
+            if ($n > 0) {?>
+                <table class="table table-borderless">
+                    <tr>
+                        <td colspan='5'><a href="disclosure_full.php" id='Submit' onclick="top.restoreSession()"><span><?php echo xlt('Refresh'); ?></span></a></td>
+                    </tr>
+                </table>
+            <div id='pnotes'>
+                <table class="table table-borderless">
+                    <tr class="showborder_head">
+                        <th style='width: 120px';>&nbsp;</th>
+                        <th style="border-style: 1px solid var(--black)" width="140px"><?php echo xlt('Recipient Name'); ?></th>
+                        <th style="border-style: 1px solid var(--black)" width="140px"><?php echo xlt('Disclosure Type'); ?></th>
+                        <th style="border-style: 1px solid var(--black)"><?php echo xlt('Description'); ?></th>
+                        <th style="border-style: 1px solid var(--black)"><?php echo xlt('Provider'); ?></th>
+                    </tr>
+                <?php
+                $result2 = array();
+                for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
+                    $result2[$iter] = $frow;
+                }
 
-    foreach ($result2 as $iter) { ?>
-        <!-- List the recipient name, description, date and edit and delete options-->
-        <tr class="noterow" height='25'>
-            <!--buttons for edit and delete.-->
-            <td valign='top'><a href='record_disclosure.php?editlid=<?php echo attr_url($iter['id']); ?>' class='btn btn-primary btn-sm iframe' onclick='top.restoreSession()'><?php echo xlt('Edit');?></a>
-            <a href='#' class='deletenote btn btn-primary btn-sm' id='<?php echo attr($iter['id']); ?>' onclick='top.restoreSession()'><?php echo xlt('Delete');?></a></td>
-            <td class="text" valign='top'><?php echo text($iter['recipient']);?>&nbsp;</td>
-            <td class='text' valign='top'><?php echo text(getListItemTitle('disclosure_type', $iter['event'])); ?>&nbsp;</td>
-            <td class='text'><?php echo text($iter['date']) . " " . nl2br(text($iter['description']));?>&nbsp;</td>
-            <td class='text'><?php echo text($iter['user_fullname']);?></td>
-        </tr>
-        <?php
-    }
-} else {?>
-    <br />
-    <!-- Display None, if there is no disclosure -->
-    <span class='text' colspan='3'><?php echo xlt('None{{Disclosure}}');?></span>
-    <?php
-}
-?>
-</table>
-<table width='400' border='0' cellpadding='0' cellspacing='0'>
- <tr>
-  <td>
-<?php
-if ($offset > ($N - 1) && $n != 0) {
-    echo "   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
-        "&offset=" . attr_url($offset - $N) . "' onclick='top.restoreSession()'>[" .
-        xlt('Previous') . "]</a>\n";
-}
-?>
+                foreach ($result2 as $iter) { ?>
+                    <!-- List the recipient name, description, date and edit and delete options-->
+                    <tr class="noterow" height='25'>
+                        <!--buttons for edit and delete.-->
+                        <td class="align-top"><a href='record_disclosure.php?editlid=<?php echo attr_url($iter['id']); ?>' class='btn btn-primary btn-sm btn-edit iframe' onclick='top.restoreSession()'><?php echo xlt('Edit');?></a>
+                        <a href='#' class='deletenote btn btn-danger btn-delete btn-sm' id='<?php echo attr($iter['id']); ?>' onclick='top.restoreSession()'><?php echo xlt('Delete');?></a></td>
+                        <td class="align-top" valign='top'><?php echo text($iter['recipient']);?>&nbsp;</td>
+                        <td class='align-top' valign='top'><?php echo text(getListItemTitle('disclosure_type', $iter['event'])); ?>&nbsp;</td>
+                        <td><?php echo text($iter['date']) . " " . nl2br(text($iter['description']));?>&nbsp;</td>
+                        <td><?php echo text($iter['user_fullname']);?></td>
+                    </tr>
+                    <?php
+                }
+            } else {?>
+                <br />
+                <!-- Display None, if there is no disclosure -->
+                <span colspan='3'><?php echo xlt('None{{Disclosure}}');?></span>
+                <?php
+            }
+            ?>
+            </table>
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                    <?php
+                    if ($offset > ($N - 1) && $n != 0) {
+                        echo "   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
+                            "&offset=" . attr_url($offset - $N) . "' onclick='top.restoreSession()'>[" .
+                            xlt('Previous') . "]</a>\n";
+                    }
+                    ?>
 
-<?php
+                    <?php
 
-if ($n >= $N && $noOfRecordsLeft != $N) {
-    echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
-        "&offset=" . attr_url($offset + $N)  . "&leftrecords=" . attr_url($noOfRecordsLeft) . "' onclick='top.restoreSession()'>[" .
-        xlt('Next') . "]</a>\n";
-}
-?>
-  </td>
- </tr>
-</table>
+                    if ($n >= $N && $noOfRecordsLeft != $N) {
+                        echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
+                            "&offset=" . attr_url($offset + $N)  . "&leftrecords=" . attr_url($noOfRecordsLeft) . "' onclick='top.restoreSession()'>[" .
+                            xlt('Next') . "]</a>\n";
+                    }
+                    ?>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
 </div>
+
 <script>
 $(function () {
     // todo, move this to a common library
