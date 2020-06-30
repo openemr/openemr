@@ -582,14 +582,12 @@ if (! $GLOBALS['simplified_demographics']) {
     <div class="section-header">
        <span class="text font-weight-bold"><?php echo xlt("Insurance")?></span>
     </div>
-    <div id="INSURANCE" >
+    <div id="INSURANCE">
        <ul class="tabNav">
         <?php
         foreach ($insurance_array as $instype) {
             ?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype = ucfirst($instype);
-echo xlt($CapInstype); ?></a></li><?php
-        }
-        ?>
+echo xlt($CapInstype); ?></a></li><?php } ?>
         </ul>
 
     <div class="tabContainer">
@@ -602,9 +600,9 @@ echo xlt($CapInstype); ?></a></li><?php
      <div class="tab <?php echo $i == 1 ? 'current' : '' ?> h-auto w-auto">
       <div class="row">
         <div class="col-md-6">
-         <table border="0">
+         <table class="table table-borderless">
            <tr>
-            <td valign='top'>
+            <td class="align-top">
             <label class='required'><?php echo text($insurance_headings[$i - 1]) . "&nbsp;"?></label>
             </td>
             <td class='required'>:</td>
@@ -720,7 +718,7 @@ echo xlt($CapInstype); ?></a></li><?php
           </div>
 
     <div class="col-md-6">
-        <table class="border-0">
+        <table class="table table-borderless">
             <tr>
                 <td>
                     <label class='required'><?php echo xlt('Relationship'); ?></label>
@@ -870,7 +868,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td colspan='2'></td>
                 <td></td>
             </tr>
-            <?php if (!$GLOBALS['insurance_only_one']) : ?>
+            <?php if (!$GLOBALS['insurance_only_one']) { ?>
                 <tr>
                     <td>
                         <label class='bold'><?php echo xlt('Secondary Medicare Type'); ?></label>
@@ -891,7 +889,7 @@ echo xlt($CapInstype); ?></a></li><?php
                         </select>
                     </td>
                 </tr>
-            <?php endif ?>
+            <?php } ?>
       </table>
 
     </div>

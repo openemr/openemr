@@ -234,36 +234,36 @@ function ImgProcedure() {literal}{{/literal}
               &nbsp;&nbsp;&nbsp;<strong>{xlt t='Email'}</strong>&nbsp;
               <input type="text" class="form-control" size="25" name="provide_email" id="provide_email" />
               <input type="hidden" name="identifier" id="identifier" />
-<a class="btn btn-primary" href="javascript:;" onclick="javascript:document.notes.identifier.value='yes';document.forms['notes'].submit();">({xlt t='Send'})</a>
-                    </div>
-                <div>
-                    <textarea cols="53" rows="8" wrap="virtual" name="note" class="form-control w-100"></textarea><br />
-                    <input type="hidden" name="process" value="{$PROCESS|attr}" />
-                    <input type="hidden" name="foreign_id" value="{$file->get_id()|attr}" />
-
-                    {if $notes}
-                    <div style="margin-top: 7px">
-                        {foreach name=note_loop from=$notes item=note}
-                        <div>
-                        {xlt t='Note'} #{$note->get_id()|text}
-                        {xlt t='Date:'} {$note->get_date()|text}
-                        {$note->get_note()|text}
-                        {if $note->get_owner()}
-                            &nbsp;-{user_info id=$note->get_owner()|text}
-                        {/if}
-                        </div>
-                        {/foreach}
-                    {/if}
-                    </div>
-                </div>
+              <a class="btn btn-primary" href="javascript:;" onclick="javascript:document.notes.identifier.value='yes';document.forms['notes'].submit();">({xlt t='Send'})</a>
             </div>
-            </form>
-            <h4>{xlt t='Contents'}</h4>
+            <div>
+              <textarea cols="53" rows="8" wrap="virtual" name="note" class="form-control w-100"></textarea><br />
+              <input type="hidden" name="process" value="{$PROCESS|attr}" />
+              <input type="hidden" name="foreign_id" value="{$file->get_id()|attr}" />
+
+              {if $notes}
+              <div style="margin-top: 7px">
+                {foreach name=note_loop from=$notes item=note}
+                <div>
+                  {xlt t='Note'} #{$note->get_id()|text}
+                  {xlt t='Date:'} {$note->get_date()|text}
+                  {$note->get_note()|text}
+                  {if $note->get_owner()}
+                    &nbsp;-{user_info id=$note->get_owner()|text}
+                  {/if}
+                </div>
+                {/foreach}
+              {/if}
+              </div>
+            </div>
+          </div>
+        </form>
+        <h4>{xlt t='Contents'}</h4>
 		</td>
 	</tr>
 	<tr id="DocContents" class="h-100">
 		<td>
-            {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
+      {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
 			<embed frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or
 			 $file->get_mimetype() eq "image/jpg" or
@@ -271,10 +271,12 @@ function ImgProcedure() {literal}{{/literal}
 			 $file->get_mimetype() eq "image/gif" or
 			 $file->get_mimetype() eq "application/pdf" }
 			<iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
-            {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
-            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?web_path={$web_path|attr}as_file=false"></iframe>
-            {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
-            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
+      {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
+      <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?web_path={$web_path|attr}as_file=false"></iframe>
+      {elseif $file->get_mimetype() eq "audio/ogg" or $file->get_mimetype() eq "audio/wav" or $file->get_mimetype() eq "audio/mpeg"}
+      <audio class="w-100" preload="metadata" controls="true" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false">{xlt t='Your browser does not support HTML5 audio'}</audio>
+      {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
+      <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
 			{/if}
 		</td>
 	</tr>

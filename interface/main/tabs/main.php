@@ -144,7 +144,7 @@ $esignApi = new Api();
                     console.log('Background Service start failed. Status Code: ' + response.status);
                 }
             }).catch(function(error) {
-                console.log('HTML Background Service start Request failed: ', error)
+                console.log('HTML Background Service start Request failed: ', error);
             });
 
             // auto run this function every 60 seconds
