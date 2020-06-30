@@ -707,7 +707,7 @@ if ($fend > $count) {
 
                 <td class='text text-right'>
                     <?php if ($fstart) { ?>
-                        <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
+                        <a href="javascript:submitList(<?php echo attr_js(-$pagesize); ?>)">
                             &lt;&lt;
                         </a>
                         &nbsp;&nbsp;
