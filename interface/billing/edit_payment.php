@@ -16,7 +16,6 @@
 * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
-
 require_once("../globals.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../library/acl.inc");
@@ -32,7 +31,6 @@ use OpenEMR\Core\Header;
 $screen = 'edit_payment';
 
 // Deletion of payment distribution code
-
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "DeletePaymentDistribution") {
         $DeletePaymentDistributionId = (isset($_POST['DeletePaymentDistributionId']) ? trim($_POST['DeletePaymentDistributionId']) : '');
@@ -82,6 +80,11 @@ if (isset($_POST["mode"])) {
             $deposit_date = $post_to_date;
         }
 
+        $global_account = "";
+        if (formData('global_reset') == '-0.00') {
+            $global_account = "', global_amount = '" . trim(formData('global_reset'));
+        }
+
         sqlStatement("update ar_session set " .
             $QueryPart .
             "', user_id = '" . trim(add_escape_custom($user_id)) .
@@ -91,12 +94,13 @@ if (isset($_POST["mode"])) {
             "', deposit_date = '" . trim(add_escape_custom($deposit_date)) .
             "', pay_total = '" . trim(formData('payment_amount')) .
             "', modified_time = '" . trim(add_escape_custom($modified_time)) .
+            $global_account .
             "', payment_type = '" . trim(formData('type_name')) .
             "', description = '" . trim(formData('description')) .
             "', adjustment_code = '" . trim(formData('adjustment_code')) .
             "', post_to_date = '" . trim(add_escape_custom($post_to_date)) .
             "', payment_method = '" . trim(formData('payment_method')) .
-            "'    where session_id='" . add_escape_custom($payment_id) . "'");
+            "'  where session_id='" . add_escape_custom($payment_id) . "'");
         //===============================================================================
         $CountIndexAbove = $_REQUEST['CountIndexAbove'];
         $CountIndexBelow = $_REQUEST['CountIndexBelow'];
@@ -446,258 +450,211 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
 <!DOCTYPE html>
 <html>
 <head>
+<?php Header::setupHeader(['datetime-picker', 'common']); ?>
 
-    <?php Header::setupHeader(['datetime-picker', 'common']); ?>
+<script>
+    const mypcc = '1';
+</script>
+<?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
+<?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+<script>
+function ModifyPayments() {//Used while modifying the allocation
+    if (!FormValidations())//FormValidations contains the form checks
+    {
+        return false;
+    }
+    if (CompletlyBlankAbove())//The distribution rows already in the database are checked.
+    {
+        alert(<?php echo xlj('None of the Top Distribution Row Can be Completly Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
+        return false;
+    }
+    if (!CheckPayingEntityAndDistributionPostFor()) {
+        //Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
+        return false;
+    }
+    if (CompletlyBlankBelow()) {
+        //The newly added distribution rows are checked.
+        alert(<?php echo xlj('Fill any of the Below Row.'); ?>);
+        return false;
+    }
+    let PostValue = CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
+    if (PostValue == 1) {
+        alert(<?php echo xlj('Cannot Modify Payments.Undistributed is Negative.'); ?>);
+        return false;
+    }
+    if (confirm(<?php echo xlj('Would you like to Modify Payments?'); ?>)) {
+        document.getElementById('mode').value = 'ModifyPayments';
+        top.restoreSession();
+        document.forms[0].submit();
+    } else
+        return false;
+}
 
-    <script language='JavaScript'>
-        var mypcc = '1';
-    </script>
-    <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
-    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-    <script language="javascript" type="text/javascript">
-        function ModifyPayments() {//Used while modifying the allocation
-            if (!FormValidations())//FormValidations contains the form checks
-            {
-                return false;
-            }
-            if (CompletlyBlankAbove())//The distribution rows already in the database are checked.
-            {
-                alert(<?php echo xlj('None of the Top Distribution Row Can be Completly Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
-                return false;
-            }
-            if (!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
-            {
-                return false;
-            }
-            if (CompletlyBlankBelow())//The newly added distribution rows are checked.
-            {
-                alert(<?php echo xlj('Fill any of the Below Row.'); ?>);
-                return false;
-            }
-            PostValue = CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
-            if (PostValue == 1) {
-                alert(<?php echo xlj('Cannot Modify Payments.Undistributed is Negative.'); ?>);
-                return false;
-            }
-            if (confirm(<?php echo xlj('Would you like to Modify Payments?'); ?>)) {
-                document.getElementById('mode').value = 'ModifyPayments';
+function FinishPayments() {
+    if (!FormValidations())//FormValidations contains the form checks
+    {
+        return false;
+    }
+    if (CompletlyBlankAbove())//The distribution rows already in the database are checked.
+    {
+        alert(<?php echo xlj('None of the Top Distribution Row Can be Completly Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
+        return false;
+    }
+    if (!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
+    {
+        return false;
+    }
+    if (CompletlyBlankBelow())//The newly added distribution rows are checked.
+    {
+        alert(<?php echo xlj('Fill any of the Below Row.'); ?>);
+        return false;
+    }
+    let PostValue = CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
+    if (PostValue == 1) {
+        alert(<?php echo xlj('Cannot Modify Payments.Undistributed is Negative.'); ?>);
+        return false;
+    }
+    if (PostValue == 2) {
+        if (confirm(<?php echo xlj('Would you like to Modify and Finish Payments?'); ?>)) {
+            UnappliedAmount = document.getElementById('TdUnappliedAmount').innerHTML * 1;
+            if (confirm(<?php echo xlj('Undistributed is'); ?> +' ' + UnappliedAmount + '.' + '\n' + <?php echo xlj('Would you like the balance amount to apply to Global Account?'); ?>)) {
+                document.getElementById('mode').value = 'FinishPayments';
+                document.getElementById('global_amount').value = 'yes';
                 top.restoreSession();
                 document.forms[0].submit();
-            } else
-                return false;
-        }
-
-        function FinishPayments() {
-            if (!FormValidations())//FormValidations contains the form checks
-            {
-                return false;
-            }
-            if (CompletlyBlankAbove())//The distribution rows already in the database are checked.
-            {
-                alert(<?php echo xlj('None of the Top Distribution Row Can be Completly Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
-                return false;
-            }
-            if (!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
-            {
-                return false;
-            }
-            if (CompletlyBlankBelow())//The newly added distribution rows are checked.
-            {
-                alert(<?php echo xlj('Fill any of the Below Row.'); ?>);
-                return false;
-            }
-            PostValue = CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
-            if (PostValue == 1) {
-                alert(<?php echo xlj('Cannot Modify Payments.Undistributed is Negative.'); ?>);
-                return false;
-            }
-            if (PostValue == 2) {
-                if (confirm(<?php echo xlj('Would you like to Modify and Finish Payments?'); ?>)) {
-                    UnappliedAmount = document.getElementById('TdUnappliedAmount').innerHTML * 1;
-                    if (confirm(<?php echo xlj('Undistributed is'); ?> +' ' + UnappliedAmount + '.' + '\n' + <?php echo xlj('Would you like the balance amount to apply to Global Account?'); ?>)) {
-                        document.getElementById('mode').value = 'FinishPayments';
-                        document.getElementById('global_amount').value = 'yes';
-                        top.restoreSession();
-                        document.forms[0].submit();
-                    } else {
-                        document.getElementById('mode').value = 'FinishPayments';
-                        top.restoreSession();
-                        document.forms[0].submit();
-                    }
-                } else
-                    return false;
             } else {
-                if (confirm(<?php echo xlj('Would you like to Modify and Finish Payments?'); ?>)) {
-                    document.getElementById('mode').value = 'FinishPayments';
-                    top.restoreSession();
-                    document.forms[0].submit();
-                } else
-                    return false;
+                document.getElementById('mode').value = 'FinishPayments';
+                top.restoreSession();
+                document.forms[0].submit();
             }
-
-        }
-
-        function CompletlyBlankAbove() {//The distribution rows already in the database are checked.
-            //It is not allowed to be made completly empty.If needed delete option need to be used.
-            CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
-            for (RowCount = 1; RowCount <= CountIndexAbove; RowCount++) {
-                if (document.getElementById('Allowed' + RowCount).value == '' && document.getElementById('Payment' + RowCount).value == '' && document.getElementById('AdjAmount' + RowCount).value == '' && document.getElementById('Deductible' + RowCount).value == '' && document.getElementById('Takeback' + RowCount).value == '' && document.getElementById('FollowUp' + RowCount).checked == false) {
-                    return true;
-                }
-            }
+        } else
             return false;
-        }
+    } else {
+        if (confirm(<?php echo xlj('Would you like to Modify and Finish Payments?'); ?>)) {
+            document.getElementById('mode').value = 'FinishPayments';
+            top.restoreSession();
+            document.forms[0].submit();
+        } else
+            return false;
+    }
 
-        function CompletlyBlankBelow() {//The newly added distribution rows are checked.
-            //It is not allowed to be made completly empty.
-            CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
-            CountIndexBelow = document.getElementById('CountIndexBelow').value * 1;
-            if (CountIndexBelow == 0)
-                return false;
-            for (RowCount = CountIndexAbove + 1; RowCount <= CountIndexAbove + CountIndexBelow; RowCount++) {
-                if (document.getElementById('Allowed' + RowCount).value == '' && document.getElementById('Payment' + RowCount).value == '' && document.getElementById('AdjAmount' + RowCount).value == '' && document.getElementById('Deductible' + RowCount).value == '' && document.getElementById('Takeback' + RowCount).value == '' && document.getElementById('FollowUp' + RowCount).checked == false) {
+}
 
-                } else
-                    return false;
-            }
+function CompletlyBlankAbove() {//The distribution rows already in the database are checked.
+    //It is not allowed to be made completly empty.If needed delete option need to be used.
+    let CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
+    for (RowCount = 1; RowCount <= CountIndexAbove; RowCount++) {
+        if (document.getElementById('Allowed' + RowCount).value == '' && document.getElementById('Payment' + RowCount).value == '' && document.getElementById('AdjAmount' + RowCount).value == '' && document.getElementById('Deductible' + RowCount).value == '' && document.getElementById('Takeback' + RowCount).value == '' && document.getElementById('FollowUp' + RowCount).checked == false) {
             return true;
         }
+    }
+    return false;
+}
 
-        function OnloadAction() {//Displays message while loading after some action.
-            after_value = document.getElementById('ActionStatus').value;
-            if (after_value == 'Delete') {
-                alert(<?php echo xlj('Successfully Deleted'); ?>);
-                return true;
-            }
-            if (after_value == 'Modify' || after_value == 'Finish') {
-                alert(<?php echo xlj('Successfully Modified'); ?>);
-                return true;
-            }
-            after_value = document.getElementById('after_value').value;
-            payment_id = document.getElementById('payment_id').value;
-            if (after_value == 'distribute') {
-            } else if (after_value == 'new_payment') {
-                if (document.getElementById('TablePatientPortion')) {
-                    document.getElementById('TablePatientPortion').style.display = 'none';
-                }
-                if (confirm(<?php echo xlj('Successfully Saved.Would you like to Distribute?'); ?>)) {
-                    if (document.getElementById('TablePatientPortion')) {
-                        document.getElementById('TablePatientPortion').style.display = '';
-                    }
-                }
-            }
+function CompletlyBlankBelow() {//The newly added distribution rows are checked.
+    //It is not allowed to be made completly empty.
+    let CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
+    let CountIndexBelow = document.getElementById('CountIndexBelow').value * 1;
+    if (CountIndexBelow == 0)
+        return false;
+    for (RowCount = CountIndexAbove + 1; RowCount <= CountIndexAbove + CountIndexBelow; RowCount++) {
+        if (document.getElementById('Allowed' + RowCount).value == '' && document.getElementById('Payment' + RowCount).value == '' && document.getElementById('AdjAmount' + RowCount).value == '' && document.getElementById('Deductible' + RowCount).value == '' && document.getElementById('Takeback' + RowCount).value == '' && document.getElementById('FollowUp' + RowCount).checked == false) {
 
+        } else
+            return false;
+    }
+    return true;
+}
+
+function OnloadAction() {//Displays message while loading after some action.
+    let after_value = document.getElementById('ActionStatus').value;
+    if (after_value == 'Delete') {
+        alert(<?php echo xlj('Successfully Deleted'); ?>);
+        return true;
+    }
+    if (after_value == 'Modify' || after_value == 'Finish') {
+        alert(<?php echo xlj('Successfully Modified'); ?>);
+        return true;
+    }
+    after_value = document.getElementById('after_value').value;
+    let payment_id = document.getElementById('payment_id').value;
+    if (after_value == 'distribute') {
+    } else if (after_value == 'new_payment') {
+        if (document.getElementById('TablePatientPortion')) {
+            document.getElementById('TablePatientPortion').style.display = 'none';
         }
-
-        function DeletePaymentDistribution(DeleteId) {//Confirms deletion of payment distribution.
-            if (confirm(<?php echo xlj('Would you like to Delete Payment Distribution?'); ?>)) {
-                document.getElementById('mode').value = 'DeletePaymentDistribution';
-                document.getElementById('DeletePaymentDistributionId').value = DeleteId;
-                top.restoreSession();
-                document.forms[0].submit();
-            } else
-                return false;
-        }
-
-        //========================================================================================
-
-        $(function () {
-            $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
-                <?php $datetimepicker_showseconds = false; ?>
-                <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-            });
-        });
-
-    </script>
-    <script language="javascript" type="text/javascript">
-        document.onclick = HideTheAjaxDivs;
-    </script>
-    <style>
-        .class1 {
-            width: 125px;
-        }
-
-        .class2 {
-            width: 250px;
-        }
-
-        .class3 {
-            width: 100px;
-        }
-
-        .bottom {
-            border-bottom: 1px solid black;
-        }
-
-        .top {
-            border-top: 1px solid black;
-        }
-
-        .left {
-            border-left: 1px solid black;
-        }
-
-        .right {
-            border-right: 1px solid black;
-        }
-
-        #ajax_div_insurance {
-            position: absolute;
-            z-index: 10;
-            /*
-               left: 20px;
-               top: 300px;
-               */
-            background-color: #FBFDD0;
-            border: 1px solid #ccc;
-            padding: 10px;
-        }
-
-        #ajax_div_patient {
-            position: absolute;
-            z-index: 10;
-            /*
-               left: 20px;
-               top: 300px;
-               */
-            background-color: #FBFDD0;
-            border: 1px solid #ccc;
-            padding: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 5px;
-        }
-
-        legend {
-            border-bottom: 2px solid #E5E5E5;
-            background: #E5E5E5;
-            padding-left: 10px;
-        }
-
-        .form-horizontal .control-label {
-            padding-top: 2px;
-        }
-
-        fieldset {
-            border-color: #68171A !important;
-            background-color: #f2f2f2;
-            /*#e7e7e7*/
-            margin-bottom: 10px;
-            padding-bottom: 15px;
-        }
-
-        @media only screen and (max-width: 768px) {
-            [class*="col-"] {
-                width: 100%;
-                text-align: left !Important;
+        if (confirm(<?php echo xlj('Successfully Saved.Would you like to Distribute?'); ?>)) {
+            if (document.getElementById('TablePatientPortion')) {
+                document.getElementById('TablePatientPortion').style.display = '';
             }
         }
-    </style>
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+    }
+
+}
+
+function DeletePaymentDistribution(DeleteId) {//Confirms deletion of payment distribution.
+    if (confirm(<?php echo xlj('Would you like to Delete Payment Distribution?'); ?>)) {
+        document.getElementById('mode').value = 'DeletePaymentDistribution';
+        document.getElementById('DeletePaymentDistributionId').value = DeleteId;
+        top.restoreSession();
+        document.forms[0].submit();
+    } else
+        return false;
+}
+
+//========================================================================================
+
+$(function () {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+
+    <?php if ($_POST["mode"] == "ModifyPayments" || $_POST["mode"] == "search") { ?>
+    $("html").animate({scrollTop: $("#TableDistributePortion").offset().top}, 800);
+    <?php } ?>
+});
+
+document.onclick = HideTheAjaxDivs;
+</script>
+<style>
+    .bottom {
+        border-bottom: 1px solid black;
+    }
+    .left {
+        border-left: 1px solid black;
+    }
+    .right {
+        border-right: 1px solid black;
+    }
+    .form-group {
+        margin-bottom: 5px;
+    }
+    legend {
+        border-bottom: 2px solid #E5E5E5;
+        background: #E5E5E5;
+        padding-left: 10px;
+    }
+    .form-horizontal .control-label {
+        padding-top: 2px;
+    }
+    fieldset {
+        border-color: #68171A !important;
+        background-color: #f2f2f2;
+        margin-bottom: 10px;
+        padding-bottom: 15px;
+    }
+    @media only screen and (max-width: 768px) {
+        [class*="col-"] {
+            width: 100%;
+            text-align: left !Important;
+        }
+    }
+</style>
+<!--<link rel="stylesheet" href="<?php /*echo $css_header; */?>" type="text/css">-->
 </head>
 <body class="body_top" onload="OnloadAction()">
     <div class="container">
@@ -1101,7 +1058,6 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
             </form>
         </div>
     </div><!-- End of container div-->
-</body>
 <script>
     function ResetForm() {//Resets form used in the 'Cancel Changes' button in the master screen.
         document.forms[0].reset();
@@ -1111,4 +1067,5 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
         PayingEntityAction();//Paying Entity is made 'insurance' and Payment Category is 'Insurance Payment'
     }
 </script>
+</body>
 </html>

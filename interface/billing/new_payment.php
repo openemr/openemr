@@ -117,15 +117,11 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
 <head>
     <?php Header::setupHeader(['common', 'datetime-picker']); ?>
 
+    </script><?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
+    </script><?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
 
     <script language='JavaScript'>
         var mypcc = '1';
-    </script><?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
-    </script><?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-    <
-    script
-    language = "javascript"
-    type = "text/javascript" >
         function CancelDistribute() {//Used in the cancel button.Helpful while cancelling the distribution.
             if (confirm(<?php echo xlj('Would you like to Cancel Distribution for this Patient?') ?>)) {
                 document.getElementById('hidden_patient_code').value = '';
@@ -218,8 +214,11 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     function OnloadAction() {//Displays message after saving to master table.
         after_value = document.getElementById("after_value").value;
         payment_id = document.getElementById('payment_id').value;
-        if (after_value == 'distribute') {
-        } else if (after_value == 'new_payment') {
+     if(after_value=='distribute')
+      {
+      }
+     else if(after_value=='new_payment')
+      {
             if (document.getElementById('TablePatientPortion')) {
                 document.getElementById('TablePatientPortion').style.display = 'none';
             }
@@ -417,7 +416,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-header">
+                <div class="">
                     <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>

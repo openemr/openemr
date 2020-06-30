@@ -119,10 +119,12 @@ if ($payment_id > 0) {
 ?>
 <?php
 //================================================================================================
-if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_payment' && $payment_id * 1 > 0)) {//New entry or edit in edit screen comes here.
+if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_payment' && $payment_id * 1 > 0)) {
+    //New entry or edit in edit screen comes here.
     ?>
     <?php
-    if (isset($_REQUEST['ParentPage']) && $_REQUEST['ParentPage'] == 'new_payment') {//This case comes when the Finish Payments is pressed from the New Payment screen.
+    if (isset($_REQUEST['ParentPage']) && $_REQUEST['ParentPage'] == 'new_payment') {
+        //This case comes when the Finish Payments is pressed from the New Payment screen.
         ?>
         <div class="col-xs-12 h3">
             <?php echo xlt('Confirm Payment'); ?>
@@ -237,17 +239,21 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         </div>
     </div>
     <div class="col-xs-12 oe-custom-line">
-        <div class="forms col-xs-2">
+        <div class="col-xs-2">
             <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
-            <input type="text" class='form-control' name="deposit_date" id="deposit_date" value="<?php echo attr(oeFormatShortDate($DepositDate)); ?>" disabled />
+            <input type='text' class='form-control datepicker' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"  value="<?php echo attr(oeFormatShortDate($DepositDate));?>" autocomplete="off"/>
         </div>
         <div class="forms col-xs-6">
             <label class="control-label" for="description"><?php echo xlt('Description'); ?>:</label>
-            <input type="text" name="description" id="description" value="<?php echo attr($Description); ?>" class="form-control" disabled />
+            <input type="text" name="description"  id="description" onKeyDown="PreventIt(event)" value="<?php echo attr($Description);?>"   class="form-control" />
         </div>
         <div class="forms col-xs-2">
-            <label class="control-label" for="GlobalAmount"><?php echo xlt('Distributed to Global'); ?>:</label>
-            <div id="GlobalAmount" class="form-control"><?php echo ($global_amount * 1 == 0) ? attr("0.00") : attr(number_format($global_amount, 2, '.', ',')); ?>
+            <label class="control-label" for="GlobalReset"><?php echo xlt('Distributed to Global'); ?>:</label>
+            <div class="input-group">
+                <span class="input-group-addon">
+                    <i onclick="getElementById('GlobalReset').value='-0.00';this.classList.remove('fa-trash');event.target.classList.add('text-danger','fa-ban');" class="fa fa-trash"></i>
+                </span>
+                <input id="GlobalReset" name="global_reset" class="form-control" value="<?php echo ($global_amount * 1 === 0) ? attr("0.00") : attr(number_format($global_amount, 2, '.', ',')); ?>" readonly />
             </div>
         </div>
         <div class="forms col-xs-2">
@@ -347,9 +353,8 @@ if ($screen == 'new_payment' && $payment_id * 1 > 0) {//After saving from the Ne
             <input type="text" name="description" id="description" value="<?php echo attr($Description); ?>" class="form-control" disabled />
         </div>
         <div class="forms col-xs-2">
-            <label class="control-label" for="GlobalAmount"><?php echo xlt('Distributed to Global'); ?>:</label>
-            <div id="GlobalAmount" class="form-control"><?php echo ($global_amount * 1 == 0) ? attr("0.00") : attr(number_format($global_amount, 2, '.', ',')); ?>
-            </div>
+            <label class="control-label" for="GlobalResetView"><?php echo xlt('Distributed to Global'); ?>:</label>
+            <input id="GlobalResetView" name="global_reset_view" class="form-control" value="<?php echo ($global_amount * 1 == 0) ? attr("0.00") : attr(number_format($global_amount, 2, '.', ',')); ?>" disabled />
         </div>
         <div class="forms col-xs-2">
             <label class="control-label" for="TdUnappliedAmount"><?php echo xlt('Undistributed'); ?>:</label>

@@ -227,11 +227,13 @@
             return false;
     }
 
-    function ScreenAdjustment(PassedObject, CountIndex) {//Called when there is change in the amount by typing.
-                                                         //Readjusts the various values.Another function FillAmount() is also used.
-                                                         //Ins1 case and allowed is filled means it is primary's first payment.
-                                                         //It moves to secondary or patient balance.
-                                                         //If primary again pays means ==>change Post For to Ins1 and do not enter any value in the allowed box.
+    function ScreenAdjustment(PassedObject, CountIndex) {
+        //Called when there is change in the amount by typing.
+        //Readjusts the various values.Another function FillAmount() is also used.
+        //Ins1 case and allowed is filled means it is primary's first payment.
+        //It moves to secondary or patient balance.
+        //If primary again pays means ==>change Post For to Ins1 and do not enter any value in the allowed box.
+
         let Allowed = document.getElementById('Allowed' + CountIndex).value * 1;
         if (document.getElementById('Allowed' + CountIndex).id === PassedObject.id) {
             document.getElementById('Payment' + CountIndex).value = Allowed;
@@ -261,13 +263,13 @@
                            //Readjusts the various values.
         <?php
         if ($screen == 'new_payment') {
-        ?>
+            ?>
         UnpostedAmt = document.getElementById('HidUnpostedAmount').value * 1;
-        <?php
+            <?php
         } else {
-        ?>
+            ?>
         UnpostedAmt = document.getElementById('payment_amount').value * 1;
-        <?php
+            <?php
         }
         ?>
 
@@ -354,14 +356,14 @@
         }
         <?php
         if ($screen == 'edit_payment') {
-        ?>
+            ?>
         if (document.getElementById('check_number').value != '' &&
             document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value == '') {
             alert("<?php echo htmlspecialchars(xl('Please Select the Payment Method'), ENT_QUOTES) ?>");
             document.getElementById('payment_method').focus();
             return false;
         }
-        <?php
+            <?php
         }
         ?>
         if (document.getElementById('payment_amount').value == '') {
@@ -376,13 +378,13 @@
         }
         <?php
         if ($screen == 'edit_payment') {
-        ?>
+            ?>
         if (document.getElementById('adjustment_code').options[document.getElementById('adjustment_code').selectedIndex].value == '') {
             alert("<?php echo htmlspecialchars(xl('Please Fill the Payment Category'), ENT_QUOTES) ?>");
             document.getElementById('adjustment_code').focus();
             return false;
         }
-        <?php
+            <?php
         }
         ?>
         if (document.getElementById('type_code').value == '') {
