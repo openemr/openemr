@@ -57,33 +57,27 @@ use OpenEMR\Common\Acl\AclMain;
                           <input type="hidden" id="pid" name="pid" value="<?php echo !is_null($participant_data) ? attr($participant_data['pid']) : ''?>">
                           <div class="col-md-12">
                               <div class="row">
-                                  <div class="offset-md-1 col-md-5">
+                                  <div class="col-md-5">
                                       <div class="row">
-                                          <div class="col-md-4">
-                                              <span class="font-weight-bold"><?php echo xlt("Participant's name"); ?>:</span>
-                                          </div>
+                                          <label class="col-form-label col-md-4 font-weight-bold"><?php echo xlt("Participant's name"); ?>:</label>
                                           <div class="col-md-8">
-                                              <input type="text" id="participant_name" name="participant_name" class="form-control w-100" value="<?php echo !is_null($participant_data) ? attr($participant_data['participant_name']) : ''?>" readonly />
+                                              <input type="text" id="participant_name" name="participant_name" class="form-control" value="<?php echo !is_null($participant_data) ? attr($participant_data['participant_name']) : ''?>" readonly />
                                           </div>
                                       </div>
                                   </div>
                                   <div class="col-md-5">
                                       <div class="row">
-                                          <div class="col-md-4">
-                                              <span class="font-weight-bold"><?php echo xlt('Date of registration'); ?>:</span>
-                                          </div>
+                                          <label class="col-form-label col-md-4 font-weight-bold"><?php echo xlt('Date of registration'); ?>:</label>
                                           <div class="col-md-8">
-                                              <input type="text" id="group_patient_start" name="group_patient_start" class="w-100 form-control datepicker"  value="<?php echo !is_null($participant_data) ? attr(oeFormatShortDate($participant_data['group_patient_start'])) : oeFormatShortDate(date('Y-m-d'));?>" />
+                                              <input type="text" id="group_patient_start" name="group_patient_start" class="w-100 form-control datepicker" value="<?php echo !is_null($participant_data) ? attr(oeFormatShortDate($participant_data['group_patient_start'])) : oeFormatShortDate(date('Y-m-d'));?>" />
                                           </div>
                                       </div>
                                   </div>
                               </div>
                               <div class="row">
-                                  <div class="offset-md-1 col-md-2">
-                                      <span class="font-weight-bold"><?php echo xlt('Comment'); ?>:</span>
-                                  </div>
+                                  <label class="col-form-label col-md-2 font-weight-bold"><?php echo xlt('Comment'); ?>:</label>
                                   <div class="col-md-8">
-                                      <input type="text" id="group_patient_comment" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_comment']) : ''?>" class="form-control w-100" />
+                                      <input type="text" id="group_patient_comment" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_comment']) : ''?>" class="form-control" />
                                   </div>
                               </div>
                               <div class="row">
@@ -156,10 +150,9 @@ use OpenEMR\Common\Acl\AclMain;
                   </form>
               </div>
             </div>
-            <div class="row">
-              <div id="appointment-component" class="col-md-2 col-sm-12">
-                  <?php require 'appointmentComponent.php';?>
-              </div>
+
+            <div id="appointment-component" class="col-md-2 col-sm-12">
+                <?php require 'appointmentComponent.php';?>
             </div>
         </div>
     </div>

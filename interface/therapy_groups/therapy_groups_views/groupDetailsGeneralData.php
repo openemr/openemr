@@ -62,17 +62,15 @@ use OpenEMR\Common\Acl\AclMain;
                                 <div class="row group-row">
                                     <div class="col-md-6 col-sm-7">
                                         <div class="row">
-                                            <div class="col-md-4 col-sm-5">
-                                                <span class="font-weight-bold"><?php echo xlt("Group's name") ?>:</span>
-                                            </div>
+                                            <label class="col-form-label col-md-4 col-sm-5 font-weight-bold"><?php echo xlt("Group's name") ?>:</label>
                                             <div class="col-md-8 col-sm-7">
-                                                <input type="text" name="group_name" class="w-100" value="<?php echo attr($groupData['group_name']);?>" <?php echo $readonly; ?> />
+                                                <input type="text" name="group_name" class="form-control" value="<?php echo attr($groupData['group_name']);?>" <?php echo $readonly; ?> />
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-2 col-sm-3">
-                                        <span claendifss="font-weight-bold"><?php echo xlt('Group number') ?>:</span>
-                                        <span ><?php echo text($groupData['group_id'])?></span>
+                                        <span class="font-weight-bold"><?php echo xlt('Group number') ?>:</span>
+                                        <span><?php echo text($groupData['group_id'])?></span>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="row">
@@ -80,7 +78,7 @@ use OpenEMR\Common\Acl\AclMain;
                                                 <span class="font-weight-bold"><?php echo xlt('Status'); ?>:</span>
                                             </div>
                                             <div class="col-md-6 col-sm-6">
-                                                <select name="group_status" class="w-100"  value="<?php echo attr($groupData['group_status']);?>" <?php echo $readonly; ?>>
+                                                <select name="group_status" class="form-control" value="<?php echo attr($groupData['group_status']);?>" <?php echo $readonly; ?>>
                                                     <?php foreach ($statuses as $key => $status) { ?>
                                                         <option value="<?php echo attr($key);?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
                                                     <?php } ?>
@@ -119,7 +117,7 @@ use OpenEMR\Common\Acl\AclMain;
                                                 <span class="font-weight-bold"><?php echo xlt('Starting date'); ?>:</span>
                                             </div>
                                             <div class="col-md-offset1 col-md-6 col-sm-6">
-                                                <input type="text" name="group_start_date" class="w-100 datepicker" value="<?php echo attr(oeFormatShortDate($groupData['group_start_date']));?>" <?php echo $readonly; ?> />
+                                                <input type="text" name="group_start_date" class="form-control datepicker" value="<?php echo attr(oeFormatShortDate($groupData['group_start_date']));?>" <?php echo $readonly; ?> />
                                             </div>
                                         </div>
                                     </div>
@@ -129,7 +127,7 @@ use OpenEMR\Common\Acl\AclMain;
                                                 <span class="font-weight-bold"><?php echo xlt('Ending date'); ?>:</span>
                                             </div>
                                             <div class="col-md-6 col-sm-6">
-                                                <input type="text" name="group_end_date" class="w-100 datepicker" value="<?php echo $groupData['group_end_date'] == '0000-00-00' ? '' : attr(oeFormatShortDate($groupData['group_end_date'])) ;?>" <?php echo $readonly; ?> />
+                                                <input type="text" name="group_end_date" class="form-control datepicker" value="<?php echo $groupData['group_end_date'] == '0000-00-00' ? '' : attr(oeFormatShortDate($groupData['group_end_date'])) ;?>" <?php echo $readonly; ?> />
                                             </div>
                                         </div>
                                     </div>
@@ -141,7 +139,7 @@ use OpenEMR\Common\Acl\AclMain;
                                                 <span class="font-weight-bold"><?php echo xlt('Main Counselors'); ?>:</span>
                                             </div>
                                             <div class="col-md-8 col-sm-7">
-                                                <select name="counselors[]" multiple class="form-control w-100" <?php echo $readonly; ?>>
+                                                <select name="counselors[]" multiple class="form-control" <?php echo $readonly; ?>>
                                                     <?php foreach ($users as $user) { ?>
                                                         <option value="<?php echo attr($user['id']);?>" <?php echo !is_null($groupData['counselors']) && in_array($user['id'], $groupData['counselors']) ? 'selected' : '';?>><?php echo text($user['fname'] . ' ' . $user['lname']);?></option>
                                                     <?php } ?>
@@ -155,7 +153,7 @@ use OpenEMR\Common\Acl\AclMain;
                                                 <span class="font-weight-bold"><?php echo xlt('Notes'); ?>:</span>
                                             </div>
                                             <div class="col-md-9 col-sm-7">
-                                                <textarea name="group_notes" class="w-100" style="height: 70px" <?php echo $readonly; ?>><?php echo text($groupData['group_notes']);?></textarea>
+                                                <textarea name="group_notes" class="form-control" style="height: 70px" <?php echo $readonly; ?>><?php echo text($groupData['group_notes']);?></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -167,7 +165,7 @@ use OpenEMR\Common\Acl\AclMain;
                                                 <span class="font-weight-bold"><?php echo xlt('Guest counselors'); ?>:</span>
                                             </div>
                                             <div class="col-md-8 col-sm-7">
-                                                <input type="text" name="group_guest_counselors" class="w-100" value="<?php echo attr($groupData['group_guest_counselors']);?>" <?php echo $readonly; ?> />
+                                                <input type="text" name="group_guest_counselors" class="form-control" value="<?php echo attr($groupData['group_guest_counselors']);?>" <?php echo $readonly; ?> />
                                             </div>
                                         </div>
                                     </div>
@@ -177,8 +175,8 @@ use OpenEMR\Common\Acl\AclMain;
                                         <?php if ($savingStatus == 'exist') { ?>
                                             <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4>
                                               <?php if ($edit) { ?>
-                                              <button id="cancel-save"><?php echo xlt('cancel') ?></button>
-                                              <button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button>
+                                              <button class="btn btn-secondary" id="cancel-save"><?php echo xlt('cancel') ?></button>
+                                              <button type="submit" class="btn btn-primary" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button>
                                             <?php } ?>
                                             </div>
                                         <?php } ?>
