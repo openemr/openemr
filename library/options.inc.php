@@ -383,16 +383,16 @@ function generate_form_field($frow, $currvalue)
 
     // generic single-selection list or Race and Ethnicity.
     // These data types support backup lists.
-    if ($data_type == 1 || $data_type == 33) {
+    if ($data_type == 1 || $data_type == 33 || $data_type == 43) {
         echo generate_select_list(
             "form_$field_id",
             $list_id,
             $currvalue,
             $description,
             ($showEmpty ? $empty_title : ''),
-            $smallform,
+            (($data_type == 43) ? "select-dropdown" : $smallform),
             $lbfchange,
-            (($data_type == 43) ? $smallform . " select-dropdown" : $smallform),
+            '',
             ($disabled ? array('disabled' => 'disabled') : null),
             false,
             $backup_list

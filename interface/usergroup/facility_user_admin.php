@@ -79,7 +79,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php// can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
                 ?>
             });
             $('.datetimepicker').datetimepicker({
@@ -89,7 +89,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php// can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
                 ?>
             });
             $('.datepicker-past').datetimepicker({
@@ -99,7 +99,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php// can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
                 ?>
             });
             $('.datetimepicker-past').datetimepicker({
@@ -109,7 +109,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php// can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
                 ?>
             });
             $('.datepicker-future').datetimepicker({
@@ -119,7 +119,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php// can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
                 ?>
             });
             $('.datetimepicker-future').datetimepicker({
@@ -129,7 +129,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php// can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
                 ?>
             });
         });
