@@ -9,7 +9,7 @@
             "system": "http://hl7.org/fhir/sid/us-npi",
             "value": "1063494177"
         }],
-        "name": "Saint Luke's Hospital of Kansas City",
+        "name": "test-fixture-Saint Luke's Hospital of Kansas City",
         "telecom": [{
             "system": "phone",
             "value": "(816)932-2000",
@@ -27,7 +27,7 @@
     {
         "resourceType": "Organization",
         "id": "42fe3345-76cc-4fb7-9750-734b759c872e",
-        "name": "Health Level Seven International",
+        "name": "test-fixture-Health Level Seven International",
         "telecom": [{
                 "system": "phone",
                 "value": "(+1) 734-677-7777",
@@ -59,7 +59,7 @@
             "system": "http://hl7.org/fhir/sid/us-npi",
             "value": "1939403029"
         }],
-        "name": "Gastroenterology",
+        "name": "test-fixture-Gastroenterology",
         "telecom": [{
             "system": "email",
             "value": "gastro@acme.org",
@@ -73,7 +73,7 @@
             "system": "http://hl7.org/fhir/sid/us-npi",
             "value": "1927402830"
         }],
-        "name": "Clinical Lab",
+        "name": "test-fixture-Clinical Lab",
         "telecom": [{
                 "system": "phone",
                 "value": "+1 555 234 1234",

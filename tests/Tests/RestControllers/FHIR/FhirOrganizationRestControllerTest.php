@@ -71,7 +71,7 @@ class FhirOrganizationRestControllerTest extends TestCase
         $actualResult = $this->fhirOrganizationController->post($this->fhirFixture);
         $fhirId = $actualResult['data']['uuid'];
 
-        $this->fhirFixture['name'] = 'Glenmark Clinic';
+        $this->fhirFixture['name'] = 'test-fixture-Glenmark Clinic';
         $actualResult = $this->fhirOrganizationController->patch($fhirId, $this->fhirFixture);
 
         $this->assertEquals(200, http_response_code());

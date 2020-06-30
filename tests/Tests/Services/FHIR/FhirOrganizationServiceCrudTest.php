@@ -79,14 +79,14 @@ class FhirOrganizationServiceCrudTest extends TestCase
         $fhirId = $dataResult['uuid'];
         $this->assertIsString($fhirId);
 
-        $this->fhirOrganizationFixture['name'] = 'Glenmark Clinic';
+        $this->fhirOrganizationFixture['name'] = 'test-fixture-Glenmark Clinic';
         $this->fhirOrganizationFixture['id'] = $fhirId;
         $actualResult = $this->fhirOrganizationService->update($fhirId, $this->fhirOrganizationFixture);
         $this->assertTrue($actualResult->isValid());
 
         $actualFhirRecord = $actualResult->getData()[0];
         $actualName = $actualFhirRecord->getName();
-        $this->assertEquals('Glenmark Clinic', $actualName);
+        $this->assertEquals('test-fixture-Glenmark Clinic', $actualName);
 
         $this->assertEquals($fhirId, $actualFhirRecord->getId());
     }

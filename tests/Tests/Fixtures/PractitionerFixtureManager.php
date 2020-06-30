@@ -23,7 +23,7 @@ use Ramsey\Uuid\Uuid;
 class PractitionerFixtureManager
 {
     // use a prefix so we can easily remove fixtures
-    const FIXTURE_PREFIX = "-";
+    const FIXTURE_PREFIX = "test-fixture";
 
     private $practitionerFixtures;
     private $fhirPractitionerFixtures;
@@ -172,14 +172,14 @@ class PractitionerFixtureManager
         $bindVariable = self::FIXTURE_PREFIX . "%";
 
         // remove the related uuids from uuid_registry
-        $select = "SELECT `uuid` FROM `users` WHERE `id` LIKE ?";
+        $select = "SELECT `uuid` FROM `users` WHERE `fname` LIKE ?";
         $sel = sqlStatement($select, [$bindVariable]);
         while ($row = sqlFetchArray($sel)) {
             sqlQuery("DELETE FROM `uuid_registry` WHERE `table_name` = 'users' AND `uuid` = ?", [$row['uuid']]);
         }
 
         // remove the practitioners
-        $delete = "DELETE FROM users WHERE id LIKE ?";
+        $delete = "DELETE FROM users WHERE fname LIKE ?";
         sqlStatement($delete, array($bindVariable));
     }
 

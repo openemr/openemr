@@ -26,7 +26,7 @@ class FacilityRestControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->facilityData = array(
-            'name' => 'Your Clinic Name Here',
+            'name' => 'test-fixture-Your Clinic Name Here',
             'phone' => '(619) 555-4859',
             'fax' => '(619) 555-7822',
             'street' => '789 Third Avenue',

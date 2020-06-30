@@ -29,7 +29,7 @@ class PractitionerRestControllerTest extends TestCase
             "id" => "test-fixture-789456",
             "uuid" => "90cde167-7b9b-4ed1-bd55-533925cb2605",
             "title" => "Mrs.",
-            "fname" => "Eduardo",
+            "fname" => "test-fixture-Eduardo",
             "mname" => "Kathy",
             "lname" => "Perez",
             "federaltaxid" => "",
