@@ -21,6 +21,7 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -163,8 +164,7 @@ if (empty($id)) {
 }
 
 if (isset($_SESSION['billencounter'])) {
-    unset($_SESSION['billpid']);
-    unset($_SESSION['billencounter']);
+    SessionUtil::unsetSession(['billpid', 'billencounter']);
     echo "<script>dlgclose('SubmitTheScreen')</script>";
 } else {
     formHeader("Redirecting....");

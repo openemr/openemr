@@ -14,14 +14,9 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
-if (
-    (empty($_SESSION['lang_module_unique_id'])) ||
-    (empty($unique_id)) ||
-    ($unique_id != $_SESSION['lang_module_unique_id'])
-) {
+if ($langModuleFlag !== true) {
     die(xlt('Authentication Error'));
 }
-unset($_SESSION['lang_module_unique_id']);
 
 // gacl control
 $thisauth = AclMain::aclCheckCore('admin', 'language');

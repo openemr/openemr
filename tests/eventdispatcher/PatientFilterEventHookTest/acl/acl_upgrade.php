@@ -1,14 +1,9 @@
 <?php
 
 // Ensure this script is not called separately
-if (
-    (empty($_SESSION['acl_setup_unique_id'])) ||
-    (empty($unique_id)) ||
-    ($unique_id != $_SESSION['acl_setup_unique_id'])
-) {
-    die('Authentication Error');
+if ($aclSetupFlag !== true) {
+    die(xlt('Authentication Error'));
 }
-unset($_SESSION['acl_setup_unique_id']);
 
 use OpenEMR\Common\Acl\AclExtended;
 

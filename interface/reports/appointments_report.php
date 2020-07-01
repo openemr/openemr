@@ -37,8 +37,7 @@ if (!empty($_POST)) {
 # This session will hold array of patients that are listed in this
 # report, which is then used by the 'Superbills' and 'Address Labels'
 # features on this report.
-unset($_SESSION['pidList']);
-unset($_SESSION['apptdateList']);
+SessionUtil::unsetSession(['pidList', 'apptdateList']);
 
 $alertmsg = ''; // not used yet but maybe later
 $patient = $_REQUEST['patient'];
