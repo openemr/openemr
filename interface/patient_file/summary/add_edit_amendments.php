@@ -115,18 +115,6 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
-<style>
-tr.selected {
-  background-color: var(--white);
-}
-.historytbl {
- border-collapse: collapse;
-}
-.historytbl td th{
-  border: 1px solid var(--black);
-}
-</style>
-
 <script>
 
 function formValidation() {
@@ -231,7 +219,7 @@ $(function () {
                 <h2><?php echo xlt("History") ; ?></h2>
             </div>
 
-            <table class="table table-bordered historytbl">
+            <table class="table table-bordered table-hover">
                 <!-- some columns are sortable -->
                 <thead class="table-primary font-weight-bold">
                     <tr>
