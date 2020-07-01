@@ -2485,8 +2485,10 @@ function generate_plaintext_field($frow, $currvalue)
         || $data_type == 27 || $data_type == 33
         || $data_type == 43
     ) {
-        $lrow = sqlQuery("SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id, $currvalue));
+        $lrow = sqlQuery(
+            "SELECT title FROM list_options " .
+            "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id, $currvalue)
+        );
         $s = xl_list_label($lrow['title']);
         //if there is no matching value in the corresponding lists check backup list
         // only supported in data types 1,26,33
