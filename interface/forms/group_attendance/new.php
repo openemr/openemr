@@ -113,7 +113,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 <td >
                     <select class="form-control status_select" name="<?php echo "patientData[" . attr($participant['pid']) . "][status]" ;?>" <?php if (!$can_edit) {
                         ?> disabled <?php
-                                                        } ?> >
+                                                                     } ?> >
                         <?php foreach ($statuses_in_meeting as $status_in_meeting) {?>
                             <option value="<?php echo attr($status_in_meeting['option_id']); ?>" <?php if ($participant['meeting_patient_status'] == $status_in_meeting['option_id']) {
                                 echo 'selected';
@@ -132,7 +132,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
     <div class="btn-group action_buttons">
         <input name="submit" class="btn btn-primary" type="submit" value="<?php echo xla('Save'); ?>" <?php if (!$can_edit) {
             ?> disabled <?php
-                                                                     } ?> >
+                                                                          } ?> >
         <input class="btn btn-secondary cancel" type="button" value="<?php echo xla('Cancel'); ?>" />
     </div>
 </form>

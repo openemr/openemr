@@ -258,14 +258,16 @@ $help_icon = '';
                                        title='<?php echo xla('Date of service'); ?>'/>
                             </div>
 
-                            <?php if ($GLOBALS['ippf_specific']) { echo "<div class='invisible'>"; } ?>
+                            <?php if ($GLOBALS['ippf_specific']) {
+                                echo "<div class='invisible'>"; } ?>
                                 <label for='form_onset_date' class="col-form-label col-sm-2"><?php echo xlt('Onset/hosp. date'); ?>:</label>
                                 <div class="col-sm-3">
                                     <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date'
                                            value='<?php echo $viewmode && $result['onset_date'] != '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>'
                                            title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                                 </div>
-                            <?php if ($GLOBALS['ippf_specific']) { echo "</div>"; } ?>
+                            <?php if ($GLOBALS['ippf_specific']) {
+                                echo "</div>"; } ?>
                             <div class="clearfix"></div>
                         </div>
                         <div class="col-md-6 form-group row"
