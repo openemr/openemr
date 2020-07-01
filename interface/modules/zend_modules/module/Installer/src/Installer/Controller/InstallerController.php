@@ -454,6 +454,7 @@ class InstallerController extends AbstractActionController
         }
         if (file_exists($sqldir . "/acl_upgrade.php") && file_exists($ModulePath . "/version.php") && !empty($mod->acl_version)) {
             global $ACL_UPGRADE;
+            // Pass a variable, so below scripts can not be run on their own
             $aclSetupFlag = true;
             include_once($sqldir . "/acl_upgrade.php");
 
@@ -686,6 +687,7 @@ class InstallerController extends AbstractActionController
         $div = [];
         if (file_exists($modDir . "/acl/acl_upgrade.php") && !empty($Module->acl_version)) {
             // Pass a variable, so below scripts can not be run on their own
+            $aclSetupFlag = true;
             ob_start();
             $ACL_UPGRADE = include_once($modDir . "/acl/acl_upgrade.php");
             $version = $this->upgradeAclFromVersion($ACL_UPGRADE, $Module->acl_version);

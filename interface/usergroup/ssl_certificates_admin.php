@@ -447,8 +447,8 @@ if ($_POST["mode"] == "create_client_certificate") {
 }
 
 if ($_SESSION["zip_error"]) {
-    $zipErrorOutput = '<div><table align="center"><tr valign="top"><td rowspan="3"><font class="redtext">' . xlt($_SESSION["zip_error"]) . '</td></tr></table></div>';
-    SessionUtil::unsetSession('$zipErrorOutput');
+    $zipErrorOutput = '<div><table align="center"><tr valign="top"><td rowspan="3"><font class="redtext">' . text($_SESSION["zip_error"]) . '</td></tr></table></div>';
+    SessionUtil::unsetSession('zip_error');
 }
 
 ?>
