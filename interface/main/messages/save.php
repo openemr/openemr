@@ -157,7 +157,8 @@ if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
     $query = "SELECT * FROM patient_data WHERE pid=?";
     $result = sqlQuery($query, array($_REQUEST['pid']));
     $result['age'] = $MedEx->events->getAge($result['DOB']);
-
+    // uuid is binary and will break json_encode in binary form (not needed, so will remove it from $result arrary)
+    unset($result['uuid']);
     /**
      *  Did the clinician create a PLAN at the last visit?
      *  To do an in office test, and get paid for it,
