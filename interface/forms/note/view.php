@@ -82,7 +82,7 @@ function PrintForm() {
 
 <table>
 <tr><td>
-<span class=text><?php echo xlt('Doctor:'); ?> </span><input type=entry name="doctor" value="<?php echo attr($obj["doctor"]);?>">
+<span class=text><?php echo xlt('Doctor:'); ?> </span><input type="text" name="doctor" value="<?php echo attr($obj["doctor"]);?>">
 </td><td>
 <span class="text"><?php echo xlt('Date'); ?></span>
    <input type='text' size='10' class='datepicker' name='date_of_signature' id='date_of_signature'

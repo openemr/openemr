@@ -658,7 +658,7 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
              <td><label class='required'><?php echo xlt('Group Number'); ?></label></td>
              <td class='required'>:</td>
-             <td><input type=entry class='form-control' size='16' name=i<?php echo attr($i); ?>group_number value="<?php echo attr($result3["group_number"]); ?>" onkeyup='policykeyup(this)'></td>
+             <td><input type="text" class='form-control' size='16' name=i<?php echo attr($i); ?>group_number value="<?php echo attr($result3["group_number"]); ?>" onkeyup='policykeyup(this)'></td>
             </tr>
 
             <tr<?php if ($GLOBALS['omit_employers']) {

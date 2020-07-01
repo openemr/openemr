@@ -36,14 +36,14 @@ $obj = formFetch("form_obstetrical", $_GET["id"]);
 <span class="title">Obstetrical Form</span><br /><br />
 <table>
 <tr>
-<td><span class=text>Name: </span></td><td><input type=entry name="name" value="<?php echo attr($obj["name"]); ?>" ></td>
-<td><span class=text>Birthdate: </span></td><td><input type=entry size=10 name=birthdate value="<?php if ($obj["birthdate"] != "0000-00-00 00:00:00") {
+<td><span class=text>Name: </span></td><td><input type="text" name="name" value="<?php echo attr($obj["name"]); ?>" ></td>
+<td><span class=text>Birthdate: </span></td><td><input type="text" size=10 name=birthdate value="<?php if ($obj["birthdate"] != "0000-00-00 00:00:00") {
     echo attr(date("Y-m-d", strtotime($obj["birthdate"])));
                                                                                                 } else {
                                                                                                     echo "YYYY-MM-DD";
                                                                                                 }?>"></td>
-<td><span class=text>Birth Status: </span></td><td><input type=entry name="birth_status" value="<?php echo attr($obj["birth_status"]); ?>" ></td>
-<td><span class=text>Gender: </span></td><td><input type=entry name="gender" value="<?php echo attr($obj["gender"]); ?>" ></td>
+<td><span class=text>Birth Status: </span></td><td><input type="text" name="birth_status" value="<?php echo attr($obj["birth_status"]); ?>" ></td>
+<td><span class=text>Gender: </span></td><td><input type="text" name="gender" value="<?php echo attr($obj["gender"]); ?>" ></td>
 <td><input type=checkbox name="circumcised"  <?php if ($obj["circumcised"] == "on") {
     echo "checked";
                                              };?>></td><td><span class=text>Circumcised</span></td>
@@ -52,19 +52,19 @@ $obj = formFetch("form_obstetrical", $_GET["id"]);
 
 <table>
 <tr>
-<td><span class=text>Pediatrician: </span></td><td><input type=entry name="pediatrician" value="<?php echo attr($obj["pediatrician"]); ?>" ></td>
-<td><span class=text>Birth Weight: </span></td><td><input type=entry name="birth_weight" value="<?php echo attr($obj["birth_weight"]); ?>" ></td>
+<td><span class=text>Pediatrician: </span></td><td><input type="text" name="pediatrician" value="<?php echo attr($obj["pediatrician"]); ?>" ></td>
+<td><span class=text>Birth Weight: </span></td><td><input type="text" name="birth_weight" value="<?php echo attr($obj["birth_weight"]); ?>" ></td>
 </tr><tr>
-<td><span class=text>Length (Inches): </span></td><td><input type=entry name="length_inches" value="<?php echo attr($obj["length_inches"]); ?>" ></td>
-<td><span class=text>Head Circumference (Inches): </span></td><td><input type=entry name="head_circumference_inches" value="<?php echo attr($obj["head_circumference_inches"]); ?>" ></td>
+<td><span class=text>Length (Inches): </span></td><td><input type="text" name="length_inches" value="<?php echo attr($obj["length_inches"]); ?>" ></td>
+<td><span class=text>Head Circumference (Inches): </span></td><td><input type="text" name="head_circumference_inches" value="<?php echo attr($obj["head_circumference_inches"]); ?>" ></td>
 </tr><tr>
-<td><span class=text>Feeding: </span></td><td><input type=entry name="feeding" value="<?php echo attr($obj["feeding"]); ?>" ></td>
-<td><span class=text>Delivery Method: </span></td><td><input type=entry name="delivery_method" value="<?php echo attr($obj["delivery_method"]); ?>" ></td>
+<td><span class=text>Feeding: </span></td><td><input type="text" name="feeding" value="<?php echo attr($obj["feeding"]); ?>" ></td>
+<td><span class=text>Delivery Method: </span></td><td><input type="text" name="delivery_method" value="<?php echo attr($obj["delivery_method"]); ?>" ></td>
 </tr><tr>
-<td><span class=text>Labor Hours: </span></td><td><input type=entry name="labor_hours" value="<?php echo attr($obj["labor_hours"]); ?>" ></td>
-<td><span class=text>Pregnancy (Weeks): </span></td><td><input type=entry name="pregnancy_weeks" value="<?php echo attr($obj["pregnancy_weeks"]); ?>" ></td>
+<td><span class=text>Labor Hours: </span></td><td><input type="text" name="labor_hours" value="<?php echo attr($obj["labor_hours"]); ?>" ></td>
+<td><span class=text>Pregnancy (Weeks): </span></td><td><input type="text" name="pregnancy_weeks" value="<?php echo attr($obj["pregnancy_weeks"]); ?>" ></td>
 </tr><tr>
-<td><span class=text>Anesthesia: </span></td><td colspan=3><input type=entry name="anesthesia" value="<?php echo attr($obj["anesthesia"]); ?>" ></td>
+<td><span class=text>Anesthesia: </span></td><td colspan=3><input type="text" name="anesthesia" value="<?php echo attr($obj["anesthesia"]); ?>" ></td>
 </tr>
 </table>
 
