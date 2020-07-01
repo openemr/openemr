@@ -17,7 +17,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
 if ($langModuleFlag !== true) {
-    die(xlt('Authentication Error'));
+    die(function_exists('xlt') ? xlt('Authentication Error') : 'Authentication Error');
 }
 
 // gacl control

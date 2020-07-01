@@ -2,7 +2,7 @@
 
 // Ensure this script is not called separately
 if ($aclSetupFlag !== true) {
-    die(xlt('Authentication Error'));
+    die(function_exists('xlt') ? xlt('Authentication Error') : 'Authentication Error');
 }
 
 use OpenEMR\Common\Acl\AclExtended;
