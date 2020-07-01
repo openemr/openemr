@@ -126,7 +126,7 @@ $esignApi = new Api();
                 // Always send reminder count text to model
                 app_view_model.application_data.user().messages(data.reminderText);
             }).catch(function(error) {
-                console.log('Request failed', error)
+                console.log('Request failed', error);
             });
 
             // run background-services
@@ -144,7 +144,7 @@ $esignApi = new Api();
                     console.log('Background Service start failed. Status Code: ' + response.status);
                 }
             }).catch(function(error) {
-                console.log('HTML Background Service start Request failed: ', error)
+                console.log('HTML Background Service start Request failed: ', error);
             });
 
             // auto run this function every 60 seconds

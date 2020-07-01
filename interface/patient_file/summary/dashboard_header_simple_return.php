@@ -26,14 +26,14 @@ if ($GLOBALS['enable_help'] == 1) {
 <?php
 if ($expandable == 1) {?>
 <div class="page-header clearfix">
-    <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo text($header_title)?><?php echo " " . text(getPatientNameFirstLast($pid));?></span>  <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i><a href='<?php echo attr($go_back_href)?>' onclick='top.restoreSession()'  title="<?php echo xla("Go back")?>" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a><?php echo $help_icon; ?>
+    <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo text($header_title)?><?php echo " " . text(getPatientNameFirstLast($pid));?></span>  <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i><a href='<?php echo attr($go_back_href)?>' onclick='top.restoreSession()'  title="<?php echo xla("Go back")?>" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small'></i></a><?php echo $help_icon; ?>
     </h2>
 </div>
 
     <?php
 } else {?>
 <div class="page-header clearfix">
-    <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo text($header_title)?><?php echo " " . text(getPatientNameFirstLast($pid));?></span>&nbsp;&nbsp;  <a href='<?php echo attr($go_back_href)?>' onclick='top.restoreSession()'  title="<?php echo xla("Go back")?>" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a><?php echo $help_icon; ?></h2>
+    <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo text($header_title)?><?php echo " " . text(getPatientNameFirstLast($pid));?></span>&nbsp;&nbsp;  <a href='<?php echo attr($go_back_href)?>' onclick='top.restoreSession()'  title="<?php echo xla("Go back")?>" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small'></i></a><?php echo $help_icon; ?></h2>
 </div>
     <?php
 }?>

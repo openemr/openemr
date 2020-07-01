@@ -96,5 +96,7 @@ $input-padding-y: 0;
 $input-padding-x: 0.375rem;
 $input-height-inner: 1.5rem;
 
+$displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
+
 // Enables responsive text for Bootstrap
 $enable-responsive-font-sizes: true;

@@ -61,7 +61,7 @@ while ($row = sqlFetchArray($res)) {
     $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
-$loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
+$loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . xlt("Loading") . "...</span></div>";
 ?>
 <html>
 <head>
@@ -339,53 +339,37 @@ $loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
 </head>
 <body class="body_top">
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
-         <div class="row">
-            <div class="col-sm-12">
-                <div class="page-header">
-                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-                </div>
-            </div>
+        <div class="page-header">
+            <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
         </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
-                    <button id="create_patient_btn1" class="btn btn-secondary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
-                <?php } ?>
-            </div>
-            </div>
+        <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
+            <button id="create_patient_btn1" class="btn btn-secondary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
+        <?php } ?>
         <br />
-        <div class="row">
-            <div class="col-sm-12">
-                <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
-                    <!-- Class "display" is defined in demo_table.css -->
-                    <table cellpadding="0" cellspacing="0" class="border-0 display" id="pt_table">
-                        <thead>
-                            <tr id="advanced_search" class="hideaway"  style="display: none;">
-                                <?php echo $header0; ?>
-                            </tr>
-                            <tr class="head">
-                                <?php echo $header; ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-                                <td class="dataTables_empty" colspan="<?php echo attr($colcount); ?>">...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
+            <!-- Class "display" is defined in demo_table.css -->
+            <table class="table table-borderless display" id="pt_table">
+                <thead>
+                    <tr id="advanced_search" class="hideaway" style="display: none;">
+                        <?php echo $header0; ?>
+                    </tr>
+                    <tr class="head">
+                        <?php echo $header; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
+                        <td class="dataTables_empty" colspan="<?php echo attr($colcount); ?>">...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <!-- form used to open a new top level window when a patient row is clicked -->
-                <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <input type='hidden' name='patientID' value='0'/>
-                </form>
-            </div>
-        </div>
+        <!-- form used to open a new top level window when a patient row is clicked -->
+        <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type='hidden' name='patientID' value='0'/>
+        </form>
     </div> <!--End of Container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
 
@@ -400,22 +384,16 @@ $loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
         });
     </script>
     <script>
-        $(window).on('resize', function() {//hide superfluous elements on Smartphones
-            var winWidth = $(this).width();
-            if (winWidth <  750) {
-                $("#pt_table_filter").addClass ("hidden");
-                $("#pt_table_length").addClass ("hidden");
-                $("#show_hide").addClass ("hidden");
-                $("#search_hide").addClass ("hidden");
-
-
-            } else {
-                $("#pt_table_filter").removeClass ("hidden");
-                $("#pt_table_length").removeClass ("hidden");
-                $("#show_hide").removeClass ("hidden");
-                $("#search_hide").addClass ("hidden");
-            }
-        });
+      $(function() {
+        $("#pt_table_filter").addClass("d-md-initial");
+        $("#pt_table_length").addClass("d-md-initial");
+        $("#show_hide").addClass("d-md-initial");
+        $("#search_hide").addClass("d-md-initial");
+        $("#pt_table_filter").addClass("d-none");
+        $("#pt_table_length").addClass("d-none");
+        $("#show_hide").addClass("d-none");
+        $("#search_hide").addClass("d-none");
+      });
     </script>
 
     <script>

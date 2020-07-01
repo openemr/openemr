@@ -89,6 +89,8 @@ $font-size-base: 0.875rem;
 $rfs-base-value: 0.875rem;
 $font-family-base: $font-family-sans-serif;
 
+$displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
+
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 

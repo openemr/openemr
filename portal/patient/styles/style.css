@@ -124,13 +124,6 @@ input[type=checkbox]:checked + label {
   padding: 5px;
 }
 
-/* .col-2 {
-	min-width: 0;
-	width: 12%;
-	display: inline;
-	padding: 2px 2px 2px 2px;
-} */
-
 .equal {
   display: flex;
   flex-wrap: wrap;
@@ -142,7 +135,6 @@ input[type=checkbox]:checked + label {
 }
 
 body {
-  background-color: #f0f0f0;
   padding-bottom: 40px;
   padding-top: 60px;
 }
@@ -206,7 +198,7 @@ table.collection th:hover {
 }
 
 .searchContainer input,
-searchContainer button {
+.searchContainer button {
   margin-top: 8px;
 }
 
@@ -226,9 +218,9 @@ searchContainer button {
 #loader {
   animation: spin 2s linear infinite;
   border: 16px solid #f3f3f3;
-  border-bottom: 16px solid #3498db;
+  border-bottom: 16px solid var(--primary);
   border-radius: 50%;
-  border-top: 16px solid #3498db;
+  border-top: 16px solid var(--primary);
   height: 150px;
   height: 120px;
   left: 50%;
@@ -249,23 +241,6 @@ searchContainer button {
     transform: rotate(360deg);
   }
 }
-
-/*  I have use for this */
-/* span.loader {
-	margin: 0px;
-	display: inline-block;
-	width: 45%;
-}
-
-span.loader .progress-bar {
-	display: inline-block;
-	width: 100%;
-	height: 30px;
-}
-
-.popover{
-    width: 600px;
-} */
 
 /* form controls */
 span.help-inline {
