@@ -612,10 +612,6 @@ $(function () {
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
-
-    <?php if ($_POST["mode"] == "ModifyPayments" || $_POST["mode"] == "search") { ?>
-    $("html").animate({scrollTop: $("#TableDistributePortion").offset().top}, 800);
-    <?php } ?>
 });
 
 document.onclick = HideTheAjaxDivs;
@@ -654,7 +650,7 @@ document.onclick = HideTheAjaxDivs;
         }
     }
 </style>
-<!--<link rel="stylesheet" href="<?php /*echo $css_header; */?>" type="text/css">-->
+<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 </head>
 <body class="body_top" onload="OnloadAction()">
     <div class="container">
@@ -706,7 +702,8 @@ document.onclick = HideTheAjaxDivs;
                 }//End of if($payment_id*1>0)
                 ?>
                     <?php
-                    if ($payment_id * 1 > 0) {//Distribution rows already in the database are displayed.
+                    if ($payment_id * 1 > 0) {
+                        //Distribution rows already in the database are displayed.
                         $resCount = sqlStatement("SELECT distinct encounter,code_type,code,modifier from ar_activity where  session_id =?", [$payment_id]);
                         $TotalRows = sqlNumRows($resCount);
                         $CountPatient = 0;
@@ -746,30 +743,29 @@ document.onclick = HideTheAjaxDivs;
                                     if ($CountPatient == 1) {
                                         $Table = 'yes';
                                         ?>
-                                        <br /><br />
-                                        <div class="col-xs-12">
+                                        <div class="row" id="tableRow">
+                                        <legend><?php echo xlt("Distributed Edits") ?></legend>
                                         <div class="table-responsive">
-                                        <table class="table table-condensed table-bordered" id="TableDistributePortion" >
+                                        <table class="table table-condensed table-bordered" id="TableDistributedEdit" >
                                         <thead bgcolor="#DDDDDD" class="text">
                                         <tr>
-                                            <td>&nbsp;</td>
-                                            <td><?php echo xlt('Patient Name'); ?></td>
-                                            <td style
-                                            ="width:75px"><?php echo xlt('Post For'); ?></td>
-                                            <td><?php echo xlt('Service Date'); ?></td>
-                                            <td><?php echo xlt('Encounter'); ?></td>
-                                            <td><?php echo xlt('Service Code'); ?></td>
-                                            <td><?php echo xlt('Charge'); ?></td>
-                                            <td><?php echo xlt('Copay'); ?></td>
-                                            <td><?php echo xlt('Bal Due'); ?></td>
-                                            <td><?php echo xlt('Allowed(c)'); ?></td><!-- (c) means it is calculated.Not stored one. -->
-                                            <td><?php echo xlt('Payment'); ?></td>
-                                            <td><?php echo xlt('Adj Amount'); ?></td>
-                                            <td><?php echo xlt('Deductible'); ?></td>
-                                            <td><?php echo xlt('Takeback'); ?></td>
-                                            <td><?php echo xlt('MSP Code'); ?></td>
-                                            <td><?php echo xlt('Resn'); ?></td>
-                                            <td><?php echo xlt('Follow Up Reason'); ?></td>
+                                            <th>&nbsp;</th>
+                                            <th><?php echo xlt('Patient Name'); ?></th>
+                                            <th style ="width:75px;"><?php echo xlt('Post For'); ?></th>
+                                            <th><?php echo xlt('Service Date'); ?></th>
+                                            <th><?php echo xlt('Encounter'); ?></th>
+                                            <th><?php echo xlt('Service Code'); ?></th>
+                                            <th><?php echo xlt('Charge'); ?></th>
+                                            <th><?php echo xlt('Copay'); ?></th>
+                                            <th><?php echo xlt('Bal Due'); ?></th>
+                                            <th><?php echo xlt('Allowed(c)'); ?></th><!-- (c) means it is calculated.Not stored one. -->
+                                            <th><?php echo xlt('Payment'); ?></th>
+                                            <th><?php echo xlt('Adj Amount'); ?></th>
+                                            <th><?php echo xlt('Deductible'); ?></th>
+                                            <th><?php echo xlt('Takeback'); ?></th>
+                                            <th style="width:70px;"><?php echo xlt('MSP Code'); ?></th>
+                                            <th><?php echo xlt('Follow'); ?></th>
+                                            <th><?php echo xlt('Follow Up Reason'); ?></th>
                                         </tr>
                                         </thead>
                                     <?php }
@@ -926,7 +922,7 @@ document.onclick = HideTheAjaxDivs;
                                         $ReasonCodeDB = $rowPayment['reason_code'];
 
                                         if ($Ins == 1) {
-                                            $AllowedDB = number_format($Fee - $AdjAmountDB, 2);
+                                            $AllowedDB = number_format($Fee - $AdjAmountDB, 2, '.', '');
                                         } else {
                                             $AllowedDB = 0;
                                         }
@@ -954,64 +950,71 @@ document.onclick = HideTheAjaxDivs;
                                         $allowedtot = $allowedtot + $AllowedDB;
                                         ?>
                                     <tr bgcolor='<?php echo attr($bgcolor); ?>' class="text" id="trCharges<?php echo attr($CountIndex); ?>">
-                                        <td align="left" class="<?php echo attr($StringClass); ?>">
-                                            <a href="#" onclick="javascript:return DeletePaymentDistribution(<?php echo attr_js($payment_id . '_' . $PId . '_' . $Encounter . '_' . $Code . '_' . $Modifier . '_' . $Codetype); ?>);"><img border="0" src="../pic/Delete.gif"></a>
+                                        <td align="left">
+                                            <a href="#" onclick="return DeletePaymentDistribution(<?php echo attr_js($payment_id . '_' . $PId . '_' . $Encounter . '_' . $Code . '_' . $Modifier . '_' . $Codetype); ?>);"><img border="0" src="../pic/Delete.gif"></a>
                                         </td>
-                                        <td align="left" class="<?php echo attr($StringClass); ?>"><?php echo text($NameDB); ?><input name="HiddenPId<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($PId); ?>"></td>
-                                        <td align="left" class="<?php echo attr($StringClass); ?>">
+                                        <td align="left"><?php echo text($NameDB); ?><input name="HiddenPId<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($PId); ?>"></td>
+                                        <td align="left">
                                             <input id="HiddenIns<?php echo attr($CountIndex); ?>" name="HiddenIns<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Ins); ?>"><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient", '', '', 'ActionOnInsPat("' . $CountIndex . '")'); ?>
                                         </td>
-                                        <td class="<?php echo attr($StringClass); ?>"><?php echo text($ServiceDate); ?></td>
-                                        <td align="right" class="<?php echo attr($StringClass); ?>"><input name="HiddenEncounter<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Encounter); ?>"><?php echo text($Encounter); ?></td>
-                                        <td class="<?php echo attr($StringClass); ?>">
-                                            <input name="HiddenCodetype<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Codetype); ?>"><input name="HiddenCode<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Code); ?>"><?php echo text($Codetype . "-" . $Code . $ModifierString); ?>
-                                            <input name="HiddenModifier<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Modifier); ?>"></td>
-                                        <td align="right" class="<?php echo attr($StringClass); ?>">
-                                            <input id="HiddenChargeAmount<?php echo attr($CountIndex); ?>" name="HiddenChargeAmount<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Fee); ?>"><?php echo text($Fee); ?></td>
-                                        <td align="right" class="<?php echo attr($StringClass); ?>">
+                                        <td><?php echo text($ServiceDate); ?></td>
+                                        <td align="right">
+                                            <input name="HiddenEncounter<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Encounter); ?>" /><?php echo text($Encounter); ?>
+                                        </td>
+                                        <td>
+                                            <input name="HiddenCodetype<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Codetype); ?>" /><input name="HiddenCode<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Code); ?>" /><?php echo text($Codetype . "-" . $Code . $ModifierString); ?>
+                                            <input name="HiddenModifier<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Modifier); ?>" /></td>
+                                        <td align="right">
+                                            <input id="HiddenChargeAmount<?php echo attr($CountIndex); ?>" name="HiddenChargeAmount<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Fee); ?>" /><?php echo text($Fee); ?></td>
+                                        <td align="right">
                                             <input id="HiddenCopayAmount<?php echo attr($CountIndex); ?>" name="HiddenCopayAmount<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Copay); ?>"><?php echo text(number_format($Copay, 2)); ?></td>
-                                        <td align="right" class="<?php echo attr($StringClass); ?>" id="RemainderTd<?php echo attr($CountIndex); ?>"><?php echo text(round($Remainder, 2)); ?></td>
-                                        <input id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr(round($RemainderJS, 2)); ?>">
-                                        <td class="<?php echo attr($StringClass); ?>">
-                                            <input autocomplete="off" id="Allowed<?php echo attr($CountIndex); ?>" name="Allowed<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Allowed','allowtotal');UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Payment','paymenttotal');UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)" style="width:60px;text-align:right; font-size:12px" type="text" value="<?php echo attr($AllowedDB); ?>">
+                                        <td align="right" id="RemainderTd<?php echo attr($CountIndex); ?>"><?php echo text(round($Remainder, 2)); ?></td>
+                                        <input id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr(round($RemainderJS, 2)); ?>" />
+                                        <td>
+                                            <input autocomplete="off" id="Allowed<?php echo attr($CountIndex); ?>" name="Allowed<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Allowed','allowtotal');UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Payment','paymenttotal');UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)" style="width:60px;text-align:right; font-size:12px" type="text" value="<?php echo attr(number_format($AllowedDB, 2)); ?>" />
                                         </td>
-                                        <td class="<?php echo attr($StringClass); ?>">
-                                            <input autocomplete="off" id="Payment<?php echo attr($CountIndex); ?>" name="Payment<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Payment','paymenttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)" style="width:60px;text-align:right; font-size:12px" type="text" value="<?php echo attr($PaymentDB); ?>">
+                                        <td>
+                                            <input autocomplete="off" id="Payment<?php echo attr($CountIndex); ?>" name="Payment<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Payment','paymenttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)" style="width:60px;text-align:right; font-size:12px" type="text" value="<?php echo attr($PaymentDB); ?>" />
                                         </td>
-                                        <td class="<?php echo attr($StringClass); ?>">
-                                            <input autocomplete="off" id="AdjAmount<?php echo attr($CountIndex); ?>" name="AdjAmount<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)" style="width:70px;text-align:right; font-size:12px" type="text" value="<?php echo attr($AdjAmountDB); ?>">
+                                        <td>
+                                            <input autocomplete="off" id="AdjAmount<?php echo attr($CountIndex); ?>" name="AdjAmount<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)" style="width:70px;text-align:right; font-size:12px" type="text" value="<?php echo attr($AdjAmountDB); ?>" />
                                         </td>
-                                        <td class="<?php echo attr($StringClass); ?>">
-                                            <input autocomplete="off" id="Deductible<?php echo attr($CountIndex); ?>" name="Deductible<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Deductible','deductibletotal');" onkeydown="PreventIt(event)" style="width:60px;text-align:right; font-size:12px" type="text" value="<?php echo attr($DeductibleDB); ?>">
+                                        <td>
+                                            <input autocomplete="off" id="Deductible<?php echo attr($CountIndex); ?>" name="Deductible<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this); UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Deductible','deductibletotal');" onkeydown="PreventIt(event)" style="width:60px;text-align:right; font-size:12px" type="text" value="<?php echo attr($DeductibleDB); ?>" />
                                         </td>
-                                        <td class="<?php echo attr($StringClass); ?>">
-                                            <input autocomplete="off" id="Takeback<?php echo attr($CountIndex); ?>" name="Takeback<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Takeback','takebacktotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)" style="width:60px;text-align:right; font-size:12px" type="text" value="<?php echo attr($TakebackDB); ?>">
+                                        <td>
+                                            <input autocomplete="off" id="Takeback<?php echo attr($CountIndex); ?>" name="Takeback<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Takeback','takebacktotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)" style="width:60px;text-align:right; font-size:12px" type="text" value="<?php echo attr($TakebackDB); ?>" />
                                         </td>
-                                        <td align="left" class="<?php echo attr($StringClass); ?>">
-                                            <input id="HiddenReasonCode<?php echo attr($CountIndex); ?>" name="HiddenReasonCode<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($ReasonCodeDB); ?>"><?php echo generate_select_list("ReasonCode$CountIndex", "msp_remit_codes", "$ReasonCodeDB", "MSP Code"); ?>
+                                        <td align="left">
+                                            <input id="HiddenReasonCode<?php echo attr($CountIndex); ?>" name="HiddenReasonCode<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($ReasonCodeDB); ?>" />
+                                            <?php echo generate_select_list("ReasonCode$CountIndex", "msp_remit_codes", "$ReasonCodeDB", "MSP Code"); ?>
                                         </td>
-                                        <td align="center" class="<?php echo attr($StringClass); ?>">
-                                            <input id="FollowUp<?php echo attr($CountIndex); ?>" name="FollowUp<?php echo attr($CountIndex); ?>" onclick="ActionFollowUp(<?php echo attr_js($CountIndex); ?>)" type="checkbox" value="y"></td>
+                                        <td align="center">
+                                        <input id="FollowUp<?php echo attr($CountIndex); ?>" name="FollowUp<?php echo attr($CountIndex); ?>" onclick="ActionFollowUp(<?php echo attr_js($CountIndex); ?>)" type="checkbox" value="y" />
+                                        </td>
                                         <td class="<?php echo attr($StringClass); ?> right">
-                                            <input id="FollowUpReason<?php echo attr($CountIndex); ?>" name="FollowUpReason<?php echo attr($CountIndex); ?>" onkeydown="PreventIt(event)" style="width:110px;font-size:12px" type="text" value="<?php echo attr($FollowUpReasonDB); ?>">
+                                            <input id="FollowUpReason<?php echo attr($CountIndex); ?>" name="FollowUpReason<?php echo attr($CountIndex); ?>" onkeydown="PreventIt(event)" style="font-size:12px" type="text" value="<?php echo attr($FollowUpReasonDB); ?>" readonly />
                                         </td>
-                                        </tr><?php
+                                        </tr>
+                                        <?php
                                     }//End of while ($RowSearch = sqlFetchArray($ResultSearch))
                                     ?>
                                     <?php
                                 }//End of if(sqlNumRows($ResultSearch)>0)
                             } while ($RowSearchSub = sqlFetchArray($ResultSearchSub));
-                            if ($Table == 'yes') {
-                                ?>
+                            if ($Table == 'yes') { ?>
                                 <tr class="text">
-                                    <td align="left" colspan="9">&nbsp;</td>
+                                    <td align="left" colspan="9">&nbsp</td>
                                     <td align="right" bgcolor="#6699FF" style="color:white;" class="left bottom" id="allowtotal"><?php echo text(number_format($allowedtot, 2)); ?></td>
                                     <td align="right" bgcolor="#6699FF" style="color:white;" class="left bottom" id="paymenttotal"><?php echo text(number_format($paymenttot, 2)); ?></td>
                                     <td align="right" bgcolor="#6699FF" style="color:white;" class="left bottom" id="AdjAmounttotal"><?php echo text(number_format($adjamttot, 2)); ?></td>
                                     <td align="right" bgcolor="#6699FF" style="color:white;" class="left bottom" id="deductibletotal"><?php echo text(number_format($deductibletot, 2)); ?></td>
                                     <td align="right" bgcolor="#6699FF" style="color:white;" class="left bottom right" id="takebacktotal"><?php echo text(number_format($takebacktot, 2)); ?></td>
-                                    <td align="center">&nbsp;</td>
-                                    <td align="center">&nbsp;</td>
+                                    <td align="center" colspan="2">&nbsp;</td>
+                                    <td align="right">
+                                        <button type="button" class="btn btn-sm btn-secondary btn-refresh pull-right"
+                                            onclick="updateAllFormTotals(<?php echo attr_js($TotalRows); ?>);"><?php echo xlt("Recalculate"); ?></button>
+                                    </td>
                                 </tr>
                                 </table>
                                 <?php
@@ -1036,8 +1039,8 @@ document.onclick = HideTheAjaxDivs;
                         <div class="col-sm-12 text-left position-override">
                             <br>
                             <div class="btn-group" role="group">
-                                <a class="btn btn-default btn-save" href="#" onclick="javascript:return ModifyPayments();"><span><?php echo xlt('Modify Payments'); ?></span></a>
-                                <a class="btn btn-default btn-save" href="#" onclick="javascript:return FinishPayments();"><span><?php echo xlt('Finish Payments'); ?></span></a>
+                                <a class="btn btn-default btn-save" href="#" onclick="return ModifyPayments();"><span><?php echo xlt('Modify Payments'); ?></span></a>
+                                <a class="btn btn-default btn-save" href="#" onclick="return FinishPayments();"><span><?php echo xlt('Finish Payments'); ?></span></a>
                             </div>
                         </div>
                     </div>
@@ -1066,6 +1069,15 @@ document.onclick = HideTheAjaxDivs;
         CheckVisible('yes');//Payment Method is made 'Check Payment' and the Check box is made visible.
         PayingEntityAction();//Paying Entity is made 'insurance' and Payment Category is 'Insurance Payment'
     }
+
+    $(function () {
+        let distribute = document.getElementById("TableDistributePortion");
+        if (distribute) {
+            $("html").animate({scrollTop: $("#TableDistributePortion").offset().top}, 800);
+        } else {
+            $("html").animate({scrollTop: $("#TableDistributedEdit").offset().top}, 800);
+        }
+    });
 </script>
 </body>
 </html>

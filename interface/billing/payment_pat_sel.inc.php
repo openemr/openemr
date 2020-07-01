@@ -47,7 +47,7 @@ if (isset($_POST["mode"])) {
 //===============================================================================
 ?>
 <fieldset>
-    <legend class=""><?php echo xlt('Distribute') ?></legend>
+    <legend class="row"><?php echo xlt('Distribute') ?></legend>
     <div class="row" style="padding-bottom:5px">
         <div class="col-xs-3">
             <label class="control-label" for="patient_name"><?php echo xlt('Patient'); ?>:</label>
@@ -225,23 +225,34 @@ if ($RowSearch = sqlFetchArray($ResultSearchNew)) { ?>
                         <td class="<?php echo attr($StringClass); ?>">
                             <input name="Allowed<?php echo attr($CountIndex); ?>" id="Allowed<?php echo attr($CountIndex); ?>"
                                 onKeyDown="PreventIt(event)" autocomplete="off"
-                                onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Allowed','initialallowtotal');UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"
+                                onChange="ValidateNumeric(this);
+                                ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);
+                                UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Allowed','initialallowtotal');
+                                UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');
+                                UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');
+                                RestoreValues(<?php echo attr_js($CountIndex); ?>)"
                                 type="text" style="width:60px;text-align:right; font-size:12px" />
                         </td>
                         <td class="<?php echo attr($StringClass); ?>">
-                            <input type="text" name="Payment<?php echo attr($CountIndex); ?>"
-                                onKeyDown="PreventIt(event)" autocomplete="off" id="Payment<?php echo attr($CountIndex); ?>"
-                                onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"
+                            <input type="text" name="Payment<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="Payment<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);
+                                ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);
+                                UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');
+                                RestoreValues(<?php echo attr_js($CountIndex); ?>)"
                                 style="width:60px;text-align:right; font-size:12px" />
                         </td>
                         <td class="<?php echo attr($StringClass); ?>">
-                            <input name="AdjAmount<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="AdjAmount<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"
+                            <input name="AdjAmount<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="AdjAmount<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);
+                            ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);
+                            UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"
                                 type="text" style="width:70px;text-align:right; font-size:12px" /></td>
                         <td class="<?php echo attr($StringClass); ?>">
-                            <input name="Deductible<?php echo attr($CountIndex); ?>" id="Deductible<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" onChange="ValidateNumeric(this);UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Deductible','initialdeductibletotal');" autocomplete="off" type="text" style="width:60px;text-align:right; font-size:12px" />
+                            <input name="Deductible<?php echo attr($CountIndex); ?>" id="Deductible<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" onChange="ValidateNumeric(this);
+                            UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Deductible','initialdeductibletotal');" autocomplete="off" type="text" style="width:60px;text-align:right; font-size:12px" />
                         </td>
                         <td class="<?php echo attr($StringClass); ?>">
-                            <input name="Takeback<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="Takeback<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Takeback','initialtakebacktotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" style="width:70px;text-align:right; font-size:12px" />
+                            <input name="Takeback<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="Takeback<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);
+                            ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);
+                            UpdateTotalValues(<?php echo attr_js($CountIndexAbove * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Takeback','initialtakebacktotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" style="width:70px;text-align:right; font-size:12px" />
                         </td>
                         <td align="left" class="<?php echo attr($StringClass); ?>">
                             <input name="HiddenReasonCode<?php echo attr($CountIndex); ?>" id="HiddenReasonCode<?php echo attr($CountIndex); ?>" value="<?php echo attr($ReasonCodeDB); ?>" type="hidden" /><?php echo generate_select_list("ReasonCode$CountIndex", "msp_remit_codes", "", "MSP Code", "--", ""); ?>
