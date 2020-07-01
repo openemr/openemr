@@ -111,10 +111,10 @@ if (isset($_GET['deletelid'])) {
                 <table class="table table-borderless">
                     <tr class="showborder_head">
                         <th style='width: 120px';>&nbsp;</th>
-                        <th style="border-style: 1px solid var(--black)" width="140px"><?php echo xlt('Recipient Name'); ?></th>
-                        <th style="border-style: 1px solid var(--black)" width="140px"><?php echo xlt('Disclosure Type'); ?></th>
-                        <th style="border-style: 1px solid var(--black)"><?php echo xlt('Description'); ?></th>
-                        <th style="border-style: 1px solid var(--black)"><?php echo xlt('Provider'); ?></th>
+                        <th width="140px"><?php echo xlt('Recipient Name'); ?></th>
+                        <th width="140px"><?php echo xlt('Disclosure Type'); ?></th>
+                        <th><?php echo xlt('Description'); ?></th>
+                        <th><?php echo xlt('Provider'); ?></th>
                     </tr>
                 <?php
                 $result2 = array();
