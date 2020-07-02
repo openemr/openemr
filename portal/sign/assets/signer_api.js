@@ -309,7 +309,7 @@ let bindFetch = '';
 //
 $(function () {
     let url = top.webroot_url ? top.webroot_url : webRoot;
-    url += "/portal/sign/assets/signer_modal.tpl.php?isPortal=" + encodeURIComponent(isPortal);
+    url += "/portal/sign/assets/signer_modal.php?isPortal=" + encodeURIComponent(isPortal);
     fetch(url, {
         credentials: 'include'
     })
