@@ -284,12 +284,12 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_
             </div>
         </form>
     </div>
-    <?php
-      } else {
-          echo htmlspecialchars(xl('NO SUCH CONTEXT NAME') . $contextName, ENT_QUOTES);
-          exit();
-      }
-      ?>
+        <?php
+  } else {
+      echo htmlspecialchars(xl('NO SUCH CONTEXT NAME') . $contextName, ENT_QUOTES);
+      exit();
+  }
+    ?>
   <table>
       <script>
           <?php if (!$isNN) { ?>

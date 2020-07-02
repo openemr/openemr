@@ -13,7 +13,7 @@ div.closeDlgIframe {
   #{$right}: -12px;
 
   &::before {
-	@extend .fas;
+    @extend .fas;
     color: $white;
     content: fa-content('#{$fa-var-times}');
     display: inline-block;

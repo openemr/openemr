@@ -5,59 +5,59 @@
 
 #patient_pastenc {
   width: 100%;
-}
 
-#patient_pastenc .billing_note {
-  width: 25%;
-}
+  .billing_note {
+    width: 25%;
+  }
 
-#patient_pastenc .billing_note_text {
-  background-color: $gray;
-  border: 2px outset $black;
-  padding: 5px;
-}
+  .billing_note_text {
+    background-color: $gray;
+    border: 2px outset $black;
+    padding: 5px;
+  }
 
-#patient_pastenc .billing_note_text_highlight {
-  background-color: lighten($yellow, 70%);
-}
+  .billing_note_text_highlight {
+    background-color: lighten($yellow, 70%);
+  }
 
-#patient_pastenc table {
-  border-collapse: collapse;
-  width: 100%;
-}
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
 
-#patient_pastenc tr {
-  cursor: pointer;
-}
+  tr {
+    cursor: pointer;
+  }
 
-#patient_pastenc td {
-  border-top: 1px solid $black;
-  vertical-align: top;
-}
+  td {
+    border-top: 1px solid $black;
+    vertical-align: top;
+  }
 
-#patient_pastenc th {
-  text-align: $left;
-}
+  th {
+    text-align: $left;
+  }
 
-#patient_pastenc #tooltipdiv {
-  background-color: lighten($yellow, 60%);
-  border: 1px solid $black;
-  padding: 2px;
-  position: absolute;
-  visibility: hidden;
-  width: 500px;
-  z-index: 1000;
-}
+  #tooltipdiv {
+    background-color: lighten($yellow, 60%);
+    border: 1px solid $black;
+    padding: 2px;
+    position: absolute;
+    visibility: hidden;
+    width: 500px;
+    z-index: 1000;
+  }
 
-#patient_pastenc .highlight {
-  background-color: $white;
-}
+  .highlight {
+    background-color: $white;
+  }
 
-#patient_pastenc .tooltip {
-  background: lighten($yellow, 70%);
-  border: 1px solid $dark;
-  color: $dark;
-  display: none;
-  padding: 2px 5px;
-  position: absolute;
+  .tooltip {
+    background: lighten($yellow, 70%);
+    border: 1px solid $dark;
+    color: $dark;
+    display: none;
+    padding: 2px 5px;
+    position: absolute;
+  }
 }

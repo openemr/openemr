@@ -419,13 +419,13 @@ div.tiny {
   #{$right}: 0.25rem;
 
   &.unshown::before {
-	@extend .fas;
+    @extend .fas;
     content: fa-content('#{$fa-var-eye}');
     cursor: pointer;
   }
 
   &.shown::before {
-	@extend .fas;
+    @extend .fas;
     content: fa-content('#{$fa-var-eye-slash}');
     cursor: pointer;
   }

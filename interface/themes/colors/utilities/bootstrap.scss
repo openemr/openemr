@@ -97,7 +97,7 @@ textarea.form-control {
 }
 
 .btn-sm {
-  @include font-size("10px !important");
+  @include font-size("0.625rem");
 }
 
 .btn-lg {
@@ -155,7 +155,7 @@ input[type=radio] {
 }
 
 .oe-legend-radio {
-  @include font-size("12px !important");
+  @include font-size("0.75rem");
   padding: 5px 5px 0 0;
 }
 
@@ -165,7 +165,7 @@ input[type=radio] {
 }
 
 .oe-btn-circle {
-  @include font-size("12px !important");
+  @include font-size("0.75rem");
   background: $darker !important;
   border-color: $darkest !important;
   border-radius: 15px;
@@ -179,7 +179,7 @@ input[type=radio] {
 
 .patientInfo a.btn,
 .patientDataColumn a.btn {
-  @include font-size("12px !important");
+  @include font-size("0.75rem");
   background: $darker !important;
   border-color: $darkest !important;
   border-radius: 10px !important;

@@ -38,32 +38,32 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 }
 
 h1 {
-<?php if ($GLOBALS['font-size'] != "__default__") { ?>
+    <?php if ($GLOBALS['font-size'] != "__default__") { ?>
     font-size: <?php echo $GLOBALS['font-size'] * 2.5; ?>rem !important;
-<?php } ?>
+    <?php } ?>
 }
 
 h2 {
-<?php if ($GLOBALS['font-size'] != "__default__") { ?>
+    <?php if ($GLOBALS['font-size'] != "__default__") { ?>
     font-size: <?php echo $GLOBALS['font-size'] * 2; ?>rem !important;
-<?php } ?>
+    <?php } ?>
 }
 
 h3 {
-<?php if ($GLOBALS['font-size'] != "__default__") { ?>
+    <?php if ($GLOBALS['font-size'] != "__default__") { ?>
     font-size: <?php echo $GLOBALS['font-size'] * 1.75; ?>rem !important;
-<?php } ?>
+    <?php } ?>
 }
 
 h4 {
-<?php if ($GLOBALS['font-size'] != "__default__") { ?>
+    <?php if ($GLOBALS['font-size'] != "__default__") { ?>
     font-size: <?php echo $GLOBALS['font-size'] * 1.5; ?>rem !important;
-<?php } ?>
+    <?php } ?>
 }
 
 h5 {
-<?php if ($GLOBALS['font-size'] != "__default__") { ?>
+    <?php if ($GLOBALS['font-size'] != "__default__") { ?>
     font-size: <?php echo $GLOBALS['font-size'] * 1.25; ?>rem !important;
-<?php } ?>
+    <?php } ?>
 }
 <?php } ?>

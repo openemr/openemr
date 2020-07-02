@@ -1,7 +1,7 @@
 /* OpenEMR batch payments, EOB Override */
 
 .oe-payment-select {
-  @include font-size("12px !important");
+  @include font-size("0.75rem");
   text-align: $right;
   width: 80px !important;
 }
