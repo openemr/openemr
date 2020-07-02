@@ -357,6 +357,7 @@ use OpenEMR\RestControllers\FHIR\FhirMedicationRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationStatementRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
+use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseController;
@@ -430,6 +431,12 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         return (new FhirOrganizationRestController())->patch($id, $data);
+    },
+    "GET /fhir/PractitionerRole" => function () {
+        return (new FhirPractitionerRoleRestController())->getAll($_GET);
+    },
+    "GET /fhir/PractitionerRole/:id" => function ($id) {
+        return (new FhirPractitionerRoleRestController())->getOne($id);
     },
     "GET /fhir/AllergyIntolerance" => function () {
         RestConfig::authorization_check("patients", "med");
