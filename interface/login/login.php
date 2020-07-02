@@ -155,7 +155,7 @@ if (count($emr_app)) {
         }
     </script>
 </head>
-<body class="login h-100">
+<body class="login">
   <form method="POST" id="login_form" autocomplete="off" action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>" target="_top" name="login_form">
       <div class="row login-row align-items-center m-5">
           <div class="col-md-6 p-5 login-area order-2 order-md-1">
