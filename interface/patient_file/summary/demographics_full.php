@@ -100,6 +100,16 @@ var somethingChanged = false;
 $(function () {
     tabbify();
 
+    $(".select-dropdown").select2({
+        theme: "bootstrap4",
+        <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+    });
+    if (typeof error !== 'undefined') {
+        if (error) {
+            alertMsg(error);
+        }
+    }
+
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         let title = <?php echo xlj('Insurance Search/Select/Add'); ?>;

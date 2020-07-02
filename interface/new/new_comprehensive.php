@@ -76,7 +76,7 @@ $fres = getLayoutRes();
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['common','datetime-picker']); ?>
+<?php Header::setupHeader(['common','datetime-picker','select2']); ?>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
 <?php require_once("$srcdir/erx_javascript.inc.php"); ?>
 <style>
@@ -914,6 +914,16 @@ while ($lrow = sqlFetchArray($lres)) {
     }
 }
 ?>
+
+    $(".select-dropdown").select2({
+        theme: "bootstrap4",
+        <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+    });
+    if (typeof error !== 'undefined') {
+        if (error) {
+            alertMsg(error);
+        }
+    }
 
   $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = false; ?>

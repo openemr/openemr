@@ -318,7 +318,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['opener', 'common', 'datetime-picker']); ?>
+    <?php Header::setupHeader(['opener', 'common', 'datetime-picker', 'select2']); ?>
 
     <style>
 
@@ -368,6 +368,16 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             }
             if (window.checkSkipConditions) {
                 checkSkipConditions();
+            }
+
+            $(".select-dropdown").select2({
+                theme: "bootstrap4",
+                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+            });
+            if (typeof error !== 'undefined') {
+                if (error) {
+                    alertMsg(error);
+                }
             }
 
             $(".iframe_medium").on('click', function (e) {

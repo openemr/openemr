@@ -381,16 +381,16 @@ function generate_form_field($frow, $currvalue)
     ) ? "checkSkipConditions();" : "";
     $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
-    // generic single-selection list or Race and Ethnicity.
+    // generic single-selection list or single-selection list with search or Race and Ethnicity.
     // These data types support backup lists.
-    if ($data_type == 1 || $data_type == 33) {
+    if ($data_type == 1 || $data_type == 33 || $data_type == 43) {
         echo generate_select_list(
             "form_$field_id",
             $list_id,
             $currvalue,
             $description,
             ($showEmpty ? $empty_title : ''),
-            $smallform,
+            (($data_type == 43) ? "select-dropdown" : $smallform),
             $lbfchange,
             '',
             ($disabled ? array('disabled' => 'disabled') : null),
@@ -1381,7 +1381,7 @@ function generate_print_field($frow, $currvalue)
 
     // generic single-selection list
     //  Supports backup lists.
-    if (false && ($data_type == 1 || $data_type == 26 || $data_type == 33)) {
+    if (false && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43)) {
         if (empty($fld_length)) {
             if ($list_id == 'titles') {
                 $fld_length = 3;
@@ -2068,13 +2068,13 @@ function generate_display_field($frow, $currvalue)
 
     // generic selection list or the generic selection list with add on the fly
     // feature
-    if ($data_type == 1 || $data_type == 26 || $data_type == 33) {
+    if ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43) {
         $lrow = sqlQuery("SELECT title FROM list_options " .
         "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue));
           $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
         //if there is no matching value in the corresponding lists check backup list
-        // only supported in data types 1,26,33
-        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33)) {
+        // only supported in data types 1,26,33,43
+        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43)) {
               $lrow = sqlQuery("SELECT title FROM list_options " .
               "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
               $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
@@ -2484,17 +2484,20 @@ function generate_plaintext_field($frow, $currvalue)
 
     // generic selection list or the generic selection list with add on the fly
     // feature, or radio buttons
-    //  Supports backup lists (for datatypes 1,26,33)
-    if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 33) {
-        $lrow = sqlQuery("SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue));
+    //  Supports backup lists (for datatypes 1,26,33,43)
+    if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 33 || $data_type == 43) {
+        $lrow = sqlQuery(
+            "SELECT title FROM list_options " .
+            "WHERE list_id = ? AND option_id = ? AND activity = 1",
+            array($list_id, $currvalue)
+        );
         $s = xl_list_label($lrow['title']);
         //if there is no matching value in the corresponding lists check backup list
-        // only supported in data types 1,26,33
-        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33)) {
-              $lrow = sqlQuery("SELECT title FROM list_options " .
-              "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
-              $s = xl_list_label($lrow['title']);
+        // only supported in data types 1,26,33,43
+        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43)) {
+            $lrow = sqlQuery("SELECT title FROM list_options " .
+            "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list, $currvalue));
+            $s = xl_list_label($lrow['title']);
         }
     } elseif ($data_type == 2 || $data_type == 3 || $data_type == 15) { // simple or long text field
         $s = $currvalue;
