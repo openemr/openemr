@@ -372,11 +372,11 @@ if (!empty($_REQUEST['go'])) { ?>
                             ?>
                             <div class='col-md-12'>
                                 <div class="jumbotron jumbotron-fluid py-3">
-                                <h4><?php echo text($message_legend); ?></h4>
+                                    <h4><?php echo text($message_legend); ?></h4>
                                     <div class="row">
-                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 oe-custom-line">
+                                        <div class="col-12 oe-custom-line">
                                             <div class="row">
-                                                <div class="col-3 col-sm-3">
+                                                <div class="col-6 col-md-3">
                                                     <label for="form_note_type"><?php echo xlt('Type'); ?>:</label>
                                                     <?php
                                                     if ($title == "") {
@@ -386,7 +386,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     generate_form_field(array('data_type' => 1, 'field_id' => 'note_type', 'list_id' => 'note_type', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $title);
                                                     ?>
                                                 </div>
-                                                <div class="col-3 col-sm-3">
+                                                <div class="col-6 col-md-3">
                                                     <label for="form_message_status"><?php echo xlt('Status'); ?>:</label>
                                                     <?php
                                                     if ($form_message_status == "") {
@@ -394,7 +394,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     }
                                                     generate_form_field(array('data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_message_status); ?>
                                                 </div>
-                                                <div class="col-4">
+                                                <div class="col-6 col-md-4">
                                                     <label for="form_patient">
                                                         <?php
                                                         if ($task != "addnew" && $result['pid'] != 0) { ?>
@@ -423,7 +423,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     <input type='text' id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " . $background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly />
                                                     <input type='hidden' class="form-control" name='reply_to' id='reply_to' value='<?php echo attr($reply_to); ?>'/>
                                                 </div>
-                                                <div class="col-2 d-flex flex-wrap">
+                                                <div class="col-6 col-md-2 d-flex flex-wrap">
                                                     <?php
                                                     if ($task == "addnew" || $result['pid'] == 0) {
                                                         echo "<label class='oe-empty-label' for='clear_patients'></label>";
@@ -434,7 +434,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 oe-custom-line">
+                                        <div class="col-12 oe-custom-line">
                                             <div class="row">
                                                 <?php if ($GLOBALS['messages_due_date']) { ?>
                                                 <div class="col-6 col-sm-2">
@@ -524,7 +524,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         ?>
                                     </div>
                                     </div>
-                                    <div class="row">
+                                    <!-- <div class="row"> -->
                                         <div class='col-12'>
                                             <?php
 
@@ -532,18 +532,19 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
                                                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
                                                 $body = nl2br(text(oeFormatPatientNote($body)));
-                                                echo "<div class='text oe-margin-t-3 p-2' style='border: 1px solid var(--gray);'>" . $body . "</div>";
+                                                // echo "<div class='text oe-margin-t-3 p-2' style='border: 1px solid var(--gray);'>" . $body . "</div>";
+                                                echo "<input type='text' class='form-control text oe-margin-t-3 p-2 mb-2 w-100' value='$body'>";
                                             }
 
                                             ?>
-                                            <textarea name='note' id='note' class='form-control oe-margin-t-3 p-1' style='margin-left: -1px !important; border: 1px solid var(--gray); height: 100px !important;'><?php echo nl2br(text($note)); ?></textarea>
+                                            <textarea name='note' id='note' class='form-control oe-margin-t-3 p-1' rows="5"><?php echo nl2br(text($note)); ?></textarea>
                                         </div>
                                         <div class="col-12 position-override oe-margin-t-10">
                                             <?php if ($noteid) { ?>
                                                 <!-- This is for displaying an existing note. -->
-                                                <button type="button" class="btn btn-secondary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
-                                                <button type="button" class="btn btn-secondary btn-print" id="printnote" value="<?php echo xla('Print message'); ?>"><?php echo xlt('Print message'); ?></button>
-                                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+                                                <button type="button" class="btn btn-primary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
+                                                <button type="button" class="btn btn-primary btn-print" id="printnote" value="<?php echo xla('Print message'); ?>"><?php echo xlt('Print message'); ?></button>
+                                                <button type="button" class="btn btn-secondary btn-cancel oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
                                             <?php } else { ?>
                                                 <!-- This is for displaying a new note. -->
                                                 <button type="button" class="btn btn-primary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
@@ -551,7 +552,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <?php }
                                             ?>
                                         </div>
-                                    </div>
+                                    <!-- </div> -->
                                 </div>
                                 </div>
                             </form>
@@ -615,7 +616,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                     <tr>
                                         <td>
                                             <form name='MessageList' id='MessageList' action=\"messages.php?showall=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($begin) . "&$activity_string_html\" method='post'>
-                                                <table class='table table-sm w-100'>
+                                                <table class='table table-sm table-hover w-100'>
                                                     <input type='hidden' name='task' value='delete' />
                                                     <thead class='table-primary'>
                                                       <tr height='24'>
@@ -765,8 +766,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         <div class="dr_container">
                             <span class="title"><?php echo xlt('Recalls'); ?></span>
                             <br/><br/>
-                            <a class="btn btn-secondary btn-add" onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></a>
-                            &nbsp;
+                            <button class="btn btn-primary btn-add" onclick="goReminderRecall('addRecall');"><?php echo xlt('New Recall'); ?></button>
                             <a class="btn btn-secondary btn-transmit" onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
                             &nbsp;
                         </div>

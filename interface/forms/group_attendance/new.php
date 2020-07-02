@@ -65,44 +65,44 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 </head>
 
 <body class="body_top">
+<div class="container-fluid">
 <?php if ($form_id) { ?>
-<form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=update&id=<?php echo attr_url($form_id) ;?>" name="my_form">
+<form id="group_attendance_form" method='post' onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=update&id=<?php echo attr_url($form_id) ;?>" name="my_form">
 <?php } else { ?>
-<form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=new" name="my_form">
+<form id="group_attendance_form" method='post' onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=new" name="my_form">
 <?php } ?>
     <div id="add_participant">
         <div class="button_wrap">
             <span class='title'><?php echo xlt('Group Attendance Form'); ?></span>
-            <input class="button-css add_button" type="button" value="<?php echo xla('Add'); ?>" <?php if (!$can_edit) {
-                ?> disabled <?php
-                                                                      } ?> >
+            <input class="btn btn-primary add_button" type="button" value="<?php echo xla('Add'); ?>" <?php if (!$can_edit) {
+                ?> disabled <?php } ?> />
         </div>
         <div id="add_participant_element"  style="display: none;">
             <div class="patient_wrap">
                 <span class="input_label"><?php echo xlt("Participant's name");?></span>
-                <input name="new_id" class="button-css new_patient_id" type="hidden" value="">
-                <input name="new_patient" class="button-css new_patient" type="text" value=""  readonly>
+                <input name="new_id" class="new_patient_id" type="hidden" value="" />
+                <input name="new_patient" class="form-control new_patient" type="text" value=""  readonly />
                 <div class="error_wrap">
                     <span class="error"></span>
                 </div>
             </div>
             <div class="comment_wrap">
                 <span class="input_label"><?php echo xlt("Comment");?></span>
-                <input name="new_comment" class="button-css new_comment" type="text" value="">
+                <input name="new_comment" class="form-control new_comment" type="text" value="" />
             </div>
-            <div class="button_wrap">
-                <input class="button-css add_patient_button" type="button" value="<?php echo xla('Add Patient'); ?>">
-                <input class="button-css cancel_button" type="button" value="<?php echo xla('Cancel'); ?>" >
+            <div class="btn-group">
+                <input class="btn btn-primary add_patient_button" type="button" value="<?php echo xla('Add Patient'); ?>" />
+                <input class="btn btn-secondary cancel_button" type="button" value="<?php echo xla('Cancel'); ?>" />
             </div>
         </div>
     </div>
     <table id="group_attendance_form_table">
         <thead>
-        <tr>
-            <th align="center"><?php echo xlt("Participant's name"); ?></th>
-            <th align="center"><?php echo xlt("Patient's number"); ?></th>
-            <th align="center"><?php echo xlt('Status in the meeting'); ?></th>
-            <th align="center"><?php echo xlt('Comment'); ?></th>
+        <tr class="text-center">
+            <th><?php echo xlt("Participant's name"); ?></th>
+            <th><?php echo xlt("Patient's number"); ?></th>
+            <th><?php echo xlt('Status in the meeting'); ?></th>
+            <th><?php echo xlt('Comment'); ?></th>
         </tr>
         </thead>
         <tbody>
@@ -111,9 +111,9 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 <td ><?php echo text($participant['fname'] . ", " . $participant['lname']); ?></td>
                 <td ><?php echo text($participant['pid']); ?></td>
                 <td >
-                    <select class="status_select" name="<?php echo "patientData[" . attr($participant['pid']) . "][status]" ;?>" <?php if (!$can_edit) {
+                    <select class="form-control status_select" name="<?php echo "patientData[" . attr($participant['pid']) . "][status]" ;?>" <?php if (!$can_edit) {
                         ?> disabled <?php
-                                                        } ?> >
+                                                                     } ?> >
                         <?php foreach ($statuses_in_meeting as $status_in_meeting) {?>
                             <option value="<?php echo attr($status_in_meeting['option_id']); ?>" <?php if ($participant['meeting_patient_status'] == $status_in_meeting['option_id']) {
                                 echo 'selected';
@@ -122,19 +122,18 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                     </select>
                 </td>
                 <td >
-                    <input class="comment" type="text" name="<?php echo "patientData[" . attr($participant['pid']) . "][comment]";  ?>" value="<?php echo attr($participant['meeting_patient_comment']) ;?>" <?php if (!$can_edit) {
-                        ?> disabled <?php
-                                                             } ?> ></input>
+                    <input class="form-control comment" type="text" name="<?php echo "patientData[" . attr($participant['pid']) . "][comment]";  ?>" value="<?php echo attr($participant['meeting_patient_comment']) ;?>" <?php if (!$can_edit) {
+                        ?> disabled <?php } ?> ></input>
                 </td>
             </tr>
         <?php } ?>
         </tbody>
     </table>
-    <div class="action_buttons">
-        <input name="submit" class="button-css" type="submit" value="<?php echo xla('Save'); ?>" <?php if (!$can_edit) {
+    <div class="btn-group action_buttons">
+        <input name="submit" class="btn btn-primary" type="submit" value="<?php echo xla('Save'); ?>" <?php if (!$can_edit) {
             ?> disabled <?php
-                                                                     } ?> >
-        <input class="button-css cancel" type="button" value="<?php echo xla('Cancel'); ?>">
+                                                                          } ?> >
+        <input class="btn btn-secondary cancel" type="button" value="<?php echo xla('Cancel'); ?>" />
     </div>
 </form>
 <script>
@@ -157,7 +156,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
         $('.new_patient').on('click', function(){
             top.restoreSession();
-            $('.new_patient').css("border-color", "black");
+            $('.new_patient').css("border-color", "var(--body-color)");
             $('.error_wrap .error').html("");
             var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_patient_popup.php';
             dlgopen(url, '_blank', 500, 400);
@@ -177,7 +176,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
             if(name == ""){
                 //If no patient was chosen (validation)
-                $('.new_patient').css("border-color", "red");
+                $('.new_patient').css("border-color", "var(--danger)");
                 var err_msg = <?php echo xlj("Choose Patient"); ?>;
                 $('.error_wrap .error').html(err_msg);
             }
@@ -195,7 +194,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 });
                 var exists = $.inArray(new_patient_id, ids_array);
                 if(exists >= 0){
-                    $('.new_patient').css("border-color", "red");
+                    $('.new_patient').css("border-color", "var(--danger)");
                     var err_msg = <?php echo xlj("Patient already in form"); ?>;
                     $('.error_wrap .error').html(err_msg);
                     return;
@@ -203,7 +202,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
                 //Get statuses from list into json and create select element
                 var statuses = <?php echo json_encode($statuses_in_meeting); ?>;
-                var select_element = $("<select class=\"status_select\" name=\"\" />");
+                var select_element = $("<select class=\"form-control status_select\" name=\"\" />");
                 $.each(statuses, function(key, value) {
                     $("<option />", {value: value.option_id, text: value.title}).appendTo(select_element);
                 });
@@ -212,7 +211,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 select_element.find("option[value='" + attended_sign +"']").attr('selected', 'selected');
 
                 //Create comment element
-                var comment_element = $("<input class=\"comment\" type=\"text\" name=\"\" value=\"\">");
+                var comment_element = $("<input class=\"form-control comment\" type=\"text\" name=\"\" value=\"\">");
                 comment_element.attr('name', 'patientData[' + new_patient_id + '][comment]');
                 comment_element.attr('value', new_patient_comment);
 
@@ -225,12 +224,12 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 }
 
                 //Insert new row into datatable
-                $('#group_attendance_form_table').dataTable().fnAddData( [
+                $('#group_attendance_form_table').dataTable().fnAddData([
                     new_patient_name,
                     new_patient_id,
                     select_html_string,
                     comment_html_string
-                ] );
+                ]);
 
                 //Empty values from inputs
                 $('.new_patient').val("");
@@ -258,6 +257,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
 
 </script>
+</div>
 <?php
 formFooter();
 ?>

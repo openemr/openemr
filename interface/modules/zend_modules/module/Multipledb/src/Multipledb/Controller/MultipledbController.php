@@ -25,6 +25,7 @@ use Laminas\Json\Server\Exception\ErrorException;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionUtil;
 use Application\Listener\Listener;
 use Error;
 
@@ -72,7 +73,7 @@ class MultipledbController extends BaseController
     public function editAction()
     {
         $id = substr((int)$_REQUEST['id'], 0, 11);
-        $_SESSION['multiple_edit_id'] = $id;
+        SessionUtil::setSession('multiple_edit_id', $id);
         $this->getJsFiles();
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
@@ -110,8 +111,7 @@ class MultipledbController extends BaseController
         }
 
         // remove session data
-        $_SESSION['multiple_edit_id'] = 0; // In case session not destroyed
-        unset($_SESSION['multiple_edit_id']);
+        SessionUtil::unsetSession('multiple_edit_id');
 
         return $this->redirect()->toRoute('multipledb', array(
             'action' => 'index'

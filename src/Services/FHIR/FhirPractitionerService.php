@@ -153,6 +153,15 @@ class FhirPractitionerService extends FhirServiceBase
                 'use' => 'mobile'
             ));
         }
+
+        if (isset($dataRecord['email'])) {
+            $practitionerResource->addTelecom(array(
+                'system' => 'email',
+                'value' => $dataRecord['email'],
+                'use' => 'home'
+            ));
+        }
+
         if (isset($dataRecord['npi'])) {
             $fhirIdentifier = [
                 'system' => "http://hl7.org/fhir/sid/us-npi",

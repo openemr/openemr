@@ -176,7 +176,7 @@ if ($form_output == 3) {
     <?php
  // Build a drop-down list of facilities.
  //
-    $fres = $facilityService->getAll();
+    $fres = $facilityService->getAllFacility();
     echo "   <select name='form_facility'>\n";
     echo "    <option value=''>-- All Facilities --\n";
     foreach ($fres as $frow) {

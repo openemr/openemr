@@ -14,12 +14,8 @@
 
 ?>
 <div id="component-border">
-    <div class="row">
-        <div class="col-md-12">
-            <h4><?php echo xlt('Past meetings')?></h4>
-            <button onclick="newGroup()"><?php echo xlt('Add encounter')?></button>
-        </div>
-    </div>
+    <h4><?php echo xlt('Past meetings')?></h4>
+    <button class="btn btn-primary" onclick="newGroup()"><?php echo xlt('Add encounter')?></button>
 </div>
 <script>
     function newGroup(){

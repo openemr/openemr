@@ -96,7 +96,12 @@ language: php
       echo "------------------"
       echo "Main OpenEMR Build"
       echo "------------------"
-      composer install || failTest=true
+      if [ "$SKIP_COMPOSER_PLATFORM_REQS" = true ]; then
+        echo "(For PHP8 build to work, using --ignore-platform-reqs parameter for composer install; this is temporary)"
+        composer install --ignore-platform-reqs || failTest=true
+      else
+        composer install || failTest=true
+      fi
       npm install || failTest=true
       npm run build || failTest=true
       composer global require phing/phing || failTest=true
@@ -556,7 +561,7 @@ jobs:
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
-    - name: 'Build and test - PHP 7.2 - Nginx - MariaDB 10.4'
+    - name: 'Build and test - PHP 7.2 - Nginx - MariaDB 10.5'
       php: '7.2'
       env:
         - DOCKER_DIR=nginx_72
@@ -579,7 +584,7 @@ jobs:
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
-    - name: 'Build and test - PHP 7.3 - Nginx - MariaDB 10.4'
+    - name: 'Build and test - PHP 7.3 - Nginx - MariaDB 10.5'
       php: '7.3'
       env:
         - DOCKER_DIR=nginx_73
@@ -602,7 +607,7 @@ jobs:
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
-    - name: 'Build and test - PHP 7.4 - Nginx - MariaDB 10.4'
+    - name: 'Build and test - PHP 7.4 - Nginx - MariaDB 10.5'
       php: '7.4'
       env:
         - DOCKER_DIR=nginx_74
@@ -625,12 +630,13 @@ jobs:
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
-    - name: 'Build and test - PHP 8.0 - Nginx - MariaDB 10.4'
+    - name: 'Build and test - PHP 8.0 - Nginx - MariaDB 10.5'
       php: 'nightly'
       env:
         - DOCKER_DIR=nginx_80
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
         - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - SKIP_COMPOSER_PLATFORM_REQS=true
       script:
         - failJob=false
         - *dockers_env_start
@@ -649,6 +655,4 @@ jobs:
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
   allow_failures:
-    - name: 'Build and test - PHP 7.3 - Apache - MariaDB 10.5'
-    - name: 'Syntax - PHP 8.0'
-    - name: 'Build and test - PHP 8.0 - Nginx - MariaDB 10.4'
+    - name: 'Build and test - PHP 8.0 - Nginx - MariaDB 10.5'
