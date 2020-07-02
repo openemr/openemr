@@ -213,7 +213,7 @@ if (($_REQUEST['action'] == 'delete_Recall') && ($_REQUEST['pid'])) {
 // $_SESSION['pidList'] will hold array of patient ids
 // which is then used to print 'postcards' and 'Address Labels'
 // Thanks Terry!
-unset($_SESSION['pidList']);
+SessionUtil::unsetSession('pidList');
 $pid_list = array();
 
 if ($_REQUEST['action'] == "process") {

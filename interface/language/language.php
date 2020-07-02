@@ -15,8 +15,6 @@ require_once("$srcdir/registry.inc");
 require_once("language.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 
 //START OUT OUR PAGE....
@@ -67,10 +65,9 @@ use OpenEMR\Core\Header;
                                 CsrfUtils::csrfNotVerified();
                             }
 
-                            // Pass a unique variable, so below scripts can
+                            // Set a variable, so below scripts can
                             // not be run on their own
-                            $unique_id = RandomGenUtils::createUniqueToken();
-                            SessionUtil::setSession('lang_module_unique_id', $unique_id);
+                            $langModuleFlag = true;
 
                             switch ($_GET['m']) :
                                 case 'definition':
