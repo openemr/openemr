@@ -50,9 +50,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                     alertMsg(error);
                 }
             }
-        });
 
-        $(function() {
             $("#form_facility_user").submit(function(event) {
                 top.restoreSession();
                 event.preventDefault();
