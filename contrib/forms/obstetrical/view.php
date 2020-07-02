@@ -24,6 +24,7 @@ require_once("../../globals.php");
 use OpenEMR\Core\Header;
 
 ?>
+<!-- TODO: Clean the code -->
 <html><head>
     <?php Header::setupHeader(); ?>
 </head>
@@ -39,9 +40,9 @@ $obj = formFetch("form_obstetrical", $_GET["id"]);
 <td><span class=text>Name: </span></td><td><input type="text" name="name" value="<?php echo attr($obj["name"]); ?>" ></td>
 <td><span class=text>Birthdate: </span></td><td><input type="text" size=10 name=birthdate value="<?php if ($obj["birthdate"] != "0000-00-00 00:00:00") {
     echo attr(date("Y-m-d", strtotime($obj["birthdate"])));
-                                                                                                } else {
-                                                                                                    echo "YYYY-MM-DD";
-                                                                                                }?>"></td>
+                                                                                                 } else {
+                                                                                                     echo "YYYY-MM-DD";
+                                                                                                 }?>"></td>
 <td><span class=text>Birth Status: </span></td><td><input type="text" name="birth_status" value="<?php echo attr($obj["birth_status"]); ?>" ></td>
 <td><span class=text>Gender: </span></td><td><input type="text" name="gender" value="<?php echo attr($obj["gender"]); ?>" ></td>
 <td><input type=checkbox name="circumcised"  <?php if ($obj["circumcised"] == "on") {
