@@ -87,6 +87,7 @@ $body-color: $gray-900;
 $font-family-sans-serif: "Lato", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-size-base: 0.875rem;
 $rfs-base-value: 0.875rem;
+$rfs-class: true;
 $font-family-base: $font-family-sans-serif;
 
 $displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
@@ -1872,7 +1873,7 @@ li.dropdown-header {
   width: 1rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: map-get($grid-breakpoints, "md")) {
   .collapse-md {
     display: inherit !important;
   }

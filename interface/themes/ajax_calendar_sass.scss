@@ -10,7 +10,7 @@
 }
 
 div.tiny {
-  @include font-size("0.0625rem !important");
+  @include font-size("0.0625rem");
   height: 0.0625rem;
   width: 0.0625rem;
 }
@@ -64,14 +64,12 @@ div.tiny {
 }
 
 #dateNAV {
-  @include font-size("1.1875rem !important");
+  @include font-size("1.1875rem");
   float: $left;
-  font-family: "Arial", "Helvetica", sans-serif;
 }
 
 #dateDisplay {
   float: $left;
-  font-family: "Arial", "Helvetica", sans-serif;
   padding-#{$left}: 0.625rem;
 }
 
@@ -81,15 +79,13 @@ div.tiny {
 }
 
 #bigCalHeader {
-  @include font-size("1.1875rem !important");
+  @include font-size("1.1875rem");
   float: $right;
-  font-family: "Arial", "Helvetica", sans-serif;
   text-align: center;
   width: 70%;
 }
 
 #providerPicker {
-  font-family: "Arial", "Helvetica", sans-serif;
   width: 100%;
 }
 
@@ -100,7 +96,6 @@ div.tiny {
 
 #facilityColor {
   float: $left;
-  font-family: "Arial", "Helvetica", sans-serif;
   width: 100%;
 }
 
@@ -154,27 +149,24 @@ div.tiny {
 }
 
 #datePicker td {
-  @include font-size("0.7rem !important");
-  font-family: "Arial", "Helvetica", sans-serif;
+  @include font-size("0.7rem");
   text-align: center;
   width: 1.21875rem;
 }
 
 #datePicker .tdMonthName-small {
-  @include font-size("0.75rem !important");
+  @include font-size("0.75rem");
   background-color: lighten($light, 20%);
   color: $body-color;
   cursor: pointer;
-  font-family: "Arial", "Helvetica", sans-serif;
   font-style: normal;
   text-align: center;
 }
 
 #datePicker .tdDOW-small {
-  @include font-size("0.625rem !important");
+  @include font-size("0.625rem");
   background-color: lighten($light, 20%);
   border: 0;
-  font-family: "Arial", "Helvetica", sans-serif;
   padding: 0.125rem 0.1875rem;
   text-align: center;
   vertical-align: top;
@@ -186,40 +178,36 @@ div.tiny {
 }
 
 #datePicker .tdWeekend-small {
-  @include font-size("0.625rem !important");
+  @include font-size("0.625rem");
   background-color: $white;
   border: 0;
   color: $gray-600;
-  font-family: "Arial", "Helvetica", sans-serif;
   padding: 0.125rem 0.1875rem;
   vertical-align: top;
 }
 
 #datePicker .tdHoliday-small {
-  @include font-size("0.625rem !important");
+  @include font-size("0.625rem");
   background-color: $white;
   border: 0;
   color: $danger;
-  font-family: "Arial", "Helvetica", sans-serif;
   padding: 0.125rem 0.1875rem;
   vertical-align: top;
 }
 
 #datePicker .tdOtherMonthDay-small {
-  @include font-size("0.625rem !important");
+  @include font-size("0.625rem");
   background-color: $white;
   border: 0;
   color: $gray-600;
-  font-family: "Arial", "Helvetica", sans-serif;
   padding: 0.125rem 0.1875rem;
   vertical-align: top;
 }
 
 #datePicker .tdMonthDay-small {
-  @include font-size("0.625rem !important");
+  @include font-size("0.625rem");
   background-color: $white;
   border: 0;
-  font-family: "Arial", "Helvetica", sans-serif;
   padding: 0.125rem 0.1875rem;
   vertical-align: top;
 }
@@ -255,7 +243,7 @@ div.tiny {
 }
 
 #times table td {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   border-bottom: 1px solid $gray-600;
   margin: 0;
   padding: 0;
@@ -301,7 +289,7 @@ div.tiny {
 
 /* classes specific to the WEEK view */
 .week_dateheader {
-  @include font-size("0.7rem !important");
+  @include font-size("0.7rem");
   border-left: 1px solid $gray-600;
   border-right: 1px solid $gray-600;
   font-weight: bold;
@@ -335,7 +323,7 @@ div.tiny {
 
 /* classes specific to the MONTH view */
 .month_daylink {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   background-color: $white;
   padding: 0.0625rem 0.125rem;
   text-align: $right;
@@ -343,12 +331,12 @@ div.tiny {
 }
 
 .month_dateheader {
-  @include font-size("0.7rem !important");
+  @include font-size("0.7rem");
   width: 13%;
 }
 
 .month_event {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   width: 100%;
 }
 
@@ -427,19 +415,20 @@ div.tiny {
 
 .show-appointment {
   bottom: 0.125rem;
-  font-family: 'FontAwesome', sans-serif;
   position: absolute;
   #{$right}: 0.25rem;
-}
 
-.show-appointment.unshown::before {
-  content: "\f06e";
-  cursor: pointer;
-}
+  &.unshown::before {
+	@extend .fas;
+    content: fa-content('#{$fa-var-eye}');
+    cursor: pointer;
+  }
 
-.show-appointment.shown::before {
-  content: "\f070";
-  cursor: pointer;
+  &.shown::before {
+	@extend .fas;
+    content: fa-content('#{$fa-var-eye-slash}');
+    cursor: pointer;
+  }
 }
 
 .in_start {
@@ -487,14 +476,14 @@ div.tiny {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: map-get($grid-breakpoints, "md")) {
   #prevday,
   #nextday,
   #prevweek,
   #nextweek,
   #prevmonth,
   #nextmonth {
-    @include font-size("1.3rem !important");
+    @include font-size("1.3rem");
   }
 
   .page-content-wrapper {

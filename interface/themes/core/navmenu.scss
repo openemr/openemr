@@ -13,7 +13,7 @@
 /* see .titlebar below */
 
 .title_bar {
-  @include font-size("1.0rem !important");
+  @include font-size("1.0rem");
   color: $body-color;
   font-weight: bold;
   text-decoration: none;
@@ -187,7 +187,7 @@ body {
       background-color: $gray-300;
 
       &::before {
-		@extend %fa-defaults;
+        @extend %fa-defaults;
         @extend .far;
         content: fa-content('#{$fa-var-caret-square-up + $escape-fa}');
       }
@@ -197,7 +197,7 @@ body {
       background-color: $gray-300;
 
       &::before {
-		@extend %fa-defaults;
+        @extend %fa-defaults;
         @extend .far;
         content: fa-content('#{$fa-var-caret-square-down + $escape-fa}');
       }

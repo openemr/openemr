@@ -80,6 +80,7 @@ $colors: (
 $font-family-sans-serif: "source_sans_pro", "FontAwesome", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-size-base: 1rem;
 $rfs-base-value: 1rem;
+$rfs-class: true;
 $font-family-base: $font-family-sans-serif;
 
 $close-color: $black;
@@ -118,7 +119,7 @@ body {
 .menu,
 .menu_selected,
 .logout {
-  @include font-size("0.95rem !important");
+  @include font-size("0.95rem");
   font-style: italic !important;
 }
 
@@ -128,7 +129,7 @@ body {
 
 .alert-custom,
 .link {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   text-decoration: none !important;
 }
 
@@ -138,27 +139,27 @@ body {
 .link_selected:visited,
 #addressbook_list tr.search,
 #addressbook_list tr.detail {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
 }
 
 .link_submit {
-  @include font-size("0.85rem !important");
+  @include font-size("0.85rem");
 }
 
 .items {
-  @include font-size("0.6rem !important");
+  @include font-size("0.6rem");
 }
 
 .title {
-  @include font-size("1.2rem !important");
+  @include font-size("1.2rem");
 }
 
 .title_bar {
-  @include font-size("1.0rem !important");
+  @include font-size("1.0rem");
 }
 
 .title_bar_top {
-  @include font-size("1.1rem !important");
+  @include font-size("1.1rem");
 }
 
 .sidebar {
@@ -179,11 +180,11 @@ body {
 }
 
 #addressbook_list tr.head {
-  @include font-size("0.9rem !important");
+  @include font-size("0.9rem");
 }
 
 #addressbook_list .inputtext {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   font-family: 'source_sans_pro', 'FontAwesome', monospace, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
@@ -213,7 +214,7 @@ body {
 
 #patient_stats .head,
 #patient_stats .detail {
-  @include font-size("0.9rem !important");
+  @include font-size("0.9rem");
 }
 
 /*=============================================================
@@ -221,7 +222,7 @@ body {
  * seen in the patient encounter screen
  *============================================================*/
 #patient_pastenc #tooltipdiv {
-  @include font-size("0.85rem !important");
+  @include font-size("0.85rem");
 }
 
 tr.odd {
@@ -242,7 +243,7 @@ ul.tabNav {
 }
 
 ul.tabNav li {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   border-left: 1px solid $black;
   border-radius: 8px 8px 0 0;
   border-right: 1px solid $black;
@@ -258,7 +259,7 @@ ul.tabNav li {
 }
 
 ul.tabNav li.current {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   border-left: 1px solid $black;
   font-weight: bold;
   position: relative;
@@ -395,20 +396,20 @@ div.summary_item div {
 .showborder_head th,
 .shownoborder td,
 .showborder_long tr td {
-  @include font-size("0.75rem !important");
+  @include font-size("0.75rem");
 }
 
 /**
 * Drug lookup
 **/
 .drug_lookup {
-  @include font-size("0.6875rem !important");
+  @include font-size("0.6875rem");
   font-family: 'source_sans_pro', 'FontAwesome', "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
 /* Style for red font */
 .redtext {
-  @include font-size("0.8125rem !important");
+  @include font-size("0.8125rem");
 }
 
 /* Style for red font */
@@ -431,7 +432,7 @@ body dl {
 }
 
 #sddm li a {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   color: $black;
   padding: 4px 10px;
 }
@@ -484,11 +485,11 @@ body dl {
 
 /* Form styles */
 .formtable {
-  @include font-size("0.8125rem !important");
+  @include font-size("0.8125rem");
 }
 
 .error-message {
-  @include font-size("0.6875rem !important");
+  @include font-size("0.6875rem");
 }
 
 /* flow board filters*/
@@ -533,7 +534,7 @@ body dl {
 
 #refreshme,
 #setting_cog {
-  @include font-size("0.7rem !important");
+  @include font-size("0.7rem");
 }
 
 .calendar {
