@@ -417,9 +417,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return (new FhirPractitionerRestController())->patch($id, $data);
     },
     "GET /fhir/Organization" => function () {
+        RestConfig::authorization_check("admin", "users");
         return (new FhirOrganizationRestController())->getAll($_GET);
     },
     "GET /fhir/Organization/:id" => function ($id) {
+        RestConfig::authorization_check("admin", "users");
         return (new FhirOrganizationRestController())->getOne($id);
     },
     "POST /fhir/Organization" => function () {
@@ -433,9 +435,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return (new FhirOrganizationRestController())->patch($id, $data);
     },
     "GET /fhir/PractitionerRole" => function () {
+        RestConfig::authorization_check("admin", "users");
         return (new FhirPractitionerRoleRestController())->getAll($_GET);
     },
     "GET /fhir/PractitionerRole/:id" => function ($id) {
+        RestConfig::authorization_check("admin", "users");
         return (new FhirPractitionerRoleRestController())->getOne($id);
     },
     "GET /fhir/AllergyIntolerance" => function () {

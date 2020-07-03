@@ -29,8 +29,13 @@ class PractitionerRoleService extends BaseService
     public function __construct()
     {
         parent::__construct('facility_user_ids');
-        $this->uuidRegistery = new UuidRegistry(['table_name' => self::PRACTITIONER_ROLE_TABLE]);
+        $this->uuidRegistery = new UuidRegistry([
+            'table_name' => self::PRACTITIONER_ROLE_TABLE,
+            'table_vertical' => ['uid', 'facility_id']
+        ]);
         $this->uuidRegistery->createMissingUuids();
+        (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+        (new UuidRegistry(['table_name' => 'facility']))->createMissingUuids();
         $this->practitionerRoleValidator = new PractitionerRoleValidator();
     }
 
