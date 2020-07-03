@@ -25,10 +25,10 @@ $login-form-bg-color: $white !default;
 $login-button-primary: false !default;
 
 body.login {
-  height: 100%;
   align-items: center;
   background: $light;
   display: flex;
+  height: 100%;
   justify-content: center;
   resize: both;
 }
