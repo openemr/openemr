@@ -272,7 +272,6 @@ case "$1" in
          chmod 600 $OPENEMR/setup.php
          chmod 600 $OPENEMR/sql_upgrade.php
          chmod 600 $OPENEMR/ippf_upgrade.php
-         chmod 600 $OPENEMR/gacl/setup.php
 
          #set writable directories (that are within sites directory)
          # (go through each site)
@@ -567,7 +566,6 @@ case "$1" in
          chmod 600 $OPENEMR/setup.php
          chmod 600 $OPENEMR/sql_upgrade.php
          chmod 600 $OPENEMR/ippf_upgrade.php
-         chmod 600 $OPENEMR/gacl/setup.php
 
          log_only "Done configuring OpenEMR"
       fi

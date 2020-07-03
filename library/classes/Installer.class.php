@@ -61,9 +61,8 @@ class Installer
         $this->cvx = dirname(__FILE__) . "/../../sql/cvx_codes.sql";
         $this->additional_users = dirname(__FILE__) . "/../../sql/official_additional_users.sql";
 
-        // Record name of php-gacl installation files
-        $this->gaclSetupScript1 = dirname(__FILE__) . "/../../gacl/setup.php";
-        $this->gaclSetupScript2 = dirname(__FILE__) . "/../../acl_setup.php";
+        // Record name of php-gacl installation file
+        $this->gaclSetupScript = dirname(__FILE__) . "/../../acl_setup.php";
 
         // Prepare the dumpfile list
         $this->initialize_dumpfile_list();
@@ -520,19 +519,13 @@ if ($it_died != 0) {
 
     public function install_gacl()
     {
-        $install_results_1 = $this->get_require_contents($this->gaclSetupScript1);
-        if (! $install_results_1) {
-            $this->error_message = "install_gacl failed: unable to require gacl script 1";
-            return false;
-        }
-
-        $install_results_2 = $this->get_require_contents($this->gaclSetupScript2);
+        $install_results_2 = $this->get_require_contents($this->gaclSetupScript);
         if (! $install_results_2) {
             $this->error_message = "install_gacl failed: unable to require gacl script 2";
             return false;
         }
 
-        $this->debug_message .= $install_results_1 . $install_results_2;
+        $this->debug_message .= $install_results_2;
         return true;
     }
 

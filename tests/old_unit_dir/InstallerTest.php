@@ -41,8 +41,7 @@ class InstallerTest extends PHPUnit_Framework_TestCase
     public function testFilePaths()
     {
         $this->assertFileExists($this->installer->conffile);
-        $this->assertFileExists($this->installer->gaclSetupScript1);
-        $this->assertFileExists($this->installer->gaclSetupScript2);
+        $this->assertFileExists($this->installer->gaclSetupScript);
     }
 
   /**
@@ -99,8 +98,7 @@ class InstallerTest extends PHPUnit_Framework_TestCase
 
     public function testGaclFilesExist()
     {
-        $this->assertFileExists($this->installer->gaclSetupScript1, $this->installer->gaclSetupScript1);
-        $this->assertFileExists($this->installer->gaclSetupScript2, $this->installer->gaclSetupScript2);
+        $this->assertFileExists($this->installer->gaclSetupScript, $this->installer->gaclSetupScript);
     }
 
     public function testUserDatabaseConnection()
