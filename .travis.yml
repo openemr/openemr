@@ -566,7 +566,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_72
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium=80.0.3987.162-1~deb10u1"
       script:
         - failJob=false
         - *dockers_env_start
@@ -575,6 +575,7 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
+        - *build_test_e2e
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
@@ -588,7 +589,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_73
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium=80.0.3987.162-1~deb10u1"
       script:
         - failJob=false
         - *dockers_env_start
@@ -597,6 +598,7 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
+        - *build_test_e2e
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
@@ -610,7 +612,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_74
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium=80.0.3987.162-1~deb10u1"
       script:
         - failJob=false
         - *dockers_env_start
@@ -619,6 +621,7 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
+        - *build_test_e2e
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
@@ -632,7 +635,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_80
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium=80.0.3987.162-1~deb10u1"
         - SKIP_COMPOSER_PLATFORM_REQS=true
       script:
         - failJob=false
@@ -642,6 +645,7 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
+        - *build_test_e2e
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
