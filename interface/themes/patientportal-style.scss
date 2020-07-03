@@ -191,7 +191,7 @@ body.fixed {
 
 /* Page Header */
 .page-header {
-  @include font-size("22px");
+  @include font-size("1.375rem");
   margin: 0.625rem 0 1.25rem;
 
   > small {
@@ -293,7 +293,7 @@ body > .header {
   }
 
   .navbar .nav > li > a > .label {
-    @include font-size("10px");
+    @include font-size("0.625rem");
     border-radius: 50%;
     font-weight: normal;
     height: 0.9375rem;
@@ -321,7 +321,7 @@ body > .header {
     margin: 0;
 
     > small {
-      @include font-size("15px");
+      @include font-size("0.9375rem");
       display: inline-block;
       font-weight: 300;
       padding-#{$left}: 0.25rem;
@@ -329,7 +329,7 @@ body > .header {
   }
 
   > .breadcrumb {
-    @include font-size("12px");
+    @include font-size("0.75rem");
     background: transparent;
     border-radius: 0.125rem;
     float: $right;
@@ -404,7 +404,7 @@ body > .header {
   }
 
   > .info {
-    @include font-size("14px");
+    @include font-size("0.875rem");
     font-weight: 600;
     line-height: 1;
     padding: 0.3125rem 0.3125rem 0.3125rem 0.9375rem;
@@ -414,7 +414,7 @@ body > .header {
     }
 
     > a {
-      @include font-size("11px");
+      @include font-size("0.6875rem");
       font-weight: normal;
       margin-top: 0.1875rem;
       text-decoration: none;
@@ -501,7 +501,7 @@ body > .header {
 
       > li {
         &.header {
-          @include font-size("14px");
+          @include font-size("0.875rem");
           background-color: $white;
           border-bottom: 1px solid $light;
           border-bottom-left-radius: 0;
@@ -528,7 +528,7 @@ body > .header {
         }
 
         &.footer > a {
-          @include font-size("12px");
+          @include font-size("0.75rem");
           background-color: $light;
           border-bottom: 1px solid $gray-200;
           border-bottom-left-radius: 0.25rem;
@@ -573,7 +573,7 @@ body > .header {
       > li {
         .menu {
           > li > a {
-            @include font-size("12px");
+            @include font-size("0.75rem");
             color: $gray-700;
 
             > i {
@@ -582,7 +582,7 @@ body > .header {
 
             > .fa,
             > .ion {
-              @include font-size("20px");
+              @include font-size("1.25rem");
               /* Default background and font colors */
               background: #00c0ef;
               color: darken($light, 10%);
@@ -633,20 +633,20 @@ body > .header {
             }
 
             > h4 {
-              @include font-size("15px");
+              @include font-size("0.9375rem");
               color: $gray-700;
               margin: 0 0 0 2.8125rem;
               padding: 0;
 
               > small {
-                @include font-size("10px");
+                @include font-size("0.625rem");
                 color: $gray-500;
                 float: $right;
               }
             }
 
             > p {
-              @include font-size("12px");
+              @include font-size("0.75rem");
               color: #888;
               margin: 0 0 0 0.3125rem;
             }
@@ -674,7 +674,7 @@ body > .header {
             padding: 0.625rem;
 
             > h3 {
-              @include font-size("14px");
+              @include font-size("0.875rem");
               color: $gray-700;
               margin: 0 0 0.625rem;
               padding: 0;
@@ -725,14 +725,14 @@ body > .header {
           }
 
           > p {
-            @include font-size("17px");
+            @include font-size("1.0625rem");
             color: rgba($white, 0.8);
             margin-top: 0.625rem;
             text-shadow: 2px 2px 3px $gray-800;
             z-index: 5;
 
             > small {
-              @include font-size("12px");
+              @include font-size("0.75rem");
               display: block;
             }
           }
@@ -1043,10 +1043,10 @@ body > .header {
   }
 
   p {
-    @include font-size("15px");
+    @include font-size("0.9375rem");
 
     > small {
-      @include font-size("13px");
+      @include font-size("0.8125rem");
       color: darken($light, 10%);
       display: block;
       margin-top: 0.3125rem;
@@ -1054,7 +1054,7 @@ body > .header {
   }
 
   .icon {
-    @include font-size("90px");
+    @include font-size("5.625rem");
     bottom: 0.3125rem;
     color: rgba($black, 0.15);
     position: absolute;
@@ -1078,7 +1078,7 @@ body > .header {
     }
 
     p {
-      @include font-size("12px");
+      @include font-size("0.75rem");
     }
   }
 }
@@ -1142,7 +1142,7 @@ body > .header {
 .box .box-header > .fa,
 .box .box-header > .ion,
 .box .box-header .box-title {
-  @include font-size("20px");
+  @include font-size("1.25rem");
   cursor: default;
   display: inline-block;
   float: $left;
@@ -1193,7 +1193,7 @@ body > .header {
 }
 
 .box .box-body .fc-header-title h2 {
-  @include font-size("15px");
+  @include font-size("0.9375rem");
   color: $gray-700;
   line-height: 1.6em;
   margin-#{$left}: 0.625rem;
@@ -1330,7 +1330,7 @@ body > .header {
 }
 
 .box .knob-label {
-  @include font-size("12px");
+  @include font-size("0.75rem");
   color: #333;
   font-weight: 100;
   margin-bottom: 0.3rem;
@@ -1387,7 +1387,7 @@ body > .header {
 }
 
 .box .todo-list > li .label {
-  @include font-size("9px");
+  @include font-size("0.5625rem");
   margin-#{$left}: 0.625rem;
 }
 
@@ -1587,7 +1587,7 @@ body > .header {
 }
 
 .nav-tabs-custom > .nav-tabs > li.header {
-  @include font-size("20px");
+  @include font-size("1.25rem");
   color: $gray-700;
   cursor: default;
   font-weight: 400;
@@ -1607,7 +1607,7 @@ body > .header {
 
 /* Nav tabs bottom */
 .tabs-bottom.nav-3 li a {
-  width: 3333.33333333% !important;
+  width: 3333.33% !important;
 }
 
 .tabs-bottom li a {
@@ -1781,7 +1781,7 @@ body > .header {
   border-bottom: 1px solid $gray-200;
 
   .nav {
-    @include font-size("13px");
+    @include font-size("0.8125rem");
     border: medium none;
     margin: -0.625rem -0.9375rem -0.9375rem;
 
@@ -1818,7 +1818,7 @@ body > .header {
 
 
 .dropdown-menu.dropdown-custom > li {
-  @include font-size("12px");
+  @include font-size("0.75rem");
   padding: 0.5rem 0.625rem;
 }
 

@@ -293,7 +293,7 @@ div.tabContainer {
 
 div.tabContainer div.tab {
   border: 0;
-  color: $black;
+  color: $body-color;
   display: none;
   padding: 10px;
 }
@@ -432,7 +432,7 @@ body dl {
 
 #sddm li a {
   @include font-size("0.8rem");
-  color: $black;
+  color: $body-color;
   padding: 4px 10px;
 }
 
@@ -446,7 +446,7 @@ body dl {
   border: 0.7px solid $gray;
   border-radius: 0 5px 5px;
   box-shadow: 0 6px 12px rgba($black, 0.176);
-  color: $black;
+  color: $body-color;
   margin-top: 0;
   min-width: 175px;
   padding-bottom: 4px;
@@ -458,7 +458,7 @@ body dl {
 
 #sddm div a {
   background: #c9dbf2;
-  color: $black;
+  color: $body-color;
 }
 
 #sddm div a:hover {
@@ -614,7 +614,7 @@ body dl {
 /*bootstrap navbar */
 .navbar-collapse.collapse.in {
   background-color: $light !important;
-  color: $black !important;
+  color: $body-color !important;
 }
 
 .navbar-light .navbar-nav > li > a:focus,

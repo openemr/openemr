@@ -2,30 +2,6 @@
 /*for Smartphones*/
 
 @media only screen and (max-width: 400px) {
-  h1 {
-    @include font-size("1.875rem");
-  }
-
-  h2 {
-    @include font-size("1.5rem");
-  }
-
-  h3 {
-    @include font-size("1.125rem");
-  }
-
-  h4 {
-    @include font-size("0.875rem");
-  }
-
-  h5 {
-    @include font-size("0.7rem");
-  }
-
-  h6 {
-    @include font-size("0.625rem");
-  }
-
   #oe-nav-ul.tabNav li {
     @include font-size("0.8rem");
   }

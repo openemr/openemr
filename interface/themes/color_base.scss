@@ -136,11 +136,6 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 }
 
 /* style taken out of the addressbook code and put here instead */
-
-#addressbook_list td {
-  font-family: "Arial", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-
 #addressbook_list tr.search {
   @include font-size("0.75rem");
 }
@@ -177,12 +172,6 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 #reports_list td,
 #reports_list a {
   @include font-size("0.6875rem");
-  font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-}
-
-#documents_list td,
-#documents_list a {
-  font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
 #documents_list .treeMenuDefault {
@@ -248,7 +237,7 @@ ul.tabNav a {
 
 ul.tabNav a:hover {
   background-color: $dark;
-  color: $black;
+  color: $body-color;
 }
 
 div.tabContainer div.current {
@@ -298,7 +287,7 @@ ul.tabNav li.current a {
 }
 
 #report_results table td {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   border-bottom: 1px dashed;
   padding: 5px;
 }
@@ -327,7 +316,6 @@ ul.tabNav li.current a {
   @include font-size("0.6875rem");
   background-color: $paler;
   border: 2px outset rgb(102, 102, 102);
-  font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 
@@ -373,7 +361,7 @@ ul.tabNav li.current a {
 
 #sddm div a:hover {
   background: $palepale;
-  color: $black;
+  color: $body-color;
 }
 
 .encounter-form-category-li {
