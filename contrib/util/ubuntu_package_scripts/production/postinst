@@ -267,7 +267,6 @@ case "$1" in
 
          #secure openemr
          chown -Rf root:root $OPENEMR
-         chmod 600 $OPENEMR/acl_setup.php
          chmod 600 $OPENEMR/acl_upgrade.php
          chmod 600 $OPENEMR/setup.php
          chmod 600 $OPENEMR/sql_upgrade.php
@@ -561,7 +560,6 @@ case "$1" in
          rm -f $INSTTEMP
 
          #remove global permission to all setup scripts
-         chmod 600 $OPENEMR/acl_setup.php
          chmod 600 $OPENEMR/acl_upgrade.php
          chmod 600 $OPENEMR/setup.php
          chmod 600 $OPENEMR/sql_upgrade.php
