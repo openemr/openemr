@@ -35,6 +35,7 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [FHIR Patient API](FHIR_README.md#get-fhirpatient)
     -   [FHIR Encounter API](FHIR_README.md#get-fhirencounter)
     -   [FHIR Practitioner API](FHIR_README.md#get-fhirpractitioner)
+    -   [FHIR PractitionerRole API](FHIR_README.md#get-fhirpractitionerrole)
     -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
     -   [FHIR AllergyIntolerance API](FHIR_README.md#get-fhirallergyintolerance)
     -   [FHIR Observation API](FHIR_README.md#get-fhirobservation)
@@ -299,6 +300,26 @@ curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/ap
   } ]
 }'
 ```
+
+#### GET [base]/PractitionerRole
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/PractitionerRole'
+```
+
+#### GET [base]/PractitionerRole[id]
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/PractitionerRole/90de091a-91e9-4bbe-9a81-75ed623f65bf'
+```
+
+-   Supported Search Parameters
+    -   speciality
+    -   practitioner
 
 #### GET /fhir/Organization
 
