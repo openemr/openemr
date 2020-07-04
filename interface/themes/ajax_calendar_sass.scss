@@ -32,13 +32,13 @@ div.tiny {
 }
 
 .sidebar-wrapper {
-  margin-#{$left}: -30rem;
   transition: margin 0.25s ease-out;
+  margin-#{$left}: -30rem;
 }
 
 #wrapper.toggled .sidebar-wrapper {
-  margin-#{$left}: 0;
   top: 68px;
+  margin-#{$left}: 0;
 }
 
 #wrapper.toggled .page-content-wrapper {
@@ -86,23 +86,23 @@ div.tiny {
 }
 
 #providerPicker {
-  width: 90%;
   margin-left: auto;
   margin-right: auto;
+  width: 90%;
 
   #pc_facility,
   #pc_username {
+    margin-bottom: 0.3rem;
     width: 100%;
-	margin-bottom: 0.3rem;
   }
 }
 
 #facilityColor {
-  width: 90%;
   display: block;
-  margin-top: 0.3rem;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 0.3rem;
+  width: 90%;
 
   table {
     border-collapse: collapse;
@@ -119,7 +119,6 @@ div.tiny {
 #bigCal {
   background-color: $light;
   overflow: hidden;
-  border-#{$left}: 1px solid $black;
 
   table {
     border: 0;
@@ -135,13 +134,14 @@ div.tiny {
   }
 
   .providerday {
-	border: 1px solid $gray-300;
+    border: 1px solid $gray-300;
   }
 
   .providerXbtn {
+    @include font-size("1rem");
     padding: 0;
-	@include font-size("1rem");
   }
+  border-#{$left}: 1px solid $black;
 }
 
 #bottomLeft {
@@ -203,7 +203,7 @@ div.tiny {
     background-color: $white;
     border: 0;
     color: $danger;
-	padding: 0.3rem;
+    padding: 0.3rem;
     vertical-align: top;
   }
 
@@ -212,7 +212,7 @@ div.tiny {
     background-color: $white;
     border: 0;
     color: $gray-600;
-	padding: 0.3rem;
+    padding: 0.3rem;
     vertical-align: top;
   }
 
@@ -220,7 +220,7 @@ div.tiny {
     @include font-size("0.825rem");
     background-color: $white;
     border: 0;
-	padding: 0.3rem;
+    padding: 0.3rem;
     vertical-align: top;
   }
 
@@ -230,19 +230,19 @@ div.tiny {
 
   .currentDate {
     background-color: lighten($primary, 20%);
-	border-radius: 0.25rem;
+    border-radius: 0.25rem;
     color: $light;
   }
 
   .tdDatePickerHighlightCurrent {
-	background-color: $primary;
-	border-radius: 0.25rem;
-	color: $light;
+    background-color: $primary;
+    border-radius: 0.25rem;
+    color: $light;
   }
 
   .tdDatePickerHighlight {
     background-color: lighten($primary, 30%);
-	border-radius: 0.25rem;
+    border-radius: 0.25rem;
     color: $light;
   }
 }
@@ -252,7 +252,6 @@ div.tiny {
   background-color: lighten($yellow, 40%);
   padding: 0.3125rem !important;
   width: 1%;
-  border-#{$right}: 1px solid $gray-600;
 
   table {
     background-color: lighten($yellow, 40%);
@@ -268,6 +267,7 @@ div.tiny {
       padding: 0;
     }
   }
+  border-#{$right}: 1px solid $gray-600;
 }
 
 .timeslot {
@@ -391,7 +391,7 @@ div.tiny {
   &_appointment {
     background-color: $white;
     border: 1px solid $black;
-	border-radius: .25rem;
+    border-radius: 0.25rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -402,16 +402,16 @@ div.tiny {
   &_noshow {
     background-color: $pink;
     border: 1px solid lighten($pink, 20%);
-	border-radius: .25rem;
+    border-radius: 0.25rem;
     overflow: hidden;
     z-index: 2;
   }
 
   &_reserved {
-	// Default color if all else fails
+    // Default color if all else fails
     background-color: $pink;
-	border: 1px solid $gray-300;
-	border-radius: .25rem;
+    border: 1px solid $gray-300;
+    border-radius: 0.25rem;
     overflow: hidden;
     z-index: 2;
   }
@@ -419,7 +419,7 @@ div.tiny {
   &_holiday {
     background-color: lighten($dark, 20%);
     border: 1px solid lighten($green, 30%);
-	border-radius: .25rem;
+    border-radius: 0.25rem;
     overflow: hidden;
     z-index: 2;
   }
@@ -428,8 +428,8 @@ div.tiny {
     background-color: $black;
     border: 1px solid $black;
     border-bottom: 2px solid $gray-700;
+    border-radius: 0.25rem;
     border-top: 1px solid $gray-600;
-	border-radius: .25rem;
     font-weight: bold;
     margin: -0.1875rem;
     overflow: hidden;
@@ -453,34 +453,34 @@ div.tiny {
 }
 
 .userClose {
-	&::before {
-		@extend .fas;
-		display: inline !important;
-		line-height: inherit !important;
-		content: fa-content('#{$fa-var-times}');
-	}
+  &::before {
+    @extend .fas;
+    content: fa-content('#{$fa-var-times}');
+    display: inline !important;
+    line-height: inherit !important;
+  }
 }
 
 .show-appointment {
   bottom: 0.125rem;
   position: absolute;
-  #{$right}: 0.25rem;
 
   &.unshown::before {
     @extend .fas;
-	display: inline !important;
-	line-height: inherit !important;
     content: fa-content('#{$fa-var-eye}');
     cursor: pointer;
+    display: inline !important;
+    line-height: inherit !important;
   }
 
   &.shown::before {
     @extend .fas;
-	display: inline !important;
-	line-height: inherit !important;
     content: fa-content('#{$fa-var-eye-slash}');
     cursor: pointer;
+    display: inline !important;
+    line-height: inherit !important;
   }
+  #{$right}: 0.25rem;
 }
 
 .in_start {
@@ -530,13 +530,13 @@ div.tiny {
   }
 
   .page-content-wrapper {
-    margin-#{$left}: 0;
     width: 100%;
+    margin-#{$left}: 0;
   }
 
   #wrapper.toggled .page-content-wrapper {
-    margin-#{$left}: 130px;
     width: calc(100% - 150px);
+    margin-#{$left}: 130px;
   }
 }
 
@@ -552,9 +552,9 @@ div.tiny {
   }
 
   .page-content-wrapper {
-    margin-#{$left}: 20%;
     min-width: 0;
     width: 80%;
+    margin-#{$left}: 20%;
   }
 
   #wrapper.toggled .sidebar-wrapper {
@@ -562,7 +562,7 @@ div.tiny {
   }
 
   #wrapper.toggled .page-content-wrapper {
-    margin-#{$left}: 0;
     width: 100%;
+    margin-#{$left}: 0;
   }
 }
