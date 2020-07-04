@@ -150,7 +150,7 @@ $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-cir
 <div id="topToolbarRight" class="bgcolor2">
     <!-- this wraps some of the top toolbar items -->
 <div id="functions">
-<a id="menu-toggle" class="float-left btn btn-calendar"></a>
+<a id="menu-toggle" href="#" class="btn btn-sm btn-outline-dark"><i class="fas fa-bars"></i></a>
 <input type="hidden" name="jumpdate" id="jumpdate" value="" />
 <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo attr($viewtype);[-/php-]" />
     [-php-]
@@ -197,7 +197,7 @@ echo "   <a href='#' type='button' id='monthview' title='" . xla('Month View') .
     include_once($GLOBALS['fileroot'].'/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php');
 [-/php-]
 
-<table class='border-0' cellpadding="0" cellspacing="0">
+<table class='table table-sm table-borderless'>
 <tbody><tr>
 [-php-]
 
@@ -299,7 +299,7 @@ if ($_SESSION['authorizeduser'] == 1) {
     OpenEMR\Common\Session\SessionUtil::setSession('pc_facility', key($facilities));
 }
 if (count($facilities) > 1) {
-    echo "   <select name='pc_facility' id='pc_facility'  class='view1 form-control' >\n";
+    echo "   <select name='pc_facility' id='pc_facility'  class='view1 form-control'>\n";
     if ( !$_SESSION['pc_facility'] ) $selected = "selected='selected'";
     // echo "    <option class='bg-info' value='0' $selected>"  . xlt('All Facilities'). "</option>\n";
     if (!$GLOBALS['restrict_user_facility']) echo "    <option class='bg-info' value='0' $selected>" . xlt('All Facilities') . "</option>\n";
@@ -333,8 +333,11 @@ if($_SESSION['pc_facility'] == 0){
  <table>
 [-php-]
 foreach ($facilities as $f){
-echo "   <tr><td><div class='view1 bg-info font-weight-bold text-ovr-dark'>" . text($f['name']) . "</div></td></tr>";
-}
+  echo "   <tr>\n";
+  echo "   <td>\n";
+  echo "   <div class='view1 font-weight-bold text-ovr-dark p-1 rounded' style='background-color:".$f['color'].";'>" . text($f['name'])."</div>";
+  echo "   </td>\n";
+  echo "   </tr>\n";}
 [-/php-]
  </table>
 </div>
@@ -372,7 +375,7 @@ foreach ($A_EVENTS as $date => $events) {
 foreach ($providers as $provider) {
     $providerid = $provider['id'];
 
-    echo "<table>\n";
+    echo "<table class='table'>\n";
     echo " <tr>\n";
     echo "  <td colspan='7' class='providerheader'>";
     echo text($provider['fname']) . " " . text($provider['lname']);
@@ -642,24 +645,48 @@ foreach ($providers as $provider) {
 <script>
 
     $(function () {
-        $("#pc_username").change(function() { ChangeProviders(this); });
-        $("#pc_facility").change(function() { ChangeProviders(this); });
-        $("#dayview").click(function() { ChangeView(this); });
-        $("#weekview").click(function() { ChangeView(this); });
+        $("#pc_username").change(function() {
+          ChangeProviders(this);
+        });
+        $("#pc_facility").change(function() {
+          ChangeProviders(this);
+        });
+        $("#dayview").click(function() {
+          ChangeView(this);
+        });
+        $("#weekview").click(function() {
+          ChangeView(this);
+        });
         //$("#monthview").click(function() { ChangeView(this); });
         //$("#yearview").click(function() { ChangeView(this); });
-        $(".tdDatePicker").click(function() { ChangeDate(this); });
-        $("#datePicker .tdNav").mouseover(function() { $(this).toggleClass("tdDatePickerHighlight"); });
-        $("#datePicker .tdNav").mouseout(function() { $(this).toggleClass("tdDatePickerHighlight"); });
-        $("#printview").click(function() { PrintView(this); });
-        $(".month_event").dblclick(function() { EditEvent(this); });
-        $(".month_event").mouseover(function() { $(this).toggleClass("event_highlight"); });
-        $(".month_event").mouseout(function() { $(this).toggleClass("event_highlight"); });
+        $(".tdDatePicker").click(function() {
+          ChangeDate(this);
+        });
+        $("#datePicker .tdNav").mouseover(function() {
+          $(this).toggleClass("tdDatePickerHighlight");
+        });
+        $("#datePicker .tdNav").mouseout(function() {
+          $(this).toggleClass("tdDatePickerHighlight");
+        });
+        $("#printview").click(function() {
+          PrintView(this);
+        });
+        $(".month_event").dblclick(function() {
+          EditEvent(this);
+        });
+        $(".month_event").mouseover(function() {
+          $(this).toggleClass("event_highlight");
+        });
+        $(".month_event").mouseout(function() {
+          $(this).toggleClass("event_highlight");
+        });
 
         $(".tdMonthName-small").click(function() {
-
-            dpCal=$("#datePicker>table");
-            mp = $("#monthPicker"); mp.width(dpCal.width()); mp.toggle();});
+            dpCal = $("#datePicker > table");
+            mp = $("#monthPicker");
+            mp.width(dpCal.width());
+            mp.toggle();
+        });
 
     });
 

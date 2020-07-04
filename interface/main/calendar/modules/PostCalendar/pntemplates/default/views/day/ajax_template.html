@@ -154,7 +154,7 @@ $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-cir
 <div id="wrapper">
     <form name='theform' id='theform' action='index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic=' method='post' onsubmit='return top.restoreSession()'>
         <div id="topToolbarRight" class="bgcolor2">
-            <a id="menu-toggle" class="float-left btn btn-calendar"></a>
+          <a id="menu-toggle" href="#" class="float-left btn btn-sm btn-outline-dark ml-1"><i class="fas fa-bars"></i></a>
             <div id="functions">
                 <input type="hidden" name="jumpdate" id="jumpdate" value="" />
                 <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo attr($viewtype);[-/php-]" />
@@ -175,7 +175,7 @@ echo "   <a id='prevday' href='$PREV_DAY_URL' onclick='top.restoreSession()' tit
 $atmp = array_keys($A_EVENTS);
 echo text(dateformat(strtotime($atmp[0]),true));
 echo "   <a id='nextday' href='$NEXT_DAY_URL' onclick='top.restoreSession()' title='" . xla("Next Day") . "'>
-            <i class= 'fa " . attr($chevron_icon_right) . " chevron_color' aria-hidden='true'></i></a>\n";
+            <i class= 'fa " . attr($chevron_icon_right) . " chevron_color'></i></a>\n";
 [-/php-]
 </div>
 <div id="viewPicker">
@@ -202,7 +202,7 @@ $cDay = date("d", $caldate);
 include_once($GLOBALS['fileroot'].'/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php');
 echo "\n";
 [-/php-]
-<table class='border-0' cellpadding="0" cellspacing="0">
+<table class='table table-sm table-borderless'>
 <tbody><tr>
 [-php-]
 
@@ -357,7 +357,11 @@ if($_SESSION['pc_facility'] == 0){
  <table>
 [-php-]
 foreach ($facilities as $f){
-echo "\n<tr><td><div class='view1 font-weight-bold text-ovr-dark' style='background-color:".$f['color'].";'>" . text($f['name']) . "</div></td></tr>\n";
+  echo "   <tr>\n";
+  echo "   <td>\n";
+  echo "   <div class='view1 font-weight-bold text-ovr-dark p-1 rounded' style='background-color:".$f['color'].";'>" . text($f['name'])."</div>";
+  echo "   </td>\n";
+  echo "   </tr>\n";
 }
 [-/php-]
  </table>
@@ -392,11 +396,11 @@ echo "\n<tr><td><div class='view1 font-weight-bold text-ovr-dark' style='backgro
     }
 */
 
-echo "<table class='w-100 border-0' cellpadding='1' cellspacing='0'>\n";
+echo "<table class='table w-100 border-0' cellpadding='1' cellspacing='0'>\n";
 
 // output the TD with the times DIV
 echo "<tr>";
-echo "<td id='times'><div><table><tr>\n";
+echo "<td id='times'><div><table class='table'><tr>\n";
 echo "<td class='timeslot providerXbtn' data-username='__PC_ALL__'><i class='fa fa-lg fa-user-md'></i></td></tr>";
 //============================================================================================================================
 // Check global time preference so that 24 and 12hour preference is displayed properly
@@ -445,7 +449,7 @@ foreach ($providers as $provider) {
     $classForWeekend = is_weekend_day(date('w', $caldate)) ? 'weekend-day' : 'work-day';
     $provfl = trim($provider['fname'].' '.$provider['lname']);
     echo "<td class='schedule $classForWeekend' title='" . attr($provfl) . "' date='" . attr(date("Ymd",$caldate)) . "' provider='" . attr($providerid) . "'>";
-    echo "<div class='providerheader'>" . text($provfl) . "<a class='providerXbtn' data-username='" . attr($provider['username']) . "'><i class='fa fa-times'></i></a></div>";
+    echo "<div class='providerheader providerday'>" . text($provfl) . "<a class='providerXbtn userClose' data-username='" . attr($provider['username']) . "'></a></div>";
     echo "<div class='calendar_day'>";
 
     // For each event...
@@ -941,21 +945,26 @@ echo "</table>\n";
         $("#monthview").click(function() { ChangeView(this); });
         //$("#yearview").click(function() { ChangeView(this); });
         $(".tdDatePicker").click(function() { ChangeDate(this); });
-        $(".tdDatePicker").mouseover(function() { $(this).toggleClass("tdDatePickerHighlight"); });
-        $(".tdDatePicker").mouseout(function() { $(this).toggleClass("tdDatePickerHighlight"); });
+        $("#datePicker .tdDatePicker").mouseover(function() {
+          $(this).toggleClass("tdDatePickerHighlightCurrent");
+        });
+        $("#datePicker .tdDatePicker").mouseout(function() {
+          $(this).toggleClass("tdDatePickerHighlightCurrent");
+        });
         $("#printview").click(function() { PrintView(this); });
         $(".event").dblclick(function() { EditEvent(this); });
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
         $(".tdMonthName-small").click(function() {
 
-            dpCal=$("#datePicker>table");
-            mp = $("#monthPicker"); mp.width(dpCal.width()); mp.toggle();});
+            dpCal = $("#datePicker > table");
+            mp = $("#monthPicker");
+            mp.width(dpCal.width());
+            mp.toggle();
+        });
 
-        $('div.providerheader').find('*')
-        .css('font-size', $('div.providerheader:first').css('font-size'))
-        .addClass(' mx-1 p-0 border-0 align-middle');
-        $('a.providerXbtn').addClass('close');
+        //$('div.providerheader').find('*').css('font-size', $('div.providerheader:first').css('font-size')).addClass(' mx-1 p-0 border-0 align-middle');
+        $('a.providerXbtn').addClass('mx-1 close');
         $('.providerXbtn').on('click', providerXclick);
 
     });

@@ -198,16 +198,16 @@ if (!$_REQUEST['flb_table']) {
                               <div class="col-sm">
                                 <select id="form_apptcat" name="form_apptcat" class="form-control form-control-sm" onchange="refineMe('apptcat');">
                                   <?php
-                                  $categories = fetchAppointmentCategories();
-                                  echo "<option value=''>" . xlt("Visit Categories") . "</option>";
-                                  while ($cat = sqlFetchArray($categories)) {
-                                    echo "<option value='" . attr($cat['id']) . "'";
-                                    if ($cat['id'] == $_POST['form_apptcat']) {
-                                      echo " selected='true' ";
+                                    $categories = fetchAppointmentCategories();
+                                    echo "<option value=''>" . xlt("Visit Categories") . "</option>";
+                                    while ($cat = sqlFetchArray($categories)) {
+                                        echo "<option value='" . attr($cat['id']) . "'";
+                                        if ($cat['id'] == $_POST['form_apptcat']) {
+                                            echo " selected='true' ";
+                                        }
+                                        echo ">" . xlt($cat['category']) . "</option>";
                                     }
-                                    echo ">" . xlt($cat['category']) . "</option>";
-                                  }
-                                  ?>
+                                    ?>
                                 </select>
                               </div>
                               <!-- Visit Status Section -->
@@ -215,31 +215,31 @@ if (!$_REQUEST['flb_table']) {
                                 <select id="form_apptstatus" name="form_apptstatus" class="form-control form-control-sm" onchange="refineMe();">
                                   <option value=""><?php echo xlt("Visit Status"); ?></option>
                                   <?php
-                                  $apptstats = sqlStatement("SELECT * FROM list_options WHERE list_id = 'apptstat' AND activity = 1 ORDER BY seq");
-                                  while ($apptstat = sqlFetchArray($apptstats)) {
-                                    echo "<option value='" . attr($apptstat['option_id']) . "'";
-                                    if ($apptstat['option_id'] == $_POST['form_apptstatus']) {
-                                      echo " selected='true' ";
+                                    $apptstats = sqlStatement("SELECT * FROM list_options WHERE list_id = 'apptstat' AND activity = 1 ORDER BY seq");
+                                    while ($apptstat = sqlFetchArray($apptstats)) {
+                                        echo "<option value='" . attr($apptstat['option_id']) . "'";
+                                        if ($apptstat['option_id'] == $_POST['form_apptstatus']) {
+                                            echo " selected='true' ";
+                                        }
+                                        echo ">" . xlt($apptstat['title']) . "</option>";
                                     }
-                                    echo ">" . xlt($apptstat['title']) . "</option>";
-                                  }
-                                  ?>
+                                    ?>
                                 </select>
                               </div>
                               <!-- Facility Section -->
                               <div class="col-sm">
                                   <select class="form-control form-control-sm" id="form_facility" name="form_facility"
                                       <?php
-                                      $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
-                                      while ($fac = sqlFetchArray($fac_sql)) {
-                                          $true = ($fac['id'] == $_POST['form_facility']) ? "selected=true" : '';
-                                          $select_facs .= "<option value=" . attr($fac['id']) . " " . $true . ">" . text($fac['name']) . "</option>\n";
-                                          $count_facs++;
-                                      }
-                                      if ($count_facs < '1') {
-                                          echo "disabled";
-                                      }
-                                      ?> onchange="refineMe('facility');">
+                                        $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
+                                        while ($fac = sqlFetchArray($fac_sql)) {
+                                            $true = ($fac['id'] == $_POST['form_facility']) ? "selected=true" : '';
+                                            $select_facs .= "<option value=" . attr($fac['id']) . " " . $true . ">" . text($fac['name']) . "</option>\n";
+                                            $count_facs++;
+                                        }
+                                        if ($count_facs < '1') {
+                                            echo "disabled";
+                                        }
+                                        ?> onchange="refineMe('facility');">
                                       <option value=""><?php echo xlt('All Facilities'); ?></option>
                                       <?php echo $select_facs; ?>
                                   </select>
@@ -247,45 +247,45 @@ if (!$_REQUEST['flb_table']) {
 
                               <?php
                               // Build a drop-down list of ACTIVE providers.
-                              $query = "SELECT id, lname, fname FROM users WHERE " .
+                                $query = "SELECT id, lname, fname FROM users WHERE " .
                                   "authorized = 1  AND active = 1 AND username > '' ORDER BY lname, fname"; #(CHEMED) facility filter
-                              $ures = sqlStatement($query);
-                              while ($urow = sqlFetchArray($ures)) {
-                                  $provid = $urow['id'];
-                                  $select_provs .= "    <option value='" . attr($provid) . "'";
-                                  if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']) {
-                                      $select_provs .= " selected";
-                                  } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
-                                      $select_provs .= " selected";
-                                  }
-                                  $select_provs .= ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
-                                  $count_provs++;
-                              }
-                              ?>
+                                $ures = sqlStatement($query);
+                                while ($urow = sqlFetchArray($ures)) {
+                                    $provid = $urow['id'];
+                                    $select_provs .= "    <option value='" . attr($provid) . "'";
+                                    if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']) {
+                                        $select_provs .= " selected";
+                                    } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
+                                        $select_provs .= " selected";
+                                    }
+                                    $select_provs .= ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                                    $count_provs++;
+                                }
+                                ?>
                               <!-- Provider Section -->
                               <div class="col-sm">
                                   <select class="form-control form-control-sm" id="form_provider" name="form_provider" <?php
-                                  if ($count_provs < '2') {
-                                      echo "disabled";
-                                  }
-                                  ?> onchange="refineMe('provider');">
+                                    if ($count_provs < '2') {
+                                        echo "disabled";
+                                    }
+                                    ?> onchange="refineMe('provider');">
                                       <option value="" selected><?php echo xlt('All Providers'); ?></option>
 
                                       <?php
-                                      echo $select_provs;
-                                      ?>
+                                        echo $select_provs;
+                                        ?>
                                   </select>
                               </div>
                             </div>
                             <div class="row mt-3">
                               <?php
-                              if ($GLOBALS['ptkr_date_range'] == '1') {
-                                  $type = 'date';
-                                  $style = '';
-                              } else {
-                                  $type = 'hidden';
-                                  $style = 'display:none;';
-                              } ?>
+                                if ($GLOBALS['ptkr_date_range'] == '1') {
+                                    $type = 'date';
+                                    $style = '';
+                                } else {
+                                    $type = 'hidden';
+                                    $style = 'display:none;';
+                                } ?>
                               <label class="col-form-label col-sm" for="flow_from"><?php echo xlt('From'); ?>:</label>
                               <div class="col-sm" style="<?php echo $style; ?>">
                                 <input type="text" id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>"/>
