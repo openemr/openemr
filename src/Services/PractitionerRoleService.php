@@ -53,30 +53,31 @@ class PractitionerRoleService extends BaseService
     {
         $sqlBindArray = array();
 
-        $sql = "SELECT prac_role.id,
-                prac_role.uuid,
-                prac_role.field_value as role_code,
-                specialty.field_value as specialty_code,
-                us.uuid as user_uuid,
-                us.fname as user_fname,
-                us.mname as user_mname,
-                us.lname as user_lname,
-                fac.uuid as facility_uuid,
-                fac.name as facility_name,
+        $sql = "SELECT *,
                 role.title as role,
                 spec.title as specialty
-                FROM facility_user_ids as prac_role
-                LEFT JOIN users as us ON us.id = prac_role.uid
-                LEFT JOIN facility_user_ids as specialty ON
-                specialty.uid = prac_role.uid AND specialty.field_id = 'specialty_code'
-                LEFT JOIN facility as fac ON fac.id = prac_role.facility_id
-                LEFT JOIN list_options as role ON role.option_id = prac_role.field_value
-                LEFT JOIN list_options as spec ON spec.option_id = specialty.field_value
-                WHERE prac_role.field_id = 'role_code'";
+                FROM (
+                    SELECT
+                    prac_role.id as id,
+                    prac_role.uuid as uuid,
+                    prac_role.field_id as field,
+                    (if( prac_role.field_id = 'role_code', prac_role.field_value, null )) as `role_code`,
+                    (if( specialty.field_id = 'specialty_code', specialty.field_value, null )) as `specialty_code`,
+                    us.uuid as user_uuid,
+                    us.fname as user_fname,
+                    us.mname as user_mname,
+                    us.lname as user_lname,
+                    fac.uuid as facility_uuid,
+                    fac.name as facility_name
+                    FROM facility_user_ids as prac_role
+                    LEFT JOIN users as us ON us.id = prac_role.uid
+                    LEFT JOIN facility_user_ids as specialty ON specialty.uid = prac_role.uid AND specialty.field_id = 'specialty_code'
+                    LEFT JOIN facility as fac ON fac.id = prac_role.facility_id
+                ";
 
 
         if (!empty($search)) {
-            $sql .= " AND ";
+            $sql .= " WHERE ";
             $whereClauses = array();
             $wildcardFields = array('us.fname', 'us.mname', 'us.lname');
             foreach ($search as $fieldName => $fieldValue) {
@@ -93,7 +94,10 @@ class PractitionerRoleService extends BaseService
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
             $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
         }
-        $sql .= "GROUP BY prac_role.id";
+        $sql .= ") as p_role
+        LEFT JOIN list_options as role ON role.option_id = p_role.role_code
+        LEFT JOIN list_options as spec ON spec.option_id = p_role.specialty_code
+        WHERE p_role.field = 'role_code'";
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();

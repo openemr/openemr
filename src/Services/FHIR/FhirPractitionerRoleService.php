@@ -40,7 +40,7 @@ class FhirPractitionerRoleService extends FhirServiceBase
     {
         return  [
             "specialty" => ["specialty.field_value"],
-            "practitioner" => ["us.fname"],
+            "practitioner" => ["us.fname", "us.mname","us.lname"],
         ];
     }
 

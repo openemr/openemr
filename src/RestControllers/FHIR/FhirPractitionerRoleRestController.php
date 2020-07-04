@@ -62,7 +62,7 @@ class FhirPractitionerRoleRestController
      */
     public function getOne($fhirId)
     {
-        $processingResult = $this->fhirPractitionerRoleService->getOne($fhirId, true);
+        $processingResult = $this->fhirPractitionerRoleService->getOne($fhirId);
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 }
