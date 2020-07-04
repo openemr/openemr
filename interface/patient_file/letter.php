@@ -216,7 +216,7 @@ if ($_POST['formaction'] == "generate") {
         <div class="navigate">
     <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
     </div>
-    <script language='JavaScript'>
+    <script>
     window.print();
     </script>
     </body>
@@ -685,7 +685,7 @@ closedir($dh);
 </form>
 </body>
 
-<script language='JavaScript'>
+<script>
 
 // jQuery stuff to make the page a little easier to use
 

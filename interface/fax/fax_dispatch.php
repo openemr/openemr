@@ -396,7 +396,7 @@ if ($_POST['form_save']) {
 
     if ($info_msg || $form_cb_delete != '1') {
         // Close this window and refresh the fax list.
-        echo "<html>\n<body>\n<script language='JavaScript'>\n";
+        echo "<html>\n<body>\n<script>\n";
         if ($info_msg) {
             echo " alert('" . addslashes($info_msg) . "');\n";
         }

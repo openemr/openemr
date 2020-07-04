@@ -305,7 +305,7 @@ var skipArray = [
 
 </script>
 
-<script language='JavaScript'>
+<script>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
         <?php echo $condition_str; ?>

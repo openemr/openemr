@@ -315,7 +315,7 @@ height: " . attr($page_height) . "pt;
 
 $html .= "<title>" . text($frow['name']) . "</title>" .
     Header::setupHeader(['opener', 'topdialog'], false) .
-    "<script language=\"JavaScript\">";
+    "<script>";
 
 $html .= "
 $(function () {

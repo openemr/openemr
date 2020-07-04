@@ -248,7 +248,7 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
 
     formHeader("Redirecting....");
     if ($alertmsg) {
-        echo "\n<script language='Javascript'>alert(";
+        echo "\n<script>alert(";
         echo js_escape(xl('Transmit failed') . ': ' . $alertmsg);
         echo ")</script>\n";
     }
@@ -731,7 +731,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $qoe_init_javascript = '';
                                         echo generate_qoe_html($ptid, $formid, $oprow['procedure_order_seq'], $i);
                                         if ($qoe_init_javascript) {
-                                            echo "<script language='JavaScript'>$qoe_init_javascript</script>";
+                                            echo "<script>$qoe_init_javascript</script>";
                                         }
                                         ?>
                                     </div>

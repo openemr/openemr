@@ -299,7 +299,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         formHeader("Redirecting....");
         // If Save and Print, write the JavaScript to open a window for printing.
         if (!empty($_POST['bn_save_print'])) {
-            echo "<script language='Javascript'>\n" .
+            echo "<script>\n" .
                 "top.restoreSession();\n" .
                 "window.open('$rootdir/forms/LBF/printable.php?" .
                 "formname=" . attr_url($formname) .
