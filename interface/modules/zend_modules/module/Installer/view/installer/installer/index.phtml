@@ -187,7 +187,7 @@ $depObj = $this->dependencyObject;
     <style>
         .show_hide_log {
             border-radius: 5px;
-            border: 1px solid #c9c6c6;
+            border: 1px solid var(--gray400);
             padding: 5px;
             text-align: center;
             cursor: pointer;
@@ -199,7 +199,7 @@ $depObj = $this->dependencyObject;
         .spoiler {
             display: none;
             margin-left: 10px;
-            border: 1px solid #c9c6c6;
+            border: 1px solid #var(--gray400);
             padding: 5px;
             width: 95%;
             border-top: 0;
@@ -209,15 +209,13 @@ $depObj = $this->dependencyObject;
             display: none;
             position: fixed;
             z-index: 1000;
-            top: 0;
-            left: 0;
+            top: 50%;
+            left: 50%;
             height: 100%;
             width: 100%;
-            background: rgba( 255, 255, 255, .8 )
-            url('/interface/modules/zend_modules/public/images/ajax-loader.gif') 50% 50% no-repeat;
         }
     </style>
-    <div class="modal"></div>
+    <div class="modal"><div class="spinner-border" role="status"><span class="sr-only"><?php echo $listener->z_xlt('Loading'); ?>...</span></div></div>
     <!-- Cannot replace style d-none without breaking code for below lines !-->
     <div id="install_upgrade_log" style="overflow-y: auto; height: 31.25rem; display: none;"></div>
 

@@ -155,7 +155,7 @@ $confirmationMSG = $listener->z_xlt("Do you really want to delete?");
                                         <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="javascript:saveConfig('configform',<?php echo $this->escapeHtml($mod_id); ?>)">
                                             <?php echo $listener->z_xlt('Save'); ?>
                                         </a>
-                                        <span id='target<?php echo $this->escapeHtml($mod_id); ?>' style="color: #996600"></span>
+                                        <span id='target<?php echo $this->escapeHtml($mod_id); ?>' class='text-warning'></span>
                                     </td>
                                 </tr>
                             </table>

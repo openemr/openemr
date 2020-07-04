@@ -13,9 +13,8 @@
 <h2><?= $this->message ?></h2>
 
 <?php if (isset($this->display_exceptions) && $this->display_exceptions) { ?>
-
     <?php if(isset($this->exception) && ($this->exception instanceof Exception || $this->exception instanceof Error)) { ?>
-        <hr/>
+        <hr />
         <h2>Additional information:</h2>
         <h3><?= get_class($this->exception); ?></h3>
         <dl>
@@ -35,9 +34,8 @@
         <?php
         $e = $this->exception->getPrevious();
         $icount = 0;
-        if ($e) {
-            ?>
-            <hr/>
+        if ($e) { ?>
+            <hr />
             <h2>Previous exceptions:</h2>
             <ul class="unstyled">
                 <?php while($e) { ?>
@@ -69,11 +67,7 @@
                 ?>
             </ul>
         <?php } ?>
-
     <?php } else { ?>
-
         <h3>No Exception available</h3>
-
     <?php } ?>
-
 <?php } ?>

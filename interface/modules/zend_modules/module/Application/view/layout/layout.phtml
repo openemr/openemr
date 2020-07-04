@@ -17,8 +17,7 @@ use OpenEMR\Core\Header;
         <meta charset="utf-8" />
         <?php echo $this->headTitle('ZF2 '. $this->translate()->xl('OpenEMR Application'))->setSeparator(' - ')->setAutoEscape(false); ?>
 
-        <?php Header::setupHeader(); ?>
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/style.css" />
+        <?php Header::setupHeader(['laminas-style']); ?>
     </head>
     <body>
         <div class="container">

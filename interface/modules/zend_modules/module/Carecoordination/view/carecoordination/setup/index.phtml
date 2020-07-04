@@ -12,17 +12,21 @@
 <script>
 var save_array = [];
 $(function () {
+    // TODO: How do I replace sortable here
+
     $("ul.droptrue").sortable({
             connectWith: "ul",
             placeholder: "ui-state-highlight"
     });
-    $( "ul.dropfalse" ).sortable({
+
+    $("ul.dropfalse").sortable({
             connectWith: "ul",
             dropOnEmpty: false,
             placeholder: "ui-state-highlight"
     });
-    $( ".sortable_div" ).disableSelection();
-    $( ".sortable_div" ).sortable({
+    $(".sortable_div").disableSelection();
+
+    $(".sortable_div").sortable({
         receive: function( event, ui ) {
             classes = $(ui.item).prev().attr('class');
             classes_arr = classes.split(' ');

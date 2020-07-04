@@ -71,6 +71,12 @@ assets:
         rtl:
             basePath: '%webroot%/public/themes/'
             link: rtl_patientportal-style.css
+    laminas-style:
+        basePath: '%webroot%/public/themes/misc/'
+        link: laminas-style.css
+        rtl:
+            basePath: '%webroot%/public/themes/misc/'
+            link: rtl_laminas-style.css
     knockout:
         basePath: '%assets_static_relative%/knockout/build/output/'
         script: knockout-latest.js
@@ -168,6 +174,9 @@ assets:
         script: dialog.js
         autoload: true
         allowNoLoad: true
+    interactjs:
+        basePath: '%assets_static_relative%/interactjs/dist/'
+        script: interact.js
     select2:
         basePath: '%assets_static_relative%/select2/dist/'
         script: js/select2.full.min.js

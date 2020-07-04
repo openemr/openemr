@@ -128,22 +128,17 @@ if ($rows >= 1 && round($rows / $limit) == 0) {
             }
             ?>
     <div class="panel_row">
-            <?php
-            $fill = 'filllist';
-            ?>
+        <?php $fill = 'filllist'; ?>
         <ul tabindex="0" onKeyDown="move(event, '<?php echo $lineNo; ?>', '<?php echo'list_' . $this->searchEleNo; ?>', '<?php echo $this->searchEleNo;?>');" id="<?php echo 'list_' . $this->searchEleNo . '_' . $lineNo; ?>" class="<?php if ($lineNo == 1) {
             echo "row";
-                                                 } else {
-                                                                                              echo $row;} ?> m-0 p-0">
+          } else {
+            echo $row;} ?> m-0 p-0">
         <li>
-            <?php
-            if ($this->searchType == 'emrdirect') {?>
-          <span class="float-left" id="<?php echo $fill . '_' . $this->searchEleNo . '_' . $lineNo; ?>" onClick='fill("<?php echo $this->escapeHtml($value['email']).'|'.$this->escapeHtml($value['id']);?>", "<?php echo $this->searchType; ?>", "<?php echo $this->searchEleNo;?>" , "<?php echo $this->searchMode; ?>");'>
+          <?php if ($this->searchType == 'emrdirect') {?>
+      <span class="float-left" id="<?php echo $fill . '_' . $this->searchEleNo . '_' . $lineNo; ?>" onClick='fill("<?php echo $this->escapeHtml($value['email']).'|'.$this->escapeHtml($value['id']);?>", "<?php echo $this->searchType; ?>", "<?php echo $this->searchEleNo;?>" , "<?php echo $this->searchMode; ?>");'>
       <div class="itemBox" style="width:30px;"><?php echo $i; ?></div>
       <div class="itemBox h-auto" style="width: 180px;">
-                <?php
-                echo $name;
-                ?>
+        <?php echo $name; ?>
       </div>
       <div class="itemBox" style="width:240px"><?php echo $d_adress; ?></div>
       </li>
@@ -155,22 +150,17 @@ if ($rows >= 1 && round($rows / $limit) == 0) {
             <?php } ?>
       <div class="itemBox" style="width:30px;"><?php echo $i; ?></div>
       <div class="itemBox h-auto" style="width: 232px;">
-                <?php
-                echo $name;
-                ?>
+        <?php echo $name; ?>
       </div>
       <div class="itemBox" style="width:40px;"><?php echo $this->escapeHtml($patient_id); ?></div>
       <div class="itemBox border-right-0" style="width:60px;"><?php echo $this->escapeHtml($dob); ?></div>
       </li>
       </ul>
       </span>
-                <?php
-            }
-            ?>
-     <div class="clearfix"></div>
+      <?php } ?>
+      <div class="clearfix"></div>
       </div>
-
-            <?php
+      <?php
             $i++;
             $lineNo++;
             if ($lineNo >= count($result)) {

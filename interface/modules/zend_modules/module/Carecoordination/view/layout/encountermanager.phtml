@@ -16,11 +16,7 @@
     <head>
         <meta charset="utf-8" />
         <?php echo $this->headTitle($this->translate()->xl('Care Coordination'))->setSeparator(' - ')->setAutoEscape(false); ?>
-        <?php Header::setupHeader(['datetime-picker']); ?>
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/carecoordination_style.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/style.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/sendTo.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/autosuggest/autosuggest.css" />
+        <?php Header::setupHeader(['datetime-picker', 'laminas-style']); ?>
 
         <script>
         var APP_URL = "<?php echo $this->basePath(); ?>";

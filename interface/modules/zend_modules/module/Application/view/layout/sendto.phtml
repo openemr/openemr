@@ -12,13 +12,10 @@ echo $this->doctype();
 use OpenEMR\Core\Header;
 ?>
 
-<html lang="en">
+<html>
     <head>
-        <meta charset="utf-8" />
         <?php echo $this->headTitle('ZF2 '. $this->translate()->xl('OpenEMR'))->setSeparator(' - ')->setAutoEscape(false); ?>
-        <?php Header::setupHeader(); ?>
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/style.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/sendTo.css" />
+        <?php Header::setupHeader(['laminas-style']); ?>
         <script src="<?php echo $this->basePath(); ?>/js/autosuggest/autosuggest.js"></script>
         <script src="<?php echo $this->basePath(); ?>/js/application/sendTo.js"></script>
         <script src="<?php echo $this->basePath(); ?>/js/application/addRule.js"></script>

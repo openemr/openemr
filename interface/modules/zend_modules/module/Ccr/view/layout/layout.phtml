@@ -18,12 +18,10 @@
         <meta charset="utf-8" />
         <?php echo $this->headTitle($this->translate()->xl('CCR'))->setSeparator(' - ')->setAutoEscape(false); ?>
 
-        <?php Header::setupHeader(['modernizr']); ?>
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/drag_and_drop_uploader.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/carecoordination_style.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/style.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/sendTo.css" />
+        <?php Header::setupHeader(['modernizr', 'laminas-style']); ?>
         <script src="<?php echo $this->basePath(); ?>/js/application/sendTo.js"></script>
+        <script src="<?php echo $this->basePath(); ?>/js/autosuggest/autosuggest.js"></script>
+
     </head>
     <body class="body_top">
         <div class="container-fluid">

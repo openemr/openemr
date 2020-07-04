@@ -18,7 +18,7 @@ $(function() {
         unique: true,
         persist: "cookie",
         toggle: function() {
-            window.console && console.log("%o was toggled", this);
+            console.log("%o was toggled", this);
         }
     });
 

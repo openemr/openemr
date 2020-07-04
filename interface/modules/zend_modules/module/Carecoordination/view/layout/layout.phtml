@@ -16,14 +16,11 @@ use OpenEMR\Core\Header;
         <meta charset="utf-8">
         <?php echo $this->headTitle($this->translate()->xl('CCDA'))->setSeparator(' - ')->setAutoEscape(false); ?>
 
-        <?php Header::setupHeader(['datetime-picker', 'modernizr']); ?>
-
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/drag_and_drop_uploader.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/carecoordination_style.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/style.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/sendTo.css" />
+        <?php Header::setupHeader(['datetime-picker', 'modernizr', 'laminas-style']); ?>
         <script src="<?php echo $this->basePath(); ?>/js/application/sendTo.js"></script>
         <script src="<?php echo $this->basePath(); ?>/js/application/common.js"></script>
+        <script src="<?php echo $this->basePath(); ?>/js/autosuggest/autosuggest.js"></script>
+
         <script>
         var APP_URL = "<?php echo $this->basePath(); ?>";
         var WEB_ROOT = "<?php echo $GLOBALS['webroot']; ?>";

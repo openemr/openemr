@@ -25,11 +25,9 @@ echo $this->doctype();
 use OpenEMR\Core\Header;
 ?>
 
-<html lang="en">
+<html>
 <head>
-    <meta charset="utf-8" />
-    <?php Header::setupHeader(); ?>
-    <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/multipledb/multipledb.css" />
+    <?php Header::setupHeader(['laminas-style']); ?>
 </head>
 
 <body class="container-fluid body_top" dir="<?php echo $language_direction; ?>">

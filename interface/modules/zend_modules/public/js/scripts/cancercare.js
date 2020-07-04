@@ -19,7 +19,7 @@ $(document).mouseup(function(e) {
 $(function() {
     $(".dateClass").datetimepicker({
         changeMonth: true,
-        changeYear: true,
+        changeYear: true
     });
 
     $('.header_wrap_left').on("click", "#searchbutton", function() {

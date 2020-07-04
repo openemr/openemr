@@ -17,12 +17,7 @@ echo $this->doctype();
         <meta charset="utf-8" />
         <?php echo $this->headTitle($this->translate()->xl('Immunization'))->setSeparator(' - ')->setAutoEscape(false); ?>
 
-        <?php Header::setupHeader(['datetime-picker', 'modernizr']); ?>
-
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/carecoordination_style.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/style.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/sendTo.css" />
-        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/immunization.css" />
+        <?php Header::setupHeader(['datetime-picker', 'modernizr', 'laminas-style']); ?>
         <script src="<?php echo $this->basePath(); ?>/js/application/sendTo.js"></script>
         <script src="<?php echo $this->basePath(); ?>/js/scripts/immunization.js"></script>
         <script src="<?php echo $this->basePath(); ?>/js/application/common.js"></script>
@@ -42,6 +37,6 @@ echo $this->doctype();
             <?php echo $this->javascriptGlobals(); ?>
             <?php echo $this->content; ?>
         </div>
-        <?php echo $this->inlineScript() ?>
+        <?php echo $this->inlineScript(); ?>
     </body>
 </html>

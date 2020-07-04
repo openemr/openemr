@@ -134,7 +134,7 @@ function move(evt, row, id, no) {
             } else {
                 $('#' + id + '_' + (row + 1)).css("background-color", "var(--white)");
             }
-            $('#' + id + '_' + (row)).css("background-color", "#659CD8");
+            $('#' + id + '_' + (row)).css("background-color", "var(--primary)");
             document.getElementById(id + '_' + (row)).focus();
         }
     } else if (charCode == 40) {
@@ -145,7 +145,7 @@ function move(evt, row, id, no) {
             } else {
                 $('#' + id + '_' + (row - 1)).css("background-color", "var(--white)");
             }
-            $('#' + id + '_' + (row)).css("background-color", "#659CD8");
+            $('#' + id + '_' + (row)).css("background-color", "var(--primary)");
             document.getElementById(id + '_' + (row)).focus();
         }
     } else if (charCode == 13) {
