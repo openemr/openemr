@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The address book popup that allows you to select people.
  *
@@ -13,7 +14,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
@@ -27,7 +27,7 @@ if (!empty($_POST)) {
     }
 }
 
-if($_GET) {
+if ($_GET) {
     $_SESSION['id'] = $_GET['id'];
 }
 
@@ -47,22 +47,22 @@ if ($_POST) {
       "(lo.list_id = 'abook_type' AND lo.option_id = u.abook_type AND lo.activity = 1) WHERE id > 0 ";
     if ($form_organization) {
         $query .= "AND u.organization LIKE ? ";
-        array_push($sqlBindArray, $form_organization."%");
+        array_push($sqlBindArray, $form_organization . "%");
     }
 
     if ($form_lname) {
         $query .= "AND u.lname LIKE ? ";
-        array_push($sqlBindArray, $form_lname."%");
+        array_push($sqlBindArray, $form_lname . "%");
     }
 
     if ($form_fname) {
         $query .= "AND u.fname LIKE ? ";
-        array_push($sqlBindArray, $form_fname."%");
+        array_push($sqlBindArray, $form_fname . "%");
     }
 
     if ($form_specialty) {
         $query .= "AND u.specialty LIKE ? ";
-        array_push($sqlBindArray, "%".$form_specialty."%");
+        array_push($sqlBindArray, "%" . $form_specialty . "%");
     }
 
     if ($form_abook_type) {
@@ -152,7 +152,7 @@ if ($_POST) {
 
                     $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname']; // Person Name
                     if ($row['suffix'] > '') {
-                        $displayName .=", " . $row['suffix'];
+                        $displayName .= ", " . $row['suffix'];
                     }
 
                     if (acl_check('admin', 'practice') || (empty($row['ab_name']))) {
@@ -168,7 +168,7 @@ if ($_POST) {
                     echo "  <td>" . text($row['organization']) . "</td>\n";
                     echo "  <td>" . text($displayName) . "</td>\n";
                     echo "  <td>--</td>\n";
-                    echo "  <td>" . generate_display_field(array('data_type'=>'1','list_id'=>'abook_type'), $row['ab_name']) . "</td>\n";
+                    echo "  <td>" . generate_display_field(array('data_type' => '1','list_id' => 'abook_type'), $row['ab_name']) . "</td>\n";
                     echo "  <td>" . text($row['specialty']) . "</td>\n";
                     echo "  <td>" . text($row['phonew1'])   . "</td>\n";
                     echo "  <td>" . text($row['phonecell']) . "</td>\n";

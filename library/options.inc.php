@@ -522,11 +522,11 @@ function generate_form_field($frow, $currvalue)
             echo "</select>";
         }
     } elseif ($data_type == 11) { // Only address book entries with an NPI number
-      if ($currvalue) {
-          $ures = sqlQuery("SELECT fname, lname FROM addressbook WHERE id = " . $currvalue . " ORDER BY lname, fname");
-          $pseudooutput = $ures['lname'] . ", " . $ures['fname'];
-      }
-      echo "<input class='form-control' type='text' id='pseudoformfield_$field_id_esc' title='$description' style='cursor: pointer;' value='$pseudooutput' placeholder='" . xla('Click to select') . "' onclick='sel_addrbookcontact(\"$field_id_esc\")' />
+        if ($currvalue) {
+            $ures = sqlQuery("SELECT fname, lname FROM addressbook WHERE id = " . $currvalue . " ORDER BY lname, fname");
+            $pseudooutput = $ures['lname'] . ", " . $ures['fname'];
+        }
+        echo "<input class='form-control' type='text' id='pseudoformfield_$field_id_esc' title='$description' style='cursor: pointer;' value='$pseudooutput' placeholder='" . xla('Click to select') . "' onclick='sel_addrbookcontact(\"$field_id_esc\")' />
       <input type='hidden' name='form_$field_id_esc' id='form_$field_id_esc' value='$currvalue' />";
     } elseif ($data_type == 12) { // pharmacy list
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
