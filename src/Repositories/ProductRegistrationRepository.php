@@ -35,7 +35,7 @@ class ProductRegistrationRepository extends EntityRepository
      */
     public function findFirst()
     {
-        $results = $this->_em->getRepository($this->_entityName)->findAll();
+        $results = $this->findAll();
         if (!empty($results)) {
             return $results[0];
         }
@@ -51,8 +51,8 @@ class ProductRegistrationRepository extends EntityRepository
      */
     public function save(ProductRegistration $entry)
     {
-        $this->_em->persist($entry);
-        $this->_em->flush();
+        $this->em->persist($entry);
+        $this->em->flush();
         return $entry->getEmail();
     }
 }

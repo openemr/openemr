@@ -36,7 +36,7 @@ class UserRepository extends EntityRepository
      */
     public function getCurrentlyLoggedInUser()
     {
-        $results = $this->_em->getRepository($this->_entityName)->findOneBy(array("username" => $_SESSION["authUser"]));
+        $results = $this->findOneBy(array("username" => $_SESSION["authUser"]));
         return $results;
     }
 
@@ -47,7 +47,7 @@ class UserRepository extends EntityRepository
      */
     public function getUser($userId)
     {
-        $results = $this->_em->getRepository($this->_entityName)->findOneBy(array("id" => $userId));
+        $results = $this->findOneBy(array("id" => $userId));
         return $results;
     }
 
@@ -62,7 +62,7 @@ class UserRepository extends EntityRepository
         $criteria->where(Criteria::expr()->neq("username", ""));
         $criteria->andWhere(Criteria::expr()->eq("active", 1));
         $criteria->orderBy(array("lname" => "ASC", "fname" => "ASC", "mname" => "ASC"));
-        $results = $this->_em->getRepository($this->_entityName)->matching($criteria);
+        $results = $this->matching($criteria);
         return $results;
     }
 }

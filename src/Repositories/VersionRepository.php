@@ -43,8 +43,8 @@ class VersionRepository extends EntityRepository
 
         try {
             $objectToBeUpdated = $this->updateNonKeyedEntityObject($this->findFirst(), $version);
-            $updateInformation = $this->_em->persist($objectToBeUpdated);
-            $this->_em->flush();
+            $updateInformation = $this->em->persist($objectToBeUpdated);
+            $this->em->flush();
             $response = true;
         } catch (Exception $e) {
         }
@@ -59,7 +59,7 @@ class VersionRepository extends EntityRepository
      */
     public function findFirst()
     {
-        $results = $this->_em->getRepository($this->_entityName)->findAll();
+        $results = $this->findAll();
         if (!empty($results)) {
             return $results[0];
         }
@@ -74,7 +74,7 @@ class VersionRepository extends EntityRepository
      */
     public function doesTableExist()
     {
-        $query = $this->_em->getConnection()->prepare("SHOW TABLES LIKE 'version'");
+        $query = $this->em->getConnection()->prepare("SHOW TABLES LIKE 'version'");
         $query->execute();
         $results = $query->fetch();
 

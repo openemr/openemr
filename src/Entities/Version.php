@@ -23,14 +23,11 @@
 
 namespace OpenEMR\Entities;
 
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Table;
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Annotation as ORM;
 
 /**
- * @Table(name="version")
- * @Entity(repositoryClass="OpenEMR\Repositories\VersionRepository")
+ * @ORM\Table(name="version")
+ * @ORM\Entity(repositoryClass="OpenEMR\Repositories\VersionRepository")
  */
 class Version
 {
@@ -42,38 +39,38 @@ class Version
     }
 
     /**
-     * @Column(name="v_major", type="integer", length=11, nullable=false, options={"default" : 0})
+     * @ORM\Column(name="v_major", type="integer", length=11, nullable=false, options={"default" : 0})
      */
     private $major;
 
     /**
-     * @Column(name="v_minor", type="integer", length=11, nullable=false, options={"default" : 0}))
+     * @ORM\Column(name="v_minor", type="integer", length=11, nullable=false, options={"default" : 0}))
      */
     private $minor;
 
     /**
-     * @Column(name="v_patch", type="integer", length=11, nullable=false, options={"default" : 0}))
+     * @ORM\Column(name="v_patch", type="integer", length=11, nullable=false, options={"default" : 0}))
      */
     private $patch;
 
     /**
-     * @Column(name="v_realpatch", type="integer", length=11, nullable=false, options={"default" : 0}))
+     * @ORM\Column(name="v_realpatch", type="integer", length=11, nullable=false, options={"default" : 0}))
      */
     private $realPatch;
 
     /**
-     * @Column(name="v_tag", type="string", length=31, nullable=false, options={"default" : ""}))
+     * @ORM\Column(name="v_tag", type="string", length=31, nullable=false, options={"default" : ""}))
      */
     private $tag;
 
     /**
-     * @Id
-     * @Column(name="v_database", type="integer", length=11, nullable=false, options={"default" : 0}))
+     * @ORM\Id
+     * @ORM\Column(name="v_database", type="integer", length=11, nullable=false, options={"default" : 0}))
      */
     private $database;
 
     /**
-     * @Column(name="v_acl", type="integer", length=11, nullable=false, options={"default" : 0}))
+     * @ORM\Column(name="v_acl", type="integer", length=11, nullable=false, options={"default" : 0}))
      */
     private $acl;
 

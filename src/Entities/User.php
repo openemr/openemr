@@ -14,17 +14,11 @@
 
 namespace OpenEMR\Entities;
 
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Table;
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\Index;
-use Doctrine\ORM\Mapping\OneToMany;
-use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Annotation as ORM;
 
 /**
- * @Table(name="users")
- * @Entity(repositoryClass="OpenEMR\Repositories\UserRepository")
+ * @ORM\Table(name="users")
+ * @ORM\Entity(repositoryClass="OpenEMR\Repositories\UserRepository")
  */
 class User
 {
@@ -36,289 +30,289 @@ class User
     }
 
     /**
-     * @Column(name="id", type="integer")
-     * @GeneratedValue(strategy="AUTO")
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
-     * @OneToMany(targetEntity="ONote", mappedBy="user")
+     * @ORM\OneToMany(targetEntity="OpenEMR\Entities\ONote", mappedBy="user")
      */
     private $oNotes;
 
     /**
-     * @Id
-     * @Column(name="username", type="string")
+     * @ORM\Id
+     * @ORM\Column(name="username", type="string")
      */
     private $username;
 
     /**
-     * @Column(name="calendar", type="boolean")
+     * @ORM\Column(name="calendar", type="boolean")
      */
     private $calendar;
 
     /**
-     * @Column(name="irnpool", type="string")
+     * @ORM\Column(name="irnpool", type="string")
      */
     private $irnPool;
 
     /**
-     * @Column(name="cpoe", type="boolean")
+     * @ORM\Column(name="cpoe", type="boolean")
      */
     private $cpoe;
 
     /**
-     * @Column(name="physician_type", type="string")
+     * @ORM\Column(name="physician_type", type="string")
      */
     private $physicianType;
 
     /**
-     * @Column(name="newcrop_user_role", type="string")
+     * @ORM\Column(name="newcrop_user_role", type="string")
      */
     private $newCropUserRole;
 
     /**
-     * @Column(name="state_license_number", type="string")
+     * @ORM\Column(name="state_license_number", type="string")
      */
     private $stateLicenseNumber;
 
     /**
-     * @Column(name="default_warehouse", type="string")
+     * @ORM\Column(name="default_warehouse", type="string")
      */
     private $defaultWarehouse;
 
     /**
-     * @Column(name="abook_type", type="string")
+     * @ORM\Column(name="abook_type", type="string")
      */
     private $aBookType;
 
     /**
-     * @Column(name="password", type="text")
+     * @ORM\Column(name="password", type="text")
      */
     private $password;
 
     /**
-     * @Column(name="authorized", type="boolean")
+     * @ORM\Column(name="authorized", type="boolean")
      */
     private $authorized;
 
     /**
-     * @Column(name="info", type="text")
+     * @ORM\Column(name="info", type="text")
      */
     private $info;
 
     /**
-     * @Column(name="taxonomy", type="string")
+     * @ORM\Column(name="taxonomy", type="string")
      */
     private $taxonomy;
 
     /**
-     * @Column(name="cal_ui", type="boolean")
+     * @ORM\Column(name="cal_ui", type="boolean")
      */
     private $calUi;
 
     /**
-     * @Column(name="notes", type="text")
+     * @ORM\Column(name="notes", type="text")
      */
     private $notes;
 
     /**
-     * @Column(name="phonecell", type="string")
+     * @ORM\Column(name="phonecell", type="string")
      */
     private $phoneCell;
 
     /**
-     * @Column(name="phonew2", type="string")
+     * @ORM\Column(name="phonew2", type="string")
      */
     private $phoneW2;
 
     /**
-     * @Column(name="phonew1", type="string")
+     * @ORM\Column(name="phonew1", type="string")
      */
     private $phoneW1;
 
     /**
-     * @Column(name="fax", type="string")
+     * @ORM\Column(name="fax", type="string")
      */
     private $fax;
 
     /**
-     * @Column(name="phone", type="string")
+     * @ORM\Column(name="phone", type="string")
      */
     private $phone;
 
     /**
-     * @Column(name="zip2", type="string")
+     * @ORM\Column(name="zip2", type="string")
      */
     private $zip2;
 
     /**
-     * @Column(name="state2", type="string")
+     * @ORM\Column(name="state2", type="string")
      */
     private $state2;
 
     /**
-     * @Column(name="city2", type="string")
+     * @ORM\Column(name="city2", type="string")
      */
     private $city2;
 
     /**
-     * @Column(name="streetb2", type="string")
+     * @ORM\Column(name="streetb2", type="string")
      */
     private $streetB2;
 
     /**
-     * @Column(name="street2", type="string")
+     * @ORM\Column(name="street2", type="string")
      */
     private $street2;
 
     /**
-     * @Column(name="zip", type="string")
+     * @ORM\Column(name="zip", type="string")
      */
     private $zip;
 
     /**
-     * @Column(name="state", type="string")
+     * @ORM\Column(name="state", type="string")
      */
     private $state;
 
     /**
-     * @Column(name="city", type="string")
+     * @ORM\Column(name="city", type="string")
      */
     private $city;
 
     /**
-     * @Column(name="streetb", type="string")
+     * @ORM\Column(name="streetb", type="string")
      */
     private $streetB;
 
     /**
-     * @Column(name="street", type="string")
+     * @ORM\Column(name="street", type="string")
      */
     private $street;
 
     /**
-     * @Column(name="valedictory", type="string")
+     * @ORM\Column(name="valedictory", type="string")
      */
     private $valedictory;
 
     /**
-     * @Column(name="organization", type="string")
+     * @ORM\Column(name="organization", type="string")
      */
     private $organization;
 
     /**
-     * @Column(name="assistant", type="string")
+     * @ORM\Column(name="assistant", type="string")
      */
     private $assistant;
 
     /**
-     * @Column(name="url", type="string")
+     * @ORM\Column(name="url", type="string")
      */
     private $url;
 
     /**
-     * @Column(name="email_direct", type="string")
+     * @ORM\Column(name="email_direct", type="string")
      */
     private $emailDirect;
 
     /**
-     * @Column(name="email", type="string")
+     * @ORM\Column(name="email", type="string")
      */
     private $email;
 
     /**
-     * @Column(name="billname", type="string")
+     * @ORM\Column(name="billname", type="string")
      */
     private $billName;
 
     /**
-     * @Column(name="specialty", type="string")
+     * @ORM\Column(name="specialty", type="string")
      */
     private $specialty;
 
     /**
-     * @Column(name="title", type="string")
+     * @ORM\Column(name="title", type="string")
      */
     private $title;
 
     /**
-     * @Column(name="npi", type="string")
+     * @ORM\Column(name="npi", type="string")
      */
     private $npi;
 
     /**
-     * @Column(name="active", type="boolean")
+     * @ORM\Column(name="active", type="boolean")
      */
     private $active;
 
     /**
-     * @Column(name="see_auth", type="integer")
+     * @ORM\Column(name="see_auth", type="integer")
      */
     private $seeAuth;
 
     /**
-     * @Column(name="facility_id", type="integer")
+     * @ORM\Column(name="facility_id", type="integer")
      */
     private $facilityId;
 
     /**
-     * @Column(name="facility", type="string")
+     * @ORM\Column(name="facility", type="string")
      */
     private $facility;
 
     /**
-     * @Column(name="upin", type="string")
+     * @ORM\Column(name="upin", type="string")
      */
     private $upin;
 
     /**
-     * @Column(name="federalDrugId", type="string")
+     * @ORM\Column(name="federalDrugId", type="string")
      */
     private $federalDrugId;
 
     /**
-     * @Column(name="federaltaxid", type="string")
+     * @ORM\Column(name="federaltaxid", type="string")
      */
     private $federalTaxId;
 
     /**
-     * @Column(name="suffix", type="string")
+     * @ORM\Column(name="suffix", type="string")
      */
     private $suffix;
 
     /**
-     * @Column(name="lname", type="string")
+     * @ORM\Column(name="lname", type="string")
      */
     private $lname;
 
     /**
-     * @Column(name="mname", type="string")
+     * @ORM\Column(name="mname", type="string")
      */
     private $mname;
 
     /**
-     * @Column(name="fname", type="string")
+     * @ORM\Column(name="fname", type="string")
      */
     private $fname;
 
     /**
-     * @Column(name="source", type="boolean")
+     * @ORM\Column(name="source", type="boolean")
      */
     private $source;
 
     /**
-     * @Column(name="main_menu_role", type="string")
+     * @ORM\Column(name="main_menu_role", type="string")
      */
     private $mainMenuRole;
 
     /**
-     * @Column(name="patient_menu_role", type="string")
+     * @ORM\Column(name="patient_menu_role", type="string")
      */
     private $patientMenuRole;
 
     /**
-     * @Column(name="weno_prov_id", type="string")
+     * @ORM\Column(name="weno_prov_id", type="string")
      */
     private $wenoProvId;
 

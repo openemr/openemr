@@ -36,8 +36,8 @@ class ONoteRepository extends EntityRepository
      */
     public function save(ONote $note)
     {
-        $this->_em->persist($note);
-        $this->_em->flush();
+        $this->em->persist($note);
+        $this->em->flush();
         return $note->getId();
     }
 
@@ -47,7 +47,7 @@ class ONoteRepository extends EntityRepository
      */
     public function findNoteById($id)
     {
-        $result = $this->_em->getRepository($this->_entityName)->findOneBy(array("id" => $id));
+        $result = $this->findOneBy(array("id" => $id));
         return $result;
     }
 
@@ -66,8 +66,8 @@ class ONoteRepository extends EntityRepository
 
             if ($note) {
                 $note->setActivity(1);
-                $this->_em->persist($note);
-                $this->_em->flush();
+                $this->em->persist($note);
+                $this->em->flush();
                 $result = true;
             }
         } catch (Exception $e) {
@@ -91,8 +91,8 @@ class ONoteRepository extends EntityRepository
 
             if ($note) {
                 $note->setActivity(0);
-                $this->_em->persist($note);
-                $this->_em->flush();
+                $this->em->persist($note);
+                $this->em->flush();
                 $result = true;
             }
         } catch (Exception $e) {
@@ -125,7 +125,7 @@ class ONoteRepository extends EntityRepository
             $criteria["activity"] = 0;
         }
 
-        $result = $this->_em->getRepository($this->_entityName)->findBy(
+        $result = $this->findBy(
             $criteria,
             array("date" => "DESC"),
             $limit,

@@ -37,8 +37,8 @@ class ChartTrackerRepository extends EntityRepository
      */
     public function save(ChartTracker $chartTracker)
     {
-        $this->_em->persist($chartTracker);
-        $this->_em->flush();
+        $this->em->persist($chartTracker);
+        $this->em->flush();
         return $chartTracker->getPid();
     }
 }

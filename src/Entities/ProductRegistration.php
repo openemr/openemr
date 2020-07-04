@@ -23,15 +23,11 @@
 
 namespace OpenEMR\Entities;
 
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Table;
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Annotation as ORM;
 
 /**
- * @Table(name="product_registration")
- * @Entity(repositoryClass="OpenEMR\Repositories\ProductRegistrationRepository")
+ * @ORM\Table(name="product_registration")
+ * @ORM\Entity(repositoryClass="OpenEMR\Repositories\ProductRegistrationRepository")
  */
 class ProductRegistration
 {
@@ -43,19 +39,19 @@ class ProductRegistration
     }
 
     /**
-     * @Id
-     * @Column(name="id", type="integer")
-     * @GeneratedValue(strategy="AUTO")
+     * @ORM\Id
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
-     * @Column(name="email"), type="varchar", length=255 nullable=false, options={"default" : 0})
+     * @ORM\Column(name="email"), type="varchar", length=255 nullable=false, options={"default" : 0})
      */
     private $email;
 
     /**
-     * @Column(name="opt_out"), type="tinyint", length=1 nullable=false, options={"default" : 0})
+     * @ORM\Column(name="opt_out"), type="tinyint", length=1 nullable=false, options={"default" : 0})
      */
     private $optOut;
 

@@ -23,17 +23,11 @@
 
 namespace OpenEMR\Entities;
 
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Table;
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\JoinColumn   ;
-use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Annotation as ORM;
 
 /**
- * @Table(name="onotes")
- * @Entity(repositoryClass="OpenEMR\Repositories\ONoteRepository")
+ * @ORM\Table(name="onotes")
+ * @ORM\Entity(repositoryClass="OpenEMR\Repositories\ONoteRepository")
  */
 class ONote
 {
@@ -45,35 +39,35 @@ class ONote
     }
 
     /**
-     * @Id
-     * @Column(name="id", type="integer")
-     * @GeneratedValue(strategy="AUTO")
+     * @ORM\Id
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
-     * @Column(name="date", type="datetime")
+     * @ORM\Column(name="date", type="datetime")
      */
     private $date;
 
     /**
-     * @Column(name="body", type="text")
+     * @ORM\Column(name="body", type="text")
      */
     private $body;
 
     /**
-     * @Column(name="groupname", type="string", length=255)
+     * @ORM\Column(name="groupname", type="string", length=255)
      */
     private $groupName;
 
     /**
-     * @ManyToOne(targetEntity="User")
-     * @JoinColumn(name="user", referencedColumnName="username")
+     * @ORM\ManyToOne(targetEntity="OpenEMR\Entities\User")
+     * @ORM\JoinColumn(name="user", referencedColumnName="username")
      */
     private $user;
 
     /**
-     * @Column(name="activity", type="integer", length=4)
+     * @ORM\Column(name="activity", type="integer", length=4)
      */
     private $activity;
 

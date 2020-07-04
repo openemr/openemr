@@ -23,14 +23,11 @@
 
 namespace OpenEMR\Entities;
 
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Table;
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Annotation as ORM;
 
 /**
- * @Table(name="chart_tracker")
- * @Entity(repositoryClass="OpenEMR\Repositories\ChartTrackerRepository")
+ * @ORM\Table(name="chart_tracker")
+ * @ORM\Entity(repositoryClass="OpenEMR\Repositories\ChartTrackerRepository")
  */
 class ChartTracker
 {
@@ -43,23 +40,23 @@ class ChartTracker
     }
 
     /**
-     * @Id
-     * @Column(name="ct_pid"), type="int", length=11, nullable=false, options={"default" : 0})
+     * @ORM\Id
+     * @ORM\Column(name="ct_pid"), type="int", length=11, nullable=false, options={"default" : 0})
      */
     private $pid;
 
     /**
-     * @Column(name="ct_when", type="datetime", nullable=false)
+     * @ORM\Column(name="ct_when", type="datetime", nullable=false)
      */
     private $when;
 
     /**
-     * @Column(name="ct_userid"), type="bigint", length=20, nullable=false, options={"default" : 0})
+     * @ORM\Column(name="ct_userid"), type="bigint", length=20, nullable=false, options={"default" : 0})
      */
     private $userId;
 
     /**
-     * @Column(name="ct_location"), type="varchar", length=31, nullable=false, options={"default" : "")
+     * @ORM\Column(name="ct_location"), type="varchar", length=31, nullable=false, options={"default" : "")
      */
     private $location;
 
