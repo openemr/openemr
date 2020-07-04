@@ -188,7 +188,7 @@ if ($_POST['form_submit'] && !$alertmsg) {
 
     // Close this window and redisplay the layout editor.
     //
-    echo "<script language='JavaScript'>\n";
+    echo "<script>\n";
     if ($alertmsg) {
         echo " alert(" . js_escape($alertmsg) . ");\n";
     }

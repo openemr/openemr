@@ -370,7 +370,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 
             print "</div>";
             ?>
-        <script language='JavaScript'>
+        <script>
         var win = top.printLogPrint ? top : opener.top;
         win.printLogPrint(window);
         </script>

@@ -33,7 +33,7 @@ use OpenEMR\Core\Header;
         $form_adreviewed = DateToYYYYMMDD(filter_input(INPUT_POST, 'form_adreviewed'));
         sqlQuery("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ? where pid = ?", array($form_yesno,$form_adreviewed,$pid));
         // Close this window and refresh the calendar display.
-        echo "</head><body>\n<script language='JavaScript'>\n";
+        echo "</head><body>\n<script>\n";
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
         echo " dlgclose();\n";
         echo "</script>\n</body>\n</html>\n";
