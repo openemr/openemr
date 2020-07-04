@@ -2161,6 +2161,7 @@ CREATE TABLE `gacl_acl` (
 -- Table structure for table `gacl_acl_sections`
 --
 
+DROP TABLE IF EXISTS `gacl_acl_sections`;
 CREATE TABLE `gacl_acl_sections` (
   `id` int(11) NOT NULL DEFAULT 0,
   `value` varchar(150) NOT NULL,
