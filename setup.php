@@ -1155,6 +1155,7 @@ STP2TBLBOT;
                             flush();
 
                             echo "Setting up Access Controls...\n";
+                            require("$OE_SITE_DIR/sqlconf.php");
                             if (! $installer->install_gacl()) {
                                 echo "$error -.\n";
                                 echo $installer->error_message;
