@@ -497,7 +497,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
             </div>
             <div class="col-12">
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-secondary btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
+                    <button type="submit" class="btn btn-primary btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
                         <?php echo xlt('Save'); ?>
                     </button>
                     <a class="btn btn-secondary btn-cancel" href="demographics.php" onclick="top.restoreSession()">
