@@ -121,7 +121,7 @@ function ImgProcedure() {literal}{{/literal}
  }{/literal}
 </script>
 
-<table class="w-100" valign="top">
+<table class="w-100 align-top">
     <tr>
         <td>
             <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 3px solid var(--gray);">
@@ -130,7 +130,7 @@ function ImgProcedure() {literal}{{/literal}
                 <button class="btn btn-sm btn-secondary properties">{xlt t='Properties'}</button>
                 <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
               </div>
-            <span style="float: right;">
+            <span class="float-right">
             <script>var file = {$file->get_url()|js_escape};</script>
             {if $GLOBALS.oefax_enable}
             {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
@@ -149,180 +149,121 @@ function ImgProcedure() {literal}{{/literal}
         </td>
     </tr>
     <tr id="DocProperties" style="display: none;">
-		<td valign="top">
+		<td class="align-top">
 			{if !$hide_encryption}
-			<div class="text">
-                <form method="post" name="document_encrypt" action="{$web_path|attr}" onsubmit="return top.restoreSession()">
-                <div>
-                    <div style="float:left">
-                        <b>{xlt t='Encryption'}</b>&nbsp;
-                    </div>
-                    <div style="float:none">
-                        <a href="javascript:;" onclick="submitNonEmpty( document.forms['document_encrypt'] );">(<span>{xlt t='download encrypted file'})</span></a>
-                    </div>
-                </div>
-                <div>
-                    {xlt t='Pass Phrase'}:
-                    <input title="{xla t='Supports TripleDES encryption/decryption only.'} {xla t='Leaving the pass phrase blank will not encrypt the document'}" type='text' size='20' name='passphrase' id='passphrase' value=''/>
-                    <input type="hidden" name="encrypted" value="true" />
-              	</div>
-                </form>
+			<div class="mb-2">
+        <form method="post" name="document_encrypt" action="{$web_path|attr}" onsubmit="return top.restoreSession()">
+          <p class="lead font-weight-bold">{xlt t='Encryption'}</p>
+          <div class="form-group">
+            <label for='passphrase'>{xlt t='Pass Phrase'}:</label>
+            <input class="form-control" title="{xla t='Supports TripleDES encryption/decryption only.'} {xla t='Leaving the pass phrase blank will not encrypt the document'}" type='text' size='20' name='passphrase' id='passphrase' value='' />
+            <input type="hidden" name="encrypted" value="true" />
+          </div>
+          <a href="javascript:;" class="btn btn-primary btn-sm" onclick="submitNonEmpty( document.forms['document_encrypt'] );">{xlt t='download encrypted file'}</a>
+        </form>
+      </div>
+      {/if}
+			<div class="mb-2">
+        <form method="post" name="document_validate" action="{$VALIDATE_ACTION|attr}" onsubmit="return top.restoreSession()">
+          <p class="font-weight-bold">{xlt t='Sha-1 Hash'}:</p>
+          <p<i>{$file->get_hash()|text}</i></p>
+          <a class="btn btn-primary btn-sm" href="javascript:;" onclick="document.forms['document_validate'].submit();">{xlt t='Validate'}</a>
+        </form>
+      </div>
+      <div class="mb-2">
+        <form method="post" name="document_update" action="{$UPDATE_ACTION|attr}" onsubmit="return top.restoreSession()">
+          <div class="form-group">
+            <label for="docname">{xlt t='Rename'}:</label>
+            <input type='text' class="form-control" size='20' name='docname' id='docname' value='{$file->get_url_web()|attr}'/>
+          </div>
+          <div class="form-group">
+            <label for="docdate">{xlt t='Date'}:</label>
+            <input type='text' size='10' class='form-control datepicker' name='docdate' id='docdate' value='{$DOCDATE|attr}' title="{xla t='yyyy-mm-dd document date'}" />
+          </div>
+          <div class="form-group">
+            <select name="issue_id" class="form-control">{$ISSUES_LIST}</select>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="document.forms['document_update'].submit();">{xlt t='Update'}</button>
+        </form>
+      </div>
+      <div class="mb-2">
+        <form method="post" name="document_move" action="{$MOVE_ACTION|attr}" onsubmit="return top.restoreSession()">
+          <div class="form-inline">
+            <select class="form-control" name="new_category_id">{$tree_html_listbox}</select>&nbsp;
+            {xlt t='Move to Patient'} # <input type="text" class="form-control" name="new_patient_id" size="4" />
+            <a href="javascript:{literal}{}{/literal}" onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|attr_url}&form_name={"document_move['new_patient_name']"|attr_url}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
+              <img src="{$IMAGES_STATIC_RELATIVE}/stock_search-16.png" /></a>
+              <input type="hidden" name="new_patient_name" value="" />
+          </div>
+          <button class="btn btn-primary btn-sm mt-2" onclick="document.forms['document_move'].submit();">{xlt t='Move'}</button>
+        </form>
+      </div>
+			<div class="mb-2">
+        <form method="post" name="document_tag" id="document_tag" action="{$TAG_ACTION|attr}" onsubmit="return top.restoreSession()">
+          <p class="font-weight-bold">{xlt t='Tag to Encounter'}</p>
+          <div class="form-inline">
+            <select class="form-control" id="encounter_id"  name="encounter_id">{$ENC_LIST}</select>&nbsp;
+            <a href="{$clear_encounter_tag}" class="btn btn-danger hide_clear">{xlt t='clear'}</a>&nbsp;&nbsp;
+            <input type="checkbox" name="encounter_check" id="encounter_check" onclick='set_checkbox(this)'/> <label for="encounter_check" class="font-weight-bold">{xlt t='Create Encounter'}</label>&nbsp;&nbsp;
+            {xlt t='Visit Category'}: &nbsp;<select class="form-control" id="visit_category_id" name="visit_category_id"  disabled>{$VISIT_CATEGORY_LIST}</select>&nbsp;
+          </div>
+          <button class="btn btn-primary btn-sm mt-2" onclick="tagUpdate();">{xlt t='submit'}</button>
+        </form>
+      </div>
+      <div class="mb-2">
+        <form method="post" name="img_procedure_tag" id="img_procedure_tag" action="{$IMG_PROCEDURE_TAG_ACTION|attr}" onsubmit="return top.restoreSession()">
+          <input type='hidden' name='procedure_code' value='' />
+          <p class="font-weight-bold">{xlt t='Tag to Image Procedure'}</p>
+          <div class="form-group">
+            <select class="form-control" id="image_procedure_id"  name="image_procedure_id">{$IMAGE_PROCEDURE_LIST}</select>&nbsp;
+          </div>
+          <div class="btn-group">
+            <a class="btn btn-primary btn-sm" href="javascript:;" onclick="ImgProcedure();">{xlt t='submit'}</a>
+            <a class="btn btn-danger btn-sm" href="{$clear_procedure_tag|attr}">{xlt t='clear'}</a>
+          </div>
+        </form>
+      </div>
+      <form name="notes" method="post" action="{$NOTE_ACTION|attr}" onsubmit="return top.restoreSession()">
+        <div class="text">
+          <div>
+            <div class="float-left">
+              <strong>{xlt t='Notes'}</strong>&nbsp;
             </div>
-            <br/>
-            {/if}
-			<div class="text">
-                <form method="post" name="document_validate" action="{$VALIDATE_ACTION|attr}" onsubmit="return top.restoreSession()">
-                <div>
-                    <div style="float:left">
-                        <b>{xlt t='Sha-1 Hash'}:</b>&nbsp;
-                        <i>{$file->get_hash()|text}</i>&nbsp;
-                    </div>
-                    <div style="float:none">
-                        <a href="javascript:;" onclick="document.forms['document_validate'].submit();">(<span>{xlt t='validate'})</span></a>
-                    </div>
-                </div>
-                </form>
+            <div class="float-none form-inline">
+              <a class="btn btn-primary" href="javascript:;" onclick="document.notes.identifier.value='no';document.forms['notes'].submit();">({xlt t='add'})</a>
+              &nbsp;&nbsp;&nbsp;<strong>{xlt t='Email'}</strong>&nbsp;
+              <input type="text" class="form-control" size="25" name="provide_email" id="provide_email" />
+              <input type="hidden" name="identifier" id="identifier" />
+              <a class="btn btn-primary" href="javascript:;" onclick="javascript:document.notes.identifier.value='yes';document.forms['notes'].submit();">({xlt t='Send'})</a>
             </div>
-            <br/>
-            <div class="text">
-                <form method="post" name="document_update" action="{$UPDATE_ACTION|attr}" onsubmit="return top.restoreSession()">
+            <div>
+              <textarea cols="53" rows="8" wrap="virtual" name="note" class="form-control w-100"></textarea><br />
+              <input type="hidden" name="process" value="{$PROCESS|attr}" />
+              <input type="hidden" name="foreign_id" value="{$file->get_id()|attr}" />
+
+              {if $notes}
+              <div style="margin-top: 7px">
+                {foreach name=note_loop from=$notes item=note}
                 <div>
-                    <div style="float:left">
-                        <b>{xlt t='Update'}</b>&nbsp;
-                    </div>
-                    <div style="float:none">
-                        <a href="javascript:;" onclick="document.forms['document_update'].submit();">(<span>{xlt t='submit'})</span></a>
-                    </div>
+                  {xlt t='Note'} #{$note->get_id()|text}
+                  {xlt t='Date:'} {$note->get_date()|text}
+                  {$note->get_note()|text}
+                  {if $note->get_owner()}
+                    &nbsp;-{user_info id=$note->get_owner()|text}
+                  {/if}
                 </div>
-                <div>
-                    {xlt t='Rename'}:
-                    <input type='text' size='20' name='docname' id='docname' value='{$file->get_url_web()|attr}'/>
-              	</div>
-                <div>
-                    {xlt t='Date'}:
-                    <input type='text' size='10' class='datepicker' name='docdate' id='docdate' value='{$DOCDATE|attr}' title="{xla t='yyyy-mm-dd document date'}" />
-                    <select name="issue_id">{$ISSUES_LIST}</select>
-                </div>
-                </form>
+                {/foreach}
+              {/if}
+              </div>
             </div>
-
-            <br/>
-
-            <div class="text">
-                <form method="post" name="document_move" action="{$MOVE_ACTION|attr}" onsubmit="return top.restoreSession()">
-                <div>
-                    <div style="float:left">
-                        <b>{xlt t='Move'}</b>&nbsp;
-                    </div>
-                    <div style="float:none">
-                        <a href="javascript:;" onclick="document.forms['document_move'].submit();">(<span>{xlt t='submit'})</span></a>
-                    </div>
-                </div>
-
-                <div>
-                        <select name="new_category_id">{$tree_html_listbox}</select>&nbsp;
-                        {xlt t='Move to Patient'} # <input type="text" name="new_patient_id" size="4" />
-                        <a href="javascript:{literal}{}{/literal}" onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|attr_url}&form_name={"document_move['new_patient_name']"|attr_url}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
-                        <img src="{$IMAGES_STATIC_RELATIVE}/stock_search-16.png" border="0" /></a>
-                        <input type="hidden" name="new_patient_name" value="" />
-                </div>
-                </form>
-            </div>
-
-			<br/>
-
-			<div class="text">
-			   <form method="post" name="document_tag" id="document_tag" action="{$TAG_ACTION|attr}" onsubmit="return top.restoreSession()">
-
-				<div >
-				   <div style="float:left">
-					   <b>{xlt t='Tag to Encounter'}</b>&nbsp;
-				   </div>
-
-				   <div style="float:none">
-					   <a href="javascript:;" onclick="tagUpdate();">(<span>{xlt t='submit'})</span></a>
-				   </div>
-			   </div>
-
-				 <div>
-					<select id="encounter_id"  name="encounter_id"  >{$ENC_LIST}</select>&nbsp;
-					<a href="{$clear_encounter_tag}" class="hide_clear">(<span>{xlt t='clear'})</span></a>&nbsp;&nbsp;
-					<input type="checkbox" name="encounter_check" id="encounter_check"  onclick='set_checkbox(this)'/> <label for="encounter_check"><b>{xlt t='Create Encounter'}</b></label>&nbsp;&nbsp;
-					   {xlt t='Visit Category'} : &nbsp;<select id="visit_category_id"  name="visit_category_id"  disabled>{$VISIT_CATEGORY_LIST}</select>&nbsp;
-
-			   </div>
-			   </form>
-		   </div>
-		   <br/>
-		   <div class="text">
-			<form method="post" name="img_procedure_tag" id="img_procedure_tag" action="{$IMG_PROCEDURE_TAG_ACTION|attr}" onsubmit="return top.restoreSession()">
-			<input type='hidden' name='procedure_code' value=''>
-			<div>
-				<div style="float:left">
-					<b>{xlt t='Tag to Image Procedure'}</b>&nbsp;
-				</div>
-				<div style="float:none">
-					<a href="javascript:;" onclick="ImgProcedure();">(<span>{xlt t='submit'})</span></a>
-				</div>
-			</div>
-			<div>
-				<select id="image_procedure_id"  name="image_procedure_id">{$IMAGE_PROCEDURE_LIST}</select>&nbsp;
-				<a href="{$clear_procedure_tag|attr}">(<span>{xlt t='clear'})</span></a>
-			</div>
-			</form>
-		   </div>
-
-            <br/>
-
-            <form name="notes" method="post" action="{$NOTE_ACTION|attr}" onsubmit="return top.restoreSession()">
-            <div class="text">
-                <div>
-                    <div style="float:left">
-                        <b>{xlt t='Notes'}</b>&nbsp;
-                    </div>
-                    <div style="float:none">
-                        <a href="javascript:;" onclick="document.notes.identifier.value='no';document.forms['notes'].submit();">(<span>{xlt t='add'}</span>)</a>
-                    	&nbsp;&nbsp;&nbsp;<b>{xlt t='Email'}</b>&nbsp;
-                    	<input type="text" size="25" name="provide_email" id="provide_email" />
-                    	<input type="hidden" name="identifier" id="identifier" />
-                        <a href="javascript:;" onclick="javascript:document.notes.identifier.value='yes';document.forms['notes'].submit();">
-                        	(<span>{xlt t='Send'}</span>)
-                        </a>
-                    </div>
-                    <div>
-
-                    </div>
-                    <div style="float:none">
-
-                    </div>
-                <div>
-                    <textarea cols="53" rows="8" wrap="virtual" name="note" style="width:100%"></textarea><br />
-                    <input type="hidden" name="process" value="{$PROCESS|attr}" />
-                    <input type="hidden" name="foreign_id" value="{$file->get_id()|attr}" />
-
-                    {if $notes}
-                    <div style="margin-top:7px">
-                        {foreach name=note_loop from=$notes item=note}
-                        <div>
-                        {xlt t='Note'} #{$note->get_id()|text}
-                        {xlt t='Date:'} {$note->get_date()|text}
-                        {$note->get_note()|text}
-                        {if $note->get_owner()}
-                            &nbsp;-{user_info id=$note->get_owner()|text}
-                        {/if}
-                        </div>
-                        {/foreach}
-                    {/if}
-                    </div>
-                </div>
-            </div>
-            </form>
-            <h4>{xlt t='Contents'}</h4>
+          </div>
+        </form>
+        <h4>{xlt t='Contents'}</h4>
 		</td>
 	</tr>
-	<tr id="DocContents" style="height:100%">
+	<tr id="DocContents" class="h-100">
 		<td>
-            {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
+      {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
 			<embed frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or
 			 $file->get_mimetype() eq "image/jpg" or
@@ -330,10 +271,12 @@ function ImgProcedure() {literal}{{/literal}
 			 $file->get_mimetype() eq "image/gif" or
 			 $file->get_mimetype() eq "application/pdf" }
 			<iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
-            {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
-            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?web_path={$web_path|attr}as_file=false"></iframe>
-            {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
-            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
+      {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
+      <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?web_path={$web_path|attr}as_file=false"></iframe>
+      {elseif $file->get_mimetype() eq "audio/ogg" or $file->get_mimetype() eq "audio/wav" or $file->get_mimetype() eq "audio/mpeg"}
+      <audio class="w-100" preload="metadata" controls="true" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false">{xlt t='Your browser does not support HTML5 audio'}</audio>
+      {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
+      <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
 			{/if}
 		</td>
 	</tr>

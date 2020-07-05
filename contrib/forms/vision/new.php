@@ -33,30 +33,30 @@ formHeader("Form: vision");
 
 <table>
 <tr>
-<td><span class=text>OD K1: </span></td><td><input size=3 type=entry name="od_k1" value="" ></td>
-<td><span class=text>OD K1 Axis: </span></td><td><input size=3 type=entry name="od_k1_axis" value="" ></td>
-<td><span class=text>OD K2: </span></td><td><input size=3 type=entry name="od_k2" value="" ></td>
-<td><span class=text>OD K2 Axis: </span></td><td><input size=3 type=entry name="od_k2_axis" value="" ></td>
+<td><span class=text>OD K1: </span></td><td><input size=3 type="text" name="od_k1" value="" ></td>
+<td><span class=text>OD K1 Axis: </span></td><td><input size=3 type="text" name="od_k1_axis" value="" ></td>
+<td><span class=text>OD K2: </span></td><td><input size=3 type="text" name="od_k2" value="" ></td>
+<td><span class=text>OD K2 Axis: </span></td><td><input size=3 type="text" name="od_k2_axis" value="" ></td>
 </tr>
 <tr>
 <td colspan=8>
 
-<span class=text>OD Testing Status: </span><input type=entry name="od_testing_status" value="" >
+<span class=text>OD Testing Status: </span><input type="text" name="od_testing_status" value="" >
 </td>
 </tr>
 </table>
 
 <table>
 <tr>
-<td><span class=text>OS K1: </span></td><td><input size=3 type=entry name="os_k1" value="" ></td>
-<td><span class=text>OS K1 Axis: </span></td><td><input size=3 type=entry name="os_k1_axis" value="" ></td>
-<td><span class=text>OS K2: </span></td><td><input size=3 type=entry name="os_k2" value="" ></td>
-<td><span class=text>OS K2 Axis: </span></td><td><input size=3 type=entry name="os_k2_axis" value="" ></td>
+<td><span class=text>OS K1: </span></td><td><input size=3 type="text" name="os_k1" value="" ></td>
+<td><span class=text>OS K1 Axis: </span></td><td><input size=3 type="text" name="os_k1_axis" value="" ></td>
+<td><span class=text>OS K2: </span></td><td><input size=3 type="text" name="os_k2" value="" ></td>
+<td><span class=text>OS K2 Axis: </span></td><td><input size=3 type="text" name="os_k2_axis" value="" ></td>
 </tr>
 <tr>
 <td colspan=8>
 
-<span class=text>OS Testing Status: </span><input type=entry name="os_testing_status" value="" >
+<span class=text>OS Testing Status: </span><input type="text" name="os_testing_status" value="" >
 </td>
 </tr>
 </table>

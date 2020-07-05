@@ -20,13 +20,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// TODO: Convert this to a modal or a dialog
+
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 ?>
 
 
 <!-- hidden DIV used for creating new list items -->
-<div id="newlistitem" class="position-absolute bg-light border border-dark" style="display: none; padding: 5px;">
+<div id="newlistitem" class="position-absolute bg-light border border-dark" style="display: none; padding: 5px; z-index: 5000;">
  <input type="hidden" name="newlistitem_listid" id="newlistitem_listid" value="" />
  <input type="hidden" name="newlistitem_fieldid" id="newlistitem_fieldid" value="" />
  <div id="specificForm">
@@ -103,8 +105,8 @@ $(function () {
         var height = $('#newlistitem').height();
         var width = $('#newlistitem').width();
         //calculating offset for displaying popup message
-        leftVal=e.pageX-(width/2)+"px";
-        topVal=e.pageY-(height/2)+"px";
+        leftVal = e.pageX - (width / 2) + "px";
+        topVal = e.pageY - (height / 2) + "px";
         //show the DIV and set cursor focus
         $('#newlistitem').css({left:leftVal,top:topVal}).show();
         $('#newlistitem_value').focus();

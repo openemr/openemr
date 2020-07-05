@@ -106,7 +106,7 @@ class FhirPatientServiceQueryTest extends TestCase
         $this->assertGreaterThan(0, $actualResult->getData());
 
         $expectedId = $actualResult->getData()[0]->getId();
-        
+
         $actualResult = $this->fhirPatientService->getOne($expectedId);
         $this->assertGreaterThan(0, $actualResult->getData());
         $actualId = $actualResult->getData()[0]->getId();

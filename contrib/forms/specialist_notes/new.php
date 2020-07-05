@@ -65,9 +65,9 @@ if ($_POST['bn_save']) {
  //
     if ($formid) {
         $query = "UPDATE form_specialist_notes SET
-          notes = ?      
+          notes = ?
           followup_required = ?
-          followup_timing = ?                  
+          followup_timing = ?
           followup_location = ?
           WHERE id = ?";
         sqlStatement($query, array($_POST['form_notes'], cbvalue('fu_required'), $fu_timing, $fu_location, $formid));
@@ -93,7 +93,7 @@ if ($formid) {
 <html>
 <head>
     <?php Header::setupHeader(); ?>
-<script language='JavaScript'>
+<script>
  function newEvt() {
   dlgopen('../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>,
    '_blank', 775, 500);

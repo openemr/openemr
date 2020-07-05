@@ -737,7 +737,7 @@ if ($result_sent_count == $M) {
 
   </div>
 </div>
-<script language='JavaScript'>
+<script>
 
 <?php
 if ($_GET['set_pid']) {

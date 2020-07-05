@@ -42,32 +42,32 @@ formHeader("Form: contacts");
 <tr>
 <td valign=top>
 <table>
-<tr><td><span class=text>OD Base Curve: </span></td><td><input size=4 type=entry name="od_base_curve" value="" ></td></tr>
-<tr><td><span class=text>OD Sphere: </span></td><td><input size=4 type=entry name="od_sphere" value="" ></td></tr>
-<tr><td><span class=text>OD Cylinder: </span></td><td><input size=4 type=entry name="od_cylinder" value="" ></td></tr>
-<tr><td><span class=text>OD Axis: </span></td><td><input size=4 type=entry name="od_axis" value="" ></td></tr>
-<tr><td><span class=text>OD Diameter: </span></td><td><input size=4 type=entry name="od_diameter" value="" ></td></tr>
+<tr><td><span class=text>OD Base Curve: </span></td><td><input size=4 type="text" name="od_base_curve" value="" ></td></tr>
+<tr><td><span class=text>OD Sphere: </span></td><td><input size=4 type="text" name="od_sphere" value="" ></td></tr>
+<tr><td><span class=text>OD Cylinder: </span></td><td><input size=4 type="text" name="od_cylinder" value="" ></td></tr>
+<tr><td><span class=text>OD Axis: </span></td><td><input size=4 type="text" name="od_axis" value="" ></td></tr>
+<tr><td><span class=text>OD Diameter: </span></td><td><input size=4 type="text" name="od_diameter" value="" ></td></tr>
 </table>
 </td>
 <td valign=top>
 <table>
-<tr><td><span class=text>OS Base Curve: </span></td><td><input size=4 type=entry name="os_base_curve" value="" ></td></tr>
-<tr><td><span class=text>OS Sphere: </span></td><td><input size=4 type=entry name="os_sphere" value="" ></td></tr>
-<tr><td><span class=text>OS Cylinder: </span></td><td><input size=4 type=entry name="os_cylinder" value="" ></td></tr>
-<tr><td><span class=text>OS Axis: </span></td><td><input size=4 type=entry name="os_axis" value="" ></td></tr>
-<tr><td><span class=text>OS Diameter: </span></td><td><input size=4 type=entry name="os_diameter" value="" ></td></tr>
+<tr><td><span class=text>OS Base Curve: </span></td><td><input size=4 type="text" name="os_base_curve" value="" ></td></tr>
+<tr><td><span class=text>OS Sphere: </span></td><td><input size=4 type="text" name="os_sphere" value="" ></td></tr>
+<tr><td><span class=text>OS Cylinder: </span></td><td><input size=4 type="text" name="os_cylinder" value="" ></td></tr>
+<tr><td><span class=text>OS Axis: </span></td><td><input size=4 type="text" name="os_axis" value="" ></td></tr>
+<tr><td><span class=text>OS Diameter: </span></td><td><input size=4 type="text" name="os_diameter" value="" ></td></tr>
 </table>
 </td>
 </tr>
 </table>
 
 <table>
-<tr><td><span class=text>Material: </span></td><td><input size=4 type=entry name="material" value="" ></td>
-<td><span class=text>Color: </span></td><td><input size=4 type=entry name="color" value="" ></td>
-<td><span class=text>Bifocal Type: </span></td><td><input size=4 type=entry name="bifocal_type" value="" ></td>
-<td><span class=text>Add: </span></td><td><input size=4 type=entry name="add_value" value="" ></td>
-<td><span class=text>V/A Far: </span></td><td><input size=4 type=entry name="va_far" value="" ></td>
-<td><span class=text>V/A Near: </span></td><td><input size=4 type=entry name="va_near" value="" ></td>
+<tr><td><span class=text>Material: </span></td><td><input size=4 type="text" name="material" value="" ></td>
+<td><span class=text>Color: </span></td><td><input size=4 type="text" name="color" value="" ></td>
+<td><span class=text>Bifocal Type: </span></td><td><input size=4 type="text" name="bifocal_type" value="" ></td>
+<td><span class=text>Add: </span></td><td><input size=4 type="text" name="add_value" value="" ></td>
+<td><span class=text>V/A Far: </span></td><td><input size=4 type="text" name="va_far" value="" ></td>
+<td><span class=text>V/A Near: </span></td><td><input size=4 type="text" name="va_near" value="" ></td>
 </tr>
 </table>
 

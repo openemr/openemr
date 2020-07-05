@@ -189,7 +189,7 @@ if ($_POST['form_import']) {
     setInsurance($pid, $ainsurance, $asubscriber, '2');
     setInsurance($pid, $ainsurance, $asubscriber, '3');
 
-    echo "<html>\n<body>\n<script language='JavaScript'>\n";
+    echo "<html>\n<body>\n<script>\n";
     if ($alertmsg) {
         echo " alert('" . addslashes($alertmsg) . "');\n";
     }

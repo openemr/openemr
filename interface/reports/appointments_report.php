@@ -17,6 +17,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Set $sessionAllowWrite to true since there are session writes here after html has already been outputted
+//  TODO - refactor the session writes in this script to happen at beginning or change to a mechanism
+//         that does not require sessions
+$sessionAllowWrite = true;
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once "$srcdir/options.inc.php";
@@ -492,9 +496,8 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     }
 
     // assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
-    $sessionSetArray['pidList'] = $pid_list;
-    $sessionSetArray['apptdateList'] = $apptdate_list;
-    SessionUtil::setSession($sessionSetArray);
+    $_SESSION['pidList'] = $pid_list;
+    $_SESSION['apptdateList'] = $apptdate_list;
 
     ?>
     <tr>

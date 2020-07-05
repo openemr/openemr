@@ -249,7 +249,7 @@ function getFacilities($first = '')
 {
     global $facilityService;
 
-    $fres = $facilityService->getAll();
+    $fres = $facilityService->getAllFacility();
 
     if ($first == 'first') {
         return $fres[0]['id'];

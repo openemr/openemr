@@ -398,13 +398,13 @@ function create_and_download_certificates()
     /* Create a zip file containing the CertificateAuthority, Server, and admin files */
     try {
         if (! (class_exists('ZipArchive'))) {
-            SessionUtil::setSession('zip_error', "Error, Class ZipArchive does not exist");
+            SessionUtil::setSession('zip_error', xl("Error, Class ZipArchive does not exist"));
             return;
         }
 
         $zip = new ZipArchive();
         if (!($zip)) {
-            SessionUtil::setSession('zip_error', "Error, Could not create file archive");
+            SessionUtil::setSession('zip_error', xl("Error, Could not create file archive"));
              return;
         }
 
@@ -415,7 +415,7 @@ function create_and_download_certificates()
                  $zip->addFile($tempDir . "/" . $file, $file);
             }
         } else {
-            SessionUtil::setSession('zip_error', "Error, unable to create zip file with all the certificates");
+            SessionUtil::setSession('zip_error', xl("Error, unable to create zip file with all the certificates"));
             return;
         }
 
@@ -425,14 +425,12 @@ function create_and_download_certificates()
             ini_set('zlib.output_compression', 'Off');
         }
     } catch (Exception $e) {
-        SessionUtil::setSession('zip_error', "Error, Could not create file archive");
+        SessionUtil::setSession('zip_error', xl("Error, Could not create file archive"));
         return;
     }
 
     download_file($zipName, "zip");
 }
-
-
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
     exit();
@@ -446,6 +444,11 @@ if ($_POST["mode"] == "create_client_certificate") {
     create_client_cert();
 } elseif ($_POST["mode"] == "download_certificates") {
     create_and_download_certificates();
+}
+
+if ($_SESSION["zip_error"]) {
+    $zipErrorOutput = '<div><table align="center"><tr valign="top"><td rowspan="3"><font class="redtext">' . text($_SESSION["zip_error"]) . '</td></tr></table></div>';
+    SessionUtil::unsetSession('zip_error');
 }
 
 ?>
@@ -596,12 +599,9 @@ if ($_POST["mode"] == "create_client_certificate") {
   <body class="body_top">
   <span class='title'><b><?php echo xlt('SSL Certificate Administration'); ?></b></span>
   <br /> <br />
-    <?php if ($_SESSION["zip_error"]) { ?>
-  <div>  <table align="center" >
-  <tr valign="top"> <td rowspan="3"> <?php echo "<font class='redtext'>" . xlt($_SESSION["zip_error"]) ?> </td> </tr>
-  </table> <?php
-    unset($_SESSION["zip_error"]); ?></div>
-    <?php } else { ?>
+    <?php if (!empty($zipErrorOutput)) {
+        echo $zipErrorOutput;
+    } else { ?>
   <span class='text'>
         <?php
         if ($error_msg != "") {

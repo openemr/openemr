@@ -249,6 +249,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
            if(document.getElementById('TablePatientPortion'))
             {
                document.getElementById('TablePatientPortion').style.display='';
+                document.getElementById('TablePatientPortion').scrollIntoView(false)
             }
         }
       }

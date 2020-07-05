@@ -196,7 +196,7 @@
 
     function ValidateNumeric(TheObject) {//Numeric validations, used while typing numbers.
         if (TheObject.value != TheObject.value * 1) {
-            alert("<?php echo htmlspecialchars(xl('Value Should be Numeric'), ENT_QUOTES) ?>");
+            alert(<?php echo xlj('Value Should be Numeric') ?>);
             TheObject.focus();
             return false;
         }
@@ -289,6 +289,7 @@
     function ActionOnInsPat(CountIndex) {//Called when there is onchange in the Ins/Pat drop down.
         InsPatDropDownValue = document.getElementById('payment_ins' + CountIndex).options[document.getElementById('payment_ins' + CountIndex).selectedIndex].value;
         document.getElementById('HiddenIns' + CountIndex).value = InsPatDropDownValue;
+        InsPatDropDownValue = parseInt(InsPatDropDownValue);
         if (InsPatDropDownValue === 1) {
             document.getElementById('trCharges' + CountIndex).bgColor = '#ddddff';
         } else if (InsPatDropDownValue === 2) {
@@ -324,18 +325,14 @@
     function FormValidations() {//Screen validations are done here.
         if (document.getElementById('check_date').value == '') {
             let message = <?php echo xlj('Please Fill the Date') ?>;
-            (async (message, time) => {
-                await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
-            });
+            // a good use of syncAlertMsg when a promise or an await (then({})) with actions and/or
+            // for an alert to time out, is not needed. et al validation alerts.
+            syncAlertMsg('<h4 class="bg-light text-danger">'+message+'</h4>', 1500, 'warning', 'lg');
             document.getElementById('check_date').focus();
             return false;
         } else if (!ValidateDateGreaterThanNow(document.getElementById('check_date').value, '<?php echo DateFormatRead();?>')) {
             let message = <?php echo xlj('Date Cannot be greater than Today') ?>;
-            (async (message, time) => {
-                await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
-            });
+            syncAlertMsg('<h4 class="bg-light text-danger">'+message+'</h4>', 1500, 'warning', 'lg');
             document.getElementById('check_date').focus();
             return false;
         }
@@ -343,7 +340,7 @@
             let message = <?php echo xlj('Please Fill the Post To Date') ?>;
             (async (message, time) => {
                 await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
+            })(message, 1500).then(res => {
             });
             document.getElementById('post_to_date').focus();
             return false;
@@ -351,7 +348,7 @@
             let message = <?php echo xlj('Post To Date Cannot be greater than Today') ?>;
             (async (message, time) => {
                 await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
+            })(message, 1500).then(res => {
             });
             document.getElementById('post_to_date').focus();
             return false;
@@ -360,7 +357,7 @@
             let message = <?php echo xlj('Post To Date must be greater than the financial close date.') ?>;
             (async (message, time) => {
                 await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
+            })(message, 1500).then(res => {
             });
             document.getElementById('post_to_date').focus();
             return false;
@@ -371,7 +368,7 @@
             let message = <?php echo xlj('Please Fill the Check Number') ?>;
             (async (message, time) => {
                 await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
+            })(message, 1500).then(res => {
             });
             document.getElementById('check_number').focus();
             return false;
@@ -384,7 +381,7 @@
             let message = <?php echo xlj('Please Select the Payment Method') ?>;
             (async (message, time) => {
                 await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
+            })(message, 1500).then(res => {
             });
             document.getElementById('payment_method').focus();
             return false;
@@ -396,7 +393,7 @@
             let message = <?php echo xlj('Please Fill the Payment Amount') ?>;
             (async (message, time) => {
                 await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
+            })(message, 1500).then(res => {
             });
             document.getElementById('payment_amount').focus();
             return false;
@@ -405,19 +402,18 @@
             let message = <?php echo xlj('Payment Amount must be Numeric') ?>;
             (async (message, time) => {
                 await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
+            })(message, 1500).then(res => {
             });
             document.getElementById('payment_amount').focus();
             return false;
         }
         <?php
-        if ($screen == 'edit_payment') {
-            ?>
+        if ($screen == 'edit_payment') { ?>
         if (document.getElementById('adjustment_code').options[document.getElementById('adjustment_code').selectedIndex].value == '') {
             let message = <?php echo xlj('Please Fill the Payment Category') ?>;
             (async (message, time) => {
                 await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
+            })(message, 1500).then(res => {
             });
             document.getElementById('adjustment_code').focus();
             return false;
@@ -429,7 +425,7 @@
             let message = <?php echo xlj('Please Fill the Payment From') ?>;
             (async (message, time) => {
                 await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
+            })(message, 1500).then(res => {
             });
             document.getElementById('type_code').focus();
             return false;
@@ -438,7 +434,7 @@
             let message = <?php echo xlj('Take Payment From, from Drop Down')?>;
             (async (message, time) => {
                 await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
+            })(message, 1500).then(res => {
             });
             document.getElementById('type_code').focus();
             return false;
@@ -448,7 +444,7 @@
             let message = <?php echo xlj('Deposit Date Cannot be greater than Today') ?>;
             (async (message, time) => {
                 await asyncAlertMsg(message, time, 'warning', 'lg');
-            })(message, 1000).then(res => {
+            })(message, 1500).then(res => {
             });
             document.getElementById('deposit_date').focus();
             return false;

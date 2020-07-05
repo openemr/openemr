@@ -85,6 +85,8 @@ $font-family-base: $font-family-sans-serif;
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 
+$displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
+
 // Enables responsive text for Bootstrap
 $enable-responsive-font-sizes: true;
 // Import Bootstrap 4 SCSS Files before doing anything
