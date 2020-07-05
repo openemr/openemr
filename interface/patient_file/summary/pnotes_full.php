@@ -731,7 +731,6 @@ function restoreSession() {
     </div>
 </div> <!-- end outer 'pnotes' -->
 </body>
-
 <script>
 <?php
 if ($_GET['set_pid']) {

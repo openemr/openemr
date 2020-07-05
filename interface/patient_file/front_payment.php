@@ -578,7 +578,7 @@ function toencounter(enc, datestr, topframe) {
 
 
 <!-- supporting javascript code -->
-<script language='JavaScript'>
+<script>
     var mypcc = '1';
 </script>
     <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>

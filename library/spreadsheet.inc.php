@@ -717,7 +717,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
         echo "<input type='hidden' name='cell[$i][$j]' value='" . attr($celltype) . attr($cellvalue) . "' />";
         if ($celltype == '1') {
             // So we don't have to write a PHP version of genStatic():
-            echo "<script language='JavaScript'>document.write(genStatic('$cellstatic'));</script>";
+            echo "<script>document.write(genStatic('$cellstatic'));</script>";
         } elseif ($celltype == '2') {
             echo "<input type='checkbox' value='1' onclick='cbClick(this,$i,$j)'";
             if ($cellvalue) {
@@ -762,7 +762,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
 
 </center>
 </form>
-<script language='JavaScript'>
+<script>
 <?php
 if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";

@@ -60,7 +60,7 @@ if ($_POST['form_submit'] || $_POST['form_cancel']) {
         $fenote = '[' . xl('Add') . ']';
     }
 
-    echo "<script language='JavaScript'>\n";
+    echo "<script>\n";
     echo " parent.closeNote(" . js_escape($feid) . ", " . js_escape($fenote) . ")\n";
     echo "</script></body></html>\n";
     exit();

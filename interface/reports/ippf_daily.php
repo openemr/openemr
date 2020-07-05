@@ -415,7 +415,7 @@ if ($form_output != 3) {
 </form>
 </center>
 
-<script language='JavaScript'>
+<script>
     <?php if ($form_output == 2) { ?>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);
