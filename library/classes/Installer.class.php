@@ -192,10 +192,11 @@ class Installer
     public function create_database()
     {
         $sql = "create database " . $this->escapeDatabaseName($this->dbname);
-        if ($this->collate) {
-            $sql .= " character set utf8 collate " . $this->escapeCollateName($this->collate);
-            $this->set_collation();
+        if (empty($this->collate) || ($this->collate == 'utf8_general_ci')) {
+            $this->collate = 'utf8mb4_general_ci';
         }
+        $sql .= " character set utf8mb4 collate " . $this->escapeCollateName($this->collate);
+        $this->set_collation();
 
         return $this->execute_sql($sql);
     }
@@ -445,15 +446,14 @@ class Installer
         $it_died = 0;   //fmg: variable keeps running track of any errors
 
         fwrite($fd, $string) or $it_died++;
+        fwrite($fd, "global \$disable_utf8_flag;\n") or $it_died++;
+        fwrite($fd, "\$disable_utf8_flag = false;\n\n") or $it_died++;
         fwrite($fd, "\$host\t= '$this->server';\n") or $it_died++;
         fwrite($fd, "\$port\t= '$this->port';\n") or $it_died++;
         fwrite($fd, "\$login\t= '$this->login';\n") or $it_died++;
         fwrite($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
-        fwrite($fd, "\$dbase\t= '$this->dbname';\n\n") or $it_died++;
-        fwrite($fd, "//Added ability to disable\n") or $it_died++;
-        fwrite($fd, "//utf8 encoding - bm 05-2009\n") or $it_died++;
-        fwrite($fd, "global \$disable_utf8_flag;\n") or $it_died++;
-        fwrite($fd, "\$disable_utf8_flag = false;\n") or $it_died++;
+        fwrite($fd, "\$dbase\t= '$this->dbname';\n") or $it_died++;
+        fwrite($fd, "\$db_encoding\t= 'utf8mb4';\n") or $it_died++;
 
         $string = '
 $sqlconf = array();
@@ -463,6 +463,8 @@ $sqlconf["port"] = $port;
 $sqlconf["login"] = $login;
 $sqlconf["pass"] = $pass;
 $sqlconf["dbase"] = $dbase;
+$sqlconf["db_encoding"] = $db_encoding;
+
 //////////////////////////
 //////////////////////////
 //////////////////////////
@@ -1221,11 +1223,7 @@ if ($it_died != 0) {
 
     private function set_collation()
     {
-        if ($this->collate) {
-            return $this->execute_sql("SET NAMES 'utf8'");
-        }
-
-        return true;
+        return $this->execute_sql("SET NAMES 'utf8mb4'");
     }
 
   /**

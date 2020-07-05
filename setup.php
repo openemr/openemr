@@ -613,71 +613,77 @@ STP2TBLTOP1;
                                     </div>
                                     <div>
                                         <select name='collate' id=='collate' class='form-control'>
-                                            <option value='utf8_bin'>
-                                                Bin
+                                            <option selected value='utf8mb4_general_ci'>
+                                                General (Recommended)
                                             </option>
-                                            <option value='utf8_czech_ci'>
+                                            <option value='utf8mb4_unicode_ci'>
+                                                Unicode
+                                            </option>
+                                            <option value='utf8mb4_roman_ci'>
+                                                Classical Latin
+                                            </option>
+                                            <option value='utf8mb4_croatian_ci'>
+                                                Croatian
+                                            </option>
+                                            <option value='utf8mb4_czech_ci'>
                                                 Czech
                                             </option>
-                                            <option value='utf8_danish_ci'>
+                                            <option value='utf8mb4_danish_ci'>
                                                 Danish
                                             </option>
-                                            <option value='utf8_esperanto_ci'>
+                                            <option value='utf8mb4_esperanto_ci'>
                                                 Esperanto
                                             </option>
-                                            <option value='utf8_estonian_ci'>
+                                            <option value='utf8mb4_estonian_ci'>
                                                 Estonian
                                             </option>
-                                            <option selected value='utf8_general_ci'>
-                                                General
+                                            <option value='utf8mb4_german2_ci'>
+                                                German
                                             </option>
-                                            <option value='utf8_hungarian_ci'>
+                                            <option value='utf8mb4_hungarian_ci'>
                                                 Hungarian
                                             </option>
-                                            <option value='utf8_icelandic_ci'>
+                                            <option value='utf8mb4_icelandic_ci'>
                                                 Icelandic
                                             </option>
-                                            <option value='utf8_latvian_ci'>
+                                            <option value='utf8mb4_latvian_ci'>
                                                 Latvian
                                             </option>
-                                            <option value='utf8_lithuanian_ci'>
+                                            <option value='utf8mb4_lithuanian_ci'>
                                                 Lithuanian
                                             </option>
-                                            <option value='utf8_persian_ci'>
+                                            <option value='utf8mb4_persian_ci'>
                                                 Persian
                                             </option>
-                                            <option value='utf8_polish_ci'>
+                                            <option value='utf8mb4_polish_ci'>
                                                 Polish
                                             </option>
-                                            <option value='utf8_roman_ci'>
-                                                Roman
-                                            </option>
-                                            <option value='utf8_romanian_ci'>
+                                            <option value='utf8mb4_romanian_ci'>
                                                 Romanian
                                             </option>
-                                            <option value='utf8_slovak_ci'>
+                                            <option value='utf8mb4_sinhala_ci'>
+                                                Sinhala
+                                            </option>
+                                            <option value='utf8mb4_slovak_ci'>
                                                 Slovak
                                             </option>
-                                            <option value='utf8_slovenian_ci'>
+                                            <option value='utf8mb4_slovenian_ci'>
                                                 Slovenian
                                             </option>
-                                            <option value='utf8_spanish2_ci'>
-                                                Spanish2 (Traditional)
-                                            </option>
-                                            <option value='utf8_spanish_ci'>
+                                            <option value='utf8mb4_spanish_ci'>
                                                 Spanish (Modern)
                                             </option>
-                                            <option value='utf8_swedish_ci'>
+                                            <option value='utf8mb4_spanish2_ci'>
+                                                Spanish (Traditional)
+                                            </option>
+                                            <option value='utf8mb4_swedish_ci'>
                                                 Swedish
                                             </option>
-                                            <option value='utf8_turkish_ci'>
+                                            <option value='utf8mb4_turkish_ci'>
                                                 Turkish
                                             </option>
-                                            <option value='utf8_unicode_ci'>
-                                                Unicode (German, French, Russian, Armenian, Greek)
-                                            </option>
-                                            <option value=''>
-                                                None (Do not force UTF-8)
+                                            <option value='utf8mb4_vietnamese_ci'>
+                                                Vietnamese
                                             </option>
                                         </select>
                                     </div>

@@ -4,7 +4,7 @@ services:
   mysql:
     restart: always
     image: mariadb:10.2
-    command: ['mysqld','--character-set-server=utf8']
+    command: ['mysqld','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
   openemr:

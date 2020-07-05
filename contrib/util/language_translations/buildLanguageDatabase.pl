@@ -8,8 +8,8 @@
 # (at your option) any later version.
 #
 # Author   Brady Miller <brady.g.miller@gmail.com>
-# Author   Ramin Moshiri <raminmoshiri@gmail.com> 
-# 
+# Author   Ramin Moshiri <raminmoshiri@gmail.com>
+#
 # This is a perl script that will build the language translation sql
 # dumpfiles from the tab delimited language translation spreadsheet.
 # It will create two output dumpfiles:
@@ -19,7 +19,7 @@
 # that can be used for further downstream editing and re-importing
 # back into Google Docs. It also outputs a logfile log.txt with
 # errors in validation and database statistics.
-#  
+#
 #  Example command:
 #
 #  -Below command will build the sql dumpfile from given tsv
@@ -27,7 +27,7 @@
 #   ensure constants didn't get edited (output will go to
 #   the log file), and will also fix limited issues. In this case
 #   a new spreadsheet file will also be created with the corrected
-#   constants to allow downstream modification and re-importing of 
+#   constants to allow downstream modification and re-importing of
 #   file into Google Docs:
 #  ./buildLanguageDatabase.pl openemr_language_table.tsv constants.txt
 #
@@ -58,14 +58,14 @@ my $inputFilename;
 my $logFile = "log.txt";
 my $stats = "stats.txt";
 my $constantIdColumn = 0; # 0 is lowest
-my $constantColumn = 1; # 0 is lowest 
+my $constantColumn = 1; # 0 is lowest
 my $constantRow = 6; # 0 is lowest
 my $languageNumRow = 0; # 0 is lowest
 my $languageIdRow = 1; # 0 is lowest
 my $languageNameRow = 2; # 0 is lowest
 my $languageIsRtlRow = 3; # 0 is lowest
 
-# variables for checking/fixing constants application 
+# variables for checking/fixing constants application
 my $checkFilename; # holds list of constants if checking
 my $filenameOut_revised = "revisedSpreadsheet.tsv";
 my $flagCheck = 0;
@@ -149,7 +149,7 @@ if ($flagCheck) {
 #  revised spreadsheet. Build statistics and revised
 #  spreadsheet during utf8 run.
 for (my $i=0;$i<2;$i++) {
-    
+
  # set utf flag
  if ($i == 0) {
   # build utf8 table
@@ -166,7 +166,7 @@ for (my $i=0;$i<2;$i++) {
  open(OUTPUTFILE, ">$filenameOut") or die "unable to open output file";
 
  my $outputString = "";
- 
+
  # add UTF8 set names for both utf8 and latin1 encoding, since
  #  the dumpfile is encoded in UTF8
  $outputString .= "\
@@ -174,7 +174,7 @@ for (my $i=0;$i<2;$i++) {
 -- Ensure correct encoding
 --
 ";
- $outputString .= "SET NAMES utf8;\n\n";
+ $outputString .= "SET NAMES utf8mb4;\n\n";
 
  # parse lang_languages
  $outputString .= createLanguages($utf8, @inputFileProcessed);
@@ -206,7 +206,7 @@ for (my $i=0;$i<2;$i++) {
      # only count non-empty languages in total count
      $countLanguages += 1;
      # only include non-empty and non-dummy languages in stats
-     push (@statArray, $var.": ".fstr((($numberConstantsLanguages[$count]/$totalConstants)*100),2)."% (".$numberConstantsLanguages[$count]." definitions)\n");     
+     push (@statArray, $var.": ".fstr((($numberConstantsLanguages[$count]/$totalConstants)*100),2)."% (".$numberConstantsLanguages[$count]." definitions)\n");
     }
    }
    $count += 1;
@@ -248,7 +248,7 @@ for (my $i=0;$i<2;$i++) {
   }
   close(MYOUTPUTFILE2)
  }
-    
+
  # close files
  close(OUTPUTFILE);
 }
@@ -271,12 +271,12 @@ close(STATFILE);
 #
 sub quickCheckStructure() {
  my (@arr) = @_;
- 
+
  # use the languagNumRow as the standard for number of tabs
  #  on each row
  my $numberColumns = split($de,$arr[$languageNumRow]);
  my $numberTabs = $numberColumns - 1;
-    
+
  # ensure every row on spreadsheet has equal number of tabs
  my $counter = 1;
  foreach my $var (@arr) {
@@ -295,7 +295,7 @@ sub quickCheckStructure() {
   }
   $counter += 1;
  }
-    
+
  return;
 }
 
@@ -310,7 +310,7 @@ sub quickCheckStructure() {
 #
 sub checkConstants () {
  my ($flag, @page) = @_;
-    
+
  print LOGFILE "Checking constants:\n\n";
  my $counter = $constantRow;
  my $badCount = 0;
@@ -320,7 +320,7 @@ sub checkConstants () {
   my @tempRow = split($de,$page[$counter]);
   my $tempId = $tempRow[$constantIdColumn];
   my $tempConstant = $tempRow[$constantColumn];
-    
+
   # ensure constant has not been altered
   if ($var ne $tempConstant) {
    print LOGFILE "Following constant not same:\n";
@@ -336,9 +336,9 @@ sub checkConstants () {
     $fixedVar =~ s/\"/\\\"/g;
    }
    $tempRow[$constantColumn] = $fixedVar;
-   $page[$counter] = join($de,@tempRow);   
+   $page[$counter] = join($de,@tempRow);
   }
-     
+
   # ensure constant id number has not been altered
   my $realID = ($counter - $constantRow + 1);
   if ($realID != $tempId) {
@@ -348,7 +348,7 @@ sub checkConstants () {
    # apply fix (replace with original after reset escape characters)
    $tempRow[$constantIdColumn] = $realID;
    $page[$counter] = join($de,@tempRow);
-  }     
+  }
 
   # increment counter
   $counter += 1;
@@ -365,7 +365,7 @@ sub checkConstants () {
  if ($idErrorFlag) {
   print LOGFILE "ERROR: Constant ID number(s) have been modified by translators\n\n";
  }
-    
+
  return @page;
 }
 
@@ -379,14 +379,14 @@ sub checkConstants () {
 #
 sub createLanguages() {
  my ($flag, @page) = @_;
- my $charset;   
+ my $charset;
  if ($flag) {
   $charset = "utf8";
  }
  else {
   $charset = "latin1";
  }
-    
+
  # create table input
  my $tempReturn;
  my $tempCounter;
@@ -398,7 +398,7 @@ sub createLanguages() {
  for (my $i = $constantColumn; $i < @numberRow; $i++) {
   $tempReturn .= "(".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."', ".$rtlRow[$i]."),\n";
   $tempCounter = $numberRow[$i];
-     
+
   # set up for statistics later
   push (@languages, $nameRow[$i]);
   $numberConstantsLanguages[$numberRow[$i]-1] = 0;
@@ -451,10 +451,10 @@ sub createConstants() {
  else {
   $charset = "latin1";
  }
-    
+
  # create table input
  my $tempReturn;
- my $tempCounter; 
+ my $tempCounter;
  $tempReturn .= "INSERT INTO `lang_constants`   (`cons_id`, `constant_name`) VALUES\n";
  for (my $i = $constantRow; $i < @page; $i++) {
   my @tempRow = split($de,$page[$i]);
@@ -464,13 +464,13 @@ sub createConstants() {
   $tempCounter = $tempId;
  }
  $tempReturn  =~ s/,\n$/;\n/;
- $tempCounter += 1; 
+ $tempCounter += 1;
 
  # create header
  my $return = "\
--- 
+--
 -- Table structure for table `lang_constants`
--- 
+--
 \n
 DROP TABLE IF EXISTS `lang_constants`;
 CREATE TABLE `lang_constants` (
@@ -480,20 +480,20 @@ CREATE TABLE `lang_constants` (
   KEY `constant_name` (`constant_name`(100))
 ) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;
 \n
--- 
+--
 -- Dumping data for table `lang_constants`
 --\n\n";
 
  # insert table input
  $return .= $tempReturn;
-     
+
  # create footer
  $return .= "
 --\n\n";
 
  # fill total constants for statistics later
  $totalConstants = $tempCounter - 1;
-  
+
  return $return;
 }
 
@@ -501,7 +501,7 @@ CREATE TABLE `lang_constants` (
 # function to build lang_definitions dumpfile
 # param - integer flag for utf8, array of processed file
 # globals - $constantColumn, $constantRow,
-#           $languageNumRow, $constantIdColumn, @numberConstantsLanguages, 
+#           $languageNumRow, $constantIdColumn, @numberConstantsLanguages,
 #           $totalDefinitions
 # return - nothing
 #
@@ -518,7 +518,7 @@ sub createDefinitions() {
 
  # create table input
  my $tempReturn;
- my $tempCounter; 
+ my $tempCounter;
  my @numberRow = split($de,$page[$languageNumRow]);
  my $counter = 1;
  for (my $i = $constantColumn + 1; $i < @numberRow; $i++) {
@@ -531,7 +531,7 @@ sub createDefinitions() {
     $tempReturn .= "INSERT INTO `lang_definitions` VALUES (".$counter.", ".$tempId.", ".$tempLangNumber.", '".$tempDefinition."');\n";
     $tempCounter = $counter;
     $counter += 1;
-     
+
     # set up for statistics
     $numberConstantsLanguages[($tempLangNumber - 1)] += 1;
    }
@@ -541,9 +541,9 @@ sub createDefinitions() {
 
  # create header
  my $return = "\
--- 
+--
 -- Table structure for table `lang_definitions`
--- 
+--
 \n
 DROP TABLE IF EXISTS `lang_definitions`;
 CREATE TABLE `lang_definitions` (
@@ -552,10 +552,10 @@ CREATE TABLE `lang_definitions` (
   `lang_id` int(11) NOT NULL default '0',
   `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
-  KEY `cons_id` (`cons_id`) 
+  KEY `cons_id` (`cons_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;
 \n
--- 
+--
 -- Dumping data for table `lang_definitions`
 --\n\n";
 
