@@ -223,11 +223,14 @@ $(function () {
     });
 
     // load divs
-    $("#stats_div").load("stats.php",
+
+    // I can't find a reason to load this!
+    /*$("#stats_div").load("stats.php",
         {
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
-    );
+    );*/
+
     $("#notes_div").load("pnotes_fragment.php",
         {
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
@@ -734,7 +737,7 @@ if ($result_sent_count == $M) {
 
   </div>
 </div>
-<script language='JavaScript'>
+<script>
 
 <?php
 if ($_GET['set_pid']) {

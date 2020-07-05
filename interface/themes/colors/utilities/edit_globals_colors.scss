@@ -13,11 +13,11 @@
 
 #oe-nav-ul.tabNav a:hover {
   background-color: $pale !important;
-  color: #333;
+  color: $gray-800;
 }
 
 #oe-nav-ul.tabNav {
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba($black, 0.05) !important;
 }
 
 #oe-nav-ul.tabNav .current a {
@@ -25,7 +25,7 @@
   border-bottom: 0;
   border-color: $dark;
   border-left: 0;
-  color: #333;
+  color: $gray-800;
 }
 
 #globals-div .tabContainer {
@@ -33,7 +33,7 @@
 }
 
 .oe-global-tab-heading {
-  color: #000;
+  color: $black;
 }
 
 #srch_desc.form-control {

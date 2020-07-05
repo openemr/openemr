@@ -287,10 +287,18 @@ echo "<table border='0' cellpadding='1' cellspacing='0' width='100%'>\n";
 echo "<tr>";
 echo "<td id='times' style='width:2em;'><div><table>\n";
 echo "<td class='timeslot' style='text-align: center; background-color:#ddd;'>&nbsp;</td>";
+
+if ($GLOBALS['time_display_format'] == 1) {
+    timeformat = 12;
+} else {
+    timeformat = 0;
+}
+
+
 foreach ($times as $slottime) {
     $startampm = ($slottime['mer']) == "pm" ? 2 : 1;
     $starttimeh = $slottime['hour'];
-    $disptimeh = ($starttimeh > 12) ? ($starttimeh - 12) : $starttimeh;
+    $disptimeh = ($starttimeh > 12) ? ($starttimeh - $timeformat) : $starttimeh;
     $starttimem = $slottime['minute'];
     $slotendmins = $starttimeh * 60 + $starttimem + $interval;
 
@@ -421,7 +429,7 @@ foreach ($providers as $provider) {
             $starth = substr($event['startTime'], 0, 2);
             $startm = substr($event['startTime'], 3, 2);
             $eStartMin = $starth * 60 + $startm;
-            $dispstarth = ($starth > 12) ? ($starth - 12) : $starth;
+            $dispstarth = ($starth > 12) ? ($starth - $timeformat) : $starth;
 
             // determine the class for the event DIV based on the event category
             $evtClass = "event_appointment";

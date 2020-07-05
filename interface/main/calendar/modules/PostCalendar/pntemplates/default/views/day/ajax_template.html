@@ -93,6 +93,7 @@ $timeslotHeightUnit="px";
   $openhour= $GLOBALS['schedule_start'];
   $closehour= $GLOBALS['schedule_end'];
 
+
  // build a day-of-week (DOW) list so we may properly build the calendars later in this code
  $DOWlist = array();
  $tmpDOW = pnModGetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek');
@@ -320,7 +321,7 @@ if ($_SESSION['authorizeduser'] == 1) {
 } else {
   $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
   if (count($facilities) == 1)
-    $_SESSION['pc_facility'] = key($facilities);
+    OpenEMR\Common\Session\SessionUtil::setSession('pc_facility', key($facilities));
 }
 /********************************************************************/
 if (count($facilities) > 1) {
@@ -398,10 +399,18 @@ echo "<tr>";
 echo "<td id='times'><div><table><tr>\n";
 echo "<td class='timeslot providerXbtn' data-username='__PC_ALL__'><i class='fa fa-lg fa-user-md'></i></td></tr>";
 //============================================================================================================================
+// Check global time preference so that 24 and 12hour preference is displayed properly
+
+if ($GLOBALS['time_display_format'] == 1) {
+    $timeformat = 12;
+} else {
+    $timeformat = 0;
+}
+
 foreach ($times as $slottime) {
     $startampm = ($slottime['mer']) == "pm" ? 2 : 1;
     $starttimeh = $slottime['hour'];
-    $disptimeh = ($starttimeh > 12) ? ($starttimeh - 12) : $starttimeh;
+    $disptimeh = ($starttimeh > 12) ? ($starttimeh - $timeformat) : $starttimeh;
     $starttimem = $slottime['minute'];
     $slotendmins = $starttimeh * 60 + $starttimem + $interval;
 
@@ -554,7 +563,7 @@ foreach ($providers as $provider) {
             $starth = substr($event['startTime'], 0, 2);
             $startm = substr($event['startTime'], 3, 2);
             $eStartMin = $starth * 60 + $startm;
-            $dispstarth = ($starth > 12) ? ($starth - 12) : $starth; // used to display the hour
+            $dispstarth = ($starth > 12) ? ($starth - $timeformat) : $starth; // used to display the hour
 
 
              //fix bug 456 and 455

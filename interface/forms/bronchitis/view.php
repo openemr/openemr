@@ -42,7 +42,7 @@ $obj = formFetch("form_bronchitis", $_GET["id"]);
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 <br /><br />
 
-<span class=text><?php echo xlt('Onset of Ilness: '); ?></span><input type=entry name="bronchitis_date_of_illness" value="<?php echo attr($obj["bronchitis_date_of_illness"]);?>" ><br /><br />
+<span class=text><?php echo xlt('Onset of Ilness: '); ?></span><input type="text" name="bronchitis_date_of_illness" value="<?php echo attr($obj["bronchitis_date_of_illness"]);?>" ><br /><br />
 
 <span class=text><?php echo xlt('HPI:'); ?> </span><br /><textarea cols=67 rows=8 wrap=virtual name="bronchitis_hpi" ><?php echo text($obj["bronchitis_hpi"]);?></textarea><br /><br />
 
@@ -99,7 +99,7 @@ $obj = formFetch("form_bronchitis", $_GET["id"]);
                                                       };?>><span class=text></span><br /></td>
 
 <td width="130" align="right"><?php echo xlt('Appearance:'); ?>  <span class="text"></span></td>
-<td><input type=entry name="bronchitis_ops_appearance" value="<?php echo
+<td><input type="text" name="bronchitis_ops_appearance" value="<?php echo
 stripslashes($obj["bronchitis_ops_appearance"]);?>" size="15"></td>
 </tr>
 </table>
@@ -300,7 +300,7 @@ stripslashes($obj["bronchitis_ops_appearance"]);?>" size="15"></td>
     echo "checked";
                                                                            };?>><span class=text></span><br /></td>
 <td width="130" align="right"><?php echo xlt('Appearance:'); ?>  <span class="text"></span></td>
-<td><input type=entry name="bronchitis_oropharynx_appearance" value="<?php echo
+<td><input type="text" name="bronchitis_oropharynx_appearance" value="<?php echo
 stripslashes($obj["bronchitis_oropharynx_appearance"]);?>" size="15"></td>
 </tr>
 </table>
@@ -351,15 +351,15 @@ stripslashes($obj["bronchitis_oropharynx_appearance"]);?>" size="15"></td>
 
 <table><tr>
 <td width="200" align="right"><?php echo xlt('Murmur:'); ?>  <span class="text"></span></td>
-<td><input type=entry name="bronchitis_heart_murmur" value="<?php echo
+<td><input type="text" name="bronchitis_heart_murmur" value="<?php echo
 attr($obj["bronchitis_heart_murmur"]); ?>" size="15"></td>
 
 <td><span class="text"><?php echo xlt('Grade:'); ?>  </span></td><td>
-<input type=entry name="bronchitis_heart_grade" value="<?php echo
+<input type="text" name="bronchitis_heart_grade" value="<?php echo
 attr($obj["bronchitis_heart_grade"]); ?>" size="15"></td>
 
 <td><span class="text"><?php echo xlt('Location:'); ?>  </span></td><td>
-<input type=entry name="bronchitis_heart_location" value="<?php echo
+<input type="text" name="bronchitis_heart_location" value="<?php echo
 attr($obj["bronchitis_heart_location"]); ?>" size="15"></td>
 </tr>
 </table>
@@ -478,22 +478,22 @@ attr($obj["bronchitis_heart_location"]); ?>" size="15"></td>
 
 <table><tr>
 <span class="text"><?php echo xlt('Diagnosis: '); ?> </span>
-<br /><input type=entry name="diagnosis1_bronchitis_form" value="<?php echo
+<br /><input type="text" name="diagnosis1_bronchitis_form" value="<?php echo
 attr($obj["diagnosis1_bronchitis_form"]);?>" size="40"><br />
 </tr>
 
 <tr>
-<input type=entry name="diagnosis2_bronchitis_form" value="<?php echo
+<input type="text" name="diagnosis2_bronchitis_form" value="<?php echo
 attr($obj["diagnosis2_bronchitis_form"]);?>" size="40"><br />
 </tr>
 
 <tr>
-<input type=entry name="diagnosis3_bronchitis_form" value="<?php echo
+<input type="text" name="diagnosis3_bronchitis_form" value="<?php echo
 attr($obj["diagnosis3_bronchitis_form"]);?>" size="40"><br />
 </tr>
 
 <tr>
-<input type=entry name="diagnosis4_bronchitis_form" value="<?php echo
+<input type="text" name="diagnosis4_bronchitis_form" value="<?php echo
 attr($obj["diagnosis4_bronchitis_form"]);?>" size="40"><br />
 </tr>
 

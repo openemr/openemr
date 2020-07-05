@@ -31,7 +31,6 @@ if ($_GET["mode"] == "new") {
     sqlStatement("update form_dictation set pid = ?,groupname=?,user=?,authorized=?,activity=1, date = NOW(), dictation=?, additional_notes=? where id=?", array($_SESSION["pid"],$_SESSION["authProvider"],$_SESSION["authUser"],$userauthorized,$_POST["dictation"],$_POST["additional_notes"],$_GET["id"]));
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

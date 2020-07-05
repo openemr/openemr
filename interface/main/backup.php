@@ -45,10 +45,6 @@ if (!empty($_POST)) {
     }
 }
 
-// Prevent scripts calling Globals from being blocked.
-//
-session_write_close();
-
 if (!extension_loaded('zlib')) {
       die('Abort ' . basename(__FILE__) . ' : Missing zlib extensions');
 }
@@ -234,14 +230,14 @@ if ($form_step == 1) {
         " -h " . escapeshellarg($sqlconf["host"]) .
         " --port=" . escapeshellarg($sqlconf["port"]) .
         " --routines" .
-        " --opt --quote-names -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
+        " --hex-blob --opt --quote-names -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
         escapeshellarg($sqlconf["dbase"]);
     } else {
         $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
         " -p" . escapeshellarg($sqlconf["pass"]) .
         " -h " . escapeshellarg($sqlconf["host"]) .
         " --port=" . escapeshellarg($sqlconf["port"]) .
-        " --opt --quote-names -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
+        " --hex-blob --opt --quote-names -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
         escapeshellarg($sqlconf["dbase"]);
     }
 
@@ -418,14 +414,14 @@ if ($form_step == 102) {
                     " -p" . escapeshellarg($sqlconf["pass"]) .
                     " -h " . escapeshellarg($sqlconf["host"]) .
                     " --port=" . escapeshellarg($sqlconf["port"]) .
-                    " --opt --quote-names $mysql_ssl " .
+                    " --hex-blob --opt --quote-names $mysql_ssl " .
                     escapeshellarg($sqlconf["dbase"]) . " $tables";
             } else {
                 $cmd .= escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
                     " -p" . escapeshellarg($sqlconf["pass"]) .
                     " -h " . escapeshellarg($sqlconf["host"]) .
                     " --port=" . escapeshellarg($sqlconf["port"]) .
-                    " --opt --quote-names $mysql_ssl " .
+                    " --hex-blob --opt --quote-names $mysql_ssl " .
                     escapeshellarg($sqlconf["dbase"]) . " $tables";
             }
             if (IS_WINDOWS) {
@@ -442,7 +438,7 @@ if ($form_step == 102) {
                  " -p" . escapeshellarg($sqlconf["pass"]) .
                  " -h " . escapeshellarg($sqlconf["host"]) .
                  " --port=" . escapeshellarg($sqlconf["port"]) .
-                 " --skip-opt --quote-names --complete-insert --no-create-info $mysql_ssl";
+                 " --hex-blob --skip-opt --quote-names --complete-insert --no-create-info $mysql_ssl";
         // Individual lists.
         if (is_array($_POST['form_sel_lists'])) {
             foreach ($_POST['form_sel_lists'] as $listid) {
@@ -584,7 +580,7 @@ if ($form_step == 301) {
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h " . escapeshellarg($sqlconf["host"]) .
     " --port=" . escapeshellarg($sqlconf["port"]) .
-    " --opt --quote-names -r " . escapeshellarg($BACKUP_EVENTLOG_FILE) . " $mysql_ssl " .
+    " --hex-blob --opt --quote-names -r " . escapeshellarg($BACKUP_EVENTLOG_FILE) . " $mysql_ssl " .
     escapeshellarg($sqlconf["dbase"]) . " --tables log_comment_encrypt_backup log_backup log_validator_backup";
 # Set Eventlog Flag when it is done
     $eventlog = 1;

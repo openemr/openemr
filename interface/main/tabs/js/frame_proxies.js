@@ -26,9 +26,7 @@ var left_nav = {
 
 left_nav.setPatient = function(pname, pid, pubpid, frname, str_dob)
 {
-    if(
-        (app_view_model.application_data.patient()!==null)
-        && (pid===app_view_model.application_data.patient().pid()))
+    if((app_view_model.application_data.patient()!==null) && (pid===app_view_model.application_data.patient().pid()))
     {
         app_view_model.application_data.patient().pname(pname);
         app_view_model.application_data.patient().pubpid(pubpid);
@@ -38,7 +36,7 @@ left_nav.setPatient = function(pname, pid, pubpid, frname, str_dob)
     }
     var new_patient=new patient_data_view_model(pname,pid,pubpid,str_dob);
     app_view_model.application_data.patient(new_patient);
-    app_view_model.application_data.therapy_group(null)
+    app_view_model.application_data.therapy_group(null);
     navigateTab(webroot_url+"/interface/patient_file/history/encounters.php","enc", function () {
         tabCloseByName('rev');
     });
@@ -51,9 +49,7 @@ left_nav.setPatient = function(pname, pid, pubpid, frname, str_dob)
 
 left_nav.setTherapyGroup = function(group_id, group_name){
 
-    if(
-        (app_view_model.application_data.therapy_group()!==null)
-        && (group_id===app_view_model.application_data.therapy_group().gid()))
+    if((app_view_model.application_data.therapy_group()!==null) && (group_id===app_view_model.application_data.therapy_group().gid()))
     {
         app_view_model.application_data.therapy_group().gname(group_name);
         app_view_model.application_data.therapy_group().gid(group_id);
@@ -75,7 +71,7 @@ left_nav.setTherapyGroup = function(group_id, group_name){
     tabCloseByName('pat');
     attendant_type = 'therapy_group';
     app_view_model.attendant_template_type('therapy-group-template');
-}
+};
 
 left_nav.setPatientEncounter = function(EncounterIdArray,EncounterDateArray,CalendarCategoryArray)
 {
@@ -84,16 +80,14 @@ left_nav.setPatientEncounter = function(EncounterIdArray,EncounterDateArray,Cale
     for(var encIdx=0;encIdx<EncounterIdArray.length;encIdx++)
     {
         app_view_model.application_data[attendant_type]().encounterArray.push(
-            new encounter_data(EncounterIdArray[encIdx]
-                              ,EncounterDateArray[encIdx]
-                              ,CalendarCategoryArray[encIdx]));
+            new encounter_data(EncounterIdArray[encIdx], EncounterDateArray[encIdx], CalendarCategoryArray[encIdx]));
     }
-}
+};
 
 left_nav.setEncounter=function(edate, eid, frname)
 {
     app_view_model.application_data[attendant_type]().selectedEncounterID(eid);
-}
+};
 
 left_nav.loadFrame=function(id,name,url)
 {
@@ -104,7 +98,7 @@ left_nav.loadFrame=function(id,name,url)
     navigateTab(webroot_url+"/interface/"+url,name, function () {
         activateTabByName(name,true);
     });
-}
+};
 
 left_nav.syncRadios = function()
 {

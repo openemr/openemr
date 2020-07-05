@@ -563,7 +563,6 @@ function postcalendar_userapi_buildView($args)
             $tpl->display($template, $cacheid);
             echo postcalendar_footer();
             echo "\n</body></html>";
-            session_write_close();
             exit;
     }
 

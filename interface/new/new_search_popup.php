@@ -28,8 +28,7 @@ if (!empty($_POST)) {
 
 $fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] + 0 : 0;
 
-$searchcolor = empty($GLOBALS['layout_search_color']) ?
-  '#ffff55' : $GLOBALS['layout_search_color'];
+$searchcolor = empty($GLOBALS['layout_search_color']) ? 'var(--yellow)' : $GLOBALS['layout_search_color'];
 ?>
 <html>
 <head>
@@ -77,8 +76,7 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
     }
 
     .topResult {
-        background-color: <?php echo attr($searchcolor);
-        ?>;
+        background-color: <?php echo attr($searchcolor); ?>;
     }
 
     .billing {

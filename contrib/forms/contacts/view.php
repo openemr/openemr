@@ -44,20 +44,20 @@ $obj = formFetch("form_contacts", $_GET["id"]);
 <tr>
 <td valign=top>
 <table>
-<tr><td><span class=text>OD Base Curve: </span></td><td><input size=4 type=entry name="od_base_curve" value="<?php echo attr($obj["od_base_curve"]); ?>" ></td></tr>
-<tr><td><span class=text>OD Sphere: </span></td><td><input size=4 type=entry name="od_sphere" value="<?php echo attr($obj["od_sphere"]); ?>" ></td></tr>
-<tr><td><span class=text>OD Cylinder: </span></td><td><input size=4 type=entry name="od_cylinder" value="<?php echo attr($obj["od_cylinder"]); ?>" ></td></tr>
-<tr><td><span class=text>OD Axis: </span></td><td><input size=4 type=entry name="od_axis" value="<?php echo attr($obj["od_axis"]); ?>" ></td></tr>
-<tr><td><span class=text>OD Diameter: </span></td><td><input size=4 type=entry name="od_diameter" value="<?php echo attr($obj["od_diameter"]); ?>" ></td></tr>
+<tr><td><span class=text>OD Base Curve: </span></td><td><input size=4 type="text" name="od_base_curve" value="<?php echo attr($obj["od_base_curve"]); ?>" ></td></tr>
+<tr><td><span class=text>OD Sphere: </span></td><td><input size=4 type="text" name="od_sphere" value="<?php echo attr($obj["od_sphere"]); ?>" ></td></tr>
+<tr><td><span class=text>OD Cylinder: </span></td><td><input size=4 type="text" name="od_cylinder" value="<?php echo attr($obj["od_cylinder"]); ?>" ></td></tr>
+<tr><td><span class=text>OD Axis: </span></td><td><input size=4 type="text" name="od_axis" value="<?php echo attr($obj["od_axis"]); ?>" ></td></tr>
+<tr><td><span class=text>OD Diameter: </span></td><td><input size=4 type="text" name="od_diameter" value="<?php echo attr($obj["od_diameter"]); ?>" ></td></tr>
 </table>
 </td>
 <td valign=top>
 <table>
-<tr><td><span class=text>OS Base Curve: </span></td><td><input size=4 type=entry name="os_base_curve" value="<?php echo attr($obj["os_base_curve"]); ?>" ></td></tr>
-<tr><td><span class=text>OS Sphere: </span></td><td><input size=4 type=entry name="os_sphere" value="<?php echo attr($obj["os_sphere"]); ?>" ></td></tr>
-<tr><td><span class=text>OS Cylinder: </span></td><td><input size=4 type=entry name="os_cylinder" value="<?php echo attr($obj["os_cylinder"]); ?>" ></td></tr>
-<tr><td><span class=text>OS Axis: </span></td><td><input size=4 type=entry name="os_axis" value="<?php echo attr($obj["os_axis"]); ?>" ></td></tr>
-<tr><td><span class=text>OS Diameter: </span></td><td><input size=4 type=entry name="os_diameter" value="<?php echo attr($obj["os_diameter"]); ?>" ></td></tr>
+<tr><td><span class=text>OS Base Curve: </span></td><td><input size=4 type="text" name="os_base_curve" value="<?php echo attr($obj["os_base_curve"]); ?>" ></td></tr>
+<tr><td><span class=text>OS Sphere: </span></td><td><input size=4 type="text" name="os_sphere" value="<?php echo attr($obj["os_sphere"]); ?>" ></td></tr>
+<tr><td><span class=text>OS Cylinder: </span></td><td><input size=4 type="text" name="os_cylinder" value="<?php echo attr($obj["os_cylinder"]); ?>" ></td></tr>
+<tr><td><span class=text>OS Axis: </span></td><td><input size=4 type="text" name="os_axis" value="<?php echo attr($obj["os_axis"]); ?>" ></td></tr>
+<tr><td><span class=text>OS Diameter: </span></td><td><input size=4 type="text" name="os_diameter" value="<?php echo attr($obj["os_diameter"]); ?>" ></td></tr>
 </table>
 </td>
 </tr>
@@ -65,12 +65,12 @@ $obj = formFetch("form_contacts", $_GET["id"]);
 
 <table>
 <tr>
-<td><span class=text>Material: </span></td><td><input size=4 type=entry name="material" value="<?php echo attr($obj["material"]); ?>" ></td>
-<td><span class=text>Color: </span></td><td><input size=4 type=entry name="color" value="<?php echo attr($obj["color"]); ?>" ></td>
-<td><span class=text>Bifocal Type: </span></td><td><input size=4 type=entry name="bifocal_type" value="<?php echo attr($obj["bifocal_type"]); ?>" ></td>
-<td><span class=text>Add: </span></td><td><input size=4 type=entry name="add_value" value="<?php echo attr($obj["add_value"]); ?>" ></td>
-<td><span class=text>V/A Far: </span></td><td><input size=4 type=entry name="va_far" value="<?php echo attr($obj["va_far"]); ?>" ></td>
-<td><span class=text>V/A Near: </span></td><td><input size=4 type=entry name="va_near" value="<?php echo attr($obj["va_near"]); ?>" ></td>
+<td><span class=text>Material: </span></td><td><input size=4 type="text" name="material" value="<?php echo attr($obj["material"]); ?>" ></td>
+<td><span class=text>Color: </span></td><td><input size=4 type="text" name="color" value="<?php echo attr($obj["color"]); ?>" ></td>
+<td><span class=text>Bifocal Type: </span></td><td><input size=4 type="text" name="bifocal_type" value="<?php echo attr($obj["bifocal_type"]); ?>" ></td>
+<td><span class=text>Add: </span></td><td><input size=4 type="text" name="add_value" value="<?php echo attr($obj["add_value"]); ?>" ></td>
+<td><span class=text>V/A Far: </span></td><td><input size=4 type="text" name="va_far" value="<?php echo attr($obj["va_far"]); ?>" ></td>
+<td><span class=text>V/A Near: </span></td><td><input size=4 type="text" name="va_near" value="<?php echo attr($obj["va_near"]); ?>" ></td>
 </tr>
 </table>
 

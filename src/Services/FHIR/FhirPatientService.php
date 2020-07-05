@@ -87,7 +87,7 @@ class FhirPatientService extends FhirServiceBase
         );
         $patientResource->setText($text);
 
-        $id = new FhirId();
+        $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $patientResource->setId($id);
 

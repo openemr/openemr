@@ -22,13 +22,8 @@ use OpenEMR\Core\Header;
 </head>
 
 <body class="body_top">
-<?php
 
-// Set the session flag to show that notification was last done with this patient
-$_SESSION['alert_notify_pid'] = $pid;
-
-?>
-<table class="border-0" cellspacing='0' cellpadding='0'>
+<table class="table border-0">
 <tr>
 
 <?php
@@ -60,11 +55,10 @@ if (!empty($active_alerts) && empty($all_allergy_alerts)) {
 </table>
 <br />
 <?php
-foreach ($all_allergy_alerts as $allergy) {
-    echo xlt("ALLERGY WARNING") . ":" . text($allergy) . "<br />";
-}
-
 if (!empty($all_allergy_alerts)) {
+    foreach ($all_allergy_alerts as $allergy) {
+        echo xlt("ALLERGY WARNING") . ":" . text($allergy) . "<br />";
+    }
     echo "<br />";
 }
 

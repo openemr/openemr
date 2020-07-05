@@ -17,6 +17,7 @@ require_once "$srcdir/patient.inc";
 require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionUtil;
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 if ($_REQUEST['go'] == 'sms_search') {
@@ -156,6 +157,8 @@ if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
     $query = "SELECT * FROM patient_data WHERE pid=?";
     $result = sqlQuery($query, array($_REQUEST['pid']));
     $result['age'] = $MedEx->events->getAge($result['DOB']);
+    // uuid is binary and will break json_encode in binary form (not needed, so will remove it from $result array)
+    unset($result['uuid']);
 
     /**
      *  Did the clinician create a PLAN at the last visit?
@@ -212,7 +215,7 @@ if (($_REQUEST['action'] == 'delete_Recall') && ($_REQUEST['pid'])) {
 // $_SESSION['pidList'] will hold array of patient ids
 // which is then used to print 'postcards' and 'Address Labels'
 // Thanks Terry!
-unset($_SESSION['pidList']);
+SessionUtil::unsetSession('pidList');
 $pid_list = array();
 
 if ($_REQUEST['action'] == "process") {
@@ -225,9 +228,11 @@ if ($_REQUEST['action'] == "process") {
         return "done";
     }
     $pc_eidList = json_decode($_POST['pc_eid'], true);
-    $_SESSION['pc_eidList'] = $pc_eidList[0];
     $pidList = json_decode($_POST['parameter'], true);
-    $_SESSION['pidList'] = $pidList;
+    $sessionSetArray['pc_eidList'] = $pc_eidList[0];
+    $sessionSetArray['pidList'] = $pidList;
+    SessionUtil::setSession($sessionSetArray);
+
     if ($_POST['item'] == "postcards") {
         foreach ($pidList as $pid) {
             $sql = "INSERT INTO medex_outgoing (msg_pc_eid, msg_type, msg_reply, msg_extra_text) VALUES (?,?,?,?)";

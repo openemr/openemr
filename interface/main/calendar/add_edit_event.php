@@ -87,7 +87,7 @@ if (isset($_GET['starttimem'])) {
 
 if (isset($_GET['starttimeh'])) {
     $starttimeh = $_GET['starttimeh'];
-    if (isset($_GET['startampm'])) {
+    if ($GLOBALS['time_display_format']  == 1 && isset($_GET['startampm'])) {
         if ($_GET['startampm'] == '2' && $starttimeh < 12) {
             $starttimeh += 12;
         }
@@ -981,7 +981,7 @@ if ($groupid) {
     $startampm = '1';
     if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
         $startampm = '2';
-        if ($starttimeh > 12) {
+        if ($starttimeh > 12 && $GLOBALS['time_display_format'] == 1) {
             $starttimeh -= 12;
         }
     }
@@ -1134,10 +1134,10 @@ function set_allday() {
     var color2 = 'var(--gray)';
     var disabled2 = true;
     if (document.getElementById('rballday1').checked) {
-        color1 = 'var(--black)';
+        color1 = '';
     }
     if (document.getElementById('rballday2').checked) {
-        color2 = 'var(--black)';
+        color2 = '';
         disabled2 = false;
     }
     document.getElementById('tdallday1').style.color = color1;
@@ -1147,7 +1147,9 @@ function set_allday() {
     document.getElementById('tdallday5').style.color = color2;
     f.form_hour.disabled = disabled2;
     f.form_minute.disabled = disabled2;
-    f.form_ampm.disabled = disabled2;
+    <?php if ($GLOBALS['time_display_format'] == 1) { ?>
+        f.form_ampm.disabled = disabled2;
+    <?php } ?>
     f.form_duration.disabled = disabled2;
 }
 
@@ -1285,7 +1287,9 @@ function setappt(year,mon,mday,hours,minutes) {
         ('' + (mon  + 100)).substring(1) + '/' +
         '' + year;
     <?php } ?>
-    f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
+    <?php if ($GLOBALS['time_display_format'] == 1) { ?>
+        f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
+    <?php } ?>
     f.form_hour.value = (hours > 12) ? hours - 12 : hours;
     f.form_minute.value = ('' + (minutes + 100)).substring(1);
 }
@@ -1629,10 +1633,12 @@ function isRegularRepeat($repeat)
         </div>
         <input class='col-sm form-control' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>' title='<?php echo xla('Event start time'); ?>' />
         <input class='col-sm form-control' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>' title='<?php echo xla('Event start time'); ?>' />
-        <select class='col-sm form-control' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
+        <?php if ($GLOBALS['time_display_format'] == 1) : ?>
+        <select class='input-sm' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
             <option value='1'><?php echo xlt('AM'); ?></option>
             <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
         </select>
+        <?php endif ?>
         <label class='col-sm col-form-label' id='tdallday4'><?php echo xlt('duration'); ?></label>
         <input class="col-sm form-control" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>' title='<?php echo xla('Event duration in minutes'); ?>' />
     </div>
@@ -1764,7 +1770,7 @@ if ($_GET['prov'] != true) { ?>
         <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
     <?php } ?>
     <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-danger" type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
-    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='cancel' value='<?php echo xla('Cancel'); ?>' />
+    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='cancel' onclick="dlgclose()" value='<?php echo xla('Cancel'); ?>' />
     <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate'); ?>' />
 </div>
 <?php if ($informant) {
@@ -1801,10 +1807,6 @@ $(function () {
     $("#form_delete").click(function () {
         deleteEvent();
     });
-    $("#cancel").click(function () {
-        dlgclose();
-    });
-
     // buttons affecting the modification of a repeating event
     $("#all_events").click(function () {
         $("#recurr_affect").val("all");
@@ -1971,7 +1973,8 @@ function SubmitForm() {
     if (f.form_action.value != 'delete') {
         // Check slot availability.
         var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
-        if (f.form_ampm.value == '2' && mins < 720) mins += 720;
+        <?php if ($GLOBALS['time_display_format']  == 1) :
+            ?>if (f.form_ampm.value == '2' && mins < 720) mins += 720;<?php endif ?>
         find_available('&cktime=' + mins);
     }
     else {

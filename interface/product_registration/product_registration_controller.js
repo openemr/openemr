@@ -43,23 +43,23 @@ function ProductRegistrationController() {
         var buttonObject = {};
         buttonObject[registrationTranslations.submit] = _formSubmissionHandler;
         buttonObject[registrationTranslations.noThanks] = _formCancellationHandler;
-    
+
         $('.product-registration-modal .modal-header').text(registrationTranslations.title);
 
         $('.product-registration-modal .submit').on('click', function(e){
                 _formSubmissionHandler();
                 return false;
             });
-    
+
         $('.product-registration-modal .nothanks').on('click', function(e){
             _formCancellationHandler();
             return false;
         });
 
         $('.product-registration-modal').modal('toggle');
-            
-        
-        
+
+
+
 
         // Wire up "enter key" handler in case user doesn't click the modal buttons manually
         $('.product-registration-modal .email').on('keypress', function (event) {
@@ -92,7 +92,6 @@ function ProductRegistrationController() {
     self.displayRegistrationInformationIfDivExists = function (data) {
         if ($('.product-registration').length > 0) {
             $('.product-registration .email').text(registrationTranslations.registeredEmail + ' ' + data.email);
-            $('.product-registration .id').text(registrationTranslations.registeredId + ' ' + data.registrationId);
         }
     };
 

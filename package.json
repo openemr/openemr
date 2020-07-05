@@ -57,7 +57,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "~5.13.0",
     "@ttskch/select2-bootstrap4-theme": "1.3.2",
-    "angular": "1.7.9",
+    "angular": "1.8.0",
     "angular-sanitize": "1.7.9",
     "angular-summernote": "0.8.1",
     "backbone": "1.4.0",
@@ -99,7 +99,7 @@
     "validate.js": "0.13.1"
   },
   "napa": {
-    "bootstrap-rtl": "https://github.com/PerseusTheGreat/bootstrap-4-rtl/archive/d9b7ac4bb867b855bc7aa99c56ec00eb1cb410b7.zip",
+    "bootstrap-rtl": "https://github.com/PerseusTheGreat/bootstrap-4-rtl/archive/f13a9bcf52cfd1ff67cac0f10cddc4c4d8aff5b0.zip",
     "jquery-creditcardvalidator": "https://github.com/PawelDecowski/jquery-creditcardvalidator/archive/v1.1.0.tar.gz",
     "jquery-panelslider": "https://github.com/eduardomb/jquery-panelslider/archive/1.0.0.tar.gz",
     "jquery-ui": "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip",

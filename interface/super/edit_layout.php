@@ -81,6 +81,7 @@ $datatypes = array(
   "40" => xl("Image canvas"),
   "41" => xl("Patient Signature"),
   "42" => xl("User Signature"),
+  "43" => xl("List box w/search"),
 );
 
 $sources = array(
@@ -764,7 +765,7 @@ function writeFieldLine($linedata)
         $linedata['data_type'] == 25 || $linedata['data_type'] == 26 ||
         $linedata['data_type'] == 27 || $linedata['data_type'] == 32 ||
         $linedata['data_type'] == 33 || $linedata['data_type'] == 34 ||
-        $linedata['data_type'] == 36
+        $linedata['data_type'] == 36 || $linedata['data_type'] == 43
     ) {
         $type = "";
         $disp = "style='display:none'";
@@ -801,7 +802,8 @@ function writeFieldLine($linedata)
     echo "  <td align='center' class='optcell'>";
     if (
         $linedata['data_type'] ==  1 || $linedata['data_type'] == 26 ||
-        $linedata['data_type'] == 33 || $linedata['data_type'] == 36
+        $linedata['data_type'] == 33 || $linedata['data_type'] == 36 ||
+        $linedata['data_type'] == 43
     ) {
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][list_backup_id]' value='" .
             attr($linedata['list_backup_id']) .

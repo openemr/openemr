@@ -176,7 +176,7 @@ if ($form_output == 3) {
     <?php
  // Build a drop-down list of facilities.
  //
-    $fres = $facilityService->getAll();
+    $fres = $facilityService->getAllFacility();
     echo "   <select name='form_facility'>\n";
     echo "    <option value=''>-- All Facilities --\n";
     foreach ($fres as $frow) {
@@ -415,7 +415,7 @@ if ($form_output != 3) {
 </form>
 </center>
 
-<script language='JavaScript'>
+<script>
     <?php if ($form_output == 2) { ?>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);

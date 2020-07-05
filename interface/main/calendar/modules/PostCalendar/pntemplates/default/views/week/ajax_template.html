@@ -330,7 +330,7 @@ if ($_SESSION['authorizeduser'] == 1) {
 } else {
   $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
  	if (count($facilities) == 1)
-    $_SESSION['pc_facility'] = key($facilities);
+    OpenEMR\Common\Session\SessionUtil::setSession('pc_facility', key($facilities));
 }
 if (count($facilities) > 1) {
     echo "   <select name='pc_facility' id='pc_facility'  class='view1 form-control' >\n";
@@ -449,10 +449,17 @@ foreach ($providers as $provider) {
     echo "<tr>";
     echo "<td id='times'><div><table>\n";
 //==================================================================================================================
+     if ($GLOBALS['time_display_format'] == 1) {
+         $timeformat = 12;
+     } else {
+         $timeformat = 0;
+     }
+
+
     foreach ($times as $slottime) {
         $startampm = ($slottime['mer']) == "pm" ? 2 : 1;
         $starttimeh = $slottime['hour'];
-        $disptimeh = ($starttimeh > 12) ? ($starttimeh - 12) : $starttimeh;
+        $disptimeh = ($starttimeh > $timeformat) ? ($starttimeh - $timeformat) : $starttimeh;
         $starttimem = $slottime['minute'];
         $slotendmins = $starttimeh * 60 + $starttimem + $interval;
 
@@ -576,7 +583,7 @@ foreach ($providers as $provider) {
 
             $startm = substr($event['startTime'], 3, 2);
             $eStartMin = $starth * 60 + $startm;
-            $dispstarth = ($starth > 12) ? ($starth - 12) : $starth;
+            $dispstarth = ($starth > 12) ? ($starth - $timeformat) : $starth;
 
             // determine the class for the event DIV based on the event category
             $evtClass = "event_appointment";

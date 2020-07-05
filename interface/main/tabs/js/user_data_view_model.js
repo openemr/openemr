@@ -33,12 +33,11 @@ function user_data_view_model(username,fname,lname,authGrp)
 
 }
 
-function viewPtFinder(myMessage, searchAnyType, event)
+function viewPtFinder(myMessage, searchAnyType, data, event)
 {
-    event.stopImmediatePropagation;
-    event.preventDefault;
+    event.stopImmediatePropagation();
+    event.preventDefault();
     let srchBox = document.getElementById("anySearchBox");
-    var searchAnyType = searchAnyType;
     srchBox.focus();
 
     let finderUrl = webroot_url+"/interface/main/finder/dynamic_finder.php";

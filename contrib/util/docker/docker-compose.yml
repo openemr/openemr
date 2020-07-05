@@ -60,7 +60,7 @@
 
 #
 #    On the main setup input screen:
-#     1. for Server Host, use either 'mariadb' or 'mysql' or 'mysql-old' or 'mysql-very-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' or 'mariadb-dev' (have both mariadb/mysql/mariadb-dev/mysql dockers ready to go make testing either one easy; mysql is version 8.0; mysql-old is version 5.7; mysql-very-old is version 5.6; mariadb is version 10.4; mariadb-old is version 10.3; mariadb-very-old is version 10.2; mariadb-very-very-old is version 10.1; mariadb-dev is version 10.5)
+#     1. for Server Host, use either 'mariadb' or 'mysql' or 'mysql-old' or 'mysql-very-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' or 'mariadb-very-very-very-old' (have both mariadb/mysql/mariadb-dev/mysql dockers ready to go make testing either one easy; mysql is version 8.0; mysql-old is version 5.7; mysql-very-old is version 5.6; mariadb is version 10.5; mariadb-old is version 10.4; mariadb-very-old is version 10.3; mariadb-very-very-old is version 10.2; mariadb-very-very-very-old is version 10.1)
 #     2. for Root Pass, use 'root'
 #     3. for User Hostname, use '%'
 #    And when need to tear it down and restart it
@@ -79,6 +79,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
   openemr-7-2:
@@ -90,6 +91,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
   openemr-7-3-311:
@@ -101,6 +103,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
   openemr-7-3-312:
@@ -112,6 +115,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       EMPTY: "yes"
       DEVELOPER_TOOLS: "yes"
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
@@ -124,6 +128,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
   openemr-7-1-redis:
@@ -135,6 +140,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
@@ -147,6 +153,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
@@ -159,6 +166,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
@@ -171,6 +179,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
@@ -183,16 +192,17 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
-  mariadb-dev:
+  mariadb:
     restart: always
     image: mariadb:10.5
-    command: ['mysqld','--character-set-server=utf8']
+    command: ['mysqld','--character-set-server=utf8', '--collation-server=utf8_general_ci']
     environment:
       MYSQL_ROOT_PASSWORD: root
-  mariadb:
+  mariadb-old:
     restart: always
     image: mariadb:10.4
     command: ['mysqld','--character-set-server=utf8']
@@ -200,19 +210,19 @@ services:
     - 8210:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
-  mariadb-old:
+  mariadb-very-old:
     restart: always
     image: mariadb:10.3
     command: ['mysqld','--character-set-server=utf8']
     environment:
       MYSQL_ROOT_PASSWORD: root
-  mariadb-very-old:
+  mariadb-very-very-old:
     restart: always
     image: mariadb:10.2
     command: ['mysqld','--character-set-server=utf8']
     environment:
       MYSQL_ROOT_PASSWORD: root
-  mariadb-very-very-old:
+  mariadb-very-very-very-old:
     restart: always
     image: mariadb:10.1
     command: ['mysqld','--character-set-server=utf8']
@@ -244,7 +254,7 @@ services:
     ports:
     - 8200:80
     environment:
-      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mariadb-dev,mysql,mysql-old,mysql-very-old
+      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mariadb-very-very-very-old,mysql,mysql-old,mysql-very-old
   couchdb:
     restart: always
     image: couchdb
@@ -316,84 +326,112 @@ services:
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-5-6/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-0:
     restart: always
     image: openemr/dev-php-fpm:7.0
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-0/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-1:
     restart: always
     image: openemr/dev-php-fpm:7.1
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-1/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-2:
     restart: always
     image: openemr/dev-php-fpm:7.2
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-2/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-3:
     restart: always
     image: openemr/dev-php-fpm:7.3
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-3/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-4:
     restart: always
     image: openemr/dev-php-fpm:7.4
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-4/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-0:
     restart: always
     image: openemr/dev-php-fpm:8.0
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-8-0/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-5-6-redis:
     restart: always
     image: openemr/dev-php-fpm:5.6-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-5-6-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-0-redis:
     restart: always
     image: openemr/dev-php-fpm:7.0-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-1-redis:
     restart: always
     image: openemr/dev-php-fpm:7.1-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-1-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-2-redis:
     restart: always
     image: openemr/dev-php-fpm:7.2-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-2-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-3-redis:
     restart: always
     image: openemr/dev-php-fpm:7.3-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-3-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-4-redis:
     restart: always
     image: openemr/dev-php-fpm:7.4-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-4-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-0-redis:
     restart: always
     image: openemr/dev-php-fpm:8.0-redis
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-8-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   redis:
     restart: always
     image: redis

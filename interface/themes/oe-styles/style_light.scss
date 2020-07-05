@@ -30,6 +30,9 @@ $light: $gray-100;
 $dark: $gray-800;
 $gray: $gray-600;
 
+$body-bg: $white;
+$body-color: $gray-900;
+
 /* Array of theme colors that can be added to */
 $theme-colors: (
   primary: $blue,
@@ -39,7 +42,8 @@ $theme-colors: (
   warning: $yellow,
   danger: $red,
   light: $gray-100,
-  dark: $gray-800
+  dark: $gray-800,
+  body-color: $body-color
 );
 
 /* Array of random colors that can be added to */
@@ -71,8 +75,6 @@ $colors: (
 
 /* Above adds overrides to allow regular CSS coloring */
 
-$body-bg: $white;
-$body-color: $gray-900;
 $font-family-sans-serif: "Lato", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-size-base: 0.875rem;
 $rfs-base-value: 0.875rem;
@@ -80,6 +82,8 @@ $font-family-base: $font-family-sans-serif;
 
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
+
+$displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
 
 // Enables responsive text for Bootstrap
 $enable-responsive-font-sizes: true;

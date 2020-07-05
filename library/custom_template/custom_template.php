@@ -314,10 +314,12 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
             edit(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>);
         });
         <?php if ($allowTemplateWarning && !$isNN) { ?>
-        let isPromise = top.jsFetchGlobals('custom_template');
-        isPromise.then(msg => {
-            alertMsg(msg.custom_template.templatesWarn, 9000, 'danger', '', 'disable_template_warning');
-        });
+        // teeheehee
+        let msg = xl("These templates are text only and will not render any other formatting other than pure text.") + " ";
+        msg += xl("You may still use formatting if template is also used in Nation Notes however, pure text will still render here.") +
+            "<br /><br />";
+        msg += xl("Click Got it icon to dismiss this alert forever.");
+        alertMsg(msg, 10000, 'danger', 'lg', 'disable_template_warning');
         <?php } ?>
     </script>
 </table>

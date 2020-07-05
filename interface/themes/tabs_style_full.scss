@@ -51,6 +51,17 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
+
+  .logo {
+    height: 20px;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0.1875rem;
+    padding: 0;
+    width: 20px;
+    z-index: 10000;
+  }
 }
 
 #mainBox_vertical {
@@ -59,64 +70,53 @@ body {
   flex: 1 0 auto;
   margin: 0;
   padding: 0;
+
+  .logo {
+    height: 30px;
+    margin-bottom: 0.5rem;
+    margin-left: 0.75rem;
+    margin-right: 0.75rem;
+    margin-top: 0.5rem;
+    padding: 0 !important;
+    width: 30px;
+    z-index: 10000;
+  }
 }
 
 #mainBox > div {
   flex: 0 1 auto;
   margin: 0;
-}
 
-#mainBox > div.mainFrames {
-  display: flex;
-  flex: 1 0 auto;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  z-index: 3;
-}
-
-#mainBox .logo {
-  height: 20px;
-  margin-bottom: auto;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 0.1875rem;
-  padding: 0;
-  width: 20px;
-  z-index: 10000;
-}
-
-#mainBox_vertical .logo {
-  height: 30px;
-  margin-bottom: 0.5rem;
-  margin-left: 0.75rem;
-  margin-right: 0.75rem;
-  margin-top: 0.5rem;
-  padding: 0 !important;
-  width: 30px;
-  z-index: 10000;
+  &.mainFrames {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    z-index: 3;
+  }
 }
 
 #framesDisplay {
   display: flex;
   flex: 1 0 auto;
   flex-direction: row;
-}
 
-#framesDisplay > div {
-  align-content: stretch;
-  align-items: stretch;
-  display: flex;
-  flex: 1 0 auto;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-}
+  > div {
+    align-content: stretch;
+    align-items: stretch;
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
 
-#framesDisplay > div > iframe {
-  border: 0 solid var(--black);
-  flex: 1 0 auto;
-  width: 100%;
+    > iframe {
+      border: 0 solid var(--black);
+      flex: 1 0 auto;
+      width: 100%;
+    }
+  }
 }
 
 .tabControls {

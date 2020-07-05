@@ -167,7 +167,7 @@ function row_delete($table, $where)
                     return false;
                 }
                 if ((cAdjust !== 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
-                    let message = <?php echo xlj('Adjustment value for code') ?> + " " + code  + " " <?php echo xlj('is not a number') ?>;
+                    let message = <?php echo xlj('Adjustment value for code') ?> + " " + code  + " " + <?php echo xlj('is not a number') ?>;
                     (async (message, time) => {
                         await asyncAlertMsg(message, time, 'danger', 'lg');
                     })(message, 3000)

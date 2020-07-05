@@ -3224,7 +3224,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'ccda_alt_service_enable' => array(
-            xl('Enable C-CDA Alternate Service'),
+            xl('Enable C-CDA Service'),
             array(
                 0 => xl('Off'),
                 1 => xl('Care Coordination Only'),
@@ -3232,7 +3232,7 @@ $GLOBALS_METADATA = array(
                 3 => xl('Both'),
             ),
             '0',
-            xl('Enable C-CDA Alternate Service')
+            xl('Enable C-CDA Service')
         ),
 
         'phimail_enable' => array(

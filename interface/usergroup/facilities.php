@@ -64,7 +64,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
         "info" => trim(isset($_POST["info"]) ? $_POST["info"] : '')
     );
 
-    $insert_id = $facilityService->insert($newFacility);
+    $insert_id = $facilityService->insertFacility($newFacility);
     exit(); // sjp 12/20/17 for ajax save
 }
 
@@ -105,7 +105,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
         "info" => trim(isset($_POST["info"]) ? $_POST["info"] : '')
     );
 
-    $facilityService->update($newFacility);
+    $facilityService->updateFacility($newFacility);
 
     // Update facility name for all users with this facility.
     // This is necassary because some provider based code uses facility name for lookups instead of facility id.
@@ -183,7 +183,7 @@ $(function () {
                         <tbody>
                             <?php
                             $fres = 0;
-                            $fres = $facilityService->getAll();
+                            $fres = $facilityService->getAllFacility();
                             if ($fres) {
                                 $result2 = array();
                                 for ($iter3 = 0; $iter3 < sizeof($fres); $iter3++) {

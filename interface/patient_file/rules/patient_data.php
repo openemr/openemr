@@ -117,7 +117,7 @@ if ($_POST['form_complete']) {
     }
 
     // Close this window and refresh the patient summary display.
-    echo "<html>\n<body>\n<script language='JavaScript'>\n";
+    echo "<html>\n<body>\n<script>\n";
     echo " dlgclose();\n";
     echo " top.restoreSession();\n";
     // refreshed by dialog callback- if issue with refresh try to do elsewhere as here is an IE11 issue.
@@ -148,8 +148,8 @@ if (isset($entryID)) {
 <tr>
 <td><span class="title"><?php echo generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category) .
 " - " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $item); ?></span>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="javascript:submitme();" class="btn btn-primary btn-lg"><?php echo xlt('Save'); ?></a></td>
-<td><a href="#" id="cancel" class="btn btn-secondary btn-lg"><?php echo xlt('Cancel'); ?></a></td>
+<td><a href="javascript:submitme();" class="btn btn-primary"><?php echo xlt('Save'); ?></a></td>
+<td><a href="#" id="cancel" class="btn btn-secondary"><?php echo xlt('Cancel'); ?></a></td>
 </tr>
 </table>
 

@@ -160,7 +160,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         $whereTotalVisitConditions = $whereTotalPaymentConditions = $wherePaidConditions = $whereNewPatientConditions = '1 = 1 ';
 
         // fetch all facility from the table
-        $facilityRecords = $facilityService->getAll();
+        $facilityRecords = $facilityService->getAllFacility();
         foreach ($facilityRecords as $facilityList) {
             if (1 === $facilitySet && $facilityList['id'] == $selectedFacility) {
                 $facilities[$facilityList['id']] = $facilityList['name'];

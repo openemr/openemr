@@ -124,18 +124,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 }
                 for ($i = 0; $i < count($sort); $i++) {
                     $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Up') . "'>" .
-                    "<i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
+                    "<i class='fa fa-sort-desc fa-lg'></i></a>";
                 }
                 for ($i = 0; $i < count($sort); $i++) {
                     if ($sortby == $sort[$i]) {
                         switch ($sortorder) {
                             case "asc":
                                 $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Up') . "'>" .
-                                          "<i class='fa fa-sort-asc fa-lg' aria-hidden='true'></i></a>";
+                                          "<i class='fa fa-sort-asc fa-lg'></i></a>";
                                 break;
                             case "desc":
                                 $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Down') . "'>" .
-                                          "<i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
+                                          "<i class='fa fa-sort-desc fa-lg'></i></a>";
                                 break;
                         } break;
                     }
@@ -213,7 +213,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                           </table>
                         </div>
                       </td>
-                      <td class="h-100" align='left' valign='middle'>
+                      <td class="h-100 text-left align-middle">
                         <table class="w-100 h-100">
                           <tr>
                             <td>
@@ -222,13 +222,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                  <a id='process_button' href='#' class='btn btn-primary' onclick='return ReminderBatch("process")'><?php echo xlt('Process Reminders'); ?></a>
                                  <a id='process_send_button' href='#' class='btn btn-primary' onclick='return ReminderBatch("process_send")'><?php echo xlt('Process and Send Reminders'); ?></a>
                                  <span id='status_span'></span>
-                                 <div id='processing' style='margin: 10px; display: none;'><img src='../../pic/ajax-loader.gif'/></div>
+                                 <div id='processing' style='margin: 10px; display: none;'><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
                                 <?php } else { ?>
                                 <a href='patient_reminders.php?patient_id=<?php echo attr_url($patient_id); ?>&mode=<?php echo attr_url($mode); ?>' class='btn btn-primary' onclick='top.restoreSession()'><?php echo xlt('Refresh'); ?></a>
                                 <?php } ?>
                               </div>
                             </td>
-                            <td align="right" class="text"><?php echo $prevlink . " " . text($end) . " of " . text($total) . " " . $nextlink; ?></td>
+                            <td class="text text-right"><?php echo $prevlink . " " . text($end) . " of " . text($total) . " " . $nextlink; ?></td>
                           </tr>
                         </table>
                       </td>
@@ -306,7 +306,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php foreach ($rules_default as $rule) { ?>
                           <tr>
                             <td ><?php echo generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $rule['id']); ?></td>
-                            <td align="center">
+                            <td class="text-center">
                                 <?php
                                 $patient_rule = collect_rule($rule['id'], $patient_id);
                               // Set the patient specific setting for gui
@@ -321,13 +321,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $select = "default";
                                     }
                                 } ?>
-                              <select class="patient_reminder" name="<?php echo attr($rule['id']); ?>">
+                              <select class="patient_reminder form-control" name="<?php echo attr($rule['id']); ?>">
                                 <option value="default" <?php echo ($select == "default") ? "selected" : ""; ?>><?php echo xlt('Default'); ?></option>
                                 <option value="on" <?php echo ($select == "on") ? "selected" : ""; ?>><?php echo xlt('On'); ?></option>
                                 <option value="off" <?php echo ($select == "off") ? "selected" : ""; ?>><?php echo xlt('Off'); ?></option>
                               </select>
                             </td>
-                            <td align="center">
+                            <td class="text-center">
                                 <?php
                                 if ($rule['patient_reminder_flag'] == "1") {
                                     echo xlt('On');

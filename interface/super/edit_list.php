@@ -1027,7 +1027,7 @@ function writeITLine($it_array)
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <input type="hidden" id="list_from" name="list_from" value="<?php echo attr($list_from);?>"/>
     <input type="hidden" id="list_to" name="list_to" value="<?php echo attr($list_to);?>"/>
-    <nav class="navbar navbar-light bg-light navbar-expand-md fixed-top py-4">
+    <nav class="navbar navbar-light bg-light navbar-expand-md fixed-top">
         <div class="container-fluid">
               <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-list" aria-controls="navbar-list" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <a class="navbar-brand" href="#"><?php echo xlt('Manage Lists'); ?></a>
@@ -1038,8 +1038,8 @@ function writeITLine($it_array)
                     <li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#modal-new-list"><i class="fa fa-plus"></i>&nbsp;<?php echo xlt('New List'); ?></a></li>
                     <li class="nav-item"><a class="nav-link deletelist" href="#" id="<?php echo attr($list_id); ?>"><i class="fa fa-trash"></i>&nbsp;<?php echo xlt('Delete List'); ?></a></li>
                 </ul>
-                <input type="hidden" name="formaction" id="formaction">
-                <div class="form-group navbar-left">
+                <input type="hidden" name="formaction" id="formaction" />
+                <div class="form-inline my-2 my-lg-0 navbar-left">
                     <select name='list_id' class="form-control select-dropdown" id="list_id">
                         <?php
                         /*
@@ -1120,14 +1120,14 @@ function writeITLine($it_array)
                 $urlFrom   = ($list_from > 0 ? $list_from : 1);
                 $urlTo     = ($list_to > 0 ? $list_to : $records_per_page);
                 ?>
-                <div class="blck-filter" style="display: none; float: left; margin-top: 5px; margin-left: 10px; border:0px solid var(--danger); width: auto;">
-                    <div id="input-type-from" style="float: left; "><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom);?>" style="margin-right: 10px; width: 40px;">
+                <div class="blck-filter float-left w-auto my-2 my-lg-0" style="display: none;">
+                    <div id="input-type-from" class="float-left"><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom);?>" style="margin-right: 10px; width: 40px;">
                         <?php echo xlt("To{{Range}}"); ?>&nbsp;<input autocomplete="off" id="list-to" value="<?php echo attr($urlTo); ?>" style=" margin-right: 10px; width: 40px;">
                     </div>
-                    <div style="float:left"><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
+                    <div class="float-left"><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
                 </div>
                 <!--Happy end-->
-                <div class="" id="total-record" style="float: left; margin-top: 8px; margin-left: 10px; margin-right: 10px;"></div>
+                <div class="float-left ml-2 my-2 my-lg-0" id="total-record"></div>
         </div><!-- /.navbar-collapse -->
     </div>
 </nav>

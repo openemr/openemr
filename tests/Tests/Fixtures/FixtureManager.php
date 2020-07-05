@@ -31,7 +31,7 @@ class FixtureManager
     public function __construct()
     {
         $this->patientFixtures = $this->loadJsonFile("patients.json");
-        $this->fhirPatientFixtures = $this->loadJsonFile("fhir-patients.json");
+        $this->fhirPatientFixtures = $this->loadJsonFile("FHIR/patients.json");
     }
 
     /**
