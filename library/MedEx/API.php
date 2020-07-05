@@ -2653,19 +2653,19 @@ class Display extends base
                         <label><?php echo xlt('Address'); ?></label>
                         <div class="row">
                             <div class="col-12 mb-2">
-                                <input type="text" class="form-control" placeholder="<?php echo xlt('Address'); ?>" name="new_address" id="new_address" value="<?php echo attr($result_pat['street']); ?>">
+                                <input type="text" class="form-control" placeholder="<?php echo xla('Address'); ?>" name="new_address" id="new_address" value="<?php echo attr($result_pat['street']); ?>">
                             </div>
 
                             <div class="col-4">
-                                <input type="text" class="form-control" placeholder="<?php echo xlt('City'); ?>" name="new_city" id="new_city" value="<?php echo attr($result_pat['city']); ?>">
+                                <input type="text" class="form-control" placeholder="<?php echo xla('City'); ?>" name="new_city" id="new_city" value="<?php echo attr($result_pat['city']); ?>">
                             </div>
 
                             <div class="col-4">
-                                <input type="text" class="form-control" placeholder="<?php echo xlt('State'); ?>" name="new_state" id="new_state" value="<?php echo attr($result_pat['state']); ?>">
+                                <input type="text" class="form-control" placeholder="<?php echo xla('State'); ?>" name="new_state" id="new_state" value="<?php echo attr($result_pat['state']); ?>">
                             </div>
 
                             <div class="col-4">
-                                <input type="text" class="form-control" placeholder="<?php echo xlt('ZIP Code'); ?>" name="new_postal_code" id="new_postal_code" value="<?php echo attr($result_pat['postal_code']); ?>">
+                                <input type="text" class="form-control" placeholder="<?php echo xla('ZIP Code'); ?>" name="new_postal_code" id="new_postal_code" value="<?php echo attr($result_pat['postal_code']); ?>">
                             </div>
                         </div>
                         <br />
