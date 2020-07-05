@@ -88,14 +88,7 @@ if ($_GET) {
 <html>
   <head>
     <?php Header::setupHeader(['datetime-picker']); ?>
-    <style>
-        @media only screen and (max-width: 680px) {
-            [class*="col-"] {
-                width: 100%;
-                text-align: left !important;
-            }
-        }
-    </style>
+
     <script>
       $(function () {
         $("#submitForm").click(function(){
@@ -124,44 +117,39 @@ if ($_GET) {
       })
     </script>
 </head>
-<body class="body_top">
+<body>
     <div class="container">
     <!-- Required for the popup date selectors -->
-    <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-    <?php
-      $allUsers = array();
-      $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
-    for ($i = 0; $uRow = sqlFetchArray($uSQL); $i++) {
-        $allUsers[] = $uRow;
-    }
-    ?>
+        <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
+        <?php
+        $allUsers = array();
+        $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
+        for ($i = 0; $uRow = sqlFetchArray($uSQL); $i++) {
+            $allUsers[] = $uRow;
+        }
+        ?>
         <div class="row">
             <div class="col-12">
-                <div class="page-header">
-                    <h2><?php echo xlt('Dated Message Log');?> &nbsp;<i id="show_hide" class="fa fa-eye-slash fa-2x small" title="<?php echo xla('Click to Hide Filters'); ?>"></i></h2>
-                </div>
+                <h2><?php echo xlt('Dated Message Log');?> &nbsp;<i id="show_hide" class="fa fa-eye-slash fa-2x small" data-toggle="tooltip" data-placement="top" title="<?php echo xla('Click to Hide Filters'); ?>"></i></h2>
             </div>
-        </div>
-        <div class="row hideaway">
-            <div class="col-12">
+            <div class="col-12 hideaway">
                 <form method="get" id="logForm" onsubmit="return top.restoreSession()">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
                     <fieldset>
                         <legend><?php echo xlt('Filters') ?></legend>
-                        <div class="col-12">
-                            <h5><?php echo xlt('Date The Message Was Sent');?></h5>
-                            <div class="col-6">
+                        <h5><?php echo xlt('Date The Message Was Sent');?></h5>
+                        <div class="form-group row">
+                            <div class="col-12 col-md-6">
                                 <label class="col-form-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
                                 <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
-                            <div class="col-6">
+                            <div class="col-12 col-md-6">
                                 <label class="col-form-label" for="ed"><?php echo xlt('End Date') ?>:</label>
                                 <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <div class="col-6">
+                        <div class="form-group row">
+                            <div class="col-12 col-md-6">
                                 <label class="col-form-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
                                 <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
                                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
@@ -174,7 +162,7 @@ if ($_GET) {
                                     ?>
                                 </select>
                             </div>
-                            <div class="col-6">
+                            <div class="col-12 col-md-6">
                                 <label class="col-form-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
                                 <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
                                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
@@ -188,20 +176,18 @@ if ($_GET) {
                                 </select>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <div class="col-12 form-group">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" name="processed" id="processed"><?php echo xlt('Processed') ?>
-                                    </label>
-                                    <label>
-                                        <input type="checkbox" name="pending" id="pending"><?php echo xlt('Pending') ?>
-                                    </label>
-                                </div>
+                        <div class="form-group row">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="processed" id="processed"><?php echo xlt('Processed') ?>
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="pending" id="pending"><?php echo xlt('Pending') ?>
+                                </label>
                             </div>
                         </div>
                     </fieldset>
-                    <div class="form-group">
+                    <div class="form-group row">
                         <div class="col-sm-12 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch form-group" role="group">
                                 <button type="button" value="Refresh" id="submitForm" class="btn btn-secondary btn-refresh" ><?php echo xlt('Refresh') ?></button>
@@ -210,8 +196,6 @@ if ($_GET) {
                     </div>
                 </form>
             </div>
-        </div>
-        <div class="row">
             <div class="col-12">
                 <div id="resultsDiv"></div>
             </div>
@@ -230,6 +214,9 @@ if ($_GET) {
                 elementTitle = hideTitle;
             }
             $('#show_hide').prop('title', elementTitle);
+        });
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
         });
     </script>
 </body>

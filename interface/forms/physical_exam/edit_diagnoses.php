@@ -61,7 +61,7 @@ if ($_POST['form_save']) {
 
   // Close this window and redisplay the updated encounter form.
   //
-    echo "<script language='JavaScript'>\n";
+    echo "<script>\n";
     if ($info_msg) {
         echo " alert(" . js_escape($info_msg) . ");\n";
     }

@@ -68,6 +68,8 @@ $login-color-2: $primary;
 $login-color-3: darken($primary, 20%);
 $login-button-primary: true;
 
+$displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
+
 // Enables responsive text for Bootstrap
 $enable-responsive-font-sizes: true;
 // Import Bootstrap 4 SCSS Files before doing anything

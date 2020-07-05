@@ -1117,7 +1117,7 @@ function generate_receipt($patient_id, $encounter = 0)
             </div>
         </div><!-- end of div container-->
         <?php $oemr_ui->oeBelowContainerDiv();?>
-        <script language='JavaScript'>
+        <script>
             computeTotals();
                 <?php
                 if ($gcac_related_visit && !$gcac_service_provided) {

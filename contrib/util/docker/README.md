@@ -103,11 +103,11 @@ options to choose from:
 synchronized openemr directory and restart the development docker). On the main
 setup input screen:
  - for `Server Host`, use either `mariadb` or `mysql` or `mariadb-very-old` or
-   `mariadb-very-very-old` or `mariadb-dev` or `mysql-old` or `mysql-very-old` (you have all
+   `mariadb-very-very-old` or `mariadb-very-very-very-old` or `mysql-old` or `mysql-very-old` (you have all
    mariadb/mysql/mariadb-\*/mysql-\* dockers ready to go to make testing either one easy;
    `mysql` is version 8.0; `mysql-old` is version 5.7; `mysql-very-old` is version 5.6;
-   `mariadb` is version 10.4; `mariadb-old` is version 10.3; `mariadb-very-old` is
-   version 10.2; `mariadb-very-very-old` is version 10.1; `mariadb-dev` is version 10.5)
+   `mariadb` is version 10.5; `mariadb-old` is version 10.4; `mariadb-very-old` is
+   version 10.3; `mariadb-very-very-old` is version 10.2; `mariadb-very-very-very-old` is version 10.1)
  - for `Root Pass`, use `root`
  - for `User Hostname`, use `%`
 
@@ -308,7 +308,7 @@ proxy is still a work in progress)
 
 ##### FHIR
 A FHIR server is included to make it easier to test on a bona fide FHIR server as developers
-work towards supporting FHIR via OpenEMR's API. The FHIR server is docker from 
+work towards supporting FHIR via OpenEMR's API. The FHIR server is docker from
 https://hub.docker.com/r/ibmcom/ibm-fhir-server and see there for instructions of use.
 
 #### The Insane Docker Development Environment is a work in progress

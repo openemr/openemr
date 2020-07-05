@@ -51,19 +51,19 @@ if (isset($_GET['patients'])) {
             font-weight: bold;
             padding: 7px;
         }
-        
+
         .select-box {
             display: inline-block;
         }
-        
+
         #by-id {
             width: 90px !important;
         }
-        
+
         #by-name {
             width: 120px !important;
         }
-        
+
         .inline-box {
             display: inline-block;
             vertical-align: middle;
@@ -72,7 +72,7 @@ if (isset($_GET['patients'])) {
             color: var(--danger);
             pointer-events: auto;
         }
-        
+
         #searchResultsHeader {
             width: 100%;
             border-collapse: collapse;
@@ -88,7 +88,7 @@ if (isset($_GET['patients'])) {
             cursor: hand;
             cursor: pointer;
         }
-        
+
         #searchResults td {
             border-bottom: 1px solid var(--gray200);
         }
@@ -96,7 +96,7 @@ if (isset($_GET['patients'])) {
 
 </head>
 
-<body class="body_top">
+<body>
 <div class="container-fluid">
     <div id="searchCriteria">
         <form>
@@ -119,42 +119,42 @@ if (isset($_GET['patients'])) {
                 </div>
                 <div class="col-4">
                     <div class="btn-group" role="group" aria-label="Form Buttons">
-                            <button id="add-to-list" type="button" class="btn btn-secondary btn-sm"><?php echo xlt('Add to list'); ?></button>
-                            <button id="send-patients" type="button" class="btn btn-secondary btn-sm" onclick="selPatients()"><?php echo xlt('OK'); ?></button>
+                        <button id="add-to-list" type="button" class="btn btn-primary btn-add btn-sm"><?php echo xlt('Add to list'); ?></button>
+                        <button id="send-patients" type="button" class="btn btn-primary btn-save btn-sm" onclick="selPatients()"><?php echo xlt('OK'); ?></button>
                     </div>
                 </div>
             </div>
         </form>
     </div>
-
-    <table id="results-table" class="table table-sm">
-        <thead id="searchResultsHeader" class="head">
-        <tr>
-            <th class="srName"><?php echo xlt('Name'); ?></th>
-            <th class="srPhone"><?php echo xlt('Phone'); ?></th>
-            <th class="srSS"><?php echo xlt('SS'); ?></th>
-            <th class="srDOB"><?php echo xlt('DOB'); ?></th>
-            <th class="srID"><?php echo xlt('ID'); ?></th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody id="searchResults">
-        <?php
-        if (isset($_GET['patients'])) {
-            foreach ($results as $index => $result) {
-                echo '<tr id="row' . attr($result['pid']) . '">' .
-                        '<td>' . text($result['lname']) . ', ' . text($result['fname']) . '</td>' .
-                        '<td>' . text($result['phone_home']) . '</td>' .
-                        '<td>' . text($result['ss']) . '</td>' .
-                        '<td>' . text(oeFormatShortDate($result['DOB'])) . '</td>' .
-                        '<td>' . text($result['pubpid']) . '</td>' .
-                        '<td><i class="fa fa-remove remove-patient" onclick="removePatient(' . attr(addslashes($result['pid'])) . ')"></i></td>' .
-                    '<tr>';
-            }
-        } ?>
-        </tbody>
-    </table>
-
+    <div class="table-responsive">
+        <table id="results-table" class="table table-sm">
+            <thead id="searchResultsHeader" class="head">
+            <tr>
+                <th class="srName"><?php echo xlt('Name'); ?></th>
+                <th class="srPhone"><?php echo xlt('Phone'); ?></th>
+                <th class="srSS"><?php echo xlt('SS'); ?></th>
+                <th class="srDOB"><?php echo xlt('DOB'); ?></th>
+                <th class="srID"><?php echo xlt('ID'); ?></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="searchResults">
+            <?php
+            if (isset($_GET['patients'])) {
+                foreach ($results as $index => $result) {
+                    echo '<tr id="row' . attr($result['pid']) . '">' .
+                            '<td>' . text($result['lname']) . ', ' . text($result['fname']) . '</td>' .
+                            '<td>' . text($result['phone_home']) . '</td>' .
+                            '<td>' . text($result['ss']) . '</td>' .
+                            '<td>' . text(oeFormatShortDate($result['DOB'])) . '</td>' .
+                            '<td>' . text($result['pubpid']) . '</td>' .
+                            '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient(' . attr(addslashes($result['pid'])) . ')"></i></td>' .
+                        '<tr>';
+                }
+            } ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -254,7 +254,7 @@ $('#add-to-list').on('click', function (e) {
         '<td>' + currentResult.ss + '</td>' +
         '<td>' + currentResult.DOB + '</td>' +
         '<td>' + currentResult.pubpid + '</td>' +
-        '<td><i class="fa fa-remove remove-patient" onclick="removePatient('+currentResult.pid+')"></i></td>' +
+        '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient('+currentResult.pid+')"></i></td>' +
     '<tr>');
 
 });

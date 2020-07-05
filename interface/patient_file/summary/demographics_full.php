@@ -82,6 +82,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <title><?php echo xlt('Edit Current Patient'); ?></title>
 
 <style>
+    /* TODO: Find a way to remove this stylesheet */
     .form-control {
         width: auto;
         display: inline;
@@ -98,6 +99,16 @@ var somethingChanged = false;
 
 $(function () {
     tabbify();
+
+    $(".select-dropdown").select2({
+        theme: "bootstrap4",
+        <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+    });
+    if (typeof error !== 'undefined') {
+        if (error) {
+            alertMsg(error);
+        }
+    }
 
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
@@ -489,7 +500,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     <button type="submit" class="btn btn-secondary btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
                         <?php echo xlt('Save'); ?>
                     </button>
-                    <a class="btn btn-link btn-cancel" href="demographics.php" onclick="top.restoreSession()">
+                    <a class="btn btn-secondary btn-cancel" href="demographics.php" onclick="top.restoreSession()">
                         <?php echo xlt('Cancel'); ?>
                     </a>
                 </div>
@@ -581,14 +592,12 @@ if (! $GLOBALS['simplified_demographics']) {
     <div class="section-header">
        <span class="text font-weight-bold"><?php echo xlt("Insurance")?></span>
     </div>
-    <div id="INSURANCE" >
+    <div id="INSURANCE">
        <ul class="tabNav">
         <?php
         foreach ($insurance_array as $instype) {
             ?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype = ucfirst($instype);
-echo xlt($CapInstype); ?></a></li><?php
-        }
-        ?>
+echo xlt($CapInstype); ?></a></li><?php } ?>
         </ul>
 
     <div class="tabContainer">
@@ -601,9 +610,9 @@ echo xlt($CapInstype); ?></a></li><?php
      <div class="tab <?php echo $i == 1 ? 'current' : '' ?> h-auto w-auto">
       <div class="row">
         <div class="col-md-6">
-         <table border="0">
+         <table class="table table-borderless">
            <tr>
-            <td valign='top'>
+            <td class="align-top">
             <label class='required'><?php echo text($insurance_headings[$i - 1]) . "&nbsp;"?></label>
             </td>
             <td class='required'>:</td>
@@ -658,7 +667,7 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
              <td><label class='required'><?php echo xlt('Group Number'); ?></label></td>
              <td class='required'>:</td>
-             <td><input type=entry class='form-control' size='16' name=i<?php echo attr($i); ?>group_number value="<?php echo attr($result3["group_number"]); ?>" onkeyup='policykeyup(this)'></td>
+             <td><input type="text" class='form-control' size='16' name=i<?php echo attr($i); ?>group_number value="<?php echo attr($result3["group_number"]); ?>" onkeyup='policykeyup(this)'></td>
             </tr>
 
             <tr<?php if ($GLOBALS['omit_employers']) {
@@ -719,7 +728,7 @@ echo xlt($CapInstype); ?></a></li><?php
           </div>
 
     <div class="col-md-6">
-        <table class="border-0">
+        <table class="table table-borderless">
             <tr>
                 <td>
                     <label class='required'><?php echo xlt('Relationship'); ?></label>
@@ -869,7 +878,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td colspan='2'></td>
                 <td></td>
             </tr>
-            <?php if (!$GLOBALS['insurance_only_one']) : ?>
+            <?php if (!$GLOBALS['insurance_only_one']) { ?>
                 <tr>
                     <td>
                         <label class='bold'><?php echo xlt('Secondary Medicare Type'); ?></label>
@@ -890,7 +899,7 @@ echo xlt($CapInstype); ?></a></li><?php
                         </select>
                     </td>
                 </tr>
-            <?php endif ?>
+            <?php } ?>
       </table>
 
     </div>

@@ -18,14 +18,12 @@ use OpenEMR\Core\Header;
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8" />
-
+        <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']); ?>
         <title><?php $this->eprint($this->title); ?></title>
         <meta http-equiv="X-Frame-Options" content="deny" />
         <base href="<?php $this->eprint($this->ROOT_URL); ?>" />
         <meta name="description" content="Patient Portal" />
         <meta name="author" content="Form | sjpadgett@gmail.com" />
-        <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']); ?>
         <script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
         <script>
             $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js")

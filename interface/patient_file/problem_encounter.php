@@ -71,7 +71,7 @@ if ($_POST['form_save']) {
 
     echo "<html><body>"
     . "<script type=\"text/javascript\" src=\"" . $webroot . "/interface/main/tabs/js/include_opener.js\"></script>"
-    . "<script language='JavaScript'>\n";
+    . "<script>\n";
     if ($alertmsg) {
         echo " alert(" . js_escape($alertmsg) . ");\n";
     }
