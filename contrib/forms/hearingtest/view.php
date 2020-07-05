@@ -42,24 +42,24 @@ $obj = formFetch("form_hearingtest", $_GET["id"]);
 <table>
 <tr>
 <td>
-<span class=text>Right Ear 250: </span><input type=entry name="right_ear_250" value="<?php echo attr($obj["right_ear_250"]); ?>" ><br />
-<span class=text>Right Ear 500: </span><input type=entry name="right_ear_500" value="<?php echo attr($obj["right_ear_500"]); ?>" ><br />
-<span class=text>Right Ear 1000: </span><input type=entry name="right_ear_1000" value="<?php echo attr($obj["right_ear_1000"]); ?>" ><br />
-<span class=text>Right Ear 2000: </span><input type=entry name="right_ear_2000" value="<?php echo attr($obj["right_ear_2000"]); ?>" ><br />
-<span class=text>Right Ear 3000: </span><input type=entry name="right_ear_3000" value="<?php echo attr($obj["right_ear_3000"]); ?>" ><br />
-<span class=text>Right Ear 4000: </span><input type=entry name="right_ear_4000" value="<?php echo attr($obj["right_ear_4000"]); ?>" ><br />
-<span class=text>Right Ear 5000: </span><input type=entry name="right_ear_5000" value="<?php echo attr($obj["right_ear_5000"]); ?>" ><br />
-<span class=text>Right Ear 6000: </span><input type=entry name="right_ear_6000" value="<?php echo attr($obj["right_ear_6000"]); ?>" ><br />
+<span class=text>Right Ear 250: </span><input type="text" name="right_ear_250" value="<?php echo attr($obj["right_ear_250"]); ?>" ><br />
+<span class=text>Right Ear 500: </span><input type="text" name="right_ear_500" value="<?php echo attr($obj["right_ear_500"]); ?>" ><br />
+<span class=text>Right Ear 1000: </span><input type="text" name="right_ear_1000" value="<?php echo attr($obj["right_ear_1000"]); ?>" ><br />
+<span class=text>Right Ear 2000: </span><input type="text" name="right_ear_2000" value="<?php echo attr($obj["right_ear_2000"]); ?>" ><br />
+<span class=text>Right Ear 3000: </span><input type="text" name="right_ear_3000" value="<?php echo attr($obj["right_ear_3000"]); ?>" ><br />
+<span class=text>Right Ear 4000: </span><input type="text" name="right_ear_4000" value="<?php echo attr($obj["right_ear_4000"]); ?>" ><br />
+<span class=text>Right Ear 5000: </span><input type="text" name="right_ear_5000" value="<?php echo attr($obj["right_ear_5000"]); ?>" ><br />
+<span class=text>Right Ear 6000: </span><input type="text" name="right_ear_6000" value="<?php echo attr($obj["right_ear_6000"]); ?>" ><br />
 </td>
 <td>
-<span class=text>Left Ear 250: </span><input type=entry name="left_ear_250" value="<?php echo attr($obj["left_ear_250"]); ?>" ><br />
-<span class=text>Left Ear 500: </span><input type=entry name="left_ear_500" value="<?php echo attr($obj["left_ear_500"]); ?>" ><br />
-<span class=text>Left Ear 1000: </span><input type=entry name="left_ear_1000" value="<?php echo attr($obj["left_ear_1000"]); ?>" ><br />
-<span class=text>Left Ear 2000: </span><input type=entry name="left_ear_2000" value="<?php echo attr($obj["left_ear_2000"]); ?>" ><br />
-<span class=text>Left Ear 3000: </span><input type=entry name="left_ear_3000" value="<?php echo attr($obj["left_ear_3000"]); ?>" ><br />
-<span class=text>Left Ear 4000: </span><input type=entry name="left_ear_4000" value="<?php echo attr($obj["left_ear_4000"]); ?>" ><br />
-<span class=text>Left Ear 5000: </span><input type=entry name="left_ear_5000" value="<?php echo attr($obj["left_ear_5000"]); ?>" ><br />
-<span class=text>Left Ear 6000: </span><input type=entry name="left_ear_6000" value="<?php echo attr($obj["left_ear_6000"]); ?>" ><br />
+<span class=text>Left Ear 250: </span><input type="text" name="left_ear_250" value="<?php echo attr($obj["left_ear_250"]); ?>" ><br />
+<span class=text>Left Ear 500: </span><input type="text" name="left_ear_500" value="<?php echo attr($obj["left_ear_500"]); ?>" ><br />
+<span class=text>Left Ear 1000: </span><input type="text" name="left_ear_1000" value="<?php echo attr($obj["left_ear_1000"]); ?>" ><br />
+<span class=text>Left Ear 2000: </span><input type="text" name="left_ear_2000" value="<?php echo attr($obj["left_ear_2000"]); ?>" ><br />
+<span class=text>Left Ear 3000: </span><input type="text" name="left_ear_3000" value="<?php echo attr($obj["left_ear_3000"]); ?>" ><br />
+<span class=text>Left Ear 4000: </span><input type="text" name="left_ear_4000" value="<?php echo attr($obj["left_ear_4000"]); ?>" ><br />
+<span class=text>Left Ear 5000: </span><input type="text" name="left_ear_5000" value="<?php echo attr($obj["left_ear_5000"]); ?>" ><br />
+<span class=text>Left Ear 6000: </span><input type="text" name="left_ear_6000" value="<?php echo attr($obj["left_ear_6000"]); ?>" ><br />
 </td>
 </tr>
 </table>

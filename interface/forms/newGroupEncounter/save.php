@@ -58,7 +58,7 @@ if ($mode == 'new') {
         "New Therapy Group Encounter",
         sqlInsert(
             "INSERT INTO form_groups_encounter SET
-                date = ?,      
+                date = ?,
                 onset_date = ?,
                 reason = ?,
                 facility = ?,
@@ -164,7 +164,7 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
 ?>
 <html>
 <body>
-<script language='JavaScript'>
+<script>
     EncounterDateArray=new Array;
     CalendarCategoryArray=new Array;
     EncounterIdArray=new Array;

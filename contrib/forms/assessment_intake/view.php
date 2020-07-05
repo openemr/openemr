@@ -56,14 +56,14 @@ $result = SqlFetchArray($res); ?>
 <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="572" height="1">
 <strong>Date:</strong>&nbsp; <?php print date('m/d/y'); ?><br /><br />
 <strong>SSN:</strong>&nbsp;<?php echo text($result['ss']);?><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="172" height="1">
-<strong>DCN:</strong>&nbsp;<input type="entry" name="dcn" value="<?php echo attr($obj["dcn"]);?>"><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="125" height="1">
-<label><strong>Location:</strong>&nbsp;<input type="entry" name="location" value="<?php echo attr($obj["location"]);?>"></label><br /><br />
+<strong>DCN:</strong>&nbsp;<input type="text" name="dcn" value="<?php echo attr($obj["dcn"]);?>"><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="125" height="1">
+<label><strong>Location:</strong>&nbsp;<input type="text" name="location" value="<?php echo attr($obj["location"]);?>"></label><br /><br />
 <strong>Address:</strong>&nbsp; <?php echo text($result['street']) . ',&nbsp' . text($result['city'])  . ',&nbsp' . text($result['state']) . '&nbsp;' . text($result['postal_code']);?><br /><br />
 <strong>Telephone Number:</strong>&nbsp; <?php echo text($result['phone_home']);?><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="400" height="1">
 <strong>Date of Birth:</strong>&nbsp;<?php echo text($result['DOB']);?><br /><br />
-<label><strong>Time In:</strong>&nbsp;<input type="entry" name="time_in" value="<?php echo attr($obj["time_in"]);?>"></label><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="65" height="1">
-<label><strong>Time Out:</strong>&nbsp;<input type="entry" name="time_out" value="<?php echo attr($obj["time_out"]);?>"></label><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="65" height="1">
-<label><strong>Referral Source:</strong>&nbsp;<input type="entry" name="referral_source" value="<?php echo attr($obj["referral_source"]);?>"></label><br /><br />
+<label><strong>Time In:</strong>&nbsp;<input type="text" name="time_in" value="<?php echo attr($obj["time_in"]);?>"></label><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="65" height="1">
+<label><strong>Time Out:</strong>&nbsp;<input type="text" name="time_out" value="<?php echo attr($obj["time_out"]);?>"></label><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="65" height="1">
+<label><strong>Referral Source:</strong>&nbsp;<input type="text" name="referral_source" value="<?php echo attr($obj["referral_source"]);?>"></label><br /><br />
 <strong>Purpose:</strong>&nbsp; <input type="checkbox" name='new_client_eval' <?php if ($obj["new_client_eval"] == "on") {
     echo "checked";
                                                                               };?>  ><strong>New client evaluation</strong><img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="10" height="1">
@@ -73,7 +73,7 @@ $result = SqlFetchArray($res); ?>
 <input type="checkbox" name='consultation' <?php if ($obj["consultation"] == "on") {
     echo "checked";
                                            };?> ><strong>Consultation</strong><br /><br />
-<label><strong>Copy sent to:</strong>&nbsp;<input type="entry" name="copy_sent_to" value="<?php echo attr($obj["copy_sent_to"]);?>"></label><br /><br />
+<label><strong>Copy sent to:</strong>&nbsp;<input type="text" name="copy_sent_to" value="<?php echo attr($obj["copy_sent_to"]);?>"></label><br /><br />
 <strong>Why is Assessment being requested (Goals and treatment expectations of the individual requesting services):</strong><br />
 <textarea cols="100" rows="3" name="reason_why" ><?php echo attr($obj["reason_why"]);?></textarea><br />
 <strong>Behavior that led to Assessment:</strong><br />
@@ -92,7 +92,7 @@ $result = SqlFetchArray($res); ?>
     echo "checked";
                                       };?>  >&nbsp;<strong>Mother involved/present/absent (Describe relationship)</strong><br />
 <textarea cols="100" rows="3" wrap="virtual" name="mother_involved" ><?php echo text($obj["mother_involved"]);?></textarea><br /><br />
-<strong>Number of children:</strong>&nbsp;<input type="entry" name="number_children"value="<?php echo attr($obj["number_children"]);?>"><br /><strong>Names, ages, quality of relationship(s):</strong><br />
+<strong>Number of children:</strong>&nbsp;<input type="text" name="number_children"value="<?php echo attr($obj["number_children"]);?>"><br /><strong>Names, ages, quality of relationship(s):</strong><br />
 <textarea cols="100" rows="3" wrap="virtual" name="siblings" ><?php echo text($obj["siblings"]);?></textarea><br /><br />
 <strong>Other family relationships:</strong><br />
 <textarea cols="100" rows="2" wrap="virtual" name="other_relationships" ><?php echo text($obj["other_relationships"]);?></textarea><br /><br />
@@ -102,12 +102,12 @@ $result = SqlFetchArray($res); ?>
 <textarea cols="100" rows="3" wrap="virtual" name="current_symptoms" ><?php echo text($obj["current_symptoms"]);?></textarea><br /><br />
 <strong>Personal resources and strengths (including the availability & use of family and peers):</strong><br />
 <textarea cols="100" rows="3" wrap="virtual" name="personal_strengths" ><?php echo text($obj["personal_strengths"]);?></textarea><br /><br />
-<strong>Spiritual:</strong>&nbsp;<input type="entry" name="spiritual" value="<?php echo attr($obj["spiritual"]);?>">&nbsp;<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="35" height="1">
-<strong>Legal:</strong>&nbsp;<input type="entry" name="legal" value="<?php echo attr($obj["legal"]);?>"><br /><br />
+<strong>Spiritual:</strong>&nbsp;<input type="text" name="spiritual" value="<?php echo attr($obj["spiritual"]);?>">&nbsp;<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="35" height="1">
+<strong>Legal:</strong>&nbsp;<input type="text" name="legal" value="<?php echo attr($obj["legal"]);?>"><br /><br />
 <strong>Prior Mental Health History/Treatment:</strong><br />
 <textarea cols="100" rows="3" wrap="virtual" name="prior_history" ><?php echo text($obj["prior_history"]);?></textarea><br /><br />
-<strong>Number of admissions:</strong>&nbsp;<input type="entry" name="number_admitt" value="<?php echo attr($obj["number_admitt"]);?>">&nbsp;<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="35" height="1">
-<strong>Types of admissions:</strong>&nbsp;<input type="entry" name="type_admitt" value="<?php echo attr($obj["type_admitt"]);?>"><br /><br />
+<strong>Number of admissions:</strong>&nbsp;<input type="text" name="number_admitt" value="<?php echo attr($obj["number_admitt"]);?>">&nbsp;<img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="35" height="1">
+<strong>Types of admissions:</strong>&nbsp;<input type="text" name="type_admitt" value="<?php echo attr($obj["type_admitt"]);?>"><br /><br />
 <strong>Alcohol and substance use for the past 30 days:</strong><br />
 <textarea cols="100" rows="3" wrap="virtual" name="substance_use" ><?php echo text($obj["substance_use"]);?></textarea><br /><br />
 <strong>Substance abuse history (Include duration, patterns, and consequences of use):</strong><br />
@@ -119,7 +119,7 @@ $result = SqlFetchArray($res); ?>
 <textarea cols="100" rows="3" wrap="virtual" name="axis2" ><?php echo text($obj["axis2"]);?></textarea><br /><br />
 <strong>Axis III:</strong><br />
 <textarea cols="100" rows="3" wrap="virtual" name="axis3" ><?php echo text($obj["axis3"]);?></textarea><br /><br />
-<strong><u>Allergies/Adverse reactions to medications:</u></strong>&nbsp;<input type="entry" name="allergies" value="<?php echo attr($obj["allergies"]);?>"><br /><br />
+<strong><u>Allergies/Adverse reactions to medications:</u></strong>&nbsp;<input type="text" name="allergies" value="<?php echo attr($obj["allergies"]);?>"><br /><br />
 <strong>Axis IV Psychosocial and environmental problems in the last year:</strong><br />
 <input type="checkbox" name='ax4_prob_support_group' <?php if ($obj["ax4_prob_support_group"] == "on") {
     echo "checked";
@@ -157,9 +157,9 @@ $result = SqlFetchArray($res); ?>
 <textarea cols="100" rows="2" wrap="virtual" name="ax4_other" ><?php echo text($obj["ax4_other"]);?></textarea><br /><br />
 <strong>Axis V Global Assessment of Functioning (GAF) Scale (100 down to 0):</strong>
 <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1"><br />
-<strong>Currently</strong><input type="entry" name="ax5_current" value="<?php echo attr($obj["ax5_current"]);?>">
+<strong>Currently</strong><input type="text" name="ax5_current" value="<?php echo attr($obj["ax5_current"]);?>">
 <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="5" height="1">
-<strong>Past Year</strong><input type="entry" name="ax5_past" value="<?php echo attr($obj["ax5_current"]);?>"><br /><br />
+<strong>Past Year</strong><input type="text" name="ax5_past" value="<?php echo attr($obj["ax5_current"]);?>"><br /><br />
 <strong><u>Assessment of Currently Known Risk Factors:</u></strong><br /><br />
 <strong>Suicide:</strong><br /><input type="checkbox" name='risk_suicide_na' <?php if ($obj["risk_suicide_na"] == "on") {
     echo "checked";

@@ -61,9 +61,7 @@ while ($row = sqlFetchArray($res)) {
     $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
-$loading = "<div class='spinner-border spinner-border-sm' role='status'><span class='sr-only'>";
-$loading .= xlt('Loading data');
-$loading .= "...</span></div>";
+$loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . xlt("Loading") . "...</span></div>";
 ?>
 <html>
 <head>
@@ -237,7 +235,6 @@ $loading .= "...</span></div>";
     }
 </style>
 <script>
-
     var uspfx = '<?php echo attr($uspfx); ?>';
 
     $(function () {
@@ -379,7 +376,13 @@ $loading .= "...</span></div>";
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <input type='hidden' name='patientID' value='0'/>
             </form>
+          </div>
         </div>
+        <!-- form used to open a new top level window when a patient row is clicked -->
+        <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type='hidden' name='patientID' value='0'/>
+        </form>
     </div> <!--End of Container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
 
@@ -393,23 +396,21 @@ $loading .= "...</span></div>";
         $(window).on("resize", function() { //portrait vs landscape
            $("#pt_table").removeAttr("style");
         });
+    </script>
+    <script>
+      $(function() {
+        $("#pt_table_filter").addClass("d-md-initial");
+        $("#pt_table_length").addClass("d-md-initial");
+        $("#show_hide").addClass("d-md-initial");
+        $("#search_hide").addClass("d-md-initial");
+        $("#pt_table_filter").addClass("d-none");
+        $("#pt_table_length").addClass("d-none");
+        $("#show_hide").addClass("d-none");
+        $("#search_hide").addClass("d-none");
+      });
+    </script>
 
-        $(window).on('resize', function() {//hide superfluous elements on Smartphones
-            var winWidth = $(this).width();
-            if (winWidth <  750) {
-                $("#pt_table_filter").addClass ("hidden");
-                $("#pt_table_length").addClass ("hidden");
-                $("#show_hide").addClass ("hidden");
-                $("#search_hide").addClass ("hidden");
-
-
-            } else {
-                $("#pt_table_filter").removeClass ("hidden");
-                $("#pt_table_length").removeClass ("hidden");
-                $("#show_hide").removeClass ("hidden");
-                $("#search_hide").addClass ("hidden");
-            }
-        });
+    <script>
         document.addEventListener('touchstart', {});
     </script>
 </body>

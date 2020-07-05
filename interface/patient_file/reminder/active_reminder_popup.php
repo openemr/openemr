@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 
 <body class="body_top">
 
-<table class="border-0" cellspacing='0' cellpadding='0'>
+<table class="table border-0">
 <tr>
 
 <?php

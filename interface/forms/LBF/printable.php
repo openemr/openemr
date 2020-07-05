@@ -624,7 +624,7 @@ if ($PDF_OUTPUT) {
     $pdf->Output('form.pdf', 'I'); // D = Download, I = Inline
 } else {
     ?>
-<script language='JavaScript'>
+<script>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);
 </script>

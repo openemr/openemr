@@ -39,7 +39,7 @@ switch ($_POST['action']) {
 		//See edit_group.php
 		break;
 	default:
-		$formatted_groups = $gacl_api->format_groups($gacl_api->sort_groups($group_type), HTML);
+		$formatted_groups = $gacl_api->format_groups($gacl_api->sort_groups($group_type), 'HTML');
 
 		$query = '
 			SELECT		a.id, a.name, a.value, count(b.'. $group_type .'_id)

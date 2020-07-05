@@ -136,10 +136,10 @@ if ($editlid) {
         <td class='text'>
         <?php
         if ($editlid) {
-            ?> <input type=entry name=recipient_name size=20 value="<?php echo attr($recipient_name); ?>" />
+            ?> <input type="text" name=recipient_name size=20 value="<?php echo attr($recipient_name); ?>" />
             <?php
         } else {?>
-            <input type=entry name=recipient_name size=20 value="" />
+            <input type="text" name=recipient_name size=20 value="" />
             <?php
         }?>
         </td>

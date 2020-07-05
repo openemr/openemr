@@ -454,9 +454,8 @@ class InstallerController extends AbstractActionController
         }
         if (file_exists($sqldir . "/acl_upgrade.php") && file_exists($ModulePath . "/version.php") && !empty($mod->acl_version)) {
             global $ACL_UPGRADE;
-            $unique_id = RandomGenUtils::createUniqueToken();
-            $_SESSION['acl_setup_unique_id'] = $unique_id;
-
+            // Pass a variable, so below scripts can not be run on their own
+            $aclSetupFlag = true;
             include_once($sqldir . "/acl_upgrade.php");
 
             foreach ($ACL_UPGRADE as $toVersion => $function) {
@@ -571,10 +570,8 @@ class InstallerController extends AbstractActionController
         $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $Module->modDirectory;
         $div = [];
         if (file_exists($modDir . "/acl/acl_setup.php") && empty($modDir->acl_version)) {
-            // Pass a unique variable, so below scripts can not be run on their own
-            $unique_id = RandomGenUtils::createUniqueToken();
-            $_SESSION['acl_setup_unique_id'] = $unique_id;
-
+            // Pass a variable, so below scripts can not be run on their own
+            $aclSetupFlag = true;
             ob_start();
             include_once($modDir . "/acl/acl_setup.php");
             $div[] = ob_get_contents();
@@ -689,10 +686,8 @@ class InstallerController extends AbstractActionController
         $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $Module->modDirectory;
         $div = [];
         if (file_exists($modDir . "/acl/acl_upgrade.php") && !empty($Module->acl_version)) {
-            // Pass a unique variable, so below scripts can not be run on their own
-            $unique_id = RandomGenUtils::createUniqueToken();
-            $_SESSION['acl_setup_unique_id'] = $unique_id;
-
+            // Pass a variable, so below scripts can not be run on their own
+            $aclSetupFlag = true;
             ob_start();
             $ACL_UPGRADE = include_once($modDir . "/acl/acl_upgrade.php");
             $version = $this->upgradeAclFromVersion($ACL_UPGRADE, $Module->acl_version);

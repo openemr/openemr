@@ -161,7 +161,7 @@ function check_search_str()
         $no_of_items = $row['count'];
         if ($no_of_items < 1) {
             ?>
-        <script language='JavaScript'>
+        <script>
             alert(<?php echo xlj('Search string does not match with list in database'); ?> + '\n' + <?php echo xlj('Please enter new search string'); ?>);
         document.theform.search_term.value=" ";
         document.theform.search_term.focus();

@@ -44,9 +44,7 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
 </div>
 <div class="container p-3">
     <div class="jumbotron jumbotron-fluid text-center p-1">
-        <h3>
-            <?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md text-danger ml-2" style="font-size:3rem;"></i>
-        </h3>
+        <h3><?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md text-danger ml-2" style="font-size: 3rem;"></i></h3>
         <p>
         <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog"><?php echo xlt('Tell me more') ?> »</button>
         </p>
@@ -54,37 +52,25 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
 <div class='jumbotron jumbotron-fluid p-4'>
     <div class="row">
         <div class="col-sm-3 col-md-3">
-            <h4>
-                <i class="icon-cogs"></i><?php echo xlt('Templates') ?>
-            </h4>
+            <h4><i class="icon-cogs"></i><?php echo xlt('Templates') ?></h4>
             <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/import_template_ui.php"><?php echo xlt('Manage Templates') ?> »</a>
         </div>
         <div class="col-sm-3 col-md-3">
-            <h4>
-                <i class="icon-th"></i><?php echo xlt('Audit Changes') ?>
-            </h4>
+            <h4><i class="icon-th"></i><?php echo xlt('Audit Changes') ?></h4>
             <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/patient/onsiteactivityviews"><?php echo xlt('Review Audits') ?> »</a>
         </div>
         <div class="col-sm-3 col-md-3">
-            <h4>
-                <i class="icon-cogs"></i><?php echo xlt('Patient Mail') ?>
-            </h4>
+            <h4><i class="icon-cogs"></i><?php echo xlt('Patient Mail') ?></h4>
             <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/messaging/messages.php"><?php echo xlt('Mail') ?> »</a>
         </div>
         <div class="col-sm-3 col-md-3">
-            <h4>
-                <i class="icon-cogs"></i><?php echo xlt('Patient Chat') ?>
-            </h4>
+            <h4><i class="icon-cogs"></i><?php echo xlt('Patient Chat') ?></h4>
             <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/messaging/secure_chat.php"><?php echo xlt('Messaging') ?> »</a>
         </div>
         <div class="col-sm-3 col-md-3">
-            <h4>
-                <i class="icon-signin"></i><?php echo xlt('User Signature') ?>
-            </h4>
-            <p>
-            <a data-type="admin-signature" class="btn btn-primary btn-sm" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal">
-             <span><?php echo xlt('Signature on File') . '  '; ?></span><i  class="fa fa-sign-in"></i></a>
-            </p>
+            <h4><i class="icon-signin"></i><?php echo xlt('User Signature') ?></h4>
+            <p><a data-type="admin-signature" class="btn btn-primary btn-sm" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal">
+             <span><?php echo xlt('Signature on File') . '  '; ?></span><i  class="fa fa-sign-in"></i></a></p>
         </div>
     </div>
 </div>

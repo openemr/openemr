@@ -41,7 +41,7 @@ $obj = formFetch("form_ankleinjury", $_GET["id"]);
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 <br /><br />
 
-<span class=text>Date of Injury: </span><input type=entry name="ankle_date_of_injuary" value="<?php echo attr($obj["ankle_date_of_injuary"]); ?>" >
+<span class=text>Date of Injury: </span><input type="text" name="ankle_date_of_injuary" value="<?php echo attr($obj["ankle_date_of_injuary"]); ?>" >
 <td align="right"><?php echo xlt('Work related?'); ?>:</td>
 <td><input type=checkbox name="ankle_work_related" <?php if ($obj["ankle_work_related"] == "on") {
     echo "checked";
@@ -151,7 +151,7 @@ $obj = formFetch("form_ankleinjury", $_GET["id"]);
 <tr><th><?php echo xlt('X-Ray Interpretation:'); ?></th> <th><?php echo xlt('Additional X-RAY Notes:'); ?></th></tr>
 <tr>
 <td>
-<input type=entry name="ankle_x_ray_interpretation" value="<?php echo
+<input type="text" name="ankle_x_ray_interpretation" value="<?php echo
 attr($obj["ankle_x_ray_interpretation"]); ?>" size="50">
 </td>
 <td rowspan=2>
@@ -164,7 +164,7 @@ attr($obj["ankle_x_ray_interpretation"]); ?>" size="50">
 <table>
 <tr><th><?php echo xlt('Diagnosis:'); ?></th><th><?php echo xlt('Additional Diagnosis:'); ?></th></tr>
 <tr>
-<td><input type=entry name="ankle_diagnosis1" value="<?php echo
+<td><input type="text" name="ankle_diagnosis1" value="<?php echo
 attr($obj["ankle_diagnosis1"]); ?>" size="50">
 </td>
 <td rowspan=2>
@@ -173,13 +173,13 @@ attr($obj["ankle_diagnosis1"]); ?>" size="50">
 </td>
 
 <tr>
-<td><input type=entry name="ankle_diagnosis2" value="<?php echo
+<td><input type="text" name="ankle_diagnosis2" value="<?php echo
 attr($obj["ankle_diagnosis2"]); ?>" size="50"></td>
 </tr>
-<td><input type=entry name="ankle_diagnosis3" value="<?php echo
+<td><input type="text" name="ankle_diagnosis3" value="<?php echo
 attr($obj["ankle_diagnosis3"]); ?>" size="50"></td>
 </tr>
-<td><input type=entry name="ankle_diagnosis4" value="<?php echo
+<td><input type="text" name="ankle_diagnosis4" value="<?php echo
 attr($obj["ankle_diagnosis4"]); ?>" size="50"></td>
 </tr>
 </table>

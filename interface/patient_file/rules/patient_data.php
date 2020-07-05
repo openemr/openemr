@@ -117,7 +117,7 @@ if ($_POST['form_complete']) {
     }
 
     // Close this window and refresh the patient summary display.
-    echo "<html>\n<body>\n<script language='JavaScript'>\n";
+    echo "<html>\n<body>\n<script>\n";
     echo " dlgclose();\n";
     echo " top.restoreSession();\n";
     // refreshed by dialog callback- if issue with refresh try to do elsewhere as here is an IE11 issue.
