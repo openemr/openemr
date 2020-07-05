@@ -37,7 +37,6 @@ div.tiny {
 }
 
 #wrapper.toggled .sidebar-wrapper {
-  top: 68px;
   margin-#{$left}: 0;
 }
 
@@ -46,26 +45,20 @@ div.tiny {
 }
 
 #functions {
-  float: $left;
-  min-width: 20%;
-  padding: 0 0.3125rem;
-  margin-#{$right}: 0;
-  /* added because of the width issue above */
+  @extend .col-md-3;
+  text-align: $left;
 }
 
-
 #topToolbarRight {
+  @extend .row;
   border-bottom: 1px solid $black;
-  float: $right;
   padding: 0.3125rem 0 0.1875rem;
-  position: fixed;
-  width: 100%;
   z-index: 3;
 }
 
 #dateNAV {
-  @include font-size("1.1875rem");
-  float: $left;
+  @extend .col-md-6;
+  @include font-size("1.5rem");
 }
 
 #dateDisplay {
@@ -74,8 +67,8 @@ div.tiny {
 }
 
 #viewPicker {
-  float: $right;
-  margin-#{$right}: 0.625rem;
+  @extend .col-md-3;
+  text-align: $right;
 }
 
 #bigCalHeader {
@@ -123,7 +116,7 @@ div.tiny {
   table {
     border: 0;
     border-collapse: collapse;
-    margin-top: 2.3rem;
+    margin-top: 0;
     vertical-align: middle;
     width: 100%;
   }
@@ -149,12 +142,13 @@ div.tiny {
   float: $left;
   min-width: 8.125rem;
   position: fixed;
-  top: 2.75rem;
+  top: 2.78rem;
   width: 20%;
 }
 
 /* these are for the small datepicker DIV */
 #datePicker {
+  @extend .table-responsive-md;
   width: 100%;
 
   table {
@@ -529,24 +523,43 @@ div.tiny {
     @include font-size("1.3rem");
   }
 
+  .sidebar-wrapper {
+    display: none;
+    width: 0%;
+    margin-#{$left}: 0 !important;
+  }
+
   .page-content-wrapper {
+    width: 100% !important;
+    margin-#{$left}: 0 !important;
+  }
+
+  #wrapper.toggled .sidebar-wrapper {
+    display: block;
     width: 100%;
-    margin-#{$left}: 0;
+    margin-#{$left}: -30rem;
   }
 
   #wrapper.toggled .page-content-wrapper {
-    width: calc(100% - 150px);
-    margin-#{$left}: 130px;
+    margin-#{$left}: 8.125rem;
+  }
+
+  #bottomLeft {
+    background-color: var(--white);
+    height: 100%;
+    top: 4.78rem;
+    width: 100%;
   }
 }
 
-@media(max-width: 665px) {
-  #bigCal > table {
-    margin-top: 68px;
+
+@media (max-width: map-get($grid-breakpoints, "sm")) {
+  #bottomLeft {
+    top: 6.78rem;
   }
 }
 
-@media (min-width: 860px) {
+@media (min-width: map-get($grid-breakpoints, "md")) {
   .sidebar-wrapper {
     margin-#{$left}: 0;
   }
