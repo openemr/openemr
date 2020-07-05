@@ -428,7 +428,7 @@ if ($_POST['form_submit']) {
 
   // Close this window and tell our opener that it's done.
   // Not sure yet if the callback can be used universally.
-    echo "<script language='JavaScript'>\n";
+    echo "<script>\n";
     if (!$encounterid) {
         if ($info_msg) {
             echo " alert(" . json_encode($info_msg) . ");\n";

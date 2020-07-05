@@ -369,7 +369,7 @@ function cloneClicked() {
             ?>
 
             <?php
-            if ($state == 8) {
+            if ($state == 7) {
                 ?>
 
             <fieldset>
@@ -1151,11 +1151,20 @@ STP2TBLBOT;
                                 echo $installer->error_message;
                                 break;
                             }
-
                             echo "$ok<br />\n";
                             flush();
-                        }
 
+                            echo "Setting up Access Controls...\n";
+                            require("$OE_SITE_DIR/sqlconf.php");
+                            if (! $installer->install_gacl()) {
+                                echo "$error -.\n";
+                                echo $installer->error_message;
+                                break;
+                            } else {
+                                echo "$ok<br />\n";
+                                flush();
+                            }
+                        }
 
                         // If user has selected to set MFA App Based 2FA, display QR code to scan
                         $qr = $installer->get_initial_user_2fa_qr();
@@ -1196,8 +1205,9 @@ TOTP;
                         } else {
                             $btn_text = 'Proceed to Step 4';
                             echo "<br />";
-                            echo "<p class='mark'>Click <b>$btn_text</b> to install and configure access controls (php-GACL). $note: This process can take a few minutes.</p>";
-                            echo "<p class='p-1 bg-success text-white oe-spinner' style = 'visibility:hidden;'>Upon successful completion will automatically take you to the next step.<i class='fa fa-spinner fa-pulse fa-fw'></i></p>";
+                            echo "<p><b>Gave the <span class='text-primary'>$installer->iuser</span> user (password is <span class='text-primary'>$installer->iuserpass</span>) administrator access.</b></p>";
+                            echo "<p>The next step will configure php.</p>";
+                            echo "<p class='mark'>Click <strong>$btn_text</strong> to continue.</p>";
                             $next_state = 4;
                         }
 
@@ -1222,62 +1232,23 @@ FRMTOP;
                             echo "<input name='source_site_id' type='hidden' value='$installer->source_site_id'>";
                         }
                                     $form_bottom = <<<FRMBOT
-                                    <button type='submit' id='step-4-btn' value='Continue' class='wait'><b>$btn_text</b></button>
+                                    <button type='submit' id='step-4-btn' value='Continue'><b>$btn_text</b></button>
                                     <br />
                                     </form>
                                     </fieldset>
 FRMBOT;
                                     echo $form_bottom . "\r\n";
                         break;
+
                     case 4:
                         $step4_top = <<<STP4TOP
-                        <fieldset>
-                        <legend class="mb-3 border-bottom">Step $state - Creating and Configuring Access Control List</legend>
-                        <p>Installing and Configuring Access Controls (php-GACL)...</p><br />
-STP4TOP;
-                        echo $step4_top . "\r\n";
-                        if (! $installer->install_gacl()) {
-                            echo "$error -.\n";
-                            echo $installer->error_message;
-                            break;
-                        } else {
-                            // display the status information for gacl setup
-                            echo $installer->debug_message;
-                        }
-                        $btn_text = 'Proceed to Step 5';
-                        $step4_bottom = <<<STP4BOT
-                        <p><b>Gave the <span class='text-primary'>$installer->iuser</span> user (password is <span class='text-primary'>$installer->iuserpass</span>) administrator access.</b></p>
-                        <p>Done installing and configuring access controls (php-gacl).</p>
-                        <p>The next step will configure php.</p>
-                        <p class='mark'>Click <strong>$btn_text</strong> to continue.</p>
-                        <br />
-                        <form method='post'>
-                            <input name='state' type='hidden' value='5'>
-                            <input name='site' type='hidden' value='$site_id'>
-                            <input name='iuser' type='hidden' value='{$installer->iuser}'>
-                            <input name='iuserpass' type='hidden' value='{$installer->iuserpass}'>
-                            <input name='login' type='hidden' value='{$installer->login}'>
-                            <input name='pass' type='hidden' value='{$installer->pass}'>
-                            <input name='server' type='hidden' value='{$installer->server}'>
-                            <input name='port' type='hidden' value='{$installer->port}'>
-                            <input name='loginhost' type='hidden' value='{$installer->loginhost}'>
-                            <input name='dbname' type='hidden' value='{$installer->dbname}'>
-                            <button type='submit' value='Continue'><b>$btn_text</b></button>
-                        </form>
-                        </fieldset>
-STP4BOT;
-                        echo $step4_bottom . "\r\n";
-                        break;
-
-                    case 5:
-                        $step5_top = <<<STP5TOP
                         <fieldset>
                         <legend class="mb-3 border-bottom">Step $state - Configure PHP</legend>
                         <p>Configuration of PHP...</p><br />
                         <p>We recommend making the following changes to your PHP installation, which can normally be done by editing the php.ini configuration file:</p>
                         <ul>
-STP5TOP;
-                        echo $step5_top . "\r\n";
+STP4TOP;
+                        echo $step4_top . "\r\n";
 
                         $gotFileFlag = 0;
                         $phpINIfile  = php_ini_loaded_file();
@@ -1305,7 +1276,7 @@ STP5TOP;
                         $mysqli_allow_local_infile = ini_get('mysqli.allow_local_infile') ? 'On' : 'Off';
                         $mysqli_allow_local_infile_style = (strcmp($mysqli_allow_local_infile, 'On')  === 0) ? '' : 'text-danger';
 
-                        $step5_table = <<<STP5TAB
+                        $step4_table = <<<STP4TAB
                             <li>To ensure proper functioning of OpenEMR you must make sure that PHP settings include:
                                 <table class='phpset'>
                                     <tr>
@@ -1362,15 +1333,15 @@ STP5TOP;
                             </li>
                             <li>In order to take full advantage of the patient documents capability you must make sure that settings in php.ini file include "file_uploads = On", that "upload_max_filesize" is appropriate for your use and that "upload_tmp_dir" is set to a correct value that will work on your system.
                             </li>
-STP5TAB;
-                        echo $step5_table . "\r\n";
+STP4TAB;
+                        echo $step4_table . "\r\n";
 
                         if (!$gotFileFlag) {
                             echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";
                         }
 
-                        $btn_text = 'Proceed to Step 6';
-                        $step5_bottom = <<<STP5BOT
+                        $btn_text = 'Proceed to Step 5';
+                        $step4_bottom = <<<STP4BOT
                         </ul>
 
                         <p>We recommend you print these instructions for future reference.</p>
@@ -1378,7 +1349,7 @@ STP5TAB;
                         <p class='mark'>Click <strong>$btn_text</strong> to continue.</p>
                         <br />
                         <form method='post'>
-                        <input type='hidden' name='state' value='6'>
+                        <input type='hidden' name='state' value='5'>
                         <input type='hidden' name='site' value='$site_id'>
                         <input type='hidden' name='iuser' value='{$installer->iuser}'>
                         <input type='hidden' name='iuserpass' value='{$installer->iuserpass}'>
@@ -1391,11 +1362,11 @@ STP5TAB;
                         <button type='submit' value='Continue'><b>$btn_text</b></button>
                         </form>
                         </fieldset>
-STP5BOT;
-                        echo $step5_bottom . "\r\n";
+STP4BOT;
+                        echo $step4_bottom . "\r\n";
                         break;
 
-                    case 6:
+                    case 5:
                         echo "<fieldset>";
                         echo "<legend class='mb-3 border-bottom'>Step $state - Configure Apache Web Server</legend>";
                         echo "<p>Configuration of Apache web server...</p><br />\n";
@@ -1413,13 +1384,13 @@ STP5BOT;
                         &nbsp;&nbsp;&lt;/Directory&gt;<br /><br />";
 
                         $btn_text = 'Proceed to Select a Theme';
-                        $step6_bottom = <<<STP6BOT
+                        $step5_bottom = <<<STP5BOT
                         <p>If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</p>
                         <p>We recommend you print these instructions for future reference.</p>
                         <p class='mark'>Click <strong>'$btn_text'</strong> to select a theme.</p>
                         <br />
                         <form method='post'>
-                        <input type='hidden' name='state' value='7'>
+                        <input type='hidden' name='state' value='6'>
                         <input type='hidden' name='site' value='$site_id'>
                         <input type='hidden' name='iuser' value='{$installer->iuser}'>
                         <input type='hidden' name='iuserpass' value='{$installer->iuserpass}'>
@@ -1432,11 +1403,11 @@ STP5BOT;
                         <button type='submit' value='Continue'><b>$btn_text</b></button>
                         </form>
                         <fieldset>
-STP6BOT;
-                        echo $step6_bottom . "\r\n";
+STP5BOT;
+                        echo $step5_bottom . "\r\n";
                         break;
 
-                    case 7:
+                    case 6:
                         echo "<fieldset>";
                         echo "<legend class='mb-3 border-bottom'>Step $state - Select a Theme</legend>";
                         echo "<p>Select a theme for OpenEMR...</p><br />\n";
@@ -1446,7 +1417,7 @@ STP6BOT;
                         <div class='row'>
                         <div class="col-sm-4 offset-sm-4">
                             <form method='post'>
-                                <input type='hidden' name='state' value='8'>
+                                <input type='hidden' name='state' value='7'>
                                 <input type='hidden' name='site' value='$site_id'>
                                 <input type='hidden' name='iuser' value='{$installer->iuser}'>
                                 <input type='hidden' name='iuserpass' value='{$installer->iuserpass}'>

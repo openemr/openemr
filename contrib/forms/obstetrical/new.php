@@ -32,25 +32,25 @@ formHeader("Form: obstetrical");
 <span class="title">Obstetrical Form</span><br /><br />
 
 <table>
-<tr><td><span class=text>Name: </span></td><td><input type=entry name="name" value="" ></td>
-<td><span class=text>Birthdate: </span></td><td><input type=entry name='birthdate' size=10 value='YYYY-MM-DD' ></td>
-<td><span class=text>Birth Status: </span></td><td><input type=entry name="birth_status" value="" ></td>
-<td><span class=text>Gender: </span></td><td><input type=entry name="gender" value="" ></td>
+<tr><td><span class=text>Name: </span></td><td><input type="text" name="name" value="" ></td>
+<td><span class=text>Birthdate: </span></td><td><input type="text" name='birthdate' size=10 value='YYYY-MM-DD' ></td>
+<td><span class=text>Birth Status: </span></td><td><input type="text" name="birth_status" value="" ></td>
+<td><span class=text>Gender: </span></td><td><input type="text" name="gender" value="" ></td>
 <td><input type=checkbox name='circumcised'  ></td><td><span class=text>Circumcised</span></td></tr>
 </table>
 
 
 <table>
-<tr><td><span class=text>Pediatrician: </span></td><td><input type=entry name="pediatrician" value="" ></td>
-<td><span class=text>Birth Weight: </span></td><td><input type=entry name="birth_weight" value="" ></td></tr>
-<tr><td><span class=text>Length (Inches): </span></td><td><input type=entry name="length_inches" value="" ></td>
-<td><span class=text>Head Circumference (Inches): </span></td><td><input type=entry name="head_circumference_inches" value="" ></td></tr>
+<tr><td><span class=text>Pediatrician: </span></td><td><input type="text" name="pediatrician" value="" ></td>
+<td><span class=text>Birth Weight: </span></td><td><input type="text" name="birth_weight" value="" ></td></tr>
+<tr><td><span class=text>Length (Inches): </span></td><td><input type="text" name="length_inches" value="" ></td>
+<td><span class=text>Head Circumference (Inches): </span></td><td><input type="text" name="head_circumference_inches" value="" ></td></tr>
 
-<tr><td><span class=text>Feeding: </span></td><td><input type=entry name="feeding" value="" ></td>
-<td><span class=text>Delivery Method: </span></td><td><input type=entry name="delivery_method" value="" ></td></tr>
-<tr><td><span class=text>Labor Hours: </span></td><td><input type=entry name="labor_hours" value="" ></td>
-<td><span class=text>Pregnancy (Weeks): </span></td><td><input type=entry name="pregnancy_weeks" value="" ></td></tr>
-<tr><td><span class=text>Anesthesia: </span></td><td colspan=3><input type=entry name="anesthesia" value="" ></td></tr>
+<tr><td><span class=text>Feeding: </span></td><td><input type="text" name="feeding" value="" ></td>
+<td><span class=text>Delivery Method: </span></td><td><input type="text" name="delivery_method" value="" ></td></tr>
+<tr><td><span class=text>Labor Hours: </span></td><td><input type="text" name="labor_hours" value="" ></td>
+<td><span class=text>Pregnancy (Weeks): </span></td><td><input type="text" name="pregnancy_weeks" value="" ></td></tr>
+<tr><td><span class=text>Anesthesia: </span></td><td colspan=3><input type="text" name="anesthesia" value="" ></td></tr>
 </table>
 
 

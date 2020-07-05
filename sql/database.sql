@@ -2137,6 +2137,421 @@ CREATE TABLE `forms` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `gacl_acl`
+--
+
+DROP TABLE IF EXISTS `gacl_acl`;
+CREATE TABLE `gacl_acl` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `section_value` varchar(150) NOT NULL DEFAULT 'system',
+  `allow` int(11) NOT NULL DEFAULT 0,
+  `enabled` int(11) NOT NULL DEFAULT 0,
+  `return_value` text,
+  `note` text,
+  `updated_date` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `gacl_enabled_acl` (`enabled`),
+  KEY `gacl_section_value_acl` (`section_value`),
+  KEY `gacl_updated_date_acl` (`updated_date`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_acl_sections`
+--
+
+DROP TABLE IF EXISTS `gacl_acl_sections`;
+CREATE TABLE `gacl_acl_sections` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `value` varchar(150) NOT NULL,
+  `order_value` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(230) NOT NULL,
+  `hidden` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `gacl_value_acl_sections` (`value`),
+  KEY `gacl_hidden_acl_sections` (`hidden`)
+) ENGINE=InnoDB;
+
+--
+-- Dumping data for table `gacl_acl_sections`
+--
+
+INSERT INTO `gacl_acl_sections` VALUES (1,'system',1,'System',0),(2,'user',2,'User',0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_acl_seq`
+--
+
+DROP TABLE IF EXISTS `gacl_acl_seq`;
+CREATE TABLE `gacl_acl_seq` (
+  `id` int(11) NOT NULL
+) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `gacl_acl_seq`
+--
+
+INSERT INTO `gacl_acl_seq` VALUES (9);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aco`
+--
+
+DROP TABLE IF EXISTS `gacl_aco`;
+CREATE TABLE `gacl_aco` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `section_value` varchar(150) NOT NULL DEFAULT '0',
+  `value` varchar(150) NOT NULL,
+  `order_value` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(255) NOT NULL,
+  `hidden` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `gacl_section_value_value_aco` (`section_value`,`value`),
+  KEY `gacl_hidden_aco` (`hidden`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aco_map`
+--
+
+DROP TABLE IF EXISTS `gacl_aco_map`;
+CREATE TABLE `gacl_aco_map` (
+  `acl_id` int(11) NOT NULL DEFAULT 0,
+  `section_value` varchar(150) NOT NULL DEFAULT '0',
+  `value` varchar(150) NOT NULL,
+  PRIMARY KEY (`acl_id`,`section_value`,`value`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aco_sections`
+--
+
+DROP TABLE IF EXISTS `gacl_aco_sections`;
+CREATE TABLE `gacl_aco_sections` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `value` varchar(150) NOT NULL,
+  `order_value` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(230) NOT NULL,
+  `hidden` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `gacl_value_aco_sections` (`value`),
+  KEY `gacl_hidden_aco_sections` (`hidden`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aco_sections_seq`
+--
+
+DROP TABLE IF EXISTS `gacl_aco_sections_seq`;
+CREATE TABLE `gacl_aco_sections_seq` (
+  `id` int(11) NOT NULL
+) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `gacl_aco_sections_seq`
+--
+
+INSERT INTO `gacl_aco_sections_seq` VALUES (9);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aco_seq`
+--
+
+DROP TABLE IF EXISTS `gacl_aco_seq`;
+CREATE TABLE `gacl_aco_seq` (
+  `id` int(11) NOT NULL
+) ENGINE=InnoDB;
+
+
+--
+-- Inserting data for table `gacl_aco_seq`
+--
+
+INSERT INTO `gacl_aco_seq` VALUES (9);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aro`
+--
+
+DROP TABLE IF EXISTS `gacl_aro`;
+CREATE TABLE `gacl_aro` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `section_value` varchar(150) NOT NULL DEFAULT '0',
+  `value` varchar(150) NOT NULL,
+  `order_value` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(255) NOT NULL,
+  `hidden` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `gacl_section_value_value_aro` (`section_value`,`value`),
+  KEY `gacl_hidden_aro` (`hidden`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aro_groups`
+--
+
+DROP TABLE IF EXISTS `gacl_aro_groups`;
+CREATE TABLE `gacl_aro_groups` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `parent_id` int(11) NOT NULL DEFAULT 0,
+  `lft` int(11) NOT NULL DEFAULT 0,
+  `rgt` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(255) NOT NULL,
+  `value` varchar(150) NOT NULL,
+  PRIMARY KEY (`id`,`value`),
+  UNIQUE KEY `gacl_value_aro_groups` (`value`),
+  KEY `gacl_parent_id_aro_groups` (`parent_id`),
+  KEY `gacl_lft_rgt_aro_groups` (`lft`,`rgt`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aro_groups_id_seq`
+--
+
+DROP TABLE IF EXISTS `gacl_aro_groups_id_seq`;
+CREATE TABLE `gacl_aro_groups_id_seq` (
+  `id` int(11) NOT NULL
+) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `gacl_aro_groups_id_seq`
+--
+
+INSERT INTO `gacl_aro_groups_id_seq` VALUES (9);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aro_groups_map`
+--
+
+DROP TABLE IF EXISTS `gacl_aro_groups_map`;
+CREATE TABLE `gacl_aro_groups_map` (
+  `acl_id` int(11) NOT NULL DEFAULT 0,
+  `group_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`acl_id`,`group_id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aro_map`
+--
+
+DROP TABLE IF EXISTS `gacl_aro_map`;
+CREATE TABLE `gacl_aro_map` (
+  `acl_id` int(11) NOT NULL DEFAULT 0,
+  `section_value` varchar(150) NOT NULL DEFAULT '0',
+  `value` varchar(150) NOT NULL,
+  PRIMARY KEY (`acl_id`,`section_value`,`value`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aro_sections`
+--
+
+DROP TABLE IF EXISTS `gacl_aro_sections`;
+CREATE TABLE `gacl_aro_sections` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `value` varchar(150) NOT NULL,
+  `order_value` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(230) NOT NULL,
+  `hidden` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `gacl_value_aro_sections` (`value`),
+  KEY `gacl_hidden_aro_sections` (`hidden`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aro_sections_seq`
+--
+
+DROP TABLE IF EXISTS `gacl_aro_sections_seq`;
+CREATE TABLE `gacl_aro_sections_seq` (
+  `id` int(11) NOT NULL
+) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `gacl_aro_sections_seq`
+--
+
+INSERT INTO `gacl_aro_sections_seq` VALUES (9);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_aro_seq`
+--
+
+DROP TABLE IF EXISTS `gacl_aro_seq`;
+CREATE TABLE `gacl_aro_seq` (
+  `id` int(11) NOT NULL
+) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `gacl_aro_seq`
+--
+
+INSERT INTO `gacl_aro_seq` VALUES (9);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_axo`
+--
+
+DROP TABLE IF EXISTS `gacl_axo`;
+CREATE TABLE `gacl_axo` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `section_value` varchar(150) NOT NULL DEFAULT '0',
+  `value` varchar(150) NOT NULL,
+  `order_value` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(255) NOT NULL,
+  `hidden` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `gacl_section_value_value_axo` (`section_value`,`value`),
+  KEY `gacl_hidden_axo` (`hidden`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_axo_groups`
+--
+
+DROP TABLE IF EXISTS `gacl_axo_groups`;
+CREATE TABLE `gacl_axo_groups` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `parent_id` int(11) NOT NULL DEFAULT 0,
+  `lft` int(11) NOT NULL DEFAULT 0,
+  `rgt` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(255) NOT NULL,
+  `value` varchar(150) NOT NULL,
+  PRIMARY KEY (`id`,`value`),
+  UNIQUE KEY `gacl_value_axo_groups` (`value`),
+  KEY `gacl_parent_id_axo_groups` (`parent_id`),
+  KEY `gacl_lft_rgt_axo_groups` (`lft`,`rgt`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_axo_groups_map`
+--
+
+DROP TABLE IF EXISTS `gacl_axo_groups_map`;
+CREATE TABLE `gacl_axo_groups_map` (
+  `acl_id` int(11) NOT NULL DEFAULT 0,
+  `group_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`acl_id`,`group_id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_axo_map`
+--
+
+DROP TABLE IF EXISTS `gacl_axo_map`;
+CREATE TABLE `gacl_axo_map` (
+  `acl_id` int(11) NOT NULL DEFAULT 0,
+  `section_value` varchar(150) NOT NULL DEFAULT '0',
+  `value` varchar(150) NOT NULL,
+  PRIMARY KEY (`acl_id`,`section_value`,`value`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_axo_sections`
+--
+
+DROP TABLE IF EXISTS `gacl_axo_sections`;
+CREATE TABLE `gacl_axo_sections` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `value` varchar(150) NOT NULL,
+  `order_value` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(230) NOT NULL,
+  `hidden` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `gacl_value_axo_sections` (`value`),
+  KEY `gacl_hidden_axo_sections` (`hidden`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_groups_aro_map`
+--
+
+DROP TABLE IF EXISTS `gacl_groups_aro_map`;
+CREATE TABLE `gacl_groups_aro_map` (
+  `group_id` int(11) NOT NULL DEFAULT 0,
+  `aro_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`group_id`,`aro_id`),
+  KEY `gacl_aro_id` (`aro_id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_groups_axo_map`
+--
+
+DROP TABLE IF EXISTS `gacl_groups_axo_map`;
+CREATE TABLE `gacl_groups_axo_map` (
+  `group_id` int(11) NOT NULL DEFAULT 0,
+  `axo_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`group_id`,`axo_id`),
+  KEY `gacl_axo_id` (`axo_id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gacl_phpgacl`
+--
+
+DROP TABLE IF EXISTS `gacl_phpgacl`;
+CREATE TABLE `gacl_phpgacl` (
+  `name` varchar(230) NOT NULL,
+  `value` varchar(150) NOT NULL,
+  PRIMARY KEY (`name`)
+) ENGINE=InnoDB;
+
+
+--
+-- Dumping data for table `gacl_phpgacl`
+--
+
+INSERT INTO `gacl_phpgacl` VALUES ('schema_version','2.1'),('version','3.3.7');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `groups`
 --
 

@@ -69,7 +69,7 @@ if ($_POST['bn_submit']) {
         } else { // Removed opener because this is not a dialog. sjp 12/14/17
             echo "<html><body>"
             //."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
-            . "<script language='JavaScript'>\n";
+            . "<script>\n";
             echo "document.location.href = " . js_escape($url) . ";\n";
             echo "</script></body></html>\n";
         }

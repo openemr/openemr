@@ -34,7 +34,7 @@ formHeader("Form: pain");
 <input type=checkbox name='dull'  ><span class=text>Dull</span>
 <input type=checkbox name='colicky'  ><span class=text>Colicky</span>
 <input type=checkbox name='sharp'  ><span class=text>Sharp</span>
-<span class=text>Duration of Pain: </span><input type=entry name="duration_of_pain" value="" ><br />
+<span class=text>Duration of Pain: </span><input type="text" name="duration_of_pain" value="" ><br />
 
 
 <span class=text>History of Pain: </span><br /><textarea cols=40 rows=4 wrap=virtual name="history_of_pain" ></textarea><br />
@@ -42,11 +42,11 @@ formHeader("Form: pain");
 
 <table><tr><td>
 <table><tr>
-<td><span class=text>Accompanying Symptoms Vomitting: </span></td><td><input type=entry name="accompanying_symptoms_vomitting" value="" ></td>
+<td><span class=text>Accompanying Symptoms Vomitting: </span></td><td><input type="text" name="accompanying_symptoms_vomitting" value="" ></td>
 </tr><tr>
-<td><span class=text>Accompanying Symptoms Nausea: </span></td><td><input type=entry name="accompanying_symptoms_nausea" value="" ></td>
+<td><span class=text>Accompanying Symptoms Nausea: </span></td><td><input type="text" name="accompanying_symptoms_nausea" value="" ></td>
 </tr><tr>
-<td><span class=text>Accompanying Symptoms Headache: </span></td><td><input type=entry name="accompanying_symptoms_headache" value="" ></td>
+<td><span class=text>Accompanying Symptoms Headache: </span></td><td><input type="text" name="accompanying_symptoms_headache" value="" ></td>
 </tr></table>
 </td><td>
 <span class=text>Accompanying Symptoms Other: </span><br /><textarea cols=40 rows=8 wrap=virtual name="accompanying_symptoms_other" ></textarea><br />

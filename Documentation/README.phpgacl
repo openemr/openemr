@@ -22,7 +22,7 @@ For Developers
 If you add a new Access Control Object to the OpenEMR codebase, then
 also add it to the following three sites:
 1. Header notes of the src/Common/Acl/AclMain.php file
-2. acl_setup.php file
+2. library/classes/Installer.class.php script in the install_gacl() function
 3. acl_upgrade.php file
 
 
