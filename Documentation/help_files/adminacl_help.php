@@ -15,7 +15,7 @@ require_once("../../interface/globals.php");
 use OpenEMR\Core\Header;
 
 ?>
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
     <head>
     <?php Header::setupHeader();?>

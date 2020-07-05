@@ -55,7 +55,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   "pid = ? AND enddate IS NULL " .
   "ORDER BY type, begdate", array($pid));
 */?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
 
