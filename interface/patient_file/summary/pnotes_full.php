@@ -278,7 +278,7 @@ function restoreSession() {
 </head>
 <body>
 
-<div class="container-fluid mt-3" id="pnotes"> <!-- large outer DIV -->
+<div class="container mt-3" id="pnotes"> <!-- large outer DIV -->
 
     <form method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo attr_url($docid); ?>&orderid=<?php echo attr_url($orderid); ?>&<?php echo $activity_string_html; ?>' onsubmit='return top.restoreSession()'>
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
