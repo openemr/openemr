@@ -14,13 +14,12 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Validators\PractitionerRoleValidator;
+use OpenEMR\Validators\BaseValidator;
 
 class PractitionerRoleService extends BaseService
 {
 
     private const PRACTITIONER_ROLE_TABLE = "facility_user_ids";
-    private $practitionerRoleValidator;
     private $uuidRegistery;
 
     /**
@@ -36,7 +35,6 @@ class PractitionerRoleService extends BaseService
         $this->uuidRegistery->createMissingUuids();
         (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
         (new UuidRegistry(['table_name' => 'facility']))->createMissingUuids();
-        $this->practitionerRoleValidator = new PractitionerRoleValidator();
     }
 
     /**
@@ -121,7 +119,7 @@ class PractitionerRoleService extends BaseService
     {
         $processingResult = new ProcessingResult();
 
-        $isValid = $this->practitionerRoleValidator->validateId("uuid", "facility_user_ids", $uuid, true);
+        $isValid = BaseValidator::validateId("uuid", "facility_user_ids", $uuid, true);
 
         if ($isValid !== true) {
             $validationMessages = [
