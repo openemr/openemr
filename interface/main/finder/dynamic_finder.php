@@ -70,7 +70,6 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
 <style>
     /* Finder Processing style */
     div.dataTables_wrapper div.dataTables_processing {
-        top: -20px;
         width: auto;
         margin: 0;
         color: var(--danger);
