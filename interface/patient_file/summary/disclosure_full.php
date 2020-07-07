@@ -107,7 +107,7 @@ if (isset($_GET['deletelid'])) {
                         <td colspan='5'><a href="disclosure_full.php" id='Submit' onclick="top.restoreSession()"><span><?php echo xlt('Refresh'); ?></span></a></td>
                     </tr>
                 </table>
-            <div id='pnotes'>
+            <div id='pnotes' class="table-responsive">
                 <table class="table table-borderless">
                     <tr class="showborder_head">
                         <th style='width: 120px';>&nbsp;</th>
