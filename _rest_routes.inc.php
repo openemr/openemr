@@ -43,22 +43,21 @@ RestConfig::$ROUTE_MAP = array(
     },
     "GET /api/facility" => function () {
         RestConfig::authorization_check("admin", "users");
-        return (new FacilityRestController())->getAll();
+        return (new FacilityRestController())->getAll($_GET);
     },
-    "GET /api/facility/:fid" => function ($fid) {
+    "GET /api/facility/:fuuid" => function ($fuuid) {
         RestConfig::authorization_check("admin", "users");
-        return (new FacilityRestController())->getOne($fid);
+        return (new FacilityRestController())->getOne($fuuid);
     },
     "POST /api/facility" => function () {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new FacilityRestController())->post($data);
     },
-    "PUT /api/facility/:fid" => function ($fid) {
+    "PATCH /api/facility/:fuuid" => function ($fuuid) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $data["fid"] = $fid;
-        return (new FacilityRestController())->put($data);
+        return (new FacilityRestController())->patch($fuuid, $data);
     },
     "GET /api/patient" => function () {
         RestConfig::authorization_check("patients", "demo");
@@ -358,6 +357,7 @@ use OpenEMR\RestControllers\FHIR\FhirMedicationRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationStatementRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
+use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseController;
@@ -417,10 +417,30 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return (new FhirPractitionerRestController())->patch($id, $data);
     },
     "GET /fhir/Organization" => function () {
-        return (new FhirOrganizationRestController(null))->getAll($_GET);
+        RestConfig::authorization_check("admin", "users");
+        return (new FhirOrganizationRestController())->getAll($_GET);
     },
     "GET /fhir/Organization/:id" => function ($id) {
-        return (new FhirOrganizationRestController(null))->getOne($id);
+        RestConfig::authorization_check("admin", "users");
+        return (new FhirOrganizationRestController())->getOne($id);
+    },
+    "POST /fhir/Organization" => function () {
+        RestConfig::authorization_check("admin", "super");
+        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        return (new FhirOrganizationRestController())->post($data);
+    },
+    "PATCH /fhir/Organization/:id" => function ($id) {
+        RestConfig::authorization_check("admin", "super");
+        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        return (new FhirOrganizationRestController())->patch($id, $data);
+    },
+    "GET /fhir/PractitionerRole" => function () {
+        RestConfig::authorization_check("admin", "users");
+        return (new FhirPractitionerRoleRestController())->getAll($_GET);
+    },
+    "GET /fhir/PractitionerRole/:id" => function ($id) {
+        RestConfig::authorization_check("admin", "users");
+        return (new FhirPractitionerRoleRestController())->getOne($id);
     },
     "GET /fhir/AllergyIntolerance" => function () {
         RestConfig::authorization_check("patients", "med");

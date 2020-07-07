@@ -151,7 +151,7 @@ $trow = $transid ? getTransById($transid) : array();
 
 <title><?php echo xlt('Add/Edit Patient Transaction'); ?></title>
 
-<?php Header::setupHeader(['common','datetime-picker']); ?>
+<?php Header::setupHeader(['common','datetime-picker','select2']); ?>
 
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
@@ -179,6 +179,16 @@ $(function () {
       $("#send_sum_elec_flag").prop("checked", false);
     }
   });
+
+  $(".select-dropdown").select2({
+    theme: "bootstrap4",
+    <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+  });
+  if (typeof error !== 'undefined') {
+    if (error) {
+        alertMsg(error);
+    }
+  }
 
   $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = false; ?>

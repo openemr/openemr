@@ -126,7 +126,7 @@ if (empty($_POST['form_sign'])) {
     generate_order_report($orderid, true, true, $finals_only);
 } else {
     ?>
-<script language='JavaScript'>
+<script>
  if (opener.document.forms && opener.document.forms[0]) {
   // Opener should be list_reports.php. Make it refresh.
   var f = opener.document.forms[0];

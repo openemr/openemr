@@ -25,7 +25,7 @@ use OpenEMR\Common\Acl\AclMain;
 <?php $view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');?>
 
 
-<?php if ($view || $edit) :?>
+<?php if ($view || $edit) {?>
     <?php
 //If coming from participants controller groupId contains the id.
 //If from group controller it's contained in groupData array.
@@ -38,9 +38,9 @@ use OpenEMR\Common\Acl\AclMain;
         <h5><?php echo xlt('Group appointments')?></h5>
     </div>
     <div class="col-md-5">
-        <?php if ($edit) :?>
+        <?php if ($edit) { ?>
         <button id="addEvent" class="float-right"><?php echo xlt('Adding')?></button>
-        <?php endif;?>
+      <?php }?>
     </div>
 </div>
 <div id="component-border" class="appt-widget">
@@ -64,10 +64,10 @@ use OpenEMR\Common\Acl\AclMain;
                 $date_for_url = preg_replace("/-/", "", $event['pc_eventDate']);
                 ?>
                 <div class="event_details">
-                        <?php if ($edit) :?>
+                        <?php if ($edit) { ?>
                             <a onclick="goToEvent(<?php echo attr_js("{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . urlencode($groupId) . "&date=" . urlencode($date_for_url) . "&eid=" . urlencode($event['pc_eid'])); ?>)">
-                        <?php endif;?>
-                        <span><b><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></b></span>
+                        <?php } ?>
+                        <span class="font-weight-bold"><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></span>
                         <br />
                         <span>
                             <?php echo text($disphour) . ":" . text($dispmin) . " " . text($dispampm);
@@ -100,4 +100,4 @@ use OpenEMR\Common\Acl\AclMain;
         dlgopen(url, '_blank', 775, 500);
     }
 </script>
-<?php endif;?>
+<?php } ?>

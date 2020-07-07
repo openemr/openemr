@@ -38,7 +38,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'common']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'common', 'select2']); ?>
 <title><?php echo xlt("History & Lifestyle");?></title>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
@@ -180,6 +180,16 @@ $(function () {
     }
     tabbify();
 
+    $(".select-dropdown").select2({
+        theme: "bootstrap4",
+        <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+    });
+    if (typeof error !== 'undefined') {
+        if (error) {
+            alertMsg(error);
+        }
+    }
+
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -295,7 +305,7 @@ var skipArray = [
 
 </script>
 
-<script language='JavaScript'>
+<script>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
         <?php echo $condition_str; ?>

@@ -69,7 +69,7 @@ $returnurl = 'encounter_top.php';
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 <br /><br />
-<span class="text" ><?php echo xlt('Onset of Illness:'); ?> </span><input type="entry" name="bronchitis_date_of_illness" value=""></input>
+<span class="text" ><?php echo xlt('Onset of Illness:'); ?> </span><input type="text" name="bronchitis_date_of_illness" value=""></input>
 <br /><br />
 
 <span class="text" ><?php echo xlt('HPI:'); ?>:</span><br /><br />

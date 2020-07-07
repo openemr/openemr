@@ -308,7 +308,7 @@ let bindFetch = '';
 //
 $(function () {
     let url = top.webroot_url ? top.webroot_url : webRoot;
-    url += "/portal/sign/assets/signer_modal.tpl.php?isPortal=" + encodeURIComponent(isPortal);
+    url += "/portal/sign/assets/signer_modal.php?isPortal=" + encodeURIComponent(isPortal);
     fetch(url, {
         credentials: 'include'
     })
@@ -684,6 +684,7 @@ function initSignerApi() {
                 } else {
                     type = "patient-signature";
                 }
+                webRoot = webRoot ? webRoot : top.webroot_url;
                 let url = webRoot + "/portal/sign/lib/show-signature.php";
                 fetch(url, {
                     credentials: 'include',

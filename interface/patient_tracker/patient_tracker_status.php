@@ -85,7 +85,7 @@ if ($_POST['statustype'] != '') {
         }
     }
 
-    echo "<body>\n<script language='JavaScript'>\n";
+    echo "<body>\n<script>\n";
     echo " window.opener.document.flb.submit();\n";
     echo " dlgclose();\n";
     echo "</script></body></html>\n";

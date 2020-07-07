@@ -124,18 +124,18 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
     <?php
     if (isset($_REQUEST['ParentPage']) && $_REQUEST['ParentPage'] == 'new_payment') {//This case comes when the Finish Payments is pressed from the New Payment screen.
         ?>
-        <div class="col-12 h3">
+        <div class="row h3">
             <?php echo xlt('Confirm Payment'); ?>
         </div>
 
         <?php
     } elseif ($screen == 'new_payment') { ?>
-        <div class="col-12 h3">
+        <div class="row h3">
             <?php echo xlt('Batch Payment Entry'); ?>
         </div>
         <?php
     } else { ?>
-        <div class="col-12 h3">
+        <div class="row h3">
             <?php echo xlt('Edit Payment'); ?>
         </div>
         <?php
@@ -245,7 +245,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         </div>
         <div class="forms col-3">
             <label class="control-label" for="TdUnappliedAmount"><?php echo xlt('Undistributed'); ?>:</label>
-            <div id="TdUnappliedAmount" class="form-control bg-danger"><?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?></div>
+            <div id="TdUnappliedAmount" class="form-control bg-danger text-light"><?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?></div>
             <input name="HidUnappliedAmount" id="HidUnappliedAmount" value="<?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?>" type="hidden" />
             <input name="HidUnpostedAmount" id="HidUnpostedAmount" value="<?php echo attr($UndistributedAmount); ?>" type="hidden" />
             <input name="HidCurrentPostedAmount" id="HidCurrentPostedAmount" value="" type="hidden" />
@@ -256,7 +256,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
             <div class="row">
                 <div class="col-sm-12 text-left position-override">
                     <div class="btn-group btn-group-pinch" role="group">
-                        <button onClick="return SavePayment();" class="btn btn-secondary btn-save"><?php echo xlt('Save Changes'); ?></button>
+                        <button onClick="return SavePayment();" class="btn btn-primary btn-save"><?php echo xlt('Save Changes'); ?></button>
                         <button class="btn btn-secondary btn-save" onClick="OpenEOBEntry();"><?php echo xlt('Allocate'); ?></button>
                         <button onclick="ResetForm(); return false;" class="btn btn-link btn-cancel btn-separate-left"><?php echo xlt('Cancel Changes'); ?></button>
                         <br />
@@ -340,7 +340,7 @@ if ($screen == 'new_payment' && $payment_id * 1 > 0) {//After saving from the Ne
         </div>
         <div class="forms col-3">
             <label class="control-label" for="TdUnappliedAmount"><?php echo xlt('Undistributed'); ?>:</label>
-            <div id="TdUnappliedAmount" class="form-control bg-danger"><?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?></div>
+            <div id="TdUnappliedAmount" class="form-control bg-danger text-light"><?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?></div>
             <input name="HidUnappliedAmount" id="HidUnappliedAmount" value="<?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?>" type="hidden" />
             <input name="HidUnpostedAmount" id="HidUnpostedAmount" value="<?php echo attr($UndistributedAmount); ?>" type="hidden" />
             <input name="HidCurrentPostedAmount" id="HidCurrentPostedAmount" value="" type="hidden" />

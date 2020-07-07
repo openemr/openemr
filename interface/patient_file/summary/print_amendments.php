@@ -95,7 +95,7 @@ function printAmendment($amendmentID, $lastAmendment)
     }
     ?>
 
-<script language='JavaScript'>
+<script>
     opener.top.printLogPrint(window);
 </script>
 

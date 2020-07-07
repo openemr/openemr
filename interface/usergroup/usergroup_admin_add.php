@@ -221,7 +221,7 @@ function authorized_clicked() {
 <span class="font-weight-bold">&nbsp;</span>
 <table class="border-0" cellpadding='0' cellspacing='0' style="width:600px;">
 <tr>
-<td style="width:150px;"><span class="text"><?php echo xlt('Username'); ?>: </span></td><td style="width:220px;"><input type=entry name="rumple" style="width:120px;" class="form-control"><span class="mandatory"></span></td>
+<td style="width:150px;"><span class="text"><?php echo xlt('Username'); ?>: </span></td><td style="width:220px;"><input type="text" name="rumple" style="width:120px;" class="form-control"><span class="mandatory"></span></td>
 <?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
 <td style="width:150px;"><span class="text"><?php echo xlt('Password'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" name="stiltskin" class="form-control"><span class="mandatory"></span></td>
 <?php } else { ?>
@@ -259,11 +259,11 @@ foreach ($result2 as $iter) {
 </td>
 </tr>
 <tr>
-<td><span class="text"><?php echo xlt('First Name'); ?>: </span></td><td><input type=entry name='fname' id='fname' style="width:120px;" class="form-control"><span class="mandatory"></span></td>
-<td><span class="text"><?php echo xlt('Middle Name'); ?>: </span></td><td><input type=entry name='mname' style="width:120px;" class="form-control"></td>
+<td><span class="text"><?php echo xlt('First Name'); ?>: </span></td><td><input type="text" name='fname' id='fname' style="width:120px;" class="form-control"><span class="mandatory"></span></td>
+<td><span class="text"><?php echo xlt('Middle Name'); ?>: </span></td><td><input type="text" name='mname' style="width:120px;" class="form-control"></td>
 </tr>
 <tr>
-<td><span class="text"><?php echo xlt('Last Name'); ?>: </span></td><td><input type=entry name='lname' id='lname' style="width:120px;" class="form-control"><span class="mandatory"></span></td>
+<td><span class="text"><?php echo xlt('Last Name'); ?>: </span></td><td><input type="text" name='lname' id='lname' style="width:120px;" class="form-control"><span class="mandatory"></span></td>
 <td><span class="text"><?php echo xlt('Default Facility'); ?>: </span></td>
 <td>
 <select style="width:120px;" name=facility_id class="form-control">
@@ -284,11 +284,11 @@ if ($fres) {
 </select></td>
 </tr>
 <tr>
-<td><span class="text"><?php echo xlt('Federal Tax ID'); ?>: </span></td><td><input type=entry name='federaltaxid' style="width:120px;" class="form-control"></td>
-<td><span class="text"><?php echo xlt('DEA number'); ?>: </span></td><td><input type=entry name='federaldrugid' style="width:120px;" class="form-control"></td>
+<td><span class="text"><?php echo xlt('Federal Tax ID'); ?>: </span></td><td><input type="text" name='federaltaxid' style="width:120px;" class="form-control"></td>
+<td><span class="text"><?php echo xlt('DEA number'); ?>: </span></td><td><input type="text" name='federaldrugid' style="width:120px;" class="form-control"></td>
 </tr>
 <tr>
-<td><span class="text"><?php echo xlt('UPIN'); ?>: </span></td><td><input type="entry" name="upin" style="width:120px;" class="form-control"></td>
+<td><span class="text"><?php echo xlt('UPIN'); ?>: </span></td><td><input type="text" name="upin" style="width:120px;" class="form-control"></td>
 <td class='text'><?php echo xlt('See Authorizations'); ?>: </td>
 <td><select name="see_auth" style="width:120px;" class="form-control">
 <?php
@@ -300,8 +300,8 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 </select></td>
 
 <tr>
-<td><span class="text"><?php echo xlt('NPI'); ?>: </span></td><td><input type="entry" name="npi" style="width:120px;" class="form-control"></td>
-<td><span class="text"><?php echo xlt('Job Description'); ?>: </span></td><td><input type="entry" name="specialty" style="width:120px;" class="form-control"></td>
+<td><span class="text"><?php echo xlt('NPI'); ?>: </span></td><td><input type="text" name="npi" style="width:120px;" class="form-control"></td>
+<td><span class="text"><?php echo xlt('Job Description'); ?>: </span></td><td><input type="text" name="specialty" style="width:120px;" class="form-control"></td>
 </tr>
 
 <tr>
@@ -335,7 +335,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 
 <tr>
 <td><span class="text"><?php echo xlt('Taxonomy'); ?>: </span></td>
-<td><input type="entry" name="taxonomy" style="width:120px;" class="form-control" value="207Q00000X"></td>
+<td><input type="text" name="taxonomy" style="width:120px;" class="form-control" value="207Q00000X"></td>
     <td><span class="text"><?php echo xlt('Supervisor'); ?>: </span></td>
     <td>
         <select name="supervisor_id" style="width:150px;" class="form-control">
@@ -441,7 +441,7 @@ foreach ($list_acl_groups as $value) {
 <span class="bold"><?php echo xlt('New Group'); ?>:</span>
 </td>
 <td>
-<span class="text"><?php echo xlt('Groupname'); ?>: </span><input type=entry name='groupname' size='10'>
+<span class="text"><?php echo xlt('Groupname'); ?>: </span><input type="text" name='groupname' size='10'>
 &nbsp;&nbsp;&nbsp;
 <span class="text"><?php echo xlt('Initial User'); ?>: </span>
 <select name='rumple'>
