@@ -714,12 +714,15 @@ if ($fend > $count) {
     for ($i = 0; $row = sqlFetchArray($res); $i++) {
         $all[$i] = $row;
     }
-
+    $previous = '';
     if (!empty($all)) {
         $count = 0;
         foreach ($all as $iter) {
             $count++;
 
+            if ($previous == $iter['code_text']) {
+                continue;
+            }
             $has_fees = false;
             foreach ($code_types as $key => $value) {
                 if ($value['id'] == $iter['code_type']) {
@@ -787,6 +790,7 @@ if ($fend > $count) {
             }
 
             echo " </tr>\n";
+            $previous = $iter['code_text'];
         }
     }
 
