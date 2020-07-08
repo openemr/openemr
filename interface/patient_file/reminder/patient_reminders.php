@@ -224,7 +224,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                  <span id='status_span'></span>
                                  <div id='processing' style='margin: 10px; display: none;'><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
                                 <?php } else { ?>
-                                <a href='patient_reminders.php?patient_id=<?php echo attr_url($patient_id); ?>&mode=<?php echo attr_url($mode); ?>' class='btn btn-primary' onclick='top.restoreSession()'><?php echo xlt('Refresh'); ?></a>
+                                <a href='patient_reminders.php?patient_id=<?php echo attr_url($patient_id); ?>&mode=<?php echo attr_url($mode); ?>' class='btn btn-secondary btn-refresh' onclick='top.restoreSession()'><?php echo xlt('Refresh'); ?></a>
                                 <?php } ?>
                               </div>
                             </td>

@@ -192,7 +192,7 @@ EOT;
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
                     $class = isset($children_value->class) ? $children_value->class : '';
                     $list .= '<li class="nav-item ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
-                    $list .= '<a class="nav-link font-weight-bold text-body"  href="' . attr($link) . '" onclick="' . $children_value->on_click . '"> ' . text($children_value->label) . ' </a>';
+                    $list .= '<a class="nav-link font-weight-bold"  href="' . attr($link) . '" onclick="' . $children_value->on_click . '"> ' . text($children_value->label) . ' </a>';
                     $list .= '</li>';
                 }
                 $list .= '</ul>';
@@ -200,7 +200,7 @@ EOT;
                 $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
                 $class = isset($value->class) ? $value->class : '';
                 $list = '<li class="nav-item ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
-                $list .= '<a class="nav-link font-weight-bold text-body" href="' . attr($link) . '" onclick="' . $value->on_click . '"> ' . text($value->label) . ' </a>';
+                $list .= '<a class="nav-link font-weight-bold" href="' . attr($link) . '" onclick="' . $value->on_click . '"> ' . text($value->label) . ' </a>';
                 $list .= '</li>';
             }
             echo $list . "\r\n";
