@@ -17,6 +17,7 @@ require_once("$srcdir/immunization_helper.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 if (isset($_GET['mode'])) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -31,6 +32,7 @@ if (isset($_GET['mode'])) {
     if ($_GET['mode'] == "add") {
         $sql = "REPLACE INTO immunizations set
             id = ?,
+            uuid = ?,
             administered_date = if(?,?,NULL),
             immunization_id = ?,
             cvx_code = ?,
@@ -56,6 +58,7 @@ if (isset($_GET['mode'])) {
             ordering_provider = ?";
         $sqlBindArray = array(
             trim($_GET['id']),
+            UuidRegistry::isValidUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
             trim($_GET['administered_date']), trim($_GET['administered_date']),
             trim($_GET['form_immunization_id']),
             trim($_GET['cvx_code']),
@@ -108,6 +111,10 @@ if (isset($_GET['mode'])) {
         $result = sqlQuery($sql, array($_GET['id']));
 
         $administered_date = new DateTime($result['administered_date']);
+        $uuid = null;
+        if (isset($result['uuid']) && UuidRegistry::isValidUUID($result['uuid'])) {
+            $uuid = UuidRegistry::uuidToString($result['uuid']);
+        }
         $administered_date = $administered_date->format('Y-m-d H:i');
 
         $immuniz_amt_adminstrd = $result['amount_administered'];
@@ -346,6 +353,7 @@ tr.selected {
 <input type="hidden" name="mode" id="mode" value="add">
 <input type="hidden" name="id" id="id" value="<?php echo attr($id); ?>">
 <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
+<input type="hidden" name="uuid" id="uuid" value="<?php echo attr($uuid); ?>">
 <br />
       <table border=0 cellpadding=1 cellspacing=1>
         <?php

@@ -85,7 +85,7 @@ class UuidRegistry
             $test_uuid = (\Ramsey\Uuid\Uuid::fromBytes($uuid))->toString(); // convert byte uuid to string and log below
             error_log($test_uuid);
             error_log(bin2hex((\Ramsey\Uuid\Uuid::fromString($test_uuid))->getBytes())); // convert string uuid to byte and log hex
-            */
+             */
 
             // Check to ensure uuid is unique in uuid_registry (unless $this->disable_tracker is set to true)
             if (!$this->disable_tracker) {
@@ -182,5 +182,17 @@ class UuidRegistry
     public static function uuidToBytes($uuidString)
     {
         return Uuid::fromString($uuidString)->getBytes();
+    }
+
+    /**
+     * Check if UUID string is Valid
+     * @return boolean
+     */
+    public static function isValidUUID($uuidString)
+    {
+        return (!empty($uuidString) &&
+            $uuidString != null &&
+            $uuidString != '' &&
+            $uuidString != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0');
     }
 }
