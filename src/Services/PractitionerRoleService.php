@@ -62,22 +62,24 @@ class PractitionerRoleService extends BaseService
                     (if( prac_role.field_id = 'role_code', prac_role.field_value, null )) as `role_code`,
                     (if( specialty.field_id = 'specialty_code', specialty.field_value, null )) as `specialty_code`,
                     us.uuid as user_uuid,
-                    us.fname as user_fname,
-                    us.mname as user_mname,
-                    us.lname as user_lname,
+                    CONCAT(us.fname,
+                           IF(us.mname IS NULL OR us.mname = '','',' '),us.mname,
+                           IF(us.lname IS NULL OR us.lname = '','',' '),us.lname
+                           ) as user_name,
                     fac.uuid as facility_uuid,
                     fac.name as facility_name
                     FROM facility_user_ids as prac_role
                     LEFT JOIN users as us ON us.id = prac_role.uid
                     LEFT JOIN facility_user_ids as specialty ON specialty.uid = prac_role.uid AND specialty.field_id = 'specialty_code'
-                    LEFT JOIN facility as fac ON fac.id = prac_role.facility_id
-                ";
-
+                    LEFT JOIN facility as fac ON fac.id = prac_role.facility_id) as p_role
+                LEFT JOIN list_options as role ON role.option_id = p_role.role_code
+                LEFT JOIN list_options as spec ON spec.option_id = p_role.specialty_code
+                WHERE p_role.field = 'role_code' AND p_role.role_code != '' AND p_role.role_code IS NOT NULL";
 
         if (!empty($search)) {
-            $sql .= " WHERE ";
+            $sql .= " AND ";
             $whereClauses = array();
-            $wildcardFields = array('us.fname', 'us.mname', 'us.lname');
+            $wildcardFields = array('user_name');
             foreach ($search as $fieldName => $fieldValue) {
                 // support wildcard match on specific fields
                 if (in_array($fieldName, $wildcardFields)) {
@@ -92,10 +94,8 @@ class PractitionerRoleService extends BaseService
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
             $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
         }
-        $sql .= ") as p_role
-        LEFT JOIN list_options as role ON role.option_id = p_role.role_code
-        LEFT JOIN list_options as spec ON spec.option_id = p_role.specialty_code
-        WHERE p_role.field = 'role_code'";
+        $sql .= "
+         GROUP BY p_role.uuid";
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();

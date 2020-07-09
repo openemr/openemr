@@ -39,8 +39,8 @@ class FhirPractitionerRoleService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            "specialty" => ["specialty.field_value"],
-            "practitioner" => ["us.fname", "us.mname","us.lname"],
+            "specialty" => ["specialty_code"],
+            "practitioner" => ["user_name"],
         ];
     }
 
@@ -63,13 +63,6 @@ class FhirPractitionerRoleService extends FhirServiceBase
         $practitionerRoleResource->setId($id);
 
         if (!empty($dataRecord['user_uuid'])) {
-            $dataRecord['user_name'] = $dataRecord['user_fname'];
-            if ($dataRecord['user_mname']) {
-                $dataRecord['user_name'] .= " " . $dataRecord['user_mname'];
-            }
-            if ($dataRecord['user_lname']) {
-                $dataRecord['user_name'] .= " " . $dataRecord['user_lname'];
-            }
             $practitioner = new FHIRReference(
                 [
                     'reference' => 'Practitioner/' . $dataRecord['user_uuid'],
