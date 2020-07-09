@@ -1861,6 +1861,18 @@
           "portal"
         ]
       },
+        {
+            "label": "Dicom Viewer",
+            "menu_id": "dvwr",
+            "target": "msc",
+            "url": "/library/dicom_frame.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+                "patients",
+                "docs"
+            ]
+        },
       {
         "label": "Patient Education",
         "menu_id": "ped0",
@@ -1954,7 +1966,7 @@
         "children": [],
         "requirement": 0,
         "global_req": "track_anything_state"
-      },      
+      },
       {
         "label": "New Documents",
         "menu_id": "adm0",

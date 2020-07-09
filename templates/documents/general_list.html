@@ -86,9 +86,7 @@ overflow: auto;
 
 		<div class="col-sm-9">
 			<div id="documents_actions">
-
 				<fieldset>
-
 					<legend>{xlt t='Document Uploader/Viewer'}</legend>
                     <div style="padding: 0 10px">
 						{if $message}
@@ -155,12 +153,13 @@ $(function () {
     $("img[id^='icon_objTreeMenu_']").on('dblclick', function (e) {
         let popsrc = $(this).next("a").attr('href') || '';
         let diview = $(this).next("a").text();
-        let dflg = false;
+
         if (!popsrc.includes('&view&')) {
             return false;
         } else if (diview.toLowerCase().includes('.dcm') || diview.toLowerCase().includes('.zip')) {
-            popsrc = "{/literal}{$GLOBALS.webroot}{literal}/library/dicom_frame.php?web_path=" + encodeURIComponent(popsrc);
-            dflg = true;
+            // be careful with pattern encodeURIComponent(popsrc) to ensure not an entire query string
+            // like &retrieve&doc_id=1234.
+            popsrc = "{/literal}{$GLOBALS.webroot}{literal}/library/dicom_frame.php?web_path=" + popsrc;
         }
         popsrc = popsrc.replace('&view&', '&retrieve&') + 'as_file=false';
         let poContentModal = function () {
@@ -173,9 +172,6 @@ $(function () {
         let btnClose = {/literal}{xlj t="Close"}{literal};
         let size = 'modal-xl';
         let sizeHeight = 'full';
-        if (dflg) {
-            size = 'modal-md';
-        }
         dlgopen(popsrc, 'popdoc', size, 600, '', '', {
             buttons: [
                 {text: btnText, close: true, style: 'primary btn-xs', click: poContentModal},
