@@ -326,5 +326,5 @@ ALTER TABLE `users` ADD `supervisor_id` INT(11) NOT NULL DEFAULT '0';
 #EndIf
 
 #IfMissingColumn documents document_data
-ALTER TABLE `documents` ADD `document_data` MEDIUMTEXT NULL DEFAULT NULL
+ALTER TABLE `documents` ADD `document_data` MEDIUMTEXT NULL DEFAULT NULL;
 #EndIf
