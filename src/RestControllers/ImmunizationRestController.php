@@ -53,29 +53,4 @@ class ImmunizationRestController
         $processingResult = $this->immunizationService->getAll($validSearchFields);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
     }
-
-    /**
-     * Process a HTTP POST request used to create a immunization record.
-     * @param $data - array of immunization fields.
-     * @return a 201/Created status code and the immunization identifier if successful.
-     */
-    // public function post($data)
-    // {
-    //     $filteredData = $this->immunizationService->filterData($data, self::WHITELISTED_FIELDS);
-    //     $processingResult = $this->immunizationService->insert($filteredData);
-    //     return RestControllerHelper::handleProcessingResult($processingResult, 201);
-    // }
-
-    /**
-     * Processes a HTTP PATCH request used to update an existing immunization record.
-     * @param $uuid - The immunization uuid identifier in string format.
-     * @param $data - array of immunization fields (full resource).
-     * @return a 200/Ok status code and the immunization resource.
-     */
-    // public function patch($uuid, $data)
-    // {
-    //     $filteredData = $this->immunizationService->filterData($data, self::WHITELISTED_FIELDS);
-    //     $processingResult = $this->immunizationService->update($uuid, $filteredData);
-    //     return RestControllerHelper::handleProcessingResult($processingResult, 200);
-    // }
 }

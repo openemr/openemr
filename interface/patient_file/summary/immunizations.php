@@ -16,8 +16,8 @@ require_once("$srcdir/immunization_helper.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\Header;
 
 if (isset($_GET['mode'])) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -58,7 +58,7 @@ if (isset($_GET['mode'])) {
             ordering_provider = ?";
         $sqlBindArray = array(
             trim($_GET['id']),
-            UuidRegistry::isValidUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
+            UuidRegistry::isValidStringUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
             trim($_GET['administered_date']), trim($_GET['administered_date']),
             trim($_GET['form_immunization_id']),
             trim($_GET['cvx_code']),

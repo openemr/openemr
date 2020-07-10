@@ -347,11 +347,11 @@ RestConfig::$ROUTE_MAP = array(
         return (new MessageRestController())->delete($pid, $mid);
     },
     "GET /api/immunization" => function () {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::authorization_check("patients", "med");
         return (new ImmunizationRestController())->getAll($_GET);
     },
     "GET /api/immunization/:id" => function ($id) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::authorization_check("patients", "med");
         return (new ImmunizationRestController())->getOne($id);
     },
 

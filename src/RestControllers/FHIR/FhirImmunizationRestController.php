@@ -27,7 +27,6 @@ class FhirImmunizationRestController
 {
     private $fhirImmunizationService;
     private $fhirService;
-    private $fhirValidate;
 
     public function __construct()
     {
@@ -35,39 +34,6 @@ class FhirImmunizationRestController
         $this->fhirImmunizationService = new FhirImmunizationService();
         $this->fhirValidate = new FhirValidationService();
     }
-
-    /**
-     * Creates a new FHIR immunization resource
-     * @param $fhirJson The FHIR immunization resource
-     * @returns 201 if the resource is created, 400 if the resource is invalid
-     */
-    // public function post($fhirJson)
-    // {
-    //     $fhirValidate = $this->fhirValidate->validate($fhirJson);
-    //     if (!empty($fhirValidate)) {
-    //         return RestControllerHelper::responseHandler($fhirValidate, null, 400);
-    //     }
-
-    //     $processingResult = $this->fhirImmunizationService->insert($fhirJson);
-    //     return RestControllerHelper::handleProcessingResult($processingResult, 201);
-    // }
-
-    /**
-     * Updates an existing FHIR immunization resource
-     * @param $fhirId The FHIR immunization resource id (uuid)
-     * @param $fhirJson The updated FHIR immunization resource (complete resource)
-     * @returns 200 if the resource is created, 400 if the resource is invalid
-     */
-    // public function patch($fhirId, $fhirJson)
-    // {
-    //     $fhirValidate = $this->fhirValidate->validate($fhirJson);
-    //     if (!empty($fhirValidate)) {
-    //         return RestControllerHelper::responseHandler($fhirValidate, null, 400);
-    //     }
-
-    //     $processingResult = $this->fhirImmunizationService->update($fhirId, $fhirJson);
-    //     return RestControllerHelper::handleProcessingResult($processingResult, 200);
-    // }
 
     /**
      * Queries for a single FHIR immunization resource by FHIR id
