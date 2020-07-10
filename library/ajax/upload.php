@@ -61,7 +61,7 @@ if (!empty($_FILES)) {
     exit();
 }
 
-function dicom_history_action($action, $doc_id, $json_data='')
+function dicom_history_action($action, $doc_id, $json_data = '')
 {
     if ($action == 'save') {
         $json_data = base64_encode($json_data);

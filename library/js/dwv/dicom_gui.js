@@ -86,7 +86,7 @@ dwvOemr.gui.ToolboxContainer = function (app, infoController) {
 
         // open
         var openSpan = document.createElement("span");
-        openSpan.className = "fa fa-plus";
+        openSpan.className = "fa fa-file-o";
         var open = document.createElement("button");
         open.appendChild(openSpan);
         open.title = dwv.i18n("basics.open");
