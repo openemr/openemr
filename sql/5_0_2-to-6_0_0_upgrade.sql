@@ -1946,3 +1946,7 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "390200000X", "Student in an Organized Health Care Education/Training Program", 8470);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "405300000X", "Prevention Professional", 8480);
 #EndIf
+
+#IfMissingColumn documents document_data
+ALTER TABLE `documents` ADD `document_data` MEDIUMTEXT NULL DEFAULT NULL;
+#EndIf
