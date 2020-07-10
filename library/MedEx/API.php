@@ -1521,7 +1521,7 @@ class Display extends base
         } else {
             echo 'up';
         } ?> menu_arrow" style="position: fixed; left: 5px; top: 5px; z-index: 1099;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
-        <div id="hide_nav" style="<?php if ($setting_bootstrap_submenu == 'hide') {
+        <div id="hide_nav" class="mt-5" style="<?php if ($setting_bootstrap_submenu == 'hide') {
             echo "display:none;"; } ?>">
             <nav id="navbar_oe" class="bgcolor2 fixed-top navbar-expand-md navbar-custom navbar-bright navbar-inner" name="kiosk_hide" data-role="page banner navigation">
                 <!-- Brand and toggle get grouped for better mobile display -->
