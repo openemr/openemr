@@ -2916,7 +2916,7 @@ CREATE TABLE `immunizations` (
   `refusal_reason` VARCHAR(31) DEFAULT NULL,
   `ordering_provider` INT(11) DEFAULT NULL,
   PRIMARY KEY  (`id`),
-  KEY `patient_id` (`patient_id`)
+  KEY `patient_id` (`patient_id`),
   KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
