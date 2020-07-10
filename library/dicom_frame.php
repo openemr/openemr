@@ -30,7 +30,7 @@ if ($d->get_mimetype() == 'application/dicom+zip') {
 }
 
 if ($web_path) {
-    $csrf = attr_url(CsrfUtils::collectCsrfToken());
+    $csrf = attr(CsrfUtils::collectCsrfToken());
     $state_url = $GLOBALS['web_root'] . "/library/ajax/upload.php";
     $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
 }
@@ -60,7 +60,7 @@ if ($web_path) {
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/decoders/pdfjs/arithmetic_decoder.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/decoders/pdfjs/jpg.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/decoders/rii-mango/lossless-min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/dist/dwv.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/dist/dwv.min.js"></script>
 
     <!-- Local (dwv) -->
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/browser.js"></script>
@@ -68,7 +68,7 @@ if ($web_path) {
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/custom.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/dropboxLoader.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/filter.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/generic.js"></script><!---->
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/generic.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/undo.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/help.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/html.js"></script>
@@ -427,9 +427,9 @@ if ($web_path) {
 <body>
     <!-- DWV -->
     <div id="dwv" class="container" src='<?php echo $web_path ?>'>
-        <input type="hidden" id="state_url" value=<?php echo $state_url ?> />
-        <input type="hidden" id="csrf" value=<?php echo $csrf ?> />
-        <input type="hidden" id="doc_id" value=<?php echo attr($docid) ?> />
+        <input type="hidden" id="state_url" value='<?php echo $state_url ?>' />
+        <input type="hidden" id="csrf" value='<?php echo $csrf ?>' />
+        <input type="hidden" id="doc_id" value='<?php echo attr($docid) ?>' />
 
         <div id="pageHeader">
             <!-- Title -->
