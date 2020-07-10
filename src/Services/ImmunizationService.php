@@ -50,6 +50,19 @@ class ImmunizationService extends BaseService
     {
         $sqlBindArray = array();
 
+        if (isset($search['patient.uuid'])) {
+            $isValidEncounter = $this->immunizationValidator->validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $search['patient.uuid'],
+                true
+            );
+            if ($isValidEncounter !== true) {
+                return $isValidEncounter;
+            }
+            $search['patient.uuid'] = UuidRegistry::uuidToBytes($search['patient.uuid']);
+        }
+
         $sql = "SELECT immunizations.id,
                 immunizations.uuid,
                 patient.uuid as puuid,

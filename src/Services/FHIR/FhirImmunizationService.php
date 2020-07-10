@@ -9,6 +9,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDate;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRImmunizationStatusCodes;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
@@ -44,7 +45,9 @@ class FhirImmunizationService extends FhirServiceBase
      */
     protected function loadSearchParameters()
     {
-        return  [];
+        return  [
+            "patient" => ["patient.uuid"]
+        ];
     }
 
     /**
@@ -60,6 +63,10 @@ class FhirImmunizationService extends FhirServiceBase
 
         $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
         $immunizationResource->setMeta($meta);
+
+        $id = new FHIRId();
+        $id->setValue($dataRecord['uuid']);
+        $immunizationResource->setId($id);
 
         $status = new FHIRImmunizationStatusCodes();
         $statusCoding = new FHIRCoding();
