@@ -194,22 +194,11 @@ class UuidRegistry
     }
 
     /**
-     * Check if UUID String is Empty
-     * @return boolean
-     */
-    public static function isEmptyStringUUID($uuidString)
-    {
-        return (!empty($uuidString) &&
-            $uuidString != null &&
-            $uuidString != '');
-    }
-
-    /**
      * Check if UUID Brinary is Empty
      * @return boolean
      */
     public static function isEmptyBinaryUUID($uuidString)
     {
-        return ($uuidString != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0');
+        return (empty($uuidString) || ($uuidString == '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'));
     }
 }

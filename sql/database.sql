@@ -1638,7 +1638,7 @@ CREATE TABLE  `facility_user_ids` (
   `field_value` TEXT,
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`,`facility_id`,`field_id`),
-  KEY `uuid` (`uuid`)
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB  AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -2917,7 +2917,7 @@ CREATE TABLE `immunizations` (
   `ordering_provider` INT(11) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
-  KEY `uuid` (`uuid`)
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------

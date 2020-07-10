@@ -112,7 +112,7 @@ if (isset($_GET['mode'])) {
 
         $administered_date = new DateTime($result['administered_date']);
         $uuid = null;
-        if (isset($result['uuid']) && UuidRegistry::isValidUUID($result['uuid'])) {
+        if (isset($result['uuid']) && !UuidRegistry::isEmptyBinaryUUID($result['uuid'])) {
             $uuid = UuidRegistry::uuidToString($result['uuid']);
         }
         $administered_date = $administered_date->format('Y-m-d H:i');
