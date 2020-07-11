@@ -10,7 +10,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - It's best to also add an `upstream` origin to keep your local fork up to date. [Check out this guide](https://oneemptymind.wordpress.com/2018/07/11/keeping-a-fork-up-to-date/) for more info.
 	- If you haven't already, [install git](https://git-scm.com/downloads) for your system
 2. `cd openemr` (the directory you cloned the code into)
-    - If you haven't already, install [Docker](https://docs.docker.com/install/) and compose(https://docs.docker.com/compose/install/) for your system
+    - If you haven't already, [install Docker](https://docs.docker.com/install/) and [install compose](https://docs.docker.com/compose/install/) for your system
 3. Run `docker-compose up` from your command line
     - When the build is done, you'll see the following message:
     ```sh
