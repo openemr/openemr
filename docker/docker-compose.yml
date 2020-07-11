@@ -16,8 +16,8 @@ services:
     restart: always
     image: openemr/openemr:latest
     ports:
-    - 80:80
-    - 443:443
+    - 8300:80
+    - 8443:443
     volumes:
     - logvolume01:/var/log
     - sitevolume:/var/www/localhost/htdocs/openemr/sites
