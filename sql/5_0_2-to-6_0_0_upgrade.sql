@@ -1948,5 +1948,5 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 #EndIf
 
 #IfMissingColumn documents document_data
-ALTER TABLE `documents` ADD `document_data` MEDIUMTEXT NULL DEFAULT NULL;
+ALTER TABLE `documents` ADD `document_data` MEDIUMTEXT;
 #EndIf
