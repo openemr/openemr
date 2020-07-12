@@ -1,3 +1,4 @@
+dist: bionic
 language: php
 .steps:
   - &composer_github_auth |
