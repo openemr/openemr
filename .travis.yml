@@ -37,6 +37,7 @@ language: php
       echo "Checking for PHP theme styling issues"
       echo "--------------------------------------"
       npm install || failTest=true
+      echo "DEBUG"
       npx stylelint "**/*.css" || failTest=true
       npx stylelint "**/*.scss" || failTest=true
       if $failTest; then
