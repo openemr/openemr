@@ -1,3 +1,4 @@
+dist: bionic
 language: php
 .steps:
   - &composer_github_auth |
@@ -316,6 +317,7 @@ language: php
       jobSummary+="--------------------------------------------"
 before_install:
   - echo "extension=ldap.so" >>php --ini | grep "Loaded Configuration" | sed -e "s|.:\s||"``
+  - nvm install --lts
 before_script:
   - echo 'error_reporting = "E_ALL & ~E_NOTICE & ~E_STRICT"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 jobs:
