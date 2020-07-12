@@ -38,6 +38,9 @@ language: php
       echo "--------------------------------------"
       npm install || failTest=true
       npx github:piuccio/cowsay hello
+      node --version
+      npm --version
+      npx stylelint
       npx stylelint "**/*.css" || failTest=true
       npx stylelint "**/*.scss" || failTest=true
       if $failTest; then
