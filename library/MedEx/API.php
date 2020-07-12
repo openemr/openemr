@@ -2913,136 +2913,135 @@ class Setup extends Base
     {
         if ($stage == '1') {
             ?>
-        <div class="row">
-        <div class="col-sm-10 text-center offset-1">
-            <div id="setup_1">
-                <div class="title">MedEx</div>
-                <div class="row showReminders ">
-                    <div class="col-sm-10 text-center offset-1">
-                        <em>
-                            <?php echo xlt('Using technology to improve productivity'); ?>.
-                        </em>
-                    </div>
-                </div>
-                <div class="row showReminders ">
-                    <div class="col-sm-5 offset-1 text-center">
-                        <h3 class="title"><?php echo xlt('Targets'); ?>:</h3>
-                        <ul class="text-left" style="margin-left:125px;">
-                            <li> <?php echo xlt('Appointment Reminders'); ?></li>
-                            <li> <?php echo xlt('Patient Recalls'); ?></li>
-                            <li> <?php echo xlt('Office Announcements'); ?></li>
-                            <li> <?php echo xlt('Patient Surveys'); ?></li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-4 offset-1 text-center">
-                        <h3 class="title"><?php echo xlt('Channels'); ?>:</h3>
-                        <ul class="text-left" style="margin-left:75px;">
-                            <li> <?php echo xlt('SMS Messages'); ?></li>
-                            <li> <?php echo xlt('Voice Messages'); ?></li>
-                            <li> <?php echo xlt('E-mail Messaging'); ?></li>
-                            <li> <?php echo xlt('Postcards'); ?></li>
-                            <li> <?php echo xlt('Address Labels'); ?></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="text-center row showReminders">
-                    <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn btn-primary">
-                </div>
-
-            </div>
-        </div>
-        </div>
-
-            <?php
-        } elseif ($stage == '2') {
-            ?>
-        <div class="row">
-        <form name="medex_start" id="medex_start">
-            <div class="col-sm-10 offset-sm-1 text-center">
-                <div id="setup_1" class="showReminders borderShadow">
-                    <div class="title row fa"><?php echo xlt('Register'); ?>: MedEx Bank</div>
-                    <div class="row showReminders">
-                        <div class="fa col-sm-10 offset-sm-1 text-center">
-                            <div class="divTable4" id="answer" name="answer">
-                                <div class="divTableBody">
-                                    <div class="divTableRow">
-                                        <div class="divTableCell divTableHeading">
-                                            <?php echo xlt('E-mail'); ?>
-                                        </div>
-                                        <div class="divTableCell">
-                                            <i id="email_check" name="email_check" class="top_right_corner nodisplay red fa fa-check"></i>
-                                            <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr($GLOBALS['user_data']['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required>
-                                            <div class="signup_help nodisplay" id="email_help" name="email_help"><?php echo xlt('Please provide a valid e-mail address to proceed'); ?>...</div>
-
-                                        </div>
-                                    </div>
-                                    <div class="divTableRow">
-                                        <div class="divTableCell divTableHeading">
-                                            <?php echo xlt('Password'); ?>
-                                        </div>
-                                        <div class="divTableCell"><i id="pwd_check" name="pwd_check" class="top_right_corner nodisplay red fa fa-check"></i>
-                                            <i class="fa top_right_corner fa-question" id="pwd_ico_help" aria-hidden="true" onclick="$('#pwd_help').toggleClass('nodisplay');"></i>
-                                            <input type="password" placeholder="<?php xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required>
-                                            <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('Secure Password Required') . ": " . xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number, one special character and no common strings'); ?>...</div>
-                                        </div>
-                                    </div>
-                                    <div class="divTableRow">
-                                        <div class="divTableCell divTableHeading">
-                                            <?php echo xlt('Repeat'); ?>
-                                        </div>
-                                        <div class="divTableCell"><i id="pwd_rcheck" name="pwd_rcheck" class="top_right_corner nodisplay red fa fa-check"></i>
-                                            <input type="password" placeholder="<?php echo xla('Repeat password'); ?>" id="new_rpassword" name="new_rpassword" class="form-control" required>
-                                            <div id="pwd_rhelp" class="nodisplay signup_help" style=""><?php echo xlt('Passwords do not match.'); ?></div>
-                                        </div>
-                                    </div>
-                                </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div id="setup_1">
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <h2>MedEx</h2>
+                                <p class="font-italic">
+                                    <?php echo xlt('Using technology to improve productivity'); ?>.
+                                </p>
                             </div>
-                            <div id="ihvread" name="ihvread" class="fa text-left">
-                                <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required>
-                                <label for="TERMS_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="Terms and Conditions"><?php echo xlt('I have read and my practice agrees to the'); ?>
-                                    <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a></label><br />
-                                <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required>
-                                <label for="BusAgree_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="BAA"><?php echo xlt('I have read and accept the'); ?>
-                                <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);">MedEx <?php echo xlt('Business Associate Agreement'); ?></a></label>
-                                <br />
-                                <div class="align-center row showReminders">
-                                    <input id="Register" class="btn btn-primary" value="<?php echo xla('Register'); ?>" />
-                                </div>
-
-                                <div id="myModal" class="modal fade" role="dialog">
-                                  <div class="modal-dialog">
-
-                                    <!-- Modal content-->
-                                    <div class="modal-content">
-                                      <div class="modal-header"  style="background-color: #0d4867;color: #fff;font-weight: 700;">
-                                        <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;box-shadow:unset !important;">&times;</button>
-                                        <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
-                                      </div>
-                                      <div class="modal-body" style="padding: 10px 45px;">
-                                        <p>You are opening a secure connection to MedExBank.com.  During this step your EHR will synchronize with the MedEx servers.  <br />
-                                            <br />
-                                            Re-enter your username (e-mail) and password in the MedExBank.com login window to:
-                                            <ul style="text-align: left;width: 90%;margin: 0 auto;">
-                                                <li> confirm your practice and providers' information</li>
-                                                <li> choose your service options</li>
-                                                <li> update and activate your messages </li>
-                                            </ul>
-                                        </p>
-                                      </div>
-                                      <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                        <button type="button" class="btn btn-secondary" onlick="actualSignUp();" id="actualSignUp">Proceed</button>
-                                      </div>
-                                    </div>
-
-                                  </div>
-                                </div>
+                            <div class="col-6 text-center">
+                                <h3 class="border-bottom"><?php echo xlt('Targets'); ?>:</h3>
+                                <ul class="list-group list-group-flush text-left">
+                                    <li class="list-group-item"> <?php echo xlt('Appointment Reminders'); ?></li>
+                                    <li class="list-group-item"> <?php echo xlt('Patient Recalls'); ?></li>
+                                    <li class="list-group-item"> <?php echo xlt('Office Announcements'); ?></li>
+                                    <li class="list-group-item"> <?php echo xlt('Patient Surveys'); ?></li>
+                                </ul>
                             </div>
+                            <div class="col-6 text-center">
+                                <h3 class="border-bottom"><?php echo xlt('Channels'); ?>:</h3>
+                                <ul class="list-group list-group-flush text-right">
+                                    <li class="list-group-item"> <?php echo xlt('SMS Messages'); ?></li>
+                                    <li class="list-group-item"> <?php echo xlt('Voice Messages'); ?></li>
+                                    <li class="list-group-item"> <?php echo xlt('E-mail Messaging'); ?></li>
+                                    <li class="list-group-item"> <?php echo xlt('Postcards'); ?></li>
+                                    <li class="list-group-item"> <?php echo xlt('Address Labels'); ?></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="text-center row showReminders">
+                            <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn btn-primary">
                         </div>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
+            <?php
+        } elseif ($stage == '2') {
+            ?>
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2><?php echo xlt('Register'); ?>: MedEx Bank</h2>
+                <form name="medex_start" id="medex_start">
+                    <div class="col-12 text-center">
+                        <div id="setup_1" class="showReminders borderShadow">
+                            <div class="row showReminders">
+                                    <div class="divTable4" id="answer" name="answer">
+                                        <div class="divTableBody">
+                                            <div class="divTableRow">
+                                                <div class="divTableCell divTableHeading">
+                                                    <?php echo xlt('E-mail'); ?>
+                                                </div>
+                                                <div class="divTableCell">
+                                                    <i id="email_check" name="email_check" class="top_right_corner nodisplay text-success fa fa-check"></i>
+                                                    <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr($GLOBALS['user_data']['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required>
+                                                    <div class="signup_help nodisplay" id="email_help" name="email_help"><?php echo xlt('Please provide a valid e-mail address to proceed'); ?>...</div>
+                                                </div>
+                                            </div>
+                                            <div class="divTableRow">
+                                                <div class="divTableCell divTableHeading">
+                                                    <?php echo xlt('Password'); ?>
+                                                </div>
+                                                <div class="divTableCell"><i id="pwd_check" name="pwd_check" class="top_right_corner nodisplay text-success fa fa-check"></i>
+                                                    <i class="fa top_right_corner fa-question" id="pwd_ico_help" aria-hidden="true" onclick="$('#pwd_help').toggleClass('nodisplay');"></i>
+                                                    <input type="password" placeholder="<?php xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required>
+                                                    <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('Secure Password Required') . ": " . xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number, one special character and no common strings'); ?>...</div>
+                                                </div>
+                                            </div>
+                                            <div class="divTableRow">
+                                                <div class="divTableCell divTableHeading">
+                                                    <?php echo xlt('Repeat'); ?>
+                                                </div>
+                                                <div class="divTableCell"><i id="pwd_rcheck" name="pwd_rcheck" class="top_right_corner nodisplay text-success fa fa-check"></i>
+                                                    <input type="password" placeholder="<?php echo xla('Repeat password'); ?>" id="new_rpassword" name="new_rpassword" class="form-control" required>
+                                                    <div id="pwd_rhelp" class="nodisplay signup_help" style=""><?php echo xlt('Passwords do not match.'); ?></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="ihvread" name="ihvread" class="fa text-left">
+                                        <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required>
+                                        <label for="TERMS_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="Terms and Conditions"><?php echo xlt('I have read and my practice agrees to the'); ?>
+                                            <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a></label><br />
+                                        <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required>
+                                        <label for="BusAgree_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="BAA"><?php echo xlt('I have read and accept the'); ?>
+                                        <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);">MedEx <?php echo xlt('Business Associate Agreement'); ?></a></label>
+                                        <br />
+                                        <div class="align-center row showReminders">
+                                            <input id="Register" class="btn btn-primary" value="<?php echo xla('Register'); ?>" />
+                                        </div>
+
+                                        <div id="myModal" class="modal fade" role="dialog">
+                                        <div class="modal-dialog">
+
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                            <div class="modal-header"  style="background-color: #0d4867;color: #fff;font-weight: 700;">
+                                                <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;box-shadow:unset !important;">&times;</button>
+                                                <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
+                                            </div>
+                                            <div class="modal-body" style="padding: 10px 45px;">
+                                                <p>You are opening a secure connection to MedExBank.com.  During this step your EHR will synchronize with the MedEx servers.  <br />
+                                                    <br />
+                                                    Re-enter your username (e-mail) and password in the MedExBank.com login window to:
+                                                    <ul style="text-align: left;width: 90%;margin: 0 auto;">
+                                                        <li> confirm your practice and providers' information</li>
+                                                        <li> choose your service options</li>
+                                                        <li> update and activate your messages </li>
+                                                    </ul>
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                <button type="button" class="btn btn-secondary" onlick="actualSignUp();" id="actualSignUp">Proceed</button>
+                                            </div>
+                                            </div>
+
+                                        </div>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
         </div>
         <script>
         function signUp() {
