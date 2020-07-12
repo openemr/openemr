@@ -1178,6 +1178,7 @@ CREATE TABLE `documents` (
   `audit_master_id` int(11) default NULL,
   `documentationOf` varchar(255) DEFAULT NULL,
   `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
+  `document_data` MEDIUMTEXT,
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
@@ -2888,7 +2889,6 @@ CREATE TABLE `icd10_reimbr_pcs_9_10` (
 DROP TABLE IF EXISTS `immunizations`;
 CREATE TABLE `immunizations` (
   `id` bigint(20) NOT NULL auto_increment,
-  `uuid` binary(16) DEFAULT NULL,
   `patient_id` bigint(20) default NULL,
   `administered_date` datetime default NULL,
   `immunization_id` int(11) default NULL,
@@ -2916,8 +2916,7 @@ CREATE TABLE `immunizations` (
   `refusal_reason` VARCHAR(31) DEFAULT NULL,
   `ordering_provider` INT(11) DEFAULT NULL,
   PRIMARY KEY  (`id`),
-  KEY `patient_id` (`patient_id`),
-  UNIQUE KEY `uuid` (`uuid`)
+  KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------

@@ -122,6 +122,33 @@ class C_Document extends Controller
         return $this->list_action($patient_id);
     }
 
+    function zip_dicom_folder($study_name = null)
+    {
+        $zip = new ZipArchive();
+        $zip_name = $GLOBALS['temporary_files_dir'] . "/" . $study_name;
+        if ($zip->open($zip_name, (ZipArchive::CREATE | ZipArchive::OVERWRITE)) === true) {
+            foreach ($_FILES['dicom_folder']['name'] as $i => $name) {
+                $zfn = $GLOBALS['temporary_files_dir'] . "/" . $name;
+                move_uploaded_file($_FILES['dicom_folder']['tmp_name'][$i], $zfn);
+                $fparts = explode(".", $zfn);
+                $fext = strtolower(end($fparts));
+                // disregard other file ext's
+                if ($fext == 'dcm') {
+                    $zip->addFile($zfn, $name);
+                }
+            }
+            $zip->close();
+        } else {
+            return false;
+        }
+        $file_array['name'][] = $study_name;
+        $file_array['type'][] = 'zip';
+        $file_array['tmp_name'][] = $zip_name;
+        $file_array['error'][] = '';
+        $file_array['size'][] = filesize($zip_name);
+        return $file_array;
+    }
+
     //Upload multiple files on single click
     function upload_action_process()
     {
@@ -165,6 +192,19 @@ class C_Document extends Controller
             $patient_id = $_GET['patient_id'];
         } elseif (is_numeric($_POST['patient_id'])) {
             $patient_id = $_POST['patient_id'];
+        }
+
+        if (!empty($_FILES['dicom_folder']['name'][0])) {
+            // let's zip um up then pass along new zip
+            $study_name = $_POST['destination'] ? (trim($_POST['destination']) . ".zip") : 'DicomStudy.zip';
+            $study_name =  preg_replace('/\s+/', '_', $study_name);
+            $_POST['destination'] = "";
+            $zipped = $this->zip_dicom_folder($study_name);
+            if ($zipped) {
+                $_FILES['file'] = $zipped;
+            }
+            // and off we go! just fall through and let routine
+            // do its normal file processing..
         }
 
         $sentUploadStatus = array();

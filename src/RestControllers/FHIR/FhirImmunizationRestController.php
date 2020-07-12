@@ -1,70 +1,80 @@
 <?php
 
-/**
- * FhirImmunizationRestController
- *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Yash Bothra <yashrajbothra786gmail.com>
- * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
-
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\Services\FHIR\FhirImmunizationService;
 use OpenEMR\Services\FHIR\FhirValidationService;
+use OpenEMR\Services\FHIR\FhirImmunizationService;
+use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
-require_once(__DIR__ . '/../../../_rest_config.php');
-
-/**
- * Supports REST interactions with the FHIR immunization resource
- */
 class FhirImmunizationRestController
 {
     private $fhirImmunizationService;
     private $fhirService;
-
-    public function __construct()
+    private $fhirValidationService;
+    
+    public function __construct($id)
     {
-        $this->fhirService = new FhirResourcesService();
         $this->fhirImmunizationService = new FhirImmunizationService();
-        $this->fhirValidate = new FhirValidationService();
+        $this->fhirImmunizationService->setId($id);
+        $this->fhirService = new FhirResourcesService();
+        $this->fhirValidationService = new FhirValidationService();
     }
-
-    /**
-     * Queries for a single FHIR immunization resource by FHIR id
-     * @param $fhirId The FHIR immunization resource id (uuid)
-     * @returns 200 if the operation completes successfully
-     */
-    public function getOne($fhirId)
+    
+    public function getAll($search)
     {
-        $processingResult = $this->fhirImmunizationService->getOne($fhirId, true);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
-    }
+        $result = $this->fhirImmunizationService->getAll(array('patient' => $search['patient']));
+        if (!$result) {
+            $statusCode = 400;
+            $result = $this->fhirValidationService->operationOutcomeResourceService(
+                'error',
+                'invalid',
+                false,
+                "Invalid Parameter"
+            );
+        } else {
+            $statusCode = 200;
+            $entries = array();
+            $resourceURL = \RestConfig::$REST_FULL_URL;
+            foreach ($result as $immunization) {
+                $entryResource = $this->fhirImmunizationService->createImmunizationResource(
+                    $immunization['id'],
+                    $immunization,
+                    false
+                );
+                $entry = array(
+                    'fullUrl' => $resourceURL . "/" . $immunization['id'],
+                    'resource' => $entryResource
+                );
+                $entries[] = new FHIRBundleEntry($entry);
+            }
 
-    /**
-     * Queries for FHIR immunization resources using various search parameters.
-     * Search parameters include:
-     * @return FHIR bundle with query results, if found
-     */
-    public function getAll($searchParams)
-    {
-        $processingResult = $this->fhirImmunizationService->getAll($searchParams);
-        $bundleEntries = array();
-        foreach ($processingResult->getData() as $index => $searchResult) {
-            $bundleEntry = [
-                'fullUrl' =>  \RestConfig::$REST_FULL_URL . '/' . $searchResult->getId(),
-                'resource' => $searchResult
-            ];
-            $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
-            array_push($bundleEntries, $fhirBundleEntry);
+            $result = $this->fhirService->createBundle('Immunization', $entries, false);
         }
-        $bundleSearchResult = $this->fhirService->createBundle('Immunization', $bundleEntries, false);
-        $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
-        return $searchResponseBody;
+        return RestControllerHelper::responseHandler($result, null, $statusCode);
+    }
+    
+    public function getOne($id)
+    {
+        $result = $this->fhirImmunizationService->getOne($id);
+        if ($result) {
+            $resource = $this->fhirImmunizationService->createImmunizationResource(
+                $result['id'],
+                $result,
+                false
+            );
+            $statusCode = 200;
+        } else {
+            $statusCode = 404;
+            $resource = $this->fhirValidationService->operationOutcomeResourceService(
+                'error',
+                'invalid',
+                false,
+                "Resource Id $id does not exist"
+            );
+        }
+
+        return RestControllerHelper::responseHandler($resource, null, $statusCode);
     }
 }

@@ -56,7 +56,6 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [Facility API](API_README.md#post-apifacility)
     -   [Practitioner API](API_README.md#get-apipractitioner)
     -   [Patient API](API_README.md#post-apipatient)
-    -   [Immunization API](API_README.md#get-apiimmunization)
     -   [Insurance API](API_README.md#get-apipatientpidinsurance)
     -   [Appointment API](API_README.md#get-apiappointment)
     -   [Document API](API_README.md#get-apipatientpiddocument)
@@ -500,21 +499,6 @@ Response:
         "status": ""
     }
 }
-```
-#### GET /api/immunization
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/api/immunization'
-```
-
-#### GET /api/immunization/:uuid
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/api/immunization/90cde167-7b9b-4ed1-bd55-533925cb2605'
 ```
 
 #### POST /api/patient/:pid/encounter

@@ -36,11 +36,11 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [FHIR Encounter API](FHIR_README.md#get-fhirencounter)
     -   [FHIR Practitioner API](FHIR_README.md#get-fhirpractitioner)
     -   [FHIR PractitionerRole API](FHIR_README.md#get-fhirpractitionerrole)
-    -   [FHIR Immunization API](FHIR_README.md#get-fhirimmunization)
     -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
     -   [FHIR AllergyIntolerance API](FHIR_README.md#get-fhirallergyintolerance)
     -   [FHIR Observation API](FHIR_README.md#get-fhirobservation)
     -   [FHIR QuestionnaireResponse API](FHIR_README.md#get-fhirquestionnaireresponse)
+    -   [FHIR Immunization API](FHIR_README.md#get-fhirimmunization)
     -   [FHIR Condition API](FHIR_README.md#get-fhircondition)
     -   [FHIR Procedure API](FHIR_README.md#get-fhirprocedure)
     -   [FHIR MedicationStatement API](FHIR_README.md#get-fhirmedicationstatement)
@@ -321,25 +321,6 @@ curl -X GET 'http://localhost:8300/apis/fhir/PractitionerRole/90de091a-91e9-4bbe
     -   speciality
     -   practitioner
 
-#### GET [base]/Immunization
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Immunization'
-```
-
-#### GET [base]/Immunization/:id
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Immunization/90feaaa2-4097-4437-966e-c425d1958dd6'
-```
-
--   Supported Search Parameters
-    -   patient
-
 #### GET /fhir/Organization
 
 Request:
@@ -419,6 +400,22 @@ curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/api
   }]
   } ]
 }'
+```
+
+#### GET /fhir/Immunization
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Immunization'
+```
+
+#### GET /fhir/Immunization/:id
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Immunization/1'
 ```
 
 #### GET /fhir/Condition

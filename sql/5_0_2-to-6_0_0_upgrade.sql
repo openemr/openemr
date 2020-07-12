@@ -1947,13 +1947,6 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "405300000X", "Prevention Professional", 8480);
 #EndIf
 
-#IfMissingColumn immunizations uuid
-ALTER TABLE `immunizations` ADD `uuid` binary(16) DEFAULT NULL;
-#EndIf
-
-#IfUuidNeedUpdate immunizations
-#EndIf
-
-#IfNotIndex immunizations uuid
-CREATE UNIQUE INDEX `uuid` ON `immunizations` (`uuid`);
+#IfMissingColumn documents document_data
+ALTER TABLE `documents` ADD `document_data` MEDIUMTEXT;
 #EndIf
