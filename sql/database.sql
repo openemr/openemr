@@ -1638,7 +1638,7 @@ CREATE TABLE  `facility_user_ids` (
   `field_value` TEXT,
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`,`facility_id`,`field_id`),
-  UNIQUE KEY `uuid` (`uuid`)
+  KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB  AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
