@@ -1950,3 +1950,15 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 #IfMissingColumn documents document_data
 ALTER TABLE `documents` ADD `document_data` MEDIUMTEXT;
 #EndIf
+
+#IfMissingColumn immunizations uuid
+ALTER TABLE `immunizations` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate immunizations
+#EndIf
+
+#IfNotIndex immunizations uuid
+CREATE UNIQUE INDEX `uuid` ON `immunizations` (`uuid`);
+#EndIf
+

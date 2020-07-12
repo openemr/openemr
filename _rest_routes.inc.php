@@ -30,6 +30,7 @@ use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\RestControllers\AuthRestController;
 use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
+use OpenEMR\RestControllers\ImmunizationRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
 
@@ -345,6 +346,14 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "notes");
         return (new MessageRestController())->delete($pid, $mid);
     },
+    "GET /api/immunization" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new ImmunizationRestController())->getAll($_GET);
+    },
+    "GET /api/immunization/:id" => function ($id) {
+        RestConfig::authorization_check("patients", "med");
+        return (new ImmunizationRestController())->getOne($id);
+    },
 
 );
 
@@ -465,11 +474,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Immunization" => function () {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirImmunizationRestController(null))->getAll($_GET);
+        return (new FhirImmunizationRestController())->getAll($_GET);
     },
     "GET /fhir/Immunization/:id" => function ($id) {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirImmunizationRestController(null))->getOne($id);
+        return (new FhirImmunizationRestController())->getOne($id);
     },
     "GET /fhir/Condition" => function () {
         RestConfig::authorization_check("patients", "med");
