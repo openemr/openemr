@@ -86,7 +86,7 @@ abstract class BaseValidator
      * @param $isUuid true if the lookupId is UUID, otherwise false
      * @return true if the lookupId is a valid existing id, otherwise Validation Message
      */
-    public function validateId($field, $table, $lookupId, $isUuid = false)
+    public static function validateId($field, $table, $lookupId, $isUuid = false)
     {
         $validationResult = new ProcessingResult();
 

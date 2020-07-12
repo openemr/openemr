@@ -11,7 +11,7 @@ namespace OpenEMR\Validators;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class PractitionerRoleValidator extends BaseValidator
+class ImmunizationValidator extends BaseValidator
 {
     /**
      * Configures validations for the PractitionerRole DB Insert and Update use-case.
