@@ -1968,3 +1968,17 @@ ALTER TABLE `lists` ADD `uuid` binary(16) DEFAULT NULL;
 #IfNotIndex lists uuid
 CREATE UNIQUE INDEX `uuid` ON `lists` (`uuid`);
 #EndIf
+
+#IfMissingColumn lists verification
+ALTER TABLE `lists` ADD `verification` VARCHAR(36) NOT NULL DEFAULT "unconfirmed";
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id allergyintolerance-verification
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq` ) VALUES ('lists' ,'allergyintolerance-verification', 'AllergyIntolerance Verification Status Codes', 1);
+#EndIf
+
+#IfNotRow list_options list_id allergyintolerance-verification
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'unconfirmed', 'Unconfirmed', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'confirmed', 'Confirmed', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'refuted', 'Refuted', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'entered-in-error', 'Entered in Error', 40);

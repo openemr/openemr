@@ -250,6 +250,7 @@ if ($_POST['form_save']) {
         "outcome = '"     . add_escape_custom($_POST['form_outcome'])      . "', " .
         "destination = '" . add_escape_custom($_POST['form_destination'])   . "', " .
         "reaction ='"     . add_escape_custom($_POST['form_reaction'])     . "', " .
+        "verification ='"     . add_escape_custom($_POST['form_verification'])     . "', " .
         "severity_al ='"     . add_escape_custom($_POST['form_severity_id'])     . "', " .
         "list_option_id ='"     . add_escape_custom($_POST['form_title_id'])     . "', " .
         "erx_uploaded = '0', " .
@@ -267,7 +268,7 @@ if ($_POST['form_save']) {
         "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
         "diagnosis, occurrence, classification, referredby, user, groupname, " .
         "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type, " .
-        "reaction, severity_al, list_option_id " .
+        "reaction, verification, severity_al, list_option_id " .
         ") VALUES ( " .
         "NOW(), " .
         "'" . add_escape_custom($thispid) . "', " .
@@ -291,6 +292,7 @@ if ($_POST['form_save']) {
         "'" . add_escape_custom($form_injury_part)          . "', " .
         "'" . add_escape_custom($form_injury_type)          . "', " .
         "'" . add_escape_custom($_POST['form_reaction'])         . "', " .
+        "'" . add_escape_custom($_POST['form_verification'])         . "', " .
         "'" . add_escape_custom($_POST['form_severity_id'])         . "', " .
         "'" . add_escape_custom($_POST['form_title_id'])         . "' " .
         ")");
@@ -806,6 +808,16 @@ if ($issue) {
                     </div>
                 </div>
                 <!-- End of reaction -->
+                <!-- Verification Status for Medication Allergy -->
+                <div class="form-group" id='row_verification'>
+                    <label class="col-form-label col-4" for="form_verification"><?php echo xlt('Verification Status'); ?>:</label>
+                    <div class="col-10">
+                        <?php
+                            echo generate_select_list('form_verification', 'allergyintolerance-verification', $irow['verification'], '', '', '', '');
+                        ?>
+                    </div>
+                </div>
+                <!-- End of Verification Statu -->
                 <div class="form-group"id='row_referredby'>
                     <label class="col-form-label col-4" for="form_referredby"><?php echo xlt('Referred by'); ?>:</label>
                     <div class="col-10">
