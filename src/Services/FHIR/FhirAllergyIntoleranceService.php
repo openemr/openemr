@@ -2,224 +2,177 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCategory;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCriticality;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceType;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
-use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
-use OpenEMR\Services\ListService;
+use OpenEMR\Validators\ProcessingResult;
 
-class FhirAllergyIntoleranceService
+/**
+ * FHIR AllergyIntolerance Service
+ *
+ * @coversDefaultClass OpenEMR\Services\FHIR\FhirAllergyIntoleranceService
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Dixon Whitmire <dixonwh@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ */
+class FhirAllergyIntoleranceService extends FhirServiceBase
 {
-
-    private $id;
+    /**
+     * @var AllergyIntoleranceService
+     */
+    private $allergyIntoleranceService;
 
     public function __construct()
     {
+        parent::__construct();
+        $this->allergyIntoleranceService = new AllergyIntoleranceService();
     }
 
-    public function setId($id)
+    /**
+     * Returns an array mapping FHIR AllergyIntolerance Resource search parameters to OpenEMR AllergyIntolerance search parameters
+     * @return array The search parameters
+     */
+    protected function loadSearchParameters()
     {
-        $this->id = $id;
+        return  [
+            'patient' => ['patient.uuid']
+        ];
     }
 
-    public function getAll($search)
+    /**
+     * Parses an OpenEMR allergyIntolerance record, returning the equivalent FHIR AllergyIntolerance Resource
+     *
+     * @param array $dataRecord The source OpenEMR data record
+     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @return FHIRAllergyIntolerance
+     */
+    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
-        $SQL = "SELECT id,
-                        date as recorded_date,
-                        type,
-                        subtype,
-                        title,
-                        begdate,
-                        enddate,
-                        returndate,
-                        referredby,
-                        extrainfo,
-                        diagnosis,
-                        pid,
-                        outcome,
-                        reaction,
-                        severity_al
-                        FROM lists
-                        WHERE type = 'allergy'";
+        $allergyIntoleranceResource = new FHIRAllergyIntolerance();
 
-        if (isset($search['patient'])) {
-            $SQL .= " AND pid = ?;";
-        }
+        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $allergyIntoleranceResource->setMeta($meta);
 
-        $allergyIntolerenceresults = sqlStatement($SQL, $search['patient']);
-        $results = array();
-        while ($row = sqlFetchArray($allergyIntolerenceresults)) {
-            $codeSQL = "SELECT dx_code 
-                            FROM icd10_dx_order_code
-                            WHERE short_desc = ?;";
-            $code = sqlQuery($codeSQL, array($row['reaction']));
-            $row['code'] = $code['dx_code'];
-            array_push($results, $row);
-        }
-        return $results;
-    }
+        $id = new FHIRId();
+        $id->setValue($dataRecord['uuid']);
+        $allergyIntoleranceResource->setId($id);
 
-    public function getOne($id)
-    {
-        $SQL = "SELECT id,
-                        date as recorded_date,
-                        type,
-                        subtype,
-                        title,
-                        begdate,
-                        enddate,
-                        returndate,
-                        referredby,
-                        extrainfo,
-                        diagnosis,
-                        pid,
-                        outcome,
-                        reaction,
-                        severity_al
-                        FROM lists
-                        WHERE type = 'allergy'
-                        AND id = ?;";
-
-        $sqlResult = sqlStatement($SQL, $id);
-        $result = sqlFetchArray($sqlResult);
-        if ($result) {
-            $codeSQL = "SELECT dx_code
-                            FROM icd10_dx_order_code
-                            WHERE short_desc = ?;";
-
-            $code = sqlQuery($codeSQL, array($result['reaction']));
-            $result['code'] = $code['dx_code'];
-        }
-        return $result;
-    }
-
-    public function createAllergyIntoleranceResource($id = '', $data = '', $encode = true)
-    {
-        $typeCoding = new FHIRCoding();
-        $typeCoding->setSystem("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical");
-        $typeCoding->setCode($data['type']);
-        $typeCoding->setDisplay(ucwords($data['type']));
-        $type = new FHIRAllergyIntoleranceType();
-        $type->setValue($typeCoding);
-
-        $onSetDateTime = new FHIRDateTime();
-        $onSetDateTime->setValue($data['begdate']);
-
-        $recordedDate = new FHIRDateTime();
-        $recordedDate->setValue($data['recorded_date']);
-        
-        $clinicalStatus = '';
-        if ($data['outcome'] == '1' && isset($data['enddate'])) {
+        $clinicalStatus = "inactive";
+        if ($dataRecord['outcome'] == '1' && isset($dataRecord['enddate'])) {
             $clinicalStatus = "resolved";
-        } elseif (!isset($data['enddate'])) {
+        } elseif (!isset($dataRecord['enddate'])) {
             $clinicalStatus = "active";
-        } else {
-            $clinicalStatus = "inactive";
         }
-        $clinicalStatusCoding = new FHIRCoding();
-        $clinicalStatusCoding->setSystem("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical");
-        $clinicalStatusCoding->setCode($clinicalStatus);
-        $clinicalStatusCoding->setDisplay($clinicalStatus);
+        $allergyIntoleranceResource->setClinicalStatus(array(
+            'sysytem' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+            'code' => $clinicalStatus,
+            'display' => strtoupper($clinicalStatus),
+        ));
 
-        $categoryCoding = new FHIRCoding();
-        $categoryCoding->setSystem("http://hl7.org/fhir/allergy-intolerance-category");
-        $categoryCoding->setCode("medication");
-        $categoryCoding->setDisplay("Medication");
-        $category = new FHIRAllergyIntoleranceCategory();
-        $category->setValue($categoryCoding);
+        $allergyIntoleranceCategory = new FHIRAllergyIntoleranceCategory();
+        $allergyIntoleranceCategory->setValue(array(
+            'sysytem' => "http://hl7.org/fhir/allergy-intolerance-category",
+            'code' => "medication",
+            'display' => strtoupper("Medication"),
+        ));
+        $allergyIntoleranceResource->addCategory($allergyIntoleranceCategory);
 
-        $criticalityCoding = new FHIRCoding();
-        $criticality = new FHIRAllergyIntoleranceCriticality();
-        if (isset($data['severity_al'])) {
-            $severityToCriticalityCode = array(
-                    "mild" => "low",
-                    "moderate" => "high",
-                    "severe" => "unable-to-assess"
-                );
-            $severityToCriticalityDisplay = array(
-                    "mild" => "Low Risk",
-                    "moderate" => "High Risk",
-                    "severe" => "Unable to Assess Risk"
-                );
-            $criticalityCoding->setSystem("http://hl7.org/fhir/allergy-intolerance-criticality");
-            $criticalityCoding->setCode($severityToCriticalityCode[strtolower($data['severity_al'])]);
-            $criticalityCoding->setDisplay($severityToCriticalityDisplay[strtolower($data['severity_al'])]);
-            $criticality->setValue($criticalityCoding);
-        } else {
-            $criticalityCoding->setSystem("http://terminology.hl7.org/CodeSystem/data-absent-reason");
-            $criticalityCoding->setCode("unknown");
-            $criticalityCoding->setDisplay("Unknown");
-            $criticality->setValue($criticalityCoding);
+        if (isset($dataRecord['severity_al'])) {
+            $criticalityCode = array(
+                "mild" => ["code" => "low", "display" => "Low Risk"],
+                "mild_to_moderate" => ["code" => "low", "display" => "Low Risk"],
+                "moderate" => ["code" => "low", "display" => "Low Risk"],
+                "moderate_to_severe" => ["code" => "high", "display" => "High Risk"],
+                "severe" => ["code" => "high", "display" => "High Risk"],
+                "life_threatening_severity" => ["code" => "high", "display" => "High Risk"],
+                "fatal" => ["code" => "high", "display" => "High Risk"],
+                "unassigned" => ["code" => "unable-to-assess", "display" => "Unable to Assess Risk"],
+            );
+            $criticality = new FHIRAllergyIntoleranceCriticality();
+            $criticality->setValue(array(
+                'sysytem' => "http://hl7.org/fhir/R4/codesystem-allergy-intolerance-criticality.html",
+                'code' => $criticalityCode[$dataRecord['severity_al']]['code'],
+                'display' => $criticalityCode[$dataRecord['severity_al']]['display'],
+            ));
+            $allergyIntoleranceResource->setCriticality($criticality);
         }
 
-        $patient = new FHIRReference();
-        $patient->setReference('Patient/' . $data['pid']);
-
-        $recorder = new FHIRReference();
-        $recorder->setReference('Practitioner/' . $data['referredby']);
-
-        $asserter = new FHIRReference();
-        $asserter->setReference('Patient/' . $data['pid']);
-
-        $note = new FHIRAnnotation();
-        $note->setText($data['extrainfo']);
-
-        $lastOccurrence = new FHIRDateTime();
-        $lastOccurrence->setValue($data['returndate']);
-
-        $manifestation = new FHIRCoding();
-        $manifestation->setSystem("http://hl7.org/fhir/sid/icd-10-cm");
-        $manifestation->setCode($data['code']);
-        $manifestation->setDisplay($data['reaction']);
-
-        $description = $data['comments'];
-
-        $reaction = new FHIRAllergyIntoleranceReaction();
-        $reaction->addManifestation($manifestation->jsonSerialize());
-        $reaction->setDescription($description);
-        $reaction->setOnset($data['begdate']);
-        $severityCoding = new FHIRCoding();
-        if (isset($data['severity_al'])) {
-            $severityCoding->setSystem("http://hl7.org/fhir/reaction-event-severity");
-            $severityCoding->setCode($data['severity_al']);
-            $severityCoding->setDisplay(ucwords($data['severity_al']));
-            $reaction->setSeverity($severityCoding);
-        } else {
-            $severityCoding->setSystem("http://terminology.hl7.org/CodeSystem/data-absent-reason");
-            $severityCoding->setCode("unknown");
-            $severityCoding->setDisplay("Unknown");
-            $reaction->setSeverity($severityCoding);
+        if (isset($dataRecord['puuid'])) {
+            $patient = new FHIRReference();
+            $patient->setReference('Patient/' . $dataRecord['puuid']);
+            $allergyIntoleranceResource->setPatient($patient);
         }
-        
-        $resource = new FHIRAllergyIntolerance();
-        $resource->setClinicalStatus($clinicalStatusCoding);
-        $resource->setType($type);
-        $resource->addCategory($category);
-        $resource->setOnsetDateTime($onSetDateTime);
-        $resource->setRecordedDate($recordedDate);
-        $resource->setCriticality($criticality);
-        $resource->setPatient($patient);
-        $resource->setRecorder($recorder);
-        $resource->setAsserter($asserter);
-        $resource->setLastOccurrence($lastOccurrence);
-        $resource->addNote($note);
-        $resource->addReaction($reaction);
+
+        if (isset($dataRecord['practitioner'])) {
+            $recorder = new FHIRReference();
+            $recorder->setReference('Practitioner/' . $dataRecord['practitioner']);
+            $allergyIntoleranceResource->setRecorder($recorder);
+        }
+
+        // $allergyIntoleranceResource->setCode();
+        // $allergyIntoleranceResource->setVerificationStatus();
+
         if ($encode) {
-            return json_encode($resource);
+            return json_encode($allergyIntoleranceResource);
         } else {
-            return $resource;
+            return $allergyIntoleranceResource;
         }
+    }
+
+
+    /**
+     * Performs a FHIR AllergyIntolerance Resource lookup by FHIR Resource ID
+     * @param $fhirResourceId //The OpenEMR record's FHIR AllergyIntolerance Resource ID.
+     */
+    public function getOne($fhirResourceId)
+    {
+        $processingResult = $this->allergyIntoleranceService->getOne($fhirResourceId);
+        if (!$processingResult->hasErrors()) {
+            if (count($processingResult->getData()) > 0) {
+                $openEmrRecord = $processingResult->getData()[0];
+                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
+                $processingResult->setData([]);
+                $processingResult->addData($fhirRecord);
+            }
+        }
+        return $processingResult;
+    }
+
+    /**
+     * Searches for OpenEMR records using OpenEMR search parameters
+     *
+     * @param array openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
+    public function searchForOpenEMRRecords($openEMRSearchParameters)
+    {
+        return $this->allergyIntoleranceService->getAll($openEMRSearchParameters, false);
+    }
+
+    public function parseFhirResource($fhirResource = array())
+    {
+        // TODO: If Required in Future
+    }
+
+    public function insertOpenEMRRecord($openEmrRecord)
+    {
+        // TODO: If Required in Future
+    }
+
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        // TODO: If Required in Future
     }
 }

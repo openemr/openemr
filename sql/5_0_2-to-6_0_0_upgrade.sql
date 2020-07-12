@@ -1957,3 +1957,14 @@ ALTER TABLE `immunizations` ADD `uuid` binary(16) DEFAULT NULL;
 #IfNotIndex immunizations uuid
 CREATE UNIQUE INDEX `uuid` ON `immunizations` (`uuid`);
 #EndIf
+
+#IfMissingColumn lists uuid
+ALTER TABLE `lists` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate lists
+#EndIf
+
+#IfNotIndex lists uuid
+CREATE UNIQUE INDEX `uuid` ON `lists` (`uuid`);
+#EndIf

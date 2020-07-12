@@ -6296,6 +6296,7 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 DROP TABLE IF EXISTS `lists`;
 CREATE TABLE `lists` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `date` datetime default NULL,
   `type` varchar(255) default NULL,
   `subtype` varchar(31) NOT NULL DEFAULT '',
@@ -6329,7 +6330,8 @@ CREATE TABLE `lists` (
   `list_option_id` VARCHAR(100) DEFAULT NULL COMMENT 'Reference to list_options table',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`),
-  KEY `type` (`type`)
+  KEY `type` (`type`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------

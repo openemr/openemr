@@ -18,6 +18,7 @@
 // Lets keep our controller classes with the routes.
 //
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\RestControllers\AllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\RestControllers\ProductRegistrationRestController;
@@ -149,6 +150,14 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new PractitionerRestController())->patch($prid, $data);
+    },
+    "GET /api/allergy_intolerance" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new AllergyIntoleranceRestController())->getAll($_GET);
+    },
+    "GET /api/allergy_intolerance/:id" => function ($id) {
+        RestConfig::authorization_check("patients", "med");
+        return (new AllergyIntoleranceRestController())->getOne($id);
     },
     "GET /api/patient/:pid/medical_problem" => function ($pid) {
         RestConfig::authorization_check("encounters", "notes");
