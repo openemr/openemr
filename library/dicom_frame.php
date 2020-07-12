@@ -2,12 +2,12 @@
 /**
  * Dicom viewer wrapper script for documents
  *
- * @package OpenEMR
- * @link    https://www.open-emr.org
- * @author  Jerry Padgett <sjpadgett@gmail.com> 'Viewer wrapper'
- * @author  Victor Kofia <https://kofiav.com> 'Viewer'
- * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Victor Kofia <https://kofiav.com> 'Viewer'
+ * @author    Jerry Padgett <sjpadgett@gmail.com> 'Viewer wrapper'
  * @copyright Copyright (c) 2017-2018 Victor Kofia <https://kofiav.com>
+ * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,7 +17,10 @@
 
 require_once('../interface/globals.php');
 
-$web_path = $_REQUEST['web_path'];
+use OpenEMR\Core\Header;
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+$web_path = $_REQUEST['web_path'] ?? null;
 $patid = $_REQUEST['patient_id'];
 $docid = isset($_REQUEST['document_id']) ? $_REQUEST['document_id'] : $_REQUEST['doc_id'];
 $d = new Document(attr($docid));
@@ -26,119 +29,471 @@ if ($d->get_mimetype() == 'application/dicom+zip') {
     $type = '.zip';
 }
 
-$web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
-
+if ($web_path) {
+    $csrf = attr(CsrfUtils::collectCsrfToken());
+    $state_url = $GLOBALS['web_root'] . "/library/ajax/upload.php";
+    $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
+}
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/modernizr-3-5-0/dist/modernizr-build.js"></script>
+    <title><?php echo xlt("Dicom Viewer"); ?></title>
+    <!--
+        @TODO For v6 develop a jquery-slider replacement
+          for now the only conversion i've not done
+    -->
+    <?php Header::setupHeader(['no_bootstrap', 'jquery-ui', 'jquery-ui-base']); ?>
+
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/modernizr-3-5-0/modernizr-build.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/i18next/dist/umd/i18next.min.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/i18next-xhr-backend/dist/umd/i18nextXHRBackend.min.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/i18next-browser-languagedetector/dist/umd/i18nextBrowserLanguageDetector.min.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/konva/konva.min.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/magic-wand-js/js/magic-wand-min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jszip/dist/jszip.min.js"></script>
-    <!-- Third party (viewer) -->
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/flot/jquery.flot.js"></script>
-    <!-- decoders -->
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/decoders/pdfjs/jpx.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/decoders/pdfjs/util.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/decoders/pdfjs/arithmetic_decoder.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/decoders/pdfjs/jpg.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/decoders/rii-mango/lossless-min.js"></script>
+
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/jszip/dist/jszip.min.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/decoders/dwv/rle.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/decoders/pdfjs/jpx.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/decoders/pdfjs/util.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/decoders/pdfjs/arithmetic_decoder.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/decoders/pdfjs/jpg.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/decoders/rii-mango/lossless-min.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/dist/dwv.min.js"></script>
+
     <!-- Local (dwv) -->
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dwv/dist/dwv.min.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/browser.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/colourMap.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/custom.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/dropboxLoader.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/filter.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/generic.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/undo.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/help.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/html.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/infoController.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/infoOverlay.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/loader.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/plot.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/tools.js"></script>
     <!-- i18n dwv wrapper -->
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/dwv/dwv_i18n.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dwv_i18n.js"></script>
+    <!-- Launch the app -->
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_gui.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_launcher.js"></script>
 </head>
 <style type="text/css">
-    .warn_diagnostic {
-        margin: 10px auto 10px auto;
-        color: rgb(255, 0, 0);
-        font-size: 1.5em;
+    body {
+        background-color: #555;
+        color: #fff;
     }
 
-    .ui-autocomplete {
+    button, input, li, table {
+        margin-top: 0.2em;
+    }
+
+    li button, li input {
+        margin: 0;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #pageHeader {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: .175rem;
+    }
+
+    #pageHeader h1, h2, h3, h5, h6 {
+        margin: 0;
+        color: #fff;
+    }
+
+    #pageHeader a {
+        color: #ddf;
+    }
+
+    #pageHeader .toolbar {
+    }
+
+    #pageMain {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    /* Layers */
+    .layerContainer {
+        position: relative;
+        margin: .625rem;
+        width: 512px;
+        height: 512px;
+    }
+
+    .imageLayer {
+        position: absolute;
+    }
+
+    .drawDiv {
+        position: absolute;
+        pointer-events: none;
+    }
+
+    /* drag&drop */
+    .dropBox {
+    }
+
+    .dropBoxBorder {
+        margin: 20px auto;
+        border: 5px dashed #ccc;
+    }
+
+    .dropBoxBorder.hover {
+        margin: 20px auto;
+        border: 5px dashed #cc0;
+    }
+
+    /* toolbar */
+    .toolList ul {
+        padding: 0;
+    }
+
+    .toolList li {
+        list-style-type: none;
+    }
+
+    /* info */
+    .infoLayer ul {
+        margin: 0;
+        padding: 2px;
+        list-style-type: none;
+    }
+
+    .infoLayer li {
+        margin-top: 0;
+    }
+
+    .infoLayer canvas {
+        margin: 0;
+        padding: 2px;
+    }
+
+    .info {
+        color: #cde;
+        text-shadow: 1px 1px #000;
+        font-size: 80%;
+    }
+
+    .infoc {
+        color: #ff0;
+        text-shadow: 1px 1px #000;
+        font-size: 120%;
+    }
+
+    .infotl {
         position: absolute;
         top: 0;
         left: 0;
-        min-width: 200px;
-        cursor: default;
+        text-align: left;
+        text-shadow: 0 1px 0 #000;
     }
 
-    .ui-menu-item {
-        min-width: 200px;
-    }
-
-    .fixed-height {
-        min-width: 200px;
-        padding: 1px;
-        max-height: 35%;
-        overflow: auto;
-    }
-
-    .loader {
+    .infotc {
         position: absolute;
-        left: 25%;
+        top: 0;
+        left: 50%;
+        right: 50%;
+        text-align: center;
+        text-shadow: 0 1px 0 #000;
+    }
+
+    .infotr {
+        position: absolute;
+        top: 0;
+        right: 0;
+        text-align: right;
+        text-shadow: 0 1px 0 #000;
+    }
+
+    .infocl {
+        position: absolute;
+        bottom: 50%;
+        left: 0;
+        text-align: left;
+        text-shadow: 0 1px 0 #000;
+    }
+
+    .infocr {
+        position: absolute;
+        bottom: 50%;
+        right: 2px;
+        text-align: right;
+        text-shadow: 0 1px 0 #000;
+    }
+
+    .infobl {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        text-align: left;
+        text-shadow: 0 1px 0 #000;
+    }
+
+    .infobc {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        right: 50%;
+        text-align: center;
+        text-shadow: 0 1px 0 #000;
+    }
+
+    .infobr {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        text-align: right;
+        text-shadow: 0 1px 0 #000;
+    }
+
+    .plot {
+        position: absolute;
+        width: 100px;
+        height: 50px;
+        bottom: 15px;
+        right: 0;
+    }
+
+    /* tag list */
+    table.tagsTable {
+        border-collapse: collapse;
+        background-color: #fff;
+        color: #000
+    }
+
+    table.tagsTable thead {
+        background-color: #000;
+        color: #fff
+    }
+
+    table.tagsTable thead th {
+        text-transform: uppercase;
+        font-weight: bold;
+        opacity: 0.9;
+    }
+
+    table.tagsTable tr:nth-child(even) {
+        background-color: #c2c2c2;
+    }
+
+    table.drawsTable {
+        border-collapse: collapse;
+    }
+
+    table.drawsTable td {
+        vertical-align: middle;
+    }
+
+    table.drawsTable thead th {
+        text-transform: uppercase;
+        font-weight: bold;
+        opacity: 0.5;
+    }
+
+    .highlighted {
+        background: #feeeac;
+    }
+
+    .tags {
+        background-color: #fff;
+        color: #000;
+        padding: 1rem 1.25rem;
+    }
+
+    .tags form {
+        width: 50%;
+    }
+
+    /* draw list */
+    .drawList tr:nth-child(even) {
+        background-color: #333;
+    }
+
+    /* history list */
+    div.history {
+        display: none;
+    }
+
+    .history_list {
+        width: 100%;
+    }
+
+    /* help */
+    .help {
+        padding: 1rem 1.25rem;
+    }
+
+    .popup {
+        position: absolute;
         top: 15%;
-        z-index: 1;
-        border: 12px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 12px solid #3498db;
-        width: 60px;
-        height: 60px;
-        -webkit-animation: spin 2s linear infinite; /* Safari */
-        animation: spin 2s linear infinite;
+        left: 15%;
+        visibility: hidden;
+        transform: scale(1.05);
+        transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+        z-index: 1000;
     }
 
-    /* Safari */
-    @-webkit-keyframes spin {
-        0% {
-            -webkit-transform: rotate(0deg);
-        }
-        100% {
-            -webkit-transform: rotate(360deg);
-        }
+    #loaderlist.popup {
+        top: 50%;
+        left: 50%;
+        z-index: 1010;
     }
 
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
+    .loaderSelect {
+        display: inline;
+        width: 50%;
+    }
+
+    #loaderlist div.popup-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 1rem 1.25rem;
+        width: 24rem;
+        border-radius: 0.5rem;
+        padding-left: .325rem;
+    }
+
+    .lg div.popup-content {
+        position: static;
+        border: 2px solid #fff;
+        width: 75vw;
+        border-radius: 0.5rem;
+        overflow: auto;
+        height: 75vh;
+        background-color: white;
+    }
+
+    #helpPopup div.popup-content {
+        background-color: black;
+    }
+
+    .close-button {
+        background: #ff5d5a;
+        position: absolute;
+        line-height: 1.5rem;
+        text-align: center;
+        right: 20px;
+        width: 1.5rem;
+        height: 1.5rem;
+        cursor: pointer;
+        z-index: 1011;
+    }
+
+    .close-button:hover {
+        background-color: lightcoral;
+    }
+
+    .show-popup {
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1.0);
+        transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+    }
+
+    #progressbar {
+        width: 0;
+        max-width: 92%;
+        height: 1.25rem;
+        background-color: #4CAF50;
+    }
+
+    #pageHeader h2 em {
+        font-size: 14px;
+        color: red;
+    }
+
+    div.toolList {
+        margin: .325rem 0 .325rem;
     }
 </style>
 <body>
-<!-- DWV -->
-<div id="dwv" src='<?php echo $web_path ?>'>
-    <!-- Toolbar -->
-    <div class="toolbar"></div>
-    <div class="warn_diagnostic"><?php echo xlt('Not For Diagnostic Use') ?>
-        <!-- Layer Container -->
-        <div class="layerContainer">
-            <span class="loader"></span>
-            <canvas id="dwvimg" class="imageLayer"><?php echo xlt('Only for HTML5 compatible browsers.') ?></canvas>
-        </div>
-        <!-- /layerContainer -->
+    <!-- DWV -->
+    <div id="dwv" class="container" src='<?php echo $web_path ?>'>
+        <input type="hidden" id="state_url" value='<?php echo $state_url ?>' />
+        <input type="hidden" id="csrf" value='<?php echo $csrf ?>' />
+        <input type="hidden" id="doc_id" value='<?php echo attr($docid) ?>' />
+
+        <div id="pageHeader">
+            <!-- Title -->
+            <h2>DICOM Viewer<span>&nbsp;<em>( Not for Diagnostics )</em></h2>
+            </span>
+            <span class="editspan"></span>
+            <div class="toolbar"></div>
+        </div><!-- /pageHeader -->
+        <div id="pageMain">
+            <!-- get state json data if file -->
+            <div class="openData" title="File">
+                <!-- Open image files -->
+                <div class="popup" id="loaderlist">
+                    <div class="popup-content">
+                        <span class="close-button" onclick="toggle('loaderlist');">&times;</span>
+                        <br />
+                        <div class="openData" title="File">
+                            <div class="loaderlist"></div>
+                            <div id="progressbar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Toolbox -->
+            <div class="toolList" title="Toolbox"></div>
+            <!-- History -->
+            <div class="history" title="History"></div>
+            <!-- Tags -->
+            <div class="popup lg" id="tagsPopup">
+                <div class="popup-content">
+                    <span class="close-button" onclick="toggle('tagsPopup');">&times;</span>
+                    <div class="tags" title="Tags">Please load a DICOM study to view image tags.</div>
+                </div>
+            </div>
+            <!-- Help -->
+            <div class="popup lg" id="helpPopup">
+                <div class="popup-content">
+                    <span class="close-button" onclick="toggle('helpPopup');">&times;</span>
+                    <div class="help" title="Help"></div>
+                </div>
+            </div>
+            <!-- Layer Container -->
+            <div class="layerDialog" title="Image">
+                <div class="layerContainer">
+                    <div class="dropBox dropBoxBorder"></div>
+                    <canvas class="imageLayer">Only for HTML5 compatible browsers...</canvas>
+                    <div class="drawDiv"></div>
+                    <div class="infoLayer">
+                        <div class="infotl"></div>
+                        <div class="infotc"></div>
+                        <div class="infotr"></div>
+                        <div class="infocl"></div>
+                        <div class="infocr"></div>
+                        <div class="infobl"></div>
+                        <div class="infobc"></div>
+                        <div class="infobr" style="bottom: 64px;"></div>
+                        <div class="plot"></div>
+                    </div><!-- /infoLayer -->
+                </div><!-- /layerContainer -->
+            </div><!-- /layerDialog -->
+            <!-- DrawList -->
+            <div class="drawList" title="Draw list"></div>
+        </div><!-- /pageMain -->
     </div><!-- /dwv -->
-    <!-- Main -->
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_gui.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_launcher.js"></script>
-    <script>
-        var msg = <?php echo xlj("Still Loading...") ?>;
-        var canvas = document.getElementById("dwvimg");
-        var ctx = canvas.getContext("2d");
-        ctx.font = "22px Arial";
-        ctx.fillStyle = "red";
-        $(window).on("load", function () {
-            ctx.fillText(msg, 10, 100);
-            $('.loader').toggle();
-        });
-    </script>
+
 </body>
 </html>

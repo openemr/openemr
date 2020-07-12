@@ -1,0 +1,236 @@
+{
+    "basics": {
+        "open": "Ouvrir",
+        "close": "Fermer",
+        "help": "Aide",
+        "back": "Retour",
+        "reset": "Réinitialiser",
+        "apply": "Appliquer",
+        "name": "Nom",
+        "value": "Valeur",
+        "dicomTags": "Tags DICOM",
+        "columns": "Colonnes",
+        "group": "Groupe",
+        "element": "Element",
+        "vr": "VR",
+        "vl": "VL",
+        "presets": "Presets",
+        "toolbox": "Boite à outils",
+        "history": "Historique",
+        "image": "Image",
+        "info": "Info",
+        "downloadState": "Télécharger state",
+        "drawList": "Annotations",
+        "search": "Recherche",
+        "id": "ID",
+        "slice": "Coupe",
+        "frame": "Frame",
+        "type": "Type",
+        "color": "Couleur",
+        "label": "Label",
+        "description": "Description",
+        "editMode": "Mode Edition",
+        "deleteDraws": "Tout Supprimer",
+        "visible": "Visible"
+    },
+    "colour": {
+        "Yellow": {
+            "name": "Jaune"
+        },
+        "Red": {
+            "name": "Rouge"
+        },
+        "White": {
+            "name": "Blanc"
+        },
+        "Green": {
+            "name": "Vert"
+        },
+        "Blue": {
+            "name": "Bleu"
+        },
+        "Lime": {
+            "name": "Lime"
+        },
+        "Fuchsia": {
+            "name": "Fuchsia"
+        },
+        "Black": {
+            "name": "Noir"
+        }
+    },
+    "unit": {
+        "mm": "mm",
+        "cm2": "cm²",
+        "degree": "°"
+    },
+    "help": {
+        "intro": {
+            "p0": "DWV (DICOM Web Viewer) est un visualiseur libre d'images médicales sans empreinte (zero footprint). Ecrit en Javascript et HTML5, il peut être utilisé sur toute plateforme qui propose un navigateur internet moderne (ordinateur portable, tablette, téléphone et même des télévisions). Il permet de charger des image locales ou distantes au format DICOM (standard pour les images médicales telles que IRM, Scanner, Echo, Mammo, MN...) et fournit des outils standards pour leur manipulation comme le contraste, zoom, déplacement, possibilité de dessiner des régions d’intérêts et filtres d'images tel que le seuillage et le renforcement de netteté.",
+            "p1": "Tous les tags DICOM sont affichés dans un tableau, appuyer sur 'tabs' ou le bouton grille. Le bouton 'info' ou i permet d'afficher ou non les informations sur l'image."
+        },
+        "tool_intro": "Chaque outil définit ses propres interactions. Voici la liste des outils disponibles:"
+    },
+    "tool": {
+        "WindowLevel": {
+            "name": "Contraste",
+            "brief": "Change le contraste de l'image.",
+            "mouse_drag": "Appuyer et glisser la souris dans la direction horizontale pour changer le fenêtrage, dans la direction verticale pour changer le niveau.",
+            "double_click": "Un double clic centrera el contraste sur l'intensitée cliquée.",
+            "touch_drag": "Appuyer et glisser un doigt dans la direction horizontale pour changer le fenêtrage, dans la direction verticale pour changer le niveau."
+        },
+        "ZoomAndPan": {
+            "name": "Zoom/Déplacement",
+            "brief": "Permet de zoomer et déplacer l'image.",
+            "mouse_wheel": "La roulette de la souris permet de zoomer l'image.",
+            "mouse_drag": "Appuyer et glisser la souris pour déplacer l'image dans la direction désirée.",
+            "twotouch_pinch": "Un pincement vers l’intérieur ou l’extérieur permet de zoomer l'image.",
+            "touch_drag": "Appuyer et glisser un doigt pour déplacer l'image dans la direction désirée."
+        },
+        "Scroll": {
+            "name": "Navigation",
+            "brief": "Permet de naviguer dans les coupes/frames de l'image.",
+            "double_click": "Un double clic lance la lecture automatique des coupes ou frames. Un clic simple l’arrête.",
+            "tap_and_hold": "Appuyer une seconde pour lancer la lecture automatique des coupes ou frames. Un appui simple l’arrête.",
+            "mouse_drag": "Appuyer et glisser la souris verticalement pour changer de coupe, horizontalement pour changer de frame. Raccourcis clavier: CTRL + flèche haut ou bas pour changer de coupe, CTRL + flèche gauche ou droite pour changer de frame.",
+            "touch_drag": "Appuyer et glisser un doigt verticalement pour changer de coupe, horizontalement pour changer de frame."
+        },
+        "Draw": {
+            "name": "Dessin",
+            "brief": "Permet de dessiner des formes sur l'image. Les menus permettent de choisir la forme et la couleur. Une fois créés, les formes sont éditables. Cliquer sur la forme et des ancres apparaissent. Appuyer et glisser sur la croix rouge pour éliminer le dessin. Toutes les actions sont re-faisables.",
+            "mouse_drag": "Appuyer et glisser la souris pour créer une forme. Pour le rapporteur: clic pour commencer, dessiner la droite jusqu'au sommet de l'angle, patienter une demi seconde et dessiner la seconde droite.",
+            "touch_drag": "Appuyer et glisser un doigt pour créer une forme. Pour le rapporteur: appui pour commencer, dessiner la droite jusqu'au sommet de l'angle, patienter une demi seconde et dessiner la seconde droite."
+        },
+        "Filter": {
+            "name": "Filtre",
+            "brief": "Les filtres disponibles sont: un filtre de seuillage pour borner les intensités de l'image, un filtre d’amélioration de la netteté, un filtre de Sobel pour obtenir un gradient de l'image dans les deux directions."
+        },
+        "Livewire": {
+            "name": "Livewire",
+            "brief": "L'outil Livewire permet une segmentation semi-automatique. Il suggère à l'utilisateur des chemins passant par des crêtes d'intensité. Cliquer pour initialiser, relâcher et déplacer la souris pour visualiser les chemins proposés. Cliquer pour valider et un point et continuer. Terminer le chemin en re-cliquant sur le premier point. ATTENTION: les calcules peuvent prendre du temps!"
+        },
+        "Floodfill": {
+            "name": "Floodfill",
+            "brief": "L'outil Floodfill permet une segmentation semi-automatique de pixels, il crée un coutour autour de pixels d'intensitée similaire.",
+            "click": "Cliquer sur un pixel pour créer un coutour basé sur son intensité.",
+            "tap": "Appuyer sur un pixel pour créer un coutour basé sur son intensité."
+        },
+        "info": {
+            "position": "Pos = {{value}}",
+            "value": "Valeur = {{value}}",
+            "frame": "Frame = {{value}}",
+            "window_center": "Centre = {{value}}",
+            "window_width": "Largeur = {{value}}"
+        }
+    },
+    "shape": {
+        "Line": {
+            "name": "Ligne"
+        },
+        "Ruler": {
+            "name": "Règle"
+        },
+        "Protractor": {
+            "name": "Rapporteur"
+        },
+        "Rectangle": {
+            "name": "Rectangle"
+        },
+        "Roi": {
+            "name": "ROI"
+        },
+        "Ellipse": {
+            "name": "Ellipse"
+        },
+        "Arrow": {
+            "name": "Pointeur"
+        },
+        "FreeHand": {
+            "name": "Main levée"
+        }
+    },
+    "io": {
+        "File": {
+            "name": "Fichier"
+        },
+        "Folder": {
+            "name": "Dossier"
+        },
+        "Url": {
+            "name": "Lien"
+        },
+        "GoogleDrive": {
+            "name": "GoogleDrive",
+            "auth": {
+                "title": "Autorisation Google Drive",
+                "body": "Veuillez autoriser DWV à acceder à votre Google Drive. \nCeci n'est seulement requis que la première fois.",
+                "button": "Autoriser"
+            }
+        },
+        "Dropbox": {
+            "name": "Dropbox"
+        }
+    },
+    "filter": {
+        "Threshold": {
+            "name": "Seuillage"
+        },
+        "Sharpen": {
+            "name": "Netteté"
+        },
+        "Sobel": {
+            "name": "Sobel"
+        }
+    },
+    "colourmap": {
+        "plain": {
+            "name": "Plain"
+        },
+        "invplain": {
+            "name": "Invplain"
+        },
+        "rainbow": {
+            "name": "Arc en ciel"
+        },
+        "hot": {
+            "name": "Hot"
+        },
+        "hotiron": {
+            "name": "Hot Iron"
+        },
+        "pet": {
+            "name": "Pet"
+        },
+        "hotmetalblue": {
+            "name": "Hot Metal Blue"
+        },
+        "pet20step": {
+            "name": "Pet 20 niveaux"
+        }
+    },
+    "wl": {
+        "presets": {
+            "mediastinum": {
+                "name": "Médiastin"
+            },
+            "lung": {
+                "name": "Poumon"
+            },
+            "bone": {
+                "name": "Os"
+            },
+            "brain": {
+                "name": "Cerveau"
+            },
+            "head": {
+                "name": "Tête"
+            },
+            "manual": {
+                "name": "Manuel"
+            },
+            "minmax": {
+                "name": "Min/Max"
+            }
+        }
+    }
+}
