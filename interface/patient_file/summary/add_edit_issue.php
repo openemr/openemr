@@ -731,7 +731,7 @@ if ($issue) {
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-form-label col-2" for="form_begin"><?php echo xlt('Begin Date'); ?>:</label>
+                    <label class="col-form-label col-4" for="form_begin"><?php echo xlt('Begin Date'); ?>:</label>
                     <div class="col-10">
                         <input type='text' class='datepicker form-control' style="width:50%" name='form_begin' id='form_begin'
                         value='<?php echo attr(oeFormatShortDate($irow['begdate'])) ?>'
@@ -739,7 +739,7 @@ if ($issue) {
                     </div>
                 </div>
                 <div class="form-group" id='row_enddate'>
-                    <label class="col-form-label col-2" for="form_begin"><?php echo xlt('End Date'); ?>:</label>
+                    <label class="col-form-label col-4" for="form_begin"><?php echo xlt('End Date'); ?>:</label>
                     <div class="col-10">
                         <input type='text' class='datepicker form-control' style="width:50%" name='form_end' id='form_end'
                         value='<?php echo attr(oeFormatShortDate($irow['enddate'])) ?>'
@@ -807,7 +807,7 @@ if ($issue) {
                 </div>
                 <!-- End of reaction -->
                 <div class="form-group"id='row_referredby'>
-                    <label class="col-form-label col-2" for="form_referredby"><?php echo xlt('Referred by'); ?>:</label>
+                    <label class="col-form-label col-4" for="form_referredby"><?php echo xlt('Referred by'); ?>:</label>
                     <div class="col-10">
                         <input type='text' name='form_referredby' id='form_referredby' class='form-control' value='<?php echo attr($irow['referredby']) ?>'
                         title='<?php echo xla('Referring physician and practice'); ?>' />
