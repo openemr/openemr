@@ -8,6 +8,7 @@
  * @link      http://www.open-emr.org
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Paul Simon K <paul@zhservices.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -71,7 +72,10 @@ if ($payment_id > 0) {
     $row = sqlFetchArray($rs);
     $pay_total = $row['pay_total'];
     $global_amount = $row['global_amount'];
-    $rs = sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id=?", array($payment_id));
+    $rs = sqlStatement(
+        "SELECT sum(pay_amount) sum_pay_amount FROM ar_activity WHERE session_id = ? AND deleted IS NULL",
+        array($payment_id)
+    );
     $row = sqlFetchArray($rs);
     $pay_amount = $row['sum_pay_amount'];
     $UndistributedAmount = $pay_total - $pay_amount - $global_amount;

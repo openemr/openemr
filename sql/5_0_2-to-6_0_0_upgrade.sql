@@ -1962,3 +1962,6 @@ ALTER TABLE `immunizations` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `immunizations` (`uuid`);
 #EndIf
 
+#IfMissingColumn ar_activity deleted
+ALTER TABLE `ar_activity` ADD COLUMN `deleted` datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided';
+#EndIf

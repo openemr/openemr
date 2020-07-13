@@ -1322,7 +1322,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                 $rowcnt = 0;
                                 $resMoneyGot = sqlStatement(
                                     "SELECT pay_amount AS PatientPay,date(post_time) AS date FROM ar_activity WHERE " .
-                                    "pid = ? AND encounter = ? AND payer_type=0 AND account_code='PCP'",
+                                    "pid = ? AND encounter = ? AND deleted IS NULL AND payer_type = 0 AND account_code = 'PCP'",
                                     array(
                                         $iter['enc_pid'],
                                         $iter['enc_encounter']
