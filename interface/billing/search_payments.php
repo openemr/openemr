@@ -568,7 +568,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo $RowSearch['reference'] == '' ? '&nbsp;' : text($RowSearch['reference']); ?></a>
                                     </td>
                                     <td align="left">
-                                        <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php
+                                        <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'">
+                                <?php
                                         $rs = sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$RowSearch['session_id']]);
                                         $row = sqlFetchArray($rs);
                                         $pay_total = $row['pay_total'];
