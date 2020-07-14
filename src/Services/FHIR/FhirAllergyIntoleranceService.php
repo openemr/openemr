@@ -10,6 +10,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCategory;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCriticality;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
@@ -102,7 +103,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
             );
             $criticality = new FHIRAllergyIntoleranceCriticality();
             $criticality->setValue(array(
-                'sysytem' => "http://hl7.org/fhir/R4/codesystem-allergy-intolerance-criticality.html",
+                'sysytem' => "http://hl7.org/fhir/allergy-intolerance-criticality",
                 'code' => $criticalityCode[$dataRecord['severity_al']]['code'],
                 'display' => $criticalityCode[$dataRecord['severity_al']]['display'],
             ));
@@ -121,8 +122,30 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
             $allergyIntoleranceResource->setRecorder($recorder);
         }
 
-        // $allergyIntoleranceResource->setCode();
-        // $allergyIntoleranceResource->setVerificationStatus();
+        if (!empty($dataRecord['diagnosis'])) {
+            $diagnosisCoding = new FHIRCoding();
+            $diagnosisCode = new FHIRCodeableConcept();
+            foreach ($dataRecord['diagnosis'] as $code => $display) {
+                $diagnosisCoding->setCode($code);
+                $diagnosisCoding->setDisplay($display);
+                $diagnosisCode->addCoding($diagnosisCoding);
+            }
+            $allergyIntoleranceResource->setCode($diagnosisCode);
+        }
+
+        $verificationCoding = array(
+            'sysytem' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+            'code' => 'unconfirmed',
+            'display' => 'Unconfirmed',
+        );
+        if (!empty($dataRecord['verification'])) {
+            $verificationCoding = array(
+                'sysytem' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                'code' => $dataRecord['verification'],
+                'display' => $dataRecord['verification_title']
+            );
+        }
+        $allergyIntoleranceResource->setVerificationStatus($verificationCoding);
 
         if ($encode) {
             return json_encode($allergyIntoleranceResource);

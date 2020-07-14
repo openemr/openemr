@@ -51,25 +51,29 @@ class AllergyIntoleranceService extends BaseService
         $sql = "SELECT lists.id as id,
                         lists.uuid as uuid,
                         lists.date as recorded_date,
-                        type,
-                        subtype,
+                        lists.type,
+                        lists.subtype,
                         lists.title as title,
-                        begdate,
-                        enddate,
-                        returndate,
-                        referredby,
-                        extrainfo,
-                        diagnosis,
+                        lists.begdate,
+                        lists.enddate,
+                        lists.returndate,
+                        lists.referredby,
+                        lists.extrainfo,
+                        lists.diagnosis,
                         lists.pid as pid,
-                        outcome,
-                        reaction,
-                        severity_al,
+                        lists.outcome,
+                        lists.reaction,
+                        lists.severity_al,
+                        lists.verification,
                         us.uuid as practitioner,
-                        patient.uuid as puuid
+                        patient.uuid as puuid,
+                        reaction.title as reaction_title,
+                        verification.title as verification_title
                         FROM lists
-                        LEFT JOIN icd10_dx_order_code as code ON code.short_desc = lists.reaction
+                        LEFT JOIN list_options as reaction ON reaction.option_id = lists.reaction
+                        LEFT JOIN list_options as verification ON verification.option_id = lists.verification
                         LEFT JOIN users as us ON us.id = lists.referredby
-                        LEFT JOIN patient_data as patient ON patient.id = lists.pid
+                        RIGHT JOIN patient_data as patient ON patient.id = lists.pid
                         WHERE type = 'allergy'";
 
         if (!empty($search)) {
@@ -92,6 +96,9 @@ class AllergyIntoleranceService extends BaseService
             $row['practitioner'] = $row['practitioner'] ?
                 UuidRegistry::uuidToString($row['practitioner']) :
                 $row['practitioner'];
+            if ($row['diagnosis'] != "") {
+                $this->addDiagnosis($row['diagnosis']);
+            }
             $processingResult->addData($row);
         }
         return $processingResult;
@@ -120,25 +127,26 @@ class AllergyIntoleranceService extends BaseService
         $sql = "SELECT lists.id as id,
                         lists.uuid as uuid,
                         lists.date as recorded_date,
-                        type,
-                        subtype,
+                        lists.type,
+                        lists.subtype,
                         lists.title as title,
-                        begdate,
-                        enddate,
-                        returndate,
-                        referredby,
-                        extrainfo,
-                        diagnosis,
+                        lists.begdate,
+                        lists.enddate,
+                        lists.returndate,
+                        lists.referredby,
+                        lists.extrainfo,
+                        lists.diagnosis,
                         lists.pid as pid,
-                        outcome,
-                        reaction,
-                        severity_al,
+                        lists.outcome,
+                        lists.reaction,
+                        lists.severity_al,
+                        lists.verification,
                         us.uuid as practitioner,
                         patient.uuid as puuid
                         FROM lists
                         LEFT JOIN icd10_dx_order_code as code ON code.short_desc = lists.reaction
                         LEFT JOIN users as us ON us.id = lists.referredby
-                        LEFT JOIN patient_data as patient ON patient.id = lists.pid
+                        RIGHT JOIN patient_data as patient ON patient.id = lists.pid
                         AND lists.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
@@ -148,7 +156,24 @@ class AllergyIntoleranceService extends BaseService
         $sqlResult['practitioner'] = $sqlResult['practitioner'] ?
             UuidRegistry::uuidToString($sqlResult['practitioner']) :
             $sqlResult['practitioner'];
+        if ($sqlResult['diagnosis'] != "") {
+            $this->addDiagnosis($sqlResult['diagnosis']);
+        }
         $processingResult->addData($sqlResult);
         return $processingResult;
+    }
+
+    private function addDiagnosis(&$diagnosis)
+    {
+        $diags = explode(";", $diagnosis);
+        $diagnosis = array();
+        foreach ($diags as $diag) {
+            $code = explode(':', $diag)[1];
+            $codeSql = "SELECT long_desc FROM icd10_dx_order_code WHERE active = 1
+                                AND valid_for_coding = '1'
+                                AND formatted_dx_code = '$code'";
+            $codedesc = sqlQuery($codeSql);
+            $diagnosis[$code] = $codedesc['long_desc'];
+        }
     }
 }
