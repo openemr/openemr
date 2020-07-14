@@ -125,7 +125,7 @@ if (isset($_POST["mode"])) {
                     "' AND code_type = '" . trim(formData("HiddenCodetype$CountRow")) .
                     "' AND code = '" . trim(formData("HiddenCode$CountRow")) .
                     "' AND modifier = '" . trim(formData("HiddenModifier$CountRow")) .
-                    "'");
+                    "'";
 
                 $where = "$where1 AND pay_amount > 0");
                 if (isset($_POST["Payment$CountRow"]) && $_POST["Payment$CountRow"] * 1 > 0) {
