@@ -275,7 +275,12 @@ function pnDBInit()
     }
 
     // Modified 5/2009 by BM for UTF-8 project
-    if ($pnconfig['utf8Flag']) {
+    if ($pnconfig['db_encoding'] == "utf8mb4") {
+        $success_flag = $dbconn->Execute("SET NAMES 'utf8mb4'");
+        if (!$success_flag) {
+            error_log("PHP custom error: from postnuke interface/main/calendar/includes/pnAPI.php - Unable to set up UTF8MB4 encoding with mysql database", 0);
+        }
+    } elseif ($pnconfig['db_encoding'] == "utf8") {
         $success_flag = $dbconn->Execute("SET NAMES 'utf8'");
         if (!$success_flag) {
             error_log("PHP custom error: from postnuke interface/main/calendar/includes/pnAPI.php - Unable to set up UTF8 encoding with mysql database", 0);

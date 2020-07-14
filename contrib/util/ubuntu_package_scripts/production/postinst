@@ -177,6 +177,7 @@ case "$1" in
             SQLPASSWORD=$(collect_var ${SITENAME}_sqlpassword $CONFIG)
             SQLDATABASE=$(collect_var ${SITENAME}_sqldatabase $CONFIG)
             SQLUTFFLAG=$(collect_var ${SITENAME}_sqlutfflag $CONFIG)
+            SQLENCODING=$(collect_var ${SITENAME}_sqlencoding $CONFIG)
 
             #configure database configuration file
             insert_var "\$host" "\'$SQLLOCATION\';"             $SITEDIR/$SITENAME/sqlconf.php
@@ -184,6 +185,7 @@ case "$1" in
             insert_var "\$pass" "\'$SQLPASSWORD\';"             $SITEDIR/$SITENAME/sqlconf.php
             insert_var "\$dbase" "\'$SQLDATABASE\';"            $SITEDIR/$SITENAME/sqlconf.php
             insert_var "\$disable_utf8_flag" "$SQLUTFFLAG;"     $SITEDIR/$SITENAME/sqlconf.php
+            insert_var "\$db_encoding" "$SQLENCODING;"          $SITEDIR/$SITENAME/sqlconf.php
             sed -i "s/^[   ]*\$config[     =].*0/\$config = 1/" $SITEDIR/$SITENAME/sqlconf.php
 
             #upgrade the sql database
