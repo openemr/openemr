@@ -142,9 +142,12 @@ class AllergyIntoleranceService extends BaseService
                         lists.severity_al,
                         lists.verification,
                         us.uuid as practitioner,
-                        patient.uuid as puuid
+                        patient.uuid as puuid,
+                        reaction.title as reaction_title,
+                        verification.title as verification_title
                         FROM lists
-                        LEFT JOIN icd10_dx_order_code as code ON code.short_desc = lists.reaction
+                        LEFT JOIN list_options as reaction ON reaction.option_id = lists.reaction
+                        LEFT JOIN list_options as verification ON verification.option_id = lists.verification
                         LEFT JOIN users as us ON us.id = lists.referredby
                         RIGHT JOIN patient_data as patient ON patient.id = lists.pid
                         AND lists.uuid = ?";
