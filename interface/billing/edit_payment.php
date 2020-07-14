@@ -127,7 +127,7 @@ if (isset($_POST["mode"])) {
                     "' AND modifier = '" . trim(formData("HiddenModifier$CountRow")) .
                     "'";
 
-                $where = "$where1 AND pay_amount > 0");
+                $where = "$where1 AND pay_amount > 0";
                 if (isset($_POST["Payment$CountRow"]) && $_POST["Payment$CountRow"] * 1 > 0) {
                     if (trim($_POST['type_name']) == 'insurance') {
                         if (trim($_POST["HiddenIns$CountRow"]) == 1) {
@@ -174,7 +174,7 @@ if (isset($_POST["mode"])) {
 
                 //==============================================================================================================================
 
-                $where = "$where1 AND adj_amount != 0");
+                $where = "$where1 AND adj_amount != 0";
                 if (isset($_POST["AdjAmount$CountRow"]) && $_POST["AdjAmount$CountRow"] * 1 !== 0) {
                     if (trim($_POST['type_name']) == 'insurance') {
                         $AdjustString = "Ins adjust Ins" . trim($_POST["HiddenIns$CountRow"]);
@@ -213,7 +213,7 @@ if (isset($_POST["mode"])) {
 
                 //==============================================================================================================================
 
-                $where = "$where1 AND (memo LIKE 'Deductable%' OR memo LIKE 'Deductible%')");
+                $where = "$where1 AND (memo LIKE 'Deductable%' OR memo LIKE 'Deductible%')";
                 if (isset($_POST["Deductible$CountRow"]) && $_POST["Deductible$CountRow"] * 1 > 0) {
                     $resPayment = sqlStatement("SELECT  * from ar_activity $where");
                     if (sqlNumRows($resPayment) > 0) {
@@ -245,7 +245,7 @@ if (isset($_POST["mode"])) {
 
                 //==============================================================================================================================
 
-                $where = "$where1 AND pay_amount < 0");
+                $where = "$where1 AND pay_amount < 0";
                 if (isset($_POST["Takeback$CountRow"]) && $_POST["Takeback$CountRow"] * 1 > 0) {
                     $resPayment = sqlStatement("SELECT  * from ar_activity $where");
                     if (sqlNumRows($resPayment) > 0) {
@@ -276,7 +276,7 @@ if (isset($_POST["mode"])) {
 
                 //==============================================================================================================================
 
-                $where = "$where1 AND follow_up = 'y'");
+                $where = "$where1 AND follow_up = 'y'";
                 if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"] == 'y') {
                     $resPayment = sqlStatement("SELECT  * from ar_activity $where");
                     if (sqlNumRows($resPayment) > 0) {
