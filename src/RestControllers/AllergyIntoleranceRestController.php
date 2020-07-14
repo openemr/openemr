@@ -49,5 +49,4 @@ class AllergyIntoleranceRestController
         $processingResult = $this->allergyIntoleranceService->getAll($supportedSearch);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
     }
-
 }
