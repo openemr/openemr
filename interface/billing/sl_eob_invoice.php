@@ -324,7 +324,8 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
                         "pid = '" . add_escape_custom($patient_id) .
                         "' AND encounter = '" . add_escape_custom($encounter_id) .
                         "' AND sequence_no = '" . add_escape_custom($arseq) .
-                        "' AND deleted IS NULL");
+                        "' AND deleted IS NULL"
+                    );
                 }
             }
         }

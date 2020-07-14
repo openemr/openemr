@@ -268,7 +268,8 @@ function row_delete($table, $where)
 // Deactivate rows, with logging, for the specified table using the
 // specified SET and WHERE clauses.  Borrowed from deleter.php.
 //
-function row_modify($table, $set, $where) {
+function row_modify($table, $set, $where)
+{
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
         EventAuditLogger::instance()->newEvent(
             "deactivate",

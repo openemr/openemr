@@ -119,7 +119,6 @@ if (isset($_POST["mode"])) {
         //==================================================================
         for ($CountRow = 1; $CountRow <= $CountIndexAbove; $CountRow++) {
             if (isset($_POST["HiddenEncounter$CountRow"])) {
-
                 $where1 = "WHERE deleted IS NULL AND session_id = '" . add_escape_custom($payment_id) .
                     "' AND pid ='" . trim(formData("HiddenPId$CountRow")) .
                     "' AND encounter = '" . trim(formData("HiddenEncounter$CountRow")) .
@@ -144,7 +143,7 @@ if (isset($_POST["mode"])) {
                         $AccountCode = "PP";
                     }
                     $resPayment = sqlStatement("SELECT * from ar_activity $where");
-                    if(sqlNumRows($resPayment) > 0) {
+                    if (sqlNumRows($resPayment) > 0) {
                         sqlStatement("UPDATE ar_activity SET deleted = NOW() $where");
                     }
                     sqlBeginTrans();
@@ -308,7 +307,6 @@ if (isset($_POST["mode"])) {
                 }
 
                 //==============================================================================================================================
-
             } else {
                 break;
             }

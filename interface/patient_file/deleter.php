@@ -352,14 +352,17 @@ if ($_POST['form_submit']) {
                 }
 
                 // Delete the payment.
-                row_modify("ar_activity", "deleted = NOW()",
+                row_modify(
+                    "ar_activity",
+                    "deleted = NOW()",
                     "pid = '" . add_escape_custom($patient_id) . "' AND " .
                     "encounter = '" . add_escape_custom($payrow['encounter']) . "' AND " .
                     "deleted IS NULL AND " .
                     "payer_type = 0 AND " .
                     "pay_amount != 0.00 AND " .
                     "adj_amount = 0.00 AND " .
-                    "session_id = '" . add_escape_custom($ref_id) . "'");
+                    "session_id = '" . add_escape_custom($ref_id) . "'"
+                );
                 if ($ref_id) {
                     row_delete(
                         "ar_session",
@@ -367,7 +370,6 @@ if ($_POST['form_submit']) {
                         "session_id = '" . add_escape_custom($ref_id) . "'"
                     );
                 }
-
             } else {
                 // Encounter is 0! Seems this happens for pre-payments.
                 $tpmt = sprintf("%01.2f", $payrow['amount1'] + $payrow['amount2']);
