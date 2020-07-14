@@ -103,11 +103,11 @@ options to choose from:
 synchronized openemr directory and restart the development docker). On the main
 setup input screen:
  - for `Server Host`, use either `mariadb` or `mysql` or `mariadb-very-old` or
-   `mariadb-very-very-old` or `mariadb-very-very-very-old` or `mysql-old` or `mysql-very-old` (you have all
+   `mariadb-very-very-old` or `mysql-old` (you have all
    mariadb/mysql/mariadb-\*/mysql-\* dockers ready to go to make testing either one easy;
-   `mysql` is version 8.0; `mysql-old` is version 5.7; `mysql-very-old` is version 5.6;
+   `mysql` is version 8.0; `mysql-old` is version 5.7;
    `mariadb` is version 10.5; `mariadb-old` is version 10.4; `mariadb-very-old` is
-   version 10.3; `mariadb-very-very-old` is version 10.2; `mariadb-very-very-very-old` is version 10.1)
+   version 10.3; `mariadb-very-very-old` is version 10.2)
  - for `Root Pass`, use `root`
  - for `User Hostname`, use `%`
 
@@ -150,10 +150,8 @@ docker pull mariadb:10.5
 docker pull mariadb:10.4
 docker pull mariadb:10.3
 docker pull mariadb:10.2
-docker pull mariadb:10.1
 docker pull mysql:8
 docker pull mysql:5.7
-docker pull mysql:5.6
 docker pull phpmyadmin/phpmyadmin
 docker pull couchdb
 docker pull jodogne/orthanc-plugins
