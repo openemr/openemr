@@ -47,8 +47,8 @@ if (isset($id)) {
     try {
         $pid = $dn['patient_id'];
         $drugname = $dn['drug'];
-        $medicationlist = "DELETE FROM lists WHERE pid = ? AND title = ?";
-        sqlQuery($medicationlist, [$pid, $drugname]);
+        $medicationlist = "DELETE FROM lists WHERE pid = ? AND type = ? AND title = ?";
+        sqlQuery($medicationlist, [$pid, 'medication', $drugname]);
     } catch (Exception $e) {
         echo 'Caught exception ', text($e->getMessage()), "\n";
         if ($e->getMessage()) {
