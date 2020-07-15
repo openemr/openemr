@@ -41,6 +41,7 @@ $source = empty($_GET['source']) ? 'D' : $_GET['source'];
 
 // For what == groups
 $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -48,6 +49,18 @@ $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
 <title><?php echo xlt('Code Finder'); ?></title>
 
 <?php Header::setupHeader(['opener', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-colreorder']); ?>
+
+<style>
+ /* Sort indicator Overrides for jQuery-DT */
+ table thead .sorting::before,
+    table thead .sorting_asc::before,
+    table thead .sorting_asc::after,
+    table thead .sorting_desc::before,
+    table thead .sorting_desc::after,
+    table thead .sorting::after {
+        display: none !important;
+    }
+</style>
 
 <script>
 
@@ -227,7 +240,7 @@ var SelectItem = function(jobj) {
 
 </head>
 
-<body id="codes_search" class="body_top">
+<body id="codes_search">
     <div class="container-fluid">
         <?php
             $string_target_element = empty($target_element) ? '?' : "?target_element=" . attr_url($target_element) . "&";
