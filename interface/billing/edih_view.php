@@ -25,7 +25,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 
 ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html lang="en">
 
 <head>
     <title><?php echo xlt("EDI History"); ?></title>
