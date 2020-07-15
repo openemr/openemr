@@ -190,19 +190,19 @@ $(function () {
                                         {/if}
                                         </td>
                                         {if $GLOBALS.rx_use_fax_template}
-                                        <td style="border-style:none;">
+                                        <td class="border-0">
                                             <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm|attr_url}" onclick="top.restoreSession()" class="btn btn-primary btn-download">{xlt t='Download'} ({xlt t='Fax'})</a>
                                         </td>
                                         {/if}
                                         {if $GLOBALS.weno_rx_enable}
-                                            <td style="border-style:none;">
-                                                <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" onclick="top.restoreSession()" class="btn btn-primary btn-transmit">{xlt t='Transmit'} {xlt t='Rx'}</a>
-                                            </td>
+                                        <td class="border-0">
+                                            <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" onclick="top.restoreSession()" class="btn btn-primary btn-transmit">{xlt t='Transmit'} {xlt t='Rx'}</a>
+                                        </td>
                                         {/if}
                                         {if $CAMOS_FORM == true}
-                                            <td>
-                                                <a id="four_panel_rx" href="{$GLOBALS.webroot}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="btn btn-primary">{xlt t='View Four Panel'}</a>
-                                            </td>
+                                        <td>
+                                            <a id="four_panel_rx" href="{$GLOBALS.webroot}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="btn btn-primary">{xlt t='View Four Panel'}</a>
+                                        </td>
                                         {/if}
                                     </tr>
                                 </table>
