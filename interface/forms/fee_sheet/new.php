@@ -8,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -1203,8 +1203,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
 
                                     $resMoneyGot = sqlStatement(
-                                        "SELECT pay_amount as PatientPay,session_id as id,date(post_time) as date " .
-                                        "FROM ar_activity where pid =? and encounter =? and payer_type=0 and account_code='PCP'",
+                                        "SELECT pay_amount as PatientPay,session_id as id, date(post_time) as date " .
+                                        "FROM ar_activity where deleted IS NULL AND pid = ? and encounter = ? and " .
+                                        "payer_type = 0 and account_code = 'PCP'",
                                         array($fs->pid, $fs->encounter)
                                     ); //new fees screen copay gives account_code='PCP'
                                     while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {

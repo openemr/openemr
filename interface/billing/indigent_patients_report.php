@@ -9,7 +9,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2005-2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005-2015, 2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -223,9 +223,11 @@ if ($_POST['form_refresh']) {
           "pid = ? AND encounter = ? AND " .
           "activity = 1 AND code_type = 'COPAY'", array($patient_id, $encounter_id));
         $inv_paid = 0 - $arow['amount'];
-        $arow = sqlQuery("SELECT SUM(pay_amount) AS pay, " .
-          "sum(adj_amount) AS adj FROM ar_activity WHERE " .
-          "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
+        $arow = sqlQuery(
+            "SELECT SUM(pay_amount) AS pay, sum(adj_amount) AS adj " .
+            "FROM ar_activity WHERE pid = ? AND encounter = ? AND deleted IS NULL",
+            array($patient_id, $encounter_id)
+        );
         $inv_paid   += floatval($arow['pay']);
         $inv_amount -= floatval($arow['adj']);
         $total_amount += $inv_amount;

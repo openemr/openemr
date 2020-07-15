@@ -8559,6 +8559,7 @@ CREATE TABLE ar_activity (
   follow_up_note text,
   account_code varchar(15) NOT NULL,
   reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code',
+  deleted        datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided',
   PRIMARY KEY (pid, encounter, sequence_no),
   KEY session_id (session_id)
 ) ENGINE=InnoDB;

@@ -10,8 +10,10 @@
 * @author    Eldho Chacko <eldho@zhservices.com>
 * @author    Paul Simon K <paul@zhservices.com>
 * @author    Brady Miller <brady.g.miller@gmail.com>
+* @author    Rod Roark <rod@sunsetsystems.com>
 * @copyright Copyright (c) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2020 Rod Roark <rod@sunsetsystems.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -31,7 +33,10 @@ set_time_limit(0);
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "DeletePayments") {
         $DeletePaymentId = isset($_POST['DeletePaymentId']) ? trim($_POST['DeletePaymentId']) : '';
-        $ResultSearch = sqlStatement("SELECT distinct encounter,pid from ar_activity where  session_id =?", [$DeletePaymentId]);
+        $ResultSearch = sqlStatement(
+            "SELECT distinct encounter, pid from ar_activity where deleted IS NULL AND session_id = ?",
+            [$DeletePaymentId]
+        );
         if (sqlNumRows($ResultSearch) > 0) {
             while ($RowSearch = sqlFetchArray($ResultSearch)) {
                 $Encounter = $RowSearch['encounter'];
@@ -42,7 +47,7 @@ if (isset($_POST["mode"])) {
 
     //delete and log that action
         row_delete("ar_session", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
-        row_delete("ar_activity", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
+        row_modify("ar_activity", "deleted = NOW()", "deleted IS NULL AND session_id = '" . add_escape_custom($DeletePaymentId) . "'");
         $Message = 'Delete';
     //------------------
         $_POST["mode"] = "SearchPayment";
@@ -156,9 +161,11 @@ if (isset($_POST["mode"])) {
         }
 
         if ($PaymentStatus != '') {
-            $QsString = "select ar_session.session_id,pay_total,global_amount,sum(pay_amount) sum_pay_amount from ar_session,ar_activity
-        where ar_session.session_id=ar_activity.session_id group by ar_activity.session_id,ar_session.session_id
-        having pay_total-global_amount-sum_pay_amount=0 or pay_total=0";
+            $QsString = "select ar_session.session_id, pay_total, global_amount, sum(pay_amount) sum_pay_amount " .
+                "from ar_session,ar_activity WHERE " .
+                "ar_activity.deleted IS NULL AND ar_session.session_id = ar_activity.session_id " .
+                "group by ar_activity.session_id, ar_session.session_id " .
+                "having pay_total - global_amount - sum_pay_amount = 0 or pay_total = 0";
             $rs = sqlStatement($QsString);
             while ($rowrs = sqlFetchArray($rs)) {
                 $StringSessionId .= $rowrs['session_id'] . ',';
@@ -561,12 +568,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo $RowSearch['reference'] == '' ? '&nbsp;' : text($RowSearch['reference']); ?></a>
                                     </td>
                                     <td align="left">
-                                        <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php
+                                        <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'">
+                                <?php
                                         $rs = sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$RowSearch['session_id']]);
                                         $row = sqlFetchArray($rs);
                                         $pay_total = $row['pay_total'];
                                         $global_amount = $row['global_amount'];
-                                        $rs = sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id=?", [$RowSearch['session_id']]);
+                                        $rs = sqlStatement(
+                                            "select sum(pay_amount) sum_pay_amount from ar_activity where " .
+                                            "deleted IS NULL AND session_id = ?",
+                                            [$RowSearch['session_id']]
+                                        );
                                         $row = sqlFetchArray($rs);
                                         $pay_amount = $row['sum_pay_amount'];
                                         $UndistributedAmount = $pay_total - $pay_amount - $global_amount;

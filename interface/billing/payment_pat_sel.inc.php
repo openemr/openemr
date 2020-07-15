@@ -9,9 +9,11 @@
  * @author    Paul Simon K <paul@zhservices.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -165,23 +167,34 @@ if (isset($_POST["mode"])) {
                             $rowCopay = sqlFetchArray($resCopay);
                             $Copay = $rowCopay['copay'] * -1;
 
-                            $resMoneyGot = sqlStatement("SELECT sum(pay_amount) as PatientPay FROM ar_activity where
-                            pid =?  and  encounter =? and  payer_type=0 and
-                            account_code='PCP'", array($hidden_patient_code, $Encounter));//new fees screen copay gives account_code='PCP'
+                            $resMoneyGot = sqlStatement(
+                                "SELECT sum(pay_amount) as PatientPay FROM ar_activity where " .
+                                "deleted IS NULL AND pid = ? and encounter = ? and payer_type = 0 and " .
+                                "account_code = 'PCP'",
+                                array($hidden_patient_code, $Encounter)
+                            );//new fees screen copay gives account_code='PCP'
                             $rowMoneyGot = sqlFetchArray($resMoneyGot);
                             $PatientPay = $rowMoneyGot['PatientPay'];
 
                             $Copay = $Copay + $PatientPay;
                         }
                         //payer_type!=0, supports both mapped and unmapped code_type in ar_activity
-                        $resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where
-                        pid =? and (code_type=? or code_type='') and code=? and modifier=?  and  encounter  =? and  !(payer_type=0 and
-                        account_code='PCP')", array($hidden_patient_code, $Codetype, $Code, $Modifier, $Encounter));//new fees screen copay gives account_code='PCP'
+                        $resMoneyGot = sqlStatement(
+                            "SELECT sum(pay_amount) as MoneyGot FROM ar_activity where " .
+                            "deleted IS NULL AND pid = ? and (code_type = ? or code_type = '') and " .
+                            "code = ? and modifier = ? and encounter = ? and ! (payer_type = 0 and " .
+                            "account_code = 'PCP')",
+                            array($hidden_patient_code, $Codetype, $Code, $Modifier, $Encounter)
+                        );//new fees screen copay gives account_code='PCP'
                         $rowMoneyGot = sqlFetchArray($resMoneyGot);
                         $MoneyGot = $rowMoneyGot['MoneyGot'];
-                                                //supports both mapped and unmapped code_type in ar_activity
-                        $resMoneyAdjusted = sqlStatement("SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where
-                        pid =? and (code_type=? or code_type='') and code=? and modifier=? and encounter =?", array($hidden_patient_code, $Codetype, $Code, $Modifier, $Encounter));
+                        //supports both mapped and unmapped code_type in ar_activity
+                        $resMoneyAdjusted = sqlStatement(
+                            "SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where " .
+                            "deleted IS NULL AND pid = ? and (code_type = ? or code_type = '') and " .
+                            "code = ? and modifier = ? and encounter = ?",
+                            array($hidden_patient_code, $Codetype, $Code, $Modifier, $Encounter)
+                        );
                         $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
                         $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
 
