@@ -127,8 +127,10 @@ if (isset($_GET['deletelid'])) {
                         <!-- List the recipient name, description, date and edit and delete options-->
                         <tr class="noterow" height='25'>
                             <!--buttons for edit and delete.-->
-                            <td class="align-top"><a href='record_disclosure.php?editlid=<?php echo attr_url($iter['id']); ?>' class='btn btn-primary btn-sm btn-edit iframe' onclick='top.restoreSession()'><?php echo xlt('Edit');?></a>
-                            <a href='#' class='deletenote btn btn-danger btn-delete btn-sm' id='<?php echo attr($iter['id']); ?>' onclick='top.restoreSession()'><?php echo xlt('Delete');?></a></td>
+                            <td class="align-top text-nowrap">
+                                <a href='record_disclosure.php?editlid=<?php echo attr_url($iter['id']); ?>' class='btn btn-primary btn-sm btn-edit iframe' onclick='top.restoreSession()'><?php echo xlt('Edit');?></a>
+                                <a href='#' class='deletenote btn btn-danger btn-delete btn-sm' id='<?php echo attr($iter['id']); ?>' onclick='top.restoreSession()'><?php echo xlt('Delete');?></a>
+                            </td>
                             <td class="align-top" valign='top'><?php echo text($iter['recipient']);?>&nbsp;</td>
                             <td class='align-top' valign='top'><?php echo text(getListItemTitle('disclosure_type', $iter['event'])); ?>&nbsp;</td>
                             <td><?php echo text($iter['date']) . " " . nl2br(text($iter['description']));?>&nbsp;</td>
