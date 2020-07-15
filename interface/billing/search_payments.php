@@ -47,7 +47,7 @@ if (isset($_POST["mode"])) {
 
     //delete and log that action
         row_delete("ar_session", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
-        row_modify("ar_activity", "deleted = NOW()", "deleted IS NULL AND session_id ='$DeletePaymentId'");
+        row_modify("ar_activity", "deleted = NOW()", "deleted IS NULL AND session_id = '" . add_escape_custom($DeletePaymentId) . "'");
         $Message = 'Delete';
     //------------------
         $_POST["mode"] = "SearchPayment";
