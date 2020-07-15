@@ -475,18 +475,22 @@ $config = 1; /////////////
 //////////////////////////
 ?>
 ';
-        ?><?php // done just for coloring
 
-    fwrite($fd, $string) or $it_died++;
-    fclose($fd) or $it_died++;
+        fwrite($fd, $string) or $it_died++;
+        fclose($fd) or $it_died++;
 
-    //it's rather irresponsible to not report errors when writing this file.
-if ($it_died != 0) {
-    $this->error_message = "ERROR. Couldn't write $it_died lines to config file '$this->conffile'.\n";
-    return false;
-}
+        //it's rather irresponsible to not report errors when writing this file.
+        if ($it_died != 0) {
+            $this->error_message = "ERROR. Couldn't write $it_died lines to config file '$this->conffile'.\n";
+            return false;
+        }
 
-    return true;
+        // Tell PHP that its cached bytecode version of sqlconf.php is no longer usable.
+        if (function_exists('opcache_invalidate')) {
+            opcache_invalidate($this->conffile, true);
+        }
+
+        return true;
     }
 
     public function insert_globals()
