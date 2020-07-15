@@ -41,13 +41,14 @@ $source = empty($_GET['source']) ? 'D' : $_GET['source'];
 
 // For what == groups
 $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
+
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 <title><?php echo xlt('Code Finder'); ?></title>
 
-<?php Header::setupHeader(['opener', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-colreorder']); ?>
+<?php Header::setupHeader(['opener', 'datatables', 'datatables-bs', 'datatables-colreorder']); ?>
 
 <script>
 
@@ -227,7 +228,7 @@ var SelectItem = function(jobj) {
 
 </head>
 
-<body id="codes_search" class="body_top">
+<body id="codes_search">
     <div class="container-fluid">
         <?php
             $string_target_element = empty($target_element) ? '?' : "?target_element=" . attr_url($target_element) . "&";
