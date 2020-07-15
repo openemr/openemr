@@ -48,19 +48,7 @@ $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
 <head>
 <title><?php echo xlt('Code Finder'); ?></title>
 
-<?php Header::setupHeader(['opener', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-colreorder']); ?>
-
-<style>
- /* Sort indicator Overrides for jQuery-DT */
- table thead .sorting::before,
-    table thead .sorting_asc::before,
-    table thead .sorting_asc::after,
-    table thead .sorting_desc::before,
-    table thead .sorting_desc::after,
-    table thead .sorting::after {
-        display: none !important;
-    }
-</style>
+<?php Header::setupHeader(['opener', 'datatables', 'datatables-bs', 'datatables-colreorder']); ?>
 
 <script>
 
