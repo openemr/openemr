@@ -397,7 +397,7 @@ function restoreSession() {
         <?php } else { ?>
             <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
         <?php } ?>
-        <div id='inbox_div'>
+        <div id='inbox_div' class="table-responsive">
             <form method='post' name='update_activity' id='update_activity'
                 action="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" onsubmit='return top.restoreSession()'>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -481,7 +481,7 @@ function restoreSession() {
                                 }
 
 
-                                echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
+                                echo "  <td class='text-nowrap'><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
                                 "' class='btn btn-primary btn-sm btn-edit note_modal' onclick='return top.restoreSession()'>" . xlt('Edit') . "</a>\n";
 
                                 // display, or not, a button to delete the note
@@ -573,7 +573,7 @@ function restoreSession() {
             </table>
         </div>
 
-        <div id='outbox_div' <?php echo $outbox_style; ?> >
+        <div id='outbox_div table-resonsive' <?php echo $outbox_style; ?> >
             <table class="table table-borderless text">
                 <?php if ($result_sent != "") : ?>
                     <tr>
