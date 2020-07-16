@@ -362,6 +362,12 @@ if (isset($_POST['new_login_session_management'])) {
 
     // This is a new login, so create a new session id and remove the old session
     session_regenerate_id(true);
+    // Also need to delete clearPass from memory
+    if (function_exists('sodium_memzero')) {
+        sodium_memzero($_POST["clearPass"]);
+    } else {
+        $_POST["clearPass"] = '';
+    }
 } else {
     // This is not a new login, so check csrf and then create a new session id and do NOT remove the old session
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
