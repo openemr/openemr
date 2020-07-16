@@ -370,11 +370,6 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
                     </div>
                 </div>
             </div>
-            <!-- form used to open a new top level window when a patient row is clicked -->
-            <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <input type='hidden' name='patientID' value='0'/>
-            </form>
           </div>
         </div>
         <!-- form used to open a new top level window when a patient row is clicked -->
