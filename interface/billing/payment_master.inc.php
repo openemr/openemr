@@ -239,7 +239,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         </div>
     </div>
     <div class="row">
-        <div class="forms col-3">
+        <div class="forms col-2">
             <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
             <input type='text' class='form-control datepicker' name='deposit_date' id='deposit_date' onKeyDown="PreventIt(event)" value="<?php echo attr(oeFormatShortDate($DepositDate)); ?>" autocomplete="off" />
         </div>
@@ -247,7 +247,15 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
             <label class="control-label" for="description"><?php echo xlt('Description'); ?>:</label>
             <input type="text" name="description" id="description" onKeyDown="PreventIt(event)" value="<?php echo attr($Description); ?>" class="form-control" />
         </div>
-        <div class="forms col-3">
+        <div class="forms col-2">
+            <label class="control-label" for="GlobalReset"><?php echo xlt('Distributed to Global'); ?>:</label>
+            <div class="input-group">
+                <button class="input-group-prepend btn btn-secondary btn-delete" onclick="getElementById('GlobalReset').value='-0.00';this.classList.remove('btn-delete');event.target.classList.add('fa', 'fa-ban');">
+                </button>
+                <input id="GlobalReset" name="global_reset" class="form-control" value="<?php echo ($global_amount * 1 === 0) ? attr("0.00") : attr(number_format($global_amount, 2, '.', ',')); ?>" readonly />
+            </div>
+        </div>
+        <div class="forms col-2">
             <label class="control-label" for="TdUnappliedAmount"><?php echo xlt('Undistributed'); ?>:</label>
             <div id="TdUnappliedAmount" class="form-control bg-danger text-light"><?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?></div>
             <input name="HidUnappliedAmount" id="HidUnappliedAmount" value="<?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?>" type="hidden" />
@@ -334,7 +342,7 @@ if ($screen == 'new_payment' && $payment_id * 1 > 0) {//After saving from the Ne
         </div>
     </div>
     <div class="row oe-custom-line">
-        <div class="forms col-3">
+        <div class="forms col-2">
             <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
             <input type="text" class='form-control' name="deposit_date" id="deposit_date" value="<?php echo attr(oeFormatShortDate($DepositDate)); ?>" disabled />
         </div>
@@ -342,7 +350,11 @@ if ($screen == 'new_payment' && $payment_id * 1 > 0) {//After saving from the Ne
             <label class="control-label" for="description"><?php echo xlt('Description'); ?>:</label>
             <input type="text" name="description" id="description" value="<?php echo attr($Description); ?>" class="form-control" disabled />
         </div>
-        <div class="forms col-3">
+        <div class="forms col-2">
+            <label class="control-label" for="GlobalResetView"><?php echo xlt('Distributed to Global'); ?>:</label>
+            <input id="GlobalResetView" name="global_reset_view" class="form-control" value="<?php echo ($global_amount * 1 == 0) ? attr("0.00") : attr(number_format($global_amount, 2, '.', ',')); ?>" disabled />
+        </div>
+        <div class="forms col-2">
             <label class="control-label" for="TdUnappliedAmount"><?php echo xlt('Undistributed'); ?>:</label>
             <div id="TdUnappliedAmount" class="form-control bg-danger text-light"><?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?></div>
             <input name="HidUnappliedAmount" id="HidUnappliedAmount" value="<?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?>" type="hidden" />

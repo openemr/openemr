@@ -225,6 +225,10 @@ function refreshSearch() {
 }
 
 $(function () {
+<?php if ($_POST['mode'] == 'SearchPayment') { ?>
+    $("html").animate({ scrollTop: $("div table.table").offset().top }, 800);
+<?php } ?>
+
     $(".medium_modal").on('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -314,18 +318,6 @@ document.onclick = HideTheAjaxDivs;
     background-color: #FBFDD0;
     border: 1px solid var(--gray);
     padding: 10px;
-}
-
-.top {
-    border-top: 1px solid var(--black);
-}
-
-.left {
-    border-left: 1px solid var(--black);
-}
-
-.right {
-    border-right: 1px solid var(--black);
 }
 
 .form-group {

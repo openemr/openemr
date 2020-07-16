@@ -129,13 +129,18 @@ class C_Document extends Controller
         if ($zip->open($zip_name, (ZipArchive::CREATE | ZipArchive::OVERWRITE)) === true) {
             foreach ($_FILES['dicom_folder']['name'] as $i => $name) {
                 $zfn = $GLOBALS['temporary_files_dir'] . "/" . $name;
-                move_uploaded_file($_FILES['dicom_folder']['tmp_name'][$i], $zfn);
-                $fparts = explode(".", $zfn);
-                $fext = strtolower(end($fparts));
-                // disregard other file ext's
-                if ($fext == 'dcm') {
-                    $zip->addFile($zfn, $name);
+                $fparts = pathinfo($name);
+                if ($fparts['extension'] == "DCM") {
+                    // viewer requires lowercase.
+                    $fparts['extension'] = "dcm";
+                    $name = $fparts['filename'] . ".dcm";
                 }
+                // required extension for viewer
+                if ($fparts['extension'] != "dcm") {
+                    continue;
+                }
+                move_uploaded_file($_FILES['dicom_folder']['tmp_name'][$i], $zfn);
+                $zip->addFile($zfn, $name);
             }
             $zip->close();
         } else {
@@ -245,9 +250,9 @@ class C_Document extends Controller
                                     unset($head);
                                     // if here -then a DICOM
                                     $parts = pathinfo($stat['name']);
-                                    if (strtolower($parts['extension']) != "dcm") { // require extension for viewer
-                                        $new_name = $stat['name'] . ".dcm";
-                                        $za->renameIndex($i, $new_name); // only use index rename!
+                                    if ($parts['extension'] != "dcm") { // required extension for viewer
+                                        $new_name = $parts['filename'] . ".dcm";
+                                        $za->renameName($i, $new_name); // viewer requires lowercase
                                     }
                                 } else { // Rarely here
                                     $mimetype = "application/zip";

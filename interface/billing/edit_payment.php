@@ -92,6 +92,11 @@ if (isset($_POST["mode"])) {
             $deposit_date = $post_to_date;
         }
 
+        $global_account = "";
+        if (formData('global_reset') == '-0.00') {
+            $global_account = "', global_amount = '" . trim(formData('global_reset'));
+        }
+
         sqlStatement("update ar_session set " .
             $QueryPart .
             "', user_id = '" . trim(add_escape_custom($user_id)) .
@@ -101,6 +106,7 @@ if (isset($_POST["mode"])) {
             "', deposit_date = '" . trim(add_escape_custom($deposit_date)) .
             "', pay_total = '" . trim(formData('payment_amount')) .
             "', modified_time = '" . trim(add_escape_custom($modified_time)) .
+            $global_account .
             "', payment_type = '" . trim(formData('type_name')) .
             "', description = '" . trim(formData('description')) .
             "', adjustment_code = '" . trim(formData('adjustment_code')) .
@@ -325,6 +331,8 @@ if (isset($_POST["mode"])) {
 
         if ($_REQUEST['global_amount'] == 'yes') {
             sqlStatement("update ar_session set global_amount=? where session_id =?", [(isset($_POST["HidUnappliedAmount"]) ? trim($_POST["HidUnappliedAmount"]) * 1 : ''), $payment_id]);
+        } elseif ($_REQUEST['global_reset'] == '-0.00') {
+            sqlStatement("update ar_session set global_amount=? where session_id =?", [0, $payment_id]);
         }
 
         if ($_POST["mode"] == "FinishPayments") {
@@ -359,7 +367,7 @@ $ResultSearchSub = sqlStatement(
     <?php Header::setupHeader(['datetime-picker', 'common']); ?>
 
     <script>
-        var mypcc = '1';
+    const mypcc = '1';
     </script>
     <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
     <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
@@ -374,16 +382,16 @@ $ResultSearchSub = sqlStatement(
                 alert(<?php echo xlj('None of the Top Distribution Row Can be Completly Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
                 return false;
             }
-            if (!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
-            {
+    if (!CheckPayingEntityAndDistributionPostFor()) {
+        //Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
                 return false;
             }
-            if (CompletlyBlankBelow())//The newly added distribution rows are checked.
-            {
+    if (CompletlyBlankBelow()) {
+        //The newly added distribution rows are checked.
                 alert(<?php echo xlj('Fill any of the Below Row.'); ?>);
                 return false;
             }
-            PostValue = CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
+    let PostValue = CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
             if (PostValue == 1) {
                 alert(<?php echo xlj('Cannot Modify Payments.Undistributed is Negative.'); ?>);
                 return false;
@@ -419,7 +427,7 @@ $ResultSearchSub = sqlStatement(
                 alert(<?php echo xlj('Fill any of the Below Row.'); ?>);
                 return false;
             }
-            PostValue = CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
+    let PostValue = CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
             if (PostValue == 1) {
                 alert(<?php echo xlj('Cannot Modify Payments.Undistributed is Negative.'); ?>);
                 return false;
@@ -452,7 +460,7 @@ $ResultSearchSub = sqlStatement(
 
         function CompletlyBlankAbove() {//The distribution rows already in the database are checked.
             //It is not allowed to be made completly empty.If needed delete option need to be used.
-            CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
+    let CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
             for (RowCount = 1; RowCount <= CountIndexAbove; RowCount++) {
                 if (document.getElementById('Allowed' + RowCount).value == '' && document.getElementById('Payment' + RowCount).value == '' && document.getElementById('AdjAmount' + RowCount).value == '' && document.getElementById('Deductible' + RowCount).value == '' && document.getElementById('Takeback' + RowCount).value == '' && document.getElementById('FollowUp' + RowCount).checked == false) {
                     return true;
@@ -463,8 +471,8 @@ $ResultSearchSub = sqlStatement(
 
         function CompletlyBlankBelow() {//The newly added distribution rows are checked.
             //It is not allowed to be made completly empty.
-            CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
-            CountIndexBelow = document.getElementById('CountIndexBelow').value * 1;
+    let CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
+    let CountIndexBelow = document.getElementById('CountIndexBelow').value * 1;
             if (CountIndexBelow == 0)
                 return false;
             for (RowCount = CountIndexAbove + 1; RowCount <= CountIndexAbove + CountIndexBelow; RowCount++) {
@@ -477,7 +485,7 @@ $ResultSearchSub = sqlStatement(
         }
 
         function OnloadAction() {//Displays message while loading after some action.
-            after_value = document.getElementById('ActionStatus').value;
+    let after_value = document.getElementById('ActionStatus').value;
             if (after_value == 'Delete') {
                 alert(<?php echo xlj('Successfully Deleted'); ?>);
                 return true;
@@ -487,7 +495,7 @@ $ResultSearchSub = sqlStatement(
                 return true;
             }
             after_value = document.getElementById('after_value').value;
-            payment_id = document.getElementById('payment_id').value;
+    let payment_id = document.getElementById('payment_id').value;
             if (after_value == 'distribute') {
             } else if (after_value == 'new_payment') {
                 if (document.getElementById('TablePatientPortion')) {
@@ -676,9 +684,10 @@ $ResultSearchSub = sqlStatement(
                                     $Table = 'yes';
                                     ?>
                                     <br /><br />
-                                    <div class="row">
+                                    <div class="row" id="tableRow">
+                                    <legend><?php echo xlt("Distributed Edits") ?></legend>
                                     <div class="table-responsive-lg">
-                                    <table class="table table-sm table-bordered table-light" id="TableDistributePortion" >
+                                    <table class="table table-sm table-bordered table-light" id="TableDistributedEdit" >
                                     <thead class="bg-dark text-light">
                                     <tr>
                                         <th>&nbsp;</th>
@@ -1010,8 +1019,11 @@ $ResultSearchSub = sqlStatement(
                                 <td class="bg-dark text-secondary" align="center" id="AdjAmounttotal"><?php echo text(number_format($adjamttot, 2)); ?></td>
                                 <td class="bg-dark text-secondary" align="center" id="deductibletotal"><?php echo text(number_format($deductibletot, 2)); ?></td>
                                 <td class="bg-dark text-secondary" align="center" id="takebacktotal"><?php echo text(number_format($takebacktot, 2)); ?></td>
-                                <td align="center">&nbsp;</td>
-                                <td align="center">&nbsp;</td>
+                                <td align="center" colspan="2">&nbsp;</td>
+                                <td align="right">
+                                    <button type="button" class="btn btn-sm btn-secondary btn-refresh pull-right"
+                                        onclick="updateAllFormTotals(<?php echo attr_js($TotalRows); ?>);"><?php echo xlt("Recalculate"); ?></button>
+                                </td>
                             </tr>
                             </table>
                             <?php
@@ -1064,6 +1076,14 @@ $ResultSearchSub = sqlStatement(
             CheckVisible('yes');//Payment Method is made 'Check Payment' and the Check box is made visible.
             PayingEntityAction();//Paying Entity is made 'insurance' and Payment Category is 'Insurance Payment'
         }
+
+        $(function () {
+            if (document.getElementById("TableDistributePortion")) {
+                $("html").animate({scrollTop: $("#TableDistributePortion").offset().top}, 800);
+            } else if (document.getElementById("TableDistributedEdit")) {
+                $("html").animate({scrollTop: $("#TableDistributedEdit").offset().top}, 800);
+            }
+        });
     </script>
 </body>
 </html>
