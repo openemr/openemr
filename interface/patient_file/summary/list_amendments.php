@@ -47,6 +47,14 @@ use OpenEMR\Core\Header;
             $(this).prop('checked',optionFlag);
         });
     }
+    var AddAmendment = function () {
+        var iam = top.frames.editAmendments;
+        iam.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/add_edit_amendments.php"
+    };
+    var ListAmendments = function () {
+        var iam = top.frames.editAmendments;
+        iam.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/list_amendments.php"
+    };
 </script>
 </head>
 
@@ -62,20 +70,24 @@ use OpenEMR\Core\Header;
                 $query = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
                 $resultSet = sqlStatement($query, array($pid));
                 if (sqlNumRows($resultSet)) { ?>
-                    <table class="table w-100">
-                        <tr>
-                            <td>
-                                <a href="javascript:checkForAmendments();" class="btn btn-primary btn-print"><?php echo xlt("Print Amendments"); ?></a>
-                            </td>
-                            <td class="text-right">
-                                <a href="#" class="small" onClick="checkUncheck(1);"><span><?php echo xlt('Check All');?></span></a> |
-                                <a href="#" class="small" onClick="checkUncheck(0);"><span><?php echo xlt('Clear All');?></span></a>
-                            </td>
-                        </tr>
-                    </table>
-                    <div id="patient_stats">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <td>
+                                    <a href="javascript:AddAmendment();" class="btn btn-primary btn-add"><?php echo xlt("Add"); ?></a>
+                                    <a href="javascript:checkForAmendments();" class="btn btn-primary btn-print"><?php echo xlt("Print Amendments"); ?></a>
+                                    <a href="javascript:ListAmendments();" class="btn btn-primary"><?php echo xlt("List"); ?></a>
+                                </td>
+                                <td class="text-right">
+                                    <a href="#" class="small" onClick="checkUncheck(1);"><?php echo xlt('Check All');?></a> |
+                                    <a href="#" class="small" onClick="checkUncheck(0);"><?php echo xlt('Clear All');?></a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="patient_stats" class="table-responsive">
                         <br />
-                        <table class="table w-100 table-borderless mb-3">
+                        <table class="table table-borderless mb-3">
                             <thead class="table-primary">
                                 <tr>
                                     <th></th>
@@ -101,6 +113,10 @@ use OpenEMR\Core\Header;
                         </table>
                     </div>
                 <?php } else { ?>
+                    <div class="btn-group">
+                        <a href="javascript:AddAmendment();" class="btn btn-primary btn-add"><?php echo xlt("Add"); ?></a>
+                        <a href="javascript:ListAmendments();" class="btn btn-primary"><?php echo xlt("List"); ?></a>
+                    </div>
                     <p class="text-danger">
                         <?php echo xlt("No amendment requests available"); ?>
                     </p>
