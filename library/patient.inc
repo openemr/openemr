@@ -1721,7 +1721,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
             $drow = sqlQuery(
                 "SELECT SUM(pay_amount) AS payments " .
                 "FROM ar_activity WHERE " .
-                "pid = ? AND encounter = ? AND payer_type = 0",
+                "deleted IS NULL AND pid = ? AND encounter = ? AND payer_type = 0",
                 array($pid, $encounter)
             );
             $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
@@ -1738,7 +1738,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
             "activity = 1", array($pid, $encounter));
             $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
               "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
-              "pid = ? AND encounter = ?", array($pid, $encounter));
+              "deleted IS NULL AND pid = ? AND encounter = ?", array($pid, $encounter));
             $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
               "pid = ? AND encounter = ?", array($pid, $encounter));
             $balance += $brow['amount'] + $srow['amount']

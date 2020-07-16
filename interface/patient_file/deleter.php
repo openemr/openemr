@@ -10,7 +10,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -241,7 +241,7 @@ if ($_POST['form_submit']) {
         row_delete("claims", "patient_id = '" . add_escape_custom($patient) . "'");
         delete_drug_sales($patient);
         row_delete("payments", "pid = '" . add_escape_custom($patient) . "'");
-        row_delete("ar_activity", "pid = '" . add_escape_custom($patient) . "'");
+        row_modify("ar_activity", "deleted = NOW()", "pid = '" . add_escape_custom($patient) . "' AND deleted IS NULL");
         row_delete("openemr_postcalendar_events", "pc_pid = '" . add_escape_custom($patient) . "'");
         row_delete("immunizations", "patient_id = '" . add_escape_custom($patient) . "'");
         row_delete("issue_encounter", "pid = '" . add_escape_custom($patient) . "'");
@@ -272,7 +272,7 @@ if ($_POST['form_submit']) {
 
         row_modify("billing", "activity = 0", "encounter = '" . add_escape_custom($encounterid) . "'");
         delete_drug_sales(0, $encounterid);
-        row_delete("ar_activity", "encounter = '" . add_escape_custom($encounterid) . "'");
+        row_modify("ar_activity", "deleted = NOW()", "encounter = '" . add_escape_custom($encounterid) . "' AND deleted IS NULL");
         row_delete("claims", "encounter_id = '" . add_escape_custom($encounterid) . "'");
         row_delete("issue_encounter", "encounter = '" . add_escape_custom($encounterid) . "'");
         $res = sqlStatement("SELECT * FROM forms WHERE encounter = ?", array($encounterid));
@@ -332,6 +332,7 @@ if ($_POST['form_submit']) {
                 "FROM ar_activity WHERE " .
                 "pid = ? AND " .
                 "encounter = ? AND " .
+                "deleted IS NULL AND " .
                 "payer_type = 0 AND " .
                 "adj_amount = 0.00 " .
                 "GROUP BY session_id ORDER BY session_id DESC", array($patient_id, $payrow['encounter']));
@@ -351,21 +352,23 @@ if ($_POST['form_submit']) {
                 }
 
                 // Delete the payment.
-                row_delete(
+                row_modify(
                     "ar_activity",
+                    "deleted = NOW()",
                     "pid = '" . add_escape_custom($patient_id) . "' AND " .
                     "encounter = '" . add_escape_custom($payrow['encounter']) . "' AND " .
+                    "deleted IS NULL AND " .
                     "payer_type = 0 AND " .
                     "pay_amount != 0.00 AND " .
                     "adj_amount = 0.00 AND " .
                     "session_id = '" . add_escape_custom($ref_id) . "'"
                 );
                 if ($ref_id) {
-                        row_delete(
-                            "ar_session",
-                            "patient_id = '" . add_escape_custom($patient_id) . "' AND " .
-                            "session_id = '" . add_escape_custom($ref_id) . "'"
-                        );
+                    row_delete(
+                        "ar_session",
+                        "patient_id = '" . add_escape_custom($patient_id) . "' AND " .
+                        "session_id = '" . add_escape_custom($ref_id) . "'"
+                    );
                 }
             } else {
                 // Encounter is 0! Seems this happens for pre-payments.
@@ -393,11 +396,21 @@ if ($_POST['form_submit']) {
         }
 
         list($patient_id, $encounter_id) = explode(".", $billing);
-        sqlStatement("DELETE FROM ar_activity WHERE " .
-        "pid = ? AND encounter = ? ", array($patient_id, $encounter_id));
-        sqlStatement("DELETE ar_session FROM ar_session LEFT JOIN " .
-        "ar_activity ON ar_session.session_id = ar_activity.session_id " .
-        "WHERE ar_activity.session_id IS NULL");
+
+        row_modify(
+            "ar_activity",
+            "deleted = NOW()",
+            "pid = '" . add_escape_custom($patient_id) . "' AND encounter = '" .
+            add_escape_custom($encounter_id) . "' AND deleted IS NULL"
+        );
+
+        // Looks like this deletes all ar_session rows that have no matching ar_activity rows.
+        sqlStatement(
+            "DELETE ar_session FROM ar_session LEFT JOIN " .
+            "ar_activity ON ar_session.session_id = ar_activity.session_id AND ar_activity.deleted IS NULL " .
+            "WHERE ar_activity.session_id IS NULL"
+        );
+
         row_modify(
             "billing",
             "activity = 0",

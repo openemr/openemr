@@ -3,12 +3,6 @@
 --
 
 --
--- Disable FOREIGN_KEY_CHECKS
---
-SET FOREIGN_KEY_CHECKS=0;
--- --------------------------------------------------------
-
---
 -- Table structure for table `addresses`
 --
 
@@ -8569,6 +8563,7 @@ CREATE TABLE ar_activity (
   follow_up_note text,
   account_code varchar(15) NOT NULL,
   reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code',
+  deleted        datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided',
   PRIMARY KEY (pid, encounter, sequence_no),
   KEY session_id (session_id)
 ) ENGINE=InnoDB;
@@ -12186,93 +12181,3 @@ CREATE TABLE `benefit_eligibility` (
     `response_create_date` date DEFAULT NULL,
     `response_modify_date` date DEFAULT NULL
 ) ENGINE=InnoDB;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `api_forced_id`
---
-
-DROP TABLE IF EXISTS `api_forced_id`;
-CREATE TABLE `api_forced_id` (
-    `pid` bigint(20) NOT NULL,
-    `forced_id` varchar(100) NOT NULL,
-    `resource_pid` bigint(20) NOT NULL,
-    `resource_type` varchar(100) DEFAULT NULL,
-    PRIMARY KEY (`pid`),
-    UNIQUE KEY `idx_forcedid_resid` (`resource_pid`),
-    UNIQUE KEY `idx_forcedid_type_resid` (`resource_type`,`resource_pid`),
-    KEY `idx_forcedid_type_forcedid` (`resource_type`,`forced_id`)
-) ENGINE=InnoDB;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `api_resource`
---
-
-DROP TABLE IF EXISTS `api_resource`;
-CREATE TABLE `api_resource` (
-     `res_id` bigint(20) NOT NULL,
-     `res_deleted_at` datetime DEFAULT NULL,
-     `res_version` varchar(7) DEFAULT NULL,
-     `has_tags` bit(1) NOT NULL,
-     `res_published` datetime DEFAULT NULL,
-     `res_updated` datetime DEFAULT NULL,
-     `reviewed_date` datetime DEFAULT NULL,
-     `hash_sha256` varchar(64) DEFAULT NULL,
-     `res_language` varchar(20) DEFAULT NULL,
-     `res_profile` varchar(200) DEFAULT NULL,
-     `res_type` varchar(30) DEFAULT NULL,
-     `res_ver` bigint(20) DEFAULT NULL,
-     `forced_id_pid` bigint(20) DEFAULT NULL,
-     PRIMARY KEY (`res_id`),
-     KEY `idx_res_date` (`res_updated`),
-     KEY `idx_res_lang` (`res_type`,`res_language`),
-     KEY `idx_res_profile` (`res_profile`),
-     KEY `idx_res_type` (`res_type`),
-     KEY `idx_reviewed_date` (`reviewed_date`),
-     KEY `fk_resource_forcedid` (`forced_id_pid`)
-) ENGINE=InnoDB;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `api_res_ver`
---
-
-DROP TABLE IF EXISTS `api_res_ver`;
-CREATE TABLE `api_res_ver` (
-    `pid` bigint(20) NOT NULL,
-    `res_deleted_at` datetime DEFAULT NULL,
-    `res_version` varchar(7) DEFAULT NULL,
-    `has_tags` bit(1) NOT NULL,
-    `res_published` datetime DEFAULT NULL,
-    `res_updated` datetime DEFAULT NULL,
-    `res_encoding` varchar(5) NOT NULL,
-    `res_text` longblob,
-    `res_id` bigint(20) DEFAULT NULL,
-    `res_type` varchar(30) NOT NULL,
-    `res_ver` bigint(20) NOT NULL,
-    `forced_id_pid` bigint(20) DEFAULT NULL,
-    PRIMARY KEY (`pid`),
-    UNIQUE KEY `idx_resver_id_ver` (`res_id`,`res_ver`),
-    KEY `idx_resver_type_date` (`res_type`,`res_updated`),
-    KEY `idx_resver_id_date` (`res_id`,`res_updated`),
-    KEY `idx_resver_date` (`res_updated`),
-    KEY `fk_resver_forcedid` (`forced_id_pid`)
-) ENGINE=InnoDB;
-
-ALTER TABLE `api_forced_id`
-    ADD CONSTRAINT `fk_forcedid_resource` FOREIGN KEY (`resource_pid`) REFERENCES `api_resource` (`res_id`);
-
-ALTER TABLE `api_resource`
-    ADD CONSTRAINT `fk_resource_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
-
-ALTER TABLE `api_res_ver`
-    ADD CONSTRAINT `fk_resver_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
-
---
--- Reenable FOREIGN_KEY_CHECKS
---
-SET FOREIGN_KEY_CHECKS=1;

@@ -1,5 +1,4 @@
 <?php
-
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -31,7 +30,7 @@
 ?>
 <script>
     function CheckVisible(MakeBlank) {//Displays and hides the check number text box.Add and edit page uses the same function.
-        //In edit its value should not be lost on just a change.It is controlled be the 'MakeBlank' argument.
+                                      //In edit its value should not be lost on just a change.It is controlled be the 'MakeBlank' argument.
         if (document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value == 'check_payment' ||
             document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value == 'bank_draft') {
             document.getElementById('div_check_number').style.display = 'none';
@@ -114,8 +113,12 @@
         }
     }
 
-    function RestoreValues(CountIndex) {//old remainder is restored back
-        if (document.getElementById('Allowed' + CountIndex).value * 1 === 0 && document.getElementById('Payment' + CountIndex).value * 1 === 0 && document.getElementById('AdjAmount' + CountIndex).value * 1 === 0 && document.getElementById('Takeback' + CountIndex).value * 1 === 0) {
+    function RestoreValues(CountIndex) {
+        //old remainder is restored back
+        if (document.getElementById('Allowed' + CountIndex).value * 1 === 0 &&
+            document.getElementById('Payment' + CountIndex).value * 1 === 0 &&
+            document.getElementById('AdjAmount' + CountIndex).value * 1 === 0 &&
+            document.getElementById('Takeback' + CountIndex).value * 1 === 0) {
             document.getElementById('RemainderTd' + CountIndex).innerHTML = document.getElementById('HiddenRemainderTd' + CountIndex).value * 1
         }
     }
@@ -173,7 +176,7 @@
 
     //--------------------------------
     function SearchOnceMore() {//Used in the option buttons,listing the charges.
-        //'Non Paid', 'Show Primary Complete', 'Show All Transactions' uses this when a patient is selected through ajax.
+                               //'Non Paid', 'Show Primary Complete', 'Show All Transactions' uses this when a patient is selected through ajax.
         if (document.getElementById('hidden_patient_code').value * 1 > 0) {
             document.getElementById('mode').value = 'search';
             top.restoreSession();
@@ -184,7 +187,7 @@
     }
 
     function CheckUnappliedAmount() {//The value retured from here decides whether Payments can be posted/modified or not.
-        UnappliedAmount = document.getElementById('TdUnappliedAmount').innerHTML * 1;
+        let UnappliedAmount = document.getElementById('TdUnappliedAmount').innerHTML * 1;
         if (UnappliedAmount < 0) {
             return 1;
         } else if (UnappliedAmount > 0) {
@@ -194,9 +197,11 @@
         }
     }
 
-    function ValidateNumeric(TheObject) {//Numeric validations, used while typing numbers.
-        if (TheObject.value != TheObject.value * 1) {
-            alert(<?php echo xlj('Value Should be Numeric') ?>);
+    function ValidateNumeric(TheObject) {
+        //Numeric validations, used while typing numbers.
+        // Take into account comma currency numbers and allow.
+        if (isNaN(formatNumber(TheObject.value))) {
+            alert("<?php echo htmlspecialchars(xl('Value Should be Numeric'), ENT_QUOTES) ?>");
             TheObject.focus();
             return false;
         }
@@ -209,10 +214,12 @@
                 top.restoreSession();
                 document.getElementById('mode').value = 'new_payment';
                 document.forms[0].submit();
-            } else
+            } else {
                 return false;
-        } else
+            }
+        } else {
             return false;
+        }
     }
 
     function OpenEOBEntry() {//Used before allocating the recieved amount.
@@ -228,18 +235,20 @@
             return false;
     }
 
-    function ScreenAdjustment(PassedObject, CountIndex) {//Called when there is change in the amount by typing.
+    function ScreenAdjustment(PassedObject, CountIndex) {
+        //Called when there is change in the amount by typing.
         //Readjusts the various values.Another function FillAmount() is also used.
         //Ins1 case and allowed is filled means it is primary's first payment.
         //It moves to secondary or patient balance.
         //If primary again pays means ==>change Post For to Ins1 and do not enter any value in the allowed box.
-        let Allowed = document.getElementById('Allowed' + CountIndex).value * 1;
+        //
+        let Allowed = formatNumber(document.getElementById('Allowed' + CountIndex).value);
         if (document.getElementById('Allowed' + CountIndex).id === PassedObject.id) {
             document.getElementById('Payment' + CountIndex).value = Allowed;
         }
-        let Payment = document.getElementById('Payment' + CountIndex).value * 1;
-        let ChargeAmount = document.getElementById('HiddenChargeAmount' + CountIndex).value * 1;
-        let Remainder = document.getElementById('HiddenRemainderTd' + CountIndex).value * 1;
+        let Payment = formatNumber(document.getElementById('Payment' + CountIndex).value * 1);
+        let ChargeAmount = formatNumber(document.getElementById('HiddenChargeAmount' + CountIndex).value * 1);
+        let Remainder = formatNumber(document.getElementById('HiddenRemainderTd' + CountIndex).value * 1);
         if (document.getElementById('Allowed' + CountIndex).id === PassedObject.id) {
             if (document.getElementById('HiddenIns' + CountIndex).value === 1) {
                 document.getElementById('AdjAmount' + CountIndex).value = Math.round((ChargeAmount - Allowed) * 100) / 100;
@@ -247,9 +256,9 @@
                 document.getElementById('AdjAmount' + CountIndex).value = Math.round((Remainder - Allowed) * 100) / 100;
             }
         }
-        let AdjustmentAmount = document.getElementById('AdjAmount' + CountIndex).value * 1;
-        let CopayAmount = document.getElementById('HiddenCopayAmount' + CountIndex).value * 1;
-        let Takeback = document.getElementById('Takeback' + CountIndex).value * 1;
+        let AdjustmentAmount = formatNumber(document.getElementById('AdjAmount' + CountIndex).value * 1);
+        let CopayAmount = formatNumber(document.getElementById('HiddenCopayAmount' + CountIndex).value * 1);
+        let Takeback = formatNumber(document.getElementById('Takeback' + CountIndex).value * 1);
         if (document.getElementById('HiddenIns' + CountIndex).value === 1 && Allowed !== 0) {//Means it is primary's first payment.
             document.getElementById('RemainderTd' + CountIndex).innerHTML = Math.round((ChargeAmount - AdjustmentAmount - CopayAmount - Payment + Takeback) * 100) / 100;
         } else {//All other case.
@@ -258,27 +267,27 @@
         FillAmount();
     }
 
-    function FillAmount() {//Called when there is change in the amount by typing.
+    function FillAmount() {
+        //Called when there is change in the amount by typing.
         //Readjusts the various values.
+        let UnpostedAmt = 0;
         <?php
-        if ($screen == 'new_payment') {
-            ?>
-        UnpostedAmt = document.getElementById('HidUnpostedAmount').value * 1;
+        if ($screen == 'new_payment') { ?>
+        UnpostedAmt = formatNumber(document.getElementById('HidUnpostedAmount').value * 1);
             <?php
-        } else {
-            ?>
-        UnpostedAmt = document.getElementById('payment_amount').value * 1;
-            <?php
-        }
-        ?>
+        } else { ?>
+        UnpostedAmt = formatNumber(document.getElementById('payment_amount').value * 1);
+        <?php } ?>
 
-        TempTotal = 0;
+        let TempTotal = 0;
+        let RowCount, Takeback, thisPayment;
         for (RowCount = 1; ; RowCount++) {
             if (!document.getElementById('Payment' + RowCount))
                 break;
             else {
-                Takeback = document.getElementById('Takeback' + RowCount).value * 1;
-                TempTotal = Math.round((TempTotal + document.getElementById('Payment' + RowCount).value * 1 - Takeback) * 100) / 100;
+                Takeback = formatNumber(document.getElementById('Takeback' + RowCount).value * 1);
+                thisPayment = formatNumber(document.getElementById('Payment' + RowCount).value * 1)
+                TempTotal = Math.round((TempTotal + thisPayment - Takeback) * 100) / 100;
             }
         }
         document.getElementById('TdUnappliedAmount').innerHTML = Math.round((UnpostedAmt - TempTotal) * 100) / 100;
@@ -287,7 +296,7 @@
     }
 
     function ActionOnInsPat(CountIndex) {//Called when there is onchange in the Ins/Pat drop down.
-        InsPatDropDownValue = document.getElementById('payment_ins' + CountIndex).options[document.getElementById('payment_ins' + CountIndex).selectedIndex].value;
+        let InsPatDropDownValue = document.getElementById('payment_ins' + CountIndex).options[document.getElementById('payment_ins' + CountIndex).selectedIndex].value;
         document.getElementById('HiddenIns' + CountIndex).value = InsPatDropDownValue;
         InsPatDropDownValue = parseInt(InsPatDropDownValue);
         if (InsPatDropDownValue === 1) {
@@ -302,8 +311,9 @@
     }
 
     function CheckPayingEntityAndDistributionPostFor() {//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
-        PayingEntity = document.getElementById('type_name').options ? document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value : document.getElementById('type_name').value;
+        let PayingEntity = document.getElementById('type_name').options ? document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value : document.getElementById('type_name').value;
         let CountIndexAbove = 0;
+        let InsPatDropDownValue, RowCount;
         for (RowCount = CountIndexAbove + 1; ; RowCount++) {
             if (!document.getElementById('Payment' + RowCount))
                 break;
@@ -408,7 +418,8 @@
             return false;
         }
         <?php
-        if ($screen == 'edit_payment') { ?>
+        if ($screen == 'edit_payment') {
+            ?>
         if (document.getElementById('adjustment_code').options[document.getElementById('adjustment_code').selectedIndex].value == '') {
             let message = <?php echo xlj('Please Fill the Payment Category') ?>;
             (async (message, time) => {
@@ -453,15 +464,82 @@
     }
 
     //========================================================================================
-    function UpdateTotalValues(start, count, Payment, PaymentTotal) {//Used in totaling the columns.
+    function UpdateTotalValues(start, count, Payment, PaymentTotal) {
+        //Used in totaling the columns.
         var paymenttot = 0;
         if (count > 0) {
+            let tmpVal = 0.00;
             for (i = start; i < start + count; i++) {
                 if (document.getElementById(Payment + i)) {
-                    paymenttot = paymenttot + document.getElementById(Payment + i).value * 1;
+                    tmpVal = formatNumber(document.getElementById(Payment + i).value);
+                    paymenttot = paymenttot + tmpVal;
                 }
             }
             document.getElementById(PaymentTotal).innerHTML = Math.round((paymenttot) * 100) / 100;
         }
     }
+
+    function formatNumber(sNum) {
+        let fNum = 0.00;
+        if (isNaN(sNum)) {
+            fNum = parseFloat(sNum.replace(/,/g, '')) * 1;
+        } else {
+            fNum = (sNum * 1);
+        }
+
+        if(isNaN(fNum)) {
+            return fNum;
+        }
+
+        return fNum;
+    }
+    /*
+    * Just to ensure our in screen calculations are up to date from value fetches.
+    *  Start from AdjAmount otherwise ajustments will reset for 0 balance auto's.
+    *
+    * return awaited promise.
+    * */
+    async function ScreenAdjustmentAll($TotalRows) {
+        return await new Promise((resolve, reject) => {
+            try {
+                let PassedObject, CountIndex = 0;
+                for (CountIndex = 1; CountIndex <= $TotalRows; CountIndex++) {
+                    PassedObject = document.getElementById('AdjAmount' + CountIndex) ?? null;
+                    if (PassedObject !== null) {
+                        ScreenAdjustment(PassedObject, CountIndex);
+                    }
+                }
+                resolve(true);
+            } catch (e) {
+                reject(e.message);
+            }
+        });
+    }
+
+    /*
+    * Recalculate totals from form items on startup
+    * Include row item calculations.
+    *
+    * This function is an async/await in case used for various billing environments.
+    * */
+    async function updateAllFormTotals($TotalRows) {
+        $TotalRows = $TotalRows * 1;
+        // Do our row items.
+        // ScreenAdjust must complete first for valid totals
+        await ScreenAdjustmentAll($TotalRows).then(imFullfilled => {
+            // Now our totals..
+            if(imFullfilled === true) {
+                UpdateTotalValues(1, $TotalRows, 'Allowed', 'allowtotal');
+                UpdateTotalValues(1, $TotalRows, 'Payment', 'paymenttotal');
+                UpdateTotalValues(1, $TotalRows, 'AdjAmount', 'AdjAmounttotal');
+                UpdateTotalValues(1, $TotalRows, 'Deductible', 'deductibletotal');
+                UpdateTotalValues(1, $TotalRows, 'Takeback', 'takebacktotal');
+            } else {
+                alert("error " + e.message);
+            }
+        });
+
+        return false;
+    }
+
 </script>

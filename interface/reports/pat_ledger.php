@@ -59,7 +59,7 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
     $sql = "SELECT ar_session.*, ins.name, " .
       "pat.lname, pat.fname, pat.mname, " .
       "(SELECT SUM(ar_activity.pay_amount) FROM ar_activity WHERE " .
-      "ar_activity.session_id = ar_session.session_id) AS applied " .
+      "ar_activity.session_id = ar_session.session_id AND ar_activity.deleted IS NULL) AS applied " .
       "FROM ar_session " .
       "LEFT JOIN insurance_companies AS ins on ar_session.payer_id = ins.id " .
       "LEFT JOIN patient_data AS pat on ar_session.patient_id = pat.pid " .
@@ -129,7 +129,7 @@ function GetAllCredits($enc = '', $pat = '')
     $sql = "SELECT activity.*, session.*, ins.name FROM ar_activity AS " .
     "activity LEFT JOIN ar_session AS session USING (session_id) " .
     "LEFT JOIN insurance_companies AS ins ON session.payer_id = " .
-    "ins.id WHERE encounter=? AND pid=? " .
+    "ins.id WHERE encounter = ? AND pid = ? AND activity.deleted IS NULL" .
     "ORDER BY sequence_no";
     $result = sqlStatement($sql, array($enc, $pat));
     $iter = 0;

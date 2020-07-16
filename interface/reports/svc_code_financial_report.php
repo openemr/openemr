@@ -14,7 +14,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Visolve
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (C) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -217,7 +217,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "c.financial_reporting " .
     "FROM form_encounter as fe " .
     "JOIN billing as b on b.pid=fe.pid and b.encounter=fe.encounter " .
-    "JOIN (select pid,encounter,code,sum(pay_amount) as paid,sum(adj_amount) as adjust from ar_activity group by pid,encounter,code) as ar_act " .
+    "JOIN (select pid, encounter, code, sum(pay_amount) as paid, sum(adj_amount) as adjust " .
+    "from ar_activity WHERE deleted IS NULL group by pid, encounter, code) as ar_act " .
     "ON ar_act.pid=b.pid and ar_act.encounter=b.encounter and ar_act.code=b.code " .
     "LEFT OUTER JOIN codes AS c ON c.code = b.code " .
     "INNER JOIN code_types AS ct ON ct.ct_key = b.code_type AND ct.ct_fee = '1' " .

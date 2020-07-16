@@ -188,7 +188,7 @@ function getBillsBetweendayReport(
     "ar_activity.session_id AS sesid, ar_activity.account_code AS paytype, ar_activity.post_user AS user, ar_activity.memo AS reason," .
     "ar_activity.adj_amount AS pat_adjust_dollar, providerid as 'provider_id' " .
     "FROM ar_activity LEFT OUTER JOIN patient_data ON patient_data.pid = ar_activity.pid " .
-    "where 1=1 $query_part_day AND payer_type=0 ORDER BY fulname ASC, date ASC, pid");
+    "WHERE ar_activity.deleted IS NULL $query_part_day AND payer_type = 0 ORDER BY fulname ASC, date ASC, pid");
 
     for ($iter; $row = sqlFetchArray($query); $iter++) {
         $all[$iter] = $row;
@@ -199,7 +199,7 @@ function getBillsBetweendayReport(
     "ar_activity.session_id AS sesid, ar_activity.account_code AS paytype, ar_activity.post_user AS user, ar_activity.memo AS reason," .
     "ar_activity.adj_amount AS ins_adjust_dollar, providerid as 'provider_id' " .
     "FROM ar_activity LEFT OUTER JOIN patient_data ON patient_data.pid = ar_activity.pid " .
-    "where 1=1 $query_part_day AND payer_type!=0 ORDER BY  fulname ASC, date ASC, pid");
+    "WHERE ar_activity.deleted IS NULL $query_part_day AND payer_type != 0 ORDER BY fulname ASC, date ASC, pid");
 
     for ($iter; $row = sqlFetchArray($query); $iter++) {
         $all[$iter] = $row;
