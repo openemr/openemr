@@ -102,10 +102,6 @@ root {
   display: block;
 }
 
-.rule_detail p {
-  margin-bottom: -10px;
-}
-
 .action_link {
   font-size: small;
 }
@@ -156,4 +152,8 @@ root {
 
 input[type='text'].short {
   width: 80px;
+}
+
+.intervals span select {
+  width: inherit;
 }
