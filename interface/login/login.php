@@ -89,15 +89,15 @@ if (count($emr_app)) {
 $loginrow = "row login-row align-items-center m-5";
 
 if ($GLOBALS['login_page_layout'] == 'left') {
-  $logoarea = "col-md-6 login-bg-left py-3 px-5 py-md-login order-1 order-md-2";
-  $formarea = "col-md-6 p-5 login-area-left order-2 order-md-1";
+    $logoarea = "col-md-6 login-bg-left py-3 px-5 py-md-login order-1 order-md-2";
+    $formarea = "col-md-6 p-5 login-area-left order-2 order-md-1";
 } else if ($GLOBALS['login_page_layout'] == 'right') {
-  $logoarea = "col-md-6 login-bg-right py-3 px-5 py-md-login order-1 order-md-1";
-  $formarea = "col-md-6 p-5 login-area-right order-2 order-md-2";
+    $logoarea = "col-md-6 login-bg-right py-3 px-5 py-md-login order-1 order-md-1";
+    $formarea = "col-md-6 p-5 login-area-right order-2 order-md-2";
 } else {
-  $logoarea = "col-12 login-bg-center py-3 px-5 order-1";
-  $formarea = "col-12 p-5 login-area-center order-2";
-  $loginrow = "row login-row login-row-center align-items-center m-5";
+    $logoarea = "col-12 login-bg-center py-3 px-5 order-1";
+    $formarea = "col-12 p-5 login-area-center order-2";
+    $loginrow = "row login-row login-row-center align-items-center m-5";
 }
 
 ?>

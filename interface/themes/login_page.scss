@@ -88,13 +88,13 @@ body.login {
   }
 
   .login-area-right {
-	border-bottom-left-radius: 0.625rem;
-	border-bottom-right-radius: 0.625rem;
+    border-bottom-left-radius: 0.625rem;
+    border-bottom-right-radius: 0.625rem;
   }
 
   .login-area-center {
-	border-bottom-left-radius: 0.625rem;
-	border-bottom-right-radius: 0.625rem;
+    border-bottom-left-radius: 0.625rem;
+    border-bottom-right-radius: 0.625rem;
   }
 
   .login-bg-left {
@@ -103,8 +103,8 @@ body.login {
   }
 
   .login-bg-right {
-	border-top-left-radius: 0.625rem;
-	border-top-right-radius: 0.625rem;
+    border-top-left-radius: 0.625rem;
+    border-top-right-radius: 0.625rem;
   }
 
   .login-bg-center {
@@ -113,7 +113,7 @@ body.login {
   }
 
   .login-row-center {
-	  max-width: inherit;
+    max-width: inherit;
   }
 }
 
@@ -124,8 +124,8 @@ body.login {
   }
 
   .login-area-right {
-	border-bottom-right-radius: 0.625rem;
-	border-top-right-radius: 0.625rem;
+    border-bottom-right-radius: 0.625rem;
+    border-top-right-radius: 0.625rem;
   }
 
   .login-area-center {
@@ -139,19 +139,19 @@ body.login {
   }
 
   .login-bg-right {
-	border-bottom-left-radius: 0.625rem;
-	border-top-left-radius: 0.625rem;
+    border-bottom-left-radius: 0.625rem;
+    border-top-left-radius: 0.625rem;
   }
 
   .login-bg-center {
-	border-top-left-radius: 0.625rem;
-	border-top-right-radius: 0.625rem;
+    border-top-left-radius: 0.625rem;
+    border-top-right-radius: 0.625rem;
   }
 
   .login-row-center {
-	max-width: 50%;
-	margin-left: auto !important;
-	margin-right: auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 50%;
   }
 
   // Makes size bigger to accommodate color bug
