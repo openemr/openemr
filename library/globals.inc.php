@@ -203,6 +203,17 @@ $GLOBALS_METADATA = array(
             xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
         ),
 
+        'login_page_layout' => array(
+            xl('Login Page Layout') . '*',
+            array(
+                'center' => xl("Centered Layout"),
+                'left' => xl("Left-Form Layout"),
+                'right' => xl("Right-Form Layout"),
+            ),
+            'center',
+            xl('Changes the layout of the login page.')
+        ),
+
         'css_header' => array(
             // Note: Do not change this as it is only for theme defaults and adding themes here does nothing
             xl('General Theme') . '*',

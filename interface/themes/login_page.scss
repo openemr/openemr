@@ -69,27 +69,89 @@ body.login {
   resize: both;
 }
 
+.login-area-left,
+.login-area-right,
+.login-area-center {
+  background: $login-form-bg-color;
+}
+
+.login-bg-left,
+.login-bg-right,
+.login-bg-center {
+  background: linear-gradient(140deg, $login-color-1 0%, $login-color-2 35%, $login-color-3 100%);
+}
+
 @media (max-width: map-get($grid-breakpoints, "md")) {
-  .login-area {
+  .login-area-left {
     border-bottom-left-radius: 0.625rem;
     border-bottom-right-radius: 0.625rem;
   }
 
-  .login-bg {
+  .login-area-right {
+	border-bottom-left-radius: 0.625rem;
+	border-bottom-right-radius: 0.625rem;
+  }
+
+  .login-area-center {
+	border-bottom-left-radius: 0.625rem;
+	border-bottom-right-radius: 0.625rem;
+  }
+
+  .login-bg-left {
     border-top-left-radius: 0.625rem;
     border-top-right-radius: 0.625rem;
+  }
+
+  .login-bg-right {
+	border-top-left-radius: 0.625rem;
+	border-top-right-radius: 0.625rem;
+  }
+
+  .login-bg-center {
+    border-top-left-radius: 0.625rem;
+    border-top-right-radius: 0.625rem;
+  }
+
+  .login-row-center {
+	  max-width: inherit;
   }
 }
 
 @media (min-width: map-get($grid-breakpoints, "md")) {
-  .login-area {
+  .login-area-left {
     border-bottom-left-radius: 0.625rem;
     border-top-left-radius: 0.625rem;
   }
 
-  .login-bg {
+  .login-area-right {
+	border-bottom-right-radius: 0.625rem;
+	border-top-right-radius: 0.625rem;
+  }
+
+  .login-area-center {
+    border-bottom-left-radius: 0.625rem;
+    border-bottom-right-radius: 0.625rem;
+  }
+
+  .login-bg-left {
     border-bottom-right-radius: 0.625rem;
     border-top-right-radius: 0.625rem;
+  }
+
+  .login-bg-right {
+	border-bottom-left-radius: 0.625rem;
+	border-top-left-radius: 0.625rem;
+  }
+
+  .login-bg-center {
+	border-top-left-radius: 0.625rem;
+	border-top-right-radius: 0.625rem;
+  }
+
+  .login-row-center {
+	max-width: 50%;
+	margin-left: auto !important;
+	margin-right: auto !important;
   }
 
   // Makes size bigger to accommodate color bug
@@ -118,13 +180,13 @@ body.login {
   width: 15%;
 }
 
-.logo-left {
-  float: left;
+.login-bg-text-color {
+  color: $login-text-color !important;
 }
 
-.tinylogopng {
-  height: 43px;
-  width: 86px;
+.login-title-label {
+  font-size: 130%;
+  font-weight: bold;
 }
 
 #ui-id-1 > .message {
