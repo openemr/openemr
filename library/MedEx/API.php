@@ -2981,7 +2981,7 @@ class Setup extends Base
                                     <div id="pwd_rhelp" class="nodisplay signup_help" style=""><?php echo xlt('Passwords do not match.'); ?></div>
                                 </div>
                             </div>
-                            <div id="ihvread" name="ihvread" class="fa text-left showReminders">
+                            <div id="ihvread" name="ihvread" class="text-left showReminders">
                                             <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required>
                                             <label for="TERMS_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="Terms and Conditions"><?php echo xlt('I have read and my practice agrees to the'); ?>
                                                 <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a></label><br />
