@@ -151,14 +151,6 @@ RestConfig::$ROUTE_MAP = array(
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new PractitionerRestController())->patch($prid, $data);
     },
-    "GET /api/allergy_intolerance" => function () {
-        RestConfig::authorization_check("patients", "med");
-        return (new AllergyIntoleranceRestController())->getAll($_GET);
-    },
-    "GET /api/allergy_intolerance/:id" => function ($id) {
-        RestConfig::authorization_check("patients", "med");
-        return (new AllergyIntoleranceRestController())->getOne($id);
-    },
     "GET /api/patient/:pid/medical_problem" => function ($pid) {
         RestConfig::authorization_check("encounters", "notes");
         return (new ListRestController())->getAll($pid, "medical_problem");
@@ -183,11 +175,15 @@ RestConfig::$ROUTE_MAP = array(
     },
     "GET /api/patient/:pid/allergy" => function ($pid) {
         RestConfig::authorization_check("patients", "med");
-        return (new ListRestController())->getAll($pid, "allergy");
+        return (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $pid]);
     },
     "GET /api/patient/:pid/allergy/:aid" => function ($pid, $aid) {
         RestConfig::authorization_check("patients", "med");
-        return (new ListRestController())->getOne($pid, "allergy", $aid);
+        return (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $pid, 'lists.id' => $aid]);
+    },
+    "GET /api/allergy/:aid" => function ($aid) {
+        RestConfig::authorization_check("patients", "med");
+        return (new AllergyIntoleranceRestController())->getOne($aid);
     },
     "DELETE /api/patient/:pid/allergy/:aid" => function ($pid, $aid) {
         RestConfig::authorization_check("patients", "med");

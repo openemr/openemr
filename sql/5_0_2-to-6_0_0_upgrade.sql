@@ -1974,7 +1974,7 @@ CREATE UNIQUE INDEX `uuid` ON `lists` (`uuid`);
 #EndIf
 
 #IfMissingColumn lists verification
-ALTER TABLE `lists` ADD `verification` VARCHAR(36) NOT NULL DEFAULT "unconfirmed";
+ALTER TABLE `lists` ADD `verification` VARCHAR(36) NOT NULL DEFAULT '' COMMENT 'Reference to list_options option_id = allergyintolerance-verification';
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id allergyintolerance-verification
@@ -1986,3 +1986,4 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintoleranc
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'confirmed', 'Confirmed', 20);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'refuted', 'Refuted', 30);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'entered-in-error', 'Entered in Error', 40);
+#EndIf

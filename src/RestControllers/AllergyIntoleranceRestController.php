@@ -18,7 +18,6 @@ use OpenEMR\RestControllers\RestControllerHelper;
 class AllergyIntoleranceRestController
 {
     private $allergyIntoleranceService;
-    private const WHITELISTED_FIELDS = array();
 
     public function __construct()
     {
@@ -45,8 +44,7 @@ class AllergyIntoleranceRestController
      */
     public function getAll($search = array())
     {
-        $supportedSearch = $this->allergyIntoleranceService->filterData($search, self::WHITELISTED_FIELDS);
-        $processingResult = $this->allergyIntoleranceService->getAll($supportedSearch);
+        $processingResult = $this->allergyIntoleranceService->getAll($search);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
     }
 }
