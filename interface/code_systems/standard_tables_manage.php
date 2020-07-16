@@ -121,5 +121,5 @@ if ($newInstall === "1") {
     <?php
 }
 
-temp_dir_cleanup($db);
+//temp_dir_cleanup($db);
 ?>
