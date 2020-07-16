@@ -50,9 +50,9 @@ function temp_unarchive($filename, $type)
     // let's unzip the file
         $zip = new ZipArchive();
         if ($zip->open($filename) === true) {
-                if (!($zip->extractTo($GLOBALS['temporary_files_dir'] . "/" . $type))) {
-                    return false;
-                }
+            if (!($zip->extractTo($GLOBALS['temporary_files_dir'] . "/" . $type))) {
+                return false;
+            }
             $zip->close();
             return true;
         } else {
