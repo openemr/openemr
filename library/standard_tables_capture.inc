@@ -48,10 +48,7 @@ function temp_unarchive($filename, $type)
         return false;
     } else {
     // let's unzip the file
-    // use checksums to determine the "version"
-    //
         $zip = new ZipArchive();
-        error_log("filename is " . $filename);
         if ($zip->open($filename) === true) {
                 if (!($zip->extractTo($GLOBALS['temporary_files_dir'] . "/" . $type))) {
                     return false;
@@ -433,9 +430,9 @@ function icd_import($type)
     // set up paths
     $dir_icd = $GLOBALS['temporary_files_dir'] . "/" . $type . "/";
     $dir = str_replace('\\', '/', $dir_icd);
+    // since CMS nested the ICD10 codes...
     if ($type == 'ICD10') {
         $dir = $dir . "/2020 Code Descriptions/";
-        error_log("dir is $dir");
     }
     $db_load = '';
     $db_update = '';
