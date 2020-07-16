@@ -112,6 +112,12 @@ function generate_html_middle()
     posted_to_hidden('languageChoice');
     posted_to_hidden('authUser');
     posted_to_hidden('clearPass');
+    // to be safe, remove clearPass from memory now
+    if (function_exists('sodium_memzero')) {
+        sodium_memzero($_POST["clearPass"]);
+    } else {
+        $_POST["clearPass"] = '';
+    }
 }
 
 require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
