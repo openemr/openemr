@@ -57,7 +57,7 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [Practitioner API](API_README.md#get-apipractitioner)
     -   [Patient API](API_README.md#post-apipatient)
     -   [Immunization API](API_README.md#get-apiimmunization)
-    -   [Allergy API](API_README.md#get-apiallergyaid)
+    -   [Allergy API](API_README.md#get-apiallergy)
     -   [Insurance API](API_README.md#get-apipatientpidinsurance)
     -   [Appointment API](API_README.md#get-apiappointment)
     -   [Document API](API_README.md#get-apipatientpiddocument)
@@ -827,6 +827,14 @@ Request:
 
 ```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
+```
+
+#### GET /api/allergy
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/api/allergy'
 ```
 
 #### GET /api/allergy/:aid

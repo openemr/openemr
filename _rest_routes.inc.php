@@ -9,9 +9,11 @@
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Yash Raj Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Yash Raj Bothra <yashrajbothra786@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -180,6 +182,10 @@ RestConfig::$ROUTE_MAP = array(
     "GET /api/patient/:pid/allergy/:aid" => function ($pid, $aid) {
         RestConfig::authorization_check("patients", "med");
         return (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $pid, 'lists.id' => $aid]);
+    },
+    "GET /api/allergy" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new AllergyIntoleranceRestController())->getAll();
     },
     "GET /api/allergy/:aid" => function ($aid) {
         RestConfig::authorization_check("patients", "med");
