@@ -118,7 +118,7 @@ class AllergyIntoleranceService extends BaseService
                         LEFT JOIN list_options as verification ON verification.option_id = lists.verification
                         LEFT JOIN users as us ON us.id = lists.referredby
                         RIGHT JOIN patient_data as patient ON patient.id = lists.pid
-                        AND lists.uuid = ?";
+                        WHERE type = 'allergy' AND lists.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
