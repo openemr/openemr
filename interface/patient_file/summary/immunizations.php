@@ -1147,6 +1147,7 @@ function sel_code(id)
 
 $(function () {
   $(".auto").select2({
+        width: '100%',
         ajax: {
             url: "../../../library/ajax/imm_autocomplete/search.php",
             dataType: 'json',
