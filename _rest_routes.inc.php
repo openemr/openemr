@@ -31,6 +31,7 @@ use OpenEMR\RestControllers\ListRestController;
 use OpenEMR\RestControllers\InsuranceCompanyRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\RestControllers\AuthRestController;
+use OpenEMR\RestControllers\ConditionRestController;
 use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\ImmunizationRestController;
@@ -152,6 +153,14 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new PractitionerRestController())->patch($prid, $data);
+    },
+    "GET /api/medical_problem" => function () {
+        RestConfig::authorization_check("encounters", "notes");
+        return (new ConditionRestController())->getAll();
+    },
+    "GET /api/medical_problem/:mid" => function ($mid) {
+        RestConfig::authorization_check("encounters", "notes");
+        return (new ConditionRestController())->getOne($mid);
     },
     "GET /api/patient/:pid/medical_problem" => function ($pid) {
         RestConfig::authorization_check("encounters", "notes");
