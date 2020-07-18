@@ -163,7 +163,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                     <div class="status" id="<?php echo attr($db); ?>_status">
                     </div>
                     <div class="row px-5">
-                    <div class="left_wrpr col-md-4 col-sm-4">
+                    <div class="left_wrpr mr-5 mb-5 mb-lg-0 col-lg-4">
                         <div class="inst_dets">
                             <div class="inst_hdr"><?php echo xlt("Installed Release"); ?>
                             </div>
@@ -177,7 +177,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                         <div >
                         </div>
                     </div>
-                    <div class="wrpr col-md-7 col-sm-7 offset-sm-1">
+                    <div class="wrpr col-lg-7">
                         <div class="stg_dets">
                             <div class="stg_hdr" id="<?php echo attr($db); ?>_stg_hdr"><?php echo xlt("Staged Releases"); ?>
                             </div>
