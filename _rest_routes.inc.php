@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Routes
  * (All REST routes)
@@ -9,9 +8,11 @@
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Alberto Moliner <amolicas79@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
- * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Alberto Moliner <amolicas79@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -33,6 +34,7 @@ use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\ImmunizationRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
+use OpenEMR\RestControllers\CodesRestController;
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -353,6 +355,20 @@ RestConfig::$ROUTE_MAP = array(
     "GET /api/immunization/:id" => function ($id) {
         RestConfig::authorization_check("patients", "med");
         return (new ImmunizationRestController())->getOne($id);
+    },
+    "GET /api/codes" => function () {
+        return (new CodesRestController())->getAll();
+    },
+    "GET /api/codes/:cid" => function ($cid) {
+        return (new CodesRestController())->getOne($cid);
+    },
+    "POST /api/codes" => function () {
+        $data = (array)(json_decode(utf8_encode(file_get_contents("php://input"))));
+        return (new CodesRestController())->post($data);
+    },
+    "PUT /api/codes/:cid" => function ($cid) {
+        $data = (array)(json_decode(utf8_encode(file_get_contents("php://input"))));
+        return (new CodesRestController())->put($cid, $data);
     },
 
 );
