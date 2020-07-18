@@ -12,8 +12,8 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\CodesService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\CodesService;
 
 class CodesRestController
 {

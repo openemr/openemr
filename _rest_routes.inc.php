@@ -10,7 +10,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Alberto Moliner <amolicas79@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
- * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Alberto Moliner <amolicas79@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -30,11 +30,11 @@ use OpenEMR\RestControllers\InsuranceCompanyRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\RestControllers\AuthRestController;
 use OpenEMR\RestControllers\ONoteRestController;
+use OpenEMR\RestControllers\CodesRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\ImmunizationRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
-use OpenEMR\RestControllers\CodesRestController;
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
