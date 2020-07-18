@@ -92,9 +92,7 @@ $row = sqlFetchArray($res);
 <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
     <div class="row">
         <div class="col-sm-12">
-            <div class="page-header">
             <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-            </div>
         </div>
     </div>
     <div class="row">

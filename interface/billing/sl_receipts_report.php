@@ -162,7 +162,7 @@ $form_facility   = $_POST['form_facility'];
 <div class="container">
     <div class="row">
         <div class="col-sm-12">
-            <div class="page-header clearfix">
+            <div class="clearfix">
                 <h2 class="title">
                     <?php echo xlt('Report'); ?> - <?php echo xlt('Cash Receipts by Provider'); ?>
                 </h2>

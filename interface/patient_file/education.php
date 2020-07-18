@@ -115,25 +115,23 @@ if ($_POST['bn_submit']) {
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <div class="page-header">
-                    <h3>
-                        <?php
-                        echo xlt('Educational materials for');
-                        echo ' ' . text($codetype) . ' ';
-                        echo xlt('code');
-                        echo ' "' . text($codevalue) . '"';
-                        if ($language) {
-                            echo ' ' . xlt('with preferred language') . ' ' .
-                            text(getListItemTitle('language', $_REQUEST['language']));
-                        }
-                        ?>
-                    </h3>
+                <h3>
                     <?php
-                    if ($errmsg) {
-                        echo "<p style='color:red'>" . text($errmsg) . "</p>\n";
+                    echo xlt('Educational materials for');
+                    echo ' ' . text($codetype) . ' ';
+                    echo xlt('code');
+                    echo ' "' . text($codevalue) . '"';
+                    if ($language) {
+                        echo ' ' . xlt('with preferred language') . ' ' .
+                        text(getListItemTitle('language', $_REQUEST['language']));
                     }
                     ?>
-                </div>
+                </h3>
+                <?php
+                if ($errmsg) {
+                    echo "<p style='color:red'>" . text($errmsg) . "</p>\n";
+                }
+                ?>
             </div>
         </div>
         <div class='row'>

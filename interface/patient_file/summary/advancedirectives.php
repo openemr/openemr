@@ -76,9 +76,7 @@ use OpenEMR\Core\Header;
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <div class="page-header">
-                    <h3><?php echo xlt('Advance Directives'); ?></h3>
-                </div>
+                <h3><?php echo xlt('Advance Directives'); ?></h3>
             </div>
         </div>
         <div class="row">

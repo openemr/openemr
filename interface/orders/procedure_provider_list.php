@@ -79,7 +79,7 @@ function doedclick_edit(ppid) {
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-header clearfix">
+                <div class="clearfix">
                     <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo xlt('Procedure Providers');?></span><?php echo $help_icon; ?></h2>
                 </div>
             </div>

@@ -668,7 +668,7 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
         if ($_REQUEST['ParentPage'] == 'new_payment') {
             ?>
             <div class="row">
-                <div class="page-header">
+                <div class="col-12">
                     <h2><?php echo xlt('Payments'); ?></h2>
                 </div>
             </div>

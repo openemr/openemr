@@ -85,9 +85,7 @@ function docancel() {
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-header">
-                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-                </div>
+                <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
         </div>
         <form method='post' action='mfa_u2f.php' onsubmit='return top.restoreSession()'>

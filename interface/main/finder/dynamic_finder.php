@@ -339,9 +339,7 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
 </head>
 <body class="body_top">
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
-        <div class="page-header">
-            <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-        </div>
+        <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
         <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
             <button id="create_patient_btn1" class="btn btn-secondary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
         <?php } ?>
