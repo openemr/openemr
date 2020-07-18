@@ -6306,7 +6306,7 @@ CREATE TABLE `lists` (
   `begdate` date default NULL,
   `enddate` date default NULL,
   `returndate` date default NULL,
-  `occurrence` int(11) default '0',
+  `occurrence` int(11) default '0' COMMENT "Reference to list_options option_id='occurrence'",
   `classification` int(11) default '0',
   `referredby` varchar(255) default NULL,
   `extrainfo` varchar(255) default NULL,
