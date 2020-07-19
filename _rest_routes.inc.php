@@ -175,21 +175,21 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "med");
         return (new ListRestController())->delete($pid, $mid, "medical_problem");
     },
-    "GET /api/patient/:pid/allergy" => function ($pid) {
-        RestConfig::authorization_check("patients", "med");
-        return (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $pid]);
-    },
-    "GET /api/patient/:pid/allergy/:aid" => function ($pid, $aid) {
-        RestConfig::authorization_check("patients", "med");
-        return (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $pid, 'lists.id' => $aid]);
-    },
     "GET /api/allergy" => function () {
         RestConfig::authorization_check("patients", "med");
         return (new AllergyIntoleranceRestController())->getAll();
     },
-    "GET /api/allergy/:aid" => function ($aid) {
+    "GET /api/allergy/:aid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new AllergyIntoleranceRestController())->getOne($aid);
+        return (new AllergyIntoleranceRestController())->getOne($uuid);
+    },
+    "GET /api/patient/:pid/allergy" => function ($pid) {
+        RestConfig::authorization_check("patients", "med");
+        return (new ListRestController())->getAll($pid, "allergy");
+    },
+    "GET /api/patient/:pid/allergy/:aid" => function ($pid, $aid) {
+        RestConfig::authorization_check("patients", "med");
+        return (new ListRestController())->getOne($pid, "allergy", $aid);
     },
     "DELETE /api/patient/:pid/allergy/:aid" => function ($pid, $aid) {
         RestConfig::authorization_check("patients", "med");

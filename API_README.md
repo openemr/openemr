@@ -837,12 +837,12 @@ Request:
 curl -X GET 'http://localhost:8300/apis/api/allergy'
 ```
 
-#### GET /api/allergy/:aid
+#### GET /api/allergy/:uuid
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/api/allergy/1'
+curl -X GET 'http://localhost:8300/apis/api/allergy/90c196f2-51cc-4655-8858-3a80aebff3ef'
 ```
 
 #### GET /api/patient/:pid/allergy
