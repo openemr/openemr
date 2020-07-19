@@ -67,8 +67,9 @@ $main_spell .= "ORDER BY procedure_report.date_collected DESC ";
 
 // some styles and javascripts
 // ####################################################
-echo "<html><head>";
 ?>
+<html>
+<head>
 <title><?php echo xlt("Labs"); ?></title>
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
@@ -79,40 +80,57 @@ echo "<html><head>";
 
 <script>
 function checkAll(bx) {
-    for (var tbls=document.getElementsByTagName("table"), i=tbls.length; i--; )
-      for (var bxs=tbls[i].getElementsByTagName("input"), j=bxs.length; j--; )
-         if (bxs[j].type=="checkbox")
+    for (var tbls=document.getElementsByTagName("table"), i=tbls.length; i--; ) {
+        for (var bxs=tbls[i].getElementsByTagName("input"), j=bxs.length; j--; ) {
+        if (bxs[j].type=="checkbox") {
             bxs[j].checked = bx.checked;
+        }
+      }
+    }
 }
-
 </script>
-<?php ##############################################################################
-echo "</head><body class='body_top'>";
-echo "<div id='labdata'>";
-echo "<h2>" . xlt('Labs') . "</h2>";
-echo "<span class='text'>";
-// some patient data...
-$spell  = "SELECT * ";
-$spell .= "FROM patient_data ";
-$spell .= "WHERE pid = ?";
-//---
-$myrow = sqlQuery($spell, array($pid));
-$lastname = $myrow["lname"];
-$firstname  = $myrow["fname"];
-$DOB  = $myrow["DOB"];
+</head>
+<body>
+    <div id='labdata'>
+    <h2><?php echo xlt('Labs'); ?></h2>
+        <span class='text'>
 
+        <?php
+        // some patient data...
+        $spell  = "SELECT * ";
+        $spell .= "FROM patient_data ";
+        $spell .= "WHERE pid = ?";
+        //---
+        $myrow = sqlQuery($spell, array($pid));
+        $lastname = $myrow["lname"];
+        $firstname  = $myrow["fname"];
+        $DOB  = $myrow["DOB"];
 
+        ?>
 
-if ($printable) {
-    echo "<table border=0>";
-    echo "<tr><td>" . xlt('Patient') . ": </td><td><b>" . text($lastname) . ", " . text($firstname) . "</b></td></tr>";
-    echo "<tr><td>" . xlt('Patient ID') . ": </td><td>" . text($pid) . "</td></tr>";
-    echo "<tr><td>" . xlt('Date of birth') . ": </td><td>" . text($DOB) . "</td></tr>";
-    echo "<tr><td>" . xlt('Access date') . ": </td><td>" . text(date('Y-m-d - H:i:s')) . "</td></tr>";
-    echo "</table>";
-}
+        <?php
+        if ($printable) { ?>
+            <table class="table">
+                <tr>
+                    <td><?php echo xlt('Patient') ?></td>
+                    <td class="font-weight-bold"><?php echo text($lastname) . ", " . text($firstname) ?></td>
+                </tr>
+                <tr>
+                    <td><?php echo xlt('Patient ID') ?></td>
+                    <td><?php echo text($pid) ?>"</td>
+                </tr>
+                <tr>
+                    <td><?php echo xlt('Date of birth') ?></td>
+                    <td><?php echo text($DOB) ?>"</td>
+                </tr>
+                <tr>
+                    <td><?php echo xlt('Access date') ?></td>
+                    <td><?php echo text(date('Y-m-d - H:i:s')) ?>"</td>
+                </tr>
+            </table>
+        <?php } ?>
 
-
+<?php
 echo "<div id='reports_list'>";
 if (!$printable) {
     echo "<form method='post' action='" . attr($path_to_this_script) . "' onsubmit='return top.restoreSession()'>";
@@ -162,22 +180,24 @@ if (!$printable) {
     echo "</table>";
     echo "</div>";
 
-    ?><input type='checkbox' onclick="checkAll(this)" /> <?php echo xlt('Toggle All') . "<br/>";
+    ?>
+    <input type='checkbox' onclick="checkAll(this)" />
+    <?php echo xlt('Toggle All') . "<br/>";
     echo "<table><tr>";
     // Choose output mode [list vs. matrix]
     echo "<td>" . xlt('Select output') . ":</td>";
     echo "<td><input type='radio' name='mode' ";
     $mode = $_POST['mode'];
-if ($mode == 'list') {
-    echo "checked='checked' ";
-}
+    if ($mode == 'list') {
+        echo "checked='checked' ";
+    }
 
     echo " value='list'> " . xlt('List') . "<br />";
 
     echo "<input type='radio' name='mode' ";
-if ($mode != 'list') {
-    echo "checked='checked' ";
-}
+    if ($mode != 'list') {
+        echo "checked='checked' ";
+    }
 
     echo " value='matrix'> " . xlt('Matrix') . "<br />";
 
