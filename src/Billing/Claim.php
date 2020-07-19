@@ -5,7 +5,7 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -212,9 +212,12 @@ class Claim
             $this->procs[] = $row;
         }
 
-        $resMoneyGot = sqlStatement("SELECT pay_amount as PatientPay,session_id as id," .
-        "date(post_time) as date FROM ar_activity WHERE pid = ? AND encounter = ? AND " .
-        "payer_type=0 AND account_code='PCP'", array($this->pid, $this->encounter_id));
+        $resMoneyGot = sqlStatement(
+            "SELECT pay_amount as PatientPay, session_id as id, " .
+            "date(post_time) as date FROM ar_activity WHERE pid = ? AND encounter = ? AND " .
+            "deleted IS NULL AND payer_type = 0 AND account_code = 'PCP'",
+            array($this->pid, $this->encounter_id)
+        );
           //new fees screen copay gives account_code='PCP'
         while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {
               $PatientPay = $rowMoneyGot['PatientPay'] * -1;

@@ -122,6 +122,38 @@ class C_Document extends Controller
         return $this->list_action($patient_id);
     }
 
+    function zip_dicom_folder($study_name = null)
+    {
+        $zip = new ZipArchive();
+        $zip_name = $GLOBALS['temporary_files_dir'] . "/" . $study_name;
+        if ($zip->open($zip_name, (ZipArchive::CREATE | ZipArchive::OVERWRITE)) === true) {
+            foreach ($_FILES['dicom_folder']['name'] as $i => $name) {
+                $zfn = $GLOBALS['temporary_files_dir'] . "/" . $name;
+                $fparts = pathinfo($name);
+                if ($fparts['extension'] == "DCM") {
+                    // viewer requires lowercase.
+                    $fparts['extension'] = "dcm";
+                    $name = $fparts['filename'] . ".dcm";
+                }
+                // required extension for viewer
+                if ($fparts['extension'] != "dcm") {
+                    continue;
+                }
+                move_uploaded_file($_FILES['dicom_folder']['tmp_name'][$i], $zfn);
+                $zip->addFile($zfn, $name);
+            }
+            $zip->close();
+        } else {
+            return false;
+        }
+        $file_array['name'][] = $study_name;
+        $file_array['type'][] = 'zip';
+        $file_array['tmp_name'][] = $zip_name;
+        $file_array['error'][] = '';
+        $file_array['size'][] = filesize($zip_name);
+        return $file_array;
+    }
+
     //Upload multiple files on single click
     function upload_action_process()
     {
@@ -167,6 +199,19 @@ class C_Document extends Controller
             $patient_id = $_POST['patient_id'];
         }
 
+        if (!empty($_FILES['dicom_folder']['name'][0])) {
+            // let's zip um up then pass along new zip
+            $study_name = $_POST['destination'] ? (trim($_POST['destination']) . ".zip") : 'DicomStudy.zip';
+            $study_name =  preg_replace('/\s+/', '_', $study_name);
+            $_POST['destination'] = "";
+            $zipped = $this->zip_dicom_folder($study_name);
+            if ($zipped) {
+                $_FILES['file'] = $zipped;
+            }
+            // and off we go! just fall through and let routine
+            // do its normal file processing..
+        }
+
         $sentUploadStatus = array();
         if (count($_FILES['file']['name']) > 0) {
             $upl_inc = 0;
@@ -205,9 +250,9 @@ class C_Document extends Controller
                                     unset($head);
                                     // if here -then a DICOM
                                     $parts = pathinfo($stat['name']);
-                                    if (strtolower($parts['extension']) != "dcm") { // require extension for viewer
-                                        $new_name = $stat['name'] . ".dcm";
-                                        $za->renameIndex($i, $new_name); // only use index rename!
+                                    if ($parts['extension'] != "dcm") { // required extension for viewer
+                                        $new_name = $parts['filename'] . ".dcm";
+                                        $za->renameName($i, $new_name); // viewer requires lowercase
                                     }
                                 } else { // Rarely here
                                     $mimetype = "application/zip";

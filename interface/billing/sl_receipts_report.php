@@ -13,7 +13,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -500,7 +500,7 @@ $form_facility   = $_POST['form_facility'];
                         "LEFT OUTER JOIN billing AS b ON b.pid = a.pid AND b.encounter = a.encounter AND " .
                         "b.code = a.code AND b.modifier = a.modifier AND b.activity = 1 AND " .
                         "b.code_type != 'COPAY' AND b.code_type != 'TAX' " .
-                        "WHERE a.pay_amount != 0 AND ( " .
+                        "WHERE a.deleted IS NULL AND a.pay_amount != 0 AND ( " .
                         "a.post_time >= ? AND a.post_time <= ? " .
                         "OR fe.date >= ? AND fe.date <= ? " .
                         "OR s.deposit_date >= ? AND s.deposit_date <= ? )";

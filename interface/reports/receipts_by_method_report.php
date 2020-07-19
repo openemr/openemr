@@ -15,7 +15,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -528,7 +528,7 @@ if ($_POST['form_refresh']) {
           "JOIN forms AS f ON f.pid = a.pid AND f.encounter = a.encounter AND f.formdir = 'newpatient' " .
           "LEFT JOIN ar_session AS s ON s.session_id = a.session_id " .
           "LEFT JOIN insurance_companies AS i ON i.id = s.payer_id " .
-          "WHERE ( a.pay_amount != 0 OR a.adj_amount != 0 )";
+          "WHERE a.deleted IS NULL AND (a.pay_amount != 0 OR a.adj_amount != 0)";
         //
         if ($form_use_edate) {
             $query .= " AND fe.date >= ? AND fe.date <= ?";

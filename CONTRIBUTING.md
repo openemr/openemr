@@ -11,6 +11,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 	- If you haven't already, [install git](https://git-scm.com/downloads) for your system
 2. `cd openemr` (the directory you cloned the code into)
     - If you haven't already, [install Docker](https://docs.docker.com/install/) and [install compose](https://docs.docker.com/compose/install/) for your system
+	- If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
 3. Run `docker-compose up` from your command line
     - When the build is done, you'll see the following message:
     ```sh
@@ -155,7 +156,25 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools disable-multisite'
       ```
-14. Xdebug and profiling is also supported for PHPStorm.
+14. Developer tool to change the database character set and collation (character set is the encoding that is used to store data in the database; collation are a set of rules that the database uses to sort the stored data).
+    - Best to demonstrate this devtool with examples.
+        - Set character set to utf8mb4 and collation to utf8mb4_general_ci (this is default for OpenEMR 6 and higher):
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools change-encoding-collation utf8mb4 utf8mb4_general_ci'
+          ```
+        - Set character set to utf8mb4 and collation to utf8mb4_unicode_ci:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools change-encoding-collation utf8mb4 utf8mb4_unicode_ci'
+          ```
+        - Set character set to utf8mb4 and collation to utf8mb4_vietnamese_ci:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools change-encoding-collation utf8mb4 utf8mb4_vietnamese_ci'
+          ```
+        - Set character set to utf8 and collation to utf8_general_ci (this is default for OpenEMR 5 and lower):
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools change-encoding-collation utf8 utf8_general_ci'
+          ```
+15. Xdebug and profiling is also supported for PHPStorm.
     - Firefox install xdebug helper add on (configure for PHPSTORM)
     - PHPStorm Settings->Language & Frameworks->PHP->Debug
         - Start listening
@@ -163,9 +182,9 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
         - Untoggle both settings that start with "Force Break at first line..."
      - Make sure port 9000 is open on your host operating system
      - Profiling output can be found in /tmp directory in the docker
-15. When you're done, it's best to clean up after yourself with `docker-compose down -v`
+16. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
-16. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+17. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 We look forward to your contribution...
 
