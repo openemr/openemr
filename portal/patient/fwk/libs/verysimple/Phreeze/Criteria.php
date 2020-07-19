@@ -37,7 +37,7 @@ class Criteria
     private $_or = array ();
     public $PrimaryKeyField;
     public $PrimaryKeyValue;
-    
+
     /**
      *
      * @var $Filters a CriteriaFilter or array of CriteriaFilters to be applied to the query
@@ -47,13 +47,13 @@ class Criteria
     {
         $this->_constructor_where = $where;
         $this->_constructor_order = $order;
-        
+
         $this->_where = $where;
         $this->_order = $order;
-        
+
         $this->Init();
     }
-    
+
     /**
      * Init is called directly after construction and can be overridden.
      * If the
@@ -65,7 +65,7 @@ class Criteria
     {
         $this->_map_object_class = str_replace("Criteria", "Map", get_class($this));
     }
-    
+
     /**
      * Add a CriteriaFilter to the criteria for custom filtering of results
      *
@@ -79,7 +79,7 @@ class Criteria
 
         $this->Filters [] = $filter;
     }
-    
+
     /**
      * Return an array of CriteriaFilters that have been added to this criteria
      *
@@ -89,7 +89,7 @@ class Criteria
     {
         return $this->Filters;
     }
-    
+
     /**
      * Remove all filters that are currently attached
      */
@@ -97,7 +97,7 @@ class Criteria
     {
         $this->Filters = null;
     }
-    
+
     /**
      * Adds a criteria to be joined w/ an "and" statement.
      * Criterias to foreign objects may be added as long as they
@@ -113,7 +113,7 @@ class Criteria
     {
         $this->_and [] = $criteria;
     }
-    
+
     /**
      * Return any and criterias that have been added to this criteria
      *
@@ -123,7 +123,7 @@ class Criteria
     {
         return $this->_and;
     }
-    
+
     /**
      * Escape values for insertion into a SQL query string
      *
@@ -133,7 +133,7 @@ class Criteria
     {
         return DataAdapter::Escape($val);
     }
-    
+
     /**
      * Returns DataAdapter::GetQuotedSql($val)
      *
@@ -145,7 +145,7 @@ class Criteria
     {
         return DataAdapter::GetQuotedSql($val);
     }
-    
+
     /**
      * Adds a criteria to be joined w/ an "or" statement.
      * Criterias to foreign objects may be added as long as they
@@ -161,7 +161,7 @@ class Criteria
     {
         $this->_or [] = $criteria;
     }
-    
+
     /**
      * Return any 'or' criterias that have been added to this criteria
      *
@@ -171,7 +171,7 @@ class Criteria
     {
         return $this->_or;
     }
-    
+
     /**
      * Reset the Criteria for re-use.
      * This is called by querybuilder after the criteria has been used
@@ -183,7 +183,7 @@ class Criteria
         $this->_where = $this->_constructor_where;
         $this->_order = $this->_constructor_order;
     }
-    
+
     /**
      * Prepare is called just prior to execution and will fire OnPrepare after it completes
      * If this is a base Criteria class, then we can only do a lookup by PrimaryKeyField or
@@ -192,7 +192,7 @@ class Criteria
      * used by inherited Criteria classes because we don't know what table this is associated
      * with, so we can't translate property names to column names.
      */
-    final private function Prepare()
+    final protected function Prepare()
     {
         if (! $this->_is_prepared) {
             if (get_class($this) == "Criteria") {
@@ -207,18 +207,18 @@ class Criteria
                 // build a query based on any values that have been set
                 $this->_where = '';
                 $this->_where_delim = '';
-                
+
                 $props = get_object_vars($this);
                 foreach ($props as $prop => $val) {
                     // TODO: tighten this up a bit to reduce redundant code
                     if ($prop == "Filters" && isset($val) && (is_array($val) || is_a($val, 'CriteriaFilter'))) {
                         // a filter object will take care of generating it's own where statement
-                        
+
                         // normalize the input to accept either an individual filter or multiple filters
                         $filters = (is_array($val)) ? $val : array (
                                 $val
                         );
-                        
+
                         foreach ($filters as $filter) {
                             $this->_where .= $this->_where_delim . ' ' . $filter->GetWhere($this);
                             $this->_where_delim = " and";
@@ -288,7 +288,7 @@ class Criteria
                         if (! is_array($val)) {
                             $val = explode(',', $val);
                         }
-                            
+
                             // if the count is zero, technically the user is saying that they don't
                             // want any results. the only way to do that is to make the criteria
                             // something that will for sure not match any existing records. we cannot
@@ -297,7 +297,7 @@ class Criteria
                         if (count($val) == 0) {
                             array_push($val, "$prop EMPTY PHREEZE CRITERIA ARRAY");
                         }
-                        
+
                         $dbfield = $this->GetFieldFromProp(str_replace("_In", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " in (";
                         $indelim = "";
@@ -313,7 +313,7 @@ class Criteria
                         if (! is_array($val)) {
                             $val = explode(',', $val);
                         }
-                            
+
                             // if the count is zero, technically the user is saying that they don't
                             // want any results. the only way to do that is to make the criteria
                             // something that will for sure not match any existing records. we cannot
@@ -322,7 +322,7 @@ class Criteria
                         if (count($val) == 0) {
                             array_push($val, "$prop EMPTY PHREEZE CRITERIA ARRAY");
                         }
-                        
+
                         $dbfield = $this->GetFieldFromProp(str_replace("_NotIn", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " not in (";
                         $indelim = "";
@@ -336,17 +336,17 @@ class Criteria
                     }
                 }
             }
-            
+
             // prepend the sql so the statement will work correctly
             if ($this->_where) {
                 $this->_where = " where " . $this->_where;
             }
-            
+
             // if the user has called SetOrder then use that for the order
             if ($this->_set_order) {
                 $this->_order = $this->_set_order;
             }
-            
+
             // if any of the filters have an order by then add those
             if (is_array($this->Filters)) {
                 $orderDelim = $this->_order ? ',' : '';
@@ -358,11 +358,11 @@ class Criteria
                     }
                 }
             }
-            
+
             if ($this->_order) {
                 $this->_order = " order by " . $this->_order;
             }
-            
+
             $this->OnPrepare();
             $this->_is_prepared = true;
         }
@@ -385,7 +385,7 @@ class Criteria
         $this->Prepare();
         return $this->_order;
     }
-    
+
     /**
      * Adds an object property to the order by clause.
      * If any sorting needs to be done
@@ -404,9 +404,9 @@ class Criteria
             // no property was specified.
             return;
         }
-        
+
         $this->_order_delim = ($this->_set_order) ? "," : "";
-        
+
         if ($property == '?') {
             $this->_set_order = "RAND()" . $this->_order_delim . $this->_set_order;
         } else {
@@ -420,7 +420,7 @@ class Criteria
             // we have to open the file to get the fieldmaps
             $mapname = $this->_map_object_class;
             $this->IncludeMap($mapname);
-            
+
             $this->_fieldmaps = call_user_func(array (
                     $mapname,
                     "GetFieldMaps"
@@ -431,7 +431,7 @@ class Criteria
             ));
         }
     }
-    
+
     /**
      * If the map class is not already defined, attempts to require_once the definition.
      * If the Map file cannot be located, an exception is thrown
@@ -463,9 +463,9 @@ class Criteria
         if (get_class($this) == "Criteria") {
             throw new Exception("Phreeze is unable to determine field mapping.  The base Criteria class should only be used to query by primary key without sorting");
         }
-        
+
         $fms = $this->GetFieldMaps();
-        
+
         // make sure this property is defined
         if (! isset($fms [$propname])) {
             throw new Exception(get_class($this) . " is unable to determine the database column for the property: '$propname'");
@@ -473,10 +473,10 @@ class Criteria
 
         // print_r($this->_fieldmaps);
         $fm = $fms [$propname];
-        
+
         return $fm->FieldType == FM_CALCULATION ? "(" . $fm->ColumnName . ")" : "`" . $fm->TableName . "`.`" . $fm->ColumnName . "`";
     }
-    
+
     /**
      * Throw an exception if an undeclared property is accessed
      *
@@ -490,7 +490,7 @@ class Criteria
             throw new Exception("Unknown property: $key");
         }
     }
-    
+
     /**
      * Throw an exception if an undeclared property is accessed
      *
