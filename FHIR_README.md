@@ -421,7 +421,7 @@ curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/api
 }'
 ```
 
-#### GET /fhir/Condition
+#### GET [base]/Condition
 
 Request:
 
@@ -429,12 +429,12 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Condition'
 ```
 
-#### GET /fhir/Condition/:id
+#### GET [base]/Condition/[id]
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Condition/1'
+curl -X GET 'http://localhost:8300/apis/fhir/Condition/9109890a-6756-44c1-a82d-bdfac91c7424'
 ```
 
 #### GET /fhir/Procedure

@@ -778,6 +778,38 @@ Request:
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note/1'
 ```
 
+#### GET /api/medical_problem
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/api/medical_problem'
+```
+
+#### GET /api/medical_problem/:uuid
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/api/medical_problem/9109890a-6756-44c1-a82d-bdfac91c7424'
+```
+
+#### GET /api/patient/:pid/medical_problem	
+
+Request:	
+
+```sh	
+curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem'	
+```	
+
+#### GET /api/patient/:pid/medical_problem/:mid
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
+```
+
 #### POST /api/patient/:pid/medical_problem
 
 Request:
@@ -804,22 +836,6 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/medical_problem/1' -d \
     "enddate": "2018-03-12",
     "diagnosis": "ICD10:H02.839"
 }'
-```
-
-#### GET /api/patient/:pid/medical_problem
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem'
-```
-
-#### GET /api/patient/:pid/medical_problem/:mid
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
 ```
 
 #### DELETE /api/patient/:pid/medical_problem/:mid
