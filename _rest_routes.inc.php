@@ -158,9 +158,9 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("encounters", "notes");
         return (new ConditionRestController())->getAll();
     },
-    "GET /api/medical_problem/:mid" => function ($mid) {
+    "GET /api/medical_problem/:mid" => function ($uuid) {
         RestConfig::authorization_check("encounters", "notes");
-        return (new ConditionRestController())->getOne($mid);
+        return (new ConditionRestController())->getOne($uuid);
     },
     "GET /api/patient/:pid/medical_problem" => function ($pid) {
         RestConfig::authorization_check("encounters", "notes");
@@ -502,11 +502,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Condition" => function () {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirConditionRestController(null))->getAll($_GET);
+        return (new FhirConditionRestController())->getAll($_GET);
     },
-    "GET /fhir/Condition/:id" => function ($id) {
+    "GET /fhir/Condition/:id" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirConditionRestController(null))->getOne($id);
+        return (new FhirConditionRestController())->getOne($uuid);
     },
     "GET /fhir/Procedure" => function () {
         RestConfig::authorization_check("patients", "med");
