@@ -794,9 +794,9 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 </h3>
                 <?php
                 $firow = sqlQuery(
-                        "SELECT issue_id, provider_id FROM forms WHERE " .
+                    "SELECT issue_id, provider_id FROM forms WHERE " .
                         "formdir = ? AND form_id = ? AND deleted = 0",
-                        array($formname, $formid)
+                    array($formname, $formid)
                 );
                 $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
                 $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
