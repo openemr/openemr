@@ -281,10 +281,10 @@ function startApp() {
 
 // Image decoders (for web workers)
 dwv.image.decoderScripts = {
-    "jpeg2000": "./../public/assets/dwv/decoders/pdfjs/decode-jpeg2000.js",
-    "jpeg-lossless": "./../public/assets/dwv/decoders/rii-mango/decode-jpegloss.js",
-    "jpeg-baseline": "./../public/assets/dwv/decoders/pdfjs/decode-jpegbaseline.js",
-    "rle": "./../public/assets/dwv/decoders/dwv/decode-rle.js"
+    "jpeg2000": "./js/dwv/assets/dwv/decoders/pdfjs/decode-jpeg2000.js",
+    "jpeg-lossless": "./js/dwv/assets/dwv/decoders/rii-mango/decode-jpegloss.js",
+    "jpeg-baseline": "./js/dwv/assets/dwv/decoders/pdfjs/decode-jpegbaseline.js",
+    "rle": "./js/dwv/assets/dwv/decoders/dwv/decode-rle.js"
 };
 
 // status flags

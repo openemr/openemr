@@ -128,6 +128,11 @@ class C_Document extends Controller
             foreach ($_FILES['dicom_folder']['name'] as $i => $name) {
                 $zfn = $GLOBALS['temporary_files_dir'] . "/" . $name;
                 $fparts = pathinfo($name);
+                if (empty($fparts['extension'])) {
+                    // viewer requires lowercase.
+                    $fparts['extension'] = "dcm";
+                    $name = $fparts['filename'] . ".dcm";
+                }
                 if ($fparts['extension'] == "DCM") {
                     // viewer requires lowercase.
                     $fparts['extension'] = "dcm";
@@ -245,9 +250,10 @@ class C_Document extends Controller
                                     unset($head);
                                     // if here -then a DICOM
                                     $parts = pathinfo($stat['name']);
-                                    if ($parts['extension'] != "dcm") { // required extension for viewer
+                                    if ($parts['extension'] != "dcm" || empty($parts['extension'])) { // required extension for viewer
                                         $new_name = $parts['filename'] . ".dcm";
-                                        $za->renameName($i, $new_name); // viewer requires lowercase
+                                        $za->renameIndex($i, $new_name);
+                                        $za->renameName($parts['filename'], $new_name);
                                     }
                                 } else { // Rarely here
                                     $mimetype = "application/zip"; // will result in download.
