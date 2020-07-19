@@ -20,7 +20,6 @@ class ConditionService extends BaseService
 {
     private const CONDITION_TABLE = "lists";
     private const PATIENT_TABLE = "patient_data";
-    private const PRACTITIONER_TABLE = "users";
     private $uuidRegistery;
 
     /**
@@ -32,7 +31,6 @@ class ConditionService extends BaseService
         $this->uuidRegistery = new UuidRegistry(['table_name' => self::CONDITION_TABLE]);
         $this->uuidRegistery->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
     }
 
     /**
