@@ -151,6 +151,7 @@ upgrade_prepare_database () {
    SQL_PASSWORD=$(collect_var \$pass $DATABASE_PATH/sqlconf.php)
    SQL_DATABASE=$(collect_var \$dbase $DATABASE_PATH/sqlconf.php)
    SQL_UTFFLAG=$(collect_var \$disable_utf8_flag $DATABASE_PATH/sqlconf.php)
+   SQL_ENCODING=$(collect_var \$db_encoding $DATABASE_PATH/sqlconf.php)
 
    #if SQLUTFFLAG variable is empty, then make it false
    if [ "$SQL_UTFFLAG" == "" ]; then
@@ -164,6 +165,7 @@ upgrade_prepare_database () {
    TEMP_SETTING=$TEMP_SETTING$SITE_NAME"_sqlpassword=$SQL_PASSWORD\n"
    TEMP_SETTING=$TEMP_SETTING$SITE_NAME"_sqldatabase=$SQL_DATABASE\n"
    TEMP_SETTING=$TEMP_SETTING$SITE_NAME"_sqlutfflag=$SQL_UTFFLAG\n"
+   TEMP_SETTING=$TEMP_SETTING$SITE_NAME"_sqlencoding=$SQL_UTFFLAG\n"
 
    #create the tmp sql directory
    mkdir -p "$TMPDIR/openemr_mysql_${OLD_VERSION}_${SITE_NAME}"
