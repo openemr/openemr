@@ -183,13 +183,13 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "med");
         return (new AllergyIntoleranceRestController())->getOne($uuid);
     },
-    "GET /api/patient/:pid/allergy" => function ($pid) {
+    "GET /api/patient/:pid/allergy" => function ($puuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new ListRestController())->getAll($pid, "allergy");
+        return (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $puuid]);
     },
-    "GET /api/patient/:pid/allergy/:aid" => function ($pid, $aid) {
+    "GET /api/patient/:pid/allergy/:aid" => function ($puuid, $auuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new ListRestController())->getOne($pid, "allergy", $aid);
+        return (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $puuid, 'lists.id' => $auuid]);
     },
     "DELETE /api/patient/:pid/allergy/:aid" => function ($pid, $aid) {
         RestConfig::authorization_check("patients", "med");

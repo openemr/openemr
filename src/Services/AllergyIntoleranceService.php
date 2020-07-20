@@ -47,6 +47,36 @@ class AllergyIntoleranceService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true)
     {
+        // Validating and Converting Patient UUID to PID
+        if (isset($search['lists.pid'])) {
+            $isValidEncounter = BaseValidator::validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $search['lists.pid'],
+                true
+            );
+            if ($isValidEncounter != true) {
+                return $isValidEncounter;
+            }
+            $puuidBytes = UuidRegistry::uuidToBytes($search['lists.pid']);
+            $search['lists.pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        }
+
+        // Validating and Converting UUID to ID
+        if (isset($search['lists.id'])) {
+            $isValidEncounter = BaseValidator::validateId(
+                'uuid',
+                self::ALLERGY_TABLE,
+                $search['lists.id'],
+                true
+            );
+            if ($isValidEncounter != true) {
+                return $isValidEncounter;
+            }
+            $uuidBytes = UuidRegistry::uuidToBytes($search['lists.id']);
+            $search['lists.id'] = $this->getIdByUuid($uuidBytes, self::ALLERGY_TABLE, "id");
+        }
+
         $sqlBindArray = array();
         $sql = "SELECT lists.*,
                         us.uuid as practitioner,
@@ -57,7 +87,7 @@ class AllergyIntoleranceService extends BaseService
                         LEFT JOIN list_options as reaction ON reaction.option_id = lists.reaction
                         LEFT JOIN list_options as verification ON verification.option_id = lists.verification
                         LEFT JOIN users as us ON us.id = lists.referredby
-                        RIGHT JOIN patient_data as patient ON patient.id = lists.pid
+                        RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
                         WHERE type = 'allergy'";
 
         if (!empty($search)) {
@@ -117,7 +147,7 @@ class AllergyIntoleranceService extends BaseService
                         LEFT JOIN list_options as reaction ON reaction.option_id = lists.reaction
                         LEFT JOIN list_options as verification ON verification.option_id = lists.verification
                         LEFT JOIN users as us ON us.id = lists.referredby
-                        RIGHT JOIN patient_data as patient ON patient.id = lists.pid
+                        RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
                         WHERE type = 'allergy' AND lists.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
