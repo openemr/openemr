@@ -58,9 +58,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
         <!-- Page header -->
         <div class="row">
             <div class="col-12">
-                <div class="page-header">
-                    <h2 class="title"><?php echo xlt('Forms Administration');?></h2>
-                </div>
+                <h2 class="title"><?php echo xlt('Forms Administration');?></h2>
             </div>
         </div>
         <!-- Form table -->

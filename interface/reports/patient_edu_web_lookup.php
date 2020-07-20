@@ -57,9 +57,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <div class="page-header">
-                    <h2><?php echo  xlt('Web Search'); ?> - <?php echo xlt('Patient Education Materials'); ?></h2>
-                </div>
+                <h2><?php echo  xlt('Web Search'); ?> - <?php echo xlt('Patient Education Materials'); ?></h2>
             </div>
         </div>
         <div class="row">

@@ -297,7 +297,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             <div class="col-sm-12">
                 <!-- Required for the popup date selectors -->
                 <div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;"></div>
-                <div class="page-header clearfix">
+                <div class="clearfix">
                     <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>

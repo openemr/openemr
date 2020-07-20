@@ -357,9 +357,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
 <div class="row">
     <div class="col-sm-12">
-        <div class="page-header">
-            <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-        </div>
+        <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
     </div>
 </div>
 <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light mb-4 p-4">

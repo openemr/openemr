@@ -21,7 +21,7 @@ $url_webroot = $GLOBALS['webroot'];
 $portal_login_href = $url_webroot . "/interface/patient_file/summary/create_portallogin.php";
 ?>
 
-<div class="page-header clearfix">
+<div class="clearfix">
         <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
 <?php
 // If patient is deceased, then show this (along with the number of days patient has been deceased for)

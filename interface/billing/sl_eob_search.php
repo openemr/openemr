@@ -723,7 +723,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 <body>
 <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
     <div class="row">
-        <div class="page-header mt-3 col-12">
+        <div class="mt-3 col-12">
             <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
         </div>
     </div>

@@ -35,9 +35,7 @@ $obj = formFetch("form_dictation", $_GET["id"]);
 <div class="container">
     <div class="row">
         <div class="col-12">
-            <div class="page-header">
-                <h2><?php echo xlt("Dictation"); ?></h2>
-            </div>
+            <h2><?php echo xlt("Dictation"); ?></h2>
         </div>
     </div>
     <div class="row">

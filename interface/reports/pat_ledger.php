@@ -491,9 +491,7 @@ if ($_REQUEST['form_csvexport']) {
                 if ($type_form != '0') {
                     require_once("$include_root/patient_file/summary/dashboard_header.php");
                 } else {
-                    echo '<div class="page-header">' . "\r\n";
                     echo  $oemr_ui->pageHeading() . "\r\n";
-                    echo '</div>' . "\r\n";
                 } ?>
 
             </div>

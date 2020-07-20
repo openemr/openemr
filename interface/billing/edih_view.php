@@ -42,7 +42,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-header clearfix">
+                <div class="clearfix">
                     <h2><?php echo xlt('EDI History'); ?></h2>
                 </div>
             </div>

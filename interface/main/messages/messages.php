@@ -174,7 +174,7 @@ if (!empty($_REQUEST['go'])) { ?>
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-header clearfix">
+                <div class="clearfix">
                     <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>

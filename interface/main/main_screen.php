@@ -273,9 +273,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '<div class="container">';
                 echo '<div class="row">';
                 echo '    <div class="col-sm-12">';
-                echo '        <div class="page-header">';
-                echo '            <h2>' . xlt('TOTP Verification') . '</h2>';
-                echo '        </div>';
+                echo '        <h2>' . xlt('TOTP Verification') . '</h2>';
                 echo '    </div>';
                 echo '</div>';
                 if ($errormsg && $errortype == "TOTP") {
@@ -317,9 +315,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '<div class="container">';
                 echo '<div class="row">';
                 echo '    <div class="col-sm-12">';
-                echo '        <div class="page-header">';
-                echo '            <h2>' . xlt('U2F Key Verification') . '</h2>';
-                echo '        </div>';
+                echo '        <h2>' . xlt('U2F Key Verification') . '</h2>';
                 echo '    </div>';
                 echo '</div>';
                 if ($errormsg && $errortype == "U2F") {

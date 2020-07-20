@@ -301,16 +301,14 @@ $title = text(getPatientName($patient_id));
     <title><?php echo $title; ?></title>
     <div class="row">
         <div class="col-md-12">
-            <div class="page-header">
-                <h3><?php echo xlt('Patient Messages') . text($title_docname) . " " . xlt('for');
-                if (!$orderid) {
-                    ?>&nbsp;
-                        <span><a href="../summary/demographics.php"
-                                           onclick="return top.restoreSession()"><?php echo $title; ?></a></span>
-                    <?php } else { ?>
-                        <span><?php echo $title; ?></span><?php } ?>
-                </h3>
-            </div>
+            <h3><?php echo xlt('Patient Messages') . text($title_docname) . " " . xlt('for');
+            if (!$orderid) {
+                ?>&nbsp;
+                    <span><a href="../summary/demographics.php"
+                                       onclick="return top.restoreSession()"><?php echo $title; ?></a></span>
+                <?php } else { ?>
+                    <span><?php echo $title; ?></span><?php } ?>
+            </h3>
         </div>
     </div>
     <div class="row oe-margin-b-10">

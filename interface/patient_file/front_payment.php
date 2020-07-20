@@ -947,9 +947,7 @@ function make_insurance() {
     <div class="container"><!--begin container div for form-->
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-header">
-                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
-                </div>
+                <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
         </div>
         <div class="row">

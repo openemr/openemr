@@ -440,9 +440,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
 
 <div class="container-fluid">
     <div class="row">
-        <div class="page-header">
-            <h2><?php echo xlt('EOB Invoice'); ?></h2>
-        </div>
+        <h2><?php echo xlt('EOB Invoice'); ?></h2>
     </div>
     <div class="container-fluid">
         <form class="form" action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>

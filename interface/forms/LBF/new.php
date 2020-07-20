@@ -787,50 +787,48 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <div class="page-header">
-                    <h3>
-                        <?php echo text($formtitle) . " " . xlt('for') . ' ';
-                        echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
-                        echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'], 0, 10))); ?>
-                    </h3>
-                    <?php
-                    $firow = sqlQuery(
-                        "SELECT issue_id, provider_id FROM forms WHERE " .
+                <h3>
+                    <?php echo text($formtitle) . " " . xlt('for') . ' ';
+                    echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
+                    echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'], 0, 10))); ?>
+                </h3>
+                <?php
+                $firow = sqlQuery(
+                    "SELECT issue_id, provider_id FROM forms WHERE " .
                         "formdir = ? AND form_id = ? AND deleted = 0",
-                        array($formname, $formid)
-                    );
-                    $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
-                    $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
+                    array($formname, $formid)
+                );
+                $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
+                $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
 
-                    // Provider selector.
+                // Provider selector.
+                echo "&nbsp;&nbsp;";
+                echo xlt('Provider') . ": ";
+                // TBD: Refactor this function out of the FeeSheetHTML class as that is not the best place for it.
+                echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $default);
+
+                // If appropriate build a drop-down selector of issues of this type for this patient.
+                // We skip this if in an issue form tab because removing and adding visit form tabs is
+                // beyond the current scope of that code.
+                if (!empty($LBF_ISSUE_TYPE) && !$from_issue_form) {
                     echo "&nbsp;&nbsp;";
-                    echo xlt('Provider') . ": ";
-                    // TBD: Refactor this function out of the FeeSheetHTML class as that is not the best place for it.
-                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $default);
-
-                    // If appropriate build a drop-down selector of issues of this type for this patient.
-                    // We skip this if in an issue form tab because removing and adding visit form tabs is
-                    // beyond the current scope of that code.
-                    if (!empty($LBF_ISSUE_TYPE) && !$from_issue_form) {
-                        echo "&nbsp;&nbsp;";
-                        $query = "SELECT id, title, date, begdate FROM lists WHERE pid = ? AND type = ? " .
-                            "ORDER BY COALESCE(begdate, date) DESC, id DESC";
-                        $ires = sqlStatement($query, array($pid, $LBF_ISSUE_TYPE));
-                        echo "<select name='form_issue_id'>\n";
-                        echo " <option value='0'>-- " . xlt('Select Case') . " --</option>\n";
-                        while ($irow = sqlFetchArray($ires)) {
-                            $issueid = $irow['id'];
-                            $issuedate = oeFormatShortDate(empty($irow['begdate']) ? $irow['date'] : $irow['begdate']);
-                            echo " <option value='" . attr($issueid) . "'";
-                            if ($issueid == $form_issue_id) {
-                                echo " selected";
-                            }
-                            echo ">" . text("$issuedate " . $irow['title']) . "</option>\n";
+                    $query = "SELECT id, title, date, begdate FROM lists WHERE pid = ? AND type = ? " .
+                        "ORDER BY COALESCE(begdate, date) DESC, id DESC";
+                    $ires = sqlStatement($query, array($pid, $LBF_ISSUE_TYPE));
+                    echo "<select name='form_issue_id'>\n";
+                    echo " <option value='0'>-- " . xlt('Select Case') . " --</option>\n";
+                    while ($irow = sqlFetchArray($ires)) {
+                        $issueid = $irow['id'];
+                        $issuedate = oeFormatShortDate(empty($irow['begdate']) ? $irow['date'] : $irow['begdate']);
+                        echo " <option value='" . attr($issueid) . "'";
+                        if ($issueid == $form_issue_id) {
+                            echo " selected";
                         }
-                        echo "</select>\n";
+                        echo ">" . text("$issuedate " . $irow['title']) . "</option>\n";
                     }
-                    ?>
-                </div>
+                    echo "</select>\n";
+                }
+                ?>
             </div>
 
             <?php $cmsportal_login = $enrow['cmsportal_login'];
