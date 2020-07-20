@@ -40,7 +40,7 @@
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2006-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
@@ -66,6 +66,9 @@ $currdecimals = $GLOBALS['currency_decimals'];
 $details = empty($_GET['details']) ? 0 : 1;
 
 $patient_id = empty($_GET['ptid']) ? $pid : 0 + $_GET['ptid'];
+
+// This will be used for SQL timestamps that we write.
+$this_bill_date = date('Y-m-d H:i:s');
 
 // Get the patient's name and chart number.
 $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code');
@@ -292,7 +295,7 @@ function generate_receipt($patient_id, $encounter = 0)
                               "s.payer_id, s.reference, s.check_date, s.deposit_date " .
                               "FROM ar_activity AS a " .
                               "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
-                              "a.pid = ? AND a.encounter = ? AND " .
+                              "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
                               "a.adj_amount != 0 " .
                               "ORDER BY s.check_date, a.sequence_no", array($patient_id,$encounter));
                         while ($inrow = sqlFetchArray($inres)) {
@@ -335,7 +338,7 @@ function generate_receipt($patient_id, $encounter = 0)
                         "s.payer_id, s.reference, s.check_date, s.deposit_date " .
                         "FROM ar_activity AS a " .
                         "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
-                        "a.pid = ? AND a.encounter = ? AND " .
+                        "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
                         "a.pay_amount != 0 " .
                         "ORDER BY s.check_date, a.sequence_no", array($patient_id,$encounter));
                         while ($inrow = sqlFetchArray($inres)) {
@@ -507,7 +510,7 @@ function generate_receipt($patient_id, $encounter = 0)
         $form_encounter = $_POST['form_encounter'];
 
       // Get the posting date from the form as yyyy-mm-dd.
-        $dosdate = date("Y-m-d");
+        $dosdate = substr($this_bill_date, 0, 10);
         if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $_POST['form_date'], $matches)) {
             $dosdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
         }
@@ -577,8 +580,8 @@ function generate_receipt($patient_id, $encounter = 0)
                 // table entry and so we do not call updateClaim().  Note we should not
                 // eliminate billed and bill_date from the billing table!
                 $query = "UPDATE billing SET fee = ?, billed = 1, " .
-                "bill_date = NOW() WHERE id = ?";
-                sqlQuery($query, array($amount,$id));
+                "bill_date = ? WHERE id = ?";
+                sqlQuery($query, array($amount, $this_bill_date, $id));
             }
         }
 
@@ -590,7 +593,6 @@ function generate_receipt($patient_id, $encounter = 0)
                 $amount  = sprintf('%01.2f', trim($_POST['form_discount']) * $form_amount / 100);
             }
             $memo = xl('Discount');
-            $time = date('Y-m-d H:i:s');
             sqlBeginTrans();
             $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $form_encounter));
             $query = "INSERT INTO ar_activity ( " .
@@ -609,7 +611,10 @@ function generate_receipt($patient_id, $encounter = 0)
             "?, " .
             "? " .
             ")";
-            sqlStatement($query, array($form_pid,$form_encounter,$sequence_no['increment'],$_SESSION['authUserID'],$time,$memo,$amount));
+            sqlStatement(
+                $query,
+                array($form_pid, $form_encounter, $sequence_no['increment'], $_SESSION['authUserID'], $this_bill_date, $memo, $amount)
+            );
             sqlCommitTrans();
         }
 
@@ -645,7 +650,7 @@ function generate_receipt($patient_id, $encounter = 0)
               $insrt_id = sqlInsert(
                   "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
                   " VALUES (?,?,?,?,?,?,0,?,?,?,?,'PCP')",
-                  array($form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$dosdate,$_SESSION['authUserID'],$session_id,$amount)
+                  array($form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$this_bill_date,$_SESSION['authUserID'],$session_id,$amount)
               );
               sqlCommitTrans();
         }
@@ -850,9 +855,7 @@ function generate_receipt($patient_id, $encounter = 0)
         <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="page-header">
-                        <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
-                    </div>
+                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
             <div class="row">

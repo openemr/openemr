@@ -84,9 +84,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
 <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
     <div class="row">
         <div class="col-sm-12">
-            <div class="page-header clearfix">
-                <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
-            </div>
+            <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
         </div>
     </div>
     <div class="row">

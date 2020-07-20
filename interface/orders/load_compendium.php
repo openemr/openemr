@@ -89,7 +89,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 <div class="container">
     <div class="row">
         <div class="col-12">
-            <div class="page-header text-left">
+            <div class="text-left">
                 <h2><?php echo xlt('Load Lab Compendium'); ?></h2>
             </div>
         </div>

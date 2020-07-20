@@ -161,10 +161,10 @@ $(function () {
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-            <div class="page-header clearfix">
-                <h2 class="clearfix"><?php echo xlt("Facilities") ; ?></h2>
-            </div>
-            <a href="facilities_add.php" class="addfac_modal btn btn-secondary btn-add"><?php echo xlt('Add Facility');?></a>
+                <div class="clearfix">
+                    <h2 class="clearfix"><?php echo xlt("Facilities") ; ?></h2>
+                </div>
+                <a href="facilities_add.php" class="addfac_modal btn btn-secondary btn-add"><?php echo xlt('Add Facility');?></a>
             </div>
         </div>
         <br />

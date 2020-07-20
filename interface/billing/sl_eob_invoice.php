@@ -13,7 +13,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -24,6 +24,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
 require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/user.inc";
+require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
@@ -52,37 +53,6 @@ function bucks($amount)
 {
     if ($amount) {
         return sprintf("%.2f", $amount);
-    }
-}
-
-// Delete rows, with logging, for the specified table using the
-// specified WHERE clause.  Borrowed from deleter.php.
-//
-function row_delete($table, $where)
-{
-    $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
-    $count = 0;
-    while ($trow = sqlFetchArray($tres)) {
-        $logstring = "";
-        foreach ($trow as $key => $value) {
-            if (!$value || $value == '0000-00-00 00:00:00') {
-                continue;
-            }
-
-            if ($logstring) {
-                $logstring .= " ";
-            }
-
-            $logstring .= $key . "='" . addslashes($value) . "'";
-        }
-
-        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
-        ++$count;
-    }
-
-    if ($count) { // Lets not echo the query for stay and save
-        $query = "DELETE FROM " . escape_table_name($table) . " WHERE $where";
-        sqlStatement($query);
     }
 }
 
@@ -348,7 +318,14 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
         if ($ALLOW_DELETE && !$debug) {
             if (is_array($_POST['form_del'])) {
                 foreach ($_POST['form_del'] as $arseq => $dummy) {
-                    row_delete("ar_activity", "pid = '" . add_escape_custom($patient_id) . "' AND " . "encounter = '" . add_escape_custom($encounter_id) . "' AND sequence_no = '" . add_escape_custom($arseq) . "'");
+                    row_modify(
+                        "ar_activity",
+                        "deleted = NOW()",
+                        "pid = '" . add_escape_custom($patient_id) .
+                        "' AND encounter = '" . add_escape_custom($encounter_id) .
+                        "' AND sequence_no = '" . add_escape_custom($arseq) .
+                        "' AND deleted IS NULL"
+                    );
                 }
             }
         }
@@ -463,9 +440,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
 
 <div class="container-fluid">
     <div class="row">
-        <div class="page-header">
-            <h2><?php echo xlt('EOB Invoice'); ?></h2>
-        </div>
+        <h2><?php echo xlt('EOB Invoice'); ?></h2>
     </div>
     <div class="container-fluid">
         <form class="form" action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>

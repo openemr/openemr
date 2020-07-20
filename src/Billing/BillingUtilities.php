@@ -6,7 +6,7 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2011-2019 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2011-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -1685,7 +1685,7 @@ class BillingUtilities
     {
         $resMoneyGot = sqlStatement(
             "SELECT sum(pay_amount) as PatientPay FROM ar_activity where " .
-            "pid = ? and encounter = ? and payer_type=0 and account_code='PCP'",
+            "deleted IS NULL AND pid = ? AND encounter = ? AND payer_type = 0 AND account_code = 'PCP'",
             array($patient_id, $encounter)
         );
         //new fees screen copay gives account_code='PCP'
@@ -1759,7 +1759,7 @@ class BillingUtilities
             $row = sqlQuery(
                 "SELECT SUM(pay_amount) AS payments, " .
                 "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
-                "pid = ? AND encounter = ?",
+                "deleted IS NULL AND pid = ? AND encounter = ?",
                 array($patient_id, $encounter_id)
             );
             $adjustments = empty($row['adjustments']) ? 0 : $row['adjustments'];
@@ -1773,7 +1773,7 @@ class BillingUtilities
             $row = sqlQuery(
                 "SELECT SUM(pay_amount) AS payments, " .
                 "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
-                "pid = ? AND encounter = ? AND post_time = ?",
+                "deleted IS NULL AND pid = ? AND encounter = ? AND post_time = ?",
                 array($patient_id, $encounter_id, $date_original)
             );
             $adjustments = empty($row['adjustments']) ? 0 : $row['adjustments'];
@@ -1815,8 +1815,8 @@ class BillingUtilities
             // and re-open the visit.
             if ($date_original) {
                 sqlStatement(
-                    "DELETE FROM ar_activity WHERE " .
-                    "pid = ? AND encounter = ? AND post_time = ?",
+                    "UPDATE ar_activity SET deleted = NOW() WHERE " .
+                    "deleted IS NULL AND pid = ? AND encounter = ? AND post_time = ?",
                     array($patient_id, $encounter_id, $date_original)
                 );
                 sqlStatement(
@@ -1834,8 +1834,8 @@ class BillingUtilities
             } else {
                 if ($time == 'all') {
                     sqlStatement(
-                        "DELETE FROM ar_activity WHERE " .
-                        "pid = ? AND encounter = ?",
+                        "UPDATE ar_activity SET deleted = NOW() WHERE " .
+                        "deleted IS NULL AND pid = ? AND encounter = ?",
                         array($patient_id, $encounter_id)
                     );
                 }

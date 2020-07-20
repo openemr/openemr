@@ -28,7 +28,7 @@ use OpenEMR\Core\Header;
     <div id="container_div" class="container">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-header clearfix">
+                <div class="clearfix">
                     <h2 class="title"><?php  echo xlt('Multi Language Tool'); ?></h2>
                 </div>
             </div>

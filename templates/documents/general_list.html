@@ -176,7 +176,7 @@ $(function () {
         if (!popsrc.includes('&view&')) {
             return false;
         } else if (diview.toLowerCase().includes('.dcm') || diview.toLowerCase().includes('.zip')) {
-            popsrc = "{/literal}{$GLOBALS.webroot}{literal}/library/dicom_frame.php?web_path=" + encodeURIComponent(popsrc);
+            popsrc = "{/literal}{$GLOBALS.webroot}{literal}/library/dicom_frame.php?web_path=" + popsrc;
             dflg = true;
         }
         popsrc = popsrc.replace('&view&', '&retrieve&') + 'as_file=false';
@@ -189,16 +189,11 @@ $(function () {
         let btnText = {/literal}{xlj t="Full Screen"}{literal};
         let btnClose = {/literal}{xlj t="Close"}{literal};
         let size = 'modal-xl';
-        let sizeHeight = 'full';
-        if (dflg) {
-            size = 'modal-md';
-        }
-        dlgopen(popsrc, 'popdoc', size, 600, '', '', {
+        dlgopen(popsrc, 'popdoc', size, 700, '', '', {
             buttons: [
                 {text: btnText, close: true, style: 'primary btn-sm', click: poContentModal},
                 {text: btnClose, close: true, style: 'default btn-sm'}
             ],
-            sizeHeight: sizeHeight,
             allowResize: true,
             allowDrag: true,
             dialogId: '',

@@ -9,7 +9,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2006-2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -305,7 +305,7 @@ if ($_POST['form_save']) {
                     //--------------------------------------------------------------------------------------------------------------------
 
                     $resMoneyGot = sqlStatement(
-                        "SELECT sum(pay_amount) as PatientPay FROM ar_activity where pid =? and " .
+                        "SELECT sum(pay_amount) as PatientPay FROM ar_activity where deleted IS NULL AND pid =? and " .
                         "encounter =? and payer_type=0 and account_code='PCP'",
                         array($form_pid, $enc)
                     );//new fees screen copay gives account_code='PCP'
@@ -327,7 +327,7 @@ if ($_POST['form_save']) {
                         $Fee = $RowSearch['fee'];
 
                         $resMoneyGot = sqlStatement(
-                            "SELECT sum(pay_amount) as MoneyGot FROM ar_activity where pid =? " .
+                            "SELECT sum(pay_amount) as MoneyGot FROM ar_activity where deleted IS NULL AND pid = ? " .
                             "and code_type=? and code=? and modifier=? and encounter =? and !(payer_type=0 and account_code='PCP')",
                             array($form_pid, $Codetype, $Code, $Modifier, $enc)
                         );
@@ -336,7 +336,7 @@ if ($_POST['form_save']) {
                         $MoneyGot = $rowMoneyGot['MoneyGot'];
 
                         $resMoneyAdjusted = sqlStatement(
-                            "SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where " .
+                            "SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where deleted IS NULL AND " .
                             "pid =? and code_type=? and code=? and modifier=? and encounter =?",
                             array($form_pid, $Codetype, $Code, $Modifier, $enc)
                         );
@@ -1178,14 +1178,21 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 $patcopay = BillingUtilities::getPatientCopay($pid, $enc);
                 // Insurance Payment
                 //
-                $drow = sqlQuery("SELECT  SUM(pay_amount) AS payments, " . "SUM(adj_amount) AS adjustments  FROM ar_activity WHERE " . "pid = ? and encounter = ? and " . "payer_type != 0 and account_code!='PCP' ", array($pid, $enc
-                ));
+                $drow = sqlQuery(
+                    "SELECT  SUM(pay_amount) AS payments, " .
+                    "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
+                    "deleted IS NULL AND pid = ? and encounter = ? AND " .
+                    "payer_type != 0 AND account_code != 'PCP'",
+                    array($pid, $enc)
+                );
                 $dpayment = $drow['payments'];
                 $dadjustment = $drow['adjustments'];
                 // Patient Payment
                 //
                 $drow = sqlQuery(
-                    "SELECT  SUM(pay_amount) AS payments, " . "SUM(adj_amount) AS adjustments  FROM ar_activity WHERE " . "pid = ? and encounter = ? and " . "payer_type = 0 and account_code!='PCP' ",
+                    "SELECT  SUM(pay_amount) AS payments, SUM(adj_amount) AS adjustments " .
+                    "FROM ar_activity WHERE deleted IS NULL AND pid = ? and encounter = ? and " .
+                    "payer_type = 0 and account_code != 'PCP'",
                     array($pid, $enc)
                 );
                 $dpayment_pat = $drow['payments'];
@@ -1204,8 +1211,11 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                     ));
                     $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " . "pid = ? and encounter = ? ", array($pid, $enc
                     ));
-                    $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " . "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " . "pid = ? and encounter = ? ", array($pid, $enc
-                    ));
+                    $drow = sqlQuery(
+                        "SELECT SUM(pay_amount) AS payments, SUM(adj_amount) AS adjustments " .
+                        "FROM ar_activity WHERE deleted IS NULL AND pid = ? and encounter = ? ",
+                        array($pid, $enc)
+                    );
                     $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                 }
 

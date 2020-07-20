@@ -284,7 +284,7 @@ if ($popup && $_POST['form_save']) {
     <div class="container">
         <div class="row">
              <div class="col-sm-12">
-                <div class="page-header clearfix">
+                <div class="clearfix">
                     <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo xlt('Configure Orders and Results');?></span><?php echo $help_icon; ?></h2>
                 </div>
             </div>

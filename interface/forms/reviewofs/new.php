@@ -31,14 +31,12 @@ $returnurl = 'encounter_top.php';
 <body class="body_top">
 <div class="container">
     <div class="row">
-        <div class="">
-            <div class="page-header">
-                <h2><?php echo xlt("Review of Systems Checks");?></h2>
-            </div>
+        <div class="col-12">
+            <h2><?php echo xlt("Review of Systems Checks");?></h2>
         </div>
     </div>
     <div class="row">
-        <form method=post action="<?php echo $rootdir;?>/forms/reviewofs/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
+        <form method="post" action="<?php echo $rootdir;?>/forms/reviewofs/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <fieldset>
                 <legend><?php echo xlt('General')?></legend>

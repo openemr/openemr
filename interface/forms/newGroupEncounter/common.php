@@ -165,9 +165,7 @@ $help_icon = '';
             <!-- Required for the popup date selectors -->
             <div id="overDiv" class="position-absolute" style="visibility: hidden; z-index: 1000;"></div>
             <div>
-                <div class="page-header">
-                    <h2><?php echo text($heading_caption); ?><?php echo $help_icon; ?></h2>
-                </div>
+                <h2><?php echo text($heading_caption); ?><?php echo $help_icon; ?></h2>
             </div>
             <form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newGroupEncounter/save.php" name='new_encounter'>
                 <?php if ($viewmode) { ?>

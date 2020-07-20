@@ -14,13 +14,12 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Validators\PractitionerRoleValidator;
+use OpenEMR\Validators\BaseValidator;
 
 class PractitionerRoleService extends BaseService
 {
 
     private const PRACTITIONER_ROLE_TABLE = "facility_user_ids";
-    private $practitionerRoleValidator;
     private $uuidRegistery;
 
     /**
@@ -36,7 +35,6 @@ class PractitionerRoleService extends BaseService
         $this->uuidRegistery->createMissingUuids();
         (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
         (new UuidRegistry(['table_name' => 'facility']))->createMissingUuids();
-        $this->practitionerRoleValidator = new PractitionerRoleValidator();
     }
 
     /**
@@ -53,32 +51,35 @@ class PractitionerRoleService extends BaseService
     {
         $sqlBindArray = array();
 
-        $sql = "SELECT prac_role.id,
-                prac_role.uuid,
-                prac_role.field_value as role_code,
-                specialty.field_value as specialty_code,
-                us.uuid as user_uuid,
-                us.fname as user_fname,
-                us.mname as user_mname,
-                us.lname as user_lname,
-                fac.uuid as facility_uuid,
-                fac.name as facility_name,
+        $sql = "SELECT *,
                 role.title as role,
                 spec.title as specialty
-                FROM facility_user_ids as prac_role
-                LEFT JOIN users as us ON us.id = prac_role.uid
-                LEFT JOIN facility_user_ids as specialty ON
-                specialty.uid = prac_role.uid AND specialty.field_id = 'specialty_code'
-                LEFT JOIN facility as fac ON fac.id = prac_role.facility_id
-                LEFT JOIN list_options as role ON role.option_id = prac_role.field_value
-                LEFT JOIN list_options as spec ON spec.option_id = specialty.field_value
-                WHERE prac_role.field_id = 'role_code'";
-
+                FROM (
+                    SELECT
+                    prac_role.id as id,
+                    prac_role.uuid as uuid,
+                    prac_role.field_id as field,
+                    (if( prac_role.field_id = 'role_code', prac_role.field_value, null )) as `role_code`,
+                    (if( specialty.field_id = 'specialty_code', specialty.field_value, null )) as `specialty_code`,
+                    us.uuid as user_uuid,
+                    CONCAT(us.fname,
+                           IF(us.mname IS NULL OR us.mname = '','',' '),us.mname,
+                           IF(us.lname IS NULL OR us.lname = '','',' '),us.lname
+                           ) as user_name,
+                    fac.uuid as facility_uuid,
+                    fac.name as facility_name
+                    FROM facility_user_ids as prac_role
+                    LEFT JOIN users as us ON us.id = prac_role.uid
+                    LEFT JOIN facility_user_ids as specialty ON specialty.uid = prac_role.uid AND specialty.field_id = 'specialty_code'
+                    LEFT JOIN facility as fac ON fac.id = prac_role.facility_id) as p_role
+                LEFT JOIN list_options as role ON role.option_id = p_role.role_code
+                LEFT JOIN list_options as spec ON spec.option_id = p_role.specialty_code
+                WHERE p_role.field = 'role_code' AND p_role.role_code != '' AND p_role.role_code IS NOT NULL";
 
         if (!empty($search)) {
             $sql .= " AND ";
             $whereClauses = array();
-            $wildcardFields = array('us.fname', 'us.mname', 'us.lname');
+            $wildcardFields = array('user_name');
             foreach ($search as $fieldName => $fieldValue) {
                 // support wildcard match on specific fields
                 if (in_array($fieldName, $wildcardFields)) {
@@ -93,6 +94,8 @@ class PractitionerRoleService extends BaseService
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
             $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
         }
+        $sql .= "
+         GROUP BY p_role.uuid";
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
@@ -116,7 +119,7 @@ class PractitionerRoleService extends BaseService
     {
         $processingResult = new ProcessingResult();
 
-        $isValid = $this->practitionerRoleValidator->validateId("uuid", "facility_user_ids", $uuid, true);
+        $isValid = BaseValidator::validateId("uuid", "facility_user_ids", $uuid, true);
 
         if ($isValid !== true) {
             $validationMessages = [

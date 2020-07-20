@@ -117,9 +117,15 @@ final class Connector
         $driverOptionsString = '';
 
         if (!$disable_utf8_flag) {
-            $this->logger->trace("Enabling utf8");
-            $connection['charset'] = 'utf8';
-            $driverOptionsString = 'SET NAMES utf8';
+            if ($sqlconf['db_encoding'] == "utf8mb4") {
+                $this->logger->trace("Enabling utf8mb4");
+                $connection['charset'] = 'utf8mb4';
+                $driverOptionsString = 'SET NAMES utf8mb4';
+            } else {
+                $this->logger->trace("Enabling utf8");
+                $connection['charset'] = 'utf8';
+                $driverOptionsString = 'SET NAMES utf8';
+            }
         }
 
         $this->logger->trace("Clearing sql mode");
