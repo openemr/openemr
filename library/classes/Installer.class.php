@@ -1394,7 +1394,7 @@ if ($it_died != 0) {
             $img_div = <<<FDIV
                                         <div class="col-sm-2 checkboxgroup">
                                             <label for="my_radio_button_id{$id}"><img height="160px" src="{$theme_file_path}" width="100%"></label>
-                                            <p style="margin:0">{$theme_title}</p><input id="my_radio_button_id{$id}" name="stylesheet" type="radio" value="{$theme_value}">
+                                            <p class="m-0">{$theme_title}</p><input id="my_radio_button_id{$id}" name="stylesheet" type="radio" value="{$theme_value}">
                                         </div>
 FDIV;
             $theme_img_number = $i % 6; //to ensure that last file in array will always generate 5 and will end the row
