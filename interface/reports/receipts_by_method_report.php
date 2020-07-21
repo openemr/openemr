@@ -589,8 +589,8 @@ if ($_POST['form_refresh']) {
                     }
                     $insurance_company = InsuranceCompanyService::getOne($insurance_id['provider']);
                     $rowmethod = xl($insurance_company['name']);
-                    } else {
-                        $rowmethod = $row['name'];
+                } else {
+                    $rowmethod = $row['name'];
                 }
             } else {
                 if (empty($row['session_id'])) {
