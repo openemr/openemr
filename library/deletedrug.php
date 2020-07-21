@@ -52,7 +52,7 @@ if (isset($id)) {
             $medicationlist = "DELETE FROM lists WHERE pid = ? AND type = 'medication' AND title = ?";
             sqlStatement($medicationlist, [$pid, $drugname]);
             $table = 'prescriptions';
-            $logstring = 'Medication '. $drugname .'removed from chart' . $pid;
+            $logstring = 'Medication ' . $drugname . 'removed from chart' . $pid;
             EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         }
     } catch (Exception $e) {
