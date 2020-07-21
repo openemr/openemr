@@ -14,6 +14,7 @@ require_once "../interface/globals.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patient', 'rx', '', 'write')) {
@@ -47,8 +48,13 @@ if (isset($id)) {
     try {
         $pid = $dn['patient_id'];
         $drugname = $dn['drug'];
-        $medicationlist = "DELETE FROM lists WHERE pid = ? AND type = ? AND title = ?";
-        sqlQuery($medicationlist, [$pid, 'medication', $drugname]);
+        if (!empty($drugname)) {
+            $medicationlist = "DELETE FROM lists WHERE pid = ? AND type = 'medication' AND title = ?";
+            sqlStatement($medicationlist, [$pid, $drugname]);
+            $table = 'prescriptions';
+            $logstring = 'Medication '. $drugname .'removed from chart' . $pid;
+            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        }
     } catch (Exception $e) {
         echo 'Caught exception ', text($e->getMessage()), "\n";
         if ($e->getMessage()) {
@@ -69,4 +75,4 @@ if (isset($id)) {
         }
     }
 }
-echo "Finished Deleting";
+echo xlt("Finished Deleting");
