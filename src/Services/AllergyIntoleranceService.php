@@ -51,14 +51,14 @@ class AllergyIntoleranceService extends BaseService
     {
         // Validating and Converting Patient UUID to PID
         if (isset($search['lists.pid'])) {
-            $isValidEncounter = $this->allergyIntoleranceValidator->validateId(
+            $isValidAllergy = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::PATIENT_TABLE,
                 $search['lists.pid'],
                 true
             );
-            if ($isValidEncounter != true) {
-                return $isValidEncounter;
+            if ($isValidAllergy !== true) {
+                return $isValidAllergy;
             }
             $puuidBytes = UuidRegistry::uuidToBytes($search['lists.pid']);
             $search['lists.pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
@@ -66,14 +66,14 @@ class AllergyIntoleranceService extends BaseService
 
         // Validating and Converting UUID to ID
         if (isset($search['lists.id'])) {
-            $isValidEncounter = $this->allergyIntoleranceValidator->validateId(
+            $isValidAllergy = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::ALLERGY_TABLE,
                 $search['lists.id'],
                 true
             );
-            if ($isValidEncounter != true) {
-                return $isValidEncounter;
+            if ($isValidAllergy !== true) {
+                return $isValidAllergy;
             }
             $uuidBytes = UuidRegistry::uuidToBytes($search['lists.id']);
             $search['lists.id'] = $this->getIdByUuid($uuidBytes, self::ALLERGY_TABLE, "id");
@@ -303,8 +303,8 @@ class AllergyIntoleranceService extends BaseService
             $code = explode(':', $diag)[1];
             $codeSql = "SELECT long_desc FROM icd10_dx_order_code WHERE active = 1
                                 AND valid_for_coding = '1'
-                                AND formatted_dx_code = '$code'";
-            $codedesc = sqlQuery($codeSql);
+                                AND formatted_dx_code = ?";
+            $codedesc = sqlQuery($codeSql, [$code]);
             $diagnosis[$code] = $codedesc['long_desc'];
         }
     }

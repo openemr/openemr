@@ -6330,7 +6330,7 @@ CREATE TABLE `lists` (
   `modifydate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `severity_al` VARCHAR( 50 ) DEFAULT NULL,
   `external_id` VARCHAR(20) DEFAULT NULL,
-  `list_option_id` VARCHAR(100) DEFAULT NULL,
+  `list_option_id` VARCHAR(100) DEFAULT NULL COMMENT 'Reference to list_options table',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`),
   KEY `type` (`type`),
