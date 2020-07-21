@@ -502,6 +502,7 @@ Response:
     }
 }
 ```
+
 #### GET /api/immunization
 
 Request:
@@ -845,28 +846,28 @@ Request:
 curl -X GET 'http://localhost:8300/apis/api/allergy/90c196f2-51cc-4655-8858-3a80aebff3ef'
 ```
 
-#### GET /api/patient/:pid/allergy
+#### GET /api/patient/:puuid/allergy
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/api/patient/1/allergy'
+curl -X GET 'http://localhost:8300/apis/api/patient/90c196f2-51cc-4655-8858-3a80aebff3ef/allergy'
 ```
 
-#### GET /api/patient/:pid/allergy/:aid
+#### GET /api/patient/:puuid/allergy/:auuid
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/api/patient/1/allergy/1'
+curl -X GET 'http://localhost:8300/apis/api/patient/90c196f2-51cc-4655-8858-3a80aebff3ef/allergy/90c196f2-51cc-4655-8858-3a80aebff3ef'
 ```
 
-#### POST /api/patient/:pid/allergy
+#### POST /api/patient/:puuid/allergy
 
 Request:
 
 ```sh
-curl -X POST 'http://localhost:8300/apis/api/patient/1/allergy' -d \
+curl -X POST 'http://localhost:8300/apis/api/patient/90c196f2-51cc-4655-8858-3a80aebff3ef/allergy' -d \
 '{
     "title": "Iodine",
     "begdate": "2010-10-13",
@@ -874,12 +875,12 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/allergy' -d \
 }'
 ```
 
-#### PUT /api/patient/:pid/allergy/:aid
+#### PUT /api/patient/:puuid/allergy/:auuid
 
 Request:
 
 ```sh
-curl -X PUT 'http://localhost:8300/apis/api/patient/1/allergy/1' -d \
+curl -X PUT 'http://localhost:8300/apis/api/patient/90c196f2-51cc-4655-8858-3a80aebff3ef/allergy/90c196f2-51cc-4655-8858-3a80aebff3ef' -d \
 '{
     "title": "Iodine",
     "begdate": "2012-10-13",
@@ -887,12 +888,12 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/allergy/1' -d \
 }'
 ```
 
-#### DELETE /api/patient/:pid/allergy/:aid
+#### DELETE /api/patient/:pid/allergy/:auuid
 
 Request:
 
 ```sh
-curl -X DELETE 'http://localhost:8300/apis/api/patient/1/allergy/1'
+curl -X DELETE 'http://localhost:8300/apis/api/patient/90c196f2-51cc-4655-8858-3a80aebff3ef/allergy/90c196f2-51cc-4655-8858-3a80aebff3ef'
 ```
 
 #### POST /api/patient/:pid/medication

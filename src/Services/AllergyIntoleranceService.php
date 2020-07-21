@@ -13,7 +13,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\AllergyIntoleranceValidator;
 use OpenEMR\Validators\ProcessingResult;
 
 class AllergyIntoleranceService extends BaseService
@@ -22,6 +22,7 @@ class AllergyIntoleranceService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
     private $uuidRegistery;
+    private $allergyIntoleranceValidator;
 
     /**
      * Default constructor.
@@ -33,6 +34,7 @@ class AllergyIntoleranceService extends BaseService
         $this->uuidRegistery->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
+        $this->allergyIntoleranceValidator = new AllergyIntoleranceValidator();
     }
 
     /**
@@ -49,7 +51,7 @@ class AllergyIntoleranceService extends BaseService
     {
         // Validating and Converting Patient UUID to PID
         if (isset($search['lists.pid'])) {
-            $isValidEncounter = BaseValidator::validateId(
+            $isValidEncounter = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::PATIENT_TABLE,
                 $search['lists.pid'],
@@ -64,7 +66,7 @@ class AllergyIntoleranceService extends BaseService
 
         // Validating and Converting UUID to ID
         if (isset($search['lists.id'])) {
-            $isValidEncounter = BaseValidator::validateId(
+            $isValidEncounter = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::ALLERGY_TABLE,
                 $search['lists.id'],
@@ -128,7 +130,7 @@ class AllergyIntoleranceService extends BaseService
     {
         $processingResult = new ProcessingResult();
 
-        $isValid = BaseValidator::validateId("uuid", "lists", $uuid, true);
+        $isValid = $this->allergyIntoleranceValidator->validateId("uuid", "lists", $uuid, true);
 
         if ($isValid !== true) {
             $validationMessages = [
@@ -161,6 +163,135 @@ class AllergyIntoleranceService extends BaseService
             $this->addDiagnosis($sqlResult['diagnosis']);
         }
         $processingResult->addData($sqlResult);
+        return $processingResult;
+    }
+
+    /**
+     * Inserts a new allergy record.
+     *
+     * @param $data The allergy fields (array) to insert.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function insert($data)
+    {
+        $processingResult = $this->allergyIntoleranceValidator->validate(
+            $data,
+            AllergyIntoleranceValidator::DATABASE_INSERT_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $puuidBytes = UuidRegistry::uuidToBytes($data['puuid']);
+        $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        $data['uuid'] = (new UuidRegistry(['table_name' => self::ALLERGY_TABLE]))->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+        $sql  = " INSERT INTO lists SET";
+        $sql .= "     date=NOW(),";
+        $sql .= "     activity=1,";
+        $sql .= "     type='allergy',";
+        $sql .= $query['set'];
+        $results = sqlInsert(
+            $sql,
+            $query['bind']
+        );
+
+        if ($results) {
+            $processingResult->addData(array(
+                'id' => $results,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ));
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
+    }
+
+    /**
+     * Updates an existing allergy record.
+     *
+     * @param $uuid - The allergy uuid identifier in string format used for update.
+     * @param $data - The updated allergy data fields
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function update($uuid, $data)
+    {
+        if (empty($data)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages("Invalid Data");
+            return $processingResult;
+        }
+
+        $data["uuid"] = $uuid;
+        $processingResult = $this->allergyIntoleranceValidator->validate(
+            $data,
+            AllergyIntoleranceValidator::DATABASE_UPDATE_CONTEXT
+        );
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE lists SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE `uuid` = ?";
+        $sql .= "       AND `type` = 'allergy'";
+
+        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
+        array_push($query['bind'], $uuidBinary);
+        $sqlResult = sqlStatement($sql, $query['bind']);
+
+        if (!$sqlResult) {
+            $processingResult->addErrorMessage("error processing SQL Update");
+        } else {
+            $processingResult = $this->getOne($uuid);
+        }
+        return $processingResult;
+    }
+
+    /**
+     * Deletes an existing allergy record.
+     *
+     * @param $puuid - The patient uuid identifier in string format used for update.
+     * @param $uuid - The allergy uuid identifier in string format used for update.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function delete($puuid, $uuid)
+    {
+        $processingResult = new ProcessingResult();
+
+        $isValid = $this->allergyIntoleranceValidator->validateId("uuid", "lists", $uuid, true);
+        $isPatientValid = $this->allergyIntoleranceValidator->validateId("uuid", "patient_data", $puuid, true);
+
+        if ($isValid !== true || $isPatientValid !== true) {
+            $validationMessages = [
+                'UUID' => ["invalid or nonexisting value"]
+            ];
+            $processingResult->setValidationMessages($validationMessages);
+            return $processingResult;
+        }
+
+        $puuidBytes = UuidRegistry::uuidToBytes($puuid);
+        $auuid = UuidRegistry::uuidToBytes($uuid);
+        $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        $sql  = "DELETE FROM lists WHERE pid=? AND uuid=? AND type='allergy'";
+
+        $results = sqlStatement($sql, array($pid, $auuid));
+
+        if ($results) {
+            $processingResult->addData(array(
+                'uuid' => $uuid
+            ));
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
         return $processingResult;
     }
 
