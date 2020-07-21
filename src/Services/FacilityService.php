@@ -198,7 +198,7 @@ class FacilityService extends BaseService
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO facility SET ";
         $sql .= $query['set'];
-        return sqlStatement(
+        return sqlInsert(
             $sql,
             $query['bind']
         );
