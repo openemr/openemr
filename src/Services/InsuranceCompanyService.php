@@ -71,6 +71,13 @@ class InsuranceCompanyService
         return $results;
     }
 
+    public function getOne($id)
+    {
+        $sql = "SELECT * FROM insurance_companies WHERE id=?";
+
+        return sqlQuery($sql, array($id));
+    }
+
     public function getInsuranceTypes()
     {
         return array(

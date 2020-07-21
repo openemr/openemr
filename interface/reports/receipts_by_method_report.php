@@ -23,12 +23,14 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once "$srcdir/options.inc.php";
+require_once("$srcdir/options.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\InsuranceService;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -110,7 +112,7 @@ function showLineItem(
     global $paymethod, $paymethodleft, $methodpaytotal, $methodadjtotal,
     $grandpaytotal, $grandadjtotal, $showing_ppd;
 
-    if (! $rowmethod) {
+    if (!$rowmethod) {
         $rowmethod = 'Unknown';
     }
 
@@ -575,13 +577,20 @@ if ($_POST['form_refresh']) {
           // Compute reporting key: insurance company name or payment method.
             if ($form_report_by == '1') {
                 if (empty($row['payer_id'])) {
-                    $rowmethod = '';
-                } else {
-                    if (empty($row['name'])) {
-                        $rowmethod = xl('Unnamed insurance company');
+                    // 'ar_session' is not capturing payer_id when entering payments through invoice or era posting
+                    if ($row['payer_type'] == '1') {
+                        $insurance_id = InsuranceService::getOne($row['pid'], "primary");
+                    } elseif ($row['payer_type'] == '2') {
+                        $insurance_id = InsuranceService::getOne($row['pid'], "secondary");
+                    } elseif ($row['payer_type'] == '3') {
+                        $insurance_id = InsuranceService::getOne($row['pid'], "tertiary");
                     } else {
-                        $rowmethod = $row['name'];
+                        $rowmethod = xl('Unnamed insurance company');
                     }
+                    $insurance_company = InsuranceCompanyService::getOne($insurance_id['provider']);
+                    $rowmethod = xl($insurance_company['name']);
+                } else {
+                    $rowmethod = $row['name'];
                 }
             } else {
                 if (empty($row['session_id'])) {
