@@ -16,6 +16,8 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\AllergyIntoleranceValidator;
 use OpenEMR\Validators\ProcessingResult;
 
+require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+
 class AllergyIntoleranceService extends BaseService
 {
     private const ALLERGY_TABLE = "lists";
@@ -300,12 +302,9 @@ class AllergyIntoleranceService extends BaseService
         $diags = explode(";", $diagnosis);
         $diagnosis = array();
         foreach ($diags as $diag) {
+            $codedesc = lookup_code_descriptions($diag);
             $code = explode(':', $diag)[1];
-            $codeSql = "SELECT long_desc FROM icd10_dx_order_code WHERE active = 1
-                                AND valid_for_coding = '1'
-                                AND formatted_dx_code = ?";
-            $codedesc = sqlQuery($codeSql, [$code]);
-            $diagnosis[$code] = $codedesc['long_desc'];
+            $diagnosis[$code] = $codedesc;
         }
     }
 }
