@@ -189,8 +189,8 @@ $(function () {
                             echo text($amendment_desc);
                         } else {
                             echo "";
-                        } ?>
-                        </textarea>
+                        }
+                        ?></textarea>
                     </div>
 
                     <div class="form-group mt-3">
@@ -205,8 +205,8 @@ $(function () {
                             echo "";
                         } else {
                             echo xlt('New amendment request');
-                        } ?>
-                        </textarea>
+                        }
+                        ?></textarea>
                     </div>
 
                     <input type="hidden" id="mode" name="mode" value=""/>
