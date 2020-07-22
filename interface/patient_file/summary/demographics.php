@@ -494,21 +494,8 @@ require_once("$srcdir/options.js.php");
         $(".rx_modal").on('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            var AddAmendment = function () {
-                var iam = top.frames.editAmendments;
-                iam.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/add_edit_amendments.php"
-            };
-            var ListAmendments = function () {
-                var iam = top.frames.editAmendments;
-                iam.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/list_amendments.php"
-            };
             var title = <?php echo xlj('Amendments'); ?>;
             dlgopen('', 'editAmendments', 800, 300, '', title, {
-                buttons: [
-                    {text: <?php echo xlj('Add'); ?>, close: false, style: 'primary btn-sm', click: AddAmendment},
-                    {text: <?php echo xlj('List'); ?>, close: false, style: 'primary btn-sm', click: ListAmendments},
-                    {text: <?php echo xlj('Done'); ?>, close: true, style: 'secondary btn-sm'}
-                ],
                 onClosed: 'refreshme',
                 allowResize: true,
                 allowDrag: true,
