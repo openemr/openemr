@@ -117,8 +117,19 @@ services:
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       EMPTY: "yes"
+      MYSQL_HOST: mariadb
+      MYSQL_ROOT_PASS: root
       DEVELOPER_TOOLS: "yes"
+      INSANE_DEV_MODE: "yes"
+      XDEBUG_IDE_KEY: PHPSTORM
+      XDEBUG_PROFILER_ON: 1
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
+      OPENEMR_SETTING_rest_api: 1
+      OPENEMR_SETTING_rest_fhir_api: 1
+      OPENEMR_SETTING_rest_portal_api: 1
+      OPENEMR_SETTING_rest_portal_fhir_api: 1
+      OPENEMR_SETTING_portal_onsite_two_enable: 1
+      OPENEMR_SETTING_ccda_alt_service_enable: 3
   openemr-edge:
     restart: always
     image: openemr/openemr:flex-edge
