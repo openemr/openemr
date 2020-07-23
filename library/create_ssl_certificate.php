@@ -74,22 +74,18 @@ function create_csr(
         $dn = array_merge($dn, array("organizationalUnitName" => $organizationalUnitName));
     }
 
-    /* OpenSSL functions need the path to the openssl.cnf file */
-    $opensslConf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
-    $config = array('config' => $opensslConf);
-
     /* Create the public/private key pair */
-    $privkey = openssl_pkey_new($config);
+    $privkey = openssl_pkey_new();
     if ($privkey === false) {
         return false;
     }
 
-    $csr = openssl_csr_new($dn, $privkey, $config);
+    $csr = openssl_csr_new($dn, $privkey);
     if ($csr === false) {
         return false;
     }
 
-    return array($csr, $privkey, $config);
+    return array($csr, $privkey);
 }
 
 
@@ -102,15 +98,7 @@ function create_csr(
  */
 function create_crt($csr, $cacert, $cakey)
 {
-
-    $opensslConf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
-    $config = array('config' => $opensslConf);
-
-    // Fix server certificate is a CA certificate (BasicConstraints: CA == TRUE !?)
-    if ($cacert) {
-        $config["x509_extensions"] = "v3_req";
-    }
-    $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, $config, rand(1000, 9999));
+    $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, [], rand(1000, 9999));
     return $cert;
 }
 
@@ -127,10 +115,6 @@ function create_crt($csr, $cacert, $cakey)
  */
 function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $cakey, $valid_days)
 {
-
-    $opensslConf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
-    $config = array('config' => $opensslConf);
-
     /* Generate a certificate signing request */
     $arr = create_csr($commonName, $emailAddress, "", "", "", "", "");
     if ($arr === false) {
@@ -152,7 +136,7 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
         file_get_contents($cacert),
         file_get_contents($cakey),
         $valid_days,
-        $config,
+        [],
         $serial
     );
 
