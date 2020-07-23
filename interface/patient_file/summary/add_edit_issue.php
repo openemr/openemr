@@ -12,12 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/lists.inc');
-require_once($GLOBALS['srcdir'] . '/patient.inc');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
-require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
+require_once '../../globals.php';
+require_once $GLOBALS['srcdir'] . '/lists.inc';
+require_once $GLOBALS['srcdir'] . '/patient.inc';
+require_once $GLOBALS['srcdir'] . '/options.inc.php';
+require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
+require_once $GLOBALS['srcdir'] . '/csv_like_join.php';
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -27,7 +27,7 @@ use OpenEMR\Core\Header;
 ?>
 <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <script>
-    <?php require($GLOBALS['srcdir'] . '/formatting_DateToYYYYMMDD_js.js.php'); ?>
+    <?php require $GLOBALS['srcdir'] . '/formatting_DateToYYYYMMDD_js.js.php'; ?>
 </script>
 <?php
 
@@ -51,7 +51,7 @@ if ($_POST['form_save']) {
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.
-        require_once($GLOBALS['srcdir'] . '/ippf_issues.inc.php');
+        include_once $GLOBALS['srcdir'] . '/ippf_issues.inc.php';
     }
 }
 
@@ -260,13 +260,16 @@ if ($_POST['form_save']) {
             "WHERE id = '" . add_escape_custom($issue) . "'";
         sqlStatement($query);
         if ($text_type == "medication" && enddate != '') {
-            sqlStatement('UPDATE prescriptions SET '
+            sqlStatement(
+                'UPDATE prescriptions SET '
                 . 'medication = 0 where patient_id = ? '
                 . " and upper(trim(drug)) = ? "
-                . ' and medication = 1', array($thispid, strtoupper($_POST['form_title'])));
+                . ' and medication = 1', array($thispid, strtoupper($_POST['form_title']))
+            );
         }
     } else {
-        $issue = sqlInsert("INSERT INTO lists ( " .
+        $issue = sqlInsert(
+            "INSERT INTO lists ( " .
             "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
             "diagnosis, occurrence, classification, referredby, user, groupname, " .
             "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type, " .
@@ -297,7 +300,8 @@ if ($_POST['form_save']) {
             "'" . add_escape_custom($_POST['form_verification'])         . "', " .
             "'" . add_escape_custom($_POST['form_severity_id'])         . "', " .
             "'" . add_escape_custom($_POST['form_title_id'])         . "' " .
-            ")");
+            ")"
+        );
     }
 
     // For record/reporting purposes, place entry in lists_touch table.
@@ -404,7 +408,7 @@ if (!empty($irow['type'])) {
         ///////////
         ?>
 
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require $GLOBALS['srcdir'] . "/restoreSession.php"; ?>
 
         ///////////////////////////
         function codeBoxFunction2() {
@@ -624,7 +628,7 @@ if (!empty($irow['type'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
                 ?>
             });
@@ -780,7 +784,7 @@ if (!empty($irow['type'])) {
                             ?>
                         </div>
                         <!-- End of reaction -->
-                        <?php if($thistype == "allergy") { ?>
+                        <?php if ($thistype == "allergy") { ?>
                         <!-- Verification Status for Medication Allergy -->
                         <div class="form-group col-12" id='row_verification'>
                             <label class="col-form-label" for="form_verification"><?php echo xlt('Verification Status'); ?>:</label>
@@ -799,23 +803,23 @@ if (!empty($irow['type'])) {
                             <textarea class="form-control" name='form_comments' id='form_comments' rows="4" id='form_comments'><?php echo text($irow['comments']) ?></textarea>
                         </div>
                         <div class="form-group col-12" <?php
-                                                        if ($GLOBALS['ippf_specific']) {
-                                                            echo " style='display:none;'";
-                                                        } ?>>
+                        if ($GLOBALS['ippf_specific']) {
+                            echo " style='display:none;'";
+                        } ?>>
                             <label class="col-form-label" for="form_outcome"><?php echo xlt('Outcome'); ?>:</label>
                             <?php
                             echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
                             ?>
                         </div>
                         <div class="form-group col-12" <?php
-                                                        if ($GLOBALS['ippf_specific']) {
-                                                            echo " style='display:none;'";
-                                                        } ?>>
+                        if ($GLOBALS['ippf_specific']) {
+                            echo " style='display:none;'";
+                        } ?>>
                             <label class="col-form-label" for="form_destination"><?php echo xlt('Destination'); ?>:</label>
                             <?php if (true) { ?>
                                 <input type='text' class='form-control' name='form_destination' id='form_destination' value='<?php echo attr($irow['destination']) ?>' style='width:100%' title='GP, Secondary care specialist, etc.' />
                             <?php } else { // leave this here for now, please -- Rod 
-                            ?>
+                                ?>
                                 <?php echo rbinput('form_destination', '1', 'GP', 'destination') ?>&nbsp;
                                 <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
                                 <?php echo rbinput('form_destination', '3', 'GP via physio', 'destination') ?>&nbsp;
@@ -833,7 +837,7 @@ if (!empty($irow['type'])) {
                                     <?php
                                     if ($issue && AclMain::aclCheckCore('admin', 'super')) { ?>
                                         <button type='submit' name='form_delete' class="btn btn-secondary btn-cancel btn-delete btn-separate-left" onclick='deleteme()' value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
-                                    <?php
+                                        <?php
                                     } ?>
                                 </div>
                             </div>
