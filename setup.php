@@ -74,9 +74,9 @@ function recursive_writable_directory_test($dir)
         foreach ($resultsNegative as $failedDir) {
             if (basename($failedDir) ==  basename($dir)) {
                 // need to reorder output so the main directory is at the top of the list
-                $mainDirTest = "<FONT COLOR='red'>UNABLE</FONT> to open directory '" . realpath($failedDir) . "' for writing by web server.<br />\r\n";
+                $mainDirTest = "<span class='text-danger'>UNABLE</span> to open directory '" . realpath($failedDir) . "' for writing by web server.<br />\r\n";
             } else {
-                $outputs[] = "<FONT COLOR='red'>UNABLE</FONT> to open subdirectory '" . realpath($failedDir) . "' for writing by web server.<br />\r\n";
+                $outputs[] = "<span class='text-danger'>UNABLE</span> to open subdirectory '" . realpath($failedDir) . "' for writing by web server.<br />\r\n";
             }
         }
         if ($mainDirTest) {
@@ -135,10 +135,7 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
     <body>
         <nav class="navbar navbar-expand navbar-light bg-light">
             <a class="navbar-brand" href="#">OpenEMR Setup</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+            <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav">
                     <li class="nav-item active">
                         <a class="nav-link" href="#" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
@@ -324,12 +321,9 @@ if (file_exists($OE_SITE_DIR)) {
         font-size: 70%!important;
     }
     .oe-setup-legend{
-        background-color:  WHITESMOKE;
+        background-color: #f5f5f5;
         padding:0 10px;
     }
-    /* button {
-    font-weight:bold;
-    } */
     .button-wait {
         color: grey;
         cursor: not-allowed;
@@ -354,10 +348,7 @@ function cloneClicked() {
 <body>
     <nav class="navbar navbar-expand navbar-light bg-light">
         <a class="navbar-brand" href="#">OpenEMR Setup</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+        <div class="collapse navbar-collapse justify-content-end">
             <ul class="navbar-nav">
                 <li class="nav-item active">
                     <a class="nav-link" href="#" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
@@ -481,14 +472,14 @@ ENDDIV;
                                 <input name='state' type='hidden' value='2' />
                                 <input name='site' type='hidden' value='$site_id' />
                                 <div class="form-check">
-                                    <input checked class='form-check-input' id='inst1' name='inst' type='radio' value='1'>
+                                    <input checked class='form-check-input' id='inst1' name='inst' type='radio' value='1' />
                                     <label class="form-check-label" for="inst1">
                                         Have setup create the database
                                     </label>
                                 </div>
                                 <br />
                                 <div class="form-check">
-                                    <input id='inst2' class='form-check-input' name='inst' type='radio' value='2'>
+                                    <input id='inst2' class='form-check-input' name='inst' type='radio' value='2' />
                                     <label class="form-check-label" for="inst2">
                                         I have already created the database
                                     </label>
@@ -1278,18 +1269,18 @@ TOTP;
 
                                     $form_top = <<<FRMTOP
                                     <form method='post'>
-                                        <input name='state' type='hidden' value='$next_state'>
-                                        <input name='site' type='hidden' value='$site_id'>
-                                        <input name='iuser' type='hidden' value='{$installer->iuser}'>
-                                        <input name='iuserpass' type='hidden' value='{$installer->iuserpass}'>
-                                        <input name='iuname' type='hidden' value='{$installer->iuname}'>
-                                        <input name='iufname' type='hidden' value='{$installer->iufname}'>
-                                        <input name='login' type='hidden' value='{$installer->login}'>
-                                        <input name='pass' type='hidden' value='{$installer->pass}'>
-                                        <input name='server' type='hidden' value='{$installer->server}'>
-                                        <input name='port' type='hidden' value='{$installer->port}'>
-                                        <input name='loginhost' type='hidden' value='{$installer->loginhost}'>
-                                        <input name='dbname' type='hidden' value='{$installer->dbname}'>
+                                        <input name='state' type='hidden' value='$next_state' />
+                                        <input name='site' type='hidden' value='$site_id' />
+                                        <input name='iuser' type='hidden' value='{$installer->iuser}' />
+                                        <input name='iuserpass' type='hidden' value='{$installer->iuserpass}' />
+                                        <input name='iuname' type='hidden' value='{$installer->iuname}' />
+                                        <input name='iufname' type='hidden' value='{$installer->iufname}' />
+                                        <input name='login' type='hidden' value='{$installer->login}' />
+                                        <input name='pass' type='hidden' value='{$installer->pass}' />
+                                        <input name='server' type='hidden' value='{$installer->server}' />
+                                        <input name='port' type='hidden' value='{$installer->port}' />
+                                        <input name='loginhost' type='hidden' value='{$installer->loginhost}' />
+                                        <input name='dbname' type='hidden' value='{$installer->dbname}' />
 FRMTOP;
                                     echo $form_top . "\r\n";
                         if ($allow_cloning_setup) {
@@ -1407,7 +1398,7 @@ STP4TAB;
                         echo $step4_table . "\r\n";
 
                         if (!$gotFileFlag) {
-                            echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";
+                            echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual for suggestions.</li>\n";
                         }
 
                         $btn_text = 'Proceed to Step 5';
@@ -1466,16 +1457,16 @@ STP4BOT;
                         <p class='mark'>Click <strong>'$btn_text'</strong> to select a theme.</p>
                         <br />
                         <form method='post'>
-                            <input type='hidden' name='state' value='6'>
-                            <input type='hidden' name='site' value='$site_id'>
-                            <input type='hidden' name='iuser' value='{$installer->iuser}'>
-                            <input type='hidden' name='iuserpass' value='{$installer->iuserpass}'>
-                            <input name='login' type='hidden' value='{$installer->login}'>
-                            <input name='pass' type='hidden' value='{$installer->pass}'>
-                            <input name='server' type='hidden' value='{$installer->server}'>
-                            <input name='port' type='hidden' value='{$installer->port}'>
-                            <input name='loginhost' type='hidden' value='{$installer->loginhost}'>
-                            <input name='dbname' type='hidden' value='{$installer->dbname}'>
+                            <input type='hidden' name='state' value='6' />
+                            <input type='hidden' name='site' value='$site_id' />
+                            <input type='hidden' name='iuser' value='{$installer->iuser}' />
+                            <input type='hidden' name='iuserpass' value='{$installer->iuserpass}' />
+                            <input name='login' type='hidden' value='{$installer->login}' />
+                            <input name='pass' type='hidden' value='{$installer->pass}' />
+                            <input name='server' type='hidden' value='{$installer->server}' />
+                            <input name='port' type='hidden' value='{$installer->port}' />
+                            <input name='loginhost' type='hidden' value='{$installer->loginhost}' />
+                            <input name='dbname' type='hidden' value='{$installer->dbname}' />
                             <div class="form-row">
                                 <div class="col-12 text-right">
                                     <button type='submit' class='btn btn-primary' value='Continue'>
@@ -1499,25 +1490,25 @@ STP5BOT;
                         <div class='row'>
                         <div class="col-12">
                             <form method='post'>
-                                <input type='hidden' name='state' value='7'>
-                                <input type='hidden' name='site' value='$site_id'>
-                                <input type='hidden' name='iuser' value='{$installer->iuser}'>
-                                <input type='hidden' name='iuserpass' value='{$installer->iuserpass}'>
-                                <input name='login' type='hidden' value='{$installer->login}'>
-                                <input name='pass' type='hidden' value='{$installer->pass}'>
-                                <input name='server' type='hidden' value='{$installer->server}'>
-                                <input name='port' type='hidden' value='{$installer->port}'>
-                                <input name='loginhost' type='hidden' value='{$installer->loginhost}'>
-                                <input name='dbname' type='hidden' value='{$installer->dbname}'>
-                                <input type='hidden' name='new_theme' id = 'new_theme' value='{$installer->getCurrentTheme()}'>
-                                <input name='clone_database' type='hidden' value='{$installer->clone_database}'>
-                                <input name='source_site_id' type='hidden' value='{$installer->source_site_id}'>
+                                <input type='hidden' name='state' value='7' />
+                                <input type='hidden' name='site' value='$site_id' />
+                                <input type='hidden' name='iuser' value='{$installer->iuser}' />
+                                <input type='hidden' name='iuserpass' value='{$installer->iuserpass}' />
+                                <input name='login' type='hidden' value='{$installer->login}' />
+                                <input name='pass' type='hidden' value='{$installer->pass}' />
+                                <input name='server' type='hidden' value='{$installer->server}' />
+                                <input name='port' type='hidden' value='{$installer->port}' />
+                                <input name='loginhost' type='hidden' value='{$installer->loginhost}' />
+                                <input name='dbname' type='hidden' value='{$installer->dbname}' />
+                                <input type='hidden' name='new_theme' id = 'new_theme' value='{$installer->getCurrentTheme()}' />
+                                <input name='clone_database' type='hidden' value='{$installer->clone_database}' />
+                                <input name='source_site_id' type='hidden' value='{$installer->source_site_id}' />
                             <h4>Select One:</h4>
                                 <div class="checkbox">
-                                  <label><input type="checkbox" class="check" value="show_theme">Show More Themes</label>
+                                  <label><input type="checkbox" class="check" value="show_theme" />Show More Themes</label>
                                 </div>
                                 <div class="checkbox">
-                                  <label><input type="checkbox" class="check" value="keep_current">Keep Current</label>
+                                  <label><input type="checkbox" class="check" value="keep_current" />Keep Current</label>
                                 </div>
                                 <div class='hide_button text-right' style="display:none;">
                                     <button type='submit' class='btn btn-primary' value='Continue' id='continue'>
@@ -1550,21 +1541,21 @@ TMF;
                                             Before proceeding, be sure that you have a properly installed and configured MySQL server available, and a PHP configured webserver.
                                         </li>
                                         <li>
-                                            <span class="text-highlight">Detailed installation instructions can be found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</span>
+                                            <span class="text-highlight">Detailed installation instructions can be found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual file.</span>
                                         </li>
                                         <li>
-                                            If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.
+                                            If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual file.
                                         </li>
                                     </ul>
 TOP;
                                     echo $top;
                         if ($checkPermissions) {
                             echo "<p>We will now ensure correct file and directory permissions before starting installation:</p>\n";
-                            echo "<p class='text-success'>Ensuring following file is world-writable...</p><br />\n";
+                            echo "<p class='text-success'>Ensuring following file is world-writable...</p>\n";
                             $errorWritable = 0;
                             foreach ($writableFileList as $tempFile) {
                                 if (is_writable($tempFile)) {
-                                        echo "<code>" . realpath($tempFile) . "</code> file is <span class='text-success font-weight-bold'>ready</span>.<br />\n";
+                                        echo "<code>" . realpath($tempFile) . "</code> file is <span class='text-success font-weight-bold'>ready</span>.\n";
                                 } else {
                                         echo "<p><span class='text-danger'>UNABLE</span> to open file '" . realpath($tempFile) . "' for writing.<br />\n";
                                         echo "(configure file permissions; see below for further instructions)</p>\n";
@@ -1589,7 +1580,7 @@ CHKFILE;
 
                             $errorWritable = 0;
                             foreach ($writableDirList as $tempDir) {
-                                echo "<br /><p class='text-success'>Ensuring the <code>" . realpath($tempDir) . "</code> directory and its subdirectories have proper permissions...</p><br />\n";
+                                echo "<br /><p class='text-success'>Ensuring the <code>" . realpath($tempDir) . "</code> directory and its subdirectories have proper permissions...</p>\n";
                                 $errorWritable = recursive_writable_directory_test($tempDir);
                             }
 
@@ -1600,7 +1591,7 @@ CHKFILE;
                                             <p class='p-1 bg-warning'>Fix above directory permissions and then click the <strong>'Check Again'</strong> button to re-check directories.</p>
                                             <br />
                                             <form method='post'>
-                                                <input type='hidden' name='site' value='$site_id'>
+                                                <input type='hidden' name='site' value='$site_id' />
                                                 <button type='submit' value='check again'><b>Check Again</b></button>
                                             </form>
 CHKDIR;
@@ -1610,10 +1601,9 @@ CHKDIR;
 
                             //RP_CHECK_LOGIC
                             $form = <<<FRM
-                                        <br />
                                         <p>All required files and directories have been verified.</p>
                                         <p class='mark'>Click <span class="font-weight-bold">Proceed to Step 1</span> to continue with a new installation.</p>
-                                        <p class='p-1 bg-warning'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</p>
+                                        <p class='p-1 bg-warning'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual file.</p>
                                         <br />
                                         <form method='post'>
                                             <input name='state' type='hidden' value='1' />
