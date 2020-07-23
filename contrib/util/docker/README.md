@@ -20,6 +20,7 @@ Docker Environment. See below for instructions of use of the Insane Development 
 [docker](https://www.docker.com/get-docker) and
 [compose](https://docs.docker.com/compose/install/) for your system. Also, make
 sure you have a [fork](https://help.github.com/articles/fork-a-repo/) of OpenEMR.
+- If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
 
 **Step 2.** Start OpenEMR.
 ```bash
