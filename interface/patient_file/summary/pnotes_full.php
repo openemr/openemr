@@ -295,18 +295,17 @@ function restoreSession() {
             $title_docname .= " " . xl("linked to procedure order") . " $orderid";
         }
 
-
-$urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
-$title = text(getPatientName($patient_id));
-?>
+        $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
+        $title = text(getPatientName($patient_id));
+        ?>
     <title><?php echo $title; ?></title>
     <div class="row">
         <div class="col-12">
             <h3><?php echo xlt('Patient Messages') . text($title_docname) . " " . xlt('for');
             if (!$orderid) {
-                ?>&nbsp;
-                    <span><a href="../summary/demographics.php"
-                                       onclick="return top.restoreSession()"><?php echo $title; ?></a></span>
+                ?><span>
+                    <a href="../summary/demographics.php" onclick="return top.restoreSession()"><?php echo $title; ?></a>
+                </span>
                 <?php } else { ?>
                     <span><?php echo $title; ?></span><?php } ?>
             </h3>
