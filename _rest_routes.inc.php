@@ -179,31 +179,31 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "med");
         return (new AllergyIntoleranceRestController())->getAll();
     },
-    "GET /api/allergy/:uuid" => function ($uuid) {
+    "GET /api/allergy/:auuid" => function ($auuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new AllergyIntoleranceRestController())->getOne($uuid);
+        return (new AllergyIntoleranceRestController())->getOne($auuid);
     },
     "GET /api/patient/:puuid/allergy" => function ($puuid) {
         RestConfig::authorization_check("patients", "med");
         return (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $puuid]);
     },
-    "GET /api/patient/:puuid/allergy/:uuid" => function ($puuid, $uuid) {
+    "GET /api/patient/:puuid/allergy/:auuid" => function ($puuid, $auuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $puuid, 'lists.id' => $uuid]);
+        return (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $puuid, 'lists.id' => $auuid]);
     },
     "POST /api/patient/:puuid/allergy" => function ($puuid) {
         RestConfig::authorization_check("patients", "med");
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new AllergyIntoleranceRestController())->post($puuid, $data);
     },
-    "PUT /api/patient/:puuid/allergy/:uuid" => function ($puuid, $uuid) {
+    "PUT /api/patient/:puuid/allergy/:auuid" => function ($puuid, $auuid) {
         RestConfig::authorization_check("patients", "med");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        return (new AllergyIntoleranceRestController())->put($puuid, $uuid, $data);
+        return (new AllergyIntoleranceRestController())->put($puuid, $auuid, $data);
     },
-    "DELETE /api/patient/:puuid/allergy/:uuid" => function ($pid, $aid) {
+    "DELETE /api/patient/:puuid/allergy/:auuid" => function ($puuid, $auuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new AllergyIntoleranceRestController())->delete($pid, $aid);
+        return (new AllergyIntoleranceRestController())->delete($puuid, $auuid);
     },
     "GET /api/patient/:pid/medication" => function ($pid) {
         RestConfig::authorization_check("patients", "med");

@@ -838,7 +838,7 @@ Request:
 curl -X GET 'http://localhost:8300/apis/api/allergy'
 ```
 
-#### GET /api/allergy/:uuid
+#### GET /api/allergy/:auuid
 
 Request:
 
@@ -888,7 +888,7 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/90c196f2-51cc-4655-8858-3a80
 }'
 ```
 
-#### DELETE /api/patient/:pid/allergy/:auuid
+#### DELETE /api/patient/:puuid/allergy/:auuid
 
 Request:
 

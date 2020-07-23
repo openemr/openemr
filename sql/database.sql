@@ -6282,7 +6282,7 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "390200000X", "Student in an Organized Health Care Education/Training Program", 8470);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "405300000X", "Prevention Professional", 8480);
 
--- allergyintolerance-verification [FHIR AllergyIntolerance.verification]
+-- AllergyIntolerance Verification Status Codes [FHIR AllergyIntolerance.verification]
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq` ) VALUES ('lists' ,'allergyintolerance-verification', 'AllergyIntolerance Verification Status Codes', 1);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'unconfirmed', 'Unconfirmed', 10);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'confirmed', 'Confirmed', 20);

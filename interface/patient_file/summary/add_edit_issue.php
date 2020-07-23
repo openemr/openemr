@@ -780,6 +780,7 @@ if (!empty($irow['type'])) {
                             ?>
                         </div>
                         <!-- End of reaction -->
+                        <?php if($thistype == "allergy") { ?>
                         <!-- Verification Status for Medication Allergy -->
                         <div class="form-group col-12" id='row_verification'>
                             <label class="col-form-label" for="form_verification"><?php echo xlt('Verification Status'); ?>:</label>
@@ -787,7 +788,8 @@ if (!empty($irow['type'])) {
                             echo generate_select_list('form_verification', 'allergyintolerance-verification', $irow['verification'], '', '', '', '');
                             ?>
                         </div>
-                        <!-- End of Verification Statu -->
+                        <!-- End of Verification Status -->
+                        <?php } ?>
                         <div class="form-group col-12" id='row_referredby'>
                             <label class="col-form-label" for="form_referredby"><?php echo xlt('Referred by'); ?>:</label>
                             <input type='text' name='form_referredby' id='form_referredby' class='form-control' value='<?php echo attr($irow['referredby']) ?>' title='<?php echo xla('Referring physician and practice'); ?>' />

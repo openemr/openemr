@@ -16,7 +16,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\AllergyIntoleranceValidator;
 use OpenEMR\Validators\ProcessingResult;
 
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
 class AllergyIntoleranceService extends BaseService
 {
@@ -53,14 +53,14 @@ class AllergyIntoleranceService extends BaseService
     {
         // Validating and Converting Patient UUID to PID
         if (isset($search['lists.pid'])) {
-            $isValidAllergy = $this->allergyIntoleranceValidator->validateId(
+            $isValidPatient = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::PATIENT_TABLE,
                 $search['lists.pid'],
                 true
             );
-            if ($isValidAllergy !== true) {
-                return $isValidAllergy;
+            if ($isValidPatient !== true) {
+                return $isValidPatient;
             }
             $puuidBytes = UuidRegistry::uuidToBytes($search['lists.pid']);
             $search['lists.pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
