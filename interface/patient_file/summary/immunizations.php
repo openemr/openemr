@@ -18,6 +18,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
+use OpenEMR\Menu\PatientMenuRole;
+
 
 if (isset($_GET['mode'])) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -345,10 +347,17 @@ tr.selected {
 </head>
 
 <body>
-    <div class="container">
+    <div class="container mt-3">
         <div class="row">
             <div class="col-12">
                 <h2><?php echo xlt('Immunizations'); ?></h2>
+            </div>
+            <div class="col-12">
+                <?php
+                    $list_id = ""; // to indicate nav item is active, count and give correct id
+                    $menuPatient = new PatientMenuRole();
+                    $menuPatient->displayHorizNavBarMenu();
+                ?>
             </div>
             <div class="col-12">
                 <form class="jumbotron p-4" action="immunizations.php" name="add_immunization" id="add_immunization">
