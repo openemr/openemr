@@ -89,7 +89,7 @@ function recursive_writable_directory_test($dir)
         echo "(configure directory permissions; see below for further instructions)</p>\r\n";
         return 1;
     } else {
-        echo "<code>" . realpath($dir) . "</code> directory and its subdirectories are <span class='text-success font-weight-bold'>ready</span>.<br />\r\n";
+        echo "<code class='ml-5'>" . realpath($dir) . "</code> directory and its subdirectories are <span class='text-success font-weight-bold'>ready</span>.<br /><br />\r\n";
         return 0;
     }
 }
@@ -134,14 +134,16 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
     </head>
     <body>
         <nav class="navbar navbar-expand navbar-light bg-light">
-            <a class="navbar-brand" href="#">OpenEMR Setup</a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
-                    </li>
-                </ul>
-            </div>
+           <div class="container">
+           <a class="navbar-brand" href="#">OpenEMR Setup</a>
+           <div class="collapse navbar-collapse justify-content-end">
+               <ul class="navbar-nav">
+                   <li class="nav-item active">
+                       <a class="nav-link" href="#" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
+                   </li>
+               </ul>
+           </div>
+           </div>
         </nav>
 
         <div class='container mt-3'>
@@ -189,7 +191,7 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
                                 <div class="col">
                                     <input type='text' class='form-control' name='site' value='default'>
                                 </div>
-                                <div class="col-12 mt-3 text-right">
+                                <div class="col-12 mt-3">
                                     <button type='submit' class='btn btn-primary' value='Continue'><i class="fas fa-chevron-right"></i>  Continue</button>
                                 </div>
                             </div>
@@ -347,14 +349,16 @@ function cloneClicked() {
 </head>
 <body>
     <nav class="navbar navbar-expand navbar-light bg-light">
+       <div class="container">
         <a class="navbar-brand" href="#">OpenEMR Setup</a>
-        <div class="collapse navbar-collapse justify-content-end">
-            <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
-                </li>
-            </ul>
-        </div>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
+                    </li>
+                </ul>
+            </div>
+       </div>
     </nav>
     <div class='mt-3 container'>
         <div class="row">
@@ -427,7 +431,7 @@ function cloneClicked() {
                 ?>
             <p>Click to start using OpenEMR.</p>
             <div class="row">
-                <div class="col-12 text-right">
+                <div class="col-12">
                     <a href='./?site=<?php echo $site_id; ?>' class='btn btn-primary'>
                         <i class="fas fa-chevron-right"></i> Start
                     </a>
@@ -485,7 +489,7 @@ ENDDIV;
                                     </label>
                                 </div>
                                 <div class="form-group">
-                                    <div class="col text-right">
+                                    <div class="col mt-3">
                                         <button type='submit' class='btn btn-primary' value='Continue'>
                                             <i class="fas fa-chevron-right"></i>  Proceed to Step 2
                                         </button>
@@ -978,7 +982,7 @@ SOURCESITEBOT;
                             <p class='mt-4 mark'>Click the <b>Create DB and User</b> button below to create the database and first user <a href='#create_db_button' title='Click me'><i class="fa fa-arrow-circle-down" aria-hidden="true"></i></a>. $note: This process will take a few minutes.</p>
                             <p class='p-1 bg-success text-white oe-spinner' style='visibility:hidden;'>Upon successful completion will automatically take you to the next step.<i class='fa fa-spinner fa-pulse fa-fw'></i></p>
                             <div class="form-row">
-                                <div class="col-12 text-right">
+                                <div class="col-12">
                                     <button type='submit' id='create_db_button' value='Continue' class='wait btn btn-primary'>
                                         <i class="fas fa-chevron-right"></i>  Create DB and User
                                     </button>
@@ -1289,7 +1293,7 @@ FRMTOP;
                         }
                                     $form_bottom = <<<FRMBOT
                                     <div class="form-row">
-                                        <div class="col-12 text-right">
+                                        <div class="col-12">
                                             <button type='submit' id='step-4-btn' class="btn btn-primary" value='Continue'>
                                                 <i class="fas fa-chevron-right"></i>  $btn_text
                                             </button>
@@ -1421,7 +1425,7 @@ STP4TAB;
                             <input name='loginhost' type='hidden' value='{$installer->loginhost}' />
                             <input name='dbname' type='hidden' value='{$installer->dbname}' />
                             <div class="form-row">
-                                <div class="col-12 text-right">
+                                <div class="col-12">
                                     <button type='submit' class='btn btn-primary' value='Continue'>
                                         <i class="fas fa-chevron-right"></i>  $btn_text
                                     </button>
@@ -1468,7 +1472,7 @@ STP4BOT;
                             <input name='loginhost' type='hidden' value='{$installer->loginhost}' />
                             <input name='dbname' type='hidden' value='{$installer->dbname}' />
                             <div class="form-row">
-                                <div class="col-12 text-right">
+                                <div class="col-12">
                                     <button type='submit' class='btn btn-primary' value='Continue'>
                                         <i class="fas fa-chevron-right"></i>  $btn_text
                                     </button>
@@ -1510,7 +1514,7 @@ STP5BOT;
                                 <div class="checkbox">
                                   <label><input type="checkbox" class="check" value="keep_current" />Keep Current</label>
                                 </div>
-                                <div class='hide_button text-right' style="display:none;">
+                                <div class='hide_button' style="display:none;">
                                     <button type='submit' class='btn btn-primary' value='Continue' id='continue'>
                                         <i class="fas fa-chevron-right"></i>  {$btn_text}
                                     </button>
@@ -1551,11 +1555,11 @@ TOP;
                                     echo $top;
                         if ($checkPermissions) {
                             echo "<p>We will now ensure correct file and directory permissions before starting installation:</p>\n";
-                            echo "<p class='text-success'>Ensuring following file is world-writable...</p>\n";
+                            echo "<p class='text-success m-0'>Ensuring following file is world-writable...</p>\n";
                             $errorWritable = 0;
                             foreach ($writableFileList as $tempFile) {
                                 if (is_writable($tempFile)) {
-                                        echo "<code>" . realpath($tempFile) . "</code> file is <span class='text-success font-weight-bold'>ready</span>.\n";
+                                        echo "<code class='ml-5'>" . realpath($tempFile) . "</code> file is <span class='text-success font-weight-bold'>ready</span><br /><br />\n";
                                 } else {
                                         echo "<p><span class='text-danger'>UNABLE</span> to open file '" . realpath($tempFile) . "' for writing.<br />\n";
                                         echo "(configure file permissions; see below for further instructions)</p>\n";
@@ -1580,7 +1584,7 @@ CHKFILE;
 
                             $errorWritable = 0;
                             foreach ($writableDirList as $tempDir) {
-                                echo "<br /><p class='text-success'>Ensuring the <code>" . realpath($tempDir) . "</code> directory and its subdirectories have proper permissions...</p>\n";
+                                echo "<p class='text-success m-0'>Ensuring the <code>" . realpath($tempDir) . "</code> directory and its subdirectories have proper permissions...</p>\n";
                                 $errorWritable = recursive_writable_directory_test($tempDir);
                             }
 
@@ -1609,7 +1613,7 @@ CHKDIR;
                                             <input name='state' type='hidden' value='1' />
                                             <input name='site' type='hidden' value='$site_id' />
                                             <div class="form-group">
-                                                <div class="col text-right">
+                                                <div class="col">
                                                     <button type='submit' class='btn btn-primary' value='Continue'>
                                                         <i class="fas fa-chevron-right"></i>  Proceed to Step 1
                                                     </button>
