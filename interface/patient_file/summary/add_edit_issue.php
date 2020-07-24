@@ -51,7 +51,7 @@ if ($_POST['form_save']) {
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.
-        include_once $GLOBALS['srcdir'] . '/ippf_issues.inc.php';
+        require_once $GLOBALS['srcdir'] . '/ippf_issues.inc.php';
     }
 }
 
@@ -469,6 +469,7 @@ if (!empty($irow['type'])) {
                 document.getElementById('row_reinjury_id').style.display = injdisp;
                 document.getElementById('row_severity').style.display = alldisp;
                 document.getElementById('row_reaction').style.display = alldisp;
+                document.getElementById('row_verification').style.display = alldisp;
                 document.getElementById('row_referredby').style.display = (f.form_referredby.value) ? '' : comdisp;
                 //document.getElementById('row_comments'      ).style.display = (f.form_comments.value) ? '' : revdisp;
                 document.getElementById('row_referredby').style.display = (f.form_referredby.value) ? '' : comdisp;
@@ -785,7 +786,6 @@ if (!empty($irow['type'])) {
                             ?>
                         </div>
                         <!-- End of reaction -->
-                        <?php if ($thistype == "allergy") { ?>
                         <!-- Verification Status for Medication Allergy -->
                         <div class="form-group col-12" id='row_verification'>
                             <label class="col-form-label" for="form_verification"><?php echo xlt('Verification Status'); ?>:</label>
@@ -794,7 +794,6 @@ if (!empty($irow['type'])) {
                             ?>
                         </div>
                         <!-- End of Verification Status -->
-                        <?php } ?>
                         <div class="form-group col-12" id='row_referredby'>
                             <label class="col-form-label" for="form_referredby"><?php echo xlt('Referred by'); ?>:</label>
                             <input type='text' name='form_referredby' id='form_referredby' class='form-control' value='<?php echo attr($irow['referredby']) ?>' title='<?php echo xla('Referring physician and practice'); ?>' />
