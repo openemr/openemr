@@ -181,6 +181,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <th scope="col"><?php echo xlt('Occurrence'); ?></th>
                 <?php if ($focustype == "allergy") { ?>
                   <th scope="col"><?php echo xlt('Reaction'); ?></th>
+                  <th scope="col"><?php echo xlt('Verification Status'); ?></th>
                 <?php } ?>
                 <th scope="col"><?php echo xlt('Referred By'); ?></th>
                 <th scope="col"><?php echo xlt('Modify Date'); ?></th>
@@ -277,6 +278,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if ($focustype == "allergy") {
                           echo "  <td>";
                             echo generate_display_field(array('data_type' => '1','list_id' => 'reaction'), $row['reaction']);
+                          echo "</td>\n";
+                          echo "  <td>";
+                            echo generate_display_field(array('data_type' => '1','list_id' => 'allergyintolerance-verification'), $row['verification']);
                           echo "</td>\n";
                     }
 

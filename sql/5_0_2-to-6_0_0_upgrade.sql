@@ -1892,6 +1892,32 @@ ALTER TABLE `immunizations` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `immunizations` (`uuid`);
 #EndIf
 
+#IfMissingColumn lists uuid
+ALTER TABLE `lists` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate lists
+#EndIf
+
+#IfNotIndex lists uuid
+CREATE UNIQUE INDEX `uuid` ON `lists` (`uuid`);
+#EndIf
+
+#IfMissingColumn lists verification
+ALTER TABLE `lists` ADD `verification` VARCHAR(36) NOT NULL DEFAULT '' COMMENT 'Reference to list_options option_id = allergyintolerance-verification';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id allergyintolerance-verification
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq` ) VALUES ('lists' ,'allergyintolerance-verification', 'AllergyIntolerance Verification Status Codes', 1);
+#EndIf
+
+#IfNotRow list_options list_id allergyintolerance-verification
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'unconfirmed', 'Unconfirmed', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'confirmed', 'Confirmed', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'refuted', 'Refuted', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'entered-in-error', 'Entered in Error', 40);
+#EndIf
+
 #IfMissingColumn ar_activity deleted
 ALTER TABLE `ar_activity` ADD COLUMN `deleted` datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided';
 #EndIf

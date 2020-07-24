@@ -6282,6 +6282,13 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "390200000X", "Student in an Organized Health Care Education/Training Program", 8470);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "405300000X", "Prevention Professional", 8480);
 
+-- AllergyIntolerance Verification Status Codes [FHIR AllergyIntolerance.verification]
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq` ) VALUES ('lists' ,'allergyintolerance-verification', 'AllergyIntolerance Verification Status Codes', 1);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'unconfirmed', 'Unconfirmed', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'confirmed', 'Confirmed', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'refuted', 'Refuted', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'entered-in-error', 'Entered in Error', 40);
+
 -- --------------------------------------------------------
 
 --
@@ -6291,6 +6298,7 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 DROP TABLE IF EXISTS `lists`;
 CREATE TABLE `lists` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `date` datetime default NULL,
   `type` varchar(255) default NULL,
   `subtype` varchar(31) NOT NULL DEFAULT '',
@@ -6315,6 +6323,7 @@ CREATE TABLE `lists` (
   `injury_type` varchar(31) NOT NULL DEFAULT '',
   `injury_grade` varchar(31) NOT NULL DEFAULT '',
   `reaction` varchar(255) NOT NULL DEFAULT '',
+  `verification` VARCHAR(36) NOT NULL DEFAULT '' COMMENT 'Reference to list_options option_id = allergyintolerance-verification',
   `external_allergyid` INT(11) DEFAULT NULL,
   `erx_source` ENUM('0','1') DEFAULT '0' NOT NULL  COMMENT '0-OpenEMR 1-External',
   `erx_uploaded` ENUM('0','1') DEFAULT '0' NOT NULL  COMMENT '0-Pending NewCrop upload 1-Uploaded TO NewCrop',
@@ -6324,7 +6333,8 @@ CREATE TABLE `lists` (
   `list_option_id` VARCHAR(100) DEFAULT NULL COMMENT 'Reference to list_options table',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`),
-  KEY `type` (`type`)
+  KEY `type` (`type`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------

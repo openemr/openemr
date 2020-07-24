@@ -37,8 +37,8 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [FHIR Practitioner API](FHIR_README.md#get-fhirpractitioner)
     -   [FHIR PractitionerRole API](FHIR_README.md#get-fhirpractitionerrole)
     -   [FHIR Immunization API](FHIR_README.md#get-fhirimmunization)
-    -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
     -   [FHIR AllergyIntolerance API](FHIR_README.md#get-fhirallergyintolerance)
+    -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
     -   [FHIR Observation API](FHIR_README.md#get-fhirobservation)
     -   [FHIR QuestionnaireResponse API](FHIR_README.md#get-fhirquestionnaireresponse)
     -   [FHIR Condition API](FHIR_README.md#get-fhircondition)
@@ -309,7 +309,7 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/PractitionerRole'
 ```
 
-#### GET [base]/PractitionerRole[id]
+#### GET [base]/PractitionerRole/[id]
 
 Request:
 
@@ -329,7 +329,7 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Immunization'
 ```
 
-#### GET [base]/Immunization/:id
+#### GET [base]/Immunization/[id]
 
 Request:
 
@@ -339,6 +339,22 @@ curl -X GET 'http://localhost:8300/apis/fhir/Immunization/90feaaa2-4097-4437-966
 
 -   Supported Search Parameters
     -   patient
+
+#### GET [base]/AllergyIntolerance
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance'
+```
+
+#### GET [base]/AllergyIntolerance/[id]
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance//90feaaa2-4097-4437-966e-c425d1958dd6'
+```
 
 #### GET /fhir/Organization
 
@@ -354,22 +370,6 @@ Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/fhir/Organization/1'
-```
-
-#### GET /fhir/AllergyIntolerance
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance'
-```
-
-#### GET /fhir/AllergyIntolerance/:id
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance/1'
 ```
 
 #### GET /fhir/Observation

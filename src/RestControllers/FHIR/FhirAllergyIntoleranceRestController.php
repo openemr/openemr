@@ -1,8 +1,17 @@
 <?php
 
+/**
+ * FhirAllergyIntoleranceRestController
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -12,68 +21,44 @@ class FhirAllergyIntoleranceRestController
 {
     private $fhirAllergyIntoleranceService;
     private $fhirService;
-    private $fhirValidationService;
-    
-    public function __construct($id)
+
+    public function __construct()
     {
         $this->fhirAllergyIntoleranceService = new FhirAllergyIntoleranceService();
-        $this->fhirAllergyIntoleranceService->setId($id);
         $this->fhirService = new FhirResourcesService();
-        $this->fhirValidationService = new FhirValidationService();
     }
-    
-    public function getAll($search)
-    {
-        $result = $this->fhirAllergyIntoleranceService->getAll(array('patient' => $search['patient']));
-        if (!$result) {
-            $statusCode = 400;
-            $result = $this->fhirValidationService->operationOutcomeResourceService(
-                'error',
-                'invalid',
-                false,
-                "Invalid Parameter"
-            );
-        } else {
-            $statusCode = 200;
-            $entries = array();
-            $resourceURL = \RestConfig::$REST_FULL_URL;
-            foreach ($result as $allergy) {
-                $entryResource = $this->fhirAllergyIntoleranceService->createAllergyIntoleranceResource(
-                    $allergy['id'],
-                    $allergy,
-                    false
-                );
-                $entry = array(
-                    'fullUrl' => $resourceURL . "/" . $allergy['id'],
-                    'resource' => $entryResource
-                );
-                $entries[] = new FHIRBundleEntry($entry);
-            }
-            $result = $this->fhirService->createBundle('AllergyIntolerance', $entries, false);
-        }
-        return RestControllerHelper::responseHandler($result, null, $statusCode);
-    }
-    
-    public function getOne($id)
-    {
-        $result = $this->fhirAllergyIntoleranceService->getOne($id);
-        if ($result) {
-            $resource = $this->fhirAllergyIntoleranceService->createAllergyIntoleranceResource(
-                $result['id'],
-                $result,
-                false
-            );
-            $statusCode = 200;
-        } else {
-            $statusCode = 404;
-            $resource = $this->fhirValidationService->operationOutcomeResourceService(
-                'error',
-                'invalid',
-                false,
-                "Resource Id $id does not exist"
-            );
-        }
 
-        return RestControllerHelper::responseHandler($resource, null, $statusCode);
+    /**
+     * Queries for a single FHIR allergyIntolerance resource by FHIR id
+     * @param $fhirId The FHIR allergyIntolerance resource id (uuid)
+     * @returns 200 if the operation completes successfully
+     */
+    public function getOne($fhirId)
+    {
+        $processingResult = $this->fhirAllergyIntoleranceService->getOne($fhirId);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+    }
+
+    /**
+     * Queries for FHIR allergyIntolerance resources using various search parameters.
+     * Search parameters include:
+     * - patient (puuid)
+     * @return FHIR bundle with query results, if found
+     */
+    public function getAll($searchParams)
+    {
+        $processingResult = $this->fhirAllergyIntoleranceService->getAll($searchParams);
+        $bundleEntries = array();
+        foreach ($processingResult->getData() as $index => $searchResult) {
+            $bundleEntry = [
+                'fullUrl' =>  \RestConfig::$REST_FULL_URL . '/' . $searchResult->getId(),
+                'resource' => $searchResult
+            ];
+            $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
+            array_push($bundleEntries, $fhirBundleEntry);
+        }
+        $bundleSearchResult = $this->fhirService->createBundle('AllergyIntolerance', $bundleEntries, false);
+        $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
+        return $searchResponseBody;
     }
 }

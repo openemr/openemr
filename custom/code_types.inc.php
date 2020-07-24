@@ -52,6 +52,7 @@
 require_once(dirname(__FILE__) . "/../library/csv_like_join.php");
 
 $code_types = array();
+global $code_types;
 $ctres = sqlStatement("SELECT * FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key");
 while ($ctrow = sqlFetchArray($ctres)) {
     $code_types[$ctrow['ct_key']] = array(
@@ -84,6 +85,7 @@ while ($ctrow = sqlFetchArray($ctres)) {
  *  tables for storing codes.
  */
 $code_external_tables = array();
+global $code_external_tables;
 define('EXT_COL_CODE', 'code');
 define('EXT_COL_DESCRIPTION', 'description');
 define('EXT_COL_DESCRIPTION_BRIEF', 'description_brief');
