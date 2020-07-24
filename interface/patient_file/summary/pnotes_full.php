@@ -342,7 +342,7 @@ function restoreSession() {
                 ?>
 
                 <?php if ($billing_note || $balance) { ?>
-                    <div class="mt-1">
+                    <div class="table-responsive mt-1">
                         <table class="table">
                             <?php
                             if ($balance != "0") {
