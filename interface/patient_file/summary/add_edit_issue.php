@@ -264,7 +264,8 @@ if ($_POST['form_save']) {
                 'UPDATE prescriptions SET '
                 . 'medication = 0 where patient_id = ? '
                 . " and upper(trim(drug)) = ? "
-                . ' and medication = 1', array($thispid, strtoupper($_POST['form_title']))
+                . ' and medication = 1',
+                array($thispid, strtoupper($_POST['form_title']))
             );
         }
     } else {
@@ -629,7 +630,7 @@ if (!empty($irow['type'])) {
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma 
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
         });
@@ -818,7 +819,7 @@ if (!empty($irow['type'])) {
                             <label class="col-form-label" for="form_destination"><?php echo xlt('Destination'); ?>:</label>
                             <?php if (true) { ?>
                                 <input type='text' class='form-control' name='form_destination' id='form_destination' value='<?php echo attr($irow['destination']) ?>' style='width:100%' title='GP, Secondary care specialist, etc.' />
-                            <?php } else { // leave this here for now, please -- Rod 
+                            <?php } else { // leave this here for now, please -- Rod
                                 ?>
                                 <?php echo rbinput('form_destination', '1', 'GP', 'destination') ?>&nbsp;
                                 <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
@@ -827,7 +828,7 @@ if (!empty($irow['type'])) {
                             <?php } ?>
                         </div>
                         <br />
-                        <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets 
+                        <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets
                         ?>
                         <div class="form-group clearfix" id="button-container">
                             <div class="col-sm-12 text-left position-override">
