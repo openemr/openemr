@@ -41,7 +41,7 @@ function getDocCats()
 }
 
 ?>
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
 <head>
     <?php Header::setupHeader(['common']); ?>
