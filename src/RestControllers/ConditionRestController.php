@@ -19,6 +19,16 @@ class ConditionRestController
 {
     private $conditionService;
 
+    /**
+     * White list of search/insert fields
+     */
+    private const WHITELISTED_FIELDS = array(
+        'title',
+        'begdate',
+        'enddate',
+        'diagnosis'
+    );
+
     public function __construct()
     {
         $this->conditionService = new ConditionService();
@@ -46,5 +56,26 @@ class ConditionRestController
     {
         $processingResult = $this->conditionService->getAll($search);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
+    }
+
+    public function post($puuid, $data)
+    {
+        $filteredData = $this->conditionService->filterData($data, self::WHITELISTED_FIELDS);
+        $filteredData['puuid'] = $puuid;
+        $processingResult = $this->conditionService->insert($filteredData);
+        return RestControllerHelper::handleProcessingResult($processingResult, 201);
+    }
+
+    public function put($puuid, $uuid, $data)
+    {
+        $filteredData = $this->conditionService->filterData($data, self::WHITELISTED_FIELDS);
+        $processingResult = $this->conditionService->update($uuid, $filteredData);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+    }
+
+    public function delete($puuid, $uuid)
+    {
+        $processingResult = $this->conditionService->delete($puuid, $uuid);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 }

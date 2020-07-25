@@ -14,6 +14,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ConditionValidator;
 use OpenEMR\Validators\ProcessingResult;
 
 class ConditionService extends BaseService
@@ -21,6 +22,7 @@ class ConditionService extends BaseService
     private const CONDITION_TABLE = "lists";
     private const PATIENT_TABLE = "patient_data";
     private $uuidRegistery;
+    private $conditionValidator;
 
     /**
      * Default constructor.
@@ -31,6 +33,7 @@ class ConditionService extends BaseService
         $this->uuidRegistery = new UuidRegistry(['table_name' => self::CONDITION_TABLE]);
         $this->uuidRegistery->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
+        $this->conditionValidator = new ConditionValidator();
     }
 
     /**
@@ -45,14 +48,44 @@ class ConditionService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true)
     {
+        // Validating and Converting Patient UUID to PID
+        if (isset($search['lists.pid'])) {
+            $isValidPatient = $this->conditionValidator->validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $search['lists.pid'],
+                true
+            );
+            if ($isValidPatient !== true) {
+                return $isValidPatient;
+            }
+            $puuidBytes = UuidRegistry::uuidToBytes($search['lists.pid']);
+            $search['lists.pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        }
+
+        // Validating and Converting UUID to ID
+        if (isset($search['lists.id'])) {
+            $isValidcondition = $this->conditionValidator->validateId(
+                'uuid',
+                self::CONDITION_TABLE,
+                $search['lists.id'],
+                true
+            );
+            if ($isValidcondition !== true) {
+                return $isValidcondition;
+            }
+            $uuidBytes = UuidRegistry::uuidToBytes($search['lists.id']);
+            $search['lists.id'] = $this->getIdByUuid($uuidBytes, self::CONDITION_TABLE, "id");
+        }
+
         $sqlBindArray = array();
         $sql = "SELECT lists.*,
                         patient.uuid as puuid,
                         verification.title as verification_title
                         FROM lists
                         LEFT JOIN list_options as verification ON verification.option_id = lists.verification
-                        RIGHT JOIN patient_data as patient ON patient.id = lists.pid
-                        WHERE type = 'medical_problem'";
+                        RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
+                        WHERE lists.type = 'medical_problem'";
 
         if (!empty($search)) {
             $sql .= ' AND ';
@@ -72,7 +105,7 @@ class ConditionService extends BaseService
             $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
             if ($row['diagnosis'] != "") {
-                $this->addDiagnosis($row['diagnosis']);
+                $row['diagnosis'] = $this->addDiagnosis($row['diagnosis']);
             }
             $processingResult->addData($row);
         }
@@ -104,31 +137,147 @@ class ConditionService extends BaseService
                         verification.title as verification_title
                         FROM lists
                         LEFT JOIN list_options as verification ON verification.option_id = lists.verification
-                        RIGHT JOIN patient_data as patient ON patient.id = lists.pid
-                        WHERE type = 'medical_problem' AND lists.uuid = ?";
+                        RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
+                        WHERE lists.type = 'medical_problem' AND lists.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
         if ($sqlResult['diagnosis'] != "") {
-            $this->addDiagnosis($sqlResult['diagnosis']);
+            $row['diagnosis'] = $this->addDiagnosis($sqlResult['diagnosis']);
         }
         $processingResult->addData($sqlResult);
         return $processingResult;
     }
 
-    private function addDiagnosis(&$diagnosis)
+
+    /**
+     * Inserts a new condition record.
+     *
+     * @param $data The condition fields (array) to insert.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function insert($data)
     {
-        $diags = explode(";", $diagnosis);
-        $diagnosis = array();
-        foreach ($diags as $diag) {
-            $code = explode(':', $diag)[1];
-            $codeSql = "SELECT long_desc FROM icd10_dx_order_code WHERE active = 1
-                                AND valid_for_coding = '1'
-                                AND formatted_dx_code = '$code'";
-            $codedesc = sqlQuery($codeSql);
-            $diagnosis[$code] = $codedesc['long_desc'];
+        $processingResult = $this->conditionValidator->validate(
+            $data,
+            ConditionValidator::DATABASE_INSERT_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
         }
+
+        $puuidBytes = UuidRegistry::uuidToBytes($data['puuid']);
+        $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        $data['uuid'] = (new UuidRegistry(['table_name' => self::CONDITION_TABLE]))->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+        $sql  = " INSERT INTO lists SET";
+        $sql .= "     date=NOW(),";
+        $sql .= "     activity=1,";
+        $sql .= "     type='medical_problem',";
+        $sql .= $query['set'];
+        $results = sqlInsert(
+            $sql,
+            $query['bind']
+        );
+
+        if ($results) {
+            $processingResult->addData(array(
+                'id' => $results,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ));
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
+    }
+
+    /**
+     * Updates an existing condition record.
+     *
+     * @param $uuid - The condition uuid identifier in string format used for update.
+     * @param $data - The updated condition data fields
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function update($uuid, $data)
+    {
+        if (empty($data)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages("Invalid Data");
+            return $processingResult;
+        }
+
+        $data["uuid"] = $uuid;
+        $processingResult = $this->conditionValidator->validate(
+            $data,
+            ConditionValidator::DATABASE_UPDATE_CONTEXT
+        );
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE lists SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE `uuid` = ?";
+        $sql .= "       AND `type` = 'medical_problem'";
+
+        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
+        array_push($query['bind'], $uuidBinary);
+        $sqlResult = sqlStatement($sql, $query['bind']);
+
+        if (!$sqlResult) {
+            $processingResult->addErrorMessage("error processing SQL Update");
+        } else {
+            $processingResult = $this->getOne($uuid);
+        }
+        return $processingResult;
+    }
+
+    /**
+     * Deletes an existing condition record.
+     *
+     * @param $puuid - The patient uuid identifier in string format used for update.
+     * @param $uuid - The condition uuid identifier in string format used for update.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function delete($puuid, $uuid)
+    {
+        $processingResult = new ProcessingResult();
+
+        $isValid = $this->conditionValidator->validateId("uuid", "lists", $uuid, true);
+        $isPatientValid = $this->conditionValidator->validateId("uuid", "patient_data", $puuid, true);
+
+        if ($isValid !== true || $isPatientValid !== true) {
+            $validationMessages = [
+                'UUID' => ["invalid or nonexisting value"]
+            ];
+            $processingResult->setValidationMessages($validationMessages);
+            return $processingResult;
+        }
+
+        $puuidBytes = UuidRegistry::uuidToBytes($puuid);
+        $auuid = UuidRegistry::uuidToBytes($uuid);
+        $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        $sql  = "DELETE FROM lists WHERE pid=? AND uuid=? AND type='medical_problem'";
+
+        $results = sqlStatement($sql, array($pid, $auuid));
+
+        if ($results) {
+            $processingResult->addData(array(
+                'uuid' => $uuid
+            ));
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
     }
 }

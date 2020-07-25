@@ -58,7 +58,6 @@ class AllergyIntoleranceRestController
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
     }
 
-
     public function post($puuid, $data)
     {
         $filteredData = $this->allergyIntoleranceService->filterData($data, self::WHITELISTED_FIELDS);

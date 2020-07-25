@@ -16,8 +16,6 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\AllergyIntoleranceValidator;
 use OpenEMR\Validators\ProcessingResult;
 
-require_once(__DIR__  . '/../../custom/code_types.inc.php');
-
 class AllergyIntoleranceService extends BaseService
 {
     private const ALLERGY_TABLE = "lists";
@@ -115,7 +113,7 @@ class AllergyIntoleranceService extends BaseService
                 UuidRegistry::uuidToString($row['practitioner']) :
                 $row['practitioner'];
             if ($row['diagnosis'] != "") {
-                $this->addDiagnosis($row['diagnosis']);
+                $row['diagnosis'] = $this->addDiagnosis($row['diagnosis']);
             }
             $processingResult->addData($row);
         }
@@ -162,7 +160,7 @@ class AllergyIntoleranceService extends BaseService
             UuidRegistry::uuidToString($sqlResult['practitioner']) :
             $sqlResult['practitioner'];
         if ($sqlResult['diagnosis'] != "") {
-            $this->addDiagnosis($sqlResult['diagnosis']);
+            $row['diagnosis'] = $this->addDiagnosis($sqlResult['diagnosis']);
         }
         $processingResult->addData($sqlResult);
         return $processingResult;
@@ -295,16 +293,5 @@ class AllergyIntoleranceService extends BaseService
         }
 
         return $processingResult;
-    }
-
-    private function addDiagnosis(&$diagnosis)
-    {
-        $diags = explode(";", $diagnosis);
-        $diagnosis = array();
-        foreach ($diags as $diag) {
-            $codedesc = lookup_code_descriptions($diag);
-            $code = explode(':', $diag)[1];
-            $diagnosis[$code] = $codedesc;
-        }
     }
 }
