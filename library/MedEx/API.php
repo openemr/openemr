@@ -1632,7 +1632,7 @@ class Display extends base
                 $error = $this->MedEx->getLastError();
                 if (!empty($error['ip'])) {
                     ?>
-                <div class="alert alert-danger text-center" style="width:50%; margin:30px auto 5px; font-size:0.9rem;">
+                <div class="alert alert-danger text-center w-50" style="margin:30px auto 5px; font-size:0.9rem;">
                     <?php
                     echo $error['ip'];
                     ?>
@@ -1656,7 +1656,7 @@ class Display extends base
                 </div>
                 <form action="#" name="save_prefs" id="save_prefs">
                         <div class="row">
-                            <input type="hidden" name="go" id="go" value="Preferences">
+                            <input type="hidden" name="go" id="go" value="Preferences" />
                             <div class="col-sm-5 div-center offset-sm-1" id="daform2">
                                 <div class="divTable2">
                                     <div class="divTableBody prefs">
@@ -1674,7 +1674,7 @@ class Display extends base
                                                 if ($prefs['ME_hipaa_default_override'] == '1') {
                                                     echo 'checked ="checked"';
                                                 }
-                                                ?> >
+                                                ?> />
                                                 <label for="ME_hipaa_default_override" class="input-helper input-helper--checkbox"
                                                        data-toggle='tooltip'
                                                        data-placement='auto right'
@@ -1683,7 +1683,7 @@ class Display extends base
                                                         <?php echo xlt('Assume patients receive HIPAA policy'); ?>
                                                  </label><br />
                                                  <input type="checkbox" class="update" name="MSGS_default_yes" id="MSGS_default_yes" value="1" <?php if ($prefs['MSGS_default_yes'] == '1') {
-                                                            echo "checked='checked'";} ?>><label for="MSGS_default_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Default: Checked. When checked, messages are processed for patients with Patient Demographic Choice (Phone/Text/Email) set to \'Unassigned\' or \'Yes\'. If this is unchecked, a given type of message can only be sent if its Demographic Choice = \'Yes\'.'); ?>">
+                                                            echo "checked='checked'";} ?> /><label for="MSGS_default_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Default: Checked. When checked, messages are processed for patients with Patient Demographic Choice (Phone/Text/Email) set to \'Unassigned\' or \'Yes\'. If this is unchecked, a given type of message can only be sent if its Demographic Choice = \'Yes\'.'); ?>">
                                                            <?php echo xlt('Assume patients permit Messaging'); ?></label>
                                                 </div>
                                             </div>
@@ -1705,7 +1705,7 @@ class Display extends base
                                                             }
                                                         }
                                                         ?>
-                                                    <input <?php echo $checked; ?> class="update" type="checkbox" name="facilities[]" id="facility_<?php echo attr($fac['id']); ?>" value="<?php echo attr($fac['id']); ?>">
+                                                    <input <?php echo $checked; ?> class="update" type="checkbox" name="facilities[]" id="facility_<?php echo attr($fac['id']); ?>" value="<?php echo attr($fac['id']); ?>" />
                                                     <label for="facility_<?php echo attr($fac['id']); ?>"><?php echo text($fac['name']); ?></label><br /><?php
                                                     }
                                                     ?>
@@ -1950,7 +1950,7 @@ class Display extends base
                                     </select>
                                 </div>
                                 <div class="form-group row mx-sm-1">
-                                    <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();">
+                                    <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
 
@@ -2213,13 +2213,13 @@ class Display extends base
             if ($show['postcard'] > '') {
                 echo '<div class="divTableCell text-center postcards">' . text($show['postcard']) . '</div>';
             } else {
-                echo '<div class="divTableCell text-center postcards"><input type="checkbox" name="postcards" id="postcards[]" value="' . attr($recall['pid']) . '"></div>';
+                echo '<div class="divTableCell text-center postcards"><input type="checkbox" name="postcards" id="postcards[]" value="' . attr($recall['pid']) . '" /></div>';
             }
 
             if ($show['label'] > '') {
                 echo '<div class="divTableCell text-center labels">' . text($show['label']) . '</div>';
             } else {
-                echo '<div class="divTableCell text-center labels"><input type="checkbox" name="labels" id="labels[]" value="' . attr($recall['pid']) . '"></div>';
+                echo '<div class="divTableCell text-center labels"><input type="checkbox" name="labels" id="labels[]" value="' . attr($recall['pid']) . '" /></div>';
             }
             echo '  <div class="divTableCell text-center msg_manual"><span class="fa fa-fw spaced_icon" >
                         <input type="checkbox" name="msg_phone" id="msg_phone_' . attr($recall['pid']) . '" onclick="process_this(\'phone\',\'' . attr($recall['pid']) . '\',\'' . attr($recall['r_ID']) . '\')" />
@@ -2551,8 +2551,8 @@ class Display extends base
             </div>
 
             <form class="jumbotron p-4" name="addRecall" id="addRecall">
-                <input type="hidden" name="go" id="go" value="addRecall">
-                <input type="hidden" name="action" id="go" value="addRecall">
+                <input type="hidden" name="go" id="go" value="addRecall" />
+                <input type="hidden" name="action" id="go" value="addRecall" />
 
                 <div class="form-row">
                     <div class="form-group col-12 col-md-6">
@@ -2588,7 +2588,7 @@ class Display extends base
                     <div class="form-group col-12 col-md-6">
                         <label><?php echo xlt('Recall Reason'); ?></label>
                         <input class="form-control" type="text" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
-                             echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>">
+                             echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>" />
                     </div>
                     <div class="form-group col-12 col-md-6">
                         <label><?php echo xlt('Provider'); ?></label>
@@ -2653,19 +2653,19 @@ class Display extends base
                         <label><?php echo xlt('Address'); ?></label>
                         <div class="row">
                             <div class="col-12 mb-2">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('Address'); ?>" name="new_address" id="new_address" value="<?php echo attr($result_pat['street']); ?>">
+                                <input type="text" class="form-control" placeholder="<?php echo xla('Address'); ?>" name="new_address" id="new_address" value="<?php echo attr($result_pat['street']); ?>" />
                             </div>
 
                             <div class="col-4">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('City'); ?>" name="new_city" id="new_city" value="<?php echo attr($result_pat['city']); ?>">
+                                <input type="text" class="form-control" placeholder="<?php echo xla('City'); ?>" name="new_city" id="new_city" value="<?php echo attr($result_pat['city']); ?>" />
                             </div>
 
                             <div class="col-4">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('State'); ?>" name="new_state" id="new_state" value="<?php echo attr($result_pat['state']); ?>">
+                                <input type="text" class="form-control" placeholder="<?php echo xla('State'); ?>" name="new_state" id="new_state" value="<?php echo attr($result_pat['state']); ?>" />
                             </div>
 
                             <div class="col-4">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('ZIP Code'); ?>" name="new_postal_code" id="new_postal_code" value="<?php echo attr($result_pat['postal_code']); ?>">
+                                <input type="text" class="form-control" placeholder="<?php echo xla('ZIP Code'); ?>" name="new_postal_code" id="new_postal_code" value="<?php echo attr($result_pat['postal_code']); ?>" />
                             </div>
                         </div>
                         <br />
@@ -2760,7 +2760,7 @@ class Display extends base
     {
         ?>
     <!-- icon rubric -->
-      <div style="position:relative;margin:30px auto;vertical-align:middle;">
+      <div class="position-relative align-middle" style="margin:30px auto;">
             <?php
             $sqlQuery = "SELECT * FROM medex_icons ORDER BY msg_type";
             $result  = sqlStatement($sqlQuery);
@@ -2769,7 +2769,7 @@ class Display extends base
                 $icons['msg_type']['description'] = $urow['i_description'];
                 $icons[$urow['msg_type']][$urow['msg_status']]  = $urow['i_html'];
             } ?>
-                <div class="divTable" style="margin:30px auto;width:100%;">
+                <div class="divTable w-100" style="margin:30px auto;">
                   <div class="divTableBody">
                     <div class="divTableRow divTableHeading">
                   <div class="divTableCell text-center"><?php echo xlt('Message'); ?></div>
@@ -2924,7 +2924,7 @@ class Setup extends Base
                                     <?php echo xlt('Using technology to improve productivity'); ?>.
                                 </p>
                             </div>
-                            <div class="col-6 text-center">
+                            <div class="col-md-6 text-center">
                                 <h3 class="border-bottom"><?php echo xlt('Targets'); ?>:</h3>
                                 <ul class="list-group list-group-flush text-left">
                                     <li class="list-group-item"> <?php echo xlt('Appointment Reminders'); ?></li>
@@ -2933,7 +2933,7 @@ class Setup extends Base
                                     <li class="list-group-item"> <?php echo xlt('Patient Surveys'); ?></li>
                                 </ul>
                             </div>
-                            <div class="col-6 text-center">
+                            <div class="col-md-6 text-center">
                                 <h3 class="border-bottom"><?php echo xlt('Channels'); ?>:</h3>
                                 <ul class="list-group list-group-flush text-right">
                                     <li class="list-group-item"> <?php echo xlt('SMS Messages'); ?></li>
@@ -2945,7 +2945,7 @@ class Setup extends Base
                             </div>
                         </div>
                         <div class="text-center row showReminders">
-                            <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn btn-primary">
+                            <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn btn-primary" />
                         </div>
                     </div>
                 </div>
@@ -2964,28 +2964,28 @@ class Setup extends Base
                                 <div class="form-group mt-3">
                                     <label for="new_email"><?php echo xlt('E-mail'); ?>:</label>
                                     <i id="email_check" name="email_check" class="top_right_corner nodisplay text-success fa fa-check"></i>
-                                    <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr($GLOBALS['user_data']['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required>
+                                    <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr($GLOBALS['user_data']['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required />
                                     <div class="signup_help nodisplay" id="email_help" name="email_help"><?php echo xlt('Please provide a valid e-mail address to proceed'); ?>...</div>
                                 </div>
                                 <div class="form-group mt-3">
                                     <label for="new_password"><?php echo xlt('Password'); ?>:</label>
                                     <i id="pwd_check" name="pwd_check" class="top_right_corner nodisplay text-success fa fa-check"></i>
                                     <i class="fa top_right_corner fa-question" id="pwd_ico_help" aria-hidden="true" onclick="$('#pwd_help').toggleClass('nodisplay');"></i>
-                                    <input type="password" placeholder="<?php xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required>
+                                    <input type="password" placeholder="<?php xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required />
                                     <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('Secure Password Required') . ": " . xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number, one special character and no common strings'); ?>...</div>
                                 </div>
                                 <div class="form-group mt-3">
                                     <label for="new_rpassword"><?php echo xlt('Repeat'); ?>:</label>
                                     <i id="pwd_rcheck" name="pwd_rcheck" class="top_right_corner nodisplay text-success fa fa-check"></i>
-                                    <input type="password" placeholder="<?php echo xla('Repeat password'); ?>" id="new_rpassword" name="new_rpassword" class="form-control" required>
+                                    <input type="password" placeholder="<?php echo xla('Repeat password'); ?>" id="new_rpassword" name="new_rpassword" class="form-control" required />
                                     <div id="pwd_rhelp" class="nodisplay signup_help" style=""><?php echo xlt('Passwords do not match.'); ?></div>
                                 </div>
                             </div>
                             <div id="ihvread" name="ihvread" class="text-left showReminders">
-                                            <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required>
+                                            <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required />
                                             <label for="TERMS_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="Terms and Conditions"><?php echo xlt('I have read and my practice agrees to the'); ?>
                                                 <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a></label><br />
-                                            <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required>
+                                            <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required />
                                             <label for="BusAgree_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="BAA"><?php echo xlt('I have read and accept the'); ?>
                                             <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);">MedEx <?php echo xlt('Business Associate Agreement'); ?></a></label>
                                             <br />
@@ -2998,15 +2998,15 @@ class Setup extends Base
 
                                                 <!-- Modal content-->
                                                 <div class="modal-content">
-                                                <div class="modal-header"  style="background-color: #0d4867;color: #fff;font-weight: 700;">
-                                                    <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;box-shadow:unset !important;">&times;</button>
+                                                <div class="modal-header text-white" style="background-color: #0d4867;font-weight: 700;">
+                                                    <button type="button" class="close text-white" data-dismiss="modal" style="opacity:1;box-shadow:unset !important;">&times;</button>
                                                     <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
                                                 </div>
                                                 <div class="modal-body" style="padding: 10px 45px;">
                                                     <p>You are opening a secure connection to MedExBank.com.  During this step your EHR will synchronize with the MedEx servers.  <br />
                                                         <br />
                                                         Re-enter your username (e-mail) and password in the MedExBank.com login window to:
-                                                        <ul style="text-align: left;width: 90%;margin: 0 auto;">
+                                                        <ul class="text-left mx-auto" style="width: 90%;">
                                                             <li> confirm your practice and providers' information</li>
                                                             <li> choose your service options</li>
                                                             <li> update and activate your messages </li>
