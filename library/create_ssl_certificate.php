@@ -125,7 +125,7 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     $privkey = $arr[1];
 
     /* user id is used as serial number to sign a certificate */
-    $serial = 0;
+    $serial = (is_int($serial)) ? $serial : 0;
     $res = sqlStatement("SELECT id FROM users WHERE username = ?", array($commonName));
     if ($row = sqlFetchArray($res)) {
         $serial = $row['id'];
@@ -147,7 +147,8 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     /* Convert the user certificate to .p12 (PKCS 12) format, which is the
      * standard format used by browsers.
      */
-    if (openssl_pkcs12_export($cert, $p12Out, $privkey, "") === false) {
+    $clientPassPhrase = trim($_POST['clientPassPhrase']);
+    if (openssl_pkcs12_export($cert, $p12Out, $privkey, $clientPassPhrase) === false) {
         return false;
     }
 

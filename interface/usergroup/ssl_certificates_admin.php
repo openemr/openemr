@@ -87,6 +87,10 @@ function create_client_cert()
         $email = trim($_POST['client_cert_email']);
     }
 
+    if ($_POST["clientPassPhrase"]) {
+        $clientPassPhrase = trim($_POST['clientPassPhrase']);
+    }
+
     $serial = 0;
     $data = create_user_certificate(
         $user,
@@ -157,6 +161,7 @@ function create_and_download_certificates()
     $organizationName       = false;
     $organizationalUnitName = false;
     $clientCertValidity     = false;
+    $clientPassPhrase = null;
 
     /* Retrieve the certificate name settings from the form input */
     if ($_POST["commonName"]) {
@@ -191,6 +196,9 @@ function create_and_download_certificates()
         $clientCertValidity = trim($_POST['clientCertValidity']);
     }
 
+    if ($_POST["clientPassPhrase"]) {
+        $clientPassPhrase = trim($_POST['clientPassPhrase']);
+    }
 
     /* Create the Certficate Authority (CA) */
     $arr = create_csr(
@@ -541,6 +549,11 @@ if ($_SESSION["zip_error"]) {
         <td><input name='clientCertValidity' type='text' onkeypress='return isNumberKey(event)' value='365'></td>
         <td><?php echo xlt('days'); ?></td>
       </tr>
+      <tr class='text'>
+        <td><?php echo xlt('Client certificate passphrase'); ?>:</td>
+        <td><input name='clientPassPhrase' type='text' value=''></td>
+        <td><?php echo xlt('Not required. This password is for generated admin.p12'); ?></td>
+      </tr>
       <tr>
         <td colspan=3 align='center'>
           <input name='sslcrt' type='submit' onclick='return download_click();' value='<?php echo xla('Download Certificates'); ?>'>
@@ -623,6 +636,11 @@ if ($_SESSION["zip_error"]) {
         <tr class='text'>
           <td><?php echo xlt('Email'); ?>:</td>
           <td><input type='text' name='client_cert_email' size=20 />
+        </tr>
+        <tr class='text'>
+          <td><?php echo xlt('Client certificate passphrase'); ?>:</td>
+          <td><input name='clientPassPhrase' type='password' value=''></td>
+          <td><?php echo xlt('Not required.'); ?></td>
         </tr>
       </table>
       <br /> <input type='submit' onclick='return create_client_certificate_click();' value='<?php echo xla('Create Client Certificate'); ?>'>
