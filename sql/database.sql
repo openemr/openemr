@@ -8358,6 +8358,7 @@ DROP TABLE IF EXISTS `uuid_registry`;
 CREATE TABLE `uuid_registry` (
   `uuid` binary(16) NOT NULL DEFAULT '',
   `table_name` varchar(255) NOT NULL DEFAULT '',
+  `table_id` varchar(255) NOT NULL DEFAULT '',
   `table_vertical` varchar(255) NOT NULL DEFAULT '',
   `created` timestamp NULL,
   PRIMARY KEY (`uuid`)
