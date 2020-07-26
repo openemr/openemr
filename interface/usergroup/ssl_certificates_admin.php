@@ -8,10 +8,12 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Visolve (vicareplus_engg@visolve.com)
+ * @author    Visolve <vicareplus_engg@visolve.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) Visolve (vicareplus_engg@visolve.com)
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) Visolve <vicareplus_engg@visolve.com>
+ * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
@@ -596,19 +598,16 @@ if ($_SESSION["zip_error"]) {
       <input type='hidden' name='clientCertValidity_hidden' value=''>
       <br />
 
-            <?php echo xlt('Update the following variables in file'); ?>: globals.php<br /><br />
-        <?php echo xlt('To enable Client side ssl certificates'); ?><br />
-        <?php echo xlt('Set'); ?> 'is_client_ssl_enabled' <?php echo xlt('to{{Destination}}'); ?> 'true' <br /><br />
-        <?php echo xlt('Provide absolute path of file'); ?> CertificateAuthority.key<br />
-        <?php echo xlt('Set'); ?> 'certificate_authority_key' <?php echo xlt('to absolute path of file'); ?> 'CertificateAuthority.key'<br /><br />
-        <?php echo xlt('Provide absolute path of file'); ?> CertificateAuthority.crt<br />
-            <?php echo xlt('Set'); ?> 'certificate_authority_crt' <?php echo xlt('to absolute path of file'); ?> 'CertificateAuthority.crt'<br />
+        <?php echo xlt('Update the following settings in Administration->Globals->Security'); ?>:<br />
+        <?php echo xlt('Turn on Enable Client SSL'); ?><br />
+        <?php echo xlt('Provide absolute path of following file in Path to CA Certificate File'); ?> CertificateAuthority.crt<br />
+        <?php echo xlt('Provide absolute path of following file in Path to CA Key File'); ?> CertificateAuthority.key<br />
      <br />
     <br /><?php echo xlt('Note'); ?>:
     <ul>
       <li><?php echo xlt('To Enable Client side SSL certificates authentication, HTTPS should be enabled.'); ?>
       <li><?php echo xlt('After performing above configurations, import the admin client certificate to the browser and restart Apache server (empty password).'); ?>
-      <li><?php echo xlt('To Disable client side SSL certificates, comment above lines in Apache configuration file and set'); ?> 'false' <?php echo xlt('for variable'); ?> 'is_client_ssl_enabled' (globals.php) <?php echo xlt('and restart Apache server.'); ?>
+      <li><?php echo xlt('To Disable client side SSL certificates, comment above lines in Apache configuration file and turn off the \'Enable Client SSL\' global setting in OpenEMR and restart Apache server.'); ?>
     </form>
   </div>
   <br />
