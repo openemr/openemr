@@ -548,6 +548,10 @@ CREATE TABLE `uuid_registry` (
 ) ENGINE=InnoDB;
 #EndIf
 
+#IfMissingColumn uuid_registry table_id
+ALTER TABLE `uuid_registry` ADD `table_id` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
 #IfMissingColumn patient_data uuid
 ALTER TABLE `patient_data` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf

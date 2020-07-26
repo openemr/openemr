@@ -34,12 +34,18 @@ class UuidRegistry
     const MAX_TRIES = 100;
 
     private $table_name;      // table to check if uuid has already been used in
+    private $table_id;        // the label of the column in above table that is used for id (defaults to 'id')
     private $table_vertical;  // false or array. if table is vertical, will store the critical columns (uuid set for matching columns)
     private $disable_tracker; // disable check and storage of uuid in the main uuid_registry table
 
     public function __construct($associations = [])
     {
         $this->table_name = $associations['table_name'] ?? '';
+        if (!empty($this->table_name)) {
+            $this->table_id = $associations['table_id'] ?? 'id';
+        } else {
+            $this->table_id = '';
+        }
         $this->table_vertical = $associations['table_vertical'] ?? false;
         $this->disable_tracker = $associations['disable_tracker'] ?? false;
     }
@@ -107,9 +113,9 @@ class UuidRegistry
         // Insert the uuid into uuid_registry (unless $this->disable_tracker is set to true)
         if (!$this->disable_tracker) {
             if (!$this->table_vertical) {
-                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `created`) VALUES (?, ?, NOW())", [$uuid, $this->table_name]);
+                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `created`) VALUES (?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id]);
             } else {
-                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_vertical`, `created`) VALUES (?, ?, ?, NOW())", [$uuid, $this->table_name, json_encode($this->table_vertical)]);
+                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `created`) VALUES (?, ?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id, json_encode($this->table_vertical)]);
             }
         }
 
@@ -125,7 +131,7 @@ class UuidRegistry
         while ($row = sqlFetchArray($resultSet)) {
             if (!$this->table_vertical) {
                 // standard case, add missing uuid
-                sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `id` = ?", [$this->createUuid(), $row['id']]);
+                sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$this->createUuid(), $row[$this->table_id]]);
             } else {
                 // more complicated case where setting uuid in a vertical table. In this case need a uuid for each combination of table columns stored in $this->table_vertical array
                 $stringQuery = "";
@@ -159,7 +165,7 @@ class UuidRegistry
     public function tableNeedsUuidCreation()
     {
         // Empty should be NULL, but to be safe also checking for empty and null bytes
-        $resultSet = sqlQueryNoLog("SELECT count(`id`) as `total` FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
+        $resultSet = sqlQueryNoLog("SELECT count(`" . $this->table_id . "`) as `total` FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
         if ($resultSet['total'] > 0) {
             return true;
         }
