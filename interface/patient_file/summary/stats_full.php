@@ -281,13 +281,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                           echo "  <td>";
                             echo generate_display_field(array('data_type' => '1','list_id' => 'reaction'), $row['reaction']);
                           echo "</td>\n";
-                          echo "  <td>";
-                            echo generate_display_field(array('data_type' => '1','list_id' => 'allergyintolerance-verification'), $row['verification']);
-                          echo "</td>\n";
                     }
                     if ($focustype == "allergy" || $focustype == "medical_problem") {
+                        $codeListName = ($thistype == 'medical_problem') ? 'condition-verification' : 'allergyintolerance-verification';
                           echo "  <td>";
-                            echo generate_display_field(array('data_type' => '1','list_id' => 'allergyintolerance-verification'), $row['verification']);
+                            echo generate_display_field(array('data_type' => '1','list_id' => $codeListName), $row['verification']);
                           echo "</td>\n";
                     }
                     echo "  <td>" . text($row['referredby']) . "</td>\n";

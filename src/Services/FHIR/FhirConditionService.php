@@ -15,11 +15,11 @@ use OpenEMR\Validators\ProcessingResult;
  * FHIR Condition Service
  *
  * @coversDefaultClass OpenEMR\Services\FHIR\FhirConditionService
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Yash Bothra <yashrajbothra786gmail.com>
- * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package            OpenEMR
+ * @link               http://www.open-emr.org
+ * @author             Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class FhirConditionService extends FhirServiceBase
 {
@@ -36,6 +36,7 @@ class FhirConditionService extends FhirServiceBase
 
     /**
      * Returns an array mapping FHIR Condition Resource search parameters to OpenEMR Condition search parameters
+     *
      * @return array The search parameters
      */
     protected function loadSearchParameters()
@@ -48,8 +49,8 @@ class FhirConditionService extends FhirServiceBase
     /**
      * Parses an OpenEMR condition record, returning the equivalent FHIR Condition Resource
      *
-     * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param  array   $dataRecord The source OpenEMR data record
+     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCondition
      */
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
@@ -82,17 +83,21 @@ class FhirConditionService extends FhirServiceBase
             $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/data-absent-reason";
             $clinicalStatus = "unknown";
         }
-        $conditionResource->setClinicalStatus(array(
-            'sysytem' => $clinicalSysytem,
-            'code' => $clinicalStatus,
-            'display' => strtoupper($clinicalStatus),
-        ));
+        $conditionResource->setClinicalStatus(
+            array(
+                'sysytem' => $clinicalSysytem,
+                'code' => $clinicalStatus,
+                'display' => strtoupper($clinicalStatus),
+            )
+        );
 
-        $conditionResource->addCategory(array(
-            'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-category",
-            'code' => 'problem-list-item',
-            'display' => 'Problem List Item'
-        ));
+        $conditionResource->addCategory(
+            array(
+                'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-category",
+                'code' => 'problem-list-item',
+                'display' => 'Problem List Item'
+            )
+        );
 
         if (isset($dataRecord['puuid'])) {
             $patient = new FHIRReference();
@@ -112,13 +117,13 @@ class FhirConditionService extends FhirServiceBase
         }
 
         $verificationCoding = array(
-            'sysytem' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+            'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
             'code' => 'unconfirmed',
             'display' => 'Unconfirmed',
         );
         if (!empty($dataRecord['verification'])) {
             $verificationCoding = array(
-                'sysytem' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
                 'code' => $dataRecord['verification'],
                 'display' => $dataRecord['verification_title']
             );
@@ -135,6 +140,7 @@ class FhirConditionService extends FhirServiceBase
 
     /**
      * Performs a FHIR Condition Resource lookup by FHIR Resource ID
+     *
      * @param $fhirResourceId //The OpenEMR record's FHIR Condition Resource ID.
      */
     public function getOne($fhirResourceId)
@@ -154,7 +160,7 @@ class FhirConditionService extends FhirServiceBase
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param array openEMRSearchParameters OpenEMR search fields
+     * @param  array openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters)
