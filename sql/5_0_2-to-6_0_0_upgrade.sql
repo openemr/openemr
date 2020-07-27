@@ -1936,3 +1936,14 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verific
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'refuted', 'Refuted', 30);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'entered-in-error', 'Entered in Error', 40);
 #EndIf
+
+#IfMissingColumn procedure_order uuid
+ALTER TABLE `procedure_order` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate procedure_order
+#EndIf
+
+#IfNotIndex procedure_order uuid
+CREATE UNIQUE INDEX `uuid` ON `procedure_order` (`uuid`);
+#EndIf
