@@ -280,7 +280,7 @@ require_once("$srcdir/options.js.php");
             __this.find("#backButton").css("display", "none");
             __this.find("#addButton").css("display", "");
             var iam = top.frames.editScripts
-            iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=' + <?php echo js_url($pid); ?>;
+            iam.location.href = '<?php echo $GLOBALS['webroot']?>/src/Rx/OePrescriptions/index.php?pid=' + <?php echo js_url($pid); ?>;
         };
 
         let title = <?php echo xlj('Prescriptions'); ?>;
@@ -291,7 +291,7 @@ require_once("$srcdir/options.js.php");
                 {text: <?php echo xlj('Add'); ?>, close: false, id: 'addButton', class: 'btn-primary btn-sm', click: AddScript},
                 {text: <?php echo xlj('Clear'); ?>, close: false, id: 'clearButton', style: 'display:none;', class: 'btn-primary btn-sm', click: AddScript},
                 {text: <?php echo xlj('Back'); ?>, close: false, id: 'backButton', style: 'display:none;', class: 'btn-primary btn-sm', click: ListScripts},
-                {text: <?php echo xlj('Done'); ?>, close: true, id: 'doneButton', class: 'btn-secondary btn-sm'}
+                {text: <?php echo xlj('Cancel'); ?>, close: true, id: 'doneButton', class: 'btn-secondary btn-sm'}
             ],
             onClosed: 'refreshme',
             allowResize: true,

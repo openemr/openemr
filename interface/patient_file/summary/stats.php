@@ -405,7 +405,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
             $linkMethod = "javascript";
             $widgetTitle = xl('Prescription');
             $widgetButtonLabel = xl("Edit");
-            $oeLink = $GLOBALS['webroot'] . "/controller.php?prescription&list&id=" . attr_url($pid);
+            $oeLink = $GLOBALS['webroot'] . "/src/Rx/OePrescriptions/index.php?pid=" . attr_url($pid);
             $widgetButtonLink = 'editScripts("' . $oeLink . '")';
 
             $widgetButtonClass = "iframe rx_modal";
