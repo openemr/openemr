@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  @package   OpenEMR
  *  @link      http://www.open-emr.org
