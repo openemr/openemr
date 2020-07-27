@@ -31,6 +31,7 @@ use OpenEMR\RestControllers\ListRestController;
 use OpenEMR\RestControllers\InsuranceCompanyRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\RestControllers\AuthRestController;
+use OpenEMR\RestControllers\ConditionRestController;
 use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\ImmunizationRestController;
@@ -153,27 +154,35 @@ RestConfig::$ROUTE_MAP = array(
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new PractitionerRestController())->patch($prid, $data);
     },
-    "GET /api/patient/:pid/medical_problem" => function ($pid) {
+    "GET /api/medical_problem" => function () {
         RestConfig::authorization_check("encounters", "notes");
-        return (new ListRestController())->getAll($pid, "medical_problem");
+        return (new ConditionRestController())->getAll();
     },
-    "GET /api/patient/:pid/medical_problem/:mid" => function ($pid, $mid) {
+    "GET /api/medical_problem/:muuid" => function ($muuid) {
+        RestConfig::authorization_check("encounters", "notes");
+        return (new ConditionRestController())->getOne($muuid);
+    },
+    "GET /api/patient/:puuid/medical_problem" => function ($puuid) {
+        RestConfig::authorization_check("encounters", "notes");
+        return (new ConditionRestController())->getAll($puuid, "medical_problem");
+    },
+    "GET /api/patient/:puuid/medical_problem/:muuid" => function ($puuid, $muuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new ListRestController())->getOne($pid, "medical_problem", $mid);
+        return (new ConditionRestController())->getAll(['lists.pid' => $puuid, 'lists.id' => $muuid]);
     },
-    "POST /api/patient/:pid/medical_problem" => function ($pid) {
+    "POST /api/patient/:puuid/medical_problem" => function ($puuid) {
         RestConfig::authorization_check("patients", "med");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        return (new ListRestController())->post($pid, "medical_problem", $data);
+        return (new ConditionRestController())->post($puuid, $data);
     },
-    "PUT /api/patient/:pid/medical_problem/:mid" => function ($pid, $mid) {
+    "PUT /api/patient/:puuid/medical_problem/:muuid" => function ($puuid, $muuid) {
         RestConfig::authorization_check("patients", "med");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        return (new ListRestController())->put($pid, $mid, "medical_problem", $data);
+        return (new ConditionRestController())->put($puuid, $muuid, $data);
     },
-    "DELETE /api/patient/:pid/medical_problem/:mid" => function ($pid, $mid) {
+    "DELETE /api/patient/:puuid/medical_problem/:muuid" => function ($puuid, $muuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new ListRestController())->delete($pid, $mid, "medical_problem");
+        return (new ConditionRestController())->delete($puuid, $muuid);
     },
     "GET /api/allergy" => function () {
         RestConfig::authorization_check("patients", "med");
@@ -493,11 +502,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Condition" => function () {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirConditionRestController(null))->getAll($_GET);
+        return (new FhirConditionRestController())->getAll($_GET);
     },
-    "GET /fhir/Condition/:id" => function ($id) {
+    "GET /fhir/Condition/:id" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirConditionRestController(null))->getOne($id);
+        return (new FhirConditionRestController())->getOne($uuid);
     },
     "GET /fhir/Procedure" => function () {
         RestConfig::authorization_check("patients", "med");

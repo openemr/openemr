@@ -458,6 +458,8 @@ if (!empty($irow['type'])) {
                 var nordisp = (aitypes[index] == 0) ? '' : 'none';
                 // reaction row should be displayed only for medication allergy.
                 var alldisp = (index == <?php echo issueTypeIndex('allergy'); ?>) ? '' : 'none';
+                var verificationdisp = (index == <?php echo issueTypeIndex('medical_problem'); ?>) ||
+                    (index == <?php echo issueTypeIndex('allergy'); ?>) ? '' : 'none';
                 document.getElementById('row_enddate').style.display = comdisp;
                 // Note that by default all the issues will not show the active row
                 //  (which is desired functionality, since then use the end date
@@ -469,7 +471,7 @@ if (!empty($irow['type'])) {
                 document.getElementById('row_reinjury_id').style.display = injdisp;
                 document.getElementById('row_severity').style.display = alldisp;
                 document.getElementById('row_reaction').style.display = alldisp;
-                document.getElementById('row_verification').style.display = alldisp;
+                document.getElementById('row_verification').style.display = verificationdisp;
                 document.getElementById('row_referredby').style.display = (f.form_referredby.value) ? '' : comdisp;
                 //document.getElementById('row_comments'      ).style.display = (f.form_comments.value) ? '' : revdisp;
                 document.getElementById('row_referredby').style.display = (f.form_referredby.value) ? '' : comdisp;
@@ -790,7 +792,8 @@ if (!empty($irow['type'])) {
                         <div class="form-group col-12" id='row_verification'>
                             <label class="col-form-label" for="form_verification"><?php echo xlt('Verification Status'); ?>:</label>
                             <?php
-                            echo generate_select_list('form_verification', 'allergyintolerance-verification', $irow['verification'], '', '', '', '');
+                            $codeListName = ($thistype == 'medical_problem') ? 'condition-verification' : 'allergyintolerance-verification';
+                            echo generate_select_list('form_verification', $codeListName, $irow['verification'], '', '', '', '');
                             ?>
                         </div>
                         <!-- End of Verification Status -->

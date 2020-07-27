@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AllergyIntoleranceService
+ * ConditionService
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -13,16 +13,16 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Validators\AllergyIntoleranceValidator;
+use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ConditionValidator;
 use OpenEMR\Validators\ProcessingResult;
 
-class AllergyIntoleranceService extends BaseService
+class ConditionService extends BaseService
 {
-    private const ALLERGY_TABLE = "lists";
+    private const CONDITION_TABLE = "lists";
     private const PATIENT_TABLE = "patient_data";
-    private const PRACTITIONER_TABLE = "users";
     private $uuidRegistery;
-    private $allergyIntoleranceValidator;
+    private $conditionValidator;
 
     /**
      * Default constructor.
@@ -30,15 +30,14 @@ class AllergyIntoleranceService extends BaseService
     public function __construct()
     {
         parent::__construct('lists');
-        $this->uuidRegistery = new UuidRegistry(['table_name' => self::ALLERGY_TABLE]);
+        $this->uuidRegistery = new UuidRegistry(['table_name' => self::CONDITION_TABLE]);
         $this->uuidRegistery->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
-        $this->allergyIntoleranceValidator = new AllergyIntoleranceValidator();
+        $this->conditionValidator = new ConditionValidator();
     }
 
     /**
-     * Returns a list of allergyIntolerance matching optional search criteria.
+     * Returns a list of condition matching optional search criteria.
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
@@ -51,7 +50,7 @@ class AllergyIntoleranceService extends BaseService
     {
         // Validating and Converting Patient UUID to PID
         if (isset($search['lists.pid'])) {
-            $isValidPatient = $this->allergyIntoleranceValidator->validateId(
+            $isValidPatient = $this->conditionValidator->validateId(
                 'uuid',
                 self::PATIENT_TABLE,
                 $search['lists.pid'],
@@ -66,31 +65,27 @@ class AllergyIntoleranceService extends BaseService
 
         // Validating and Converting UUID to ID
         if (isset($search['lists.id'])) {
-            $isValidAllergy = $this->allergyIntoleranceValidator->validateId(
+            $isValidcondition = $this->conditionValidator->validateId(
                 'uuid',
-                self::ALLERGY_TABLE,
+                self::CONDITION_TABLE,
                 $search['lists.id'],
                 true
             );
-            if ($isValidAllergy !== true) {
-                return $isValidAllergy;
+            if ($isValidcondition !== true) {
+                return $isValidcondition;
             }
             $uuidBytes = UuidRegistry::uuidToBytes($search['lists.id']);
-            $search['lists.id'] = $this->getIdByUuid($uuidBytes, self::ALLERGY_TABLE, "id");
+            $search['lists.id'] = $this->getIdByUuid($uuidBytes, self::CONDITION_TABLE, "id");
         }
 
         $sqlBindArray = array();
         $sql = "SELECT lists.*,
-                        us.uuid as practitioner,
                         patient.uuid as puuid,
-                        reaction.title as reaction_title,
                         verification.title as verification_title
                         FROM lists
-                        LEFT JOIN list_options as reaction ON reaction.option_id = lists.reaction
                         LEFT JOIN list_options as verification ON verification.option_id = lists.verification
-                        LEFT JOIN users as us ON us.id = lists.referredby
                         RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
-                        WHERE type = 'allergy'";
+                        WHERE lists.type = 'medical_problem'";
 
         if (!empty($search)) {
             $sql .= ' AND ';
@@ -109,9 +104,6 @@ class AllergyIntoleranceService extends BaseService
         while ($row = sqlFetchArray($statementResults)) {
             $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
-            $row['practitioner'] = $row['practitioner'] ?
-                UuidRegistry::uuidToString($row['practitioner']) :
-                $row['practitioner'];
             if ($row['diagnosis'] != "") {
                 $row['diagnosis'] = $this->addDiagnosis($row['diagnosis']);
             }
@@ -121,8 +113,8 @@ class AllergyIntoleranceService extends BaseService
     }
 
     /**
-     * Returns a single allergyIntolerance record by uuid.
-     * @param $uuid - The allergyIntolerance uuid identifier in string format.
+     * Returns a single condition record by uuid.
+     * @param $uuid - The condition uuid identifier in string format.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
@@ -130,7 +122,7 @@ class AllergyIntoleranceService extends BaseService
     {
         $processingResult = new ProcessingResult();
 
-        $isValid = $this->allergyIntoleranceValidator->validateId("uuid", "lists", $uuid, true);
+        $isValid = BaseValidator::validateId("uuid", "lists", $uuid, true);
 
         if ($isValid !== true) {
             $validationMessages = [
@@ -141,24 +133,17 @@ class AllergyIntoleranceService extends BaseService
         }
 
         $sql = "SELECT lists.*,
-                        us.uuid as practitioner,
                         patient.uuid as puuid,
-                        reaction.title as reaction_title,
                         verification.title as verification_title
                         FROM lists
-                        LEFT JOIN list_options as reaction ON reaction.option_id = lists.reaction
                         LEFT JOIN list_options as verification ON verification.option_id = lists.verification
-                        LEFT JOIN users as us ON us.id = lists.referredby
                         RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
-                        WHERE type = 'allergy' AND lists.uuid = ?";
+                        WHERE lists.type = 'medical_problem' AND lists.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
-        $sqlResult['practitioner'] = $sqlResult['practitioner'] ?
-            UuidRegistry::uuidToString($sqlResult['practitioner']) :
-            $sqlResult['practitioner'];
         if ($sqlResult['diagnosis'] != "") {
             $row['diagnosis'] = $this->addDiagnosis($sqlResult['diagnosis']);
         }
@@ -166,18 +151,19 @@ class AllergyIntoleranceService extends BaseService
         return $processingResult;
     }
 
+
     /**
-     * Inserts a new allergy record.
+     * Inserts a new condition record.
      *
-     * @param $data The allergy fields (array) to insert.
+     * @param $data The condition fields (array) to insert.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
     public function insert($data)
     {
-        $processingResult = $this->allergyIntoleranceValidator->validate(
+        $processingResult = $this->conditionValidator->validate(
             $data,
-            AllergyIntoleranceValidator::DATABASE_INSERT_CONTEXT
+            ConditionValidator::DATABASE_INSERT_CONTEXT
         );
 
         if (!$processingResult->isValid()) {
@@ -186,13 +172,13 @@ class AllergyIntoleranceService extends BaseService
 
         $puuidBytes = UuidRegistry::uuidToBytes($data['puuid']);
         $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
-        $data['uuid'] = (new UuidRegistry(['table_name' => self::ALLERGY_TABLE]))->createUuid();
+        $data['uuid'] = (new UuidRegistry(['table_name' => self::CONDITION_TABLE]))->createUuid();
 
         $query = $this->buildInsertColumns($data);
         $sql  = " INSERT INTO lists SET";
         $sql .= "     date=NOW(),";
         $sql .= "     activity=1,";
-        $sql .= "     type='allergy',";
+        $sql .= "     type='medical_problem',";
         $sql .= $query['set'];
         $results = sqlInsert(
             $sql,
@@ -212,10 +198,10 @@ class AllergyIntoleranceService extends BaseService
     }
 
     /**
-     * Updates an existing allergy record.
+     * Updates an existing condition record.
      *
-     * @param $uuid - The allergy uuid identifier in string format used for update.
-     * @param $data - The updated allergy data fields
+     * @param $uuid - The condition uuid identifier in string format used for update.
+     * @param $data - The updated condition data fields
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
@@ -228,9 +214,9 @@ class AllergyIntoleranceService extends BaseService
         }
 
         $data["uuid"] = $uuid;
-        $processingResult = $this->allergyIntoleranceValidator->validate(
+        $processingResult = $this->conditionValidator->validate(
             $data,
-            AllergyIntoleranceValidator::DATABASE_UPDATE_CONTEXT
+            ConditionValidator::DATABASE_UPDATE_CONTEXT
         );
         if (!$processingResult->isValid()) {
             return $processingResult;
@@ -240,7 +226,7 @@ class AllergyIntoleranceService extends BaseService
         $sql = " UPDATE lists SET ";
         $sql .= $query['set'];
         $sql .= " WHERE `uuid` = ?";
-        $sql .= "       AND `type` = 'allergy'";
+        $sql .= "       AND `type` = 'medical_problem'";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         array_push($query['bind'], $uuidBinary);
@@ -255,10 +241,10 @@ class AllergyIntoleranceService extends BaseService
     }
 
     /**
-     * Deletes an existing allergy record.
+     * Deletes an existing condition record.
      *
      * @param $puuid - The patient uuid identifier in string format used for update.
-     * @param $uuid - The allergy uuid identifier in string format used for update.
+     * @param $uuid - The condition uuid identifier in string format used for update.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
@@ -266,8 +252,8 @@ class AllergyIntoleranceService extends BaseService
     {
         $processingResult = new ProcessingResult();
 
-        $isValid = $this->allergyIntoleranceValidator->validateId("uuid", "lists", $uuid, true);
-        $isPatientValid = $this->allergyIntoleranceValidator->validateId("uuid", "patient_data", $puuid, true);
+        $isValid = $this->conditionValidator->validateId("uuid", "lists", $uuid, true);
+        $isPatientValid = $this->conditionValidator->validateId("uuid", "patient_data", $puuid, true);
 
         if ($isValid !== true || $isPatientValid !== true) {
             $validationMessages = [
@@ -280,7 +266,7 @@ class AllergyIntoleranceService extends BaseService
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $auuid = UuidRegistry::uuidToBytes($uuid);
         $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
-        $sql  = "DELETE FROM lists WHERE pid=? AND uuid=? AND type='allergy'";
+        $sql  = "DELETE FROM lists WHERE pid=? AND uuid=? AND type='medical_problem'";
 
         $results = sqlStatement($sql, array($pid, $auuid));
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AllergyIntoleranceRestController
+ * ConditionRestController
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -12,12 +12,12 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\AllergyIntoleranceService;
+use OpenEMR\Services\ConditionService;
 use OpenEMR\RestControllers\RestControllerHelper;
 
-class AllergyIntoleranceRestController
+class ConditionRestController
 {
-    private $allergyIntoleranceService;
+    private $conditionService;
 
     /**
      * White list of search/insert fields
@@ -31,16 +31,16 @@ class AllergyIntoleranceRestController
 
     public function __construct()
     {
-        $this->allergyIntoleranceService = new AllergyIntoleranceService();
+        $this->conditionService = new ConditionService();
     }
 
     /**
-     * Fetches a single allergyIntolerance resource by id.
-     * @param $uuid - The allergyIntolerance uuid identifier in string format.
+     * Fetches a single condition resource by id.
+     * @param $uuid - The condition uuid identifier in string format.
      */
     public function getOne($uuid)
     {
-        $processingResult = $this->allergyIntoleranceService->getOne($uuid);
+        $processingResult = $this->conditionService->getOne($uuid);
 
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
             return RestControllerHelper::handleProcessingResult($processingResult, 404);
@@ -50,32 +50,32 @@ class AllergyIntoleranceRestController
     }
 
     /**
-     * Returns allergyIntolerance resources which match an optional search criteria.
+     * Returns condition resources which match an optional search criteria.
      */
     public function getAll($search = array())
     {
-        $processingResult = $this->allergyIntoleranceService->getAll($search);
+        $processingResult = $this->conditionService->getAll($search);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
     }
 
     public function post($puuid, $data)
     {
-        $filteredData = $this->allergyIntoleranceService->filterData($data, self::WHITELISTED_FIELDS);
+        $filteredData = $this->conditionService->filterData($data, self::WHITELISTED_FIELDS);
         $filteredData['puuid'] = $puuid;
-        $processingResult = $this->allergyIntoleranceService->insert($filteredData);
+        $processingResult = $this->conditionService->insert($filteredData);
         return RestControllerHelper::handleProcessingResult($processingResult, 201);
     }
 
     public function put($puuid, $uuid, $data)
     {
-        $filteredData = $this->allergyIntoleranceService->filterData($data, self::WHITELISTED_FIELDS);
-        $processingResult = $this->allergyIntoleranceService->update($uuid, $filteredData);
+        $filteredData = $this->conditionService->filterData($data, self::WHITELISTED_FIELDS);
+        $processingResult = $this->conditionService->update($uuid, $filteredData);
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
     public function delete($puuid, $uuid)
     {
-        $processingResult = $this->allergyIntoleranceService->delete($puuid, $uuid);
+        $processingResult = $this->conditionService->delete($puuid, $uuid);
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 }

@@ -1925,3 +1925,14 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintoleranc
 #IfMissingColumn ar_activity deleted
 ALTER TABLE `ar_activity` ADD COLUMN `deleted` datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided';
 #EndIf
+
+#IfNotRow2D list_options list_id lists option_id condition-verification
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq` ) VALUES ('lists' ,'condition-verification', 'Condition Verification Status Codes', 1);
+#EndIf
+
+#IfNotRow list_options list_id condition-verification
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'confirmed', 'Confirmed', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'unconfirmed', 'Unconfirmed', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'refuted', 'Refuted', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'entered-in-error', 'Entered in Error', 40);
+#EndIf

@@ -6289,6 +6289,13 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintoleranc
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'refuted', 'Refuted', 30);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'entered-in-error', 'Entered in Error', 40);
 
+-- Condition Verification Status Codes [FHIR Condition.verification]
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq` ) VALUES ('lists' ,'condition-verification', 'Condition Verification Status Codes', 1);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'confirmed', 'Confirmed', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'unconfirmed', 'Unconfirmed', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'refuted', 'Refuted', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'entered-in-error', 'Entered in Error', 40);
+
 -- --------------------------------------------------------
 
 --
@@ -6306,7 +6313,7 @@ CREATE TABLE `lists` (
   `begdate` date default NULL,
   `enddate` date default NULL,
   `returndate` date default NULL,
-  `occurrence` int(11) default '0',
+  `occurrence` int(11) default '0' COMMENT "Reference to list_options option_id='occurrence'",
   `classification` int(11) default '0',
   `referredby` varchar(255) default NULL,
   `extrainfo` varchar(255) default NULL,

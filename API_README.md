@@ -778,12 +778,44 @@ Request:
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note/1'
 ```
 
-#### POST /api/patient/:pid/medical_problem
+#### GET /api/medical_problem
 
 Request:
 
 ```sh
-curl -X POST 'http://localhost:8300/apis/api/patient/1/medical_problem' -d \
+curl -X GET 'http://localhost:8300/apis/api/medical_problem'
+```
+
+#### GET /api/medical_problem/:muuid
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/api/medical_problem/9109890a-6756-44c1-a82d-bdfac91c7424'
+```
+
+#### GET /api/patient/:puuid/medical_problem	
+
+Request:	
+
+```sh	
+curl -X GET 'http://localhost:8300/apis/api/patient/9101a093-da04-457f-a6a1-46ce93f0d629/medical_problem'	
+```	
+
+#### GET /api/patient/:puuid/medical_problem/:muuid
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/api/patient/9101a093-da04-457f-a6a1-46ce93f0d629/medical_problem/91208832-47ab-4f65-ba44-08f57d4c028e'
+```
+
+#### POST /api/patient/:puuid/medical_problem
+
+Request:
+
+```sh
+curl -X POST 'http://localhost:8300/apis/api/patient/9101a093-da04-457f-a6a1-46ce93f0d629/medical_problem' -d \
 '{
     "title": "Dermatochalasis",
     "begdate": "2010-04-13",
@@ -792,12 +824,12 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/medical_problem' -d \
 }'
 ```
 
-#### PUT /api/patient/:pid/medical_problem/:mid
+#### PUT /api/patient/:puuid/medical_problem/:muuid
 
 Request:
 
 ```sh
-curl -X PUT 'http://localhost:8300/apis/api/patient/1/medical_problem/1' -d \
+curl -X PUT 'http://localhost:8300/apis/api/patient/9101a093-da04-457f-a6a1-46ce93f0d629/medical_problem/91208832-47ab-4f65-ba44-08f57d4c028e' -d \
 '{
     "title": "Dermatochalasis",
     "begdate": "2010-04-13",
@@ -806,28 +838,12 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/medical_problem/1' -d \
 }'
 ```
 
-#### GET /api/patient/:pid/medical_problem
+#### DELETE /api/patient/:puuid/medical_problem/:muuid
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem'
-```
-
-#### GET /api/patient/:pid/medical_problem/:mid
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
-```
-
-#### DELETE /api/patient/:pid/medical_problem/:mid
-
-Request:
-
-```sh
-curl -X DELETE 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
+curl -X DELETE 'http://localhost:8300/apis/api/patient/9101a093-da04-457f-a6a1-46ce93f0d629/medical_problem/91208832-47ab-4f65-ba44-08f57d4c028e'
 ```
 
 #### GET /api/allergy

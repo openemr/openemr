@@ -2,186 +2,184 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
-use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
-use OpenEMR\Services\ListService;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\ConditionService;
+use OpenEMR\Validators\ProcessingResult;
 
-class FhirConditionService
+/**
+ * FHIR Condition Service
+ *
+ * @coversDefaultClass OpenEMR\Services\FHIR\FhirConditionService
+ * @package            OpenEMR
+ * @link               http://www.open-emr.org
+ * @author             Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+class FhirConditionService extends FhirServiceBase
 {
-
-    private $id;
+    /**
+     * @var ConditionService
+     */
+    private $conditionService;
 
     public function __construct()
     {
+        parent::__construct();
+        $this->conditionService = new ConditionService();
     }
 
-    public function setId($id)
+    /**
+     * Returns an array mapping FHIR Condition Resource search parameters to OpenEMR Condition search parameters
+     *
+     * @return array The search parameters
+     */
+    protected function loadSearchParameters()
     {
-        $this->id = $id;
+        return  [
+            'patient' => ['patient.uuid']
+        ];
     }
 
-    public function getAll($search)
+    /**
+     * Parses an OpenEMR condition record, returning the equivalent FHIR Condition Resource
+     *
+     * @param  array   $dataRecord The source OpenEMR data record
+     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @return FHIRCondition
+     */
+    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
-        $SQL = "SELECT id,
-                        date as recorded_date,
-                        type,
-                        subtype,
-                        title,
-                        begdate,
-                        enddate,
-                        returndate,
-                        occurrence,
-                        referredby,
-                        extrainfo,
-                        diagnosis,
-                        pid,
-                        outcome,
-                        severity_al
-                        FROM lists";
+        $conditionResource = new FHIRCondition();
 
-        if (isset($search['patient'])) {
-            $SQL .= " WHERE pid = ?;";
-        }
+        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $conditionResource->setMeta($meta);
 
-        $conditionResults = sqlStatement($SQL, $search['patient']);
-        $results = array();
-        while ($row = sqlFetchArray($conditionResults)) {
-            array_push($results, $row);
-        }
-        return $results;
-    }
+        $id = new FHIRId();
+        $id->setValue($dataRecord['uuid']);
+        $conditionResource->setId($id);
 
-    public function getOne($id)
-    {
-        $SQL = "SELECT id,
-                        date as recorded_date,
-                        type,
-                        subtype,
-                        title,
-                        begdate,
-                        enddate,
-                        returndate,
-                        occurrence,
-                        referredby,
-                        extrainfo,
-                        diagnosis,
-                        pid,
-                        outcome,
-                        severity_al
-                        FROM lists
-                        WHERE id = ?;";
-
-        $sqlResult = sqlStatement($SQL, $id);
-        $result = sqlFetchArray($sqlResult);
-
-        return $result;
-    }
-
-    public function createConditionResource($id = '', $data = '', $encode = true)
-    {
-        $clinicalStatus = new FHIRCodeableConcept();
-        $clinicalStatusCoding = new FHIRCoding();
-        $clinicalStatusCoding->setSystem("http://terminology.hl7.org/CodeSystem/condition-clinical");
-        if ($data['occurrence'] == 1) {
-            if (isset($data['enddate']) && $data['outcome'] == "1") {
-                $clinicalStatusCoding->setCode("resolved");
-                $clinicalStatusCoding->setDisplay("Resolved");
-            } elseif (!isset($data['enddate'])) {
-                $clinicalStatusCoding->setCode("active");
-                $clinicalStatusCoding->setDisplay("Active");
+        $clinicalStatus = "inactive";
+        $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/condition-clinical";
+        if ((!isset($data['enddate']) && isset($data['begdate']))
+            || isset($data['enddate']) && strtotime($data['enddate']) >= strtotime("now")
+        ) {
+            // Active if Only Begin Date isset OR End Date isnot expired
+            $clinicalStatus = "active";
+            if ($data['occurrence'] == 1 || $data['outcome'] == 1) {
+                $clinicalStatus = "resolved";
+            } elseif ($data['occurrence'] > 1) {
+                $clinicalStatus = "recurrence";
             }
-        } elseif (isset($data['enddate']) && $data['outcome'] == "0") {
-            $clinicalStatusCoding->setCode("inactive");
-            $clinicalStatusCoding->setDisplay("Inactive");
-        } elseif ($data['occurrence'] == 2 && !isset($data['enddate']) && $data['outcome'] == "0") {
-            $clinicalStatusCoding->setCode("recurrence");
-            $clinicalStatusCoding->setDisplay("Recurrence");
-        } elseif ($data['occurrence'] > 2 && isset($data['enddate']) && $data['outcome'] == "1") {
-            $clinicalStatusCoding->setCode("remission");
-            $clinicalStatusCoding->setDisplay("Remission");
-        } elseif ($data['occurrence'] > 2 && !isset($data['enddate']) && $data['outcome'] == "0") {
-            $clinicalStatusCoding->setCode("relapse");
-            $clinicalStatusCoding->setDisplay("Relapse");
+        } elseif (isset($data['enddate']) && strtotime($data['enddate']) < strtotime("now")) {
+            //Inactive if End Date is expired
+            $clinicalStatus = "inactive";
         } else {
-            $clinicalStatusCoding->setSystem("http://terminology.hl7.org/CodeSystem/data-absent-reason");
-            $clinicalStatusCoding->setCode("unknown");
-            $clinicalStatusCoding->setDisplay("Unknown");
+            $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/data-absent-reason";
+            $clinicalStatus = "unknown";
         }
-        $clinicalStatus->addCoding($clinicalStatusCoding);
-        
-        $severity = new FHIRCodeableConcept();
-        $severityToCodeMapping = array(
-                "Mild" => "255604002",
-                "Moderate" => "6736007",
-                "Severe" => "24484000"
+        $conditionResource->setClinicalStatus(
+            array(
+                'sysytem' => $clinicalSysytem,
+                'code' => $clinicalStatus,
+                'display' => strtoupper($clinicalStatus),
+            )
+        );
+
+        $conditionResource->addCategory(
+            array(
+                'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-category",
+                'code' => 'problem-list-item',
+                'display' => 'Problem List Item'
+            )
+        );
+
+        if (isset($dataRecord['puuid'])) {
+            $patient = new FHIRReference();
+            $patient->setReference('Patient/' . $dataRecord['puuid']);
+            $conditionResource->setSubject($patient);
+        }
+
+        if (!empty($dataRecord['diagnosis'])) {
+            $diagnosisCoding = new FHIRCoding();
+            $diagnosisCode = new FHIRCodeableConcept();
+            foreach ($dataRecord['diagnosis'] as $code => $display) {
+                $diagnosisCoding->setCode($code);
+                $diagnosisCoding->setDisplay($display);
+                $diagnosisCode->addCoding($diagnosisCoding);
+            }
+            $conditionResource->setCode($diagnosisCode);
+        }
+
+        $verificationCoding = array(
+            'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+            'code' => 'unconfirmed',
+            'display' => 'Unconfirmed',
+        );
+        if (!empty($dataRecord['verification'])) {
+            $verificationCoding = array(
+                'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                'code' => $dataRecord['verification'],
+                'display' => $dataRecord['verification_title']
             );
-        $severityCoding = new FHIRCoding();
-        $severityCoding->setSystem("http://snomed.info/sct");
-        $severityCoding->setCode($severityToCodeMapping[ucwords(strtolower($data['severity_al']))]);
-        $severityCoding->setDisplay(ucwords(strtolower($data['severity_al'])));
-        $severity->addCoding($severityCoding);
-        
-        $code = new FHIRCodeableConcept();
-        $codeCoding = new FHIRCoding();
-        $codeCoding->setSystem("http://snomed.info/sct");
-        $codeCoding->setCode($data['diagnosis']);
-        $codeCoding->setDisplay($data['diagnosis']);
-        $code->addCoding($codeCoding);
-        
-        $bodySite = new FHIRCodeableConcept();
-        $bodySiteCoding = new FHIRCoding();
-        $bodySiteCoding->setSystem("http://snomed.info/sct");
-        $bodySiteCoding->setCode($data['injury_part']);
-        $bodySiteCoding->setDisplay($data['injury_part']);
-        $bodySite->addCoding($bodySiteCoding);
-
-        $subject = new FHIRReference();
-        $subject->setReference('Patient/' . $data['pid']);
-        
-        $onSetDateTime = new FHIRDateTime();
-        $onSetDateTime->setValue($data['begdate']);
-        
-        $abatementDateTime = new FHIRDateTime();
-        $abatementDateTime->setValue($data['enddate']);
-
-        $recordedDateTime = new FHIRDateTime();
-        $recordedDateTime->setValue($data['recorded_date']);
-        
-        $recorder = new FHIRReference();
-        $recorder->setReference('Practitioner/' . $data['referredby']);
-        
-        $asserter = new FHIRReference();
-        $asserter->setReference('Patient/' . $data['pid']);
-        
-        $note = new FHIRAnnotation();
-        $note->setText($data['extrainfo']);
-        
-        $resource = new FHIRCondition();
-        $resource->setClinicalStatus($clinicalStatus);
-        $resource->setSeverity($severity);
-        $resource->setCode($code);
-        $resource->addBodySite($bodySite);
-        $resource->setSubject($subject);
-        $resource->setOnsetDateTime($onSetDateTime);
-        $resource->setAbatementDateTime($abatementDateTime);
-        $resource->setRecordedDate($recordedDateTime);
-        $resource->setRecorder($recorder);
-        $resource->setAsserter($asserter);
-        $resource->addNote($note);
-        
-        if ($encode) {
-            return json_encode($resource);
-        } else {
-            return $resource;
         }
+        $conditionResource->setVerificationStatus($verificationCoding);
+
+        if ($encode) {
+            return json_encode($conditionResource);
+        } else {
+            return $conditionResource;
+        }
+    }
+
+
+    /**
+     * Performs a FHIR Condition Resource lookup by FHIR Resource ID
+     *
+     * @param $fhirResourceId //The OpenEMR record's FHIR Condition Resource ID.
+     */
+    public function getOne($fhirResourceId)
+    {
+        $processingResult = $this->conditionService->getOne($fhirResourceId);
+        if (!$processingResult->hasErrors()) {
+            if (count($processingResult->getData()) > 0) {
+                $openEmrRecord = $processingResult->getData()[0];
+                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
+                $processingResult->setData([]);
+                $processingResult->addData($fhirRecord);
+            }
+        }
+        return $processingResult;
+    }
+
+    /**
+     * Searches for OpenEMR records using OpenEMR search parameters
+     *
+     * @param  array openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
+    public function searchForOpenEMRRecords($openEMRSearchParameters)
+    {
+        return $this->conditionService->getAll($openEMRSearchParameters, false);
+    }
+
+    public function parseFhirResource($fhirResource = array())
+    {
+        // TODO: If Required in Future
+    }
+
+    public function insertOpenEMRRecord($openEmrRecord)
+    {
+        // TODO: If Required in Future
+    }
+
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        // TODO: If Required in Future
     }
 }
