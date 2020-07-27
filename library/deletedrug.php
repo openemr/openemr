@@ -51,9 +51,7 @@ if (isset($id)) {
         if (!empty($drugname)) {
             $medicationlist = "DELETE FROM lists WHERE pid = ? AND type = 'medication' AND title = ?";
             sqlStatement($medicationlist, [$pid, $drugname]);
-            $table = 'prescriptions';
-            $logstring = 'Medication ' . $drugname . 'removed from chart' . $pid;
-            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $drugname, $pid);
         }
     } catch (Exception $e) {
         echo 'Caught exception ', text($e->getMessage()), "\n";
