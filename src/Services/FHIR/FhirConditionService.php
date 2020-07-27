@@ -66,7 +66,8 @@ class FhirConditionService extends FhirServiceBase
 
         $clinicalStatus = "inactive";
         $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/condition-clinical";
-        if ((!isset($data['enddate']) && isset($data['begdate']))
+        if (
+            (!isset($data['enddate']) && isset($data['begdate']))
             || isset($data['enddate']) && strtotime($data['enddate']) >= strtotime("now")
         ) {
             // Active if Only Begin Date isset OR End Date isnot expired
