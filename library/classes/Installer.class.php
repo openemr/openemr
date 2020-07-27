@@ -1210,13 +1210,47 @@ $config = 1; /////////////
 
     private function connect_to_database($server, $user, $password, $port, $dbname = '')
     {
-        if ($server == "localhost") {
-            $dbh = mysqli_connect($server, $user, $password, $dbname);
-        } else {
-            $dbh = mysqli_connect($server, $user, $password, $dbname, $port);
+        $pathToCerts = __DIR__ . "/../../sites/" . $this->site . "/documents/certificates/";
+        $clientFlag = null;
+        $mysqli = mysqli_init();
+        if (defined('MYSQLI_CLIENT_SSL') && file_exists($pathToCerts . "mysql-ca")) {
+            $clientFlag = MYSQLI_CLIENT_SSL;
+            if (
+                file_exists($pathToCerts . "mysql-key") &&
+                file_exists($pathToCerts . "mysql-cert")
+            ) {
+                // with client side certificate/key
+                mysqli_ssl_set(
+                    $mysqli,
+                    $pathToCerts . "mysql-key",
+                    $pathToCerts . "mysql-cert",
+                    $pathToCerts . "mysql-ca",
+                    null,
+                    null
+                );
+            } else {
+                // without client side certificate/key
+                mysqli_ssl_set(
+                    $mysqli,
+                    null,
+                    null,
+                    $pathToCerts . "mysql-ca",
+                    null,
+                    null
+                );
+            }
         }
-
-        return $dbh;
+        mysqli_real_connect(
+            $mysqli,
+            $server,
+            $user,
+            $password,
+            $dbname,
+            (int)$port != 0 ? (int)$port : 3306,
+            '',
+            $clientFlag
+        );
+        return $mysqli;
     }
 
     private function set_sql_strict()
