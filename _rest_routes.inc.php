@@ -519,11 +519,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Procedure" => function () {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirProcedureRestController(null))->getAll($_GET);
+        return (new FhirProcedureRestController())->getAll($_GET);
     },
-    "GET /fhir/Procedure/:id" => function ($id) {
+    "GET /fhir/Procedure/:uuid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirProcedureRestController(null))->getOne($id);
+        return (new FhirProcedureRestController())->getOne($uuid);
     },
     "GET /fhir/MedicationStatement" => function () {
         RestConfig::authorization_check("patients", "med");
