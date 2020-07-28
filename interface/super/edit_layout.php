@@ -1582,7 +1582,7 @@ foreach ($sources as $key => $value) {
 ?>
 </select>
 </td>
-<td><input type="text" name="gnewid" id="gnewid" value="" size="10" maxlength="20"
+<td><input type="text" name="gnewid" id="gnewid" value="" size="10" maxlength="63"
      onclick='FieldIDClicked(this)' /> </td>
 <td><input type="text" name="gnewtitle" id="gnewtitle" value="" size="20" maxlength="63" /> </td>
 <td>
@@ -1665,7 +1665,7 @@ foreach ($sources as $key => $value) {
 ?>
     </select>
    </td>
-   <td ><input type="text" name="newid" id="newid" value="" size="10" maxlength="20" onclick='FieldIDClicked(this)' /> </td>
+   <td ><input type="text" name="newid" id="newid" value="" size="10" maxlength="63" onclick='FieldIDClicked(this)' /> </td>
    <td><input type="text" name="newtitle" id="newtitle" value="" size="20" maxlength="63" /> </td>
    <td>
     <select class='form-control' name="newuor" id="newuor">
