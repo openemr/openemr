@@ -678,7 +678,7 @@ function writeFieldLine($linedata)
 
     echo "  <td align='left' class='optcell'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][id]' value='" .
-        attr($linedata['field_id']) . "' size='15' maxlength='63' " .
+        attr($linedata['field_id']) . "' size='15' maxlength='31' " .
          "class='optin' style='width:100%' onclick='FieldIDClicked(this)' />";
     echo "</td>\n";
 
@@ -1582,7 +1582,7 @@ foreach ($sources as $key => $value) {
 ?>
 </select>
 </td>
-<td><input type="text" name="gnewid" id="gnewid" value="" size="10" maxlength="63"
+<td><input type="text" name="gnewid" id="gnewid" value="" size="10" maxlength="31"
      onclick='FieldIDClicked(this)' /> </td>
 <td><input type="text" name="gnewtitle" id="gnewtitle" value="" size="20" maxlength="63" /> </td>
 <td>
@@ -1665,7 +1665,7 @@ foreach ($sources as $key => $value) {
 ?>
     </select>
    </td>
-   <td ><input type="text" name="newid" id="newid" value="" size="10" maxlength="63" onclick='FieldIDClicked(this)' /> </td>
+   <td ><input type="text" name="newid" id="newid" value="" size="10" maxlength="31" onclick='FieldIDClicked(this)' /> </td>
    <td><input type="text" name="newtitle" id="newtitle" value="" size="20" maxlength="63" /> </td>
    <td>
     <select class='form-control' name="newuor" id="newuor">
