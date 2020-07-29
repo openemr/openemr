@@ -174,7 +174,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
           ```sh
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools change-encoding-collation utf8 utf8_general_ci'
           ```
-15. Developer tools to test certificate (to test client based certificates and revert back to default self signed certificate) and force/unforce https.
+15. Developer tools to test ssl certificate (to test client based certificates and revert back to default self signed certificate) and force/unforce https.
     - To test client based certificates, create a zip package of the certificate in OpenEMR at Administration->System->Certificates. Then can import this zip package (example `ssl.zip`) into the docker via:
       ```sh
       docker cp ssl.zip $(docker ps | grep _openemr | cut -f 1 -d " "):/certs/
@@ -199,7 +199,24 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools un-force-https'
       ```
-16. Xdebug and profiling is also supported for PHPStorm.
+16. Developer tools to place/remove testing sql ssl certificate and testing sql ssl client key/cert.
+    - Place the testing sql ssl CA cert:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools sql-ssl'
+      ```
+    - Remove the testing sql ssl CA cert:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools sql-ssl-off'
+      ```
+    - Place the testing sql ssl CA cert and testing sql ssl client key/cert:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools sql-ssl-client'
+      ```
+    - Remove the testing sql ssl CA cert and testing sql ssl client key/cert:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools sql-ssl-client-off'
+      ```
+17. Xdebug and profiling is also supported for PHPStorm.
     - Firefox install xdebug helper add on (configure for PHPSTORM)
     - PHPStorm Settings->Language & Frameworks->PHP->Debug
         - Start listening
@@ -207,9 +224,9 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
         - Untoggle both settings that start with "Force Break at first line..."
      - Make sure port 9000 is open on your host operating system
      - Profiling output can be found in /tmp directory in the docker
-17. When you're done, it's best to clean up after yourself with `docker-compose down -v`
+18. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
-18. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+19. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 We look forward to your contribution...
 
