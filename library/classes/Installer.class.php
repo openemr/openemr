@@ -1250,7 +1250,13 @@ $config = 1; /////////////
             '',
             $clientFlag
         );
-        return $mysqli;
+
+        if (mysqli_connect_errno()) {
+            $this->error_message = 'unable to connect to sql server because of: ' . mysqli_connect_error();
+            return false;
+        } else {
+            return $mysqli;
+        }
     }
 
     private function set_sql_strict()
