@@ -617,6 +617,10 @@ function convertLayoutProperties()
 *   argument: table_name
 *   behavior: this will add and populate a uuid column into table
 *
+*  #IfUuidNeedUpdateId
+*   argument: table_name primary_id
+*   behavior: this will add and populate a uuid column into table
+*
 * #IfUuidNeedUpdateVertical
 *   argument: table_name table_columns
 *   behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
@@ -1010,7 +1014,7 @@ function upgradeFromSqlFile($filename, $path = '')
             if ($skipping) {
                 echo "<p class='text-success'>Skipping section $line</p>\n";
             }
-        } elseif (preg_match('/^#IfUuidNeedUpdateId\s+(\S+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfUuidNeedUpdateId\s+(\S+)\s+(\S+)/', $line, $matches)) {
             $uuidRegistry = new UuidRegistry([
                 'table_name' => $matches[1],
                 'table_id' => $matches[2]
