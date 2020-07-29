@@ -1240,16 +1240,7 @@ $config = 1; /////////////
                 );
             }
         }
-        if ( ! mysqli_real_connect(
-            $mysqli,
-            $server,
-            $user,
-            $password,
-            $dbname,
-            (int)$port != 0 ? (int)$port : 3306,
-            '',
-            $clientFlag
-        )) {
+        if (! mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', $clientFlag)) {
             $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();
             return false;
         }
