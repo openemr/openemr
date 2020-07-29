@@ -1240,7 +1240,7 @@ $config = 1; /////////////
                 );
             }
         }
-        mysqli_real_connect(
+        if ( ! mysqli_real_connect(
             $mysqli,
             $server,
             $user,
@@ -1249,14 +1249,11 @@ $config = 1; /////////////
             (int)$port != 0 ? (int)$port : 3306,
             '',
             $clientFlag
-        );
-
-        if (mysqli_connect_errno()) {
-            $this->error_message = 'unable to connect to sql server because of: ' . mysqli_connect_error();
+        )) {
+            $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();
             return false;
-        } else {
-            return $mysqli;
         }
+        return $mysqli;
     }
 
     private function set_sql_strict()
