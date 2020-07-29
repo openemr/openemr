@@ -62,21 +62,6 @@ if ($web_path) {
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/decoders/rii-mango/lossless-min.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/assets/dwv/dist/dwv.min.js"></script>
 
-    <!-- Local (dwv) -->
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/browser.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/colourMap.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/custom.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/dropboxLoader.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/filter.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/generic.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/undo.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/help.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/html.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/infoController.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/infoOverlay.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/loader.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/plot.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/tools.js"></script>
     <!-- i18n dwv wrapper -->
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dwv_i18n.js"></script>
     <!-- Launch the app -->
@@ -494,6 +479,5 @@ if ($web_path) {
             <div class="drawList" title="Draw list"></div>
         </div><!-- /pageMain -->
     </div><!-- /dwv -->
-
 </body>
 </html>

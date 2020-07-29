@@ -35,40 +35,18 @@ dwv.decoder.RleDecoder.prototype.decode = function ( buffer,
 
     // first value of the RLE header is the number of segments
     var numberOfSegments = inputDataView.getInt32(0, true);
-
-    // index increment in output array
-    var outputIndexIncrement = 1;
-    var incrementFactor = 1;
-    if (samplesPerPixel !== 1 && planarConfiguration === 0) {
-        incrementFactor *= samplesPerPixel;
-    }
-    if (bpe !== 1 ) {
-        incrementFactor *= bpe;
-    }
-    outputIndexIncrement *= incrementFactor;
-
     // loop on segments
     var outputIndex = 0;
+    var outputIndexIncrement = 1;
+    if (planarConfiguration === 0) {
+        outputIndexIncrement = samplesPerPixel;
+    }
     var inputIndex = 0;
-    var remainder = 0;
-    var maxOutputIndex = 0;
-    var groupOutputIndex = 0;
     for (var segment = 0; segment < numberOfSegments; ++segment) {
-        // handle special cases:
-        // - more than one sample per pixel: one segment per channel
-        // - 16bits: sort high and low bytes
-        if (incrementFactor !== 1) {
-            remainder = segment % incrementFactor;
-            if (remainder === 0) {
-                groupOutputIndex = maxOutputIndex;
-            }
-            outputIndex = groupOutputIndex + remainder;
-            // 16bits data
-            if (bpe === 2) {
-                outputIndex += (remainder % bpe ? -1 : 1);
-            }
+        // one segment per channel, interlace them if needed
+        if (samplesPerPixel !== 1 && planarConfiguration === 0) {
+            outputIndex = segment;
         }
-
         // RLE header: list of segment sizes
         var segmentStartIndex = inputDataView.getInt32((segment + 1) * 4, true);
         var nextSegmentStartIndex = inputDataView.getInt32((segment + 2) * 4, true);
@@ -87,7 +65,7 @@ dwv.decoder.RleDecoder.prototype.decode = function ( buffer,
                 // output the next count+1 bytes literally
                 for (var i = 0; i < count + 1; ++i) {
                     // store
-                    outputArray[outputIndex] = inputArray[inputIndex];
+                    outputArray[outputIndex * bpe] = inputArray[inputIndex];
                     // increment indexes
                     ++inputIndex;
                     outputIndex += outputIndexIncrement;
@@ -98,15 +76,11 @@ dwv.decoder.RleDecoder.prototype.decode = function ( buffer,
                 ++inputIndex;
                 for (var j = 0; j < -count + 1; ++j) {
                     // store
-                    outputArray[outputIndex] = value;
+                    outputArray[outputIndex * bpe] = value;
                     // increment index
                     outputIndex += outputIndexIncrement;
                 }
             }
-        }
-
-        if (outputIndex > maxOutputIndex) {
-            maxOutputIndex = outputIndex;
         }
     }
 

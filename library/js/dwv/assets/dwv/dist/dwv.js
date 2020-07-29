@@ -1,4 +1,4 @@
-/*! dwv 0.27.0 2020-03-11 00:16:31 */
+/*! dwv 0.26.0 2019-05-09 23:26:15 */
 // Inspired from umdjs
 // See https://github.com/umdjs/umd/blob/master/templates/returnExports.js
 (function (root, factory) {
@@ -79,6 +79,11 @@ dwv.App = function ()
     var dataWidth = 0;
     // Image data height
     var dataHeight = 0;
+    // Is the data mono-slice?
+    var isMonoSliceData = 0;
+
+    // Default character set
+    var defaultCharacterSet;
 
     // Container div id
     var containerDivId = null;
@@ -96,8 +101,15 @@ dwv.App = function ()
     // View controller
     var viewController = null;
 
-    // meta data
-    var metaData = null;
+    // Info layer controller
+    var infoController = null;
+
+    // Dicom tags gui
+    var tags = null;
+    var tagsGui = null;
+
+    // Drawing list gui
+    var drawListGui = null;
 
     // Image layer
     var imageLayer = null;
@@ -111,16 +123,19 @@ dwv.App = function ()
     // Toolbox controller
     var toolboxController = null;
 
-    // load controller
-    var loadController = null;
-    // first loaded item flag
-    var firstLoadedItem = true;
+    // Loadbox
+    var loadbox = null;
+    // Current loader
+    var currentLoader = null;
 
     // UndoStack
     var undoStack = null;
 
     // listeners
     var listeners = {};
+
+    // help resources path
+    var helpResourcesPath = "./";
 
     /**
      * Get the image.
@@ -151,34 +166,9 @@ dwv.App = function ()
     this.getImageData = function () { return imageData; };
     /**
      * Is the data mono-slice?
-     * @return {Boolean} True if the data only contains one slice.
+     * @return {Boolean} True if the data is mono-slice.
      */
-    this.isMonoSliceData = function () {
-         return loadController.isMonoSliceData();
-    };
-    /**
-     * Is the data mono-frame?
-     * @return {Boolean} True if the data only contains one frame.
-     */
-    this.isMonoFrameData = function () {
-        return (this.getImage() && typeof this.getImage() !== "undefined" &&
-            this.getImage().getNumberOfFrames() === 1);
-    };
-    /**
-     * Can the data be scrolled?
-     * @return {Boolean} True if the data has more than one slice or frame.
-     */
-    this.canScroll = function () {
-        return !this.isMonoSliceData() || !this.isMonoFrameData();
-    };
-
-    /**
-     * Can window and level be applied to the data?
-     * @return {Boolean} True if the data is monochrome.
-     */
-    this.canWindowLevel = function () {
-        return this.getImage().getPhotometricInterpretation().match(/MONOCHROME/) !== null;
-    };
+    this.isMonoSliceData = function () { return isMonoSliceData; };
 
     /**
      * Get the main scale.
@@ -211,12 +201,6 @@ dwv.App = function ()
     this.getViewController = function () { return viewController; };
 
     /**
-     * Get the toolbox controller.
-     * @return {Object} The controller.
-     */
-    this.getToolboxController = function () { return toolboxController; };
-
-    /**
      * Get the draw controller.
      * @return {Object} The controller.
      */
@@ -243,9 +227,16 @@ dwv.App = function ()
     this.getStyle = function () { return style; };
 
     /**
+     * Get the help resources path.
+     * @return {String} The path.
+     */
+    this.getHelpResourcesPath = function () {
+        return helpResourcesPath;
+    };
+
+    /**
      * Add a command to the undo stack.
-     * @param {Object} cmd The command to add.
-     * @fires dwv.tool.UndoStack#undo-add
+     * @param {Object} The command to add.
      */
     this.addToUndoStack = function (cmd) {
         if ( undoStack !== null ) {
@@ -254,103 +245,198 @@ dwv.App = function ()
     };
 
     /**
-     * Initialise the application.
+     * Initialise the HTML for the application.
      */
     this.init = function ( config ) {
         containerDivId = config.containerDivId;
-        // undo stack
-        undoStack = new dwv.tool.UndoStack();
-        undoStack.addEventListener("undo-add", fireEvent);
-        undoStack.addEventListener("undo", fireEvent);
-        undoStack.addEventListener("redo", fireEvent);
         // tools
         if ( config.tools && config.tools.length !== 0 ) {
             // setup the tool list
             var toolList = {};
-            var keys = Object.keys(config.tools);
-            for ( var t = 0; t < keys.length; ++t ) {
-                var toolName = keys[t];
-                var toolParams = config.tools[toolName];
-                // find the tool in the dwv.tool namespace
-                if (typeof dwv.tool[toolName] !== "undefined") {
-                    // create tool instance
-                    toolList[toolName] = new dwv.tool[toolName](this);
-                    // register listeners
-                    if (typeof toolList[toolName].addEventListener !== "undefined") {
-                        if (typeof toolParams.events !== "undefined") {
-                            for (var j = 0; j < toolParams.events.length; ++j) {
-                                var eventName = toolParams.events[j];
-                                toolList[toolName].addEventListener(eventName, fireEvent);
+            for ( var t = 0; t < config.tools.length; ++t ) {
+                var toolName = config.tools[t];
+                if ( toolName === "Draw" ) {
+                    if ( typeof config.shapes !== "undefined" && config.shapes.length !== 0 ) {
+                        // setup the shape list
+                        var shapeList = {};
+                        for ( var s = 0; s < config.shapes.length; ++s ) {
+                            var shapeName = config.shapes[s];
+                            var shapeFactoryClass = shapeName+"Factory";
+                            if (typeof dwv.tool[shapeFactoryClass] !== "undefined") {
+                                shapeList[shapeName] = dwv.tool[shapeFactoryClass];
+                            }
+                            else {
+                                console.warn("Could not initialise unknown shape: "+shapeName);
                             }
                         }
+                        toolList.Draw = new dwv.tool.Draw(this, shapeList);
+                        toolList.Draw.addEventListener("draw-create", fireEvent);
+                        toolList.Draw.addEventListener("draw-change", fireEvent);
+                        toolList.Draw.addEventListener("draw-move", fireEvent);
+                        toolList.Draw.addEventListener("draw-delete", fireEvent);
+                    } else {
+                        console.warn("Please provide a list of shapes in the application configuration to activate the Draw tool.");
                     }
-                    // tool options
-                    if (typeof toolParams.options !== "undefined") {
-                        var type = "raw";
-                        if (typeof toolParams.type !== "undefined") {
-                            type = toolParams.type;
-                        }
-                        var options = toolParams.options;
-                        if (type === "instance" ||
-                            type === "factory") {
-                            options = {};
-                            for (var i = 0; i < toolParams.options.length; ++i) {
-                                var optionName = toolParams.options[i];
-                                var optionClassName = optionName;
-                                if (type === "factory") {
-                                    optionClassName += "Factory";
-                                }
-                                var toolNamespace = toolName.charAt(0).toLowerCase() + toolName.slice(1);
-                                if (typeof dwv.tool[toolNamespace][optionClassName] !== "undefined") {
-                                    options[optionName] = dwv.tool[toolNamespace][optionClassName];
-                                } else {
-                                    console.warn("Could not find option class for: " + optionName);
-                                }
+                }
+                else if ( toolName === "Filter" ) {
+                    if ( typeof config.filters !== "undefined" && config.filters.length !== 0 ) {
+                        // setup the filter list
+                        var filterList = {};
+                        for ( var f = 0; f < config.filters.length; ++f ) {
+                            var filterName = config.filters[f];
+                            if (typeof dwv.tool.filter[filterName] !== "undefined") {
+                                filterList[filterName] = new dwv.tool.filter[filterName](this);
+                            }
+                            else {
+                                console.warn("Could not initialise unknown filter: "+filterName);
                             }
                         }
-                        toolList[toolName].setOptions(options);
+                        toolList.Filter = new dwv.tool.Filter(filterList, this);
+                        toolList.Filter.addEventListener("filter-run", fireEvent);
+                        toolList.Filter.addEventListener("filter-undo", fireEvent);
+                    } else {
+                        console.warn("Please provide a list of filters in the application configuration to activate the Filter tool.");
                     }
-                } else {
-                    console.warn("Could not initialise unknown tool: " + toolName);
+                }
+                else {
+                    // default: find the tool in the dwv.tool namespace
+                    var toolClass = toolName;
+                    if (typeof dwv.tool[toolClass] !== "undefined") {
+                        toolList[toolClass] = new dwv.tool[toolClass](this);
+                        if (typeof toolList[toolClass].addEventListener !== "undefined") {
+                            toolList[toolClass].addEventListener(fireEvent);
+                        }
+                    }
+                    else {
+                        console.warn("Could not initialise unknown tool: "+toolName);
+                    }
                 }
             }
-            // add tools to the controller
-            toolboxController = new dwv.ToolboxController(toolList);
+            toolboxController = new dwv.ToolboxController();
+            toolboxController.create(toolList, this);
+        }
+        // gui
+        if ( config.gui ) {
+            // tools
+            if ( config.gui.indexOf("tool") !== -1 && toolboxController) {
+                toolboxController.setup();
+            }
+            // load
+            if ( config.gui.indexOf("load") !== -1 ) {
+                var loaderList = {};
+                for ( var l = 0; l < config.loaders.length; ++l ) {
+                    var loaderName = config.loaders[l];
+                    var loaderClass = loaderName + "Load";
+                    // default: find the loader in the dwv.gui namespace
+                    if (typeof dwv.gui[loaderClass] !== "undefined") {
+                        loaderList[loaderName] = new dwv.gui[loaderClass](this);
+                    }
+                    else {
+                        console.warn("Could not initialise unknown loader: "+loaderName);
+                    }
+                }
+                loadbox = new dwv.gui.Loadbox(this, loaderList);
+                loadbox.setup();
+                var loaderKeys = Object.keys(loaderList);
+                for ( var lk = 0; lk < loaderKeys.length; ++lk ) {
+                    loaderList[loaderKeys[lk]].setup();
+                }
+                loadbox.displayLoader(loaderKeys[0]);
+            }
+            // undo
+            if ( config.gui.indexOf("undo") !== -1 ) {
+                undoStack = new dwv.tool.UndoStack(this);
+                undoStack.setup();
+            }
+            // DICOM Tags
+            if ( config.gui.indexOf("tags") !== -1 ) {
+                tagsGui = new dwv.gui.DicomTags(this);
+            }
+            // Draw list
+            if ( config.gui.indexOf("drawList") !== -1 ) {
+                drawListGui = new dwv.gui.DrawList(this);
+                // update list on draw events
+                this.addEventListener("draw-create", drawListGui.update);
+                this.addEventListener("draw-change", drawListGui.update);
+                this.addEventListener("draw-delete", drawListGui.update);
+            }
+            // version number
+            if ( config.gui.indexOf("version") !== -1 ) {
+                dwv.gui.appendVersionHtml(dwv.getVersion());
+            }
+            // help
+            if ( config.gui.indexOf("help") !== -1 ) {
+                var isMobile = true;
+                if ( config.isMobile !== "undefined" ) {
+                    isMobile = config.isMobile;
+                }
+                // help resources path
+                if ( typeof config.helpResourcesPath !== "undefined" ) {
+                    helpResourcesPath = config.helpResourcesPath;
+                }
+                dwv.gui.appendHelpHtml( toolboxController.getToolList(), isMobile, this );
+            }
         }
 
-        // create load controller
-        loadController = new dwv.LoadController(config.defaultCharacterSet);
-        loadController.onloadstart = onloadstart;
-        loadController.onprogress = onprogress;
-        loadController.onloaditem = onloaditem;
-        loadController.onload = onload;
-        loadController.onloadend = onloadend;
-        loadController.onerror = onerror;
-        loadController.onabort = onabort;
+        // listen to drag&drop
+        var box = this.getElement("dropBox");
+        if ( box ) {
+            box.addEventListener("dragover", onDragOver);
+            box.addEventListener("dragleave", onDragLeave);
+            box.addEventListener("drop", onDrop);
+            // initial size
+            var size = this.getLayerContainerSize();
+            var dropBoxSize = 2 * size.height / 3;
+            box.setAttribute("style","width:"+dropBoxSize+"px;height:"+dropBoxSize+"px");
+        }
+
+        // possible load from URL
+        if ( typeof config.skipLoadUrl === "undefined" ) {
+            var query = dwv.utils.getUriQuery(window.location.href);
+            // check query
+            if ( query && typeof query.input !== "undefined" ) {
+                dwv.utils.decodeQuery(query, this.onInputURLs);
+                // optional display state
+                if ( typeof query.state !== "undefined" ) {
+                    var onLoadEnd = function (/*event*/) {
+                        loadStateUrl(query.state);
+                    };
+                    this.addEventListener( "load-end", onLoadEnd );
+                }
+            }
+        }
+        else{
+            console.log("Not loading url from address since skipLoadUrl is defined.");
+        }
+
+        // listen to window resize
+        window.onresize = this.onResize;
+
+        // default character set
+        if ( typeof config.defaultCharacterSet !== "undefined" ) {
+            defaultCharacterSet = config.defaultCharacterSet;
+        }
     };
 
     /**
-     * Get the size available for the layer container div.
-     * @return {Object} The available width and height: {width:X; height:Y}.
+     * Get the size of the layer container div.
+     * @return {width, height} The width and height of the div.
      */
     this.getLayerContainerSize = function () {
       var ldiv = self.getElement("layerContainer");
-      var parent = ldiv.parentNode;
-      // offsetHeight: height of an element, including vertical padding and borders
-      // ref: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetHeight
-      var height = parent.offsetHeight;
+      var div = ldiv.parentNode;
       // remove the height of other elements of the container div
-      var kids = parent.children;
+      var height = div.offsetHeight;
+      var kids = div.children;
       for (var i = 0; i < kids.length; ++i) {
         if (kids[i].className !== "layerContainer") {
           var styles = window.getComputedStyle(kids[i]);
-          // offsetHeight does not include margin
           var margin = parseFloat(styles.getPropertyValue('margin-top'), 10) +
                parseFloat(styles.getPropertyValue('margin-bottom'), 10);
           height -= (kids[i].offsetHeight + margin);
         }
       }
-      return {'width': parent.offsetWidth, 'height': height};
+      return { 'width': div.offsetWidth, 'height': height };
     };
 
     /**
@@ -368,6 +454,10 @@ dwv.App = function ()
      */
     this.reset = function ()
     {
+        // clear tools
+        if ( toolboxController ) {
+            toolboxController.reset();
+        }
         // clear draw
         if ( drawController ) {
             drawController.reset();
@@ -375,21 +465,16 @@ dwv.App = function ()
         // clear objects
         image = null;
         view = null;
-        metaData = null;
-        firstLoadedItem = true;
+        isMonoSliceData = false;
         // reset undo/redo
         if ( undoStack ) {
-            undoStack = new dwv.tool.UndoStack();
-            undoStack.addEventListener("undo-add", fireEvent);
-            undoStack.addEventListener("undo", fireEvent);
-            undoStack.addEventListener("redo", fireEvent);
+            undoStack = new dwv.tool.UndoStack(this);
+            undoStack.initialise();
         }
     };
 
     /**
      * Reset the layout of the application.
-     * @fires dwv.App#zoom-change
-     * @fires dwv.App#offset-change
      */
     this.resetLayout = function () {
         var previousScale = scale;
@@ -409,21 +494,11 @@ dwv.App = function ()
         }
         // fire events
         if (previousScale != scale) {
-            fireEvent({
-                "type": "zoom-change",
-                "scale": scale,
-                "cx": scaleCenter.x,
-                "cy": scaleCenter.y
-            });
+            fireEvent({"type": "zoom-change", "scale": scale, "cx": scaleCenter.x, "cy": scaleCenter.y });
         }
         if ( (previousSC.x !== scaleCenter.x || previousSC.y !== scaleCenter.y) ||
              (previousTrans.x !== translation.x || previousTrans.y !== translation.y)) {
-            fireEvent({
-                "type": "offset-change",
-                "scale": scale,
-                "cx": scaleCenter.x,
-                "cy": scaleCenter.y
-            });
+            fireEvent({"type": "offset-change", "scale": scale, "cx": scaleCenter.x, "cy": scaleCenter.y });
         }
     };
 
@@ -458,66 +533,209 @@ dwv.App = function ()
         }
     };
 
-    // load API [begin] -------------------------------------------------------
-
     /**
      * Load a list of files. Can be image files or a state file.
      * @param {Array} files The list of files to load.
-     * @fires dwv.App#load-start
-     * @fires dwv.App#load-progress
-     * @fires dwv.App#load-item
-     * @fires dwv.App#load-end
-     * @fires dwv.App#load-error
-     * @fires dwv.App#load-abort
      */
-    this.loadFiles = function (files) {
-        loadController.loadFiles(files);
+    this.loadFiles = function (files)
+    {
+        // has been checked for emptiness.
+        var ext = files[0].name.split('.').pop().toLowerCase();
+        if ( ext === "json" ) {
+            loadStateFile(files[0]);
+        }
+        else {
+            loadImageFiles(files);
+        }
     };
+
+    /**
+     * Load a list of image files.
+     * @private
+     * @param {Array} files The list of image files to load.
+     */
+    function loadImageFiles(files)
+    {
+        // create IO
+        var fileIO = new dwv.io.FilesLoader();
+        // load data
+        loadImageData(files, fileIO);
+    }
+
+    /**
+     * Load a State file.
+     * @private
+     * @param {String} file The state file to load.
+     */
+    function loadStateFile(file)
+    {
+        // create IO
+        var fileIO = new dwv.io.FilesLoader();
+        // load data
+        loadStateData([file], fileIO);
+    }
 
     /**
      * Load a list of URLs. Can be image files or a state file.
      * @param {Array} urls The list of urls to load.
      * @param {Array} requestHeaders An array of {name, value} to use as request headers.
-     * @param {boolean} withCredentials Credentials flag to pass to the request.
-     * @fires dwv.App#load-start
-     * @fires dwv.App#load-progress
-     * @fires dwv.App#load-item
-     * @fires dwv.App#load-end
-     * @fires dwv.App#load-error
-     * @fires dwv.App#load-abort
      */
-    this.loadURLs = function (urls, requestHeaders, withCredentials) {
-        // load options
-        var options = {
-          'requestHeaders': requestHeaders,
-          'withCredentials': withCredentials
-        };
-        loadController.loadURLs(urls, options);
+    this.loadURLs = function (urls, requestHeaders)
+    {
+        // has been checked for emptiness.
+        var ext = urls[0].split('.').pop().toLowerCase();
+        if ( ext === "json" ) {
+            loadStateUrl(urls[0], requestHeaders);
+        }
+        else {
+            loadImageUrls(urls, requestHeaders);
+        }
+    };
+
+    /**
+     * Abort the current load.
+     */
+    this.abortLoad = function ()
+    {
+        if ( currentLoader ) {
+            currentLoader.abort();
+            currentLoader = null;
+        }
     };
 
     /**
      * Load a list of ArrayBuffers.
      * @param {Array} data The list of ArrayBuffers to load
      *   in the form of [{name: "", filename: "", data: data}].
-     * @fires dwv.App#load-start
-     * @fires dwv.App#load-progress
-     * @fires dwv.App#load-item
-     * @fires dwv.App#load-end
-     * @fires dwv.App#load-error
-     * @fires dwv.App#load-abort
      */
-    this.loadImageObject = function (data) {
-        loadController.loadImageObject(data);
+    this.loadImageObject = function (data)
+    {
+        // create IO
+        var memoryIO = new dwv.io.MemoryLoader();
+        // create options
+        var options = {};
+        // load data
+        loadImageData(data, memoryIO, options);
     };
 
     /**
-     * Abort the current load.
+     * Load a list of image URLs.
+     * @private
+     * @param {Array} urls The list of urls to load.
+     * @param {Array} requestHeaders An array of {name, value} to use as request headers.
      */
-    this.abortLoad = function () {
-        loadController.abort();
-    };
+    function loadImageUrls(urls, requestHeaders)
+    {
+        // create IO
+        var urlIO = new dwv.io.UrlsLoader();
+        // create options
+        var options = {'requestHeaders': requestHeaders};
+        // load data
+        loadImageData(urls, urlIO, options);
+    }
 
-    // load API [end] ---------------------------------------------------------
+    /**
+     * Load a State url.
+     * @private
+     * @param {String} url The state url to load.
+     * @param {Array} requestHeaders An array of {name, value} to use as request headers.
+     */
+    function loadStateUrl(url, requestHeaders)
+    {
+        // create IO
+        var urlIO = new dwv.io.UrlsLoader();
+        // create options
+        var options = {'requestHeaders': requestHeaders};
+        // load data
+        loadStateData([url], urlIO, options);
+    }
+
+    /**
+     * Load a list of image data.
+     * @private
+     * @param {Array} data Array of data to load.
+     * @param {Object} loader The data loader.
+     * @param {Object} options Options passed to the final loader.
+     */
+    function loadImageData(data, loader, options)
+    {
+        // store loader
+        currentLoader = loader;
+
+        // allow to cancel
+        var previousOnKeyDown = window.onkeydown;
+        window.onkeydown = function (event) {
+            if (event.ctrlKey && event.keyCode === 88 ) // crtl-x
+            {
+                console.log("crtl-x pressed!");
+                self.abortLoad();
+            }
+        };
+
+        // clear variables
+        self.reset();
+        // first data name
+        var firstName = "";
+        if (typeof data[0].name !== "undefined") {
+            firstName = data[0].name;
+        } else {
+            firstName = data[0];
+        }
+        // flag used by scroll to decide wether to activate or not
+        // TODO: supposing multi-slice for zip files, could not be...
+        isMonoSliceData = (data.length === 1 &&
+            firstName.split('.').pop().toLowerCase() !== "zip" &&
+            !dwv.utils.endsWith(firstName, "DICOMDIR") &&
+            !dwv.utils.endsWith(firstName, ".dcmdir") );
+        // set IO
+        loader.setDefaultCharacterSet(defaultCharacterSet);
+        loader.onload = function (data) {
+            if ( image ) {
+                view.append( data.view );
+                if ( drawController ) {
+                    //drawController.appendDrawLayer(image.getNumberOfFrames());
+                }
+            }
+            postLoadInit(data);
+        };
+        loader.onerror = function (error) { handleError(error); };
+        loader.onabort = function (error) { handleAbort(error); };
+        loader.onloadend = function (/*event*/) {
+            window.onkeydown = previousOnKeyDown;
+            if ( drawController ) {
+                drawController.activateDrawLayer(viewController);
+            }
+            fireEvent({type: "load-progress", lengthComputable: true,
+                loaded: 100, total: 100});
+            fireEvent({ 'type': 'load-end' });
+            // reset member
+            currentLoader = null;
+        };
+        loader.onprogress = onLoadProgress;
+        // main load (asynchronous)
+        fireEvent({ 'type': 'load-start' });
+        loader.load(data, options);
+    }
+
+    /**
+     * Load a State data.
+     * @private
+     * @param {Array} data Array of data to load.
+     * @param {Object} loader The data loader.
+     * @param {Object} options Options passed to the final loader.
+     */
+    function loadStateData(data, loader, options)
+    {
+        // set IO
+        loader.onload = function (data) {
+            // load state
+            var state = new dwv.State();
+            state.apply( self, state.fromJSON(data) );
+        };
+        loader.onerror = function (error) { handleError(error); };
+        // main load (asynchronous)
+        loader.load(data, options);
+    }
 
     /**
      * Fit the display to the given size. To be called once the image is loaded.
@@ -552,6 +770,18 @@ dwv.App = function ()
         if ( drawController ) {
             drawController.resizeStage(newWidth, newHeight, scale);
         }
+    };
+
+    /**
+     * Toggle the display of the information layer.
+     */
+    this.toggleInfoLayerDisplay = function ()
+    {
+        // toggle html
+        var infoLayer = self.getElement("infoLayer");
+        dwv.html.toggleDisplay(infoLayer);
+        // toggle listeners
+        infoController.toggleListeners(self, view);
     };
 
     /**
@@ -657,12 +887,12 @@ dwv.App = function ()
     };
 
     /**
-     * Get the meta data.
-     * @return {Object} The list of meta data.
+     * Get the data tags.
+     * @return {Object} The list of DICOM tags.
      */
-    this.getMetaData = function ()
+    this.getTags = function ()
     {
-        return metaData;
+        return tags;
     };
 
     /**
@@ -714,223 +944,300 @@ dwv.App = function ()
         drawController.toogleGroupVisibility(drawDetails);
     };
 
-    /**
-     * Get the JSON state of the app.
-     * @return {Object} The state of the app as a JSON object.
-     */
-    this.getState = function ()
-    {
-        var state = new dwv.State();
-        return state.toJSON(self);
-    };
-
     // Handler Methods -----------------------------------------------------------
 
     /**
      * Handle window/level change.
      * @param {Object} event The event fired when changing the window/level.
-     * @private
      */
-    function onWLChange(event)
+    this.onWLChange = function (event)
     {
         // generate and draw if no skip flag
         if (typeof event.skipGenerate === "undefined" ||
             event.skipGenerate === false) {
             generateAndDrawImage();
         }
-    }
+    };
 
     /**
      * Handle colour map change.
      * @param {Object} event The event fired when changing the colour map.
-     * @private
      */
-    function onColourChange(/*event*/)
+    this.onColourChange = function (/*event*/)
     {
         generateAndDrawImage();
-    }
+    };
 
     /**
      * Handle frame change.
      * @param {Object} event The event fired when changing the frame.
-     * @private
      */
-    function onFrameChange(/*event*/)
+    this.onFrameChange = function (/*event*/)
     {
         generateAndDrawImage();
         if ( drawController ) {
             drawController.activateDrawLayer(viewController);
         }
-    }
+    };
 
     /**
      * Handle slice change.
      * @param {Object} event The event fired when changing the slice.
-     * @private
      */
-    function onSliceChange(/*event*/)
+    this.onSliceChange = function (/*event*/)
     {
         generateAndDrawImage();
         if ( drawController ) {
             drawController.activateDrawLayer(viewController);
         }
-    }
-
-    /**
-     * Handle resize: fit the display to the window.
-     * To be called once the image is loaded.
-     * Can be connected to a window 'resize' event.
-     * @param {Object} event The change event.
-     * @private
-     */
-    this.onResize = function (/*event*/) {
-        self.fitToSize(self.getLayerContainerSize());
     };
 
     /**
-     * Key down callback. Meant to be used in tools.
-     * @param {Object} event The key down event.
-     * @fires dwv.App#keydown
-     */
-    this.onKeydown = function (event) {
-        /**
-         * Key down event.
-         * @event dwv.App#keydown
-         * @type {KeyboardEvent}
-         * @property {string} type The event type: keydown.
-         * @property {string} context The tool where the event originated.
-         */
-        fireEvent(event);
-    };
-
-    /**
-     * Key down event handler example.
+     * Handle key down event.
      * - CRTL-Z: undo
      * - CRTL-Y: redo
      * - CRTL-ARROW_LEFT: next frame
      * - CRTL-ARROW_UP: next slice
      * - CRTL-ARROW_RIGHT: previous frame
      * - CRTL-ARROW_DOWN: previous slice
+     * Default behavior. Usually used in tools.
      * @param {Object} event The key down event.
-     * @fires dwv.tool.UndoStack#undo
-     * @fires dwv.tool.UndoStack#redo
      */
-    this.defaultOnKeydown = function (event) {
+    this.onKeydown = function (event)
+    {
         if (event.ctrlKey) {
-            if ( event.keyCode === 37 ) { // crtl-arrow-left
+            if ( event.keyCode === 37 ) // crtl-arrow-left
+            {
                 event.preventDefault();
                 self.getViewController().decrementFrameNb();
-            } else if ( event.keyCode === 38 ) { // crtl-arrow-up
+            }
+            else if ( event.keyCode === 38 ) // crtl-arrow-up
+            {
                 event.preventDefault();
                 self.getViewController().incrementSliceNb();
-            } else if ( event.keyCode === 39 ) { // crtl-arrow-right
+            }
+            else if ( event.keyCode === 39 ) // crtl-arrow-right
+            {
                 event.preventDefault();
                 self.getViewController().incrementFrameNb();
-            } else if ( event.keyCode === 40 ) { // crtl-arrow-down
+            }
+            else if ( event.keyCode === 40 ) // crtl-arrow-down
+            {
                 event.preventDefault();
                 self.getViewController().decrementSliceNb();
-            } else if ( event.keyCode === 89 ) { // crtl-y
+            }
+            else if ( event.keyCode === 89 ) // crtl-y
+            {
                 undoStack.redo();
-            } else if ( event.keyCode === 90 ) { // crtl-z
+            }
+            else if ( event.keyCode === 90 ) // crtl-z
+            {
                 undoStack.undo();
             }
         }
     };
 
-    // Internal mebers shortcuts-----------------------------------------------
+    /**
+     * Handle resize.
+     * Fit the display to the window. To be called once the image is loaded.
+     * @param {Object} event The change event.
+     */
+    this.onResize = function (/*event*/)
+    {
+        self.fitToSize(self.getLayerContainerSize());
+    };
 
     /**
-     * Reset the display
+     * Handle zoom reset.
+     * @param {Object} event The change event.
      */
-    this.resetDisplay = function () {
+    this.onZoomReset = function (/*event*/)
+    {
         self.resetLayout();
-        self.initWLDisplay();
     };
 
     /**
-     * Reset the app zoom.s
+     * Handle loader change. Will activate the loader using
+     * the value property of the 'event.currentTarget'.
+     * @param {Object} event The change event.
      */
-    this.resetZoom = function () {
-        self.resetLayout();
+    this.onChangeLoader = function (event)
+    {
+        loadbox.displayLoader( event.currentTarget.value );
     };
 
     /**
-     * Set the colour map.
-     * @param {String} colourMap The colour map name.
+     * Reset the load box to its original state.
      */
-    this.setColourMap = function (colourMap) {
-        viewController.setColourMapFromName(colourMap);
+    this.resetLoadbox = function ()
+    {
+        loadbox.reset();
     };
 
     /**
-     * Set the window/level preset.
-     * @param {String} event The window/level preset.
+     * Handle change url event.
+     * @param {Object} event The event fired when changing the url field.
      */
-    this.setWindowLevelPreset = function (preset) {
-        viewController.setWindowLevelPreset(preset);
+    this.onChangeURL = function (event)
+    {
+        self.loadURLs([event.target.value]);
     };
 
     /**
-     * Set the tool
-     * @param {String} tool The tool.
+     * Handle input urls.
+     * @param {Array} urls The list of input urls.
+     * @param {Array} requestHeaders An array of {name, value} to use as request headers.
      */
-    this.setTool = function (tool) {
-        toolboxController.setSelectedTool(tool);
+    this.onInputURLs = function (urls, requestHeaders)
+    {
+        self.loadURLs(urls, requestHeaders);
     };
 
     /**
-     * Set the draw shape.
-     * @param {String} shape The draw shape.
+     * Handle change files event.
+     * @param {Object} event The event fired when changing the file field.
      */
-    this.setDrawShape = function (shape) {
-        toolboxController.setSelectedShape(shape);
+    this.onChangeFiles = function (event)
+    {
+        var files = event.target.files;
+        if ( files.length !== 0 ) {
+            self.loadFiles(files);
+        }
     };
 
     /**
-     * Set the image filter
-     * @param {String} filter The image filter.
+     * Handle state save event.
+     * @param {Object} event The event fired when changing the state save field.
      */
-    this.setImageFilter = function (filter) {
-        toolboxController.setSelectedFilter(filter);
+    this.onStateSave = function (/*event*/)
+    {
+        var state = new dwv.State();
+        // add href to link (html5)
+        var element = self.getElement("download-state");
+        var blob = new Blob([state.toJSON(self)], {type: 'application/json'});
+        element.href = window.URL.createObjectURL(blob);
     };
 
     /**
-     * Run the selected image filter.
+     * Handle colour map change. Will activate the tool using
+     * the value property of the 'event.currentTarget'.
+     * @param {Object} event The change event.
      */
-    this.runImageFilter = function () {
+    this.onChangeColourMap = function (event)
+    {
+        viewController.setColourMapFromName( event.currentTarget.value );
+    };
+
+    /**
+     * Handle window/level preset change. Will activate the preset using
+     * the value property of the 'event.currentTarget'.
+     * @param {Object} event The change event.
+     */
+    this.onChangeWindowLevelPreset = function (event)
+    {
+        viewController.setWindowLevelPreset( event.currentTarget.value );
+    };
+
+    /**
+     * Handle tool change. Will activate the tool using
+     * the value property of the 'event.currentTarget'.
+     * @param {Object} event The change event.
+     */
+    this.onChangeTool = function (event)
+    {
+        toolboxController.setSelectedTool( event.currentTarget.value );
+    };
+
+    /**
+     * Handle shape change. Will activate the shape using
+     * the value property of the 'event.currentTarget'.
+     * @param {Object} event The change event.
+     */
+    this.onChangeShape = function (event)
+    {
+        toolboxController.setSelectedShape( event.currentTarget.value );
+    };
+
+    /**
+     * Handle filter change. Will activate the filter using
+     * the value property of the 'event.currentTarget'.
+     * @param {Object} event The change event.
+     */
+    this.onChangeFilter = function (event)
+    {
+        toolboxController.setSelectedFilter( event.currentTarget.value );
+    };
+
+    /**
+     * Handle filter run.
+     * @param {Object} event The run event.
+     */
+    this.onRunFilter = function (/*event*/)
+    {
         toolboxController.runSelectedFilter();
     };
 
     /**
-     * Set the draw line colour.
-     * @param {String} colour The line colour.
+     * Handle line colour change. Will activate the colour using
+     * the value property of the 'event.currentTarget'.
+     * @param {Object} event The change event.
      */
-    this.setDrawLineColour = function (colour) {
-        toolboxController.setLineColour(colour);
+    this.onChangeLineColour = function (event)
+    {
+        // called from an HTML select, use its value
+        toolboxController.setLineColour( event.currentTarget.value );
     };
 
     /**
-     * Set the filter min/max.
-     * @param {Object} range The new range of the data: {min:a, max:b}.
+     * Handle min/max slider change.
+     * @param {Object} range The new range of the data.
      */
-    this.setFilterMinMax = function (range) {
+    this.onChangeMinMax = function (range)
+    {
         toolboxController.setRange(range);
     };
 
     /**
-     * Undo the last action
-     * @fires dwv.tool.UndoStack#undo
+     * Handle undo.
+     * @param {Object} event The associated event.
      */
-    this.undo = function () {
+    this.onUndo = function (/*event*/)
+    {
         undoStack.undo();
     };
 
     /**
-     * Redo the last action
-     * @fires dwv.tool.UndoStack#redo
+     * Handle redo.
+     * @param {Object} event The associated event.
      */
-    this.redo = function () {
+    this.onRedo = function (/*event*/)
+    {
         undoStack.redo();
+    };
+
+    /**
+     * Handle toggle of info layer.
+     * @param {Object} event The associated event.
+     */
+    this.onToggleInfoLayer = function (/*event*/)
+    {
+        self.toggleInfoLayerDisplay();
+    };
+
+    /**
+     * Handle display reset.
+     * @param {Object} event The change event.
+     */
+    this.onDisplayReset = function (/*event*/)
+    {
+        self.resetLayout();
+        self.initWLDisplay();
+        // update preset select
+        var select = self.getElement("presetSelect");
+        if (select) {
+            select.selectedIndex = 0;
+            dwv.gui.refreshElement(select);
+        }
     };
 
 
@@ -939,7 +1246,6 @@ dwv.App = function ()
     /**
      * Fire an event: call all associated listeners.
      * @param {Object} event The event to fire.
-     * @private
      */
     function fireEvent (event)
     {
@@ -954,7 +1260,6 @@ dwv.App = function ()
 
     /**
      * Generate the image data and draw it.
-     * @private
      */
     function generateAndDrawImage()
     {
@@ -967,20 +1272,7 @@ dwv.App = function ()
     }
 
     /**
-     * First generate the image data and draw it.
-     * @private
-     */
-    function firstGenerateAndDrawImage() {
-        // init W/L display
-        self.initWLDisplay();
-        // generate first image
-        generateAndDrawImage();
-    }
-
-    /**
      * Apply the stored zoom to the layers.
-     * @private
-     * @fires dwv.App#zoom-change
      */
     function zoomLayers()
     {
@@ -994,26 +1286,11 @@ dwv.App = function ()
             drawController.zoomStage(scale, scaleCenter);
         }
         // fire event
-        /**
-         * Zoom change event.
-         * @event dwv.App#zoom-change
-         * @type {Object}
-         * @property {number} scale The new scale value.
-         * @property {number} cx The new rotaion center X position.
-         * @property {number} cx The new rotaion center Y position.
-         */
-        fireEvent({
-            "type": "zoom-change",
-            "scale": scale,
-            "cx": scaleCenter.x,
-            "cy": scaleCenter.y
-        });
+        fireEvent({"type": "zoom-change", "scale": scale, "cx": scaleCenter.x, "cy": scaleCenter.y });
     }
 
     /**
      * Apply the stored translation to the layers.
-     * @private
-     * @fires dwv.App#offset-change
      */
     function translateLayers()
     {
@@ -1028,28 +1305,118 @@ dwv.App = function ()
                 drawController.translateStage(ox, oy);
             }
             // fire event
-            /**
-             * Offset change event.
-             * @event dwv.App#offset-change
-             * @type {Object}
-             * @property {number} scale The new scale value.
-             * @property {number} cx The new rotaion center X position.
-             * @property {number} cx The new rotaion center Y position.
-             */
-            fireEvent({
-                "type": "offset-change",
-                "scale": scale,
-                "cx": imageLayer.getTrans().x,
-                "cy": imageLayer.getTrans().y
-            });
+            fireEvent({"type": "offset-change", "scale": scale,
+                "cx": imageLayer.getTrans().x, "cy": imageLayer.getTrans().y });
+        }
+    }
+
+    /**
+     * Handle a drag over.
+     * @private
+     * @param {Object} event The event to handle.
+     */
+    function onDragOver(event)
+    {
+        // prevent default handling
+        event.stopPropagation();
+        event.preventDefault();
+        // update box
+        var box = self.getElement("dropBox");
+        if ( box ) {
+            box.className = 'dropBox hover';
+        }
+    }
+
+    /**
+     * Handle a drag leave.
+     * @private
+     * @param {Object} event The event to handle.
+     */
+    function onDragLeave(event)
+    {
+        // prevent default handling
+        event.stopPropagation();
+        event.preventDefault();
+        // update box
+        var box = self.getElement("dropBox hover");
+        if ( box ) {
+            box.className = 'dropBox';
+        }
+    }
+
+    /**
+     * Handle a drop event.
+     * @private
+     * @param {Object} event The event to handle.
+     */
+    function onDrop(event)
+    {
+        // prevent default handling
+        event.stopPropagation();
+        event.preventDefault();
+        // load files
+        self.loadFiles(event.dataTransfer.files);
+    }
+
+    /**
+     * Handle an error: display it to the user.
+     * @private
+     * @param {Object} error The error to handle.
+     */
+    function handleError(error)
+    {
+        // alert window
+        if ( error.name && error.message) {
+            alert(error.name+": "+error.message);
+        }
+        else {
+            alert("Error: "+error+".");
+        }
+        // log
+        if ( error.stack ) {
+            console.error(error.stack);
+        }
+        // stop progress
+        dwv.gui.displayProgress(100);
+    }
+
+    /**
+     * Handle an abort: display it to the user.
+     * @param {Object} error The error to handle.
+     * @private
+     */
+    function handleAbort(error)
+    {
+        // log
+        if ( error && error.message ) {
+            console.warn(error.message);
+        } else {
+            console.warn("Abort called.");
+        }
+        // stop progress
+        dwv.gui.displayProgress(100);
+    }
+
+    /**
+     * Handle a load progress.
+     * @private
+     * @param {Object} event The event to handle.
+     */
+    function onLoadProgress(event)
+    {
+        fireEvent(event);
+        if( event.lengthComputable )
+        {
+            var percent = Math.ceil((event.loaded / event.total) * 100);
+            dwv.gui.displayProgress(percent);
         }
     }
 
     /**
      * Create the application layers.
+     * @private
      * @param {Number} dataWidth The width of the input data.
      * @param {Number} dataHeight The height of the input data.
-     * @private
      */
     function createLayers(dataWidth, dataHeight)
     {
@@ -1072,224 +1439,26 @@ dwv.App = function ()
     }
 
     /**
-     * Data load start callback.
-     * @param {Object} event The load start event.
+     * Post load application initialisation. To be called once the DICOM has been parsed.
      * @private
+     * @param {Object} data The data to display.
      */
-    function onloadstart(event) {
-        if (event.loadtype === "image") {
-            self.reset();
-        }
-
-        /**
-         * Load start event.
-         * @event dwv.App#load-start
-         * @type {Object}
-         * @property {string} type The event type: load-start.
-         * @property {string} loadType The load type: image or state.
-         * @property {Mixed} source The load source: string for an url,
-         *   File for a file.
-         */
-        event.type = "load-start";
-        fireEvent(event);
-    }
-
-    /**
-     * Data load progress callback.
-     * @param {Object} event The progress event.
-     * @private
-     */
-    function onprogress(event) {
-        /**
-         * Load progress event.
-         * @event dwv.App#load-progress
-         * @type {Object}
-         * @property {string} type The event type: load-progress.
-         * @property {string} loadType The load type: image or state.
-         * @property {Mixed} source The load source: string for an url,
-         *   File for a file.
-         * @property {number} load The loaded percentage.
-         * @property {number} total The total percentage.
-         */
-        event.type = "load-progress";
-        fireEvent(event);
-    }
-
-    /**
-     * Data load callback.
-     * @param {Object} event The load event.
-     * @private
-     */
-    function onloaditem(event) {
-        // check event
-        if (typeof event.data === "undefined") {
-            console.error("Missing loaditem event data", event);
-        }
-        if (typeof event.loadtype === "undefined") {
-            console.error("Missing loaditem event load type", event);
-        }
-
-        var eventMetaData = null;
-        if (event.loadtype === "image") {
-            if (firstLoadedItem) {
-                postLoadInit(event.data.view);
-            } else {
-                view.append(event.data.view);
-            }
-            updateMetaData(event.data.info);
-            eventMetaData = event.data.info;
-        } else if (event.loadtype === "state") {
-            var state = new dwv.State();
-            state.apply( self, state.fromJSON(event.data) );
-            eventMetaData = "state";
-        }
-
-        /**
-         * Load item event: fired when a load item is successfull.
-         * @event dwv.App#load-item
-         * @type {Object}
-         * @property {string} type The event type: load-item.
-         * @property {string} loadType The load type: image or state.
-         * @property {Mixed} source The load source: string for an url,
-         *   File for a file.
-         * @property {Object} data The loaded meta data.
-         */
-        fireEvent({
-            type: "load-item",
-            data: eventMetaData,
-            source: event.source,
-            loadtype: event.loadtype
-        });
-
-        // first generate will trigger view events,
-        // call it after fireEvent to allow clients to
-        // react to them with the first item data.
-        if (event.loadtype === "image" && firstLoadedItem) {
-            firstLoadedItem = false;
-            firstGenerateAndDrawImage();
-        }
-    }
-
-    /**
-     * Data load callback.
-     * @param {Object} event The load event.
-     * @private
-     */
-    function onload(event) {
-        if ( drawController ) {
-            drawController.activateDrawLayer(viewController);
-        }
-
-        /**
-         * Load event: fired when a load finishes successfully.
-         * @event dwv.App#load
-         * @type {Object}
-         * @property {string} type The event type: load.
-         * @property {string} loadType The load type: image or state.
-         */
-        event.type = "load";
-        fireEvent(event);
-    }
-
-    /**
-     * Data load end callback.
-     * @param {Object} event The load end event.
-     * @private
-     */
-    function onloadend(event) {
-        /**
-         * Main load end event: fired when the load finishes,
-         *   successfully or not.
-         * @event dwv.App#load-end
-         * @type {Object}
-         * @property {string} type The event type: load-end.
-         * @property {string} loadType The load type: image or state.
-         * @property {Mixed} source The load source: string for an url,
-         *   File for a file.
-         */
-        event.type = "load-end";
-        fireEvent(event);
-    }
-
-    /**
-     * Data load error callback.
-     * @param {Object} event The error event.
-     * @private
-     */
-    function onerror(event) {
-        /**
-         * Load error event.
-         * @event dwv.App#load-error
-         * @type {Object}
-         * @property {string} type The event type: error.
-         * @property {string} loadType The load type: image or state.
-         * @property {Mixed} source The load source: string for an url,
-         *   File for a file.
-         * @property {Object} error The error.
-         * @property {Object} target The event target.
-         */
-        event.type = "error";
-        fireEvent(event);
-    }
-
-    /**
-     * Data load abort callback.
-     * @param {Object} event The abort event.
-     * @private
-     */
-    function onabort(event) {
-        /**
-         * Load abort event.
-         * @event dwv.App#load-abort
-         * @type {Object}
-         * @property {string} type The event type: abort.
-         * @property {string} loadType The load type: image or state.
-         * @property {Mixed} source The load source: string for an url,
-         *   File for a file.
-         */
-        event.type = "abort";
-        fireEvent(event);
-    }
-
-    /**
-     * Update the stored meta data.
-     * @param {*} newMetaData The new meta data.
-     * @private
-     */
-    function updateMetaData(newMetaData) {
-        // store the meta data
-        if (dwv.utils.isArray(newMetaData)) {
-            // image file case
-            // TODO merge?
-            metaData = newMetaData;
-        } else {
-            // DICOM data case
-            var newDcmMetaData = new dwv.dicom.DicomElementsWrapper(newMetaData);
-            var newDcmMetaDataoObj = newDcmMetaData.dumpToObject();
-            if (metaData) {
-                metaData = dwv.utils.mergeObjects(
-                    metaData,
-                    newDcmMetaDataoObj,
-                    "InstanceNumber",
-                    "value");
-            } else {
-                metaData = newDcmMetaDataoObj;
-            }
-        }
-    }
-
-    /**
-     * Post load application initialisation.
-     * To be called once the DICOM has been parsed.
-     * @param {Object} createdView The view to display.
-     * @private
-     */
-    function postLoadInit(createdView)
+    function postLoadInit(data)
     {
+        // only initialise the first time
+        if ( view ) {
+            return;
+        }
+
         // get the view from the loaded data
-        view = createdView;
+        view = data.view;
         viewController = new dwv.ViewController(view);
 
+        // append the DICOM tags table
+        tags = data.info;
+        if ( tagsGui ) {
+            tagsGui.update(data.info);
+        }
         // store image
         originalImage = view.getImage();
         image = originalImage;
@@ -1305,25 +1474,56 @@ dwv.App = function ()
                 dataWidth, dataHeight);
 
         // image listeners
-        view.addEventListener("wl-width-change", onWLChange);
-        view.addEventListener("wl-center-change", onWLChange);
-        view.addEventListener("colour-change", onColourChange);
-        view.addEventListener("slice-change", onSliceChange);
-        view.addEventListener("frame-change", onFrameChange);
+        view.addEventListener("wl-width-change", self.onWLChange);
+        view.addEventListener("wl-center-change", self.onWLChange);
+        view.addEventListener("colour-change", self.onColourChange);
+        view.addEventListener("slice-change", self.onSliceChange);
+        view.addEventListener("frame-change", self.onFrameChange);
 
         // connect with local listeners
         view.addEventListener("wl-width-change", fireEvent);
         view.addEventListener("wl-center-change", fireEvent);
-        view.addEventListener("wl-preset-add", fireEvent);
         view.addEventListener("colour-change", fireEvent);
         view.addEventListener("position-change", fireEvent);
         view.addEventListener("slice-change", fireEvent);
         view.addEventListener("frame-change", fireEvent);
 
+        // append draw layers (before initialising the toolbox)
+        if ( drawController ) {
+            //drawController.appendDrawLayer(image.getNumberOfFrames());
+        }
+
         // initialise the toolbox
         if ( toolboxController ) {
-            toolboxController.init( imageLayer );
+            toolboxController.initAndDisplay( imageLayer );
         }
+
+        // stop box listening to drag (after first drag)
+        var box = self.getElement("dropBox");
+        if ( box ) {
+            box.removeEventListener("dragover", onDragOver);
+            box.removeEventListener("dragleave", onDragLeave);
+            box.removeEventListener("drop", onDrop);
+            dwv.html.removeNode(box);
+            // switch listening to layerContainer
+            var div = self.getElement("layerContainer");
+            div.addEventListener("dragover", onDragOver);
+            div.addEventListener("dragleave", onDragLeave);
+            div.addEventListener("drop", onDrop);
+        }
+
+        // info layer
+        var infoLayer = self.getElement("infoLayer");
+        if ( infoLayer ) {
+            infoController = new dwv.InfoController(containerDivId);
+            infoController.create(self);
+            infoController.toggleListeners(self, view);
+        }
+
+        // init W/L display
+        self.initWLDisplay();
+        // generate first image
+        generateAndDrawImage();
     }
 
 };
@@ -1331,11 +1531,7 @@ dwv.App = function ()
 // namespaces
 var dwv = dwv || {};
 dwv.draw = dwv.draw || {};
-/**
- * The Konva namespace.
- * @external Konva
- * @see https://konvajs.org/
- */
+// external
 var Konva = Konva || {};
 
 /**
@@ -1433,6 +1629,7 @@ dwv.draw.getHierarchyLog = function (layer, prefix) {
  * Draw controller.
  * @constructor
  * @param {Object} drawDiv The HTML div used to store the drawings.
+ * @external Konva
  */
 dwv.DrawController = function (drawDiv)
 {
@@ -1885,259 +2082,141 @@ dwv.DrawController = function (drawDiv)
 var dwv = dwv || {};
 
 /**
- * Load controller.
- * @param {String} defaultCharacterSet The default character set.
+ * Info controller.
  * @constructor
  */
-dwv.LoadController = function (defaultCharacterSet)
+dwv.InfoController = function (containerDivId)
 {
-    // closure to self
-    var self = this;
-    // current loader
-    var currentLoader = null;
-    // Is the data mono-slice?
-    var isMonoSliceData = null;
+
+    // Info layer plot gui
+    var plotInfo = null;
+    // Info layer colour map gui
+    var miniColourMap = null;
+	// Info layer overlay
+	var overlayInfos = [];
+    // flag to know if the info layer is listening on the image.
+    var isInfoLayerListening = false;
 
     /**
-     * Load a list of files. Can be image files or a state file.
-     * @param {Array} files The list of files to load.
+     * Create the different info elements.
+     * TODO Get rid of the app input arg...
      */
-    this.loadFiles = function (files) {
-        // has been checked for emptiness.
-        var ext = files[0].name.split('.').pop().toLowerCase();
-        if ( ext === "json" ) {
-            loadStateFile(files[0]);
-        } else {
-            loadImageFiles(files);
+    this.create = function (app)
+    {
+        var infocm = getElement("infocm");
+        if (infocm) {
+            miniColourMap = new dwv.gui.info.MiniColourMap(infocm, app);
+            miniColourMap.create();
+        }
+
+		// create overlay info at each corner
+		var pos_list = [
+			"tl", "tc", "tr",
+			"cl",       "cr",
+			"bl", "bc", "br" ];
+
+		var num = 0;
+		for (var n=0; n<pos_list.length; n++){
+			var pos = pos_list[n];
+			var info = getElement("info" + pos);
+			if (info) {
+				overlayInfos[num] = new dwv.gui.info.Overlay(info, pos, app);
+				overlayInfos[num].create();
+				num++;
+			}
+		}
+
+        var plot = getElement("plot");
+        if (plot) {
+            plotInfo = new dwv.gui.info.Plot(plot, app);
+            plotInfo.create();
         }
     };
 
     /**
-     * Load a list of URLs. Can be image files or a state file.
-     * @param {Array} urls The list of urls to load.
-     * @param {Object} options The load options:
-     * - requestHeaders: an array of {name, value} to use as request headers.
-     * - withCredentials: credentials flag to pass to the request.
+     * Toggle info listeners to the app and the view.
+     * @param {Object} app The app to listen or not to.
+     * @param {Object} view The view to listen or not to.
      */
-    this.loadURLs = function (urls, options) {
-        // has been checked for emptiness.
-        var ext = urls[0].split('.').pop().toLowerCase();
-        if ( ext === "json" ) {
-            loadStateUrl(urls[0], options);
-        } else {
-            loadImageUrls(urls, options);
+    this.toggleListeners = function (app, view)
+    {
+        if (isInfoLayerListening) {
+            removeListeners(app, view);
+        }
+        else {
+            addListeners(app, view);
         }
     };
 
     /**
-     * Load a list of ArrayBuffers.
-     * @param {Array} data The list of ArrayBuffers to load
-     *   in the form of [{name: "", filename: "", data: data}].
+     * Get a HTML element associated to the application.
+     * @param name The name or id to find.
+     * @return The found element or null.
      */
-    this.loadImageObject = function (data) {
-        // create IO
-        var memoryIO = new dwv.io.MemoryLoader();
-        // create options
-        var options = {};
-        // load data
-        loadImageData(data, memoryIO, options);
-    };
+    function getElement(name)
+    {
+        return dwv.gui.getElement(containerDivId, name);
+    }
 
     /**
-     * Abort the current load.
+     * Add info listeners to the view.
+     * @param {Object} app The app to listen to.
+     * @param {Object} view The view to listen to.
      */
-    this.abort = function () {
-        if ( currentLoader ) {
-            currentLoader.abort();
-            currentLoader = null;
+    function addListeners(app, view)
+    {
+        if (plotInfo) {
+            view.addEventListener("wl-width-change", plotInfo.update);
+            view.addEventListener("wl-center-change", plotInfo.update);
         }
-    };
-
-    /**
-     * Is the data mono-slice?
-     * @return {Boolean} True if the data only contains one slice.
-     */
-    this.isMonoSliceData = function () {
-         return isMonoSliceData;
-    };
-
-    // private ----------------------------------------------------------------
-
-    /**
-     * Load a list of image files.
-     * @param {Array} files The list of image files to load.
-     * @private
-     */
-    function loadImageFiles(files) {
-        // create IO
-        var fileIO = new dwv.io.FilesLoader();
-        // load data
-        loadImageData(files, fileIO);
-    }
-
-    /**
-     * Load a list of image URLs.
-     * @param {Array} urls The list of urls to load.
-     * @param {Object} options The load options:
-     * - requestHeaders: an array of {name, value} to use as request headers.
-     * - withCredentials: credentials flag to pass to the request.
-     * @private
-     */
-    function loadImageUrls(urls, options) {
-        // create IO
-        var urlIO = new dwv.io.UrlsLoader();
-        // load data
-        loadImageData(urls, urlIO, options);
-    }
-
-    /**
-     * Load a State file.
-     * @param {String} file The state file to load.
-     * @private
-     */
-    function loadStateFile(file) {
-        // create IO
-        var fileIO = new dwv.io.FilesLoader();
-        // load data
-        loadStateData([file], fileIO);
-    }
-
-    /**
-     * Load a State url.
-     * @param {String} url The state url to load.
-     * @param {Object} options The load options:
-     * - requestHeaders: an array of {name, value} to use as request headers.
-     * - withCredentials: credentials flag to pass to the request.
-     * @private
-     */
-    function loadStateUrl(url, options) {
-        // create IO
-        var urlIO = new dwv.io.UrlsLoader();
-        // load data
-        loadStateData([url], urlIO, options);
-    }
-
-    /**
-     * Load a list of image data.
-     * @param {Array} data Array of data to load.
-     * @param {Object} loader The data loader.
-     * @param {Object} options Options passed to the final loader.
-     * @private
-     */
-    function loadImageData(data, loader, options) {
-        // first data name
-        var firstName = "";
-        if (typeof data[0].name !== "undefined") {
-            firstName = data[0].name;
-        } else {
-            firstName = data[0];
+        if (miniColourMap) {
+            view.addEventListener("wl-width-change", miniColourMap.update);
+            view.addEventListener("wl-center-change", miniColourMap.update);
+            view.addEventListener("colour-change", miniColourMap.update);
         }
-
-        // flag used by scroll to decide wether to activate or not
-        // TODO: supposing multi-slice for zip files, could not be...
-        isMonoSliceData = (data.length === 1 &&
-            firstName.split('.').pop().toLowerCase() !== "zip" &&
-            !dwv.utils.endsWith(firstName, "DICOMDIR") &&
-            !dwv.utils.endsWith(firstName, ".dcmdir") );
-
-        // set IO
-        var loadtype = "image";
-        loader.setDefaultCharacterSet(defaultCharacterSet);
-        loader.onloadstart = function (event) {
-            // store loader to allow abort
-            currentLoader = loader;
-            // callback
-            augmentCallbackEvent(self.onloadstart, loadtype)(event);
-        };
-        loader.onprogress = augmentCallbackEvent(self.onprogress, loadtype);
-        loader.onloaditem = augmentCallbackEvent(self.onloaditem, loadtype);
-        loader.onload = augmentCallbackEvent(self.onload, loadtype);
-        loader.onloadend = function (event) {
-            // reset current loader
-            currentLoader = null;
-            // callback
-            augmentCallbackEvent(self.onloadend, loadtype)(event);
-        };
-        loader.onerror = augmentCallbackEvent(self.onerror, loadtype);
-        loader.onabort = augmentCallbackEvent(self.onabort, loadtype);
-        // launch load
-        loader.load(data, options);
+		if (overlayInfos.length > 0){
+			for (var n=0; n<overlayInfos.length; n++){
+				app.addEventListener("zoom-change", overlayInfos[n].update);
+				view.addEventListener("wl-width-change", overlayInfos[n].update);
+                view.addEventListener("wl-center-change", overlayInfos[n].update);
+				view.addEventListener("position-change", overlayInfos[n].update);
+				view.addEventListener("frame-change", overlayInfos[n].update);
+			}
+		}
+        // udpate listening flag
+        isInfoLayerListening = true;
     }
 
     /**
-     * Load a State data.
-     * @param {Array} data Array of data to load.
-     * @param {Object} loader The data loader.
-     * @param {Object} options Options passed to the final loader.
-     * @private
+     * Remove info listeners to the view.
+     * @param {Object} app The app to stop listening to.
+     * @param {Object} view The view to stop listening to.
      */
-    function loadStateData(data, loader, options) {
-        var loadtype = "state";
-        // set callbacks
-        loader.onloadstart = augmentCallbackEvent(self.onloadstart, loadtype);
-        loader.onprogress = augmentCallbackEvent(self.onprogress, loadtype);
-        loader.onloaditem = augmentCallbackEvent(self.onloaditem, loadtype);
-        loader.onload = augmentCallbackEvent(self.onload, loadtype);
-        loader.onloadend = augmentCallbackEvent(self.onloadend, loadtype);
-        loader.onerror = augmentCallbackEvent(self.onerror, loadtype);
-        loader.onabort = augmentCallbackEvent(self.onabort, loadtype);
-        // launch load
-        loader.load(data, options);
+    function removeListeners(app, view)
+    {
+        if (plotInfo) {
+            view.removeEventListener("wl-width-change", plotInfo.update);
+            view.removeEventListener("wl-center-change", plotInfo.update);
+        }
+        if (miniColourMap) {
+            view.removeEventListener("wl-width-change", miniColourMap.update);
+            view.removeEventListener("wl-center-change", miniColourMap.update);
+            view.removeEventListener("colour-change", miniColourMap.update);
+        }
+		if (overlayInfos.length > 0){
+			for (var n=0; n<overlayInfos.length; n++){
+				app.removeEventListener("zoom-change", overlayInfos[n].update);
+                view.removeEventListener("wl-width-change", overlayInfos[n].update);
+				view.removeEventListener("wl-center-change", overlayInfos[n].update);
+				view.removeEventListener("position-change", overlayInfos[n].update);
+				view.removeEventListener("frame-change", overlayInfos[n].update);
+			}
+		}
+        // udpate listening flag
+        isInfoLayerListening = false;
     }
 
-    /**
-     * Augment a callback event: adds loadtype to the event passed to a callback.
-     * @param {Object} callback The callback to update.
-     * @param {string} loadtype The loadtype property to add to the event.
-     * @returns {Object} A function representing the modified callback.
-     */
-    function augmentCallbackEvent(callback, loadtype) {
-        return function (event) {
-            event.loadtype = loadtype;
-            callback(event);
-        };
-    }
-
-}; // class LoadController
-
-/**
- * Handle a load start event.
- * @param {Object} event The load start event.
- * Default does nothing.
- */
-dwv.LoadController.prototype.onloadstart = function (/*event*/) {};
-/**
- * Handle a load progress event.
- * @param {Object} event The progress event.
- * Default does nothing.
- */
-dwv.LoadController.prototype.onprogress = function (/*event*/) {};
-/**
- * Handle a load event.
- * @param {Object} event The load event fired
- *   when a file has been loaded successfully.
- * Default does nothing.
- */
-dwv.LoadController.prototype.onload = function (/*event*/) {};
-/**
- * Handle a load end event.
- * @param {Object} event The load end event fired
- *  when a file load has completed, successfully or not.
- * Default does nothing.
- */
-dwv.LoadController.prototype.onloadend = function (/*event*/) {};
-/**
- * Handle an error event.
- * @param {Object} event The error event.
- * Default does nothing.
- */
-dwv.LoadController.prototype.onerror = function (/*event*/) {};
-/**
- * Handle an abort event.
- * @param {Object} event The abort event.
- * Default does nothing.
- */
-dwv.LoadController.prototype.onabort = function (/*event*/) {};
+}; // class dwv.InfoController
 
 // namespaces
 var dwv = dwv || {};
@@ -2218,7 +2297,6 @@ dwv.State = function ()
     /**
      * Read an application state from an Object in v0.1 format.
      * @param {Object} data The Object representation of the state.
-     * @private
      */
     function readV01(data) {
         // update drawings
@@ -2230,7 +2308,6 @@ dwv.State = function ()
     /**
      * Read an application state from an Object in v0.2 format.
      * @param {Object} data The Object representation of the state.
-     * @private
      */
     function readV02(data) {
         // update drawings
@@ -2241,7 +2318,6 @@ dwv.State = function ()
     /**
      * Read an application state from an Object in v0.3 format.
      * @param {Object} data The Object representation of the state.
-     * @private
      */
     function readV03(data) {
         return data;
@@ -2507,31 +2583,46 @@ var dwv = dwv || {};
 
 /**
  * Toolbox controller.
- * @param {Array} toolList The list of tool objects.
  * @constructor
  */
-dwv.ToolboxController = function (toolList)
+dwv.ToolboxController = function ()
 {
-    /**
-     * Point converter function
-     * @private
-     */
+    // internal toolbox
+    var toolbox = null;
+    // point converter function
     var displayToIndexConverter = null;
 
     /**
-     * Selected tool.
-     * @type Object
-     * @private
+     * Create the internal toolbox.
+     * @param {Array} toolList The list of tools instances.
+     * @param {Object} app The associated app.
      */
-    var selectedTool = null;
+    this.create = function (toolList, app) {
+        toolbox = new dwv.tool.Toolbox(toolList, app);
+    };
 
     /**
-     * Initialise.
+     * Setup the internal toolbox.
      */
-    this.init = function (layer) {
-        for( var key in toolList ) {
-            toolList[key].init();
-        }
+    this.setup = function () {
+        toolbox.setup();
+    };
+
+    /**
+     * Reset the internal toolbox.
+     */
+    this.reset = function () {
+        toolbox.reset();
+    };
+
+    /**
+     * Initialise and display the internal toolbox.
+     */
+    this.initAndDisplay = function (layer) {
+        // initialise
+        toolbox.init();
+        // display
+        toolbox.display(true);
         // TODO Would prefer to have this done in the addLayerListeners
         displayToIndexConverter = layer.displayToIndex;
         // add layer listeners
@@ -2542,27 +2633,9 @@ dwv.ToolboxController = function (toolList)
 
     /**
      * Get the tool list.
-     * @return {Array} The list of tool objects.
      */
     this.getToolList = function () {
-        return toolList;
-    };
-
-    /**
-     * Check if a tool is in the tool list.
-     * @param {String} name The name to check.
-     * @return {String} The tool list element for the given name.
-     */
-    this.hasTool = function (name) {
-        return this.getToolList()[name];
-    };
-
-    /**
-     * Get the selected tool.
-     * @return {Object} The selected tool.
-     */
-    this.getSelectedTool = function () {
-        return selectedTool;
+        return toolbox.getToolList();
     };
 
     /**
@@ -2571,7 +2644,7 @@ dwv.ToolboxController = function (toolList)
      */
     this.getSelectedToolEventHandler = function (eventType)
     {
-        return this.getSelectedTool()[eventType];
+        return toolbox.getSelectedTool()[eventType];
     };
 
     /**
@@ -2580,18 +2653,7 @@ dwv.ToolboxController = function (toolList)
      */
     this.setSelectedTool = function (name)
     {
-        // check if we have it
-        if (!this.hasTool(name)) {
-            throw new Error("Unknown tool: '" + name + "'");
-        }
-        // de-activate previous
-        if (selectedTool) {
-            selectedTool.activate(false);
-        }
-        // set internal var
-        selectedTool = toolList[name];
-        // activate new tool
-        selectedTool.activate(true);
+        toolbox.setSelectedTool(name);
     };
 
     /**
@@ -2600,7 +2662,7 @@ dwv.ToolboxController = function (toolList)
      */
     this.setSelectedShape = function (name)
     {
-        this.getSelectedTool().setShapeName(name);
+        toolbox.getSelectedTool().setShapeName(name);
     };
 
     /**
@@ -2609,7 +2671,7 @@ dwv.ToolboxController = function (toolList)
      */
     this.setSelectedFilter = function (name)
     {
-        this.getSelectedTool().setSelectedFilter(name);
+        toolbox.getSelectedTool().setSelectedFilter(name);
     };
 
     /**
@@ -2617,7 +2679,7 @@ dwv.ToolboxController = function (toolList)
      */
     this.runSelectedFilter = function ()
     {
-        this.getSelectedTool().getSelectedFilter().run();
+        toolbox.getSelectedTool().getSelectedFilter().run();
     };
 
     /**
@@ -2626,7 +2688,7 @@ dwv.ToolboxController = function (toolList)
      */
     this.setLineColour = function (colour)
     {
-        this.getSelectedTool().setLineColour(colour);
+        toolbox.getSelectedTool().setLineColour(colour);
     };
 
     /**
@@ -2637,9 +2699,9 @@ dwv.ToolboxController = function (toolList)
     {
         // seems like jquery is checking if the method exists before it
         // is used...
-        if ( this.getSelectedTool() &&
-                this.getSelectedTool().getSelectedFilter() ) {
-            this.getSelectedTool().getSelectedFilter().run(range);
+        if ( toolbox && toolbox.getSelectedTool() &&
+                toolbox.getSelectedTool().getSelectedFilter() ) {
+            toolbox.getSelectedTool().getSelectedFilter().run(range);
         }
     };
 
@@ -2690,16 +2752,11 @@ dwv.ToolboxController = function (toolList)
     /**
      * Mou(se) and (T)ouch event handler. This function just determines the mouse/touch
      * position relative to the canvas element. It then passes it to the current tool.
-     * @param {Object} event The event to handle.
      * @private
+     * @param {Object} event The event to handle.
      */
     function onMouch(event)
     {
-        // make sure we have a tool
-        if (!selectedTool) {
-            return;
-        }
-
         // flag not to get confused between touch and mouse
         var handled = false;
         // Store the event position relative to the image canvas
@@ -2758,7 +2815,7 @@ dwv.ToolboxController = function (toolList)
             if ( event.type !== "keydown" ) {
                 event.preventDefault();
             }
-            var func = selectedTool[event.type];
+            var func = toolbox.getSelectedTool()[event.type];
             if ( func )
             {
                 func(event);
@@ -3085,10 +3142,10 @@ dwv.dicom.DicomElementsWrapper = function (dicomElements) {
      * Dump the DICOM tags to an array.
      * @return {Array}
      */
-    this.dumpToObject = function () {
+    this.dumpToTable = function () {
         var keys = Object.keys(dicomElements);
         var dict = dwv.dicom.dictionary;
-        var obj = {};
+        var table = [];
         var dicomElement = null;
         var dictElement = null;
         var row = null;
@@ -3102,9 +3159,11 @@ dwv.dicom.DicomElementsWrapper = function (dicomElements) {
                 dictElement = dict[dicomElement.tag.group][dicomElement.tag.element];
             }
             // name
-            var name = "Unknown Tag & Data";
             if ( dictElement !== null ) {
-                name = dictElement[2];
+                row.name = dictElement[2];
+            }
+            else {
+                row.name = "Unknown Tag & Data";
             }
             // value
             row.value = this.getElementValueAsString(dicomElement);
@@ -3114,9 +3173,9 @@ dwv.dicom.DicomElementsWrapper = function (dicomElements) {
             row.vr = dicomElement.vr;
             row.vl = dicomElement.vl;
 
-            obj[name] = row;
+            table.push( row );
         }
-        return obj;
+        return table;
     };
 
     /**
@@ -3194,19 +3253,10 @@ dwv.dicom.DicomElementsWrapper.prototype.getElementValueAsString = function ( di
         str = "(PixelSequence)";
     } else if ( dicomElement.vr === "DA" && pretty ) {
         var daValue = dicomElement.value[0];
-        // Two possible date formats:
-        // - standard 'YYYYMMDD'
-        // - non-standard 'YYYY.MM.DD' (previous ACR-NEMA)
-        var monthBeginIndex = 4;
-        var dayBeginIndex = 6;
-        if (daValue.length !== 8) {
-            monthBeginIndex = 5;
-            dayBeginIndex = 8;
-        }
-        var da = new Date(
-            parseInt(daValue.substr(0, 4), 10),
-            parseInt(daValue.substr(monthBeginIndex, 2), 10) - 1, // 0-11 range
-            parseInt(daValue.substr(dayBeginIndex, 2), 10));
+        var daYear = parseInt( daValue.substr(0,4), 10 );
+        var daMonth = parseInt( daValue.substr(4,2), 10 ) - 1; // 0-11
+        var daDay = parseInt( daValue.substr(6,2), 10 );
+        var da = new Date(daYear, daMonth, daDay);
         str = da.toLocaleDateString();
     } else if ( dicomElement.vr === "TM"  && pretty ) {
         var tmValue = dicomElement.value[0];
@@ -3580,7 +3630,7 @@ dwv.dicom = dwv.dicom || {};
  * Get the version of the library.
  * @return {String} The version of the library.
  */
-dwv.getVersion = function () { return "0.27.0"; };
+dwv.getVersion = function () { return "0.26.0"; };
 
 /**
  * Clean string: trim and remove ending.
@@ -3818,7 +3868,7 @@ dwv.dicom.DataReader = function (buffer, isLittleEndian)
         else {
             data = new Uint16Array(arraySize);
             for ( var i = 0; i < arraySize; ++i ) {
-                data[i] = view.getUint16( (byteOffset +
+                data[i] = view.getInt16( (byteOffset +
                     Uint16Array.BYTES_PER_ELEMENT * i),
                     isLittleEndian);
             }
@@ -4689,8 +4739,6 @@ dwv.dicom.DicomParser.prototype.readDataElement = function (reader, offset, impl
         var pixelRepresentation = 0;
         if ( typeof this.dicomElements.x00280103 !== 'undefined' ) {
             pixelRepresentation = this.dicomElements.x00280103.value[0];
-        } else {
-            console.warn("Reading DICOM pixel data with default pixelRepresentation.");
         }
         // read
         if ( bitsAllocated === 8 ) {
@@ -4730,22 +4778,22 @@ dwv.dicom.DicomParser.prototype.readDataElement = function (reader, offset, impl
     // others
     else if ( vr === "OB" )
     {
-        data = reader.readUint8Array( offset, vl );
+        data = reader.readInt8Array( offset, vl );
         offset += vl;
     }
     else if ( vr === "OW" )
     {
-        data = reader.readUint16Array( offset, vl );
+        data = reader.readInt16Array( offset, vl );
         offset += vl;
     }
     else if ( vr === "OF" )
     {
-        data = reader.readUint32Array( offset, vl );
+        data = reader.readInt32Array( offset, vl );
         offset += vl;
     }
     else if ( vr === "OD" )
     {
-        data = reader.readUint64Array( offset, vl );
+        data = reader.readInt64Array( offset, vl );
         offset += vl;
     }
     // numbers
@@ -4777,23 +4825,6 @@ dwv.dicom.DicomParser.prototype.readDataElement = function (reader, offset, impl
     else if( vr === "FD")
     {
         data = reader.readFloat64Array( offset, vl );
-        offset += vl;
-    }
-    else if( vr === "xs")
-    {
-        // PixelRepresentation 0->unsigned, 1->signed
-        var pixelRep = 0;
-        if (typeof this.dicomElements.x00280103 !== 'undefined' ) {
-            pixelRep = this.dicomElements.x00280103.value[0];
-        } else {
-            console.warn("Reading DICOM pixel data with default pixelRepresentation.");
-        }
-        // read
-        if (pixelRep === 0) {
-            data = reader.readUint16Array(offset, vl);
-        } else {
-            data = reader.readInt16Array(offset, vl);
-        }
         offset += vl;
     }
     // attribute
@@ -5026,8 +5057,7 @@ dwv.dicom.DicomParser.prototype.parse = function (buffer)
 
         var numberOfFrames = 1;
         if (typeof this.dicomElements.x00280008 !== "undefined") {
-            numberOfFrames = dwv.dicom.cleanString(
-                this.dicomElements.x00280008.value[0]);
+            numberOfFrames = this.dicomElements.x00280008.value[0];
         }
 
         if (this.dicomElements.x7FE00010.vl !== "u/l") {
@@ -5040,33 +5070,19 @@ dwv.dicom.DicomParser.prototype.parse = function (buffer)
 
             // calculate the slice size
             var pixData = this.dicomElements.x7FE00010.value;
-            if (pixData && typeof pixData !== "undefined" &&
-                pixData.length !== 0) {
-                if (typeof this.dicomElements.x00280010 === "undefined") {
-                    throw new Error("Missing image number of rows.");
-                }
-                if (typeof this.dicomElements.x00280011 === "undefined") {
-                    throw new Error("Missing image number of columns.");
-                }
-                if (typeof this.dicomElements.x00280002 === "undefined") {
-                    throw new Error("Missing image samples per pixel.");
-                }
-                var columns = this.dicomElements.x00280011.value[0];
-                var rows = this.dicomElements.x00280010.value[0];
-                var samplesPerPixel = this.dicomElements.x00280002.value[0];
-                var sliceSize = columns * rows * samplesPerPixel;
-                // slice data in an array of frames
-                var newPixData = [];
-                var frameOffset = 0;
-                for (var g = 0; g < numberOfFrames; ++g) {
-                    newPixData[g] = pixData.slice(frameOffset, frameOffset+sliceSize);
-                    frameOffset += sliceSize;
-                }
-                // store as pixel data
-                this.dicomElements.x7FE00010.value = newPixData;
-            } else {
-                console.debug("Empty pixel data.");
+            var columns = this.dicomElements.x00280011.value[0];
+            var rows = this.dicomElements.x00280010.value[0];
+            var samplesPerPixel = this.dicomElements.x00280002.value[0];
+            var sliceSize = columns * rows * samplesPerPixel;
+            // slice data in an array of frames
+            var newPixData = [];
+            var frameOffset = 0;
+            for (var g = 0; g < numberOfFrames; ++g) {
+                newPixData[g] = pixData.slice(frameOffset, frameOffset+sliceSize);
+                frameOffset += sliceSize;
             }
+            // store as pixel data
+            this.dicomElements.x7FE00010.value = newPixData;
         }
         else {
             // handle fragmented pixel buffer
@@ -5877,7 +5893,7 @@ dwv.dicom.DicomWriter.prototype.getBuffer = function (dicomElements) {
 };
 
 /**
- * Fix for broken DICOM elements: Replace "UN" with correct VR if the element exists in dictionary
+ * Fix for broken DICOM elements: Replace "UN" with correct VR if the element exists in dictionary 
  */
 dwv.dicom.checkUnkwownVR = function (element)
 {
@@ -10557,6 +10573,202 @@ dwv.dicom.TagGroups = {
 
 // namespaces
 var dwv = dwv || {};
+/** @namespace */
+dwv.gui = dwv.gui || {};
+/** @namespace */
+dwv.gui.base = dwv.gui.base || {};
+/** @namespace */
+dwv.gui.filter = dwv.gui.filter || {};
+/** @namespace */
+dwv.gui.filter.base = dwv.gui.filter.base || {};
+
+/**
+ * Filter tool base gui.
+ * @constructor
+ */
+dwv.gui.base.Filter = function (app)
+{
+    /**
+     * Setup the filter tool HTML.
+     */
+    this.setup = function (list)
+    {
+        // filter select
+        var filterSelector = dwv.html.createHtmlSelect("filterSelect", list, "filter");
+        filterSelector.onchange = app.onChangeFilter;
+
+        // filter list element
+        var filterLi = dwv.html.createHiddenElement("li", "filterLi");
+        filterLi.className += " ui-block-b";
+        filterLi.appendChild(filterSelector);
+
+        // append element
+        var node = app.getElement("toolList").getElementsByTagName("ul")[0];
+        dwv.html.appendElement(node, filterLi);
+    };
+
+    /**
+     * Display the tool HTML.
+     * @param {Boolean} flag True to display, false to hide.
+     */
+    this.display = function (flag)
+    {
+        var node = app.getElement("filterLi");
+        dwv.html.displayElement(node, flag);
+    };
+
+    /**
+     * Initialise the tool HTML.
+     */
+    this.initialise = function ()
+    {
+        // filter select: reset selected options
+        var filterSelector = app.getElement("filterSelect");
+        filterSelector.selectedIndex = 0;
+        // refresh
+        dwv.gui.refreshElement(filterSelector);
+    };
+
+}; // class dwv.gui.base.Filter
+
+/**
+ * Threshold filter base gui.
+ * @constructor
+ */
+dwv.gui.base.Threshold = function (app)
+{
+    /**
+     * Threshold slider.
+     * @private
+     * @type Object
+     */
+    var slider = new dwv.gui.Slider(app);
+
+    /**
+     * Setup the threshold filter HTML.
+     */
+    this.setup = function ()
+    {
+        // threshold list element
+        var thresholdLi = dwv.html.createHiddenElement("li", "thresholdLi");
+        thresholdLi.className += " ui-block-c";
+
+        // node
+        var node = app.getElement("toolList").getElementsByTagName("ul")[0];
+        // append threshold
+        node.appendChild(thresholdLi);
+        // threshold slider
+        slider.append();
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Clear the threshold filter HTML.
+     * @param {Boolean} flag True to display, false to hide.
+     */
+    this.display = function (flag)
+    {
+        // only initialise at display time
+        // (avoids min/max calculation at startup)
+        if (flag) {
+            slider.initialise();
+        }
+        
+        var node = app.getElement("thresholdLi");
+        dwv.html.displayElement(node, flag);
+    };
+
+    /**
+     * Initialise the threshold filter HTML.
+     */
+    this.initialise = function ()
+    {
+        // nothing to do
+    };
+
+}; // class dwv.gui.base.Threshold
+
+/**
+ * Create the apply filter button.
+ */
+dwv.gui.filter.base.createFilterApplyButton = function (app)
+{
+    var button = document.createElement("button");
+    button.id = "runFilterButton";
+    button.onclick = app.onRunFilter;
+    button.setAttribute("style","width:100%; margin-top:0.5em;");
+    button.setAttribute("class","ui-btn ui-btn-b");
+    button.appendChild(document.createTextNode(dwv.i18n("basics.apply")));
+    return button;
+};
+
+/**
+ * Sharpen filter base gui.
+ * @constructor
+ */
+dwv.gui.base.Sharpen = function (app)
+{
+    /**
+     * Setup the sharpen filter HTML.
+     */
+    this.setup = function ()
+    {
+        // sharpen list element
+        var sharpenLi = dwv.html.createHiddenElement("li", "sharpenLi");
+        sharpenLi.className += " ui-block-c";
+        sharpenLi.appendChild( dwv.gui.filter.base.createFilterApplyButton(app) );
+        // append element
+        var node = app.getElement("toolList").getElementsByTagName("ul")[0];
+        dwv.html.appendElement(node, sharpenLi);
+    };
+
+    /**
+     * Display the sharpen filter HTML.
+     * @param {Boolean} flag True to display, false to hide.
+     */
+    this.display = function (flag)
+    {
+        var node = app.getElement("sharpenLi");
+        dwv.html.displayElement(node, flag);
+    };
+
+}; // class dwv.gui.base.Sharpen
+
+/**
+ * Sobel filter base gui.
+ * @constructor
+ */
+dwv.gui.base.Sobel = function (app)
+{
+    /**
+     * Setup the sobel filter HTML.
+     */
+    this.setup = function ()
+    {
+        // sobel list element
+        var sobelLi = dwv.html.createHiddenElement("li", "sobelLi");
+        sobelLi.className += " ui-block-c";
+        sobelLi.appendChild( dwv.gui.filter.base.createFilterApplyButton(app) );
+        // append element
+        var node = app.getElement("toolList").getElementsByTagName("ul")[0];
+        dwv.html.appendElement(node, sobelLi);
+    };
+
+    /**
+     * Display the sobel filter HTML.
+     * @param {Boolean} flag True to display, false to hide.
+     */
+    this.display = function (flag)
+    {
+        var node = app.getElement("sobelLi");
+        dwv.html.displayElement(node, flag);
+    };
+
+}; // class dwv.gui.base.Sobel
+
+// namespaces
+var dwv = dwv || {};
 dwv.gui = dwv.gui || {};
 dwv.gui.base = dwv.gui.base || {};
 
@@ -10569,6 +10781,33 @@ dwv.gui.base = dwv.gui.base || {};
 dwv.gui.base.prompt = function (message, defaultText)
 {
     return prompt(message, defaultText);
+};
+
+/**
+ * Display a progress value.
+ * @param {Number} percent The progress percentage.
+ */
+dwv.gui.base.displayProgress = function (/*percent*/)
+{
+    // default does nothing...
+};
+
+/**
+ * Focus the view on the image.
+ */
+dwv.gui.base.focusImage = function ()
+{
+    // default does nothing...
+};
+
+/**
+ * Post process a HTML table.
+ * @param {Object} table The HTML table to process.
+ * @return The processed HTML table.
+ */
+dwv.gui.base.postProcessTable = function (/*table*/)
+{
+    // default does nothing...
 };
 
 /**
@@ -10594,6 +10833,1492 @@ dwv.gui.base.getElement = function (containerDivId, name)
     }
     return element;
  };
+
+ /**
+ * Refresh a HTML element. Mainly for jquery-mobile.
+ * @param {String} element The HTML element to refresh.
+ */
+dwv.gui.base.refreshElement = function (/*element*/)
+{
+    // base does nothing...
+};
+
+/**
+ * Set the selected item of a HTML select.
+ * @param {String} element The HTML select element.
+ * @param {String} value The value of the option to mark as selected.
+ */
+dwv.gui.setSelected = function (element, value)
+{
+    if ( element ) {
+        var index = 0;
+        for( index in element.options){
+            if( element.options[index].value === value ) {
+                break;
+            }
+        }
+        element.selectedIndex = index;
+        dwv.gui.refreshElement(element);
+    }
+};
+
+/**
+ * Slider base gui.
+ * @constructor
+ */
+dwv.gui.base.Slider = function (app)
+{
+    /**
+     * Append the slider HTML.
+     */
+    this.append = function ()
+    {
+        // default values
+        var min = 0;
+        var max = 1;
+
+        // jquery-mobile range slider
+        // minimum input
+        var inputMin = document.createElement("input");
+        inputMin.id = "threshold-min";
+        inputMin.type = "range";
+        inputMin.max = max;
+        inputMin.min = min;
+        inputMin.value = min;
+        // maximum input
+        var inputMax = document.createElement("input");
+        inputMax.id = "threshold-max";
+        inputMax.type = "range";
+        inputMax.max = max;
+        inputMax.min = min;
+        inputMax.value = max;
+        // slicer div
+        var div = document.createElement("div");
+        div.id = "threshold-div";
+        div.setAttribute("data-role", "rangeslider");
+        div.appendChild(inputMin);
+        div.appendChild(inputMax);
+        div.setAttribute("data-mini", "true");
+        // append to document
+        app.getElement("thresholdLi").appendChild(div);
+        // bind change
+        $("#threshold-div").on("change",
+                function(/*event*/) {
+                    app.onChangeMinMax(
+                        { "min":$("#threshold-min").val(),
+                          "max":$("#threshold-max").val() } );
+                }
+            );
+        // refresh
+        dwv.gui.refreshElement(app.getElement("toolList"));
+    };
+
+    /**
+     * Initialise the slider HTML.
+     */
+    this.initialise = function ()
+    {
+        var min = app.getImage().getDataRange().min;
+        var max = app.getImage().getDataRange().max;
+
+        // minimum input
+        var inputMin = document.getElementById("threshold-min");
+        inputMin.max = max;
+        inputMin.min = min;
+        inputMin.value = min;
+        // maximum input
+        var inputMax = document.getElementById("threshold-max");
+        inputMax.max = max;
+        inputMax.min = min;
+        inputMax.value = max;
+        // refresh
+        dwv.gui.refreshElement(app.getElement("toolList"));
+    };
+
+}; // class dwv.gui.base.Slider
+
+/**
+ * DICOM tags base gui.
+ * @param {Object} app The associated application.
+ * @constructor
+ */
+dwv.gui.base.DicomTags = function (app)
+{
+    /**
+     * Update the DICOM tags table with the input info.
+     * @param {Object} dataInfo The data information.
+     */
+    this.update = function (dataInfo)
+    {
+        // HTML node
+        var node = app.getElement("tags");
+        if( node === null ) {
+            console.warn("Cannot find a node to append the DICOM tags.");
+            return;
+        }
+        // remove possible previous
+        while (node.hasChildNodes()) {
+            node.removeChild(node.firstChild);
+        }
+
+        // exit if no tags
+        if (dataInfo.length === 0) {
+            console.warn("No DICOM tags to show.");
+            return;
+        }
+
+        // tags HTML table
+        var table = dwv.html.toTable(dataInfo);
+        table.className = "tagsTable";
+
+        // optional gui specific table post process
+        dwv.gui.postProcessTable(table);
+
+        // check processed table
+        if (table.rows.length === 0) {
+            console.warn("The processed table does not contain data.");
+            return;
+        }
+
+        // translate first row
+        dwv.html.translateTableRow(table.rows.item(0));
+
+        // append search form
+        node.appendChild(dwv.html.getHtmlSearchForm(table));
+        // append tags table
+        node.appendChild(table);
+
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+}; // class dwv.gui.base.DicomTags
+
+/**
+ * Drawing list base gui.
+ * @param {Object} app The associated application.
+ * @constructor
+ */
+dwv.gui.base.DrawList = function (app)
+{
+    /**
+     * Closure to self.
+     */
+    var self = this;
+
+    /**
+     * Update the draw list html element
+     * @param {Object} event A change event, decides if the table is editable or not.
+     */
+    this.update = function (event)
+    {
+        var isEditable = false;
+        if (typeof event.editable !== "undefined") {
+            isEditable = event.editable;
+        }
+
+        // HTML node
+        var node = app.getElement("drawList");
+        if( node === null ) {
+            console.warn("Cannot find a node to append the drawing list.");
+            return;
+        }
+        // remove possible previous
+        while (node.hasChildNodes()) {
+            node.removeChild(node.firstChild);
+        }
+
+        // drawing details
+        var drawDisplayDetails = app.getDrawDisplayDetails();
+
+        // exit if no details
+        if (drawDisplayDetails.length === 0) {
+            return;
+        }
+
+        // tags HTML table
+        var table = dwv.html.toTable(drawDisplayDetails);
+        table.className = "drawsTable";
+
+        // optional gui specific table post process
+        dwv.gui.postProcessTable(table);
+
+        // check processed table
+        if (table.rows.length === 0) {
+            console.warn("The processed table does not contain data.");
+            return;
+        }
+
+        // translate first row
+        dwv.html.translateTableRow(table.rows.item(0));
+
+        // translate shape names
+        dwv.html.translateTableColumn(table, 3, "shape", "name");
+
+        // create a color onkeyup handler
+        var createColorOnKeyUp = function (details) {
+            return function () {
+                details.color = this.value;
+                app.updateDraw(details);
+            };
+        };
+        // create a text onkeyup handler
+        var createTextOnKeyUp = function (details) {
+            return function () {
+                details.label = this.value;
+                app.updateDraw(details);
+            };
+        };
+        // create a long text onkeyup handler
+        var createLongTextOnKeyUp = function (details) {
+            return function () {
+                details.description = this.value;
+                app.updateDraw(details);
+            };
+        };
+        // create a row onclick handler
+        var createRowOnClick = function (slice, frame) {
+            return function () {
+                // update slice
+                var pos = app.getViewController().getCurrentPosition();
+                pos.k = slice;
+                app.getViewController().setCurrentPosition(pos);
+                // update frame
+                app.getViewController().setCurrentFrame(frame);
+                // focus on the image
+                dwv.gui.focusImage();
+            };
+        };
+        // create visibility handler
+        var createVisibleOnClick = function (details) {
+            return function () {
+                app.toogleGroupVisibility(details);
+            };
+        };
+
+        // append visible column to the header row
+        var row0 = table.rows.item(0);
+        var cell00 = row0.insertCell(0);
+        cell00.outerHTML = "<th>" + dwv.i18n("basics.visible") + "</th>";
+
+        // loop through rows
+        for (var r = 1; r < table.rows.length; ++r) {
+            var drawId = r - 1;
+            var drawDetails = drawDisplayDetails[drawId];
+            var row = table.rows.item(r);
+            var cells = row.cells;
+
+            // loop through cells
+            for (var c = 0; c < cells.length; ++c) {
+                // show short ID
+                if (c === 0) {
+                    cells[c].firstChild.data = cells[c].firstChild.data.substring(0, 5);
+                }
+
+                if (isEditable) {
+                    // color
+                    if (c === 4) {
+                        dwv.html.makeCellEditable(cells[c], createColorOnKeyUp(drawDetails), "color");
+                    }
+                    // text
+                    else if (c === 5) {
+                        dwv.html.makeCellEditable(cells[c], createTextOnKeyUp(drawDetails));
+                    }
+                    // long text
+                    else if (c === 6) {
+                        dwv.html.makeCellEditable(cells[c], createLongTextOnKeyUp(drawDetails));
+                    }
+                }
+                else {
+                    // id: link to image
+                    cells[0].onclick = createRowOnClick(
+                        cells[1].firstChild.data,
+                        cells[2].firstChild.data);
+                    cells[0].onmouseover = dwv.html.setCursorToPointer;
+                    cells[0].onmouseout = dwv.html.setCursorToDefault;
+                    // color: just display the input color with no callback
+                    if (c === 4) {
+                        dwv.html.makeCellEditable(cells[c], null, "color");
+                    }
+                }
+            }
+
+            // append visible column
+            var cell0 = row.insertCell(0);
+            var input = document.createElement("input");
+            input.setAttribute("type", "checkbox");
+            input.checked = app.isGroupVisible(drawDetails);
+            input.onclick = createVisibleOnClick(drawDetails);
+            cell0.appendChild(input);
+        }
+
+        // editable checkbox
+        var tickBox = document.createElement("input");
+        tickBox.setAttribute("type", "checkbox");
+        tickBox.id = "checkbox-editable";
+        tickBox.checked = isEditable;
+        tickBox.onclick = function () { self.update({"editable": this.checked}); };
+        // checkbox label
+        var tickLabel = document.createElement("label");
+        tickLabel.setAttribute( "for", tickBox.id );
+        tickLabel.setAttribute( "class", "inline" );
+        tickLabel.appendChild( document.createTextNode( dwv.i18n("basics.editMode") ) );
+        // checkbox div
+        var tickDiv = document.createElement("div");
+        tickDiv.appendChild(tickLabel);
+        tickDiv.appendChild(tickBox);
+
+        // search form
+        node.appendChild(dwv.html.getHtmlSearchForm(table));
+        // tick form
+        node.appendChild(tickDiv);
+
+        // draw list table
+        node.appendChild(table);
+
+        // delete draw button
+        var deleteButton = document.createElement("button");
+        deleteButton.onclick = function () { app.deleteDraws(); };
+        deleteButton.setAttribute( "class", "ui-btn ui-btn-inline" );
+        deleteButton.appendChild( document.createTextNode( dwv.i18n("basics.deleteDraws") ) );
+        if (!isEditable) {
+            deleteButton.style.display = "none";
+        }
+        node.appendChild(deleteButton);
+
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+}; // class dwv.gui.base.DrawList
+
+// namespaces
+var dwv = dwv || {};
+dwv.gui = dwv.gui || {};
+dwv.gui.base = dwv.gui.base || {};
+
+/**
+ * Append the version HTML.
+ */
+dwv.gui.base.appendVersionHtml = function (version)
+{
+    var nodes = document.getElementsByClassName("dwv-version");
+    if ( nodes ) {
+        for( var i = 0; i < nodes.length; ++i ){
+            nodes[i].appendChild( document.createTextNode(version) );
+        }
+    }
+};
+
+/**
+ * Build the help HTML.
+ * @param {Boolean} mobile Flag for mobile or not environement.
+ */
+dwv.gui.base.appendHelpHtml = function(toolList, mobile, app)
+{
+    var actionType = "mouse";
+    if( mobile ) {
+        actionType = "touch";
+    }
+
+    var toolHelpDiv = document.createElement("div");
+
+    var tool = null;
+    var tkeys = Object.keys(toolList);
+    for ( var t=0; t < tkeys.length; ++t )
+    {
+        tool = toolList[tkeys[t]];
+        // title
+        var title = document.createElement("h3");
+        title.appendChild(document.createTextNode(tool.getHelp().title));
+        // doc div
+        var docDiv = document.createElement("div");
+        // brief
+        var brief = document.createElement("p");
+        brief.appendChild(document.createTextNode(tool.getHelp().brief));
+        docDiv.appendChild(brief);
+        // details
+        if( tool.getHelp()[actionType] ) {
+            var keys = Object.keys(tool.getHelp()[actionType]);
+            for( var i=0; i<keys.length; ++i )
+            {
+                var action = tool.getHelp()[actionType][keys[i]];
+
+                var img = document.createElement("img");
+                img.src = app.getHelpResourcesPath() + "/" + keys[i] + ".png";
+                img.style.float = "left";
+                img.style.margin = "0px 15px 15px 0px";
+
+                var br = document.createElement("br");
+                br.style.clear = "both";
+
+                var para = document.createElement("p");
+                para.appendChild(img);
+                para.appendChild(document.createTextNode(action));
+                para.appendChild(br);
+                docDiv.appendChild(para);
+            }
+        }
+
+        // different div structure for mobile or static
+        if( mobile )
+        {
+            var toolDiv = document.createElement("div");
+            toolDiv.setAttribute("data-role", "collapsible");
+            toolDiv.appendChild(title);
+            toolDiv.appendChild(docDiv);
+            toolHelpDiv.appendChild(toolDiv);
+        }
+        else
+        {
+            toolHelpDiv.id = "accordion";
+            toolHelpDiv.appendChild(title);
+            toolHelpDiv.appendChild(docDiv);
+        }
+    }
+
+    var helpNode = app.getElement("help");
+
+    var headPara = document.createElement("p");
+    headPara.appendChild(document.createTextNode(dwv.i18n("help.intro.p0")));
+    helpNode.appendChild(headPara);
+
+    var secondPara = document.createElement("p");
+    secondPara.appendChild(document.createTextNode(dwv.i18n("help.intro.p1")));
+    helpNode.appendChild(secondPara);
+
+    var toolPara = document.createElement("p");
+    toolPara.appendChild(document.createTextNode(dwv.i18n("help.tool_intro")));
+    helpNode.appendChild(toolPara);
+    helpNode.appendChild(toolHelpDiv);
+};
+
+// namespaces
+var dwv = dwv || {};
+/** @namespace */
+dwv.html = dwv.html || {};
+
+/**
+ * Append a cell to a given row.
+ * @param {Object} row The row to append the cell to.
+ * @param {Object} content The content of the cell.
+ */
+dwv.html.appendCell = function (row, content)
+{
+    var cell = row.insertCell(-1);
+    var str = content;
+    // special care for arrays
+    if ( content instanceof Array ||
+            content instanceof Uint8Array || content instanceof Int8Array ||
+            content instanceof Uint16Array || content instanceof Int16Array ||
+            content instanceof Uint32Array ) {
+        if ( content.length > 10 ) {
+            content = Array.prototype.slice.call( content, 0, 10 );
+            content[10] = "...";
+        }
+        str = Array.prototype.join.call( content, ', ' );
+    }
+    // append
+    cell.appendChild(document.createTextNode(str));
+};
+
+/**
+ * Append a header cell to a given row.
+ * @param {Object} row The row to append the header cell to.
+ * @param {String} text The text of the header cell.
+ */
+dwv.html.appendHCell = function (row, text)
+{
+    var cell = document.createElement("th");
+    cell.appendChild(document.createTextNode(text));
+    row.appendChild(cell);
+};
+
+/**
+ * Append a row to an array.
+ * @param {Object} table The HTML table to append a row to.
+ * @param {Array} input The input row array.
+ * @param {Number} level The depth level of the input array.
+ * @param {Number} maxLevel The maximum depth level.
+ * @param {String} rowHeader The content of the first cell of a row (mainly for objects).
+ */
+dwv.html.appendRowForArray = function (table, input, level, maxLevel, rowHeader)
+{
+    var row = null;
+    // loop through
+    for ( var i=0; i<input.length; ++i ) {
+        var value = input[i];
+        // last level
+        if ( typeof value === 'number' ||
+                typeof value === 'string' ||
+                value === null ||
+                value === undefined ||
+                level >= maxLevel ) {
+            if ( !row ) {
+                row = table.insertRow(-1);
+            }
+            dwv.html.appendCell(row, value);
+        }
+        // more to come
+        else {
+            dwv.html.appendRow(table, value, level+i, maxLevel, rowHeader);
+        }
+    }
+};
+
+/**
+ * Append a row to an object.
+ * @param {Object} table The HTML table to append a row to.
+ * @param {Array} input The input row array.
+ * @param {Number} level The depth level of the input array.
+ * @param {Number} maxLevel The maximum depth level.
+ * @param {String} rowHeader The content of the first cell of a row (mainly for objects).
+ */
+dwv.html.appendRowForObject = function (table, input, level, maxLevel, rowHeader)
+{
+    var keys = Object.keys(input);
+    var row = null;
+    for ( var o=0; o<keys.length; ++o ) {
+        var value = input[keys[o]];
+        // last level
+        if ( typeof value === 'number' ||
+                typeof value === 'string' ||
+                value === null ||
+                value === undefined ||
+                level >= maxLevel ) {
+            if ( !row ) {
+                row = table.insertRow(-1);
+            }
+            if ( o === 0 && rowHeader) {
+                dwv.html.appendCell(row, rowHeader);
+            }
+            dwv.html.appendCell(row, value);
+        }
+        // more to come
+        else {
+            dwv.html.appendRow(table, value, level+o, maxLevel, keys[o]);
+        }
+    }
+    // header row
+    // warn: need to create the header after the rest
+    // otherwise the data will inserted in the thead...
+    if ( level === 2 ) {
+        var header = table.createTHead();
+        var th = header.insertRow(-1);
+        if ( rowHeader ) {
+            dwv.html.appendHCell(th, "");
+        }
+        for ( var k=0; k<keys.length; ++k ) {
+            dwv.html.appendHCell(th, keys[k]);
+        }
+    }
+};
+
+/**
+ * Append a row to an object or an array.
+ * @param {Object} table The HTML table to append a row to.
+ * @param {Array} input The input row array.
+ * @param {Number} level The depth level of the input array.
+ * @param {Number} maxLevel The maximum depth level.
+ * @param {String} rowHeader The content of the first cell of a row (mainly for objects).
+ */
+dwv.html.appendRow = function (table, input, level, maxLevel, rowHeader)
+{
+    // array
+    if ( input instanceof Array ) {
+        dwv.html.appendRowForArray(table, input, level+1, maxLevel, rowHeader);
+    }
+    // object
+    else if ( typeof input === 'object') {
+        dwv.html.appendRowForObject(table, input, level+1, maxLevel, rowHeader);
+    }
+    else {
+        throw new Error("Unsupported input data type.");
+    }
+};
+
+/**
+ * Converts the input to an HTML table.
+ * @input {Mixed} input Allowed types are: array, array of object, object.
+ * @return {Object} The created HTML table or null if the input is empty.
+ * @warning Null is interpreted differently in browsers, firefox will not display it.
+ */
+dwv.html.toTable = function (input)
+{
+    // check content
+    if (input.length === 0) {
+        return null;
+    }
+
+    var table = document.createElement('table');
+    dwv.html.appendRow(table, input, 0, 2);
+    return table;
+};
+
+/**
+ * Get an HTML search form.
+ * @param {Object} htmlTableToSearch The table to do the search on.
+ * @return {Object} The HTML search form.
+ */
+dwv.html.getHtmlSearchForm = function (htmlTableToSearch)
+{
+    // input
+    var input = document.createElement("input");
+    input.id = "table-search";
+    // TODO Use new html5 search type
+    //input.setAttribute("type", "search");
+    input.onkeyup = function () {
+        dwv.html.filterTable(input, htmlTableToSearch);
+    };
+    // label
+    var label = document.createElement("label");
+    label.setAttribute("for", input.id);
+    label.appendChild(document.createTextNode(dwv.i18n("basics.search") + ": "));
+    // form
+    var form = document.createElement("form");
+    form.setAttribute("class", "filter");
+    form.onsubmit = function (event) {
+        event.preventDefault();
+    };
+    form.appendChild(label);
+    form.appendChild(input);
+    // return
+    return form;
+};
+
+/**
+ * Filter a table with a given parameter: sets the display css of rows to
+ * true or false if it contains the term.
+ * @param {String} term The term to filter the table with.
+ * @param {Object} table The table to filter.
+ */
+dwv.html.filterTable = function (term, table) {
+    // de-highlight
+    dwv.html.dehighlight(table);
+    // split search terms
+    var terms = term.value.toLowerCase().split(" ");
+
+    // search
+    var text = 0;
+    var display = 0;
+    for (var r = 1; r < table.rows.length; ++r) {
+        display = '';
+        for (var i = 0; i < terms.length; ++i) {
+            text = table.rows[r].innerHTML.replace(/<[^>]+>/g, "").toLowerCase();
+            if (text.indexOf(terms[i]) < 0) {
+                display = 'none';
+            } else {
+                if (terms[i].length) {
+                    dwv.html.highlight(terms[i], table.rows[r]);
+                }
+            }
+            table.rows[r].style.display = display;
+        }
+    }
+};
+
+/**
+ * Transform back each
+ * 'preText <span class="highlighted">term</span> postText'
+ * into its original 'preText term postText'.
+ * @param {Object} container The container to de-highlight.
+ */
+dwv.html.dehighlight = function (container) {
+    for (var i = 0; i < container.childNodes.length; i++) {
+        var node = container.childNodes[i];
+
+        if (node.attributes &&
+                node.attributes['class'] &&
+                node.attributes['class'].value === 'highlighted') {
+            node.parentNode.parentNode.replaceChild(
+                    document.createTextNode(
+                        node.parentNode.innerHTML.replace(/<[^>]+>/g, "")),
+                    node.parentNode);
+            // Stop here and process next parent
+            return;
+        } else if (node.nodeType !== 3) {
+            // Keep going onto other elements
+            dwv.html.dehighlight(node);
+        }
+    }
+};
+
+/**
+ * Create a
+ * 'preText <span class="highlighted">term</span> postText'
+ * around each search term.
+ * @param {String} term The term to highlight.
+ * @param {Object} container The container where to highlight the term.
+ */
+dwv.html.highlight = function (term, container) {
+    for (var i = 0; i < container.childNodes.length; i++) {
+        var node = container.childNodes[i];
+
+        if (node.nodeType === 3) {
+            // Text node
+            var data = node.data;
+            var data_low = data.toLowerCase();
+            if (data_low.indexOf(term) >= 0) {
+                //term found!
+                var new_node = document.createElement('span');
+                node.parentNode.replaceChild(new_node, node);
+
+                var result;
+                while ((result = data_low.indexOf(term)) !== -1) {
+                    // before term
+                    new_node.appendChild(document.createTextNode(
+                                data.substr(0, result)));
+                    // term
+                    new_node.appendChild(dwv.html.createHighlightNode(
+                                document.createTextNode(data.substr(
+                                        result, term.length))));
+                    // reduce search string
+                    data = data.substr(result + term.length);
+                    data_low = data_low.substr(result + term.length);
+                }
+                new_node.appendChild(document.createTextNode(data));
+            }
+        } else {
+            // Keep going onto other elements
+            dwv.html.highlight(term, node);
+        }
+    }
+};
+
+/**
+ * Highlight a HTML node.
+ * @param {Object} child The child to highlight.
+ * @return {Object} The created HTML node.
+ */
+dwv.html.createHighlightNode = function (child) {
+    var node = document.createElement('span');
+    node.setAttribute('class', 'highlighted');
+    node.attributes['class'].value = 'highlighted';
+    node.appendChild(child);
+    return node;
+};
+
+/**
+ * Remove all children of a HTML node.
+ * @param {Object} node The node to remove kids.
+ */
+dwv.html.cleanNode = function (node) {
+    // remove its children if node exists
+    if ( !node ) {
+        return;
+    }
+    while (node.hasChildNodes()) {
+        node.removeChild(node.firstChild);
+    }
+};
+
+/**
+ * Remove a HTML node and all its children.
+ * @param {String} nodeId The string id of the node to delete.
+ */
+dwv.html.removeNode = function (node) {
+    // check node
+    if ( !node ) {
+        return;
+    }
+    // remove its children
+    dwv.html.cleanNode(node);
+    // remove it from its parent
+    var top = node.parentNode;
+    top.removeChild(node);
+};
+
+/**
+ * Remove a list of HTML nodes and all their children.
+ * @param {Array} nodes The list of nodes to delete.
+ */
+dwv.html.removeNodes = function (nodes) {
+    for ( var i = 0; i < nodes.length; ++i ) {
+        dwv.html.removeNode(nodes[i]);
+    }
+};
+
+/**
+ * Translate the content of an HTML row.
+ * @param {Object} row The HTML row to parse.
+ * @param {String} i18nPrefix The i18n prefix to use to find the translation.
+ */
+dwv.html.translateTableRow = function (row, i18nPrefix) {
+    var prefix = (typeof i18nPrefix === "undefined") ? "basics" : i18nPrefix;
+    if (prefix.length !== 0) {
+        prefix += ".";
+    }
+    var cells = row.cells;
+    for (var c = 0; c < cells.length; ++c) {
+        var text = cells[c].firstChild.data;
+        cells[c].firstChild.data = dwv.i18n( prefix + text );
+    }
+};
+
+/**
+ * Translate the content of an HTML column.
+ * @param {Object} table The HTML table to parse.
+ * @param {Number} columnNumber The number of the column to translate.
+ * @param {String} i18nPrefix The i18n prefix to use to find the translation.
+ * @param {String} i18nSuffix The i18n suffix to use to find the translation.
+ */
+dwv.html.translateTableColumn = function (table, columnNumber, i18nPrefix, i18nSuffix) {
+    var prefix = (typeof i18nPrefix === "undefined") ? "basics" : i18nPrefix;
+    if (prefix.length !== 0) {
+        prefix += ".";
+    }
+    var suffix = (typeof i18nSuffix === "undefined") ? "" : i18nSuffix;
+    if (suffix.length !== 0) {
+        suffix = "." + suffix;
+    }
+    if (table.rows.length !== 0) {
+        for (var r = 1; r < table.rows.length; ++r) {
+            var cells = table.rows.item(r).cells;
+            if (cells.length >= columnNumber) {
+                var text = cells[columnNumber].firstChild.data;
+                cells[columnNumber].firstChild.data = dwv.i18n( prefix + text + suffix );
+            }
+        }
+    }
+};
+
+/**
+ * Make a HTML table cell editable by putting its content inside an input element.
+ * @param {Object} cell The cell to make editable.
+ * @param {Function} onchange The callback to call when cell's content is changed.
+ *    if set to null, the HTML input will be disabled.
+ * @param {String} inputType The type of the HTML input, default to 'text'.
+ */
+dwv.html.makeCellEditable = function (cell, onchange, inputType) {
+    // check event
+    if (typeof cell === "undefined" ) {
+        console.warn("Cannot create input for non existing cell.");
+        return;
+    }
+    // HTML input
+    var input = document.createElement("input");
+    // handle change
+    if (onchange) {
+        input.onchange = onchange;
+    }
+    else {
+        input.disabled = true;
+    }
+    // set input value
+    input.value = cell.firstChild.data;
+    // input type
+    if (typeof inputType === "undefined" ||
+        (inputType === "color" && !dwv.browser.hasInputColor() ) ) {
+        input.type = "text";
+    }
+    else {
+        input.type = inputType;
+    }
+
+    // clean cell
+    dwv.html.cleanNode(cell);
+
+    // HTML form
+    var form = document.createElement("form");
+    form.onsubmit = function (event) {
+        event.preventDefault();
+    };
+    form.appendChild(input);
+    // add form to cell
+    cell.appendChild(form);
+};
+
+/**
+ * Set the document cursor to 'pointer'.
+ */
+dwv.html.setCursorToPointer = function () {
+    document.body.style.cursor = 'pointer';
+};
+
+/**
+ * Set the document cursor to 'default'.
+ */
+dwv.html.setCursorToDefault = function () {
+    document.body.style.cursor = 'default';
+};
+
+
+/**
+ * Create a HTML select from an input array of options.
+ * The values of the options are the name of the option made lower case.
+ * It is left to the user to set the 'onchange' method of the select.
+ * @param {String} name The name of the HTML select.
+ * @param {Mixed} list The list of options of the HTML select.
+ * @param {String} i18nPrefix An optional namespace prefix to find the translation values.
+ * @param {Bool} i18nSafe An optional flag to check translation existence.
+ * @return {Object} The created HTML select.
+ */
+dwv.html.createHtmlSelect = function (name, list, i18nPrefix, i18nSafe) {
+    // select
+    var select = document.createElement("select");
+    //select.name = name;
+    select.className = name;
+    var prefix = (typeof i18nPrefix === "undefined") ? "" : i18nPrefix + ".";
+    var safe = (typeof i18nSafe === "undefined") ? false : true;
+    var getText = function(value) {
+        var key = prefix + value + ".name";
+        var text = "";
+        if (safe) {
+            if (dwv.i18nExists(key)) {
+                text = dwv.i18n(key);
+            }
+            else {
+                text = value;
+            }
+        }
+        else {
+            text = dwv.i18n(key);
+        }
+        return text;
+    };
+    // options
+    var option;
+    if ( list instanceof Array )
+    {
+        for ( var i in list ) {
+            if ( list.hasOwnProperty(i) ) {
+                option = document.createElement("option");
+                option.value = list[i];
+                option.appendChild(document.createTextNode(getText(list[i])));
+                select.appendChild(option);
+            }
+        }
+    }
+    else if ( typeof list === 'object')
+    {
+        for ( var item in list )
+        {
+            option = document.createElement("option");
+            option.value = item;
+            option.appendChild(document.createTextNode(getText(item)));
+            select.appendChild(option);
+        }
+    }
+    else
+    {
+        throw new Error("Unsupported input list type.");
+    }
+    return select;
+};
+
+/**
+ * Display or not an element.
+ * @param {Object} element The HTML element to display.
+ * @param {Boolean} flag True to display the element.
+ */
+dwv.html.displayElement = function (element, flag)
+{
+    element.style.display = flag ? "" : "none";
+};
+
+/**
+ * Toggle the display of an element.
+ * @param {Object} element The HTML element to display.
+ */
+dwv.html.toggleDisplay = function (element)
+{
+    if ( element.style.display === "none" ) {
+        element.style.display = '';
+    }
+    else {
+        element.style.display = "none";
+    }
+};
+
+/**
+ * Append an element.
+ * @param {Object} parent The HTML element to append to.
+ * @param {Object} element The HTML element to append.
+ */
+dwv.html.appendElement = function (parent, element)
+{
+    // append
+    parent.appendChild(element);
+    // refresh
+    dwv.gui.refreshElement(parent);
+};
+
+/**
+ * Create an element.
+ * @param {String} type The type of the elemnt.
+ * @param {String} className The className of the element.
+ */
+dwv.html.createHiddenElement = function (type, className)
+{
+    var element = document.createElement(type);
+    element.className = className;
+    // hide by default
+    element.style.display = "none";
+    // return
+    return element;
+};
+
+// namespaces
+var dwv = dwv || {};
+dwv.gui = dwv.gui || {};
+dwv.gui.base = dwv.gui.base || {};
+dwv.gui.info = dwv.gui.info || {};
+
+/**
+ * Plot some data in a given div.
+ * @param {Object} div The HTML element to add WindowLevel info to.
+ * @param {Array} data The data array to plot.
+ * @param {Object} options Plot options.
+ */
+dwv.gui.base.plot = function (/*div, data, options*/)
+{
+    // default does nothing...
+};
+
+/**
+ * MiniColourMap info layer.
+ * @constructor
+ * @param {Object} div The HTML element to add colourMap info to.
+ * @param {Object} app The associated application.
+ */
+dwv.gui.info.MiniColourMap = function ( div, app )
+{
+    /**
+     * Create the mini colour map info div.
+     */
+    this.create = function ()
+    {
+        // clean div
+        var elems = div.getElementsByClassName("colour-map-info");
+        if ( elems.length !== 0 ) {
+            dwv.html.removeNodes(elems);
+        }
+        // colour map
+        var canvas = document.createElement("canvas");
+        canvas.className = "colour-map-info";
+        canvas.width = 98;
+        canvas.height = 10;
+        // add canvas to div
+        div.appendChild(canvas);
+    };
+
+    /**
+     * Update the mini colour map info div.
+     * @param {Object} event The windowing change event containing the new values.
+     * Warning: expects the mini colour map div to exist (use after createMiniColourMap).
+     */
+    this.update = function (event)
+    {
+        var windowCenter = event.wc;
+        var windowWidth = event.ww;
+        // retrieve canvas and context
+        var canvas = div.getElementsByClassName("colour-map-info")[0];
+        var context = canvas.getContext('2d');
+        // fill in the image data
+        var colourMap = app.getViewController().getColourMap();
+        var imageData = context.getImageData(0,0,canvas.width, canvas.height);
+        // histogram sampling
+        var c = 0;
+        var minInt = app.getImage().getRescaledDataRange().min;
+        var range = app.getImage().getRescaledDataRange().max - minInt;
+        var incrC = range / canvas.width;
+        // Y scale
+        var y = 0;
+        var yMax = 255;
+        var yMin = 0;
+        // X scale
+        var xMin = windowCenter - 0.5 - (windowWidth-1) / 2;
+        var xMax = windowCenter - 0.5 + (windowWidth-1) / 2;
+        // loop through values
+        var index;
+        for ( var j = 0; j < canvas.height; ++j ) {
+            c = minInt;
+            for ( var i = 0; i < canvas.width; ++i ) {
+                if ( c <= xMin ) {
+                    y = yMin;
+                }
+                else if ( c > xMax ) {
+                    y = yMax;
+                }
+                else {
+                    y = ( (c - (windowCenter-0.5) ) / (windowWidth-1) + 0.5 ) *
+                        (yMax-yMin) + yMin;
+                    y = parseInt(y,10);
+                }
+                index = (i + j * canvas.width) * 4;
+                imageData.data[index] = colourMap.red[y];
+                imageData.data[index+1] = colourMap.green[y];
+                imageData.data[index+2] = colourMap.blue[y];
+                imageData.data[index+3] = 0xff;
+                c += incrC;
+            }
+        }
+        // put the image data in the context
+        context.putImageData(imageData, 0, 0);
+    };
+}; // class dwv.gui.info.MiniColourMap
+
+
+/**
+ * Plot info layer.
+ * @constructor
+ * @param {Object} div The HTML element to add colourMap info to.
+ * @param {Object} app The associated application.
+ */
+dwv.gui.info.Plot = function (div, app)
+{
+    /**
+     * Create the plot info.
+     */
+    this.create = function()
+    {
+        // clean div
+        if ( div ) {
+            dwv.html.cleanNode(div);
+        }
+        // plot
+        dwv.gui.plot(div, app.getImage().getHistogram());
+    };
+
+    /**
+     * Update plot.
+     * @param {Object} event The windowing change event containing the new values.
+     * Warning: expects the plot to exist (use after createPlot).
+     */
+    this.update = function (event)
+    {
+        var wc = event.wc;
+        var ww = event.ww;
+
+        var half = parseInt( (ww-1) / 2, 10 );
+        var center = parseInt( (wc-0.5), 10 );
+        var min = center - half;
+        var max = center + half;
+
+        var markings = [
+            { "color": "#faa", "lineWidth": 1, "xaxis": { "from": min, "to": min } },
+            { "color": "#aaf", "lineWidth": 1, "xaxis": { "from": max, "to": max } }
+        ];
+
+        // plot
+        dwv.gui.plot(div, app.getImage().getHistogram(), {markings: markings});
+    };
+
+}; // class dwv.gui.info.Plot
+
+/**
+ * DICOM Header overlay info layer.
+ * @constructor
+ * @param {Object} div The HTML element to add Header overlay info to.
+ * @param {String} pos The string to specify the corner position. (tl,tc,tr,cl,cr,bl,bc,br)
+ */
+dwv.gui.info.Overlay = function ( div, pos, app )
+{
+    // closure to self
+    var self = this;
+
+    /**
+     * Get the overlay array of the current position.
+     * @return {Array} The overlay information.
+     */
+    this.getOverlays = function ()
+    {
+        var image = app.getImage();
+        if (!image) {
+            return;
+        }
+        var allOverlays = image.getOverlays();
+        if (!allOverlays) {
+            return;
+        }
+        var position = app.getViewController().getCurrentPosition();
+        var sliceOverlays = allOverlays[position.k];
+        if (!sliceOverlays) {
+            return;
+        }
+        return sliceOverlays[pos];
+    };
+
+    /**
+     * Create the overlay info div.
+     */
+    this.create = function ()
+    {
+        // remove all <ul> elements from div
+        dwv.html.cleanNode(div);
+
+        // get overlay string array of the current position
+        var overlays = self.getOverlays();
+        if (!overlays) {
+            return;
+        }
+
+        if (pos === "bc" || pos === "tc" ||
+            pos === "cr" || pos === "cl") {
+            div.textContent = overlays[0].value;
+        } else {
+            // create <ul> element
+            var ul = document.createElement("ul");
+
+            for (var n=0; overlays[n]; n++){
+                var li;
+                if (overlays[n].value === "window-center") {
+                    li = document.createElement("li");
+                    li.className = "info-" + pos + "-window-center";
+                    ul.appendChild(li);
+                } else if (overlays[n].value === "window-width") {
+                    li = document.createElement("li");
+                    li.className = "info-" + pos + "-window-width";
+                    ul.appendChild(li);
+                } else if (overlays[n].value === "zoom") {
+                    li = document.createElement("li");
+                    li.className = "info-" + pos + "-zoom";
+                    ul.appendChild(li);
+                } else if (overlays[n].value === "offset") {
+                    li = document.createElement("li");
+                    li.className = "info-" + pos + "-offset";
+                    ul.appendChild(li);
+                } else if (overlays[n].value === "value") {
+                    li = document.createElement("li");
+                    li.className = "info-" + pos + "-value";
+                    ul.appendChild(li);
+                } else if (overlays[n].value === "position") {
+                    li = document.createElement("li");
+                    li.className = "info-" + pos + "-position";
+                    ul.appendChild(li);
+                } else if (overlays[n].value === "frame") {
+                    li = document.createElement("li");
+                    li.className = "info-" + pos + "-frame";
+                    ul.appendChild(li);
+                } else {
+                    li = document.createElement("li");
+                    li.className = "info-" + pos + "-" + n;
+                    li.appendChild( document.createTextNode( overlays[n].value ) );
+                    ul.appendChild(li);
+                }
+            }
+
+            // append <ul> element before color map
+            div.appendChild(ul);
+        }
+    };
+
+    /**
+     * Update the overlay info div.
+     * @param {Object} event A change event.
+     */
+    this.update = function ( event )
+    {
+        // get overlay string array of the current position
+        var overlays = self.getOverlays();
+        if (!overlays) {
+            return;
+        }
+
+        if (pos === "bc" || pos === "tc" ||
+            pos === "cr" || pos === "cl") {
+            div.textContent = overlays[0].value;
+        } else {
+            var li;
+            var n;
+
+            for (n=0; overlays[n]; n++) {
+                if (overlays[n].value === "window-center") {
+                    if (event.type === "wl-center-change") {
+                        li = div.getElementsByClassName("info-" + pos + "-window-center")[0];
+                        dwv.html.cleanNode(li);
+                        var wcStr = dwv.utils.replaceFlags2( overlays[n].format, [Math.round(event.wc)] );
+                        if (li) {
+                            li.appendChild( document.createTextNode(wcStr) );
+                        }
+                    }
+                } else if (overlays[n].value === "window-width") {
+                    if (event.type === "wl-width-change") {
+                        li = div.getElementsByClassName("info-" + pos + "-window-width")[0];
+                        dwv.html.cleanNode(li);
+                        var wwStr = dwv.utils.replaceFlags2( overlays[n].format, [Math.round(event.ww)] );
+                        if (li) {
+                            li.appendChild( document.createTextNode(wwStr) );
+                        }
+                    }
+                } else if (overlays[n].value === "zoom") {
+                    if (event.type === "zoom-change") {
+                        li = div.getElementsByClassName("info-" + pos + "-zoom")[0];
+                        dwv.html.cleanNode(li);
+                        var zoom = Number(event.scale).toPrecision(3);
+                        var zoomStr = dwv.utils.replaceFlags2( overlays[n].format, [zoom] );
+                        if (li) {
+                            li.appendChild( document.createTextNode( zoomStr ) );
+                        }
+                    }
+                } else if (overlays[n].value === "offset") {
+                    if (event.type === "zoom-change") {
+                        li = div.getElementsByClassName("info-" + pos + "-offset")[0];
+                        dwv.html.cleanNode(li);
+                        var offset = [ Number(event.cx).toPrecision(3),
+                            Number(event.cy).toPrecision(3)];
+                        var offStr = dwv.utils.replaceFlags2( overlays[n].format, offset );
+                        if (li) {
+                            li.appendChild( document.createTextNode( offStr ) );
+                        }
+                    }
+                } else if (overlays[n].value === "value") {
+                    if (event.type === "position-change") {
+                        li = div.getElementsByClassName("info-" + pos + "-value")[0];
+                        dwv.html.cleanNode(li);
+                        var valueStr = dwv.utils.replaceFlags2( overlays[n].format, [event.value] );
+                        if (li) {
+                            li.appendChild( document.createTextNode( valueStr ) );
+                        }
+                    }
+                } else if (overlays[n].value === "position") {
+                    if (event.type === "position-change") {
+                        li = div.getElementsByClassName("info-" + pos + "-position")[0];
+                        dwv.html.cleanNode(li);
+                        var posStr = dwv.utils.replaceFlags2( overlays[n].format, [event.i, event.j, event.k] );
+                        if (li) {
+                            li.appendChild( document.createTextNode( posStr ) );
+                        }
+                    }
+                } else if (overlays[n].value === "frame") {
+                    if (event.type === "frame-change") {
+                        li = div.getElementsByClassName("info-" + pos + "-frame")[0];
+                        dwv.html.cleanNode(li);
+                        var frameStr = dwv.utils.replaceFlags2( overlays[n].format, [event.frame] );
+                        if (li) {
+                            li.appendChild( document.createTextNode( frameStr ) );
+                        }
+                    }
+                } else {
+                    if (event.type === "position-change") {
+                        li = div.getElementsByClassName("info-" + pos + "-" + n)[0];
+                        dwv.html.cleanNode(li);
+                        if (li) {
+                            li.appendChild( document.createTextNode( overlays[n].value ) );
+                        }
+                    }
+                }
+            }
+        }
+    };
+}; // class dwv.gui.info.Overlay
+
+/**
+ * Create overlay string array of the image in each corner
+ * @param {Object} dicomElements DICOM elements of the image
+ * @return {Array} Array of string to be shown in each corner
+ */
+dwv.gui.info.createOverlays = function (dicomElements)
+{
+    var overlays = {};
+    var modality = dicomElements.getFromKey("x00080060");
+    if (!modality){
+        return overlays;
+    }
+
+    var omaps = dwv.gui.info.overlayMaps;
+    if (!omaps){
+        return overlays;
+    }
+    var omap = omaps[modality] || omaps['*'];
+
+    for (var n=0; omap[n]; n++){
+        var value = omap[n].value;
+        var tags = omap[n].tags;
+        var format = omap[n].format;
+        var pos = omap[n].pos;
+
+        if (typeof tags !== "undefined" && tags.length !== 0) {
+            // get values
+            var values = [];
+            for ( var i = 0; i < tags.length; ++i ) {
+                values.push( dicomElements.getElementValueAsStringFromKey( tags[i] ) );
+            }
+            // format
+            if (typeof format === "undefined" || format === null) {
+                format = dwv.utils.createDefaultReplaceFormat( values );
+            }
+            value = dwv.utils.replaceFlags2( format, values );
+        }
+
+        if (!value || value.length === 0){
+            continue;
+        }
+
+        // add value to overlays
+        if (!overlays[pos]) {
+            overlays[pos] = [];
+        }
+        overlays[pos].push({'value': value.trim(), 'format': format});
+    }
+
+    // (0020,0020) Patient Orientation
+    var valuePO = dicomElements.getFromKey("x00200020");
+    if (typeof valuePO !== "undefined" && valuePO !== null && valuePO.length == 2){
+        var po0 = dwv.dicom.cleanString(valuePO[0]);
+        var po1 = dwv.dicom.cleanString(valuePO[1]);
+        overlays.cr = [{'value': po0}];
+        overlays.cl = [{'value': dwv.dicom.getReverseOrientation(po0)}];
+        overlays.bc = [{'value': po1}];
+        overlays.tc = [{'value': dwv.dicom.getReverseOrientation(po1)}];
+    }
+
+    return overlays;
+};
+
+/**
+ * Create overlay string array of the image in each corner
+ * @param {Object} dicomElements DICOM elements of the image
+ * @return {Array} Array of string to be shown in each corner
+ */
+dwv.gui.info.createOverlaysForDom = function (info)
+{
+    var overlays = {};
+    var omaps = dwv.gui.info.overlayMaps;
+    if (!omaps){
+        return overlays;
+    }
+    var omap = omaps.DOM;
+    if (!omap){
+        return overlays;
+    }
+
+    for (var n=0; omap[n]; n++){
+        var value = omap[n].value;
+        var tags = omap[n].tags;
+        var format = omap[n].format;
+        var pos = omap[n].pos;
+
+        if (typeof tags !== "undefined" && tags.length !== 0) {
+            // get values
+            var values = [];
+            for ( var i = 0; i < tags.length; ++i ) {
+                for ( var j = 0; j < info.length; ++j ) {
+                    if (tags[i] === info[j].name) {
+                        values.push( info[j].value );
+                    }
+                }
+            }
+            // format
+            if (typeof format === "undefined" || format === null) {
+                format = dwv.utils.createDefaultReplaceFormat( values );
+            }
+            value = dwv.utils.replaceFlags2( format, values );
+        }
+
+        if (!value || value.length === 0){
+            continue;
+        }
+
+        // add value to overlays
+        if (!overlays[pos]) {
+            overlays[pos] = [];
+        }
+        overlays[pos].push({'value': value.trim(), 'format': format});
+    }
+
+    return overlays;
+};
 
 // namespaces
 var dwv = dwv || {};
@@ -10982,6 +12707,263 @@ dwv.html.getEventOffset = function (event) {
 
 // namespaces
 var dwv = dwv || {};
+dwv.gui = dwv.gui || {};
+dwv.gui.base = dwv.gui.base || {};
+
+/**
+ * Loadbox base gui.
+ * @constructor
+ */
+dwv.gui.base.Loadbox = function (app, loaders)
+{
+    /**
+     * Loader HTML select.
+     * @private
+     */
+    var loaderSelector = null;
+
+    /**
+     * Setup the loadbox HTML.
+     */
+    this.setup = function ()
+    {
+        // loader select
+        loaderSelector = dwv.html.createHtmlSelect("loaderSelect", loaders, "io");
+        loaderSelector.onchange = app.onChangeLoader;
+
+        // node
+        var node = app.getElement("loaderlist");
+        // clear it
+        while(node.hasChildNodes()) {
+            node.removeChild(node.firstChild);
+        }
+        // append
+        node.appendChild(loaderSelector);
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Display a loader.
+     * @param {String} name The name of the loader to show.
+     */
+    this.displayLoader = function (name)
+    {
+        var keys = Object.keys(loaders);
+        for ( var i = 0; i < keys.length; ++i ) {
+            if ( keys[i] === name ) {
+                loaders[keys[i]].display(true);
+            }
+            else {
+                loaders[keys[i]].display(false);
+            }
+        }
+    };
+
+    /**
+     * Reset to its original state.
+     */
+    this.reset = function ()
+    {
+        // display first loader
+        var keys = Object.keys(loaders);
+        this.displayLoader(keys[0]);
+        // reset HTML select
+        if (loaderSelector) {
+            loaderSelector.selectedIndex = 0;
+        }
+    };
+
+}; // class dwv.gui.base.Loadbox
+
+/**
+ * FileLoad base gui.
+ * @constructor
+ */
+dwv.gui.base.FileLoad = function (app)
+{
+    // closure to self
+    var self = this;
+
+    /**
+     * Internal file input change handler.
+     * @param {Object} event The change event.
+     */
+    function onchangeinternal(event) {
+        if (typeof self.onchange === "function") {
+            self.onchange(event);
+        }
+        app.onChangeFiles(event);
+    }
+
+    /**
+     * Setup the file load HTML to the page.
+     */
+    this.setup = function()
+    {
+        // input
+        var fileLoadInput = document.createElement("input");
+        fileLoadInput.onchange = onchangeinternal;
+        fileLoadInput.type = "file";
+        fileLoadInput.multiple = true;
+        fileLoadInput.className = "imagefiles";
+        fileLoadInput.setAttribute("data-clear-btn","true");
+        fileLoadInput.setAttribute("data-mini","true");
+
+        // associated div
+        var fileLoadDiv = document.createElement("div");
+        fileLoadDiv.className = "imagefilesdiv";
+        fileLoadDiv.style.display = "none";
+        fileLoadDiv.appendChild(fileLoadInput);
+
+        // node
+        var node = app.getElement("loaderlist");
+        // append
+        node.appendChild(fileLoadDiv);
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Display the file load HTML.
+     * @param {Boolean} bool True to display, false to hide.
+     */
+    this.display = function (bool)
+    {
+        // file div element
+        var node = app.getElement("loaderlist");
+        var filediv = node.getElementsByClassName("imagefilesdiv")[0];
+        filediv.style.display = bool ? "" : "none";
+    };
+
+}; // class dwv.gui.base.FileLoad
+
+/**
+ * FolderLoad base gui.
+ * @constructor
+ */
+dwv.gui.base.FolderLoad = function (app)
+{
+    // closure to self
+    var self = this;
+
+    /**
+     * Internal file input change handler.
+     * @param {Object} event The change event.
+     */
+    function onchangeinternal(event) {
+        if (typeof self.onchange === "function") {
+            self.onchange(event);
+        }
+        app.onChangeFiles(event);
+    }
+
+    /**
+     * Setup the file load HTML to the page.
+     */
+    this.setup = function()
+    {
+        // input
+        var fileLoadInput = document.createElement("input");
+        fileLoadInput.onchange = onchangeinternal;
+        fileLoadInput.type = "file";
+        fileLoadInput.multiple = true;
+        fileLoadInput.webkitdirectory  = true;
+        fileLoadInput.className = "imagefolder";
+        fileLoadInput.setAttribute("data-clear-btn","true");
+        fileLoadInput.setAttribute("data-mini","true");
+
+        // associated div
+        var folderLoadDiv = document.createElement("div");
+        folderLoadDiv.className = "imagefolderdiv";
+        folderLoadDiv.style.display = "none";
+        folderLoadDiv.appendChild(fileLoadInput);
+
+        // node
+        var node = app.getElement("loaderlist");
+        // append
+        node.appendChild(folderLoadDiv);
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Display the folder load HTML.
+     * @param {Boolean} bool True to display, false to hide.
+     */
+    this.display = function (bool)
+    {
+        // file div element
+        var node = app.getElement("loaderlist");
+        var folderdiv = node.getElementsByClassName("imagefolderdiv")[0];
+        folderdiv.style.display = bool ? "" : "none";
+    };
+
+}; // class dwv.gui.base.FileLoad
+
+/**
+ * UrlLoad base gui.
+ * @constructor
+ */
+dwv.gui.base.UrlLoad = function (app)
+{
+    // closure to self
+    var self = this;
+
+    /**
+     * Internal url input change handler.
+     * @param {Object} event The change event.
+     */
+    function onchangeinternal(event) {
+        if (typeof self.onchange === "function") {
+            self.onchange(event);
+        }
+        app.onChangeURL(event);
+    }
+
+    /**
+     * Setup the url load HTML to the page.
+     */
+    this.setup = function ()
+    {
+        // input
+        var urlLoadInput = document.createElement("input");
+        urlLoadInput.onchange = onchangeinternal;
+        urlLoadInput.type = "url";
+        urlLoadInput.className = "imageurl";
+        urlLoadInput.setAttribute("data-clear-btn","true");
+        urlLoadInput.setAttribute("data-mini","true");
+
+        // associated div
+        var urlLoadDiv = document.createElement("div");
+        urlLoadDiv.className = "imageurldiv";
+        urlLoadDiv.style.display = "none";
+        urlLoadDiv.appendChild(urlLoadInput);
+
+        // node
+        var node = app.getElement("loaderlist");
+        // append
+        node.appendChild(urlLoadDiv);
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Display the url load HTML.
+     * @param {Boolean} bool True to display, false to hide.
+     */
+    this.display = function (bool)
+    {
+        // url div element
+        var node = app.getElement("loaderlist");
+        var urldiv = node.getElementsByClassName("imageurldiv")[0];
+        urldiv.style.display = bool ? "" : "none";
+    };
+
+}; // class dwv.gui.base.UrlLoad
+
+// namespaces
+var dwv = dwv || {};
 dwv.html = dwv.html || {};
 
 /**
@@ -11114,72 +13096,598 @@ dwv.html.Style.prototype.getScaledStrokeWidth = function ()
 
 // namespaces
 var dwv = dwv || {};
+dwv.gui = dwv.gui || {};
+dwv.gui.base = dwv.gui.base || {};
+
+/**
+ * Toolbox base gui.
+ * @constructor
+ */
+dwv.gui.base.Toolbox = function (app)
+{
+    /**
+     * Setup the toolbox HTML.
+     */
+    this.setup = function (list)
+    {
+        // tool select
+        var toolSelector = dwv.html.createHtmlSelect("toolSelect", list, "tool");
+        toolSelector.onchange = app.onChangeTool;
+
+        // tool list element
+        var toolLi = document.createElement("li");
+        toolLi.className = "toolLi ui-block-a";
+        toolLi.style.display = "none";
+        toolLi.appendChild(toolSelector);
+
+        // tool ul
+        var toolUl = document.createElement("ul");
+        toolUl.appendChild(toolLi);
+        toolUl.className = "ui-grid-b";
+
+        // node
+        var node = app.getElement("toolList");
+        // append
+        node.appendChild(toolUl);
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Display the toolbox HTML.
+     * @param {Boolean} bool True to display, false to hide.
+     */
+    this.display = function (bool)
+    {
+        // tool list element
+        var node = app.getElement("toolLi");
+        dwv.html.displayElement(node, bool);
+    };
+
+    /**
+     * Initialise the toolbox HTML.
+     */
+    this.initialise = function (displays)
+    {
+        // tool select: reset selected option
+        var toolSelector = app.getElement("toolSelect");
+
+        // update list
+        var options = toolSelector.options;
+        var selectedIndex = -1;
+        for ( var i = 0; i < options.length; ++i ) {
+            if ( !displays[i] ) {
+                options[i].style.display = "none";
+            }
+            else {
+                if ( selectedIndex === -1 ) {
+                    selectedIndex = i;
+                }
+                options[i].style.display = "";
+            }
+        }
+        toolSelector.selectedIndex = selectedIndex;
+
+        // refresh
+        dwv.gui.refreshElement(toolSelector);
+    };
+
+}; // dwv.gui.base.Toolbox
+
+/**
+ * WindowLevel tool base gui.
+ * @constructor
+ */
+dwv.gui.base.WindowLevel = function (app)
+{
+    /**
+     * Setup the tool HTML.
+     */
+    this.setup = function ()
+    {
+        // preset select
+        var wlSelector = dwv.html.createHtmlSelect("presetSelect", []);
+        wlSelector.onchange = app.onChangeWindowLevelPreset;
+        // colour map select
+        var cmSelector = dwv.html.createHtmlSelect("colourMapSelect", dwv.tool.colourMaps, "colourmap");
+        cmSelector.onchange = app.onChangeColourMap;
+
+        // preset list element
+        var wlLi = document.createElement("li");
+        wlLi.className = "wlLi ui-block-b";
+        //wlLi.className = "wlLi";
+        wlLi.style.display = "none";
+        wlLi.appendChild(wlSelector);
+        // colour map list element
+        var cmLi = document.createElement("li");
+        cmLi.className = "cmLi ui-block-c";
+        //cmLi.className = "cmLi";
+        cmLi.style.display = "none";
+        cmLi.appendChild(cmSelector);
+
+        // node
+        var node = app.getElement("toolList").getElementsByTagName("ul")[0];
+        // append preset
+        node.appendChild(wlLi);
+        // append colour map
+        node.appendChild(cmLi);
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Display the tool HTML.
+     * @param {Boolean} bool True to display, false to hide.
+     */
+    this.display = function (bool)
+    {
+        // presets list element
+        var node = app.getElement("wlLi");
+        dwv.html.displayElement(node, bool);
+        // colour map list element
+        node = app.getElement("cmLi");
+        dwv.html.displayElement(node, bool);
+    };
+
+    /**
+     * Initialise the tool HTML.
+     */
+    this.initialise = function ()
+    {
+        // create new preset select
+        var wlSelector = dwv.html.createHtmlSelect("presetSelect",
+            app.getViewController().getWindowLevelPresetsNames(), "wl.presets", true);
+        wlSelector.onchange = app.onChangeWindowLevelPreset;
+        wlSelector.title = "Select w/l preset.";
+
+        // copy html list
+        var wlLi = app.getElement("wlLi");
+        // clear node
+        dwv.html.cleanNode(wlLi);
+        // add children
+        wlLi.appendChild(wlSelector);
+        // refresh
+        dwv.gui.refreshElement(wlLi);
+
+        // colour map select
+        var cmSelector = app.getElement("colourMapSelect");
+        cmSelector.selectedIndex = 0;
+        // special monochrome1 case
+        if( app.getImage().getPhotometricInterpretation() === "MONOCHROME1" )
+        {
+            cmSelector.selectedIndex = 1;
+        }
+        // refresh
+        dwv.gui.refreshElement(cmSelector);
+    };
+
+}; // class dwv.gui.base.WindowLevel
+
+/**
+ * Draw tool base gui.
+ * @constructor
+ */
+dwv.gui.base.Draw = function (app)
+{
+    // default colours
+    var colours = [
+       "Yellow", "Red", "White", "Green", "Blue", "Lime", "Fuchsia", "Black"
+    ];
+    /**
+     * Get the default colour.
+     */
+    this.getDefaultColour = function () {
+        if ( dwv.browser.hasInputColor() ) {
+            return "#FFFF80";
+        }
+        else {
+            return colours[0];
+        }
+    };
+
+    /**
+     * Setup the tool HTML.
+     */
+    this.setup = function (shapeList)
+    {
+        // shape select
+        var shapeSelector = dwv.html.createHtmlSelect("shapeSelect", shapeList, "shape");
+        shapeSelector.onchange = app.onChangeShape;
+        // colour select
+        var colourSelector = null;
+        if ( dwv.browser.hasInputColor() ) {
+            colourSelector = document.createElement("input");
+            colourSelector.className = "colourSelect";
+            colourSelector.type = "color";
+            colourSelector.value = "#FFFF80";
+        }
+        else {
+            colourSelector = dwv.html.createHtmlSelect("colourSelect", colours, "colour");
+        }
+        colourSelector.onchange = app.onChangeLineColour;
+
+        // shape list element
+        var shapeLi = document.createElement("li");
+        shapeLi.className = "shapeLi ui-block-c";
+        shapeLi.style.display = "none";
+        shapeLi.appendChild(shapeSelector);
+        //shapeLi.setAttribute("class","ui-block-c");
+        // colour list element
+        var colourLi = document.createElement("li");
+        colourLi.className = "colourLi ui-block-b";
+        colourLi.style.display = "none";
+        colourLi.appendChild(colourSelector);
+        //colourLi.setAttribute("class","ui-block-b");
+
+        // node
+        var node = app.getElement("toolList").getElementsByTagName("ul")[0];
+        // apend shape
+        node.appendChild(shapeLi);
+        // append colour
+        node.appendChild(colourLi);
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Display the tool HTML.
+     * @param {Boolean} bool True to display, false to hide.
+     */
+    this.display = function (bool)
+    {
+        // colour list element
+        var node = app.getElement("colourLi");
+        dwv.html.displayElement(node, bool);
+        // shape list element
+        node = app.getElement("shapeLi");
+        dwv.html.displayElement(node, bool);
+    };
+
+    /**
+     * Initialise the tool HTML.
+     */
+    this.initialise = function ()
+    {
+        // shape select: reset selected option
+        var shapeSelector = app.getElement("shapeSelect");
+        shapeSelector.selectedIndex = 0;
+        // refresh
+        dwv.gui.refreshElement(shapeSelector);
+
+        // colour select: reset selected option
+        var colourSelector = app.getElement("colourSelect");
+        if ( !dwv.browser.hasInputColor() ) {
+            colourSelector.selectedIndex = 0;
+        }
+        // refresh
+        dwv.gui.refreshElement(colourSelector);
+    };
+
+}; // class dwv.gui.base.Draw
+
+/**
+ * Base gui for a tool with a colour setting.
+ * @constructor
+ */
+dwv.gui.base.ColourTool = function (app, prefix)
+{
+    // default colours
+    var colours = [
+       "Yellow", "Red", "White", "Green", "Blue", "Lime", "Fuchsia", "Black"
+    ];
+    // colour selector class
+    var colourSelectClassName = prefix + "ColourSelect";
+    // colour selector class
+    var colourLiClassName = prefix + "ColourLi";
+
+    /**
+     * Get the default colour.
+     */
+    this.getDefaultColour = function () {
+        if ( dwv.browser.hasInputColor() ) {
+            return "#FFFF80";
+        }
+        else {
+            return colours[0];
+        }
+    };
+
+    /**
+     * Setup the tool HTML.
+     */
+    this.setup = function ()
+    {
+        // colour select
+        var colourSelector = null;
+        if ( dwv.browser.hasInputColor() ) {
+            colourSelector = document.createElement("input");
+            colourSelector.className = colourSelectClassName;
+            colourSelector.type = "color";
+            colourSelector.value = "#FFFF80";
+        }
+        else {
+            colourSelector = dwv.html.createHtmlSelect(colourSelectClassName, colours, "colour");
+        }
+        colourSelector.onchange = app.onChangeLineColour;
+
+        // colour list element
+        var colourLi = document.createElement("li");
+        colourLi.className = colourLiClassName + " ui-block-b";
+        colourLi.style.display = "none";
+        //colourLi.setAttribute("class","ui-block-b");
+        colourLi.appendChild(colourSelector);
+
+        // node
+        var node = app.getElement("toolList").getElementsByTagName("ul")[0];
+        // apend colour
+        node.appendChild(colourLi);
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Display the tool HTML.
+     * @param {Boolean} bool True to display, false to hide.
+     */
+    this.display = function (bool)
+    {
+        // colour list
+        var node = app.getElement(colourLiClassName);
+        dwv.html.displayElement(node, bool);
+    };
+
+    /**
+     * Initialise the tool HTML.
+     */
+    this.initialise = function ()
+    {
+        var colourSelector = app.getElement(colourSelectClassName);
+        if ( !dwv.browser.hasInputColor() ) {
+            colourSelector.selectedIndex = 0;
+        }
+        dwv.gui.refreshElement(colourSelector);
+    };
+
+}; // class dwv.gui.base.ColourTool
+
+/**
+ * ZoomAndPan tool base gui.
+ * @constructor
+ */
+dwv.gui.base.ZoomAndPan = function (app)
+{
+    /**
+     * Setup the tool HTML.
+     */
+    this.setup = function()
+    {
+        // reset button
+        var button = document.createElement("button");
+        button.className = "zoomResetButton";
+        button.name = "zoomResetButton";
+        button.onclick = app.onZoomReset;
+        button.setAttribute("style","width:100%; margin-top:0.5em;");
+        button.setAttribute("class","ui-btn ui-btn-b");
+        var text = document.createTextNode(dwv.i18n("basics.reset"));
+        button.appendChild(text);
+
+        // list element
+        var liElement = document.createElement("li");
+        liElement.className = "zoomLi ui-block-c";
+        liElement.style.display = "none";
+        //liElement.setAttribute("class","ui-block-c");
+        liElement.appendChild(button);
+
+        // node
+        var node = app.getElement("toolList").getElementsByTagName("ul")[0];
+        // append element
+        node.appendChild(liElement);
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Display the tool HTML.
+     * @param {Boolean} bool True to display, false to hide.
+     */
+    this.display = function(bool)
+    {
+        // display list element
+        var node = app.getElement("zoomLi");
+        dwv.html.displayElement(node, bool);
+    };
+
+}; // class dwv.gui.base.ZoomAndPan
+
+/**
+ * Scroll tool base gui.
+ * @constructor
+ */
+dwv.gui.base.Scroll = function (app)
+{
+    /**
+     * Setup the tool HTML.
+     */
+    this.setup = function()
+    {
+        // list element
+        var liElement = document.createElement("li");
+        liElement.className = "scrollLi ui-block-c";
+        liElement.style.display = "none";
+
+        // node
+        var node = app.getElement("toolList").getElementsByTagName("ul")[0];
+        // append element
+        node.appendChild(liElement);
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Display the tool HTML.
+     * @param {Boolean} bool True to display, false to hide.
+     */
+    this.display = function(bool)
+    {
+        // display list element
+        var node = app.getElement("scrollLi");
+        dwv.html.displayElement(node, bool);
+    };
+
+}; // class dwv.gui.base.Scroll
+
+// namespaces
+var dwv = dwv || {};
+dwv.gui = dwv.gui || {};
+dwv.gui.base = dwv.gui.base || {};
+
+/**
+ * Undo base gui.
+ * @constructor
+ */
+dwv.gui.base.Undo = function (app)
+{
+    /**
+     * Setup the undo HTML.
+     */
+    this.setup = function ()
+    {
+        var paragraph = document.createElement("p");
+        paragraph.appendChild(document.createTextNode("History:"));
+        paragraph.appendChild(document.createElement("br"));
+
+        var select = document.createElement("select");
+        select.className = "history_list";
+        select.name = "history_list";
+        select.multiple = "multiple";
+        paragraph.appendChild(select);
+
+        // node
+        var node = app.getElement("history");
+        // clear it
+        while(node.hasChildNodes()) {
+            node.removeChild(node.firstChild);
+        }
+        // append
+        node.appendChild(paragraph);
+        // refresh
+        dwv.gui.refreshElement(node);
+    };
+
+    /**
+     * Clear the command list of the undo HTML.
+     */
+    this.initialise = function ()
+    {
+        var select = app.getElement("history_list");
+        if ( select && select.length !== 0 ) {
+            for( var i = select.length - 1; i >= 0; --i)
+            {
+                select.remove(i);
+            }
+        }
+        // refresh
+        dwv.gui.refreshElement(select);
+    };
+
+    /**
+     * Add a command to the undo HTML.
+     * @param {String} commandName The name of the command to add.
+     */
+    this.addCommandToUndoHtml = function (commandName)
+    {
+        var select = app.getElement("history_list");
+        // remove undone commands
+        var count = select.length - (select.selectedIndex+1);
+        if( count > 0 )
+        {
+            for( var i = 0; i < count; ++i)
+            {
+                select.remove(select.length-1);
+            }
+        }
+        // add new option
+        var option = document.createElement("option");
+        option.text = commandName;
+        option.value = commandName;
+        select.add(option);
+        // increment selected index
+        select.selectedIndex++;
+        // refresh
+        dwv.gui.refreshElement(select);
+    };
+
+    /**
+     * Enable the last command of the undo HTML.
+     * @param {Boolean} enable Flag to enable or disable the command.
+     */
+    this.enableInUndoHtml = function (enable)
+    {
+        var select = app.getElement("history_list");
+        // enable or not (order is important)
+        var option;
+        if( enable )
+        {
+            // increment selected index
+            select.selectedIndex++;
+            // enable option
+            option = select.options[select.selectedIndex];
+            option.disabled = false;
+        }
+        else
+        {
+            // disable option
+            option = select.options[select.selectedIndex];
+            option.disabled = true;
+            // decrement selected index
+            select.selectedIndex--;
+        }
+        // refresh
+        dwv.gui.refreshElement(select);
+    };
+
+}; // class dwv.gui.base.Undo
+
+// namespaces
+var dwv = dwv || {};
 dwv.image = dwv.image || {};
 
-/**
- * The JPEG baseline decoder.
- * @external JpegImage
- * @see https://github.com/mozilla/pdf.js/blob/master/src/core/jpg.js
- */
- /* global JpegImage */
+// JPEG Baseline
 var hasJpegBaselineDecoder = (typeof JpegImage !== "undefined");
-
-/**
- * The JPEG decoder namespace.
- * @external jpeg
- * @see https://github.com/rii-mango/JPEGLosslessDecoderJS
- */
- /* global jpeg */
+var JpegImage = JpegImage || {};
+// JPEG Lossless
 var hasJpegLosslessDecoder = (typeof jpeg !== "undefined") &&
     (typeof jpeg.lossless !== "undefined");
-
-/**
- * The JPEG 2000 decoder.
- * @external JpxImage
- * @see https://github.com/jpambrun/jpx-medical/blob/master/jpx.js
- */
- /* global JpxImage */
+var jpeg = jpeg || {};
+jpeg.lossless = jpeg.lossless || {};
+// JPEG 2000
 var hasJpeg2000Decoder = (typeof JpxImage !== "undefined");
+var JpxImage = JpxImage || {};
 
 /**
  * Asynchronous pixel buffer decoder.
- * @constructor
  * @param {String} script The path to the decoder script to be used by the web worker.
- * @param {number} numberOfData The anticipated number of data to decode.
  */
-dwv.image.AsynchPixelBufferDecoder = function (script/*, numberOfData*/)
+dwv.image.AsynchPixelBufferDecoder = function (script)
 {
     // initialise the thread pool
     var pool = new dwv.utils.ThreadPool(15);
-    // flag to know if callbacks are set
-    var areCallbacksSet = false;
+    pool.init();
 
     /**
      * Decode a pixel buffer.
      * @param {Array} pixelBuffer The pixel buffer.
      * @param {Object} pixelMeta The input meta data.
-     * @param {number} index The index of the input data.
+     * @param {Function} callback Callback function to handle decoded data.
      */
-    this.decode = function (pixelBuffer, pixelMeta, index) {
-        if (!areCallbacksSet) {
-            areCallbacksSet = true;
-            // set event handlers
-            pool.onworkstart = this.ondecodestart;
-            pool.onworkitem = this.ondecodeditem;
-            pool.onwork = this.ondecoded;
-            pool.onworkend = this.ondecodeend;
-            pool.onerror = this.onerror;
-            pool.onabort = this.onabort;
-        }
+    this.decode = function (pixelBuffer, pixelMeta, callback) {
+        // (re)set event handler
+        pool.onpoolworkend = this.ondecodeend;
+        pool.onworkerend = this.ondecoded;
         // create worker task
-        var workerTask = new dwv.utils.WorkerTask(
-            script,
-            {
-                'buffer': pixelBuffer,
-                'meta': pixelMeta
-            },
-            index
-        );
+        var workerTask = new dwv.utils.WorkerTask(script, callback, {
+            'buffer': pixelBuffer,
+            'meta': pixelMeta } );
         // add it the queue and run it
         pool.addWorkerTask(workerTask);
     };
@@ -11188,74 +13696,43 @@ dwv.image.AsynchPixelBufferDecoder = function (script/*, numberOfData*/)
      * Abort decoding.
      */
     this.abort = function () {
-        // abort the thread pool, will trigger pool.onabort
+        // abort the thread pool
         pool.abort();
     };
 };
 
 /**
- * Handle a decode start event.
- * @param {Object} event The decode start event.
- * Default does nothing.
+ * Handle a decode end event.
  */
-dwv.image.AsynchPixelBufferDecoder.prototype.ondecodestart = function (/*event*/) {};
-/**
- * Handle a decode item event.
- * @param {Object} event The decode item event fired
- *   when a decode item ended successfully.
- * Default does nothing.
- */
-dwv.image.AsynchPixelBufferDecoder.prototype.ondecodeditem = function  (/*event*/) {};
+dwv.image.AsynchPixelBufferDecoder.prototype.ondecodeend = function ()
+{
+    // default does nothing.
+};
+
 /**
  * Handle a decode event.
- * @param {Object} event The decode event fired
- *   when a file has been decoded successfully.
- * Default does nothing.
  */
-dwv.image.AsynchPixelBufferDecoder.prototype.ondecoded = function  (/*event*/) {};
-/**
- * Handle a decode end event.
- * @param {Object} event The decode end event fired
- *  when a file decoding has completed, successfully or not.
- * Default does nothing.
- */
-dwv.image.AsynchPixelBufferDecoder.prototype.ondecodeend = function (/*event*/) {};
-/**
- * Handle an error event.
- * @param {Object} event The error event.
- * Default does nothing.
- */
-dwv.image.AsynchPixelBufferDecoder.prototype.onerror = function (/*event*/) {};
-/**
- * Handle an abort event.
- * @param {Object} event The abort event.
- * Default does nothing.
- */
-dwv.image.AsynchPixelBufferDecoder.prototype.onabort = function (/*event*/) {};
+dwv.image.AsynchPixelBufferDecoder.prototype.ondecoded = function ()
+{
+    // default does nothing.
+};
 
 /**
  * Synchronous pixel buffer decoder.
- * @constructor
  * @param {String} algoName The decompression algorithm name.
- * @param {number} numberOfData The anticipated number of data to decode.
  */
-dwv.image.SynchPixelBufferDecoder = function (algoName, numberOfData)
+dwv.image.SynchPixelBufferDecoder = function (algoName)
 {
-    // decode count
-    var decodeCount = 0;
-
     /**
      * Decode a pixel buffer.
      * @param {Array} pixelBuffer The pixel buffer.
      * @param {Object} pixelMeta The input meta data.
-     * @param {number} index The index of the input data.
+     * @param {Function} callback Callback function to handle decoded data.
      * @external jpeg
      * @external JpegImage
      * @external JpxImage
      */
-    this.decode = function (pixelBuffer, pixelMeta, index) {
-        ++decodeCount;
-
+    this.decode = function (pixelBuffer, pixelMeta, callback) {
         var decoder = null;
         var decodedBuffer = null;
         if( algoName === "jpeg-lossless" ) {
@@ -11308,16 +13785,11 @@ dwv.image.SynchPixelBufferDecoder = function (algoName, numberOfData)
                 pixelMeta.samplesPerPixel,
                 pixelMeta.planarConfiguration );
         }
-        // send decode events
-        this.ondecodeditem({
-            data: [decodedBuffer],
-            index: index
-        });
-        // decode end?
-        if (decodeCount === numberOfData) {
-            this.ondecoded({});
-            this.ondecodeend({});
-        }
+        // send events
+        this.ondecoded();
+        this.ondecodeend();
+        // call callback with decoded buffer as array
+        callback({data: [decodedBuffer]});
     };
 
     /**
@@ -11325,61 +13797,33 @@ dwv.image.SynchPixelBufferDecoder = function (algoName, numberOfData)
      */
     this.abort = function () {
         // nothing to do in the synchronous case.
-        // callback
-        this.onabort({});
-        this.ondecodeend({});
     };
 };
 
 /**
- * Handle a decode start event.
- * @param {Object} event The decode start event.
- * Default does nothing.
+ * Handle a decode end event.
  */
-dwv.image.SynchPixelBufferDecoder.prototype.ondecodestart = function (/*event*/) {};
-/**
- * Handle a decode item event.
- * @param {Object} event The decode item event fired
- *   when a decode item ended successfully.
- * Default does nothing.
- */
-dwv.image.SynchPixelBufferDecoder.prototype.ondecodeditem = function  (/*event*/) {};
+dwv.image.SynchPixelBufferDecoder.prototype.ondecodeend = function ()
+{
+    // default does nothing.
+};
+
 /**
  * Handle a decode event.
- * @param {Object} event The decode event fired
- *   when a file has been decoded successfully.
- * Default does nothing.
  */
-dwv.image.SynchPixelBufferDecoder.prototype.ondecoded = function  (/*event*/) {};
-/**
- * Handle a decode end event.
- * @param {Object} event The decode end event fired
- *  when a file decoding has completed, successfully or not.
- * Default does nothing.
- */
-dwv.image.SynchPixelBufferDecoder.prototype.ondecodeend = function (/*event*/) {};
-/**
- * Handle an error event.
- * @param {Object} event The error event.
- * Default does nothing.
- */
-dwv.image.SynchPixelBufferDecoder.prototype.onerror = function (/*event*/) {};
-/**
- * Handle an abort event.
- * @param {Object} event The abort event.
- * Default does nothing.
- */
-dwv.image.SynchPixelBufferDecoder.prototype.onabort = function (/*event*/) {};
+dwv.image.SynchPixelBufferDecoder.prototype.ondecoded = function ()
+{
+    // default does nothing.
+};
 
 /**
  * Decode a pixel buffer.
  * @constructor
  * @param {String} algoName The decompression algorithm name.
- * @param {number} numberOfData The anticipated number of data to decode.
  * If the 'dwv.image.decoderScripts' variable does not contain the desired algorythm,
  * the decoder will switch to the synchronous mode.
  */
-dwv.image.PixelBufferDecoder = function (algoName, numberOfData)
+dwv.image.PixelBufferDecoder = function (algoName)
 {
     /**
      * Pixel decoder.
@@ -11392,85 +13836,51 @@ dwv.image.PixelBufferDecoder = function (algoName, numberOfData)
     // initialise the asynch decoder (if possible)
     if (typeof dwv.image.decoderScripts !== "undefined" &&
             typeof dwv.image.decoderScripts[algoName] !== "undefined") {
-        pixelDecoder = new dwv.image.AsynchPixelBufferDecoder(
-            dwv.image.decoderScripts[algoName], numberOfData);
+        pixelDecoder = new dwv.image.AsynchPixelBufferDecoder(dwv.image.decoderScripts[algoName]);
     } else {
-        pixelDecoder = new dwv.image.SynchPixelBufferDecoder(
-            algoName, numberOfData);
+        pixelDecoder = new dwv.image.SynchPixelBufferDecoder(algoName);
     }
-
-    // flag to know if callbacks are set
-    var areCallbacksSet = false;
 
     /**
      * Get data from an input buffer using a DICOM parser.
      * @param {Array} pixelBuffer The input data buffer.
      * @param {Object} pixelMeta The input meta data.
-     * @param {number} index The index of the input data.
+     * @param {Object} callback The callback on the conversion.
      */
-    this.decode = function (pixelBuffer, pixelMeta, index) {
-        if (!areCallbacksSet) {
-            areCallbacksSet = true;
-            // set callbacks
-            pixelDecoder.ondecodestart = this.ondecodestart;
-            pixelDecoder.ondecodeditem = this.ondecodeditem;
-            pixelDecoder.ondecoded = this.ondecoded;
-            pixelDecoder.ondecodeend = this.ondecodeend;
-            pixelDecoder.onerror = this.onerror;
-            pixelDecoder.onabort = this.onabort;
-        }
+    this.decode = function (pixelBuffer, pixelMeta, callback)
+    {
+        // set event handler
+        pixelDecoder.ondecodeend = this.ondecodeend;
+        pixelDecoder.ondecoded = this.ondecoded;
         // decode and call the callback
-        pixelDecoder.decode(pixelBuffer, pixelMeta, index);
+        pixelDecoder.decode(pixelBuffer, pixelMeta, callback);
     };
 
     /**
      * Abort decoding.
      */
-    this.abort = function () {
+    this.abort = function ()
+    {
         // decoder classes should define an abort
         pixelDecoder.abort();
     };
 };
 
 /**
- * Handle a decode start event.
- * @param {Object} event The decode start event.
- * Default does nothing.
+ * Handle a decode end event.
  */
-dwv.image.PixelBufferDecoder.prototype.ondecodestart = function (/*event*/) {};
-/**
- * Handle a decode item event.
- * @param {Object} event The decode item event fired
- *   when a decode item ended successfully.
- * Default does nothing.
- */
-dwv.image.PixelBufferDecoder.prototype.ondecodeditem = function  (/*event*/) {};
-/**
- * Handle a decode event.
- * @param {Object} event The decode event fired
- *   when a file has been decoded successfully.
- * Default does nothing.
- */
-dwv.image.PixelBufferDecoder.prototype.ondecoded = function  (/*event*/) {};
+dwv.image.PixelBufferDecoder.prototype.ondecodeend = function ()
+{
+    // default does nothing.
+};
+
 /**
  * Handle a decode end event.
- * @param {Object} event The decode end event fired
- *  when a file decoding has completed, successfully or not.
- * Default does nothing.
  */
-dwv.image.PixelBufferDecoder.prototype.ondecodeend = function (/*event*/) {};
-/**
- * Handle an error event.
- * @param {Object} event The error event.
- * Default does nothing.
- */
-dwv.image.PixelBufferDecoder.prototype.onerror = function (/*event*/) {};
-/**
- * Handle an abort event.
- * @param {Object} event The abort event.
- * Default does nothing.
- */
-dwv.image.PixelBufferDecoder.prototype.onabort = function (/*event*/) {};
+dwv.image.PixelBufferDecoder.prototype.ondecoded = function ()
+{
+    // default does nothing.
+};
 
 // namespaces
 var dwv = dwv || {};
@@ -11511,64 +13921,31 @@ dwv.image.DicomBufferToView = function ()
     /**
      * Get data from an input buffer using a DICOM parser.
      * @param {Array} buffer The input data buffer.
-     * @param {String} origin The data origin.
      * @param {Number} dataIndex The data index.
      */
-    this.convert = function (buffer, origin, dataIndex)
+    this.convert = function (buffer, dataIndex)
     {
-        self.onloadstart({
-            source: origin
-        });
-
         // DICOM parser
         var dicomParser = new dwv.dicom.DicomParser();
         dicomParser.setDefaultCharacterSet(defaultCharacterSet);
         // parse the buffer
-        try {
-          dicomParser.parse(buffer);
-        } catch (error) {
-          self.onerror({
-              error: error,
-              source: origin
-          });
-          self.onloadend({
-              source: origin
-          });
-          return;
-        }
+        dicomParser.parse(buffer);
 
         var pixelBuffer = dicomParser.getRawDicomElements().x7FE00010.value;
         var syntax = dwv.dicom.cleanString(dicomParser.getRawDicomElements().x00020010.value[0]);
         var algoName = dwv.dicom.getSyntaxDecompressionName(syntax);
         var needDecompression = (algoName !== null);
 
-        // generate the image and view
-        var generateImageAndView = function (/*event*/) {
+        // worker callback
+        var onDecodedFirstFrame = function (/*event*/) {
             // create the image
             var imageFactory = new dwv.image.ImageFactory();
+            var image = imageFactory.create( dicomParser.getDicomElements(), pixelBuffer );
+            // create the view
             var viewFactory = new dwv.image.ViewFactory();
-            try {
-                var image = imageFactory.create(
-                    dicomParser.getDicomElements(), pixelBuffer);
-                var view = viewFactory.create(
-                    dicomParser.getDicomElements(), image);
-                // call onload
-                self.onloaditem({
-                  "data": {
-                    "view": view,
-                    "info": dicomParser.getRawDicomElements()
-                    },
-                    source: origin
-                });
-            } catch (error) {
-                self.onerror({
-                    error: error,
-                    source: origin
-                });
-                self.onloadend({
-                    source: origin
-                });
-            }
+            var view = viewFactory.create( dicomParser.getDicomElements(), image );
+            // return
+            self.onload({"view": view, "info": dicomParser.getDicomElements().dumpToTable()});
         };
 
         if ( needDecompression ) {
@@ -11593,68 +13970,71 @@ dwv.image.DicomBufferToView = function ()
                 pixelMeta.planarConfiguration = planarConfigurationElement.value[0];
             }
 
-            // number of frames
-            var numberOfFrames = pixelBuffer.length;
+            var nFrames = pixelBuffer.length;
+
+            if (!pixelDecoder){
+                pixelDecoder = new dwv.image.PixelBufferDecoder(algoName);
+            }
+
+            // loadend event
+            pixelDecoder.ondecodeend = function () {
+                self.onloadend();
+            };
+
+            // send an onload event for mono frame
+            if ( nFrames === 1 ) {
+                pixelDecoder.ondecoded = function () {
+                    self.onloadend();
+                };
+            }
 
             // decoder callback
             var countDecodedFrames = 0;
-            var onDecodedFrame = function (event) {
-                ++countDecodedFrames;
-                // send progress
-                self.onprogress({
-                    lengthComputable: true,
-                    loaded: (countDecodedFrames * 100 / numberOfFrames),
-                    total: 100,
-                    index: dataIndex,
-                    source: origin
-                });
-                // store data
-                var frameNb = event.index;
-                pixelBuffer[frameNb] = event.data[0];
-                // create image for the first frame
-                // (the viewer displays the first element of the buffer)
-                if (frameNb === 0) {
-                    generateImageAndView();
-                }
+            var onDecodedFrame = function (frame) {
+                return function (event) {
+                    // send progress
+                    ++countDecodedFrames;
+                    var ev = {'type': "load-progress", 'lengthComputable': true,
+                        'loaded': (countDecodedFrames * 100 / nFrames), 'total': 100};
+                    if ( typeof dataIndex !== "undefined") {
+                        ev.index = dataIndex;
+                    }
+                    self.onprogress(ev);
+                    // store data
+                    pixelBuffer[frame] = event.data[0];
+                    // create image for first frame
+                    if ( frame === 0 ) {
+                        onDecodedFirstFrame();
+                    }
+                };
             };
 
-            // setup the decoder if not done already
-            if (!pixelDecoder){
-                pixelDecoder = new dwv.image.PixelBufferDecoder(
-                    algoName, numberOfFrames);
-                // callbacks
-                // pixelDecoder.ondecodestart: nothing to do
-                pixelDecoder.ondecodeditem = onDecodedFrame;
-                pixelDecoder.ondecoded = self.onload;
-                pixelDecoder.ondecodeend = self.onloadend;
-                pixelDecoder.onerror = self.onerror;
-                pixelDecoder.onabort = self.onabort;
-            }
+            // decompress synchronously the first frame to create the image
+            pixelDecoder.decode(pixelBuffer[0],
+                pixelMeta, onDecodedFrame(0), false);
 
-            // launch decode
-            for (var f = 0; f < numberOfFrames; ++f) {
-                pixelDecoder.decode(pixelBuffer[f], pixelMeta, f);
+            // decompress the possible other frames
+            if ( nFrames !== 1 ) {
+                // decode (asynchronously if possible)
+                for (var f = 1; f < nFrames; ++f) {
+                    pixelDecoder.decode(pixelBuffer[f],
+                        pixelMeta, onDecodedFrame(f));
+                }
             }
         }
         // no decompression
         else {
             // send progress
-            self.onprogress({
-                lengthComputable: true,
-                loaded: 100,
-                total: 100,
-                index: dataIndex,
-                source: origin
-            });
-            // generate image
-            generateImageAndView();
+            var evnodec = {'type': 'load-progress', 'lengthComputable': true,
+                'loaded': 100, 'total': 100};
+            if ( typeof dataIndex !== "undefined") {
+                evnodec.index = dataIndex;
+            }
+            self.onprogress(evnodec);
+            // create image
+            onDecodedFirstFrame();
             // send load events
-            self.onload({
-                source: origin
-            });
-            self.onloadend({
-                source: origin
-            });
+            self.onloadend();
         }
     };
 
@@ -11662,7 +14042,6 @@ dwv.image.DicomBufferToView = function ()
      * Abort a conversion.
      */
     this.abort = function () {
-        // abort decoding, will trigger pixelDecoder.onabort
         if ( pixelDecoder ) {
             pixelDecoder.abort();
         }
@@ -11670,43 +14049,23 @@ dwv.image.DicomBufferToView = function ()
 };
 
 /**
- * Handle a load start event.
- * @param {Object} event The load start event.
+ * Handle a load end event.
+ * @param {Object} event The load end event.
  * Default does nothing.
  */
-dwv.image.DicomBufferToView.prototype.onloadstart = function (/*event*/) {};
+dwv.image.DicomBufferToView.prototype.onloadend = function (/*event*/) {};
+/**
+ * Handle a load event.
+ * @param {Object} event The load event.
+ * Default does nothing.
+ */
+dwv.image.DicomBufferToView.prototype.onload = function  (/*event*/) {};
 /**
  * Handle a load progress event.
  * @param {Object} event The progress event.
  * Default does nothing.
  */
 dwv.image.DicomBufferToView.prototype.onprogress = function  (/*event*/) {};
-/**
- * Handle a load event.
- * @param {Object} event The load event fired
- *   when a file has been loaded successfully.
- * Default does nothing.
- */
-dwv.image.DicomBufferToView.prototype.onload = function  (/*event*/) {};
-/**
- * Handle a load end event.
- * @param {Object} event The load end event fired
- *  when a file load has completed, successfully or not.
- * Default does nothing.
- */
-dwv.image.DicomBufferToView.prototype.onloadend = function (/*event*/) {};
-/**
- * Handle an error event.
- * @param {Object} event The error event.
- * Default does nothing.
- */
-dwv.image.DicomBufferToView.prototype.onerror = function (/*event*/) {};
-/**
- * Handle an abort event.
- * @param {Object} event The abort event.
- * Default does nothing.
- */
-dwv.image.DicomBufferToView.prototype.onabort = function (/*event*/) {};
 
 // namespaces
 var dwv = dwv || {};
@@ -11739,13 +14098,11 @@ dwv.image.imageDataToBuffer = function (imageData) {
  * @param {Number} sliceIndex The slice index of the imageData.
  * @param {Object} imageBuffer The image buffer.
  * @param {Number} numberOfFrames The final number of frames.
- * @param {String} imageUid The image UID.
  * @return {Object} The corresponding view.
  */
 dwv.image.getDefaultView = function (
     width, height, sliceIndex,
-    imageBuffer, numberOfFrames,
-    imageUid) {
+    imageBuffer, numberOfFrames, info) {
     // image size
     var imageSize = new dwv.image.Size(width, height);
     // default spacing
@@ -11755,12 +14112,14 @@ dwv.image.getDefaultView = function (
     var origin = new dwv.math.Point3D(0,0,sliceIndex);
     // create image
     var geometry = new dwv.image.Geometry(origin, imageSize, imageSpacing );
-    var image = new dwv.image.Image( geometry, imageBuffer, numberOfFrames, [imageUid] );
+    var image = new dwv.image.Image( geometry, imageBuffer, numberOfFrames );
     image.setPhotometricInterpretation("RGB");
     // meta information
     var meta = {};
     meta.BitsStored = 8;
     image.setMeta(meta);
+    // overlay
+    image.setFirstOverlay( dwv.gui.info.createOverlaysForDom(info) );
     // view
     var view = new dwv.image.View(image);
     // defaut preset
@@ -11772,10 +14131,9 @@ dwv.image.getDefaultView = function (
 /**
  * Get data from an input image using a canvas.
  * @param {Object} image The DOM Image.
- * @param {Object} origin The data origin.
- * @return {Object} A load data event.
+ * @return {Mixed} The corresponding view and info.
  */
-dwv.image.getViewFromDOMImage = function (image, origin)
+dwv.image.getViewFromDOMImage = function (image)
 {
     // image size
     var width = image.width;
@@ -11802,36 +14160,25 @@ dwv.image.getViewFromDOMImage = function (image, origin)
     info.push({ "name": "imageWidth", "value": width });
     info.push({ "name": "imageHeight", "value": height });
 
-    var sliceIndex = image.index ? image.index : 0;
-    info.push({ "name": "imageUid", "value": sliceIndex });
-
     // create view
+    var sliceIndex = image.index ? image.index : 0;
     var imageBuffer = dwv.image.imageDataToBuffer(imageData);
     var view = dwv.image.getDefaultView(
-        width, height, sliceIndex, [imageBuffer], 1, sliceIndex);
+        width, height, sliceIndex, [imageBuffer], 1, info);
 
     // return
-    return {
-      data: {
-        view: view,
-        info: info
-      },
-      source: origin
-    };
+    return {"view": view, "info": info};
 };
 
 /**
  * Get data from an input image using a canvas.
  * @param {Object} video The DOM Video.
- * @param {Object} onload The function to call once the data is loaded.
- * @param {Object} onprogress The function to call to report progress.
- * @param {Object} onloadend The function to call to report load end.
+ * @param {Object} callback The function to call once the data is loaded.
+ * @param {Object} cbprogress The function to call to report progress.
+ * @param {Object} cbonloadend The function to call to report load end.
  * @param {Number} dataindex The data index.
- * @param {Object} origin The data origin.
  */
-dwv.image.getViewFromDOMVideo = function (
-    video, onloaditem, onload, onprogress, onloadend,
-    dataIndex, origin)
+dwv.image.getViewFromDOMVideo = function (video, callback, cbprogress, cbonloadend, dataIndex)
 {
     // video size
     var width = video.videoWidth;
@@ -11871,13 +14218,12 @@ dwv.image.getViewFromDOMVideo = function (
     // draw the context and store it as a frame
     function storeFrame() {
         // send progress
-        onprogress({
-            lengthComputable: true,
-            loaded: frameIndex,
-            total: numberOfFrames,
-            index: dataIndex,
-            source: origin
-        });
+        var evprog = {'type': 'load-progress', 'lengthComputable': true,
+            'loaded': frameIndex, 'total': numberOfFrames};
+        if (typeof dataIndex !== "undefined") {
+            evprog.index = dataIndex;
+        }
+        cbprogress(evprog);
         // draw image
         ctx.drawImage(video, 0, 0);
         // context to image buffer
@@ -11886,15 +14232,9 @@ dwv.image.getViewFromDOMVideo = function (
         if (frameIndex === 0) {
             // create view
             view = dwv.image.getDefaultView(
-                width, height, 1, [imgBuffer], numberOfFrames, dataIndex);
+                width, height, 1, [imgBuffer], numberOfFrames, info);
             // call callback
-            onloaditem({
-              data: {
-                view: view,
-                info: info
-              },
-              source: origin
-            });
+            callback( {"view": view, "info": info } );
         } else {
             view.appendFrameBuffer(imgBuffer);
         }
@@ -11912,12 +14252,7 @@ dwv.image.getViewFromDOMVideo = function (
         if (nextTime <= this.duration) {
             this.currentTime = nextTime;
         } else {
-            onload({
-                source: origin
-            });
-            onloadend({
-                source: origin
-            });
+            cbonloadend();
             // stop listening
             video.removeEventListener('seeked', onseeked);
         }
@@ -12481,9 +14816,8 @@ dwv.image.RescaleSlopeAndIntercept.prototype.isID = function () {
  * @param {Array} buffer The image data as an array of frame buffers.
  * @param {Number} numberOfFrames The number of frames (optional, can be used
      to anticipate the final number after appends).
- * @param {Array} imageUids An array of Uids indexed to slice number.
  */
-dwv.image.Image = function(geometry, buffer, numberOfFrames, imageUids)
+dwv.image.Image = function(geometry, buffer, numberOfFrames)
 {
     // use buffer length in not specified
     if (typeof numberOfFrames === "undefined") {
@@ -12565,13 +14899,24 @@ dwv.image.Image = function(geometry, buffer, numberOfFrames, imageUids)
      */
     var histogram = null;
 
-    /**
-     * Get the image UIDs indexed by slice number.
-     * @return {Array} The UIDs array.
+	/**
+	 * Overlay.
+     * @private
+     * @type Array
      */
-    this.getImageUids = function () {
-        return imageUids;
-    };
+	var overlays = [];
+
+    /**
+     * Set the first overlay.
+     * @param {Array} over The first overlay.
+     */
+    this.setFirstOverlay = function (over) { overlays[0] = over; };
+
+    /**
+     * Get the overlays.
+     * @return {Array} The overlays array.
+     */
+    this.getOverlays = function () { return overlays; };
 
     /**
      * Get the geometry of the image.
@@ -12743,7 +15088,7 @@ dwv.image.Image = function(geometry, buffer, numberOfFrames, imageUids)
 
         // calculate slice size
         var mul = 1;
-        if( photometricInterpretation === "RGB" || photometricInterpretation === "YBR_FULL") {
+        if( photometricInterpretation === "RGB" || photometricInterpretation === "YBR_FULL_422") {
             mul = 3;
         }
         var sliceSize = mul * size.getSliceSize();
@@ -12782,8 +15127,8 @@ dwv.image.Image = function(geometry, buffer, numberOfFrames, imageUids)
         // copy to class variables
         buffer[f] = newBuffer;
 
-        // insert sop instance UIDs
-        imageUids.splice(newSliceNb, 0, rhs.getImageUids()[0]);
+		// insert overlay information of the slice to the image
+		overlays.splice(newSliceNb, 0, rhs.getOverlays()[0]);
 
         // return the appended slice number
         return newSliceNb;
@@ -13339,13 +15684,8 @@ dwv.image.ImageFactory.prototype.create = function (dicomElements, pixelBuffer)
     var origin = new dwv.math.Point3D(slicePosition[0], slicePosition[1], slicePosition[2]);
     var geometry = new dwv.image.Geometry( origin, size, spacing, orientationMatrix );
 
-    // sop instance UID
-    var sopInstanceUid = dwv.dicom.cleanString(
-        dicomElements.getFromKey("x00080018"));
-
     // image
-    var image = new dwv.image.Image(
-        geometry, pixelBuffer, pixelBuffer.length, [sopInstanceUid] );
+    var image = new dwv.image.Image( geometry, pixelBuffer );
     // PhotometricInterpretation
     var photometricInterpretation = dicomElements.getFromKey("x00280004");
     if ( photometricInterpretation ) {
@@ -13354,11 +15694,6 @@ dwv.image.ImageFactory.prototype.create = function (dicomElements, pixelBuffer)
         if ( (jpeg2000 || jpegBase || jpegLoss) &&
         	(photo !== "MONOCHROME1" && photo !== "MONOCHROME2") ) {
             photo = "RGB";
-        }
-        // check samples per pixels
-        var samplesPerPixel = parseInt(dicomElements.getFromKey("x00280002"), 10);
-        if (photo === "RGB" && samplesPerPixel === 1) {
-            photo = "PALETTE COLOR";
         }
         image.setPhotometricInterpretation( photo );
     }
@@ -13413,81 +15748,16 @@ dwv.image.ImageFactory.prototype.create = function (dicomElements, pixelBuffer)
         meta.IsSigned = (pixelRepresentation === 1);
     }
 
-    // PALETTE COLOR luts
-    if (image.getPhotometricInterpretation() === "PALETTE COLOR") {
-        var redLut = dicomElements.getFromKey("x00281201");
-        var greenLut = dicomElements.getFromKey("x00281202");
-        var blueLut = dicomElements.getFromKey("x00281203");
-        // check red palette descriptor (should all be equal)
-        var descriptor = dicomElements.getFromKey("x00281101");
-        if (typeof descriptor !== "undefined" &&
-            descriptor.length === 3 ) {
-            if (descriptor[2] === 16) {
-                var doScale = false;
-                // (C.7.6.3.1.5 Palette Color Lookup Table Descriptor)
-                // Some implementations have encoded 8 bit entries with 16 bits
-                // allocated, padding the high bits;
-                var descSize = descriptor[0];
-                // (C.7.6.3.1.5 Palette Color Lookup Table Descriptor)
-                // The first Palette Color Lookup Table Descriptor value is the
-                // number of entries in the lookup table. When the number of table
-                // entries is equal to 216 then this value shall be 0.
-                if (descSize === 0) {
-                    descSize = 65536;
-                }
-                // red palette VL
-                var redLutDE = dicomElements.getDEFromKey("x00281201");
-                var vlSize = redLutDE.vl;
-                // check double size
-                if (vlSize !== 2 * descSize) {
-                    doScale = true;
-                    console.log('16bits lut but size is not double. desc: ', descSize, " vl: ", vlSize);
-                }
-                // (C.7.6.3.1.6 Palette Color Lookup Table Data)
-                // Palette color values must always be scaled across the full
-                // range of available intensities
-                var bitsAllocated = parseInt(dicomElements.getFromKey("x00280100"), 10);
-                if (bitsAllocated === 8) {
-                    doScale = true;
-                    console.log('Scaling 16bits color lut since bits allocated is 8.');
-                }
-
-                if (doScale) {
-                    var scaleTo8 = function (value) {
-                        return value >> 8;
-                    };
-
-                    redLut = redLut.map(scaleTo8);
-                    greenLut = greenLut.map(scaleTo8);
-                    blueLut = blueLut.map(scaleTo8);
-                }
-            } else if (descriptor[2] === 8) {
-                // lut with vr=OW was read as Uint16, convert it to Uint8
-                console.log('Scaling 16bits color lut since the lut descriptor is 8.');
-                var clone = redLut.slice(0);
-                redLut = new Uint8Array(clone.buffer);
-                clone = greenLut.slice(0);
-                greenLut = new Uint8Array(clone.buffer);
-                clone = blueLut.slice(0);
-                blueLut = new Uint8Array(clone.buffer);
-            }
-        }
-        // set the palette
-        meta.paletteLut = {
-            "red": redLut,
-            "green": greenLut,
-            "blue": blueLut
-        };
-    }
-
     // RecommendedDisplayFrameRate
     var recommendedDisplayFrameRate = dicomElements.getFromKey("x00082144");
     if ( recommendedDisplayFrameRate ) {
         meta.RecommendedDisplayFrameRate = parseInt(recommendedDisplayFrameRate, 10);
     }
 
-    // store the meta data
     image.setMeta(meta);
+
+    // overlay
+    image.setFirstOverlay( dwv.gui.info.createOverlays(dicomElements) );
 
     return image;
 };
@@ -13673,7 +15943,7 @@ dwv.image.lut.Window = function (rescaleLut, isSigned)
         // create window lut
         var size = rescaleLut.getLength();
         if (!lut) {
-            // use clamped array (polyfilled in env.js)
+            // use clamped array (polyfilled in browser.js)
             lut = new Uint8ClampedArray(size);
         }
         // by default WindowLevel returns a value in the [0,255] range
@@ -13875,18 +16145,12 @@ dwv.image = dwv.image || {};
 
 /**
  * WindowLevel class.
- * <br>Pseudo-code:
- * <pre>
+ * References:
+ * - DICOM [Window Center and Window Width]{@link http://dicom.nema.org/dicom/2013/output/chtml/part03/sect_C.11.html#sect_C.11.2.1.2}
+ * Pseudo-code:
  *  if (x <= c - 0.5 - (w-1)/2), then y = ymin
  *  else if (x > c - 0.5 + (w-1)/2), then y = ymax,
  *  else y = ((x - (c - 0.5)) / (w-1) + 0.5) * (ymax - ymin) + ymin
- * </pre>
- *
- * @param {Number} center The window center.
- * @param {Number} width The window width.
- * @constructor
- * @see DICOM doc for [Window Center and Window Width]{@link http://dicom.nema.org/dicom/2013/output/chtml/part03/sect_C.11.html#sect_C.11.2.1.2}
- *
  */
 dwv.image.WindowLevel = function (center, width)
 {
@@ -14107,8 +16371,6 @@ dwv.image.View = function (image)
      * Warning: can be undefined in no window/level was set.
      * @param {Object} rsi Optional image rsi, will take the one of the current slice otherwise.
      * @return {Window} The window LUT of the image.
-     * @fires dwv.image.View#wl-width-change
-     * @fires dwv.image.View#wl-center-change
      */
     this.getCurrentWindowLut = function (rsi) {
         var sliceNumber = this.getCurrentPosition().k;
@@ -14135,20 +16397,14 @@ dwv.image.View = function (image)
                 wlut.setWindowLevel(wl);
                 // fire event
                 if ( previousWidth !== wl.getWidth() ) {
-                    this.fireEvent({
-                        "type": "wl-width-change",
-                        "wc": wl.getCenter(),
-                        "ww": wl.getWidth(),
-                        "skipGenerate": true
-                    });
+                    this.fireEvent({"type": "wl-width-change",
+                        "wc": wl.getCenter(), "ww": wl.getWidth(),
+                        "skipGenerate": true});
                 }
                 if ( previousCenter !== wl.getCenter() ) {
-                    this.fireEvent({
-                        "type": "wl-center-change",
-                        "wc": wl.getCenter(),
-                        "ww": wl.getWidth(),
-                        "skipGenerate": true
-                    });
+                    this.fireEvent({"type": "wl-center-change",
+                        "wc": wl.getCenter(), "ww": wl.getWidth(),
+                        "skipGenerate": true});
                 }
             }
         }
@@ -14223,17 +16479,6 @@ dwv.image.View = function (image)
             } else {
                 // add new
                 windowPresets[key] = presets[key];
-                // fire event
-                /**
-                 * Window/level add preset event.
-                 * @event dwv.image.View#wl-preset-add
-                 * @type {Object}
-                 * @property {string} name The name of the preset.
-                 */
-                this.fireEvent({
-                    "type": "wl-preset-add",
-                    "name": key
-                });
             }
         }
     };
@@ -14246,22 +16491,12 @@ dwv.image.View = function (image)
     /**
      * Set the colour map of the image.
      * @param {Object} map The colour map of the image.
-     * @fires dwv.image.View#color-change
      */
     this.setColourMap = function(map) {
         colourMap = map;
-        /**
-         * Color change event.
-         * @event dwv.image.View#color-change
-         * @type {Object}
-         * @property {number} wc The new window center value.
-         * @property {number} ww The new window wdth value.
-         */
-        this.fireEvent({
-            "type": "colour-change",
-            "wc": this.getCurrentWindowLut().getWindowLevel().getCenter(),
-            "ww": this.getCurrentWindowLut().getWindowLevel().getWidth()
-        });
+        this.fireEvent({"type": "colour-change",
+           "wc": this.getCurrentWindowLut().getWindowLevel().getCenter(),
+           "ww": this.getCurrentWindowLut().getWindowLevel().getWidth() });
     };
 
     /**
@@ -14277,8 +16512,6 @@ dwv.image.View = function (image)
      * @param {Object} pos The current position.
      * @param {Boolean} silent If true, does not fire a slice-change event.
      * @return {Boolean} False if not in bounds
-     * @fires dwv.image.View#slice-change
-     * @fires dwv.image.View#position-change
      */
     this.setCurrentPosition = function(pos, silent) {
         // default silent flag to false
@@ -14295,51 +16528,21 @@ dwv.image.View = function (image)
         // fire a 'position-change' event
         if( image.getPhotometricInterpretation().match(/MONOCHROME/) !== null )
         {
-            /**
-             * Position change event.
-             * @event dwv.image.View#position-change
-             * @type {Object}
-             * @property {number} i The new column position
-             * @property {number} j The new row position
-             * @property {number} k The new slice position
-             * @property {Object} value The image value at the new position.
-             */
-            this.fireEvent({
-                "type": "position-change",
-                "i": pos.i,
-                "j": pos.j,
-                "k": pos.k,
-                "value": image.getRescaledValue(pos.i,pos.j,pos.k, this.getCurrentFrame())
-            });
+            this.fireEvent({"type": "position-change",
+                "i": pos.i, "j": pos.j, "k": pos.k,
+                "value": image.getRescaledValue(pos.i,pos.j,pos.k, this.getCurrentFrame())});
         }
         else
         {
-            this.fireEvent({
-                "type": "position-change",
-                "i": pos.i,
-                "j": pos.j,
-                "k": pos.k
-            });
+            this.fireEvent({"type": "position-change",
+                "i": pos.i, "j": pos.j, "k": pos.k});
         }
 
         // fire a slice change event (used to trigger redraw)
         if ( !silent ) {
-            if ( oldPosition.k !== currentPosition.k ) {
-                /**
-                 * Slice change event.
-                 * @event dwv.image.View#slice-change
-                 * @type {Object}
-                 * @property {number} value The new slice number
-                 * @property {Object} data Associated event data: the imageUid.
-                 */
-                this.fireEvent({
-                    "type": "slice-change",
-                    "value": currentPosition.k,
-                    "data": {
-                        "imageUid": image.getImageUids()[currentPosition.k]
-                    }
-                });
-            }
+          if( oldPosition.k !== currentPosition.k ) {
+              this.fireEvent({"type": "slice-change"});
+          }
         }
 
         // all good
@@ -14358,7 +16561,6 @@ dwv.image.View = function (image)
      * Set the current frame number.
      * @param {Number} The current frame number.
      * @return {Boolean} False if not in bounds
-     * @fires dwv.image.View#frame-change
      */
     this.setCurrentFrame = function (frame) {
         // check if possible
@@ -14370,16 +16572,7 @@ dwv.image.View = function (image)
         currentFrame = frame;
         // fire event
         if( oldFrame !== currentFrame && image.getNumberOfFrames() !== 1 ) {
-            /**
-             * Frame change event.
-             * @event dwv.image.View#frame-change
-             * @type {Object}
-             * @property {number} frame The new frame number
-             */
-            this.fireEvent({
-                "type": "frame-change",
-                "frame": currentFrame
-            });
+            this.fireEvent({"type": "frame-change", "frame": currentFrame});
             // silent set current position to update info text
             this.setCurrentPosition(this.getCurrentPosition(),true);
         }
@@ -14421,8 +16614,6 @@ dwv.image.View = function (image)
      * @param {Number} width The window width.
      * @param {String} name Associated preset name, defaults to 'manual'.
      * Warning: uses the latest set rescale LUT or the default linear one.
-     * @fires dwv.image.View#wl-width-change
-     * @fires dwv.image.View#wl-center-change
      */
     this.setWindowLevel = function ( center, width, name )
     {
@@ -14467,46 +16658,14 @@ dwv.image.View = function (image)
             // fire window level change event
             if (currentWl && typeof currentWl !== "undefined") {
                 if (currentWl.getWidth() !== width) {
-                    /**
-                     * Window/level width change event.
-                     * @event dwv.image.View#wl-width-change
-                     * @type {Object}
-                     * @property {number} wc The new window center value.
-                     * @property {number} ww The new window wdth value.
-                     * @property {boolean} skipGenerate Flag to skip view generation.
-                     */
-                    this.fireEvent({
-                        "type": "wl-width-change",
-                        "wc": center,
-                        "ww": width
-                     });
+                    this.fireEvent({"type": "wl-width-change", "wc": center, "ww": width });
                 }
                 if (currentWl.getCenter() !== center) {
-                    /**
-                     * Window/level center change event.
-                     * @event dwv.image.View#wl-center-change
-                     * @type {Object}
-                     * @property {number} wc The new window center value.
-                     * @property {number} ww The new window wdth value.
-                     * @property {boolean} skipGenerate Flag to skip view generation.
-                     */
-                    this.fireEvent({
-                        "type": "wl-center-change",
-                        "wc": center,
-                        "ww": width
-                    });
+                    this.fireEvent({"type": "wl-center-change", "wc": center, "ww": width });
                 }
             } else {
-                this.fireEvent({
-                    "type": "wl-width-change",
-                    "wc": center,
-                    "ww": width
-                });
-                this.fireEvent({
-                    "type": "wl-center-change",
-                    "wc": center,
-                    "ww": width
-                });
+                this.fireEvent({"type": "wl-width-change", "wc": center, "ww": width });
+                this.fireEvent({"type": "wl-center-change", "wc": center, "ww": width });
             }
         }
     };
@@ -14621,14 +16780,13 @@ dwv.image.View.prototype.generateImageData = function( array )
     var index = 0;
     var pxValue = 0;
     var stepPos = 0;
-    var colourMap = null;
 
     var photoInterpretation = image.getPhotometricInterpretation();
     switch (photoInterpretation)
     {
     case "MONOCHROME1":
     case "MONOCHROME2":
-        colourMap = this.getColourMap();
+        var colourMap = this.getColourMap();
         var iMax = sliceOffset + sliceSize;
         for(var i=sliceOffset; i < iMax; ++i)
         {
@@ -14636,38 +16794,6 @@ dwv.image.View.prototype.generateImageData = function( array )
             array.data[index] = colourMap.red[pxValue];
             array.data[index+1] = colourMap.green[pxValue];
             array.data[index+2] = colourMap.blue[pxValue];
-            array.data[index+3] = 0xff;
-            index += 4;
-        }
-        break;
-
-    case "PALETTE COLOR":
-        colourMap = this.getColourMap();
-        var lMax = sliceOffset + sliceSize;
-
-        var to8 = function (value) {
-            return value >> 8;
-        };
-
-        if (image.getMeta().BitsStored === 16) {
-            console.log("Scaling 16bits data to 8bits.");
-        }
-
-        for (var l = sliceOffset; l < lMax; ++l)
-        {
-            pxValue = image.getValueAtOffset(l, frame);
-
-            // TODO check pxValue fits in lut
-
-            if (image.getMeta().BitsStored === 16) {
-                array.data[index] = to8(colourMap.red[pxValue]);
-                array.data[index+1] = to8(colourMap.green[pxValue]);
-                array.data[index+2] = to8(colourMap.blue[pxValue]);
-            } else {
-                array.data[index] = colourMap.red[pxValue];
-                array.data[index+1] = colourMap.green[pxValue];
-                array.data[index+2] = colourMap.blue[pxValue];
-            }
             array.data[index+3] = 0xff;
             index += 4;
         }
@@ -14708,7 +16834,7 @@ dwv.image.View.prototype.generateImageData = function( array )
         }
         break;
 
-    case "YBR_FULL":
+    case "YBR_FULL_422":
         // theory:
         // http://dicom.nema.org/dicom/2013/output/chtml/part03/sect_C.7.html#sect_C.7.6.3.1.2
         // reverse equation:
@@ -14746,9 +16872,9 @@ dwv.image.View.prototype.generateImageData = function( array )
             g = y - 0.34414 * (cb - 128) - 0.71414 * (cr - 128);
             b = y + 1.772 * (cb - 128);
 
-            array.data[index] = r;
-            array.data[index+1] = g;
-            array.data[index+2] = b;
+            array.data[index] = windowLut.getValue(r);
+            array.data[index+1] = windowLut.getValue(g);
+            array.data[index+2] = windowLut.getValue(b);
             array.data[index+3] = 0xff;
             index += 4;
 
@@ -14830,13 +16956,8 @@ dwv.image.ViewFactory.prototype.create = function (dicomElements, image)
     var view = new dwv.image.View(image);
 
     // default color map
-    if (image.getPhotometricInterpretation() === "MONOCHROME1") {
+    if( image.getPhotometricInterpretation() === "MONOCHROME1") {
         view.setDefaultColourMap(dwv.image.lut.invPlain);
-    } else if (image.getPhotometricInterpretation() === "PALETTE COLOR") {
-        var paletteLut = image.getMeta().paletteLut;
-        if (typeof(paletteLut) !== "undefined") {
-            view.setDefaultColourMap(paletteLut);
-        }
     }
 
     // presets
@@ -14877,8 +16998,7 @@ dwv.image.ViewFactory.prototype.create = function (dicomElements, image)
     windowPresets.minmax = { "name": "minmax" };
 
     // optional modality presets
-    if ( typeof dwv.tool !== "undefined" &&
-        typeof dwv.tool.defaultpresets !== "undefined" ) {
+    if ( typeof dwv.tool.defaultpresets !== "undefined" ) {
         var modality = image.getMeta().Modality;
         for( var key in dwv.tool.defaultpresets[modality] ) {
             var preset = dwv.tool.defaultpresets[modality][key];
@@ -14939,7 +17059,6 @@ dwv.io.DicomDataLoader = function ()
 
     /**
      * DICOM buffer to dwv.image.View (asynchronous)
-     * @private
      */
     var db2v = new dwv.image.DicomBufferToView();
 
@@ -14950,41 +17069,75 @@ dwv.io.DicomDataLoader = function ()
      * @param {Number} index The data index.
      */
     this.load = function (buffer, origin, index) {
-        // setup db2v ony once
-        if (!isLoading) {
-            // set character set
-            if (typeof options.defaultCharacterSet !== "undefined") {
-                db2v.setDefaultCharacterSet(options.defaultCharacterSet);
-            }
-            // connect handlers
-            db2v.onloadstart = self.onloadstart;
-            db2v.onprogress = self.onprogress;
-            db2v.onloaditem = self.onloaditem;
-            db2v.onload = self.onload;
-            db2v.onloadend = function (event) {
-                // reset loading flag
-                isLoading = false;
-                // call listeners
-                self.onloadend(event);
-            };
-            db2v.onerror = self.onerror;
-            db2v.onabort = self.onabort;
-        }
-
         // set loading flag
         isLoading = true;
+        // set character set
+        if (typeof options.defaultCharacterSet !== "undefined") {
+            db2v.setDefaultCharacterSet(options.defaultCharacterSet);
+        }
+        // connect handlers
+        db2v.onload = self.onload;
+        db2v.onloadend = function () {
+            // reset loading flag
+            isLoading = false;
+            // call listeners
+            self.onloadend();
+        };
+        db2v.onprogress = self.onprogress;
         // convert
-        db2v.convert(buffer, origin, index);
+        try {
+            db2v.convert( buffer, index );
+        } catch (error) {
+            // TODO: error will be for individual file, isLoading is global...
+            //isLoading = false;
+            self.onerror(error);
+        }
     };
 
     /**
      * Abort load.
      */
     this.abort = function () {
+        // abort conversion
+        db2v.abort();
         // reset loading flag
         isLoading = false;
-        // abort conversion, will trigger db2v.onabort
-        db2v.abort();
+        // call listeners
+        self.onabort({message: "Abort while loading DICOM data."});
+    };
+
+    /**
+     * Get a file load handler.
+     * @param {Object} file The file to load.
+     * @param {Number} index The index 'id' of the file.
+     * @return {Function} A file load handler.
+     */
+    this.getFileLoadHandler = function (file, index) {
+        return function (event) {
+            self.load(event.target.result, file, index);
+        };
+    };
+
+    /**
+     * Get a url load handler.
+     * @param {String} url The url to load.
+     * @param {Number} index The index 'id' of the url.
+     * @return {Function} A url load handler.
+     */
+    this.getUrlLoadHandler = function (url, index) {
+        return function (/*event*/) {
+            // check response status
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Response_codes
+            // status 200: "OK"; status 0: "debug"
+            if (this.status !== 200 && this.status !== 0) {
+                self.onerror({'name': "RequestError",
+                    'message': "Error status: " + this.status +
+                    " while loading '" + url + "' [DicomDataLoader]" });
+                return;
+            }
+            // load
+            self.load(this.response, url, index);
+        };
     };
 
 }; // class DicomDataLoader
@@ -15039,47 +17192,34 @@ dwv.io.DicomDataLoader.prototype.loadUrlAs = function () {
 };
 
 /**
- * Handle a load start event.
- * @param {Object} event The load start event.
- * Default does nothing.
- */
-dwv.io.DicomDataLoader.prototype.onloadstart = function (/*event*/) {};
-/**
- * Handle a progress event.
- * @param {Object} event The load progress event.
- * Default does nothing.
- */
-dwv.io.DicomDataLoader.prototype.onprogress = function (/*event*/) {};
-/**
- * Handle a load item event.
- * @param {Object} event The load item event fired
- *   when a file item has been loaded successfully.
- * Default does nothing.
- */
-dwv.io.DicomDataLoader.prototype.onloaditem = function (/*event*/) {};
-/**
  * Handle a load event.
- * @param {Object} event The load event fired
- *   when a file has been loaded successfully.
+ * @param {Object} event The load event, 'event.target'
+ *  should be the loaded data.
  * Default does nothing.
  */
 dwv.io.DicomDataLoader.prototype.onload = function (/*event*/) {};
 /**
  * Handle an load end event.
- * @param {Object} event The load end event fired
- *  when a file load has completed, successfully or not.
  * Default does nothing.
  */
-dwv.io.DicomDataLoader.prototype.onloadend = function (/*event*/) {};
+dwv.io.DicomDataLoader.prototype.onloadend = function () {};
+/**
+ * Handle a progress event.
+ * @param {Object} event The progress event.
+ * Default does nothing.
+ */
+dwv.io.DicomDataLoader.prototype.onprogress = function (/*event*/) {};
 /**
  * Handle an error event.
- * @param {Object} event The error event.
+ * @param {Object} event The error event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.DicomDataLoader.prototype.onerror = function (/*event*/) {};
 /**
  * Handle an abort event.
- * @param {Object} event The abort event.
+ * @param {Object} event The abort event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.DicomDataLoader.prototype.onabort = function (/*event*/) {};
@@ -15116,39 +17256,31 @@ dwv.io.FilesLoader = function ()
     var self = this;
 
     /**
-     * Input data.
-     * @private
-     * @type Array
-     */
-    var inputData = null;
-
-    /**
-     * Array of launched file readers.
+     * Array of launched readers (used in abort).
      * @private
      * @type Array
      */
     var readers = [];
 
     /**
-     * Data loader.
+     * Launched loader (used in abort).
      * @private
      * @type Object
      */
-    var runningLoader = null;
+    var runningLoader = [];
 
+    /**
+     * Number of data to load.
+     * @private
+     * @type Number
+     */
+    var nToLoad = 0;
     /**
      * Number of loaded data.
      * @private
      * @type Number
      */
-    var nLoad = 0;
-
-    /**
-     * Number of load end events.
-     * @private
-     * @type Number
-     */
-    var nLoadend = 0;
+    var nLoaded = 0;
 
     /**
      * The default character set (optional).
@@ -15174,222 +17306,37 @@ dwv.io.FilesLoader = function ()
     };
 
     /**
-     * Store the current input.
-     * @param {Object} data The input data.
-     * @private
-     */
-    function storeInputData(data) {
-        inputData = data;
-        // reset counters
-        nLoad = 0;
-        nLoadend = 0;
-        // clear storage
-        clearStoredReaders();
-        clearStoredLoader();
-    }
-
-    /**
      * Store a launched reader.
-     * @param {Object} reader The launched reader.
-     * @private
+     * @param {Object} request The launched reader.
      */
-    function storeReader(reader) {
+    this.storeReader = function (reader) {
         readers.push(reader);
-    }
+    };
 
     /**
      * Clear the stored readers.
-     * @private
      */
-    function clearStoredReaders() {
+    this.clearStoredReaders = function () {
         readers = [];
-    }
+    };
 
     /**
      * Store the launched loader.
      * @param {Object} loader The launched loader.
-     * @private
      */
-    function storeLoader(loader) {
+    this.storeLoader = function (loader) {
         runningLoader = loader;
-    }
-
-    /**
-     * Clear the stored loader.
-     * @private
-     */
-    function clearStoredLoader() {
-        runningLoader = null;
-    }
-
-    /**
-     * Launch a load item event and call addLoad.
-     * @param {Object} event The load data event.
-     * @private
-     */
-    function addLoadItem(event) {
-        self.onloaditem(event);
-        addLoad();
-    }
-
-    /**
-     * Increment the number of loaded data
-     *   and call onload if loaded all data.
-     * @param {Object} event The load data event.
-     * @private
-     */
-    function addLoad(/*event*/) {
-        nLoad++;
-        // call self.onload when all is loaded
-        // (not using the input event since it is not the
-        //   general load)
-        if (nLoad === inputData.length) {
-            self.onload({
-                source: inputData
-            });
-        }
-    }
-
-    /**
-     * Increment the counter of load end events
-     *   and run callbacks when all done, erroneus or not.
-     * @param {Object} event The load end event.
-     * @private
-     */
-    function addLoadend(/*event*/) {
-        nLoadend++;
-        // call self.onloadend when all is run
-        // (not using the input event since it is not the
-        //   general load end)
-        // x2 to count for reader + load
-        if (nLoadend === 2 * inputData.length) {
-            self.onloadend({
-                source: inputData
-            });
-        }
-    }
-
-    /**
-     * Augment a callback event with a srouce.
-     * @param {Object} callback The callback to augment its event.
-     * @param {Object} source The source to add to the event.
-     * @private
-     */
-    function augmentCallbackEvent(callback, source) {
-        return function (event) {
-            event.source = source;
-            callback(event);
-        };
-    }
-
-    /**
-     * Load a list of files.
-     * @param {Array} data The list of files to load.
-     */
-    this.load = function (data)
-    {
-        // check input
-        if (typeof data === "undefined" || data.length === 0) {
-            return;
-        }
-        storeInputData(data);
-
-        // send start event
-        this.onloadstart({
-            source: data
-        });
-
-        // create prgress handler
-        var mproghandler = new dwv.utils.MultiProgressHandler(self.onprogress);
-        mproghandler.setNToLoad(data.length);
-
-        // create loaders
-        var loaders = [];
-        for (var m = 0; m < dwv.io.loaderList.length; ++m) {
-            loaders.push(new dwv.io[dwv.io.loaderList[m]]());
-        }
-
-        // find an appropriate loader
-        var dataElement = data[0];
-        var loader = null;
-        var foundLoader = false;
-        for (var l = 0; l < loaders.length; ++l) {
-            loader = loaders[l];
-            if (loader.canLoadFile(dataElement)) {
-                foundLoader = true;
-                // load options
-                loader.setOptions({
-                    'defaultCharacterSet': this.getDefaultCharacterSet()
-                });
-                // set loader callbacks
-                // loader.onloadstart: nothing to do
-                loader.onprogress = mproghandler.getUndefinedMonoProgressHandler(1);
-                if (typeof loader.onloaditem === "undefined") {
-                    // handle load-item locally
-                    loader.onload = addLoadItem;
-                } else {
-                    loader.onloaditem = self.onloaditem;
-                    loader.onload = addLoad;
-                }
-                loader.onloadend = addLoadend;
-                loader.onerror = self.onerror;
-                loader.onabort = self.onabort;
-
-                // store loader
-                storeLoader(loader);
-                // exit
-                break;
-            }
-        }
-        if (!foundLoader) {
-            throw new Error("No loader found for file: "+dataElement);
-        }
-
-        var getLoadHandler = function (loader, dataElement, i) {
-            return function (event) {
-                loader.load(event.target.result, dataElement, i);
-            };
-        };
-
-        // loop on I/O elements
-        for (var i = 0; i < data.length; ++i) {
-            dataElement = data[i];
-
-            // check loader
-            if (!loader.canLoadFile(dataElement)) {
-                throw new Error("Input file of different type: "+dataElement);
-            }
-
-            /**
-             * The file reader.
-             * @external FileReader
-             * @see https://developer.mozilla.org/en-US/docs/Web/API/FileReader
-             */
-            var reader = new FileReader();
-            // store reader
-            storeReader(reader);
-
-            // set reader callbacks
-            // reader.onloadstart: nothing to do
-            reader.onprogress = augmentCallbackEvent(
-                mproghandler.getMonoProgressHandler(i, 0), dataElement);
-            reader.onload = getLoadHandler(loader, dataElement, i);
-            reader.onloadend = addLoadend;
-            reader.onerror = augmentCallbackEvent(self.onerror, dataElement);
-            reader.onabort = augmentCallbackEvent(self.onabort, dataElement);
-            // read
-            if (loader.loadFileAs() === dwv.io.fileContentTypes.Text) {
-                reader.readAsText(dataElement);
-            } else if (loader.loadFileAs() === dwv.io.fileContentTypes.DataURL) {
-                reader.readAsDataURL(dataElement);
-            } else if (loader.loadFileAs() === dwv.io.fileContentTypes.ArrayBuffer) {
-                reader.readAsArrayBuffer(dataElement);
-            }
-        }
     };
 
     /**
-     * Abort a load.
+     * Clear the stored loader.
+     */
+    this.clearStoredLoader = function () {
+        runningLoader = null;
+    };
+
+    /**
+     * Abort a URLs load.
      */
     this.abort = function () {
         // abort readers
@@ -15399,59 +17346,168 @@ dwv.io.FilesLoader = function ()
                 readers[i].abort();
             }
         }
+        this.clearStoredReaders();
         // abort loader
-        if (runningLoader && runningLoader.isLoading()) {
+        if ( runningLoader ) {
             runningLoader.abort();
+        }
+        this.clearStoredLoader();
+    };
+
+    /**
+     * Set the number of data to load.
+     * @param {Number} n The number of data to load.
+     */
+    this.setNToLoad = function (n) {
+        nToLoad = n;
+    };
+
+    /**
+     * Increment the number of loaded data
+     * and call onloadend if loaded all data.
+     */
+    this.addLoaded = function () {
+        nLoaded++;
+        if ( nLoaded === nToLoad ) {
+            self.onloadend();
         }
     };
 
-}; // class FilesLoader
+}; // class File
 
 /**
- * Handle a load start event.
- * @param {Object} event The load start event.
- * Default does nothing.
- */
-dwv.io.FilesLoader.prototype.onloadstart = function (/*event*/) {};
-/**
- * Handle a load progress event.
- * @param {Object} event The progress event.
- * Default does nothing.
- */
-dwv.io.FilesLoader.prototype.onprogress = function (/*event*/) {};
-/**
- * Handle a load item event.
- * @param {Object} event The load item event fired
- *   when a file item has been loaded successfully.
- * Default does nothing.
- */
-dwv.io.FilesLoader.prototype.onloaditem = function (/*event*/) {};
-/**
  * Handle a load event.
- * @param {Object} event The load event fired
- *   when a file has been loaded successfully.
+ * @param {Object} event The load event, 'event.target'
+ *  should be the loaded data.
  * Default does nothing.
  */
 dwv.io.FilesLoader.prototype.onload = function (/*event*/) {};
 /**
  * Handle a load end event.
- * @param {Object} event The load end event fired
- *  when a file load has completed, successfully or not.
  * Default does nothing.
  */
-dwv.io.FilesLoader.prototype.onloadend = function (/*event*/) {};
+dwv.io.FilesLoader.prototype.onloadend = function () {};
+/**
+ * Handle a progress event.
+ * @param {Object} event The progress event.
+ * Default does nothing.
+ */
+dwv.io.FilesLoader.prototype.onprogress = function (/*event*/) {};
 /**
  * Handle an error event.
- * @param {Object} event The error event.
+ * @param {Object} event The error event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.FilesLoader.prototype.onerror = function (/*event*/) {};
 /**
  * Handle an abort event.
- * @param {Object} event The abort event.
+ * @param {Object} event The abort event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.FilesLoader.prototype.onabort = function (/*event*/) {};
+
+/**
+ * Load a list of files.
+ * @param {Array} ioArray The list of files to load.
+ * @external FileReader
+ */
+dwv.io.FilesLoader.prototype.load = function (ioArray)
+{
+    // clear storage
+    this.clearStoredReaders();
+    this.clearStoredLoader();
+
+    // closure to self for handlers
+    var self = this;
+    // set the number of data to load
+    this.setNToLoad( ioArray.length );
+
+    var mproghandler = new dwv.utils.MultiProgressHandler(self.onprogress);
+    mproghandler.setNToLoad( ioArray.length );
+
+    // get loaders
+    var loaders = [];
+    for (var m = 0; m < dwv.io.loaderList.length; ++m) {
+        loaders.push( new dwv.io[dwv.io.loaderList[m]]() );
+    }
+
+    // set loaders callbacks
+    var loader = null;
+    for (var k = 0; k < loaders.length; ++k) {
+        loader = loaders[k];
+        loader.onload = self.onload;
+        loader.onloadend = self.addLoaded;
+        loader.onerror = self.onerror;
+        loader.onabort = self.onabort;
+        loader.setOptions({
+            'defaultCharacterSet': this.getDefaultCharacterSet()
+        });
+        loader.onprogress = mproghandler.getUndefinedMonoProgressHandler(1);
+    }
+
+    // request onerror handler
+    var getReaderOnError = function (origin) {
+        return function (event) {
+            var message = "An error occurred while reading '" + origin + "'";
+            if (typeof event.getMessage !== "undefined") {
+                message += " (" + event.getMessage() + ")";
+            }
+            message += ".";
+            self.onerror( {'name': "FileReaderError", 'message': message } );
+        };
+    };
+
+    // request onabort handler
+    var getReaderOnAbort = function (origin) {
+        return function () {
+            self.onabort( {'message': "Abort while reading '" + origin + "'" } );
+        };
+    };
+
+    // loop on I/O elements
+    for (var i = 0; i < ioArray.length; ++i)
+    {
+        var file = ioArray[i];
+        var reader = new FileReader();
+
+        // store reader
+        this.storeReader(reader);
+
+        // bind reader progress
+        reader.onprogress = mproghandler.getMonoProgressHandler(i, 0);
+
+        // find a loader
+        var foundLoader = false;
+        for (var l = 0; l < loaders.length; ++l) {
+            loader = loaders[l];
+            if (loader.canLoadFile(file)) {
+                foundLoader = true;
+                // store loader
+                this.storeLoader(loader);
+                // set reader callbacks
+                reader.onload = loader.getFileLoadHandler(file, i);
+                reader.onerror = getReaderOnError(file.name);
+                reader.onabort = getReaderOnAbort(file.name);
+                // read
+                if (loader.loadFileAs() === dwv.io.fileContentTypes.Text) {
+                    reader.readAsText(file);
+                } else if (loader.loadFileAs() === dwv.io.fileContentTypes.DataURL) {
+                    reader.readAsDataURL(file);
+                } else if (loader.loadFileAs() === dwv.io.fileContentTypes.ArrayBuffer) {
+                    reader.readAsArrayBuffer(file);
+                }
+                // next file
+                break;
+            }
+        }
+        // TODO: throw?
+        if (!foundLoader) {
+            throw new Error("No loader found for file: "+file);
+        }
+    }
+};
 
 // namespaces
 var dwv = dwv || {};
@@ -15498,34 +17554,17 @@ dwv.io.JSONTextLoader = function ()
     this.load = function (text, origin, index) {
         // set loading flag
         isLoading = true;
-        self.onloadstart({
-            source: origin
-        });
-
         try {
-            self.onprogress({
-                lengthComputable: true,
-                loaded: 100,
-                total: 100,
-                index: index,
-                source: origin
-            });
-            self.onload({
-                data: text,
-                source: origin
-            });
-        } catch (error) {
-            self.onerror({
-                error: error,
-                source: origin
-            });
-        } finally {
+            self.onload( text );
             // reset loading flag
             isLoading = false;
-            self.onloadend({
-                source: origin
-            });
+            // call listeners
+            self.onloadend();
+        } catch (error) {
+            self.onerror(error);
         }
+        self.onprogress({'type': 'read-progress', 'lengthComputable': true,
+            'loaded': 100, 'total': 100, 'index': index});
     };
 
     /**
@@ -15535,8 +17574,41 @@ dwv.io.JSONTextLoader = function ()
         // reset loading flag
         isLoading = false;
         // call listeners
-        self.onabort({});
-        self.onloadend({});
+        self.onabort();
+    };
+
+    /**
+     * Get a file load handler.
+     * @param {Object} file The file to load.
+     * @param {Number} index The index 'id' of the file.
+     * @return {Function} A file load handler.
+     */
+    this.getFileLoadHandler = function (file, index) {
+        return function (event) {
+            self.load(event.target.result, file, index);
+        };
+    };
+
+    /**
+     * Get a url load handler.
+     * @param {String} url The url to load.
+     * @param {Number} index The index 'id' of the url.
+     * @return {Function} A url load handler.
+     */
+    this.getUrlLoadHandler = function (url, index) {
+        return function (/*event*/) {
+            // check response status
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Response_codes
+            // status 200: "OK"; status 0: "debug"
+            if (this.status !== 200 && this.status !== 0) {
+                self.onerror({'name': "RequestError",
+                    'message': "Error status: " + this.status +
+                    " while loading '" + url + "' [JSONTextLoader]" });
+                return;
+            }
+            // load
+            self.load(this.responseText, url, index);
+        };
     };
 
 }; // class JSONTextLoader
@@ -15579,40 +17651,34 @@ dwv.io.JSONTextLoader.prototype.loadUrlAs = function () {
 };
 
 /**
- * Handle a load start event.
- * @param {Object} event The load start event.
- * Default does nothing.
- */
-dwv.io.JSONTextLoader.prototype.onloadstart = function (/*event*/) {};
-/**
- * Handle a progress event.
- * @param {Object} event The load progress event.
- * Default does nothing.
- */
-dwv.io.JSONTextLoader.prototype.onprogress = function (/*event*/) {};
-/**
  * Handle a load event.
- * @param {Object} event The load event fired
- *   when a file has been loaded successfully.
+ * @param {Object} event The load event, 'event.target'
+ *  should be the loaded data.
  * Default does nothing.
  */
 dwv.io.JSONTextLoader.prototype.onload = function (/*event*/) {};
 /**
  * Handle an load end event.
- * @param {Object} event The load end event fired
- *  when a file load has completed, successfully or not.
  * Default does nothing.
  */
-dwv.io.JSONTextLoader.prototype.onloadend = function (/*event*/) {};
+dwv.io.JSONTextLoader.prototype.onloadend = function () {};
+/**
+ * Handle a progress event.
+ * @param {Object} event The progress event.
+ * Default does nothing.
+ */
+dwv.io.JSONTextLoader.prototype.onprogress = function (/*event*/) {};
 /**
  * Handle an error event.
- * @param {Object} event The error event.
+ * @param {Object} event The error event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.JSONTextLoader.prototype.onerror = function (/*event*/) {};
 /**
  * Handle an abort event.
- * @param {Object} event The abort event.
+ * @param {Object} event The abort event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.JSONTextLoader.prototype.onabort = function (/*event*/) {};
@@ -15641,32 +17707,24 @@ dwv.io.MemoryLoader = function ()
     var self = this;
 
     /**
-     * Input data.
-     * @private
-     * @type Array
-     */
-    var inputData = null;
-
-    /**
-     * Data loader.
+     * Launched loader (used in abort).
      * @private
      * @type Object
      */
     var runningLoader = null;
 
     /**
+     * Number of data to load.
+     * @private
+     * @type Number
+     */
+    var nToLoad = 0;
+    /**
      * Number of loaded data.
      * @private
      * @type Number
      */
-    var nLoad = 0;
-
-    /**
-     * Number of load end events.
-     * @private
-     * @type Number
-     */
-    var nLoadend = 0;
+    var nLoaded = 0;
 
     /**
      * The default character set (optional).
@@ -15692,215 +17750,146 @@ dwv.io.MemoryLoader = function ()
     };
 
     /**
-     * Store the current input.
-     * @param {Object} data The input data.
-     * @private
-     */
-    function storeInputData(data) {
-        inputData = data;
-        // reset counters
-        nLoad = 0;
-        nLoadend = 0;
-        // clear storage
-        clearStoredLoader();
-    }
-
-    /**
-     * Store the launched loader.
+     * Store a launched loader.
      * @param {Object} loader The launched loader.
-     * @private
      */
-    function storeLoader(loader) {
+    this.storeLoader = function (loader) {
         runningLoader = loader;
-    }
+    };
 
     /**
      * Clear the stored loader.
-     * @private
      */
-    function clearStoredLoader() {
+    this.clearStoredLoader = function () {
         runningLoader = null;
-    }
-
-    /**
-     * Launch a load item event and call addLoad.
-     * @param {Object} event The load data event.
-     * @private
-     */
-    function addLoadItem(event) {
-        self.onloaditem(event);
-        addLoad();
-    }
-
-    /**
-     * Increment the number of loaded data
-     *   and call onload if loaded all data.
-     * @param {Object} event The load data event.
-     * @private
-     */
-    function addLoad(/*event*/) {
-        nLoad++;
-        // call self.onload when all is loaded
-        // (not using the input event since it is not the
-        //   general load)
-        if (nLoad === inputData.length) {
-            self.onload({
-                source: inputData
-            });
-        }
-    }
-
-    /**
-     * Increment the counter of load end events
-     *   and run callbacks when all done, erroneus or not.
-     * @param {Object} event The load end event.
-     * @private
-     */
-    function addLoadend(/*event*/) {
-        nLoadend++;
-        // call self.onloadend when all is run
-        // (not using the input event since it is not the
-        //   general load end)
-        if (nLoadend === inputData.length) {
-            self.onloadend({
-                source: inputData
-            });
-        }
-    }
-
-    /**
-     * Load a list of buffers.
-     * @param {Array} data The list of buffers to load.
-     */
-    this.load = function (data)
-    {
-        // check input
-        if (typeof data === "undefined" || data.length === 0) {
-            return;
-        }
-        storeInputData(data);
-
-        // send start event
-        this.onloadstart({
-            source: data
-        });
-
-        // create prgress handler
-        var mproghandler = new dwv.utils.MultiProgressHandler(self.onprogress);
-        mproghandler.setNToLoad(data.length);
-        mproghandler.setNumberOfDimensions(1);
-
-        // create loaders
-        var loaders = [];
-        for (var m = 0; m < dwv.io.loaderList.length; ++m) {
-            loaders.push(new dwv.io[dwv.io.loaderList[m]]());
-        }
-
-        // find an appropriate loader
-        var dataElement = data[0];
-        var loader = null;
-        var foundLoader = false;
-        for (var l = 0; l < loaders.length; ++l) {
-            loader = loaders[l];
-            if (loader.canLoadFile({name: dataElement.filename})) {
-                foundLoader = true;
-                // load options
-                loader.setOptions({
-                    'defaultCharacterSet': this.getDefaultCharacterSet()
-                });
-                // set loader callbacks
-                // loader.onloadstart: nothing to do
-                loader.onprogress = mproghandler.getUndefinedMonoProgressHandler(0);
-                if (typeof loader.onloaditem === "undefined") {
-                    // handle load-item locally
-                    loader.onload = addLoadItem;
-                } else {
-                    loader.onloaditem = self.onloaditem;
-                    loader.onload = addLoad;
-                }
-                loader.onloadend = addLoadend;
-                loader.onerror = self.onerror;
-                loader.onabort = self.onabort;
-
-                // store loader
-                storeLoader(loader);
-                // exit
-                break;
-            }
-        }
-        if (!foundLoader) {
-            throw new Error("No loader found for data: "+dataElement.filename);
-        }
-
-        // loop on I/O elements
-        for (var i = 0; i < data.length; ++i) {
-            dataElement = data[i];
-            // check loader
-            if (!loader.canLoadFile({name: dataElement.filename})) {
-                throw new Error("Input data of different type: "+dataElement.filename);
-            }
-            // read
-            loader.load(dataElement.data, dataElement.filename, i);
-        }
     };
 
     /**
-     * Abort a load.
+     * Abort a memory load.
      */
     this.abort = function () {
         // abort loader
-        if (runningLoader && runningLoader.isLoading()) {
-            runningLoader.abort();
+        runningLoader.abort();
+        this.clearStoredLoaders();
+    };
+
+    /**
+     * Set the number of data to load.
+     * @param {Number} n The number of data to load.
+     */
+    this.setNToLoad = function (n) {
+        nToLoad = n;
+    };
+
+    /**
+     * Increment the number of loaded data
+     * and call onloadend if loaded all data.
+     */
+    this.addLoaded = function () {
+        nLoaded++;
+        if ( nLoaded === nToLoad ) {
+            self.onloadend();
         }
     };
 
-}; // class MemoryLoader
+}; // class Memory
 
 /**
- * Handle a load start event.
- * @param {Object} event The load start event.
- * Default does nothing.
- */
-dwv.io.MemoryLoader.prototype.onloadstart = function (/*event*/) {};
-/**
- * Handle a load progress event.
- * @param {Object} event The progress event.
- * Default does nothing.
- */
-dwv.io.MemoryLoader.prototype.onprogress = function (/*event*/) {};
-/**
- * Handle a load item event.
- * @param {Object} event The load item event fired
- *   when a file item has been loaded successfully.
- * Default does nothing.
- */
-dwv.io.MemoryLoader.prototype.onloaditem = function (/*event*/) {};
-/**
  * Handle a load event.
- * @param {Object} event The load event fired
- *   when a file has been loaded successfully.
+ * @param {Object} event The load event, 'event.target'
+ *  should be the loaded data.
  * Default does nothing.
  */
 dwv.io.MemoryLoader.prototype.onload = function (/*event*/) {};
 /**
  * Handle a load end event.
- * @param {Object} event The load end event fired
- *  when a file load has completed, successfully or not.
  * Default does nothing.
  */
-dwv.io.MemoryLoader.prototype.onloadend = function (/*event*/) {};
+dwv.io.MemoryLoader.prototype.onloadend = function () {};
+/**
+ * Handle a progress event.
+ * @param {Object} event The progress event.
+ * Default does nothing.
+ */
+dwv.io.MemoryLoader.prototype.onprogress = function (/*event*/) {};
 /**
  * Handle an error event.
- * @param {Object} event The error event.
+ * @param {Object} event The error event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.MemoryLoader.prototype.onerror = function (/*event*/) {};
 /**
  * Handle an abort event.
- * @param {Object} event The abort event.
+ * @param {Object} event The abort event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.MemoryLoader.prototype.onabort = function (/*event*/) {};
+
+/**
+ * Load a list of buffers.
+ * @param {Array} ioArray The list of buffers to load.
+ */
+dwv.io.MemoryLoader.prototype.load = function (ioArray)
+{
+    // clear storage
+    this.clearStoredLoader();
+
+    // closure to self for handlers
+    var self = this;
+    // set the number of data to load
+    this.setNToLoad( ioArray.length );
+
+    var mproghandler = new dwv.utils.MultiProgressHandler(self.onprogress);
+    mproghandler.setNToLoad( ioArray.length );
+    mproghandler.setNumberOfDimensions(1);
+
+    // get loaders
+    var loaders = [];
+    for (var m = 0; m < dwv.io.loaderList.length; ++m) {
+        loaders.push( new dwv.io[dwv.io.loaderList[m]]() );
+    }
+
+    // set loaders callbacks
+    var loader = null;
+    for (var k = 0; k < loaders.length; ++k) {
+        loader = loaders[k];
+        loader.onload = self.onload;
+        loader.onloadend = self.addLoaded;
+        loader.onerror = self.onerror;
+        loader.onabort = self.onabort;
+        loader.setOptions({
+            'defaultCharacterSet': this.getDefaultCharacterSet()
+        });
+        loader.onprogress = mproghandler.getUndefinedMonoProgressHandler(0);
+    }
+
+    // loop on I/O elements
+    for (var i = 0; i < ioArray.length; ++i)
+    {
+        var iodata = ioArray[i];
+
+        // find a loader
+        var foundLoader = false;
+        for (var l = 0; l < loaders.length; ++l) {
+            loader = loaders[l];
+            if (loader.canLoadUrl(iodata.filename)) {
+                foundLoader = true;
+                // store loader
+                this.storeLoader(loader);
+                // read
+                loader.load(iodata.data, iodata.filename, i);
+                // next file
+                break;
+            }
+        }
+        // TODO: throw?
+        if (!foundLoader) {
+            throw new Error("No loader found for file: "+iodata.filename);
+        }
+    }
+};
 
 // namespaces
 var dwv = dwv || {};
@@ -15918,7 +17907,6 @@ dwv.io.RawImageLoader = function ()
     /**
      * if abort is triggered, all image.onload callbacks have to be cancelled
      * @type {boolean}
-     * @private
      */
     var aborted = false;
 
@@ -15942,7 +17930,6 @@ dwv.io.RawImageLoader = function ()
      * Create a Data URI from an HTTP request response.
      * @param {Object} response The HTTP request response.
      * @param {String} dataType The data type.
-     * @private
      */
     function createDataUri(response, dataType) {
         // image type
@@ -15957,57 +17944,74 @@ dwv.io.RawImageLoader = function ()
 
     /**
      * Load data.
-     * @param {Object} buffer The read data.
+     * @param {Object} dataUri The data URI.
      * @param {String} origin The data origin.
      * @param {Number} index The data index.
      */
-    this.load = function (buffer, origin, index) {
+    this.load = function ( dataUri, origin, index ) {
         aborted = false;
         // create a DOM image
         var image = new Image();
         // triggered by ctx.drawImage
         image.onload = function (/*event*/) {
             try {
-                if (!aborted) {
-                    self.onprogress({
-                        lengthComputable: true,
-                        loaded: 100,
-                        total: 100,
-                        index: index,
-                        source: origin
-                    });
-                    self.onload(dwv.image.getViewFromDOMImage(this, origin));
+                if(!aborted){
+                    self.onload( dwv.image.getViewFromDOMImage(this) );
                 }
+                self.onloadend();
             } catch (error) {
-                self.onerror({
-                    error: error,
-                    source: origin
-                });
-            } finally {
-                self.onloadend({
-                    source: origin
-                });
+                self.onerror(error);
             }
+            self.onprogress({'type': 'read-progress', 'lengthComputable': true,
+                'loaded': 100, 'total': 100, 'index': index});
         };
         // storing values to pass them on
         image.origin = origin;
         image.index = index;
-        if (typeof origin === "string") {
-            // url case
-            var ext = origin.split('.').pop().toLowerCase();
-            image.src = createDataUri(buffer, ext);
-        } else {
-            image.src = buffer;
-        }
+        image.src = dataUri;
     };
 
     /**
-     * Abort load.
+     * Abort load. TODO...
      */
     this.abort = function () {
         aborted = true;
-        self.onabort({});
-        self.onloadend({});
+        self.onabort();
+    };
+
+    /**
+     * Get a file load handler.
+     * @param {Object} file The file to load.
+     * @param {Number} index The index 'id' of the file.
+     * @return {Function} A file load handler.
+     */
+    this.getFileLoadHandler = function (file, index) {
+        return function (event) {
+            self.load(event.target.result, file, index);
+        };
+    };
+
+    /**
+     * Get a url load handler.
+     * @param {String} url The url to load.
+     * @param {Number} index The index 'id' of the url.
+     * @return {Function} A url load handler.
+     */
+    this.getUrlLoadHandler = function (url, index) {
+        return function (/*event*/) {
+            // check response status
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Response_codes
+            // status 200: "OK"; status 0: "debug"
+            if (this.status !== 200 && this.status !== 0) {
+                self.onerror({'name': "RequestError",
+                    'message': "Error status: " + this.status +
+                    " while loading '" + url + "' [RawImageLoader]" });
+                return;
+            }
+            // load
+            var ext = url.split('.').pop().toLowerCase();
+            self.load(createDataUri(this.response, ext), url, index);
+        };
     };
 
 }; // class RawImageLoader
@@ -16058,11 +18062,17 @@ dwv.io.RawImageLoader.prototype.loadUrlAs = function () {
 };
 
 /**
- * Handle a load start event.
- * @param {Object} event The load start event.
+ * Handle a load event.
+ * @param {Object} event The load event, 'event.target'
+ *  should be the loaded data.
  * Default does nothing.
  */
-dwv.io.RawImageLoader.prototype.onloadstart = function (/*event*/) {};
+dwv.io.RawImageLoader.prototype.onload = function (/*event*/) {};
+/**
+ * Handle an load end event.
+ * Default does nothing.
+ */
+dwv.io.RawImageLoader.prototype.onloadend = function () {};
 /**
  * Handle a progress event.
  * @param {Object} event The progress event.
@@ -16070,28 +18080,16 @@ dwv.io.RawImageLoader.prototype.onloadstart = function (/*event*/) {};
  */
 dwv.io.RawImageLoader.prototype.onprogress = function (/*event*/) {};
 /**
- * Handle a load event.
- * @param {Object} event The load event fired
- *   when a file has been loaded successfully.
- * Default does nothing.
- */
-dwv.io.RawImageLoader.prototype.onload = function (/*event*/) {};
-/**
- * Handle an load end event.
- * @param {Object} event The load end event fired
- *  when a file load has completed, successfully or not.
- * Default does nothing.
- */
-dwv.io.RawImageLoader.prototype.onloadend = function (/*event*/) {};
-/**
  * Handle an error event.
- * @param {Object} event The error event.
+ * @param {Object} event The error event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.RawImageLoader.prototype.onerror = function (/*event*/) {};
 /**
  * Handle an abort event.
- * @param {Object} event The abort event.
+ * @param {Object} event The abort event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.RawImageLoader.prototype.onabort = function (/*event*/) {};
@@ -16137,7 +18135,6 @@ dwv.io.RawVideoLoader = function ()
      * Create a Data URI from an HTTP request response.
      * @param {Object} response The HTTP request response.
      * @param {String} dataType The data type.
-     * @private
      */
     function createDataUri(response, dataType) {
         // image data as string
@@ -16153,20 +18150,14 @@ dwv.io.RawVideoLoader = function ()
 
     /**
      * Internal Data URI load.
-     * @param {Object} buffer The read data.
+     * @param {Object} dataUri The data URI.
      * @param {String} origin The data origin.
      * @param {Number} index The data index.
      */
-    this.load = function (buffer, origin, index) {
+    this.load = function ( dataUri, origin, index ) {
         // create a DOM video
         var video = document.createElement('video');
-        if (typeof origin === "string") {
-            // url case
-            var ext = origin.split('.').pop().toLowerCase();
-            video.src = createDataUri(buffer, ext);
-        } else {
-            video.src = buffer;
-        }
+        video.src = dataUri;
         // storing values to pass them on
         video.file = origin;
         video.index = index;
@@ -16174,27 +18165,53 @@ dwv.io.RawVideoLoader = function ()
         video.onloadedmetadata = function (/*event*/) {
             try {
                 dwv.image.getViewFromDOMVideo(this,
-                    self.onloaditem, self.onload,
-                    self.onprogress, self.onloadend,
-                    index, origin);
+                    self.onload, self.onprogress, self.onloadend, index);
             } catch (error) {
-                self.onerror({
-                    error: error,
-                    source: origin
-                });
-                self.onloadend({
-                    source: origin
-                });
+                self.onerror(error);
             }
         };
     };
 
     /**
-     * Abort load.
+     * Abort load. TODO...
      */
     this.abort = function () {
-        self.onabort({});
-        self.onloadend({});
+        self.onabort();
+    };
+
+    /**
+     * Get a file load handler.
+     * @param {Object} file The file to load.
+     * @param {Number} index The index 'id' of the file.
+     * @return {Function} A file load handler.
+     */
+    this.getFileLoadHandler = function (file, index) {
+        return function (event) {
+            self.load(event.target.result, file, index);
+        };
+    };
+
+    /**
+     * Get a url load handler.
+     * @param {String} url The url to load.
+     * @param {Number} index The index 'id' of the url.
+     * @return {Function} A url load handler.
+     */
+    this.getUrlLoadHandler = function (url, index) {
+        return function (/*event*/) {
+            // check response status
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Response_codes
+            // status 200: "OK"; status 0: "debug"
+            if (this.status !== 200 && this.status !== 0) {
+                self.onerror({'name': "RequestError",
+                    'message': "Error status: " + this.status +
+                    " while loading '" + url + "' [RawVideoLoader]" });
+                return;
+            }
+            // load
+            var ext = url.split('.').pop().toLowerCase();
+            self.load(createDataUri(this.response, ext), url, index);
+        };
     };
 
 }; // class RawVideoLoader
@@ -16237,11 +18254,17 @@ dwv.io.RawVideoLoader.prototype.loadUrlAs = function () {
 };
 
 /**
- * Handle a load start event.
- * @param {Object} event The load start event.
+ * Handle a load event.
+ * @param {Object} event The load event, 'event.target'
+ *  should be the loaded data.
  * Default does nothing.
  */
-dwv.io.RawVideoLoader.prototype.onloadstart = function (/*event*/) {};
+dwv.io.RawVideoLoader.prototype.onload = function (/*event*/) {};
+/**
+ * Handle an load end event.
+ * Default does nothing.
+ */
+dwv.io.RawVideoLoader.prototype.onloadend = function () {};
 /**
  * Handle a progress event.
  * @param {Object} event The progress event.
@@ -16249,35 +18272,16 @@ dwv.io.RawVideoLoader.prototype.onloadstart = function (/*event*/) {};
  */
 dwv.io.RawVideoLoader.prototype.onprogress = function (/*event*/) {};
 /**
- * Handle a load item event.
- * @param {Object} event The load item event fired
- *   when a file item has been loaded successfully.
- * Default does nothing.
- */
-dwv.io.RawVideoLoader.prototype.onloaditem = function (/*event*/) {};
-/**
- * Handle a load event.
- * @param {Object} event The load event fired
- *   when a file has been loaded successfully.
- * Default does nothing.
- */
-dwv.io.RawVideoLoader.prototype.onload = function (/*event*/) {};
-/**
- * Handle an load end event.
- * @param {Object} event The load end event fired
- *  when a file load has completed, successfully or not.
- * Default does nothing.
- */
-dwv.io.RawVideoLoader.prototype.onloadend = function () {};
-/**
  * Handle an error event.
- * @param {Object} event The error event.
+ * @param {Object} event The error event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.RawVideoLoader.prototype.onerror = function (/*event*/) {};
 /**
  * Handle an abort event.
- * @param {Object} event The abort event.
+ * @param {Object} event The abort event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.RawVideoLoader.prototype.onabort = function (/*event*/) {};
@@ -16295,7 +18299,8 @@ dwv.io = dwv.io || {};
 // url content types
 dwv.io.urlContentTypes = {
     'Text': 0,
-    'ArrayBuffer': 1
+    'ArrayBuffer': 1,
+    'oups': 2
 };
 
 /**
@@ -16312,39 +18317,31 @@ dwv.io.UrlsLoader = function ()
     var self = this;
 
     /**
-     * Input data.
-     * @private
-     * @type Array
-     */
-    var inputData = null;
-
-    /**
-     * Array of launched requests.
+     * Array of launched requests used in abort.
      * @private
      * @type Array
      */
     var requests = [];
 
     /**
-     * Data loader.
+     * Launched loader used in abort.
      * @private
      * @type Object
      */
     var runningLoader = null;
 
     /**
+     * Number of data to load.
+     * @private
+     * @type Number
+     */
+    var nToLoad = 0;
+    /**
      * Number of loaded data.
      * @private
      * @type Number
      */
-    var nLoad = 0;
-
-    /**
-     * Number of load end events.
-     * @private
-     * @type Number
-     */
-    var nLoadend = 0;
+    var nLoaded = 0;
 
     /**
      * The default character set (optional).
@@ -16370,322 +18367,37 @@ dwv.io.UrlsLoader = function ()
     };
 
     /**
-     * Store the current input.
-     * @param {Object} data The input data.
-     * @private
-     */
-    function storeInputData(data) {
-        inputData = data;
-        // reset counters
-        nLoad = 0;
-        nLoadend = 0;
-        // clear storage
-        clearStoredRequests();
-        clearStoredLoader();
-    }
-
-    /**
      * Store a launched request.
      * @param {Object} request The launched request.
-     * @private
      */
-    function storeRequest(request) {
+    this.storeRequest = function (request) {
         requests.push(request);
-    }
-
-    /**
-     * Clear the stored requests.
-     * @private
-     */
-    function clearStoredRequests() {
-        requests = [];
-    }
-
-    /**
-     * Store the launched loader.
-     * @param {Object} loader The launched loader.
-     * @private
-     */
-    function storeLoader(loader) {
-        runningLoader = loader;
-    }
-
-    /**
-     * Clear the stored loader.
-     * @private
-     */
-    function clearStoredLoader() {
-        runningLoader = null;
-    }
-
-    /**
-     * Launch a load item event and call addLoad.
-     * @param {Object} event The load data event.
-     * @private
-     */
-    function addLoadItem(event) {
-        self.onloaditem(event);
-        addLoad();
-    }
-
-    /**
-     * Increment the number of loaded data
-     *   and call onload if loaded all data.
-     * @param {Object} event The load data event.
-     * @private
-     */
-    function addLoad(/*event*/) {
-        nLoad++;
-        // call self.onload when all is loaded
-        // (not using the input event since it is not the
-        //   general load)
-        if (nLoad === inputData.length) {
-            self.onload({
-                source: inputData
-            });
-        }
-    }
-
-    /**
-     * Increment the counter of load end events
-     *   and run callbacks when all done, erroneus or not.
-     * @param {Object} event The load end event.
-     * @private
-     */
-    function addLoadend(/*event*/) {
-        nLoadend++;
-        // call self.onloadend when all is run
-        // (not using the input event since it is not the
-        //   general load end)
-        // x2 to count for request + load
-        if (nLoadend === 2 * inputData.length) {
-            self.onloadend({
-                source: inputData
-            });
-        }
-    }
-
-    /**
-     * Augment a callback event with a srouce.
-     * @param {Object} callback The callback to augment its event.
-     * @param {Object} source The source to add to the event.
-     * @private
-     */
-    function augmentCallbackEvent(callback, source) {
-        return function (event) {
-            event.source = source;
-            callback(event);
-        };
-    }
-
-    /**
-     * Load a list of URLs or a DICOMDIR.
-     * @param {Array} data The list of urls to load.
-     * @param {Object} options Load options.
-     */
-    this.load = function (data, options)
-    {
-        // send start event
-        self.onloadstart({
-            source: data
-        });
-
-        // check if DICOMDIR case
-        if ( data.length === 1 &&
-            (dwv.utils.endsWith(data[0], "DICOMDIR") ||
-             dwv.utils.endsWith(data[0], ".dcmdir") ) ) {
-            loadDicomDir(data[0], options);
-        } else {
-            loadUrls(data, options);
-        }
     };
 
     /**
-     * Load a list of urls.
-     * @param {Array} data The list of urls to load.
-     * @param {Object} options Load options.
-     * @private
+     * Clear the stored requests.
      */
-    function loadUrls(data, options) {
-        // check input
-        if (typeof data === "undefined" || data.length === 0) {
-            return;
-        }
-        storeInputData(data);
-
-        // create prgress handler
-        var mproghandler = new dwv.utils.MultiProgressHandler(self.onprogress);
-        mproghandler.setNToLoad(data.length);
-
-        // create loaders
-        var loaders = [];
-        for (var m = 0; m < dwv.io.loaderList.length; ++m) {
-            loaders.push(new dwv.io[dwv.io.loaderList[m]]());
-        }
-
-        // find an appropriate loader
-        var dataElement = data[0];
-        var loader = null;
-        var foundLoader = false;
-        for (var l = 0; l < loaders.length; ++l) {
-            loader = loaders[l];
-            if (loader.canLoadUrl(dataElement)) {
-                foundLoader = true;
-                // load options
-                loader.setOptions({
-                    'defaultCharacterSet': self.getDefaultCharacterSet()
-                });
-                // set loader callbacks
-                // loader.onloadstart: nothing to do
-                loader.onprogress = mproghandler.getUndefinedMonoProgressHandler(1);
-                if (typeof loader.onloaditem === "undefined") {
-                    // handle load-item locally
-                    loader.onload = addLoadItem;
-                } else {
-                    loader.onloaditem = self.onloaditem;
-                    loader.onload = addLoad;
-                }
-                loader.onloadend = addLoadend;
-                loader.onerror = self.onerror;
-                loader.onabort = self.onabort;
-
-                // store loader
-                storeLoader(loader);
-                // exit
-                break;
-            }
-        }
-        if (!foundLoader) {
-            throw new Error("No loader found for url: "+dataElement);
-        }
-
-        var getLoadHandler = function (loader, dataElement, i) {
-            return function (event) {
-                // check response status
-                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Response_codes
-                // status 200: "OK"; status 0: "debug"
-                var status = event.target.status;
-                if (status !== 200 && status !== 0) {
-                    self.onerror({
-                        source: dataElement,
-                        error: "GET " + event.target.responseURL +
-                            " " + event.target.status +
-                            " (" + event.target.statusText + ")",
-                        target: event.target
-                    });
-                    addLoadend();
-                } else {
-                    loader.load(event.target.response, dataElement, i);
-                }
-            };
-        };
-
-        // loop on I/O elements
-        for (var i = 0; i < data.length; ++i) {
-            dataElement = data[i];
-
-            // check loader
-            if (!loader.canLoadUrl(dataElement)) {
-                throw new Error("Input url of different type: "+dataElement);
-            }
-            /**
-             * The http request.
-             * @external XMLHttpRequest
-             * @see https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
-             */
-            var request = new XMLHttpRequest();
-            request.open('GET', dataElement, true);
-            // store request
-            storeRequest(request);
-
-            if ( typeof options !== "undefined" ) {
-                // optional request headers
-                if ( typeof options.requestHeaders !== "undefined" ) {
-                    var requestHeaders = options.requestHeaders;
-                    for (var j = 0; j < requestHeaders.length; ++j) {
-                        if ( typeof requestHeaders[j].name !== "undefined" &&
-                            typeof requestHeaders[j].value !== "undefined" ) {
-                            request.setRequestHeader(requestHeaders[j].name, requestHeaders[j].value);
-                        }
-                    }
-                }
-                // optional withCredentials
-                if (typeof options.withCredentials !== "undefined") {
-                    request.withCredentials = options.withCredentials;
-                }
-            }
-
-            // set request callbacks
-            // request.onloadstart: nothing to do
-            request.onprogress = augmentCallbackEvent(
-                mproghandler.getMonoProgressHandler(i, 0), dataElement);
-            request.onload = getLoadHandler(loader, dataElement, i);
-            request.onloadend = addLoadend;
-            request.onerror = augmentCallbackEvent(self.onerror, dataElement);
-            request.onabort = augmentCallbackEvent(self.onabort, dataElement);
-            // response type (default is 'text')
-            if (loader.loadUrlAs() === dwv.io.urlContentTypes.ArrayBuffer) {
-                request.responseType = "arraybuffer";
-            }
-            // send request
-            request.send(null);
-        }
-    }
+    this.clearStoredRequests = function () {
+        requests = [];
+    };
 
     /**
-     * Load a DICOMDIR.
-     * @param {string} dicomDirUrl The DICOMDIR url.
-     * @param {Object} options Load options.
-     * @private
+     * Store a launched loader.
+     * @param {Object} loader The launched loader.
      */
-    function loadDicomDir(dicomDirUrl, options) {
-        // read DICOMDIR
-        var request = new XMLHttpRequest();
-        request.open('GET', dicomDirUrl, true);
-        request.responseType = "arraybuffer";
-        // request.onloadstart: nothing to do
-        request.onload = function (event) {
-            // check status
-            var status = event.target.status;
-            if (status !== 200 && status !== 0) {
-                self.onerror({
-                    source: dicomDirUrl,
-                    error: "GET " + event.target.responseURL +
-                        " " + event.target.status +
-                        " (" + event.target.statusText + ")",
-                    target: event.target
-                });
-                self.onloadend({});
-                return;
-            }
-            // get the file list
-            var list = dwv.dicom.getFileListFromDicomDir(event.target.response);
-            // use the first list
-            var urls = list[0][0];
-            // append root url
-            var rootUrl = dwv.utils.getRootPath(dicomDirUrl);
-            var fullUrls = [];
-            for (var i = 0; i < urls.length; ++i) {
-                fullUrls.push(rootUrl + "/" + urls[i]);
-            }
-            // load urls
-            loadUrls(fullUrls, options);
-        };
-        request.onerror = function (event) {
-            augmentCallbackEvent(self.onerror, dicomDirUrl)(event);
-            self.onloadend({});
-        };
-        request.onabort = function (event) {
-            augmentCallbackEvent(self.onabort, dicomDirUrl)(event);
-            self.onloadend({});
-        };
-        // request.onloadend: nothing to do
-        // send request
-        request.send(null);
-    }
+    this.storeLoader = function (loader) {
+        runningLoader = loader;
+    };
 
     /**
-     * Abort a load.
+     * Clear the stored loader.
+     */
+    this.clearStoredLoader = function () {
+        runningLoader = null;
+    };
+
+    /**
+     * Abort a URLs load.
      */
     this.abort = function () {
         // abort requests
@@ -16695,68 +18407,223 @@ dwv.io.UrlsLoader = function ()
                 requests[i].abort();
             }
         }
+        this.clearStoredRequests();
         // abort loader
-        if (runningLoader && runningLoader.isLoading()) {
+        if ( runningLoader && runningLoader.isLoading() ) {
             runningLoader.abort();
+        }
+        this.clearStoredLoader();
+    };
+
+    /**
+     * Set the number of data to load.
+     * @param {Number} n The number of data to load.
+     */
+    this.setNToLoad = function (n) {
+        nToLoad = n;
+    };
+
+    /**
+     * Increment the number of loaded data
+     * and call onloadend if loaded all data.
+     */
+    this.addLoaded = function () {
+        nLoaded++;
+        if ( nLoaded === nToLoad ) {
+            self.onloadend();
         }
     };
 
-}; // class UrlsLoader
+}; // class Url
 
 /**
- * Handle a load start event.
- * @param {Object} event The load start event.
- * Default does nothing.
- */
-dwv.io.UrlsLoader.prototype.onloadstart = function (/*event*/) {};
-/**
- * Handle a load progress event.
- * @param {Object} event The progress event.
- * Default does nothing.
- */
-dwv.io.UrlsLoader.prototype.onprogress = function (/*event*/) {};
-/**
- * Handle a load item event.
- * @param {Object} event The load item event fired
- *   when a file item has been loaded successfully.
- * Default does nothing.
- */
-dwv.io.UrlsLoader.prototype.onloaditem = function (/*event*/) {};
-/**
  * Handle a load event.
- * @param {Object} event The load event fired
- *   when a file has been loaded successfully.
+ * @param {Object} event The load event, 'event.target'
+ *  should be the loaded data.
  * Default does nothing.
  */
 dwv.io.UrlsLoader.prototype.onload = function (/*event*/) {};
 /**
  * Handle a load end event.
- * @param {Object} event The load end event fired
- *  when a file load has completed, successfully or not.
  * Default does nothing.
  */
-dwv.io.UrlsLoader.prototype.onloadend = function (/*event*/) {};
+dwv.io.UrlsLoader.prototype.onloadend = function () {};
+/**
+ * Handle a progress event.
+ * @param {Object} event The progress event.
+ * Default does nothing.
+ */
+dwv.io.UrlsLoader.prototype.onprogress = function (/*event*/) {};
 /**
  * Handle an error event.
- * @param {Object} event The error event.
+ * @param {Object} event The error event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.UrlsLoader.prototype.onerror = function (/*event*/) {};
 /**
  * Handle an abort event.
- * @param {Object} event The abort event.
+ * @param {Object} event The abort event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.UrlsLoader.prototype.onabort = function (/*event*/) {};
 
+/**
+ * Load a list of URLs.
+ * @param {Array} ioArray The list of urls to load.
+ * @param {Object} options Load options.
+ * @external XMLHttpRequest
+ */
+dwv.io.UrlsLoader.prototype.load = function (ioArray, options)
+{
+    // request onerror handler
+    var getRequestOnError = function (origin) {
+        return function (/*event*/) {
+            var message = "An error occurred while downloading '" + origin + "'";
+            if (typeof this.status !== "undefined") {
+                message += " (http status: " + this.status + ")";
+            }
+            message += ".";
+            self.onerror( {'name': "RequestError", 'message': message } );
+        };
+    };
+
+    // request onabort handler
+    var getRequestOnAbort = function (origin) {
+        return function () {
+            self.onabort( {'message': "Abort while downloading '" + origin + "'." } );
+        };
+    };
+
+    // clear storage
+    this.clearStoredRequests();
+    this.clearStoredLoader();
+
+    // closure to self for handlers
+    var self = this;
+
+    // raw url load
+    var internalUrlsLoad = function (urlsArray) {
+        // set the number of data to load
+        self.setNToLoad( urlsArray.length );
+
+        var mproghandler = new dwv.utils.MultiProgressHandler(self.onprogress);
+        mproghandler.setNToLoad( urlsArray.length );
+
+        // get loaders
+        var loaders = [];
+        for (var m = 0; m < dwv.io.loaderList.length; ++m) {
+            loaders.push( new dwv.io[dwv.io.loaderList[m]]() );
+        }
+
+        // set loaders callbacks
+        var loader = null;
+        for (var k = 0; k < loaders.length; ++k) {
+            loader = loaders[k];
+            loader.onload = self.onload;
+            loader.onloadend = self.addLoaded;
+            loader.onerror = self.onerror;
+            loader.onabort = self.onabort;
+            loader.setOptions({
+                'defaultCharacterSet': self.getDefaultCharacterSet()
+            });
+            loader.onprogress = mproghandler.getUndefinedMonoProgressHandler(1);
+        }
+
+        // loop on I/O elements
+        for (var i = 0; i < urlsArray.length; ++i)
+        {
+            var url = urlsArray[i];
+            var request = new XMLHttpRequest();
+            request.open('GET', url, true);
+
+            // store request
+            self.storeRequest(request);
+
+            // optional request headers
+            if ( typeof options.requestHeaders !== "undefined" ) {
+                var requestHeaders = options.requestHeaders;
+                for (var j = 0; j < requestHeaders.length; ++j) {
+                    if ( typeof requestHeaders[j].name !== "undefined" &&
+                        typeof requestHeaders[j].value !== "undefined" ) {
+                        request.setRequestHeader(requestHeaders[j].name, requestHeaders[j].value);
+                    }
+                }
+            }
+
+            // bind reader progress
+            request.onprogress = mproghandler.getMonoProgressHandler(i, 0);
+            request.onloadend = mproghandler.getMonoOnLoadEndHandler(i, 0);
+
+            // find a loader
+            var foundLoader = false;
+            for (var l = 0; l < loaders.length; ++l) {
+                loader = loaders[l];
+                if (loader.canLoadUrl(url)) {
+                    foundLoader = true;
+                    // store loader
+                    self.storeLoader(loader);
+                    // set reader callbacks
+                    request.onload = loader.getUrlLoadHandler(url, i);
+                    request.onerror = getRequestOnError(url);
+                    request.onabort = getRequestOnAbort(url);
+                    // response type (default is 'text')
+                    if (loader.loadUrlAs() === dwv.io.urlContentTypes.ArrayBuffer) {
+                        request.responseType = "arraybuffer";
+                    }
+                    // read
+                    request.send(null);
+                    // next file
+                    break;
+                }
+            }
+            // TODO: throw?
+            if (!foundLoader) {
+                throw new Error("No loader found for url: "+url);
+            }
+        }
+    };
+
+    // DICOMDIR load
+    var internalDicomDirLoad = function (dicomDirUrl) {
+        console.log("UrlsLoader: using a DICOMDIR.");
+        // read DICOMDIR
+        var dirRequest = new XMLHttpRequest();
+        dirRequest.open('GET', dicomDirUrl, true);
+        dirRequest.responseType = "arraybuffer";
+        dirRequest.onload = function (/*event*/) {
+            // get the file list
+            var list = dwv.dicom.getFileListFromDicomDir( this.response );
+            // use the first list
+            var urls = list[0][0];
+            // append root url
+            var rootUrl = dwv.utils.getRootPath(dicomDirUrl);
+            var fullUrls = [];
+            for ( var i = 0; i < urls.length; ++i ) {
+                fullUrls.push( rootUrl + "/" + urls[i]);
+            }
+            internalUrlsLoad(fullUrls);
+        };
+        dirRequest.onerror = getRequestOnError(dicomDirUrl);
+        dirRequest.onabort = getRequestOnAbort(dicomDirUrl);
+        dirRequest.send(null);
+    };
+
+    // check if DICOMDIR case
+    if ( ioArray.length === 1 &&
+        (dwv.utils.endsWith(ioArray[0], "DICOMDIR") ||
+         dwv.utils.endsWith(ioArray[0], ".dcmdir") ) ) {
+        internalDicomDirLoad(ioArray[0]);
+    } else {
+        internalUrlsLoad(ioArray);
+    }
+};
+
 // namespaces
 var dwv = dwv || {};
 dwv.io = dwv.io || {};
-/**
- * The zip library.
- * @external JSZip
- * @see https://github.com/Stuk/jszip
- */
+// external
 var JSZip = JSZip || {};
 
 /**
@@ -16806,37 +18673,34 @@ dwv.io.ZipLoader = function ()
      * JSZip.async callback
      * @param {ArrayBuffer} content unzipped file image
      * @param {Number} index The data index.
-     * @private
+     * @return {}
      */
-    function zipAsyncCallback(content, origin, index)
+    function zipAsyncCallback(content, index)
     {
         files.push({"filename": filename, "data": content});
 
         // sent un-ziped progress with the data index
         // (max 50% to take into account the memory loading)
-        var unzipPercent = files.length * 100 / zobjs.length;
-        self.onprogress({
-            lengthComputable: true,
-            loaded: (unzipPercent / 2),
-            total: 100,
-            index: index,
-            item: {
-                loaded: unzipPercent,
-                total: 100,
-                source: origin
-            }
-        });
+        var unzipPercent = files.length * 50 / zobjs.length;
+        self.onprogress({'type': 'read-progress', 'lengthComputable': true,
+            'loaded': unzipPercent, 'total': 100, 'index': index});
 
         // recursively call until we have all the files
         if (files.length < zobjs.length) {
             var num = files.length;
             filename = zobjs[num].name;
             zobjs[num].async("arrayBuffer").then( function (content) {
-                zipAsyncCallback(content, origin, index);
+                zipAsyncCallback(content, index);
             });
         } else {
             var memoryIO = new dwv.io.MemoryLoader();
-            // memoryIO.onloadstart: nothing to do
+            memoryIO.onload = self.onload;
+            memoryIO.onloadend = function () {
+                // reset loading flag
+                isLoading = false;
+                // call listeners
+                self.onloadend();
+            };
             memoryIO.onprogress = function (progress) {
                 // add 50% to take into account the un-zipping
                 progress.loaded = 50 + progress.loaded / 2;
@@ -16844,17 +18708,9 @@ dwv.io.ZipLoader = function ()
                 progress.index = index;
                 self.onprogress(progress);
             };
-            memoryIO.onloaditem = self.onloaditem;
-            memoryIO.onload = self.onload;
-            memoryIO.onloadend = function (event) {
-                // reset loading flag
-                isLoading = false;
-                // call listeners
-                self.onloadend(event);
-            };
             memoryIO.onerror = self.onerror;
             memoryIO.onabort = self.onabort;
-            // launch
+
             memoryIO.load(files);
         }
     }
@@ -16866,10 +18722,6 @@ dwv.io.ZipLoader = function ()
      * @param {Number} index The data index.
      */
     this.load = function (buffer, origin, index) {
-        // send start event
-        this.onloadstart({
-            source: origin
-        });
         // set loading flag
         isLoading = true;
 
@@ -16880,7 +18732,7 @@ dwv.io.ZipLoader = function ()
             var num = files.length;
             filename = zobjs[num].name;
             zobjs[num].async("arrayBuffer").then( function (content) {
-                zipAsyncCallback(content, origin, index);
+                zipAsyncCallback(content, index);
             });
         });
     };
@@ -16892,8 +18744,41 @@ dwv.io.ZipLoader = function ()
         // reset loading flag
         isLoading = false;
         // call listeners
-        self.onabort({});
-        self.onloadend({});
+        self.onabort();
+    };
+
+    /**
+     * Get a file load handler.
+     * @param {Object} file The file to load.
+     * @param {Number} index The index 'id' of the file.
+     * @return {Function} A file load handler.
+     */
+    this.getFileLoadHandler = function (file, index) {
+        return function (event) {
+            self.load(event.target.result, file, index);
+        };
+    };
+
+    /**
+     * Get a url load handler.
+     * @param {String} url The url to load.
+     * @param {Number} index The index 'id' of the url.
+     * @return {Function} A url load handler.
+     */
+    this.getUrlLoadHandler = function (url, index) {
+        return function (/*event*/) {
+            // check response status
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Response_codes
+            // status 200: "OK"; status 0: "debug"
+            if (this.status !== 200 && this.status !== 0) {
+                self.onerror({'name': "RequestError",
+                    'message': "Error status: " + this.status +
+                    " while loading '" + url + "' [ZipLoader]" });
+                return;
+            }
+            // load
+            self.load(this.response, url, index);
+        };
     };
 
 }; // class DicomDataLoader
@@ -16936,47 +18821,34 @@ dwv.io.ZipLoader.prototype.loadUrlAs = function () {
 };
 
 /**
- * Handle a load start event.
- * @param {Object} event The load start event.
- * Default does nothing.
- */
-dwv.io.ZipLoader.prototype.onloadstart = function (/*event*/) {};
-/**
- * Handle a load progress event.
- * @param {Object} event The progress event.
- * Default does nothing.
- */
-dwv.io.ZipLoader.prototype.onprogress = function (/*event*/) {};
-/**
- * Handle a load item event.
- * @param {Object} event The load item event fired
- *   when a file item has been loaded successfully.
- * Default does nothing.
- */
-dwv.io.ZipLoader.prototype.onloaditem = function (/*event*/) {};
-/**
  * Handle a load event.
- * @param {Object} event The load event fired
- *   when a file has been loaded successfully.
+ * @param {Object} event The load event, 'event.target'
+ *  should be the loaded data.
  * Default does nothing.
  */
 dwv.io.ZipLoader.prototype.onload = function (/*event*/) {};
 /**
  * Handle an load end event.
- * @param {Object} event The load end event fired
- *  when a file load has completed, successfully or not.
  * Default does nothing.
  */
-dwv.io.ZipLoader.prototype.onloadend = function (/*event*/) {};
+dwv.io.ZipLoader.prototype.onloadend = function () {};
+/**
+ * Handle a progress event.
+ * @param {Object} event The progress event.
+ * Default does nothing.
+ */
+dwv.io.ZipLoader.prototype.onprogress = function (/*event*/) {};
 /**
  * Handle an error event.
- * @param {Object} event The error event.
+ * @param {Object} event The error event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.ZipLoader.prototype.onerror = function (/*event*/) {};
 /**
  * Handle an abort event.
- * @param {Object} event The abort event.
+ * @param {Object} event The abort event with an
+ *  optional 'event.message'.
  * Default does nothing.
  */
 dwv.io.ZipLoader.prototype.onabort = function (/*event*/) {};
@@ -17992,13 +19864,13 @@ dwv.math = dwv.math || {};
  * @return {Number} The multiplication of the three inputs or
  *  null if one of the last two is null.
  */
-dwv.math.mulABC = function ( a, b, c) {
+function mulABC( a, b, c) {
     var res = null;
     if (b !== null && c !== null) {
         res = a * b * c;
     }
     return res;
-};
+}
 
 /**
  * Circle shape.
@@ -18039,7 +19911,7 @@ dwv.math.Circle = function(centre, radius)
      */
     this.getWorldSurface = function(spacingX, spacingY)
     {
-        return dwv.math.mulABC(surface, spacingX, spacingY);
+        return mulABC(surface, spacingX, spacingY);
     };
 }; // Circle class
 
@@ -18088,7 +19960,7 @@ dwv.math.Ellipse = function(centre, a, b)
      */
     this.getWorldSurface = function(spacingX, spacingY)
     {
-        return dwv.math.mulABC(surface, spacingX, spacingY);
+        return mulABC(surface, spacingX, spacingY);
     };
 }; // Circle class
 
@@ -18347,7 +20219,7 @@ dwv.math.Rectangle = function(begin, end)
      */
     this.getWorldSurface = function(spacingX, spacingY)
     {
-        return dwv.math.mulABC(surface, spacingX, spacingY);
+        return mulABC(surface, spacingX, spacingY);
     };
 }; // Rectangle class
 
@@ -18690,22 +20562,16 @@ dwv.math.Vector3D.prototype.dotProduct = function (vector3D) {
 
 // namespaces
 var dwv = dwv || {};
-/** @namespace */
 dwv.tool = dwv.tool || {};
-/** @namespace */
-dwv.tool.draw = dwv.tool.draw || {};
-/**
- * The Konva namespace.
- * @external Konva
- * @see https://konvajs.org/
- */
+// external
 var Konva = Konva || {};
 
 /**
  * Arrow factory.
  * @constructor
+ * @external Konva
  */
-dwv.tool.draw.ArrowFactory = function ()
+dwv.tool.ArrowFactory = function ()
 {
     /**
      * Get the number of points needed to build the shape.
@@ -18725,7 +20591,7 @@ dwv.tool.draw.ArrowFactory = function ()
  * @param {Object} style The drawing style.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.ArrowFactory.prototype.create = function (points, style/*, image*/)
+dwv.tool.ArrowFactory.prototype.create = function (points, style/*, image*/)
 {
     // physical shape
     var line = new dwv.math.Line(points[0], points[1]);
@@ -18802,7 +20668,7 @@ dwv.tool.draw.ArrowFactory.prototype.create = function (points, style/*, image*/
  * @param {Object} anchor The active anchor.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.UpdateArrow = function (anchor/*, image*/)
+dwv.tool.UpdateArrow = function (anchor/*, image*/)
 {
     // parent group
     var group = anchor.getParent();
@@ -18884,12 +20750,9 @@ dwv.tool.draw.UpdateArrow = function (anchor/*, image*/)
 
 // namespaces
 var dwv = dwv || {};
+/** @namespace */
 dwv.tool = dwv.tool || {};
-/**
- * The Konva namespace.
- * @external Konva
- * @see https://konvajs.org/
- */
+// external
 var Konva = Konva || {};
 
 /**
@@ -18914,8 +20777,9 @@ var Konva = Konva || {};
  *
  * @constructor
  * @param {Object} app The associated application.
+ * @external Konva
  */
-dwv.tool.Draw = function (app)
+dwv.tool.Draw = function (app, shapeFactoryList)
 {
     /**
      * Closure to self: to be used by event handlers.
@@ -18923,6 +20787,11 @@ dwv.tool.Draw = function (app)
      * @type WindowLevel
      */
     var self = this;
+    /**
+     * Draw GUI.
+     * @type Object
+     */
+    var gui = null;
     /**
      * Interaction start flag.
      * @private
@@ -18934,12 +20803,11 @@ dwv.tool.Draw = function (app)
      * Shape factory list
      * @type Object
      */
-    this.shapeFactoryList = null;
+    this.shapeFactoryList = shapeFactoryList;
 
     /**
      * Current shape factory.
      * @type Object
-     * @private
      */
     var currentFactory = null;
 
@@ -19037,9 +20905,6 @@ dwv.tool.Draw = function (app)
         if ( started ) {
             return;
         }
-
-        // update scale
-        self.style.setScale(app.getWindowScale());
 
         // determine if the click happened in an existing shape
         var stage = app.getDrawStage();
@@ -19220,7 +21085,6 @@ dwv.tool.Draw = function (app)
      * @param {Object} event The key down event.
      */
     this.keydown = function(event){
-        event.context = "dwv.tool.Draw";
         app.onKeydown(event);
 
         // press delete key
@@ -19295,10 +21159,22 @@ dwv.tool.Draw = function (app)
     }
 
     /**
-     * Activate the tool.
-     * @param {Boolean} flag The flag to activate or not.
+     * Setup the tool GUI.
      */
-    this.activate = function ( flag ) {
+    this.setup = function ()
+    {
+        gui = new dwv.gui.Draw(app);
+        gui.setup(this.shapeFactoryList);
+    };
+
+    /**
+     * Enable the tool.
+     * @param {Boolean} flag The flag to enable or not.
+     */
+    this.display = function ( flag ){
+        if ( gui ) {
+            gui.display( flag );
+        }
         // reset shape display properties
         shapeEditor.disable();
         shapeEditor.setShape(null);
@@ -19313,11 +21189,6 @@ dwv.tool.Draw = function (app)
         if (flag) {
             app.addEventListener("slice-change", updateDrawLayer);
             app.addEventListener("frame-change", updateDrawLayer);
-
-            // init with the app window scale
-            this.style.setScale(app.getWindowScale());
-            // same for colour
-            this.setLineColour(this.style.getLineColour());
         }
         else {
             app.removeEventListener("slice-change", updateDrawLayer);
@@ -19380,7 +21251,6 @@ dwv.tool.Draw = function (app)
 
     /**
      * Get the real position from an event.
-     * @private
      */
     function getRealPosition( index ) {
         var stage = app.getDrawStage();
@@ -19497,10 +21367,7 @@ dwv.tool.Draw = function (app)
                     app.addToUndoStack(mvcmd);
 
                     // the move is handled by Konva, trigger an event manually
-                    fireEvent({
-                        'type': 'draw-move',
-                        'id': this.id()
-                    });
+                    fireEvent({'type': 'draw-move'});
                 }
                 // reset anchors
                 shapeEditor.setAnchorsActive(true);
@@ -19523,7 +21390,6 @@ dwv.tool.Draw = function (app)
             var ktext = label.getText();
 
             // ask user for new label
-            // TODO remove
             var labelText = dwv.gui.prompt("Shape label", ktext.textExpr);
 
             // if press cancel do nothing
@@ -19538,9 +21404,7 @@ dwv.tool.Draw = function (app)
             ktext.setText(dwv.utils.replaceFlags(ktext.textExpr, ktext.quant));
 
             // trigger event
-            fireEvent({
-                'type': 'draw-change'
-            });
+            fireEvent({'type': 'draw-change'});
 
             // draw
             drawLayer.draw();
@@ -19548,19 +21412,26 @@ dwv.tool.Draw = function (app)
     };
 
     /**
-     * Set the tool options.
-     * @param {Object} options The list of shape names amd classes.
-     */
-    this.setOptions = function (options) {
-        // save the options as the shape factory list
-        this.shapeFactoryList = options;
-    };
-
-    /**
      * Initialise the tool.
      */
     this.init = function() {
-        // does nothing
+        // set the default to the first in the list
+        var shapeName = 0;
+        for( var key in this.shapeFactoryList ){
+            shapeName = key;
+            break;
+        }
+        this.setShapeName(shapeName);
+        // init gui
+        if ( gui ) {
+            // init with the app window scale
+            this.style.setScale(app.getWindowScale());
+            // same for colour
+            this.setLineColour(this.style.getLineColour());
+            // init html
+            gui.initialise();
+        }
+        return true;
     };
 
     /**
@@ -19608,7 +21479,6 @@ dwv.tool.Draw = function (app)
     /**
      * Fire an event: call all associated listeners.
      * @param {Object} event The event to fire.
-     * @private
      */
     function fireEvent (event)
     {
@@ -19627,16 +21497,16 @@ dwv.tool.Draw = function (app)
  * Help for this tool.
  * @return {Object} The help content.
  */
-dwv.tool.Draw.prototype.getHelpKeys = function()
+dwv.tool.Draw.prototype.getHelp = function()
 {
     return {
-        "title": "tool.Draw.name",
-        "brief": "tool.Draw.brief",
+        "title": dwv.i18n("tool.Draw.name"),
+        "brief": dwv.i18n("tool.Draw.brief"),
         "mouse": {
-            "mouse_drag": "tool.Draw.mouse_drag"
+            "mouse_drag": dwv.i18n("tool.Draw.mouse_drag")
         },
         "touch": {
-            "touch_drag": "tool.Draw.touch_drag"
+            "touch_drag": dwv.i18n("tool.Draw.touch_drag")
         }
     };
 };
@@ -19665,18 +21535,16 @@ dwv.tool.Draw.prototype.hasShape = function(name) {
 
 // namespaces
 var dwv = dwv || {};
+/** @namespace */
 dwv.tool = dwv.tool || {};
-/**
- * The Konva namespace.
- * @external Konva
- * @see https://konvajs.org/
- */
+// external
 var Konva = Konva || {};
 
 /**
  * Get the display name of the input shape.
  * @param {Object} shape The Konva shape.
  * @return {String} The display name.
+ * @external Konva
  */
 dwv.tool.GetShapeDisplayName = function (shape)
 {
@@ -19724,7 +21592,6 @@ dwv.tool.DrawGroupCommand = function (group, name, layer, silent)
     this.getName = function () { return "Draw-"+name; };
     /**
      * Execute the command.
-     * @fires dwv.tool.DrawGroupCommand#draw-create
      */
     this.execute = function () {
         // add the group to the parent (in case of undo/redo)
@@ -19733,21 +21600,11 @@ dwv.tool.DrawGroupCommand = function (group, name, layer, silent)
         layer.draw();
         // callback
         if (!isSilent) {
-            /**
-             * Draw create event.
-             * @event dwv.tool.DrawGroupCommand#draw-create
-             * @type {Object}
-             * @property {number} id The id of the create draw.
-             */
-            this.onExecute({
-                'type': 'draw-create',
-                'id': group.id()
-            });
+            this.onExecute({'type': 'draw-create', 'id': group.id()});
         }
     };
     /**
      * Undo the command.
-     * @fires dwv.tool.DeleteGroupCommand#draw-delete
      */
     this.undo = function () {
         // remove the group from the parent layer
@@ -19755,10 +21612,7 @@ dwv.tool.DrawGroupCommand = function (group, name, layer, silent)
         // draw
         layer.draw();
         // callback
-        this.onUndo({
-            'type': 'draw-delete',
-            'id': group.id()
-        });
+        this.onUndo({'type': 'draw-delete', 'id': group.id()});
     };
 }; // DrawGroupCommand class
 
@@ -19766,14 +21620,16 @@ dwv.tool.DrawGroupCommand = function (group, name, layer, silent)
  * Handle an execute event.
  * @param {Object} event The execute event with type and id.
  */
-dwv.tool.DrawGroupCommand.prototype.onExecute = function (/*event*/) {
+dwv.tool.DrawGroupCommand.prototype.onExecute = function (/*event*/)
+{
     // default does nothing.
 };
 /**
  * Handle an undo event.
  * @param {Object} event The undo event with type and id.
  */
-dwv.tool.DrawGroupCommand.prototype.onUndo = function (/*event*/) {
+dwv.tool.DrawGroupCommand.prototype.onUndo = function (/*event*/)
+{
     // default does nothing.
 };
 
@@ -19795,7 +21651,6 @@ dwv.tool.MoveGroupCommand = function (group, name, translation, layer)
 
     /**
      * Execute the command.
-     * @fires dwv.tool.MoveGroupCommand#draw-move
      */
     this.execute = function () {
         // translate group
@@ -19803,20 +21658,10 @@ dwv.tool.MoveGroupCommand = function (group, name, translation, layer)
         // draw
         layer.draw();
         // callback
-        /**
-         * Draw move event.
-         * @event dwv.tool.MoveGroupCommand#draw-move
-         * @type {Object}
-         * @property {number} id The id of the create draw.
-         */
-        this.onExecute({
-            'type': 'draw-move',
-            'id': group.id()
-        });
+        this.onExecute({'type': 'draw-move', 'id': group.id()});
     };
     /**
      * Undo the command.
-     * @fires dwv.tool.MoveGroupCommand#draw-move
      */
     this.undo = function () {
         // invert translate group
@@ -19825,10 +21670,7 @@ dwv.tool.MoveGroupCommand = function (group, name, translation, layer)
         // draw
         layer.draw();
         // callback
-        this.onUndo({
-            'type': 'draw-move',
-            'id': group.id()
-        });
+        this.onUndo({'type': 'draw-move', 'id': group.id()});
     };
 }; // MoveGroupCommand class
 
@@ -19836,14 +21678,16 @@ dwv.tool.MoveGroupCommand = function (group, name, translation, layer)
  * Handle an execute event.
  * @param {Object} event The execute event with type and id.
  */
-dwv.tool.MoveGroupCommand.prototype.onExecute = function (/*event*/) {
+dwv.tool.MoveGroupCommand.prototype.onExecute = function (/*event*/)
+{
     // default does nothing.
 };
 /**
  * Handle an undo event.
  * @param {Object} event The undo event with type and id.
  */
-dwv.tool.MoveGroupCommand.prototype.onUndo = function (/*event*/) {
+dwv.tool.MoveGroupCommand.prototype.onUndo = function (/*event*/)
+{
     // default does nothing.
 };
 
@@ -19867,7 +21711,6 @@ dwv.tool.ChangeGroupCommand = function (name, func, startAnchor, endAnchor, laye
 
     /**
      * Execute the command.
-     * @fires dwv.tool.ChangeGroupCommand#draw-change
      */
     this.execute = function () {
         // change shape
@@ -19875,18 +21718,10 @@ dwv.tool.ChangeGroupCommand = function (name, func, startAnchor, endAnchor, laye
         // draw
         layer.draw();
         // callback
-        /**
-         * Draw change event.
-         * @event dwv.tool.ChangeGroupCommand#draw-change
-         * @type {Object}
-         */
-        this.onExecute({
-            'type': 'draw-change'
-        });
+        this.onExecute({'type': 'draw-change'});
     };
     /**
      * Undo the command.
-     * @fires dwv.tool.ChangeGroupCommand#draw-change
      */
     this.undo = function () {
         // invert change shape
@@ -19894,9 +21729,7 @@ dwv.tool.ChangeGroupCommand = function (name, func, startAnchor, endAnchor, laye
         // draw
         layer.draw();
         // callback
-        this.onUndo({
-            'type': 'draw-change'
-        });
+        this.onUndo({'type': 'draw-change'});
     };
 }; // ChangeGroupCommand class
 
@@ -19904,14 +21737,16 @@ dwv.tool.ChangeGroupCommand = function (name, func, startAnchor, endAnchor, laye
  * Handle an execute event.
  * @param {Object} event The execute event with type and id.
  */
-dwv.tool.ChangeGroupCommand.prototype.onExecute = function (/*event*/) {
+dwv.tool.ChangeGroupCommand.prototype.onExecute = function (/*event*/)
+{
     // default does nothing.
 };
 /**
  * Handle an undo event.
  * @param {Object} event The undo event with type and id.
  */
-dwv.tool.ChangeGroupCommand.prototype.onUndo = function (/*event*/) {
+dwv.tool.ChangeGroupCommand.prototype.onUndo = function (/*event*/)
+{
     // default does nothing.
 };
 
@@ -19934,7 +21769,6 @@ dwv.tool.DeleteGroupCommand = function (group, name, layer)
     this.getName = function () { return "Delete-"+name; };
     /**
      * Execute the command.
-     * @fires dwv.tool.DeleteGroupCommand#draw-delete
      */
     this.execute = function () {
         // remove the group from its parent
@@ -19942,20 +21776,10 @@ dwv.tool.DeleteGroupCommand = function (group, name, layer)
         // draw
         layer.draw();
         // callback
-        /**
-         * Draw delete event.
-         * @event dwv.tool.DeleteGroupCommand#draw-delete
-         * @type {Object}
-         * @property {number} id The id of the create draw.
-         */
-        this.onExecute({
-            'type': 'draw-delete',
-            'id': group.id()
-        });
+        this.onExecute({'type': 'draw-delete', 'id': group.id()});
     };
     /**
      * Undo the command.
-     * @fires dwv.tool.DrawGroupCommand#draw-create
      */
     this.undo = function () {
         // add the group to its parent
@@ -19963,10 +21787,7 @@ dwv.tool.DeleteGroupCommand = function (group, name, layer)
         // draw
         layer.draw();
         // callback
-        this.onUndo({
-            'type': 'draw-create',
-            'id': group.id()
-        });
+        this.onUndo({'type': 'draw-create', 'id': group.id()});
     };
 }; // DeleteGroupCommand class
 
@@ -19974,30 +21795,29 @@ dwv.tool.DeleteGroupCommand = function (group, name, layer)
  * Handle an execute event.
  * @param {Object} event The execute event with type and id.
  */
-dwv.tool.DeleteGroupCommand.prototype.onExecute = function (/*event*/) {
+dwv.tool.DeleteGroupCommand.prototype.onExecute = function (/*event*/)
+{
     // default does nothing.
 };
 /**
  * Handle an undo event.
  * @param {Object} event The undo event with type and id.
  */
-dwv.tool.DeleteGroupCommand.prototype.onUndo = function (/*event*/) {
+dwv.tool.DeleteGroupCommand.prototype.onUndo = function (/*event*/)
+{
     // default does nothing.
 };
 
 // namespaces
 var dwv = dwv || {};
 dwv.tool = dwv.tool || {};
-/**
- * The Konva namespace.
- * @external Konva
- * @see https://konvajs.org/
- */
+// external
 var Konva = Konva || {};
 
 /**
  * Shape editor.
  * @constructor
+ * @external Konva
  */
 dwv.tool.ShapeEditor = function (app)
 {
@@ -20118,7 +21938,6 @@ dwv.tool.ShapeEditor = function (app)
     /**
      * Apply a function on all anchors.
      * @param {Object} func A f(shape) function.
-     * @private
      */
     function applyFuncToAnchors( func ) {
         if ( shape && shape.getParent() ) {
@@ -20130,7 +21949,6 @@ dwv.tool.ShapeEditor = function (app)
     /**
      * Set anchors visibility.
      * @param {Boolean} flag The visible flag.
-     * @private
      */
     function setAnchorsVisible( flag ) {
         applyFuncToAnchors( function (anchor) {
@@ -20159,7 +21977,6 @@ dwv.tool.ShapeEditor = function (app)
 
     /**
      * Remove anchors.
-     * @private
      */
     function removeAnchors() {
         applyFuncToAnchors( function (anchor) {
@@ -20169,7 +21986,6 @@ dwv.tool.ShapeEditor = function (app)
 
     /**
      * Add the shape anchors.
-     * @private
      */
     function addAnchors() {
         // exit if no shape or no layer
@@ -20208,21 +22024,21 @@ dwv.tool.ShapeEditor = function (app)
             }
 
             if ( group.name() === "line-group" ) {
-                updateFunction = dwv.tool.draw.UpdateArrow;
+                updateFunction = dwv.tool.UpdateArrow;
             } else if ( group.name() === "ruler-group" ) {
-                updateFunction = dwv.tool.draw.UpdateRuler;
+                updateFunction = dwv.tool.UpdateRuler;
             } else if ( group.name() === "protractor-group" ) {
-                updateFunction = dwv.tool.draw.UpdateProtractor;
+                updateFunction = dwv.tool.UpdateProtractor;
             } else if ( group.name() === "roi-group" ) {
-                updateFunction = dwv.tool.draw.UpdateRoi;
+                updateFunction = dwv.tool.UpdateRoi;
             } else if ( group.name() === "freeHand-group" ) {
-                updateFunction = dwv.tool.draw.UpdateFreeHand;
+                updateFunction = dwv.tool.UpdateFreeHand;
             } else {
                 console.warn("Cannot update unknown line shape.");
             }
         }
         else if ( shape instanceof Konva.Rect ) {
-            updateFunction = dwv.tool.draw.UpdateRect;
+            updateFunction = dwv.tool.UpdateRect;
             var rectX = shape.x();
             var rectY = shape.y();
             var rectWidth = shape.width();
@@ -20233,7 +22049,7 @@ dwv.tool.ShapeEditor = function (app)
             addAnchor(group, rectX, rectY+rectHeight, 'bottomLeft');
         }
         else if ( shape instanceof Konva.Ellipse ) {
-            updateFunction = dwv.tool.draw.UpdateEllipse;
+            updateFunction = dwv.tool.UpdateEllipse;
             var ellipseX = shape.x();
             var ellipseY = shape.y();
             var radius = shape.radius();
@@ -20253,7 +22069,6 @@ dwv.tool.ShapeEditor = function (app)
      * @param {Number} x The X position of the anchor.
      * @param {Number} y The Y position of the anchor.
      * @param {Number} id The id of the anchor.
-     * @private
      */
     function addAnchor(group, x, y, id) {
         // anchor shape
@@ -20279,7 +22094,6 @@ dwv.tool.ShapeEditor = function (app)
     /**
      * Get a simple clone of the input anchor.
      * @param {Object} anchor The anchor to clone.
-     * @private
      */
     function getClone( anchor ) {
         // create closure to properties
@@ -20307,7 +22121,6 @@ dwv.tool.ShapeEditor = function (app)
     /**
      * Set the anchor on listeners.
      * @param {Object} anchor The anchor to set on.
-     * @private
      */
     function setAnchorOn( anchor ) {
         var startAnchor = null;
@@ -20384,7 +22197,6 @@ dwv.tool.ShapeEditor = function (app)
     /**
      * Set the anchor off listeners.
      * @param {Object} anchor The anchor to set off.
-     * @private
      */
     function setAnchorOff( anchor ) {
         anchor.off('dragstart.edit');
@@ -20399,19 +22211,15 @@ dwv.tool.ShapeEditor = function (app)
 // namespaces
 var dwv = dwv || {};
 dwv.tool = dwv.tool || {};
-dwv.tool.draw = dwv.tool.draw || {};
-/**
- * The Konva namespace.
- * @external Konva
- * @see https://konvajs.org/
- */
+// external
 var Konva = Konva || {};
 
 /**
  * Ellipse factory.
  * @constructor
+ * @external Konva
  */
-dwv.tool.draw.EllipseFactory = function ()
+dwv.tool.EllipseFactory = function ()
 {
     /**
      * Get the number of points needed to build the shape.
@@ -20431,7 +22239,7 @@ dwv.tool.draw.EllipseFactory = function ()
  * @param {Object} style The drawing style.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.EllipseFactory.prototype.create = function (points, style, image)
+dwv.tool.EllipseFactory.prototype.create = function (points, style, image)
 {
     // calculate radius
     var a = Math.abs(points[0].getX() - points[1].getX());
@@ -20482,7 +22290,7 @@ dwv.tool.draw.EllipseFactory.prototype.create = function (points, style, image)
  * @param {Object} anchor The active anchor.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.UpdateEllipse = function (anchor, image)
+dwv.tool.UpdateEllipse = function (anchor, image)
 {
     // parent group
     var group = anchor.getParent();
@@ -20567,72 +22375,100 @@ dwv.tool.filter = dwv.tool.filter || {};
 /**
  * Filter tool.
  * @constructor
+ * @param {Array} filterList The list of filter objects.
  * @param {Object} app The associated app.
  */
-dwv.tool.Filter = function ( app )
+dwv.tool.Filter = function ( filterList, app )
 {
+    /**
+     * Filter GUI.
+     * @type Object
+     */
+    var gui = null;
     /**
      * Filter list
      * @type Object
      */
-    this.filterList = null;
+    this.filterList = filterList;
     /**
      * Selected filter.
      * @type Object
      */
     this.selectedFilter = 0;
     /**
+     * Default filter name.
+     * @type String
+     */
+    this.defaultFilterName = 0;
+    /**
+     * Display Flag.
+     * @type Boolean
+     */
+    this.displayed = false;
+    /**
      * Listener handler.
      * @type Object
-     * @private
      */
     var listenerHandler = new dwv.utils.ListenerHandler();
 
     /**
-     * Activate the tool.
-     * @param {Boolean} bool Flag to activate or not.
+     * Setup the filter GUI. Called at app startup.
      */
-    this.activate = function (bool) {
-        // setup event listening
-        for (var key in this.filterList) {
-            if (bool) {
+    this.setup = function ()
+    {
+        if ( Object.keys(this.filterList).length !== 0 ) {
+            gui = new dwv.gui.Filter(app);
+            gui.setup(this.filterList);
+            for( var key in this.filterList ){
+                this.filterList[key].setup();
                 this.filterList[key].addEventListener("filter-run", fireEvent);
                 this.filterList[key].addEventListener("filter-undo", fireEvent);
-            } else {
-                this.filterList[key].removeEventListener("filter-run", fireEvent);
-                this.filterList[key].removeEventListener("filter-undo", fireEvent);
             }
         }
     };
 
     /**
-     * Set the tool options.
-     * @param {Object} options The list of filter names amd classes.
+     * Display the tool.
+     * @param {Boolean} bool Flag to enable or not.
      */
-    this.setOptions = function (options) {
-        this.filterList = {};
-        // try to instanciate filters from the options
-        for (var key in options) {
-            this.filterList[key] = new options[key](app);
+    this.display = function (bool)
+    {
+        if ( gui ) {
+            gui.display(bool);
         }
+        this.displayed = bool;
+        // display the selected filter
+        this.selectedFilter.display(bool);
     };
 
     /**
      * Initialise the filter. Called once the image is loaded.
      */
-    this.init = function () {
-        // setup event listening
-        for (var key in this.filterList) {
+    this.init = function ()
+    {
+        // set the default to the first in the list
+        for( var key in this.filterList ){
+            this.defaultFilterName = key;
+            break;
+        }
+        this.setSelectedFilter(this.defaultFilterName);
+        // init all filters
+        for( key in this.filterList ) {
             this.filterList[key].init();
         }
+        // init html
+        if ( gui ) {
+            gui.initialise();
+        }
+        return true;
     };
 
     /**
      * Handle keydown event.
      * @param {Object} event The keydown event.
      */
-    this.keydown = function (event) {
-        event.context = "dwv.tool.Filter";
+    this.keydown = function (event)
+    {
         app.onKeydown(event);
     };
 
@@ -20668,11 +22504,11 @@ dwv.tool.Filter = function ( app )
  * Help for this tool.
  * @return {Object} The help content.
  */
-dwv.tool.Filter.prototype.getHelpKeys = function ()
+dwv.tool.Filter.prototype.getHelp = function ()
 {
     return {
-        "title": "tool.Filter.name",
-        "brief": "tool.Filter.brief"
+        "title": dwv.i18n("tool.Filter.name"),
+        "brief": dwv.i18n("tool.Filter.brief")
     };
 };
 
@@ -20692,17 +22528,22 @@ dwv.tool.Filter.prototype.getSelectedFilter = function ()
 dwv.tool.Filter.prototype.setSelectedFilter = function (name)
 {
     // check if we have it
-    if ( !this.hasFilter(name) ) {
+    if ( !this.hasFilter(name) )
+    {
         throw new Error("Unknown filter: '" + name + "'");
     }
-    // de-activate last selected
-    if (this.selectedFilter) {
-        this.selectedFilter.activate(false);
+    // hide last selected
+    if ( this.displayed )
+    {
+        this.selectedFilter.display(false);
     }
     // enable new one
     this.selectedFilter = this.filterList[name];
-    // activate the selected filter
-    this.selectedFilter.activate(true);
+    // display the selected filter
+    if ( this.displayed )
+    {
+        this.selectedFilter.display(true);
+    }
 };
 
 /**
@@ -20734,28 +22575,40 @@ dwv.tool.filter.Threshold = function ( app )
     /**
      * Associated filter.
      * @type Object
-     * @private
      */
     var filter = new dwv.image.filter.Threshold();
     /**
+     * Filter GUI.
+     * @type Object
+     */
+    var gui = new dwv.gui.Threshold(app);
+    /**
      * Flag to know wether to reset the image or not.
      * @type Boolean
-     * @private
      */
     var resetImage = true;
     /**
      * Listener handler.
      * @type Object
-     * @private
      */
     var listenerHandler = new dwv.utils.ListenerHandler();
 
     /**
-     * Activate the filter.
-     * @param {Boolean} bool Flag to activate or not.
+     * Setup the filter GUI. Called at app startup.
      */
-    this.activate = function (bool) {
-        // reset the image when the tool is activated
+    this.setup = function ()
+    {
+        gui.setup();
+    };
+
+    /**
+     * Display the filter.
+     * @param {Boolean} bool Flag to display or not.
+     */
+    this.display = function (bool)
+    {
+        gui.display(bool);
+        // reset the image when the tool is displayed
         if ( bool ) {
             resetImage = true;
         }
@@ -20764,8 +22617,9 @@ dwv.tool.filter.Threshold = function ( app )
     /**
      * Initialise the filter. Called once the image is loaded.
      */
-    this.init = function () {
-        // does nothing
+    this.init = function ()
+    {
+        gui.initialise();
     };
 
     /**
@@ -20826,25 +22680,39 @@ dwv.tool.filter.Threshold = function ( app )
 dwv.tool.filter.Sharpen = function ( app )
 {
     /**
+     * Filter GUI.
+     * @type Object
+     */
+    var gui = new dwv.gui.Sharpen(app);
+    /**
      * Listener handler.
      * @type Object
-     * @private
      */
     var listenerHandler = new dwv.utils.ListenerHandler();
 
     /**
-     * Activate the filter.
-     * @param {Boolean} bool Flag to activate or not.
+     * Setup the filter GUI. Called at app startup.
      */
-    this.activate = function (/*bool*/) {
-        // does nothing
+    this.setup = function ()
+    {
+        gui.setup();
+    };
+
+    /**
+     * Display the filter.
+     * @param {Boolean} bool Flag to enable or not.
+     */
+    this.display = function (bool)
+    {
+        gui.display(bool);
     };
 
     /**
      * Initialise the filter. Called once the image is loaded.
      */
-    this.init = function () {
-        // does nothing
+    this.init = function ()
+    {
+        // nothing to do...
     };
 
     /**
@@ -20899,25 +22767,39 @@ dwv.tool.filter.Sharpen = function ( app )
 dwv.tool.filter.Sobel = function ( app )
 {
     /**
+     * Filter GUI.
+     * @type Object
+     */
+    var gui = new dwv.gui.Sobel(app);
+    /**
      * Listener handler.
      * @type Object
-     * @private
      */
     var listenerHandler = new dwv.utils.ListenerHandler();
 
     /**
-     * Activate the filter.
-     * @param {Boolean} bool Flag to activate or not.
+     * Setup the filter GUI. Called at app startup.
      */
-    this.activate = function (/*bool*/) {
-        // does nothing
+    this.setup = function ()
+    {
+        gui.setup();
+    };
+
+    /**
+     * Enable the filter.
+     * @param {Boolean} bool Flag to enable or not.
+     */
+    this.display = function (bool)
+    {
+        gui.display(bool);
     };
 
     /**
      * Initialise the filter. Called once the image is loaded.
      */
-    this.init = function () {
-        // does nothing
+    this.init = function ()
+    {
+        // nothing to do...
     };
 
     /**
@@ -21025,17 +22907,15 @@ dwv.tool.RunFilterCommand.prototype.onUndo = function (/*event*/)
 // namespaces
 var dwv = dwv || {};
 dwv.tool = dwv.tool || {};
-/**
- * The magic wand namespace.
- * @external MagicWand
- * @see https://github.com/Tamersoul/magic-wand-js
- */
+// external
 var MagicWand = MagicWand || {};
 
 /**
  * Floodfill painting tool.
  * @constructor
  * @param {Object} app The associated application.
+ * @external MagicWand
+ * @see {@link  https://github.com/Tamersoul/magic-wand-js}
  */
 dwv.tool.Floodfill = function(app)
 {
@@ -21093,6 +22973,11 @@ dwv.tool.Floodfill = function(app)
      */
     this.started = false;
     /**
+     * Livewire GUI.
+     * @type Object
+     */
+    var gui = null;
+    /**
      * Draw command.
      * @private
      * @type Object
@@ -21140,11 +23025,10 @@ dwv.tool.Floodfill = function(app)
     this.style = new dwv.html.Style();
 
     /**
-     * Listener handler.
-     * @type Object
+     * Event listeners.
      * @private
      */
-    var listenerHandler = new dwv.utils.ListenerHandler();
+    var listeners = [];
 
     /**
      * Set extend option for painting border on all slices.
@@ -21165,7 +23049,6 @@ dwv.tool.Floodfill = function(app)
     /**
      * Get (x, y) coordinates referenced to the canvas
      * @param {Object} event The original event.
-     * @private
      */
     var getCoord = function(event){
         return { x: event._x, y: event._y };
@@ -21219,7 +23102,7 @@ dwv.tool.Floodfill = function(app)
         border = calcBorder(point, threshold);
         // Paint the border
         if(border){
-            var factory = new dwv.tool.draw.RoiFactory();
+            var factory = new dwv.tool.RoiFactory();
             shapeGroup = factory.create(border, self.style);
             shapeGroup.id( dwv.math.guid() );
 
@@ -21401,55 +23284,83 @@ dwv.tool.Floodfill = function(app)
      * Handle key down event.
      * @param {Object} event The key down event.
      */
-    this.keydown = function (event) {
-        event.context = "dwv.tool.Floodfill";
+    this.keydown = function(event){
         app.onKeydown(event);
     };
 
     /**
-     * Activate the tool.
-     * @param {Boolean} bool The flag to activate or not.
+     * Setup the tool GUI.
      */
-    this.activate = function (bool) {
-        if (bool) {
-            // init with the app window scale
-            this.style.setScale(app.getWindowScale());
-            // set the default to the first in the list
-            this.setLineColour(this.style.getLineColour());
+    this.setup = function ()
+    {
+        gui = new dwv.gui.ColourTool(app, "ff");
+        gui.setup();
+    };
+
+    /**
+     * Enable the tool.
+     * @param {Boolean} bool The flag to enable or not.
+     */
+    this.display = function(bool){
+        if ( gui ) {
+            gui.display(bool);
         }
+        // TODO why twice?
+        this.init();
     };
 
     /**
      * Initialise the tool.
      */
-    this.init = function() {
-        // does nothing
+    this.init = function()
+    {
+        if ( gui ) {
+            // init with the app window scale
+            this.style.setScale(app.getWindowScale());
+            // set the default to the first in the list
+            this.setLineColour(this.style.getLineColour());
+            // init html
+            gui.initialise();
+        }
+
+        return true;
     };
 
     /**
-     * Add an event listener to this class.
-     * @param {String} type The event type.
-     * @param {Object} callback The method associated with the provided event type,
-     *    will be called with the fired event.
+     * Add an event listener on the app.
+     * @param {Object} listener The method associated with the provided event type.
      */
-    this.addEventListener = function (type, callback) {
-        listenerHandler.add(type, callback);
+    this.addEventListener = function (listener)
+    {
+        listeners.push(listener);
     };
+
     /**
-     * Remove an event listener from this class.
-     * @param {String} type The event type.
-     * @param {Object} callback The method associated with the provided event type.
+     * Remove an event listener from the app.
+     * @param {Object} listener The method associated with the provided event type.
      */
-    this.removeEventListener = function (type, callback) {
-        listenerHandler.remove(type, callback);
+    this.removeEventListener = function (listener)
+    {
+        for ( var i = 0; i < listeners.length; ++i )
+        {
+            if ( listeners[i] === listener ) {
+                listeners.splice(i,1);
+            }
+        }
     };
+
+    // Private Methods -----------------------------------------------------------
+
     /**
-     * Fire an event: call all associated listeners with the input event object.
+     * Fire an event: call all associated listeners.
      * @param {Object} event The event to fire.
-     * @private
      */
-    function fireEvent (event) {
-        listenerHandler.fireEvent(event);
+    function fireEvent (event)
+    {
+        for ( var i=0; i < listeners.length; ++i )
+        {
+            listeners[i](event);
+        }
     }
 
 }; // Floodfill class
@@ -21458,16 +23369,16 @@ dwv.tool.Floodfill = function(app)
  * Help for this tool.
  * @return {Object} The help content.
  */
-dwv.tool.Floodfill.prototype.getHelpKeys = function()
+dwv.tool.Floodfill.prototype.getHelp = function()
 {
     return {
-        'title': "tool.Floodfill.name",
-        'brief': "tool.Floodfill.brief",
+        'title': dwv.i18n("tool.Floodfill.name"),
+        'brief': dwv.i18n("tool.Floodfill.brief"),
         "mouse": {
-            "click": "tool.Floodfill.click"
+            "click": dwv.i18n("tool.Floodfill.click")
         },
         "touch": {
-            "tap": "tool.Floodfill.tap"
+            "tap": dwv.i18n("tool.Floodfill.tap")
         }
     };
 };
@@ -21485,19 +23396,15 @@ dwv.tool.Floodfill.prototype.setLineColour = function(colour)
 // namespaces
 var dwv = dwv || {};
 dwv.tool = dwv.tool || {};
-dwv.tool.draw = dwv.tool.draw || {};
-/**
- * The Konva namespace.
- * @external Konva
- * @see https://konvajs.org/
- */
+// external
 var Konva = Konva || {};
 
 /**
  * FreeHand factory.
  * @constructor
+ * @external Konva
  */
-dwv.tool.draw.FreeHandFactory = function ()
+dwv.tool.FreeHandFactory = function ()
 {
     /**
      * Get the number of points needed to build the shape.
@@ -21517,7 +23424,7 @@ dwv.tool.draw.FreeHandFactory = function ()
  * @param {Object} style The drawing style.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.FreeHandFactory.prototype.create = function (points, style /*, image*/)
+dwv.tool.FreeHandFactory.prototype.create = function (points, style /*, image*/)
 {
     // points stored the Konvajs way
     var arr = [];
@@ -21570,7 +23477,7 @@ dwv.tool.draw.FreeHandFactory.prototype.create = function (points, style /*, ima
  * @param {Object} anchor The active anchor.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.UpdateFreeHand = function (anchor /*, image*/)
+dwv.tool.UpdateFreeHand = function (anchor /*, image*/)
 {
     // parent group
     var group = anchor.getParent();
@@ -21624,6 +23531,11 @@ dwv.tool.Livewire = function(app)
      */
     var self = this;
     /**
+     * Livewire GUI.
+     * @type Object
+     */
+    var gui = null;
+    /**
      * Interaction start flag.
      * @type Boolean
      */
@@ -21675,11 +23587,10 @@ dwv.tool.Livewire = function(app)
     var tolerance = 5;
 
     /**
-     * Listener handler.
-     * @type Object
+     * Event listeners.
      * @private
      */
-    var listenerHandler = new dwv.utils.ListenerHandler();
+    var listeners = [];
 
     /**
      * Clear the parent points list.
@@ -21813,7 +23724,7 @@ dwv.tool.Livewire = function(app)
             shapeGroup.destroy();
         }
         // create shape
-        var factory = new dwv.tool.draw.RoiFactory();
+        var factory = new dwv.tool.RoiFactory();
         shapeGroup = factory.create(currentPath.pointArray, self.style);
         shapeGroup.id( dwv.math.guid() );
 
@@ -21889,16 +23800,27 @@ dwv.tool.Livewire = function(app)
      * Handle key down event.
      * @param {Object} event The key down event.
      */
-    this.keydown = function (event) {
-        event.context = "dwv.tool.Livewire";
+    this.keydown = function(event){
         app.onKeydown(event);
     };
 
     /**
-     * Activate the tool.
-     * @param {Boolean} bool The flag to activate or not.
+     * Setup the tool GUI.
      */
-    this.activate = function(bool){
+    this.setup = function ()
+    {
+        gui = new dwv.gui.ColourTool(app, "lw");
+        gui.setup();
+    };
+
+    /**
+     * Enable the tool.
+     * @param {Boolean} bool The flag to enable or not.
+     */
+    this.display = function(bool){
+        if ( gui ) {
+            gui.display(bool);
+        }
         // start scissors if displayed
         if (bool) {
             //scissors = new dwv.math.Scissors();
@@ -21907,45 +23829,61 @@ dwv.tool.Livewire = function(app)
                     size.getNumberOfColumns(),
                     size.getNumberOfRows() );
             scissors.setData(app.getImageData().data);
-
-            // init with the app window scale
-            this.style.setScale(app.getWindowScale());
-            // set the default to the first in the list
-            this.setLineColour(this.style.getLineColour());
         }
     };
 
     /**
      * Initialise the tool.
      */
-    this.init = function() {
-        // does nothing
+    this.init = function()
+    {
+        if ( gui ) {
+            // init with the app window scale
+            this.style.setScale(app.getWindowScale());
+            // set the default to the first in the list
+            this.setLineColour(this.style.getLineColour());
+            // init html
+            gui.initialise();
+        }
+
+        return true;
     };
 
     /**
-     * Add an event listener to this class.
-     * @param {String} type The event type.
-     * @param {Object} callback The method associated with the provided event type,
-     *    will be called with the fired event.
+     * Add an event listener on the app.
+     * @param {Object} listener The method associated with the provided event type.
      */
-    this.addEventListener = function (type, callback) {
-        listenerHandler.add(type, callback);
+    this.addEventListener = function (listener)
+    {
+        listeners.push(listener);
     };
+
     /**
-     * Remove an event listener from this class.
-     * @param {String} type The event type.
-     * @param {Object} callback The method associated with the provided event type.
+     * Remove an event listener from the app.
+     * @param {Object} listener The method associated with the provided event type.
      */
-    this.removeEventListener = function (type, callback) {
-        listenerHandler.remove(type, callback);
+    this.removeEventListener = function (listener)
+    {
+        for ( var i = 0; i < listeners.length; ++i )
+        {
+            if ( listeners[i] === listener ) {
+                listeners.splice(i,1);
+            }
+        }
     };
+
+    // Private Methods -----------------------------------------------------------
+
     /**
-     * Fire an event: call all associated listeners with the input event object.
+     * Fire an event: call all associated listeners.
      * @param {Object} event The event to fire.
-     * @private
      */
-    function fireEvent (event) {
-        listenerHandler.fireEvent(event);
+    function fireEvent (event)
+    {
+        for ( var i=0; i < listeners.length; ++i )
+        {
+            listeners[i](event);
+        }
     }
 
 }; // Livewire class
@@ -21954,11 +23892,11 @@ dwv.tool.Livewire = function(app)
  * Help for this tool.
  * @return {Object} The help content.
  */
-dwv.tool.Livewire.prototype.getHelpKeys = function()
+dwv.tool.Livewire.prototype.getHelp = function()
 {
     return {
-        "title": "tool.Livewire.name",
-        "brief": "tool.Livewire.brief"
+        "title": dwv.i18n("tool.Livewire.name"),
+        "brief": dwv.i18n("tool.Livewire.brief")
     };
 };
 
@@ -21975,19 +23913,15 @@ dwv.tool.Livewire.prototype.setLineColour = function(colour)
 // namespaces
 var dwv = dwv || {};
 dwv.tool = dwv.tool || {};
-dwv.tool.draw = dwv.tool.draw || {};
-/**
- * The Konva namespace.
- * @external Konva
- * @see https://konvajs.org/
- */
+// external
 var Konva = Konva || {};
 
 /**
  * Protractor factory.
  * @constructor
+ * @external Konva
  */
-dwv.tool.draw.ProtractorFactory = function ()
+dwv.tool.ProtractorFactory = function ()
 {
     /**
      * Get the number of points needed to build the shape.
@@ -22007,7 +23941,7 @@ dwv.tool.draw.ProtractorFactory = function ()
  * @param {Object} style The drawing style.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.ProtractorFactory.prototype.create = function (points, style/*, image*/)
+dwv.tool.ProtractorFactory.prototype.create = function (points, style/*, image*/)
 {
     // physical shape
     var line0 = new dwv.math.Line(points[0], points[1]);
@@ -22099,7 +24033,7 @@ dwv.tool.draw.ProtractorFactory.prototype.create = function (points, style/*, im
  * @param {Object} anchor The active anchor.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.UpdateProtractor = function (anchor/*, image*/)
+dwv.tool.UpdateProtractor = function (anchor/*, image*/)
 {
     // parent group
     var group = anchor.getParent();
@@ -22195,19 +24129,15 @@ dwv.tool.draw.UpdateProtractor = function (anchor/*, image*/)
 // namespaces
 var dwv = dwv || {};
 dwv.tool = dwv.tool || {};
-dwv.tool.draw = dwv.tool.draw || {};
-/**
- * The Konva namespace.
- * @external Konva
- * @see https://konvajs.org/
- */
+// external
 var Konva = Konva || {};
 
 /**
  * Rectangle factory.
  * @constructor
+ * @external Konva
  */
-dwv.tool.draw.RectangleFactory = function ()
+dwv.tool.RectangleFactory = function ()
 {
     /**
      * Get the number of points needed to build the shape.
@@ -22227,7 +24157,7 @@ dwv.tool.draw.RectangleFactory = function ()
  * @param {Object} style The drawing style.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.RectangleFactory.prototype.create = function (points, style, image)
+dwv.tool.RectangleFactory.prototype.create = function (points, style, image)
 {
     // physical shape
     var rectangle = new dwv.math.Rectangle(points[0], points[1]);
@@ -22277,7 +24207,7 @@ dwv.tool.draw.RectangleFactory.prototype.create = function (points, style, image
  * @param {Object} anchor The active anchor.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.UpdateRect = function (anchor, image)
+dwv.tool.UpdateRect = function (anchor, image)
 {
     // parent group
     var group = anchor.getParent();
@@ -22356,19 +24286,15 @@ dwv.tool.draw.UpdateRect = function (anchor, image)
 // namespaces
 var dwv = dwv || {};
 dwv.tool = dwv.tool || {};
-dwv.tool.draw = dwv.tool.draw || {};
-/**
- * The Konva namespace.
- * @external Konva
- * @see https://konvajs.org/
- */
+// external
 var Konva = Konva || {};
 
 /**
  * ROI factory.
  * @constructor
+ * @external Konva
  */
-dwv.tool.draw.RoiFactory = function ()
+dwv.tool.RoiFactory = function ()
 {
     /**
      * Get the number of points needed to build the shape.
@@ -22388,7 +24314,7 @@ dwv.tool.draw.RoiFactory = function ()
  * @param {Object} style The drawing style.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.RoiFactory.prototype.create = function (points, style /*, image*/)
+dwv.tool.RoiFactory.prototype.create = function (points, style /*, image*/)
 {
     // physical shape
     var roi = new dwv.math.ROI();
@@ -22445,7 +24371,7 @@ dwv.tool.draw.RoiFactory.prototype.create = function (points, style /*, image*/)
  * @param {Object} anchor The active anchor.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.UpdateRoi = function (anchor /*, image*/)
+dwv.tool.UpdateRoi = function (anchor /*, image*/)
 {
     // parent group
     var group = anchor.getParent();
@@ -22484,19 +24410,15 @@ dwv.tool.draw.UpdateRoi = function (anchor /*, image*/)
 // namespaces
 var dwv = dwv || {};
 dwv.tool = dwv.tool || {};
-dwv.tool.draw = dwv.tool.draw || {};
-/**
- * The Konva namespace.
- * @external Konva
- * @see https://konvajs.org/
- */
+// external
 var Konva = Konva || {};
 
 /**
  * Ruler factory.
  * @constructor
+ * @external Konva
  */
-dwv.tool.draw.RulerFactory = function ()
+dwv.tool.RulerFactory = function ()
 {
     /**
      * Get the number of points needed to build the shape.
@@ -22516,7 +24438,7 @@ dwv.tool.draw.RulerFactory = function ()
  * @param {Object} style The drawing style.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.RulerFactory.prototype.create = function (points, style, image)
+dwv.tool.RulerFactory.prototype.create = function (points, style, image)
 {
     // physical shape
     var line = new dwv.math.Line(points[0], points[1]);
@@ -22601,7 +24523,7 @@ dwv.tool.draw.RulerFactory.prototype.create = function (points, style, image)
  * @param {Object} anchor The active anchor.
  * @param {Object} image The associated image.
  */
-dwv.tool.draw.UpdateRuler = function (anchor, image)
+dwv.tool.UpdateRuler = function (anchor, image)
 {
     // parent group
     var group = anchor.getParent();
@@ -22701,6 +24623,11 @@ dwv.tool.Scroll = function(app)
      */
     var self = this;
     /**
+     * Scroll GUI.
+     * @type Object
+     */
+    var gui = null;
+    /**
      * Interaction start flag.
      * @type Boolean
      */
@@ -22738,7 +24665,7 @@ dwv.tool.Scroll = function(app)
         var yMove = (Math.abs(diffY) > 15);
         // do not trigger for small moves
         if( yMove ) {
-            // update view controller
+            // update GUI
             if( diffY > 0 ) {
                 app.getViewController().decrementSliceNb();
             }
@@ -22752,7 +24679,7 @@ dwv.tool.Scroll = function(app)
         var xMove = (Math.abs(diffX) > 15);
         // do not trigger for small moves
         if( xMove ) {
-            // update view controller
+            // update GUI
             if( diffX > 0 ) {
                 app.getViewController().incrementFrameNb();
             }
@@ -22858,7 +24785,6 @@ dwv.tool.Scroll = function(app)
     /**
      * Mouse scroll action.
      * @param {Boolean} up True to increment, false to decrement.
-     * @private
      */
     function mouseScroll (up) {
         var hasSlices = (app.getImage().getGeometry().getSize().getNumberOfSlices() !== 1);
@@ -22882,8 +24808,7 @@ dwv.tool.Scroll = function(app)
      * Handle key down event.
      * @param {Object} event The key down event.
      */
-    this.keydown = function (event) {
-        event.context = "dwv.tool.Scroll";
+    this.keydown = function(event){
         app.onKeydown(event);
     };
     /**
@@ -22895,18 +24820,32 @@ dwv.tool.Scroll = function(app)
      };
 
     /**
-     * Activate the tool.
-     * @param {Boolean} bool The flag to activate or not.
+     * Setup the tool GUI.
      */
-    this.activate = function (/*bool*/) {
-        // does nothing
+    this.setup = function ()
+    {
+        gui = new dwv.gui.Scroll(app);
+        gui.setup();
+    };
+
+    /**
+     * Enable the tool.
+     * @param {Boolean} bool The flag to enable or not.
+     */
+    this.display = function(bool){
+        if ( gui ) {
+            gui.display(bool);
+        }
     };
 
     /**
      * Initialise the tool.
      */
     this.init = function() {
-        // does nothing
+        if ( app.isMonoSliceData() && app.getImage().getNumberOfFrames() === 1 ) {
+            return false;
+        }
+        return true;
     };
 
 }; // Scroll class
@@ -22915,20 +24854,166 @@ dwv.tool.Scroll = function(app)
  * Help for this tool.
  * @return {Object} The help content.
  */
-dwv.tool.Scroll.prototype.getHelpKeys = function()
+dwv.tool.Scroll.prototype.getHelp = function()
 {
     return {
-        "title": "tool.Scroll.name",
-        "brief": "tool.Scroll.brief",
+        "title": dwv.i18n("tool.Scroll.name"),
+        "brief": dwv.i18n("tool.Scroll.brief"),
         "mouse": {
-            "mouse_drag": "tool.Scroll.mouse_drag",
-            "double_click": "tool.Scroll.double_click"
+            "mouse_drag": dwv.i18n("tool.Scroll.mouse_drag"),
+            "double_click": dwv.i18n("tool.Scroll.double_click")
         },
         "touch": {
-            'touch_drag': "tool.Scroll.touch_drag",
-            'tap_and_hold': "tool.Scroll.tap_and_hold"
+            'touch_drag': dwv.i18n("tool.Scroll.touch_drag"),
+            'tap_and_hold': dwv.i18n("tool.Scroll.tap_and_hold")
         }
     };
+};
+
+// namespaces
+var dwv = dwv || {};
+dwv.tool = dwv.tool || {};
+
+/**
+ * Tool box.
+ * @constructor
+ * @param {Array} toolList The list of tool objects.
+ * @param {Object} gui The associated gui.
+ */
+dwv.tool.Toolbox = function( toolList, app )
+{
+    /**
+     * Toolbox GUI.
+     * @type Object
+     */
+    var gui = null;
+    /**
+     * Selected tool.
+     * @type Object
+     */
+    var selectedTool = null;
+    /**
+     * Default tool name.
+     * @type String
+     */
+    var defaultToolName = null;
+
+    /**
+     * Get the list of tools.
+     * @return {Array} The list of tool objects.
+     */
+    this.getToolList = function ()
+    {
+        return toolList;
+    };
+
+    /**
+     * Get the selected tool.
+     * @return {Object} The selected tool.
+     */
+    this.getSelectedTool = function ()
+    {
+        return selectedTool;
+    };
+
+    /**
+     * Setup the toolbox GUI.
+     */
+    this.setup = function ()
+    {
+        if ( Object.keys(toolList).length !== 0 ) {
+            gui = new dwv.gui.Toolbox(app);
+            gui.setup(toolList);
+
+            for( var key in toolList ) {
+                toolList[key].setup();
+            }
+        }
+    };
+
+    /**
+     * Display the toolbox.
+     * @param {Boolean} bool Flag to display or not.
+     */
+    this.display = function (bool)
+    {
+        if ( Object.keys(toolList).length !== 0 && gui ) {
+            gui.display(bool);
+        }
+    };
+
+    /**
+     * Initialise the tool box.
+     */
+    this.init = function ()
+    {
+        var keys = Object.keys(toolList);
+        // check if we have tools
+        if ( keys.length === 0 ) {
+            return;
+        }
+        // init all tools
+        defaultToolName = "";
+        var displays = [];
+        var display = null;
+        for( var key in toolList ) {
+            display = toolList[key].init();
+            if ( display && defaultToolName === "" ) {
+                defaultToolName = key;
+            }
+            displays.push(display);
+        }
+        this.setSelectedTool(defaultToolName);
+        // init html
+        if ( gui ) {
+            gui.initialise(displays);
+        }
+    };
+
+    /**
+     * Set the selected tool.
+     * @return {String} The name of the tool to select.
+     */
+    this.setSelectedTool = function (name)
+    {
+        // check if we have it
+        if( !this.hasTool(name) )
+        {
+            throw new Error("Unknown tool: '" + name + "'");
+        }
+        // hide last selected
+        if( selectedTool )
+        {
+            selectedTool.display(false);
+        }
+        // enable new one
+        selectedTool = toolList[name];
+        // display it
+        selectedTool.display(true);
+    };
+
+    /**
+     * Reset the tool box.
+     */
+    this.reset = function ()
+    {
+        // hide last selected
+        if ( selectedTool ) {
+            selectedTool.display(false);
+        }
+        selectedTool = null;
+        defaultToolName = null;
+    };
+};
+
+/**
+ * Check if a tool is in the tool list.
+ * @param {String} name The name to check.
+ * @return {String} The tool list element for the given name.
+ */
+dwv.tool.Toolbox.prototype.hasTool = function (name)
+{
+    return this.getToolList()[name];
 };
 
 // namespaces
@@ -22939,8 +25024,13 @@ dwv.tool = dwv.tool || {};
  * UndoStack class.
  * @constructor
  */
-dwv.tool.UndoStack = function ()
+dwv.tool.UndoStack = function (app)
 {
+    /**
+     * Undo GUI.
+     * @type Object
+     */
+    var gui = new dwv.gui.Undo(app);
     /**
      * Array of commands.
      * @private
@@ -22962,108 +25052,70 @@ dwv.tool.UndoStack = function ()
     var curCmdIndex = 0;
 
     /**
-     * Listener handler.
-     * @type Object
-     * @private
-     */
-    var listenerHandler = new dwv.utils.ListenerHandler();
-
-    /**
      * Add a command to the stack.
      * @param {Object} cmd The command to add.
-     * @fires dwv.tool.UndoStack#undo-add
      */
-    this.add = function (cmd) {
+    this.add = function(cmd)
+    {
         // clear commands after current index
         stack = stack.slice(0,curCmdIndex);
         // store command
         stack.push(cmd);
+        //stack[curCmdIndex] = cmd;
         // increment index
         ++curCmdIndex;
-        /**
-         * Command add to undo stack event.
-         * @event dwv.tool.UndoStack#undo-add
-         * @type {Object}
-         * @property {string} command The name of the command added to the undo stack.
-         */
-        fireEvent({
-            type: "undo-add",
-            command: cmd.getName()
-        });
+        // add command to display history
+        gui.addCommandToUndoHtml(cmd.getName());
     };
 
     /**
      * Undo the last command.
-     * @fires dwv.tool.UndoStack#undo
      */
-    this.undo = function () {
+    this.undo = function()
+    {
         // a bit inefficient...
-        if( curCmdIndex > 0 ) {
+        if( curCmdIndex > 0 )
+        {
             // decrement command index
             --curCmdIndex;
             // undo last command
             stack[curCmdIndex].undo();
-            /**
-             * Command undo event.
-             * @event dwv.tool.UndoStack#undo
-             * @type {Object}
-             * @property {string} command The name of the undone command.
-             */
-            fireEvent({
-                type: "undo",
-                command: stack[curCmdIndex].getName()
-            });
+            // disable last in display history
+            gui.enableInUndoHtml(false);
         }
     };
 
     /**
      * Redo the last command.
-     * @fires dwv.tool.UndoStack#redo
      */
-    this.redo = function () {
-        if( curCmdIndex < stack.length ) {
+    this.redo = function()
+    {
+        if( curCmdIndex < stack.length )
+        {
             // run last command
             stack[curCmdIndex].execute();
-            /**
-             * Command redo event.
-             * @event dwv.tool.UndoStack#redo
-             * @type {Object}
-             * @property {string} command The name of the redone command.
-             */
-            fireEvent({
-                type: "redo",
-                command: stack[curCmdIndex].getName()
-            });
             // increment command index
             ++curCmdIndex;
+            // enable next in display history
+            gui.enableInUndoHtml(true);
         }
     };
 
     /**
-     * Add an event listener to this class.
-     * @param {String} type The event type.
-     * @param {Object} callback The method associated with the provided event type,
-     *    will be called with the fired event.
+     * Setup the tool GUI.
      */
-    this.addEventListener = function (type, callback) {
-        listenerHandler.add(type, callback);
+    this.setup = function ()
+    {
+        gui.setup();
     };
+
     /**
-     * Remove an event listener from this class.
-     * @param {String} type The event type.
-     * @param {Object} callback The method associated with the provided event type.
+     * Initialise the tool GUI.
      */
-    this.removeEventListener = function (type, callback) {
-        listenerHandler.remove(type, callback);
+    this.initialise = function ()
+    {
+        gui.initialise();
     };
-    /**
-     * Fire an event: call all associated listeners with the input event object.
-     * @param {Object} event The event to fire.
-     * @private
-     */
-    function fireEvent (event) {
-        listenerHandler.fireEvent(event);
-    }
 
 }; // UndoStack class
 
@@ -23085,6 +25137,11 @@ dwv.tool.WindowLevel = function(app)
      */
     var self = this;
     /**
+     * WindowLevel GUI.
+     * @type Object
+     */
+    var gui = null;
+    /**
      * Interaction start flag.
      * @type Boolean
      */
@@ -23100,7 +25157,7 @@ dwv.tool.WindowLevel = function(app)
         // store initial position
         self.x0 = event._x;
         self.y0 = event._y;
-        // update view controller
+        // update GUI
         app.getViewController().setCurrentPosition2D(event._x, event._y);
     };
 
@@ -23125,6 +25182,14 @@ dwv.tool.WindowLevel = function(app)
             "wl": new dwv.image.WindowLevel(windowCenter, windowWidth),
             "name": "manual"} } );
         app.getViewController().setWindowLevelPreset("manual");
+
+        // update gui
+        if ( gui ) {
+            // initialise to add the manual preset
+            gui.initialise();
+            // set selected preset
+            dwv.gui.setSelected(app.getElement("presetSelect"), "manual");
+        }
 
         // store position
         self.x0 = event._x;
@@ -23180,7 +25245,7 @@ dwv.tool.WindowLevel = function(app)
      * @param {Object} event The double click event.
      */
     this.dblclick = function(event){
-        // update view controller
+        // update GUI
         app.getViewController().setWindowLevel(
             parseInt(app.getImage().getRescaledValue(
                 event._x, event._y, app.getViewController().getCurrentPosition().k), 10),
@@ -23191,43 +25256,63 @@ dwv.tool.WindowLevel = function(app)
      * Handle key down event.
      * @param {Object} event The key down event.
      */
-    this.keydown = function (event) {
-        event.context = "dwv.tool.WindowLevel";
+    this.keydown = function(event){
+        // let the app handle it
         app.onKeydown(event);
     };
 
     /**
-     * Activate the tool.
-     * @param {Boolean} bool The flag to activate or not.
+     * Setup the tool GUI.
      */
-    this.activate = function (/*bool*/) {
-        // does nothing
+    this.setup = function ()
+    {
+        gui = new dwv.gui.WindowLevel(app);
+        gui.setup();
+    };
+
+    /**
+     * Display the tool.
+     * @param {Boolean} bool The flag to display or not.
+     */
+    this.display = function (bool)
+    {
+        if ( gui )
+        {
+            if( app.getImage().getPhotometricInterpretation().match(/MONOCHROME/) !== null ) {
+                gui.display(bool);
+            }
+            else {
+                gui.display(false);
+            }
+        }
     };
 
     /**
      * Initialise the tool.
      */
     this.init = function() {
-        // does nothing
+        if ( gui ) {
+            gui.initialise();
+        }
+        return true;
     };
-
 }; // WindowLevel class
 
 /**
  * Help for this tool.
  * @return {Object} The help content.
  */
-dwv.tool.WindowLevel.prototype.getHelpKeys = function()
+dwv.tool.WindowLevel.prototype.getHelp = function()
 {
     return {
-        "title": "tool.WindowLevel.name",
-        "brief": "tool.WindowLevel.brief",
+        "title": dwv.i18n("tool.WindowLevel.name"),
+        "brief": dwv.i18n("tool.WindowLevel.brief"),
         "mouse": {
-            "mouse_drag": "tool.WindowLevel.mouse_drag",
-            "double_click": "tool.WindowLevel.double_click"
+            "mouse_drag": dwv.i18n("tool.WindowLevel.mouse_drag"),
+            "double_click": dwv.i18n("tool.WindowLevel.double_click")
         },
         "touch": {
-            "touch_drag": "tool.WindowLevel.touch_drag"
+            "touch_drag": dwv.i18n("tool.WindowLevel.touch_drag")
         }
     };
 };
@@ -23249,6 +25334,11 @@ dwv.tool.ZoomAndPan = function(app)
      * @type Object
      */
     var self = this;
+    /**
+     * ZoomAndPan GUI.
+     * @type Object
+     */
+    var gui = null;
     /**
      * Interaction start flag.
      * @type Boolean
@@ -23325,7 +25415,7 @@ dwv.tool.ZoomAndPan = function(app)
             if( Math.abs(diffY) < 15 ) {
                 return;
             }
-            // update view controller
+            // update GUI
             if( diffY > 0 ) {
                 app.getViewController().incrementSliceNb();
             }
@@ -23423,17 +25513,27 @@ dwv.tool.ZoomAndPan = function(app)
      * Handle key down event.
      * @param {Object} event The key down event.
      */
-    this.keydown = function (event) {
-        event.context = "dwv.tool.ZoomAndPan";
+    this.keydown = function(event){
         app.onKeydown(event);
     };
 
     /**
-     * Activate the tool.
-     * @param {Boolean} bool The flag to activate or not.
+     * Setup the tool GUI.
      */
-    this.activate = function (/*bool*/) {
-        // does nothing
+    this.setup = function ()
+    {
+        gui = new dwv.gui.ZoomAndPan(app);
+        gui.setup();
+    };
+
+    /**
+     * Enable the tool.
+     * @param {Boolean} bool The flag to enable or not.
+     */
+    this.display = function(bool){
+        if ( gui ) {
+            gui.display(bool);
+        }
     };
 
 }; // ZoomAndPan class
@@ -23442,18 +25542,18 @@ dwv.tool.ZoomAndPan = function(app)
  * Help for this tool.
  * @return {Object} The help content.
  */
-dwv.tool.ZoomAndPan.prototype.getHelpKeys = function()
+dwv.tool.ZoomAndPan.prototype.getHelp = function()
 {
     return {
-        "title": "tool.ZoomAndPan.name",
-        "brief": "tool.ZoomAndPan.brief",
+        "title": dwv.i18n("tool.ZoomAndPan.name"),
+        "brief": dwv.i18n("tool.ZoomAndPan.brief"),
         "mouse": {
-            "mouse_wheel": "tool.ZoomAndPan.mouse_wheel",
-            "mouse_drag": "tool.ZoomAndPan.mouse_drag"
+            "mouse_wheel": dwv.i18n("tool.ZoomAndPan.mouse_wheel"),
+            "mouse_drag": dwv.i18n("tool.ZoomAndPan.mouse_drag")
         },
         "touch": {
-            'twotouch_pinch': "tool.ZoomAndPan.twotouch_pinch",
-            'touch_drag': "tool.ZoomAndPan.touch_drag"
+            'twotouch_pinch': dwv.i18n("tool.ZoomAndPan.twotouch_pinch"),
+            'touch_drag': dwv.i18n("tool.ZoomAndPan.touch_drag")
         }
     };
 };
@@ -23462,19 +25562,19 @@ dwv.tool.ZoomAndPan.prototype.getHelpKeys = function()
  * Initialise the tool.
  */
 dwv.tool.ZoomAndPan.prototype.init = function() {
-    // does nothing
+    return true;
 };
 
 // namespaces
 var dwv = dwv || {};
 /** @namespace */
-dwv.env = dwv.env || {};
+dwv.browser = dwv.browser || {};
 
 /**
  * Local function to ask Modernizr if a property is supported.
  * @parma {String} property The property to test.
  */
-dwv.env.askModernizr = function (property) {
+dwv.browser.askModernizr = function (property) {
     if ( typeof dwv.Modernizr === "undefined" ) {
         dwv.ModernizrInit(window, document);
     }
@@ -23490,7 +25590,7 @@ dwv.env.askModernizr = function (property) {
  * Browser check for the FileAPI.
  * Assume support for Safari5.
  */
-dwv.env.hasFileApi = function()
+dwv.browser.hasFileApi = function()
 {
     // regular test does not work on Safari 5
     var isSafari5 = (navigator.appVersion.indexOf("Safari") !== -1) &&
@@ -23503,73 +25603,73 @@ dwv.env.hasFileApi = function()
         return true;
     }
     // regular test
-    return dwv.env.askModernizr("filereader");
+    return dwv.browser.askModernizr("filereader");
 };
 
 /**
  * Browser check for the XMLHttpRequest.
  */
-dwv.env.hasXmlHttpRequest = function()
+dwv.browser.hasXmlHttpRequest = function()
 {
-    return dwv.env.askModernizr("xhrresponsetype") &&
-        dwv.env.askModernizr("xhrresponsetypearraybuffer") &&
-        dwv.env.askModernizr("xhrresponsetypetext") &&
+    return dwv.browser.askModernizr("xhrresponsetype") &&
+        dwv.browser.askModernizr("xhrresponsetypearraybuffer") &&
+        dwv.browser.askModernizr("xhrresponsetypetext") &&
         "XMLHttpRequest" in window && "withCredentials" in new XMLHttpRequest();
 };
 
 /**
  * Browser check for typed array.
  */
-dwv.env.hasTypedArray = function()
+dwv.browser.hasTypedArray = function()
 {
-    return dwv.env.askModernizr("dataview") && dwv.env.askModernizr("typedarrays");
+    return dwv.browser.askModernizr("dataview") && dwv.browser.askModernizr("typedarrays");
 };
 
 /**
  * Browser check for input with type='color'.
  * Missing in IE and Safari.
  */
-dwv.env.hasInputColor = function()
+dwv.browser.hasInputColor = function()
 {
-    return dwv.env.askModernizr("inputtypes.color");
+    return dwv.browser.askModernizr("inputtypes.color");
 };
 
 /**
  * Browser check for input with type='files' and webkitdirectory flag.
  * Missing in IE and Safari.
  */
-dwv.env.hasInputDirectory = function()
+dwv.browser.hasInputDirectory = function()
 {
-    return dwv.env.askModernizr("fileinputdirectory");
+    return dwv.browser.askModernizr("fileinputdirectory");
 };
 
 
 //only check at startup (since we propose a replacement)
-dwv.env._hasTypedArraySlice = (typeof Uint8Array.prototype.slice !== "undefined");
+dwv.browser._hasTypedArraySlice = (typeof Uint8Array.prototype.slice !== "undefined");
 
 /**
  * Browser check for typed array slice method.
  * Missing in Internet Explorer 11.
  */
-dwv.env.hasTypedArraySlice = function()
+dwv.browser.hasTypedArraySlice = function()
 {
-    return dwv.env._hasTypedArraySlice;
+    return dwv.browser._hasTypedArraySlice;
 };
 
 // only check at startup (since we propose a replacement)
-dwv.env._hasFloat64Array = ("Float64Array" in window);
+dwv.browser._hasFloat64Array = ("Float64Array" in window);
 
 /**
  * Browser check for Float64Array array.
  * Missing in PhantomJS 1.9.20 (on Travis).
  */
-dwv.env.hasFloat64Array = function()
+dwv.browser.hasFloat64Array = function()
 {
-    return dwv.env._hasFloat64Array;
+    return dwv.browser._hasFloat64Array;
 };
 
 //only check at startup (since we propose a replacement)
-dwv.env._hasClampedArray = ("Uint8ClampedArray" in window);
+dwv.browser._hasClampedArray = ("Uint8ClampedArray" in window);
 
 /**
  * Browser check for clamped array.
@@ -23577,41 +25677,45 @@ dwv.env._hasClampedArray = ("Uint8ClampedArray" in window);
  * - Safari 5.1.7 for Windows
  * - PhantomJS 1.9.20 (on Travis).
  */
-dwv.env.hasClampedArray = function()
+dwv.browser.hasClampedArray = function()
 {
-    return dwv.env._hasClampedArray;
+    return dwv.browser._hasClampedArray;
 };
 
 /**
  * Browser checks to see if it can run dwv. Throws an error if not.
  * Silently replaces basic functions.
  */
-dwv.env.check = function()
+dwv.browser.check = function()
 {
 
     // Required --------------
 
+    var appnorun = "The application cannot be run.";
     var message = "";
     // Check for the File API support
-    if( !dwv.env.hasFileApi() ) {
+    if( !dwv.browser.hasFileApi() ) {
         message = "The File APIs are not supported in this browser. ";
+        alert(message+appnorun);
         throw new Error(message);
     }
     // Check for XMLHttpRequest
-    if( !dwv.env.hasXmlHttpRequest() ) {
+    if( !dwv.browser.hasXmlHttpRequest() ) {
         message = "The XMLHttpRequest is not supported in this browser. ";
+        alert(message+appnorun);
         throw new Error(message);
     }
     // Check typed array
-    if( !dwv.env.hasTypedArray() ) {
+    if( !dwv.browser.hasTypedArray() ) {
         message = "The Typed arrays are not supported in this browser. ";
+        alert(message+appnorun);
         throw new Error(message);
     }
 
     // Replaced if not present ------------
 
     // Check typed array slice
-    if( !dwv.env.hasTypedArraySlice() ) {
+    if( !dwv.browser.hasTypedArraySlice() ) {
         // silent fail with warning
         console.warn("The TypedArray.slice method is not supported in this browser. This may impair performance. ");
         // basic Uint16Array implementation
@@ -23652,7 +25756,7 @@ dwv.env.check = function()
         };
     }
     // check clamped array
-    if( !dwv.env.hasClampedArray() ) {
+    if( !dwv.browser.hasClampedArray() ) {
         // silent fail with warning
         console.warn("The Uint8ClampedArray is not supported in this browser. This may impair performance. ");
         // Use Uint8Array instead... Not good
@@ -23660,7 +25764,7 @@ dwv.env.check = function()
         window.Uint8ClampedArray = window.Uint8Array;
     }
     // check Float64 array
-    if( !dwv.env.hasFloat64Array() ) {
+    if( !dwv.browser.hasFloat64Array() ) {
         // silent fail with warning
         console.warn("The Float64Array is not supported in this browser. This may impair performance. ");
         // Use Float32Array instead... Not good
@@ -23678,23 +25782,9 @@ dwv.env.check = function()
 
 // namespaces
 var dwv = dwv || {};
-/**
- * The i18next namespace.
- * @external i18next
- * @see https://www.i18next.com
- */
+// external
 var i18next = i18next || {};
-/**
- * The i18nextXHRBackend namespace.
- * @external i18nextXHRBackend
- * @see https://github.com/i18next/i18next-xhr-backend
- */
 var i18nextXHRBackend = i18nextXHRBackend || {};
-/**
- * The i18nextBrowserLanguageDetector namespace.
- * @external i18nextBrowserLanguageDetector
- * @see https://github.com/i18next/i18next-browser-languageDetector
- */
 var i18nextBrowserLanguageDetector = i18nextBrowserLanguageDetector || {};
 
 // This is mainly a wrapper around the i18next object.
@@ -23708,6 +25798,9 @@ dwv.i18nLocalesPath = null;
  * @param {String} language The language to translate to. Defaults to 'auto' and
  *   gets the language from the browser.
  * @param {String} localesPath Path to the locales directory.
+ * @external i18next
+ * @external i18nextXHRBackend
+ * @external i18nextBrowserLanguageDetector
  */
 dwv.i18nInitialise = function (language, localesPath)
 {
@@ -23740,6 +25833,8 @@ dwv.i18nInitialise = function (language, localesPath)
  * @param {String} language The language to translate to. Defaults to 'auto' and
  *   gets the language from the browser.
  * @param {Object} resources Languages provided as object.
+ * @external i18next
+ * @external i18nextBrowserLanguageDetector
  */
 dwv.i18nInitialiseWithResources = function (language, resources)
 {
@@ -23767,6 +25862,7 @@ dwv.i18nInitialiseWithResources = function (language, resources)
  * Handle i18n 'initialized' event.
  * @param {Object} callback The callback function to call when i18n is initialised.
  *  It can take one argument that will be replaced with the i18n options.
+ * @external i18next
  */
 dwv.i18nOnInitialised = function (callback) {
     i18next.on('initialized', callback);
@@ -23774,6 +25870,7 @@ dwv.i18nOnInitialised = function (callback) {
 
 /**
  * Stop handling i18n load event.
+ * @external i18next
  */
 dwv.i18nOffInitialised = function () {
     i18next.off('initialized');
@@ -23783,6 +25880,7 @@ dwv.i18nOffInitialised = function () {
  * Handle i18n failed load event.
  * @param {Object} callback The callback function to call when i18n is loaded.
  *  It can take three arguments: lng, ns and msg.
+ * @external i18next
  */
 dwv.i18nOnFailedLoad = function (callback) {
     i18next.on('failedLoading', callback);
@@ -23790,6 +25888,7 @@ dwv.i18nOnFailedLoad = function (callback) {
 
 /**
  * Stop handling i18n failed load event.
+ * @external i18next
  */
 dwv.i18nOffFailedLoad = function () {
     i18next.off('failedLoading');
@@ -23799,6 +25898,7 @@ dwv.i18nOffFailedLoad = function () {
  * Get the translated text.
  * @param {String} key The key to the text entry.
  * @param {Object} options The translation options such as plural, context...
+ * @external i18next
  */
 dwv.i18n = function (key, options) {
     return i18next.t(key, options);
@@ -23808,6 +25908,7 @@ dwv.i18n = function (key, options) {
  * Check the existence of a translation.
  * @param {String} key The key to the text entry.
  * @param {Object} options The translation options such as plural, context...
+ * @external i18next
  */
 dwv.i18nExists = function (key, options) {
     return i18next.exists(key, options);
@@ -23853,7 +25954,6 @@ dwv.i18nGetFallbackLocalePath = function (filename) {
 
 // namespaces
 var dwv = dwv || {};
-/** @namespace */
 dwv.utils = dwv.utils || {};
 
 /**
@@ -24597,173 +26697,6 @@ var dwv = dwv || {};
 dwv.utils = dwv.utils || {};
 
 /**
- * Check if the input is a generic object, including arrays.
- * @param {Unknown} unknown The input to check.
- * @return {Boolean} True if the input is an object.
- * ref: https://github.com/jashkenas/underscore/blob/1.9.1/underscore.js#L1319-L1323
- */
-dwv.utils.isObject = function (unknown) {
-    var type = typeof unknown;
-    return type === 'function' || type === 'object' && !!unknown;
-};
-
-/**
- * Check if the input is an array.
- * @param {Unknown} unknown The input to check.
- * @return {Boolean} True if the input is an array.
- * ref: https://github.com/jashkenas/underscore/blob/1.9.1/underscore.js#L1313-L1317
- */
-dwv.utils.isArray = function (unknown) {
-    return Array.isArray(unknown);
-};
-
-/**
- * Dump an object to an array.
- * @input {Object} obj The input object as: {key0: {}, key1: {}}
- * @return {Array} The corresponding array: [{name: key0, {}}, {name: key1, {}}]
- */
- dwv.utils.objectToArray = function (obj) {
-     var array = [];
-     var keys = Object.keys(obj);
-     for (var i = 0; i < keys.length; ++i ) {
-         var key = keys[i];
-         var row = {name: key};
-         var innerKeys = Object.keys(obj[key]);
-         for (var j = 0; j < innerKeys.length; ++j ) {
-             var innerKey = innerKeys[j];
-             row[innerKey] = obj[key][innerKey];
-         }
-         array.push(row);
-     }
-     return array;
- };
-
-/**
- * Merge two similar objects.
- * Objects need to be in the form of:
- * {idKey: {valueKey: 0}, key0: {valueKey: "abc"}, key1: {valueKey: 33}}
- * Merged objects will be in the form of:
- * { idKey: {valueKey: [0,1,2], merged: true},
- *   key0: {valueKey: {0: "abc", 1: "def", 2: "ghi"},
- *   key1: {valueKey: {0: 33, 1: 44, 2: 55}} }
- * @param {Object} obj1 The first object, can be the result of a previous merge.
- * @param {Object} obj2 The second object.
- * @param {String} idKey The key to use as index for duplicate values.
- * @param {String} valueKey The key to use to access object values.
- * @return {Object} The merged object.
- */
-dwv.utils.mergeObjects = function (obj1, obj2, idKey, valueKey) {
-    var res = {};
-    // check id key
-    if (!idKey) {
-        throw new Error("Cannot merge object with an undefined id key: " + idKey);
-    } else {
-        if (!obj1.hasOwnProperty(idKey)) {
-            throw new Error("Id key not found in first object while merging: " +
-                idKey + ", obj: " + obj1);
-        }
-        if (!obj2.hasOwnProperty(idKey)) {
-            throw new Error("Id key not found in second object while merging: " +
-                idKey + ", obj: " + obj2);
-        }
-    }
-    // check value key
-    if (!valueKey) {
-        throw new Error("Cannot merge object with an undefined value key: " + valueKey);
-    }
-
-    // check if merged object
-    var mergedObj1 = false;
-    if (obj1[idKey].hasOwnProperty("merged") && obj1[idKey].merged) {
-        mergedObj1 = true;
-    }
-    // handle the id part
-    if (!obj1[idKey].hasOwnProperty(valueKey)) {
-        throw new Error("Id value not found in first object while merging: " +
-            idKey + ", valueKey: " + valueKey + ", ojb: " + obj1);
-    }
-    if (!obj2[idKey].hasOwnProperty(valueKey)) {
-        throw new Error("Id value not found in second object while merging: " +
-            idKey + ", valueKey: " + valueKey + ", ojb: " + obj2);
-    }
-    var id1 = obj1[idKey][valueKey];
-    var id2 = obj2[idKey][valueKey];
-    // for merged object, id1 is an array
-    if (mergedObj1) {
-        // check if array does not include id2
-        for ( var k = 0; k < id1.length; ++k ) {
-            if (id1[k] === id2) {
-                throw new Error("The first object already contains id2: " +
-                    id2 + ", id1: " + id1);
-            }
-        }
-        res[idKey] = obj1[idKey];
-        res[idKey][valueKey].push(id2);
-    } else {
-        if (id1 === id2) {
-            throw new Error("Cannot merge object with same ids: " +
-                id1 + ", id2: " + id2);
-        }
-        // create merge object
-        res[idKey] = {value: [id1, id2], merged: true};
-    }
-
-    // loop through object1
-    var keys1 = Object.keys(obj1);
-    for ( var i = 0, leni = keys1.length; i < leni; ++i ) {
-        var key1 = keys1[i];
-        if (key1 !== idKey) {
-            var value1 = obj1[key1];
-            // default result
-            var value = value1;
-            if (!value1.hasOwnProperty(valueKey)) {
-                throw new Error("Value not found in first object while merging: " +
-                    valueKey + ", value: " + value1);
-            }
-            var subValue1 = value1[valueKey];
-            if (obj2.hasOwnProperty(key1)) {
-                var value2 = obj2[key1];
-                if (!value2.hasOwnProperty(valueKey)) {
-                    throw new Error("Value not found in second object while merging: " +
-                        valueKey + ", value: " + value2);
-                }
-                var subValue2 = value2[valueKey];
-                // create merge object if different values
-                if (subValue2 !== subValue1) {
-                    // add to merged object or create new
-                    if (mergedObj1) {
-                        // merged object with repeated value
-                        // copy it with the index list
-                        if (!dwv.utils.isObject(subValue1)) {
-                            value[valueKey] = {};
-                            for (var j = 0; j < id1.length; j++) {
-                                value[valueKey][id1[j]] = subValue1;
-                            }
-                        }
-                        value[valueKey][id2] = subValue2;
-                    } else {
-                        // create merge object
-                        var newValue = {};
-                        newValue[id1] = subValue1;
-                        newValue[id2] = subValue2;
-                        value[valueKey] = newValue;
-                    }
-                }
-            } else {
-                throw new Error("Cannot find key1 in second object while merging.");
-            }
-            // store value in result object
-            res[key1] = value;
-        }
-    }
-    return res;
-};
-
-// namespaces
-var dwv = dwv || {};
-dwv.utils = dwv.utils || {};
-
-/**
  * Multiple progresses handler.
  * Stores a multi dimensional list of progresses to allow to
  * calculate a global progress.
@@ -24776,12 +26709,12 @@ dwv.utils.MultiProgressHandler = function (callback)
 
     /**
      * List of progresses.
+     * @private
+     * @type Array
      * First dimension is a list of item for which the progress is recorded,
      *   for example file names.
      * Second dimension is a list of possible progresses, for example
      *   the progress of the download and the progress of the decoding.
-     * @private
-     * @type Array
      */
     var progresses = [];
 
@@ -24815,7 +26748,6 @@ dwv.utils.MultiProgressHandler = function (callback)
 
     /**
      * Handle a load progress.
-     * Call the member callback with a global event.
      * @param {Object} event The progress event.
      */
     this.onprogress = function (event) {
@@ -24834,60 +26766,30 @@ dwv.utils.MultiProgressHandler = function (callback)
         // set percent for index
         progresses[event.index][event.subindex] = percent;
 
-        // item progress
-        var item = null;
-        if (typeof event.item !== "undefined") {
-            item = event.item;
-        } else {
-            item = {
-                loaded: getItemProgress(event.index),
-                total: 100,
-                source: event.source
-            };
-        }
-
-        // call callback with a global event
-        callback({
-            lengthComputable: true,
-            loaded: getGlobalPercent(),
-            total: 100,
-            item: item
-        });
+        // call callback
+        callback({'type': event.type, 'lengthComputable': true,
+            'loaded': getGlobalPercent(), 'total': 100});
     };
-
-    /**
-     * Get the item load percent.
-     * @param {Number} index The index of the item.
-     * @return {Number} The load percentage.
-     * @private
-     */
-    function getItemProgress(index) {
-        var sum = 0;
-        for ( var j = 0; j < numberOfDimensions; ++j ) {
-            sum += progresses[index][j];
-        }
-        return sum / numberOfDimensions;
-    }
 
     /**
      * Get the global load percent including the provided one.
      * @return {Number} The accumulated percentage.
-     * @private
      */
     function getGlobalPercent() {
         var sum = 0;
         var lenprog = progresses.length;
         for ( var i = 0; i < lenprog; ++i ) {
-            sum += getItemProgress(i);
+            for ( var j = 0; j < numberOfDimensions; ++j ) {
+                sum += progresses[i][j];
+            }
         }
-        return Math.round( sum / lenprog );
+        return Math.round( sum / (lenprog * numberOfDimensions) );
     }
 
     /**
      * Create a mono progress event handler.
      * @param {Number} index The index of the data.
      * @param {Number} subindex The sub-index of the data.
-     * @param {Mixed} source The progress source.
      */
     this.getMonoProgressHandler = function (index, subindex) {
         return function (event) {
@@ -24898,10 +26800,22 @@ dwv.utils.MultiProgressHandler = function (callback)
     };
 
     /**
+     * Create a mono loadend event handler: sends a 100% progress.
+     * @param {Number} index The index of the data.
+     * @param {Number} subindex The sub-index of the data.
+     */
+    this.getMonoOnLoadEndHandler = function (index, subindex) {
+        return function () {
+            self.onprogress({'type': 'load-progress', 'lengthComputable': true,
+                'loaded': 100, 'total': 100,
+                'index': index, 'subindex': subindex});
+        };
+    };
+
+    /**
      * Create a mono progress event handler with an undefined index.
      * Warning: The caller handles the progress index.
      * @param {Number} subindex The sub-index of the data.
-     * @param {Mixed} source The progress source.
      */
     this.getUndefinedMonoProgressHandler = function (subindex) {
         return function (event) {
@@ -24913,6 +26827,7 @@ dwv.utils.MultiProgressHandler = function (callback)
 
 // namespaces
 var dwv = dwv || {};
+/** @namespace */
 dwv.utils = dwv.utils || {};
 
 /**
@@ -25099,16 +27014,23 @@ dwv.utils = dwv.utils || {};
  * @param {Number} poolSize The size of the pool.
  */
 dwv.utils.ThreadPool = function (poolSize) {
+
     // task queue
     var taskQueue = [];
     // lsit of available threads
     var freeThreads = [];
-    // create 'poolSize' number of worker threads
-    for (var i = 0; i < poolSize; ++i) {
-        freeThreads.push(new dwv.utils.WorkerThread(this));
-    }
     // list of running threads (unsed in abort)
     var runningThreads = [];
+
+    /**
+     * Initialise.
+     */
+    this.init = function () {
+        // create 'poolSize' number of worker threads
+        for (var i = 0; i < poolSize; ++i) {
+            freeThreads.push(new dwv.utils.WorkerThread(this));
+        }
+    };
 
     /**
      * Add a worker task to the queue.
@@ -25116,11 +27038,6 @@ dwv.utils.ThreadPool = function (poolSize) {
      * @return {Object} workerTask The task to add.
      */
     this.addWorkerTask = function (workerTask) {
-        // send work start if first task
-        if (freeThreads.length === poolSize) {
-            this.onworkstart({type: "work-start"});
-        }
-        // launch task or queue
         if (freeThreads.length > 0) {
             // get the first free worker thread
             var workerThread = freeThreads.shift();
@@ -25138,19 +27055,25 @@ dwv.utils.ThreadPool = function (poolSize) {
      * Abort all threads.
      */
     this.abort = function () {
-        // stop all threads
-        stop();
-        // callback
-        this.onabort({type: "work-abort"});
-        this.onworkend({type: "work-end"});
+        // clear tasks
+        taskQueue = [];
+        // cancel running workers
+        for (var i = 0; i < runningThreads.length; ++i) {
+            runningThreads[i].stop();
+        }
+        runningThreads = [];
+        // re-init
+        this.init();
     };
 
     /**
-     * Handle a task end.
+     * Free a worker thread.
      * @param {Object} workerThread The thread to free.
      */
-    this.onTaskEnd = function (workerThread) {
-        // launch next task in queue or finish
+    this.freeWorkerThread = function (workerThread) {
+        // send worker end
+        this.onworkerend();
+
         if (taskQueue.length > 0) {
             // get waiting task
             var workerTask = taskQueue.shift();
@@ -25167,100 +27090,38 @@ dwv.utils.ThreadPool = function (poolSize) {
             }
             // the work is done when the queue is back to its initial size
             if ( freeThreads.length === poolSize ) {
-                this.onwork({type: "work"});
-                this.onworkend({type: "work-end"});
+                this.onpoolworkend();
             }
         }
     };
-
-    /**
-     * Handle an error message from a worker.
-     * @param {Object} event The error event.
-     */
-    this.handleWorkerError = function (event) {
-        // stop all threads
-        stop();
-        // callback
-        this.onerror({error: event});
-        this.onworkend({type: "work-end"});
-    };
-
-    // private ----------------------------------------------------------------
-
-    /**
-     * Stop the pool: stop all running threads.
-     * @private
-     */
-    function stop() {
-        // clear tasks
-        taskQueue = [];
-        // cancel running workers
-        for (var i = 0; i < runningThreads.length; ++i) {
-            runningThreads[i].stop();
-        }
-        runningThreads = [];
-    }
-
-}; // ThreadPool
+};
 
 /**
- * Handle a work start event.
- * @param {Object} event The work start event.
+ * Handle a pool work end event.
  * Default does nothing.
  */
-dwv.utils.ThreadPool.prototype.onworkstart = function (/*event*/) {};
+dwv.utils.ThreadPool.prototype.onpoolworkend = function () {};
 /**
- * Handle a work item event.
- * @param {Object} event The work item event fired
- *   when a work item ended successfully.
+ * Handle a pool worker end event.
  * Default does nothing.
  */
-dwv.utils.ThreadPool.prototype.onworkitem = function  (/*event*/) {};
-/**
- * Handle a work event.
- * @param {Object} event The work event fired
- *   when a work ended successfully.
- * Default does nothing.
- */
-dwv.utils.ThreadPool.prototype.onwork = function  (/*event*/) {};
-/**
- * Handle a work end event.
- * @param {Object} event The work end event fired
- *  when a work has completed, successfully or not.
- * Default does nothing.
- */
-dwv.utils.ThreadPool.prototype.onworkend = function (/*event*/) {};
-/**
- * Handle an error event.
- * @param {Object} event The error event.
- * Default does nothing.
- */
-dwv.utils.ThreadPool.prototype.onerror = function (/*event*/) {};
-/**
- * Handle an abort event.
- * @param {Object} event The abort event.
- * Default does nothing.
- */
-dwv.utils.ThreadPool.prototype.onabort = function (/*event*/) {};
-
-/**
- * Worker background task.
- * @external Worker
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Worker
- */
+dwv.utils.ThreadPool.prototype.onworkerend = function () {};
 
 /**
  * Worker thread.
+ * @external Worker
  * @constructor
  * @param {Object} parentPool The parent pool.
  */
 dwv.utils.WorkerThread = function (parentPool) {
     // closure to self
     var self = this;
+
     // thread ID
     var id = Math.random().toString(36).substring(2, 15);
+
     // running task
-    var runningTask = null;
+    var runningTask = {};
     // worker used to run task
     var worker;
 
@@ -25282,71 +27143,58 @@ dwv.utils.WorkerThread = function (parentPool) {
         // create a new web worker
         if (runningTask.script !== null) {
             worker = new Worker(runningTask.script);
-            // set callbacks
-            worker.onmessage = onmessage;
-            worker.onerror = onerror;
+            worker.addEventListener('message', ontaskend, false);
             // launch the worker
             worker.postMessage(runningTask.startMessage);
         }
     };
 
     /**
-     * Finish a task and tell the parent.
+     * Stop a run and free the thread.
      */
     this.stop = function () {
         // stop the worker
         worker.terminate();
         // tell the parent pool this thread is free
-        parentPool.onTaskEnd(this);
+        parentPool.freeWorkerThread(this);
     };
 
     /**
-     * Message event handler.
+     * Handle once the task is done.
      * For now assume we only get a single callback from a worker
      * which also indicates the end of this worker.
-     * @param {Object} event The message event.
-     * @private
+     * @param {Object} event The callback event.
      */
-    function onmessage(event) {
-        // pass to parent
-        event.index = runningTask.id;
-        parentPool.onworkitem(event);
+    function ontaskend(event) {
+        // pass to original callback
+        runningTask.callback(event);
         // stop the worker and free the thread
         self.stop();
     }
 
-    /**
-     * Error event handler.
-     * @param {Object} event The error event.
-     * @private
-     */
-    function onerror(event) {
-        // pass to parent
-        parentPool.handleWorkerError(event);
-        // stop the worker and free the thread
-        self.stop();
-    }
-}; // class WorkerThread
+};
 
 /**
  * Worker task.
  * @constructor
  * @param {String} script The worker script.
+ * @param {Function} callback The worker callback.
  * @param {Object} message The data to pass to the worker.
- * @param {number} index The worker id.
  */
-dwv.utils.WorkerTask = function (script, message, index) {
+dwv.utils.WorkerTask = function (script, callback, message) {
     // worker script
     this.script = script;
+    // worker callback
+    this.callback = callback;
     // worker start message
     this.startMessage = message;
-    // worker id
-    this.id = index;
 };
 
 // namespaces
 var dwv = dwv || {};
 dwv.utils = dwv.utils || {};
+/** @namespace */
+dwv.utils.base = dwv.utils.base || {};
 
 /**
  * Get an full object URL from a string uri.
@@ -25408,8 +27256,8 @@ dwv.utils.getUrlFromUriSimple = function (uri) {
  */
 dwv.utils.getUrlFromUri = function (uri) {
     var url = null;
-    if (dwv.env.askModernizr('urlparser') &&
-        dwv.env.askModernizr('urlsearchparams')) {
+    if (dwv.browser.askModernizr('urlparser') &&
+        dwv.browser.askModernizr('urlsearchparams')) {
         url = dwv.utils.getUrlFromUriFull(uri);
     } else {
         url = dwv.utils.getUrlFromUriSimple(uri);
@@ -25475,7 +27323,7 @@ dwv.utils.getUriQuery = function (uri)
  *  @param {String} query The query part to the input URI.
  *  @param {Function} callback The function to call with the decoded file urls.
  */
-dwv.utils.decodeQuery = function (query, callback)
+dwv.utils.base.decodeQuery = function (query, callback)
 {
     // manifest
     if ( query.type && query.type === "manifest" ) {
@@ -25658,37 +27506,6 @@ dwv.utils.decodeManifest = function (manifest, nslices)
     }
     // return
     return result;
-};
-
-/**
- * Load from an input uri
- * @param {String} uri The input uri, for example: 'window.location.href'.
- * @param {Object} app The associated app that handles the load.
- */
-dwv.utils.loadFromUri = function (uri, app) {
-    var query = dwv.utils.getUriQuery(uri);
-    // check query
-    if ( query && typeof query.input !== "undefined" ) {
-        dwv.utils.loadFromQuery(query, app);
-    }
-    // no else to allow for empty uris
-};
-
-/**
- * Load from an input query
- * @param {Object} query A query derived from an uri.
- * @param {Object} app The associated app that handles the load.
- */
-dwv.utils.loadFromQuery = function (query, app) {
-    // load base
-    dwv.utils.decodeQuery(query, app.loadURLs);
-    // optional display state
-    if ( typeof query.state !== "undefined" ) {
-        var onLoadEnd = function (/*event*/) {
-            app.loadURLs(query.state);
-        };
-        app.addEventListener("load-end", onLoadEnd);
-    }
 };
 
     return dwv;
