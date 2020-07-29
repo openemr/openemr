@@ -953,6 +953,7 @@ function generate_form_field($frow, $currvalue)
             " name='form_{$field_id_esc}[$option_id_esc]'" .
             " id='form_{$field_id_esc}[$option_id_esc]'" .
             " size='$fldlength'" .
+            " class='form-control'" .
             " $string_maxlength" .
             " value='$resnote' $disabled /></td>";
             echo "</tr>";
@@ -1172,6 +1173,7 @@ function generate_form_field($frow, $currvalue)
             " name='form_$field_id_esc'" .
             " id='form_$field_id_esc'" .
             " size='$fldlength'" .
+            " class='form-control$smallform'" .
             " $string_maxlength" .
             " value='$resnote' $disabled />&nbsp;</td>";
             echo "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" .
@@ -1235,7 +1237,7 @@ function generate_form_field($frow, $currvalue)
 
         echo " $disabled />" . xlt('Quit') . "&nbsp;</td>";
         // quit date
-        echo "<td class='text'><input type='text' size='6' class='datepicker' name='date_$field_id_esc' id='date_$field_id_esc'" .
+        echo "<td class='text'><input type='text' size='6' class='datepicker form-control' name='date_$field_id_esc' id='date_$field_id_esc'" .
         " value='$resdate'" .
         " title='$description'" .
         " $disabled />";
@@ -3300,7 +3302,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
             "ORDER BY seq", array($formtype, $this_group));
         ?>
 
-        <div class="tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo str_replace(' ', '_', $group_name_esc)?>" >
+        <div class="table-responsive tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo str_replace(' ', '_', $group_name_esc)?>" >
             <table class='table table-borderless'>
 
             <?php
