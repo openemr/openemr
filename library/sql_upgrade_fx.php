@@ -1010,6 +1010,22 @@ function upgradeFromSqlFile($filename, $path = '')
             if ($skipping) {
                 echo "<p class='text-success'>Skipping section $line</p>\n";
             }
+        } elseif (preg_match('/^#IfUuidNeedUpdateId\s+(\S+)/', $line, $matches)) {
+            $uuidRegistry = new UuidRegistry([
+                'table_name' => $matches[1],
+                'table_id' => $matches[2]
+            ]);
+            if (tableExists($matches[1]) && $uuidRegistry->tableNeedsUuidCreation()) {
+                $skipping = false;
+                echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
+                $uuidRegistry->createMissingUuids();
+                echo "<p class='text-success'>Successfully completed adding UUIDs to " . $matches[1] . " table</p>\n";
+            } else {
+                $skipping = true;
+            }
+            if ($skipping) {
+                echo "<p class='text-success'>Skipping section $line</p>\n";
+            }
         } elseif (preg_match('/^#IfUuidNeedUpdateVertical\s+(\S+)\s+(\S+)/', $line, $matches)) {
             $vertical_table_columns = explode(":", $matches[2]);
             $uuidRegistry = new UuidRegistry(['table_name' => $matches[1], 'table_vertical' => $vertical_table_columns]);

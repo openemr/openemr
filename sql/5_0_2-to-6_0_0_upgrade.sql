@@ -74,6 +74,10 @@
 --    argument: table_name
 --    behavior: this will add and populate a uuid column into table
 
+--  #IfUuidNeedUpdateId
+--    argument: table_name primary_id
+--    behavior: this will add and populate a uuid column into table
+
 --  #IfUuidNeedUpdateVertical
 --    argument: table_name table_columns
 --    behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
@@ -1941,7 +1945,7 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verific
 ALTER TABLE `procedure_order` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate procedure_order
+#IfUuidNeedUpdateId procedure_order procedure_order_id
 #EndIf
 
 #IfNotIndex procedure_order uuid

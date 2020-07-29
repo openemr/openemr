@@ -8723,7 +8723,7 @@ CREATE TABLE `procedure_questions` (
 DROP TABLE IF EXISTS `procedure_order`;
 CREATE TABLE `procedure_order` (
   `procedure_order_id`     bigint(20)   NOT NULL AUTO_INCREMENT,
-  `uuid`                   binary(16)   DEFAULT NULL
+  `uuid`                   binary(16)   DEFAULT NULL,
   `provider_id`            bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references users.id, the ordering provider',
   `patient_id`             bigint(20)   NOT NULL            COMMENT 'references patient_data.pid',
   `encounter_id`           bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',

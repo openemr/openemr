@@ -21,7 +21,9 @@ class ProcedureService extends BaseService
 
     private const PROCEDURE_TABLE = "procedure_order";
     private const PATIENT_TABLE = "patient_data";
-    private $uuidRegistery;
+    private const ENCOUNTER_TABLE = "form_encounter";
+    private const PRACTITIONER_TABLE = "users";
+    private $uuidRegistry;
 
     /**
      * Default constructor.
@@ -29,12 +31,14 @@ class ProcedureService extends BaseService
     public function __construct()
     {
         parent::__construct(self::PROCEDURE_TABLE);
-        $this->uuidRegistery = new UuidRegistry([
+        $this->uuidRegistry = new UuidRegistry([
             'table_name' => self::PROCEDURE_TABLE,
             'table_id' => 'procedure_order_id'
         ]);
-        $this->uuidRegistery->createMissingUuids();
+        $this->uuidRegistry->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
     }
 
     /**
