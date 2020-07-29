@@ -351,7 +351,7 @@ class BaseService
      * @param string $diagnosis                 - All Diagnosis Codes
      * @return array Array of Code as Key and Description as Value
      */
-    protected function addDiagnosis($diagnosis)
+    protected function addCoding($diagnosis)
     {
         $diags = explode(";", $diagnosis);
         $diagnosis = array();

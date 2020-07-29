@@ -105,7 +105,7 @@ class ConditionService extends BaseService
             $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
             if ($row['diagnosis'] != "") {
-                $row['diagnosis'] = $this->addDiagnosis($row['diagnosis']);
+                $row['diagnosis'] = $this->addCoding($row['diagnosis']);
             }
             $processingResult->addData($row);
         }
@@ -145,7 +145,7 @@ class ConditionService extends BaseService
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
         if ($sqlResult['diagnosis'] != "") {
-            $row['diagnosis'] = $this->addDiagnosis($sqlResult['diagnosis']);
+            $row['diagnosis'] = $this->addCoding($sqlResult['diagnosis']);
         }
         $processingResult->addData($sqlResult);
         return $processingResult;
