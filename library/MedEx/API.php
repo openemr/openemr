@@ -1487,27 +1487,6 @@ class Display extends base
 
         ?>
     <script>
-        function toggle_menu() {
-            var x = document.getElementById('hide_nav');
-            if (x.style.display === 'none') {
-                $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
-                    'setting_bootstrap_submenu' : 'show',
-                    success: function (data) {
-                        x.style.display = 'block';
-                    }
-                    });
-
-            } else {
-                $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
-                    'setting_bootstrap_submenu' : 'hide',
-                    success: function (data) {
-                        x.style.display = 'none';
-                    }
-                });
-            }
-            $("#patient_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
-        }
-
         function SMS_bot_list() {
             top.restoreSession();
             var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=383,height=600,resizable=0');
@@ -1515,14 +1494,7 @@ class Display extends base
             return false;
         }
         </script>
-        <i class="fa fa-caret-<?php
-        if ($setting_bootstrap_submenu == 'hide') {
-            echo 'down';
-        } else {
-            echo 'up';
-        } ?> menu_arrow" style="position: fixed; left: 5px; top: 5px; z-index: 1099;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
-        <div id="hide_nav" class="mt-3" style="<?php if ($setting_bootstrap_submenu == 'hide') {
-            echo "display:none;"; } ?>">
+        <div id="hide_nav">
             <nav id="navbar_oe" class="navbar navbar-expand-md navbar-light bg-light bgcolor2" name="kiosk_hide" data-role="page banner navigation">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#oer-navbar-collapse-1" aria-controls="oer-navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
