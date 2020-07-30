@@ -14,6 +14,12 @@
 *   TODO: Deprecate most of this
 */
 
+// RTL required here regardless if it is needed or not
+@import "../directional";
+
+$rfs-base-value: 0.875rem;
+$enable-responsive-font-sizes: true;
+@import "../../../public/assets/bootstrap/scss/vendor/rfs";
 
 .little_image {
   width: 20px !important;
@@ -37,31 +43,39 @@
   padding: 0 !important;
 }
 
-.navbar-nav > .nav-item > a {
-  color: var(--black) !important;
-  padding-bottom: 5px !important;
-  padding-left: 10px !important;
-  padding-right: 20px !important;
-  /* just changes the base font color */
-  padding-top: 6px !important;
+.navbar-nav {
+  > .nav-item > a {
+    color: var(--black) !important;
+    padding-bottom: 5px !important;
+    padding-left: 10px !important;
+    padding-right: 20px !important;
+    /* just changes the base font color */
+    padding-top: 6px !important;
+  }
+
+  > li .open > a {
+    background-color: var(--primary) !important;
+    color: var(--white) !important;
+  }
+
+  > li > a:hover {
+    color: var(--white) !important;
+  }
 }
 
-.navbar-nav > li .open > a {
-  background-color: var(--primary) !important;
-  color: var(--white) !important;
-}
+.nav {
+  .navbar-right:last-child > li {
+    margin-left: 20px !important;
+    margin-right: 20px !important;
+  }
 
-.nav .navbar-right:last-child > li {
-  margin-left: 20px !important;
-  margin-right: 20px !important;
-}
-
-.nav > li > a:focus,
-.nav > li:focus {
-  background-color: var(--primary) !important;
-  /* this is the "hover" blue */
-  color: var(--white) !important;
-  text-decoration: none !important;
+  > li > a:focus,
+  > li:focus {
+    background-color: var(--primary) !important;
+    /* this is the "hover" blue */
+    color: var(--white) !important;
+    text-decoration: none !important;
+  }
 }
 
 .nav > .active > a,
@@ -74,35 +88,31 @@
 .dropdown-menu {
   background-color: var(--gray300) !important;
   /* Mac Menu dropdown bar background color */
-}
 
-.dropdown-menu > li > a:hover,
-.dropdown-menu > li > a:focus {
-  background-color: var(--primary) !important;
-  color: var(--white) !important;
-  text-decoration: none !important;
-  text-shadow: none !important;
+  > li > a:hover,
+  > li > a:focus {
+    background-color: var(--primary) !important;
+    color: var(--white) !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+  }
+
+  .dropdown-divider {
+    background-color: var(--gray400) !important;
+    height: 1px !important;
+    margin: 9px 0 !important;
+    overflow: hidden !important;
+  }
 }
 
 .navbar-brand {
   color: var(--black) !important;
   height: 24px !important;
   margin: 10px 0 2px !important;
-  padding: 10 5 0 10 !important;
+  padding: 10px 5px 0 10px !important;
 }
 
 li.open > a:first {
-  color: var(--white) !important;
-}
-
-.dropdown-menu .dropdown-divider {
-  background-color: var(--gray400) !important;
-  height: 1px !important;
-  margin: 9px 0 !important;
-  overflow: hidden !important;
-}
-
-.navbar-nav > li > a:hover {
   color: var(--white) !important;
 }
 
