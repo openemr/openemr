@@ -45,6 +45,7 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [FHIR Condition API](FHIR_README.md#get-fhircondition)
     -   [FHIR MedicationStatement API](FHIR_README.md#get-fhirmedicationstatement)
     -   [FHIR Medication API](FHIR_README.md#get-fhirmedication)
+    -   [FHIR MedicationStatement API](FHIR_README.md#get-fhirmedicationstatement)
 -   [Portal FHIR API Endpoints](FHIR_README.md#portalfhir-endpoints)
     -   [Patient API](FHIR_README.md#get-portalfhirpatient)
 -   [Todos](FHIR_README.md#project-management)
@@ -477,12 +478,12 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Medication'
 ```
 
-#### GET /fhir/Medication/:id
+#### GET /fhir/Medication/:uuid
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Medication/1'
+curl -X GET 'http://localhost:8300/apis/fhir/Medication/9109890a-6756-44c1-a82d-bdfac91c7424'
 ```
 
 ### /portalfhir/ Endpoints
