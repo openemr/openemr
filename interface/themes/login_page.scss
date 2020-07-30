@@ -25,7 +25,6 @@ $login-form-bg-color: $white !default;
 $login-button-primary: false !default;
 
 body.login {
-  align-items: center;
   background: $light;
   display: flex;
   height: 100%;
@@ -33,33 +32,16 @@ body.login {
   resize: both;
 }
 
-.login {
-  &-failure {
-    background-color: $danger;
-    color: $white;
-    font-weight: bold;
+@media (min-width: map-get($grid-breakpoints, "sm")) {
+  body.login {
+    align-items: center;
   }
+}
 
-  &-area {
-    background: $login-form-bg-color;
-  }
-
-  &-bg {
-    background: linear-gradient(140deg, $login-color-1 0%, $login-color-2 35%, $login-color-3 100%);
-  }
-
-  &-bg-text-color {
-    color: $login-text-color !important;
-  }
-
-  &-title-label {
-    font-size: 130%;
-    font-weight: bold;
-  }
-
-  &-logo-wrapper {
-    max-width: 400px;
-  }
+.login-failure {
+  background-color: $danger;
+  color: $white;
+  font-weight: bold;
 }
 
 .login .login-row {
