@@ -2656,15 +2656,15 @@ class Display extends base
                                 <input type="text" class="form-control" placeholder="<?php echo xla('Address'); ?>" name="new_address" id="new_address" value="<?php echo attr($result_pat['street']); ?>" />
                             </div>
 
-                            <div class="col-4">
+                            <div class="col-md-4">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('City'); ?>" name="new_city" id="new_city" value="<?php echo attr($result_pat['city']); ?>" />
                             </div>
 
-                            <div class="col-4">
+                            <div class="col-md-4">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('State'); ?>" name="new_state" id="new_state" value="<?php echo attr($result_pat['state']); ?>" />
                             </div>
 
-                            <div class="col-4">
+                            <div class="col-md-4">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('ZIP Code'); ?>" name="new_postal_code" id="new_postal_code" value="<?php echo attr($result_pat['postal_code']); ?>" />
                             </div>
                         </div>
@@ -2982,45 +2982,46 @@ class Setup extends Base
                                 </div>
                             </div>
                             <div id="ihvread" name="ihvread" class="text-left showReminders">
-                                            <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required />
-                                            <label for="TERMS_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="Terms and Conditions"><?php echo xlt('I have read and my practice agrees to the'); ?>
-                                                <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a></label><br />
-                                            <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required />
-                                            <label for="BusAgree_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="BAA"><?php echo xlt('I have read and accept the'); ?>
-                                            <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);">MedEx <?php echo xlt('Business Associate Agreement'); ?></a></label>
-                                            <br />
-                                            <div class="align-center row showReminders">
-                                                <input id="Register" class="btn btn-primary" value="<?php echo xla('Register'); ?>" />
-                                            </div>
+                                <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required />
+                                <label for="TERMS_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="Terms and Conditions"><?php echo xlt('I have read and my practice agrees to the'); ?>
+                                    <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a>
+                                </label>
+                                <br />
+                                <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required />
+                                <label for="BusAgree_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="BAA"><?php echo xlt('I have read and accept the'); ?>
+                                    <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);">MedEx <?php echo xlt('Business Associate Agreement'); ?></a>
+                                </label>
+                                <br />
+                                <div class="align-center showReminders">
+                                    <input id="Register" class="btn btn-primary" value="<?php echo xla('Register'); ?>" />
+                                </div>
 
-                                            <div id="myModal" class="modal fade" role="dialog">
-                                            <div class="modal-dialog">
-
-                                                <!-- Modal content-->
-                                                <div class="modal-content">
-                                                <div class="modal-header text-white" style="background-color: #0d4867;font-weight: 700;">
-                                                    <button type="button" class="close text-white" data-dismiss="modal" style="opacity:1;box-shadow:unset !important;">&times;</button>
-                                                    <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
-                                                </div>
-                                                <div class="modal-body" style="padding: 10px 45px;">
-                                                    <p>You are opening a secure connection to MedExBank.com.  During this step your EHR will synchronize with the MedEx servers.  <br />
-                                                        <br />
-                                                        Re-enter your username (e-mail) and password in the MedExBank.com login window to:
-                                                        <ul class="text-left mx-auto" style="width: 90%;">
-                                                            <li> confirm your practice and providers' information</li>
-                                                            <li> choose your service options</li>
-                                                            <li> update and activate your messages </li>
-                                                        </ul>
-                                                    </p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                    <button type="button" class="btn btn-secondary" onlick="actualSignUp();" id="actualSignUp">Proceed</button>
-                                                </div>
-                                                </div>
-
+                                <div id="myModal" class="modal fade" role="dialog">
+                                    <div class="modal-dialog">
+                                        <!-- Modal content-->
+                                        <div class="modal-content">
+                                            <div class="modal-header text-white font-weight-bold" style="background-color: #0d4867;">
+                                                <button type="button" class="close text-white" data-dismiss="modal" style="opacity:1;box-shadow:unset !important;">&times;</button>
+                                                <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
                                             </div>
+                                            <div class="modal-body" style="padding: 10px 45px;">
+                                                <p>You are opening a secure connection to MedExBank.com.  During this step your EHR will synchronize with the MedEx servers.  <br />
+                                                    <br />
+                                                    Re-enter your username (e-mail) and password in the MedExBank.com login window to:
+                                                    <ul class="text-left mx-auto" style="width: 90%;">
+                                                        <li> confirm your practice and providers' information</li>
+                                                        <li> choose your service options</li>
+                                                        <li> update and activate your messages </li>
+                                                    </ul>
+                                                </p>
                                             </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                <button type="button" class="btn btn-secondary" onlick="actualSignUp();" id="actualSignUp">Proceed</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>
