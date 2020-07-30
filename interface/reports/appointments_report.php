@@ -322,6 +322,7 @@ function fetch_reminders($pid, $appt_date)
                                 <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                     <?php echo xlt('Print'); ?>
                                 </a>
+                                <button class="btn btn-default btn-transmit"><?php echo xlt('Export CSV'); ?></button>
                                 <a href='#' class='btn btn-secondary btn-transmit' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2", "_blank").opener = null' onsubmit='return top.restoreSession()'>
                                     <?php echo xlt('Superbills'); ?>
                                 </a>
@@ -345,7 +346,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     $showDate = ($from_date != $to_date) || (!$to_date);
     ?>
 <div id="report_results">
-<table class='table'>
+<table class='table' id="export">
 
     <thead class='thead-light'>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
@@ -422,7 +423,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         array_push($pid_list, $appointment['pid']);
         array_push($apptdate_list, $appointment['pc_eventDate']);
         $patient_id = $appointment['pid'];
-        $docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
+        $docname  = $appointment['ulname'] . ' ' . $appointment['ufname'] . ' ' . $appointment['umname'];
 
         $errmsg  = "";
         $pc_apptstatus = $appointment['pc_apptstatus'];
@@ -523,7 +524,7 @@ if ($alertmsg) {
 ?>
 
 </script>
-
+<script src="<?php echo $GLOBALS['webroot']; ?>/library/js/report_csv.js"></script>
 </body>
 
 </html>
