@@ -34,6 +34,7 @@ use OpenEMR\RestControllers\AuthRestController;
 use OpenEMR\RestControllers\ConditionRestController;
 use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
+use OpenEMR\RestControllers\DrugRestController;
 use OpenEMR\RestControllers\ImmunizationRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
@@ -382,6 +383,14 @@ RestConfig::$ROUTE_MAP = array(
     "GET /api/procedure/:uuid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
         return (new ProcedureRestController())->getOne($uuid);
+    },
+    "GET /api/drug" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new DrugRestController())->getAll();
+    },
+    "GET /api/drug/:uuid" => function ($uuid) {
+        RestConfig::authorization_check("patients", "med");
+        return (new DrugRestController())->getOne($uuid);
     },
 
 );
