@@ -196,7 +196,7 @@ echo "   <a href='#' type='button' id='monthview' title='" . xla('Month View') .
 </div>
 <div class="sticky-top">
 <div id="bottomLeft" class="sidebar-wrapper">
-<div id="datePicker">
+<div id="datePicker" class="table-responsive">
 [-php-]
 $atmp = array_keys($A_EVENTS);
 $caldate = strtotime($atmp[0]);
@@ -363,8 +363,8 @@ if (count($facilities) > 1) {
 [-php-]
 if($_SESSION['pc_facility'] == 0){
 [-/php-]
-<div id="facilityColor">
- <table>
+<div id="facilityColor" class="table-responsive">
+ <table class="table table-borderless">
 [-php-]
 foreach ($facilities as $f){
 echo "   <tr>\n";
@@ -420,7 +420,7 @@ foreach ($providers as $provider) {
     $calEndMin = ($tmpTime['hour'] * 60) + $tmpTime['minute'];
 
     echo "<div class='table-responsive'>\n";
-    echo "<table class='table border-0 w-100'>\n";
+    echo "<table class='table border-0'>\n";
     echo " <tr>\n";
     echo "  <td colspan='8' class='providerheader'>";
     echo text($provider['fname']) . " " . text($provider['lname']);
@@ -454,7 +454,7 @@ foreach ($providers as $provider) {
 
     // output the TD with the times DIV
     echo "<tr>";
-    echo "<td id='times'><div><table class='table'>\n";
+    echo "<td id='times'><div class='table-responsive'><table class='table'>\n";
 //==================================================================================================================
      if ($GLOBALS['time_display_format'] == 1) {
          $timeformat = 12;
@@ -767,7 +767,7 @@ foreach ($providers as $provider) {
                     $link_title .= xl('Age') . ": " . $patient_age . "\n" . xl('DOB') . ": " . $patient_dob . $comment . "\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goPid(" . attr_js($patientid) . ")' title='" . attr($link_title) . "'>";
-                    $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/user-green.gif' onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".$patientid."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\" onmouseout=\"javascript:HideImage();\" border='0' title='". attr($link_title) . "' alt='View Patient' />";
+                    $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".$patientid."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\" onmouseout=\"javascript:HideImage();\" title='". attr($link_title) . "'></i>";
 
                     if ($catid == 1) $content .= "<strike>";
                     $content .= text($lname);
@@ -790,7 +790,7 @@ foreach ($providers as $provider) {
                     $link_title .= $divTitle ."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goGid(" . attr_js($groupid) . ")' title='" . attr($link_title) . "'>";
-                    $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/user-blue.gif' border='0' title='" . attr($link_title) . "' alt='View Patient' />";
+                    $content .= "<i class='fas fa-user text-primary' title='" . attr($link_title) . "'></i>";
                     if ($catid == 1) $content .= "<strike>";
                     $content .= text($groupname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {

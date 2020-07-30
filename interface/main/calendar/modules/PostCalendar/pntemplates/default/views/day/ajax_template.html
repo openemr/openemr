@@ -205,6 +205,7 @@ $cDay = date("d", $caldate);
 include_once($GLOBALS['fileroot'].'/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php');
 echo "\n";
 [-/php-]
+<div class="table-responsive">
 <table class='table table-sm table-borderless'>
 <tbody><tr>
 [-php-]
@@ -306,6 +307,7 @@ while ($currdate <= $enddate) {
 </tbody>
 </table>
 </div>
+</div>
 
 <div id="bigCalHeader">
 </div>
@@ -356,7 +358,7 @@ if (count($facilities) > 1) {
 [-php-]
 if($_SESSION['pc_facility'] == 0){
 [-/php-]
-<div id="facilityColor">
+<div id="facilityColor" class="table-responsive">
  <table>
 [-php-]
 foreach ($facilities as $f){
@@ -404,7 +406,7 @@ echo "<table class='table border-0'>\n";
 
 // output the TD with the times DIV
 echo "<tr>";
-echo "<td id='times'><div><table class='table'><tr>\n";
+echo "<td id='times'><div class='table-responsive'><table class='table'><tr>\n";
 echo "<td class='timeslot providerXbtn' data-username='__PC_ALL__'><i class='fa fa-lg fa-user-md'></i></td></tr>";
 //============================================================================================================================
 // Check global time preference so that 24 and 12hour preference is displayed properly
@@ -749,7 +751,7 @@ foreach ($providers as $provider) {
                     $link_title .= "(" . xl('Click to view') . ")";
 
                     $content .= "<a href='javascript:goPid(" . attr_js($patientid) . ")' title='" . attr($link_title) . "'>";
-                    $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/user-green.gif' onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\" onmouseout=\"javascript:HideImage();\" border='0' title='" . attr($link_title) . "' alt='" . xla('View Patient') . "' />";
+                    $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\" onmouseout=\"javascript:HideImage();\" title='" . attr($link_title) . "'></i>";
                     if ($catid == 1) $content .= "<strike>";
                     $content .= text($lname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
@@ -770,7 +772,7 @@ foreach ($providers as $provider) {
                     $link_title .= $divTitle ."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goGid(" . attr_js($groupid) . ")' title='" . attr($link_title) . "'>";
-                    $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/user-blue.gif' border='0' title='" . attr($link_title) . "' alt='" . xla('View Patient') . "' />";
+                    $content .= "<i class='fas fa-user text-primary' title='" . attr($link_title) . "'></i>";
                     if ($catid == 1) $content .= "<strike>";
                     $content .= text($groupname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
@@ -823,7 +825,7 @@ foreach ($providers as $provider) {
           // For "OUT" events, applying the background color in CSS.
 
             if ($event['catid'] != "6") {
-              $background_string= ($event['catid'] == 3) ? "" : ";background-color:" . attr($color);
+              $background_string = "; background-color:" . attr($color);
               echo "<div class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
               $background_string.
               "; $divWidth".
@@ -832,7 +834,7 @@ foreach ($providers as $provider) {
               " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
               ">";
             } else {
-              $background_string= ";background-color:" . attr($color);
+              $background_string= "; background-color:" . attr($color);
               echo "<div class='" . attr($evtClass) . " hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
               $background_string.
               "; $divWidth".
@@ -863,7 +865,7 @@ foreach ($providers as $provider) {
 
            // output the DIV and content
            // For "OUT" events, applying the background color in CSS.
-          $background_string= ($event['catid'] == 3) ? "" : "; background-color:".$event["catcolor"];
+          $background_string= "; background-color:".$event["catcolor"];
           echo "<div class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
                $background_string.
                "; $divWidth".

@@ -197,7 +197,7 @@ echo "   <a href='#' type='button' id='monthview' title='" . xla('Month View') .
 
     include_once($GLOBALS['fileroot'].'/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php');
 [-/php-]
-
+<div class="table-responsive">
 <table class='table table-sm table-borderless'>
 <tbody><tr>
 [-php-]
@@ -282,6 +282,7 @@ foreach ($atmp as $currdate) {
 </tbody>
 </table>
 </div>
+</div>
 <div id="bigCalHeader">
 </div>
 
@@ -330,8 +331,8 @@ if (count($facilities) > 1) {
 [-php-]
 if($_SESSION['pc_facility'] == 0){
 [-/php-]
-<div id="facilityColor">
- <table>
+<div id="facilityColor" class="table-responsive">
+ <table class="table table-borderless">
 [-php-]
 foreach ($facilities as $f){
   echo "   <tr>\n";

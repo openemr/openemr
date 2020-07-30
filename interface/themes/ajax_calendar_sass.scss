@@ -51,7 +51,7 @@ div.tiny {
 
 #topToolbarRight {
   @extend .row;
-  border-bottom: 1px solid $black;
+  border-bottom: 1px solid $gray-300;
   padding: 0.3125rem 0 0.1875rem;
   z-index: 3;
 }
@@ -134,7 +134,7 @@ div.tiny {
     @include font-size("1rem");
     padding: 0;
   }
-  border-#{$left}: 1px solid $black;
+  border-#{$left}: 1px solid $gray-300;
 }
 
 #bottomLeft {
@@ -243,12 +243,12 @@ div.tiny {
 
 /* the DIV of times */
 #times {
-  background-color: lighten($yellow, 40%);
+  background-color: $white;
   padding: 0.3125rem !important;
   width: 1%;
 
   table {
-    background-color: lighten($yellow, 40%);
+    background-color: $white;
     border-collapse: collapse;
     margin: 0;
     padding: 0;
@@ -256,32 +256,34 @@ div.tiny {
 
     td {
       @include font-size("0.8rem");
-      //border-bottom: 1px solid $gray-600;
       margin: 0;
       padding: 0;
     }
   }
-  border-#{$right}: 1px solid $gray-600;
+  border-#{$right}: 1px solid $gray-300;
 }
 
 .timeslot {
   /* height value is tied to two PHP variables in the ajax_*.html files
      * if you change this value then be sure to change the matching value
      * in those files */
-  height: 1.25rem;
+  height: 20px;
   margin: 0;
   padding: 0;
   text-align: center;
+
+  a {
+    @extend .text-body;
+  }
 }
 
 .schedule {
   background-color: $white;
-  border: 1px solid $gray-600;
+  border: 1px solid $gray-300;
   margin: 0;
   padding: 0;
   vertical-align: top;
   width: 25rem;
-
 }
 
 /* for the header row with provider names */
@@ -305,8 +307,8 @@ div.tiny {
 /* classes specific to the WEEK view */
 .week_dateheader {
   @include font-size("0.7rem");
-  border-left: 1px solid $gray-600;
-  border-right: 1px solid $gray-600;
+  border-left: 1px solid $gray-300;
+  border-right: 1px solid $gray-300;
   font-weight: bold;
 
   a,
@@ -358,69 +360,10 @@ div.tiny {
   }
 }
 
-/* types of events */
-.event {
-  position: absolute;
-  width: 100%;
 
-  img {
-    vertical-align: middle;
-  }
-
-  &_in {
-    background-color: lighten($primary, 50%);
-    border: 1px solid $gray-300;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 100%;
-    z-index: 1;
-  }
-
-  &_out {
-    background-color: $orange;
-    z-index: 3;
-  }
-
-  &_appointment {
-    background-color: $white;
-    border: 1px solid $black;
-    border-radius: 0.25rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 100%;
-    z-index: 2;
-  }
-
-  &_noshow {
-    background-color: $pink;
-    border: 1px solid lighten($pink, 20%);
-    border-radius: 0.25rem;
-    overflow: hidden;
-    z-index: 2;
-  }
-
-  &_reserved {
-    // Default color if all else fails
-    background-color: $pink;
-    border: 1px solid $gray-300;
-    border-radius: 0.25rem;
-    overflow: hidden;
-    z-index: 2;
-  }
-
-  &_holiday {
-    background-color: lighten($dark, 20%);
-    border: 1px solid lighten($green, 30%);
-    border-radius: 0.25rem;
-    overflow: hidden;
-    z-index: 2;
-  }
-
-  &_highlight {
+%highlight {
+  &.event_highlight {
     background-color: $black;
-    border: 1px solid $black;
     border-bottom: 2px solid $gray-700;
     border-radius: 0.25rem;
     border-top: 1px solid $gray-600;
@@ -432,17 +375,73 @@ div.tiny {
     border-#{$left}: 1px solid $gray-600;
     border-#{$right}: 2px solid $gray-700;
   }
+}
+
+/* types of events */
+.event {
+  position: absolute;
+  width: 100%;
+
+  img {
+    vertical-align: middle;
+  }
+
+  &_in {
+    border: 1px solid $gray-300;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    z-index: 1;
+  }
+
+  &_out {
+    @extend %highlight;
+    z-index: 3;
+  }
+
+  &_appointment {
+    @extend %highlight;
+    background-color: $white;
+    border: 1px solid $black;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    z-index: 2;
+  }
+
+  &_noshow {
+    @extend %highlight;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  &_reserved {
+    @extend %highlight;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  &_holiday {
+    @extend %highlight;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    width: 100% !important;
+    z-index: 2;
+  }
 
   &_time {
+
+    @extend %highlight;
     cursor: pointer;
 
     &:hover {
       color: $danger;
     }
-  }
-
-  &_holiday {
-    width: 100% !important;
   }
 }
 
@@ -485,15 +484,11 @@ div.tiny {
 .event_out.event_highlight,
 .in_start.event_highlight {
   background-color: $yellow;
-  border-bottom: 2px solid $gray-700;
-  border-top: 1px solid $gray-600;
   cursor: pointer;
   font-weight: bold;
   margin: 0;
   opacity: 1;
   z-index: 2;
-  border-#{$left}: 1px solid $gray-600;
-  border-#{$right}: 2px solid $gray-700;
 }
 
 .pop-up img {
@@ -552,10 +547,9 @@ div.tiny {
   }
 }
 
-
 @media (max-width: map-get($grid-breakpoints, "sm")) {
   #bottomLeft {
-    top: 6.78rem;
+    top: 6.9rem;
   }
 }
 

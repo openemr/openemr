@@ -35,7 +35,7 @@ $DOM = new $DOMClass();
 
 $divMonths = $DOM->createElement("div");
 $divMonths->setAttribute("id", "monthPicker");
-$divMonths->setAttribute("style", "display:none; position: absolute; top: 15px;");
+$divMonths->setAttribute("style", "display: none; position: absolute; top: 15px;");
 $DOM->appendChild($divMonths);
 $tblMonths = $DOM->createElement("table");
 $divMonths->appendChild($tblMonths);
