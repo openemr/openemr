@@ -1019,7 +1019,10 @@ function upgradeFromSqlFile($filename, $path = '')
                 'table_name' => $matches[1],
                 'table_id' => $matches[2]
             ]);
-            if (tableExists($matches[1]) && $uuidRegistry->tableNeedsUuidCreation()) {
+            if (tableExists($matches[1]) &&
+                columnExists($matches[1], $matches[2]) &&
+                $uuidRegistry->tableNeedsUuidCreation()
+            ) {
                 $skipping = false;
                 echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
                 $uuidRegistry->createMissingUuids();

@@ -76,7 +76,6 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [FHIR QuestionnaireResponse API](FHIR_README.md#get-fhirquestionnaireresponse)
     -   [FHIR Immunization API](FHIR_README.md#get-fhirimmunization)
     -   [FHIR Condition API](FHIR_README.md#get-fhircondition)
-    -   [FHIR Procedure API](FHIR_README.md#get-fhirprocedure)
     -   [FHIR MedicationStatement API](FHIR_README.md#get-fhirmedicationstatement)
     -   [FHIR Medication API](FHIR_README.md#get-fhirmedication)
 -   [Portal FHIR API Endpoints](FHIR_README.md#portalfhir-endpoints)

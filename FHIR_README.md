@@ -43,7 +43,6 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [FHIR Observation API](FHIR_README.md#get-fhirobservation)
     -   [FHIR QuestionnaireResponse API](FHIR_README.md#get-fhirquestionnaireresponse)
     -   [FHIR Condition API](FHIR_README.md#get-fhircondition)
-    -   [FHIR Procedure API](FHIR_README.md#get-fhirprocedure)
     -   [FHIR MedicationStatement API](FHIR_README.md#get-fhirmedicationstatement)
     -   [FHIR Medication API](FHIR_README.md#get-fhirmedication)
 -   [Portal FHIR API Endpoints](FHIR_README.md#portalfhir-endpoints)

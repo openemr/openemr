@@ -20,6 +20,7 @@ class ProcedureService extends BaseService
 {
 
     private const PROCEDURE_TABLE = "procedure_order";
+    private const PROCEDURE_TABLE_ID = "procedure_order_id";
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PRACTITIONER_TABLE = "users";
@@ -33,7 +34,7 @@ class ProcedureService extends BaseService
         parent::__construct(self::PROCEDURE_TABLE);
         $this->uuidRegistry = new UuidRegistry([
             'table_name' => self::PROCEDURE_TABLE,
-            'table_id' => 'procedure_order_id'
+            'table_id' => self::PROCEDURE_TABLE_ID
         ]);
         $this->uuidRegistry->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
@@ -56,14 +57,14 @@ class ProcedureService extends BaseService
         $sqlBindArray = array();
 
         if (isset($search['patient.uuid'])) {
-            $isValidEncounter = BaseValidator::validateId(
+            $isValidPatient = BaseValidator::validateId(
                 'uuid',
                 self::PATIENT_TABLE,
                 $search['patient.uuid'],
                 true
             );
-            if ($isValidEncounter !== true) {
-                return $isValidEncounter;
+            if ($isValidPatient !== true) {
+                return $isValidPatient;
             }
             $search['patient.uuid'] = UuidRegistry::uuidToBytes($search['patient.uuid']);
         }
@@ -145,7 +146,6 @@ class ProcedureService extends BaseService
             $processingResult->setValidationMessages($validationMessages);
             return $processingResult;
         }
-
         $sql = "SELECT porder.*,
                 pcode.diagnoses,
                 pcode.procedure_order_title,
@@ -158,9 +158,9 @@ class ProcedureService extends BaseService
                 presult.units,
                 presult.result,
                 patient.uuid AS puuid,
-                encounter.encounter AS euuid,
+                encounter.uuid AS euuid,
                 practitioner.uuid AS pruuid
-                FROM procedure_order AS porder 
+                FROM procedure_order AS porder
                 LEFT JOIN procedure_order_code AS pcode
                 ON porder.procedure_order_id = pcode.procedure_order_id
                 LEFT JOIN procedure_report AS preport
@@ -170,7 +170,7 @@ class ProcedureService extends BaseService
                 LEFT JOIN patient_data AS patient
                 ON patient.pid = porder.patient_id
                 LEFT JOIN form_encounter AS encounter
-                ON encounter.id = porder.encounter_id
+                ON encounter.encounter = porder.encounter_id
                 LEFT JOIN users AS practitioner
                 ON practitioner.id = porder.provider_id
                 WHERE porder.uuid = ?";
