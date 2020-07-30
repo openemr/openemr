@@ -514,9 +514,11 @@ tr.selected {
                                 <p><?php echo xlt('Entered By'); ?> <?php echo text($entered_by); ?></p>
                             <?php } ?>
 
+                            <?php if ($GLOBALS['observation_results_immunization']) { ?>
                             <button type="button" class="btn btn-primary" onclick="showObservationResultSection();" title='<?php echo xla('Click here to see observation results'); ?>'>
                                 <?php echo xlt('See observation results'); ?>
                             </button>
+                            <?php } ?>
                         </div>
                     </div>
 
