@@ -85,15 +85,15 @@ function Check(chk) {
 
 function deleteDrug(d) {
     let msg = {/literal}{xlj t='Do you really want to delete?'}{literal};
-    let choice = confirm(msg + d);
+    let choice = confirm(msg);
     if (choice == true) {
         top.restoreSession();
         $.ajax({
-                url: "./library/deleteDrug.php",
+                url: "./library/deletedrug.php",
                 type: 'POST',
                 data: {
                     drugId: d,
-                    csrf_token_form: {$CSRF_TOKEN_FORM|js_escape}
+                    csrf_token_form: {/literal}{$CSRF_TOKEN_FORM|js_escape}{literal}
             },
             success: function(data) {
             console.log(data);
