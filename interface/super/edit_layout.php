@@ -644,7 +644,7 @@ function writeFieldLine($linedata)
     //echo " <tr bgcolor='$bgcolor'>\n";
     echo " <tr id='fld[" . attr($fld_line_no) . "]' class='" . ($fld_line_no % 2 ? 'even' : 'odd') . "'>\n";
 
-    echo "  <td class='optcell' nowrap>";
+    echo "  <td class='optcell'>";
     // tuck the group_name INPUT in here
     echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][group]' value='" .
          attr($linedata['group_id']) . "' class='optin' />";
@@ -652,18 +652,17 @@ function writeFieldLine($linedata)
     echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][originalid]' value='" .
          attr($linedata['field_id']) . "' />";
 
-    echo "<input type='checkbox' class='selectfield' " .
+    echo "<div class='input-group'><div class='input-group-prepend'><div class='input-group-text'><input type='checkbox' class='selectfield' " .
             "name='"  . attr($linedata['group_id']) . "~" . attr($linedata['field_id']) . "' " .
             "id='"    . attr($linedata['group_id']) . "~" . attr($linedata['field_id']) . "' " .
-            "title='" . xla('Select field') . "' />";
+            "title='" . xla('Select field') . "' /></div></div>";
 
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][seq]' id='fld[" . attr($fld_line_no) . "][seq]' value='" .
-        attr($linedata['seq']) . "' size='2' maxlength='4' " .
-      "class='optin' style='width:32pt' />";
-    echo "</td>\n";
+        attr($linedata['seq']) . "' size='2' maxlength='4' class='form-control optin' />";
+    echo "</td></div>\n";
 
-    echo "  <td align='center' class='optcell' $lbfonly>";
-    echo "<select class='form-control' name='fld[" . attr($fld_line_no) . "][source]' class='optin' $lbfonly>";
+    echo "  <td class='text-center optcell' $lbfonly>";
+    echo "<select name='fld[" . attr($fld_line_no) . "][source]' class='form-control optin' $lbfonly>";
     foreach ($sources as $key => $value) {
         echo "<option value='" . attr($key) . "'";
         if ($key == $linedata['source']) {
@@ -676,24 +675,24 @@ function writeFieldLine($linedata)
     echo "</select>";
     echo "</td>\n";
 
-    echo "  <td align='left' class='optcell'>";
+    echo "  <td class='text-left optcell'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][id]' value='" .
-        attr($linedata['field_id']) . "' size='15' maxlength='63' " .
-         "class='optin' style='width:100%' onclick='FieldIDClicked(this)' />";
+        attr($linedata['field_id']) . "' size='15' maxlength='31' " .
+         "class='form-control optin' onclick='FieldIDClicked(this)' />";
     echo "</td>\n";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td class='text-center optcell'>";
     echo "<input type='text' id='fld[" . attr($fld_line_no) . "][title]' name='fld[" . attr($fld_line_no) . "][title]' value='" .
-        attr($linedata['title']) . "' size='15' maxlength='63' class='optin' style='width:100%' />";
+        attr($linedata['title']) . "' size='15' maxlength='63' class='form-control optin' />";
     echo "</td>\n";
 
     // if not english and set to translate layout labels, then show the translation
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-        echo "<td align='center' class='translation' >" . xlt($linedata['title']) . "</td>\n";
+        echo "<td class='text-center translation'>" . xlt($linedata['title']) . "</td>\n";
     }
 
-    echo "  <td align='center' class='optcell'>";
-    echo "<select class='form-control' name='fld[" . attr($fld_line_no) . "][uor]' class='optin'>";
+    echo "  <td class='text-center optcell'>";
+    echo "<select name='fld[" . attr($fld_line_no) . "][uor]' class='form-control optin'>";
     foreach (array(0 => xl('Unused'), 1 => xl('Optional'), 2 => xl('Required')) as $key => $value) {
         echo "<option value='" . attr($key) . "'";
         if ($key == $linedata['uor']) {
@@ -706,7 +705,7 @@ function writeFieldLine($linedata)
     echo "</select>";
     echo "</td>\n";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td class='text-center optcell'>";
     echo "<select class='form-control' name='fld[" . attr($fld_line_no) . "][datatype]' id='fld[" . attr($fld_line_no) . "][datatype]' onchange=NationNotesContext(" . attr_js($fld_line_no) . ",this.value)>";
     echo "<option value=''></option>";
     global $datatypes;
@@ -721,7 +720,7 @@ function writeFieldLine($linedata)
     echo "</select>";
     echo "  </td>";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td class='text-center optcell'>";
     if (
         $linedata['data_type'] == 2 || $linedata['data_type'] == 3 ||
         $linedata['data_type'] == 21 || $linedata['data_type'] == 22 ||
@@ -733,32 +732,32 @@ function writeFieldLine($linedata)
       // Show the width field
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][lengthWidth]' value='" .
         attr($linedata['fld_length']) .
-        "' size='2' maxlength='10' class='optin' title='" . xla('Width') . "' />";
+        "' size='2' maxlength='10' class='form-control optin' title='" . xla('Width') . "' />";
         if ($linedata['data_type'] == 3 || $linedata['data_type'] == 40) {
             // Show the height field
             echo "<input type='text' name='fld[" . attr($fld_line_no) . "][lengthHeight]' value='" .
             attr($linedata['fld_rows']) .
-            "' size='2' maxlength='10' class='optin' title='" . xla('Height') . "' />";
+            "' size='2' maxlength='10' class='form-control optin' title='" . xla('Height') . "' />";
         } else {
             // Hide the height field
-            echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][lengthHeight]' value=''>";
+            echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][lengthHeight]' value='' />";
         }
     } else {
       // all other data_types (hide both the width and height fields
-        echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][lengthWidth]' value=''>";
-        echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][lengthHeight]' value=''>";
+        echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][lengthWidth]' value='' />";
+        echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][lengthHeight]' value='' />";
     }
 
     echo "</td>\n";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td class='text-center optcell'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][maxSize]' value='" .
       attr($linedata['max_length']) .
-      "' size='1' maxlength='10' class='optin' style='width:100%' " .
+      "' size='1' maxlength='10' class='form-control optin' " .
       "title='" . xla('Maximum Size (entering 0 will allow any size)') . "' />";
     echo "</td>\n";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td class='text-center optcell'>";
     if (
         $linedata['data_type'] ==  1 || $linedata['data_type'] == 21 ||
         $linedata['data_type'] == 22 || $linedata['data_type'] == 23 ||
@@ -768,15 +767,15 @@ function writeFieldLine($linedata)
         $linedata['data_type'] == 36 || $linedata['data_type'] == 43
     ) {
         $type = "";
-        $disp = "style='display:none'";
+        $disp = "style='display: none'";
         if ($linedata['data_type'] == 34) {
-            $type = "style='display:none'";
+            $type = "style='display: none'";
             $disp = "";
         }
 
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][list_id]'  id='fld[" . attr($fld_line_no) . "][list_id]' value='" .
         attr($linedata['list_id']) . "' " . $type .
-        " size='6' maxlength='100' class='optin listid' style='width:100%;cursor:pointer'" .
+        " size='6' maxlength='100' class='form-control optin listid' style='cursor: pointer;'" .
         "title='" . xla('Choose list') . "' />";
 
         echo "<select class='form-control' name='fld[" . attr($fld_line_no) . "][contextName]' id='fld[" . attr($fld_line_no) . "][contextName]' " . $disp . ">";
@@ -793,13 +792,13 @@ function writeFieldLine($linedata)
         echo "</select>";
     } else {
       // all other data_types
-        echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][list_id]' value=''>";
+        echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][list_id]' value='' />";
     }
 
     echo "</td>\n";
 
     //Backup List Begin
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td class='text-center optcell'>";
     if (
         $linedata['data_type'] ==  1 || $linedata['data_type'] == 26 ||
         $linedata['data_type'] == 33 || $linedata['data_type'] == 36 ||
@@ -807,22 +806,22 @@ function writeFieldLine($linedata)
     ) {
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][list_backup_id]' value='" .
             attr($linedata['list_backup_id']) .
-            "' size='3' maxlength='100' class='optin listid' style='cursor:pointer; width:100%' />";
+            "' size='3' maxlength='100' class='form-control optin listid' style='cursor:pointer;' />";
     } else {
-        echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][list_backup_id]' value=''>";
+        echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][list_backup_id]' value='' />";
     }
 
     echo "</td>\n";
     //Backup List End
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td class='text-center optcell'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][titlecols]' value='" .
-         attr($linedata['titlecols']) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
+         attr($linedata['titlecols']) . "' size='3' maxlength='10' class='form-control optin' />";
     echo "</td>\n";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td class='text-center optcell'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][datacols]' value='" .
-         attr($linedata['datacols']) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
+         attr($linedata['datacols']) . "' size='3' maxlength='10' class='form-control optin' />";
     echo "</td>\n";
     /* Below for compatabilty with existing string modifiers. */
     if (strpos($linedata['edit_options'], ',') === false && isset($linedata['edit_options'])) {
@@ -832,36 +831,34 @@ function writeFieldLine($linedata)
             $linedata['edit_options'] = json_encode($t); // convert to array select understands.
         }
     }
-    echo "  <td align='center' class='optcell' title='" . xla("Add modifiers for this field type. You may select more than one.") . "'>";
-    echo "<select id='fld[" . attr($fld_line_no) . "][edit_options]' name='fld[" . attr($fld_line_no) . "][edit_options][]' class='typeAddons optin' size=3 multiple data-set='" .
+    echo "  <td class='text-center optcell' title='" . xla("Add modifiers for this field type. You may select more than one.") . "'>";
+    echo "<select id='fld[" . attr($fld_line_no) . "][edit_options]' name='fld[" . attr($fld_line_no) . "][edit_options][]' class='typeAddons optin' size='3' multiple data-set='" .
     attr(trim($linedata['edit_options'])) . "' ></select></td>\n";
 
     if ($linedata['data_type'] == 31) {
-        echo "  <td align='center' class='optcell'>";
-        echo "<textarea name='fld[" . attr($fld_line_no) . "][desc]' rows='3' cols='35' class='optin' style='width:100%'>" .
+        echo "  <td class='text-center optcell'>";
+        echo "<textarea name='fld[" . attr($fld_line_no) . "][desc]' rows='3' cols='35' class='form-control optin'>" .
            text($linedata['description']) . "</textarea>";
         echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][default]' value='" .
          attr($linedata['default_value']) . "' />";
         echo "</td>\n";
     } else {
-        echo "  <td align='center' class='optcell' >";
+        echo "  <td class='text-center optcell'>";
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][desc]' value='" .
-        attr($linedata['description']) .
-        "' size='30' class='optin' style='width:100%' />";
+        attr($linedata['description']) . "' size='20' class='form-control optin' />";
         echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][default]' value='" .
         attr($linedata['default_value']) . "' />";
         echo "</td>\n";
       // if not english and showing layout labels, then show the translation of Description
         if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-            echo "<td align='center' class='translation'>" .
-            xlt($linedata['description']) . "</td>\n";
+            echo "<td class='text-center translation'>" . xlt($linedata['description']) . "</td>\n";
         }
     }
 
     // The "?" to click on for yet more field attributes.
     echo "  <td class='font-weight-bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
     if (!empty($linedata['conditions']) || !empty($linedata['validation'])) {
-        echo "background-color:#77ff77;";
+        echo "background-color: var(--success);";
     }
 
     echo "' onclick='extShow(" . attr($fld_line_no) . ", this)' align='center' ";
@@ -879,29 +876,29 @@ function writeFieldLine($linedata)
     $action_value = $action == 'skip' ? '' : substr($action, 6);
     //
     $extra_html .= "<div id='ext_" . attr($fld_line_no) . "' " .
-      "style='position:absolute;width:750px;border:1px solid black;" .
-      "padding:2px;background-color:#cccccc;visibility:hidden;" .
-      "z-index:1000;left:-1000px;top:0px;font-size:8pt;'>\n" .
-      "<table width='100%'>\n" .
+      "style='width: 750px; border: 1px solid var(--black);" .
+      "padding: 2px; background-color: var(--gray300); visibility: hidden;" .
+      "z-index: 1000; left:-1000px; top:0; font-size: 0.6875rem;' class='position-absolute'>\n" .
+      "<table class='w-100'>\n" .
       " <tr>\n" .
-      "  <th colspan='3' align='left' class='font-weight-bold'>" .
+      "  <th colspan='3' class='text-left font-weight-bold'>" .
       xlt('For') . " " . text($linedata['field_id']) . " " .
-      "<select name='fld[" . attr($fld_line_no) . "][action]' onchange='actionChanged(" . attr_js($fld_line_no) . ")'>" .
+      "<select class='form-control' name='fld[" . attr($fld_line_no) . "][action]' onchange='actionChanged(" . attr_js($fld_line_no) . ")'>" .
       "<option value='skip'  " . ($action == 'skip' ? 'selected' : '') . ">" . xlt('hide this field') . "</option>" .
       "<option value='value' " . ($action != 'skip' ? 'selected' : '') . ">" . xlt('set value to') . "</option>" .
       "</select>" .
-      "<input type='text' name='fld[" . attr($fld_line_no) . "][value]' value='" . attr($action_value) . "' size='15' />" .
+      "<input type='text' class='form-control' name='fld[" . attr($fld_line_no) . "][value]' value='" . attr($action_value) . "' size='15' />" .
       " " . xlt('if') .
       "</th>\n" .
-      "  <th colspan='2' align='right' class='text'><input type='button' " .
+      "  <th colspan='2' class='text-right text'><input class='btn btn-secondary' type='button' " .
       "value='" . xla('Close') . "' onclick='extShow(" . attr_js($fld_line_no) . ", false)' />&nbsp;</th>\n" .
       " </tr>\n" .
-      " <tr>\n" .
-      "  <th align='left' class='font-weight-bold'>" . xlt('Field ID') . "</th>\n" .
-      "  <th align='left' class='font-weight-bold'>" . xlt('List item ID') . "</th>\n" .
-      "  <th align='left' class='font-weight-bold'>" . xlt('Operator') . "</th>\n" .
-      "  <th align='left' class='font-weight-bold'>" . xlt('Value if comparing') . "</th>\n" .
-      "  <th align='left' class='font-weight-bold'>&nbsp;</th>\n" .
+      " <tr class='text-left'>\n" .
+      "  <th class='font-weight-bold'>" . xlt('Field ID') . "</th>\n" .
+      "  <th class='font-weight-bold'>" . xlt('List item ID') . "</th>\n" .
+      "  <th class='font-weight-bold'>" . xlt('Operator') . "</th>\n" .
+      "  <th class='font-weight-bold'>" . xlt('Value if comparing') . "</th>\n" .
+      "  <th class='font-weight-bold'>&nbsp;</th>\n" .
       " </tr>\n";
     // There may be multiple condition lines for each field.
     foreach ($conditions as $i => $condition) {
@@ -910,18 +907,18 @@ function writeFieldLine($linedata)
         }
         $extra_html .=
         " <tr>\n" .
-        "  <td align='left'>\n" .
-        "   <select name='fld[" . attr($fld_line_no) . "][condition_id][" . attr($i) . "]' onchange='cidChanged(" . attr_js($fld_line_no) . ", " . attr_js($i) . ")'>" .
+        "  <td class='text-left'>\n" .
+        "   <select class='form-control' name='fld[" . attr($fld_line_no) . "][condition_id][" . attr($i) . "]' onchange='cidChanged(" . attr_js($fld_line_no) . ", " . attr_js($i) . ")'>" .
         genFieldOptionList($condition['id']) . " </select>\n" .
         "  </td>\n" .
-        "  <td align='left'>\n" .
+        "  <td class='text-left'>\n" .
         // List item choices are populated on the client side but will need the current value,
         // so we insert a temporary option here to hold that value.
-        "   <select name='fld[" . attr($fld_line_no) . "][condition_itemid][" . attr($i) . "]'><option value='" .
+        "   <select class='form-control' name='fld[" . attr($fld_line_no) . "][condition_itemid][" . attr($i) . "]'><option value='" .
         attr($condition['itemid']) . "'>...</option></select>\n" .
         "  </td>\n" .
-        "  <td align='left'>\n" .
-        "   <select name='fld[" . attr($fld_line_no) . "][condition_operator][" . attr($i) . "]'>\n";
+        "  <td class='text-left'>\n" .
+        "   <select class='form-control' name='fld[" . attr($fld_line_no) . "][condition_operator][" . attr($i) . "]'>\n";
         foreach (
             array(
             'eq' => xl('Equals'),
@@ -941,19 +938,19 @@ function writeFieldLine($linedata)
         $extra_html .=
         "   </select>\n" .
         "  </td>\n" .
-        "  <td align='left' title='" . xla('Only for comparisons') . "'>\n" .
-        "   <input type='text' name='fld[" . attr($fld_line_no) . "][condition_value][" . attr($i) . "]' value='" .
+        "  <td class='text-left' title='" . xla('Only for comparisons') . "'>\n" .
+        "   <input type='text' class='form-control' name='fld[" . attr($fld_line_no) . "][condition_value][" . attr($i) . "]' value='" .
         attr($condition['value']) . "' size='15' maxlength='63' />\n" .
         "  </td>\n";
         if (!isset($conditions[$i + 1])) {
             $extra_html .=
-            "  <td align='right' title='" . xla('Add a condition') . "'>\n" .
-            "   <input type='button' value='+' onclick='extAddCondition(" . attr_js($fld_line_no) . ",this)' />\n" .
+            "  <td class='text-right' title='" . xla('Add a condition') . "'>\n" .
+            "   <input type='button' class='btn btn-primary btn-sm' value='+' onclick='extAddCondition(" . attr_js($fld_line_no) . ",this)' />\n" .
             "  </td>\n";
         } else {
             $extra_html .=
-            "  <td align='right'>\n" .
-            "   <select name='fld[" . attr($fld_line_no) . "][condition_andor][" . attr($i) . "]'>\n";
+            "  <td class='text-right'>\n" .
+            "   <select class='form-control' name='fld[" . attr($fld_line_no) . "][condition_andor][" . attr($i) . "]'>\n";
             foreach (
                 array(
                 'and' => xl('And'),
@@ -980,19 +977,19 @@ function writeFieldLine($linedata)
     $extra_html .=
       "</table>\n";
 
-    $extra_html .=  "<table width='100%'>\n" .
+    $extra_html .=  "<table class='w-100'>\n" .
     " <tr>\n" .
-    "  <td colspan='3' align='left' class='font-weight-bold'>\"" . text($linedata['field_id']) . "\" " .
+    "  <td colspan='3' class='text-left font-weight-bold'>\"" . text($linedata['field_id']) . "\" " .
     xlt('will have the following validation rules') . ":</td>\n" .
     " </tr>\n" .
     " <tr>\n" .
-    "  <td align='left' class='font-weight-bold'>" . xlt('Validation rule') . "  </td>\n" .
+    "  <td class='text-left font-weight-bold'>" . xlt('Validation rule') . "  </td>\n" .
     " </tr>\n" .
     " <tr>\n" .
-    "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .
+    "  <td class='text-left' title='" . xla('Select a validation rule') . "'>\n" .
 
 
-    "   <select name='fld[" . attr($fld_line_no) . "][validation]' onchange='valChanged(" . attr_js($fld_line_no) . ")'>\n" .
+    "   <select class='form-control' name='fld[" . attr($fld_line_no) . "][validation]' onchange='valChanged(" . attr_js($fld_line_no) . ")'>\n" .
     "   <option value=''";
     if (empty($linedata['validation'])) {
         $extra_html .= " selected";
@@ -1016,125 +1013,122 @@ function writeFieldLine($linedata)
        "</div>\n";
 }
 ?>
+<!DOCTYPE HTML>
 <html>
-
 <head>
+  <?php Header::setupHeader(['select2']); ?>
+  <title><?php echo xlt('Layout Editor'); ?></title>
+  <style>
+    .orgTable tr.head {
+        font-size: 0.6875rem;
+        background-color: var(--gray400);
+    }
 
-<?php Header::setupHeader(['select2']); ?>
+    .orgTable tr.detail {
+        font-size: 0.6875rem;
+    }
 
-<title><?php echo xlt('Layout Editor'); ?></title>
+    .orgTable td {
+        font-size: 0.6875rem;
+    }
 
-<style>
-.orgTable tr.head {
-    font-size: 11px;
-    background-color: var(--gray400);
-}
+    .orgTable input {
+        font-size: 0.6875rem;
+    }
 
-.orgTable tr.detail {
-    font-size: 11px;
-}
+    .orgTable select {
+        font-size: 0.6875rem;
+    }
 
-.orgTable td {
-    font-size: 11px;
-}
+    a,
+    a:visited,
+    a:hover {
+        color: var(--primary);
+    }
 
-.orgTable input {
-    font-size: 11px;
-}
+    .optin {
+        background: transparent;
+    }
 
-.orgTable select {
-    font-size: 11px;
-}
+    .group {
+        margin: 0 0 11px 0;
+        padding: 0;
+        width: 100%;
+    }
 
-a,
-a:visited,
-a:hover {
-    color: var(--primary);
-}
+    .group table {
+        border-collapse: collapse;
+        width: 100%;
 
-.optin {
-    background: transparent;
-}
+    }
 
-.group {
-    margin: 0 0 11px 0;
-    padding: 0;
-    width: 100%;
-}
+    .orgTable .odd td {
+        background-color: var(--gray300);
+        padding: 3px 0px 3px 0px;
+    }
 
-.group table {
-    border-collapse: collapse;
-    width: 100%;
+    .orgTable .even td {
+        background-color: var(--light);
+        padding: 3px 0px 3px 0px;
+    }
 
-}
+    .help {
+        cursor: help;
+    }
 
-.orgTable .odd td {
-    background-color: var(--gray300);
-    padding: 3px 0px 3px 0px;
-}
+    .layouts_title {
+        font-size: 110%;
+    }
 
-.orgTable .even td {
-    background-color: var(--light);
-    padding: 3px 0px 3px 0px;
-}
+    .translation {
+        color: var(--success);
+        font-size: 0.6875rem;
+    }
 
-.help {
-    cursor: help;
-}
+    .highlight * {
+        border: 2px solid var(--primary);
+        background-color: var(--yellow);
+        color: var(--black);
+    }
 
-.layouts_title {
-    font-size: 110%;
-}
+    .select2-container--default .select2-selection--multiple {
+        cursor: pointer;
+    }
 
-.translation {
-    color: var(--success);
-    font-size: 11px;
-}
+    .select2-search__field {
+        cursor: pointer;
+        width: 0 !important;
+    }
 
-.highlight * {
-    border: 2px solid var(--primary);
-    background-color: var(--yellow);
-    color: var(--black);
-}
+    /* Can't be responsive here cause of select2 */
+    .select2-selection__choice {
+        font-size: 0.75rem;
+    }
 
-.select2-container--default .select2-selection--multiple {
-    cursor: pointer;
-}
+    .select2-container {
+        cursor: pointer;
+        opacity: 0.99 !important;
+    }
 
-.select2-search__field {
-    cursor: pointer;
-    width: 0 !important;
-}
+    .select2-dropdown {
+        opacity: 0.99 !important;
+    }
 
-.select2-selection__choice {
-    font-size: 12px;
-}
+    .tips {
+        display: none;
+    }
 
-.select2-container {
-    cursor: pointer;
-    opacity: 0.99 !important;
-}
+    .select2-container--default .select2-selection--multiple {
+        background-color: var(--white) !important;
+    }
 
-.select2-dropdown {
-    opacity: 0.99 !important;
-}
-
-.tips {
-    display: none;
-}
-
-.select2-container--default .select2-selection--multiple {
-    background-color: var(--white) !important;
-}
-
-.select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background-color: var(--light) !important;
-}
-.optin {
-    color: var(--black) !important;
-}
-</style>
-
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: var(--light) !important;
+    }
+    .optin {
+        color: var(--black) !important;
+    }
+  </style>
 <script>
 // Helper functions for positioning the floating divs.
 function extGetX(elem) {
@@ -1161,7 +1155,7 @@ function extShow(lino, show) {
  if (extdiv) {
   extdiv.style.visibility = 'hidden';
   extdiv.style.left = '-1000px';
-  extdiv.style.top = '0px';
+  extdiv.style.top = '0';
  }
  if (show && thisdiv != extdiv) {
   extdiv = thisdiv;
@@ -1202,7 +1196,7 @@ function extAddCondition(lino, btnelem) {
 
   // Replace contents of the tdplus cell.
   tdplus.innerHTML =
-    "<select name='fld[" + lino + "][condition_andor][" + (i-1) + "]'>" +
+    "<select class='form-control' name='fld[" + lino + "][condition_andor][" + (i-1) + "]'>" +
     "<option value='and'>" + <?php echo xlj('And') ?> + "</option>" +
     "<option value='or' >" + <?php echo xlj('Or') ?> + "</option>" +
     "</select>";
@@ -1210,27 +1204,27 @@ function extAddCondition(lino, btnelem) {
   // Add the new row.
   var newtrelem = telem.insertRow(i+2);
   newtrelem.innerHTML =
-    "<td align='left'>" +
-    "<select name='fld[" + lino + "][condition_id][" + i + "]' onchange='cidChanged(" + lino + "," + i + ")'>" +
+    "<td class='text-left'>" +
+    "<select class='form-control' name='fld[" + lino + "][condition_id][" + i + "]' onchange='cidChanged(" + lino + "," + i + ")'>" +
     <?php echo js_escape(genFieldOptionList()) ?> +
     "</select>" +
     "</td>" +
-    "<td align='left'>" +
-    "<select name='fld[" + lino + "][condition_itemid][" + i + "]' style='display:none' />" +
+    "<td class='text-left'>" +
+    "<select class='form-control' name='fld[" + lino + "][condition_itemid][" + i + "]' style='display:none' />" +
     "</td>" +
-    "<td align='left'>" +
-    "<select name='fld[" + lino + "][condition_operator][" + i + "]'>" +
+    "<td class='text-left'>" +
+    "<select class='form-control' name='fld[" + lino + "][condition_operator][" + i + "]'>" +
     "<option value='eq'>" + <?php echo xlj('Equals') ?> + "</option>" +
     "<option value='ne'>" + <?php echo xlj('Does not equal') ?> + "</option>" +
     "<option value='se'>" + <?php echo xlj('Is selected') ?> + "</option>" +
     "<option value='ns'>" + <?php echo xlj('Is not selected') ?> + "</option>" +
     "</select>" +
     "</td>" +
-    "<td align='left'>" +
-    "<input type='text' name='fld[" + lino + "][condition_value][" + i + "]' value='' size='15' maxlength='63' />" +
+    "<td class='text-left'>" +
+    "<input type='text' class='form-control' name='fld[" + lino + "][condition_value][" + i + "]' value='' size='15' maxlength='63' />" +
     "</td>" +
-    "<td align='right'>" +
-    "<input type='button' value='+' onclick='extAddCondition(" + lino + ",this)' />" +
+    "<td class='text-right'>" +
+    "<input type='button' class='btn btn-primary btn-sm' value='+' onclick='extAddCondition(" + lino + ",this)' />" +
     "</td>";
 }
 
@@ -1308,9 +1302,9 @@ function changeColor(lino){
     var thisValId = document.forms[0]['fld[' + lino + '][validation]'].value;
     var thistd = document.getElementById("querytd_" + lino);
     if(thisid !='' || thisValId!='') {
-        thistd.style.backgroundColor = '#77ff77';
+        thistd.style.backgroundColor = 'var(--success)';
     }else{
-        thistd.style.backgroundColor ='';
+        thistd.style.backgroundColor = '';
     }
 }
 
@@ -1339,28 +1333,27 @@ function myChangeCheck() {
 </head>
 
 <body class="body_top admin-layout">
-<div class="container-responsive">
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<input type="hidden" name="formaction" id="formaction" value="">
+<input type="hidden" name="formaction" id="formaction" value="" />
 <!-- elements used to identify a field to delete -->
-<input type="hidden" name="deletefieldid" id="deletefieldid" value="">
-<input type="hidden" name="deletefieldgroup" id="deletefieldgroup" value="">
+<input type="hidden" name="deletefieldid" id="deletefieldid" value="" />
+<input type="hidden" name="deletefieldgroup" id="deletefieldgroup" value="" />
 <!-- elements used to identify a group to delete -->
 <!--
 <input type="hidden" name="deletegroupname" id="deletegroupname" value="">
 -->
 <!-- elements used to change the group order -->
-<input type="hidden" name="movegroupname" id="movegroupname" value="">
-<input type="hidden" name="movedirection" id="movedirection" value="">
+<input type="hidden" name="movegroupname" id="movegroupname" value="" />
+<input type="hidden" name="movedirection" id="movedirection" value="" />
 <!-- elements used to select more than one field -->
-<input type="hidden" name="selectedfields" id="selectedfields" value="">
-<input type="hidden" id="targetgroup" name="targetgroup" value="">
+<input type="hidden" name="selectedfields" id="selectedfields" value="" />
+<input type="hidden" id="targetgroup" name="targetgroup" value="" />
 
 <div class="menubar" style='padding:5px 0;'>
 
-<b><?php echo xlt('Edit layout'); ?>:</b>&nbsp;
-<select name='layout_id' id='layout_id' class='form-control form-control-sm' style='display:inline-block;margin-bottom:5px;width:20%;'>
+<strong><?php echo xlt('Edit layout'); ?>:</strong>&nbsp;
+<select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
  <option value=''>-- <?php echo xlt('Select') ?> --</option>
 <?php
 $lastgroup = '';
@@ -1399,7 +1392,8 @@ if ($lastgroup) {
 <input type='button' class='btn btn-primary btn-sm' value='<?php echo xla('New Layout'); ?>' onclick='edit_layout_props("")' />&nbsp;
 <?php } ?>
 
-<div id="tips" class="container tips"><section class="card bg-light p-3">
+<div id="tips" class="container tips">
+  <section class="card bg-light p-3">
   <header class="card-heading">
    <h3 class="card-title"><?php echo xlt('Usage Tips') ?></h3>
   </header>
@@ -1480,27 +1474,28 @@ while ($row = sqlFetchArray($res)) {
         echo "</div>";
         $firstgroup = false;
         ?>
+  <div class="table-responsive">
   <table class='table table-sm table-striped'>
   <thead>
    <tr class='head'>
-    <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>
-    <th <?php echo " $lbfonly"; ?>style='width:5%'><?php echo xlt('Source'); ?></th>
-    <th style='width:5%'><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
-    <th style='width:10%'><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
+    <th><?php echo xlt('Order{{Sequence}}'); ?></th>
+    <th <?php echo " $lbfonly"; ?>><?php echo xlt('Source'); ?></th>
+    <th><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
+    <th><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
         <?php // if not english and showing layout label translations, then show translation header for title
         if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
             echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
         } ?>
-      <th style='width:6%'><?php echo xlt('UOR'); ?></th>
-      <th style='width:10%'><?php echo xlt('Data Type'); ?></th>
-      <th style='width:1%'><?php echo xlt('Size'); ?></th>
-      <th style='width:3%'><?php echo xlt('Max Size'); ?></th>
-      <th style='width:10%'><?php echo xlt('List'); ?></th>
-      <th style='width:10%'><?php echo xlt('Backup List'); ?></th>
-      <th style='width:1%'><?php echo xlt('Label Cols'); ?></th>
-      <th style='width:1%'><?php echo xlt('Data Cols'); ?></th>
-      <th style='width:10%'><?php echo xlt('Options'); ?></th>
-      <th style='width:20%'><?php echo xlt('Description'); ?></th>
+      <th><?php echo xlt('UOR'); ?></th>
+      <th><?php echo xlt('Data Type'); ?></th>
+      <th><?php echo xlt('Size'); ?></th>
+      <th><?php echo xlt('Max Size'); ?></th>
+      <th><?php echo xlt('List'); ?></th>
+      <th><?php echo xlt('Backup List'); ?></th>
+      <th ><?php echo xlt('Label Cols'); ?></th>
+      <th><?php echo xlt('Data Cols'); ?></th>
+      <th><?php echo xlt('Options'); ?></th>
+      <th><?php echo xlt('Description'); ?></th>
         <?php // if not english and showing layout label translations, then show translation header for description
         if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
             echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
@@ -1520,6 +1515,7 @@ while ($row = sqlFetchArray($res)) {
 ?>
 </tbody>
 </table>
+</div>
 
 <?php echo $extra_html; ?>
 
@@ -1551,28 +1547,30 @@ while ($row = sqlFetchArray($res)) {
 <?php echo xlt('Parent'); ?>:
 <?php echo genGroupSelector('newgroupparent', $layout_id); ?>
 <br />
+<div class="table-responsive">
 <table class='table table-sm table-striped' style="border-collapse: collapse; margin-top: 5px;">
 <thead>
  <tr class='head'>
-  <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>
-  <th <?php echo " $lbfonly"; ?>style='width:5%'><?php echo xlt('Source'); ?></th>
-  <th style='width:5%'><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
-  <th style='width:10%'><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
-  <th style='width:6%'><?php echo xlt('UOR'); ?></th>
-  <th style='width:10%'><?php echo xlt('Data Type'); ?></th>
-  <th style='width:1%'><?php echo xlt('Size'); ?></th>
-  <th style='width:1%'><?php echo xlt('Max Size'); ?></th>
-  <th style='width:10%'><?php echo xlt('List'); ?></th>
-  <th style='width:10%'><?php echo xlt('Backup List'); ?></th>
-  <th style='width:1%'><?php echo xlt('Label Cols'); ?></th>
-  <th style='width:1%'><?php echo xlt('Data Cols'); ?></th>
-  <th style='width:10%'><?php echo xlt('Options'); ?></th>
-  <th style='width:20%'><?php echo xlt('Description'); ?></th>
+  <th><?php echo xlt('Order{{Sequence}}'); ?></th>
+  <th <?php echo " $lbfonly"; ?>><?php echo xlt('Source'); ?></th>
+  <th><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
+  <th><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
+  <th><?php echo xlt('UOR'); ?></th>
+  <th><?php echo xlt('Data Type'); ?></th>
+  <th><?php echo xlt('Size Width'); ?></th>
+  <th><?php echo xlt('Size Height'); ?></th>
+  <th><?php echo xlt('Max Size'); ?></th>
+  <th><?php echo xlt('List'); ?></th>
+  <th><?php echo xlt('Backup List'); ?></th>
+  <th><?php echo xlt('Label Cols'); ?></th>
+  <th><?php echo xlt('Data Cols'); ?></th>
+  <th><?php echo xlt('Options'); ?></th>
+  <th><?php echo xlt('Description'); ?></th>
  </tr>
 </thead>
 <tbody>
-<tr class='center'>
-<td><input type="text" name="gnewseq" id="gnewseq" value="" size="2" maxlength="4" /> </td>
+<tr class='text-center'>
+<td><input type="text" class='form-control' name="gnewseq" id="gnewseq" value="" size="2" maxlength="4" /></td>
 <td<?php echo " $lbfonly"; ?>>
 <select class='form-control' name='gnewsource' id='gnewsource'>
 <?php
@@ -1582,9 +1580,9 @@ foreach ($sources as $key => $value) {
 ?>
 </select>
 </td>
-<td><input type="text" name="gnewid" id="gnewid" value="" size="10" maxlength="20"
+<td><input type="text" name="gnewid" class="form-control" id="gnewid" value="" size="10" maxlength="31"
      onclick='FieldIDClicked(this)' /> </td>
-<td><input type="text" name="gnewtitle" id="gnewtitle" value="" size="20" maxlength="63" /> </td>
+<td><input type="text" name="gnewtitle" class="form-control" id="gnewtitle" value="" size="20" maxlength="63" /> </td>
 <td>
 <select class='form-control' name="gnewuor" id="gnewuor">
 <option value="0"><?php echo xlt('Unused'); ?></option>
@@ -1592,7 +1590,7 @@ foreach ($sources as $key => $value) {
 <option value="2"><?php echo xlt('Required'); ?></option>
 </select>
 </td>
-<td align='center'>
+<td class="text-center">
 <select class='form-control' name='gnewdatatype' id='gnewdatatype'>
 <option value=''></option>
 <?php
@@ -1603,10 +1601,10 @@ foreach ($datatypes as $key => $value) {
 ?>
 </select>
 </td>
-<td><input type="text" name="gnewlengthWidth" id="gnewlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>" />
-    <input type="text" name="gnewlengthHeight" id="gnewlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>" /></td>
-<td><input type="text" name="gnewmaxSize" id="gnewmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>" /></td>
-<td><input type="text" name="gnewlistid" id="gnewlistid" value="" size="8" maxlength="100" class="listid" />
+<td><input class="form-control" type="text" name="gnewlengthWidth" id="gnewlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>" /></td>
+<td><input class="form-control" type="text" name="gnewlengthHeight" id="gnewlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>" /></td>
+<td><input class="form-control" type="text" name="gnewmaxSize" id="gnewmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>" /></td>
+<td><input type="text" name="gnewlistid" id="gnewlistid" value="" size="8" maxlength="100" class="form-control listid" />
     <select class='form-control' name='gcontextName' id='gcontextName' style='display:none'>
         <?php
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
@@ -1616,46 +1614,49 @@ foreach ($datatypes as $key => $value) {
         ?>
     </select>
 </td>
-<td><input type="text" name="gnewbackuplistid" id="gnewbackuplistid" value="" size="8" maxlength="100" class="listid" /></td>
-<td><input type="text" name="gnewtitlecols" id="gnewtitlecols" value="" size="3" maxlength="3" /> </td>
-<td><input type="text" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3" /> </td>
-<td><select name="gnewedit_options[]" id="gnewedit_options" class="w-100 typeAddons" multiple value="" size="3"></select>
-    <input type="hidden"  name="gnewdefault" id="gnewdefault" value="" /> </td>
-<td><input type="text" name="gnewdesc" id="gnewdesc" value="" size="30" /> </td>
+<td><input type="text" name="gnewbackuplistid" id="gnewbackuplistid" value="" size="8" maxlength="100" class="form-control listid" /></td>
+<td><input class="form-control" type="text" name="gnewtitlecols" id="gnewtitlecols" value="" size="3" maxlength="3" /> </td>
+<td><input class="form-control" type="text" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3" /> </td>
+<td><select name="gnewedit_options[]" id="gnewedit_options" class="form-control typeAddons" multiple value="" size="3"></select>
+    <input type="hidden" name="gnewdefault" id="gnewdefault" value="" /> </td>
+<td><input class="form-control" type="text" name="gnewdesc" id="gnewdesc" value="" size="20" /> </td>
 </tr>
 </tbody>
 </table>
+</div>
 <br />
 <input type="button" class="btn btn-primary btn-sm savenewgroup" value='<?php echo xla('Save New Group'); ?>' />
-<input type="button" class="btn btn-secondary btn-sm cancelnewgroup" value='<?php echo xla('Cancel'); ?>'>
+<input type="button" class="btn btn-secondary btn-sm cancelnewgroup" value='<?php echo xla('Cancel'); ?>' />
 </span>
 </div>
 
 <!-- template DIV that appears when user chooses to add a new field to a group -->
 <div id="fielddetail" class="fielddetail" style="display: none; visibility: hidden">
-<input type="hidden" name="newfieldgroupid" id="newfieldgroupid" value="">
+<input type="hidden" name="newfieldgroupid" id="newfieldgroupid" value="" />
+<div class="table-responsive">
 <table class="table table-sm" style="border-collapse: collapse;">
  <thead>
   <tr class='head'>
-   <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>
-   <th <?php echo " $lbfonly"; ?>style='width:5%'><?php echo xlt('Source'); ?></th>
-   <th style='width:5%'><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
-   <th style='width:10%'><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
-   <th style='width:6%'><?php echo xlt('UOR'); ?></th>
-   <th style='width:10%'><?php echo xlt('Data Type'); ?></th>
-   <th style='width:1%'><?php echo xlt('Size'); ?></th>
-   <th style='width:1%'><?php echo xlt('Max Size'); ?></th>
-   <th style='width:10%'><?php echo xlt('List'); ?></th>
-   <th style='width:10%'><?php echo xlt('Backup List'); ?></th>
-   <th style='width:1%'><?php echo xlt('Label Cols'); ?></th>
-   <th style='width:1%'><?php echo xlt('Data Cols'); ?></th>
-   <th style='width:10%'><?php echo xlt('Options'); ?></th>
-   <th style='width:20%'><?php echo xlt('Description'); ?></th>
+   <th><?php echo xlt('Order{{Sequence}}'); ?></th>
+   <th <?php echo " $lbfonly"; ?>><?php echo xlt('Source'); ?></th>
+   <th><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
+   <th><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
+   <th><?php echo xlt('UOR'); ?></th>
+   <th><?php echo xlt('Data Type'); ?></th>
+   <th><?php echo xlt('Size Width'); ?></th>
+   <th><?php echo xlt('Size Height'); ?></th>
+   <th><?php echo xlt('Max Size'); ?></th>
+   <th><?php echo xlt('List'); ?></th>
+   <th><?php echo xlt('Backup List'); ?></th>
+   <th><?php echo xlt('Label Cols'); ?></th>
+   <th><?php echo xlt('Data Cols'); ?></th>
+   <th><?php echo xlt('Options'); ?></th>
+   <th><?php echo xlt('Description'); ?></th>
   </tr>
  </thead>
  <tbody>
-  <tr class='center'>
-   <td><input type="text" name="newseq" id="newseq" value="" size="2" maxlength="4" /> </td>
+  <tr class='text-center'>
+   <td><input type="text" class="form-control" name="newseq" id="newseq" value="" size="2" maxlength="4" /> </td>
    <td<?php echo " $lbfonly"; ?>>
     <select class='form-control' name='newsource' id='newsource'>
 <?php
@@ -1665,8 +1666,8 @@ foreach ($sources as $key => $value) {
 ?>
     </select>
    </td>
-   <td ><input type="text" name="newid" id="newid" value="" size="10" maxlength="20" onclick='FieldIDClicked(this)' /> </td>
-   <td><input type="text" name="newtitle" id="newtitle" value="" size="20" maxlength="63" /> </td>
+   <td ><input type="text" class="form-control" name="newid" id="newid" value="" size="10" maxlength="31" onclick='FieldIDClicked(this)' /> </td>
+   <td><input type="text" class="form-control" name="newtitle" id="newtitle" value="" size="20" maxlength="63" /> </td>
    <td>
     <select class='form-control' name="newuor" id="newuor">
      <option value="0"><?php echo xlt('Unused'); ?></option>
@@ -1685,10 +1686,10 @@ foreach ($datatypes as $key => $value) {
 ?>
     </select>
    </td>
-   <td><input type="text" name="newlengthWidth" id="newlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>" />
-       <input type="text" name="newlengthHeight" id="newlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>" /></td>
-   <td><input type="text" name="newmaxSize" id="newmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>" /></td>
-   <td><input type="text" name="newlistid" id="newlistid" value="" size="8" maxlength="31" class="listid" />
+   <td><input class='form-control' type="text" name="newlengthWidth" id="newlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>" /></td>
+   <td><input class='form-control' type="text" name="newlengthHeight" id="newlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>" /></td>
+   <td><input class='form-control' type="text" name="newmaxSize" id="newmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>" /></td>
+   <td><input type="text" name="newlistid" id="newlistid" value="" size="8" maxlength="31" class="form-control listid" />
        <select class='form-control' name='contextName' id='contextName' style='display:none'>
         <?php
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
@@ -1698,17 +1699,17 @@ foreach ($datatypes as $key => $value) {
         ?>
        </select>
    </td>
-   <td><input type="text" name="newbackuplistid" id="newbackuplistid" value="" size="8" maxlength="31" class="listid" /></td>
-   <td><input type="text" name="newtitlecols" id="newtitlecols" value="" size="3" maxlength="3" /> </td>
-   <td><input type="text" name="newdatacols" id="newdatacols" value="" size="3" maxlength="3" /> </td>
-   <td><select name="newedit_options[]" id="newedit_options"  multiple class='typeAddons w-100'></select>
+   <td><input type="text" name="newbackuplistid" id="newbackuplistid" value="" size="8" maxlength="31" class="form-control listid" /></td>
+   <td><input class='form-control' type="text" name="newtitlecols" id="newtitlecols" value="" size="3" maxlength="3" /> </td>
+   <td><input class='form-control' type="text" name="newdatacols" id="newdatacols" value="" size="3" maxlength="3" /> </td>
+   <td><select name="newedit_options[]" id="newedit_options"  multiple class='form-control typeAddons'></select>
        <input type="hidden"  name="newdefault" id="newdefault" value="" /> </td>
-   <td><input type="text" name="newdesc" id="newdesc" value="" size="30"> </td>
+   <td><input type="text" class='form-control' name="newdesc" id="newdesc" value="" size="20" /> </td>
   </tr>
   <tr>
    <td colspan="9">
-    <input type="button" class="btn btn-primary btn-sm savenewfield" value='<?php echo xla('Save New Field'); ?>'>
-    <input type="button" class="btn btn-secondary btn-sm cancelnewfield" value='<?php echo xla('Cancel'); ?>'>
+    <input type="button" class="btn btn-primary btn-sm savenewfield" value='<?php echo xla('Save New Field'); ?>' />
+    <input type="button" class="btn btn-secondary btn-sm cancelnewfield" value='<?php echo xla('Cancel'); ?>' />
    </td>
   </tr>
  </tbody>

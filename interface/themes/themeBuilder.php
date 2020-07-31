@@ -28,12 +28,42 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 
 @import "<?php echo $GLOBALS['fonts_dir']; ?>/lato/lato.css";
 <?php if (($GLOBALS['font-family'] != "__default__") || ($GLOBALS['font-size'] != "__default__")) { ?>
-body {
+*, html, body {
     <?php if ($GLOBALS['font-family'] != "__default__") { ?>
       font-family: <?php echo $GLOBALS['font-family']; ?> !important;
   <?php }
     if ($GLOBALS['font-size'] != "__default__") { ?>
-      font-size: <?php echo $GLOBALS['font-size']; ?> !important;
+      font-size: <?php echo $GLOBALS['font-size']; ?>rem !important;
   <?php } ?>
+}
+
+h1 {
+    <?php if ($GLOBALS['font-size'] != "__default__") { ?>
+    font-size: <?php echo $GLOBALS['font-size'] * 2.5; ?>rem !important;
+    <?php } ?>
+}
+
+h2 {
+    <?php if ($GLOBALS['font-size'] != "__default__") { ?>
+    font-size: <?php echo $GLOBALS['font-size'] * 2; ?>rem !important;
+    <?php } ?>
+}
+
+h3 {
+    <?php if ($GLOBALS['font-size'] != "__default__") { ?>
+    font-size: <?php echo $GLOBALS['font-size'] * 1.75; ?>rem !important;
+    <?php } ?>
+}
+
+h4 {
+    <?php if ($GLOBALS['font-size'] != "__default__") { ?>
+    font-size: <?php echo $GLOBALS['font-size'] * 1.5; ?>rem !important;
+    <?php } ?>
+}
+
+h5 {
+    <?php if ($GLOBALS['font-size'] != "__default__") { ?>
+    font-size: <?php echo $GLOBALS['font-size'] * 1.25; ?>rem !important;
+    <?php } ?>
 }
 <?php } ?>

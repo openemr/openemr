@@ -3,35 +3,37 @@
  * seen in the patient summary and notes screens
  *============================================================*/
 
-#pnotes .billing {
-  background-color: lighten($success, 70%);
-}
+#pnotes {
+  .billing {
+    background-color: lighten($success, 70%);
+  }
 
-#pnotes .highlight {
-  background-color: $white;
-}
+  .highlight {
+    background-color: $white;
+  }
 
-#pnotes table {
-  border-collapse: collapse;
-}
+  table {
+    border-collapse: collapse;
+  }
 
-#pnotes .noterow td {
-  border-bottom: 1px dashed $black;
-  margin: 5px;
-  padding: 5px;
-  vertical-align: top;
-}
+  .noterow td {
+    border-bottom: 1px dashed $black;
+    margin: 5px;
+    padding: 5px;
+    vertical-align: top;
+  }
 
-#pnotes_ps_expand div.tab table td {
-  padding-right: 10px;
-}
+  #pnotes_title {
+    float: $left;
+    margin-right: 5px;
+  }
 
-#pnotes #pnotes_title {
-  float: $left;
-  margin-right: 5px;
-}
+  #namecontainer_pnotes {
+    float: $left;
+    margin-right: 10px;
+  }
 
-#pnotes #namecontainer_pnotes {
-  float: $left;
-  margin-right: 10px;
+  &_ps_expand div.tab table td {
+    padding-right: 10px;
+  }
 }

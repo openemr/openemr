@@ -5,59 +5,59 @@
 
 #report_custom {
   width: 100%;
-}
 
-#report_custom hr {
-  border: 2px dotted $black;
-}
+  hr {
+    border: 2px dotted $black;
+  }
 
-#report_custom .billing,
-#report_custom .immunizations,
-#report_custom .notes,
-#report_custom .transactions,
-#report_custom .communications,
-#report_custom .documents,
-#report_custom .demographics,
-#report_custom .insurance,
-#report_custom .history {
-  margin: 5px;
-  padding: 5px;
-}
+  .billing,
+  .immunizations,
+  .notes,
+  .transactions,
+  .communications,
+  .documents,
+  .demographics,
+  .insurance,
+  .history {
+    margin: 5px;
+    padding: 5px;
+  }
 
-#report_custom h1 {
-  font-size: 120%;
-  margin: 0 0 5px;
-  padding: 0;
-}
+  h1 {
+    font-size: 120%;
+    margin: 0 0 5px;
+    padding: 0;
+  }
 
-#report_custom .issue {
-  margin-left: 20px;
-}
+  .issue {
+    margin-left: 20px;
+  }
 
-#report_custom .issue_type {
-  font-weight: bold;
-  padding: 5px 0;
-}
+  .issue_type {
+    font-weight: bold;
+    padding: 5px 0;
+  }
 
-#report_custom .issue_diag {
-  margin: 0 20px;
-}
+  .issue_diag {
+    margin: 0 20px;
+  }
 
-#report_custom .encounter {
-  border-top: 2px dotted $black;
-  margin-top: 10px;
-  padding: 10px 5px;
-  width: 100%;
-}
+  .encounter {
+    border-top: 2px dotted $black;
+    margin-top: 10px;
+    padding: 10px 5px;
+    width: 100%;
 
-#report_custom .encounter h1 {
-  font-size: 140%;
-  margin: 0;
-  padding: 0;
-}
+    h1 {
+      font-size: 140%;
+      margin: 0;
+      padding: 0;
+    }
 
-#report_custom .encounter_form {
-  border-top: 1px solid $gray;
+    &_form {
+      border-top: 1px solid $gray;
+    }
+  }
 }
 
 @include if-rtl {

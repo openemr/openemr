@@ -57,7 +57,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 .menu,
 .menu_selected,
 .logout {
-  @include font-size("0.9375rem !important");
+  @include font-size("0.9375rem");
   font-style: italic !important;
 }
 
@@ -70,7 +70,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 .redtext,
 #patient_stats .head,
 #patient_stats .detail {
-  @include font-size("0.8125rem !important");
+  @include font-size("0.8125rem");
 }
 
 .alert,
@@ -94,21 +94,21 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 }
 
 .items {
-  @include font-size("8px !important");
+  @include font-size("0.5rem");
 }
 
 .title {
-  @include font-size("16px !important");
+  @include font-size("1rem");
   font-weight: bold;
   text-decoration: none;
 }
 
 .title_bar {
-  @include font-size("16px !important");
+  @include font-size("1rem");
 }
 
 .title_bar_top {
-  @include font-size("13px !important");
+  @include font-size("0.8125rem");
 }
 
 .body_main {
@@ -136,17 +136,12 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 }
 
 /* style taken out of the addressbook code and put here instead */
-
-#addressbook_list td {
-  font-family: "Arial", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-
 #addressbook_list tr.search {
-  @include font-size("12px !important");
+  @include font-size("0.75rem");
 }
 
 #addressbook_list tr.head {
-  @include font-size("0.8125rem !important");
+  @include font-size("0.8125rem");
   background-color: inherit;
 }
 
@@ -161,7 +156,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 }
 
 #addressbook_list .button {
-  @include font-size("11px !important");
+  @include font-size("0.6875rem");
   font-family: sans-serif;
   font-weight: bold;
 }
@@ -176,13 +171,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 
 #reports_list td,
 #reports_list a {
-  @include font-size("11px !important");
-  font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-}
-
-#documents_list td,
-#documents_list a {
-  font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  @include font-size("0.6875rem");
 }
 
 #documents_list .treeMenuDefault {
@@ -199,7 +188,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
  * seen in the patient encounter screen
  *============================================================*/
 #patient_pastenc #tooltipdiv {
-  @include font-size("12px !important");
+  @include font-size("0.75rem");
 }
 
 #addressbook_list tr.evenrow,
@@ -223,13 +212,13 @@ ul.tabNav {
 }
 
 ul.tabNav li {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   margin: 0 1px 0 0;
   padding: 6px 0 0;
 }
 
 ul.tabNav li.current {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   font-weight: bold;
   padding-top: 0;
   text-align: left;
@@ -248,7 +237,7 @@ ul.tabNav a {
 
 ul.tabNav a:hover {
   background-color: $dark;
-  color: $black;
+  color: $body-color;
 }
 
 div.tabContainer div.current {
@@ -298,7 +287,7 @@ ul.tabNav li.current a {
 }
 
 #report_results table td {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   border-bottom: 1px dashed;
   padding: 5px;
 }
@@ -316,7 +305,7 @@ ul.tabNav li.current a {
 .showborder_head th,
 .shownoborder td,
 .showborder_long tr td {
-  @include font-size("12px !important");
+  @include font-size("0.7rem");
 }
 
 /**
@@ -324,10 +313,9 @@ ul.tabNav li.current a {
 **/
 
 .drug_lookup {
-  @include font-size("11px !important");
+  @include font-size("0.6875rem");
   background-color: $paler;
   border: 2px outset rgb(102, 102, 102);
-  font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 
@@ -345,7 +333,7 @@ ul.tabNav li.current a {
 }
 
 #sddm li a {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   color: darken($primary, 15%) !important;
   font-weight: bold;
   padding: 4px 10px;
@@ -373,7 +361,7 @@ ul.tabNav li.current a {
 
 #sddm div a:hover {
   background: $palepale;
-  color: $black;
+  color: $body-color;
 }
 
 .encounter-form-category-li {
@@ -420,7 +408,7 @@ div.borderbox {
 /* Form styles */
 
 .formtable {
-  @include font-size("13px !important");
+  @include font-size("0.8125rem");
 }
 
 .report_search_bar {
@@ -428,7 +416,7 @@ div.borderbox {
 }
 
 .error-message {
-  @include font-size("11px !important");
+  @include font-size("0.6875rem");
 }
 
 /* flow board filters*/
@@ -450,7 +438,7 @@ div.borderbox {
 /*openemr 5 patient-finder*/
 @media screen and (max-width: 750px) {
   #pt_table {
-    @include font-size("0.9rem !important");
+    @include font-size("0.9rem");
   }
 }
 
