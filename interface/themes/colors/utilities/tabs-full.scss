@@ -43,24 +43,24 @@
 }
 
 .ptName {
-  @include font-size("20px !important");
+  @include font-size("1.25rem");
   background: #ffff9e;
   padding: 0 5px;
 }
 
 .patientInfo {
-  @include font-size("16px !important");
+  @include font-size("1rem");
   font-weight: 600;
   padding: 1px 1px 1px 10px;
 }
 
 .patientCurrentEncounter {
-  @include font-size("16px !important");
+  @include font-size("1rem");
   font-weight: 600;
 }
 
 .menuLabel {
-  @include font-size("14px !important");
+  @include font-size("0.875rem");
   color: $black !important;
 }
 

@@ -15,11 +15,11 @@
 .link_selected {
   color: $primary;
   text-decoration: none;
-}
 
-.link_selected:visited {
-  color: $primary;
-  text-decoration: none;
+  &:visited {
+    color: $primary;
+    text-decoration: none;
+  }
 }
 
 .link_submit {

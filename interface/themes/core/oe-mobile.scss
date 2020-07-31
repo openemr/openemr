@@ -2,39 +2,15 @@
 /*for Smartphones*/
 
 @media only screen and (max-width: 400px) {
-  h1 {
-    @include font-size("30px !important");
-  }
-
-  h2 {
-    @include font-size("24px !important");
-  }
-
-  h3 {
-    @include font-size("18px !important");
-  }
-
-  h4 {
-    @include font-size("14px !important");
-  }
-
-  h5 {
-    @include font-size("12px !important");
-  }
-
-  h6 {
-    @include font-size("10px !important");
-  }
-
   #oe-nav-ul.tabNav li {
-    @include font-size("0.8rem !important");
+    @include font-size("0.8rem");
   }
 }
 
 /*Dashboard navbar styling for tablets*/
 @media only screen and (max-width: 1024px) {
   .navbar-nav {
-    @include font-size("14px !important");
+    @include font-size("0.875rem");
   }
 
   .nav > li > a {

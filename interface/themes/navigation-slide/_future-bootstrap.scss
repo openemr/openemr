@@ -1,6 +1,6 @@
 #navigation-slide,
 #navigation-slide * {
-  @include font-size("0.75rem !important");
+  @include font-size("0.75rem");
   margin-#{$left}: 0;
   padding-#{$left}: 0;
 }
@@ -12,7 +12,7 @@
 
 #navigation-slide li a,
 #navigation-slide * li a {
-  @include font-size("1.13rem !important");
+  @include font-size("1.13rem");
   background-color: none;
   color: $body-color;
   display: block;

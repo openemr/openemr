@@ -33,10 +33,33 @@ body.login {
   resize: both;
 }
 
-.login-failure {
-  background-color: $danger;
-  color: $white;
-  font-weight: bold;
+.login {
+  &-failure {
+    background-color: $danger;
+    color: $white;
+    font-weight: bold;
+  }
+
+  &-area {
+    background: $login-form-bg-color;
+  }
+
+  &-bg {
+    background: linear-gradient(140deg, $login-color-1 0%, $login-color-2 35%, $login-color-3 100%);
+  }
+
+  &-bg-text-color {
+    color: $login-text-color !important;
+  }
+
+  &-title-label {
+    font-size: 130%;
+    font-weight: bold;
+  }
+
+  &-logo-wrapper {
+    max-width: 400px;
+  }
 }
 
 .login .login-row {
@@ -44,14 +67,6 @@ body.login {
   border-radius: 0.625rem;
   box-shadow: 0 30px 60px 0 rgba($black, 0.3);
   resize: both;
-}
-
-.login-area {
-  background: $login-form-bg-color;
-}
-
-.login-bg {
-  background: linear-gradient(140deg, $login-color-1 0%, $login-color-2 35%, $login-color-3 100%);
 }
 
 @media (max-width: map-get($grid-breakpoints, "md")) {
@@ -103,21 +118,8 @@ body.login {
   width: 15%;
 }
 
-.login-bg-text-color {
-  color: $login-text-color !important;
-}
-
 .logo-left {
   float: left;
-}
-
-.login-title-label {
-  font-size: 130%;
-  font-weight: bold;
-}
-
-.login-logo-wrapper {
-  max-width: 400px;
 }
 
 .tinylogopng {
