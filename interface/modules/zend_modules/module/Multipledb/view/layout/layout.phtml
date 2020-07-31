@@ -20,39 +20,19 @@
 
 ?>
 
-<?php echo $this->doctype(); ?>
+<?php
+echo $this->doctype();
+use OpenEMR\Core\Header;
+?>
 
-<html lang="en">
+<html>
 <head>
-    <meta charset="utf-8">
-
-    <?php $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0');
-    echo $this->headMeta();
-    ?>
-
-    <!-- css files -->
-    <?php foreach($this->cssFiles as $file){
-
-        $this->headLink()->appendStylesheet( $GLOBALS['assets_static_relative']  . $file);
-    }
-    $this->headLink()->appendStylesheet( $this->basePath()  . '/css/multipledb/multipledb.css');
-    echo $this->headLink();
-    ?>
-
-    <!-- Scripts -->
-    <?php
-    foreach($this->jsFiles as $file){
-
-        $this->headScript()->appendFile($GLOBALS['assets_static_relative']   . $file);
-    }
-    echo  $this->headScript() ;
-    ?>
-
+    <?php Header::setupHeader(['laminas-style']); ?>
 </head>
 
-<body class="container-fluid body_top " dir="<?php echo $language_direction?>" >
-<?php if($title): ?>
-        <nav class="navbar navbar-default">
+<body class="container-fluid body_top" dir="<?php echo $language_direction; ?>">
+<?php if ($title) { ?>
+        <nav class="navbar navbar-light navbar-expand">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <!--button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -73,8 +53,8 @@
                     </ul>
                 </div><!--/.nav-collapse -->
             </div>
-        </nav><!----end of nav--->
-<?php endif; ?>
+        </nav><!-- end of nav--->
+<?php } ?>
     <div class='row'>
         <div class="col-md-12">
             <?php echo $this->content; ?>

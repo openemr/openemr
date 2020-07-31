@@ -1,31 +1,32 @@
-$(function () {
+// TODO: Convert to jqTree instead of jQuery TreeView
 
-	// first example
-	$("#browser").treeview();
+$(function() {
+    // first example
+    $("#browser").tree();
 
-	// second example
-	$("#navigation").treeview({
-		persist: "location",
-		collapsed: true,
-		unique: true
-	});
+    // second example
+    $("#navigation").tree({
+        persist: "location",
+        collapsed: true,
+        unique: true
+    });
 
-	// third example
-	$("#red").treeview({
-		animated: "fast",
-		collapsed: true,
-		unique: true,
-		persist: "cookie",
-		toggle: function() {
-			window.console && console.log("%o was toggled", this);
-		}
-	});
+    // third example
+    $("#red").tree({
+        animated: "fast",
+        collapsed: true,
+        unique: true,
+        persist: "cookie",
+        toggle: function() {
+            console.log("%o was toggled", this);
+        }
+    });
 
-	// fourth example
-	$("#black, #gray").treeview({
-		control: "#treecontrol",
-		persist: "cookie",
-		cookieId: "treeview-black"
-	});
+    // fourth example
+    $("#black, #gray").tree({
+        control: "#treecontrol",
+        persist: "cookie",
+        cookieId: "treeview-black"
+    });
 
 });

@@ -71,9 +71,19 @@ assets:
         rtl:
             basePath: '%webroot%/public/themes/'
             link: rtl_patientportal-style.css
+    laminas-style:
+        basePath: '%webroot%/public/themes/misc/'
+        link: laminas-style.css
+        rtl:
+            basePath: '%webroot%/public/themes/misc/'
+            link: rtl_laminas-style.css
     knockout:
         basePath: '%assets_static_relative%/knockout/build/output/'
         script: knockout-latest.js
+    jqtree:
+        basePath: '%assets_static_relative%/jqtree/'
+        script: tree.jquery.js
+        link: jqtree.css
     jquery-ui:
         basePath: '%assets_static_relative%/jquery-ui/'
         script: jquery-ui.min.js
@@ -105,6 +115,10 @@ assets:
         basePath: '%assets_static_relative%/gritter/'
         link: css/jquery.gritter.css
         script: js/jquery.gritter.min.js
+    jquery-easyui:
+      basePath: '%assets_static_relative%/easyui/'
+      link: bootstrap/easyui.css
+      script: jquery.easyui.min.js
     datatables:
         basePath: '%assets_static_relative%/datatables.net/js/'
         script: jquery.dataTables.js
@@ -160,6 +174,9 @@ assets:
         script: dialog.js
         autoload: true
         allowNoLoad: true
+    interactjs:
+        basePath: '%assets_static_relative%/interactjs/dist/'
+        script: interact.js
     select2:
         basePath: '%assets_static_relative%/select2/dist/'
         script: js/select2.full.min.js
@@ -169,6 +186,9 @@ assets:
     jscolor:
         basePath: '%assets_static_relative%/jscolor/'
         script: jscolor.js
+    modernizr:
+        basePath: '%assets_static_relative%/modernizr/build/'
+        script: modernizr.js
     esign:
         basePath: '%webroot%/library/ESign/'
         script: js/jquery.esign.js

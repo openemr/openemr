@@ -30,8 +30,8 @@ class Module implements AutoloaderProviderInterface
     public function init(ModuleManager $mm)
     {
         $mm->getEventManager()->getSharedManager()->attach(__NAMESPACE__, 'dispatch', function ($e) {
-            $controller             = $e->getTarget();
-            $route                      = $controller->getEvent()->getRouteMatch();
+            $controller = $e->getTarget();
+            $route = $controller->getEvent()->getRouteMatch();
             $controller_name    = $route->getParam('controller');
             switch ($controller_name) {
                 default:
@@ -39,7 +39,7 @@ class Module implements AutoloaderProviderInterface
             };
             $controller->getEvent()->getViewModel()->setVariables(array(
                         'current_controller' => $route->getParam('controller'),
-                        'current_action'         => $route->getParam('action'),
+                        'current_action' => $route->getParam('action'),
                     ));
         });
     }

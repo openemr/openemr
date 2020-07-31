@@ -1,12 +1,22 @@
+<?php
+/**
+ * interface/modules/zend_modules/module/Application/view/application/error/index.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
 <h1>An error occurred</h1>
 <h2><?= $this->message ?></h2>
 
-<?php if (isset($this->display_exceptions) && $this->display_exceptions): ?>
-
-    <?php if(isset($this->exception) && ($this->exception instanceof Exception || $this->exception instanceof Error)): ?>
-        <hr/>
+<?php if (isset($this->display_exceptions) && $this->display_exceptions) { ?>
+    <?php if(isset($this->exception) && ($this->exception instanceof Exception || $this->exception instanceof Error)) { ?>
+        <hr />
         <h2>Additional information:</h2>
-        <h3><?= get_class($this->exception) ?></h3>
+        <h3><?= get_class($this->exception); ?></h3>
         <dl>
             <dt>File:</dt>
             <dd>
@@ -24,12 +34,11 @@
         <?php
         $e = $this->exception->getPrevious();
         $icount = 0;
-        if ($e) :
-            ?>
-            <hr/>
+        if ($e) { ?>
+            <hr />
             <h2>Previous exceptions:</h2>
             <ul class="unstyled">
-                <?php while($e) : ?>
+                <?php while($e) { ?>
                     <li>
                         <h3><?= get_class($e) ?></h3>
                         <dl>
@@ -54,15 +63,11 @@
                         echo "<li>There may be more exceptions, but we have no enough memory to proccess it.</li>";
                         break;
                     }
-                endwhile;
+                }
                 ?>
             </ul>
-        <?php endif; ?>
-
-    <?php else: ?>
-
+        <?php } ?>
+    <?php } else { ?>
         <h3>No Exception available</h3>
-
-    <?php endif ?>
-
-<?php endif ?>
+    <?php } ?>
+<?php } ?>

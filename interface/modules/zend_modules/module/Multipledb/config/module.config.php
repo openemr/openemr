@@ -81,8 +81,8 @@ return array(
                 $tableGateway = new TableGateway('multiple_db', $dbAdapter, null, $resultSetPrototype);
                 $table = new MultipledbTable($tableGateway);
                 return $table;
-            }
-            ,ModuleconfigController::class => InvokableFactory::class
+            },
+            ModuleconfigController::class => InvokableFactory::class
         ),
     ]
 );

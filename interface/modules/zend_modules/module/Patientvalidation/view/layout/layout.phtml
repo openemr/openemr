@@ -20,37 +20,20 @@
 
 ?>
 
-<?php echo $this->doctype(); ?>
+<?php
+echo $this->doctype();
+use OpenEMR\Core\Header;
+?>
 
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-
-    <?php $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0');
-    echo $this->headMeta();
-    ?>
-
-    <!-- css files -->
-    <?php foreach($this->cssFiles as $file){
-
-        $this->headLink()->appendStylesheet( $GLOBALS['assets_static_relative']  . $file);
-    }
-    echo $this->headLink();
-    ?>
-
-    <!-- Scripts -->
-    <?php
-    foreach($this->jsFiles as $file){
-
-        $this->headScript()->appendFile($GLOBALS['assets_static_relative']   . $file);
-    }
-    echo  $this->headScript() ;
-    ?>
-
+    <meta charset="utf-8" />
+    <?php echo $this->headMeta(); ?>
+    <?php Header::setupHeader(); ?>
 </head>
 
-<body class="container-fluid body_top " dir="<?php echo $language_direction?>" >
-<nav class="navbar navbar-default">
+<body class="body_top" dir="<?php echo $language_direction?>">
+<nav class="navbar navbar-light navbar-expand">
     <div class="container-fluid">
         <div class="navbar-header">
             <!--button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -71,9 +54,9 @@
             </ul>
         </div><!--/.nav-collapse -->
     </div>
-</nav><!----end of nav--->
+</nav><!-- end of nav--->
 
-    <div class='row'>
+    <div class="row">
         <div class="col-md-12">
             <?php echo $this->content; ?>
         </div>

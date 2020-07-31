@@ -1,27 +1,29 @@
-<script>
+<?php
+/* +-----------------------------------------------------------------------------+
+ * Copyright 2016 matrix israel
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see
+ * http://www.gnu.org/licenses/licenses.html#GPL
+ *    @author  Dror Golan <drorgo@matrix.co.il>
+ * +------------------------------------------------------------------------------+
+ *
+ */
+?>
 
-    /* +-----------------------------------------------------------------------------+
-     * Copyright 2016 matrix israel
-     * LICENSE: This program is free software; you can redistribute it and/or
-     * modify it under the terms of the GNU General Public License
-     * as published by the Free Software Foundation; either version 3
-     * of the License, or (at your option) any later version.
-     * This program is distributed in the hope that it will be useful,
-     * but WITHOUT ANY WARRANTY; without even the implied warranty of
-     * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-     * GNU General Public License for more details.
-     * You should have received a copy of the GNU General Public License
-     * along with this program. If not, see
-     * http://www.gnu.org/licenses/licenses.html#GPL
-     *    @author  Dror Golan <drorgo@matrix.co.il>
-     * +------------------------------------------------------------------------------+
-     *
-     */
-    <?php if ($closeBeforeOpening):?>
+<script>
+    <?php if ($closeBeforeOpening) {?>
     opener.document.forms[0].submit();
     window.close();
 
-    <?php endif;?>
+    <?php }?>
 </script>
 <style>
     th, td {
@@ -30,7 +32,8 @@
     }
 
 </style>
-<table id="example" class="display">
+<div class="table-responsive">
+<table id="example" class="table display">
     <thead>
     <th><?php echo $translate->z_xlt("ID");?></th>
     <th><?php echo $translate->z_xlt("First name");?></th>
@@ -42,8 +45,8 @@
 
     <?php
 
-        if ($related_patients) : ?>
-        <?php foreach ($related_patients as $key=>$related_patient):?>
+    if ($related_patients) { ?>
+        <?php foreach ($related_patients as $key => $related_patient) {?>
             <tr>
                 <td><?php echo $this->escapeHtml($related_patient['id']);?></td>
 
@@ -53,22 +56,20 @@
                 <td><?php echo $translate->z_xlt($related_patient['sex']);?></td>
 
             </tr>
-        <?php endforeach;?>
+        <?php } ?>
 
-    <?php endif;?>
+    <?php } ?>
     </tbody>
 
 
 </table>
-
+</div>
 
 <center>
-
-        <input type='button' value='<?php echo $translate->z_xla('Cancel'); ?>'
-               onclick='window.close();' />
+        <input type='button' class="btn btn-secondary" value='<?php echo $translate->z_xla('Cancel'); ?>' onclick='window.close();' />
         <?php
         if ($status == 'ok') { ?>
-        <input type='button' value='<?php echo $translate->z_xla('Confirm Create New Patient'); ?>'
+        <input type='button' class="btn btn-primary" value='<?php echo $translate->z_xla('Confirm Create New Patient'); ?>'
                onclick='opener.top.restoreSession();opener.document.forms[0].submit();window.close();' />
         <?php } ?>
 </center>
@@ -78,7 +79,7 @@
 <script>
     $(function () {
         var table = $('#example').DataTable({"searching": false});
-        window.resizeTo(950, 600)
+        window.resizeTo(950, 600);
 
         /*
         ToDo : make it work like the new_patient popup now doesn't open the patient

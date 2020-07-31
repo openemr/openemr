@@ -1,36 +1,39 @@
+<?php
+/* +-----------------------------------------------------------------------------+
+ * Copyright 2016 matrix israel
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see
+ * http://www.gnu.org/licenses/licenses.html#GPL
+ *    @author  Oshri Rozmarin <oshri.rozmarin@gmail.com>
+ * +------------------------------------------------------------------------------+
+ *
+ */
+?>
 <script>
-    /* +-----------------------------------------------------------------------------+
-     * Copyright 2016 matrix israel
-     * LICENSE: This program is free software; you can redistribute it and/or
-     * modify it under the terms of the GNU General Public License
-     * as published by the Free Software Foundation; either version 3
-     * of the License, or (at your option) any later version.
-     * This program is distributed in the hope that it will be useful,
-     * but WITHOUT ANY WARRANTY; without even the implied warranty of
-     * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-     * GNU General Public License for more details.
-     * You should have received a copy of the GNU General Public License
-     * along with this program. If not, see
-     * http://www.gnu.org/licenses/licenses.html#GPL
-     *    @author  Oshri Rozmarin <oshri.rozmarin@gmail.com>
-     * +------------------------------------------------------------------------------+
-     *
-     */
     <?php
-    if ($closeBeforeOpening):
-    ?>
+    if ($closeBeforeOpening) {
+        ?>
     opener.document.forms[0].submit();
     window.close();
 
-    <?php
-    endif;
+        <?php
+    }
     ?>
 </script>
 
 <title><?php echo xlt("Multiple DataBase"); ?></title>
-<a href="<?php echo $this->basePath() ?>/multipledb/edit"><input type="submit" value="<?php echo  $translate->z_xlt('Add new database') ?>"></a>
-<a href="<?php echo $this->basePath() ?>/multipledb/generatesafekey"><input type="submit" value="<?php echo  $translate->z_xlt('Generate safe key') ?>"></a>
-<table class="responstable">
+<a href="<?php echo $this->basePath() ?>/multipledb/edit"><input type="submit" class="btn btn-primary" value="<?php echo  $translate->z_xlt('Add new database') ?>"></a>
+<a href="<?php echo $this->basePath() ?>/multipledb/generatesafekey"><input type="submit" class="btn btn-primary" value="<?php echo  $translate->z_xlt('Generate safe key') ?>"></a>
+<div class="table-responsive">
+<table class="table responstable">
     <?php
     $html = null;
     foreach ($getmultipledb as $value) {
@@ -56,7 +59,7 @@
     </tr>
 html;
     }
-    if(empty($html)){
+    if (empty($html)) {
         $lang = $translate->z_xlt('Empty table');
         $html .= <<<html
     <tr>
@@ -75,14 +78,14 @@ html;
         <th><?php echo $translate->z_xlt('Date') ?></th>
     </tr>
 
-    <?php echo $html ?>
+    <?php echo $html; ?>
 
 </table>
-
+</div>
 <script>
     function save(box,table){
         var href = box.prop('href');
-        event.preventDefault()
+        event.preventDefault();
 
         var answer = confirm('<?php echo  $translate->z_xlt('Are you sure you want to remove namespace') ?>' + ' ' + table + '?');
         if (answer) {
@@ -91,4 +94,3 @@ html;
     }
 
 </script>
-

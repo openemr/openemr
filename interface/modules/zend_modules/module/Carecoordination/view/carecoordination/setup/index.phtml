@@ -10,19 +10,23 @@
  */
 ?>
 <script>
-var save_array = new Array();
+var save_array = [];
 $(function () {
-    $( "ul.droptrue" ).sortable({
+    // TODO: How do I replace sortable here
+
+    $("ul.droptrue").sortable({
             connectWith: "ul",
             placeholder: "ui-state-highlight"
     });
-    $( "ul.dropfalse" ).sortable({
+
+    $("ul.dropfalse").sortable({
             connectWith: "ul",
             dropOnEmpty: false,
             placeholder: "ui-state-highlight"
     });
-    $( ".sortable_div" ).disableSelection();
-    $( ".sortable_div" ).sortable({
+    $(".sortable_div").disableSelection();
+
+    $(".sortable_div").sortable({
         receive: function( event, ui ) {
             classes = $(ui.item).prev().attr('class');
             classes_arr = classes.split(' ');
@@ -93,133 +97,115 @@ $(function () {
 });
 </script>
 <ul class="top-menu top-menu-carecoordination">
-           <?php
-            foreach($this->menu as $key => $value){
-                $class_name = $key."_class";
-            ?>
-		<li class="form-title" id="<?php echo $this->escapeHtml($key); ?>"><?php echo $this->listenerObject->z_xlt($value);?></li>
-            <?php
-            }
-            ?>
+  <?php
+  foreach ($this->menu as $key => $value) {
+    $class_name = $key."_class"; ?>
+    <li class="form-title" id="<?php echo $this->escapeHtml($key); ?>"><?php echo $this->listenerObject->z_xlt($value); ?></li>
+    <?php } ?>
  </ul>
-<div class="clear"></div>
-<div class="ca-ca-in-1">
+<div class="clearfix"></div>
+<div class="ca-ca-in-1 float-left">
     <div class="ca-ca-in-3">
     <?php
-    foreach($this->menu as $key => $value){
+    foreach ($this->menu as $key => $value) {
         $class_name = $key."_class";
-    ?>
-    <div id = 'tabs-<?php echo $this->escapeHtml($key);?>' class="all-form">
-        <div id = "paginatediv_<?php echo $this->escapeHtml($key);?>" class = "paginationstyle">
-            <a href="#" rel="previous" style="float:left;"><img src="<?php echo $this->basePath().'/images/prev.png' ?>" alt="" /></a>
-            <a href="#" rel="next" style="float:right;"><img src="<?php echo $this->basePath().'/images/next.png' ?>" alt="" /></a>
+    } ?>
+    <div id = 'tabs-<?php echo $this->escapeHtml($key); ?>' class="all-form">
+        <div id = "paginatediv_<?php echo $this->escapeHtml($key); ?>" class = "paginationstyle">
+            <a href="#" rel="previous" class="float-left"><img src="<?php echo $this->basePath().'/images/prev.png' ?>" alt="" /></a>
+            <a href="#" rel="next" class="float-right"><img src="<?php echo $this->basePath().'/images/next.png' ?>" alt="" /></a>
         </div>
-        <ul class='virtualpage_<?php echo $this->escapeHtml($key);?> sortable_div droptrue <?php if(is_array($rowforms[1])) //echo "navigation";?>'>
+        <ul class='virtualpage_<?php echo $this->escapeHtml($key); ?> sortable_div droptrue'>
         <?php
         $per_page = 13;
         $count = 0;
-        foreach($this->$key as $rowforms){
-            if($count >= $per_page){
-                if($count != 0){
-                ?>
+        foreach ($this->$key as $rowforms) {
+            if ($count >= $per_page) {
+                if ($count != 0) {
+                    ?>
                     </ul>
                     <?php
                     $count = 0;
-                    }
-                    ?>
-                    <ul class='virtualpage_<?php echo $this->escapeHtml($key);?> sortable_div droptrue <?php if(is_array($rowforms[1])) //echo "navigation";?>'>
+                } ?>
+                    <ul class='virtualpage_<?php echo $this->escapeHtml($key); ?> sortable_div droptrue <?php if (is_array($rowforms[1])) { //echo "navigation";;
+                                           } ?>'>
                     <?php
-                }
-                ?>
-                <li class='ui-state-default sortable_li <?php echo $this->escapeHtml($rowforms[1]);?>' id='<?php echo preg_replace('/\s/','_',$this->escapeHtml($rowforms[0]));?>'>
+            } ?>
+                <li class='ui-state-default sortable_li <?php echo $this->escapeHtml($rowforms[1]); ?>' id='<?php echo preg_replace('/\s/', '_', $this->escapeHtml($rowforms[0])); ?>'>
                     <?php echo $rowforms[0];
-                    if(is_array($rowforms[2])){
+                    if (is_array($rowforms[2])) {
                         ?>
-                        <ul class='droptrue' style='display: none;' id='sub_<?php echo preg_replace('/\s/','_',$this->escapeHtml($rowforms[0]));?>'>
+                        <ul class='droptrue' style='display: none;' id='sub_<?php echo preg_replace('/\s/', '_', $this->escapeHtml($rowforms[0])); ?>'>
                             <?php
-                            foreach($rowforms[2] as $key_sub => $value_sub){
-                            ?>
-                            <li class='ui-state-default <?php echo $this->escapeHtml($rowforms[2][$key_sub][1]);?>'><?php echo $this->listenerObject->z_xlt($rowforms[2][$key_sub][0]);?></li>
-                            <?php
-                            }
-                            ?>
+                            foreach ($rowforms[2] as $key_sub => $value_sub) { ?>
+                            <li class='ui-state-default <?php echo $this->escapeHtml($rowforms[2][$key_sub][1]); ?>'><?php echo $this->listenerObject->z_xlt($rowforms[2][$key_sub][0]); ?></li>
+                                <?php } ?>
                         </ul>
-                        <?php
-                    }
-                    ?>
+                                <?php } ?>
                 </li>
                 <?php
                 $count++;
-            }
-            ?>
+        } ?>
         </div>
         <script>
             var pagecontent = new virtualpaginate({
-                piececlass      : "virtualpage_<?php echo $this->escapeHtml($key);?>", //class of container for each piece of content
+                piececlass      : "virtualpage_<?php echo $this->escapeHtml($key); ?>", //class of container for each piece of content
                 piececontainer  : "ul",                             //container element type (ie: "div", "p" etc)
                 pieces_per_page : 2,                                //Pieces of content to show per page (1=1 piece, 2=2 pieces etc)
                 defaultpage     : 0,                                //Default page selected (0=1st page, 1=2nd page etc). Persistence if enabled overrides this setting.
                 wraparound      : false,
                 persist         : false                             //Remember last viewed page and recall it when user returns within a browser session?
-            })
-            pagecontent.buildpagination(["paginatediv_<?php echo $this->escapeHtml($key);?>"])
+            });
+            pagecontent.buildpagination(["paginatediv_<?php echo $this->escapeHtml($key); ?>"]);
         </script>
-        <?php
-        }
-        ?>
-    <div class="clear"></div>
+    <div class="clearfix"></div>
     </div>
 </div> <!-- ca-ca-in-1 -->
 
 <div class="ca-ca-in-2">
     <div>
         <div class="dropable_area">
-            <ul id="sortabledrop" class='sortable_div dropfalse' style="font-size:12px;">
+            <ul id="sortabledrop" class='sortable_div dropfalse' style="font-size: 0.75rem;">
                 <?php
                 $prev = '';
                 $count = 0;
-                foreach($this->sections as $row){
+                foreach ($this->sections as $row) {
                     $completed = '';
-                    if($prev != $row['ccda_components_field']){
+                    if ($prev != $row['ccda_components_field']) {
                         $completed = ' ui-state-disabled-complete ';
-                        if($count > 0){
-                        ?>
-                        <li class="ui-state-default ui-state-disabled sortable_li" style="visibility: hidden; line-height: 1px; padding: 0px !important;">
+                        if ($count > 0) { ?>
+                        <li class="sortable_li p-0" style="visibility: hidden; line-height: 1px; padding: 0px !important;">
                             &nbsp;
                         </li>
-                        <?php
-                        }
-                        ?>
-                        <li class="ui-state-default ui-state-disabled sortable_li <?php echo $completed;?>" style="color: #f70428 !important;" id="ID<?php echo $this->escapeHtml($row['ccda_components_field']);?>">
-                            <?php echo $this->listenerObject->z_xlt($row['ccda_components_name']);?>
+                        <?php } ?>
+                        <li class="ui-state-default ui-state-disabled sortable_li <?php echo $completed; ?>" style="color: #f70428 !important;" id="ID<?php echo $this->escapeHtml($row['ccda_components_field']); ?>">
+                            <?php echo $this->listenerObject->z_xlt($row['ccda_components_name']); ?>
                         </li>
                         <script>
-                            $('#ID<?php echo $this->escapeHtml($row['ccda_components_field']);?>').click(function(){
-                                $('.sub_<?php echo $this->escapeHtml($row['ccda_components_field']);?>').toggle('slow');
+                            $('#ID<?php echo $this->escapeHtml($row['ccda_components_field']); ?>').click(function(){
+                                $('.sub_<?php echo $this->escapeHtml($row['ccda_components_field']); ?>').toggle('slow');
                             });
                         </script>
                         <?php
                         $count++;
-                    }
-                    ?>
-                    <li class="ui-state-default ui-state-disabled <?php echo $completed;?> <?php echo "sub_".$this->escapeHtml($row['ccda_components_field']);?> <?php echo "FIELD".$this->escapeHtml($row['ccda_sections_field']) ;?> child-drop-area" style="color: #000000 !important; display: none;">
-                        <?php echo $this->listenerObject->z_xlt($row['ccda_sections_name']);?>
+                    } ?>
+                    <li class="ui-state-default ui-state-disabled <?php echo $completed; ?> <?php echo "sub_".$this->escapeHtml($row['ccda_components_field']); ?> <?php echo "FIELD".$this->escapeHtml($row['ccda_sections_field']) ; ?> child-drop-area" style="color: #000000 !important; display: none;">
+                        <?php echo $this->listenerObject->z_xlt($row['ccda_sections_name']); ?>
                     </li>
                     <?php
-                    if($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']]){
-                        foreach($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']] as $key_1 => $value_1){
-                            if(!$this->listenerObject->z_xlt($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']][$key_1]['name'])) continue;
-                        ?>
-                        <li class="ui-state-default sortable_li <?php echo "sub_".$this->escapeHtml($row['ccda_components_field']);?> <?php echo $this->escapeHtml($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']][$key_1]['class']);?> " style="display: none">
+                    if ($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']]) {
+                        foreach ($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']] as $key_1 => $value_1) {
+                            if (!$this->listenerObject->z_xlt($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']][$key_1]['name'])) {
+                                continue;
+                            } ?>
+                        <li class="ui-state-default sortable_li <?php echo "sub_".$this->escapeHtml($row['ccda_components_field']); ?> <?php echo $this->escapeHtml($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']][$key_1]['class']); ?> " style="display: none">
                             <?php
-                            echo $this->listenerObject->z_xlt($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']][$key_1]['name']);
-                            ?>
-                            <img class="delete" height="15px" width="15px" src="<?php echo $this->basePath() . '/images/delete1.png';?>" style="float:right; margin-top:1px;">
+                            echo $this->listenerObject->z_xlt($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']][$key_1]['name']); ?>
+                            <img class="delete float-right" height="15px" width="15px" src="<?php echo $this->basePath() . '/images/delete1.png'; ?>">
                         </li>
-                        <?php
+                            <?php
                         }
-                    }
-                    ?>
+                    } ?>
                     <?php
                     $prev = $row['ccda_components_field'];
                 }
@@ -229,10 +215,10 @@ $(function () {
     </div>
     <div class="clearfix"></div>
 </div>
-<div class="clear"></div>
+<div class="clearfix"></div>
 <form method="post" action="<?php echo $this->basePath() . '/carecoordination/setup/savedata';?>">
-    <div style="width:100%; text-align:center;">
-        <input style="position: absolute;top: 480px;" type="submit" name="save" value="<?php echo $this->listenerObject->z_xla("Save");?>">
+    <div class="text-center w-100">
+        <input class="btn btn-primary" style="top: 480px;" type="submit" name="save" value="<?php echo $this->listenerObject->z_xla("Save");?>" />
     </div>
-    <input type="hidden" id="tosave" name="tosave" value="">
+    <input type="hidden" id="tosave" name="tosave" value="" />
 </form>

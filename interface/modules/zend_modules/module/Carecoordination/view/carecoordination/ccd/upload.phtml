@@ -192,7 +192,7 @@
               </div>
               <div id="refresh" onclick="javascript:document.getElementById('form_ccda_import').submit();">&nbsp;</div>
             </div>
-            <div class="clear"></div>
+            <div class="clearfix"></div>
 
             <!--Display upload status-->
             <div style="display: none" id="status1"></div>
@@ -201,36 +201,36 @@
             <div class="clear"></div>
             <div class="se_in_8">
                 <?php
-                if(count($this->records) > 0){
+                if (count($this->records) > 0) {
                     ?>
-                    <table class="responsive">
+                    <div class="table-responsive">
+                    <table class="table">
                         <tr class="se_in_9">
                             <th style="height: 20px;">#</th>
                             <th><?php echo $this->listenerObject->z_xlt('Date'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
-                            <th nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
+                            <th class="text-nowrap"><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
-                            <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
-                            <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
+                            <th class="text-nowrap"><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
+                            <th class="text-nowrap"><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
                             <th>&nbsp;</th>
                         </tr>
                     <?php
                     $slno = 0;
-                    foreach($this->records as $row){
+                    foreach ($this->records as $row) {
                         ?>
                         <tr>
                             <td style="height: 20px;"><?php echo ++$slno; ?></td>
-                            <td><?php echo \Application\Model\ApplicationTable::fixDate($row['date'],'dd/mm/yyyy','yyyy-mm-dd'); ?></td>
+                            <td><?php echo \Application\Model\ApplicationTable::fixDate($row['date'], 'dd/mm/yyyy', 'yyyy-mm-dd'); ?></td>
                             <td><?php echo $this->escapeHtml($row['fname']) . " " . $this->escapeHtml($row['lname']); ?></td>
                             <td><?php echo $this->escapeHtml($row['pat_name']); ?></td>
-                            <td><?php echo \Application\Model\ApplicationTable::fixDate($row['dob'],'dd/mm/yyyy','yyyy-mm-dd'); ?></td>
+                            <td><?php echo \Application\Model\ApplicationTable::fixDate($row['dob'], 'dd/mm/yyyy', 'yyyy-mm-dd'); ?></td>
                             <td>
                                 <?php
-                                if($row['imported'] == 1){
-                                    if($row['pid'] > 0){
-                                        echo "<span style='color: red' title='".$this->escapeHtml($row['matched_patient'])." [".$this->escapeHtml($row['pid'])."]'>".$this->listenerObject->z_xlt('Yes')."</span>";
-                                    }
-                                    else{
+                                if ($row['imported'] == 1) {
+                                    if ($row['pid'] > 0) {
+                                        echo "<span class='text-danger' title='".$this->escapeHtml($row['matched_patient'])." [".$this->escapeHtml($row['pid'])."]'>".$this->listenerObject->z_xlt('Yes')."</span>";
+                                    } else {
                                         echo $this->listenerObject->z_xlt('No');
                                     }
                                 }
@@ -239,8 +239,8 @@
                             <td>
                                 <?php echo $this->escapeHtml($row['matched_patient']); ?>
                             </td>
-                            <td nowrap>
-                                <a style="text-decoration: none;" target="_blank" href="<?php echo $this->basePath();?>/documents/documents/retrieve/<?php echo $this->escapeHtml($row['document_id']);?>">
+                            <td class="text-nowrap">
+                                <a class="text-decoration-none" target="_blank" href="<?php echo $this->basePath();?>/documents/documents/retrieve/<?php echo $this->escapeHtml($row['document_id']);?>">
                                   <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/view.png" title='<?php echo $this->listenerObject->z_xlt("View details");?>'>
                                 </a>
                             </td>
@@ -249,11 +249,12 @@
                     }
                     ?>
                     </table>
+                  </div>
                     <?php
-                }
-                else{
+                } else {
                     ?>
-                    <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->records) > 0){ ?>display: none; <?php } ?>">
+                    <div class="mx-auto text-center font-weight-bold" style="width: 60%; border: 1px solid #CCCCCC; padding: 30px; font-size: 0.9375rem; background: #f7f7f7;<?php if (count($this->records) > 0) {
+                        ?>display: none; <?php } ?>">
                         <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
                     </div>
                     <?php

@@ -15,8 +15,10 @@ $provider   = $this->provider;
 ?>
 <script>
     $(function () {
-        height_value = $('.responsive tr').length * 25 + 220;
-        if(height_value < 300){ height_value = 300 };
+      var height_value = $('#responsive tr').length * 25 + 220;
+      if(height_value < 300) {
+        height_value = 300;
+      };
         if (parent.document.getElementById('syndromicsurveillance_iframe')) {
             parent.iframeLoaded(height_value, 'syndromicsurveillance_iframe');
         }
@@ -27,30 +29,42 @@ $provider   = $this->provider;
 <div class="body_inner_wrapper">
     <div class="header_wrap">
         <div class="header_wrap_left">
-            <div class="search_button" id="searchbutton" title="Search"><?php echo $this->listenerObject->z_xlt('SEARCH'); ?></div>&nbsp;&nbsp;
+            <div class="btn btn-primary" id="searchbutton" title="Search"><?php echo $this->listenerObject->z_xlt('SEARCH'); ?></div>&nbsp;&nbsp;
             <?php
-            if(count($this->result) > 0){
+            if (count($this->result) > 0) {
                 ?>
-                <div class="search_button" id="hl7button" title="<?php echo $this->listenerObject->z_xlt('Download HL7 file');?>" style="display: none;"><?php echo $this->listenerObject->z_xlt('GET HL7'); ?></div>&nbsp;&nbsp;
+                <div class="btn btn-primary" id="hl7button" title="<?php echo $this->listenerObject->z_xlt('Download HL7 file');?>" style="display: none;"><?php echo $this->listenerObject->z_xlt('GET HL7'); ?></div>&nbsp;&nbsp;
                 <?php
                     // @see Application view_helpers for this functionality.
                     $this->sendToHie('syndromicsurveillance/layout/layout', ['download'], 'download', ['hl7_format']);
                 ?>
-                <div class="se_in_3" title="reload" onclick="clearCount();document.getElementById('theform').submit();"></div>
+                <div class="btn btn-primary btn-refresh" title="reload" onclick="clearCount();document.getElementById('theform').submit();"></div>
                 <?php
             }
             ?>
             <div class="se_in_15 se_in_16">
-                <table>
+                <table class="table" id="responsive">
                     <tr>
                         <td class="se_in_16_label"><label><?php echo $this->listenerObject->z_xlt('Date'); ?></label></td>
-                        <td nowrap>
-                            <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_from" id="form_date_from" class="dateClass_syndrome"/>
-                            <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_to" id="form_date_to" class="dateClass_syndrome"/>
+                        <td class="text-nowrap">
+                            <input class="form-control" readonly maxlength="10" type="text" name="form_date_from" id="form_date_from" class="dateClass_syndrome" />
+                            <input class="form-control" readonly maxlength="10" type="text" name="form_date_to" id="form_date_to" class="dateClass_syndrome" />
                             <script>
                                 $(function () {
-                                    $( "#form_date_from" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_date_from'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>' );
-                                    $( "#form_date_to" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_date_to'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
+                                    $( "#form_date_from" ).datetimepicker({
+                                      <?php $datetimepicker_timepicker = false;
+                                      $datetimepicker_showseconds = false;
+                                      $datetimepicker_formatInput = false;
+                                      $datetimepicker_value = $this->commonplugin->date_format($this->form_data['form_date_from'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
+                                      require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                                    });
+                                    $( "#form_date_to" ).datetimepicker({
+                                      <?php $datetimepicker_timepicker = false;
+                                      $datetimepicker_showseconds = false;
+                                      $datetimepicker_formatInput = false;
+                                      $datetimepicker_value = $this->commonplugin->date_format($this->form_data['form_date_to'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
+                                      require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                                      });
                                 });
                             </script>
                         </td>
@@ -58,12 +72,13 @@ $provider   = $this->provider;
                     <tr>
                         <td class="se_in_16_label"><label><?php echo $this->listenerObject->z_xlt('Diagnosis'); ?></label></td>
                         <td>
-                            <select multiple name="form_icd_codes[]" size="3">
+                            <select class="form-control" multiple name="form_icd_codes[]" size="3">
                                 <option></option>
                                 <?php
-                                foreach($code_list as $row_code){
+                                foreach ($code_list as $row_code) {
                                     ?>
-                                    <option <?php if(in_array($row_code['id'], $this->form_data['form_icd_codes'])) echo "selected";?> value="<?php echo $this->escapeHtml($row_code['id']);?>"><?php echo $this->escapeHtml($row_code['name']);?></option>
+                                    <option <?php if (in_array($row_code['id'], $this->form_data['form_icd_codes'])) {
+                                        echo "selected";}?> value="<?php echo $this->escapeHtml($row_code['id']);?>"><?php echo $this->escapeHtml($row_code['name']);?></option>
                                     <?php
                                 }
                                 ?>
@@ -73,11 +88,12 @@ $provider   = $this->provider;
                     <tr>
                         <td class="se_in_16_label"><label><?php echo $this->listenerObject->z_xlt('Provider'); ?></label></td>
                         <td>
-                            <select name="form_provider_id">
+                            <select class="form-control" name="form_provider_id">
                                 <?php
-                                foreach($provider as $row_provider){
+                                foreach ($provider as $row_provider) {
                                     ?>
-                                    <option <?php if($row_provider['value'] == $this->form_data['form_provider_id']) echo 'selected';?> value="<?php echo $this->escapeHtml($row_provider['value']);?>"><?php echo $this->listenerObject->z_xlt($row_provider['label']);?></option>
+                                    <option <?php if ($row_provider['value'] == $this->form_data['form_provider_id']) {
+                                        echo 'selected';}?> value="<?php echo $this->escapeHtml($row_provider['value']);?>"><?php echo $this->listenerObject->z_xlt($row_provider['label']);?></option>
                                     <?php
                                 }
                                 ?>
@@ -86,52 +102,47 @@ $provider   = $this->provider;
                     </tr>
                     <tr>
                         <td></td>
-                        <td><input type="submit" onclick="clearCount();return validate_search();"  value="<?php echo $this->listenerObject->z_xlt('SEARCH'); ?>" name="search" id="search_encounter" /></td>
+                        <td><input type="submit" class="btn btn-primary" onclick="clearCount();return validate_search();"  value="<?php echo $this->listenerObject->z_xlt('SEARCH'); ?>" name="search" id="search_encounter" /></td>
                     </tr>
                 </table>
             </div>
         </div>
-        <div class="header_wrap_right" style="">
+        <div class="header_wrap_right">
             <div class="se_in_4">
-                <?php
-                if(count($this->result) > 0){
-                ?>
-                <label><?php echo $this->listenerObject->z_xlt('Show');?>&nbsp;</label>&nbsp;
-                <input maxlength="3" type="text" onkeypress="return isNumber(event)" name="form_results" value="<?php echo $this->escapeHtml($this->form_data['results']);?>" />&nbsp;
-                <label>&nbsp;<?php echo $this->listenerObject->z_xlt('Encounters'); ?></label>
-                <?php
-                }
-                ?>
+                <?php if (count($this->result) > 0) { ?>
+                <label><?php echo $this->listenerObject->z_xlt('Show');?></label>
+                <input maxlength="3" type="text" class="form-control" onkeypress="return isNumber(event)" name="form_results" value="<?php echo $this->escapeHtml($this->form_data['results']);?>" />
+                <label><?php echo $this->listenerObject->z_xlt('Encounters'); ?></label>
+                    <?php } ?>
             </div>
             <div class="se_in_6">
                 <?php
-                if(count($this->result) > 0){
-                ?>
+                if (count($this->result) > 0) {
+                    ?>
                 <div class="se_in_5">
-                    <div class="se_in_5-1" onclick="pagination('first');"></div>
-                    <div class="se_in_5-2" onclick="<?php if($this->form_data['current_page'] > 1) { ?> pagination('previous');<?php } ?>"></div>
-                    <div class="se_in_5-3" onclick="<?php if($this->form_data['current_page'] < $this->form_data['total_pages']) { ?> pagination('next');<?php } ?>"></div>
-                    <div class="se_in_5-4" onclick="pagination('last');"></div>
+                    <div class="btn btn-outline-dark" onclick="pagination('first');"><i class="fas fa-step-backward fa-lg"></i></div>
+                    <div class="btn btn-outline-dark" onclick="<?php if ($this->form_data['current_page'] > 1) {
+                        ?> pagination('previous');<?php } ?>"><i class="fas fa-caret-left fa-lg"></i></div>
+                    <div class="btn btn-outline-dark" onclick="<?php if ($this->form_data['current_page'] < $this->form_data['total_pages']) {
+                        ?> pagination('next');<?php } ?>"><i class="fas fa-caret-right fa-lg"></i></div>
+                    <div class="btn btn-outline-dark" onclick="pagination('last');"><i class="fas fa-step-forward fa-lg"></i></div>
                 </div>
-                <div class="clear"></div>
+                <div class="clearfix"></div>
                 <div class="se_in_7">
                     <label><?php echo $this->listenerObject->z_xlt('Page');?> <?php echo $this->escapeHtml($this->form_data['current_page']);?> - <?php echo $this->listenerObject->z_xlt('of'); ?> <?php echo $this->escapeHtml($this->form_data['total_pages']); ?></label>
                 </div><!-- se_in_7 -->
-                <?php
-                }
-                ?>
+                    <?php } ?>
             </div><!-- se_in_6 -->
         </div>
     </div>
-    <div class="clear"></div>
+    <div class="clearfix"></div>
     <div class="se_in_8">
-        <?php
-        if(count($this->result) > 0){
-        ?>
-        <table class="responsive">
+        <?php if (count($this->result) > 0) { ?>
+        <div class="table-responsive">
+        <table class="table">
             <tr class="se_in_9">
                 <th width="2%"><?php echo '#';?></th>
-                <th width="10%" nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
+                <th width="10%" class="text-nowrap"><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
                 <th width="15%"><?php echo $this->listenerObject->z_xlt('Diagnosis'); ?></th>
                 <th width="18%"><?php echo $this->listenerObject->z_xlt('Description'); ?></th>
                 <th><?php echo $this->listenerObject->z_xlt('Issue ID'); ?></th>
@@ -140,7 +151,7 @@ $provider   = $this->provider;
             </tr>
             <?php
             $slno = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']);
-            foreach($this->result as $row_records){
+            foreach ($this->result as $row_records) {
                 $slno++;
                 ?>
                 <tr>
@@ -156,14 +167,14 @@ $provider   = $this->provider;
             }
             ?>
         </table>
-        <?php
-        }
-        else{
-        ?>
-            <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->result) > 0){ ?>display: none; <?php } ?>">
+      </div>
+            <?php
+        } else {
+            ?>
+            <div class="mx-auto font-weight-bold text-center <?php if (count($this->result) > 0) { ?>d-none <?php } ?>" style="width: 60%; border: 1px solid var(--gray400); padding: 30px; font-size: 0.9375rem; background-color: #f7f7f7;">
                 <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
             </div>
-        <?php
+            <?php
         }
         ?>
     </div>
