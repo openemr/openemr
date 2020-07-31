@@ -33,6 +33,9 @@
   "devDependencies": {
     "autoprefixer": "^9.7.6",
     "del": "^5.1.0",
+    "eslint": "^7.5.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
     "glob": "^7.1.6",
     "gulp": "^4.0.2",
     "gulp-append-prepend": "^1.0.8",
