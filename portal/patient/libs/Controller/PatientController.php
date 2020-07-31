@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -73,19 +73,39 @@ class PatientController extends AppBaseController
         if (isset($_GET['register'])) {
             $register = $_GET['register'];
         }
-
         $this->Assign('recid', $rid);
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $user);
         $this->Assign('encounter', $encounter);
         $this->Assign('register', $register);
+
         $trow = array();
         $ptdata = $this->startupQuery($pid);
         foreach ($ptdata[0] as $key => $v) {
             $trow[lcfirst($key)] = $v;
         }
-
         $this->Assign('trow', $trow);
+
+        // seek and qualify excluded edits
+        $exclude = [];
+        $q = sqlStatement("SELECT `field_id`, `uor`, `edit_options` FROM `layout_options` " .
+            "WHERE `form_id` = 'DEM' AND (`uor` = 0 || `edit_options` > '')" .
+            "ORDER BY `group_id`, `seq`");
+        while ($key = sqlFetchArray($q)) {
+            if ((int)$key['uor'] === 0 || strpos($key['edit_options'], "EP") !== false) {
+                $key['field_id'] = strtolower($key['field_id']);
+                $key['field_id'] = preg_replace_callback(
+                    '/_([^_])/',
+                    function (array $m) {
+                        return ucfirst($m[1]);
+                    },
+                    $key['field_id']
+                );
+                $exclude[] = lcfirst($key['field_id']) . "InputContainer";
+            }
+        }
+        $this->Assign('exclude', $exclude);
+
         $this->Render();
     }
     /**

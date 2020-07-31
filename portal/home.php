@@ -81,7 +81,9 @@ $(function () {
     });
 
     function showProfileModal() {
-        var title = <?php echo xlj('Demographics Legend Red: Charted Values. Blue: Patient Edits'); ?> + ' ';
+        var title = <?php echo xlj('Profile Edit') ?> + " <small class='text-danger'> " +
+            <?php echo xlj('Red items are Current.') ?> + "</small><small class='text-primary'> " +
+            <?php echo xlj('Blue items are Edits') ?> + "</small>";
 
         var params = {
             buttons: [
@@ -94,7 +96,7 @@ $(function () {
             type: 'GET',
             url: webRoot + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
         };
-        dlgopen('','','modal-xl', 500, '', title, params);
+        dlgopen('','','modal-xl', 550, '', title, params);
     }
 
     function saveProfile() {

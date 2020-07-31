@@ -22,15 +22,16 @@
 if ($this->trow) {
     $row = $this->trow;
 }
-
+    $exclude = array();
+if ($this->exclude) {
+    $exclude = $this->exclude;
+}
     echo "<script>var register='" . attr($this->register) . "';var recid='" . attr($this->recid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';</script>";
     $_SESSION['whereto'] = 'profilepanel';
 
     $this->display('_modalFormHeader.tpl.php');
 ?>
-
-<script type="text/javascript">
-
+<script>
     // bring in the datepicker and datetimepicker localization and setting elements
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
 
@@ -43,13 +44,14 @@ if ($this->trow) {
             if (!page.isInitialized) page.init();
         },1000);
     });
+    // profile excludes global from layouts via PatientController
+    const exclude = <?php echo js_escape($exclude); ?>;
 </script>
 <?php if (attr($this->register)) {?>
 <style>
     .form-group.inline.dynhide {
         display: none;
     }
-
     body {
         padding-top: 0px;
         padding-bottom: 5px;
@@ -59,8 +61,8 @@ if ($this->trow) {
 <script>
     // Fixes iFrame in Patient Registratiion
     setInterval(function() {
-        window.top.postMessage(document.body.scrollHeight, "*");
-    }, 500); 
+            window.top.postMessage(document.body.scrollHeight, "*");
+    }, 500);
 </script>
 <?php }?>
 <body>
@@ -71,7 +73,7 @@ if ($this->trow) {
 
 <div id='profileHelp' class='well' style='display:none;width: 650px; margin: 0 auto;'>
 <p>
-<?php echo xlt('Any changes here will be reviewed by provider staff before commiting to chart. The following apply'); ?>:<br>
+<?php echo xlt('Any changes here will be reviewed by provider staff before commiting to chart. The following apply'); ?>:
 <?php echo xlt('Change any item available and when ready click Send for review. The changes will be flagged and staff notified to review changes before commiting them to chart. During the time period before changes are reviewed the Revised button will show Pending and profile data is still available for changes. When accessing profile in pending state all previous edits will appear in Blue and current chart values in Red. You may revert any edit to chart value by clicking that red item (or vica versa) but remember that when you click Send for Review then items that populate the field items are the ones that are sent. Revert Edits button changes everything back to chart values and you may make changes from there. So to recap: Items in BLUE are patient edits with items in RED being original values before any edits.'); ?>
 </p>
         <button class="btn btn-primary btn-xs" type="button"  id='dismissHelp'><?php echo xlt('Dismiss'); ?></button>

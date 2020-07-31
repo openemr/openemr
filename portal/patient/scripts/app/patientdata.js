@@ -194,6 +194,13 @@ var page = {
 				    scrollMonth: datepicker_scrollMonth,
 				    timepicker:true
 				});
+				// hide excluded from layouts
+                exclude.forEach(id => {
+                    let elHide = document.getElementById(id) ?? '';
+                    if (elHide) {
+                        elHide.style.display = "none";
+                    }
+                });
 			});
 			 document.getElementById('title').value =page.patient.get('title')
 			 document.getElementById('sex').value =page.patient.get('sex')
