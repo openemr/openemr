@@ -216,7 +216,31 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools sql-ssl-client-off'
       ```
-17. Xdebug and profiling is also supported for PHPStorm.
+17. CouchDB integration.
+    - In OpenEMR, CouchDB is an option for the patients document storage. For this reason, a CouchDB docker is included in this OpenEMR docker development environment. You can visit the CouchDB GUI directly via http://localhost:5984/_utils/ or https://localhost:6984/_utils/ with username `admin` and password `password`. You can configure OpenEMR to use this CouchDB docker for patient document storage in OpenEMR at Administration->Globals->Documents:
+        - Document Storage Method->CouchDB
+    - After running the following devtools, 'dev-reset', 'dev-install', 'dev-reset-install', 'dev-reset-install-demodata', 'restore-snapshot', then need to restart the couchdb docker via the following command:
+        ```sh
+        docker restart $(docker ps | grep _couchdb_1 | cut -f 1 -d " ")
+        ```
+    - Developer tools to place/remove testing couchdb ssl certificate and testing couchdb ssl client key/cert.
+        - Place the testing couchdb ssl CA cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools couchdb-ssl'
+          ```
+        - Remove the testing couchdb ssl CA cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools couchdb-ssl-off'
+          ```
+        - Place the testing couchdb ssl CA cert and testing couchdb ssl client key/cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools couchdb-ssl-client'
+          ```
+        - Remove the testing couchdb ssl CA cert and testing couchdb ssl client key/cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools couchdb-ssl-client-off'
+          ```
+18. Xdebug and profiling is also supported for PHPStorm.
     - Firefox install xdebug helper add on (configure for PHPSTORM)
     - PHPStorm Settings->Language & Frameworks->PHP->Debug
         - Start listening
@@ -224,9 +248,9 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
         - Untoggle both settings that start with "Force Break at first line..."
      - Make sure port 9000 is open on your host operating system
      - Profiling output can be found in /tmp directory in the docker
-18. When you're done, it's best to clean up after yourself with `docker-compose down -v`
+19. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
-19. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+20. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 We look forward to your contribution...
 
