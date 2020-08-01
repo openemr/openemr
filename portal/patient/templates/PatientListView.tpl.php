@@ -47,15 +47,17 @@ if ($this->exclude) {
     // profile excludes global from layouts via PatientController
     const exclude = <?php echo js_escape($exclude); ?>;
 </script>
-<?php if (attr($this->register)) {?>
 <style>
-    .form-group.inline.dynhide {
-        display: none;
-    }
     body {
         padding-top: 0px;
         padding-bottom: 5px;
         background: #fff !important;
+    }
+</style>
+<?php if (attr($this->register)) {?>
+<style>
+    .form-group.inline.dynhide {
+        display: none;
     }
 </style>
 <script>
@@ -159,7 +161,7 @@ if ($this->exclude) {
                 <div class="form-group inline" id="ssInputContainer">
                     <label class="control-label" for="ss"><?php echo xlt('SSN')?></label>
                     <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="ss" title="###-##-####" placeholder="<?php echo xla('Social Security(Optional)'); ?>" value="<%= _.escape(item.get('ss') || '') %>">
+                        <input type="text" class="form-control" id="ss" pattern="\d{3}[\-]\d{2}[\-]\d{4}" title="###-##-####" placeholder="<?php echo xla('Example') . ' 123-45-6789'; ?>" value="<%= _.escape(item.get('ss') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div>
@@ -282,7 +284,7 @@ if ($this->exclude) {
                 <div class="form-group inline dynhide" id="refProvideridInputContainer">
                     <label class="control-label" for="refProviderid"><?php echo xlt('Referral Provider')?></label>
                     <div class="controls inline-inputs">
-                        <select  disabled class="form-control" id="refProviderid"  value="<%= _.escape(item.get('refProviderid') || '') %>"></select>
+                        <select disabled class="form-control" id="refProviderid"  value="<%= _.escape(item.get('refProviderid') || '') %>"></select>
                         <span class="help-inline"></span>
                     </div>
                 </div>
@@ -420,7 +422,7 @@ if ($this->exclude) {
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="hipaaAllowemailInputContainer">
+                <div class="form-group inline dynhide" id="hipaaAllowemailInputContainer">
                     <label class="control-label" for="hipaaAllowemail"><?php echo xlt('Allow Email')?></label>
                     <div class="controls inline-inputs">
                             <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowemail0" name="hipaaAllowemail" type="radio" value="NO"<% if (item.get('hipaaAllowemail')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>

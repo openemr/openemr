@@ -99,191 +99,105 @@ if ($GLOBALS['language_menu_login']) {
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js"></script>
 
-    <script>
-        var newPid = 0;
-        var curPid = 0;
-        var provider = 0;
+<script>
+    var newPid = 0;
+    var curPid = 0;
+    var provider = 0;
 
-        $(function () {
-            /* // test data
-            $("#emailInput").val("me@me.com");
-            $("#fname").val("Jerry");
-            $("#lname").val("Padgett");
-            $("#dob").val("1919-03-03");
-            // ---------- */
-            var navListItems = $('div.setup-panel div a'),
-                allWells = $('.setup-content'),
-                allNextBtn = $('.nextBtn'),
-                allPrevBtn = $('.prevBtn');
+    $(function () {
+        var navListItems = $('div.setup-panel div a'),
+            allWells = $('.setup-content'),
+            allNextBtn = $('.nextBtn'),
+            allPrevBtn = $('.prevBtn');
 
-            allWells.hide();
+        allWells.hide();
 
-            navListItems.click(function (e) {
-                e.preventDefault();
-                var $target = $($(this).attr('href')),
-                    $item = $(this);
+        navListItems.click(function (e) {
+            e.preventDefault();
+            var $target = $($(this).attr('href')),
+                $item = $(this);
 
-                if (!$item.hasClass('disabled')) {
-                    navListItems.removeClass('btn-primary').addClass('btn-default');
-                    $item.addClass('btn-primary');
-                    allWells.hide();
-                    $target.show();
-                    $target.find('input:eq(0)').focus();
-                }
-            });
+            if (!$item.hasClass('disabled')) {
+                navListItems.removeClass('btn-primary').addClass('btn-default');
+                $item.addClass('btn-primary');
+                allWells.hide();
+                $target.show();
+                $target.find('input:eq(0)').focus();
+            }
+        });
 
-            allPrevBtn.click(function () {
-                var curStep = $(this).closest(".setup-content"),
-                    curStepBtn = curStep.attr("id"),
-                    prevstepwiz = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().prev().children("a");
-                prevstepwiz.removeAttr('disabled').trigger('click');
-            });
+        allPrevBtn.click(function () {
+            var curStep = $(this).closest(".setup-content"),
+                curStepBtn = curStep.attr("id"),
+                prevstepwiz = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().prev().children("a");
+            prevstepwiz.removeAttr('disabled').trigger('click');
+        });
 
-            allNextBtn.click(function () {
-                var profile = $("#profileFrame").contents();
-
-                // Fix for iFrame height
-                window.addEventListener('message', function(e) {
-                    var scroll_height = e.data;
-                    document.getElementById('profileFrame').style.height = scroll_height + 'px';
-                }, false);
-
-
-                /* // test data
-                profile.find("input#street").val("123 Some St.");
-                profile.find("input#city").val("Brandon");
-                //--------------------- */
-
-                var curStep = $(this).closest(".setup-content"),
-                    curStepBtn = curStep.attr("id"),
-                    nextstepwiz = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
-                    curInputs = curStep.find("input[type='text'],input[type='email'],select"),
-                    isValid = true;
-
-                $(".form-group").removeClass("has-error");
-                for (var i = 0; i < curInputs.length; i++) {
-                    if (!curInputs[i].validity.valid) {
-                        isValid = false;
-                        $(curInputs[i]).closest(".form-group").addClass("has-error");
-                    }
-                }
-                if (isValid) {
-                    if (curStepBtn == 'step-1') { // leaving step 1 setup profile frame. Prob not nec but in case
-                        profile.find('input#fname').val($("#fname").val());
-                        profile.find('input#mname').val($("#mname").val());
-                        profile.find('input#lname').val($("#lname").val());
-                        profile.find('input#dob').val($("#dob").val());
-                        profile.find('input#email').val($("#emailInput").val());
-                        profile.find('input[name=allowPatientPortal]').val(['YES']);
-                        // need these for validation.
-                        profile.find('select#providerid option:contains("Unassigned")').val('');
-                        profile.find('select#providerid').attr('required', true);
-                        profile.find('select#sex option:contains("Unassigned")').val('');
-                        profile.find('select#sex').attr('required', true);
-
-                        var pid = profile.find('input#pid').val();
-                        if (pid < 1) { // form pid set in promise
-                            callServer('get_newpid', '', $("#dob").val(), $("#lname").val(), $("#fname").val()); // @TODO escape these
-                        }
-                    }
-                    nextstepwiz.removeAttr('disabled').trigger('click');
-                }
-            });
-
-            $("#profileNext").click(function () {
-                var profile = $("#profileFrame").contents();
-                var curStep = $(this).closest(".setup-content"),
-                    curStepBtn = curStep.attr("id"),
-                    nextstepwiz = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
-                    curInputs = $("#profileFrame").contents().find("input[type='text'],input[type='email'],select"),
-                    isValid = true;
-                $(".form-group").removeClass("has-error");
-                var flg = 0;
-                for (var i = 0; i < curInputs.length; i++) {
-                    if (!curInputs[i].validity.valid) {
-                        isValid = false;
-                        if (!flg) {
-                            curInputs[i].scrollIntoView();
-                            curInputs[i].focus();
-                            flg = 1;
-                        }
-                        $(curInputs[i]).closest(".form-group").addClass("has-error");
-                    }
-                }
-                if (isValid) {
-                    provider = profile.find('select#providerid').val();
-                    nextstepwiz.removeAttr('disabled').trigger('click');
-                }
-            });
-
-            $("#submitPatient").click(function () {
-                var profile = $("#profileFrame").contents();
-                var pid = profile.find('input#pid').val();
-
-                if (pid < 1) { // Just in case. Can never have too many pid checks!
-                    callServer('get_newpid', '');
-                }
-
-                var isOk = checkRegistration(newPid);
-                if (isOk) {
-                    // Use portals rest api. flag 1 is write to chart. flag 0 writes an audit record for review in dashboard.
-                    // rest update will determine if new or existing pid for save. In register step-1 we catch existing pid but,
-                    // we can still use update here if we want to allow changing passwords.
-                    //
-                    document.getElementById('profileFrame').contentWindow.page.updateModel(1);
-                    $("#insuranceForm").submit();
-                    //  cleanup is in callServer done promise. This starts end session.
-                }
-            });
-
-            $('div.setup-panel div a.btn-primary').trigger('click');
-
-            $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
-                <?php $datetimepicker_showseconds = false; ?>
-                <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-            });
-
-            $("#insuranceForm").submit(function (e) {
-                e.preventDefault();
-                var url = "account.php?action=new_insurance&pid=" + encodeURIComponent(newPid);
-                $.ajax({
-                    url: url,
-                    type: 'post',
-                    data: $("#insuranceForm").serialize(),
-                    success: function (serverResponse) {
-                        doCredentials(newPid) // this is the end for session.
-                        return false;
-                    }
-                });
-            });
-
-            $('#selLanguage').on('change', function () {
-                callServer("set_lang", this.value);
-            });
-
-            $(document.body).on('hidden.bs.modal', function () { //@TODO maybe make a promise for wiz exit
-                callServer('cleanup');
-            });
-
-            $('#inscompany').on('change', function () {
-                if ($('#inscompany').val().toUpperCase() === 'SELF') {
-                    $("#insuranceForm input").removeAttr("required");
-                    let message = <?php echo xlj('You have chosen to be self insured or currently do not have insurance. Click next to continue registration.'); ?>;
-                    alert(message);
-                }
-            });
-
-        }); // ready end
-
-        function doCredentials(pid) {
-            callServer('do_signup', pid);
-        }
-
-        function checkRegistration(pid) {
+        allNextBtn.click(function () {
             var profile = $("#profileFrame").contents();
-            var curStep = $("#step-2"),
+
+            // Fix for iFrame height
+            window.addEventListener('message', function(e) {
+                var scroll_height = e.data;
+                document.getElementById('profileFrame').style.height = scroll_height + 'px';
+            }, false);
+
+            var curStep = $(this).closest(".setup-content"),
+                curStepBtn = curStep.attr("id"),
+                nextstepwiz = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
+                curInputs = curStep.find("input[type='text'],input[type='email'],select"),
+                isValid = true;
+
+            $(".form-group").removeClass("has-error");
+            for (var i = 0; i < curInputs.length; i++) {
+                if (!curInputs[i].validity.valid) {
+                    isValid = false;
+                    $(curInputs[i]).closest(".form-group").addClass("has-error");
+                }
+            }
+            if (isValid) {
+                if (curStepBtn == 'step-1') { // leaving step 1 setup profile frame. Prob not nec but in case
+                    let fn = $("#fname").val().replace(/^./, $("#fname").val()[0].toUpperCase());
+                    let ln = $("#lname").val().replace(/^./, $("#lname").val()[0].toUpperCase());
+                    profile.find('input#fname').val(fn);
+                    profile.find('input#mname').val($("#mname").val());
+                    profile.find('input#lname').val(ln);
+                    profile.find('input#dob').val($("#dob").val());
+                    profile.find('input#email').val($("#emailInput").val());
+                    profile.find('input#emailDirect').val($("#emailInput").val());
+                    // disable to prevent already validated field changes.
+                    profile.find('input#fname').prop("disabled", true);
+                    profile.find('input#mname').prop("disabled", true);
+                    profile.find('input#lname').prop("disabled", true);
+                    profile.find('input#dob').prop("disabled", true);
+                    profile.find('input#email').prop("disabled", true);
+                    profile.find('input#emailDirect').prop("disabled", true);
+
+                    profile.find('input[name=allowPatientPortal]').val(['YES']);
+                    profile.find('input[name=hipaaAllowemail]').val(['YES']);
+                    // need these for validation.
+                    profile.find('select#providerid option:contains("Unassigned")').val('');
+                    // must have a provider for many reasons. w/o save won't work.
+                    profile.find('select#providerid').attr('required', true);
+                    profile.find('select#sex option:contains("Unassigned")').val('');
+                    profile.find('select#sex').attr('required', true);
+
+                    var pid = profile.find('input#pid').val();
+                    if (pid < 1) { // form pid set in promise
+                        callServer('get_newpid', '',
+                            encodeURIComponent($("#dob").val()),
+                            encodeURIComponent($("#lname").val()),
+                            encodeURIComponent($("#fname").val()),
+                            encodeURIComponent($("#emailInput").val()));
+                    }
+                }
+                nextstepwiz.removeAttr('disabled').trigger('click');
+            }
+        });
+
+        $("#profileNext").click(function () {
+            var profile = $("#profileFrame").contents();
+            var curStep = $(this).closest(".setup-content"),
                 curStepBtn = curStep.attr("id"),
                 nextstepwiz = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
                 curInputs = $("#profileFrame").contents().find("input[type='text'],input[type='email'],select"),
@@ -301,81 +215,194 @@ if ($GLOBALS['language_menu_login']) {
                     $(curInputs[i]).closest(".form-group").addClass("has-error");
                 }
             }
+            // test for new once again
+            // this time using the profile data that will be saved as new patient.
+            // callserver will intercept on fail or silence to continue.
+            let stillNew = callServer('get_newpid', '',
+                encodeURIComponent(profile.find('input#fname').val()),
+                encodeURIComponent(profile.find('input#lname').val()),
+                encodeURIComponent(profile.find('input#dob').val()),
+                encodeURIComponent(profile.find('input#email').val()));
+            if (isValid) {
+                provider = profile.find('select#providerid').val();
+                nextstepwiz.removeAttr('disabled').trigger('click');
+            }
+        });
 
-            if (!isValid) {
-                return false;
+        $("#submitPatient").click(function () {
+            var profile = $("#profileFrame").contents();
+            var pid = profile.find('input#pid').val();
+
+            if (pid < 1) {
+                callServer('get_newpid', '');
             }
 
-            return true;
-        }
+            var isOk = checkRegistration(newPid);
+            if (isOk) {
+                // Use portals rest api. flag 1 is write to chart. flag 0 writes an audit record for review in dashboard.
+                // rest update will determine if new or existing pid for save. In register step-1 we catch existing pid but,
+                // we can still use update here if we want to allow changing passwords.
 
-        function callServer(action, value, value2, last, first) {
-            let message = '';
-            let data = {
-                'action': action,
-                'value': value,
-                'dob': value2,
-                'last': last,
-                'first': first
+                // save the new patient.
+                document.getElementById('profileFrame').contentWindow.page.updateModel(1);
+                $("#insuranceForm").submit();
+                //  cleanup is in callServer done promise. This starts end session.
             }
-            if (action == 'do_signup') {
-                data = {
-                    'action': action,
-                    'pid': value
-                };
-            } else if (action == 'notify_admin') {
-                data = {
-                    'action': action,
-                    'pid': value,
-                    'provider': value2
-                };
-            } else if (action == 'cleanup') {
-                data = {
-                    'action': action
-                };
-            }
-            // The magic that is jquery ajax.
+        });
+
+        $('div.setup-panel div a.btn-primary').trigger('click');
+
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        });
+
+        $("#insuranceForm").submit(function (e) {
+            e.preventDefault();
+            var url = "account.php?action=new_insurance&pid=" + encodeURIComponent(newPid);
             $.ajax({
-                type: 'GET',
-                url: 'account.php',
-                data: data
-            }).done(function (rtn) {
-                if (action == "cleanup") {
-                    window.location.href = "./../index.php" // Goto landing page.
-                } else if (action == "set_lang") {
-                    window.location.href = window.location.href;
-                } else if (action == "get_newpid") {
-                    if (parseInt(rtn) > 0) {
-                        newPid = rtn;
-                        $("#profileFrame").contents().find('input#pubpid').val(newPid);
-                        $("#profileFrame").contents().find('input#pid').val(newPid);
-                    } else {
-                        // After error alert app exit to landing page.
-                        // Existing user error. Error message is translated in account.lib.php.
-                        eModal.alert(rtn);
-                    }
-                } else if (action == 'do_signup') {
-                    if (rtn.indexOf('ERROR') !== -1) {
-                        message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
-                        message += "<br><br>" + <?php echo xlj('Here is what we do know.'); ?> +": " + rtn + "<br>";
-                        eModal.alert(message);
-                        return false;
-                    }
-                    // For production. Here we're finished so do signup closing alert and then cleanup.
-                    callServer('notify_admin', newPid, provider); // pnote notify to selected provider
-                    // alert below for ease of testing.
-                    //alert(rtn); // sync alert.. rtn holds username and password for testing.
-
-                    message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>;
-                    eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
+                url: url,
+                type: 'post',
+                data: $("#insuranceForm").serialize(),
+                success: function (serverResponse) {
+                    doCredentials(newPid) // this is the end for session.
                     return false;
                 }
-            }).fail(function (err) {
-                message = <?php echo xlj('Something went wrong.') ?>;
-                alert(message);
             });
+        });
+
+        $('#selLanguage').on('change', function () {
+            callServer("set_lang", this.value);
+        });
+
+        $(document.body).on('hidden.bs.modal', function () { //@TODO maybe make a promise for wiz exit
+            callServer('cleanup');
+        });
+
+        $('#inscompany').on('change', function () {
+            if ($('#inscompany').val().toUpperCase() === 'SELF') {
+                $("#insuranceForm input").removeAttr("required");
+                let message = <?php echo xlj('You have chosen to be self insured or currently do not have insurance. Click next to continue registration.'); ?>;
+                alert(message);
+            }
+        });
+
+        $("#dob").on('blur', function () {
+            let bday = $(this).val() ?? '';
+            let age = Math.round(Math.abs((new Date().getTime() - new Date(bday).getTime())));
+            age = Math.round(age / 1000 / 60 / 60 / 24);
+            // need to be at least 30 days old otherwise likely an error.
+            if (age < 30) {
+                let msg = <?php echo (xlj("Invalid Date format or value! Type date as YYYY-MM-DD or use the calendar.") ); ?> ;
+                $(this).val('');
+                $(this).prop('placeholder', 'Invalid Date');
+                alert(msg);
+                return false;
+            }
+        });
+
+    }); // ready end
+
+    function doCredentials(pid) {
+        callServer('do_signup', pid);
+    }
+
+    function checkRegistration(pid) {
+        var profile = $("#profileFrame").contents();
+        var curStep = $("#step-2"),
+            curStepBtn = curStep.attr("id"),
+            nextstepwiz = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
+            curInputs = $("#profileFrame").contents().find("input[type='text'],input[type='email'],select"),
+            isValid = true;
+        $(".form-group").removeClass("has-error");
+        var flg = 0;
+        for (var i = 0; i < curInputs.length; i++) {
+            if (!curInputs[i].validity.valid) {
+                isValid = false;
+                if (!flg) {
+                    curInputs[i].scrollIntoView();
+                    curInputs[i].focus();
+                    flg = 1;
+                }
+                $(curInputs[i]).closest(".form-group").addClass("has-error");
+            }
         }
-    </script>
+        if (!isValid) {
+            return false;
+        }
+            return true;
+    }
+
+    function callServer(action, value, value2, last, first, email = null) {
+        let message = '';
+        let data = {
+            'action': action,
+            'value': value,
+            'dob': value2,
+            'last': last,
+            'first': first,
+            'email': email
+        }
+        if (action == 'do_signup') {
+            data = {
+                'action': action,
+                'pid': value
+            };
+        } else if (action == 'notify_admin') {
+            data = {
+                'action': action,
+                'pid': value,
+                'provider': value2
+            };
+        } else if (action == 'cleanup') {
+            data = {
+                'action': action
+            };
+        }
+        // The magic that is jquery ajax.
+        $.ajax({
+            type: 'GET',
+            url: 'account.php',
+            data: data
+        }).done(function (rtn) {
+            if (action == "cleanup") {
+                window.location.href = "./../index.php" // Goto landing page.
+            } else if (action == "set_lang") {
+                window.location.href = window.location.href;
+            } else if (action == "get_newpid") {
+                if (parseInt(rtn) > 0) {
+                    newPid = rtn;
+                    $("#profileFrame").contents().find('input#pubpid').val(newPid);
+                    $("#profileFrame").contents().find('input#pid').val(newPid);
+                } else {
+                    // After error alert app exit to landing page.
+                    // Existing user error. Error message is translated in account.lib.php.
+                    eModal.alert(rtn);
+                }
+            } else if (action == 'do_signup') {
+                if (rtn.indexOf('ERROR') !== -1) {
+                    message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
+                    message += "<br><br>" + <?php echo xlj('Here is what we do know.'); ?> +": " + rtn + "<br>";
+                    eModal.alert(message);
+                    return false;
+                }
+                // For production. Here we're finished so do signup closing alert and then cleanup.
+                callServer('notify_admin', newPid, provider); // pnote notify to selected provider
+                // alert below for ease of testing.
+                //alert(rtn); // sync alert.. rtn holds username and password for testing.
+
+                message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal, feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>;
+                eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
+                return false;
+            }
+        }).fail(function (err) {
+            message = <?php echo xlj('Something went wrong.') ?>;
+            alert(message);
+        });
+    }
+</script>
 </head>
 <body class="skin-blue">
     <div class="container">
