@@ -31,9 +31,9 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
     <title><?php echo xlt("EDI History"); ?></title>
     <?php Header::setupHeader(['datetime-picker', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-scroller']); ?>
     <?php if ($_SESSION['language_direction'] == "rtl") { ?>
-      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_edi_history_v2.css" />
+      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_edi_history_v2.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
     <?php } else { ?>
-      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/edi_history_v2.css" />
+      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/edi_history_v2.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
     <?php } ?>
 </head>
 <!-- style for OpenEMR color -->
