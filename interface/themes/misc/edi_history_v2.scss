@@ -24,6 +24,15 @@
  * @package OpenEMR
  * @subpackage ediHistory
  */
+
+// RTL required here regardless if it is needed or not
+@import "../directional";
+
+$rfs-base-value: 0.875rem;
+$enable-responsive-font-sizes: true;
+
+@import "../../../public/assets/bootstrap/scss/vendor/rfs";
+
 @media print {
   .print {
     width: 100%;
@@ -33,17 +42,19 @@
     display: none;
   }
 
-  table.era835 thead {
-    display: table-header-group;
-  }
+  table.era835 {
+    thead {
+      display: table-header-group;
+    }
 
-  table.era835 tfoot {
-    display: table-footer-group;
-  }
+    tfoot {
+      display: table-footer-group;
+    }
 
-  table.era835 tbody.eraclp {
-    page-break-after: auto;
-    page-break-inside: avoid;
+    tbody.eraclp {
+      page-break-after: auto;
+      page-break-inside: avoid;
+    }
   }
 }
 
@@ -62,7 +73,7 @@
  *
  */
 table#csvTable a {
-  color: #0e4f83;
+  color: var(--primary);
   text-decoration: none;
 }
 
@@ -71,7 +82,7 @@ table#csvTable a:visited {
 }
 
 table#csvTable a:hover {
-  color: #c40e0e;
+  color: var(--danger);
 }
 
 div#tbrsp {
@@ -89,7 +100,7 @@ div#fileupl1 {
   border-color: #cad8da;
   border-style: solid;
   border-width: 6px 2px;
-  float: left;
+  float: $left;
   font-size: medium;
   margin: 2em 0 0;
   max-width: 50%;
@@ -103,7 +114,7 @@ div#fileupl2 {
   border-color: #abf0cb;
   border-style: solid;
   border-width: 6px 2px;
-  float: left;
+  float: $left;
   font-size: medium;
   margin: 2em 0 0;
   max-width: 50%;
@@ -115,7 +126,7 @@ div#fileupl2 {
 ul.fupl {
   font-size: medium;
   list-style-type: none;
-  text-align: left;
+  text-align: $left;
 }
 
 /* ***** process class dl.process  padding: 10px; border: none; margin: 2px;*******/
@@ -128,10 +139,10 @@ div#processed * {
 }
 
 h2.prcs {
+  @include font-size("1.2rem");
   background-color: #cadfdd;
   border-collapse: collapse;
   border-style: none;
-  font-size: 1.2em;
   margin: 1em;
   vertical-align: middle;
 }
@@ -166,19 +177,19 @@ dl.f837 {
   background-color: #b5d4cc;
 }
 
-dl.f837>dt.fodd {
+dl.f837 > dt.fodd {
   background-color: #c6dad5;
 }
 
-dl.f837>dt.feven {
+dl.f837 > dt.feven {
   background-color: #bdc1c0;
 }
 
-dl.f837>dd.codd {
+dl.f837 > dd.codd {
   background-color: #b4ded3;
 }
 
-dl.f837>dd.ceven {
+dl.f837 > dd.ceven {
   background-color: #a8cdc4;
 }
 
@@ -186,19 +197,19 @@ dl.f997 {
   background-color: #e2dbcc;
 }
 
-dl.f997>dt.fodd {
+dl.f997 > dt.fodd {
   background-color: #efe1c2;
 }
 
-dl.f997>dt.feven {
+dl.f997 > dt.feven {
   background-color: #dfd2b6;
 }
 
-dl.f997>dd.codd {
+dl.f997 > dd.codd {
   background-color: #e7e5e1;
 }
 
-dl.f997>dd.ceven {
+dl.f997 > dd.ceven {
   background-color: #e2dbcc;
 }
 
@@ -206,19 +217,19 @@ dl.f835 {
   background-color: #d2e6e0;
 }
 
-dl.f835>dt.fodd {
+dl.f835 > dt.fodd {
   background-color: #dadada;
 }
 
-dl.f835>dt.feven {
+dl.f835 > dt.feven {
   background-color: #d4eae4;
 }
 
-dl.f835>dd.codd {
+dl.f835 > dd.codd {
   background-color: #cdded9;
 }
 
-dl.f835>dd.ceven {
+dl.f835 > dd.ceven {
   background-color: #e7eceb;
 }
 
@@ -226,19 +237,19 @@ dl.f270 {
   background-color: #c0d9da;
 }
 
-dl.f270>dt.fodd {
+dl.f270 > dt.fodd {
   background-color: #c6d8d8;
 }
 
-dl.f270>dt.feven {
+dl.f270 > dt.feven {
   background-color: #acccca;
 }
 
-dl.f270>dd.codd {
+dl.f270 > dd.codd {
   background-color: #b4d9db;
 }
 
-dl.f270>dd.ceven {
+dl.f270 > dd.ceven {
   background-color: #c1e5e7;
 }
 
@@ -246,19 +257,19 @@ dl.f271 {
   background-color: #c0dddd;
 }
 
-dl.f271>dt.fodd {
+dl.f271 > dt.fodd {
   background-color: #cdcfcf;
 }
 
-dl.f271>dt.feven {
+dl.f271 > dt.feven {
   background-color: #c4e5e5;
 }
 
-dl.f271>dd.codd {
+dl.f271 > dd.codd {
   background-color: #bfd0d0;
 }
 
-dl.f271>dd.ceven {
+dl.f271 > dd.ceven {
   background-color: #c0e4e4;
 }
 
@@ -267,19 +278,19 @@ dl.f276 {
   background-color: #c6dfe8;
 }
 
-dl.f276>dt.fodd {
+dl.f276 > dt.fodd {
   background-color: #d1d6d8;
 }
 
-dl.f276>dt.feven {
+dl.f276 > dt.feven {
   background-color: #cbe1e9;
 }
 
-dl.f276>dd.codd {
+dl.f276 > dd.codd {
   background-color: #cdd7db;
 }
 
-dl.f276>dd.ceven {
+dl.f276 > dd.ceven {
   background-color: #cbe7f1;
 }
 
@@ -288,19 +299,19 @@ dl.f277 {
   background-color: #c8e6de;
 }
 
-dl.f277>dt.fodd {
+dl.f277 > dt.fodd {
   background-color: #d9e4e1;
 }
 
-dl.f277>dt.feven {
+dl.f277 > dt.feven {
   background-color: #caece3;
 }
 
-dl.f277>dd.codd {
+dl.f277 > dd.codd {
   background-color: #c3ddd7;
 }
 
-dl.f277>dd.ceven {
+dl.f277 > dd.ceven {
   background-color: #c8ede3;
 }
 
@@ -309,19 +320,19 @@ dl.f278 {
   background-color: #d4e7ea;
 }
 
-dl.f278>dt.fodd {
+dl.f278 > dt.fodd {
   background-color: #dae5e6;
 }
 
-dl.f278>dt.feven {
+dl.f278 > dt.feven {
   background-color: #daeef1;
 }
 
-dl.f278>dd.codd {
+dl.f278 > dd.codd {
   background-color: #cbe0e3;
 }
 
-dl.f278>dd.ceven {
+dl.f278 > dd.ceven {
   background-color: #c9e7ec;
 }
 
@@ -344,7 +355,7 @@ table.clmhist {
   max-height: fit-content;
   max-width: fit-content;
   padding: 2px 10px;
-  text-align: left;
+  text-align: $left;
 }
 
 table.clmhist caption {
@@ -408,7 +419,7 @@ p.err997 {
 
 /* ***** process class table.process*******/
 div#processed table {
-  border: 1px solid #000;
+  border: 1px solid var(--black);
   border-collapse: collapse;
   empty-cells: show;
   font-size: medium;
@@ -419,20 +430,20 @@ div#processed table {
 /*  div#processed table  */
 div#processed table caption {
   background-color: #bcf8e7;
-  border: 1px solid #000;
+  border: 1px solid var(--black);
   font-size: medium;
   font-weight: bold;
   padding: 2px 10px;
-  text-align: left;
+  text-align: $left;
 }
 
 div#processed table td {
-  color: #000;
+  color: var(--body-color);
   padding: 3px;
 }
 
 div#processed table td.reject {
-  color: #a40808;
+  color: var(--danger);
 }
 
 /* ***** f837 class *******/
@@ -680,7 +691,7 @@ table.h271 caption {
   background-color: #c8e4da;
   font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
   font-size: 1.2em;
-  text-align: left;
+  text-align: $left;
 }
 
 table.h271 td {
@@ -711,7 +722,7 @@ table.h277 caption {
   font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
   font-size: 1.2em;
   padding: 0.5em;
-  text-align: left;
+  text-align: $left;
 }
 
 table.h277 td {
@@ -754,7 +765,7 @@ table.h278 caption {
   font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
   font-size: 1.2em;
   padding: 0.5em;
-  text-align: left;
+  text-align: $left;
 }
 
 table.h278 td {
@@ -801,7 +812,7 @@ table.h835c caption {
   font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
   font-size: 1em;
   padding: 0.5em;
-  text-align: left;
+  text-align: $left;
 }
 
 table.h835c td {
@@ -855,7 +866,7 @@ table.h835 caption {
   font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
   font-size: 1.2em;
   padding: 0.5em;
-  text-align: left;
+  text-align: $left;
 }
 
 table.h835 td {
@@ -885,13 +896,13 @@ table.segtxt {
   font-family: "Liberation Mono", "Lucida Console", Consolas, Courier, monospace;
   font-size: 1em;
   padding: 0.5em 0.5em 3em;
-  text-align: left;
+  text-align: $left;
   vertical-align: bottom;
   width: 45em;
   word-wrap: break-word;
 }
 
-table.segtxt hr>td {
+table.segtxt hr > td {
   text-align: center;
 }
 
@@ -899,7 +910,7 @@ table.segtxt caption {
   background-color: #f2efde !important;
   font-family: "Dejavu Sans", "Trebuchet MS", "Liberation Sans", sans-serif;
   font-size: 1.2em;
-  text-align: left;
+  text-align: $left;
 }
 
 table.segtxt td.bterr {
@@ -925,7 +936,7 @@ table.segtxt td.btnum {
   background-color: #f6f3dd;
   color: #3b2f2f;
   padding: 2px;
-  text-align: right;
+  text-align: $right;
 }
 
 /*
@@ -958,7 +969,7 @@ ol.logview li {
  */
 table.summaryRA {
   background-color: #d8e0e0;
-  border: 1px solid #000;
+  border: 1px solid var(--black);
   border-collapse: collapse;
   empty-cells: show;
   width: 640px;
@@ -982,11 +993,11 @@ table.summaryRA td.denied {
 
 table.summaryRA caption {
   background-color: #c0e8e7;
-  border: 2px solid #000;
+  border: 2px solid var(--black);
   font-size: large;
   font-weight: bold;
   padding: 2px 10px;
-  text-align: left;
+  text-align: $left;
 }
 
 /*
@@ -996,7 +1007,7 @@ p.ak999stat {
   background-color: #eae1d0;
   font-size: medium;
   margin: 1.6em 8px;
-  text-align: left;
+  text-align: $left;
 }
 
 /*
@@ -1009,7 +1020,7 @@ p.ak999stat {
  */
 table.era835 {
   background-color: #f2e7cf;
-  border: 1px solid #000;
+  border: 1px solid var(--black);
   border-collapse: collapse;
   empty-cells: show;
   font-size: medium;
@@ -1022,7 +1033,7 @@ table.era835 th {
 }
 
 table.era835 td {
-  color: #000;
+  color: var(--black);
   padding: 3px;
 }
 
@@ -1061,21 +1072,21 @@ table.era835 tr.plb td {
 }
 
 table.era835 tbody.eraclp {
-  border-top: 1px solid #000;
+  border-top: 1px solid var(--black);
   overflow: auto;
 }
 
 table.era835 tfoot {
-  border-top: 1px solid #000;
+  border-top: 1px solid var(--black);
 }
 
 table.era835 caption {
   background-color: #d8f4df;
-  border: 2px solid #000;
+  border: 2px solid var(--black);
   font-size: large;
   font-weight: bold;
   padding: 2px;
-  text-align: left;
+  text-align: $left;
 }
 
 /*
@@ -1095,17 +1106,17 @@ kbd,
 samp,
 tt {
   background-color: #fdf5db;
-  float: left;
+  float: $left;
   font-family: monospace, monospace;
   font-size: medium;
   margin-bottom: 2em;
-  margin-left: 0.9em;
   padding: 1em 0;
   width: auto;
+  margin-#{$left}: 0.9em;
 }
 
 div.filetext code {
-  float: left;
+  float: $left;
   width: auto;
 }
 
@@ -1122,7 +1133,7 @@ div.filetext li {
   margin-left: 1em;
   margin-right: 1em;
   margin-top: 0;
-  padding-left: 0.2em;
+  padding-#{$left}: 0.2em;
 }
 
 div.filetext ol p {
@@ -1132,6 +1143,7 @@ div.filetext ol p {
   font-style: normal;
   margin: 1px;
   word-wrap: break-word;
+
   /*overflow: break-word; */
 }
 
@@ -1140,7 +1152,7 @@ div.filetext table.batchst caption {
   font-size: large;
   font-weight: bold;
   padding: 4px;
-  text-align: left;
+  text-align: $left;
 }
 
 div.filetext table.batchst thead {
@@ -1169,12 +1181,12 @@ div.filetext table.batchst td.btseg {
   background-color: #efe8d0;
   border-color: #e5e1d1 #e5e1d1 #e5e1d1 #9e948c;
   padding: 1px 3px;
-  text-align: left;
+  text-align: $left;
 }
 
 div.filetext table.batchst td.bterr {
   background-color: #fcf4d8;
   border-color: #e12417;
   padding: 1px 3px;
-  text-align: left;
+  text-align: $left;
 }

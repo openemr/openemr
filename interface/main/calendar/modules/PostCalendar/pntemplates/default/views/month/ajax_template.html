@@ -147,21 +147,20 @@ $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-cir
 <div id="wrapper">
 <!-- stuff form element here to avoid the margin padding it introduces into the page in some browsers -->
 <form name='theform' id='theform' action='index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic=' method='post' onsubmit='return top.restoreSession()'>
+<div class="container-fluid sticky-top">
 <div id="topToolbarRight" class="bgcolor2">
     <!-- this wraps some of the top toolbar items -->
 <div id="functions">
-<a id="menu-toggle" class="float-left btn btn-calendar"></a>
+  <a id="menu-toggle" href="#" class="btn btn-outline-dark"><i class="fas fa-bars"></i></a>
 <input type="hidden" name="jumpdate" id="jumpdate" value="" />
 <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo attr($viewtype);[-/php-]" />
     [-php-]
-    echo "<a href='#' title='" . xla("New Appointment") . "' onclick='newEvt(1, 9, 00, " . attr_js($Date) . ", 0, 0)' class='btn btn-primary btn-sm'>
-    <i class='fa fa-plus' aria-hidden='true'></i></a>\n";
+    echo "<a href='#' title='" . xla("New Appointment") . "' onclick='newEvt(1, 9, 00, " . attr_js($Date) . ", 0, 0)' class='btn btn-primary'><i class='fa fa-plus'></i></a>\n";
     echo "<a href='#' title='" . xla("Search Appointment") . "'
-    onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='btn btn-primary btn-sm'>
-    <i class='fa fa-search' aria-hidden='true'></i></a>\n";
+    onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='btn btn-primary'><i class='fa fa-search'></i></a>\n";
     if ($Date <> date('Ymd')) {
     [-/php-]
-    <a href='#' name='bnsubmit' value='[-xla t="Today"-]' onClick='GoToToday(theform);' class='btn btn-primary btn-sm'><span>[-xlt t='Today'-]</span></a>
+    <a href='#' name='bnsubmit' value='[-xla t="Today"-]' onClick='GoToToday(theform);' class='btn btn-primary'>[-xlt t='Today'-]</a>
     [-php-]
     }
     [-/php-]
@@ -169,22 +168,24 @@ $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-cir
 </div>
 <div id="dateNAV">
 [-php-]
-echo "   <a id='prevmonth' href='$PREV_MONTH_URL' onclick='top.restoreSession()' title='" . xla("Previous Month") . "'><i class='fa " . attr($chevron_icon_left) . " chevron_color' aria-hidden='true'></i></a>\n";;
+echo "   <a id='prevmonth' href='$PREV_MONTH_URL' onclick='top.restoreSession()' title='" . xla("Previous Month") . "'><i class='fa " . attr($chevron_icon_left) . " chevron_color'></i></a>\n";;
 echo xlt(date('F', strtotime($Date))) . " " . text(date('Y', strtotime($Date)));
-echo "   <a id='nextmonth' href='$NEXT_MONTH_URL' onclick='top.restoreSession()' title='" . xla("Next Month") . "'><i class= 'fa " . attr($chevron_icon_right) . " chevron_color' aria-hidden='true'></i></a>\n";
+echo "   <a id='nextmonth' href='$NEXT_MONTH_URL' onclick='top.restoreSession()' title='" . xla("Next Month") . "'><i class= 'fa " . attr($chevron_icon_right) . " chevron_color'></i></a>\n";
 [-/php-]
 </div>
 
 <div id="viewPicker">
 [-php-]
-echo "   <a href='#' id='printview' title='" . xla("View Printable Version") . "' class='btn btn-primary btn-sm'><i class='fa fa-print' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xla("Refresh") . "' onclick='javascript:refreshme()' class='btn btn-primary btn-sm'><i class='fa fa-sync' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' type='button' id='dayview' title='" . xla('Day View') . "' class='btn btn-primary btn-sm'>" . xlt('Day') . "</a>\n";
-echo "   <a href='#' type='button' id='weekview' title='" . xla('Week View') . "' class='btn btn-primary btn-sm'>" . xlt('Week') . "</a>\n";
-echo "   <a href='#' type='button' id='monthview' title='" . xla('Month View') . "' class='btn btn-primary btn-sm'>" . xlt('Month') . "</a>\n";
+echo "   <a href='#' id='printview' title='" . xla("View Printable Version") . "' class='btn btn-primary'><i class='fa fa-print'></i></a>\n";
+echo "   <a href='#' title='" . xla("Refresh") . "' onclick='javascript:refreshme()' class='btn btn-primary'><i class='fa fa-sync'></i></a>\n";
+echo "   <a href='#' type='button' id='dayview' title='" . xla('Day View') . "' class='btn btn-primary'>" . xlt('Day') . "</a>\n";
+echo "   <a href='#' type='button' id='weekview' title='" . xla('Week View') . "' class='btn btn-primary'>" . xlt('Week') . "</a>\n";
+echo "   <a href='#' type='button' id='monthview' title='" . xla('Month View') . "' class='btn btn-primary'>" . xlt('Month') . "</a>\n";
 [-/php-]
 </div>
 </div> <!-- end topToolbarRight -->
+</div>
+<div class="sticky-top">
 <div id="bottomLeft" class="sidebar-wrapper">
 <div id="datePicker">
 [-php-]
@@ -196,8 +197,8 @@ echo "   <a href='#' type='button' id='monthview' title='" . xla('Month View') .
 
     include_once($GLOBALS['fileroot'].'/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php');
 [-/php-]
-
-<table class='border-0' cellpadding="0" cellspacing="0">
+<div class="table-responsive">
+<table class='table table-sm table-borderless'>
 <tbody><tr>
 [-php-]
 
@@ -281,6 +282,7 @@ foreach ($atmp as $currdate) {
 </tbody>
 </table>
 </div>
+</div>
 <div id="bigCalHeader">
 </div>
 
@@ -299,7 +301,7 @@ if ($_SESSION['authorizeduser'] == 1) {
     OpenEMR\Common\Session\SessionUtil::setSession('pc_facility', key($facilities));
 }
 if (count($facilities) > 1) {
-    echo "   <select name='pc_facility' id='pc_facility'  class='view1 form-control' >\n";
+    echo "   <select name='pc_facility' id='pc_facility'  class='view1 form-control'>\n";
     if ( !$_SESSION['pc_facility'] ) $selected = "selected='selected'";
     // echo "    <option class='bg-info' value='0' $selected>"  . xlt('All Facilities'). "</option>\n";
     if (!$GLOBALS['restrict_user_facility']) echo "    <option class='bg-info' value='0' $selected>" . xlt('All Facilities') . "</option>\n";
@@ -329,12 +331,15 @@ if (count($facilities) > 1) {
 [-php-]
 if($_SESSION['pc_facility'] == 0){
 [-/php-]
-<div id="facilityColor">
- <table>
+<div id="facilityColor" class="table-responsive">
+ <table class="table table-borderless">
 [-php-]
 foreach ($facilities as $f){
-echo "   <tr><td><div class='view1 bg-info font-weight-bold text-ovr-dark'>" . text($f['name']) . "</div></td></tr>";
-}
+  echo "   <tr>\n";
+  echo "   <td>\n";
+  echo "   <div class='view1 font-weight-bold text-ovr-dark p-1 rounded' style='background-color:".$f['color'].";'>" . text($f['name'])."</div>";
+  echo "   </td>\n";
+  echo "   </tr>\n";}
 [-/php-]
  </table>
 </div>
@@ -350,10 +355,11 @@ echo "   <tr><td><div class='view1 bg-info font-weight-bold text-ovr-dark'>" . t
     <img id="popupImage" alt="" />
 </div>
 </div><!-- end bottomLeft -->
+</div>
 
 <div class="page-content-wrapper">
 <div class="container-fluid calsearch_body">
-<div id="bigCal" style="overflow-x: auto;">
+<div id="bigCal">
 [-php-]
 /* used in debugging
 foreach ($A_EVENTS as $date => $events) {
@@ -372,7 +378,8 @@ foreach ($A_EVENTS as $date => $events) {
 foreach ($providers as $provider) {
     $providerid = $provider['id'];
 
-    echo "<table>\n";
+    echo "<div class='table-responsive'>";
+    echo "<table class='table'>\n";
     echo " <tr>\n";
     echo "  <td colspan='7' class='providerheader'>";
     echo text($provider['fname']) . " " . text($provider['lname']);
@@ -629,7 +636,7 @@ foreach ($providers as $provider) {
     } // end date
 
     echo "</table>\n";
-    echo "<P>";
+    echo "</div>";
 } // end provider
 
 [-/php-]
@@ -642,24 +649,48 @@ foreach ($providers as $provider) {
 <script>
 
     $(function () {
-        $("#pc_username").change(function() { ChangeProviders(this); });
-        $("#pc_facility").change(function() { ChangeProviders(this); });
-        $("#dayview").click(function() { ChangeView(this); });
-        $("#weekview").click(function() { ChangeView(this); });
+        $("#pc_username").change(function() {
+          ChangeProviders(this);
+        });
+        $("#pc_facility").change(function() {
+          ChangeProviders(this);
+        });
+        $("#dayview").click(function() {
+          ChangeView(this);
+        });
+        $("#weekview").click(function() {
+          ChangeView(this);
+        });
         //$("#monthview").click(function() { ChangeView(this); });
         //$("#yearview").click(function() { ChangeView(this); });
-        $(".tdDatePicker").click(function() { ChangeDate(this); });
-        $("#datePicker .tdNav").mouseover(function() { $(this).toggleClass("tdDatePickerHighlight"); });
-        $("#datePicker .tdNav").mouseout(function() { $(this).toggleClass("tdDatePickerHighlight"); });
-        $("#printview").click(function() { PrintView(this); });
-        $(".month_event").dblclick(function() { EditEvent(this); });
-        $(".month_event").mouseover(function() { $(this).toggleClass("event_highlight"); });
-        $(".month_event").mouseout(function() { $(this).toggleClass("event_highlight"); });
+        $(".tdDatePicker").click(function() {
+          ChangeDate(this);
+        });
+        $("#datePicker .tdNav").mouseover(function() {
+          $(this).toggleClass("tdDatePickerHighlight");
+        });
+        $("#datePicker .tdNav").mouseout(function() {
+          $(this).toggleClass("tdDatePickerHighlight");
+        });
+        $("#printview").click(function() {
+          PrintView(this);
+        });
+        $(".month_event").dblclick(function() {
+          EditEvent(this);
+        });
+        $(".month_event").mouseover(function() {
+          $(this).toggleClass("event_highlight");
+        });
+        $(".month_event").mouseout(function() {
+          $(this).toggleClass("event_highlight");
+        });
 
         $(".tdMonthName-small").click(function() {
-
-            dpCal=$("#datePicker>table");
-            mp = $("#monthPicker"); mp.width(dpCal.width()); mp.toggle();});
+            dpCal = $("#datePicker > table");
+            mp = $("#monthPicker");
+            mp.width(dpCal.width());
+            mp.toggle();
+        });
 
     });
 

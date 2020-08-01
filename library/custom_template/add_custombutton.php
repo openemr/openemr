@@ -96,24 +96,20 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
 </head>
 <body class="body_top">
 <form name="designation_managment" action="" method="post" onsubmit="top.restoreSession();">
-    <table cellpadding='2' cellspacing='0' border="0" align="center">
-
-        <tr height="30">
-            <td class='title_bar' colspan="4" align="center">
-                <u><?php echo htmlspecialchars(xl('Add Custom Button'), ENT_QUOTES); ?></u></td>
-        </tr>
-
-        <tr>
-            <td align="center" class="title_bar_top ">#</td>
-            <td align="center" class="title_bar_top "><?php echo htmlspecialchars(xl('Value'), ENT_QUOTES); ?></td>
-            <td align="center" class="title_bar_top "><?php echo htmlspecialchars(xl('Display Name'), ENT_QUOTES); ?></td>
-            <td align="center" class="title_bar_top "><?php echo htmlspecialchars(xl('Order'), ENT_QUOTES); ?></td>
-            <td align="center" class="title_bar_top ">&nbsp;</td>
+  <h3 class="text-center"><?php echo htmlspecialchars(xl('Add Custom Button'), ENT_QUOTES); ?></h3>
+  <div class="table-responsive">
+    <table class="table table-borderless">
+        <tr class="text-center">
+            <td class="title_bar_top">#</td>
+            <td class="title_bar_top"><?php echo htmlspecialchars(xl('Value'), ENT_QUOTES); ?></td>
+            <td class="title_bar_top"><?php echo htmlspecialchars(xl('Display Name'), ENT_QUOTES); ?></td>
+            <td class="title_bar_top"><?php echo htmlspecialchars(xl('Order'), ENT_QUOTES); ?></td>
+            <td class="title_bar_top">&nbsp;</td>
         </tr>
         <?php
         $i = 1;
         $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno=tu.tu_template_id
-                           WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
+                           WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
         $sl = 1;
         $start = 1;
         while ($row = sqlFetchArray($res)) {
@@ -123,15 +119,16 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
             $i = $row['cl_list_slno'];
             $class = 'class1';
             ?>
-            <tr class='<?php echo htmlspecialchars($class, ENT_QUOTES); ?>'><input type='hidden' name='<?php echo htmlspecialchars("hidid" . $i, ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES); ?>'>
-                <td align='center'><input type='text' name="<?php echo htmlspecialchars("sl" . $i, ENT_QUOTES); ?>" value="<?php echo htmlspecialchars($sl, ENT_QUOTES); ?>" readonly="" style="width:25px; background-color:#C9C9C9" /></td>
-                <td align='center'><input type='text' name="<?php echo htmlspecialchars("inshort" . $i, ENT_QUOTES); ?>" size="10" value="<?php echo htmlspecialchars($row['cl_list_item_short'], ENT_QUOTES); ?>"/>
+            <tr class='<?php echo htmlspecialchars($class, ENT_QUOTES); ?> text-center'>
+              <input type='hidden' name='<?php echo htmlspecialchars("hidid" . $i, ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES); ?>' />
+                <td><input type='text' class="form-control" name="<?php echo htmlspecialchars("sl" . $i, ENT_QUOTES); ?>" value="<?php echo htmlspecialchars($sl, ENT_QUOTES); ?>" readonly="" style="width:25px; background-color:#C9C9C9" /></td>
+                <td><input type='text' class="form-control" name="<?php echo htmlspecialchars("inshort" . $i, ENT_QUOTES); ?>" size="10" value="<?php echo htmlspecialchars($row['cl_list_item_short'], ENT_QUOTES); ?>"/>
                 </td>
-                <td align='center'><input type='text' name="<?php echo htmlspecialchars("designation" . $i, ENT_QUOTES); ?>" value="<?php echo htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES); ?>"/>
+                <td><input type='text' class="form-control" name="<?php echo htmlspecialchars("designation" . $i, ENT_QUOTES); ?>" value="<?php echo htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES); ?>"/>
                 </td>
-                <td align='center'><input type='text' name='<?php echo htmlspecialchars("level" . $i, ENT_QUOTES); ?>' value="<?php echo htmlspecialchars($row['cl_order'], ENT_QUOTES); ?>" size=1>
+                <td><input type='text' class="form-control" name='<?php echo htmlspecialchars("level" . $i, ENT_QUOTES); ?>' value="<?php echo htmlspecialchars($row['cl_order'], ENT_QUOTES); ?>" size='1'>
                 </td>
-                <td align='center'><input type='checkbox' name='<?php echo htmlspecialchars("chk" . $i, ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES); ?>'>
+                <td><input type='checkbox' name='<?php echo htmlspecialchars("chk" . $i, ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES); ?>'>
                 </td>
             </tr>
             <?php
@@ -139,52 +136,36 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
             $sl++;
         }
         ?>
-        <tr>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('sl' . $i, ENT_QUOTES); ?>"
-                                      value="<?php echo htmlspecialchars($sl, ENT_QUOTES); ?>" readonly=""
-                                      style="width:25px; background-color:#C9C9C9"/></td>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('inshort' . $i, ENT_QUOTES); ?>"
-                                      size="10" value=""/></td>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('designation' . $i, ENT_QUOTES); ?>"
-                                      value=""/></td>
-            <td align='center'><input type='text' name='<?php echo htmlspecialchars("level" . $i, ENT_QUOTES); ?>'
-                                      size=1></td>
+        <tr class="text-center">
+            <td><input type='text' class="form-control" name="<?php echo htmlspecialchars('sl' . $i, ENT_QUOTES); ?>" value="<?php echo htmlspecialchars($sl, ENT_QUOTES); ?>" readonly="" style="width:50px; background-color:#C9C9C9" /></td>
+            <td><input type='text' class="form-control" name="<?php echo htmlspecialchars('inshort' . $i, ENT_QUOTES); ?>" size="10" value="" /></td>
+            <td><input type='text' class="form-control" name="<?php echo htmlspecialchars('designation' . $i, ENT_QUOTES); ?>" value="" /></td>
+            <td><input type='text' class="form-control" name='<?php echo htmlspecialchars("level" . $i, ENT_QUOTES); ?>' size='1' /></td>
         </tr>
-        <tr>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('sl' . ($i + 1), ENT_QUOTES); ?>"
-                                      value="<?php echo htmlspecialchars(($sl + 1), ENT_QUOTES); ?>" readonly=""
-                                      style="width:25px; background-color:#C9C9C9"/></td>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('inshort' . ($i + 1), ENT_QUOTES); ?>"
-                                      size="10" value=""/></td>
-            <td align='center'><input type='text'
-                                      name="<?php echo htmlspecialchars('designation' . ($i + 1), ENT_QUOTES); ?>"
-                                      value=""/></td>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('level' . ($i + 1), ENT_QUOTES); ?>"
-                                      size=1></td>
+        <tr class="text-center">
+            <td><input type='text' class="form-control" name="<?php echo htmlspecialchars('sl' . ($i + 1), ENT_QUOTES); ?>" value="<?php echo htmlspecialchars(($sl + 1), ENT_QUOTES); ?>" readonly="" style="width:50px; background-color:#C9C9C9" /></td>
+            <td><input type='text' class="form-control" name="<?php echo htmlspecialchars('inshort' . ($i + 1), ENT_QUOTES); ?>" size="10" value="" /></td>
+            <td><input type='text' class="form-control" name="<?php echo htmlspecialchars('designation' . ($i + 1), ENT_QUOTES); ?>" value="" /></td>
+            <td><input type='text' class="form-control" name="<?php echo htmlspecialchars('level' . ($i + 1), ENT_QUOTES); ?>" size='1' /></td>
         </tr>
-        <tr>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('sl' . ($i + 2), ENT_QUOTES); ?>"
-                                      value="<?php echo htmlspecialchars(($sl + 2), ENT_QUOTES); ?>" readonly=""
-                                      style="width:25px; background-color:#C9C9C9"/></td>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('inshort' . ($i + 2), ENT_QUOTES); ?>"
-                                      size="10" value=""/></td>
-            <td align='center'><input type='text'
-                                      name="<?php echo htmlspecialchars('designation' . ($i + 2), ENT_QUOTES); ?>"
-                                      value=""/></td>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('level' . ($i + 2), ENT_QUOTES); ?>"
-                                      size=1></td>
+        <tr class="text-center">
+            <td><input type='text' class="form-control" name="<?php echo htmlspecialchars('sl' . ($i + 2), ENT_QUOTES); ?>" value="<?php echo htmlspecialchars(($sl + 2), ENT_QUOTES); ?>" readonly="" style="width:50px; background-color:#C9C9C9" /></td>
+            <td><input type='text' class="form-control" name="<?php echo htmlspecialchars('inshort' . ($i + 2), ENT_QUOTES); ?>" size="10" value="" /></td>
+            <td><input type='text' class="form-control" name="<?php echo htmlspecialchars('designation' . ($i + 2), ENT_QUOTES); ?>" value="" /></td>
+            <td><input type='text' class="form-control" name="<?php echo htmlspecialchars('level' . ($i + 2), ENT_QUOTES); ?>" size='1' /></td>
         </tr>
-        <input type="hidden" name="count" value="<?php echo htmlspecialchars(($i + 2), ENT_QUOTES); ?>">
+        <input type="hidden" name="count" value="<?php echo htmlspecialchars(($i + 2), ENT_QUOTES); ?>" />
         <tr class="text">
-            <td colspan="5" align="center">
-                <input type='submit' name='form_save' id='form_save'
+            <td class="text-center" colspan="5">
+                <input type='submit' class="btn btn-primary" name='form_save' id='form_save'
                        value="<?php echo htmlspecialchars(xl('Save'), ENT_QUOTES); ?>"/>
-                <input type='submit' name='form_delete' id='form_delete'
+                <input type='submit' class="btn btn-secondary" name='form_delete' id='form_delete'
                        value="<?php echo htmlspecialchars(xl('Delete'), ENT_QUOTES); ?>"
                        title='<?php echo htmlspecialchars(xl('Select corresponding checkboxes to delete'), ENT_QUOTES); ?>'/>
             </td>
         </tr>
     </table>
+  </div>
 </form>
 </body>
 </html>

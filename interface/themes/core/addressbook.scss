@@ -36,7 +36,7 @@
   }
 
   .button {
-    @include font-size("0.8rem !important");
+    @include font-size("0.8rem");
     font-weight: bold;
   }
 }

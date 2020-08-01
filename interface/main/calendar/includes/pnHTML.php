@@ -324,7 +324,7 @@ class pnHTML
     {
         ob_start();
         include 'header.php';
-        print '<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td align="left" valign="top">';
+        print '<table class="w-100 border-0" cellpadding="0" cellspacing="0"><tr><td class="text-left align-top">';
 
         $output = ob_get_contents();
         @ob_end_clean();
@@ -586,7 +586,7 @@ class pnHTML
             $size = $c;
         }
 
-        $output = '<select'
+        $output = '<select class="form-control"'
             . ' name="' . pnVarPrepForDisplay($fieldname) . '"'
             . ' id="' . pnVarPrepForDisplay($fieldname) . '"'
             . ' size="' . pnVarPrepForDisplay($size) . '"'

@@ -25,16 +25,16 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
     <title><?php echo xlt("EDI History"); ?></title>
-    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
     <?php Header::setupHeader(['datetime-picker', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-scroller']); ?>
-
-    <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css">
-
+    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
+      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_edi_history_v2.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+    <?php } else { ?>
+      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/edi_history_v2.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+    <?php } ?>
 </head>
 <!-- style for OpenEMR color -->
 <body class='body_top'>
@@ -250,7 +250,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                                     <h4><?php echo xlt("Inspect the log"); ?></h4>
                                     <label for="logfile"><?php echo xlt("View Log"); ?></label>
-                                    <select class="custom-select id="logselect" name="log_select"></select>
+                                    <select class="custom-select" id="logselect" name="log_select"></select>
                                     <input type="hidden" name="logshowfile" value="getlog">
                                     <input class="btn btn-primary" id="logshow" type="submit" form="formlog" value="<?php echo xla("Submit"); ?>" />
                                     <input class="btn btn-secondary" id="logclose" type="button" form="formlog" value="<?php echo xla("Close"); ?>" />

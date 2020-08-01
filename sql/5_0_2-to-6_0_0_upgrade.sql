@@ -1951,3 +1951,25 @@ ALTER TABLE `procedure_order` ADD `uuid` binary(16) DEFAULT NULL;
 #IfNotIndex procedure_order uuid
 CREATE UNIQUE INDEX `uuid` ON `procedure_order` (`uuid`);
 #EndIf
+
+UPDATE `globals` SET `gl_value`='0.625' WHERE `gl_name`='font-size' AND `gl_value`='0.625rem';
+UPDATE `globals` SET `gl_value`='0.75' WHERE `gl_name`='font-size' AND `gl_value`='0.75rem';
+UPDATE `globals` SET `gl_value`='0.875' WHERE `gl_name`='font-size' AND `gl_value`='0.875rem';
+UPDATE `globals` SET `gl_value`='1.0' WHERE `gl_name`='font-size' AND `gl_value`='1rem';
+UPDATE `globals` SET `gl_value`='1.125' WHERE `gl_name`='font-size' AND `gl_value`='1.125rem';
+
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#dee2e6' WHERE `pc_constant_id`='no_show' AND `pc_catcolor`='#DDDDDD';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#cce5ff' WHERE `pc_constant_id`='in_office' AND `pc_catcolor`='#99CCFF';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#fdb172' WHERE `pc_constant_id`='out_of_office' AND `pc_catcolor`='#99FFFF';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#e9ecef' WHERE `pc_constant_id`='vacation' AND `pc_catcolor`='#EFEFEF';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#ffecb4' WHERE `pc_constant_id`='office_visit' AND `pc_catcolor`='#FFFFCC';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#8663ba' WHERE `pc_constant_id`='holidays' AND `pc_catcolor`='#9676DB';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#2374ab' WHERE `pc_constant_id`='closed' AND `pc_catcolor`='#2374AB';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#ffd351' WHERE `pc_constant_id`='lunch' AND `pc_catcolor`='#FFFF33';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#93d3a2' WHERE `pc_constant_id`='established_patient' AND `pc_catcolor`='#CCFF33';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#a2d9e2' WHERE `pc_constant_id`='new_patient' AND `pc_catcolor`='#CCFFFF';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#b02a37' WHERE `pc_constant_id`='reserved' AND `pc_catcolor`='#FF7777';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#ced4da' WHERE `pc_constant_id`='health_and_behavioral_assessment' AND `pc_catcolor`='#C7C7C7';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#d3c6ec' WHERE `pc_constant_id`='preventive_care_services' AND `pc_catcolor`='#CCCCFF';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#febe89' WHERE `pc_constant_id`='ophthalmological_services' AND `pc_catcolor`='#F89219';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#adb5bd' WHERE `pc_constant_id`='group_therapy' AND `pc_catcolor`='#BFBFBF';

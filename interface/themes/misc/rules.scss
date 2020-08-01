@@ -1,0 +1,173 @@
+/*
+    Document   : rules
+    Created on : Jan 19, 2011, 10:55:44 PM
+    Author     : aron
+*/
+
+// RTL required here regardless if it is needed or not
+@import "../directional";
+
+$rfs-base-value: 0.875rem;
+$enable-responsive-font-sizes: true;
+@import "../../../public/assets/bootstrap/scss/vendor/rfs";
+
+/*
+ * browse rules
+ */
+root {
+  display: block;
+}
+
+.rule_container {
+  min-width: 524px;
+  width: 100%;
+}
+
+.rule_row {
+  margin-#{$left}: 15px;
+  padding-bottom: 2px;
+
+  span {
+    display: block;
+    float: $left;
+  }
+
+  .rule_title {
+    display: inline-block;
+  }
+
+  .rule_type {
+    display: inline-block;
+    min-width: 70px;
+    padding-#{$left}: 10px;
+  }
+
+  &.header {
+    font-weight: bold;
+    text-decoration: underline;
+  }
+}
+
+.rule_title {
+  width: 380px;
+}
+
+.rule_container {
+  margin-top: 10px;
+}
+
+.template {
+  display: none;
+}
+
+/*
+ * browse rules
+ */
+.rule_detail {
+  max-width: 100%;
+
+  .section {
+    margin-bottom: 30px;
+
+    .section {
+      margin-#{$left}: 30px;
+
+      .row {
+        margin-bottom: 20px;
+      }
+    }
+
+    .group {
+      border: 1px dotted;
+      margin-top: 12px;
+    }
+  }
+
+  .header,
+  .ruletitle {
+    @include font-size("18px");
+  }
+
+  .ruletitle {
+    margin-top: 6px;
+  }
+
+  // Edit rule
+  input[type='text'] {
+    margin-top: -1px;
+    width: 350px;
+  }
+
+  // Edit rule
+  &.edit {
+    &.summry .left_col {
+      font-weight: bold;
+      text-align: $right;
+      width: 120px;
+      margin-#{$right}: 10px;
+    }
+
+    p.header {
+      margin-bottom: 5px;
+    }
+  }
+}
+
+.left_col {
+  display: block;
+  float: $left;
+  width: 100px;
+}
+
+.mid_col {
+  display: block;
+  float: $left;
+  width: 33%;
+}
+
+.end_col {
+  display: block;
+}
+
+.action_link {
+  font-size: small;
+}
+
+/*
+* edit rule
+*/
+#required_msg {
+  border-top: 1px solid;
+  display: none;
+  margin-top: 30px;
+  width: 80%;
+}
+
+.field_err {
+  &_marker {
+    background-color: var(--danger);
+  }
+
+  &_lbl_marker {
+    color: var(--danger);
+  }
+}
+
+.intervals {
+  .mid_col {
+    width: 100px;
+  }
+
+  input[type='text'] {
+    margin-top: -1px;
+    width: 90px;
+  }
+
+  span select {
+    width: inherit;
+  }
+}
+
+input[type='text'].short {
+  width: 80px;
+}
