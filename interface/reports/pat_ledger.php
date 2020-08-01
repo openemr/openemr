@@ -129,7 +129,7 @@ function GetAllCredits($enc = '', $pat = '')
     $sql = "SELECT activity.*, session.*, ins.name FROM ar_activity AS " .
     "activity LEFT JOIN ar_session AS session USING (session_id) " .
     "LEFT JOIN insurance_companies AS ins ON session.payer_id = " .
-    "ins.id WHERE encounter = ? AND pid = ? AND activity.deleted IS NULL" .
+    "ins.id WHERE encounter = ? AND pid = ? AND activity.deleted IS NULL " .
     "ORDER BY sequence_no";
     $result = sqlStatement($sql, array($enc, $pat));
     $iter = 0;
@@ -459,7 +459,7 @@ if ($_REQUEST['form_csvexport']) {
         $arrOeUiSettings = array(
         'heading_title' => xl('Report') . " - " . xl('Patient Ledger by Date'),
         'include_patient_name' => false,
-        'expandable' => true,
+        'expandable' => false,
         'expandable_files' => array("patient_ledger_report_xpd"),//all file names need suffix _xpd
         'action' => "conceal",//conceal, reveal, search, reset, link or back
         'action_title' => "",
@@ -471,7 +471,7 @@ if ($_REQUEST['form_csvexport']) {
         $arrOeUiSettings = array(
         'heading_title' => xl('Patient Ledger'),
         'include_patient_name' => true,
-        'expandable' => true,
+        'expandable' => false,
         'expandable_files' => array("patient_ledger_patient_xpd", "stats_full_patient_xpd", "external_data_patient_xpd"),//all file names need suffix _xpd
         'action' => "conceal",//conceal, reveal, search, reset, link or back
         'action_title' => "",
@@ -483,8 +483,8 @@ if ($_REQUEST['form_csvexport']) {
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
-<body class="body_top">
-    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+<body>
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
         <div class="row">
             <div class="col-sm-12">
                 <?php
@@ -493,7 +493,6 @@ if ($_REQUEST['form_csvexport']) {
                 } else {
                     echo  $oemr_ui->pageHeading() . "\r\n";
                 } ?>
-
             </div>
         </div>
         <?php if ($type_form != '0') { ?>
@@ -513,21 +512,21 @@ if ($_REQUEST['form_csvexport']) {
         <div class="row hideaway" >
             <div class="col-sm-12">
                 <form method='post' action='pat_ledger.php?form=<?php echo attr_url($type_form); ?>&patient_id=<?php echo attr_url($form_pid); ?>' id='theform' onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <div id="report_parameters">
-                    <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
-                    <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
-                    <table>
-                        <tr>
-                            <?php
-                            if ($type_form == '1') { ?>
-                            <td width='35%'>
-                                <?php
-                            } else { ?>
-                            <td width='70%'>
-                                <?php
-                            } ?>
-                                <div style='float: left'>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <div id="report_parameters">
+                        <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+                        <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
+                            <table>
+                                <tr>
+                                    <?php
+                                    if ($type_form == '1') { ?>
+                                    <td width='35%'>
+                                        <?php
+                                    } else { ?>
+                                    <td width='70%'>
+                                        <?php
+                                    } ?>
+                                <div class="float-left">
                                     <table class='text'>
                                         <tr>
                                             <?php
@@ -590,24 +589,24 @@ if ($_REQUEST['form_csvexport']) {
                                     </table>
                                 </div>
                             </td>
-                            <td class="align-middle h-100" align='left'>
-                                <table class="w-100 h-100" style='border-left: 1px solid;'>
+                            <td class="align-middle h-100 text-le">
+                                <table class="w-100 h-100 border-left" >
                                     <tr>
                                         <td>
                                             <div class="text-center">
                                                 <div class="btn-group" role="group">
-                                                    <a href='#' class='btn btn-secondary btn-save' onclick="checkSubmit();" >
+                                                    <a href='#' class='btn btn-primary btn-save' onclick="checkSubmit();" >
                                                     <?php echo xlt('Submit'); ?>
                                                     </a>
                                                     <?php
                                                     if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) { ?>
-                                                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
-                                                        <?php echo xlt('Print Ledger'); ?>
+                                                        <a href='#' class='btn btn-primary btn-print' id='printbutton'>
+                                                            <?php echo xlt('Print Ledger'); ?>
                                                         </a>
                                                         <?php
                                                         if ($type_form == '1') { ?>
                                                             <a href="../patient_file/summary/demographics.php" class="btn btn-secondary btn-transmit" onclick="top.restoreSession()">
-                                                            <?php echo xlt('Back To Patient');?>
+                                                                <?php echo xlt('Back To Patient');?>
                                                             </a>
                                                             <?php
                                                         } ?>
@@ -695,79 +694,74 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                     <td class="title"><?php echo xlt('Patient Ledger'); ?></td>
                 </tr>
                 <tr>
-                <?php
-                $title = xl('All Providers');
-                if ($form_provider) {
-                    $title = xl('For Provider') . ': ' . User_Id_Look($form_provider);
-                }
-                ?>
+                    <?php
+                    $title = xl('All Providers');
+                    if ($form_provider) {
+                        $title = xl('For Provider') . ': ' . User_Id_Look($form_provider);
+                    }
+                    ?>
                     <td class="title" ><?php echo text($title); ?></td>
-                                </tr>
-                                <tr>
-                                <?php
-                                $title = xl('For Dates') . ': ' . oeFormatShortDate($form_from_date) . ' - ' . oeFormatShortDate($form_to_date);
-                                ?>
+                </tr>
+                <tr>
+                    <?php
+                    $title = xl('For Dates') . ': ' . oeFormatShortDate($form_from_date) . ' - ' . oeFormatShortDate($form_to_date);
+                    ?>
                     <td class="title"><?php echo text($title); ?></td>
-                                </tr>
-                            </table>
-                            <br/>
-                            <table class="w-100 border-0" cellspacing="0" cellpadding="0">
-                                <tr>
+                </tr>
+            </table>
+            <br/>
+            <table class="w-100 border-0" cellspacing="0" cellpadding="0">
+                <tr>
                     <td class='font-weight-bold'><?php echo xlt('Date')?>:
                         <?php echo text(date('Y-m-d')); ?>
                     </td>
                     <td class='font-weight-bold'><?php echo xlt('Patient')?>:
-                    <?php
-                    if ($type_form == '1') { ?>
-                                        <?php echo text($pat_name); ?>
-                                    </td>
-                                    <?php
-                    } else { ?>
-                                        <?php echo text($form_patient); ?>
-                                    </td>
-                                    <?php
-                    } ?>
-                                    <td class='font-weight-bold'><?php echo xlt('DOB')?>:
-                                    <?php
-                                    if ($type_form == '1') { ?>
-                                        <?php echo text($pat_dob);?>
-                                    </td>
-                                        <?php
-                                    } else { ?>
-                                        <?php echo text($form_dob); ?>
-                                    </td>
-                                        <?php
-                                    } ?>
-                                    <td class='font-weight-bold'> <?php echo xlt('ID')?>:
-                                        <?php echo text($form_pid);?>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div id="report_results">
-                        <table>
-                            <tr>
-                                <td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
-                                <td colspan="2" class='font-weight-bold'><?php echo xlt('Description'); ?></td>
-                                <td class='font-weight-bold'><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
-                                <td class='font-weight-bold'><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                <?php echo xlt('Units'); ?></td>
-                                <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
-                                <td align='right' class='font-weight-bold'>&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
-                                <td align='right' class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
-                                <td align='right' class='font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
-                            </tr>
-                            <tr>
-                                <td>&nbsp;&nbsp;&nbsp;</td>
-                                <td colspan="2">&nbsp;&nbsp;&nbsp;</td>
-                                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                &nbsp;&nbsp;&nbsp;</td>
-                                <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Appl'); ?></td>
-                                <td align='right' class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
-                                <td>&nbsp;</td>
-                                <td>&nbsp;</td>
-                            </tr>
+                        <?php
+                        if ($type_form == '1') { ?>
+                            <?php echo text($pat_name); ?>
+                        <?php } else { ?>
+                            <?php echo text($form_patient); ?>
+                        <?php } ?>
+                    </td>
+                    <td class='font-weight-bold'><?php echo xlt('DOB')?>:
+                        <?php
+                        if ($type_form == '1') { ?>
+                            <?php echo text($pat_dob);?>
+                        <?php } else { ?>
+                            <?php echo text($form_dob); ?>
+                        <?php } ?>
+                    </td>
+                    <td class='font-weight-bold'> <?php echo xlt('ID')?>:
+                        <?php echo text($form_pid);?>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="report_results">
+            <table>
+                <tr>
+                    <td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
+                    <td colspan="2" class='font-weight-bold'><?php echo xlt('Description'); ?></td>
+                    <td class='font-weight-bold'><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
+                    <td class='font-weight-bold'><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <?php echo xlt('Units'); ?></td>
+                    <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
+                    <td align='right' class='font-weight-bold'>&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
+                    <td align='right' class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
+                    <td align='right' class='font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;&nbsp;&nbsp;</td>
+                    <td colspan="2">&nbsp;&nbsp;&nbsp;</td>
+                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;</td>
+                    <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Appl'); ?></td>
+                    <td align='right' class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
                     <?php
     }
 

@@ -1,0 +1,92 @@
+.graph {
+  color: var(--primary);
+}
+
+.graph_button {
+  background-color: #d3d7cf;
+  color: var(--black);
+  cursor: pointer;
+  font-family: "Arial", "Helvetica", sans-serif;
+  font-size: 11px;
+}
+
+#labdata table {
+  border: 1px solid var(--black);
+}
+
+#labdata th.list {
+  background-color: #b8cce4;
+  font-weight: bold;
+  text-align: center;
+}
+
+#labdata td.list_item {
+  background-color: #dee5f1;
+}
+
+#labdata td.list_result {
+  background-color: #ebf1dd;
+  text-align: right;
+}
+
+#labdata td.list_result_abnorm {
+  background-color: #ebf1dd;
+  font-weight: bold;
+  text-align: right;
+}
+
+#labdata td.list_log {
+  background-color: #e5e0ec;
+  text-align: right;
+}
+
+#labdata td.list_spacer {
+  background-color: #c4bd97;
+}
+
+#labdata th.matrix {
+  background-color: #b8cce4;
+  font-weight: bold;
+  text-align: center;
+}
+
+#labdata th.matrix_time {
+  background-color: #e5e0ec;
+  font-family: "Arial", "Helvetica", sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+#labdata th.matrix_spacer {
+  background-color: #c4bd97;
+}
+
+#labdata td.matrix_item {
+  background-color: #dee5f1;
+  font-family: "Arial", "Helvetica", sans-serif;
+  font-size: 12px;
+}
+
+#labdata td.matrix_result {
+  background-color: #ebf1dd;
+  font-family: "Arial", "Helvetica", sans-serif;
+  font-size: 12px;
+  text-align: right;
+}
+
+#labdata td.matrix_result_abnorm {
+  background-color: #ebf1dd;
+  font-family: "Arial", "Helvetica", sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: right;
+}
+
+#labdata td.matrix_log {
+  background-color: #e5e0ec;
+  text-align: right;
+}
+
+#labdata td.matrix_spacer {
+  background-color: #c4bd97;
+}

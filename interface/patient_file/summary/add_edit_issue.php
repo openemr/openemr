@@ -642,8 +642,8 @@ if (!empty($irow['type'])) {
 
 </head>
 
-<body class="body_top">
-    <div class="container">
+<body>
+    <div class="container mt-3">
         <ul class="tabNav">
             <li class='current'><a href='#'><?php echo xlt('Issue'); ?></a></li>
             <?php
@@ -688,7 +688,7 @@ if (!empty($irow['type'])) {
                         }
                         ?>
                         <div class="form-group col-12">
-                            <label for="" class="col-form-label"><?php echo xlt('Type'); ?>:</label>
+                            <label class="col-form-label"><?php echo xlt('Type'); ?>:</label>
                             <?php
                             $index = 0;
                             foreach ($ISSUE_TYPES as $key => $value) {
@@ -835,11 +835,11 @@ if (!empty($irow['type'])) {
                         <div class="form-group clearfix" id="button-container">
                             <div class="col-sm-12 text-left position-override">
                                 <div class="btn-group btn-group-pinch" role="group">
-                                    <button type='submit' name='form_save' class="btn btn-secondary btn-save" value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
-                                    <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='closeme();'><?php echo xlt('Cancel'); ?></button>
+                                    <button type='submit' name='form_save' class="btn btn-primary btn-save" value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
+                                    <button type="button" class="btn btn-secondary btn-cancel btn-separate-left" onclick='closeme();'><?php echo xlt('Cancel'); ?></button>
                                     <?php
                                     if ($issue && AclMain::aclCheckCore('admin', 'super')) { ?>
-                                        <button type='submit' name='form_delete' class="btn btn-secondary btn-cancel btn-delete btn-separate-left" onclick='deleteme()' value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
+                                        <button type='submit' name='form_delete' class="btn btn-danger btn-cancel btn-delete btn-separate-left" onclick='deleteme()' value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
                                         <?php
                                     } ?>
                                 </div>
