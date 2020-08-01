@@ -129,7 +129,7 @@ function GetAllCredits($enc = '', $pat = '')
     $sql = "SELECT activity.*, session.*, ins.name FROM ar_activity AS " .
     "activity LEFT JOIN ar_session AS session USING (session_id) " .
     "LEFT JOIN insurance_companies AS ins ON session.payer_id = " .
-    "ins.id WHERE encounter = ? AND pid = ? AND activity.deleted IS NULL" .
+    "ins.id WHERE encounter = ? AND pid = ? AND activity.deleted IS NULL " .
     "ORDER BY sequence_no";
     $result = sqlStatement($sql, array($enc, $pat));
     $iter = 0;
