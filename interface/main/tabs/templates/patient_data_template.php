@@ -22,7 +22,7 @@
    $search_any_type = $GLOBALS['search_any_patient'];
    //$search_any_type = 'comprehensive';
    //$search_any_type = 'dual';
-   
+
 if ($search_any_type == 'dual') {
     $any_search_class = "any-search-legacy";
     $search_globals_class = "btn-globals-legacy";
@@ -39,10 +39,10 @@ if ($search_any_type == 'dual') {
               <!-- ko if: patient -->
                   <div data-bind="with: patient" class="patientPicture">
                       <img data-bind="attr: {src: patient_picture}"
-                           class="img-thumbnail"
-                           onError="this.src = '<?php echo $GLOBALS['images_static_relative']; ?>/patient-picture-default.png'" />
+                          class="img-thumbnail"
+                          onError="this.src = '<?php echo $GLOBALS['images_static_relative']; ?>/patient-picture-default.png'" />
                   </div>
-              <!-- /ko -->
+                <!-- /ko -->
             </div>
             <div class="patientInfo">
                 <?php echo xlt("Patient"); ?>:
@@ -53,7 +53,7 @@ if ($search_any_type == 'dual') {
                     </a>
                 <!-- /ko -->
                 <!-- ko ifnot: patient -->
-                    <?php echo xlt("None{{Patient}}");?>
+                    <?php echo xlt("None{{Patient}}"); ?>
                 <!-- /ko -->
                 <!-- ko if: patient -->
                     <a class="btn btn-xs btn-link" href="#" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
@@ -65,14 +65,13 @@ if ($search_any_type == 'dual') {
             <!-- ko if: patient -->
                 <span data-bind="text:patient().str_dob()"></span>
                 <!-- /ko -->
-                <div class="oe-expandable-search" id="div-search-globals">
-                <?php //adapted from https://codepen.io/brandonkennedy/pen/yGjsi ?>
-                    <form name="frm_search_globals">
-                        <input type="text" id="anySearchBox"  class="<?php echo $any_search_class ?>" name="anySearchBox"  placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
-                        <button type="button" id="search_globals" class="btn btn-default btn-search btn-search1 <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}">
-                        </button>
-                    </form>
-                </div>
+            </div>
+            <div class="oe-expandable-search" id="div-search-globals" style="width: unset;">
+                <form name="frm_search_globals">
+                    <input type="text" id="anySearchBox" class="<?php echo $any_search_class ?>" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
+                    <button type="button" id="search_globals" class="btn btn-default btn-search btn-search1 <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}">
+                    </button>
+                </form>
             </div>
         </span>
         <span class="patientDataColumn">

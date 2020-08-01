@@ -571,7 +571,6 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         // DOM Ready. Handle events and cleanup.
         if (opts.type === 'iframe') {
             var modalwin = where.jQuery('body').find("[name='" + winname + "']");
-            jQuery('div.modal-dialog', modalwin).css({'margin': '15px auto'});
             modalwin.on('load', function (e) {
                 setTimeout(function () {
                     if (opts.sizeHeight === 'auto') {

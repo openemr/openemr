@@ -1658,8 +1658,9 @@ foreach ($datatypes as $key => $value) {
 <script>
 /* Field modifier objects - heading towards context based.
     Used by Select2 so rtl may be enabled*/
-<?php echo "var fldOptions = [
-	{id: 'A',text:" . xlj('Age') . ",ctx:['4'],ctxExcp:['0']},
+<?php echo "var fldOptions = [";
+    echo !empty($GLOBALS['portal_onsite_two_enable']) ? "{id: 'EP',text:" . xlj('Exclude in Portal') . "}," : '';
+    echo "{id: 'A',text:" . xlj('Age') . ",ctx:['4'],ctxExcp:['0']},
 	{id: 'B',text:" . xlj('Gestational Age') . ",ctx:['4'],ctxExcp:['0']},
 	{id: 'F',text:" . xlj('Add Time to Date') . ",ctx:['4'],ctxExcp:['0']},
 	{id: 'C',text:" . xlj('Capitalize') . ",ctx:['0'],ctxExcp:['4','15','40']},
