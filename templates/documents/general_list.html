@@ -67,7 +67,7 @@ border-radius: 4px 0 0 4px!important;
 				<fieldset>
                     <legend>{xlt t='Documents List'}</legend>
                     <div class="pl-3">
-                        <div class="ui-widget form-inline float-right">
+                        <div class="form-inline float-right" id="patientSearch">
                             <select id="selectPatient" class="form-control" type="text" data-placeholder="{$place_hld|attr}" style="width:150px;">
                                 <option></option>
                             </select>
@@ -104,7 +104,7 @@ var demoPid = {$demo_pid|js_escape};
 var inUseMsg = {$used_msg|js_escape};
 {literal}
 if(curpid == demoPid && !newVersion){
-    $(".ui-widget").hide();
+    $("#patientSearch").hide();
 }
 else{
     $("#pid").text(curpid);
