@@ -23,7 +23,7 @@ services:
   openemr:
     restart: always
     # use an image if you're not changing the build steps:
-    image: openemr/openemr:flex
+    image: openemr/openemr:flex-3.12
     # if editing the Dockerfile, clone the devops repo and point to the path:
     # build: ../openemr-devops/docker/openemr/flex-edge/
     ports:
