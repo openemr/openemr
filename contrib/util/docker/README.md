@@ -275,13 +275,14 @@ build tools can simply `bash` into the OpenEMR container and use them as expecte
 ##### CouchDB
 In OpenEMR, CouchDB is an option for the patients document storage. For this reason, a CouchDB
 docker is included in this OpenEMR docker development environment. You can visit the CouchDB
-GUI directly via http://localhost:5984/_utils/ with username `admin` and password `password`.
-You can configure OpenEMR to use this CouchDB docker for patient document storage in OpenEMR
-at Administration->Globals->Documents:
+GUI directly via http://localhost:5984/_utils/ or https://localhost:6984/_utils/ with
+username `admin` and password `password`. You can configure OpenEMR to use this CouchDB
+docker for patient document storage in OpenEMR at Administration->Globals->Documents:
 - Document Storage Method->CouchDB
 - CouchDB HostName->couchdb
 - CouchDB UserName->admin
 - CouchDB Password->password
+- CouchDB Port->6984
 - CouchDB Database can be set to any name you want
 
 ##### OpenLDAP

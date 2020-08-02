@@ -141,7 +141,59 @@ class CouchDB
 
     function send($method, $url, $post_data = null)
     {
-        $s = fsockopen($this->host, $this->port, $errno, $errstr);
+        if ($GLOBALS['couchdb_connection_ssl']) {
+            // encrypt couchdb over the wire
+            if (
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-ca") &&
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-cert") &&
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-key")
+            ) {
+                // support cacert_file and client certificates
+                $stream_context = stream_context_create(
+                    [
+                        'ssl' =>
+                            [
+                                'cafile' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-ca",
+                                'local_cert' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-cert",
+                                'local_pk' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-key"
+                            ]
+                    ]
+                );
+                $s = stream_socket_client('ssl://' . $this->host . ":" . $this->port, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $stream_context);
+            } elseif (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-ca")) {
+                // support cacert_file
+                $stream_context = stream_context_create(
+                    [
+                        'ssl' =>
+                            [
+                                'cafile' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-ca"
+                            ]
+                    ]
+                );
+                $s = stream_socket_client('ssl://' . $this->host . ":" . $this->port, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $stream_context);
+            } else {
+                if ($GLOBALS['couchdb_ssl_allow_selfsigned']) {
+                    // support self-signed
+                    $stream_context = stream_context_create(
+                        [
+                            'ssl' =>
+                                [
+                                    'verify_peer' => false,
+                                    'allow_self_signed' => true
+                                ]
+                        ]
+                    );
+                    $s = stream_socket_client('ssl://' . $this->host . ":" . $this->port, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $stream_context);
+                } else {
+                    // self-signed, not supported so do not proceed and return false
+                    return false;
+                }
+            }
+        } else {
+            // do not encrypt couchdb over the wire
+            $s = stream_socket_client('tcp://' . $this->host . ":" . $this->port, $errno, $errstr);
+        }
+
         if (!$s) {
             return false;
         }

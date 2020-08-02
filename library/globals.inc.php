@@ -1461,7 +1461,7 @@ $GLOBALS_METADATA = array(
         'couchdb_port' => array(
             xl('CouchDB Port'),
             'text',
-            '5984',
+            '6984',
             xl('CouchDB port'),
         ),
         'couchdb_dbase' => array(
@@ -1469,6 +1469,18 @@ $GLOBALS_METADATA = array(
             'text',
             '',
             xl('CouchDB database name'),
+        ),
+        'couchdb_connection_ssl' => array(
+            xl('CouchDB Connection SSL'),
+            'bool',
+            '1',
+            xl('Use SSL (encrypted) connection to CouchDB'),
+        ),
+        'couchdb_ssl_allow_selfsigned' => array(
+            xl('CouchDB SSL Allow Selfsigned Certificate'),
+            'bool',
+            '0',
+            xl('Allow self-signed certificate for SSL (encrypted) connection to CouchDB'),
         ),
         'couchdb_log' => array(
             xl('CouchDB Log Enable'),
