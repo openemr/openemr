@@ -1019,7 +1019,8 @@ function upgradeFromSqlFile($filename, $path = '')
                 'table_name' => $matches[1],
                 'table_id' => $matches[2]
             ]);
-            if (tableExists($matches[1]) &&
+            if (
+                tableExists($matches[1]) &&
                 columnExists($matches[1], $matches[2]) &&
                 $uuidRegistry->tableNeedsUuidCreation()
             ) {
