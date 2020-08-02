@@ -38,11 +38,11 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [FHIR PractitionerRole API](FHIR_README.md#get-fhirpractitionerrole)
     -   [FHIR Immunization API](FHIR_README.md#get-fhirimmunization)
     -   [FHIR AllergyIntolerance API](FHIR_README.md#get-fhirallergyintolerance)
+    -   [FHIR Procedure API](FHIR_README.md#get-fhirprocedure)
     -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
     -   [FHIR Observation API](FHIR_README.md#get-fhirobservation)
     -   [FHIR QuestionnaireResponse API](FHIR_README.md#get-fhirquestionnaireresponse)
     -   [FHIR Condition API](FHIR_README.md#get-fhircondition)
-    -   [FHIR Procedure API](FHIR_README.md#get-fhirprocedure)
     -   [FHIR MedicationStatement API](FHIR_README.md#get-fhirmedicationstatement)
     -   [FHIR Medication API](FHIR_README.md#get-fhirmedication)
 -   [Portal FHIR API Endpoints](FHIR_README.md#portalfhir-endpoints)
@@ -445,12 +445,12 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Procedure'
 ```
 
-#### GET /fhir/Procedure/:id
+#### GET /fhir/Procedure/:uuid
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Procedure/1'
+curl -X GET 'http://localhost:8300/apis/fhir/Procedure/9109890a-6756-44c1-a82d-bdfac91c7424'
 ```
 
 #### GET /fhir/MedicationStatement

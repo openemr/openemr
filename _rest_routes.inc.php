@@ -37,6 +37,7 @@ use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\ImmunizationRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
+use OpenEMR\RestControllers\ProcedureRestController;
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -370,9 +371,17 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "med");
         return (new ImmunizationRestController())->getAll($_GET);
     },
-    "GET /api/immunization/:id" => function ($id) {
+    "GET /api/immunization/:uuid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new ImmunizationRestController())->getOne($id);
+        return (new ImmunizationRestController())->getOne($uuid);
+    },
+    "GET /api/procedure" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new ProcedureRestController())->getAll();
+    },
+    "GET /api/procedure/:uuid" => function ($uuid) {
+        RestConfig::authorization_check("patients", "med");
+        return (new ProcedureRestController())->getOne($uuid);
     },
 
 );
@@ -510,11 +519,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Procedure" => function () {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirProcedureRestController(null))->getAll($_GET);
+        return (new FhirProcedureRestController())->getAll($_GET);
     },
-    "GET /fhir/Procedure/:id" => function ($id) {
+    "GET /fhir/Procedure/:uuid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirProcedureRestController(null))->getOne($id);
+        return (new FhirProcedureRestController())->getOne($uuid);
     },
     "GET /fhir/MedicationStatement" => function () {
         RestConfig::authorization_check("patients", "med");

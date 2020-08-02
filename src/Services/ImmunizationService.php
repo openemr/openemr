@@ -22,7 +22,7 @@ class ImmunizationService extends BaseService
     private const IMMUNIZATION_TABLE = "immunizations";
     private const PATIENT_TABLE = "patient_data";
     private $immunizationValidator;
-    private $uuidRegistery;
+    private $uuidRegistry;
 
     /**
      * Default constructor.
@@ -30,8 +30,8 @@ class ImmunizationService extends BaseService
     public function __construct()
     {
         parent::__construct(self::IMMUNIZATION_TABLE);
-        $this->uuidRegistery = new UuidRegistry(['table_name' => self::IMMUNIZATION_TABLE]);
-        $this->uuidRegistery->createMissingUuids();
+        $this->uuidRegistry = new UuidRegistry(['table_name' => self::IMMUNIZATION_TABLE]);
+        $this->uuidRegistry->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         $this->immunizationValidator = new ImmunizationValidator();
     }

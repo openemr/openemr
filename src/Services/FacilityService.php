@@ -25,7 +25,7 @@ use Particle\Validator\Validator;
 class FacilityService extends BaseService
 {
     private $facilityValidator;
-    private $uuidRegistery;
+    private $uuidRegistry;
     private const FACILITY_TABLE = "facility";
 
     /**
@@ -34,8 +34,8 @@ class FacilityService extends BaseService
     public function __construct()
     {
         parent::__construct(self::FACILITY_TABLE);
-        $this->uuidRegistery = new UuidRegistry(['table_name' => self::FACILITY_TABLE]);
-        $this->uuidRegistery->createMissingUuids();
+        $this->uuidRegistry = new UuidRegistry(['table_name' => self::FACILITY_TABLE]);
+        $this->uuidRegistry->createMissingUuids();
         $this->facilityValidator = new FacilityValidator();
     }
 

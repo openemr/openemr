@@ -617,6 +617,10 @@ function convertLayoutProperties()
 *   argument: table_name
 *   behavior: this will add and populate a uuid column into table
 *
+*  #IfUuidNeedUpdateId
+*   argument: table_name primary_id
+*   behavior: this will add and populate a uuid column into table
+*
 * #IfUuidNeedUpdateVertical
 *   argument: table_name table_columns
 *   behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
@@ -1000,6 +1004,25 @@ function upgradeFromSqlFile($filename, $path = '')
         } elseif (preg_match('/^#IfUuidNeedUpdate\s+(\S+)/', $line, $matches)) {
             $uuidRegistry = new UuidRegistry(['table_name' => $matches[1]]);
             if (tableExists($matches[1]) && $uuidRegistry->tableNeedsUuidCreation()) {
+                $skipping = false;
+                echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
+                $uuidRegistry->createMissingUuids();
+                echo "<p class='text-success'>Successfully completed adding UUIDs to " . $matches[1] . " table</p>\n";
+            } else {
+                $skipping = true;
+            }
+            if ($skipping) {
+                echo "<p class='text-success'>Skipping section $line</p>\n";
+            }
+        } elseif (preg_match('/^#IfUuidNeedUpdateId\s+(\S+)\s+(\S+)/', $line, $matches)) {
+            $uuidRegistry = new UuidRegistry([
+                'table_name' => $matches[1],
+                'table_id' => $matches[2]
+            ]);
+            if (tableExists($matches[1]) &&
+                columnExists($matches[1], $matches[2]) &&
+                $uuidRegistry->tableNeedsUuidCreation()
+            ) {
                 $skipping = false;
                 echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
                 $uuidRegistry->createMissingUuids();

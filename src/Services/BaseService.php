@@ -353,8 +353,8 @@ class BaseService
      */
     protected function addDiagnosis($diagnosis)
     {
-        $diagnosis = array();
         $diags = explode(";", $diagnosis);
+        $diagnosis = array();
         foreach ($diags as $diag) {
             $codedesc = lookup_code_descriptions($diag);
             $code = explode(':', $diag)[1];

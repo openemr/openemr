@@ -74,6 +74,10 @@
 --    argument: table_name
 --    behavior: this will add and populate a uuid column into table
 
+--  #IfUuidNeedUpdateId
+--    argument: table_name primary_id
+--    behavior: this will add and populate a uuid column into table
+
 --  #IfUuidNeedUpdateVertical
 --    argument: table_name table_columns
 --    behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
@@ -1935,6 +1939,17 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verific
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'unconfirmed', 'Unconfirmed', 20);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'refuted', 'Refuted', 30);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'entered-in-error', 'Entered in Error', 40);
+#EndIf
+
+#IfMissingColumn procedure_order uuid
+ALTER TABLE `procedure_order` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdateId procedure_order procedure_order_id
+#EndIf
+
+#IfNotIndex procedure_order uuid
+CREATE UNIQUE INDEX `uuid` ON `procedure_order` (`uuid`);
 #EndIf
 
 UPDATE `globals` SET `gl_value`='0.625' WHERE `gl_name`='font-size' AND `gl_value`='0.625rem';
