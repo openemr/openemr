@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -39,9 +39,9 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
 </div>
 <div class="container bg-info">
     <div class='well'>
-    <div class="jumbotron text-center">
+    <div class="text-center">
         <h3>
-            <?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md" style="font-size:60px;color:red"></i>
+            <?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md" style="padding-left:5px;font-size:60px;color:red"></i>
         </h3>
         <p>
         <a class="btn btn-info" data-toggle="modal"
@@ -52,7 +52,7 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
     <div class="row">
         <div class="col-sm-3 col-md-3">
             <h4>
-                <i class="icon-cogs"></i><?php echo xlt('Patient Document Templates') ?>
+                <i class="icon-cogs"></i><?php echo xlt('Document Templates') ?>
             </h4>
             <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/import_template_ui.php"><?php echo xlt('Manage Templates') ?> »</a>
         </div>
