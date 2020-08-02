@@ -118,7 +118,7 @@ var page = {
                     ddd.append('<option value="0">Unassigned</option>');
                     dddd.append('<option value="0">Unassigned</option>');
                     c.forEach(function (item, index) {
-                        if (item.get('authorized') != '1') return;
+                        if (item.get('authorized') != '1' && item.get('portalUser') != '1') return;
                         var uid = item.get('id')
                         var tname = item.get('title') ? item.get('title') + ' ' : '';
                         var sname = item.get('specialty') ? ',' + item.get('specialty') : '';
@@ -156,7 +156,6 @@ var page = {
 
                                     if (($("input[name=" + key + "]").attr('type') == 'radio' || $('#' + key).is('select')) && value == "")
                                         value = 'Unassigned';
-                                    //$('#'+key+'InputContainer span.help-inline').addClass('editval');
                                     $('#' + key + 'InputContainer span.help-inline').html(
                                         '<a class="editval" style="color:blue" onclick="page.toggleVal(this); return false;" data-tstate=new data-id="' + key + '">' + value + '</a>');
                                     $('#' + key + 'InputContainer span.help-inline').show();

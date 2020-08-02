@@ -86,7 +86,7 @@ class UserReporter extends Reporter
     public $NewcropUserRole;
     public $Cpoe;
     public $PhysicianType;
-
+    public $PortalUser;
     /*
     * GetCustomQuery returns a fully formed SQL statement.  The result columns
     * must match with the properties of this reporter object.
@@ -154,6 +154,7 @@ class UserReporter extends Reporter
 			,`users`.`newcrop_user_role` as NewcropUserRole
 			,`users`.`cpoe` as Cpoe
 			,`users`.`physician_type` as PhysicianType
+            ,`users`.`portal_user` as PortalUser
 		from `users`";
 
         // the criteria can be used or you can write your own custom logic.
