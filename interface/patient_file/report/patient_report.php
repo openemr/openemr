@@ -568,175 +568,165 @@ $(function () {
     // check/uncheck all Forms of an encounter
     $(".encounter").click(function() { SelectForms($(this)); });
 
-    $(".generateCCR").click(
-        function() {
-                if(document.getElementById('show_date').checked == true){
-                        if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                                alert(<?php echo xlj('Please select a start date and end date') ?>);
-                                return false;
-                        }
-                }
+    $(".generateCCR").click(function() {
+        if(document.getElementById('show_date').checked == true){
+            if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
+                alert(<?php echo xlj('Please select a start date and end date') ?>);
+                return false;
+            }
+        }
         var ccrAction = document.getElementsByName('ccrAction');
         ccrAction[0].value = 'generate';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'no';
+        var raw = document.getElementsByName('raw');
+        raw[0].value = 'no';
         top.restoreSession();
         ccr_form.setAttribute("target", "_blank");
         $("#ccr_form").submit();
-                ccr_form.setAttribute("target", "");
+        ccr_form.setAttribute("target", "");
     });
-        $(".generateCCR_raw").click(
-        function() {
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'generate';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'yes';
-                top.restoreSession();
-                ccr_form.setAttribute("target", "_blank");
-                $("#ccr_form").submit();
-                ccr_form.setAttribute("target", "");
-        });
-        $(".generateCCR_download_h").click(
-        function() {
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'generate';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'hybrid';
-                top.restoreSession();
-                $("#ccr_form").submit();
-        });
-        $(".generateCCR_download_p").click(
-        function() {
-                if(document.getElementById('show_date').checked == true){
-                        if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                                alert(<?php echo xlj('Please select a start date and end date'); ?>);
-                                return false;
-                        }
-                }
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'generate';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'pure';
-                top.restoreSession();
-                $("#ccr_form").submit();
-        });
-    $(".viewCCD").click(
-    function() {
+    $(".generateCCR_raw").click(function() {
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'generate';
+        var raw = document.getElementsByName('raw');
+        raw[0].value = 'yes';
+        top.restoreSession();
+        ccr_form.setAttribute("target", "_blank");
+        $("#ccr_form").submit();
+        ccr_form.setAttribute("target", "");
+    });
+    $(".generateCCR_download_h").click(function() {
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'generate';
+        var raw = document.getElementsByName('raw');
+        raw[0].value = 'hybrid';
+        top.restoreSession();
+        $("#ccr_form").submit();
+    });
+    $(".generateCCR_download_p").click(function() {
+        if(document.getElementById('show_date').checked == true){
+            if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
+                alert(<?php echo xlj('Please select a start date and end date'); ?>);
+                return false;
+            }
+        }
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'generate';
+        var raw = document.getElementsByName('raw');
+        raw[0].value = 'pure';
+        top.restoreSession();
+        $("#ccr_form").submit();
+    });
+    $(".viewCCD").click(function() {
         var ccrAction = document.getElementsByName('ccrAction');
         ccrAction[0].value = 'viewccd';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'no';
+        var raw = document.getElementsByName('raw');
+        raw[0].value = 'no';
         top.restoreSession();
-                ccr_form.setAttribute("target", "_blank");
+        ccr_form.setAttribute("target", "_blank");
         $("#ccr_form").submit();
-                ccr_form.setAttribute("target", "");
+        ccr_form.setAttribute("target", "");
     });
-        $(".viewCCD_raw").click(
-        function() {
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'viewccd';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'yes';
-                top.restoreSession();
-                ccr_form.setAttribute("target", "_blank");
-                $("#ccr_form").submit();
-                ccr_form.setAttribute("target", "");
-        });
-        $(".viewCCD_download").click(
-        function() {
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'viewccd';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'pure';
-                $("#ccr_form").submit();
-        });
-<?php if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccr_enable'] == true) { ?>
-        $(".viewCCR_send_dialog").click(
-        function() {
-                $("#ccr_send_dialog").toggle();
-        });
-        $(".viewCCR_transmit").click(
-        function() {
-                $(".viewCCR_transmit").attr('disabled','disabled');
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'generate';
-                var ccrRecipient = $("#ccr_send_to").val();
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'send '+ccrRecipient;
-                if(ccrRecipient=="") {
-                  $("#ccr_send_message").html(<?php
-                    echo xlj('Please enter a valid Direct Address above.'); ?>);
-                  $("#ccr_send_result").show();
-                } else {
-                  $(".viewCCR_transmit").attr('disabled','disabled');
-                  $("#ccr_send_message").html(<?php
-                    echo xlj('Working... this may take a minute.'); ?>);
-                  $("#ccr_send_result").show();
-                  var action=$("#ccr_form").attr('action');
-                  $.post(action,
-                     {
-                       ccrAction:'generate',
-                       raw:'send '+ccrRecipient,
-                       requested_by:'user'
-                     },
-                     function(data) {
-                       if(data=="SUCCESS") {
-                         $("#ccr_send_message").html(<?php
-                            echo xlj('Your message was submitted for delivery to');
-                            ?>+ " " + ccrRecipient);
-                         $("#ccr_send_to").val("");
-                       } else {
-                         $("#ccr_send_message").html(data);
-                       }
-                       $(".viewCCR_transmit").removeAttr('disabled');
-                  });
-                }
-        });
-<?php }
+    $(".viewCCD_raw").click(function() {
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'viewccd';
+        var raw = document.getElementsByName('raw');
+        raw[0].value = 'yes';
+        top.restoreSession();
+        ccr_form.setAttribute("target", "_blank");
+        $("#ccr_form").submit();
+        ccr_form.setAttribute("target", "");
+    });
+    $(".viewCCD_download").click(function() {
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'viewccd';
+        var raw = document.getElementsByName('raw');
+        raw[0].value = 'pure';
+        $("#ccr_form").submit();
+    });
 
-if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccd_enable'] == true) { ?>
-        $(".viewCCD_send_dialog").click(
-        function() {
-                $("#ccd_send_dialog").toggle();
+    <?php if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccr_enable'] == true) { ?>
+        $(".viewCCR_send_dialog").click(function() {
+            $("#ccr_send_dialog").toggle();
         });
-        $(".viewCCD_transmit").click(
-        function() {
-                $(".viewCCD_transmit").attr('disabled','disabled');
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'viewccd';
-                var ccdRecipient = $("#ccd_send_to").val();
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'send '+ccdRecipient;
+        $(".viewCCR_transmit").click(function() {
+            $(".viewCCR_transmit").attr('disabled','disabled');
+            var ccrAction = document.getElementsByName('ccrAction');
+            ccrAction[0].value = 'generate';
+            var ccrRecipient = $("#ccr_send_to").val();
+            var raw = document.getElementsByName('raw');
+            raw[0].value = 'send '+ccrRecipient;
+            if(ccrRecipient=="") {
+                    $("#ccr_send_message").html(<?php
+                        echo xlj('Please enter a valid Direct Address above.'); ?>);
+                    $("#ccr_send_result").show();
+            } else {
+                    $(".viewCCR_transmit").attr('disabled','disabled');
+                    $("#ccr_send_message").html(<?php
+                        echo xlj('Working... this may take a minute.'); ?>);
+                    $("#ccr_send_result").show();
+                    var action=$("#ccr_form").attr('action');
+                    $.post(action,
+                        {
+                            ccrAction:'generate',
+                            raw:'send '+ccrRecipient,
+                            requested_by:'user'
+                        },
+                        function(data) {
+                            if(data=="SUCCESS") {
+                                $("#ccr_send_message").html(<?php
+                                    echo xlj('Your message was submitted for delivery to');
+                                    ?>+ " " + ccrRecipient);
+                                $("#ccr_send_to").val("");
+                            } else {
+                                $("#ccr_send_message").html(data);
+                            }
+                            $(".viewCCR_transmit").removeAttr('disabled');
+                    });
+                    }
+        });
+    <?php }
+
+    if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccd_enable'] == true) { ?>
+        $(".viewCCD_send_dialog").click(function() {
+            $("#ccd_send_dialog").toggle();
+        });
+        $(".viewCCD_transmit").click(function() {
+            $(".viewCCD_transmit").attr('disabled','disabled');
+            var ccrAction = document.getElementsByName('ccrAction');
+            ccrAction[0].value = 'viewccd';
+            var ccdRecipient = $("#ccd_send_to").val();
+            var raw = document.getElementsByName('raw');
+            raw[0].value = 'send '+ccdRecipient;
                 if(ccdRecipient=="") {
-                  $("#ccd_send_message").html(<?php
-                    echo xlj('Please enter a valid Direct Address above.'); ?>);
-                  $("#ccd_send_result").show();
+                        $("#ccd_send_message").html(<?php
+                            echo xlj('Please enter a valid Direct Address above.'); ?>);
+                        $("#ccd_send_result").show();
                 } else {
-                  $(".viewCCD_transmit").attr('disabled','disabled');
-                  $("#ccd_send_message").html(<?php
-                    echo xlj('Working... this may take a minute.'); ?>);
-                  $("#ccd_send_result").show();
-                  var action=$("#ccr_form").attr('action');
-                  $.post(action,
-                     {
-                       ccrAction:'viewccd',
-                       raw:'send '+ccdRecipient,
-                       requested_by:'user'
-                     },
-                     function(data) {
-                       if(data=="SUCCESS") {
-                         $("#ccd_send_message").html(<?php
-                            echo xlj('Your message was submitted for delivery to');
-                            ?> + " " + ccdRecipient);
-                         $("#ccd_send_to").val("");
-                       } else {
-                         $("#ccd_send_message").html(data);
-                       }
-                       $(".viewCCD_transmit").removeAttr('disabled');
-                  });
+                        $(".viewCCD_transmit").attr('disabled','disabled');
+                        $("#ccd_send_message").html(<?php
+                            echo xlj('Working... this may take a minute.'); ?>);
+                        $("#ccd_send_result").show();
+                        var action=$("#ccr_form").attr('action');
+                        $.post(action,
+                            {
+                            ccrAction:'viewccd',
+                            raw:'send '+ccdRecipient,
+                            requested_by:'user'
+                            },
+                            function(data) {
+                            if(data=="SUCCESS") {
+                                $("#ccd_send_message").html(<?php
+                                    echo xlj('Your message was submitted for delivery to');
+                                ?> + " " + ccdRecipient);
+                                $("#ccd_send_to").val("");
+                            } else {
+                                $("#ccd_send_message").html(data);
+                            }
+                            $(".viewCCD_transmit").removeAttr('disabled');
+                        });
                 }
         });
-<?php } ?>
+    <?php } ?>
 
     <?php
     if ($oefax) {
@@ -774,7 +764,6 @@ function issueClick(issue) {
         if ($(issue).val().indexOf('/' + $(this).val() + '/') >= 0) {
             $(this).attr("checked", "checked");
         }
-
     });
 }
 

@@ -589,7 +589,7 @@ if ($_REQUEST['form_csvexport']) {
                                     </table>
                                 </div>
                             </td>
-                            <td class="align-middle h-100 text-le">
+                            <td class="align-middle h-100 text-left">
                                 <table class="w-100 h-100 border-left" >
                                     <tr>
                                         <td>
@@ -738,7 +738,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             </table>
         </div>
 
-        <div id="report_results">
+        <div id="report_results" class="jumbotron py-4">
             <table>
                 <tr>
                     <td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
@@ -747,18 +747,17 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                     <td class='font-weight-bold'><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <?php echo xlt('Units'); ?></td>
                     <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
-                    <td align='right' class='font-weight-bold'>&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
-                    <td align='right' class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
-                    <td align='right' class='font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
+                    <td class='text-right font-weight-bold'>&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
+                    <td class='text-right font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
+                    <td class='text-right font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
                 </tr>
                 <tr>
                     <td>&nbsp;&nbsp;&nbsp;</td>
                     <td colspan="2">&nbsp;&nbsp;&nbsp;</td>
                     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    &nbsp;&nbsp;&nbsp;</td>
+                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                     <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Appl'); ?></td>
-                    <td align='right' class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
+                    <td class='text-right font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                 </tr>

@@ -123,8 +123,8 @@ $records2 = array();
         $oemr_ui = new OemrUI($arrOeUiSettings);
         ?>
     </head>
-    <body class="body_top">
-        <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+    <body>
+        <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
             <div class="row">
                 <div class="col-sm-12">
                     <?php
@@ -150,7 +150,7 @@ $records2 = array();
             <div class="row">
                 <div class="col-sm-12">
                     <div class="dm-ed-in-3 dm-ed-in-5">
-                        <table width="100%;">
+                        <table>
                             <tr class="dm-ed-in-9">
                                 <td class="dm-ed-in-6"><label><?php echo xlt('Date'); ?></label></td>
                                 <td class="dm-ed-in-6"><label><?php echo xlt('Diagnosis'); ?></label></td>
@@ -186,7 +186,7 @@ $records2 = array();
                         <?php } ?>
                     </div>
                     <div class="dm-ed-in-4 dm-ed-in-5">
-                        <table width="100%;">
+                        <table>
                             <tr class="dm-ed-in-9">
                                 <td class="dm-ed-in-6"><label><?php echo xlt('Date'); ?></label></td>
                                 <td class="dm-ed-in-6"><label><?php echo xlt('Code'); ?></label></td>
@@ -213,11 +213,11 @@ $records2 = array();
                                 <?php
                             } ?>
                         </table>
-                            <?php if (empty($records2)) { ?>
-                            <div class="dm-ed-in-8">
-                                <?php echo xlt('Nothing to display'); ?>
-                            </div>
-                            <?php } ?>
+                        <?php if (empty($records2)) { ?>
+                        <div class="dm-ed-in-8">
+                            <?php echo xlt('Nothing to display'); ?>
+                        </div>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
