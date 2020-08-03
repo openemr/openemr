@@ -322,7 +322,7 @@ function fetch_reminders($pid, $appt_date)
                                 <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                     <?php echo xlt('Print'); ?>
                                 </a>
-                                <button class="btn btn-default btn-transmit"><?php echo xlt('Export CSV'); ?></button>
+                                <button name="appointment_report" class="btn btn-default btn-transmit" id="csv-report"><?php echo xlt('Export CSV'); ?></button>
                                 <a href='#' class='btn btn-secondary btn-transmit' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2", "_blank").opener = null' onsubmit='return top.restoreSession()'>
                                     <?php echo xlt('Superbills'); ?>
                                 </a>

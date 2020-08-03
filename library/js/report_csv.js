@@ -50,7 +50,12 @@ function export_table_to_csv(html, filename) {
 }
 if (document.querySelector("button") != null) {
     document.querySelector("button").addEventListener("click", function () {
+        let reportname;
+        let rn;
+        reportname = document.getElementById('csv-report').name;
+        alert(reportname);
         const html = document.querySelector("table").innerHTML;
-        export_table_to_csv(html, "appointment_report.csv");
+        rn = reportname + '.csv';
+        export_table_to_csv(html, rn);
     });
 }
