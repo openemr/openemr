@@ -82,7 +82,7 @@ class InstModuleTable
             if ($sqlarray = @file($sqltext)) {
                 $sql = implode("", $sqlarray);
 
-                $specialPattern = '/#specialSql(.*?)*#endSpecialSql/';
+                $specialPattern = '/#specialSql(\r\n.*?)*#endSpecialSql/';
                 $specialReplacement = '';
                 preg_match_all($specialPattern, $sql, $specialMatches);
                 //separate spacial sql and clean sql string
