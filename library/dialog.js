@@ -39,11 +39,12 @@
         function alert(data, title) {
             title = title ? title : 'Alert';
             let alertTitle = '<i class="fa fa-warning alert-danger"></i>&nbsp;<span>' + title + '</span>';
-            return dlgopen('', '', 675, 250, '', alertTitle, {
+            return dlgopen('', '', 675, 0, '', alertTitle, {
                 buttons: [
                     {text: '<i class="fa fa-thumbs-up">&nbsp;OK</i>', close: true, style: 'primary'}
                 ],
                 type: 'Alert',
+                sizeHeight: 'auto',
                 html: '<blockquote class="blockquote">' + data + '</blockquote>'
             });
         }
@@ -51,7 +52,7 @@
         function confirm(data, title) {
             title = title ? title : 'Confirm';
             let alertTitle = '<i class="fa fa-warning alert-info"></i>&nbsp;<span>' + title + '</span>';
-            return dlgopen('', '', 675, 250, '', alertTitle, {
+            return dlgopen('', '', 675, 0, '', alertTitle, {
                 buttons: [
                     {text: '<i class="fa fa-thumbs-up">&nbsp;Yes</i>', close: false, id:'confirmYes', style: 'primary btn-sm'},
                     {text: '<i class="fa fa-thumbs-down">&nbsp;No</i>', close: false, id:'confirmNo', style: 'primary btn-sm'},
@@ -757,6 +758,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // dynamic sizing - special case for full height
     function sizing(e, height) {
         let viewPortHt = 0;
+        if (opts.sizeHeight === 'auto' || size === 0) {
+            // let BS determine height for alerts etc
+            return;
+        }
         let $idoc = jQuery(e.currentTarget);
         viewPortHt = Math.max(window.document.documentElement.clientHeight, window.innerHeight || 0);
         let frameContentHt = opts.sizeHeight === 'full' ? viewPortHt : height;

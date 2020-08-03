@@ -112,6 +112,7 @@ class UserMap implements IDaoMap, IDaoMap2
             self::$FM["NewcropUserRole"] = new FieldMap("NewcropUserRole", "users", "newcrop_user_role", false, FM_TYPE_VARCHAR, 30, null, false);
             self::$FM["Cpoe"] = new FieldMap("Cpoe", "users", "cpoe", false, FM_TYPE_TINYINT, 1, null, false);
             self::$FM["PhysicianType"] = new FieldMap("PhysicianType", "users", "physician_type", false, FM_TYPE_VARCHAR, 50, null, false);
+            self::$FM["PortalUser"] = new FieldMap("PortalUser", "users", "portal_user", false, FM_TYPE_TINYINT, 1, null, false);
         }
 
         return self::$FM;
