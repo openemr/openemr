@@ -1358,7 +1358,7 @@ CREATE TABLE `drugs` (
   `consumable` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = will not show on the fee sheet',
   `dispensable` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0 = pharmacy elsewhere, 1 = dispensed here',
   PRIMARY KEY  (`drug_id`)
-  UNIQUE INDEX `uuid` ON `drugs` (`uuid`);
+  UNIQUE INDEX `uuid` ON `drugs` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
