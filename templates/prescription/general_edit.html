@@ -367,7 +367,7 @@ $(function () {
     {if $prescription->drug}
         {literal}
         // Show the current drug name in the select
-        var newOption = new Option({/literal}"{$prescription->drug}", "{$prescription->drug}"{literal}, true, true);
+        var newOption = new Option({/literal}{$prescription->drug|js_escape}, {$prescription->drug|js_escape}{literal}, true, true);
         $('#drug').append(newOption).trigger('change');
         {/literal}
     {/if}
