@@ -266,7 +266,7 @@ foreach ($msgs as $i) {
                 dataType: "json",
                 success: function (data) {
                     if (data.DateFinished != '') {
-                        document.getElementById("Content").innerHTML = "<?php xla('You have finished the assessment.'); ?>" + "<br /> " + "<?php echo xla('Thank you'); ?>";
+                        document.getElementById("Content").innerHTML = jsText(<?php xlj('You have finished the assessment.'); ?>) + "<br /> " + jsText(<?php echo xlj('Thank you'); ?>);
                         document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
                         document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
                         $.ajax({
@@ -304,7 +304,7 @@ foreach ($msgs as $i) {
         }
 
         function startAssessment(param, assessmentOID) {
-            param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla('Loading'); ?>";
+            param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> " + jsText(<?php echo xlj('Loading'); ?>);
 
             $.ajax({
                 url: '../library/ajax/easipro_util.php',
@@ -328,10 +328,10 @@ foreach ($msgs as $i) {
                     }
                     document.getElementById("Content").innerHTML = screen;
 
-                    param.innerHTML = "<?php echo xla('Start Assessment') ?>";
+                    param.innerHTML = jsText(<?php echo xlj('Start Assessment') ?>);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    param.innerHTML = "<?php echo xla('Start Assessment') ?>";
+                    param.innerHTML = jsText(<?php echo xlj('Start Assessment') ?>);
 
                     //document.write(jqXHR.responseText);
                     alert("An error occurred");
