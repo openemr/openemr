@@ -2,7 +2,8 @@
     "env": {
         "browser": true,
         "commonjs": true,
-        "es6": true
+        "es6": true,
+        "jquery": true
     },
     "extends": [
         "airbnb-base"
@@ -15,5 +16,11 @@
         "ecmaVersion": 2018
     },
     "rules": {
+        "indent": ["error", 4],
+        "no-console": "off",
+        "no-unused-vars": "off",
+        "no-alert":"off",
+        "no-undef":"off",
+        "no-param-reassign": "off"
     }
 }
