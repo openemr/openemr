@@ -22,9 +22,8 @@ if (!AclMain::aclCheckCore('patient', 'rx', '', 'write')) {
     exit;
 }
 
-$id = filter_input(INPUT_POST, 'drugId', FILTER_VALIDATE_INT);
-$id = trim($id);
-if (isset($id)) {
+$id = (isset($_POST['drugid'])) ? (int)$_POST['drugid'] : '';
+if ((!empty($id)) && ($id > 0)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
