@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PatientController.php
  *
@@ -14,7 +15,6 @@
  */
 require_once("AppBaseController.php");
 require_once("Model/Patient.php");
-
 /**
  * PatientController is the controller class for the Patient object.
  * The
@@ -36,7 +36,7 @@ class PatientController extends AppBaseController
     protected function Init()
     {
         parent::Init();
-        // require_once ( '../lib/appsql.class.php' );
+// require_once ( '../lib/appsql.class.php' );
 
         // $this->RequirePermission(SecureApp::$PERMISSION_USER,'SecureApp.LoginForm');
     }
@@ -48,13 +48,12 @@ class PatientController extends AppBaseController
     {
 
         $rid = $pid = $user = $encounter = $register = 0;
-
         if (isset($_GET['id'])) {
-            $rid = ( int ) $_GET['id'];
+            $rid = (int) $_GET['id'];
         }
 
         if (isset($_GET['pid'])) {
-            $pid = ( int ) $_GET['pid'];
+            $pid = (int) $_GET['pid'];
         }
 
         // only allow patient to see themself
@@ -78,15 +77,13 @@ class PatientController extends AppBaseController
         $this->Assign('cuser', $user);
         $this->Assign('encounter', $encounter);
         $this->Assign('register', $register);
-
         $trow = array();
         $ptdata = $this->startupQuery($pid);
         foreach ($ptdata[0] as $key => $v) {
             $trow[lcfirst($key)] = $v;
         }
         $this->Assign('trow', $trow);
-
-        // seek and qualify excluded edits
+// seek and qualify excluded edits
         $exclude = [];
         $q = sqlStatement("SELECT `field_id`, `uor`, `edit_options` FROM `layout_options` " .
             "WHERE `form_id` = 'DEM' AND (`uor` = 0 || `edit_options` > '')" .
@@ -94,18 +91,14 @@ class PatientController extends AppBaseController
         while ($key = sqlFetchArray($q)) {
             if ((int)$key['uor'] === 0 || strpos($key['edit_options'], "EP") !== false) {
                 $key['field_id'] = strtolower($key['field_id']);
-                $key['field_id'] = preg_replace_callback(
-                    '/_([^_])/',
-                    function (array $m) {
+                $key['field_id'] = preg_replace_callback('/_([^_])/', function (array $m) {
+
                         return ucfirst($m[1]);
-                    },
-                    $key['field_id']
-                );
+                }, $key['field_id']);
                 $exclude[] = lcfirst($key['field_id']) . "InputContainer";
             }
         }
         $this->Assign('exclude', $exclude);
-
         $this->Render();
     }
     /**
@@ -115,11 +108,10 @@ class PatientController extends AppBaseController
     {
         try {
             $criteria = new PatientCriteria();
-            $recnum = ( int ) $pid;
+            $recnum = (int) $pid;
             $criteria->Pid_Equals = $recnum;
-
             $output = new stdClass();
-            // return row
+// return row
             $patientdata = $this->Phreezer->Query('PatientReporter', $criteria);
             $output->rows = $patientdata->ToObjectArray(false, $this->SimpleObjectParams());
             $output->totalResults = count($output->rows);
@@ -136,17 +128,14 @@ class PatientController extends AppBaseController
         try {
             $criteria = new PatientCriteria();
             $pid = RequestUtil::Get('patientId');
-
-            // only allow patient to see themself
+// only allow patient to see themself
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 $pid = $GLOBALS['bootstrap_pid'];
             }
 
             $criteria->Pid_Equals = $pid;
-
             $output = new stdClass();
-
-            // if a sort order was specified then specify in the criteria
+// if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
             if ($output->orderBy) {
@@ -154,15 +143,13 @@ class PatientController extends AppBaseController
             }
 
             $page = RequestUtil::Get('page');
-
-            // return all results
+// return all results
             $patientdata = $this->Phreezer->Query('Patient', $criteria);
             $output->rows = $patientdata->ToObjectArray(true, $this->SimpleObjectParams());
             $output->totalResults = count($output->rows);
             $output->totalPages = 1;
             $output->pageSize = $output->totalResults;
             $output->currentPage = 1;
-
             $this->RenderJSON($output, $this->JSONPCallback());
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
@@ -190,14 +177,12 @@ class PatientController extends AppBaseController
     {
         try {
             $json = json_decode(RequestUtil::GetBody());
-
             if (! $json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
 
             $patient = new Patient($this->Phreezer);
-
-            // this is an auto-increment. uncomment if updating is allowed
+// this is an auto-increment. uncomment if updating is allowed
             // $patient->Id = $this->SafeGetVal($json, 'id');
 
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
@@ -275,10 +260,8 @@ class PatientController extends AppBaseController
             $patient->CareTeam = $this->SafeGetVal($json, 'careTeam', $patient->CareTeam);
             $patient->County = $this->SafeGetVal($json, 'county', $patient->County);
             $patient->Industry = $this->SafeGetVal($json, 'industry', $patient->Industry);
-
             $patient->Validate();
             $errors = $patient->GetValidationErrors();
-
             if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors' . $errors, $errors);
             } else {
@@ -297,14 +280,13 @@ class PatientController extends AppBaseController
     {
         try {
             $json = json_decode(RequestUtil::GetBody());
-
             if (! $json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
-            // this is a primary key. uncomment if updating is allowed
+// this is a primary key. uncomment if updating is allowed
             // $patient->Id = $this->SafeGetVal($json, 'id', $patient->Id);
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
             $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
@@ -371,10 +353,8 @@ class PatientController extends AppBaseController
             $patient->CareTeam = $this->SafeGetVal($json, 'careTeam', $patient->CareTeam);
             $patient->County = $this->SafeGetVal($json, 'county', $patient->County);
             $patient->Industry = $this->SafeGetVal($json, 'industry', $patient->Industry);
-
             $patient->Validate();
             $errors = $patient->GetValidationErrors();
-
             if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
             } else {
@@ -392,7 +372,7 @@ class PatientController extends AppBaseController
         $ja = $p->GetArray();
         try {
             $audit = array ();
-            // date("Y-m-d H:i:s");
+        // date("Y-m-d H:i:s");
             $audit['patient_id'] = $ja['pid'];
             $audit['activity'] = "profile";
             $audit['require_audit'] = "1";
@@ -405,8 +385,7 @@ class PatientController extends AppBaseController
             $audit['action_user'] = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "0";
             $audit['action_taken_time'] = date("Y-m-d H:i:s");
             $audit['checksum'] = "0";
-
-            // returns false for new audit
+        // returns false for new audit
             $edata = $appsql->getPortalAudit($ja['pid'], 'review');
             if ($edata) {
                 if (empty($edata['id'])) {
@@ -425,15 +404,12 @@ class PatientController extends AppBaseController
     public function Delete()
     {
         try {
-            // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
+// TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
-
             $patient->Delete();
-
             $output = new stdClass();
-
             $this->RenderJSON($output, $this->JSONPCallback());
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
