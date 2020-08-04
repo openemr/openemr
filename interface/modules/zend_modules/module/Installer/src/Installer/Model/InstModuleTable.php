@@ -86,7 +86,7 @@ class InstModuleTable
                 $specialReplacement = '';
                 preg_match_all($specialPattern, $sql, $specialMatches);
                 //separate spacial sql and clean sql string
-                $sql= preg_replace($specialPattern, $specialReplacement, $sql);
+                $sql = preg_replace($specialPattern, $specialReplacement, $sql);
 
                 $sqla = explode(";", $sql);
 
