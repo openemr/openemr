@@ -92,12 +92,12 @@ function deleteDrug(d) {
                 url: "./library/deletedrug.php",
                 type: 'POST',
                 data: {
-                    drugId: d,
+                    drugid: d,
                     csrf_token_form: {/literal}{$CSRF_TOKEN_FORM|js_escape}{literal}
             },
             success: function(data) {
             console.log(data);
-            location.reload();
+            document.location.href = '{/literal}{$GLOBALS.webroot}{literal}/controller.php?prescription&list&id=' + {/literal}{$smarty.session.pid|js_url}{literal};
         },
         error: function(error) {
             console.log(error)
