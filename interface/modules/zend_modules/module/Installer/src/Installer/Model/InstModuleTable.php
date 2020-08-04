@@ -87,12 +87,11 @@ class InstModuleTable
                 preg_match_all($specialPattern, $sql, $specialMatches);
                 //separate spacial sql and clean sql string
                 $sql = preg_replace($specialPattern, $specialReplacement, $sql);
-
                 $sqla = explode(";", $sql);
 
                 foreach ($sqla as $sqlq) {
-                    if (strlen($sqlq) > 5) {
-                        $query = rtrim("$sqlq");
+                    $query = rtrim("$sqlq");
+                    if (strlen($query) > 5) {
                         if (!$this->applicationTable->zQuery($query)) {
                             return false;
                         }
@@ -101,10 +100,10 @@ class InstModuleTable
                 //handle special sql
                 $cleanSpecialPattern = '/(#specialSql|#endSpecialSql)/';
                 foreach ($specialMatches[0] as $sqlq) {
-                    if (strlen($sqlq) > 5) {
-                        $query = rtrim("$sqlq");
-                        //remove special sql prefix suffix
-                        $query = preg_replace($cleanSpecialPattern, $specialReplacement, $query);
+                    $query = rtrim("$sqlq");
+                    //remove special sql prefix suffix
+                    $query = preg_replace($cleanSpecialPattern, $specialReplacement, $query);
+                    if (strlen($query) > 5) {
                         if (!$this->applicationTable->zQuery($query)) {
                             return false;
                         }
