@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PortalPatientController.php
  *
