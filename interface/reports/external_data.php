@@ -112,7 +112,7 @@ $records2 = array();
         $arrOeUiSettings = array(
             'heading_title' => xl('External Data'),
             'include_patient_name' => true,
-            'expandable' => true,
+            'expandable' => false,
             'expandable_files' => array("external_data_patient_xpd", "stats_full_patient_xpd", "patient_ledger_patient_xpd"),//all file names need suffix _xpd
             'action' => "",//conceal, reveal, search, reset, link or back
             'action_title' => "",
@@ -149,8 +149,8 @@ $records2 = array();
             </div>
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="dm-ed-in-3 dm-ed-in-5">
-                        <table>
+                    <div class="dm-ed-in-3 dm-ed-in-5 table-responsive jumbotron py-4">
+                        <table class="table">
                             <tr class="dm-ed-in-9">
                                 <td class="dm-ed-in-6"><label><?php echo xlt('Date'); ?></label></td>
                                 <td class="dm-ed-in-6"><label><?php echo xlt('Diagnosis'); ?></label></td>
@@ -185,8 +185,8 @@ $records2 = array();
                             </div>
                         <?php } ?>
                     </div>
-                    <div class="dm-ed-in-4 dm-ed-in-5">
-                        <table>
+                    <div class="dm-ed-in-4 dm-ed-in-5 table-responsive jumbotron py-4">
+                        <table class="table">
                             <tr class="dm-ed-in-9">
                                 <td class="dm-ed-in-6"><label><?php echo xlt('Date'); ?></label></td>
                                 <td class="dm-ed-in-6"><label><?php echo xlt('Code'); ?></label></td>

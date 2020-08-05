@@ -505,25 +505,6 @@ function zip_content($source, $destination, $content = '', $create = true)
                         }
 
                         echo "</div>\n"; // end of billing DIV
-
-                /****
-
-                    } elseif ($val == "allergies") {
-
-                        print "<span class=bold>Patient Allergies:</span><br />";
-                        printListData($pid, "allergy", "1");
-
-                    } elseif ($val == "medications") {
-
-                        print "<span class=bold>Patient Medications:</span><br />";
-                        printListData($pid, "medication", "1");
-
-                    } elseif ($val == "medical_problems") {
-
-                        print "<span class=bold>Patient Medical Problems:</span><br />";
-                        printListData($pid, "medical_problem", "1");
-
-                ****/
                     } elseif ($val == "immunizations") {
                         if (AclMain::aclCheckCore('patients', 'med')) {
                             echo "<hr />";
