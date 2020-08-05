@@ -1,8 +1,17 @@
 <?php
 
+/**
+ * FhirMedicationRestController
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\Services\FHIR\FhirMedicationService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -12,61 +21,44 @@ class FhirMedicationRestController
 {
     private $fhirMedicationService;
     private $fhirService;
-    private $fhirValidationService;
-    
-    public function __construct($id)
+
+    public function __construct()
     {
         $this->fhirMedicationService = new FhirMedicationService();
-        $this->fhirMedicationService->setId($id);
         $this->fhirService = new FhirResourcesService();
-        $this->fhirValidationService = new FhirValidationService();
     }
-    
-    public function getAll()
-    {
-        $result = $this->fhirMedicationService->getAll();
-        if ($result === false) {
-            http_response_code(404);
-            exit;
-        }
-        $entries = array();
-        $resourceURL = \RestConfig::$REST_FULL_URL;
-        foreach ($result as $condition) {
-            $entryResource = $this->fhirMedicationService->createMedicationResource(
-                $condition['id'],
-                $condition,
-                false
-            );
-            $entry = array(
-                'fullUrl' => $resourceURL . "/" . $condition['id'],
-                'resource' => $entryResource
-            );
-            $entries[] = new FHIRBundleEntry($entry);
-        }
-        $result = $this->fhirService->createBundle('Medication', $entries, false);
-        return RestControllerHelper::responseHandler($result, null, 200);
-    }
-    
-    public function getOne($id)
-    {
-        $result = $this->fhirMedicationService->getOne($id);
-        if ($result) {
-            $resource = $this->fhirMedicationService->createMedicationResource(
-                $result['id'],
-                $result,
-                false
-            );
-            $statusCode = 200;
-        } else {
-            $statusCode = 404;
-            $resource = $this->fhirValidationService->operationOutcomeResourceService(
-                'error',
-                'invalid',
-                false,
-                "Resource Id $id does not exist"
-            );
-        }
 
-        return RestControllerHelper::responseHandler($resource, null, $statusCode);
+    /**
+     * Queries for a single FHIR medication resource by FHIR id
+     * @param $fhirId The FHIR medication resource id (uuid)
+     * @returns 200 if the operation completes successfully
+     */
+    public function getOne($fhirId)
+    {
+        $processingResult = $this->fhirMedicationService->getOne($fhirId);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+    }
+
+    /**
+     * Queries for FHIR medication resources using various search parameters.
+     * Search parameters include:
+     * - patient (puuid)
+     * @return FHIR bundle with query results, if found
+     */
+    public function getAll($searchParams)
+    {
+        $processingResult = $this->fhirMedicationService->getAll($searchParams);
+        $bundleEntries = array();
+        foreach ($processingResult->getData() as $index => $searchResult) {
+            $bundleEntry = [
+                'fullUrl' =>  \RestConfig::$REST_FULL_URL . '/' . $searchResult->getId(),
+                'resource' => $searchResult
+            ];
+            $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
+            array_push($bundleEntries, $fhirBundleEntry);
+        }
+        $bundleSearchResult = $this->fhirService->createBundle('Medication', $bundleEntries, false);
+        $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
+        return $searchResponseBody;
     }
 }

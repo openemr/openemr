@@ -113,7 +113,7 @@ class AllergyIntoleranceService extends BaseService
                 UuidRegistry::uuidToString($row['practitioner']) :
                 $row['practitioner'];
             if ($row['diagnosis'] != "") {
-                $row['diagnosis'] = $this->addDiagnosis($row['diagnosis']);
+                $row['diagnosis'] = $this->addCoding($row['diagnosis']);
             }
             $processingResult->addData($row);
         }
@@ -160,7 +160,7 @@ class AllergyIntoleranceService extends BaseService
             UuidRegistry::uuidToString($sqlResult['practitioner']) :
             $sqlResult['practitioner'];
         if ($sqlResult['diagnosis'] != "") {
-            $row['diagnosis'] = $this->addDiagnosis($sqlResult['diagnosis']);
+            $row['diagnosis'] = $this->addCoding($sqlResult['diagnosis']);
         }
         $processingResult->addData($sqlResult);
         return $processingResult;

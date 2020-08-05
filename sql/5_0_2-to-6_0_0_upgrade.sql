@@ -1973,3 +1973,14 @@ UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#ced4da' WHERE `pc_c
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#d3c6ec' WHERE `pc_constant_id`='preventive_care_services' AND `pc_catcolor`='#CCCCFF';
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#febe89' WHERE `pc_constant_id`='ophthalmological_services' AND `pc_catcolor`='#F89219';
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#adb5bd' WHERE `pc_constant_id`='group_therapy' AND `pc_catcolor`='#BFBFBF';
+
+#IfMissingColumn drugs uuid
+ALTER TABLE `drugs` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdateId drugs drug_id
+#EndIf
+
+#IfNotIndex drugs uuid
+CREATE UNIQUE INDEX `uuid` ON `drugs` (`uuid`);
+#EndIf
