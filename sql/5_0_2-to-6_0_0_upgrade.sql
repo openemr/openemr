@@ -1984,3 +1984,18 @@ ALTER TABLE `drugs` ADD `uuid` binary(16) DEFAULT NULL;
 #IfNotIndex drugs uuid
 CREATE UNIQUE INDEX `uuid` ON `drugs` (`uuid`);
 #EndIf
+
+#IfMissingColumn prescriptions uuid
+ALTER TABLE `prescriptions` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate prescriptions
+#EndIf
+
+#IfNotIndex prescriptions uuid
+CREATE UNIQUE INDEX `uuid` ON `prescriptions` (`uuid`);
+#EndIf
+
+#IfNotColumnType prescriptions rxnorm_drugcode varchar(25)
+ALTER TABLE `prescriptions` MODIFY `rxnorm_drugcode` varchar(25) DEAFULT NULL;
+#EndIf
