@@ -21,6 +21,8 @@
         "no-unused-vars": "off",
         "no-alert":"off",
         "no-undef":"off",
-        "no-param-reassign": "off"
+        "no-param-reassign": "off",
+        "no-inner-declarations": "off",
+        "func-names":"off"
     }
 }

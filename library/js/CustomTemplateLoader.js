@@ -9,30 +9,32 @@
  */
 
 // Target dom of active page
-window.onload = function (event) {
-    const isAny = document.querySelector("textarea");
+window.onload = (event) => {
+    const isAny = document.querySelector('textarea');
     if (isAny === null || isAny === 'undefined') {
         // no reason to load
-        console.log("Templates Api Support not required for: ['" + location + "']");
+        console.log(`Templates Api Support not required for: [${window.location}]`);
+
         return false;
     }
 
     // we'll always be assured that bootstrap and jquery exist.
     if (typeof dlgopen === 'undefined' || typeof dlgopen !== 'function') {
         const script = document.createElement('script');
-        script.onload = function () {
-            console.log("Needed to load dialog.js support for: ['" + location + "']");
+        script.onload = () => {
+            console.log(`Needed to load dialog.js support for: [${window.location}]`);
         };
-        script.src = top.webroot_url + "/library/dialog.js";
+        script.src = `${window.top.webroot_url}/library/dialog.js`;
         document.head.appendChild(script);
     }
 
     if (typeof bindTextArea === 'undefined') {
         const script = document.createElement('script');
-        script.onload = function () {
+        script.onload = () => {
             bindTextArea();
         };
-        script.src = top.webroot_url + "/library/js/CustomTemplateApi.js";
+        script.src = `${window.top.webroot_url}/library/js/CustomTemplateApi.js`;
         document.head.appendChild(script);
     }
+    return false;
 };
