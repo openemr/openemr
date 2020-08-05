@@ -49,7 +49,8 @@
   var i = f.drug_id.selectedIndex - 1;
   if (i >= 0) {
    var d = drugopts[i];
-   f.drug.value = d[0];
+   var newOption = new Option(d[0], d[0], true, true);
+   $('#drug').append(newOption).trigger('change');
    selchoose(f.form, d[1]);
    f.dosage.value = d[2];
    f.size.value = d[3];
