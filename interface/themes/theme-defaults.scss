@@ -5,20 +5,6 @@
 *
 */
 
-.menuBar {
-  background-color: $white !important;
-  display: block;
-  height: auto;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 100;
-}
-
-.menuBar ~ .container {
-  margin-top: 95px;
-}
-
 .logout {
   color: $body-color;
   text-align: $right;

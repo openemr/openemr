@@ -1350,8 +1350,7 @@ function myChangeCheck() {
 <input type="hidden" name="selectedfields" id="selectedfields" value="" />
 <input type="hidden" id="targetgroup" name="targetgroup" value="" />
 
-<div class="menuBar" style='padding:5px 0;'>
-
+<div class="fixed-top py-2 px-1 bg-light text-dark">
 <strong><?php echo xlt('Edit layout'); ?>:</strong>&nbsp;
 <select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
  <option value=''>-- <?php echo xlt('Select') ?> --</option>
