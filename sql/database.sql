@@ -7225,7 +7225,7 @@ CREATE TABLE `prescriptions` (
   `start_date` date default NULL,
   `drug` varchar(150) default NULL,
   `drug_id` int(11) NOT NULL default '0',
-  `rxnorm_drugcode` varchar(25) DEAFULT NULL,
+  `rxnorm_drugcode` varchar(25) DEFAULT NULL,
   `form` int(3) default NULL,
   `dosage` varchar(100) default NULL,
   `quantity` varchar(31) default NULL,

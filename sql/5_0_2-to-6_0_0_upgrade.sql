@@ -1997,5 +1997,5 @@ CREATE UNIQUE INDEX `uuid` ON `prescriptions` (`uuid`);
 #EndIf
 
 #IfNotColumnType prescriptions rxnorm_drugcode varchar(25)
-ALTER TABLE `prescriptions` MODIFY `rxnorm_drugcode` varchar(25) DEAFULT NULL;
+ALTER TABLE `prescriptions` MODIFY `rxnorm_drugcode` varchar(25) DEFAULT NULL;
 #EndIf
