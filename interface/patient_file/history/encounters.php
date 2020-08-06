@@ -97,7 +97,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
             $docTitle = ( $note ) ? $note : xl("View document");
 
             $docHref = $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
-            echo "<div class='text docrow' id='" . attr($documentrow['id']) . "' title='" . attr($docTitle) . "'>\n";
+            echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . attr($docTitle) . "'>\n";
             echo "<a href='$docHref' onclick='top.restoreSession()' >" . xlt('Document') . ": " . text(basename($documentrow['url'])) . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
             echo "</div>";
         }
@@ -118,7 +118,7 @@ function showDocument(&$drow)
         return;
     }
 
-    echo "<tr class='text docrow' id='" . attr($drow['id']) . "' title='" . xla('View document') . "'>\n";
+    echo "<tr class='text docrow' id='" . attr($drow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . xla('View document') . "'>\n";
 
   // show date
     echo "<td>" . text(oeFormatShortDate($docdate)) . "</td>\n";
@@ -491,7 +491,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                 "'>\n";
 
                 // show encounter date
-                echo "<td valign='top' title='" . attr(xl('View encounter') . ' ' . $pid . "." . $result4['encounter']) . "'>" .
+                echo "<td class='align-top' data-toggle='tooltip' data-placement='top' title='" . attr(xl('View encounter') . ' ' . $pid . "." . $result4['encounter']) . "'>" .
                     text(oeFormatShortDate($raw_encounter_date)) . "</td>\n";
 
             if ($billing_view) {
@@ -499,7 +499,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                 $feid = $result4['id'] ? $result4['id'] : 0; // form_encounter id
                 echo "<td class='align-top'>";
                 echo "<div id='note_" . attr($feid) . "'>";
-                echo "<div id='" . attr($feid) . "' title='" . xla('Click to edit') . "' class='text billing_note_text border-0'>";
+                echo "<div id='" . attr($feid) . "'data-toggle='tooltip' data-placement='top' title='" . xla('Click to edit') . "' class='text billing_note_text border-0'>";
                 echo $result4['billing_note'] ? nl2br(text($result4['billing_note'])) : '<button type="button" class="btn btn-primary btn-add btn-sm">' . xlt('Add') . '</button>';
                 echo "</div>";
                 echo "</div>";
@@ -539,7 +539,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                 //Display the documents tagged to this encounter
                 getDocListByEncID($result4['encounter'], $raw_encounter_date, $pid);
 
-                echo "<div style='padding-left: 10px;'>";
+                echo "<div class='pl-2'>";
 
                 // Now show a line for each encounter form, if the user is authorized to
                 // see this encounter's notes.
@@ -574,7 +574,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                     if ($issue) {
                         echo text(xl_form_title($enc['form_name']));
                         echo "<br />";
-                        echo "<div class='encreport' style='padding-left: 10px;'>";
+                        echo "<div class='encreport pl-2'>";
                 // Use the form's report.php for display.  Forms with names starting with LBF
                 // are list-based forms sharing a single collection of code.
                         if (substr($formdir, 0, 3) == 'LBF') {
@@ -696,7 +696,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                             $binfo[0] .= $arlinkbeg . text($codekeydisp) . " " . text($title) . $arlinkend;
                         } else {
                         // Otherwise offer the description as a tooltip.
-                            $binfo[0] .= "<span title='" . attr($title) . "'>" . $arlinkbeg . text($codekeydisp) . $arlinkend . "</span>";
+                            $binfo[0] .= "<span data-toggle='tooltip' data-placement='top' title='" . attr($title) . "'>" . $arlinkbeg . text($codekeydisp) . $arlinkend . "</span>";
                         }
                         if ($billing_view) {
                             if ($binfo[1]) {
@@ -800,7 +800,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
             }
 
             if ($GLOBALS['enable_follow_up_encounters']) {
-                $symbol = ( !empty($result4['parent_encounter_id']) ) ? '<span class="fa fa-fw fa-undo" style="padding: 5px;"></span>' : null;
+                $symbol = ( !empty($result4['parent_encounter_id']) ) ? '<span class="fa fa-fw fa-undo p-1"></span>' : null;
 
                 echo "<td> " . $symbol . " </td>\n";
             }
@@ -862,6 +862,10 @@ $(function () {
             onClosed: 'reload',
         });
     });
+});
+
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip();
 });
 
 </script>

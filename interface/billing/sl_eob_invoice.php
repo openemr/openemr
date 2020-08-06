@@ -499,13 +499,11 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                 </div>
                 <div class="form-row">
                     <div class="form-group col-lg">
-                        <label class="col-form-label" for="form_stmt_count"><?php echo xlt('Statements Sent'); ?>
-                            :</label>
+                        <label class="col-form-label" for="form_stmt_count"><?php echo xlt('Statements Sent'); ?>:</label>
                         <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control" value='<?php echo attr((0 + $ferow['stmt_count'])); ?>'/>
                     </div>
                     <div class="form-group col-lg">
-                        <label class="col-form-label" for="form_last_bill"><?php echo xlt('Last Bill Date'); ?>
-                        :</label>
+                        <label class="col-form-label" for="form_last_bill"><?php echo xlt('Last Bill Date'); ?>:</label>
                         <input type='text' name="form_last_bill" id='form_last_bill' class="form-control"
                                value ='<?php echo attr($billdate); ?>' disabled/>
                     </div>
@@ -515,7 +513,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
-                        <input type='text' name='form_check_date' id='form_check_date" class='form-control datepicker' value=''/>
+                        <input type='text' name='form_check_date' id='form_check_date' class='form-control datepicker' value=''/>
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
@@ -530,7 +528,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                 <div class="form-row">
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="type_code"><?php echo xlt('Now posting for'); ?>:</label>
-                        <div style="padding-left: 15px">
+                        <div class="pl-3">
                             <?php
                                 $last_level_closed = 0 + $ferow['last_level_closed'];
                             ?>
@@ -558,7 +556,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </div>
                     <div class="form-group col-lg" id='ins_done'>
                         <label class="col-form-label" for=""><?php echo xlt('Done with'); ?>:</label>
-                        <div style="padding-left:15px">
+                        <div class="pl-3">
                             <?php
                             // Write a checkbox for each insurance.  It is to be checked when
                             // we no longer expect any payments from that company for the claim.
@@ -577,36 +575,35 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for=""><?php echo xlt('Secondary billing'); ?>:</label>
-                        <div style="padding-left:15px">
+                        <div class="pl-3">
                             <label class="checkbox-inline">
                                 <input name="form_secondary" type="checkbox" value="1"><?php echo xlt('Needs secondary billing') ?>
                             </label>
                         </div>
                     </div>
                 </div>
-
             </fieldset>
             <fieldset>
                 <legend><?php echo xlt('Invoice Details'); ?></legend>
                 <div class="table-responsive">
                     <table class="table table-sm">
                         <thead>
-                        <tr>
-                            <th><?php echo xlt('Code') ?></th>
-                            <th class="text-right"><?php echo xlt('Charge') ?></th>
-                            <th class="text-right"><?php echo xlt('Balance') ?>&nbsp;</th>
-                            <th><?php echo xlt('By/Source') ?></th>
-                            <th><?php echo xlt('Date') ?></th>
-                            <th><?php echo xlt('Pay') ?></th>
-                            <th><?php echo xlt('Adjust') ?></th>
-                            <th>&nbsp;</th>
-                            <th><?php echo xlt('Reason') ?></th>
-                            <?php
-                            if ($ALLOW_DELETE) { ?>
-                                <th><?php echo xlt('Del') ?></th>
+                            <tr>
+                                <th><?php echo xlt('Code') ?></th>
+                                <th class="text-right"><?php echo xlt('Charge') ?></th>
+                                <th class="text-right"><?php echo xlt('Balance') ?>&nbsp;</th>
+                                <th><?php echo xlt('By/Source') ?></th>
+                                <th><?php echo xlt('Date') ?></th>
+                                <th><?php echo xlt('Pay') ?></th>
+                                <th><?php echo xlt('Adjust') ?></th>
+                                <th>&nbsp;</th>
+                                <th><?php echo xlt('Reason') ?></th>
                                 <?php
-                            } ?>
-                        </tr>
+                                if ($ALLOW_DELETE) { ?>
+                                    <th><?php echo xlt('Del') ?></th>
+                                    <?php
+                                } ?>
+                            </tr>
                         </thead>
                         <?php
                         $firstProcCodeIndex = -1;
@@ -676,7 +673,8 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             <?php } // end of prior detail line ?>
                             <tr>
                                 <td class="last_detail"><?php echo text($dispcode);
-                                    $dispcode = "" ?></td>
+                                    $dispcode = "" ?>
+                                </td>
                                 <td class="last_detail">&nbsp;</td>
                                 <td class="last_detail">
                                     <input name="form_line[<?php echo attr($code); ?>][bal]" type="hidden"
@@ -693,7 +691,8 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                     <input name="form_line[<?php echo attr($code); ?>][pay]"
                                            onkeyup="updateFields(document.forms[0]['form_line[<?php echo attr($code); ?>][pay]'], document.forms[0]['form_line[<?php echo attr($code); ?>][adj]'], document.forms[0]['form_line[<?php echo attr($code); ?>][bal]'], document.forms[0]['form_line[CO-PAY][bal]'], <?php echo ($firstProcCodeIndex == $encount) ? 1 : 0 ?>)"
                                            onfocus="this.select()" autofocus size="10" type="text" class="form-control"
-                                           value="0.00"></td>
+                                           value="0.00">
+                                </td>
                                 <td class="last_detail">
                                     <input name="form_line[<?php echo attr($code); ?>][adj]" size="10" type="text"
                                            class="form-control"
@@ -732,9 +731,6 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </table>
                 </div>
             </fieldset>
-        </div>
-
-            </div>
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
             <div class="form-group col-lg clearfix">
                 <div class="col-sm-12 text-left position-override" id="search-btn">
