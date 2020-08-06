@@ -126,8 +126,8 @@ function del_related(s) {
 }
 
 // This invokes the find-code popup.
-function sel_related() {
- dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 800);
+function sel_related(getter = '') {
+ dlgopen('../patient_file/encounter/find_code_dynamic.php' + getter, '_blank', 900, 800);
 }
 
 </script>
@@ -404,8 +404,9 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
     </div>
 
     <div class="form-group mt-3">
-        <label class="font-weight-bold"><?php echo xlt('Drug Code'); ?>:</label>
-        <input class="form-control" size="5" name="form_drug_code" maxlength="10" value='<?php echo attr($row['drug_code']) ?>' />
+        <label class="font-weight-bold"><?php echo xlt('RXCUI Code'); ?>:</label>
+        <input class="form-control w-100" type="text" size="50" name="form_drug_code" value='<?php echo attr($row['drug_code']) ?>'
+             onclick='sel_related("?codetype=RXCUI")' title='<?php echo xla('Click to select RXCUI code'); ?>' data-toggle="tooltip" data-placement="top" readonly />
     </div>
 
     <div class="form-group mt-3">
