@@ -32,7 +32,7 @@ $returnurl = 'encounter_top.php';
     <div class="container mt-3">
         <div class="row">
             <div class="col-12">
-                <h2><?php echo xlt("Dictation 2"); ?></h2>
+                <h2><?php echo xlt("Dictation"); ?></h2>
             </div>
         </div>
         <div class="row">
