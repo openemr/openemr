@@ -173,10 +173,10 @@ $target_element = $_GET['target_element'];
             </div>
             <?php
             if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
-                        if (!$form_code_type) {
-                            $form_code_type = $codetype;
-                        }
-                        ?>
+                if (!$form_code_type) {
+                    $form_code_type = $codetype;
+                }
+                ?>
 
             <table class='border-0'>
                     <tr>
