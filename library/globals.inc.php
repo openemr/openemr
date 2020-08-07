@@ -923,6 +923,13 @@ $GLOBALS_METADATA = array(
             xl('This will enable encryption of items that are stored on the drive.')
         ),
 
+        'couchdb_encryption' => array(
+            xl('Enable Encryption of Items Stored on CouchDB'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('This will enable encryption of items that are stored on CouchDB.')
+        ),
+
         'hide_document_encryption' => array(
             xl('Hide Encryption/Decryption Options In Document Management'),
             'bool',                           // data type

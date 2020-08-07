@@ -68,15 +68,15 @@ class CouchDB
 
     function check_saveDOC($data)
     {
-        list($db,$docid,$patient_id,$encounter,$type,$json, $th_json) = $data;
+        list($db,$docid,$patient_id,$encounter,$type,$document, $th_document) = $data;
         $couch_json = array();
         $couch_json['_id'] = $docid;
         $couch_json['pid'] = $patient_id;
         $couch_json['encounter'] = $encounter;
         $couch_json['mimetype'] = $type;
-        $couch_json['data'] = $json;
-        if ($th_json) {
-            $couch_json['th_data'] = $th_json;
+        $couch_json['data'] = $document;
+        if ($th_document) {
+            $couch_json['th_data'] = $th_document;
         }
 
         $resp = $this->send("PUT", "/" . $db . "/" . $docid, json_encode($couch_json));

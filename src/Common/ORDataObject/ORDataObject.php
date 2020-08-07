@@ -11,7 +11,7 @@ class ORDataObject
 {
     protected $_prefix;
     protected $_table;
-    protected $_db;
+    public $_db; // Need to be public so can access from C_Document class
 
     public function __construct()
     {
