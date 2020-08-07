@@ -20,6 +20,10 @@ class PrescriptionService extends BaseService
 {
 
     private const PRESCRIPTION_TABLE = "prescriptions";
+    private const PATIENT_TABLE = "patient_data";
+    private const ENCOUNTER_TABLE = "form_encounter";
+    private const PRACTITIONER_TABLE = "users";
+    private const DRUG_TABLE = "drugs";
     private $uuidRegistry;
 
     /**
@@ -30,6 +34,10 @@ class PrescriptionService extends BaseService
         parent::__construct(self::PRESCRIPTION_TABLE);
         $this->uuidRegistry = new UuidRegistry(['table_name' => self::PRESCRIPTION_TABLE]);
         $this->uuidRegistry->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::DRUG_TABLE]))->createMissingUuids();
     }
 
     /**

@@ -16,7 +16,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat;
 use OpenEMR\Services\PrescriptionService;
 
-class FhirMedicationRequestService
+class FhirMedicationRequestService extends FhirServiceBase
 {
     /**
      * @var PrescriptionService
