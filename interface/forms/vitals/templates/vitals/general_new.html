@@ -145,230 +145,227 @@ function vitalsFormSubmitted() {
 <body>
 
  <div class="container">
-        <div class="row">
-            <div class="col-sm-12">
-                <h2>{xlt t="Vitals"}&nbsp;&nbsp;&nbsp;<a  href="../summary/demographics.php" onclick="top.restoreSession()" title="{xla t='Back to patient dashboard'}"><i id="advanced-tooltip" class="readonly fa fa-arrow-circle-o-left fa-2x small" aria-hidden="true"></i> </a></h2>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return vitalsFormSubmitted()">
-                    <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
-                    <div id="chart" class="chart-dygraphs" style="margin-left: -15px"></div>
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th align="left">{xlt t="Name"}</th>
-                                <th align="left">{xlt t="Unit"}</th>
-                                <th class='currentvalues' title="{xla t='Date and time of this observation'}">
-                                    <input type='text' size='14' class='form-control datetimepicker oe-patient-background' name='date' id='date' value='{$vitals->get_date()|date_format:"%Y-%m-%d %H:%M"|attr}' />
-                                </th>
-                                {foreach item=result from=$results}
-                                    <th class='historicalvalues'>{$result.date|date_format:"%Y-%m-%d %H:%M"|text}</th>
-                                {/foreach}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
-                                {if $units_of_measurement == 2}<td class="unfocus graph" id="weight">{else}<td class="graph" id="weight">{/if}{xlt t="Weight"}</td>
-                                {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xlt t="lbs"}</td>
-                                {if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                                        <input type="text" class="form-control" size='5' name='weight' id='weight_input' value="{if $vitals->get_weight() != 0}{$vitals->get_weight()|attr}{/if}" onChange="convLbtoKg('weight_input');" title='{xla t="Decimal pounds or pounds and ounces separated by #(e.g. 5#4)"}'/>
-                                        </td>
-                            {foreach item=result from=$results}
-                                <td class='historicalvalues'>{$vitals->display_weight($result.weight)|text}</td>
-                            {/foreach}</tr>
-
-                            {if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
-                                        {if $units_of_measurement == 1}<td class="unfocus graph" id="weight_metric">{else}<td class="graph" id="weight_metric">{/if}{xlt t="Weight"}</td>
-                                {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xlt t="kg"}</td>
-                                        {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                                        <input type="text" class="form-control" size='5' id='weight_input_metric' value="{if $vitals->get_weight() != 0}{math equation="number * constant" number=$vitals->get_weight() constant=0.45359237 format="%.2f"|attr}{/if}" onChange="convKgtoLb('weight_input');"/>
-                                        </td>
-                                {foreach item=result from=$results}
-                                        <td class='historicalvalues'>{if $result.weight != 0}{math equation="number * constant" number=$result.weight constant=0.45359237 format="%.2f"|text}{/if}</td>
-                                {/foreach}</tr>
-
-                            {if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
-                                    {if $units_of_measurement == 2}<td class="unfocus graph" id="height">{else}<td class="graph" id="height">{/if}{xlt t="Height/Length"}</td>
-                                {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xlt t="in"}</td>
-                                {if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                                        <input type="text" class="form-control" size='5' name='height' id='height_input' value="{if $vitals->get_height() != 0}{$vitals->get_height()|attr}{/if}" onChange="convIntoCm('height_input');"/>
-                                        </td>
-                            {foreach item=result from=$results}
-                                <td class='historicalvalues'>{if $result.height != 0}{$result.height|text}{/if}</td>
-                            {/foreach}</tr>
-
-                            {if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
-                                        {if $units_of_measurement == 1}<td class="unfocus graph" id="height_metric">{else}<td class="graph" id="height_metric">{/if}{xlt t="Height/Length"}</td>
-                                {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xlt t="cm"}</td>
-                                        {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                                        <input type="text" class="form-control" size='5' id='height_input_metric' value="{if $vitals->get_height() != 0}{math equation="round(number * constant,1)" number=$vitals->get_height() constant=2.54 format="%.2f"|attr}{/if}" onChange="convCmtoIn('height_input');"/>
-                                        </td>
-                                {foreach item=result from=$results}
-                                        <td class='historicalvalues'>{if $result.height != 0}{math equation="number * constant" number=$result.height constant=2.54 format="%.2f"|text}{/if}</td>
-                                {/foreach}</tr>
-
-                            <tr><td class="graph" id="bps">{xlt t="BP Systolic"}</td><td>{xlt t="mmHg"}</td>
-                                <td class='currentvalues'><input type="text" class="form-control" size='5' name='bps' id='bps_input' value="{$vitals->get_bps()|attr}"/></td>
-                            {foreach item=result from=$results}
-                                <td class='historicalvalues'>{$result.bps|text}</td>
-                            {/foreach}</tr>
-
-                            <tr><td class="graph" id="bpd">{xlt t="BP Diastolic"}</td><td>{xlt t="mmHg"}</td>
-                                <td class='currentvalues'><input type="text" class="form-control" size='5'
-                                    name='bpd' id='bpd_input' value="{$vitals->get_bpd()|attr}"/></td>
-                            {foreach item=result from=$results}
-                                <td  class='historicalvalues'>{$result.bpd|text}</td>
-                            {/foreach}</tr>
-
-                            <tr><td class="graph" id="pulse">{xlt t="Pulse"}</td><td>{xlt t="per min"}</td>
-                                    <td class='currentvalues'><input type="text" class="form-control" size='5'
-                                    name='pulse' id='pulse_input' value="{if $vitals->get_pulse() != 0}{$vitals->get_pulse()|string_format:"%.0f"|attr}{/if}"/></td>
-                            {foreach item=result from=$results}
-                                <td class='historicalvalues'>{if $result.pulse != 0}{$result.pulse|string_format:"%.0f"|text}{/if}</td>
-                            {/foreach}</tr>
-
-                            <tr><td class="graph" id="respiration">{xlt t="Respiration"}</td><td>{xlt t="per min"}</td>
-                                <td class='currentvalues'><input type="text" class="form-control" size='5'
-                                    name='respiration' id='respiration_input' value="{if $vitals->get_respiration() != 0}{$vitals->get_respiration()|string_format:"%.0f"|attr}{/if}"/></td>
-                            {foreach item=result from=$results}
-                                <td class='historicalvalues'>{if $result.respiration != 0}{$result.respiration|string_format:"%.0f"|text}{/if}</td>
-                            {/foreach}</tr>
-
-                            {if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
-                                    {if $units_of_measurement == 2}<td class="unfocus graph" id="temperature">{else}<td class="graph" id="temperature">{/if}{xlt t="Temperature"}</td>
-                                {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xlt t="F"}</td>
-                                {if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                                        <input type="text" class="form-control" size='5' name='temperature' id='temperature_input' value="{if $vitals->get_temperature() != 0}{$vitals->get_temperature()|attr}{/if}" onChange="convFtoC('temperature_input');"/>
-                                        </td>
-                            {foreach item=result from=$results}
-                                <td class='historicalvalues'>{if $result.temperature != 0}{$result.temperature|text}{/if}</td>
-                            {/foreach}</tr>
-
-                            {if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
-                                        {if $units_of_measurement == 1}<td class="unfocus graph" id="temperature_metric">{else}<td class="graph" id="temperature_metric">{/if}{xlt t="Temperature"}</td>
-                                {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xlt t="C"}</td>
-                                        {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                                        <input type="text" class="form-control" size='5' id='temperature_input_metric' value="{if $vitals->get_temperature() != 0}{math equation="(number - constant2 ) * constant" number=$vitals->get_temperature() constant=0.5556 constant2=32 format="%.2f"|attr}{/if}" onChange="convCtoF('temperature_input');"/>
-                                        </td>
-                                {foreach item=result from=$results}
-                                        <td class='historicalvalues'>{if $result.temperature != 0}{math equation="(number - constant2 ) * constant" number=$result.temperature constant=0.5556 constant2=32 format="%.2f"|text}{/if}</td>
-                                {/foreach}</tr>
-
-                            <tr><td>{xlt t="Temp Location"}<td></td>
-                                    <td class='currentvalues'><select name="temp_method" class="form-control" id='temp_method'><option value=""> </option>
-                                    <option value="Oral"              {if $vitals->get_temp_method() == "Oral"              || $vitals->get_temp_method() == 2 } selected{/if}>{xlt t="Oral"}
-                                    <option value="Tympanic Membrane" {if $vitals->get_temp_method() == "Tympanic Membrane" || $vitals->get_temp_method() == 1 } selected{/if}>{xlt t="Tympanic Membrane"}
-                                    <option value="Rectal"            {if $vitals->get_temp_method() == "Rectal"            || $vitals->get_temp_method() == 3 } selected{/if}>{xlt t="Rectal"}
-                                    <option value="Axillary"          {if $vitals->get_temp_method() == "Axillary"          || $vitals->get_temp_method() == 4 } selected{/if}>{xlt t="Axillary"}
-                                    <option value="Temporal Artery"   {if $vitals->get_temp_method() == "Temporal Artery" } selected{/if}>{xlt t="Temporal Artery"}
-                                </select></td>
-                            {foreach item=result from=$results}
-                                <td class='historicalvalues'>{if $result.temp_method}{xlt t=$result.temp_method}{/if}</td>
-                            {/foreach}</tr>
-
-                            <tr><td class="graph" id="oxygen_saturation">{xlt t="Oxygen Saturation"}</td><td>{xlt t="%"}</td>
-                                <td class='currentvalues'><input type="text" class="form-control" size='5'
-                                    name='oxygen_saturation' id='oxygen_saturation_input' value="{if $vitals->get_oxygen_saturation() != 0}{$vitals->get_oxygen_saturation()|string_format:"%.0f"|attr}{/if}"/></td>
-                            {foreach item=result from=$results}
-                                <td  class='historicalvalues'>{if $result.oxygen_saturation != 0}{$result.oxygen_saturation|string_format:"%.0f"|text}{/if}</td>
-                            {/foreach}</tr>
-
-                            {if $units_of_measurement == 4 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
-                                    {if $units_of_measurement == 2}<td class="unfocus graph" id="head_circ">{else}<td class="graph" id="head_circ">{/if}{xlt t="Head Circumference"}</td>
-                                {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xlt t="in"}</td>
-                                {if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                                        <input type="text" class="form-control" size='5' name='head_circ' id='head_circ_input' value="{if $vitals->get_head_circ() != 0}{$vitals->get_head_circ()|attr}{/if}" onChange="convIntoCm('head_circ_input');"/>
-                                        </td>
-                            {foreach item=result from=$results}
-                                <td class='historicalvalues'>{if $result.head_circ != 0}{$result.head_circ|text}{/if}</td>
-                            {/foreach}</tr>
-
-                            {if $units_of_measurement == 3 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
-                                        {if $units_of_measurement == 1}<td class="unfocus graph" id="head_circ_metric">{else}<td class="graph" id="head_circ_metric">{/if}{xlt t="Head Circumference"}</td>
-                                {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xlt t="cm"}</td>
-                                        {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                                        <input type="text" class="form-control" size='5' id='head_circ_input_metric' value="{if $vitals->get_head_circ() != 0}{math equation="round(number * constant,1)" number=$vitals->get_head_circ() constant=2.54 format="%.2f"|attr}{/if}" onChange="convCmtoIn('head_circ_input');"/>
-                                        </td>
-                                {foreach item=result from=$results}
-                                        <td class='historicalvalues'>{if $result.head_circ != 0}{math equation="number * constant" number=$result.head_circ constant=2.54 format="%.2f"|text}{/if}</td>
-                                {/foreach}</tr>
-
-                            {if $units_of_measurement == 4 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
-                                    {if $units_of_measurement == 2}<td class="unfocus graph" id="waist_circ">{else}<td class="graph" id="waist_circ">{/if}{xlt t="Waist Circumference"}</td>
-                                {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xlt t="in"}</td>
-                                {if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                                        <input type="text" class="form-control" size='5' name='waist_circ' id='waist_circ_input' value="{if $vitals->get_waist_circ() != 0}{$vitals->get_waist_circ()|attr}{/if}" onChange="convIntoCm('waist_circ_input');"/>
-                                        </td>
-                            {foreach item=result from=$results}
-                                <td class='historicalvalues'>{if $result.waist_circ != 0}{$result.waist_circ|text}{/if}</td>
-                            {/foreach}</tr>
-
-                            {if $units_of_measurement == 3 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
-                                {if $units_of_measurement == 1}<td class="unfocus graph" id="waist_circ_metric">{else}<td class="graph" id="waist_circ_metric">{/if}{xlt t="Waist Circumference"}</td>
-                                {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xlt t="cm"}</td>
-                                    {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                                    <input type="text" class="form-control" size='5' id='waist_circ_input_metric' value="{if $vitals->get_waist_circ() != 0}{math equation='round(number * constant,1)' number=$vitals->get_waist_circ() constant=2.54 format='%.2f'|attr}{/if}" onChange="convCmtoIn('waist_circ_input');"/>
-                                    </td>
+    <div class="row">
+        <h2>{xlt t="Vitals"}</h2>
+        <div class="col-sm-12">
+            <form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return vitalsFormSubmitted()">
+                <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
+                <div id="chart" class="chart-dygraphs" style="margin-left: -15px"></div>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">{xlt t="Name"}</th>
+                                    <th class="text-left">{xlt t="Unit"}</th>
+                                    <th class='currentvalues' title="{xla t='Date and time of this observation'}">
+                                        <input type='text' size='14' class='form-control datetimepicker oe-patient-background' name='date' id='date' value='{$vitals->get_date()|date_format:"%Y-%m-%d %H:%M"|attr}' />
+                                    </th>
                                     {foreach item=result from=$results}
-                                    <td class='historicalvalues'>{if $result.waist_circ != 0}{math equation="number * constant" number=$result.waist_circ constant=2.54 format="%.2f"|text}{/if}</td>
+                                        <th class='historicalvalues'>{$result.date|date_format:"%Y-%m-%d %H:%M"|text}</th>
+                                    {/foreach}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
+                                    {if $units_of_measurement == 2}<td class="unfocus graph" id="weight">{else}<td class="graph" id="weight">{/if}{xlt t="Weight"}</td>
+                                    {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xlt t="lbs"}</td>
+                                    {if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
+                                            <input type="text" class="form-control" size='5' name='weight' id='weight_input' value="{if $vitals->get_weight() != 0}{$vitals->get_weight()|attr}{/if}" onChange="convLbtoKg('weight_input');" title='{xla t="Decimal pounds or pounds and ounces separated by #(e.g. 5#4)"}'/>
+                                            </td>
+                                {foreach item=result from=$results}
+                                    <td class='historicalvalues'>{$vitals->display_weight($result.weight)|text}</td>
+                                {/foreach}</tr>
+
+                                {if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
+                                            {if $units_of_measurement == 1}<td class="unfocus graph" id="weight_metric">{else}<td class="graph" id="weight_metric">{/if}{xlt t="Weight"}</td>
+                                    {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xlt t="kg"}</td>
+                                            {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
+                                            <input type="text" class="form-control" size='5' id='weight_input_metric' value="{if $vitals->get_weight() != 0}{math equation="number * constant" number=$vitals->get_weight() constant=0.45359237 format="%.2f"|attr}{/if}" onChange="convKgtoLb('weight_input');"/>
+                                            </td>
+                                    {foreach item=result from=$results}
+                                            <td class='historicalvalues'>{if $result.weight != 0}{math equation="number * constant" number=$result.weight constant=0.45359237 format="%.2f"|text}{/if}</td>
                                     {/foreach}</tr>
 
-                                <tr><td class="graph" id="BMI">{xlt t="BMI"}</td><td>{xlt t="kg/m^2"}</td>
+                                {if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
+                                        {if $units_of_measurement == 2}<td class="unfocus graph" id="height">{else}<td class="graph" id="height">{/if}{xlt t="Height/Length"}</td>
+                                    {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xlt t="in"}</td>
+                                    {if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
+                                            <input type="text" class="form-control" size='5' name='height' id='height_input' value="{if $vitals->get_height() != 0}{$vitals->get_height()|attr}{/if}" onChange="convIntoCm('height_input');"/>
+                                            </td>
+                                {foreach item=result from=$results}
+                                    <td class='historicalvalues'>{if $result.height != 0}{$result.height|text}{/if}</td>
+                                {/foreach}</tr>
+
+                                {if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
+                                            {if $units_of_measurement == 1}<td class="unfocus graph" id="height_metric">{else}<td class="graph" id="height_metric">{/if}{xlt t="Height/Length"}</td>
+                                    {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xlt t="cm"}</td>
+                                            {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
+                                            <input type="text" class="form-control" size='5' id='height_input_metric' value="{if $vitals->get_height() != 0}{math equation="round(number * constant,1)" number=$vitals->get_height() constant=2.54 format="%.2f"|attr}{/if}" onChange="convCmtoIn('height_input');"/>
+                                            </td>
+                                    {foreach item=result from=$results}
+                                            <td class='historicalvalues'>{if $result.height != 0}{math equation="number * constant" number=$result.height constant=2.54 format="%.2f"|text}{/if}</td>
+                                    {/foreach}</tr>
+
+                                <tr><td class="graph" id="bps">{xlt t="BP Systolic"}</td><td>{xlt t="mmHg"}</td>
+                                    <td class='currentvalues'><input type="text" class="form-control" size='5' name='bps' id='bps_input' value="{$vitals->get_bps()|attr}"/></td>
+                                {foreach item=result from=$results}
+                                    <td class='historicalvalues'>{$result.bps|text}</td>
+                                {/foreach}</tr>
+
+                                <tr><td class="graph" id="bpd">{xlt t="BP Diastolic"}</td><td>{xlt t="mmHg"}</td>
                                     <td class='currentvalues'><input type="text" class="form-control" size='5'
-                                        name='BMI' id='BMI_input' value="{if $vitals->get_BMI() != 0}{$vitals->get_BMI()|substr:0:5|attr}{/if}"/></td>
+                                        name='bpd' id='bpd_input' value="{$vitals->get_bpd()|attr}"/></td>
+                                {foreach item=result from=$results}
+                                    <td  class='historicalvalues'>{$result.bpd|text}</td>
+                                {/foreach}</tr>
+
+                                <tr><td class="graph" id="pulse">{xlt t="Pulse"}</td><td>{xlt t="per min"}</td>
+                                        <td class='currentvalues'><input type="text" class="form-control" size='5'
+                                        name='pulse' id='pulse_input' value="{if $vitals->get_pulse() != 0}{$vitals->get_pulse()|string_format:"%.0f"|attr}{/if}"/></td>
+                                {foreach item=result from=$results}
+                                    <td class='historicalvalues'>{if $result.pulse != 0}{$result.pulse|string_format:"%.0f"|text}{/if}</td>
+                                {/foreach}</tr>
+
+                                <tr><td class="graph" id="respiration">{xlt t="Respiration"}</td><td>{xlt t="per min"}</td>
+                                    <td class='currentvalues'><input type="text" class="form-control" size='5'
+                                        name='respiration' id='respiration_input' value="{if $vitals->get_respiration() != 0}{$vitals->get_respiration()|string_format:"%.0f"|attr}{/if}"/></td>
+                                {foreach item=result from=$results}
+                                    <td class='historicalvalues'>{if $result.respiration != 0}{$result.respiration|string_format:"%.0f"|text}{/if}</td>
+                                {/foreach}</tr>
+
+                                {if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
+                                        {if $units_of_measurement == 2}<td class="unfocus graph" id="temperature">{else}<td class="graph" id="temperature">{/if}{xlt t="Temperature"}</td>
+                                    {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xlt t="F"}</td>
+                                    {if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
+                                            <input type="text" class="form-control" size='5' name='temperature' id='temperature_input' value="{if $vitals->get_temperature() != 0}{$vitals->get_temperature()|attr}{/if}" onChange="convFtoC('temperature_input');"/>
+                                            </td>
+                                {foreach item=result from=$results}
+                                    <td class='historicalvalues'>{if $result.temperature != 0}{$result.temperature|text}{/if}</td>
+                                {/foreach}</tr>
+
+                                {if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
+                                            {if $units_of_measurement == 1}<td class="unfocus graph" id="temperature_metric">{else}<td class="graph" id="temperature_metric">{/if}{xlt t="Temperature"}</td>
+                                    {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xlt t="C"}</td>
+                                            {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
+                                            <input type="text" class="form-control" size='5' id='temperature_input_metric' value="{if $vitals->get_temperature() != 0}{math equation="(number - constant2 ) * constant" number=$vitals->get_temperature() constant=0.5556 constant2=32 format="%.2f"|attr}{/if}" onChange="convCtoF('temperature_input');"/>
+                                            </td>
                                     {foreach item=result from=$results}
-                                        <td class='historicalvalues'>{if $result.BMI != 0}{$result.BMI|substr:0:5|text}{/if}</td>
-                                    {/foreach}
-                                </tr>
+                                            <td class='historicalvalues'>{if $result.temperature != 0}{math equation="(number - constant2 ) * constant" number=$result.temperature constant=0.5556 constant2=32 format="%.2f"|text}{/if}</td>
+                                    {/foreach}</tr>
 
-                                <tr>
-                                    <td>{xlt t="BMI Status"}</td><td>{xlt t="Type"}</td>
-                                    <td class='currentvalues'><input type="text" class="form-control" size='20'
-                                    name="BMI_status" id="BMI_status' value="{$vitals->get_BMI_status()|attr}"/></td>
+                                <tr><td>{xlt t="Temp Location"}<td></td>
+                                        <td class='currentvalues'><select name="temp_method" class="form-control" id='temp_method'><option value=""> </option>
+                                        <option value="Oral"              {if $vitals->get_temp_method() == "Oral"              || $vitals->get_temp_method() == 2 } selected{/if}>{xlt t="Oral"}
+                                        <option value="Tympanic Membrane" {if $vitals->get_temp_method() == "Tympanic Membrane" || $vitals->get_temp_method() == 1 } selected{/if}>{xlt t="Tympanic Membrane"}
+                                        <option value="Rectal"            {if $vitals->get_temp_method() == "Rectal"            || $vitals->get_temp_method() == 3 } selected{/if}>{xlt t="Rectal"}
+                                        <option value="Axillary"          {if $vitals->get_temp_method() == "Axillary"          || $vitals->get_temp_method() == 4 } selected{/if}>{xlt t="Axillary"}
+                                        <option value="Temporal Artery"   {if $vitals->get_temp_method() == "Temporal Artery" } selected{/if}>{xlt t="Temporal Artery"}
+                                    </select></td>
+                                {foreach item=result from=$results}
+                                    <td class='historicalvalues'>{if $result.temp_method}{xlt t=$result.temp_method}{/if}</td>
+                                {/foreach}</tr>
+
+                                <tr><td class="graph" id="oxygen_saturation">{xlt t="Oxygen Saturation"}</td><td>{xlt t="%"}</td>
+                                    <td class='currentvalues'><input type="text" class="form-control" size='5'
+                                        name='oxygen_saturation' id='oxygen_saturation_input' value="{if $vitals->get_oxygen_saturation() != 0}{$vitals->get_oxygen_saturation()|string_format:"%.0f"|attr}{/if}"/></td>
+                                {foreach item=result from=$results}
+                                    <td  class='historicalvalues'>{if $result.oxygen_saturation != 0}{$result.oxygen_saturation|string_format:"%.0f"|text}{/if}</td>
+                                {/foreach}</tr>
+
+                                {if $units_of_measurement == 4 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
+                                        {if $units_of_measurement == 2}<td class="unfocus graph" id="head_circ">{else}<td class="graph" id="head_circ">{/if}{xlt t="Head Circumference"}</td>
+                                    {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xlt t="in"}</td>
+                                    {if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
+                                            <input type="text" class="form-control" size='5' name='head_circ' id='head_circ_input' value="{if $vitals->get_head_circ() != 0}{$vitals->get_head_circ()|attr}{/if}" onChange="convIntoCm('head_circ_input');"/>
+                                            </td>
+                                {foreach item=result from=$results}
+                                    <td class='historicalvalues'>{if $result.head_circ != 0}{$result.head_circ|text}{/if}</td>
+                                {/foreach}</tr>
+
+                                {if $units_of_measurement == 3 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
+                                            {if $units_of_measurement == 1}<td class="unfocus graph" id="head_circ_metric">{else}<td class="graph" id="head_circ_metric">{/if}{xlt t="Head Circumference"}</td>
+                                    {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xlt t="cm"}</td>
+                                            {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
+                                            <input type="text" class="form-control" size='5' id='head_circ_input_metric' value="{if $vitals->get_head_circ() != 0}{math equation="round(number * constant,1)" number=$vitals->get_head_circ() constant=2.54 format="%.2f"|attr}{/if}" onChange="convCmtoIn('head_circ_input');"/>
+                                            </td>
                                     {foreach item=result from=$results}
-                                    <td  class='historicalvalues'>{if $result.BMI_status}{xlt t=$result.BMI_status}{/if}</td>
-                                    {/foreach}
-                                </tr>
+                                            <td class='historicalvalues'>{if $result.head_circ != 0}{math equation="number * constant" number=$result.head_circ constant=2.54 format="%.2f"|text}{/if}</td>
+                                    {/foreach}</tr>
 
-                                <tr>
-                                    <td>{xlt t="Other Notes"}</td>
-                                     <td>&nbsp;</td>
-                                    <td class='currentvalues'><input type="text" class="form-control" size='20'
-                                      name="note" id='note' value="{$vitals->get_note()|attr}" /></td>
-                                      {foreach item=result from=$results}
-                                        <td class='historicalvalues'>{$result.note|text}</td>
-                                      {/foreach}
-                                </tr>
-                                <tr><td>&nbsp;</td></tr>
+                                {if $units_of_measurement == 4 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
+                                        {if $units_of_measurement == 2}<td class="unfocus graph" id="waist_circ">{else}<td class="graph" id="waist_circ">{/if}{xlt t="Waist Circumference"}</td>
+                                    {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xlt t="in"}</td>
+                                    {if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
+                                            <input type="text" class="form-control" size='5' name='waist_circ' id='waist_circ_input' value="{if $vitals->get_waist_circ() != 0}{$vitals->get_waist_circ()|attr}{/if}" onChange="convIntoCm('waist_circ_input');"/>
+                                            </td>
+                                {foreach item=result from=$results}
+                                    <td class='historicalvalues'>{if $result.waist_circ != 0}{$result.waist_circ|text}{/if}</td>
+                                {/foreach}</tr>
 
-                                <tr>
-                                    <td colspan='5' class="text-center">
-                                        {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
-                                        <!-- only show growth-chart button for patients < 20 years old -->
-                                        <!-- <input type="button" id="growthchart" value="{xla t="Growth-Chart"}" style='margin-left: 20px;'> -->
-                                        <input type="button" class="btn btn-secondary" id="pdfchart" value='{xla t="Growth-Chart"} ({xla t="PDF"})' style=''>
-                                        <input type="button" class="btn btn-secondary" id="htmlchart" value='{xla t="Growth-Chart"} ({xla t="HTML"})' style=''>
-                                        {/if}
-                                    </td>
-                                </tr>
-                        </tbody>
-                    </table>
+                                {if $units_of_measurement == 3 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
+                                    {if $units_of_measurement == 1}<td class="unfocus graph" id="waist_circ_metric">{else}<td class="graph" id="waist_circ_metric">{/if}{xlt t="Waist Circumference"}</td>
+                                    {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xlt t="cm"}</td>
+                                        {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
+                                        <input type="text" class="form-control" size='5' id='waist_circ_input_metric' value="{if $vitals->get_waist_circ() != 0}{math equation='round(number * constant,1)' number=$vitals->get_waist_circ() constant=2.54 format='%.2f'|attr}{/if}" onChange="convCmtoIn('waist_circ_input');"/>
+                                        </td>
+                                        {foreach item=result from=$results}
+                                        <td class='historicalvalues'>{if $result.waist_circ != 0}{math equation="number * constant" number=$result.waist_circ constant=2.54 format="%.2f"|text}{/if}</td>
+                                        {/foreach}</tr>
+
+                                    <tr><td class="graph" id="BMI">{xlt t="BMI"}</td><td>{xlt t="kg/m^2"}</td>
+                                        <td class='currentvalues'><input type="text" class="form-control" size='5'
+                                            name='BMI' id='BMI_input' value="{if $vitals->get_BMI() != 0}{$vitals->get_BMI()|substr:0:5|attr}{/if}"/></td>
+                                        {foreach item=result from=$results}
+                                            <td class='historicalvalues'>{if $result.BMI != 0}{$result.BMI|substr:0:5|text}{/if}</td>
+                                        {/foreach}
+                                    </tr>
+
+                                    <tr>
+                                        <td>{xlt t="BMI Status"}</td><td>{xlt t="Type"}</td>
+                                        <td class='currentvalues'><input type="text" class="form-control" size='20'
+                                        name="BMI_status" id="BMI_status' value="{$vitals->get_BMI_status()|attr}"/></td>
+                                        {foreach item=result from=$results}
+                                        <td  class='historicalvalues'>{if $result.BMI_status}{xlt t=$result.BMI_status}{/if}</td>
+                                        {/foreach}
+                                    </tr>
+
+                                    <tr>
+                                        <td>{xlt t="Other Notes"}</td>
+                                        <td>&nbsp;</td>
+                                        <td class='currentvalues'><input type="text" class="form-control" size='20'
+                                        name="note" id='note' value="{$vitals->get_note()|attr}" /></td>
+                                        {foreach item=result from=$results}
+                                            <td class='historicalvalues'>{$result.note|text}</td>
+                                        {/foreach}
+                                    </tr>
+                                    <tr><td>&nbsp;</td></tr>
+
+                                    <tr>
+                                        <td colspan='5' class="text-center">
+                                            {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
+                                            <!-- only show growth-chart button for patients < 20 years old -->
+                                            <input type="button" class="btn btn-primary" id="pdfchart" value='{xla t="Growth-Chart"} ({xla t="PDF"})'>
+                                            <input type="button" class="btn btn-primary" id="htmlchart" value='{xla t="Growth-Chart"} ({xla t="HTML"})'>
+                                            {/if}
+                                        </td>
+                                    </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                 <div class="form-group clearfix">
                     <div class="text-left position-override">
                         <div class="btn-group" role="group">
-                            <button type="submit" class="btn btn-secondary btn-save editonly" name="Submit" value=''>{xlt t="Save"}</button>
-                            <button type="button" class="btn btn-link btn-cancel btn-separate-left editonly" id="cancel" value=''>{xlt t="Cancel"}</button>
+                            <button type="submit" class="btn btn-primary btn-save editonly" name="Submit" value=''>{xlt t="Save"}</button>
+                            <button type="button" class="btn btn-secondary btn-cancel btn-separate-left editonly" id="cancel" value=''>{xlt t="Cancel"}</button>
                         </div>
                     </div>
                 </div>
             <br /><br />
             <input type="hidden" name="id" id='id' value="{$vitals->get_id()|attr}" />
-            <input type="hidden" name="activity" id='activity' value="{$vitals->get_activity()|attr}">
-            <input type="hidden" name="pid" id='pid' value="{$vitals->get_pid()|attr}">
-            <input type="hidden" name="process" id='process' value="true">
+            <input type="hidden" name="activity" id='activity' value="{$vitals->get_activity()|attr}" />
+            <input type="hidden" name="pid" id='pid' value="{$vitals->get_pid()|attr}" />
+            <input type="hidden" name="process" id='process' value="true" />
             </form>
         </div>
     </div>

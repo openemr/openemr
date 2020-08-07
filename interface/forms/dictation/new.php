@@ -28,11 +28,11 @@ $returnurl = 'encounter_top.php';
 
     <?php Header::setupHeader();?>
 </head>
-<body class="body_top">
-    <div class="container">
+<body>
+    <div class="container mt-3">
         <div class="row">
             <div class="col-12">
-                <h2><?php echo xlt("Dictation"); ?></h2>
+                <h2><?php echo xlt("Dictation 2"); ?></h2>
             </div>
         </div>
         <div class="row">
@@ -42,25 +42,19 @@ $returnurl = 'encounter_top.php';
                     <fieldset>
                         <legend><?php echo xlt('Dictation')?></legend>
                         <div class="form-group">
-                            <div class="col-sm-10 offset-sm-1">
-                                <textarea name="dictation" class="form-control" cols="80" rows="15" ></textarea>
-                            </div>
+                            <textarea name="dictation" class="form-control" cols="80" rows="15"></textarea>
                         </div>
                     </fieldset>
                     <fieldset>
                         <legend><?php echo xlt('Additional Notes'); ?></legend>
                         <div class="form-group">
-                            <div class="col-sm-10 offset-sm-1">
-                                <textarea name="additional_notes" class="form-control" cols="80" rows="5" ></textarea>
-                            </div>
+                            <textarea name="additional_notes" class="form-control" cols="80" rows="5"></textarea>
                         </div>
                     </fieldset>
                     <div class="form-group clearfix">
-                        <div class="col-sm-12 offset-sm-1 position-override">
-                            <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                                <button type='submit' onclick='top.restoreSession()' class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
-                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
-                            </div>
+                        <div class="btn-group oe-opt-btn-group-pinch" role="group">
+                            <button type='submit' onclick='top.restoreSession()' class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
+                            <button type="button" class="btn btn-secondary btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
                         </div>
                     </div>
                 </form>

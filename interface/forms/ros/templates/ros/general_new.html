@@ -23,25 +23,22 @@
     }
     @media only screen and (max-width: 1220px) {
         [class*="col-"] {
-        width: 100%;
-        text-align:left!Important;
+            width: 100%;
+            text-align:left!Important;
+        }
     }
 </style>
 {/literal}
 </head>
-<body class="body_top">
-    <div class="container">
+<body>
+    <div class="container mt-3">
         <div class="row">
             <div class="col-12">
                 <h2>{xlt t="Review Of Systems"}</h2>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
                 <form name="ros" class="form-horizontal" method="post" action="{$FORM_ACTION}/interface/forms/ros/save.php" onsubmit="return top.restoreSession()">
-                    <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
+                    <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
                     <fieldset>
-                        <legend class="">{xlt t="Constitutional"}</legend>
+                        <legend>{xlt t="Constitutional"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="weight_change" class="control-label col-sm-6">{xlt t="Weight Change"}:</label>
@@ -94,7 +91,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Eyes"}</legend>
+                        <legend>{xlt t="Eyes"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="change_in_vision" class="control-label col-sm-6">{xlt t="Change in Vision"}:</label>
@@ -139,7 +136,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Ears"}, {xlt t="Nose"}, {xlt t="Mouth"}, {xlt t="Throat"}</legend>
+                        <legend>{xlt t="Ears"}, {xlt t="Nose"}, {xlt t="Mouth"}, {xlt t="Throat"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="hearing_loss" class="control-label col-sm-6">{xlt t="Hearing Loss"}:</label>
@@ -196,7 +193,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Breast"}</legend>
+                        <legend>{xlt t="Breast"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="breast_mass" class="control-label col-sm-6">{xlt t="Breast Mass"}:</label>
@@ -221,7 +218,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Respiratory"}</legend>
+                        <legend>{xlt t="Respiratory"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="cough" class="control-label col-sm-6">{xlt t="Cough"}:</label>
@@ -258,7 +255,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Cardiovascular"}</legend>
+                        <legend>{xlt t="Cardiovascular"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="chest_pain" class="control-label col-sm-6">{xlt t="Chest Pain"}:</label>
@@ -315,7 +312,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Gastrointestinal"}</legend>
+                        <legend>{xlt t="Gastrointestinal"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="dysphagia" class="control-label col-sm-6">{xlt t="Dysphagia"}:</label>
@@ -388,7 +385,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Genitourinary"} {xlt t="General"}</legend>
+                        <legend>{xlt t="Genitourinary"} {xlt t="General"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="polyuria" class="control-label col-sm-6">{xlt t="Polyuria"}:</label>
@@ -433,7 +430,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Genitourinary"} {xlt t="Male"}</legend>
+                        <legend>{xlt t="Genitourinary"} {xlt t="Male"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="hesitancy" class="control-label col-sm-6">{xlt t="Hesitancy"}:</label>
@@ -466,7 +463,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Genitourinary"} {xlt t="Female"}</legend>
+                        <legend>{xlt t="Genitourinary"} {xlt t="Female"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="g" class="control-label col-sm-6">{xlt t="Female G"}:</label>
@@ -522,8 +519,8 @@
                             </div>
                         </div>
                     </fieldset>
-                        <fieldset>
-                        <legend class="">{xlt t="Musculoskeletal"}</legend>
+                    <fieldset>
+                        <legend>{xlt t="Musculoskeletal"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="joint_pain" class="control-label col-sm-6">{xlt t="Chronic Joint Pain"}:</label>
@@ -568,7 +565,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Neurologic"}</legend>
+                        <legend>{xlt t="Neurologic"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="loc" class="control-label col-sm-6">{xlt t="LOC"}:</label>
@@ -621,7 +618,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Skin"}</legend>
+                        <legend>{xlt t="Skin"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="s_cancer" class="control-label col-sm-6">{xlt t="Cancer"}:</label>
@@ -650,7 +647,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Psychiatric"}</legend>
+                        <legend>{xlt t="Psychiatric"}</legend>
                                                 <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="p_diagnosis" class="control-label col-sm-6">{xlt t="Psychiatric Diagnosis"}:</label>
@@ -679,7 +676,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Endocrine"}</legend>
+                        <legend>{xlt t="Endocrine"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="thyroid_problems" class="control-label col-sm-6">{xlt t="Thyroid Problems"}:</label>
@@ -700,7 +697,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend class="">{xlt t="Hematologic"}/{xlt t="Allergic"}/{xlt t="Immunologic"}</legend>
+                        <legend>{xlt t="Hematologic"}/{xlt t="Allergic"}/{xlt t="Immunologic"}</legend>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label for="anemia" class="control-label col-sm-6">{xlt t="Anemia"}:</label>
@@ -738,14 +735,14 @@
 
                     </fieldset>
                     <div class="form-group clearfix">
-                        <div class="col-sm-12 offset-sm-2 position-override">
+                        <div class="col-sm-12 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                                <button type="submit" class="btn btn-secondary btn-save" onclick="top.restoreSession();" name="Submit">{xlt t='Save'}</button>
-                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xlt t='Cancel'}</button>
+                                <button type="submit" class="btn btn-primary btn-save" onclick="top.restoreSession();" name="Submit">{xlt t='Save'}</button>
+                                <button type="button" class="btn btn-secondary btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xlt t='Cancel'}</button>
                             </div>
                             <input type="hidden" name="id" value="{$form->get_id()|attr}" />
-                            <input type="hidden" name="pid" value="{$form->get_pid()|attr}">
-                            <input type="hidden" name="process" value="true">
+                            <input type="hidden" name="pid" value="{$form->get_pid()|attr}" />
+                            <input type="hidden" name="process" value="true" />
                         </div>
                     </div>
                 </form>
