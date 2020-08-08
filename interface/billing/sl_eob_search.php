@@ -610,7 +610,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         }
         function editInvoice(e, id) {
             let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
-            dlgopen(url,'','modal-lg',750,false,'', {
+            dlgopen(url,'','modal-full',700,false,'', {
+                sizeHeight: 'full',
                 onClosed: 'reSubmit'
             });
         }

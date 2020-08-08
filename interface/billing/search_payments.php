@@ -207,7 +207,7 @@ if (isset($_POST["mode"])) {
 <!DOCTYPE html>
 <html>
 <head>
-
+    <title><?php echo xlt("Search Payment") ?></title>
     <?php Header::setupHeader(['jquery-ui', 'datetime-picker', 'common']); ?>
 
     <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
@@ -412,7 +412,6 @@ document.onclick=HideTheAjaxDivs;
     overflow-x: hidden !Important;
 }
 </style>
-<title><?php echo xlt("Search Payments"); ?></title>
 <?php
 $arrOeUiSettings = array(
     'heading_title' => xl('Payments'),
