@@ -695,11 +695,11 @@ class C_Document extends Controller
                 if (is_file($to_file_tmp_name)) {
                     $couchI = new CouchDB();
                     if ($d->get_encrypted() == 1) {
-                        $json = json_encode($this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, 'database'));
+                        $document = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
                     } else {
-                        $json = json_encode(base64_encode(file_get_contents($to_file_tmp_name)));
+                        $document = base64_encode(file_get_contents($to_file_tmp_name));
                     }
-                    $couchdata = array($GLOBALS['couchdb_dbase'], "converted_" . $couch_docid, $d->get_foreign_id(), "", "image/jpeg", $json);
+                    $couchdata = array($GLOBALS['couchdb_dbase'], "converted_" . $couch_docid, $d->get_foreign_id(), "", "image/jpeg", $document);
                     $couchI->check_saveDOC($couchdata);
                     // remove to tmp files
                     unlink($to_file_tmp);
