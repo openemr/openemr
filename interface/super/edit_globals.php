@@ -68,8 +68,7 @@ function checkCreateCDB()
         }
 
         if ($GLOBALS['couchdb_host'] || $GLOBALS['couchdb_port'] || $GLOBALS['couchdb_dbase']) {
-            $couch->createDB($GLOBALS['couchdb_dbase']);
-            $couch->createView($GLOBALS['couchdb_dbase']);
+            $couch->createDB();
         }
     }
 

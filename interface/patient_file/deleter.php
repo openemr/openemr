@@ -197,7 +197,7 @@ function delete_document($document)
         //for CouchDB store
         case 1:
             $couchDB = new CouchDB();
-            $couchDB->DeleteDoc($GLOBALS['couchdb_dbase'], $trow['couch_docid'], $trow['couch_revid']);
+            $couchDB->DeleteDoc($trow['couch_docid'], $trow['couch_revid']);
             break;
     }
 }

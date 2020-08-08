@@ -37,6 +37,7 @@ class UuidRegistry
     private $table_id;        // the label of the column in above table that is used for id (defaults to 'id')
     private $table_vertical;  // false or array. if table is vertical, will store the critical columns (uuid set for matching columns)
     private $disable_tracker; // disable check and storage of uuid in the main uuid_registry table
+    private $couchdb       ;  // blank or string (documents or ccda label for now, which represents the tables that hold the doc ids).
 
     public function __construct($associations = [])
     {
@@ -48,6 +49,7 @@ class UuidRegistry
         }
         $this->table_vertical = $associations['table_vertical'] ?? false;
         $this->disable_tracker = $associations['disable_tracker'] ?? false;
+        $this->couchdb = $associations['couchdb'] ?? '';
     }
 
     /**
@@ -113,9 +115,9 @@ class UuidRegistry
         // Insert the uuid into uuid_registry (unless $this->disable_tracker is set to true)
         if (!$this->disable_tracker) {
             if (!$this->table_vertical) {
-                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `created`) VALUES (?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id]);
+                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `couchdb`, `created`) VALUES (?, ?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id, $this->couchdb]);
             } else {
-                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `created`) VALUES (?, ?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id, json_encode($this->table_vertical)]);
+                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `couchdb`, `created`) VALUES (?, ?, ?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id, json_encode($this->table_vertical), $this->couchdb]);
             }
         }
 

@@ -15,7 +15,6 @@
         "academe/omnipay-authorizenetapi": "3.1.2",
         "adodb/adodb-php": "5.20.18",
         "doctrine/common": "3.0.2",
-        "doctrine/couchdb": "1.0-beta4",
         "doctrine/orm": "2.7.3",
         "dompdf/dompdf": "0.8.5",
         "ezyang/htmlpurifier": "4.13.0",
