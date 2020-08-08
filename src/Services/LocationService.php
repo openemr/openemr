@@ -1,0 +1,183 @@
+<?php
+
+/**
+ * LocationService
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Services;
+
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ProcessingResult;
+
+class LocationService extends BaseService
+{
+    private const PATIENT_TABLE = "patient_data";
+    private const PRACTITIONER_TABLE = "users";
+    private const FACILITY_TABLE = "facility";
+
+    /**
+     * Default constructor.
+     */
+    public function __construct()
+    {
+        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
+    }
+
+    /**
+     * Returns a list of locations matching optional search criteria.
+     * Search criteria is conveyed by array where key = field/column name, value = field value.
+     * If no search criteria is provided, all records are returned.
+     *
+     * @param  $search search array parameters
+     * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function getAll($search = array(), $isAndCondition = true)
+    {
+        $sqlBindArray = array();
+
+        $sql = 'SELECT location.* FROM 
+                (SELECT
+                    uuid,
+                    CONCAT(fname,"\'s Home") as name,
+                    street,
+                    city,
+                    postal_code,
+                    state,
+                    country_code,
+                    phone_cell as phone,
+                    null as fax,
+                    null as website,
+                    email from patient_data
+                UNION SELECT
+                    uuid,
+                    name,
+                    street,
+                    city,
+                    postal_code,
+                    state,
+                    country_code,
+                    phone,
+                    fax,
+                    website,
+                    email from facility
+                UNION SELECT
+                    uuid,
+                    CONCAT(fname,"\'s Home") as name,
+                    street,
+                    city,
+                    zip as postal_code,
+                    state,
+                    null as country_code,
+                    phone,
+                    fax,
+                    url as website,
+                    email from users) as location';
+
+        if (!empty($search)) {
+            $sql .= ' WHERE ';
+            $whereClauses = array();
+            foreach ($search as $fieldName => $fieldValue) {
+                array_push($whereClauses, $fieldName . ' = ?');
+                array_push($sqlBindArray, $fieldValue);
+            }
+            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
+            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
+        }
+
+        $statementResults = sqlStatement($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $processingResult->addData($row);
+        }
+
+        return $processingResult;
+    }
+
+    /**
+     * Returns a single location record by id.
+     * @param $uuid - The location uuid identifier in string format.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function getOne($uuid)
+    {
+        $processingResult = new ProcessingResult();
+
+        $isValid = BaseValidator::validateIdMultiple(
+            "uuid",
+            array(
+                self::FACILITY_TABLE,
+                self::PRACTITIONER_TABLE,
+                self::PATIENT_TABLE
+            ),
+            $uuid,
+            true
+        );
+
+        if ($isValid !== true) {
+            $validationMessages = [
+                'uuid' => ["invalid or nonexisting value" => " value " . $uuid]
+            ];
+            $processingResult->setValidationMessages($validationMessages);
+            return $processingResult;
+        }
+
+        $sql = 'SELECT location.* FROM 
+                (SELECT
+                    uuid,
+                    CONCAT(fname,"\'s Home") as name,
+                    street,
+                    city,
+                    postal_code,
+                    state,
+                    country_code,
+                    phone_cell as phone,
+                    null as fax,
+                    null as website,
+                    email from patient_data
+                UNION SELECT
+                    uuid,
+                    name,
+                    street,
+                    city,
+                    postal_code,
+                    state,
+                    country_code,
+                    phone,
+                    fax,
+                    website,
+                    email from facility
+                UNION SELECT
+                    uuid,
+                    CONCAT(fname,"\'s Home") as name,
+                    street,
+                    city,
+                    zip as postal_code,
+                    state,
+                    null as country_code,
+                    phone,
+                    fax,
+                    url as website,
+                    email from users) as location
+                    WHERE location.uuid=?';
+
+        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
+        $sqlResult = sqlQuery($sql, [$uuidBinary]);
+        $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
+        $processingResult->addData($sqlResult);
+        return $processingResult;
+    }
+}
