@@ -24,25 +24,22 @@ use OpenEMR\Core\Header;
 <head>
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('Import');?></title>
-<style>
-.list-group-item {
-    display: list-item;
-}
-</style>
 </head>
-<body class="body_top" >
-  <main class="container">
+<body>
+  <div class="container mt-3">
     <div class="row">
-      <div class="col-md-6 offset-md-3">
-        <h3><?php echo xlt("Steps for uploading CCR XML");?></h3>
-        <ol class="list-group">
-          <li class="list-group-item"><?php echo xlt('For an existing patient, go to Patient Summary->Documents. For a new patient, go to Miscellanous->New Documents') . '.'; ?></li>
-          <li class="list-group-item"><?php echo xlt('Upload the xml file under the category CCR') . '.'; ?></li>
-          <li class="list-group-item"><?php echo xlt('After Uploading, click "Import"') . '.'; ?></li>
-          <li class="list-group-item"><?php echo xlt('Approve the patient from Patient/Client->Import->Pending Approval') . '.'; ?></li>
-        </ol>
-      </div>
+        <div class="col-12">
+            <h2><?php echo xlt("Steps for uploading CCR XML");?></h2>
+        </div>
+        <div class="col-12 jumbotron py-4">
+            <ol class="list-group">
+                <li class="list-group-item">1. <?php echo xlt('For an existing patient, go to Patient Summary->Documents. For a new patient, go to Miscellanous->New Documents') . '.'; ?></li>
+                <li class="list-group-item">2. <?php echo xlt('Upload the xml file under the category CCR') . '.'; ?></li>
+                <li class="list-group-item">3. <?php echo xlt('After Uploading, click "Import"') . '.'; ?></li>
+                <li class="list-group-item">4. <?php echo xlt('Approve the patient from Patient/Client->Import->Pending Approval') . '.'; ?></li>
+            </ol>
+        </div>
     </div>
-  </main>
+  </div>
 </body>
 </html>
