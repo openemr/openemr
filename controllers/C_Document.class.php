@@ -1095,7 +1095,11 @@ class C_Document extends Controller
             $couch = new CouchDB();
             $data = array($GLOBALS['couchdb_dbase'],$d->couch_docid);
             $resp = $couch->retrieve_doc($data);
-            $content = base64_decode($resp->data);
+            if ($d->get_encrypted() == 1) {
+                $content = $this->cryptoGen->decryptStandard($resp->data, null, 'database');
+            } else {
+                $content = base64_decode($resp->data);
+            }
         } else {
                 $url =  $d->get_url();
 
