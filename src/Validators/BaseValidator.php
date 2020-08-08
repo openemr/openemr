@@ -122,7 +122,7 @@ abstract class BaseValidator
      * @param $tables All tables in database
      * @param $lookupId The identifier to validateId
      * @param $isUuid true if the lookupId is UUID, otherwise false
-     * @return true if the lookupId is a valid existing id, otherwise Validation Message
+     * @return true if the lookupId is a valid existing id, otherwise false
      */
     public static function validateIdMultiple($field, $tables, $lookupId, $isUuid = false)
     {

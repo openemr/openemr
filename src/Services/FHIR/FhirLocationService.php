@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * FhirLocationService
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRLocation;
@@ -21,7 +31,7 @@ class FhirLocationService extends FhirServiceBase
     }
 
     /**
-     * Returns an array mapping FHIR Patient Resource search parameters to OpenEMR Patient search parameters
+     * Returns an array mapping FHIR Location Resource search parameters to OpenEMR Location search parameters
      * @return array The search parameters
      */
     protected function loadSearchParameters()
@@ -30,11 +40,11 @@ class FhirLocationService extends FhirServiceBase
     }
 
     /**
-     * Parses an OpenEMR location record, returning the equivalent FHIR Patient Resource
+     * Parses an OpenEMR location record, returning the equivalent FHIR Location Resource
      *
      * @param array $dataRecord The source OpenEMR data record
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
-     * @return FHIRPatient
+     * @return FHIRLocation
      */
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
