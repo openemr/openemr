@@ -450,6 +450,7 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
 <!DOCTYPE html>
 <html>
 <head>
+    <title><?php echo xlt('Confirm Payment'); ?></title>
 <?php Header::setupHeader(['datetime-picker', 'common']); ?>
 
 <script>

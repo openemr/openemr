@@ -243,11 +243,11 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
             <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
             <input type='text' class='form-control datepicker' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"  value="<?php echo attr(oeFormatShortDate($DepositDate));?>" autocomplete="off"/>
         </div>
-        <div class="forms col-xs-6">
+        <div class="forms col-xs-5">
             <label class="control-label" for="description"><?php echo xlt('Description'); ?>:</label>
             <input type="text" name="description"  id="description" onKeyDown="PreventIt(event)" value="<?php echo attr($Description);?>"   class="form-control" />
         </div>
-        <div class="forms col-xs-2">
+        <div class="forms col-xs-3">
             <label class="control-label" for="GlobalReset"><?php echo xlt('Distributed to Global'); ?>:</label>
             <div class="input-group">
                 <span class="input-group-addon">
@@ -348,11 +348,11 @@ if ($screen == 'new_payment' && $payment_id * 1 > 0) {//After saving from the Ne
             <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
             <input type="text" class='form-control' name="deposit_date" id="deposit_date" value="<?php echo attr(oeFormatShortDate($DepositDate)); ?>" disabled />
         </div>
-        <div class="forms col-xs-6">
+        <div class="forms col-xs-5">
             <label class="control-label" for="description"><?php echo xlt('Description'); ?>:</label>
             <input type="text" name="description" id="description" value="<?php echo attr($Description); ?>" class="form-control" disabled />
         </div>
-        <div class="forms col-xs-2">
+        <div class="forms col-xs-3">
             <label class="control-label" for="GlobalResetView"><?php echo xlt('Distributed to Global'); ?>:</label>
             <input id="GlobalResetView" name="global_reset_view" class="form-control" value="<?php echo ($global_amount * 1 == 0) ? attr("0.00") : attr(number_format($global_amount, 2, '.', ',')); ?>" disabled />
         </div>
