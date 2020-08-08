@@ -741,8 +741,7 @@ class Document extends ORDataObject
             }
         }
 
-        if (($GLOBALS['drive_encryption'] && ($this->storagemethod != 1)) ||
-            ($GLOBALS['couchdb_encryption'] && ($this->storagemethod == 1))) {
+        if (($GLOBALS['drive_encryption'] && ($this->storagemethod != 1)) || ($GLOBALS['couchdb_encryption'] && ($this->storagemethod == 1))) {
             $this->set_encrypted(1);
         } else {
             $this->set_encrypted(0);
