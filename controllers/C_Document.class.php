@@ -716,6 +716,13 @@ class C_Document extends Controller
                 } else {
                     $content = base64_decode($respF->data);
                 }
+            } else {
+                // decrypt/decode when converted jpg already exists
+                if ($d->get_encrypted() == 1) {
+                    $content = $this->cryptoGen->decryptStandard($resp->data, null, 'database');
+                } else {
+                    $content = base64_decode($resp->data);
+                }
             }
             $filetext = $content;
             if ($disable_exit == true) {
