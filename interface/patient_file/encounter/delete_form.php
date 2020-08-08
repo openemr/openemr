@@ -66,38 +66,44 @@ if ($_POST['confirm']) {
 <html>
 
 <head>
-<?php Header::setupHeader(); ?>
+    <?php Header::setupHeader(); ?>
+    <title><?php echo xlt('Delete Encounter Form'); ?></title>
 </head>
 
-<body class="body_top">
+<body>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <h2><?php echo xlt('Delete Encounter Form'); ?></h2>
+                <form method="post" action="<?php echo $rootdir;?>/patient_file/encounter/delete_form.php" name="my_form" id="my_form">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <?php
+                    // output each GET variable as a hidden form input
+                    foreach ($_GET as $key => $value) {
+                        echo '<input type="hidden" id="' . attr($key) . '" name="' . attr($key) . '" value="' . attr($value) . '"/>' . "\n";
+                    }
+                    ?>
+                    <input type="hidden" id="confirm" name="confirm" value="1" />
 
-<span class="title"><?php echo xlt('Delete Encounter Form'); ?></span>
-
-<form method="post" action="<?php echo $rootdir;?>/patient_file/encounter/delete_form.php" name="my_form" id="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-<?php
-// output each GET variable as a hidden form input
-foreach ($_GET as $key => $value) {
-    echo '<input type="hidden" id="' . attr($key) . '" name="' . attr($key) . '" value="' . attr($value) . '"/>' . "\n";
-}
-?>
-<input type="hidden" id="confirm" name="confirm" value="1" />
-<p>
-<?php
-
-$formdir = $_GET["formname"];
-$formName = getFormNameByFormdir($formdir);
-echo xlt('You are about to delete the following form from this encounter') . ': ' . text(xl_form_title($formName["form_name"]));
-
-?>
-</p>
-<input type="button" id="confirmbtn" name="confirmbtn" value='<?php echo xla('Yes, Delete this form'); ?>' />
-<input type="button" id="cancel" name="cancel" value='<?php echo xla('Cancel'); ?>' />
-</form>
-
-</body>
-
+                    <p>
+                    <?php
+                    $formdir = $_GET["formname"];
+                    $formName = getFormNameByFormdir($formdir);
+                    echo xlt('You are about to delete the following form from this encounter') . ': ' . text(xl_form_title($formName["form_name"]));
+                    ?>
+                    </p>
+                    <div class="btn-group">
+                        <button class="btn btn-danger btn-delete" id="confirmbtn" name="confirmbtn" value='<?php echo xla('Yes, Delete this form'); ?>'>
+                            <?php echo xlt('Yes, Delete this form'); ?>
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-cancel" id="cancel" name="cancel" value='<?php echo xla('Cancel'); ?>'>
+                            <?php echo xlt('Cancel'); ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 <script>
 // jQuery stuff to make the page a little easier to use
 
@@ -114,7 +120,6 @@ function ConfirmDelete() {
     }
     return false;
 }
-
 </script>
-
+</body>
 </html>

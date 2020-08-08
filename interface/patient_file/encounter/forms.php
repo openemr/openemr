@@ -279,9 +279,6 @@ if (!isset($_GET['attachid'])) {
  // Process click on Delete link.
  function deleteme() {
   dlgopen('../deleter.php?encounterid=' + <?php echo js_url($encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 200, '', '', {
-      buttons: [
-          {text: <?php echo xlj('Done'); ?>, close: true, style: 'primary btn-sm'}
-      ],
       allowResize: false,
       allowDrag: true,
   });
@@ -414,79 +411,81 @@ var oldddmenuitem = 0;
 var flag = 0;
 
 // open hidden layer
-function mopen(id)
-{
+function mopen(id) {
     // cancel close timer
     //mcancelclosetime();
 
-    flag=10;
+    flag = 10;
 
     // close old layer
     //if(ddmenuitem) ddmenuitem.style.visibility = 'hidden';
     //if(ddmenuitem) ddmenuitem.style.display = 'none';
 
     // get new layer and show it
-        oldddmenuitem = ddmenuitem;
+    oldddmenuitem = ddmenuitem;
     ddmenuitem = document.getElementById(id);
-        if((ddmenuitem.style.visibility == '')||(ddmenuitem.style.visibility == 'hidden')){
-            if(oldddmenuitem) oldddmenuitem.style.visibility = 'hidden';
-            if(oldddmenuitem) oldddmenuitem.style.display = 'none';
-            ddmenuitem.style.visibility = 'visible';
-            ddmenuitem.style.display = 'block';
-        }else{
-            ddmenuitem.style.visibility = 'hidden';
-            ddmenuitem.style.display = 'none';
+    if ((ddmenuitem.style.visibility == '')||(ddmenuitem.style.visibility == 'hidden')){
+        if (oldddmenuitem) {
+            oldddmenuitem.style.visibility = 'hidden';
+            oldddmenuitem.style.display = 'none';
         }
+        ddmenuitem.style.visibility = 'visible';
+        ddmenuitem.style.display = 'block';
+    } else {
+        ddmenuitem.style.visibility = 'hidden';
+        ddmenuitem.style.display = 'none';
+    }
 }
+
 // close showed layer
-function mclose()
-{
-    if(flag==10)
-     {
-      flag=11;
-      return;
-     }
-    if(ddmenuitem) ddmenuitem.style.visibility = 'hidden';
-    if(ddmenuitem) ddmenuitem.style.display = 'none';
+function mclose() {
+    if (flag === 10) {
+        flag = 11;
+        return;
+    }
+    if (ddmenuitem) {
+        ddmenuitem.style.visibility = 'hidden';
+        ddmenuitem.style.display = 'none';
+    }
 }
 
 // close layer when click-out
 document.onclick = mclose;
 //=================================================
-function findPosX(id)
-  {
-    obj=document.getElementById(id);
+function findPosX(id) {
+    obj = document.getElementById(id);
     var curleft = 0;
-    if(obj.offsetParent)
-        while(1)
-        {
+    if(obj.offsetParent) {
+        while(1) {
           curleft += obj.offsetLeft;
-          if(!obj.offsetParent)
+          if (!obj.offsetParent) {
             break;
+          }
           obj = obj.offsetParent;
         }
-    else if(obj.x)
+    } else if(obj.x) {
         curleft += obj.x;
-   PropertyWidth=document.getElementById(id).offsetWidth;
-   if(PropertyWidth>curleft)
-    {
-     document.getElementById(id).style.left=0;
     }
-  }
 
-  function findPosY(obj)
-  {
+    PropertyWidth = document.getElementById(id).offsetWidth;
+    if (PropertyWidth > curleft) {
+        document.getElementById(id).style.left = 0;
+    }
+}
+
+function findPosY(obj) {
     var curtop = 0;
-    if(obj.offsetParent)
-        while(1)
-        {
-          curtop += obj.offsetTop;
-          if(!obj.offsetParent)
-            break;
-          obj = obj.offsetParent;
+    if(obj.offsetParent) {
+        while(1) {
+            curtop += obj.offsetTop;
+            if(!obj.offsetParent) {
+                break;
+            }
+            obj = obj.offsetParent;
         }
-    else if(obj.y)
+    } else if (obj.y) {
         curtop += obj.y;
+    }
     return curtop;
   }
 </script>
@@ -589,7 +588,7 @@ if (!empty($reg)) {
 }
 
 if ($StringEcho) {
-    $StringEcho2 = '<div style="clear: both"></div>';
+    $StringEcho2 = '<div class="clearfix"></div>';
 } else {
     $StringEcho2 = "";
 }
@@ -607,7 +606,7 @@ if ($encounterLocked === false) {
             $StringEcho = '<ul>';
         }
 
-        $StringEcho .= "<div class=\"dropdown d-inline\">\n";
+        $StringEcho .= "<div class='dropdown d-inline'>\n";
         $StringEcho .= "<button class='btn btn-secondary dropdown-toggle' type='button' id='lbf' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" . xlt('Layout Based') . "</button>\n";
         $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
         while ($lrow = sqlFetchArray($lres)) {
@@ -630,7 +629,7 @@ if ($encounterLocked === false) {
     }
 }
 if ($StringEcho) {
-    $StringEcho2 = '<div style="clear: both"></div>';
+    $StringEcho2 = '<div class="clearfix"></div>';
 } else {
     $StringEcho2 = "";
 }
@@ -687,7 +686,7 @@ if ($StringEcho) {
     $StringEcho .= "</ul>" . $StringEcho2;
 }
 ?>
-<table cellspacing="0" cellpadding="0" align="center">
+<table class="mx-auto">
   <tr>
     <td class="align-top"><?php echo $StringEcho; ?></td>
   </tr>
@@ -767,7 +766,7 @@ if ($esign->isButtonViewable()) {
 ?>
 <div class='btn-group' role="group">
 <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
-    <a href='#' class='btn btn-danger btn-sm' onclick='return deleteme()'><?php echo xlt('Delete') ?></a>
+    <a href='#' class='btn btn-danger btn-sm btn-delete' onclick='return deleteme()'><?php echo xlt('Delete') ?></a>
 <?php } ?>
 
 <?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
@@ -787,8 +786,8 @@ if ($esign->isButtonViewable()) {
 
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
-    <div class="float-right border border-dark" style='margin-right: 25px;'>
-        <div class="float-left" style='margin: 5px;'>
+    <div class="float-right border border-dark mr-2">
+        <div class="float-left m-2">
           <table>
             <tr>
               <td>
@@ -833,7 +832,7 @@ if ($esign->isButtonViewable()) {
                     </td>
                 </tr>
                 </table>
-                <table style="margin-left: 2em;">
+                <table class="ml-4">
                     <tr>
                         <td>
                             <?php if (!(empty($itemAMC['date_completed']))) { ?>
@@ -869,7 +868,7 @@ if ($esign->isButtonViewable()) {
                     </td>
                 </tr>
                 </table>
-                <table style="margin-left:2em;">
+                <table class="ml-4">
                     <tr>
                         <td>
                             <input type="checkbox" id="med_reconc_perf" disabled />
@@ -1011,7 +1010,7 @@ if (
 
         // echo "<tr>"; // Removed as bug fix.
 
-        echo "<td style='border-bottom: 1px solid'>";
+        echo "<td class='border-bottom border-dark'>";
 
         // Figure out the correct author (encounter authors are the '$providerNameRes', while other
         // form authors are the '$user['fname'] . "  " . $user['lname']').
@@ -1037,7 +1036,7 @@ if (
                 (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
                 or (((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)
             ) {
-                echo "<a class='btn btn-primary btn-sm form-edit-button' " .
+                echo "<a class='btn btn-primary btn-sm form-edit-button btn-edit' " .
                     "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
                     "href='#' " .
                     "title='" . xla('Edit this form') . "' " .
@@ -1073,7 +1072,7 @@ if (
                     "&id=" . attr_url($iter['id']) .
                     "&encounter=" . attr_url($encounter) .
                     "&pid=" . attr_url($pid) .
-                    "' class='btn btn-danger btn-sm' title='" . xla('Delete this form') . "' onclick='top.restoreSession()'>" . xlt('Delete') . "</a>";
+                    "' class='btn btn-danger btn-sm btn-delete' title='" . xla('Delete this form') . "' onclick='top.restoreSession()'>" . xlt('Delete') . "</a>";
             } else {
                 // do not show delete button for main encounter here since it is displayed at top
             }
