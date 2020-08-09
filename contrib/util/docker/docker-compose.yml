@@ -60,7 +60,7 @@
 
 #
 #    On the main setup input screen:
-#     1. for Server Host, use either 'mariadb' or 'mysql' or 'mysql-old' or 'mysql-very-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' or 'mariadb-very-very-very-old' (have both mariadb/mysql/mariadb-dev/mysql dockers ready to go make testing either one easy; mysql is version 8.0; mysql-old is version 5.7; mysql-very-old is version 5.6; mariadb is version 10.5; mariadb-old is version 10.4; mariadb-very-old is version 10.3; mariadb-very-very-old is version 10.2; mariadb-very-very-very-old is version 10.1)
+#     1. for Server Host, use either 'mariadb' or `mariadb-ssl` or 'mysql' or 'mysql-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' (have both mariadb/mysql/mariadb-dev/mysql dockers ready to go make testing either one easy; mysql is version 8.0; mysql-old is version 5.7; mariadb is version 10.5; mariadb-ssl is version 10.5 with support for ssl; mariadb-old is version 10.4; mariadb-very-old is version 10.3; mariadb-very-very-old is version 10.2)
 #     2. for Root Pass, use 'root'
 #     3. for User Hostname, use '%'
 #    And when need to tear it down and restart it
@@ -114,11 +114,29 @@ services:
     - 9083:443
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
+    - couchdbvolume:/couchdb/data
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       EMPTY: "yes"
+      MYSQL_HOST: mariadb
+      MYSQL_ROOT_PASS: root
       DEVELOPER_TOOLS: "yes"
+      INSANE_DEV_MODE: "yes"
+      XDEBUG_IDE_KEY: PHPSTORM
+      XDEBUG_PROFILER_ON: 1
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
+      OPENEMR_SETTING_rest_api: 1
+      OPENEMR_SETTING_rest_fhir_api: 1
+      OPENEMR_SETTING_rest_portal_api: 1
+      OPENEMR_SETTING_rest_portal_fhir_api: 1
+      OPENEMR_SETTING_portal_onsite_two_enable: 1
+      OPENEMR_SETTING_ccda_alt_service_enable: 3
+      OPENEMR_SETTING_couchdb_host: couchdb
+      OPENEMR_SETTING_couchdb_port: 6984
+      OPENEMR_SETTING_couchdb_user: admin
+      OPENEMR_SETTING_couchdb_pass: password
+      OPENEMR_SETTING_couchdb_dbase: example
+      OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
   openemr-edge:
     restart: always
     image: openemr/openemr:flex-edge
@@ -196,16 +214,26 @@ services:
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
+  mariadb-ssl:
+    restart: always
+    image: mariadb:10.5
+    command: ['mysqld','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
+    volumes:
+    - ./sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
+    - ./sql-ssl-certs-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
+    - ./sql-ssl-certs-keys/insane/server-key.pem:/etc/ssl/server-key.pem:ro
+    environment:
+      MYSQL_ROOT_PASSWORD: root
   mariadb:
     restart: always
     image: mariadb:10.5
-    command: ['mysqld','--character-set-server=utf8', '--collation-server=utf8_general_ci']
+    command: ['mysqld','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
   mariadb-old:
     restart: always
     image: mariadb:10.4
-    command: ['mysqld','--character-set-server=utf8']
+    command: ['mysqld','--character-set-server=utf8mb4']
     ports:
     - 8210:3306
     environment:
@@ -213,25 +241,19 @@ services:
   mariadb-very-old:
     restart: always
     image: mariadb:10.3
-    command: ['mysqld','--character-set-server=utf8']
+    command: ['mysqld','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
   mariadb-very-very-old:
     restart: always
     image: mariadb:10.2
-    command: ['mysqld','--character-set-server=utf8']
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-  mariadb-very-very-very-old:
-    restart: always
-    image: mariadb:10.1
-    command: ['mysqld','--character-set-server=utf8']
+    command: ['mysqld','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
   mysql:
     restart: always
     image: mysql:8
-    command: ['mysqld','--character-set-server=utf8','--default-authentication-plugin=mysql_native_password']
+    command: ['mysqld','--character-set-server=utf8mb4','--default-authentication-plugin=mysql_native_password']
     ports:
     - 8220:3306
     environment:
@@ -239,13 +261,7 @@ services:
   mysql-old:
     restart: always
     image: mysql:5.7
-    command: ['mysqld','--character-set-server=utf8']
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-  mysql-very-old:
-    restart: always
-    image: mysql:5.6
-    command: ['mysqld','--character-set-server=utf8']
+    command: ['mysqld','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
   phpmyadmin:
@@ -254,7 +270,7 @@ services:
     ports:
     - 8200:80
     environment:
-      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mariadb-very-very-very-old,mysql,mysql-old,mysql-very-old
+      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mysql,mysql-old,mariadb-ssl
   couchdb:
     restart: always
     image: couchdb
@@ -264,6 +280,12 @@ services:
     environment:
       COUCHDB_USER: admin
       COUCHDB_PASSWORD: password
+    volumes:
+    - ./couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.d/local.ini:rw
+    - ./couchdb-config-ssl-cert-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
+    - ./couchdb-config-ssl-cert-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
+    - ./couchdb-config-ssl-cert-keys/insane/server-key.pem:/etc/ssl/server-key.pem:ro
+    - couchdbvolume:/opt/couchdb/data
   orthanc:
     restart: always
     image: jodogne/orthanc-plugins
@@ -443,3 +465,5 @@ services:
     image: ibmcom/ibm-fhir-server
     ports:
     - 9443:9443
+volumes:
+  couchdbvolume: {}

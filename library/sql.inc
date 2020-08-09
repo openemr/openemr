@@ -45,9 +45,16 @@ $GLOBALS['dbh'] = $database->_connectionID;
 
 // Modified 5/2009 by BM for UTF-8 project ---------
 if (!$disable_utf8_flag) {
-    $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8'");
-    if (!$success_flag) {
-        error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
+    if ($sqlconf["db_encoding"] == "utf8mb4") {
+        $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8mb4'");
+        if (!$success_flag) {
+            error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8MB4 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
+        }
+    } else {
+        $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8'");
+        if (!$success_flag) {
+            error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
+        }
     }
 }
 

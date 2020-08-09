@@ -65,7 +65,7 @@ if ($noteid) {
 
 <p><?php echo nl2br(text($body)); ?></p>
 
-<script language='JavaScript'>
+<script>
 opener.top.printLogPrint(window);
 </script>
 

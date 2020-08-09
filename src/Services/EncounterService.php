@@ -29,7 +29,7 @@ require_once dirname(__FILE__) . "/../../library/encounter.inc";
 class EncounterService extends BaseService
 {
     private $encounterValidator;
-    private $uuidRegistery;
+    private $uuidRegistry;
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PATIENT_TABLE = "patient_data";
 
@@ -39,8 +39,8 @@ class EncounterService extends BaseService
     public function __construct()
     {
         parent::__construct('form_encounter');
-        $this->uuidRegistery = new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]);
-        $this->uuidRegistery->createMissingUuids();
+        $this->uuidRegistry = new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]);
+        $this->uuidRegistry->createMissingUuids();
         $this->encounterValidator = new EncounterValidator();
     }
 
@@ -373,7 +373,7 @@ class EncounterService extends BaseService
 
         $encounter = generate_id();
         $data['encounter'] = $encounter;
-        $data['uuid'] = $this->uuidRegistery->createUuid();
+        $data['uuid'] = $this->uuidRegistry->createUuid();
         $data['date'] = date("Y-m-d");
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");

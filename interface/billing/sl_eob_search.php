@@ -12,7 +12,7 @@
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -723,7 +723,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 <body>
 <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
     <div class="row">
-        <div class="page-header mt-3 col-12">
+        <div class="mt-3 col-12">
             <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
         </div>
     </div>
@@ -972,11 +972,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             "b.pid = f.pid AND b.encounter = f.encounter AND " .
                             "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
                             "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
-                            "a.pid = f.pid AND a.encounter = f.encounter AND a.payer_type = 0 AND a.account_code = 'PCP')*-1 AS copays, " .
+                            "a.pid = f.pid AND a.encounter = f.encounter AND a.deleted IS NULL AND a.payer_type = 0 AND a.account_code = 'PCP')*-1 AS copays, " .
                             "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
-                            "a.pid = f.pid AND a.encounter = f.encounter AND a.account_code != 'PCP') AS payments, " .
+                            "a.pid = f.pid AND a.encounter = f.encounter AND a.deleted IS NULL AND a.account_code != 'PCP') AS payments, " .
                             "( SELECT SUM(a.adj_amount) FROM ar_activity AS a WHERE " .
-                            "a.pid = f.pid AND a.encounter = f.encounter ) AS adjustments " .
+                            "a.pid = f.pid AND a.encounter = f.encounter AND a.deleted IS NULL ) AS adjustments " .
                             "FROM form_encounter AS f " .
                             "JOIN patient_data AS p ON p.pid = f.pid " .
                             "WHERE $where " .

@@ -186,31 +186,31 @@ function displayAlert() {
                 <div class="col-6">
                     <div class="form-group">
                         <label for="facility"><?php echo xlt('Name'); ?>:</label>
-                        <input class="form-control" type="entry" name="facility" size="20" value="" required />
+                        <input class="form-control" type="text" name="facility" size="20" value="" required />
                     </div>
                     <div class="form-group">
                         <label for="street"><?php echo xlt('Address'); ?>:</label>
-                        <input class="form-control" type="entry" size="20" name="street" value="" />
+                        <input class="form-control" type="text" size="20" name="street" value="" />
                     </div>
                     <div class="form-group">
                         <label for="city"><?php echo xlt('City'); ?>:</label>
-                        <input class="form-control" type="entry" size="20" name="city" value="" />
+                        <input class="form-control" type="text" size="20" name="city" value="" />
                     </div>
                     <div class="form-group">
                         <label for="state"><?php echo xlt('State'); ?>:</label>
-                        <input class="form-control" type="entry" size="20" name="state" value="" />
+                        <input class="form-control" type="text" size="20" name="state" value="" />
                     </div>
                     <div class="form-group">
                         <label for="country_code"><?php echo xlt('Country'); ?>:</label>
-                        <input class="form-control" type="entry" size="20" name="country_code" value="" />
+                        <input class="form-control" type="text" size="20" name="country_code" value="" />
                     </div>
                     <div class="form-group">
                         <label for="website"><?php echo xlt('Website'); ?>: </label>
-                        <input class="form-control" type="entry" size="20" name="website" value="" />
+                        <input class="form-control" type="text" size="20" name="website" value="" />
                     </div>
                     <div class="form-group">
                         <label for="iban"><?php echo xlt('IBAN'); ?>: </label>
-                        <input class="form-control" type="entry" size="20" name="iban" value="" />
+                        <input class="form-control" type="text" size="20" name="iban" value="" />
                     </div>
                     <div class="form-row custom-control custom-switch my-2">
                         <div class="col">
@@ -254,7 +254,7 @@ function displayAlert() {
                     </div>
                     <div class="form-group">
                         <label for="ncolor"><?php echo xlt('Color'); ?>: </label>
-                        <input class="form-control" type="entry" name="ncolor" id="ncolor" size="20" value="" />
+                        <input class="form-control" type="text" name="ncolor" id="ncolor" size="20" value="" />
                         <span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo xlt('Pick'); ?></a>]</span>
                     </div>
                     <div class="form-group">
@@ -274,21 +274,21 @@ function displayAlert() {
                     </div>
                     <div class="form-group">
                         <label for="domain_identifier"><?php echo xlt('CLIA Number'); ?>:</label>
-                        <input class="form-control" type="entry" name="domain_identifier" size="45" />
+                        <input class="form-control" type="text" name="domain_identifier" size="45" />
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="form-group">
                         <label for="phone"><?php echo xlt('Phone'); ?>:</label>
-                        <input class="form-control" type="entry" name="phone" size="20" value="" />
+                        <input class="form-control" type="text" name="phone" size="20" value="" />
                     </div>
                     <div class="form-group">
                         <label for="fax"><?php echo xlt('Fax'); ?>:</label>
-                        <input class="form-control" type="entry" name="fax" size="20" value="" />
+                        <input class="form-control" type="text" name="fax" size="20" value="" />
                     </div>
                     <div class="form-group">
                         <label for="postal_code"><?php echo xlt('Zip Code'); ?>:</label>
-                        <input class="form-control" type="entry" size="20" name="postal_code" value="" />
+                        <input class="form-control" type="text" size="20" name="postal_code" value="" />
                     </div>
                     <div class="form-group">
                         <label for="tax_id_type"><?php echo xlt('Tax ID'); ?>:</label>
@@ -297,32 +297,32 @@ function displayAlert() {
                                 <option value="EI"><?php echo xlt('EIN'); ?></option>
                                 <option value="SY"><?php echo xlt('SSN'); ?></option>
                             </select>
-                            <input class="form-control" type="entry" size="11" name="federal_ein" value="" />
+                            <input class="form-control" type="text" size="11" name="federal_ein" value="" />
                         </span>
                     </div>
                     <div class="form-group">
                         <label for="facility_npi"><?php echo ($GLOBALS['simplified_demographics'] ? xlt('Facility Code') : xlt('Facility NPI')); ?>:</label>
-                        <input class="form-control" type="entry" size="20" name="facility_npi" value="" />
+                        <input class="form-control" type="text" size="20" name="facility_npi" value="" />
                     </div>
                     <div class="form-group">
                         <label for="facility_taxonomy"><?php echo xlt('Facility Taxonomy'); ?>:</label>
-                        <input class="form-control" type="entry" size="20" name="facility_taxonomy" value="" />
+                        <input class="form-control" type="text" size="20" name="facility_taxonomy" value="" />
                     </div>
                     <div class="form-group">
                         <label for="email"><?php echo xlt('Email'); ?>: </label>
-                        <input class="form-control" type="entry" size="20" name="email" value="" />
+                        <input class="form-control" type="text" size="20" name="email" value="" />
                     </div>
                     <div class="form-group">
                         <label for="attn"><?php echo xlt('Billing Attn'); ?>:</label>
-                        <input class="form-control" type="entry" name="attn" size="45" />
+                        <input class="form-control" type="text" name="attn" size="45" />
                     </div>
                     <div class="form-group">
                         <label for="facility_id"><?php echo xlt('Facility ID'); ?>:</label>
-                        <input class="form-control" type="entry" name="facility_id" size="20" />
+                        <input class="form-control" type="text" name="facility_id" size="20" />
                     </div>
                     <div class="form-group">
                         <label for="oid"><?php echo xlt('OID'); ?>: </label>
-                        <input class="form-control" type="entry" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>" />
+                        <input class="form-control" type="text" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>" />
                     </div>
 
                 </div>
@@ -330,23 +330,23 @@ function displayAlert() {
             <hr />
             <div class="form-group">
                 <label for="mail_stret"><?php echo xlt('Mailing Address'); ?>: </label>
-                <input class="form-control" type="entry" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>" />
+                <input class="form-control" type="text" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>" />
             </div>
             <div class="form-group">
                 <label for="mail_street2"><?php echo xlt('Dept'); ?>: </label>
-                <input class="form-control" type="entry" size="20" name="mail_street2" value="<?php echo attr($facility["mail_street2"]) ?>" />
+                <input class="form-control" type="text" size="20" name="mail_street2" value="<?php echo attr($facility["mail_street2"]) ?>" />
             </div>
             <div class="form-group">
                 <label for="mail_city"><?php echo xlt('City'); ?>: </label>
-                <input class="form-control" type="entry" size="20" name="mail_city" value="<?php echo attr($facility["mail_city"]) ?>" />
+                <input class="form-control" type="text" size="20" name="mail_city" value="<?php echo attr($facility["mail_city"]) ?>" />
             </div>
             <div class="form-group">
                 <label for="mail_state"><?php echo xlt('State'); ?>: </label>
-                <input class="form-control" type="entry" size="20" name="mail_state" value="<?php echo attr($facility["mail_state"]) ?>" />
+                <input class="form-control" type="text" size="20" name="mail_state" value="<?php echo attr($facility["mail_state"]) ?>" />
             </div>
             <div class="form-group">
                 <label for="mail_zip"><?php echo xlt('Zip'); ?>: </label>
-                <input class="form-control" type="entry" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>" />
+                <input class="form-control" type="text" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>" />
             </div>
             <div class="form-group">
                 <label for="info"><?php echo xlt('Info'); ?>: </label>

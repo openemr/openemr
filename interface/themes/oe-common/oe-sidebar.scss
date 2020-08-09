@@ -43,7 +43,7 @@ main.active,
 }
 
 .navbar-toggler {
-  @include font-size("1.5rem !important");
+  @include font-size("1.5rem");
   margin-top: 0.25rem;
 }
 
@@ -91,7 +91,7 @@ main.active,
 }
 
 .sidebar-expand button {
-  @include font-size("2rem !important");
+  @include font-size("2rem");
   background: 0 0;
   border-color: rgba($white, 0.1);
   border-width: 0;
@@ -102,13 +102,13 @@ main.active,
 }
 
 
-@media (min-width: 768px) {
+@media (min-width: map-get($grid-breakpoints, "md")) {
   .sidebar-header {
     padding: 0 1rem;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: map-get($grid-breakpoints, "md")) {
   .nav-sidebar {
     margin-left: -15.625rem;
   }

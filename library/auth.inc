@@ -36,9 +36,17 @@ if (
     // set language direction according to language choice. Later in globals.php we'll override main theme name if needed.
     $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
 
-    if (!(new AuthUtils('login'))->confirmPassword($_POST['authUser'], $_POST['clearPass'])) {
+    // Note we are purposefully keeping $_POST['clearPass'], which is needed for MFA to work. It is cleared from memory after a
+    //  unsuccessful or successful login
+    $passTemp = $_POST['clearPass'];
+    if (!(new AuthUtils('login'))->confirmPassword($_POST['authUser'], $passTemp)) {
         // login attempt failed
         $_SESSION['loginfailure'] = 1;
+        if (function_exists('sodium_memzero')) {
+            sodium_memzero($_POST["clearPass"]);
+        } else {
+            $_POST["clearPass"] = '';
+        }
         authLoginScreen();
     }
 

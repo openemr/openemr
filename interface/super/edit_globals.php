@@ -349,7 +349,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
              <div class="col-sm-12">
-                <div class="page-header mt-3">
+                <div class="mt-3">
                     <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>

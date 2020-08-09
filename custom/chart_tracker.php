@@ -71,9 +71,7 @@ function userSelect() {
 
     <div class="row">
         <div class="col-12">
-            <div class="page-header">
-                <h1><?php echo xlt('Chart Tracker'); ?></h1>
-            </div>
+            <h1><?php echo xlt('Chart Tracker'); ?></h1>
          </div>
     </div>
 

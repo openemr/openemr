@@ -953,6 +953,7 @@ function generate_form_field($frow, $currvalue)
             " name='form_{$field_id_esc}[$option_id_esc]'" .
             " id='form_{$field_id_esc}[$option_id_esc]'" .
             " size='$fldlength'" .
+            " class='form-control'" .
             " $string_maxlength" .
             " value='$resnote' $disabled /></td>";
             echo "</tr>";
@@ -1168,10 +1169,11 @@ function generate_form_field($frow, $currvalue)
         echo "<tr>";
         if ($data_type == 28) {
             // input text
-            echo "<td><input type='text'" .
+            echo "<td><input type='text' class='form-control'" .
             " name='form_$field_id_esc'" .
             " id='form_$field_id_esc'" .
             " size='$fldlength'" .
+            " class='form-control$smallform'" .
             " $string_maxlength" .
             " value='$resnote' $disabled />&nbsp;</td>";
             echo "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" .
@@ -1205,7 +1207,7 @@ function generate_form_field($frow, $currvalue)
         }
 
         // current
-        echo "<td class='text' ><input type='radio'" .
+        echo "<td class='text'><input type='radio'" .
         " name='radio_{$field_id_esc}'" .
         " id='radio_{$field_id_esc}[current]'" .
         " class='form-control$smallform'" .
@@ -1235,7 +1237,7 @@ function generate_form_field($frow, $currvalue)
 
         echo " $disabled />" . xlt('Quit') . "&nbsp;</td>";
         // quit date
-        echo "<td class='text'><input type='text' size='6' class='datepicker' name='date_$field_id_esc' id='date_$field_id_esc'" .
+        echo "<td class='text'><input type='text' size='6' class='form-control datepicker' name='date_$field_id_esc' id='date_$field_id_esc'" .
         " value='$resdate'" .
         " title='$description'" .
         " $disabled />";
@@ -1939,7 +1941,7 @@ function generate_print_field($frow, $currvalue)
     } elseif ($data_type == 34) {
         echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=" . htmlspecialchars($list_id_esc, ENT_QUOTES) . "' class='iframe_medium text-body text-decoration-none'>";
         echo "<div id='form_{$field_id}_div' class='text-area'></div>";
-        echo "<div style='display: none'><textarea name='form_{$field_id}' class='form-control' id='form_{$field_id}' stye='display: none'></textarea></div>";
+        echo "<div style='display: none'><textarea name='form_{$field_id}' class='form-control' id='form_{$field_id}' style='display: none'></textarea></div>";
         echo "</a>";
     } elseif ($data_type == 35) { //facilities drop-down list
         // In this special case, fld_length is the number of columns generated.
@@ -3300,7 +3302,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
             "ORDER BY seq", array($formtype, $this_group));
         ?>
 
-        <div class="tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo str_replace(' ', '_', $group_name_esc)?>" >
+        <div class="table-responsive tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo str_replace(' ', '_', $group_name_esc)?>" >
             <table class='table table-borderless'>
 
             <?php

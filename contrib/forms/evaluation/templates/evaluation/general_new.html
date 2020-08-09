@@ -119,19 +119,19 @@ function calculate_bmi(button) {
 
 	<td>
 
-		<span class=text>TEMP: </span><input size=3 type=entry name="temp" value="{$evaluation->get_temp()|attr}" ></input>
+		<span class=text>TEMP: </span><input size=3 type="text" name="temp" value="{$evaluation->get_temp()|attr}" ></input>
 
-		<span class=text>P: </span><input size=3 type=entry name="p" value="{$evaluation->get_p()|attr}" ></input>
+		<span class=text>P: </span><input size=3 type="text" name="p" value="{$evaluation->get_p()|attr}" ></input>
 
-		<span class=text>R: </span><input size=3 type=entry name="r" value="{$evaluation->get_r()|attr}" ></input>
+		<span class=text>R: </span><input size=3 type="text" name="r" value="{$evaluation->get_r()|attr}" ></input>
 
-		<span class=text>BP: </span><input size=3 type=entry name="bp" value="{$evaluation->get_bp()|attr}" ></input>
+		<span class=text>BP: </span><input size=3 type="text" name="bp" value="{$evaluation->get_bp()|attr}" ></input>
 
-		<span class=text>HT: </span><input size=3 type=entry name="ht" value="{$evaluation->get_ht()|attr}" ></input>
+		<span class=text>HT: </span><input size=3 type="text" name="ht" value="{$evaluation->get_ht()|attr}" ></input>
 
-		<span class=text>WT: </span><input size=3 type=entry name="wt" value="{$evaluation->get_wt()|attr}" ></input>
+		<span class=text>WT: </span><input size=3 type="text" name="wt" value="{$evaluation->get_wt()|attr}" ></input>
 
-		<span class=text>LMP: </span><input size=10 type=entry name="lmp" value="{$evaluation->get_lmp()|attr}" ></input>
+		<span class=text>LMP: </span><input size=10 type="text" name="lmp" value="{$evaluation->get_lmp()|attr}" ></input>
 
 	</td>
 
@@ -139,7 +139,7 @@ function calculate_bmi(button) {
 
 	<td>
 
-		<span class=text>BMI: </span><input size=5 type=entry name="bmi" value="{$evaluation->get_bmi()|attr}" ></input>
+		<span class=text>BMI: </span><input size=5 type="text" name="bmi" value="{$evaluation->get_bmi()|attr}" ></input>
 
 		<input type="button" onClick="calculate_bmi(this);" value="Calculate">
 

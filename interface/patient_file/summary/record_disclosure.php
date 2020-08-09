@@ -78,84 +78,86 @@ $(function () {
 
 </script>
 </head>
-<body class="body_top">
-<div id="record-disclosure" style='float: left; margin-right: 10px' >
-<div style='float: left; margin-right: 5px'><?php
-if ($editlid) {
-    ?><!--Edit the disclosures-->
-    <span class="title"><?php echo xlt('Edit Disclosure'); ?></span><?php
-} else { ?>
-        <span class="title"><?php echo xlt('Record Disclosure'); ?></span><?php
-} ?>
-</div>
+<body>
+    <div class="container" id="record-disclosure">
+        <div class="row">
+            <div class="col-12">
+                <?php
+                if ($editlid) {
+                    ?><!--Edit the disclosures-->
+                    <h2 class="title"><?php echo xlt('Edit Disclosure'); ?></h2><?php
+                } else { ?>
+                    <span class="title"><?php echo xlt('Record Disclosure'); ?></span><?php
+                } ?>
+            </div>
+            <div class="col-12">
+                <form name="disclosure_form" id="disclosure_form" method="POST" action="disclosure_full.php">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <div class="btn-group">
+                        <button class='btn btn-primary btn-save' name='form_save' id='form_save'>
+                            <?php echo xlt('Save'); ?>
+                        </button>
+                        <button class="btn btn-secondary btn-cancel" id='cancel' onclick='top.restoreSession();dlgclose()'>
+                            <?php echo xlt('Cancel'); ?>
+                        </button>
+                    </div>
 
-<form name="disclosure_form" id="disclosure_form" method="POST" action="disclosure_full.php">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type='hidden' name='mode' value="disclosure" />
 
-    <div><button class='btn btn-primary btn-lg' name='form_save' id='form_save'>
-            <?php echo xlt('Save'); ?>
-        </button></div>
-    <div><a class="btn btn-secondary btn-lg" id='cancel' href='#' onclick='top.restoreSession();dlgclose()'><?php echo xlt('Cancel'); ?></a></div>
-    <br />
-<input type='hidden' name='mode' value="disclosure">
-<table border='0' cellpadding='3' cellspacing='0' align='center'>
-    <br />
-    <tr>
-        <td><span class='text'><?php echo xlt('Date'); ?>:</span></td>
-        <td><!--retrieve disclosures from extended_log table for modifications-->
-        <?php
-        if ($editlid) {
-            $dres = sqlQuery("select date,recipient,description,event from extended_log where id=?", array($editlid));
-            $description = $dres["description"];
-            $app_event = $dres["event"];
-            $disc_date = $dres["date"];
-            $recipient_name = $dres["recipient"];
-            ?>
-            <input type=hidden name=disclosure_id value="<?php echo attr($editlid); ?>">
-            <input type=hidden name=updatemode value="disclosure_update">
-            <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='<?php echo attr($disc_date);?>' style="background-color:white"/>&nbsp; <?php
-        } else {
-            ?> <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='' style="background-color:white"/>&nbsp;<?php
-        } ?>
-    </tr>
-    <tr>
-        <td><span class=text><?php echo xlt('Type of Disclosure'); ?>: </span></td>
-        <td><?php
-        if ($editlid) {
-            //To incorporate the disclosure types  into the list_options listings
-            generate_form_field(array('data_type' => 1,'field_id' => 'disclosure_type','list_id' => 'disclosure_type','fld_length' => '10','max_length' => '63','empty_title' => 'SKIP'), $app_event);
-        } else {
-            //To incorporate the disclosure types  into the list_options listings
-            generate_form_field(array('data_type' => 1,'field_id' => 'disclosure_type','list_id' => 'disclosure_type','fld_length' => '10','max_length' => '63','empty_title' => 'SKIP'), $title);
-        } ?>
-        </td>
-    </tr>
-    <tr>
-        <td><span class='text'><?php echo xlt('Recipient of the Disclosure'); ?>:
-        </span></td>
-        <td class='text'>
-        <?php
-        if ($editlid) {
-            ?> <input type=entry name=recipient_name size=20 value="<?php echo attr($recipient_name); ?>" />
-            <?php
-        } else {?>
-            <input type=entry name=recipient_name size=20 value="" />
-            <?php
-        }?>
-        </td>
-    </tr>
-    <tr>
-        <td>
-        <span class=text><?php echo xlt('Description of the Disclosure'); ?>:</span></td>
-        <td>
-        <?php if ($editlid) { ?>
-            <textarea name=desc_disc wrap=auto rows=4 cols=30><?php echo text($description); ?></textarea>
-        <?php } else {?>
-            <textarea name=desc_disc wrap=auto rows=4 cols=30></textarea>
-        <?php }?>
-        </td>
-    </tr>
-</table>
-</form>
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Date'); ?>:</label>
+                        <?php
+                        if ($editlid) {
+                            $dres = sqlQuery("select date,recipient,description,event from extended_log where id=?", array($editlid));
+                            $description = $dres["description"];
+                            $app_event = $dres["event"];
+                            $disc_date = $dres["date"];
+                            $recipient_name = $dres["recipient"];
+                            ?>
+                            <input type="hidden" name="disclosure_id" value="<?php echo attr($editlid); ?>">
+                            <input type="hidden" name="updatemode" value="disclosure_update">
+                            <input type='entry' size='20' class='datepicker form-control' name='dates' id='dates' value='<?php echo attr($disc_date);?>'/>&nbsp; <?php
+                        } else {
+                            ?> <input type='entry' size='20' class='datepicker form-control' name='dates' id='dates' value=''/>&nbsp;<?php
+                        } ?>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Type of Disclosure'); ?>:</label>
+                        <?php
+                        if ($editlid) {
+                            //To incorporate the disclosure types  into the list_options listings
+                            generate_form_field(array('data_type' => 1,'field_id' => 'disclosure_type','list_id' => 'disclosure_type','fld_length' => '10','max_length' => '63','empty_title' => 'SKIP'), $app_event);
+                        } else {
+                            //To incorporate the disclosure types  into the list_options listings
+                            generate_form_field(array('data_type' => 1,'field_id' => 'disclosure_type','list_id' => 'disclosure_type','fld_length' => '10','max_length' => '63','empty_title' => 'SKIP'), $title);
+                        } ?>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Recipient of the Disclosure'); ?>:</label>
+                        <?php
+                        if ($editlid) {
+                            ?> <input type="entry" class="form-control" name="recipient_name" size="20" value="<?php echo attr($recipient_name); ?>" />
+                            <?php
+                        } else {?>
+                            <input type="entry" class="form-control" name="recipient_name" size="20" value="" />
+                            <?php
+                        }?>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Description of the Disclosure'); ?>:</label>
+                        <?php if ($editlid) { ?>
+                            <textarea class="form-control" name="desc_disc" wrap="auto" rows="4" cols="30"><?php echo text($description); ?></textarea>
+                        <?php } else {?>
+                            <textarea class="form-control" name="desc_disc" wrap="auto" rows="4" cols="30"></textarea>
+                        <?php }?>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

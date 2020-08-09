@@ -260,7 +260,7 @@ function authorized_clicked() {
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
     <TD style="width:180px;"><span class=text><?php echo xlt('Username'); ?>: </span></TD>
-    <TD style="width:270px;"><input type=entry name=username style="width:150px;" class="form-control" value="<?php echo attr($iter["username"]); ?>" disabled></td>
+    <TD style="width:270px;"><input type="text" name=username style="width:150px;" class="form-control" value="<?php echo attr($iter["username"]); ?>" disabled></td>
 <?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
         <TD style="width:200px;"><span class=text>*<?php echo xlt('Your Password'); ?>*: </span></TD>
         <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  class="form-control" value="" autocomplete='off'><font class="mandatory"></font></TD>
@@ -307,15 +307,15 @@ if ($iter["portal_user"]) {
 
 <TR>
 <TD><span class=text><?php echo xlt('First Name'); ?>: </span></TD>
-<TD><input type=entry name=fname id=fname style="width:150px;" class="form-control" value="<?php echo attr($iter["fname"]); ?>"><span class="mandatory"></span></td>
-<td><span class=text><?php echo xlt('Middle Name'); ?>: </span></TD><td><input type=entry name=mname style="width:150px;"  value="<?php echo attr($iter["mname"]); ?>"></td>
+<TD><input type="text" name=fname id=fname style="width:150px;" class="form-control" value="<?php echo attr($iter["fname"]); ?>"><span class="mandatory"></span></td>
+<td><span class=text><?php echo xlt('Middle Name'); ?>: </span></TD><td><input type="text" name=mname style="width:150px;"  value="<?php echo attr($iter["mname"]); ?>"></td>
 </TR>
 
 <TR>
-<td><span class=text><?php echo xlt('Last Name'); ?>: </span></td><td><input type=entry name=lname id=lname style="width:150px;"  class="form-control" value="<?php echo attr($iter["lname"]); ?>"><span class="mandatory"></span></td>
+<td><span class=text><?php echo xlt('Last Name'); ?>: </span></td><td><input type="text" name=lname id=lname style="width:150px;"  class="form-control" value="<?php echo attr($iter["lname"]); ?>"><span class="mandatory"></span></td>
 <td><span class=text><?php echo xlt('Default Facility'); ?>: </span></td><td><select name=facility_id style="width:150px;" class="form-control">
 <?php
-$fres = $facilityService->getAllBillingLocations();
+$fres = $facilityService->getAllServiceLocations();
 if ($fres) {
     for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++) {
                 $result[$iter2] = $fres[$iter2];

@@ -8,10 +8,12 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Visolve (vicareplus_engg@visolve.com)
+ * @author    Visolve <vicareplus_engg@visolve.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) Visolve (vicareplus_engg@visolve.com)
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) Visolve <vicareplus_engg@visolve.com>
+ * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
@@ -33,122 +35,6 @@ if (!empty($_POST)) {
  * certificates fails.
  */
 $error_msg = "";
-
-/* This function is called when the "Save Certificate Settings" button is clicked.
- * Save the certificate settings to the file globals.php.
- * The following form inputs are used:
- *   cakey_location - The path to the CA key file
- *   cacrt_location - The path to the CA certificate file
- *   clientCertValidity_hidden - Number of days client certificates are valid.
- *   isClientAuthenticationEnabled - Enable/disable client certificate authentication.
- *
- * Save these values to the following variables in globals.php:
- *   $certificate_authority_key
- *   $certificate_authority_crt
- *   $client_certificate_valid_in_days
- *   $is_client_ssl_enabled
- *
- * If an error occurs, set $error_msg to the appropriate string,
- * which will be displayed later on below.
- */
-/*function save_certificate_settings() {
-    if($_POST['cakey_location']) { $Authority_key = trim($_POST['cakey_location']); }
-    if($_POST['cacrt_location']) { $Authority_crt = trim($_POST['cacrt_location']); }
-    if($_POST['clientCertValidity_hidden']) { $clientCertValidity = trim($_POST['clientCertValidity_hidden']); }
-    if($_POST['isClientAuthenticationEnabled']) { $isClientAuthenticationEnabled = trim($_POST['isClientAuthenticationEnabled']); }
-
-    if ($isClientAuthenticationEnabled == "Yes") {
-        $isClientAuthenticationEnabled = "true";
-    } else{
-        $isClientAuthenticationEnabled = "false";
-    }
-
-    global $error_msg;
-
-    if ($Authority_key != "" && !file_exists($Authority_key)) {
-        $error_msg .= xl('Error: the file does not exist') . ' ' . $Authority_key . '<br />';
-    }
-
-    if ($Authority_crt != "" && !file_exists($Authority_crt)) {
-        $error_msg .= xl('Error, the file does not exist') . ' ' . $Authority_crt . '<br />';
-    }
-
-    if ($error_msg != "") {
-        return;
-    }
-
-    $Authority_key = str_replace('\\\\', '/', $Authority_key);
-    $Authority_key = str_replace('\\', '/', $Authority_key);
-    $Authority_crt = str_replace('\\\\', '/', $Authority_crt);
-    $Authority_crt = str_replace('\\', '/', $Authority_crt);
-
-    // Read in the globals.php file
-    $globals_file = $GLOBALS['fileroot'] . "/interface/globals.php";
-    $inputdata = file($globals_file) or die( xlt('Could not read file')." ". text($globals_file));
-    $outputdata = "";
-
-    $wrote_key = false;
-    $wrote_crt = false;
-    $wrote_enable = false;
-    $wrote_validity = false;
-
-    // Loop through each line in globals.php, replacing any certificate variables with the new settings.
-
-    foreach ($inputdata as $line) {
-        if ((strpos($line,"\$certificate_authority_key = \"")) !== false) {
-            $wrote_key = true;
-            $outputdata .= "\$certificate_authority_key = \"$Authority_key\";\n";
-        }
-        else if ((strpos($line,"\$certificate_authority_crt = \"")) !== false) {
-            $wrote_crt = true;
-            $outputdata .= "\$certificate_authority_crt = \"$Authority_crt\";\n";
-        }
-        else if ((strpos($line,"\$is_client_ssl_enabled = ")) !== false) {
-            $wrote_enable = true;
-            $outputdata .= "\$is_client_ssl_enabled = $isClientAuthenticationEnabled;\n";
-        }
-        else if ((strpos($line,"\$client_certificate_valid_in_days = \"")) !== false) {
-            $wrote_validity = true;
-            $outputdata .= "\$client_certificate_valid_in_days = \"$clientCertValidity\";\n";
-        }
-        else {
-            $outputdata .= $line;
-        }
-    }
-    if ($wrote_key === false || $wrote_crt === false ||
-        $wrote_enable === false || $wrote_validity === false) {
-
-        $outputdata .= "<?php\n";
-
-        if ($wrote_key === false) {
-            $outputdata .= "\$certificate_authority_key = \"$Authority_key\";\n";
-        }
-        if ($wrote_crt == false) {
-            $outputdata .= "\$certificate_authority_crt = \"$Authority_crt\";\n";
-        }
-        if ($wrote_enable === false) {
-            $outputdata .= "\$is_client_ssl_enabled = $isClientAuthenticationEnabled;\n";
-        }
-        if ($wrote_validity === false) {
-            $outputdata .= "\$client_certificate_valid_in_days = \"$clientCertValidity\";\n";
-        }
-        $outputdata .= "\n?>\n";
-    }
-
-    // Write the modified globals.php back to disk
-    $fd = @fopen($globals_file, 'w');
-    if ($fd === false) {
-        $error_msg .= xl('Error, unable to open file') . ' ' . $globals_file;
-        return;
-    }
-    fwrite($fd, $outputdata);
-    fclose($fd);
-
-    $GLOBALS['is_client_ssl_enabled'] = ($isClientAuthenticationEnabled == "true");
-    $GLOBALS['certificate_authority_crt'] = $Authority_crt;
-    $GLOBALS['certificate_authority_key'] = $Authority_key;
-}*/
-
 
 /**
  * Send an http reply so that the browser downloads the given file.
@@ -203,7 +89,10 @@ function create_client_cert()
         $email = trim($_POST['client_cert_email']);
     }
 
-    $opensslconf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
+    if ($_POST["clientPassPhrase"]) {
+        $clientPassPhrase = trim($_POST['clientPassPhrase']);
+    }
+
     $serial = 0;
     $data = create_user_certificate(
         $user,
@@ -274,6 +163,7 @@ function create_and_download_certificates()
     $organizationName       = false;
     $organizationalUnitName = false;
     $clientCertValidity     = false;
+    $clientPassPhrase = null;
 
     /* Retrieve the certificate name settings from the form input */
     if ($_POST["commonName"]) {
@@ -308,6 +198,9 @@ function create_and_download_certificates()
         $clientCertValidity = trim($_POST['clientCertValidity']);
     }
 
+    if ($_POST["clientPassPhrase"]) {
+        $clientPassPhrase = trim($_POST['clientPassPhrase']);
+    }
 
     /* Create the Certficate Authority (CA) */
     $arr = create_csr(
@@ -328,7 +221,6 @@ function create_and_download_certificates()
 
     $ca_csr = $arr[0];
     $ca_key = $arr[1];
-    $config = $arr[2];
     $ca_crt = create_crt($ca_csr, null, $ca_key);
     if ($ca_crt === false) {
         $error_msg .= xl('Error, unable to create the Certificate Authority certificate.');
@@ -336,7 +228,7 @@ function create_and_download_certificates()
         return;
     }
 
-    openssl_pkey_export_to_file($ca_key, $tempDir . "/CertificateAuthority.key", null, $config);
+    openssl_pkey_export_to_file($ca_key, $tempDir . "/CertificateAuthority.key", null);
     openssl_x509_export_to_file($ca_crt, $tempDir . "/CertificateAuthority.crt");
 
     /* Create the Server certificate */
@@ -357,7 +249,6 @@ function create_and_download_certificates()
 
     $server_csr = $arr[0];
     $server_key = $arr[1];
-    $config     = $arr[2];
     $server_crt = create_crt($server_csr, $ca_crt, $ca_key);
 
     if ($server_crt === false) {
@@ -366,7 +257,7 @@ function create_and_download_certificates()
         return;
     }
 
-    openssl_pkey_export_to_file($server_key, $tempDir . "/Server.key", null, $config);
+    openssl_pkey_export_to_file($server_key, $tempDir . "/Server.key", null);
     openssl_x509_export_to_file($server_crt, $tempDir . "/Server.crt");
 
     /* Create the client certificate for the 'admin' user */
@@ -457,37 +348,6 @@ if ($_SESSION["zip_error"]) {
   <head>
     <script>
 
-
-    /* If Enable User Certificate Authentication is set to "Yes", check the following:
-     * - The Client certificate validation period is > 0
-     * - The CertificateAuthority.key path is not empty
-     * - The CertificateAuthority.crt path is not empty
-     */
-    /*function save_click() {
-        if (document.ssl_frm.isClientAuthenticationEnabled[0].checked) {
-            if(document.ssl_certificate_frm.clientCertValidity.value > 0) {
-                document.ssl_frm.clientCertValidity_hidden.value = document.ssl_certificate_frm.clientCertValidity.value;
-            }
-            else {
-                alert (<?php xlj('Client certificate validity should be a valid number.'); ?>);
-                document.ssl_certificate_frm.clientCertValidity.focus();
-                return false;
-            }
-            if (document.ssl_frm.cakey_location.value == "") {
-                alert (<?php xlj('Certificate Authority key file location cannot be empty'); ?>);
-                document.ssl_frm.cakey_location.focus();
-                return false;
-            }
-
-            if (document.ssl_frm.cacrt_location.value == "") {
-                alert (<?php xlj('Certificate Authority crt file location cannot be empty'); ?>);
-                document.ssl_frm.cacrt_location.focus();
-                return false;
-            }
-        }
-        return true;
-    }*/
-
     //check whether email id is valid or not
     function checkEmail(email) {
     var str=email;
@@ -528,7 +388,7 @@ if ($_SESSION["zip_error"]) {
     }
     function download_click(){
         if (document.ssl_certificate_frm.commonName.value == "") {
-            alert (<?php xlj('Host Name cannot be empty'); ?>);
+            alert (<?php echo xlj('Host Name cannot be empty'); ?>);
             document.ssl_certificate_frm.commonName.focus();
             return false;
         }
@@ -536,18 +396,18 @@ if ($_SESSION["zip_error"]) {
         if (document.ssl_certificate_frm.emailAddress.value) {
          //call checkEmail function
              if(checkEmail(document.ssl_certificate_frm.emailAddress.value) == false){
-        alert (<?php xlj('Provide valid Email Address'); ?>);
+        alert (<?php echo xlj('Provide valid Email Address'); ?>);
         return false;
          }
         }
 
         if (document.ssl_certificate_frm.countryName.value.length > 2) {
-            alert (<?php xlj('Country Name should be represent in two letters. (Example: United States is US)'); ?>);
+            alert (<?php echo xlj('Country Name should be represent in two letters. (Example: United States is US)'); ?>);
             document.ssl_certificate_frm.countryName.focus();
             return false;
         }
         if (document.ssl_certificate_frm.clientCertValidity.value < 1) {
-            alert (<?php xlj('Client certificate validity should be a valid number.'); ?>);
+            alert (<?php echo xlj('Client certificate validity should be a valid number.'); ?>);
             document.ssl_certificate_frm.clientCertValidity.focus();
             return false;
         }
@@ -556,19 +416,19 @@ if ($_SESSION["zip_error"]) {
 
         /*if(document.ssl_frm.isClientAuthenticationEnabled[1].checked == true)
         {
-        alert (<?php xlj('User Certificate Authentication is disabled'); ?>);
+        alert (<?php echo xlj('User Certificate Authentication is disabled'); ?>);
             return false;
         }*/
 
         if (document.client_cert_frm.client_cert_user.value == "") {
-            alert (<?php xlj('User name or Host name cannot be empty'); ?>);
+            alert (<?php echo xlj('User name or Host name cannot be empty'); ?>);
             document.ssl_certificate_frm.commonName.focus();
             return false;
         }
     if (document.client_cert_frm.client_cert_email.value) {
          //call checkEmail function
              if(checkEmail(document.client_cert_frm.client_cert_email.value) == false){
-        alert (<?php xlj('Provide valid Email Address'); ?>);
+        alert (<?php echo xlj('Provide valid Email Address'); ?>);
         return false;
          }
         }
@@ -691,6 +551,11 @@ if ($_SESSION["zip_error"]) {
         <td><input name='clientCertValidity' type='text' onkeypress='return isNumberKey(event)' value='365'></td>
         <td><?php echo xlt('days'); ?></td>
       </tr>
+      <tr class='text'>
+        <td><?php echo xlt('Client certificate passphrase'); ?>:</td>
+        <td><input name='clientPassPhrase' type='text' value=''></td>
+        <td><?php echo xlt('Not required. This password is for generated admin.p12'); ?></td>
+      </tr>
       <tr>
         <td colspan=3 align='center'>
           <input name='sslcrt' type='submit' onclick='return download_click();' value='<?php echo xla('Download Certificates'); ?>'>
@@ -729,53 +594,20 @@ if ($_SESSION["zip_error"]) {
     SSLVerifyClient require<br />
     SSLVerifyDepth 2<br />
     SSLOptions +StdEnvVars<br />
-    <!--/br> <b><?php echo xlt('Configure Openemr to use Client side SSL certificates'); ?> </b><br />
-    <input type='hidden' name='clientCertValidity_hidden' value=''>
-      <input type='hidden' name='mode' value='save_ssl_settings'><br />
-      <table cellpadding=0 cellspacing=0>
-        <tr class='text'>
-          <td><?php echo xlt('Enable User Certificate Authentication'); ?>:</td>
-          <td>
-            <input name='isClientAuthenticationEnabled' type='radio' value='Yes'
-                <?php echo ($GLOBALS['is_client_ssl_enabled']) ? "checked" : ""; ?> > <?php echo xlt('Yes'); ?>
-            <input name='isClientAuthenticationEnabled' type='radio' value='No'  <?php echo (!$GLOBALS['is_client_ssl_enabled']) ? "checked" : ""; ?> > <?php echo xlt('No'); ?>
-          </td>
-        </tr>
-        <tr><td>&nbsp;</td></tr>
-        <tr class='text'>
-          <td>CertificateAuthority.key <?php echo xlt('file location'); ?>: </td>
-          <td>
-            <input type='hidden' name='hiden_cakey' />
-            <input name='cakey_location' type='text' size=20 value='<?php echo attr($GLOBALS['certificate_authority_key']); ?>' /> (<?php echo xlt('Provide absolute path'); ?>)
-          </td>
-        </tr>
-        <tr class='text'>
-          <td>CertificateAuthority.crt <?php echo xlt('file location'); ?>: </td>
-          <td>
-            <input type='hidden' name='hiden_cacrt' />
-            <input name='cacrt_location' type=text size=20 value='<?php echo attr($GLOBALS['certificate_authority_crt']); ?>'/> (<?php echo xlt('Provide absolute path'); ?>)
-          </td>
-        </tr>
-      </table>
-      <br />
-      <input type='submit' value='<?php echo xla('Save Certificate Settings'); ?>' onclick='return save_click();'-->
     <br /> <b><?php echo xlt('Configure Openemr to use Client side SSL certificates'); ?> </b><br />
       <input type='hidden' name='clientCertValidity_hidden' value=''>
       <br />
 
-            <?php echo xlt('Update the following variables in file'); ?>: globals.php<br /><br />
-        <?php echo xlt('To enable Client side ssl certificates'); ?><br />
-        <?php echo xlt('Set'); ?> 'is_client_ssl_enabled' <?php echo xlt('to{{Destination}}'); ?> 'true' <br /><br />
-        <?php echo xlt('Provide absolute path of file'); ?> CertificateAuthority.key<br />
-        <?php echo xlt('Set'); ?> 'certificate_authority_key' <?php echo xlt('to absolute path of file'); ?> 'CertificateAuthority.key'<br /><br />
-        <?php echo xlt('Provide absolute path of file'); ?> CertificateAuthority.crt<br />
-            <?php echo xlt('Set'); ?> 'certificate_authority_crt' <?php echo xlt('to absolute path of file'); ?> 'CertificateAuthority.crt'<br />
+        <?php echo xlt('Update the following settings in Administration->Globals->Security'); ?>:<br />
+        <?php echo xlt('Turn on Enable Client SSL'); ?><br />
+        <?php echo xlt('Provide absolute path of following file in Path to CA Certificate File'); ?> CertificateAuthority.crt<br />
+        <?php echo xlt('Provide absolute path of following file in Path to CA Key File'); ?> CertificateAuthority.key<br />
      <br />
     <br /><?php echo xlt('Note'); ?>:
     <ul>
       <li><?php echo xlt('To Enable Client side SSL certificates authentication, HTTPS should be enabled.'); ?>
       <li><?php echo xlt('After performing above configurations, import the admin client certificate to the browser and restart Apache server (empty password).'); ?>
-      <li><?php echo xlt('To Disable client side SSL certificates, comment above lines in Apache configuration file and set'); ?> 'false' <?php echo xlt('for variable'); ?> 'is_client_ssl_enabled' (globals.php) <?php echo xlt('and restart Apache server.'); ?>
+      <li><?php echo xlt('To Disable client side SSL certificates, comment above lines in Apache configuration file and turn off the \'Enable Client SSL\' global setting in OpenEMR and restart Apache server.'); ?>
     </form>
   </div>
   <br />
@@ -803,6 +635,11 @@ if ($_SESSION["zip_error"]) {
         <tr class='text'>
           <td><?php echo xlt('Email'); ?>:</td>
           <td><input type='text' name='client_cert_email' size=20 />
+        </tr>
+        <tr class='text'>
+          <td><?php echo xlt('Client certificate passphrase'); ?>:</td>
+          <td><input name='clientPassPhrase' type='password' value=''></td>
+          <td><?php echo xlt('Not required.'); ?></td>
         </tr>
       </table>
       <br /> <input type='submit' onclick='return create_client_certificate_click();' value='<?php echo xla('Create Client Certificate'); ?>'>

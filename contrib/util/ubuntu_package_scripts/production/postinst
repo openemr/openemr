@@ -177,6 +177,7 @@ case "$1" in
             SQLPASSWORD=$(collect_var ${SITENAME}_sqlpassword $CONFIG)
             SQLDATABASE=$(collect_var ${SITENAME}_sqldatabase $CONFIG)
             SQLUTFFLAG=$(collect_var ${SITENAME}_sqlutfflag $CONFIG)
+            SQLENCODING=$(collect_var ${SITENAME}_sqlencoding $CONFIG)
 
             #configure database configuration file
             insert_var "\$host" "\'$SQLLOCATION\';"             $SITEDIR/$SITENAME/sqlconf.php
@@ -184,6 +185,7 @@ case "$1" in
             insert_var "\$pass" "\'$SQLPASSWORD\';"             $SITEDIR/$SITENAME/sqlconf.php
             insert_var "\$dbase" "\'$SQLDATABASE\';"            $SITEDIR/$SITENAME/sqlconf.php
             insert_var "\$disable_utf8_flag" "$SQLUTFFLAG;"     $SITEDIR/$SITENAME/sqlconf.php
+            insert_var "\$db_encoding" "$SQLENCODING;"          $SITEDIR/$SITENAME/sqlconf.php
             sed -i "s/^[   ]*\$config[     =].*0/\$config = 1/" $SITEDIR/$SITENAME/sqlconf.php
 
             #upgrade the sql database
@@ -267,12 +269,10 @@ case "$1" in
 
          #secure openemr
          chown -Rf root:root $OPENEMR
-         chmod 600 $OPENEMR/acl_setup.php
          chmod 600 $OPENEMR/acl_upgrade.php
          chmod 600 $OPENEMR/setup.php
          chmod 600 $OPENEMR/sql_upgrade.php
          chmod 600 $OPENEMR/ippf_upgrade.php
-         chmod 600 $OPENEMR/gacl/setup.php
 
          #set writable directories (that are within sites directory)
          # (go through each site)
@@ -562,12 +562,10 @@ case "$1" in
          rm -f $INSTTEMP
 
          #remove global permission to all setup scripts
-         chmod 600 $OPENEMR/acl_setup.php
          chmod 600 $OPENEMR/acl_upgrade.php
          chmod 600 $OPENEMR/setup.php
          chmod 600 $OPENEMR/sql_upgrade.php
          chmod 600 $OPENEMR/ippf_upgrade.php
-         chmod 600 $OPENEMR/gacl/setup.php
 
          log_only "Done configuring OpenEMR"
       fi

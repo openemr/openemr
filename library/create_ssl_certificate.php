@@ -1,23 +1,18 @@
 <?php
 
-/********************************************************************************\
- * Copyright (C) visolve (vicareplus_engg@visolve.com)                          *
- *                                                                              *
- * This program is free software; you can redistribute it and/or                *
- * modify it under the terms of the GNU General Public License                  *
- * as published by the Free Software Foundation; either version 2               *
- * of the License, or (at your option) any later version.                       *
- *                                                                              *
- * This program is distributed in the hope that it will be useful,              *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
- * GNU General Public License for more details.                                 *
- *                                                                              *
- * You should have received a copy of the GNU General Public License            *
- * along with this program; if not, write to the Free Software                  *
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
- ********************************************************************************/
-
+/**
+ * library/create_ssl_certificate.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    visolve <vicareplus_engg@visolve.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) visolve <vicareplus_engg@visolve.com>
+ * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 /* This file contains routines for creating SSL certificates */
 
@@ -74,22 +69,18 @@ function create_csr(
         $dn = array_merge($dn, array("organizationalUnitName" => $organizationalUnitName));
     }
 
-    /* OpenSSL functions need the path to the openssl.cnf file */
-    $opensslConf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
-    $config = array('config' => $opensslConf);
-
     /* Create the public/private key pair */
-    $privkey = openssl_pkey_new($config);
+    $privkey = openssl_pkey_new();
     if ($privkey === false) {
         return false;
     }
 
-    $csr = openssl_csr_new($dn, $privkey, $config);
+    $csr = openssl_csr_new($dn, $privkey);
     if ($csr === false) {
         return false;
     }
 
-    return array($csr, $privkey, $config);
+    return array($csr, $privkey);
 }
 
 
@@ -102,15 +93,7 @@ function create_csr(
  */
 function create_crt($csr, $cacert, $cakey)
 {
-
-    $opensslConf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
-    $config = array('config' => $opensslConf);
-
-    // Fix server certificate is a CA certificate (BasicConstraints: CA == TRUE !?)
-    if ($cacert) {
-        $config["x509_extensions"] = "v3_req";
-    }
-    $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, $config, rand(1000, 9999));
+    $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, ['digest_alg' => 'sha256'], rand(1000, 9999));
     return $cert;
 }
 
@@ -127,10 +110,6 @@ function create_crt($csr, $cacert, $cakey)
  */
 function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $cakey, $valid_days)
 {
-
-    $opensslConf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
-    $config = array('config' => $opensslConf);
-
     /* Generate a certificate signing request */
     $arr = create_csr($commonName, $emailAddress, "", "", "", "", "");
     if ($arr === false) {
@@ -141,7 +120,7 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     $privkey = $arr[1];
 
     /* user id is used as serial number to sign a certificate */
-    $serial = 0;
+    $serial = (is_int($serial)) ? $serial : 0;
     $res = sqlStatement("SELECT id FROM users WHERE username = ?", array($commonName));
     if ($row = sqlFetchArray($res)) {
         $serial = $row['id'];
@@ -152,7 +131,7 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
         file_get_contents($cacert),
         file_get_contents($cakey),
         $valid_days,
-        $config,
+        ['digest_alg' => 'sha256'],
         $serial
     );
 
@@ -163,7 +142,8 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     /* Convert the user certificate to .p12 (PKCS 12) format, which is the
      * standard format used by browsers.
      */
-    if (openssl_pkcs12_export($cert, $p12Out, $privkey, "") === false) {
+    $clientPassPhrase = trim($_POST['clientPassPhrase']);
+    if (openssl_pkcs12_export($cert, $p12Out, $privkey, $clientPassPhrase) === false) {
         return false;
     }
 

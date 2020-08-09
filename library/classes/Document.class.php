@@ -528,9 +528,8 @@ class Document extends ORDataObject
             $couchresp = $couch->retrieve_doc($data);
             // CouchDB doesnot support updating a single value in a document.
             // Have to retrieve the entire document, update the necessary value and save again
-            list ($db, $docid, $revid, $patient_id, $encounter, $type, $json) = $data;
             $data = array($db, $couch_docid, $couch_revid, $new_patient_id, $couchresp->encounter,
-            $couchresp->mimetype, json_encode($couchresp->data), json_encode($couchresp->th_data));
+            $couchresp->mimetype, $couchresp->data, $couchresp->th_data);
             $resp = $couch->update_doc($data);
             // Sometimes the response from CouchDB is not available, still it would
             // have saved in the DB. Hence check one more time.
@@ -617,16 +616,24 @@ class Document extends ORDataObject
             $couch = new CouchDB();
             $docname = $_SESSION['authUserID'] . $filename . $patient_id . $encounter_id . date("%Y-%m-%d H:i:s");
             $docid = $couch->stringToId($docname);
-            $json = json_encode(base64_encode($data));
+            if ($GLOBALS['couchdb_encryption']) {
+                $document = $cryptoGen->encryptStandard($data, null, 'database');
+            } else {
+                $document = base64_encode($data);
+            }
             if ($has_thumbnail) {
-                $th_json = json_encode(base64_encode($thumbnail_data));
+                if ($GLOBALS['couchdb_encryption']) {
+                    $th_document = $cryptoGen->encryptStandard($thumbnail_data, null, 'database');
+                } else {
+                    $th_document = base64_encode($thumbnail_data);
+                }
                 $this->thumb_url = $this->get_thumb_name($filename);
             } else {
-                $th_json = false;
+                $th_document = false;
             }
 
             $db = $GLOBALS['couchdb_dbase'];
-            $couchdata = array($db, $docid, $patient_id, $encounter_id, $mimetype, $json, $th_json);
+            $couchdata = array($db, $docid, $patient_id, $encounter_id, $mimetype, $document, $th_document);
             $resp = $couch->check_saveDOC($couchdata);
             if (!$resp->id || !$resp->_rev) {
                 // Not sure what this is supposed to do.  The references to id, rev,
@@ -734,7 +741,7 @@ class Document extends ORDataObject
             }
         }
 
-        if ($GLOBALS['drive_encryption'] && ($this->storagemethod != 1)) {
+        if (($GLOBALS['drive_encryption'] && ($this->storagemethod != 1)) || ($GLOBALS['couchdb_encryption'] && ($this->storagemethod == 1))) {
             $this->set_encrypted(1);
         } else {
             $this->set_encrypted(0);

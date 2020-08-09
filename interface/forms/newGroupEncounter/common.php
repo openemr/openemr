@@ -55,7 +55,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   "pid = ? AND enddate IS NULL " .
   "ORDER BY type, begdate", array($pid));
 */?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
 
@@ -165,9 +165,7 @@ $help_icon = '';
             <!-- Required for the popup date selectors -->
             <div id="overDiv" class="position-absolute" style="visibility: hidden; z-index: 1000;"></div>
             <div>
-                <div class="page-header">
-                    <h2><?php echo text($heading_caption); ?><?php echo $help_icon; ?></h2>
-                </div>
+                <h2><?php echo text($heading_caption); ?><?php echo $help_icon; ?></h2>
             </div>
             <form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newGroupEncounter/save.php" name='new_encounter'>
                 <?php if ($viewmode) { ?>

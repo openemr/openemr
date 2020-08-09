@@ -127,9 +127,7 @@ endforeach;
     <body class="body_top">
         <div class="container">
             <div class="row">
-                <div class="page-header">
-                    <h2><?php echo xlt('Care Plan Form'); ?></h2>
-                </div>
+                <h2><?php echo xlt('Care Plan Form'); ?></h2>
             </div>
             <div class="row">
             <?php echo "<form method='post' name='my_form' " . "action='$rootdir/forms/care_plan/save.php?id=" . attr_url($formid) . "'>\n"; ?>

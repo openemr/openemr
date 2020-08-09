@@ -93,7 +93,7 @@ if ($formid) {
 <html>
 <head>
     <?php Header::setupHeader(); ?>
-<script language='JavaScript'>
+<script>
  function newEvt() {
   dlgopen('../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>,
    '_blank', 775, 500);

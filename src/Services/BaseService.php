@@ -14,6 +14,8 @@ namespace OpenEMR\Services;
 
 use Particle\Validator\Exception\InvalidValueException;
 
+require_once(__DIR__  . '/../../custom/code_types.inc.php');
+
 class BaseService
 {
     /**
@@ -341,5 +343,23 @@ class BaseService
             },
             ARRAY_FILTER_USE_KEY
         );
+    }
+
+    /**
+     * Convert Diagnosis Codes String to Code:Description Array
+     *
+     * @param string $diagnosis                 - All Diagnosis Codes
+     * @return array Array of Code as Key and Description as Value
+     */
+    protected function addCoding($diagnosis)
+    {
+        $diags = explode(";", $diagnosis);
+        $diagnosis = array();
+        foreach ($diags as $diag) {
+            $codedesc = lookup_code_descriptions($diag);
+            $code = explode(':', $diag)[1];
+            $diagnosis[$code] = $codedesc;
+        }
+        return $diagnosis;
     }
 }

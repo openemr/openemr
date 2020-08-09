@@ -207,6 +207,9 @@ $GLOBALS['webroot'] = $web_root;
 // (it is very likely that this path will be changed in the future))
 $GLOBALS['assets_static_relative'] = "$web_root/public/assets";
 
+// Relative themes directory, relative to the webserver root.
+$GLOBALS['themes_static_relative'] = "$web_root/public/themes";
+
 // Relative images directory, relative to the webserver root.
 $GLOBALS['images_static_relative'] = "$web_root/public/images";
 

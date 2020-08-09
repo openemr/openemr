@@ -491,13 +491,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <div class="page-header">
-                    <h2><?php echo xlt('Edit Current Patient');?></h2>
-                </div>
+                <h2><?php echo xlt('Edit Current Patient');?></h2>
             </div>
             <div class="col-12">
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-secondary btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
+                    <button type="submit" class="btn btn-primary btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
                         <?php echo xlt('Save'); ?>
                     </button>
                     <a class="btn btn-secondary btn-cancel" href="demographics.php" onclick="top.restoreSession()">
@@ -667,7 +665,7 @@ echo xlt($CapInstype); ?></a></li><?php } ?>
             <tr>
              <td><label class='required'><?php echo xlt('Group Number'); ?></label></td>
              <td class='required'>:</td>
-             <td><input type=entry class='form-control' size='16' name=i<?php echo attr($i); ?>group_number value="<?php echo attr($result3["group_number"]); ?>" onkeyup='policykeyup(this)'></td>
+             <td><input type="text" class='form-control' size='16' name=i<?php echo attr($i); ?>group_number value="<?php echo attr($result3["group_number"]); ?>" onkeyup='policykeyup(this)'></td>
             </tr>
 
             <tr<?php if ($GLOBALS['omit_employers']) {

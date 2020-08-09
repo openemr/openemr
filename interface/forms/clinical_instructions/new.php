@@ -33,9 +33,7 @@ $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array(
     <body class="body_top">
         <div class="container">
             <div class="row">
-                <div class="page-header">
-                    <h2><?php echo xlt('Clinical Instructions'); ?></h2>
-                </div>
+                <h2><?php echo xlt('Clinical Instructions'); ?></h2>
             </div>
             <div class="row">
                 <form method="post" name="my_form" action="<?php echo $rootdir; ?>/forms/clinical_instructions/save.php?id=<?php echo attr_url($formid); ?>">

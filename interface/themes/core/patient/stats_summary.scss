@@ -3,24 +3,26 @@
  * seen in the patient summary screen
  *============================================================*/
 
-#patient_stats_summary table {
-  border-collapse: collapse;
-}
+#patient_stats_summary {
+  table {
+    border-collapse: collapse;
+  }
 
-#patient_stats_summary .noend_noreturn {
-  color: $danger;
-}
+  .noend_noreturn {
+    color: $danger;
+  }
 
-#patient_stats_summary .noend {
-  color: $orange;
-}
+  .noend {
+    color: $orange;
+  }
 
-#patient_stats_summary .noreturn {
-  color: $primary;
-}
+  .noreturn {
+    color: $primary;
+  }
 
-#patient_stats_summary .title {
-  @include font-size("1.1rem !important");
+  .title {
+    @include font-size("1.1rem");
+  }
 }
 
 #patient_stats_issues,

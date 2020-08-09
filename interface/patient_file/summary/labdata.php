@@ -75,7 +75,11 @@ echo "<html><head>";
 
 <?php Header::setupHeader('dygraphs'); ?>
 
-<link rel="stylesheet" href="<?php echo $web_root; ?>/interface/themes/labdata.css">
+<?php if ($_SESSION['language_direction'] == "rtl") { ?>
+  <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_labdata.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+<?php } else { ?>
+  <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/labdata.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+<?php } ?>
 
 <script>
 function checkAll(bx) {

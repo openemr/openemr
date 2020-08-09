@@ -254,18 +254,20 @@ class EncounterccdadispatchController extends AbstractActionController
             throw new Exception("Please Enable C-CDA Alternate Service in Global Settings");
         }
 
+
         $data = chr(11) . $data . chr(28) . "\r";
         // Write to socket!
         $out = socket_write($socket, $data, strlen($data));
 
+        socket_set_nonblock($socket);
         //Read from socket!
         do {
             $line = "";
-            $line = socket_read($socket, 1024, PHP_NORMAL_READ);
+            $line = trim(socket_read($socket, 1024, PHP_NORMAL_READ));
             $output .= $line;
-        } while ($line != "");
+        } while (!empty($line) && $line !== false);
 
-        $output = substr(trim($output), 0, strlen($output) - 3);
+        $output = substr(trim($output), 0, strlen($output) - 1);
         // Close and return.
         socket_close($socket);
         return $output;

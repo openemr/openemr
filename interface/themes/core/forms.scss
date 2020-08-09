@@ -22,10 +22,10 @@
 
 .formtable {
   line-height: 24px;
-}
 
-.formtable tr td {
-  line-height: 24px;
+  tr td {
+    line-height: 24px;
+  }
 }
 
 .report_search_bar {
@@ -37,16 +37,16 @@
 #flow_board_parameters {
   background-color: $gray-200;
   margin: 25px auto;
-}
 
-#flow_board_parameters td {
-  padding: 10px;
-}
+  td {
+    padding: 10px;
+  }
 
-#flow_board_parameters table {
-  border: 1px solid;
-  border-collapse: collapse;
-  width: 100%;
+  table {
+    border: 1px solid;
+    border-collapse: collapse;
+    width: 100%;
+  }
 }
 
 .oe-empty-label {
