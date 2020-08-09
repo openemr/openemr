@@ -675,7 +675,7 @@ $(function () {
                             if(data=="SUCCESS") {
                                 $("#ccr_send_message").html(<?php
                                     echo xlj('Your message was submitted for delivery to');
-                                    ?>+ " " + ccrRecipient);
+                                ?>+ " " + ccrRecipient);
                                 $("#ccr_send_to").val("");
                             } else {
                                 $("#ccr_send_message").html(data);
