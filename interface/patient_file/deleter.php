@@ -461,7 +461,7 @@ function popup_close() {
 
         <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-            <p>&nbsp;<br /><?php echo xlt('Do you really want to delete'); ?>
+            <p><?php echo xlt('Do you really want to delete'); ?>
             <?php
             if ($patient) {
                 echo xlt('patient') . " " . text($patient);
