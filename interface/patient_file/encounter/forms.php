@@ -686,6 +686,10 @@ if ($StringEcho) {
     $StringEcho .= "</ul>" . $StringEcho2;
 }
 ?>
+<!--
+    This table shouldn't add the Bootstrap classes, it will mess up the navbar.
+    The comment: https://git.io/JJMBE
+ -->
 <table class="mx-auto">
   <tr>
     <td class="align-top"><?php echo $StringEcho; ?></td>
