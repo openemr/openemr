@@ -87,72 +87,74 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php
                 if ($result = getTransByPid($pid)) {
                     ?>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col">&nbsp;</th>
-                                <th scope="col"><?php echo xlt('Type'); ?></th>
-                                <th scope="col"><?php echo xlt('Date'); ?></th>
-                                <th scope="col"><?php echo xlt('User'); ?></th>
-                                <th scope="col"><?php echo xlt('Details'); ?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            foreach ($result as $item) {
-                                if (!isset($item['body'])) {
-                                    $item['body'] = '';
-                                }
-
-                                // Collect date
-                                if (!empty($item['refer_date'])) {
-                                    // Special case for referrals, which uses refer_date stored in lbt_data table
-                                    //  rather than date in transactions table.
-                                    //  (note this only contains a date without a time)
-                                    $date = oeFormatShortDate($item['refer_date']);
-                                } else {
-                                    $date = oeFormatDateTime($item['date']);
-                                }
-
-                                $id = $item['id'];
-                                $edit = xl('View/Edit');
-                                $view = xl('Print'); //actually prints or displays ready to print
-                                $delete = xl('Delete');
-                                $title = xl($item['title']);
-                                ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <div class="btn-group oe-pull-toward">
-                                            <a href='add_transaction.php?transid=<?php echo attr_url($id); ?>&title=<?php echo attr_url($title); ?>&inmode=edit'
-                                                onclick='top.restoreSession()'
-                                                class='btn btn-primary btn-edit'>
-                                                <?php echo text($edit); ?>
-                                            </a>
-                                            <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
-                                                <a href='#'
-                                                    onclick='deleteme(<?php echo attr_js($id); ?>)'
-                                                    class='btn btn-danger btn-delete'>
-                                                    <?php echo text($delete); ?>
-                                                </a>
-                                            <?php } ?>
-                                            <?php if ($item['title'] == 'LBTref') { ?>
-                                                <a href='print_referral.php?transid=<?php echo attr_url($id); ?>' onclick='top.restoreSession();'
-                                                    class='btn btn-print btn-primary'>
-                                                    <?php echo text($view); ?>
-                                                </a>
-                                            <?php } ?>
-                                        </div>
-                                    </td>
-                                    <td><?php echo getLayoutTitle('Transactions', $item['title']); ?></td>
-                                    <td><?php echo text($date); ?></td>
-                                    <td><?php echo text($item['user']); ?></td>
-                                    <td><?php echo text($item['body']); ?></td>
+                                    <th scope="col">&nbsp;</th>
+                                    <th scope="col"><?php echo xlt('Type'); ?></th>
+                                    <th scope="col"><?php echo xlt('Date'); ?></th>
+                                    <th scope="col"><?php echo xlt('User'); ?></th>
+                                    <th scope="col"><?php echo xlt('Details'); ?></th>
                                 </tr>
+                            </thead>
+                            <tbody>
                                 <?php
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+                                foreach ($result as $item) {
+                                    if (!isset($item['body'])) {
+                                        $item['body'] = '';
+                                    }
+
+                                    // Collect date
+                                    if (!empty($item['refer_date'])) {
+                                        // Special case for referrals, which uses refer_date stored in lbt_data table
+                                        //  rather than date in transactions table.
+                                        //  (note this only contains a date without a time)
+                                        $date = oeFormatShortDate($item['refer_date']);
+                                    } else {
+                                        $date = oeFormatDateTime($item['date']);
+                                    }
+
+                                    $id = $item['id'];
+                                    $edit = xl('View/Edit');
+                                    $view = xl('Print'); //actually prints or displays ready to print
+                                    $delete = xl('Delete');
+                                    $title = xl($item['title']);
+                                    ?>
+                                    <tr>
+                                        <td>
+                                            <div class="btn-group oe-pull-toward">
+                                                <a href='add_transaction.php?transid=<?php echo attr_url($id); ?>&title=<?php echo attr_url($title); ?>&inmode=edit'
+                                                    onclick='top.restoreSession()'
+                                                    class='btn btn-primary btn-edit'>
+                                                    <?php echo text($edit); ?>
+                                                </a>
+                                                <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
+                                                    <a href='#'
+                                                        onclick='deleteme(<?php echo attr_js($id); ?>)'
+                                                        class='btn btn-danger btn-delete'>
+                                                        <?php echo text($delete); ?>
+                                                    </a>
+                                                <?php } ?>
+                                                <?php if ($item['title'] == 'LBTref') { ?>
+                                                    <a href='print_referral.php?transid=<?php echo attr_url($id); ?>' onclick='top.restoreSession();'
+                                                        class='btn btn-print btn-primary'>
+                                                        <?php echo text($view); ?>
+                                                    </a>
+                                                <?php } ?>
+                                            </div>
+                                        </td>
+                                        <td><?php echo getLayoutTitle('Transactions', $item['title']); ?></td>
+                                        <td><?php echo text($date); ?></td>
+                                        <td><?php echo text($item['user']); ?></td>
+                                        <td><?php echo text($item['body']); ?></td>
+                                    </tr>
+                                    <?php
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                     <?php
                 } else {
                     ?>

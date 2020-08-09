@@ -251,8 +251,8 @@ function zip_content($source, $destination, $content = '', $create = true)
                 /******************************************************************/
                 // Setup Headers and Footers for mPDF only Download
                 // in HTML view it's just one line at the top of page 1
-                echo '<page_header style="text-align:right;" class="custom-tag"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '</page_header>    ';
-                echo '<page_footer style="text-align:right;" class="custom-tag">' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
+                echo '<page_header class="custom-tag text-right"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '</page_header>    ';
+                echo '<page_footer class="custom-tag text-right">' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
 
                 // Use logo if it exists as 'practice_logo.gif' in the site dir
                 // old code used the global custom dir which is no longer a valid
@@ -264,10 +264,10 @@ function zip_content($source, $destination, $content = '', $create = true)
                     $practice_logo = $plogo[$k];
                 }
 
-                echo "<div><table width='795'><tbody><tr><td>";
+                echo "<div class='table-responsive'><table class='table'><tbody><tr><td>";
                 if (file_exists($practice_logo)) {
                     $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename($practice_logo);
-                    echo "<img style='max-width:250px;height:auto;' src='$logo_path' align='left'>"; // keep size within reason
+                    echo "<img class='h-auto' style='max-width:250px;' src='$logo_path'>"; // keep size within reason
                     echo "</td><td>";
                 }
                 ?>
@@ -294,8 +294,8 @@ function zip_content($source, $destination, $content = '', $create = true)
                 </a>
                 <br />
 
-                <div class="report_search_bar w-100" id="search_options">
-                    <table>
+                <div class="report_search_bar table-responsive" id="search_options">
+                    <table class="table">
                         <tr>
                             <td>
                                 <input type="text" class="form-control" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element"/>
@@ -316,7 +316,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 <span><?php echo xlt('Match case'); ?></span>
                             </td>
                             <td style="padding-left: 10px;">
-                                <span class="text"><b><?php echo xlt('Search In'); ?>:</b></span>
+                                <span class="text font-weight-bold"><?php echo xlt('Search In'); ?>:</span>
                                 <br />
                                 <?php
                                 $form_id_arr = array();
@@ -411,12 +411,13 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 echo "<br />";
                                 echo "<span>" . xlt('Recurrence') . ': ' . text($row['pc_recurrspec']) . "</span>";
                                 echo "<br />";
-                                $red_text = ""; //if ends in a week, make font red
+
                                 if (ends_in_a_week($row['pc_endDate'])) {
-                                    $red_text = " style=\"color:red;\" ";
+                                    echo "<span class='text-danger'>" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
+                                } else {
+                                    echo "<span>" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
                                 }
 
-                                echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
                                 echo "</div>";
                                 echo "<br />";
                             }
@@ -430,9 +431,9 @@ function zip_content($source, $destination, $content = '', $create = true)
                         // printRecDataOne($patient_data_array, getRecPatientData ($pid), $N);
                         $result1 = getPatientData($pid);
                         $result2 = getEmployerData($pid);
-                        echo "   <table>\n";
+                        echo "   <div class='table-responsive'><table class='table'>\n";
                         display_layout_rows('DEM', $result1, $result2);
-                        echo "   </table>\n";
+                        echo "   </table></div>\n";
                         echo "</div>\n";
                     } elseif ($val == "history") {
                         echo "<hr />";
@@ -455,11 +456,11 @@ function zip_content($source, $destination, $content = '', $create = true)
                         echo "<hr />";
                         echo "<div class='text insurance'>";
                         echo "<h1>" . xlt('Insurance Data') . ":</h1>";
-                        print "<br /><span class=bold>" . xlt('Primary Insurance Data') . ":</span><br />";
+                        print "<br /><span class='font-weight-bold'>" . xlt('Primary Insurance Data') . ":</span><br />";
                         printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-                        print "<span class=bold>" . xlt('Secondary Insurance Data') . ":</span><br />";
+                        print "<span class='font-weight-bold'>" . xlt('Secondary Insurance Data') . ":</span><br />";
                         printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-                        print "<span class=bold>" . xlt('Tertiary Insurance Data') . ":</span><br />";
+                        print "<span class='font-weight-bold'>" . xlt('Tertiary Insurance Data') . ":</span><br />";
                         printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
                         echo "</div>";
                     } elseif ($val == "billing") {
@@ -469,7 +470,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                         if (!empty($ar['newpatient']) && count($ar['newpatient']) > 0) {
                             $billings = array();
                             echo "<table>";
-                            echo "<tr><td width='400' class='bold'>" . xlt('Code') . "</td><td class='bold'>" . xlt('Fee') . "</td></tr>\n";
+                            echo "<tr><td width='400' class='font-weight-bold'>" . xlt('Code') . "</td><td class='font-weight-bold'>" . xlt('Fee') . "</td></tr>\n";
                             $total = 0.00;
                             $copays = 0.00;
                             foreach ($ar['newpatient'] as $be) {
@@ -478,10 +479,10 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 $billings[] = $billing;
                                 foreach ($billing as $b) {
                                     echo "<tr>\n";
-                                    echo "<td class=text>";
+                                    echo "<td class='text'>";
                                     echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;" . text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                                     echo "</td>\n";
-                                    echo "<td class=text>";
+                                    echo "<td class='text'>";
                                     echo text(oeFormatMoney($b['fee']));
                                     echo "</td>\n";
                                     echo "</tr>\n";
@@ -493,9 +494,9 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
 
                             echo "<tr><td>&nbsp;</td></tr>";
-                            echo "<tr><td class=bold>" . xlt('Sub-Total') . "</td><td class=text>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-                            echo "<tr><td class=bold>" . xlt('Paid') . "</td><td class=text>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-                            echo "<tr><td class=bold>" . xlt('Total') . "</td><td class=text>" . text(oeFormatMoney($total)) . "</td></tr>";
+                            echo "<tr><td class='font-weight-bold'>" . xlt('Sub-Total') . "</td><td class=text>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+                            echo "<tr><td class='font-weight-bold'>" . xlt('Paid') . "</td><td class=text>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+                            echo "<tr><td class='font-weight-bold'>" . xlt('Total') . "</td><td class=text>" . text(oeFormatMoney($total)) . "</td></tr>";
                             echo "</table>";
                             echo "<pre>";
                             //print_r($billings);
@@ -590,7 +591,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                             $notes = $d->get_notes();
                             if (!empty($notes)) {
-                                echo "<table>";
+                                echo "<div class='table-responsive'><table class='table'>";
                             }
 
                             foreach ($notes as $note) {
@@ -606,7 +607,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
 
                             if (!empty($notes)) {
-                                echo "</table>";
+                                echo "</table></div>";
                             }
 
                             // adding support for .txt MDM-TXA interface/orders/receive_hl7_results.inc.php
@@ -752,7 +753,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                         // Show issue's chief diagnosis and its description:
                         if ($diagnosis) {
                             echo "<div class='text issue_diag'>";
-                            echo "<span class='bold'>[" . xlt('Diagnosis') . "]</span><br />";
+                            echo "<span class='font-weight-bold'>[" . xlt('Diagnosis') . "]</span><br />";
                             $dcodes = explode(";", $diagnosis);
                             foreach ($dcodes as $dcode) {
                                 echo "<span class='italic'>" . text($dcode) . "</span>: ";
@@ -765,13 +766,13 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                         // Supplemental data for GCAC or Contraception issues.
                         if ($irow['type'] == 'ippf_gcac') {
-                            echo "   <table>\n";
+                            echo "   <div class='table-responsive'><table class='table'>\n";
                             display_layout_rows('GCA', sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", array($rowid)));
-                            echo "   </table>\n";
+                            echo "   </table></div>\n";
                         } elseif ($irow['type'] == 'contraceptive') {
-                            echo "   <table>\n";
+                            echo "   <div class='table-responsive'><table class='table'>\n";
                             display_layout_rows('CON', sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", array($rowid)));
-                            echo "   </table>\n";
+                            echo "   </table></div>\n";
                         }
 
                         echo "</div>\n"; //end the issue DIV
@@ -840,7 +841,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                     array($pid, $form_encounter)
                                 );
                                 while ($brow = sqlFetchArray($bres)) {
-                                    echo "<div class='bold' style='display: inline-block'>&nbsp;" . xlt('Procedure') . ": </div><div class='text' style='display: inline-block'>" .
+                                    echo "<div class='font-weight-bold d-inline-block'>&nbsp;" . xlt('Procedure') . ": </div><div class='text d-inline-block'>" .
                                         text($brow['code']) . " " . text($brow['code_text']) . "</div><br />\n";
                                 }
                             }

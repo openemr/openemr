@@ -168,7 +168,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             echo "  <span class='title'>" . text($disptype) . "</span>\n";
-                            echo "<table class='table mb-3'>";
+                            echo "<div class='table-responsive'><table class='table mb-3'>";
                             ?>
 
                             <thead>
@@ -298,7 +298,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                         }
 
-                        echo "</table>";
+                        echo "</table></div>";
                         ?>
                     </table>
                 </div>

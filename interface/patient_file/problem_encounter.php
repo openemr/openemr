@@ -276,78 +276,84 @@ function doclick(pfx, id) {
             }
             echo "' />\n";
             ?>
-            <table class="table">
-                <tr>
-                    <td colspan='2' class="text-center font-weight-bold">
-                        <?php echo xlt('Issues and Encounters for'); ?> <?php echo text($patdata['fname']) . " " . text($patdata['lname']) . " (" . text($pid) . ")</b>\n"; ?>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-center align-top p-0 pl-3">
-                        <table class="table table-sm">
-                            <tr class='head'>
-                                <td colspan='3' class="text-center">
-                                    <input type='radio' name='form_key' value='p' onclick='clearall()' checked />
-                                    <span class="font-weight-bold"><?php echo xlt('Issues Section'); ?></span>
-                                </td>
-                            </tr>
-                            <tr class='head'>
-                                <td><?php echo xlt('Type'); ?></td>
-                                <td><?php echo xlt('Title'); ?></td>
-                                <td><?php echo xlt('Description'); ?></td>
-                            </tr>
-                            <?php
-                            while ($row = sqlFetchArray($pres)) {
-                                $rowid = $row['id'];
-                                echo "    <tr class='detail' id='p_" . attr($rowid) . "' onclick='doclick(\"p\", " . attr_js($rowid) . ")'>\n";
-                                echo "     <td class='align-top'>" . text($ISSUE_TYPES[($row['type'])][1]) . "</td>\n";
-                                echo "     <td class='align-top'>" . text($row['title']) . "</td>\n";
-                                echo "     <td class='align-top'>" . text($row['comments']) . "</td>\n";
-                                echo "    </tr>\n";
-                                $endjs .= "pselected[" . js_escape($rowid) . "] = '';\n";
-                            }
-                            ?>
-                        </table>
-                    </td>
-                    <td class="text-center align-top p-0 pr-3">
-                        <table class="table table-sm">
-                            <tr class='head'>
-                                <td colspan='2' class="text-center">
-                                    <input type='radio' name='form_key' value='e' onclick='clearall()' />
-                                    <span class="font-weight-bold"><?php echo xlt('Encounters Section'); ?></span>
-                                </td>
-                            </tr>
-                            <tr class='head'>
-                                <td><?php echo xlt('Date'); ?></td>
-                                <td><?php echo xlt('Presenting Complaint'); ?></td>
-                            </tr>
-                            <?php
-                            while ($row = sqlFetchArray($eres)) {
-                                $rowid = $row['encounter'];
-                                echo "    <tr class='detail' id='e_" . attr($rowid) . "' onclick='doclick(\"e\", " . attr_js($rowid) . ")'>\n";
-                                echo "     <td class='align-top'>" . text(substr($row['date'], 0, 10)) . "</td>\n";
-                                echo "     <td class='align-top'>" . text($row['reason']) . "</td>\n";
-                                echo "    </tr>\n";
-                                $endjs .= "eselected[" . js_escape($rowid) . "] = '';\n";
-                            }
-                            ?>
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan='2' class="text-center">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-primary btn-sm btn-save" name='form_save' value='<?php echo xla('Save'); ?>' disabled>
-                                <?php echo xlt('Save'); ?>
-                            </button>
-                            <button type="button" class="btn btn-primary btn-sm btn-add" value='<?php echo xla('Add Issue'); ?>' onclick='newIssue()'>
-                                <?php echo xlt('Add Issue'); ?>
-                            </button>
-                            <button type="button" class='btn btn-secondary btn-sm btn-cancel' onclick='dlgclose()'><?php echo xla('Cancel'); ?></button>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <td colspan='2' class="text-center font-weight-bold">
+                            <?php echo xlt('Issues and Encounters for'); ?> <?php echo text($patdata['fname']) . " " . text($patdata['lname']) . " (" . text($pid) . ")</b>\n"; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-center align-top p-0 pl-3">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tr class='head'>
+                                        <td colspan='3' class="text-center">
+                                            <input type='radio' name='form_key' value='p' onclick='clearall()' checked />
+                                            <span class="font-weight-bold"><?php echo xlt('Issues Section'); ?></span>
+                                        </td>
+                                    </tr>
+                                    <tr class='head'>
+                                        <td><?php echo xlt('Type'); ?></td>
+                                        <td><?php echo xlt('Title'); ?></td>
+                                        <td><?php echo xlt('Description'); ?></td>
+                                    </tr>
+                                    <?php
+                                    while ($row = sqlFetchArray($pres)) {
+                                        $rowid = $row['id'];
+                                        echo "    <tr class='detail' id='p_" . attr($rowid) . "' onclick='doclick(\"p\", " . attr_js($rowid) . ")'>\n";
+                                        echo "     <td class='align-top'>" . text($ISSUE_TYPES[($row['type'])][1]) . "</td>\n";
+                                        echo "     <td class='align-top'>" . text($row['title']) . "</td>\n";
+                                        echo "     <td class='align-top'>" . text($row['comments']) . "</td>\n";
+                                        echo "    </tr>\n";
+                                        $endjs .= "pselected[" . js_escape($rowid) . "] = '';\n";
+                                    }
+                                    ?>
+                                </table>
+                            </div>
+                        </td>
+                        <td class="text-center align-top p-0 pr-3">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tr class='head'>
+                                        <td colspan='2' class="text-center">
+                                            <input type='radio' name='form_key' value='e' onclick='clearall()' />
+                                            <span class="font-weight-bold"><?php echo xlt('Encounters Section'); ?></span>
+                                        </td>
+                                    </tr>
+                                    <tr class='head'>
+                                        <td><?php echo xlt('Date'); ?></td>
+                                        <td><?php echo xlt('Presenting Complaint'); ?></td>
+                                    </tr>
+                                    <?php
+                                    while ($row = sqlFetchArray($eres)) {
+                                        $rowid = $row['encounter'];
+                                        echo "    <tr class='detail' id='e_" . attr($rowid) . "' onclick='doclick(\"e\", " . attr_js($rowid) . ")'>\n";
+                                        echo "     <td class='align-top'>" . text(substr($row['date'], 0, 10)) . "</td>\n";
+                                        echo "     <td class='align-top'>" . text($row['reason']) . "</td>\n";
+                                        echo "    </tr>\n";
+                                        $endjs .= "eselected[" . js_escape($rowid) . "] = '';\n";
+                                    }
+                                    ?>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan='2' class="text-center">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary btn-sm btn-save" name='form_save' value='<?php echo xla('Save'); ?>' disabled>
+                                    <?php echo xlt('Save'); ?>
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm btn-add" value='<?php echo xla('Add Issue'); ?>' onclick='newIssue()'>
+                                    <?php echo xlt('Add Issue'); ?>
+                                </button>
+                                <button type="button" class='btn btn-secondary btn-sm btn-cancel' onclick='dlgclose()'><?php echo xla('Cancel'); ?></button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </form>
         <p>
             <span class="font-weight-bold"><?php echo xlt('Instructions:'); ?></span> <?php echo xlt('Choose a section and click an item within it; then in the other section you will see the related items highlighted, and you can click in that section to add and delete relationships.'); ?>

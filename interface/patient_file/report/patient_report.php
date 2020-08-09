@@ -142,20 +142,22 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <button type="button" class="viewCCR_send_dialog btn btn-primary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>"><?php echo xlt('Transmit'); ?></button>
                                     <br />
                                     <div id="ccr_send_dialog" style="display: none">
-                                    <br />
-                                        <table class="border-0" cellpadding="0" cellspacing="0">
-                                            <tr>
-                                                <td>
-                                                <span class='font-weight-bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
-                                                <input type="text" size="64" name="ccr_send_to" id="ccr_send_to" value="" />
-                                                <input type="hidden" name="ccr_sent_by" id="ccr_sent_by" value="user" />
-                                                <button type="button" class="viewCCR_transmit btn btn-primary btn-send-msg btn-sm" value="<?php echo xla('Send CCR'); ?>"><?php echo xlt('Send CCR'); ?></button>
-                                                <div id="ccr_send_result" style="display: none">
-                                                    <span class="text" id="ccr_send_message"></span>
-                                                </div>
-                                                </td>
-                                            </tr>
-                                        </table>
+                                        <br />
+                                        <div class="table-responsive">
+                                            <table class="table border-0">
+                                                <tr>
+                                                    <td>
+                                                        <span class='font-weight-bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
+                                                        <input type="text" size="64" name="ccr_send_to" id="ccr_send_to" value="" />
+                                                        <input type="hidden" name="ccr_sent_by" id="ccr_sent_by" value="user" />
+                                                        <button type="button" class="viewCCR_transmit btn btn-primary btn-send-msg btn-sm" value="<?php echo xla('Send CCR'); ?>"><?php echo xlt('Send CCR'); ?></button>
+                                                        <div id="ccr_send_result" style="display: none">
+                                                            <span class="text" id="ccr_send_message"></span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
                                     </div>
                                     <?php } ?>
                             </div>
@@ -180,11 +182,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     <?php echo xlt('Enter Recipient\'s Direct Address');?>:
                                                 </label>
                                             </div>
-                                            <div class="col">
+                                            <div class="col-md">
                                                 <input type="text" class="form-control" size="64" name="ccd_send_to" id="ccd_send_to" value="" />
                                                 <input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user" />
                                             </div>
-                                            <div class="col">
+                                            <div class="col-md">
                                                 <button type="button" class="viewCCD_transmit btn btn-primary btn-send-msg btn-sm" value="<?php echo xla('Send CCD'); ?>"><?php echo xlt('Send CCD'); ?></button>
                                             </div>
                                         </div>
@@ -277,7 +279,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         <div class="row issues_encounters_forms">
                             <!-- Issues -->
-                            <div class="col-6">
+                            <div class="col-md-6">
                                 <div class="issues table-responsive">
                                     <span class='font-weight-bold oe-report-section-header'><?php echo xlt('Issues'); ?>:</span>
                                     <br />
@@ -347,7 +349,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <button type="button" class="genpdfrep btn btn-primary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
                             </div>
                             <!-- Encounters and Forms -->
-                            <div class="col-6">
+                            <div class="col-md-6">
                                 <div class='encounters table-responsive'>
                                     <span class='font-weight-bold oe-report-section-header'><?php echo xlt('Encounters & Forms'); ?>:</span>
                                     <br />
@@ -512,7 +514,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <hr/>
                     <div>
 
-                    <span class="bold oe-report-section-header"><?php echo xlt('Documents'); ?>:</span><br />
+                    <span class="font-weight-bold oe-report-section-header"><?php echo xlt('Documents'); ?>:</span><br />
                     <ul>
                         <?php
                         // show available documents
