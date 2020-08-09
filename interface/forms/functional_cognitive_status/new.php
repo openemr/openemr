@@ -43,15 +43,6 @@ $check_res = $formid ? $check_res : array();
 
         <?php Header::setupHeader(['datetime-picker']);?>
 
-        <style>
-            @media only screen and (max-width: 768px) {
-                [class*="col-"] {
-                    width: 100%;
-                    text-align:left!Important;
-                }
-            }
-        </style>
-
         <script>
 
             function duplicateRow(e) {
@@ -141,10 +132,6 @@ $check_res = $formid ? $check_res : array();
             <div class="row">
                 <div class="col-12">
                     <h2><?php echo xlt('Functional and Cognitive Status Form'); ?></h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
                     <form method='post' name='my_form' action='<?php echo $rootdir; ?>/forms/functional_cognitive_status/save.php?id=<?php echo attr($formid); ?>'>
                         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                         <fieldset>
@@ -153,32 +140,31 @@ $check_res = $formid ? $check_res : array();
                             if (!empty($check_res)) {
                                 foreach ($check_res as $key => $obj) { ?>
                                     <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
-                                        <div class="form-row col">
-                                            <div class="forms col-2">
+                                        <div class="form-row">
+                                            <div class="forms col-md-2">
                                                 <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
                                                 <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo text($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                                 <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
                                                 <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo text($obj["codetext"]); ?>">
                                             </div>
-                                            <div class="forms col-2">
+                                            <div class="forms col-md-2">
                                                 <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
                                                 <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                                             </div>
-                                            <div class="forms col-2">
+                                            <div class="forms col-md-2">
                                                 <label for="activity_1" class="h5"><?php echo xlt('Active'); ?>:&nbsp;</label>
                                                 <br />
                                                 <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_<?php echo $key + 1; ?>" value="<?php echo attr($obj["activity"]); ?>" <?php echo ($obj["activity"] == 1) ? "checked='checked'" : ""; ?> class="activity">
                                                 <input  type="hidden" name="activity1[]" id="activity1_<?php echo $key + 1; ?>" value="<?php echo attr($obj["activity"]); ?>" class="activity1">
                                             </div>
-                                            <div class="forms col-4">
+                                            <div class="forms col-md-4">
                                                 <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Description'); ?>:</label>
                                                 <textarea name="description[]"  id="description_<?php echo attr($key) + 1; ?>" class="form-control description" rows="3" ><?php echo text($obj["description"]); ?></textarea>
                                             </div>
-                                            <div class="forms col-2">
+                                            <div class="forms col-md-2">
                                                 <i class="fa fa-plus-circle fa-2x" aria-hidden="true" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'></i>
                                                 <i class="fa fa-times-circle fa-2x text-danger"  aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
                                             </div>
-                                            <div class="clearfix"></div>
                                             <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>">
                                         </div>
                                     </div>
@@ -186,28 +172,28 @@ $check_res = $formid ? $check_res : array();
                                 }
                             } else { ?>
                                 <div class="tb_row" id="tb_row_1">
-                                    <div class="form-row col">
-                                            <div class="forms col-2">
+                                    <div class="form-row">
+                                            <div class="forms col-md-2">
                                                 <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
                                                 <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo text($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                                 <span id="displaytext_1"  class="displaytext help-block"></span>
                                                 <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo text($obj["codetext"]); ?>">
                                             </div>
-                                            <div class="forms col-2">
+                                            <div class="forms col-md-2">
                                                 <label for="code_date_1" class="h5"><?php echo xlt('Date'); ?>:</label>
                                                 <input type='text' id="code_date_1"  name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                                             </div>
-                                            <div class="forms col-1">
+                                            <div class="forms col-md-2">
                                                 <label for="activity_1" class="h5"><?php echo xlt('Active'); ?>:&nbsp;</label>
                                                 <br />
                                                 <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_1" value="0" class="activity">
                                                 <input type="hidden" name="activity1[]" id="activity1_1" value="0" class="activity1">
                                             </div>
-                                            <div class="forms col-4">
+                                            <div class="forms col-md-4">
                                                 <label for="description_1" class="h5"><?php echo xlt('Description'); ?>:</label>
                                                 <textarea name="description[]"  id="description_1" class="form-control description"  rows="3" ><?php echo text($obj["description"]); ?></textarea>
                                             </div>
-                                            <div class="forms col-2">
+                                            <div class="forms col-md-2">
                                                 <button type="button" class="btn btn-primary btn-sm btn-add" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
                                                     <?php echo xlt('Add'); ?>
                                                 </button>
@@ -215,7 +201,6 @@ $check_res = $formid ? $check_res : array();
                                                     <?php echo xlt('Delete'); ?>
                                                 </button>
                                             </div>
-                                            <div class="clearfix"></div>
                                             <input type="hidden" name="count[]" id="count_1" class="count" value="1">
                                     </div>
                                 </div>

@@ -38,10 +38,10 @@ $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array(
                     <form method="post" name="my_form" action="<?php echo $rootdir; ?>/forms/clinical_instructions/save.php?id=<?php echo attr_url($formid); ?>">
                         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                         <fieldset>
-                            <legend class=""><?php echo xlt('Instructions'); ?></legend>
-                                <div class="form-group">
-                                    <textarea name="instruction" id="instruction"   class="form-control" cols="80" rows="5" ><?php echo text($check_res['instruction']); ?></textarea>
-                                </div>
+                            <legend><?php echo xlt('Instructions'); ?></legend>
+                            <div class="form-group">
+                                <textarea name="instruction" id="instruction" class="form-control" cols="80" rows="5" ><?php echo text($check_res['instruction']); ?></textarea>
+                            </div>
                         </fieldset>
                         <div class="form-group clearfix">
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
