@@ -76,11 +76,11 @@ $arrOeUiSettings = array(
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
-<body class="body_top">
+<body>
 
-<div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+<div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-12">
             <?php
             if (AclMain::aclCheckCore('patients', 'med')) {
                 $tmp = getPatientData($pid, "squad");
@@ -118,7 +118,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="row">
             <div class="col-sm-12">
                 <div class="btn-group">
-                    <a href="history_full.php" class="btn btn-secondary btn-edit" onclick="top.restoreSession()">
+                    <a href="history_full.php" class="btn btn-primary btn-edit" onclick="top.restoreSession()">
                         <?php echo xlt("Edit");?>
                     </a>
                 </div>
