@@ -67,21 +67,19 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
 
     <div class="container">
         <div class="row">
-            <div class="col-12">
-                <h2><?php echo xlt('Billing Note'); ?></h2>
-                <form method='post' action='edit_billnote.php?feid=<?php echo attr_url($feid); ?>' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <textarea class='form-control' name='form_note'><?php echo text($fenote); ?></textarea>
-                    <div class="btn-group btn-group-sm mt-3">
-                        <button type='submit' class='btn btn-primary btn-save btn-sm' name='form_submit' value='<?php echo xla('Save'); ?>'>
-                            <?php echo xlt('Save'); ?>
-                        </button>
-                        <button type='submit' class='btn btn-secondary btn-cancel btn-sm' name='form_cancel' value='<?php echo xla('Cancel'); ?>'>
-                            <?php echo xla('Cancel'); ?>
-                        </button>
-                    </div>
-                </form>
-            </div>
+            <h2><?php echo xlt('Billing Note'); ?></h2>
+            <form method='post' action='edit_billnote.php?feid=<?php echo attr_url($feid); ?>' onsubmit='return top.restoreSession()'>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <textarea class='form-control' name='form_note'><?php echo text($fenote); ?></textarea>
+                <div class="btn-group btn-group-sm mt-3">
+                    <button type='submit' class='btn btn-primary btn-save btn-sm' name='form_submit' value='<?php echo xla('Save'); ?>'>
+                        <?php echo xlt('Save'); ?>
+                    </button>
+                    <button type='submit' class='btn btn-secondary btn-cancel btn-sm' name='form_cancel' value='<?php echo xla('Cancel'); ?>'>
+                        <?php echo xla('Cancel'); ?>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </body>
