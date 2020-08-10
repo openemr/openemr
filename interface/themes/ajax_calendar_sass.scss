@@ -499,7 +499,7 @@ div.tiny {
 @use "sass:meta";
 
 @if variable-exists("ovr-dark") {
-  .providerXbtn i {
+  .event_time {
     color: $ovr-dark !important;
   }
 
