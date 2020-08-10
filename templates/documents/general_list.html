@@ -68,10 +68,10 @@ border-radius: 4px 0 0 4px!important;
                     <legend>{xlt t='Documents List'}</legend>
                     <div class="pl-3">
                         <div class="form-inline float-right" id="patientSearch">
-                            <select id="selectPatient" class="form-control" type="text" data-placeholder="{$place_hld|attr}" style="width:150px;">
+                            <select id="selectPatient" class="form-control" type="text" data-placeholder="{$place_hld|attr}">
                                 <option></option>
                             </select>
-                            <button id='pid' type="button" class='float-right btn btn-primary pBtn' style="border-radius: 0 0.25rem 0.25rem 0">0</button>
+                            <button id='pid' type="button" class='float-right btn btn-primary pBtn'>&times;</button>
                         </div>
                         <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xlt t='Collapse all'})</a>
                         {$tree_html}

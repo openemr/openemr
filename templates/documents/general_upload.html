@@ -20,7 +20,6 @@
         <br/>
     </div>
     {/if}
-
     <div class="text">
         {xlt t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."}
         <br/>
@@ -82,7 +81,7 @@
         <p class='text font-weight-bold'>{xlt t="Download document template for this patient and visit"}</p>
         <div class="input-group">
             <span class="input-group-prepend">
-                <button type="submit" class="btn btn-download">{xlt t="Fetch"}</button>
+                <button type="submit" class="btn btn-primary btn-download">{xlt t="Fetch"}</button>
             </span>
             <select class="form-control" name='form_filename'>{$TEMPLATES_LIST}</select>
         </div>
