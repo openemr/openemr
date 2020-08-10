@@ -93,7 +93,7 @@ if ($_POST['confirm']) {
                     ?>
                     </p>
                     <div class="btn-group">
-                        <button class="btn btn-danger btn-delete" id="confirmbtn" name="confirmbtn" value='<?php echo xla('Yes, Delete this form'); ?>'>
+                        <button type="button" class="btn btn-danger btn-delete" id="confirmbtn" name="confirmbtn" value='<?php echo xla('Yes, Delete this form'); ?>'>
                             <?php echo xlt('Yes, Delete this form'); ?>
                         </button>
                         <button type="button" class="btn btn-secondary btn-cancel" id="cancel" name="cancel" value='<?php echo xla('Cancel'); ?>'>
