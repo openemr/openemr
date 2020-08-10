@@ -197,7 +197,7 @@ $check_res = $formid ? $check_res : array();
                                         <div class="form-row">
                                             <div class="forms col-md-2">
                                                 <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                                <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                                <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);' />
                                                 <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
                                                 <input type="hidden" id="description_<?php echo attr($key) + 1; ?>" name="description[]" class="description" value="<?php echo attr($obj["description"]); ?>" />
                                                 <input type="hidden" id="code_type_<?php echo attr($key) + 1; ?>" name="code_type[]" class="code_type" value="<?php echo attr($obj["code_type"]); ?>" />
@@ -212,7 +212,7 @@ $check_res = $formid ? $check_res : array();
                                                 }
                                                 ?>
                                                 <label id="ob_value_head_<?php echo attr($key) + 1; ?>" class="ob_value_head h5" <?php echo (!$obj["ob_value"]) ? "style='display: none;'" : "";?>><?php echo xlt('Value'); ?>:</label>
-                                                <input type="text" name="ob_value[]" id="ob_value_<?php echo attr($key) + 1; ?>" style="<?php echo $style; ?>" class="ob_value" value="<?php echo (($obj["code"] == '21612-7' || $obj["code"] == '8661-1') && $obj["code"] != 'SS003') ? attr($obj["ob_value"]) : ""; ?>">
+                                                <input type="text" name="ob_value[]" id="ob_value_<?php echo attr($key) + 1; ?>" style="<?php echo $style; ?>" class="ob_value" value="<?php echo (($obj["code"] == '21612-7' || $obj["code"] == '8661-1') && $obj["code"] != 'SS003') ? attr($obj["ob_value"]) : ""; ?>" />
                                                 <select name="ob_value_phin[]" id="ob_value_phin_<?php echo attr($key) + 1; ?>" class="ob_value_phin" <?php echo ($obj["code"] != 'SS003') ? "style='display: none;'" : ""; ?>>
                                                     <option value="261QE0002X" <?php echo ($obj["code"] == 'SS003' && $obj["ob_value"] == '261QE0002X') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Emergency Care'); ?></option>
                                                     <option value="261QM2500X" <?php echo ($obj["code"] == 'SS003' && $obj["ob_value"] == '261QM2500X') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Medical Specialty'); ?></option>
@@ -262,11 +262,11 @@ $check_res = $formid ? $check_res : array();
                                     <div class="form-row">
                                         <div class="forms col-md-2">
                                             <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                            <input type="text" id="code_1" name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                            <input type="text" id="code_1" name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);' />
                                             <span id="displaytext_1" class="displaytext help-block"></span>
-                                            <input type="hidden" id="description_1" name="description[]" class="description" value="<?php echo attr($obj["description"]); ?>">
-                                            <input type="hidden" id="code_type_1" name="code_type[]" class="code_type" value="<?php echo attr($obj["code_type"]); ?>">
-                                            <input type="hidden" id="table_code_1" name="table_code[]" class="table_code" value="<?php echo attr($obj["table_code"]); ?>">
+                                            <input type="hidden" id="description_1" name="description[]" class="description" value="<?php echo attr($obj["description"]); ?>" />
+                                            <input type="hidden" id="code_type_1" name="code_type[]" class="code_type" value="<?php echo attr($obj["code_type"]); ?>" />
+                                            <input type="hidden" id="table_code_1" name="table_code[]" class="table_code" value="<?php echo attr($obj["table_code"]); ?>" />
                                         </div>
                                         <div class="forms col-md-2">
                                             <?php
@@ -277,7 +277,7 @@ $check_res = $formid ? $check_res : array();
                                             }
                                             ?>
                                             <label id="ob_value_head_1" class="ob_value_head h5" <?php echo (!$obj["ob_value"]) ? 'style="display: none;"' : ''; ?>><?php echo xlt('Value'); ?>:</label>
-                                            <input type="text" name="ob_value[]" id="ob_value_1" style="<?php echo $style;?>" class="ob_value" value="<?php echo (($obj["code"] == '21612-7' || $obj["code"] == '8661-1') && $obj["code"] != 'SS003') ? attr($obj["ob_value"]) : ''; ?>">
+                                            <input type="text" name="ob_value[]" id="ob_value_1" style="<?php echo $style;?>" class="ob_value" value="<?php echo (($obj["code"] == '21612-7' || $obj["code"] == '8661-1') && $obj["code"] != 'SS003') ? attr($obj["ob_value"]) : ''; ?>" />
                                             <select name="ob_value_phin[]" id="ob_value_phin_1" class="ob_value_phin" <?php echo ($obj["code"] != 'SS003') ? 'style="display: none;"' : ''; ?>>
                                                 <option value="261QE0002X" <?php echo ($obj["code"] == 'SS003' && $obj["ob_value"] == '261QE0002X') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Emergency Care'); ?></option>
                                                 <option value="261QM2500X" <?php echo ($obj["code"] == 'SS003' && $obj["ob_value"] == '261QM2500X') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Medical Specialty'); ?></option>
@@ -329,7 +329,7 @@ $check_res = $formid ? $check_res : array();
                                 <div class="btn-group oe-opt-btn-group-pinch" role="group">
                                     <button type="submit" onclick='top.restoreSession()' class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
                                     <button type="button" class="btn btn-secondary btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
-                                    <input type="hidden" id="clickId" value="">
+                                    <input type="hidden" id="clickId" value="" />
                                 </div>
                             </div>
                         </div>

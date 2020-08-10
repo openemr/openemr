@@ -55,7 +55,7 @@ $target_element = $_GET['target_element'];
     <?php Header::setupHeader('opener'); ?>
     <style>
         td {
-            font-size: 13px;
+            font-size: 0.8125rem;
         }
     </style>
     <script>
@@ -111,7 +111,7 @@ $target_element = $_GET['target_element'];
 
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <div class="form-row">
-                    <div class="col-5">
+                    <div class="col-md-5">
                         <?php
                         if (!empty($allowed_codes)) {
                             if (count($allowed_codes) === 1) {
@@ -148,10 +148,10 @@ $target_element = $_GET['target_element'];
                             echo "   </select>&nbsp;&nbsp;\n";
                         } ?>
                     </div>
-                    <div class="col-2">
+                    <div class="col-md-2">
                         <label for="searchTerm" class="mt-3"><?php echo xlt('Search for:'); ?></label>
                     </div>
-                    <div class="col-5">
+                    <div class="col-md-5">
                         <input type='text' class='form-control' name='search_term' size='12' id="searchTerm" value='<?php echo attr($_REQUEST['search_term']); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' />
                     </div>
                     <div class="col-12 mt-3 text-left">
@@ -177,47 +177,48 @@ $target_element = $_GET['target_element'];
                     $form_code_type = $codetype;
                 }
                 ?>
-
-            <table class='border-0'>
-                    <tr>
-                        <td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
-                        <td class='font-weight-bold'><?php echo xlt('Description'); ?></td>
-                    </tr>
-                    <?php
-                    $search_term = $_REQUEST['search_term'];
-                    $res = main_code_set_search($form_code_type, $search_term);
-                    if ($form_code_type == 'PROD') { // Special case that displays search for products/drugs
-                        while ($row = sqlFetchArray($res)) {
-                                $drug_id = $row['drug_id'];
-                                $selector = $row['selector'];
-                                $desc = $row['name'];
-                                $anchor = "<a href='' " .
-                                "onclick='return selcode(\"PROD\", " . attr_js($drug_id) . ", " . attr_js($selector) . ", " . attr_js($desc) . ")'>";
-                                echo " <tr>";
-                                echo "  <td>$anchor" . text($drug_id . ":" . $selector) . "</a></td>\n";
-                                echo "  <td>$anchor" . text($desc) . "</a></td>\n";
-                                echo " </tr>";
-                        }
-                    } else {
-                        while ($row = sqlFetchArray($res)) { // Display normal search
-                            $itercode = $row['code'];
-                            $itertext = trim($row['code_text']);
-                            if (!empty($target_element)) {
-                                // add a 5th parameter to function to select the target element on the form for placing the code.
-                                $anchor = "<a href='' " .
-                                "onclick='return selcode_target(" . attr_js($form_code_type) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ", " . attr_js($target_element) . ")'>";
-                            } else {
-                                $anchor = "<a href='' " .
-                                "onclick='return selcode(" . attr_js($form_code_type) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ")'>";
+            <div class="table-responsive">
+                <table class='table table-borderless'>
+                        <tr>
+                            <td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
+                            <td class='font-weight-bold'><?php echo xlt('Description'); ?></td>
+                        </tr>
+                        <?php
+                        $search_term = $_REQUEST['search_term'];
+                        $res = main_code_set_search($form_code_type, $search_term);
+                        if ($form_code_type == 'PROD') { // Special case that displays search for products/drugs
+                            while ($row = sqlFetchArray($res)) {
+                                    $drug_id = $row['drug_id'];
+                                    $selector = $row['selector'];
+                                    $desc = $row['name'];
+                                    $anchor = "<a href='' " .
+                                    "onclick='return selcode(\"PROD\", " . attr_js($drug_id) . ", " . attr_js($selector) . ", " . attr_js($desc) . ")'>";
+                                    echo " <tr>";
+                                    echo "  <td>$anchor" . text($drug_id . ":" . $selector) . "</a></td>\n";
+                                    echo "  <td>$anchor" . text($desc) . "</a></td>\n";
+                                    echo " </tr>";
                             }
-                            echo " <tr>";
-                            echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
-                            echo "  <td>$anchor" . text($itertext) . "</a></td>\n";
-                            echo " </tr>";
+                        } else {
+                            while ($row = sqlFetchArray($res)) { // Display normal search
+                                $itercode = $row['code'];
+                                $itertext = trim($row['code_text']);
+                                if (!empty($target_element)) {
+                                    // add a 5th parameter to function to select the target element on the form for placing the code.
+                                    $anchor = "<a href='' " .
+                                    "onclick='return selcode_target(" . attr_js($form_code_type) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ", " . attr_js($target_element) . ")'>";
+                                } else {
+                                    $anchor = "<a href='' " .
+                                    "onclick='return selcode(" . attr_js($form_code_type) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ")'>";
+                                }
+                                echo " <tr>";
+                                echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
+                                echo "  <td>$anchor" . text($itertext) . "</a></td>\n";
+                                echo " </tr>";
+                            }
                         }
-                    }
-                    ?>
-            </table>
+                        ?>
+                </table>
+            </div>
             <?php } ?>
         </form>
     </div>
