@@ -529,7 +529,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     // this is used when value has not yet been encrypted (only happens once when upgrading)
                                                     $fldvalueDecrypted = $fldvalue;
                                                 }
-                                                echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                                                echo "  <input type='password' class='form-control' name='form_$i' id='form_$i' " .
                                                     "maxlength='255' value='" . attr($fldvalueDecrypted) . "' />\n";
                                                 if ($userMode) {
                                                     if (empty($globalValue)) {
