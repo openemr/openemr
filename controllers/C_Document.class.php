@@ -373,8 +373,7 @@ class C_Document extends Controller
                         $couch_revid = $d->get_couch_revid();
             if ($couch_docid && $couch_revid) {
                 $couch = new CouchDB();
-                $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
-                $resp = $couch->retrieve_doc($data);
+                $resp = $couch->retrieve_doc($couch_docid);
                 $content = $resp->data;
                 if ($content == '' && $GLOBALS['couchdb_log'] == 1) {
                     $log_content = date('Y-m-d H:i:s') . " ==> Retrieving document\r\n";
@@ -608,8 +607,7 @@ class C_Document extends Controller
         if ($couch_docid && $couch_revid && $original_file) {
             // standard case for collecting a document from couchdb
             $couch = new CouchDB();
-            $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
-            $resp = $couch->retrieve_doc($data);
+            $resp = $couch->retrieve_doc($couch_docid);
             //Take thumbnail file when is not null and file is presented online
             if (!$as_file && !is_null($th_url) && !$show_original) {
                 $content = $resp->th_data;
@@ -658,14 +656,12 @@ class C_Document extends Controller
             //try to convert it if it has not yet been converted
             //first, see if the converted jpg already exists
             $couch = new CouchDB();
-            $data = array($GLOBALS['couchdb_dbase'], "converted_" . $couch_docid);
-            $resp = $couch->retrieve_doc($data);
+            $resp = $couch->retrieve_doc("converted_" . $couch_docid);
             $content = $resp->data;
             if ($content == '') {
                 //create the converted jpg
                 $couchM = new CouchDB();
-                $dataM = array($GLOBALS['couchdb_dbase'], $couch_docid);
-                $respM = $couchM->retrieve_doc($dataM);
+                $respM = $couchM->retrieve_doc($couch_docid);
                 if ($d->get_encrypted() == 1) {
                     $contentM = $this->cryptoGen->decryptStandard($respM->data, null, 'database');
                 } else {
@@ -699,8 +695,7 @@ class C_Document extends Controller
                     } else {
                         $document = base64_encode(file_get_contents($to_file_tmp_name));
                     }
-                    $couchdata = array($GLOBALS['couchdb_dbase'], "converted_" . $couch_docid, $d->get_foreign_id(), "", "image/jpeg", $document);
-                    $couchI->check_saveDOC($couchdata);
+                    $couchI->save_doc(['_id' => "converted_" . $couch_docid, 'data' => $document]);
                     // remove to tmp files
                     unlink($to_file_tmp);
                     unlink($to_file_tmp_name);
@@ -709,8 +704,7 @@ class C_Document extends Controller
                 }
                 // now collect the newly created converted jpg
                 $couchF = new CouchDB();
-                $dataF = array($GLOBALS['couchdb_dbase'], "converted_" . $couch_docid);
-                $respF = $couchF->retrieve_doc($dataF);
+                $respF = $couchF->retrieve_doc("converted_" . $couch_docid);
                 if ($d->get_encrypted() == 1) {
                     $content = $this->cryptoGen->decryptStandard($respF->data, null, 'database');
                 } else {
@@ -1093,8 +1087,7 @@ class C_Document extends Controller
             $file_path = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/';
             $url = $file_path . $d->get_url();
             $couch = new CouchDB();
-            $data = array($GLOBALS['couchdb_dbase'],$d->couch_docid);
-            $resp = $couch->retrieve_doc($data);
+            $resp = $couch->retrieve_doc($d->couch_docid);
             if ($d->get_encrypted() == 1) {
                 $content = $this->cryptoGen->decryptStandard($resp->data, null, 'database');
             } else {

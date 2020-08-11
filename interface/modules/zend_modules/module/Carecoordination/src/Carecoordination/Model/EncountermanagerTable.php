@@ -146,18 +146,27 @@ class EncountermanagerTable extends AbstractTableGateway
 
     public function getFile($id)
     {
-        $query      = "select couch_docid, couch_revid, ccda_data from ccda where id=?";
+        $query      = "select couch_docid, couch_revid, ccda_data, encrypted from ccda where id=?";
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query, array($id));
         foreach ($result as $row) {
             if ($row['couch_docid'] != '') {
                 $couch   = new CouchDB();
-                $data    = array($GLOBALS['couchdb_dbase'], $row['couch_docid']);
-                $resp    = $couch->retrieve_doc($data);
-                $content = base64_decode($resp->data);
+                $resp    = $couch->retrieve_doc($row['couch_docid']);
+                if ($row['encrypted']) {
+                    $cryptoGen = new CryptoGen();
+                    $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
+                } else {
+                    $content = base64_decode($resp->data);
+                }
             } elseif (!$row['couch_docid']) {
                 $fccda   = fopen($row['ccda_data'], "r");
-                $content = fread($fccda, filesize($row['ccda_data']));
+                if ($row['encrypted']) {
+                    $cryptoGen = new CryptoGen();
+                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, 'database');
+                } else {
+                    $content = fread($fccda, filesize($row['ccda_data']));
+                }
                 fclose($fccda);
             } else {
                 $content = $row['ccda_data'];

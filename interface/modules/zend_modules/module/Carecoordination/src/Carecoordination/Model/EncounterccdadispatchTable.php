@@ -17,6 +17,8 @@ use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Carecoordination\Model\CarecoordinationTable;
+use CouchDB;
+use OpenEMR\Common\Crypto\CryptoGen;
 
 require_once(dirname(__FILE__) . "/../../../../../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__) . "/../../../../../../../forms/vitals/report.php");
@@ -106,7 +108,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $query      = "SELECT * FROM form_encounter as fe
                         JOIN users AS u ON u.id =  fe.provider_id
-                        JOIN facility AS f ON f.id = u.facility_id 
+                        JOIN facility AS f ON f.id = u.facility_id
                         WHERE fe.pid = ? AND fe.encounter = ?";
         $appTable   = new ApplicationTable();
         $row        = $appTable->zQuery($query, array($pid,$encounter));
@@ -361,7 +363,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getAllergies($pid, $encounter)
     {
         $allergies  = '';
-        $query      = "SELECT l.id, l.title, l.begdate, l.enddate, lo.title AS observation, 
+        $query      = "SELECT l.id, l.title, l.begdate, l.enddate, lo.title AS observation,
             SUBSTRING(lo.codes, LOCATE(':',lo.codes)+1, LENGTH(lo.codes)) AS observation_code,
 						SUBSTRING(l.`diagnosis`,1,LOCATE(':',l.diagnosis)-1) AS code_type_real,
 						l.reaction, l.diagnosis, l.diagnosis AS code
@@ -753,7 +755,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 		<root>' . htmlspecialchars("7d5a02b0-67a4-11db-bd13-0800200c9a66", ENT_QUOTES) . '</root>
 		<date_ordered>' . htmlspecialchars($row['date_ordered'], ENT_QUOTES) . '</date_ordered>
 		<date_ordered_table>' . htmlspecialchars($row['date_ordered_table'], ENT_QUOTES) . '</date_ordered_table>
-        <title>' . htmlspecialchars($row['order_title'], ENT_QUOTES) . '</title>		
+        <title>' . htmlspecialchars($row['order_title'], ENT_QUOTES) . '</title>
 		<test_code>' . htmlspecialchars($row['procedure_code'], ENT_QUOTES) . '</test_code>
 		<test_name>' . htmlspecialchars($row['procedure_name'], ENT_QUOTES) . '</test_name>
         <order_status_table>' . htmlspecialchars($order_status_table, ENT_QUOTES) . '</order_status_table>
@@ -872,7 +874,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 		<location>" . htmlspecialchars($row['name'], ENT_QUOTES) . "</location>
         <location_details>" . htmlspecialchars($location_details, ENT_QUOTES) . "</location_details>
 		<date>" . htmlspecialchars($this->date_format(substr($row['date'], 0, 10)), ENT_QUOTES) . "</date>
-		<date_formatted>" . htmlspecialchars(preg_replace('/-/', '', substr($row['date'], 0, 10)), ENT_QUOTES) . "</date_formatted>		
+		<date_formatted>" . htmlspecialchars(preg_replace('/-/', '', substr($row['date'], 0, 10)), ENT_QUOTES) . "</date_formatted>
 		<facility_extension>" . htmlspecialchars(base64_encode($_SESSION['site_id'] . $row['fid']), ENT_QUOTES) . "</facility_extension>
 		<facility_sha_extension>" . htmlspecialchars(sha1($_SESSION['site_id'] . $row['fid']), ENT_QUOTES) . "</facility_sha_extension>
 		<facility_npi>" . htmlspecialchars($row['fnpi'], ENT_QUOTES) . "</facility_npi>
@@ -1497,7 +1499,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                   <sha_extension>" . htmlspecialchars("37f76c51-6411-4e1d-8a37-957fd49d2cef", ENT_QUOTES) . "</sha_extension>
                                   <element>" . htmlspecialchars('Alcohol', ENT_QUOTES) . "</element>
                                   <description>" . htmlspecialchars($alcohol[0], ENT_QUOTES) . "</description>
-                                  <status_code>" . htmlspecialchars(($alcohol_status_codes[$alcohol[1]] ? $alcohol_status_codes[$alcohol[1]] : 0), ENT_QUOTES) . "</status_code> 
+                                  <status_code>" . htmlspecialchars(($alcohol_status_codes[$alcohol[1]] ? $alcohol_status_codes[$alcohol[1]] : 0), ENT_QUOTES) . "</status_code>
                                   <status>" . htmlspecialchars(($alcohol_status[$alcohol[1]] ? $alcohol_status[$alcohol[1]] : 'completed'), ENT_QUOTES) . "</status>
                                   <date>" . ($alcohol[2] ? htmlspecialchars($this->date_format($alcohol[2]), ENT_QUOTES) : 0) . "</date>
                                   <date_formatted>" . ($alcohol[2] ? htmlspecialchars(preg_replace('/-/', '', $alcohol[2]), ENT_QUOTES) : 0) . "</date_formatted>
@@ -1796,7 +1798,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     */
     public function getSettings($module_directory, $field_name)
     {
-        $query = "SELECT mo_conf.field_value FROM modules AS mo 
+        $query = "SELECT mo_conf.field_value FROM modules AS mo
         LEFT JOIN module_configuration AS mo_conf ON mo_conf.module_id = mo.mod_id
         WHERE mo.mod_directory = ? AND mo_conf.field_name = ?";
         $appTable   = new ApplicationTable();
@@ -1967,16 +1969,21 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $content    = base64_decode($content);
         $file_path  = '';
-        $couch_id   = array();
+        $docid = '';
+        $revid = '';
         if ($GLOBALS['document_storage_method'] == 1) {
-            $data = array(
-                'data'      => base64_encode($content),
-                'pid'       => $pid,
-                'encounter' => $encounter,
-                'mimetype'  => 'text/xml'
-            );
-            $couch    = \Documents\Plugin\Documents::couchDB();
-            $couch_id = \Documents\Plugin\Documents::saveCouchDocument($couch, $data);
+            $couch = new CouchDB();
+            $docid = $couch->createDocId('ccda');
+            if ($GLOBALS['couchdb_encryption']) {
+                $encrypted = 1;
+                $cryptoGen = new CryptoGen();
+                $resp = $couch->save_doc(['_id' => $docid, 'data' => $cryptoGen->encryptStandard($content, null, 'database')]);
+            } else {
+                $encrypted = 0;
+                $resp = $couch->save_doc(['_id' => $docid, 'data' => base64_encode($content)]);
+            }
+            $docid = $resp->id;
+            $revid = $resp->rev;
         } else {
             $file_path  = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $pid . '/CCDA';
             $file_name  = $pid . "_" . $encounter . "_" . $time . ".xml";
@@ -1985,14 +1992,21 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
 
             $fccda = fopen($file_path . "/" . $file_name, "w");
-            fwrite($fccda, $content);
+            if ($GLOBALS['drive_encryption']) {
+                $encrypted = 1;
+                $cryptoGen = new CryptoGen();
+                fwrite($fccda, $cryptoGen->encryptStandard($content, null, 'database'));
+            } else {
+                $encrypted = 0;
+                fwrite($fccda, $content);
+            }
             fclose($fccda);
             $file_path = $file_path . "/" . $file_name;
         }
 
-        $query      = "insert into ccda (pid, encounter, ccda_data, time, status, user_id, couch_docid, couch_revid, view, transfer,emr_transfer) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?)";
+        $query      = "insert into ccda (pid, encounter, ccda_data, time, status, user_id, couch_docid, couch_revid, view, transfer,emr_transfer, encrypted) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)";
         $appTable   = new ApplicationTable();
-        $result     = $appTable->zQuery($query, array($pid, $encounter, $file_path, $time, $status, $user_id, $couch_id[0], $couch_id[1], $view, $transfer,$emr_transfer));
+        $result     = $appTable->zQuery($query, array($pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $view, $transfer,$emr_transfer, $encrypted));
         return $moduleInsertId = $result->getGeneratedValue();
     }
 
@@ -2134,26 +2148,26 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $care_plan_query_data = ['Plan_of_Care_Type',$pid,'care_plan',0,$pid];
         if ($this->is_snomed_codes_installed($appTable)) {
             $fcp_code_type = "IF(sct_descriptions.ConceptId,'SNOMED-CT',ct.`ct_key`) AS fcp_code_type";
-            $sct_descriptions_join = ' LEFT JOIN sct_descriptions ON sct_descriptions.ConceptId = fcp.`code` 
+            $sct_descriptions_join = ' LEFT JOIN sct_descriptions ON sct_descriptions.ConceptId = fcp.`code`
             AND sct_descriptions.DescriptionStatus = ? AND sct_descriptions.DescriptionType = ?
             LEFT JOIN sct_concepts ON sct_descriptions.ConceptId = sct_concepts.ConceptId ';
             $care_plan_query_data = array_merge([0,1], $care_plan_query_data);
         }
 
         $query  = "SELECT 'care_plan' AS source,fcp.code,fcp.codetext,fcp.description,fcp.date," . $fcp_code_type . " , l.`notes` AS moodCode
-                 FROM forms AS f 
+                 FROM forms AS f
                 LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
-                 LEFT JOIN codes AS c ON c.code = fcp.code 
-                 LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id 
+                 LEFT JOIN codes AS c ON c.code = fcp.code
+                 LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id
                 " . $sct_descriptions_join . "
                  LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`=?
                  WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon
                  UNION
                  SELECT 'referal' AS source,0 AS CODE,'NULL' AS codetext,CONCAT_WS(', ',l1.field_value,CONCAT_WS(' ',u.fname,u.lname),CONCAT('Tel:',u.phonew1),u.street,u.city,CONCAT_WS(' ',u.state,u.zip),CONCAT('Schedule Date: ',l2.field_value)) AS description,l2.field_value AS DATE,'' AS fcp_code_type,'' moodCode
                  FROM transactions AS t
-                 LEFT JOIN lbt_data AS l1 ON l1.form_id=t.id AND l1.field_id = 'body' 
-                 LEFT JOIN lbt_data AS l2 ON l2.form_id=t.id AND l2.field_id = 'refer_date' 
-                 LEFT JOIN lbt_data AS l3 ON l3.form_id=t.id AND l3.field_id = 'refer_to' 
+                 LEFT JOIN lbt_data AS l1 ON l1.form_id=t.id AND l1.field_id = 'body'
+                 LEFT JOIN lbt_data AS l2 ON l2.form_id=t.id AND l2.field_id = 'refer_date'
+                 LEFT JOIN lbt_data AS l3 ON l3.form_id=t.id AND l3.field_id = 'refer_to'
                  LEFT JOIN users AS u ON u.id = l3.field_value
                  WHERE t.pid = ?";
         $res        = $appTable->zQuery($query, $care_plan_query_data);

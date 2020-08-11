@@ -8369,6 +8369,7 @@ CREATE TABLE `uuid_registry` (
   `table_name` varchar(255) NOT NULL DEFAULT '',
   `table_id` varchar(255) NOT NULL DEFAULT '',
   `table_vertical` varchar(255) NOT NULL DEFAULT '',
+  `couchdb` varchar(255) NOT NULL DEFAULT '',
   `created` timestamp NULL,
   PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
@@ -10814,6 +10815,7 @@ CREATE TABLE ccda (
   `view` tinyint(4) NOT NULL DEFAULT '0',
   `transfer` tinyint(4) NOT NULL DEFAULT '0',
   `emr_transfer` tinyint(4) NOT NULL DEFAULT '0',
+  `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
   PRIMARY KEY (id),
   UNIQUE KEY unique_key (pid,encounter,time)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
