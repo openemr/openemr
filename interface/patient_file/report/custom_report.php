@@ -189,25 +189,25 @@ function zip_content($source, $destination, $content = '', $create = true)
       // can also be used by other forms that require output in the
       // encounter listings output, but not in the custom report. ?>
 <style>
-  div.navigateLink {display:none;}
-  .hilite {background-color: var(--yellow);}
-  .hilite2 {background-color: transparent;}
-  mark {background-color: var(--yellow);}
-  .btn {
-      cursor:pointer;
+    div.navigateLink {
+        display:none;
     }
-  .next {
-      background-color: var(--yellow);
+
+    .hilite {
+        background-color: var(--yellow);
     }
-  #search_options{
-    position:fixed;
-    left:0px;
-    top:0px;
-    z-index:10;
-    border-bottom: solid thin var(--gray);
-    padding:0% 2% 0% 2.5%;
-  }
-  img { max-width:700px; }
+    .hilite2 {
+        background-color: transparent;
+    }
+    mark {
+        background-color: var(--yellow);
+    }
+    .next {
+        background-color: var(--yellow);
+    }
+    img {
+        max-width:700px;
+    }
 </style>
 
 <?php if (!$PDF_OUTPUT) { ?>
@@ -226,7 +226,6 @@ function zip_content($source, $destination, $content = '', $create = true)
 
 <body style="<?php echo $style; ?>">
     <div class="container">
-
         <div id="report_custom w-100">  <!-- large outer DIV -->
             <?php
             if (sizeof($_GET) > 0) {
@@ -293,66 +292,58 @@ function zip_content($source, $destination, $content = '', $create = true)
                     [<?php echo xlt('Printable Version'); ?>]
                 </a>
                 <br />
-
-                <div class="report_search_bar table-responsive" id="search_options">
-                    <table class="table">
-                        <tr>
-                            <td>
-                                <input type="text" class="form-control" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element"/>
-                            </td>
-                            <td>
-                                <a class="btn btn-primary text-white" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php echo xlt('Find'); ?></span></a>
-                            </td>
-                            <td>
-                                <a class="btn btn-primary text-white" onClick="next_prev('prev');" ><span><?php echo xlt('Prev'); ?></span></a>
-                            </td>
-                            <td>
-                                <a class="btn btn-primary text-white" onClick="next_prev('next');" ><span><?php echo xlt('Next'); ?></span></a>
-                            </td>
-                            <td>
-                                <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
-                            </td>
-                            <td>
-                                <span><?php echo xlt('Match case'); ?></span>
-                            </td>
-                            <td style="padding-left: 10px;">
-                                <span class="text font-weight-bold"><?php echo xlt('Search In'); ?>:</span>
-                                <br />
-                                <?php
-                                $form_id_arr = array();
-                                $form_dir_arr = array();
-                                $last_key = '';
-                                //ksort($ar);
-                                foreach ($ar as $key_search => $val_search) {
-                                    if ($key_search == 'pdf' || $key_search == '') {
-                                        continue;
-                                    }
-
-                                    if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
-                                                preg_match('/^(.*)_(\d+)$/', $key_search, $res_search);
-                                                $form_id_arr[] = add_escape_custom($res_search[2]);
-                                                $form_dir_arr[] = add_escape_custom($res_search[1]);
-                                    }
+                <div class="border-bottom fixed-top my-1 px-5 report_search_bar">
+                    <div class="row">
+                        <div class="col">
+                            <input type="text" class="form-control" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element"/>
+                        </div>
+                        <div class="col">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary btn-search" onClick="clear_last_visit();remove_mark_all();find_all();" ><?php echo xlt('Find'); ?></button>
+                                <button type="button" class="btn btn-primary" onClick="next_prev('prev');" ><?php echo xlt('Prev'); ?></button>
+                                <button type="button" class="btn btn-primary" onClick="next_prev('next');" ><?php echo xlt('Next'); ?></button>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <span><?php echo xlt('Match case'); ?></span>
+                            <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
+                        </div>
+                        <div class="col">
+                            <span class="text font-weight-bold"><?php echo xlt('Search In'); ?>:</span>
+                            <br />
+                            <?php
+                            $form_id_arr = array();
+                            $form_dir_arr = array();
+                            $last_key = '';
+                            //ksort($ar);
+                            foreach ($ar as $key_search => $val_search) {
+                                if ($key_search == 'pdf' || $key_search == '') {
+                                    continue;
                                 }
 
-                                //echo json_encode(json_encode($array_key_id));
-                                if (sizeof($form_id_arr) > 0) {
-                                    $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '" . implode("','", $form_id_arr) . "') AND formdir IN ( '" . implode("','", $form_dir_arr) . "')";
-                                    $arr = sqlStatement($query);
-                                    echo "<select multiple size='4' class='form-control' style='width:300px;' id='forms_to_search' onchange='clear_last_visit();remove_mark_all();find_all();' >";
-                                    while ($res_forms_ids = sqlFetchArray($arr)) {
-                                        echo "<option value='" . attr($res_forms_ids['formdir']) . "' selected>" . text($res_forms_ids['form_name']) . "</option>";
-                                    }
-
-                                    echo "</select>";
+                                if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
+                                            preg_match('/^(.*)_(\d+)$/', $key_search, $res_search);
+                                            $form_id_arr[] = add_escape_custom($res_search[2]);
+                                            $form_dir_arr[] = add_escape_custom($res_search[1]);
                                 }
-                                ?>
-                            </td>
-                            <td style="padding-left: 10px; width: 30%;">
-                                <span id ='alert_msg' class='text-danger'></span>
-                            </td>
-                        </tr>
-                    </table>
+                            }
+
+                            //echo json_encode(json_encode($array_key_id));
+                            if (sizeof($form_id_arr) > 0) {
+                                $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '" . implode("','", $form_id_arr) . "') AND formdir IN ( '" . implode("','", $form_dir_arr) . "')";
+                                $arr = sqlStatement($query);
+                                echo "<select multiple size='4' class='form-control' id='forms_to_search' onchange='clear_last_visit();remove_mark_all();find_all();' >";
+                                while ($res_forms_ids = sqlFetchArray($arr)) {
+                                    echo "<option value='" . attr($res_forms_ids['formdir']) . "' selected>" . text($res_forms_ids['form_name']) . "</option>";
+                                }
+                                echo "</select>";
+                            }
+                            ?>
+                        </div>
+                        <div class="col">
+                            <span id ='alert_msg' class='text-danger'></span>
+                        </div>
+                    </div>
                 </div>
             <?php } // end not printable ?>
 
@@ -919,7 +910,7 @@ function zip_content($source, $destination, $content = '', $create = true)
             $contents = $pdf->Output('', true);
             echo "<html><head>\n";
             Header::setupHeader();
-            echo "</head><body class='body_top'>\n";
+            echo "</head><body>\n";
             $result = cms_portal_call(array(
                 'action' => 'putmessage',
                 'user' => $ptdata['cmsportal_login'],
