@@ -15,8 +15,11 @@
 //validation functions
 function check_date_format($date)
 {
-    $pat = "/^(19[0-9]{2}|20[0-1]{1}[0-9]{1})-(0[1-9]|1[0-2])-(0[1-9]{1}|1[0-9]{1}|2[0-9]{1}|3[0-1]{1})$/";
-    return preg_match($pat, $date) or $date == '' or $date == '0000-00-00';
+    if (($date == '') || ($date == '0000-00-00')) {
+        return true;
+    }
+    $ymd = explode('-', $date);
+    return (count($ymd) == 3) && ($ymd[0] > 1900) && checkdate($ymd[1], $ymd[2], $ymd[0]);
 }
 
 function check_age($age)

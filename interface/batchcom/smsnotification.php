@@ -28,49 +28,44 @@ if (!AclMain::aclCheckCore('admin', 'notification')) {
     exit();
 }
 
- // default value
-$next_app_date = date("Y-m-d");
-$hour = "12";
-$min = "15";
-$provider_name = "EMR Group";
-$message = "Welcome to EMR Group";
-
 // process form
 if ($_POST['form_action'] == 'save') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    //validation uses the functions in notification.inc.php
-    //validate dates
-    if (!check_date_format($_POST['next_app_date'])) {
-        $form_err .= xl('Date format for "Next Appointment" is not valid') . '<br />';
+    if (! is_numeric($_POST['notification_id'])) {  // shouldn't happen
+        $form_err .= xl('Missing/invalid notification id') . '<br />';
     }
 
-    // validate selections
-    if ($_POST['sms_gateway_type'] == "") {
+    if (empty($_POST['sms_gateway_type'])) {
         $form_err .= xl('Error in "SMS Gateway" selection') . '<br />';
     }
 
-    // validates and or
-    if ($_POST['provider_name'] == "") {
+    if (empty($_POST['provider_name'])) {
         $form_err .= xl('Empty value in "Name of Provider"') . '<br />';
     }
 
-    if ($_POST['message'] == "") {
+    if (empty($_POST['message'])) {
         $form_err .= xl('Empty value in "SMS Text"') . '<br />';
     }
 
-    //process sql
+    // Store the new settings.  email_sender and email_subject are not used
+    // by SMS, but must be present because they are NOT NULL.  next_app_time,
+    // next_app_date, and notification_sent_date don't appear to be used by
+    // anyone.  notification_id is the pk, and should always be 1 for
+    // SMS settings (because that's how the db was seeded).
+
     if (!$form_err) {
-        $next_app_time = $_POST[hour] . ":" . $_POST['min'];
-        $sql_text = " ( `notification_id` , `sms_gateway_type` , `next_app_date` , `next_app_time` , `provider_name` , `message` , `email_sender` , `email_subject` , `type` ) ";
-        $sql_value = " (?, ?, ?, ?, ?, ?, ?, 'SMS') ";
-        $values = array($_POST['notification_id'], $_POST['sms_gateway_type'], $_POST['next_app_date'], $next_app_time,
-                        $_POST['provider_name'], $_POST['message'], $_POST['email_sender'], $_POST['email_subject']);
+        $sql_text = " ( `notification_id` , `sms_gateway_type` , `next_app_date` , `next_app_time` , `provider_name` , `message` , `email_sender` , `email_subject` , `type`, `notification_sent_date` ) ";
+        $sql_value = " (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+        $values = array($_POST['notification_id'], $_POST['sms_gateway_type'],
+                        '0000-00-00', ':',
+                        $_POST['provider_name'], $_POST['message'],
+                        '', '', 'SMS', '2007-09-30 00:00:00');
         $query = "REPLACE INTO `automatic_notification` $sql_text VALUES $sql_value";
         //echo $query;
-        $id = sqlInsert($query);
+        $id = sqlInsert($query, $values);
         $sql_msg = xl("ERROR!... in Update");
         if ($id) {
             $sql_msg = xl("SMS Notification Settings Updated Successfully");
@@ -78,22 +73,24 @@ if ($_POST['form_action'] == 'save') {
     }
 }
 
-// fetch data from table
+// fetch SMS config from table.  This should never fail, because one row
+// of each type is seeded when the db is created.  If the row IS missing,
+// we would need an INSERT to recover -- REPLACE can't work without a pk.
+
 $sql = "select * from automatic_notification where type='SMS'";
 $result = sqlQuery($sql);
 if ($result) {
     $notification_id = $result['notification_id'];
     $sms_gateway_type = $result['sms_gateway_type'];
-    $next_app_date = $result['next_app_date'];
-    list($hour,$min) = @explode(":", $result['next_app_time']);
     $provider_name = $result['provider_name'];
     $message = $result['message'];
+} else {
+    $sql_msg = xl('Missing SMS config record');
 }
 
-// menu arrays (done this way so it's easier to validate input on validate selections)
+// array of legal values for sms_gateway_type.  This is a string field in
+// the db, not an enum, so new values can be added here with no db change.
 $sms_gateway = array ('CLICKATELL','TMB4');
-$hour_array = array('00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','21','21','22','23');
-$min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
 
 //START OUT OUR PAGE....
 ?>
@@ -135,8 +132,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
                             if ($sms_gateway_type == $value) {
                                 echo "selected";
                             }
-
-                            echo text($value);
+                            echo ">" . text($value);
                             ?>
                             </option>
                         <?php }?>
@@ -149,7 +145,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <label for="message"><?php echo xlt('SMS Text, Usable Tags: '); ?>***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME*** (i.e. Dear ***NAME***):</label>
+                    <label for="message"><?php echo xlt('SMS Text Usable Tags: '); ?>***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME*** (i.e. Dear ***NAME***):</label>
                     <textarea class="form-control" cols="35" rows="8" name="message"><?php echo text($message); ?></textarea>
                 </div>
             </div>
