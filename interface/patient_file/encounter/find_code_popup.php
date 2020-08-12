@@ -147,7 +147,7 @@ $focus = "document.theform.search_term.select();";
                     <input type='text' class='form-control' name='search_term' id="searchTerm"
                         value='<?php echo attr($_REQUEST['search_term']); ?>'
                         title='<?php echo xla('Any part of the desired code or its description'); ?>'
-                        placeholder="<?php echo xlt('Search for'); ?>" />
+                        placeholder="<?php echo xla('Search for'); ?>" />
                     <div class="input-group-append">
                         <button type='submit' class='btn btn-primary btn-search' name='bn_search' value='Search'></button>
                         <?php if (!empty($target_element)) { ?>
