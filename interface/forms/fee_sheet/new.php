@@ -912,7 +912,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $cleave_cat = is_numeric(substr($fs_category, 0, 2)) ? 2 : 1;
                                     $cleave_opt = is_numeric(substr($fs_option, 0, 2)) ? 2 : 1;
                                     echo ($i <= 1) ? " <tr>\n" : "";
-                                    echo "  <td class='w-50 text-nowrap'>\n";
+                                    echo "  <td width='50%'  nowrap>\n";
                                     echo "   <select class='form-control' style='width:96%' onchange='codeselect(this)'>\n";
                                     echo "    <option value=''> " . xlt(substr($fs_category, $cleave_cat)) . "</option>\n";
                                 }
@@ -927,7 +927,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 global $code_types;
                                 ++$i;
                                 echo ($i <= 1) ? " <tr>\n" : "";
-                                echo "  <td class='w-50 text-center text-nowrap'>\n";
+                                echo "  <td width='50%' align='center' nowrap>\n";
                                 echo "   <select class='form-control' style='width:96%' onchange='codeselect(this)'>\n";
                                 echo "    <option value=''> " . text(xl_list_label($prow['title'])) . "\n";
                                 $res = sqlStatement("SELECT code_type, code, code_text,modifier FROM codes " .
@@ -953,7 +953,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if ($GLOBALS['sell_non_drug_products']) {
                                 ++$i;
                                 echo ($i <= 1) ? " <tr>\n" : "";
-                                echo "  <td class='w-50 text-center text-nowrap'>\n";
+                                echo "  <td width='50%' align='center' nowrap>\n";
                                 echo "   <select name='Products' class='form-control' style='width:96%' onchange='codeselect(this)'>\n";
                                 echo "    <option value=''> " . xlt('Products') . "\n";
                                 $tres = sqlStatement("SELECT dt.drug_id, dt.selector, d.name " .
