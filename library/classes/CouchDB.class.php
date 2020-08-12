@@ -27,6 +27,7 @@
 // +------------------------------------------------------------------------------+
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 class CouchDB
 {
@@ -51,92 +52,53 @@ class CouchDB
         }
     }
 
-    function createDB($db)
+    function createDB()
     {
-        $resp = $this->send("PUT", "/" . $db);
+        $resp = $this->send("PUT", "/" . $this->dbase);
         return true;
     }
 
-    function createView($db)
+    // note this will include _id (and not allow _rev) in the $data
+    function save_doc($data)
     {
-
-        $resp = $this->send("PUT", "/" . $db . "/_design/FilteringViews", '{"_id":"_design/FilteringViews","views": {"FilterPid": {"map": "function(doc) { if(doc.pid){emit(doc._id, doc);} }"},
-                                                                                                                "FilterEncounter": {"map": "function(doc) { if(doc.encounter){emit(doc._id, doc);} }"},
-                                                                                                                "FilterPidEncounter": {"map": "function(doc) { if(doc.pid && doc.encounter){emit(doc._id, doc);} }"}}}');
-        return json_decode($resp);
-    }
-
-    function check_saveDOC($data)
-    {
-        list($db,$docid,$patient_id,$encounter,$type,$json, $th_json) = $data;
-        $couch_json = array();
-        $couch_json['_id'] = $docid;
-        $couch_json['pid'] = $patient_id;
-        $couch_json['encounter'] = $encounter;
-        $couch_json['mimetype'] = $type;
-        $couch_json['data'] = $json;
-        if ($th_json) {
-            $couch_json['th_data'] = $th_json;
+        $couch_json = [];
+        foreach ($data as $key => $value) {
+            if ($key == '_rev') {
+                continue;
+            }
+            $couch_json[$key] = $value;
         }
-
-        $resp = $this->send("PUT", "/" . $db . "/" . $docid, json_encode($couch_json));
+        $resp = $this->send("PUT", "/" . $this->dbase . "/" . $data['_id'], json_encode($couch_json));
         return json_decode($resp);
     }
 
+    // note this will include _id and _rev in the $data
     function update_doc($data)
     {
-        list($db,$docid,$revid,$patient_id,$encounter,$type,$json, $th_json) = $data;
-        $couch_json = array();
-        $couch_json['_id'] = $docid;
-        $couch_json['_rev'] = $revid;
-        $couch_json['pid'] = $patient_id;
-        $couch_json['encounter'] = $encounter;
-        $couch_json['mimetype'] = $type;
-        $couch_json['data'] = $json;
-        if ($th_json) {
-            $couch_json['th_data'] = $th_json;
+        $couch_json = [];
+        foreach ($data as $key => $value) {
+            $couch_json[$key] = $value;
         }
-
-        $resp = $this->send("PUT", "/" . $db . "/" . $docid, json_encode($couch_json));
+        $resp = $this->send("PUT", "/" . $this->dbase . "/" . $data['_id'], json_encode($couch_json));
         return json_decode($resp);
     }
 
-    function DeleteDoc($db, $docid, $revid)
+    function DeleteDoc($docid, $revid)
     {
-        $resp = $this->send("DELETE", "/" . $db . "/" . $docid . "?rev=" . $revid);
+        $resp = $this->send("DELETE", "/" . $this->dbase . "/" . $docid . "?rev=" . $revid);
         return true;
     }
 
-    function retrieve_doc($data)
+    function retrieve_doc($docid)
     {
-        list($db,$docid) = $data;
-        $resp = $this->send("GET", "/" . $db . "/" . $docid);
+        $resp = $this->send("GET", "/" . $this->dbase . "/" . $docid);
         return json_decode($resp); // string(47) "{"_id":"123","_rev":"2039697587","data":"Foo"}"
     }
 
-    function stringToId($string, $replace = '_')
+    // category is either documents or ccda
+    function createDocId($category)
     {
-        // First translit string to ASCII, as this characters are most probably
-        // supported everywhere
-        // Note that musl library (used in alpine os) does not support below iconv
-        //  call, so if return is empty, then will try another iconv call, and
-        //  if that is empty, will then not do iconv.
-        $string_iconv = iconv('UTF-8', 'ASCII//TRANSLIT', $string);
-        if (empty($string_iconv)) {
-            $string_iconv = iconv('UTF-8', 'ASCII', $string);
-        }
-        if (empty($string_iconv)) {
-            $string_iconv = $string;
-        }
-        $string = $string_iconv;
-
-        // And then still replace any obscure characters by _ to ensure nothing
-        // "bad" happens with this string.
-        $string = preg_replace('([^A-Za-z0-9.-]+)', $replace, $string);
-
-        // Additionally we convert the string to lowercase, so that we get case
-        // insensitive fetching
-        return strtolower($string);
+        return UuidRegistry::uuidToString((new UuidRegistry(['couchdb' => $category]))->createUuid());
     }
 
     function send($method, $url, $post_data = null)

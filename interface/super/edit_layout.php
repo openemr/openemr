@@ -1163,8 +1163,8 @@ function extShow(lino, show) {
   x = dw - extdiv.offsetWidth;
   if (x < 0) x = 0;
   var y = extGetY(show) + show.offsetHeight;
-  extdiv.style.left = x;
-  extdiv.style.top  = y;
+  extdiv.style.left = x + 'px';
+  extdiv.style.top  = y + 'px';
   extdiv.style.visibility = 'visible';
  }
  else {
@@ -1350,8 +1350,7 @@ function myChangeCheck() {
 <input type="hidden" name="selectedfields" id="selectedfields" value="" />
 <input type="hidden" id="targetgroup" name="targetgroup" value="" />
 
-<div class="menubar" style='padding:5px 0;'>
-
+<div class="fixed-top py-2 px-1 bg-light text-dark">
 <strong><?php echo xlt('Edit layout'); ?>:</strong>&nbsp;
 <select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
  <option value=''>-- <?php echo xlt('Select') ?> --</option>

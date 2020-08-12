@@ -12,8 +12,7 @@ $couch_revid = $d->get_couch_revid();
 
 if ($couch_docid && $couch_revid) {
     $couch = new CouchDB();
-    $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
-    $resp = $couch->retrieve_doc($data);
+    $resp = $couch->retrieve_doc($couch_docid);
     $xml = base64_decode($resp->data);
     if ($content == '' && $GLOBALS['couchdb_log'] == 1) {
         $log_content = date('Y-m-d H:i:s') . " ==> Retrieving document\r\n";

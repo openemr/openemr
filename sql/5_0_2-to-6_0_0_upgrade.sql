@@ -556,6 +556,10 @@ CREATE TABLE `uuid_registry` (
 ALTER TABLE `uuid_registry` ADD `table_id` varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
+#IfMissingColumn uuid_registry couchdb
+ALTER TABLE `uuid_registry` ADD `couchdb` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
 #IfMissingColumn patient_data uuid
 ALTER TABLE `patient_data` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
@@ -1998,4 +2002,8 @@ CREATE UNIQUE INDEX `uuid` ON `prescriptions` (`uuid`);
 
 #IfNotColumnType prescriptions rxnorm_drugcode varchar(25)
 ALTER TABLE `prescriptions` MODIFY `rxnorm_drugcode` varchar(25) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn ccda encrypted
+ALTER TABLE `ccda` ADD `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes';
 #EndIf

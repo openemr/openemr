@@ -454,7 +454,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <input type="text" class="form-control" id='form_name'
                                name='form_name'
                                value="<?php echo attr($ferow['fname']) . ' ' . attr($ferow['mname']) . ' ' . attr($ferow['lname']); ?>"
-                               disabled>
+                               disabled />
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="form_provider"><?php echo xlt('Provider'); ?>:</label>
@@ -468,18 +468,18 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         $billdate = substr(($tmp['bill_date'] . "Not Billed"), 0, 10);
                         ?>
                         <input type="text" class="form-control" id='form_provider'
-                               name='form_provider' value="<?php echo attr($provider); ?>" disabled>
+                               name='form_provider' value="<?php echo attr($provider); ?>" disabled />
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="form_invoice"><?php echo xlt('Invoice'); ?>:</label>
                         <input type="text" class="form-control" id='form_provider'
                                name='form_provider' value='<?php echo attr($patient_id) . "." . attr($encounter_id); ?>'
-                               disabled>
+                               disabled />
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="svc_date"><?php echo xlt('Svc Date'); ?>:</label>
                         <input type="text" class="form-control" id='svc_date' name='form_provider'
-                               value='<?php echo attr($svcdate); ?>' disabled>
+                               value='<?php echo attr($svcdate); ?>' disabled />
                     </div>
                     <div class="card bg-light col-lg-4">
                         <div class="card-title mx-auto"><?php echo xlt('Insurance'); ?></div>
@@ -499,56 +499,54 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                 </div>
                 <div class="form-row">
                     <div class="form-group col-lg">
-                        <label class="col-form-label" for="form_stmt_count"><?php echo xlt('Statements Sent'); ?>
-                            :</label>
-                        <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control" value='<?php echo attr((0 + $ferow['stmt_count'])); ?>'/>
+                        <label class="col-form-label" for="form_stmt_count"><?php echo xlt('Statements Sent'); ?>:</label>
+                        <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control" value='<?php echo attr((0 + $ferow['stmt_count'])); ?>' />
                     </div>
                     <div class="form-group col-lg">
-                        <label class="col-form-label" for="form_last_bill"><?php echo xlt('Last Bill Date'); ?>
-                        :</label>
+                        <label class="col-form-label" for="form_last_bill"><?php echo xlt('Last Bill Date'); ?>:</label>
                         <input type='text' name="form_last_bill" id='form_last_bill' class="form-control"
-                               value ='<?php echo attr($billdate); ?>' disabled/>
+                               value ='<?php echo attr($billdate); ?>' disabled />
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="form_reference"><?php echo xlt('Check/EOB No.'); ?>:</label>
-                        <input type='text' name='form_reference' id='form_reference' class="form-control" value=''/>
+                        <input type='text' name='form_reference' id='form_reference' class="form-control" value='' />
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
-                        <input type='text' name='form_check_date' id='form_check_date" class='form-control datepicker' value=''/>
+                        <input type='text' name='form_check_date' id='form_check_date' class='form-control datepicker' value='' />
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
-                        <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value=''/>
-                        <input type='hidden' name='form_payer_id' value=''/>
-                        <input type='hidden' name='form_orig_reference' value=''/>
-                        <input type='hidden' name='form_orig_check_date' value=''/>
-                        <input type='hidden' name='form_orig_deposit_date' value=''/>
-                        <input type='hidden' name='form_pay_total' value=''/>
+                        <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value='' />
+                        <input type='hidden' name='form_payer_id' value='' />
+                        <input type='hidden' name='form_orig_reference' value='' />
+                        <input type='hidden' name='form_orig_check_date' value='' />
+                        <input type='hidden' name='form_orig_deposit_date' value='' />
+                        <input type='hidden' name='form_pay_total' value='' />
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="type_code"><?php echo xlt('Now posting for'); ?>:</label>
-                        <div style="padding-left: 15px">
+                        <div class="pl-3">
                             <?php
                                 $last_level_closed = 0 + $ferow['last_level_closed'];
                             ?>
                             <label class="radio-inline">
                                 <input <?php echo $last_level_closed === 0 ? attr('checked') : ''; ?> name='form_insurance' onclick='setins("Ins1")' type='radio'
-                                       value='Ins1'><?php echo xlt('Ins1') ?>
+                                    value='Ins1' /><?php echo xlt('Ins1') ?>
                             </label>
                             <label class="radio-inline">
                                 <input <?php echo $last_level_closed === 1 ? attr('checked') : ''; ?> name='form_insurance' onclick='setins("Ins2")' type='radio'
-                                       value='Ins2'><?php echo xlt('Ins2') ?>
+                                    value='Ins2' /><?php echo xlt('Ins2') ?>
                             </label>
                             <label class="radio-inline">
                                 <input <?php echo $last_level_closed === 2 ? attr('checked') : ''; ?> name='form_insurance' onclick='setins("Ins3")' type='radio'
-                                       value='Ins3'><?php echo xlt('Ins3') ?>
+                                    value='Ins3' /><?php echo xlt('Ins3') ?>
                             </label>
                             <label class="radio-inline">
                                 <input <?php echo $last_level_closed === 3 ? attr('checked') : ''; ?> name='form_insurance' onclick='setins("Pt")' type='radio'
-                                       value='Pt'><?php echo xlt('Patient') ?>
+                                    value='Pt' /><?php echo xlt('Patient') ?>
                             </label>
                             <?php
                             // TBD: I think the following is unused and can be removed.
@@ -558,7 +556,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </div>
                     <div class="form-group col-lg" id='ins_done'>
                         <label class="col-form-label" for=""><?php echo xlt('Done with'); ?>:</label>
-                        <div style="padding-left:15px">
+                        <div class="pl-3">
                             <?php
                             // Write a checkbox for each insurance.  It is to be checked when
                             // we no longer expect any payments from that company for the claim.
@@ -577,36 +575,35 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for=""><?php echo xlt('Secondary billing'); ?>:</label>
-                        <div style="padding-left:15px">
+                        <div class="pl-3">
                             <label class="checkbox-inline">
-                                <input name="form_secondary" type="checkbox" value="1"><?php echo xlt('Needs secondary billing') ?>
+                                <input name="form_secondary" type="checkbox" value="1" /><?php echo xlt('Needs secondary billing') ?>
                             </label>
                         </div>
                     </div>
                 </div>
-
             </fieldset>
             <fieldset>
                 <legend><?php echo xlt('Invoice Details'); ?></legend>
                 <div class="table-responsive">
                     <table class="table table-sm">
                         <thead>
-                        <tr>
-                            <th><?php echo xlt('Code') ?></th>
-                            <th class="text-right"><?php echo xlt('Charge') ?></th>
-                            <th class="text-right"><?php echo xlt('Balance') ?>&nbsp;</th>
-                            <th><?php echo xlt('By/Source') ?></th>
-                            <th><?php echo xlt('Date') ?></th>
-                            <th><?php echo xlt('Pay') ?></th>
-                            <th><?php echo xlt('Adjust') ?></th>
-                            <th>&nbsp;</th>
-                            <th><?php echo xlt('Reason') ?></th>
-                            <?php
-                            if ($ALLOW_DELETE) { ?>
-                                <th><?php echo xlt('Del') ?></th>
+                            <tr>
+                                <th><?php echo xlt('Code') ?></th>
+                                <th class="text-right"><?php echo xlt('Charge') ?></th>
+                                <th class="text-right"><?php echo xlt('Balance') ?>&nbsp;</th>
+                                <th><?php echo xlt('By/Source') ?></th>
+                                <th><?php echo xlt('Date') ?></th>
+                                <th><?php echo xlt('Pay') ?></th>
+                                <th><?php echo xlt('Adjust') ?></th>
+                                <th>&nbsp;</th>
+                                <th><?php echo xlt('Reason') ?></th>
                                 <?php
-                            } ?>
-                        </tr>
+                                if ($ALLOW_DELETE) { ?>
+                                    <th><?php echo xlt('Del') ?></th>
+                                    <?php
+                                } ?>
+                            </tr>
                         </thead>
                         <?php
                         $firstProcCodeIndex = -1;
@@ -664,7 +661,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                             <?php
                                             if (!empty($ddata['arseq'])) { ?>
                                                 <input name="form_del[<?php echo attr($ddata['arseq']); ?>]"
-                                                       type="checkbox">
+                                                       type="checkbox" />
                                                 <?php
                                             } else {
                                                 ?> &nbsp;
@@ -676,15 +673,16 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             <?php } // end of prior detail line ?>
                             <tr>
                                 <td class="last_detail"><?php echo text($dispcode);
-                                    $dispcode = "" ?></td>
+                                    $dispcode = "" ?>
+                                </td>
                                 <td class="last_detail">&nbsp;</td>
                                 <td class="last_detail">
                                     <input name="form_line[<?php echo attr($code); ?>][bal]" type="hidden"
-                                           value="<?php echo attr(bucks($cdata['bal'])); ?>">
+                                           value="<?php echo attr(bucks($cdata['bal'])); ?>" />
                                     <input name="form_line[<?php echo attr($code); ?>][ins]" type="hidden"
-                                           value="<?php echo attr($cdata['ins']); ?>">
+                                           value="<?php echo attr($cdata['ins']); ?>" />
                                     <input name="form_line[<?php echo attr($code); ?>][code_type]" type="hidden"
-                                           value="<?php echo attr($cdata['code_type']); ?>"> <?php echo text(sprintf("%.2f", $cdata['bal'])); ?>
+                                           value="<?php echo attr($cdata['code_type']); ?>" /> <?php echo text(sprintf("%.2f", $cdata['bal'])); ?>
                                     &nbsp;
                                 </td>
                                 <td class="last_detail"></td>
@@ -693,12 +691,13 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                     <input name="form_line[<?php echo attr($code); ?>][pay]"
                                            onkeyup="updateFields(document.forms[0]['form_line[<?php echo attr($code); ?>][pay]'], document.forms[0]['form_line[<?php echo attr($code); ?>][adj]'], document.forms[0]['form_line[<?php echo attr($code); ?>][bal]'], document.forms[0]['form_line[CO-PAY][bal]'], <?php echo ($firstProcCodeIndex == $encount) ? 1 : 0 ?>)"
                                            onfocus="this.select()" autofocus size="10" type="text" class="form-control"
-                                           value="0.00"></td>
+                                           value="0.00" />
+                                </td>
                                 <td class="last_detail">
                                     <input name="form_line[<?php echo attr($code); ?>][adj]" size="10" type="text"
                                            class="form-control"
                                            value='<?php echo attr($totalAdjAmount ? $totalAdjAmount : '0.00'); ?>'
-                                           onclick="this.select()">
+                                           onclick="this.select()" />
                                 </td>
                                 <td class="last_detail text-center">
                                     <a href="#" class="text-decoration-none" onclick="return writeoff(<?php echo attr_js($code); ?>)">WO</a>
@@ -732,9 +731,6 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </table>
                 </div>
             </fieldset>
-        </div>
-
-            </div>
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
             <div class="form-group col-lg clearfix">
                 <div class="col-sm-12 text-left position-override" id="search-btn">

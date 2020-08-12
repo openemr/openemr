@@ -34,6 +34,12 @@ assets:
     i18next:
         basePath: '%assets_static_relative%/i18next/dist/umd/'
         script: i18next.min.js
+    i18next-xhr-backend:
+        basePath: '%assets_static_relative%/i18next-xhr-backend/dist/umd/'
+        script: i18nextXHRBackend.min.js
+    i18next-browser-languagedetector:
+        basePath: '%assets_static_relative%/i18next-browser-languagedetector/dist/umd/'
+        script: i18nextBrowserLanguageDetector.min.js
     utility:
         basePath: '%webroot%/library/js/'
         script: utility.js
@@ -107,7 +113,7 @@ assets:
         script: js/jquery.gritter.min.js
     datatables:
         basePath: '%assets_static_relative%/datatables.net/js/'
-        script: jquery.dataTables.js
+        script: jquery.dataTables.min.js
     datatables-colreorder:
         basePath: '%assets_static_relative%'
         link: /datatables.net-colreorder-dt/css/colReorder.dataTables.min.css
@@ -121,16 +127,16 @@ assets:
         link: css/dataTables.bootstrap4.min.css
     datatables-jqui:
         basePath: '%assets_static_relative%/datatables.net-jqui/js/'
-        script: dataTables.jqueryui.js
+        script: dataTables.jqueryui.min.js
     datatables-jqui-theme:
         basePath: '%assets_static_relative%/datatables.net-jqui/css/'
-        link: dataTables.jqueryui.css
+        link: dataTables.jqueryui.min.css
     datatables-scroller:
         basePath: '%assets_static_relative%/datatables.net-scroller/js/'
-        script: dataTables.scroller.js
+        script: dataTables.scroller.min.js
     datatables-scroller-jqui-theme:
         basePath: '%assets_static_relative%/datatables.net-scroller-jqui/css/'
-        link: scroller.jqueryui.css
+        link: scroller.jqueryui.min.css
     fontawesome:
         basePath: '%assets_static_relative%/@fortawesome/fontawesome-free/css/'
         link: all.min.css
@@ -203,8 +209,8 @@ assets:
         script: checklist-model.js
     summernote:
         basePath: '%assets_static_relative%/summernote/dist/'
-        script: summernote.js
-        link: summernote.css
+        script: summernote-bs4.min.js
+        link: summernote-bs4.min.css
     summernote-ext-nugget:
         basePath: '%assets_static_relative%/summernote-nugget/plugins/nugget/'
         script: summernote-ext-nugget.js
@@ -223,12 +229,6 @@ assets:
     track-anything:
         basePath: '%webroot%/interface/forms/track_anything/'
         link: style.css
-    i18next-xhr-backend:
-        basePath: '%assets_static_relative%/i18next-xhr-backend/dist/umd/'
-        script: i18nextXHRBackend.min.js
-    i18next-browser-languagedetector:
-        basePath: '%assets_static_relative%/i18next-browser-languagedetector/dist/umd/'
-        script: i18nextBrowserLanguageDetector.min.js
     konva:
         basePath: '%assets_static_relative%/konva/'
         script: konva.min.js
