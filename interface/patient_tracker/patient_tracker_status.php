@@ -97,8 +97,8 @@ $row = sqlQuery("select fname, lname " .
 "from patient_data where pid =? limit 1", array($tkpid));
 ?>
 
-<body class="body_top">
-    <div class="container">
+<body>
+    <div class="container mt-3">
         <div class="row">
             <div class="col-12">
                 <h2><?php echo xlt('Change Status for') . " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
@@ -116,8 +116,8 @@ $row = sqlQuery("select fname, lname " .
             </div>
             <div class="position-override">
                 <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                    <a href='javascript:;' class='btn btn-secondary btn-save' onclick='document.getElementById("form_note").submit();'><?php echo xlt('Save')?></a>
-                    <a href='javascript:;' class='btn btn-link btn-cancel oe-opt-btn-separate-left' onclick="dlgclose();" ><?php echo xlt('Cancel'); ?></a>
+                    <button type="button" class='btn btn-primary btn-save btn-sm' onclick='document.getElementById("form_note").submit();'><?php echo xlt('Save')?></button>
+                    <button type="button" class='btn btn-secondary btn-cancel btn-sm oe-opt-btn-separate-left' onclick="dlgclose();" ><?php echo xlt('Cancel'); ?></button>
                 </div>
             </div>
         </form>
