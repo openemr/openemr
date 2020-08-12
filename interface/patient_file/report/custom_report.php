@@ -188,27 +188,6 @@ function zip_content($source, $destination, $content = '', $create = true)
       // by div of navigateLink class. Specifically used for CAMOS, but
       // can also be used by other forms that require output in the
       // encounter listings output, but not in the custom report. ?>
-<style>
-    div.navigateLink {
-        display:none;
-    }
-
-    .hilite {
-        background-color: var(--yellow);
-    }
-    .hilite2 {
-        background-color: transparent;
-    }
-    mark {
-        background-color: var(--yellow);
-    }
-    .next {
-        background-color: var(--yellow);
-    }
-    img {
-        max-width:700px;
-    }
-</style>
 
 <?php if (!$PDF_OUTPUT) { ?>
     <?php // if the track_anything form exists, then include the styling
