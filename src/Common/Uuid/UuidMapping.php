@@ -22,7 +22,8 @@ class UuidMapping
 {
     // For now, support one to one uuid to target table, but will plan to add one uuid to many targets tables in future
     //   when presented with that use case (this is why the uuid column in uuid_mapping is not unique btw).
-    public static function createMissingResourceUuids($resource, $table) {
+    public static function createMissingResourceUuids($resource, $table)
+    {
         // find the missing mapped uuids
         $resultSet = sqlStatementNoLog(
             "SELECT `" . $table . "`.`uuid`
