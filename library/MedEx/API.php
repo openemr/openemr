@@ -1868,7 +1868,7 @@ class Display extends base
                                         }
                                         ?>  onchange="show_this();">
                                         <option value=""><?php echo xlt('All Facilities'); ?></option>
-                                            <?php echo $select_facs; ?>
+                                        <?php echo $select_facs; ?>
                                     </select>
                                 </div>
                                 <div class="form-group row mx-sm-1">
@@ -1971,11 +1971,11 @@ class Display extends base
                                         <?php echo $current_events; ?>
                                     </span>
                                 </a>
+                                <?php } ?>
                             </div>
                         </div>
-                        <?php } ?>
-
-                        <div name="message" id="message" class="warning"></div>
+                        <div name="message" id="message" class="warning">
+                        </div>
                     </form>
                 </div>
             </div>
@@ -2456,7 +2456,7 @@ class Display extends base
         ?>
         <div class="table-responsive">
             <table class="table table-bordered">
-                <thead>
+                <thead class="table-primary">
                     <tr>
                         <th>
                             <?php echo xlt('Name'); ?>
