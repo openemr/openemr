@@ -171,10 +171,10 @@ function get_history_codes($pid)
 </head>
 
 <body>
-    <div class="container-fluid w-100 position-fixed" style="margin-right: 10px;">
+    <div class="container-fluidposition-fixed">
         <div class="input-group bg-white">
             <div class="input-group-prepend">
-                <button class="btn btn-secondary" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
+                <button class="btn btn-danger" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
             </div>
             <input class='form-control text-danger' type='text' id='workingDx' title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
         </div>
@@ -202,7 +202,7 @@ function get_history_codes($pid)
         <div class="loading text-center"><i class="fa fa-sync fa-3x fa-spin"></i></div>
     </div>
     <div class="container-fluid">
-        <div style="margin-top: 45px;">
+        <div class="table-responsive mt-5">
             <table class="table table-sm table-hover" id="historyTable">
                 <thead>
                 <tr>
@@ -232,8 +232,5 @@ function get_history_codes($pid)
             </table>
         </div>
     </div>
-<script>
-
-</script>
 </body>
 </html>

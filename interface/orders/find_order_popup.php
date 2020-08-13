@@ -114,67 +114,71 @@ if (isset($_GET['typeid'])) {
 </head>
 <body>
 <div class="container">
-    <form class="form-inline" method='post' name='theform' action='find_order_popup.php<?php echo "?order=" . attr_url($order) . "&labid=" . attr_url($labid);
-    if (isset($_GET['formid'])) {
-        echo '&formid=' . attr_url($_GET['formid']);
-    }
+    <div class="row">
 
-    if (isset($_GET['formseq'])) {
-        echo '&formseq=' . attr_url($_GET['formseq']);
-    }
-    if (isset($_GET['addfav'])) {
-        echo '&addfav=' . attr_url($_GET['addfav']);
-    }
-    ?>'>
-        <div class="row">
-            <div class="col-sm-8 offset-sm-2">
-                <div class="input-group">
-                    <input type="hidden" name='isfav' value='<?php echo attr($_REQUEST['ordLookup']); ?>'>
-                    <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term']); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;"/>
-                    <span class="input-group-append">
-                        <button type="submit" class="btn btn-secondary btn-search" name='bn_search' value="true"><?php echo xlt('Search'); ?></button>
-                        <?php if (!isset($_REQUEST['addfav'])) { ?>
-                            <button type="submit" class="btn btn-secondary btn-search" name='bn_grpsearch' value="true"><?php echo xlt('Favorites'); ?></button>
-                        <?php } ?>
-                        <button type="button" class="btn btn-secondary btn-delete" onclick="selcode(0)"><?php echo xlt('Erase'); ?></button>
-                    </span>
+        <form class="form-inline" method='post' name='theform' action='find_order_popup.php<?php echo "?order=" . attr_url($order) . "&labid=" . attr_url($labid);
+        if (isset($_GET['formid'])) {
+            echo '&formid=' . attr_url($_GET['formid']);
+        }
+
+        if (isset($_GET['formseq'])) {
+            echo '&formseq=' . attr_url($_GET['formseq']);
+        }
+        if (isset($_GET['addfav'])) {
+            echo '&addfav=' . attr_url($_GET['addfav']);
+        }
+        ?>'>
+            <div class="col-sm-12">
+                <input type="hidden" name='isfav' value='<?php echo attr($_REQUEST['ordLookup']); ?>' />
+                <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term']); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;" />
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary btn-search" name='bn_search' value="true">
+                        <?php echo xlt('Search'); ?>
+                    </button>
+                    <?php if (!isset($_REQUEST['addfav'])) { ?>
+                        <button type="submit" class="btn btn-primary btn-search" name='bn_grpsearch' value="true">
+                            <?php echo xlt('Favorites'); ?>
+                        </button>
+                    <?php } ?>
+                    <button type="button" class="btn btn-danger btn-delete" onclick="selcode(0)">
+                        <?php echo xlt('Erase'); ?>
+                    </button>
                 </div>
             </div>
-        </div>
-        <?php if ($_REQUEST['bn_search'] || $_REQUEST['bn_grpsearch']) { ?>
-            <div class="table-responsive">
-                <table class="table table-striped table-sm">
-                    <thead>
-                    <th><?php echo xlt('Code'); ?></th>
-                    <th><?php echo xlt('Description'); ?></th>
-                    </thead>
-                    <?php
-                    $ord = isset($_REQUEST['bn_search']) ? 'ord' : 'fgp';
-                    $search_term = '%' . $_REQUEST['search_term'] . '%';
-                    $query = "SELECT procedure_type_id, procedure_code, name " .
-                        "FROM procedure_type WHERE " .
-                        "lab_id = ? AND " .
-                        "procedure_type LIKE ? AND " .
-                        "activity = 1 AND " .
-                        "(procedure_code LIKE ? OR name LIKE ?) " .
-                        "ORDER BY seq, procedure_code";
-                    $res = sqlStatement($query, array($labid, $ord, $search_term, $search_term));
+            <?php if ($_REQUEST['bn_search'] || $_REQUEST['bn_grpsearch']) { ?>
+                <div class="table-responsive mt-3">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <th><?php echo xlt('Code'); ?></th>
+                            <th><?php echo xlt('Description'); ?></th>
+                        </thead>
+                        <?php
+                        $ord = isset($_REQUEST['bn_search']) ? 'ord' : 'fgp';
+                        $search_term = '%' . $_REQUEST['search_term'] . '%';
+                        $query = "SELECT procedure_type_id, procedure_code, name " .
+                            "FROM procedure_type WHERE " .
+                            "lab_id = ? AND " .
+                            "procedure_type LIKE ? AND " .
+                            "activity = 1 AND " .
+                            "(procedure_code LIKE ? OR name LIKE ?) " .
+                            "ORDER BY seq, procedure_code";
+                        $res = sqlStatement($query, array($labid, $ord, $search_term, $search_term));
 
-                    while ($row = sqlFetchArray($res)) {
-                        $itertypeid = $row['procedure_type_id'];
-                        $itercode = $row['procedure_code'];
-                        $itertext = trim($row['name']);
-                        $anchor = "<a href='' onclick='return selcode(" . attr_js($itertypeid) . ")'>";
-                        echo " <tr>";
-                        echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
-                        echo "  <td>$anchor" . text($itertext) . "</a></td>\n";
-                        echo " </tr>";
-                    } ?>
-                </table>
-            </div>
-        <?php } ?>
-
-    </form>
+                        while ($row = sqlFetchArray($res)) {
+                            $itertypeid = $row['procedure_type_id'];
+                            $itercode = $row['procedure_code'];
+                            $itertext = trim($row['name']);
+                            $anchor = "<a href='' onclick='return selcode(" . attr_js($itertypeid) . ")'>";
+                            echo " <tr>";
+                            echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
+                            echo "  <td>$anchor" . text($itertext) . "</a></td>\n";
+                            echo " </tr>";
+                        } ?>
+                    </table>
+                </div>
+            <?php } ?>
+        </form>
+    </div>
 </div>
 </body>
 </html>
