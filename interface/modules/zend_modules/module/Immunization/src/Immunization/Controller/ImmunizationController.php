@@ -14,7 +14,8 @@ namespace Immunization\Controller;
 
 use Application\Model\ApplicationTable;
 use Immunization\Model\ImmunizationTable;
-use Laminas\{Mvc\Controller\AbstractActionController, View\Model\ViewModel};
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Immunization\Form\ImmunizationForm;
 use Application\Listener\Listener;
 
