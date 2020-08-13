@@ -199,7 +199,7 @@ class EncountermanagerTable extends AbstractTableGateway
                 return("$config_err 1");
             }
 
-            $fp = (new \Application\Plugin\Phimail())->phimail_connect($err);
+            $fp = \Application\Plugin\Phimail::phimail_connect($err);
             if ($fp === false) {
                 return("$config_err $err");
             }
@@ -207,7 +207,7 @@ class EncountermanagerTable extends AbstractTableGateway
             $phimail_username = $GLOBALS['phimail_username'];
             $cryptoGen = new CryptoGen();
             $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
-            $ret = (new \Application\Plugin\Phimail())->phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
+            $ret = \Application\Plugin\Phimail::phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
             if ($ret !== true) {
                 return("$config_err 4");
             }
@@ -230,16 +230,16 @@ class EncountermanagerTable extends AbstractTableGateway
             }
 
             $text_len = strlen($text_out);
-            (new \Application\Plugin\Phimail())->phimail_write($fp, "TEXT $text_len\n");
+            \Application\Plugin\Phimail::phimail_write($fp, "TEXT $text_len\n");
             $ret = @fgets($fp, 256);
             if ($ret != "BEGIN\n") {
-                (new \Application\Plugin\Phimail())->phimail_close($fp);
+                \Application\Plugin\Phimail::phimail_close($fp);
               //return("$config_err 5");
                 $d_Address .= ' ' . $recipient;
                 continue;
             }
 
-            $ret = (new \Application\Plugin\Phimail())->phimail_write_expect_OK($fp, $text_out);
+            $ret = \Application\Plugin\Phimail::phimail_write_expect_OK($fp, $text_out);
             if ($ret !== true) {
               //return("$config_err 6");
                 $d_Address .= $recipient;
