@@ -8360,6 +8360,27 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `uuid_mapping`
+--
+
+DROP TABLE IF EXISTS `uuid_mapping`;
+CREATE TABLE `uuid_mapping` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) NOT NULL DEFAULT '',
+  `resource` varchar(255) NOT NULL DEFAULT '',
+  `table` varchar(255) NOT NULL DEFAULT '',
+  `target_uuid` binary(16) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  PRIMARY KEY (`id`),
+  KEY `uuid` (`uuid`),
+  KEY `resource` (`resource`),
+  KEY `table` (`table`),
+  KEY `target_uuid` (`target_uuid`)
+) ENGINE=InnoDB AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `uuid_registry`
 --
 
@@ -8370,6 +8391,7 @@ CREATE TABLE `uuid_registry` (
   `table_id` varchar(255) NOT NULL DEFAULT '',
   `table_vertical` varchar(255) NOT NULL DEFAULT '',
   `couchdb` varchar(255) NOT NULL DEFAULT '',
+  `mapped` tinyint(4) NOT NULL DEFAULT '0',
   `created` timestamp NULL,
   PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
