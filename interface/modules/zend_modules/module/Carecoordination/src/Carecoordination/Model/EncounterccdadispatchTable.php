@@ -17,14 +17,14 @@ use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Carecoordination\Model\CarecoordinationTable;
-use CouchDB;
-use OpenEMR\Common\Crypto\CryptoGen;
 
 require_once(dirname(__FILE__) . "/../../../../../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__) . "/../../../../../../../forms/vitals/report.php");
 
 class EncounterccdadispatchTable extends AbstractTableGateway
 {
+    private $ccTable;
+
     public function __construct()
     {
     }
@@ -406,8 +406,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
 
                 if ($row['reaction']) {
-                    $reaction_text = CarecoordinationTable::getListTitle($row['reaction'], 'reaction', '');
-                    $reaction_code = CarecoordinationTable::getCodes($row['reaction'], 'reaction');
+                    $reaction_text = (new CarecoordinationTable)->getListTitle($row['reaction'], 'reaction', '');
+                    $reaction_code = (new CarecoordinationTable)->getCodes($row['reaction'], 'reaction');
                 }
 
                 $allergies .= "<allergy>
@@ -1480,13 +1480,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $social_history .= "<social_history>";
         foreach ($res as $row) {
             $tobacco        = explode('|', $row['tobacco']);
-            $status_code    = CarecoordinationTable::getListCodes($tobacco[3], 'smoking_status');
+            $status_code    = (new CarecoordinationTable)->getListCodes($tobacco[3], 'smoking_status');
             $status_code    = str_replace("SNOMED-CT:", "", $status_code);
             $social_history .= "<history_element>
                                   <extension>" . htmlspecialchars(base64_encode('smoking' . $_SESSION['site_id'] . $row['id']), ENT_QUOTES) . "</extension>
                                   <sha_extension>" . htmlspecialchars("9b56c25d-9104-45ee-9fa4-e0f3afaa01c1", ENT_QUOTES) . "</sha_extension>
                                   <element>" . htmlspecialchars('Smoking', ENT_QUOTES) . "</element>
-                                  <description>" . htmlspecialchars(CarecoordinationTable::getListTitle($tobacco[3], 'smoking_status'), ENT_QUOTES) . "</description>
+                                  <description>" . htmlspecialchars((new CarecoordinationTable)->getListTitle($tobacco[3], 'smoking_status'), ENT_QUOTES) . "</description>
                                   <status_code>" . htmlspecialchars(($status_code ? $status_code : 0), ENT_QUOTES) . "</status_code>
                                   <status>" . htmlspecialchars(($snomeds_status[$tobacco[1]] ? $snomeds_status[$tobacco[1]] : 'NULL'), ENT_QUOTES) . "</status>
                                   <date>" . ($tobacco[2] ? htmlspecialchars($this->date_format($tobacco[2]), ENT_QUOTES) : 0) . "</date>
@@ -1969,21 +1969,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $content    = base64_decode($content);
         $file_path  = '';
-        $docid = '';
-        $revid = '';
+        $couch_id   = array();
         if ($GLOBALS['document_storage_method'] == 1) {
-            $couch = new CouchDB();
-            $docid = $couch->createDocId('ccda');
-            if ($GLOBALS['couchdb_encryption']) {
-                $encrypted = 1;
-                $cryptoGen = new CryptoGen();
-                $resp = $couch->save_doc(['_id' => $docid, 'data' => $cryptoGen->encryptStandard($content, null, 'database')]);
-            } else {
-                $encrypted = 0;
-                $resp = $couch->save_doc(['_id' => $docid, 'data' => base64_encode($content)]);
-            }
-            $docid = $resp->id;
-            $revid = $resp->rev;
+            $data = array(
+                'data'      => base64_encode($content),
+                'pid'       => $pid,
+                'encounter' => $encounter,
+                'mimetype'  => 'text/xml'
+            );
+            $couch    = \Documents\Plugin\Documents::couchDB();
+            $couch_id = \Documents\Plugin\Documents::saveCouchDocument($couch, $data);
         } else {
             $file_path  = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $pid . '/CCDA';
             $file_name  = $pid . "_" . $encounter . "_" . $time . ".xml";
@@ -1992,21 +1987,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
 
             $fccda = fopen($file_path . "/" . $file_name, "w");
-            if ($GLOBALS['drive_encryption']) {
-                $encrypted = 1;
-                $cryptoGen = new CryptoGen();
-                fwrite($fccda, $cryptoGen->encryptStandard($content, null, 'database'));
-            } else {
-                $encrypted = 0;
-                fwrite($fccda, $content);
-            }
+            fwrite($fccda, $content);
             fclose($fccda);
             $file_path = $file_path . "/" . $file_name;
         }
 
-        $query      = "insert into ccda (pid, encounter, ccda_data, time, status, user_id, couch_docid, couch_revid, view, transfer,emr_transfer, encrypted) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)";
+        $query      = "insert into ccda (pid, encounter, ccda_data, time, status, user_id, couch_docid, couch_revid, view, transfer,emr_transfer) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?)";
         $appTable   = new ApplicationTable();
-        $result     = $appTable->zQuery($query, array($pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $view, $transfer,$emr_transfer, $encrypted));
+        $result     = $appTable->zQuery($query, array($pid, $encounter, $file_path, $time, $status, $user_id, $couch_id[0], $couch_id[1], $view, $transfer,$emr_transfer));
         return $moduleInsertId = $result->getGeneratedValue();
     }
 
