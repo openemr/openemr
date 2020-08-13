@@ -13,6 +13,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -21,15 +22,20 @@ class LocationService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
+    private $uuidMapping;
 
     /**
      * Default constructor.
      */
     public function __construct()
     {
+        $this->uuidMapping = new UuidMapping();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
+        $this->uuidMapping->createMissingResourceUuids("Location", self::PATIENT_TABLE);
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
+        $this->uuidMapping->createMissingResourceUuids("Location", self::PRACTITIONER_TABLE);
         (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
+        $this->uuidMapping->createMissingResourceUuids("Location", self::FACILITY_TABLE);
     }
 
     /**
@@ -46,9 +52,9 @@ class LocationService extends BaseService
     {
         $sqlBindArray = array();
 
-        $sql = 'SELECT location.* FROM 
+        $sql = 'SELECT location.*, uuid_mapping.uuid FROM 
                 (SELECT
-                    uuid,
+                    uuid as target_uuid,
                     CONCAT(fname,"\'s Home") as name,
                     street,
                     city,
@@ -60,7 +66,7 @@ class LocationService extends BaseService
                     null as website,
                     email from patient_data
                 UNION SELECT
-                    uuid,
+                    uuid as target_uuid,
                     name,
                     street,
                     city,
@@ -72,7 +78,7 @@ class LocationService extends BaseService
                     website,
                     email from facility
                 UNION SELECT
-                    uuid,
+                    uuid as target_uuid,
                     CONCAT(fname,"\'s Home") as name,
                     street,
                     city,
@@ -82,7 +88,8 @@ class LocationService extends BaseService
                     phone,
                     fax,
                     url as website,
-                    email from users) as location';
+                    email from users) as location
+                    LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.target_uuid';
 
         if (!empty($search)) {
             $sql .= ' WHERE ';
@@ -135,9 +142,9 @@ class LocationService extends BaseService
             return $processingResult;
         }
 
-        $sql = 'SELECT location.* FROM 
+        $sql = 'SELECT location.*, uuid_mapping.uuid FROM 
                 (SELECT
-                    uuid,
+                    uuid as target_uuid,
                     CONCAT(fname,"\'s Home") as name,
                     street,
                     city,
@@ -149,7 +156,7 @@ class LocationService extends BaseService
                     null as website,
                     email from patient_data
                 UNION SELECT
-                    uuid,
+                    uuid as target_uuid,
                     name,
                     street,
                     city,
@@ -161,7 +168,7 @@ class LocationService extends BaseService
                     website,
                     email from facility
                 UNION SELECT
-                    uuid,
+                    uuid as target_uuid,
                     CONCAT(fname,"\'s Home") as name,
                     street,
                     city,
@@ -172,7 +179,8 @@ class LocationService extends BaseService
                     fax,
                     url as website,
                     email from users) as location
-                    WHERE location.uuid=?';
+                    LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.target_uuid
+                    WHERE uuid_mapping.uuid=?';
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
