@@ -24,14 +24,14 @@
   border-left: 0 !important;
   border-right: 0 !important;
   border-top: 0 !important;
+
+  &:hover {
+    background: transparent !important;
+  }
 }
 
 .tabsNoHover {
   border-bottom: 2px solid $dark !important;
-}
-
-.tabNotchosen:hover {
-  background: transparent !important;
 }
 
 .tabSpan_tabs:hover {
@@ -61,7 +61,10 @@
 
 .menuLabel {
   @include font-size("0.875rem");
-  color: $black !important;
+
+  &:hover {
+    background: $palepale !important;
+  }
 }
 
 .patientEncounterList {
@@ -74,31 +77,24 @@
   background-color: $palepale !important;
 }
 
-.menuLabel:hover {
-  background: $palepale !important;
-}
-
 .menuSection > .menuEntries {
   border: 0 !important;
   border-radius: 0 !important;
   box-shadow: 0 2px 2px $midpale !important;
+  background-color: $paler !important;
 }
 
 .menuEntries li .menuLabel {
   padding: 5px 10px !important;
-}
 
-.menuEntres li .menuLabel:hover {
-  background-color: $palepale !important;
-  color: $bs-dark;
+  &:hover {
+    background-color: $palepale !important;
+    color: $bs-dark;
+  }
 }
 
 .appMenu li:hover {
   background-color: $palepale !important;
-}
-
-.menuSection > .menuEntries {
-  background-color: $paler !important;
 }
 
 .body_title,

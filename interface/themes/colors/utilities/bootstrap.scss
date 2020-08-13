@@ -28,11 +28,11 @@ textarea.form-control {
   background-color: $white !important;
 }
 
-.btn-secondary {
-  background: $darker !important;
-  border-color: $darker !important;
-  color: $white !important;
-}
+// .btn-secondary {
+//   background: $darker !important;
+//   border-color: $darker !important;
+//   color: $white !important;
+// }
 
 .btn-link {
   background: $paler !important;
@@ -41,15 +41,15 @@ textarea.form-control {
   color: $gray !important;
 }
 
-.btn-secondary.active,
-.btn-secondary.focus,
-.btn-secondary:active,
-.btn-secondary:focus,
-.btn-secondary:hover,
-.open > .dropdown-toggle.btn-secondary {
-  background: $darkest !important;
-  border-color: $darkest !important;
-}
+// .btn-secondary.active,
+// .btn-secondary.focus,
+// .btn-secondary:active,
+// .btn-secondary:focus,
+// .btn-secondary:hover,
+// .open > .dropdown-toggle.btn-secondary {
+//   background: $darkest !important;
+//   border-color: $darkest !important;
+// }
 
 .btn-link:focus,
 .btn-link:hover {
@@ -57,7 +57,7 @@ textarea.form-control {
 }
 
 .btn-link {
-  border: 1px solid #ccc;
+  border: 1px solid $gray-400;
   border-radius: 3px !important;
 }
 

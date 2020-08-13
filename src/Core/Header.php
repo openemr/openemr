@@ -259,7 +259,11 @@ class Header
             foreach ($link as $l) {
                 $l = self::parsePlaceholders($l);
                 if ($alreadyBuilt) {
-                    $path = $l;
+                    if ($GLOBALS['enable_compact_mode'] && strpos($l, "style_")) {
+                      $path = str_replace("style_", "compact_style_", $l);
+                    } else {
+                      $path = $l;
+                    }
                 } else {
                     $path = self::createFullPath($basePath, $l);
                 }
@@ -306,7 +310,7 @@ class Header
     {
 
         $script = "<script src=\"%path%\"></script>\n";
-        $link = "<link rel=\"stylesheet\" href=\"%path%\" type=\"text/css\">\n";
+        $link = "<link rel=\"stylesheet\" href=\"%path%\">\n";
 
         $template = ($type == 'script') ? $script : $link;
         if (!$alreadyBuilt) {
