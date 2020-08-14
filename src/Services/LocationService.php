@@ -123,13 +123,9 @@ class LocationService extends BaseService
     {
         $processingResult = new ProcessingResult();
 
-        $isValid = BaseValidator::validateIdMultiple(
+        $isValid = BaseValidator::validateId(
             "uuid",
-            array(
-                self::FACILITY_TABLE,
-                self::PRACTITIONER_TABLE,
-                self::PATIENT_TABLE
-            ),
+            "uuid_mapping",
             $uuid,
             true
         );

@@ -116,26 +116,6 @@ abstract class BaseValidator
     }
 
     /**
-     * Validates Multiple ID that exists in the database.
-     *
-     * @param $field The identifier field in database
-     * @param $tables All tables in database
-     * @param $lookupId The identifier to validateId
-     * @param $isUuid true if the lookupId is UUID, otherwise false
-     * @return true if the lookupId is a valid existing id, otherwise false
-     */
-    public static function validateIdMultiple($field, $tables, $lookupId, $isUuid = false)
-    {
-        $isValid = false;
-        foreach ($tables as $table) {
-            $isValid = BaseValidator::validateId($field, $table, $lookupId, $isUuid)
-                ? true
-                : $isValid;
-        }
-        return $isValid;
-    }
-
-    /**
      * Validates that a Code from Valueset exists in the database.
      *
      * @param $code The code which needs to be verified
