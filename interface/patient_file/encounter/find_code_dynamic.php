@@ -42,6 +42,9 @@ $source = empty($_GET['source']) ? 'D' : $_GET['source'];
 // For what == groups
 $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
 
+// For setting limit on selection
+$limit = empty($_GET['limit']) ? 0 : intval($_GET['limit']);
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -107,22 +110,26 @@ $(function () {
 
  // OnClick handler for the rows
  $('#my_data_table').on('click', 'tbody tr', function () {
-  var jobj = JSON.parse(this.id.substring(4));
+    var limit= <?php echo js_escape($limit); ?>;
+    
+    if(Object.values(oChosenIDs).length<limit || limit<=0){
+    var jobj = JSON.parse(this.id.substring(4));
 
-  this.style.fontWeight = 'bold';
-  oChosenIDs[this.id] = 1;
+    this.style.fontWeight = 'bold';
+    oChosenIDs[this.id] = 1;
 
-<?php if ($what == 'codes') { ?>
-  // this.id is of the form "CID|jsonstring".
-  var codesel = jobj['code'].split('|');
-  selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description']);
-<?php } elseif ($what == 'fields') { ?>
-  selectField(jobj);
-<?php } elseif ($what == 'lists') { ?>
-  SelectList(jobj);
-<?php } elseif ($what == 'groups') { ?>
-  SelectItem(jobj);
-<?php } ?>
+  <?php if ($what == 'codes') { ?>
+    // this.id is of the form "CID|jsonstring".
+    var codesel = jobj['code'].split('|');
+    selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description']);
+  <?php } elseif ($what == 'fields') { ?>
+    selectField(jobj);
+  <?php } elseif ($what == 'lists') { ?>
+    SelectList(jobj);
+  <?php } elseif ($what == 'groups') { ?>
+    SelectItem(jobj);
+  <?php } ?>
+  }
 
  } );
 

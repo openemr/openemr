@@ -406,7 +406,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
     <div class="form-group mt-3">
         <label class="font-weight-bold"><?php echo xlt('RXCUI Code'); ?>:</label>
         <input class="form-control w-100" type="text" size="50" name="form_drug_code" value='<?php echo attr($row['drug_code']) ?>'
-             onclick='sel_related("?codetype=RXCUI")' title='<?php echo xla('Click to select RXCUI code'); ?>' data-toggle="tooltip" data-placement="top" readonly />
+             onclick='sel_related("?codetype=RXCUI&limit=1")' title='<?php echo xla('Click to select RXCUI code'); ?>' data-toggle="tooltip" data-placement="top" readonly />
     </div>
 
     <div class="form-group mt-3">
