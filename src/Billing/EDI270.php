@@ -24,6 +24,7 @@ namespace OpenEMR\Billing;
 
 require_once(dirname(__FILE__) . "/../../library/edihistory/codes/edih_271_code_class.php");
 
+use edih_271_codes;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -602,7 +603,9 @@ class EDI270
             "(SELECT Max(eligibility_verification.eligibility_check_date) FROM eligibility_verification " .
             "WHERE eligibility_verification.insurance_id = eligv.insurance_id)";
         $result = sqlStatement($query, array($pid));
-
+        if (sqlNumRows($result) > 0) {
+            echo "<div>\n<button class='btn btn-success btn-sm btn-transmit float-right' name='status_update' value='true'>" . xlt('Update Status') . "</button>\n</div><br />";
+        }
         $showString = "<div class='row'>";
         $col = 1;
         $title = 1;
