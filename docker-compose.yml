@@ -65,6 +65,7 @@ services:
       OPENEMR_SETTING_couchdb_pass: password
       OPENEMR_SETTING_couchdb_dbase: example
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
+      OPENEMR_SETTING_user_debug: 3
     depends_on:
     - mysql
   phpmyadmin:
