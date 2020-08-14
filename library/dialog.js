@@ -38,30 +38,30 @@
 
         function alert(data, title) {
             title = title ? title : 'Alert';
-            let alertTitle = '<i class="fa fa-warning alert-danger"></i>&nbsp;<span>' + title + '</span>';
+            let alertTitle = '<span class="text-danger bg-light"><i class="fa fa-exclamation-triangle"></i>&nbsp;' + title + '</span>';
             return dlgopen('', '', 675, 0, '', alertTitle, {
                 buttons: [
-                    {text: '<i class="fa fa-thumbs-up">&nbsp;OK</i>', close: true, style: 'primary'}
+                    {text: '<i class="fa fa-thumbs-up mr-1"></i>OK', close: true, style: 'primary'}
                 ],
                 type: 'Alert',
                 sizeHeight: 'auto',
-                html: '<blockquote class="blockquote">' + data + '</blockquote>'
+                html: '<p>' + data + '</p>'
             });
         }
 
         function confirm(data, title) {
             title = title ? title : 'Confirm';
-            let alertTitle = '<i class="fa fa-warning alert-info"></i>&nbsp;<span>' + title + '</span>';
-            return dlgopen('', '', 675, 0, '', alertTitle, {
+            let alertTitle = '<span class="text-info bg-light"><i class="fa fa-exclamation-triangle"></i>&nbsp;' + title + '</span>';
+            return dlgopen('', '', "modal-md", 0, '', alertTitle, {
                 buttons: [
-                    {text: '<i class="fa fa-thumbs-up">&nbsp;Yes</i>', close: false, id: 'confirmYes', style: 'primary btn-sm'},
-                    {text: '<i class="fa fa-thumbs-down">&nbsp;No</i>', close: false, id: 'confirmNo', style: 'primary btn-sm'},
+                    {text: '<i class="fa fa-thumbs-up mr-1"></i>Yes', close: true, id: 'confirmYes', style: 'primary'},
+                    {text: '<i class="fa fa-thumbs-down mr-1"></i>No', close: true, id: 'confirmNo', style: 'primary'},
                     {text: 'Nevermind', close: true, style: 'secondary'}
                 ],
                 type: 'Confirm',
                 resolvePromiseOn: 'confirm',
                 sizeHeight: 'auto',
-                html: '<blockquote class="blockquote">' + data + '</blockquote>'
+                html: '<p>' + data + '</p>'
             });
         }
 
@@ -340,8 +340,11 @@ if (typeof dlgclose !== "function") {
                 wframe.setCallBack(call, args); // sets/creates callback function in dialogs scope.
             }
             dialogModal.modal('hide');
+        } else {
+            // no opener not iframe must be in here
+            $(this.document).find(".dialogModal").modal('hide');
         }
-    };
+    }
 }
 
 /*
