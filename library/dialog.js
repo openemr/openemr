@@ -41,7 +41,7 @@
             let alertTitle = '<span class="text-danger bg-light"><i class="fa fa-exclamation-triangle"></i>&nbsp;' + title + '</span>';
             return dlgopen('', '', 675, 0, '', alertTitle, {
                 buttons: [
-                    {text: '<i class="fa fa-thumbs-up">&nbsp;OK</i>', close: true, style: 'primary'}
+                    {text: '<i class="fa fa-thumbs-up mr-1"></i>OK', close: true, style: 'primary'}
                 ],
                 type: 'Alert',
                 sizeHeight: 'auto',
@@ -54,8 +54,8 @@
             let alertTitle = '<span class="text-info bg-light"><i class="fa fa-exclamation-triangle"></i>&nbsp;' + title + '</span>';
             return dlgopen('', '', "modal-md", 0, '', alertTitle, {
                 buttons: [
-                    {text: '<i class="fa fa-thumbs-up">&nbsp;Yes</i>', close: true, id: 'confirmYes', style: 'primary btn-sm'},
-                    {text: '<i class="fa fa-thumbs-down">&nbsp;No</i>', close: true, id: 'confirmNo', style: 'primary btn-sm'},
+                    {text: '<i class="fa fa-thumbs-up mr-1"></i>Yes', close: true, id: 'confirmYes', style: 'primary'},
+                    {text: '<i class="fa fa-thumbs-down mr-1"></i>No', close: true, id: 'confirmNo', style: 'primary'},
                     {text: 'Nevermind', close: true, style: 'secondary'}
                 ],
                 type: 'Confirm',
