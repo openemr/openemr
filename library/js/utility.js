@@ -367,17 +367,18 @@ if (typeof asyncAlertMsg !== 'function') {
 
         $('#alert_box').append(mHtml);
         return new Promise((resolve) => {
-            $('#alertmsg').on('closed.bs.alert', () => {
-                clearTimeout(AlertMsg);
-                $('#alert_box').remove();
-                resolve('closed');
-            });
-            let AlertMsg = setTimeout(() => {
+            const AlertMsg = setTimeout(() => {
                 $('#alertmsg').fadeOut(800, () => {
                     $('#alert_box').remove();
                     resolve('timedout');
                 });
             }, timer);
+
+            $('#alertmsg').on('closed.bs.alert', () => {
+                clearTimeout(AlertMsg);
+                $('#alert_box').remove();
+                resolve('closed');
+            });
         });
     }
 }

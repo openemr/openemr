@@ -1,5 +1,5 @@
 // namespaces
-var dwvOemr = dwvOemr || {};
+const dwvOemr = dwvOemr || {};
 dwvOemr.gui = dwvOemr.gui || {};
 dwvOemr.gui.info = dwvOemr.gui.info || {};
 
@@ -9,21 +9,19 @@ dwvOemr.gui.info = dwvOemr.gui.info || {};
  * @param {Object} div The HTML element to add colourMap info to.
  * @param {Object} app The associated application.
  */
-dwvOemr.gui.info.MiniColourMap = function ( div, app )
-{
+dwvOemr.gui.info.MiniColourMap = function (div, app) {
     /**
      * Create the mini colour map info div.
      */
-    this.create = function ()
-    {
+    this.create = function () {
         // clean div
-        var elems = div.getElementsByClassName("colour-map-info");
-        if ( elems.length !== 0 ) {
+        const elems = div.getElementsByClassName('colour-map-info');
+        if (elems.length !== 0) {
             dwvOemr.html.removeNodes(elems);
         }
         // colour map
-        var canvas = document.createElement("canvas");
-        canvas.className = "colour-map-info";
+        const canvas = document.createElement('canvas');
+        canvas.className = 'colour-map-info';
         canvas.width = 98;
         canvas.height = 10;
         // add canvas to div
@@ -35,49 +33,46 @@ dwvOemr.gui.info.MiniColourMap = function ( div, app )
      * @param {Object} event The windowing change event containing the new values.
      * Warning: expects the mini colour map div to exist (use after createMiniColourMap).
      */
-    this.update = function (event)
-    {
-        var windowCenter = event.wc;
-        var windowWidth = event.ww;
+    this.update = function (event) {
+        const windowCenter = event.wc;
+        const windowWidth = event.ww;
         // retrieve canvas and context
-        var canvas = div.getElementsByClassName("colour-map-info")[0];
-        var context = canvas.getContext('2d');
+        const canvas = div.getElementsByClassName('colour-map-info')[0];
+        const context = canvas.getContext('2d');
         // fill in the image data
-        var colourMap = app.getViewController().getColourMap();
-        var imageData = context.getImageData(0,0,canvas.width, canvas.height);
+        const colourMap = app.getViewController().getColourMap();
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         // histogram sampling
-        var c = 0;
-        var minInt = app.getImage().getRescaledDataRange().min;
-        var range = app.getImage().getRescaledDataRange().max - minInt;
-        var incrC = range / canvas.width;
+        let c = 0;
+        const minInt = app.getImage().getRescaledDataRange().min;
+        const range = app.getImage().getRescaledDataRange().max - minInt;
+        const incrC = range / canvas.width;
         // Y scale
-        var y = 0;
-        var yMax = 255;
-        var yMin = 0;
+        let y = 0;
+        const yMax = 255;
+        const yMin = 0;
         // X scale
-        var xMin = windowCenter - 0.5 - (windowWidth-1) / 2;
-        var xMax = windowCenter - 0.5 + (windowWidth-1) / 2;
+        const xMin = windowCenter - 0.5 - (windowWidth - 1) / 2;
+        const xMax = windowCenter - 0.5 + (windowWidth - 1) / 2;
         // loop through values
-        var index;
-        for ( var j = 0; j < canvas.height; ++j ) {
+        let index;
+        for (let j = 0; j < canvas.height; j += 1) {
             c = minInt;
-            for ( var i = 0; i < canvas.width; ++i ) {
-                if ( c <= xMin ) {
+            for (let i = 0; i < canvas.width; i += 1) {
+                if (c <= xMin) {
                     y = yMin;
-                }
-                else if ( c > xMax ) {
+                } else if (c > xMax) {
                     y = yMax;
-                }
-                else {
-                    y = ( (c - (windowCenter-0.5) ) / (windowWidth-1) + 0.5 ) *
-                        (yMax-yMin) + yMin;
-                    y = parseInt(y,10);
+                } else {
+                    y = ((c - (windowCenter - 0.5)) / (windowWidth - 1) + 0.5)
+                        * (yMax - yMin) + yMin;
+                    y = parseInt(y, 10);
                 }
                 index = (i + j * canvas.width) * 4;
                 imageData.data[index] = colourMap.red[y];
-                imageData.data[index+1] = colourMap.green[y];
-                imageData.data[index+2] = colourMap.blue[y];
-                imageData.data[index+3] = 0xff;
+                imageData.data[index + 1] = colourMap.green[y];
+                imageData.data[index + 2] = colourMap.blue[y];
+                imageData.data[index + 3] = 0xff;
                 c += incrC;
             }
         }

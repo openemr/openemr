@@ -1,5 +1,5 @@
 // namespaces
-var dwvOemr = dwvOemr || {};
+const dwvOemr = dwvOemr || {};
 /** @namespace */
 dwvOemr.gui = dwvOemr.gui || {};
 
@@ -9,8 +9,8 @@ dwvOemr.gui = dwvOemr.gui || {};
  */
 dwvOemr.gui.displayProgress = function (percent) {
     if (percent <= 100) {
-        var elem = document.getElementById("progressbar");
-        elem.style.width = percent + "%";
+        const elem = document.getElementById('progressbar');
+        elem.style.width = `${percent}%`;
     }
 };
 
@@ -25,7 +25,7 @@ dwvOemr.gui.focusImage = function () {
  * Refresh a HTML element.
  * @param {String} element The HTML element to refresh.
  */
-dwvOemr.gui.refreshElement = function (/*element*/) {
+dwvOemr.gui.refreshElement = function () {
     // does nothing
 };
 
@@ -45,20 +45,18 @@ dwvOemr.gui.Slider = function (app) {
      * Initialise the slider HTML.
      */
     this.initialise = function () {
-        var min = app.getImage().getDataRange().min;
-        var max = app.getImage().getDataRange().max;
-
+        const { min, max } = app.getImage().getDataRange();
         // jquery-ui slider
-        $(".thresholdLi").slider({
+        $('.thresholdLi').slider({
             range: true,
-            min: min,
-            max: max,
+            min,
+            max,
             values: [min, max],
-            slide: function (event, ui) {
+            slide(event, ui) {
                 app.setFilterMinMax(
-                    {'min': ui.values[0], 'max': ui.values[1]});
-            }
+                    { min: ui.values[0], max: ui.values[1] },
+                );
+            },
         });
     };
-
 }; // class dwvOemr.gui.Slider

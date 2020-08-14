@@ -5,21 +5,23 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-var modaldialog = null;
+let modaldialog = null;
 
 // called from onfocus handler of various documents:
 function imfocused() {
- if (modaldialog) {
-  if (modaldialog.closed) {
-   modaldialog = null;
-  } else {
-   if (window.focus) modaldialog.focus();
-  }
- }
+    if (modaldialog) {
+        if (modaldialog.closed) {
+            modaldialog = null;
+        } else if (window.focus) {
+            modaldialog.focus();
+        }
+    }
 }
 
 // call this from the top-level frameset's or body's onunload
 function imclosing() {
- if (modaldialog && ! modaldialog.closed) modaldialog.close();
- modaldialog = null;
+    if (modaldialog && !modaldialog.closed) {
+        modaldialog.close();
+    }
+    modaldialog = null;
 }

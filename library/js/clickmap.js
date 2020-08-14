@@ -101,7 +101,7 @@ const clickmap = function (args) {
             if (hasOptions) {
                 optionsTitle = typeof (optionsLabel) !== 'undefined' ? optionsLabel : 'Select one';
                 for (const attr in options) {
-                    if (options.hasOwnProperty(attr)) {
+                    if (Object.prototype.hasOwnProperty.call(options, attr)) {
                         optionsSelect += `<option value='${attr}'>${options[attr]}</option>`;
                     }
                 }

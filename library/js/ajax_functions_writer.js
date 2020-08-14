@@ -131,9 +131,9 @@ function removeHTMLTags(strInputCode) {
         i.e. < is replaced with < and > is replaced with >
     */
     strInputCode = strInputCode.replace(/&(lt|gt);/g, function (strMatch, p1) {
-        return (p1 === "lt")? "<" : ">";
+        return (p1 === 'lt') ? '<' : '>';
     });
-    var strTagStrippedText = strInputCode.replace(/<\/?[^>]+(>|$)/g, "");
+    const strTagStrippedText = strInputCode.replace(/<\/?[^>]+(>|$)/g, '');
 }
 
 function supportDragAndDrop(thedata) {

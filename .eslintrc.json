@@ -23,6 +23,11 @@
         "no-undef":"off",
         "no-param-reassign": "off",
         "no-inner-declarations": "off",
-        "func-names":"off"
+        "func-names":"off",
+        "prefer-arrow-callback":"off",
+        "camelcase":"off",
+        "no-extend-native":"off",
+        "no-underscore-dangle":"off",
+        "no-restricted-syntax":"off"
     }
 }

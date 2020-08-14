@@ -1,11 +1,11 @@
 // original file available at https://github.com/ivmartel/dwv/blob/e6ea132ba2bac98546a1b27476e7ebe27bfeb02d/src/utils/i18n.js
 
 // namespaces
-var dwv = dwv || {};
+const dwv = dwv || {};
 // external
-var i18next = i18next || {};
-var i18nextXHRBackend = i18nextXHRBackend || {};
-var i18nextBrowserLanguageDetector = i18nextBrowserLanguageDetector || {};
+const i18next = i18next || {};
+const i18nextXHRBackend = i18nextXHRBackend || {};
+const i18nextBrowserLanguageDetector = i18nextBrowserLanguageDetector || {};
 
 // This is mainly a wrapper around the i18next object.
 // see its API: http://i18next.com/docs/api/
@@ -22,26 +22,24 @@ dwv.i18nLocalesPath = null;
  * @external i18nextXHRBackend
  * @external i18nextBrowserLanguageDetector
  */
-dwv.i18nInitialise = function (language, localesPath)
-{
-    var lng = (typeof language === "undefined") ? "auto" : language;
-    var lpath = (typeof localesPath === "undefined") ? "./../public/assets/dwv" : localesPath;
+dwv.i18nInitialise = function (language, localesPath) {
+    const lng = (typeof language === 'undefined') ? 'auto' : language;
+    const lpath = (typeof localesPath === 'undefined') ? './../public/assets/dwv' : localesPath;
     // store as global
     dwv.i18nLocalesPath = lpath;
     // i18n options: default 'en' language and
     //  only load language, not specialised (for ex en-GB)
-    var options = {
-        fallbackLng: "en",
-        load: "languageOnly",
-        backend: { loadPath: lpath + "/locales/{{lng}}/{{ns}}.json" }
+    const options = {
+        fallbackLng: 'en',
+        load: 'languageOnly',
+        backend: { loadPath: `${lpath}/locales/{{lng}}/{{ns}}.json` },
     };
     // use the XHR backend to get translation files
-    var i18n = i18next.use(i18nextXHRBackend);
+    const i18n = i18next.use(i18nextXHRBackend);
     // use browser language or the specified one
-    if (lng === "auto") {
+    if (lng === 'auto') {
         i18n.use(i18nextBrowserLanguageDetector);
-    }
-    else {
+    } else {
         options.lng = lng;
     }
     // init i18n: will be ready when the 'loaded' event is fired
@@ -56,23 +54,21 @@ dwv.i18nInitialise = function (language, localesPath)
  * @external i18next
  * @external i18nextBrowserLanguageDetector
  */
-dwv.i18nInitialiseWithResources = function (language, resources)
-{
-    var lng = (typeof language === "undefined") ? "auto" : language;
+dwv.i18nInitialiseWithResources = function (language, resources) {
+    const lng = (typeof language === 'undefined') ? 'auto' : language;
     // i18n options: default 'en' language and
     //  only load language, not specialised (for ex en-GB)
-    var options = {
-        fallbackLng: "en",
-        load: "languageOnly",
-        resources: resources
+    const options = {
+        fallbackLng: 'en',
+        load: 'languageOnly',
+        resources,
     };
     // use browser language or the specified one
     // init i18n: will be ready when the 'loaded' event is fired
-    if (lng === "auto") {
-        var i18n = i18next.use(i18nextBrowserLanguageDetector);
+    if (lng === 'auto') {
+        const i18n = i18next.use(i18nextBrowserLanguageDetector);
         i18n.init(options);
-    }
-    else {
+    } else {
         options.lng = lng;
         i18next.init(options);
     }
@@ -141,10 +137,10 @@ dwv.i18nExists = function (key, options) {
  */
 dwv.i18nPage = function () {
     // get all elements
-    var elements = document.getElementsByTagName("*");
+    const elements = document.getElementsByTagName('*');
     // if the element defines data-i18n, replace its content with the tranlation
-    for (var i = 0; i < elements.length; ++i) {
-        if (typeof elements[i].dataset.i18n !== "undefined") {
+    for (let i = 0; i < elements.length; i += 1) {
+        if (typeof elements[i].dataset.i18n !== 'undefined') {
             elements[i].innerHTML = dwv.i18n(elements[i].dataset.i18n);
         }
     }
@@ -156,8 +152,8 @@ dwv.i18nPage = function () {
  * @return {String} The path to the locale resource.
  */
 dwv.i18nGetLocalePath = function (filename) {
-    var lng = i18next.language.substr(0, 2);
-    return dwv.i18nLocalesPath + "/locales/" + lng + "/" + filename;
+    const lng = i18next.language.substr(0, 2);
+    return `${dwv.i18nLocalesPath}/locales/${lng}/${filename}`;
 };
 
 /**
@@ -166,6 +162,6 @@ dwv.i18nGetLocalePath = function (filename) {
  * @return {String} The path to the locale resource.
  */
 dwv.i18nGetFallbackLocalePath = function (filename) {
-    var lng = i18next.languages[i18next.languages.length-1].substr(0, 2);
-    return dwv.i18nLocalesPath + "/locales/" + lng + "/" + filename;
+    const lng = i18next.languages[i18next.languages.length - 1].substr(0, 2);
+    return `${dwv.i18nLocalesPath}/locales/${lng}/${filename}`;
 };

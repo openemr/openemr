@@ -15,7 +15,7 @@
  * Application launcher.
  */
 // namespaces
-var dwvOemr = dwvOemr || {};
+let dwvOemr = dwvOemr || {};
 
 /**
  * Application launcher.
@@ -31,56 +31,56 @@ function startApp() {
 
     // initialise the application
     const loaderList = [
-        "File",
-        "Url"
+        'File',
+        'Url',
     ];
 
     const filterList = [
-        "Threshold",
-        "Sharpen",
-        "Sobel"
+        'Threshold',
+        'Sharpen',
+        'Sobel',
     ];
 
     const shapeList = [
-        "Arrow",
-        "Ruler",
-        "Protractor",
-        "Rectangle",
-        "Roi",
-        "Ellipse"
+        'Arrow',
+        'Ruler',
+        'Protractor',
+        'Rectangle',
+        'Roi',
+        'Ellipse',
     ];
 
     const toolList = {
-        "Scroll": {},
-        "WindowLevel": {},
-        "ZoomAndPan": {},
-        "Draw": {
+        Scroll: {},
+        WindowLevel: {},
+        ZoomAndPan: {},
+        Draw: {
             options: shapeList,
-            type: "factory",
-            events: ["draw-create", "draw-change", "draw-move", "draw-delete"]
+            type: 'factory',
+            events: ['draw-create', 'draw-change', 'draw-move', 'draw-delete'],
         },
-        "Livewire": {
-            events: ["draw-create", "draw-change", "draw-move", "draw-delete"]
+        Livewire: {
+            events: ['draw-create', 'draw-change', 'draw-move', 'draw-delete'],
         },
-        "Filter": {
+        Filter: {
             options: filterList,
-            type: "instance",
-            events: ["filter-run", "filter-undo"]
+            type: 'instance',
+            events: ['filter-run', 'filter-undo'],
         },
-        "Floodfill": {
-            events: ["draw-create", "draw-change", "draw-move", "draw-delete"]
-        }
+        Floodfill: {
+            events: ['draw-create', 'draw-change', 'draw-move', 'draw-delete'],
+        },
     };
 
     // initialise the application
     const options = {
-        "containerDivId": "dwv",
-        "gui": ["help", "undo"],
-        "loaders": loaderList,
-        "tools": toolList
+        containerDivId: 'dwv',
+        gui: ['', 'undo'],
+        loaders: loaderList,
+        tools: toolList,
     };
     if (dwv.env.hasInputDirectory()) {
-        options.loaders.splice(1, 0, "Folder");
+        options.loaders.splice(1, 0, 'Folder');
     }
 
     // main application
@@ -93,7 +93,8 @@ function startApp() {
         oemrApp.getToolboxController().getToolList(),
         isMobile,
         oemrApp,
-        "js/dwv/gui/resources/help");
+        'js/dwv/gui/resources/help',
+    );
 
     // setup the undo gui
     const undoGui = new dwvOemr.gui.Undo(oemrApp);
@@ -108,7 +109,7 @@ function startApp() {
     loadboxGui.setup(loaderList);
 
     // info layer
-    const infoController = new dwvOemr.gui.info.Controller(oemrApp, "dwv");
+    const infoController = new dwvOemr.gui.info.Controller(oemrApp, 'dwv');
     infoController.init();
 
     // setup the tool gui
@@ -123,40 +124,40 @@ function startApp() {
     drawListGui.init();
 
     // colour map
-    const infocm = dwvOemr.gui.getElement("dwv", "infocm");
-    var miniColourMap = null;
+    const infocm = dwvOemr.gui.getElement('dwv', 'plot');
+    let miniColourMap = null;
     if (infocm) {
         miniColourMap = new dwvOemr.gui.info.MiniColourMap(infocm, oemrApp);
     }
 
     // intensities plot
-    const plot = dwvOemr.gui.getElement("dwv", "plot");
-    var plotInfo = null;
+    const plot = dwvOemr.gui.getElement('dwv', 'plot');
+    let plotInfo = null;
     if (plot) {
         plotInfo = new dwvOemr.gui.info.Plot(plot, oemrApp);
     }
 
     // loading time listener
     const loadTimerListener = function (event) {
-        if (event.type === "load-start") {
-            console.time("load-data");
-        } else if (event.type === "load-end") {
-            console.timeEnd("load-data");
+        if (event.type === 'load-start') {
+            console.time('load-data');
+        } else if (event.type === 'load-end') {
+            console.timeEnd('load-data');
         }
     };
     // abort shortcut listener
     const abortOnCrtlX = function (event) {
         if (event.ctrlKey && event.keyCode === 88) { // crtl-x
-            console.log("Abort load received from user (crtl-x).");
+            console.log('Abort load received from user (crtl-x).');
             oemrApp.abortLoad();
         }
     };
 
     // handle load events
-    var nReceivedLoadItem = null;
-    var nReceivedError = null;
-    var nReceivedAbort = null;
-    oemrApp.addEventListener("load-start", function (event) {
+    let nReceivedLoadItem = null;
+    let nReceivedError = null;
+    let nReceivedAbort = null;
+    oemrApp.addEventListener('load-start', function (event) {
         loadTimerListener(event);
         // reset counts
         nReceivedLoadItem = 0;
@@ -165,16 +166,16 @@ function startApp() {
         // reset progress bar
         dwvOemr.gui.displayProgress(0);
         // allow to cancel via crtl-x
-        window.addEventListener("keydown", abortOnCrtlX);
+        window.addEventListener('keydown', abortOnCrtlX);
     });
-    oemrApp.addEventListener("load-progress", function (event) {
-        let percent = Math.ceil((event.loaded / event.total) * 100);
+    oemrApp.addEventListener('load-progress', function (event) {
+        const percent = Math.ceil((event.loaded / event.total) * 100);
         dwvOemr.gui.displayProgress(percent);
     });
     oemrApp.addEventListener('load-item', function (event) {
-        ++nReceivedLoadItem;
+        nReceivedLoadItem += 1;
         // add new meta data to the info controller
-        if (event.loadtype === "image") {
+        if (event.loadtype === 'image') {
             infoController.onLoadItem(event);
         }
         // hide drop box (for url load)
@@ -185,7 +186,7 @@ function startApp() {
     });
     oemrApp.addEventListener('load', function (event) {
         // update info controller
-        if (event.loadtype === "image") {
+        if (event.loadtype === 'image') {
             infoController.onLoadEnd();
         }
         // initialise undo gui
@@ -202,15 +203,15 @@ function startApp() {
             plotInfo.create();
         }
     });
-    oemrApp.addEventListener("error", function (event) {
-        console.error("load error", event);
+    oemrApp.addEventListener('error', function (event) {
+        console.error('load error', event);
         console.error(event.error);
-        ++nReceivedError;
+        nReceivedError += 1;
     });
-    oemrApp.addEventListener("abort", function () {
-        ++nReceivedAbort;
+    oemrApp.addEventListener('abort', function () {
+        nReceivedAbort += 1;
     });
-    oemrApp.addEventListener("load-end", function (event) {
+    oemrApp.addEventListener('load-end', function (event) {
         loadTimerListener(event);
         // show the drop box if no item were received
         if (nReceivedLoadItem === 0) {
@@ -218,37 +219,37 @@ function startApp() {
         }
         // show alert for errors
         if (nReceivedError !== 0) {
-            var message = "A load error has ";
+            let message = 'A load error has ';
             if (nReceivedError > 1) {
-                message = nReceivedError + " load errors have ";
+                message = `${nReceivedError} load errors have `;
             }
-            message += "occured. See log for details.";
+            message += 'occured. See log for details.';
             alert(message);
         }
         // console warn for aborts
         if (nReceivedAbort !== 0) {
-            console.warn("Data load was aborted.");
+            console.warn('Data load was aborted.');
         }
         // stop listening for crtl-x
-        window.removeEventListener("keydown", abortOnCrtlX);
+        window.removeEventListener('keydown', abortOnCrtlX);
         // hide the progress bar
         dwvOemr.gui.displayProgress(100);
         toggle('loaderlist');
     });
 
     // handle undo/redo
-    oemrApp.addEventListener("undo-add", function (event) {
+    oemrApp.addEventListener('undo-add', function (event) {
         undoGui.addCommandToUndoHtml(event.command);
     });
-    oemrApp.addEventListener("undo", function () {
+    oemrApp.addEventListener('undo', function () {
         undoGui.enableLastInUndoHtml(false);
     });
-    oemrApp.addEventListener("redo", function () {
+    oemrApp.addEventListener('redo', function () {
         undoGui.enableLastInUndoHtml(true);
     });
 
     // handle key events
-    oemrApp.addEventListener("keydown", function (event) {
+    oemrApp.addEventListener('keydown', function (event) {
         oemrApp.defaultOnKeydown(event);
     });
 
@@ -257,7 +258,7 @@ function startApp() {
     // (for example resizing while viewing the meta data table)
 
     // @todo resize not work correctly. really should be able to resize canvas from UI.
-    //window.addEventListener('resize', oemrApp.onResize);
+    // window.addEventListener('resize', oemrApp.onResize);
 
     if (miniColourMap) {
         oemrApp.addEventListener('wl-width-change', miniColourMap.update);
@@ -281,15 +282,15 @@ function startApp() {
 
 // Image decoders (for web workers)
 dwv.image.decoderScripts = {
-    "jpeg2000": "./../public/assets/dwv/decoders/pdfjs/decode-jpeg2000.js",
-    "jpeg-lossless": "./../public/assets/dwv/decoders/rii-mango/decode-jpegloss.js",
-    "jpeg-baseline": "./../public/assets/dwv/decoders/pdfjs/decode-jpegbaseline.js",
-    "rle": "./../public/assets/dwv/decoders/dwv/decode-rle.js"
+    jpeg2000: './../public/assets/dwv/decoders/pdfjs/decode-jpeg2000.js',
+    'jpeg-lossless': './../public/assets/dwv/decoders/rii-mango/decode-jpegloss.js',
+    'jpeg-baseline': './../public/assets/dwv/decoders/pdfjs/decode-jpegbaseline.js',
+    rle: './../public/assets/dwv/decoders/dwv/decode-rle.js',
 };
 
 // status flags
-var domContentLoaded = false;
-var i18nInitialised = false;
+let domContentLoaded = false;
+let i18nInitialised = false;
 
 // launch when both DOM and i18n are ready
 function launchApp() {
@@ -307,9 +308,9 @@ dwv.i18nOnInitialised(function () {
         launchApp();
     };
     // load overlay map info
-    $.getJSON(dwv.i18nGetLocalePath("overlays.json"), onLoaded).fail(function () {
-        console.log("Using fallback overlays.");
-        $.getJSON(dwv.i18nGetFallbackLocalePath("overlays.json"), onLoaded);
+    $.getJSON(dwv.i18nGetLocalePath('overlays.json'), onLoaded).fail(function () {
+        console.log('Using fallback overlays.');
+        $.getJSON(dwv.i18nGetFallbackLocalePath('overlays.json'), onLoaded);
     });
 });
 
@@ -319,7 +320,7 @@ dwv.env.check();
 dwv.i18nInitialise();
 
 // DOM ready?
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
     domContentLoaded = true;
     launchApp();
 });
