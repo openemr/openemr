@@ -101,16 +101,21 @@ echo ' ' . xlt('Drug'); ?></title>
 
 // This is for callback by the find-code popup.
 // Appends to or erases the current list of related codes.
-function set_related(codetype, code, selector, codedesc) {
- var f = document.forms[0];
- var s = f.form_related_code.value;
- if (code) {
-  if (s.length > 0) s += ';';
-  s += codetype + ':' + code;
- } else {
-  s = '';
- }
- f.form_related_code.value = s;
+// The target element is set by the find-code popup
+// (this allows use of this in multiple form elements on the same page)
+function set_related_target(codetype, code, selector, codedesc, target_element, limit=0) {
+    var f = document.forms[0];
+    var s = f[target_element].value;
+    if (code) {
+        if(limit>0) s = codetype + ':' + code;
+        else {
+            if (s.length > 0) s += ';';
+            s += codetype + ':' + code;
+        }
+    } else {
+        s = '';
+    }
+    f[target_element].value = s;
 }
 
 // This is for callback by the find-code popup.
@@ -406,7 +411,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
     <div class="form-group mt-3">
         <label class="font-weight-bold"><?php echo xlt('RXCUI Code'); ?>:</label>
         <input class="form-control w-100" type="text" size="50" name="form_drug_code" value='<?php echo attr($row['drug_code']) ?>'
-             onclick='sel_related("?codetype=RXCUI&limit=1")' title='<?php echo xla('Click to select RXCUI code'); ?>' data-toggle="tooltip" data-placement="top" readonly />
+             onclick='sel_related("?codetype=RXCUI&limit=1&target_element=form_drug_code")' title='<?php echo xla('Click to select RXCUI code'); ?>' data-toggle="tooltip" data-placement="top" readonly />
     </div>
 
     <div class="form-group mt-3">
@@ -508,7 +513,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
     <div class="form-group mt-3 drugsonly">
         <label class="font-weight-bold"><?php echo xlt('Relate To'); ?>:</label>
         <input class="form-control w-100" type="text" size="50" name="form_related_code" value='<?php echo attr($row['related_code']) ?>'
-             onclick='sel_related()' title='<?php echo xla('Click to select related code'); ?>' data-toggle="tooltip" data-placement="top" readonly />
+             onclick='sel_related("?target_element=form_related_code")' title='<?php echo xla('Click to select related code'); ?>' data-toggle="tooltip" data-placement="top" readonly />
     </div>
 
     <div class="form-group mt-3">

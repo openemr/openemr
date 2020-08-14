@@ -111,6 +111,7 @@ $(function () {
  // OnClick handler for the rows
  $('#my_data_table').on('click', 'tbody tr', function () {
     var limit= <?php echo js_escape($limit); ?>;
+    var target_element= <?php echo js_escape($target_element); ?>;
     
     if(Object.values(oChosenIDs).length<limit || limit<=0){
     var jobj = JSON.parse(this.id.substring(4));
@@ -121,7 +122,8 @@ $(function () {
   <?php if ($what == 'codes') { ?>
     // this.id is of the form "CID|jsonstring".
     var codesel = jobj['code'].split('|');
-    selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description']);
+    
+    selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description'], target_element, limit);
   <?php } elseif ($what == 'fields') { ?>
     selectField(jobj);
   <?php } elseif ($what == 'lists') { ?>
@@ -153,12 +155,16 @@ $(function () {
 
 <?php if ($what == 'codes') { ?>
 // Pass info back to the opener and close this window. Specific to billing/product codes.
-function selcode(codetype, code, selector, codedesc) {
- if (opener.closed || ! opener.set_related) {
+function selcode(codetype, code, selector, codedesc, target_element, limit=0) {
+ if (opener.closed || (! opener.set_related && !opener.set_related_target)) {
   alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
  }
  else {
-  var msg = opener.set_related(codetype, code, selector, codedesc);
+   if(target_element!=''){
+    var msg = opener.set_related_target(codetype, code, selector, codedesc, target_element, limit);
+  } else {
+    var msg = opener.set_related(codetype, code, selector, codedesc);
+  }
   if (msg) alert(msg);
   // window.close();
   return false;
