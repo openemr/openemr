@@ -601,7 +601,6 @@ require_once("$srcdir/options.js.php");
         <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
         openReminderPopup();
         <?php }?>
-
     });
 
     // JavaScript stuff to do when a new patient is set.
@@ -1101,9 +1100,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                 <?php if ($GLOBALS['enable_oa']) { ?>
                                     <form method='post' action='./demographics.php'>
-                                      <div>
-                                        <button class='btn btn-success btn-sm btn-transmit float-right' name='status_update' value='true'><?php echo xlt("Update Status"); ?></button>
-                                      </div><br />
                                     <?php if ($_POST['status_update'] === 'true') {
                                         unset($_POST['status_update']);
                                         $showEligibility = true;

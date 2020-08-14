@@ -33,7 +33,7 @@
 
             let title = data.title;
 
-            return dlgopen('', '', data.size, 300, '', title, opts);
+            return dlgopen('', '', data.size, 0, '', title, opts);
         }
 
         function alert(data, title) {
@@ -54,8 +54,8 @@
             let alertTitle = '<i class="fa fa-warning alert-info"></i>&nbsp;<span>' + title + '</span>';
             return dlgopen('', '', 675, 0, '', alertTitle, {
                 buttons: [
-                    {text: '<i class="fa fa-thumbs-up">&nbsp;Yes</i>', close: false, id:'confirmYes', style: 'primary btn-sm'},
-                    {text: '<i class="fa fa-thumbs-down">&nbsp;No</i>', close: false, id:'confirmNo', style: 'primary btn-sm'},
+                    {text: '<i class="fa fa-thumbs-up">&nbsp;Yes</i>', close: false, id: 'confirmYes', style: 'primary btn-sm'},
+                    {text: '<i class="fa fa-thumbs-down">&nbsp;No</i>', close: false, id: 'confirmNo', style: 'primary btn-sm'},
                     {text: 'Nevermind', close: true, style: 'secondary'}
                 ],
                 type: 'Confirm',
@@ -504,16 +504,16 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     var frameHtml =
         ('<iframe id="modalframe" class="w-100 h-100 modalIframe" name="%winname%" %url% frameborder=0></iframe>').replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
 
-    var bodyStyles = ('style="height:%initHeight%;"').replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '80vh');
+    var contentStyles = ('style="height:%initHeight%; max-height: 94vh"').replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '85vh');
 
     var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
 
     var mhtml =
         ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sizeStyle%' +
             '<style>.drag-resize {touch-action:none;user-select:none;}</style>' +
-            '<div %dialogId% class="modal-dialog %drag-action% %sizeClass%" role="document">' +
-            '<div class="modal-content %resize-action%" style="max-height: 94vh">' + '%head%' + '%altclose%' + '%wait%' +
-            '<div class="modal-body overflow-auto px-1" %bodyStyles%>' + '%body%' + '</div></div></div></div>').replace('%id%', winname).replace('%sizeStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%sizeClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '').replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '').replace('%wait%', '').replace('%bodyStyles%', bodyStyles).replace('%body%', opts.type === 'iframe' ? frameHtml : '');
+            '<div %dialogId% class="modal-dialog %drag-action% %sizeClass%" role="dialog">' +
+            '<div class="modal-content %resize-action%" %contentStyles%>' + '%head%' + '%altclose%' + '%wait%' +
+            '<div class="modal-body px-1">' + '%body%' + '</div></div></div></div>').replace('%id%', winname).replace('%sizeStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%sizeClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '').replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '').replace('%wait%', '').replace('%contentStyles%', contentStyles).replace('%body%', opts.type === 'iframe' ? frameHtml : '');
 
     // Write modal template.
     dlgContainer = where.jQuery(mhtml);
@@ -559,10 +559,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             // DOM Ready. Handle events and cleanup.
             if (opts.type === 'iframe') {
                 var modalwin = where.jQuery('body').find("[name='" + winname + "']");
-                jQuery('div.modal-dialog', modalwin).css({'margin': "15px auto auto"});
+                jQuery('div.modal-dialog', modalwin).css({'margin': "0.75rem auto auto"});
                 modalwin.on('load', function (e) {
                     setTimeout(function () {
-                        if (opts.sizeHeight === 'auto') {
+                        if (opts.sizeHeight === 'auto' && opts.type === 'iframe') {
                             SizeModaliFrame(e, height);
                         } else if (opts.sizeHeight === 'fixed') {
                             sizing(e, height);
@@ -758,7 +758,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // dynamic sizing - special case for full height
     function sizing(e, height) {
         let viewPortHt = 0;
-        if (opts.sizeHeight === 'auto' || size === 0) {
+        if (opts.sizeHeight === 'auto') {
+            dlgContainer.find('div.modal-body').css({'overflow-y': 'auto'});
             // let BS determine height for alerts etc
             return;
         }
@@ -768,7 +769,13 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         frameContentHt = frameContentHt >= viewPortHt ? viewPortHt : frameContentHt;
         size = (frameContentHt / viewPortHt * 100).toFixed(2);
         size = size + 'vh';
-        $idoc.find('div.modal-content').css({'height': size});
+        dlgContainer.find('div.modal-content').css({'height': size});
+        if (opts.type === 'iframe') {
+            dlgContainer.find('div.modal-body').css({'overflow-y': 'hidden'});
+        } else {
+            dlgContainer.find('div.modal-body').css({'overflow-y': 'auto'});
+        }
+
 
         return size;
     }
@@ -777,14 +784,14 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     function SizeModaliFrame(e, minSize) {
         let viewPortHt;
         let idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
-        jQuery(e.currentTarget).parents('div.modal-body').css({'height': 0});
-        viewPortHt = top.window.innerHeight;
+        jQuery(e.currentTarget).parents('div.modal-content').css({'height': 0});
+        viewPortHt = where.window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
         let frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight) + 40;
         frameContentHt = frameContentHt < minSize ? minSize : frameContentHt;
         frameContentHt = frameContentHt >= viewPortHt ? viewPortHt : frameContentHt;
         size = (frameContentHt / viewPortHt * 100).toFixed(1);
         size = size + 'vh'; // will start the dialog as responsive. Any resize by user turns dialog to absolute positioning.
-        jQuery(e.currentTarget).parents('div.modal-body').css({'height': size});
+        jQuery(e.currentTarget).parents('div.modal-content').css({'height': size});
 
         return size;
     }
