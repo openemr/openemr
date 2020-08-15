@@ -70,17 +70,17 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     $encounter = $encounter ? $encounter : '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
     echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
-    echo "  <td class='detail' id='" . attr($date) . "' align='center'>" . text($encounter) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . text(bucks($charges)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . text(bucks($inspaid * -1)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . text(bucks($ptpaid * -1)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . text(bucks($patcopay)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . text(bucks($copay)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='balance_$var_index'>" . text(bucks($balance)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(bucks(round($duept, 2) * 1)) . "</td>\n";
-    echo "  <td class='detail' align='right'><input type='text' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " .
+    echo "  <td class='detail text-center' id='" . attr($date) . "'>" . text($encounter) . "</td>\n";
+    echo "  <td class='detail text-center' id='td_charges_$var_index' >" . text(bucks($charges)) . "</td>\n";
+    echo "  <td class='detail text-center' id='td_inspaid_$var_index' >" . text(bucks($inspaid * -1)) . "</td>\n";
+    echo "  <td class='detail text-center' id='td_ptpaid_$var_index' >" . text(bucks($ptpaid * -1)) . "</td>\n";
+    echo "  <td class='detail text-center' id='td_patient_copay_$var_index' >" . text(bucks($patcopay)) . "</td>\n";
+    echo "  <td class='detail text-center' id='td_copay_$var_index' >" . text(bucks($copay)) . "</td>\n";
+    echo "  <td class='detail text-center' id='balance_$var_index'>" . text(bucks($balance)) . "</td>\n";
+    echo "  <td class='detail text-center' id='duept_$var_index'>" . text(bucks(round($duept, 2) * 1)) . "</td>\n";
+    echo "  <td class='detail text-right'><input type='text' class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " .
         " value='' onchange='coloring();calctotal()'  autocomplete='off' " .
-        "onkeyup='calctotal()'  style='width:50px'/></td>\n";
+        "onkeyup='calctotal()'/></td>\n";
     echo " </tr>\n";
 }
 
@@ -472,82 +472,81 @@ function toencounter(enc, datestr, topframe) {
 }
 </script>
 </head>
-<body bgcolor='var(--white)'>
-    <center>
+<body>
+    <div class="text-center">
+        <p><h2><?php echo xlt('Receipt for Payment'); ?></h2>
 
-    <p><h2><?php echo xlt('Receipt for Payment'); ?></h2>
+        <p><?php echo text($frow['name']) ?>
+        <br /><?php echo text($frow['street']) ?>
+        <br /><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' .
+            text($frow['postal_code']) ?>
+        <br /><?php echo text($frow['phone']) ?>
 
-    <p><?php echo text($frow['name']) ?>
-    <br /><?php echo text($frow['street']) ?>
-    <br /><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' .
-        text($frow['postal_code']) ?>
-    <br /><?php echo text($frow['phone']) ?>
+        <p>
+        <table class="table table-borderless">
+            <tr>
+                <td><?php echo xlt('Date'); ?>:</td>
+                <td><?php echo text(oeFormatSDFT(strtotime($payrow['dtime']))) ?></td>
+            </tr>
+            <tr>
+                <td><?php echo xlt('Patient'); ?>:</td>
+                <td><?php echo text($patdata['fname']) . " " . text($patdata['mname']) . " " .
+                text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></td>
+            </tr>
+            <tr>
+                <td><?php echo xlt('Paid Via'); ?>:</td>
+                <td><?php echo generate_display_field(array('data_type' => '1', 'list_id' => 'payment_method'), $payrow['method']); ?></td>
+            </tr>
+            <tr>
+                <td><?php echo xlt('Check/Ref Number'); ?>:</td>
+                <td><?php echo text($payrow['source']) ?></td>
+            </tr>
+            <tr>
+                <td><?php echo xlt('Amount for This Visit'); ?>:</td>
+                <td><?php echo text(oeFormatMoney($payrow['amount1'])) ?></td>
+            </tr>
+            <tr>
+                <td>
+                <?php
+                if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
+                    echo xlt('Pre-payment Amount');
+                } else {
+                    echo xlt('Amount for Past Balance');
+                }
+                ?>
+                :</td>
+                <td><?php echo text(oeFormatMoney($payrow['amount2'])) ?></td>
+            </tr>
+            <tr>
+                <td><?php echo xlt('Received By'); ?>:</td>
+                <td><?php echo text($payrow['user']) ?></td>
+            </tr>
+        </table>
 
-    <p>
-    <table border='0' cellspacing='8'>
-        <tr>
-            <td><?php echo xlt('Date'); ?>:</td>
-            <td><?php echo text(oeFormatSDFT(strtotime($payrow['dtime']))) ?></td>
-        </tr>
-        <tr>
-            <td><?php echo xlt('Patient'); ?>:</td>
-            <td><?php echo text($patdata['fname']) . " " . text($patdata['mname']) . " " .
-            text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></td>
-        </tr>
-        <tr>
-            <td><?php echo xlt('Paid Via'); ?>:</td>
-            <td><?php echo generate_display_field(array('data_type' => '1', 'list_id' => 'payment_method'), $payrow['method']); ?></td>
-        </tr>
-        <tr>
-            <td><?php echo xlt('Check/Ref Number'); ?>:</td>
-            <td><?php echo text($payrow['source']) ?></td>
-        </tr>
-        <tr>
-            <td><?php echo xlt('Amount for This Visit'); ?>:</td>
-            <td><?php echo text(oeFormatMoney($payrow['amount1'])) ?></td>
-        </tr>
-        <tr>
-            <td>
+        <div id='hideonprint'>
+            <p>
+            <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
+
             <?php
-            if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
-                echo xlt('Pre-payment Amount');
-            } else {
-                echo xlt('Amount for Past Balance');
+            $todaysenc = todaysEncounterIf($pid);
+            if ($todaysenc && $todaysenc != $encounter) {
+                echo "&nbsp;<input type='button' " .
+                "value='" . xla('Open Today`s Visit') . "' " .
+                "onclick='toencounter(" . attr_js($todaysenc) . ", " . attr_js($today) . ", (opener ? opener.top : top))' />\n";
             }
             ?>
-            :</td>
-            <td><?php echo text(oeFormatMoney($payrow['amount2'])) ?></td>
-        </tr>
-        <tr>
-            <td><?php echo xlt('Received By'); ?>:</td>
-            <td><?php echo text($payrow['user']) ?></td>
-        </tr>
-    </table>
 
-    <div id='hideonprint'>
-        <p>
-        <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
+            <?php if (AclMain::aclCheckCore('admin', 'super') || AclMain::aclCheckCore('acct', 'bill')) {
+                // allowing biller to delete payments ?>
+            &nbsp;
+            <input type='button' value='<?php echo xla('Delete'); ?>' style='color:red' onclick='deleteme()' />
+            <?php } ?>
 
-        <?php
-        $todaysenc = todaysEncounterIf($pid);
-        if ($todaysenc && $todaysenc != $encounter) {
-            echo "&nbsp;<input type='button' " .
-            "value='" . xla('Open Today`s Visit') . "' " .
-            "onclick='toencounter(" . attr_js($todaysenc) . ", " . attr_js($today) . ", (opener ? opener.top : top))' />\n";
-        }
-        ?>
-
-        <?php if (AclMain::aclCheckCore('admin', 'super') || AclMain::aclCheckCore('acct', 'bill')) {
-            // allowing biller to delete payments ?>
-        &nbsp;
-        <input type='button' value='<?php echo xla('Delete'); ?>' style='color:red' onclick='deleteme()' />
-        <?php } ?>
-
+        </div>
+        <div id='showonprint'>
+            <input type='button' value='<?php echo xla('Exit'); ?>' id='donebutton' onclick="closeHow(event)"/>
+        </div>
     </div>
-    <div id='showonprint'>
-        <input type='button' value='<?php echo xla('Exit'); ?>' id='donebutton' onclick="closeHow(event)"/>
-    </div>
-    </center>
 </body>
 
     <?php
@@ -562,16 +561,16 @@ function toencounter(enc, datestr, topframe) {
 <title><?php echo xlt('Record Payment'); ?></title>
 
 <style>
- body    { font-family:sans-serif; font-size:10pt; font-weight:normal }
- .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
-#ajax_div_patient {
-    position: absolute;
-    z-index:10;
-    background-color: #FBFDD0;
-    border: 1px solid #ccc;
-    padding: 10px;
-}
+    body    { font-family:sans-serif; font-size:10pt; font-weight:normal }
+    .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
+    .detail { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
+    #ajax_div_patient {
+        position: absolute;
+        z-index:10;
+        background-color: #FBFDD0;
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
 </style>
 <!--Removed standard dependencies 12/29/17 as not needed any longer since moved to a tab/frame not popup.-->
 
@@ -910,16 +909,6 @@ function make_insurance() {
 </script>
 
 <style>
-@media only screen and (max-width: 768px) {
-    [class*="col-"] {
-        width: 100%;
-        text-align: left!Important;
-    }
-}
-.table {
-    margin: auto;
-    width: 90% !important;
-}
 @media (min-width: 992px) {
     .modal-lg {
         width: 1000px !Important;
@@ -944,7 +933,7 @@ function make_insurance() {
     ?>
 </head>
 <body>
-    <div class="container"><!--begin container div for form-->
+    <div class="container mt-3"><!--begin container div for form-->
         <div class="row">
             <div class="col-sm-12">
                 <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
@@ -953,105 +942,85 @@ function make_insurance() {
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' action='front_payment.php<?php echo ($payid) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
-                   <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                   <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>'>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
-                    <legend><?php echo xlt('Payment'); ?></legend>
+                        <legend><?php echo xlt('Payment'); ?></legend>
                         <div class="col-12 oe-custom-line">
-                            <div class="col-3 offset-lg-3">
-                                <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
-                            </div>
-                            <div class="col-3">
-                                <select class="form-control" id="form_method" name="form_method" onchange='CheckVisible("yes")'>
-                                    <?php
-                                    $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
-                                    $bres1112 = sqlStatement($query1112, array('payment_method'));
-                                    while ($brow1112 = sqlFetchArray($bres1112)) {
-                                        if ($brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {
-                                            continue;
-                                        }
-                                        echo "<option value='" . attr($brow1112['option_id']) . "'>" . text(xl_list_label($brow1112['title'])) . "</option>";
+                            <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
+                            <select class="form-control" id="form_method" name="form_method" onchange='CheckVisible("yes")'>
+                                <?php
+                                $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
+                                $bres1112 = sqlStatement($query1112, array('payment_method'));
+                                while ($brow1112 = sqlFetchArray($bres1112)) {
+                                    if ($brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {
+                                        continue;
                                     }
-                                    ?>
-                                </select>
+                                    echo "<option value='" . attr($brow1112['option_id']) . "'>" . text(xl_list_label($brow1112['title'])) . "</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="col-12 oe-custom-line">
+                            <label class="control-label" for="check_number"><?php echo xlt('Check/Ref Number'); ?>:</label>
+                            <div id="ajax_div_patient" style="display:none;"></div>
+                            <input type='text' id="check_number" name='form_source' class='form-control' value='<?php echo attr($payrow['source']); ?>' />
+                        </div>
+                        <div class="col-12 oe-custom-line">
+                            <label class="control-label" for="form_discount"><?php echo xla('Patient Coverage'); ?>:</label>
+                            <div class="pl-3">
+                                <label class="radio-inline">
+                                    <input id="radio_type_of_coverage1" name="radio_type_of_coverage" onclick="make_visible_radio();make_self();" type="radio" value="self"><?php echo xlt('Self'); ?>
+                                </label>
+                                <label class="radio-inline">
+                                    <input checked="checked" id="radio_type_of_coverag2" name="radio_type_of_coverage" onclick="make_hide_radio();make_insurance();" type="radio" value="insurance"><?php echo xlt('Insurance'); ?>
+                                </label>
                             </div>
                         </div>
                         <div class="col-12 oe-custom-line">
-                            <div class="col-3 offset-lg-3">
-                                <label class="control-label" for="check_number"><?php echo xlt('Check/Ref Number'); ?>:</label>
+                            <label class="control-label" for=""><?php echo xlt('Payment against'); ?>:</label>
+                            <div id="tr_radio1" style="padding-left:15px; display:none"><!-- For radio Insurance -->
+                                <label class="radio-inline">
+                                  <input id="radio_type_of_payment_self1" name="radio_type_of_payment" onclick="make_visible_row();make_it_hide_enc_pay();cursor_pointer();" type="radio" value="cash"><?php echo xlt('Encounter Payment'); ?>
+                                </label>
                             </div>
-                            <div class="col-3">
-                                <div id="ajax_div_patient" style="display:none;"></div>
-                                <input type='text'  id="check_number" name='form_source' class= 'form-control' value='<?php echo attr($payrow['source']); ?>'>
-                            </div>
-                        </div>
-                        <div class="col-12 oe-custom-line">
-                            <div class="col-3 offset-lg-3">
-                                <label class="control-label" for="form_discount"><?php echo xla('Patient Coverage'); ?>:</label>
-                            </div>
-                            <div class="col-6">
-                                <div style="padding-left:15px">
-                                    <label class="radio-inline">
-                                      <input id="radio_type_of_coverage1" name="radio_type_of_coverage" onclick="make_visible_radio();make_self();" type="radio" value="self"><?php echo xlt('Self'); ?>
-                                    </label>
-                                    <label class="radio-inline">
-                                      <input checked="checked" id="radio_type_of_coverag2" name="radio_type_of_coverage" onclick="make_hide_radio();make_insurance();" type="radio" value="insurance"><?php echo xlt('Insurance'); ?>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 oe-custom-line">
-                            <div class="col-3 offset-lg-3">
-                                <label class="control-label" for=""><?php echo xlt('Payment against'); ?>:</label>
-                            </div>
-                            <div class="col-6">
-                                <div id="tr_radio1" style="padding-left:15px; display:none"><!-- For radio Insurance -->
-                                    <label class="radio-inline">
-                                      <input id="radio_type_of_payment_self1" name="radio_type_of_payment" onclick="make_visible_row();make_it_hide_enc_pay();cursor_pointer();" type="radio" value="cash"><?php echo xlt('Encounter Payment'); ?>
-                                    </label>
-                                </div>
-                                <div id="tr_radio2" style="padding-left:15px"><!-- For radio self -->
-                                    <label class="radio-inline">
-                                      <input checked="checked" id="radio_type_of_payment1" name="radio_type_of_payment" onclick="make_visible_row();cursor_pointer();" type="radio" value="copay"><?php echo xlt('Co Pay'); ?>
-                                    </label>
-                                    <label class="radio-inline">
-                                      <input id="radio_type_of_payment2" name="radio_type_of_payment" onclick="make_visible_row();" type="radio" value="invoice_balance"><?php echo xlt('Invoice Balance'); ?><br />
-                                    </label>
-                                    <label class="radio-inline">
-                                      <input id="radio_type_of_payment4" name="radio_type_of_payment" onclick="make_hide_row();" type="radio" value="pre_payment"><?php echo xlt('Pre Pay'); ?>
-                                    </label>
-                                </div>
+                            <div id="tr_radio2" style="padding-left:15px"><!-- For radio self -->
+                                <label class="radio-inline">
+                                  <input checked="checked" id="radio_type_of_payment1" name="radio_type_of_payment" onclick="make_visible_row();cursor_pointer();" type="radio" value="copay"><?php echo xlt('Co Pay'); ?>
+                                </label>
+                                <label class="radio-inline">
+                                  <input id="radio_type_of_payment2" name="radio_type_of_payment" onclick="make_visible_row();" type="radio" value="invoice_balance"><?php echo xlt('Invoice Balance'); ?><br />
+                                </label>
+                                <label class="radio-inline">
+                                  <input id="radio_type_of_payment4" name="radio_type_of_payment" onclick="make_hide_row();" type="radio" value="pre_payment"><?php echo xlt('Pre Pay'); ?>
+                                </label>
                             </div>
                         </div>
                         <div class="col-12 oe-custom-line">
                             <div id="table_display_prepayment" style="display:none">
-                                <div class="col-3 offset-lg-3">
-                                    <label class="control-label" for="form_prepayment"><?php echo xlt('Pre Payment'); ?>:</label>
-                                </div>
-                                <div class="col-3">
-                                    <input name='form_prepayment' id='form_prepayment'class='form-control' type='text' value =''>
-                                </div>
+                                <label class="control-label" for="form_prepayment"><?php echo xlt('Pre Payment'); ?>:</label>
+                                <input name='form_prepayment' id='form_prepayment'class='form-control' type='text' value ='' />
                             </div>
                         </div>
                     </fieldset>
                     <fieldset>
                         <legend><?php echo xlt('Collect For'); ?></legend>
-                        <div class= "table-responsive">
-                            <table class = "table" id="table_display">
+                        <div class="table-responsive">
+                            <table class="table" id="table_display">
                                 <thead>
-                                    <tr bgcolor="#CCCCCC" id="tr_head">
+                                    <tr class="table-active" id="tr_head">
                                         <td class="dehead" width="70"><?php echo xlt('DOS'); ?></td>
                                         <td class="dehead" width="65"><?php echo xlt('Encounter'); ?></td>
-                                        <td align="center" class="dehead" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></td>
-                                        <td align="center" class="dehead" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></td>
-                                        <td align="center" class="dehead" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></td>
-                                        <td align="center" class="dehead" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></td>
-                                        <td align="center" class="dehead" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></td>
-                                        <td align="center" class="dehead" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></td>
-                                        <td align="center" class="dehead" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></td>
-                                        <td align="center" class="dehead" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></td>
-                                        <td align="center" class="dehead" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></td>
-                                        <td align="center" class="dehead" width="50"><?php echo xlt('Paying'); ?></td>
+                                        <td class="dehead text-center" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></td>
+                                        <td class="dehead text-center" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></td>
+                                        <td class="dehead text-center" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></td>
+                                        <td class="dehead text-center" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></td>
+                                        <td class="dehead text-center" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></td>
+                                        <td class="dehead text-center" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></td>
+                                        <td class="dehead text-center" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></td>
+                                        <td class="dehead text-center" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></td>
+                                        <td class="dehead text-center" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></td>
+                                        <td class="dehead text-center" width="50"><?php echo xlt('Paying'); ?></td>
                                     </tr>
                                 </thead>
                                 <?php
@@ -1220,7 +1189,7 @@ function make_insurance() {
                                 // Continue with display of the data entry form.
                                 ?>
 
-                                <tr bgcolor="#CCCCCC">
+                                <tr class="table-active">
                                     <td class="dehead" id='td_total_1'></td>
                                     <td class="dehead" id='td_total_2'></td>
                                     <td class="dehead" id='td_total_3'></td>
@@ -1229,8 +1198,10 @@ function make_insurance() {
                                     <td class="dehead" id='td_total_6'></td>
                                     <td class="dehead" id='td_total_7'></td>
                                     <td class="dehead" id='td_total_8'></td>
-                                    <td align="right" class="dehead"><?php echo xlt('Total');?></td>
-                                    <td align="right" class="dehead"><input name='form_paytotal' readonly style='color:#00aa00;width:50px' type='text' value=''></td>
+                                    <td class="dehead text-right"><?php echo xlt('Total');?></td>
+                                    <td class="dehead text-right">
+                                        <input type='text' class='form-control text-success' name='form_paytotal' value='' readonly />
+                                    </td>
                                 </tr>
                             </table>
                         </div>
@@ -1238,8 +1209,8 @@ function make_insurance() {
                     <div class="form-group">
                         <div class="col-sm-12 text-left position-override">
                             <div class="btn-group btn-group-pinch" role="group">
-                                <button type='submit' class="btn btn-secondary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
-                                <button type='button' class="btn btn-link btn-cancel btn-separate-left"  value='<?php echo xla('Cancel'); ?>' onclick='closeHow(event)'><?php echo xlt('Cancel'); ?></button>
+                                <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
+                                <button type='button' class="btn btn-secondary btn-cancel btn-separate-left" value='<?php echo xla('Cancel'); ?>' onclick='closeHow(event)'><?php echo xlt('Cancel'); ?></button>
                                 <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($pid);?>"/>
                                 <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
                                 <input type='hidden' name='mode' id='mode' value='' />
