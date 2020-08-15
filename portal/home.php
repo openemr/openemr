@@ -266,7 +266,7 @@ foreach ($msgs as $i) {
                 dataType: "json",
                 success: function (data) {
                     if (data.DateFinished != '') {
-                        document.getElementById("Content").innerHTML = jsText(<?php xlj('You have finished the assessment.'); ?>) + "<br /> " + jsText(<?php echo xlj('Thank you'); ?>);
+                        document.getElementById("Content").innerHTML = jsText(<?php echo xlj('You have finished the assessment.'); ?>) + "<br /> " + jsText(<?php echo xlj('Thank you'); ?>);
                         document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
                         document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
                         $.ajax({
