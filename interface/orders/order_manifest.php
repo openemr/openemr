@@ -159,15 +159,15 @@ function generate_order_summary($orderid)
     .ordsum tr.head {
         font-size: 10pt;
     }
-    
+
     .ordsum tr.detail {
         font-size: 10pt;
     }
-    
+
     .ordsum table {
         border-color: black;
     }
-    
+
     .ordsum td,
     .ordsum th {
         border-color: black;
@@ -178,162 +178,159 @@ function generate_order_summary($orderid)
 
 <form method='post' action='order_manifest.php?orderid=<?php echo attr_url($orderid); ?>'>
 
-<div class='ordsum'>
+<div class='ordsum table-responsive'>
+    <table class='table table-active'>
+        <tr>
+            <td nowrap><?php echo xlt('Patient Name'); ?></td>
+            <td><?php echo myCellText($orow['lname'] . ', ' . $orow['fname'] . ' ' . $orow['mname']); ?></td>
+            <td nowrap><?php echo xlt('Ordered By'); ?></td>
+            <td><?php echo myCellText($orow['ulname'] . ', ' . $orow['ufname'] . ' ' . $orow['umname']); ?></td>
+        </tr>
+        <tr>
+            <td width='5%' nowrap><?php echo xlt('MRN (pid)'); ?></td>
+            <td width='45%'><?php echo myCellText($patient_id); ?></td>
+            <td width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
+            <td width='45%'><?php echo myCellText($orow['procedure_order_id']); ?></td>
+        </tr>
+        <tr>
+            <td nowrap><?php echo xlt('Encounter Date'); ?></td>
+            <td><?php echo myCellText(oeFormatShortDate($encdate)); ?></td>
+            <td nowrap><?php echo xlt('Order Date'); ?></td>
+            <td><?php echo myCellText(oeFormatShortDate($orow['date_ordered'])); ?></td>
+        </tr>
+        <tr>
+            <td nowrap><?php echo xlt('Birth Date'); ?></td>
+            <td><?php echo myCellText(oeFormatShortDate($orow['DOB'])); ?></td>
+            <td nowrap><?php echo xlt('Lab'); ?></td>
+            <td><?php echo myCellText($orow['labname']); ?></td>
+        </tr>
+        <tr>
+            <td nowrap><?php echo xlt('Sex'); ?></td>
+            <td><?php echo myCellText(getListItem('sex', $orow['sex'])); ?></td>
+            <td nowrap><?php echo xlt('Specimen Type'); ?></td>
+            <td><?php echo myCellText($orow['specimen_type']); ?></td>
+        </tr>
+        <tr>
+            <td nowrap><?php echo xlt('Address'); ?></td>
+            <td><?php echo myCellText($orow['street'] . ', ' . $orow['city'] . ', ' . $orow['state'] . ' ' . $orow['postal_code']); ?></td>
+            <td nowrap><?php echo xlt('Collection Date'); ?></td>
+            <td><?php echo myCellText(oeFormatShortDate($orow['date_collected'])); ?></td>
+        </tr>
+        <tr>
+            <td nowrap><?php echo xlt('Ins Name'); ?></td>
+            <td><?php echo myCellText($ins_name); ?></td>
+            <td nowrap><?php echo xlt('Clinical History'); ?></td>
+            <td><?php echo myCellText($orow['clinical_hx']); ?></td>
+        </tr>
+        <tr>
+            <td nowrap><?php echo xlt('Ins Address'); ?></td>
+            <td><?php echo myCellText("$ins_addr, $ins_city, $ins_state $ins_zip"); ?></td>
+            <td nowrap><?php echo xlt('Order Status'); ?></td>
+            <td><?php echo myCellText(getListItem('ord_status', $orow['order_status'])); ?></td>
+        </tr>
+        <tr>
+            <td nowrap><?php echo xlt('Ins Policy'); ?></td>
+            <td><?php echo myCellText($ins_policy); ?></td>
+            <td nowrap><?php echo xlt('Referrer'); ?></td>
+            <td><?php echo myCellText($orow['ref_lname'] . ', ' . $orow['ref_fname'] . ' ' . $orow['ref_mname']); ?></td>
+        </tr>
+        <tr>
+            <td nowrap><?php echo xlt('Ins Group'); ?></td>
+            <td><?php echo myCellText($ins_group); ?></td>
+            <td nowrap><?php echo xlt('Referrer Address'); ?></td>
+            <td><?php echo myCellText($orow['ref_street'] . ', ' . $orow['ref_city'] . ', ' . $orow['ref_state'] . ' ' . $orow['ref_zip']); ?></td>
+        </tr>
+    </table>
 
-<table class='w-100' cellpadding='2' cellspacing='0'>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Patient Name'); ?></td>
-  <td><?php echo myCellText($orow['lname'] . ', ' . $orow['fname'] . ' ' . $orow['mname']); ?></td>
-  <td nowrap><?php echo xlt('Ordered By'); ?></td>
-  <td><?php echo myCellText($orow['ulname'] . ', ' . $orow['ufname'] . ' ' . $orow['umname']); ?></td>
- </tr>
- <tr bgcolor='#cccccc'>
-  <td width='5%' nowrap><?php echo xlt('MRN (pid)'); ?></td>
-  <td width='45%'><?php echo myCellText($patient_id); ?></td>
-  <td width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
-  <td width='45%'><?php echo myCellText($orow['procedure_order_id']); ?></td>
- </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Encounter Date'); ?></td>
-  <td><?php echo myCellText(oeFormatShortDate($encdate)); ?></td>
-  <td nowrap><?php echo xlt('Order Date'); ?></td>
-  <td><?php echo myCellText(oeFormatShortDate($orow['date_ordered'])); ?></td>
- </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Birth Date'); ?></td>
-  <td><?php echo myCellText(oeFormatShortDate($orow['DOB'])); ?></td>
-  <td nowrap><?php echo xlt('Lab'); ?></td>
-  <td><?php echo myCellText($orow['labname']); ?></td>
- </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Sex'); ?></td>
-  <td><?php echo myCellText(getListItem('sex', $orow['sex'])); ?></td>
-  <td nowrap><?php echo xlt('Specimen Type'); ?></td>
-  <td><?php echo myCellText($orow['specimen_type']); ?></td>
- </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Address'); ?></td>
-  <td><?php echo myCellText($orow['street'] . ', ' . $orow['city'] . ', ' . $orow['state'] . ' ' . $orow['postal_code']); ?></td>
-  <td nowrap><?php echo xlt('Collection Date'); ?></td>
-  <td><?php echo myCellText(oeFormatShortDate($orow['date_collected'])); ?></td>
- </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Ins Name'); ?></td>
-  <td><?php echo myCellText($ins_name); ?></td>
-  <td nowrap><?php echo xlt('Clinical History'); ?></td>
-  <td><?php echo myCellText($orow['clinical_hx']); ?></td>
- </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Ins Address'); ?></td>
-  <td><?php echo myCellText("$ins_addr, $ins_city, $ins_state $ins_zip"); ?></td>
-  <td nowrap><?php echo xlt('Order Status'); ?></td>
-  <td><?php echo myCellText(getListItem('ord_status', $orow['order_status'])); ?></td>
- </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Ins Policy'); ?></td>
-  <td><?php echo myCellText($ins_policy); ?></td>
-  <td nowrap><?php echo xlt('Referrer'); ?></td>
-  <td><?php echo myCellText($orow['ref_lname'] . ', ' . $orow['ref_fname'] . ' ' . $orow['ref_mname']); ?></td>
- </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Ins Group'); ?></td>
-  <td><?php echo myCellText($ins_group); ?></td>
-  <td nowrap><?php echo xlt('Referrer Address'); ?></td>
-  <td><?php echo myCellText($orow['ref_street'] . ', ' . $orow['ref_city'] . ', ' . $orow['ref_state'] . ' ' . $orow['ref_zip']); ?></td>
- </tr>
-</table>
+    <br />
 
-&nbsp;<br />
+    <table class='table'>
+        <tr class='head'>
+            <td><?php echo xlt('Omit'); ?></td>
+            <td><?php echo xlt('Code'); ?></td>
+            <td><?php echo xlt('Description'); ?></td>
+            <td><?php echo xlt('Diagnoses'); ?></td>
+            <td><?php echo xlt('Notes'); ?></td>
+        </tr>
 
-<table class='w-100' cellpadding='2' cellspacing='0'>
+        <?php
+        $query = "SELECT " .
+        "procedure_order_seq, procedure_code, procedure_name, diagnoses, do_not_send " .
+        "FROM procedure_order_code WHERE " .
+        "procedure_order_id =  ? ";
+        if (!empty($_POST['bn_show_sendable'])) {
+            $query .= "AND do_not_send = 0 ";
+        }
 
- <tr class='head'>
-  <td><?php echo xlt('Omit'); ?></td>
-  <td><?php echo xlt('Code'); ?></td>
-  <td><?php echo xlt('Description'); ?></td>
-  <td><?php echo xlt('Diagnoses'); ?></td>
-  <td><?php echo xlt('Notes'); ?></td>
- </tr>
+        $query .= "ORDER BY procedure_order_seq";
+        $res = sqlStatement($query, array($orderid));
 
-    <?php
-    $query = "SELECT " .
-    "procedure_order_seq, procedure_code, procedure_name, diagnoses, do_not_send " .
-    "FROM procedure_order_code WHERE " .
-    "procedure_order_id =  ? ";
-    if (!empty($_POST['bn_show_sendable'])) {
-        $query .= "AND do_not_send = 0 ";
-    }
+        $encount = 0;
 
-    $query .= "ORDER BY procedure_order_seq";
-    $res = sqlStatement($query, array($orderid));
+        while ($row = sqlFetchArray($res)) {
+            $order_seq      = empty($row['procedure_order_seq']) ? 0 : ($row['procedure_order_seq'] + 0);
+            $procedure_code = empty($row['procedure_code'  ]) ? '' : $row['procedure_code'];
+            $procedure_name = empty($row['procedure_name'  ]) ? '' : $row['procedure_name'];
+            $diagnoses      = empty($row['diagnoses'       ]) ? '' : $row['diagnoses'];
 
-    $encount = 0;
+            // Create a string of HTML representing the procedure answers.
+            // This code cloned from gen_hl7_order.inc.php.
+            // Should maybe refactor it into something like a ProcedureAnswer class.
+            $qres = sqlStatement(
+                "SELECT " .
+                "a.question_code, a.answer, q.fldtype, q.question_text " .
+                "FROM procedure_answers AS a " .
+                "LEFT JOIN procedure_questions AS q ON " .
+                "q.lab_id = ? " .
+                "AND q.procedure_code = ? AND " .
+                "q.question_code = a.question_code " .
+                "WHERE " .
+                "a.procedure_order_id = ? AND " .
+                "a.procedure_order_seq = ? " .
+                "ORDER BY q.seq, a.answer_seq",
+                array($lab_id, $procedure_code, $orderid, $order_seq)
+            );
 
-    while ($row = sqlFetchArray($res)) {
-        $order_seq      = empty($row['procedure_order_seq']) ? 0 : ($row['procedure_order_seq'] + 0);
-        $procedure_code = empty($row['procedure_code'  ]) ? '' : $row['procedure_code'];
-        $procedure_name = empty($row['procedure_name'  ]) ? '' : $row['procedure_name'];
-        $diagnoses      = empty($row['diagnoses'       ]) ? '' : $row['diagnoses'];
+            $notes = '';
+            while ($qrow = sqlFetchArray($qres)) {
+                // Formatting of these answer values may be lab-specific and we'll figure
+                // out how to deal with that as more labs are supported.
+                $answer = trim($qrow['answer']);
+                $fldtype = $qrow['fldtype'];
+                if ($fldtype == 'G') {
+                    $weeks = intval($answer / 7);
+                    $days = $answer % 7;
+                    $answer = $weeks . 'wks ' . $days . 'days';
+                }
 
-        // Create a string of HTML representing the procedure answers.
-        // This code cloned from gen_hl7_order.inc.php.
-        // Should maybe refactor it into something like a ProcedureAnswer class.
-        $qres = sqlStatement(
-            "SELECT " .
-            "a.question_code, a.answer, q.fldtype, q.question_text " .
-            "FROM procedure_answers AS a " .
-            "LEFT JOIN procedure_questions AS q ON " .
-            "q.lab_id = ? " .
-            "AND q.procedure_code = ? AND " .
-            "q.question_code = a.question_code " .
-            "WHERE " .
-            "a.procedure_order_id = ? AND " .
-            "a.procedure_order_seq = ? " .
-            "ORDER BY q.seq, a.answer_seq",
-            array($lab_id, $procedure_code, $orderid, $order_seq)
-        );
+                if ($notes) {
+                    $notes .= '<br />';
+                }
 
-        $notes = '';
-        while ($qrow = sqlFetchArray($qres)) {
-            // Formatting of these answer values may be lab-specific and we'll figure
-            // out how to deal with that as more labs are supported.
-            $answer = trim($qrow['answer']);
-            $fldtype = $qrow['fldtype'];
-            if ($fldtype == 'G') {
-                $weeks = intval($answer / 7);
-                $days = $answer % 7;
-                $answer = $weeks . 'wks ' . $days . 'days';
+                $notes .= text($qrow['question_text'] . ': ' . $answer);
             }
 
-            if ($notes) {
-                $notes .= '<br />';
+            if ($notes === '') {
+                $notes = '&nbsp;';
             }
 
-            $notes .= text($qrow['question_text'] . ': ' . $answer);
+            ++$encount;
+            $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+            echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+            echo "  <td><input type='checkbox' name='form_omit[" . attr($order_seq) . "]' value='1'";
+            if (!empty($row['do_not_send'])) {
+                echo " checked";
+            }
+
+            echo " /></td>\n";
+            echo "  <td>" . myCellText("$procedure_code") . "</td>\n";
+            echo "  <td>" . myCellText("$procedure_name") . "</td>\n";
+            echo "  <td>" . myCellText("$diagnoses") . "</td>\n";
+            echo "  <td>$notes</td>\n";
+            echo " </tr>\n";
         }
-
-        if ($notes === '') {
-            $notes = '&nbsp;';
-        }
-
-        ++$encount;
-        $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-        echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-        echo "  <td><input type='checkbox' name='form_omit[" . attr($order_seq) . "]' value='1'";
-        if (!empty($row['do_not_send'])) {
-            echo " checked";
-        }
-
-        echo " /></td>\n";
-        echo "  <td>" . myCellText("$procedure_code") . "</td>\n";
-        echo "  <td>" . myCellText("$procedure_name") . "</td>\n";
-        echo "  <td>" . myCellText("$diagnoses") . "</td>\n";
-        echo "  <td>$notes</td>\n";
-        echo " </tr>\n";
-    }
-    ?>
-
-</table>
+        ?>
+    </table>
 </div>
 
 <div class='btn-group d-print-none'>

@@ -68,7 +68,6 @@ function storeNote($s)
 }
 
 // Display a single row of output including order, report and result information.
-//
 function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
 {
     $lab_id = empty($row['lab_id']) ? 0 : ($row['lab_id'] + 0);
@@ -97,7 +96,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
             $ctx['sign_list'] .= $report_id;
         }
 
-    // Allowing for multiple report notes separated by newlines.
+        // Allowing for multiple report notes separated by newlines.
         if (!empty($row['report_notes'])) {
             $notes = explode("\n", $row['report_notes']);
             foreach ($notes as $note) {
@@ -114,7 +113,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         }
     }
 
-// allow for 0 to be displayed as a result value
+    // allow for 0 to be displayed as a result value
     if ($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
         $result_result = '';
     } else {
@@ -134,8 +133,8 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     $result_status = empty($rrow['result_status']) ? '' : $rrow['result_status'];
     $result_document_id = empty($rrow['document_id']) ? '' : $rrow['document_id'];
 
-// Someone changed the delimiter in result comments from \n to \r.
-// Have to make sure results are consistent with those before that change.
+    // Someone changed the delimiter in result comments from \n to \r.
+    // Have to make sure results are consistent with those before that change.
     $result_comments = str_replace("\r", "\n", $result_comments);
 
     if ($i = strpos($result_comments, "\n")) { // "=" is not a mistake!
@@ -161,7 +160,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         $ctx['priors_omitted'] = true;
     }
 
-// If a performing organization is provided, make a note for it also.
+    // If a performing organization is provided, make a note for it also.
     $result_facility = trim(str_replace("\r", "\n", $result_facility));
     if ($result_facility) {
         if ($result_noteid) {
@@ -182,7 +181,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     if ($ctx['lastpcid'] != $order_seq) {
         $ctx['lastprid'] = -1; // force report fields on first line of each procedure
         $tmp = text("$procedure_code: $procedure_name: $diagnosis");
-    // Get the LOINC code if one exists in the compendium for this order type.
+        // Get the LOINC code if one exists in the compendium for this order type.
         if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
             $trow = sqlQuery(
                 "SELECT standard_code FROM procedure_type WHERE " .
@@ -198,10 +197,10 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
 
         echo "  <td>$tmp</td>\n";
     } else {
-        echo "  <td style='background-color:transparent'>&nbsp;</td>";
+        echo "  <td>&nbsp;</td>";
     }
 
-// If this starts a new report or a new order, generate the report fields.
+    // If this starts a new report or a new order, generate the report fields.
     if ($report_id != $ctx['lastprid']) {
         echo "  <td>";
         echo myCellText(oeFormatShortDate(substr($date_report, 0, 10)) . substr($date_report, 10) . $date_report_suf);
@@ -223,11 +222,11 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
 
         echo "</td>\n";
 
-        echo "  <td align='center'>";
+        echo "  <td class='text-center'>";
         echo myCellText($report_noteid);
         echo "</td>\n";
     } else {
-        echo "  <td colspan='5' style='background-color:transparent'>&nbsp;</td>\n";
+        echo "  <td colspan='5'>&nbsp;</td>\n";
     }
 
     if ($result_code !== '' || $result_document_id) {
@@ -244,13 +243,13 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         echo "  <td>";
         $tmp = myCellText(getListItem('proc_res_abnormal', $result_abnormal));
         if ($result_abnormal && strtolower($result_abnormal) != 'no') {
-            echo "<b><font color='red'>$tmp</font></b>";
+            echo "<p class='font-weight-bold text-danger'>$tmp</p>";
         } else {
             echo $tmp;
         }
 
         echo "</td>\n";
-    //
+
         if ($result_document_id) {
             $d = new Document($result_document_id);
             echo "  <td colspan='3'>";
@@ -304,7 +303,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         echo myCellText($result_noteid);
         echo "</td>\n";
     } else {
-        echo "  <td colspan='7' style='background-color:transparent'>&nbsp;</td>\n";
+        echo "  <td colspan='7'>&nbsp;</td>\n";
     }
 
     echo " </tr>\n";
@@ -318,7 +317,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 {
     global $aNotes;
 
-// Check authorization.
+    // Check authorization.
     $thisauth = AclMain::aclCheckCore('patients', 'med');
     if (!$thisauth) {
         return xl('Not authorized');
@@ -419,19 +418,14 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
         padding: 4px;
     }
 
-    .labres table td.td-label {
-
-        font-weight: bold;
-    }
-
     <?php } ?>
 
 </style>
 <?php } ?>
 
     <?php if ($input_form) { ?>
-<script src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
-<?php } // end if input form
+        <script src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
+    <?php } // end if input form
     ?>
 
     <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
@@ -466,13 +460,12 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     <?php } // end if input form
     ?>
 
-    <div class='labres'>
-
-        <table width='100%' cellpadding='2' cellspacing='0'>
+    <div class='labres table-responsive'>
+        <table class="table">
             <tr>
-                <td class="td-label" width='5%' nowrap><?php echo xlt('Patient ID'); ?></td>
+                <td class="font-weight-bold" width='5%' nowrap><?php echo xlt('Patient ID'); ?></td>
                 <td width='45%'><?php echo myCellText($orow['pubpid']); ?></td>
-                <td class="td-label" width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
+                <td class="font-weight-bold" width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
                 <td width='45%'>
                     <?php
                     if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
@@ -494,55 +487,51 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 </td>
             </tr>
             <tr>
-                <td class="td-label" nowrap><?php echo xlt('Patient Name'); ?></td>
+                <td class="font-weight-bold" nowrap><?php echo xlt('Patient Name'); ?></td>
                 <td><?php echo myCellText($orow['lname'] . ', ' . $orow['fname'] . ' ' . $orow['mname']); ?></td>
-                <td class="td-label" nowrap><?php echo xlt('Ordered By'); ?></td>
+                <td class="font-weight-bold" nowrap><?php echo xlt('Ordered By'); ?></td>
                 <td><?php echo myCellText($orow['ulname'] . ', ' . $orow['ufname'] . ' ' . $orow['umname']); ?></td>
             </tr>
             <tr>
-                <td class="td-label" nowrap><?php echo xlt('Order Date'); ?></td>
+                <td class="font-weight-bold" nowrap><?php echo xlt('Order Date'); ?></td>
                 <td><?php echo myCellText(oeFormatShortDate($orow['date_ordered'])); ?></td>
-                <td class="td-label" nowrap><?php echo xlt('Print Date'); ?></td>
+                <td class="font-weight-bold" nowrap><?php echo xlt('Print Date'); ?></td>
                 <td><?php echo text(oeFormatShortDate(date('Y-m-d'))); ?></td>
             </tr>
             <tr>
-                <td class="td-label" nowrap><?php echo xlt('Order Status'); ?></td>
+                <td class="font-weight-bold" nowrap><?php echo xlt('Order Status'); ?></td>
                 <td><?php echo $orow['order_status'] ? myCellText($orow['order_status']) : xlt('Pending'); ?></td>
-                <td class="td-label" nowrap><?php echo xlt('Encounter Date'); ?></td>
+                <td class="font-weight-bold" nowrap><?php echo xlt('Encounter Date'); ?></td>
                 <td><?php echo myCellText(oeFormatShortDate(substr($orow['date'], 0, 10))); ?></td>
             </tr>
             <tr>
-                <td class="td-label" nowrap><?php echo xlt('Lab'); ?></td>
+                <td class="font-weight-bold" nowrap><?php echo xlt('Lab'); ?></td>
                 <td><?php echo myCellText($orow['labname']); ?></td>
-                <td class="td-label" nowrap><?php echo xlt('Receiving Fac.'); ?></td>
+                <td class="font-weight-bold" nowrap><?php echo xlt('Receiving Fac.'); ?></td>
                 <td><?php echo myCellText($orow['rcvfacid']); ?></td>
                 <!-- replaced specimen with receiving facility -->
             </tr>
         </table>
         <br/>
-        <table width='100%' cellpadding='2' cellspacing='0'>
+        <table class="table">
             <tr class='head'>
-                <td style="font-size:12pt" width='20%' valign='middle'><?php echo xlt('Diagnosis'); ?></td>
-                <td style="font-size:12pt" valign='middle'><?php echo xlt('Diagnosis Description'); ?></td>
+                <td class="align-middle" style="font-size:12pt" width='20%'><?php echo xlt('Diagnosis'); ?></td>
+                <td class="align-middle" style="font-size:12pt"><?php echo xlt('Diagnosis Description'); ?></td>
             </tr>
             <?php
             foreach ($codes as $code) {
                 echo "<tr><td>" . myCellText($code['code']) . "</td>";
                 echo "<td>" . myCellText($code['short_desc']) . "</td></tr>";
             }
-
             ?>
         </table>
-        &nbsp;<br/>
-
-        <table width='100%' cellpadding='2' cellspacing='0'>
-
+        <br/>
+        <table class="table">
             <tr class='head'>
-                <td class="td-label" rowspan='2' valign='middle'><?php echo xlt('Ordered Procedure'); ?></td>
-                <td class="td-label" colspan='5'><?php echo xlt('Report'); ?></td>
-                <td class="td-label" colspan='7'><?php echo xlt('Results'); ?></td>
+                <td class="font-weight-bold align-middle" rowspan='2'><?php echo xlt('Ordered Procedure'); ?></td>
+                <td class="font-weight-bold" colspan='5'><?php echo xlt('Report'); ?></td>
+                <td class="font-weight-bold" colspan='7'><?php echo xlt('Results'); ?></td>
             </tr>
-
             <tr class='head'>
                 <td><?php echo xlt('Reported'); ?></td>
                 <td><?php echo xlt('Collected'); ?></td>
@@ -662,58 +651,56 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
             }
 
             ?>
-
         </table>
-
-        &nbsp;<br/>
-        <table width='100%' style='border-width:0px;'>
+        <br/>
+        <table class="table border-0">
             <tr>
-                <td style='border-width:0px;'>
+                <td class="border-0">
                     <?php
                     if (!empty($aNotes)) {
-                        echo "<table cellpadding='3' cellspacing='0'>\n";
+                        echo "<div class='table-responsive'>";
+                        echo "<table class='table'>\n";
                         echo " <tr bgcolor='#e9e9e9'>\n";
-                        echo "  <th align='center' colspan='2'>" . xlt('Notes') . "</th>\n";
+                        echo "  <th class='text-center' colspan='2'>" . xlt('Notes') . "</th>\n";
                         echo " </tr>\n";
                         foreach ($aNotes as $key => $value) {
                             echo " <tr>\n";
-                            echo "  <td valign='top' style='padding:5px 5px;'>" . ($key + 1) . "</td>\n";
+                            echo "  <td class='align-top' style='padding:5px 5px;'>" . ($key + 1) . "</td>\n";
                             // <pre> tag because white space and a fixed font are often used to line things up.
-                            echo "  <td><pre style='white-space:pre-wrap;border:0px;background:white;'>" . text($value) . "</pre></td>\n";
+                            echo "  <td><pre class='border-0 bg-white' style='white-space:pre-wrap;'>" . text($value) . "</pre></td>\n";
                             echo " </tr>\n";
                         }
 
-                        echo "</table>\n";
+                        echo "</table></div>\n";
                     }
                     ?>
                 </td>
-                <td style='border-width:0px;' align='right' valign='top'>
+                <td class="border-0 text-right align-top">
                     <?php if ($input_form && !empty($ctx['priors_omitted']) /* empty($_POST['form_showall']) */) { ?>
-                        <input type='submit' name='form_showall' value='<?php echo xla('Show All Results'); ?>'
+                        <input type='submit' class='btn btn-primary' name='form_showall' value='<?php echo xla('Show All Results'); ?>'
                                title='<?php echo xla('Include all values reported for each result code'); ?>'/>
                     <?php } elseif ($input_form && !empty($_POST['form_showall'])) { ?>
-                        <input type='submit' name='form_latest' value='<?php echo xla('Latest Results Only'); ?>'
+                        <input type='submit' class='btn btn-primary' name='form_latest' value='<?php echo xla('Latest Results Only'); ?>'
                                title='<?php echo xla('Show only latest values reported for each result code'); ?>'/>
                     <?php } ?>
                     <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
                         &nbsp;
-                        <input type='button' value='<?php echo xla('Related Patient Notes'); ?>'
-    onclick='showpnotes(<?php echo attr_js($orderid); ?>)' />
+                        <input type='button' class='btn btn-primary' value='<?php echo xla('Related Patient Notes'); ?>'
+                            onclick='showpnotes(<?php echo attr_js($orderid); ?>)' />
                     <?php } ?>
                     <?php if ($input_form && $ctx['sign_list']) { ?>
                         &nbsp;
-                        <input type='hidden' name='form_sign_list' value='<?php echo attr($ctx['sign_list']); ?>'/>
-                        <input type='submit' name='form_sign' value='<?php echo xla('Sign Results'); ?>'
+                        <input type='hidden' class='btn btn-primary' name='form_sign_list' value='<?php echo attr($ctx['sign_list']); ?>'/>
+                        <input type='submit' class='btn btn-primary' name='form_sign' value='<?php echo xla('Sign Results'); ?>'
                                title='<?php echo xla('Mark these reports as reviewed'); ?>'/>
                     <?php } ?>
                     <?php if ($input_form) { ?>
                         &nbsp;
-                        <input type='button' value='<?php echo xla('Close'); ?>' onclick='window.close()'/>
+                        <input type='button' class='btn btn-danger' value='<?php echo xla('Close'); ?>' onclick='window.close()'/>
                     <?php } ?>
                 </td>
             </tr>
         </table>
-
     </div>
 
     <?php if ($input_form) { ?>
