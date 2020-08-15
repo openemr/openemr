@@ -138,6 +138,8 @@ services:
       OPENEMR_SETTING_couchdb_dbase: example
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
       OPENEMR_SETTING_user_debug: 3
+      OPENEMR_SETTING_gbl_ldap_host: openldap
+      OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
   openemr-edge:
     restart: always
     image: openemr/openemr:flex-edge
