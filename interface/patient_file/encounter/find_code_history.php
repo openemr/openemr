@@ -79,10 +79,6 @@ function get_history_codes($pid)
     <meta charset="utf-8" />
     <?php Header::setupHeader(['opener']); ?>
     <style>
-        body {
-            height: 100%;
-            width: 100%;
-        }
         .tips {
             display: none;
         }
@@ -156,7 +152,6 @@ function get_history_codes($pid)
             let rows = $("#historyTable tr td").filter(":contains(" + src + ")");
             let i = 0;
             while (i < rows.length) {
-                rows[i].innerHTML = '<mark>' + rows[i].innerHTML + '</mark>';
                 $(rows[i]).closest('tr').addClass('text-danger');
                 i++;
             }
@@ -171,7 +166,7 @@ function get_history_codes($pid)
 </head>
 
 <body>
-    <div class="container-fluidposition-fixed">
+    <div class="container-fluid position-fixed">
         <div class="input-group bg-white">
             <div class="input-group-prepend">
                 <button class="btn btn-danger" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
@@ -183,7 +178,7 @@ function get_history_codes($pid)
                 <header class="card-heading card-heading-sm">
                     <h4 class="card-title"><?php echo xlt('Usage Tips') ?></h4>
                 </header>
-                <div class="card-body bg-warning">
+                <div class="card-body">
                     <ul>
                         <?php
                         echo "<li>" . xlt("This dialog is generated from patient problem diagnoses and the accumulated diagnoses of all past procedures.") . "</li>";
