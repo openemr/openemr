@@ -473,78 +473,88 @@ function toencounter(enc, datestr, topframe) {
 </script>
 </head>
 <body>
-    <div class="text-center">
-        <p><h2><?php echo xlt('Receipt for Payment'); ?></h2>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2><?php echo xlt('Receipt for Payment'); ?></h2>
+                <p>
+                    <?php echo text($frow['name']) ?>
+                    <br />
+                    <?php echo text($frow['street']) ?>
+                    <br />
+                    <?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code']) ?>
+                    <br />
+                    <?php echo text($frow['phone']) ?>
+                </p>
 
-        <p><?php echo text($frow['name']) ?>
-        <br /><?php echo text($frow['street']) ?>
-        <br /><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' .
-            text($frow['postal_code']) ?>
-        <br /><?php echo text($frow['phone']) ?>
+                <div class="table-responsive">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><?php echo xlt('Date'); ?>:</td>
+                            <td><?php echo text(oeFormatSDFT(strtotime($payrow['dtime']))) ?></td>
+                        </tr>
+                        <tr>
+                            <td><?php echo xlt('Patient'); ?>:</td>
+                            <td><?php echo text($patdata['fname']) . " " . text($patdata['mname']) . " " .
+                            text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></td>
+                        </tr>
+                        <tr>
+                            <td><?php echo xlt('Paid Via'); ?>:</td>
+                            <td><?php echo generate_display_field(array('data_type' => '1', 'list_id' => 'payment_method'), $payrow['method']); ?></td>
+                        </tr>
+                        <tr>
+                            <td><?php echo xlt('Check/Ref Number'); ?>:</td>
+                            <td><?php echo text($payrow['source']) ?></td>
+                        </tr>
+                        <tr>
+                            <td><?php echo xlt('Amount for This Visit'); ?>:</td>
+                            <td><?php echo text(oeFormatMoney($payrow['amount1'])) ?></td>
+                        </tr>
+                        <tr>
+                            <td>
+                            <?php
+                            if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
+                                echo xlt('Pre-payment Amount');
+                            } else {
+                                echo xlt('Amount for Past Balance');
+                            }
+                            ?>
+                            :</td>
+                            <td><?php echo text(oeFormatMoney($payrow['amount2'])) ?></td>
+                        </tr>
+                        <tr>
+                            <td><?php echo xlt('Received By'); ?>:</td>
+                            <td><?php echo text($payrow['user']) ?></td>
+                        </tr>
+                    </table>
+                </div>
+                <div id='hideonprint'>
+                    <button type="button" class="btn btn-primary btn-print" value='<?php echo xla('Print'); ?>' id='printbutton'>
+                        <?php echo xlt('Print'); ?>
+                    </button>
 
-        <p>
-        <table class="table table-borderless">
-            <tr>
-                <td><?php echo xlt('Date'); ?>:</td>
-                <td><?php echo text(oeFormatSDFT(strtotime($payrow['dtime']))) ?></td>
-            </tr>
-            <tr>
-                <td><?php echo xlt('Patient'); ?>:</td>
-                <td><?php echo text($patdata['fname']) . " " . text($patdata['mname']) . " " .
-                text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></td>
-            </tr>
-            <tr>
-                <td><?php echo xlt('Paid Via'); ?>:</td>
-                <td><?php echo generate_display_field(array('data_type' => '1', 'list_id' => 'payment_method'), $payrow['method']); ?></td>
-            </tr>
-            <tr>
-                <td><?php echo xlt('Check/Ref Number'); ?>:</td>
-                <td><?php echo text($payrow['source']) ?></td>
-            </tr>
-            <tr>
-                <td><?php echo xlt('Amount for This Visit'); ?>:</td>
-                <td><?php echo text(oeFormatMoney($payrow['amount1'])) ?></td>
-            </tr>
-            <tr>
-                <td>
-                <?php
-                if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
-                    echo xlt('Pre-payment Amount');
-                } else {
-                    echo xlt('Amount for Past Balance');
-                }
-                ?>
-                :</td>
-                <td><?php echo text(oeFormatMoney($payrow['amount2'])) ?></td>
-            </tr>
-            <tr>
-                <td><?php echo xlt('Received By'); ?>:</td>
-                <td><?php echo text($payrow['user']) ?></td>
-            </tr>
-        </table>
+                    <?php
+                    $todaysenc = todaysEncounterIf($pid);
+                    if ($todaysenc && $todaysenc != $encounter) {
+                        echo "&nbsp;<input type='button' class='btn btn-primary' " .
+                        "value='" . xla('Open Today`s Visit') . "' " .
+                        "onclick='toencounter(" . attr_js($todaysenc) . ", " . attr_js($today) . ", (opener ? opener.top : top))' />\n";
+                    }
+                    ?>
 
-        <div id='hideonprint'>
-            <p>
-            <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
-
-            <?php
-            $todaysenc = todaysEncounterIf($pid);
-            if ($todaysenc && $todaysenc != $encounter) {
-                echo "&nbsp;<input type='button' " .
-                "value='" . xla('Open Today`s Visit') . "' " .
-                "onclick='toencounter(" . attr_js($todaysenc) . ", " . attr_js($today) . ", (opener ? opener.top : top))' />\n";
-            }
-            ?>
-
-            <?php if (AclMain::aclCheckCore('admin', 'super') || AclMain::aclCheckCore('acct', 'bill')) {
-                // allowing biller to delete payments ?>
-            &nbsp;
-            <input type='button' value='<?php echo xla('Delete'); ?>' style='color:red' onclick='deleteme()' />
-            <?php } ?>
-
-        </div>
-        <div id='showonprint'>
-            <input type='button' value='<?php echo xla('Exit'); ?>' id='donebutton' onclick="closeHow(event)"/>
+                    <?php if (AclMain::aclCheckCore('admin', 'super') || AclMain::aclCheckCore('acct', 'bill')) {
+                        // allowing biller to delete payments ?>
+                    <button type="button" class="btn btn-danger btn-delete" value='<?php echo xla('Delete'); ?>' onclick="deleteme()">
+                        <?php echo xlt('Delete'); ?>
+                    </button>
+                    <?php } ?>
+                </div>
+                <div class='mt-3' id='showonprint'>
+                    <button type="button" class="btn btn-secondary btn-cancel" value='<?php echo xla('Exit'); ?>' id='donebutton' onclick="closeHow(event)">
+                        <?php echo xlt('Exit'); ?>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </body>
@@ -561,7 +571,6 @@ function toencounter(enc, datestr, topframe) {
 <title><?php echo xlt('Record Payment'); ?></title>
 
 <style>
-    body    { font-family:sans-serif; font-size:10pt; font-weight:normal }
     .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
     .detail { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
     #ajax_div_patient {
