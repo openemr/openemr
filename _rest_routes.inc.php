@@ -38,6 +38,7 @@ use OpenEMR\RestControllers\DrugRestController;
 use OpenEMR\RestControllers\ImmunizationRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
+use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
 
 // Note some Http clients may not send auth as json so a function
@@ -392,6 +393,14 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "med");
         return (new DrugRestController())->getOne($uuid);
     },
+    "GET /api/prescription" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new PrescriptionRestController())->getAll();
+    },
+    "GET /api/prescription/:uuid" => function ($uuid) {
+        RestConfig::authorization_check("patients", "med");
+        return (new PrescriptionRestController())->getOne($uuid);
+    },
 
 );
 
@@ -402,7 +411,7 @@ use OpenEMR\RestControllers\FHIR\FhirObservationRestController;
 use OpenEMR\RestControllers\FHIR\FhirImmunizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirLocationRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationRestController;
-use OpenEMR\RestControllers\FHIR\FhirMedicationStatementRestController;
+use OpenEMR\RestControllers\FHIR\FhirMedicationRequestRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
@@ -535,21 +544,21 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "med");
         return (new FhirProcedureRestController())->getOne($uuid);
     },
-    "GET /fhir/MedicationStatement" => function () {
+    "GET /fhir/MedicationRequest" => function () {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirMedicationStatementRestController(null))->getAll($_GET);
+        return (new FhirMedicationRequestRestController())->getAll($_GET);
     },
-    "GET /fhir/MedicationStatement/:id" => function ($id) {
+    "GET /fhir/MedicationRequest/:uuid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirMedicationStatementRestController(null))->getOne($id);
+        return (new FhirMedicationRequestRestController())->getOne($uuid);
     },
     "GET /fhir/Medication" => function () {
         RestConfig::authorization_check("patients", "med");
         return (new FhirMedicationRestController())->getAll($_GET);
     },
-    "GET /fhir/Medication/:id" => function ($id) {
+    "GET /fhir/Medication/:uuid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirMedicationRestController(null))->getOne($id);
+        return (new FhirMedicationRestController())->getOne($uuid);
     },
     "GET /fhir/Location" => function () {
         RestConfig::authorization_check("patients", "med");
