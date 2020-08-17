@@ -69,16 +69,16 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ? $encounter : '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
-    echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
-    echo "  <td class='detail text-center' id='" . attr($date) . "'>" . text($encounter) . "</td>\n";
-    echo "  <td class='detail text-center' id='td_charges_$var_index' >" . text(bucks($charges)) . "</td>\n";
-    echo "  <td class='detail text-center' id='td_inspaid_$var_index' >" . text(bucks($inspaid * -1)) . "</td>\n";
-    echo "  <td class='detail text-center' id='td_ptpaid_$var_index' >" . text(bucks($ptpaid * -1)) . "</td>\n";
-    echo "  <td class='detail text-center' id='td_patient_copay_$var_index' >" . text(bucks($patcopay)) . "</td>\n";
-    echo "  <td class='detail text-center' id='td_copay_$var_index' >" . text(bucks($copay)) . "</td>\n";
-    echo "  <td class='detail text-center' id='balance_$var_index'>" . text(bucks($balance)) . "</td>\n";
-    echo "  <td class='detail text-center' id='duept_$var_index'>" . text(bucks(round($duept, 2) * 1)) . "</td>\n";
-    echo "  <td class='detail text-right'><input type='text' class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " .
+    echo "  <td>" . text(oeFormatShortDate($date)) . "</td>\n";
+    echo "  <td class='text-center' id='" . attr($date) . "'>" . text($encounter) . "</td>\n";
+    echo "  <td class='text-center' id='td_charges_$var_index' >" . text(bucks($charges)) . "</td>\n";
+    echo "  <td class='text-center' id='td_inspaid_$var_index' >" . text(bucks($inspaid * -1)) . "</td>\n";
+    echo "  <td class='text-center' id='td_ptpaid_$var_index' >" . text(bucks($ptpaid * -1)) . "</td>\n";
+    echo "  <td class='text-center' id='td_patient_copay_$var_index' >" . text(bucks($patcopay)) . "</td>\n";
+    echo "  <td class='text-center' id='td_copay_$var_index' >" . text(bucks($copay)) . "</td>\n";
+    echo "  <td class='text-center' id='balance_$var_index'>" . text(bucks($balance)) . "</td>\n";
+    echo "  <td class='text-center' id='duept_$var_index'>" . text(bucks(round($duept, 2) * 1)) . "</td>\n";
+    echo "  <td class='text-right'><input type='text' class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " .
         " value='' onchange='coloring();calctotal()'  autocomplete='off' " .
         "onkeyup='calctotal()'/></td>\n";
     echo " </tr>\n";
@@ -571,8 +571,6 @@ function toencounter(enc, datestr, topframe) {
 <title><?php echo xlt('Record Payment'); ?></title>
 
 <style>
-    .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
-    .detail { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
     #ajax_div_patient {
         position: absolute;
         z-index:10;
@@ -1018,18 +1016,18 @@ function make_insurance() {
                             <table class="table" id="table_display">
                                 <thead>
                                     <tr class="table-active" id="tr_head">
-                                        <td class="dehead" width="70"><?php echo xlt('DOS'); ?></td>
-                                        <td class="dehead" width="65"><?php echo xlt('Encounter'); ?></td>
-                                        <td class="dehead text-center" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></td>
-                                        <td class="dehead text-center" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></td>
-                                        <td class="dehead text-center" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></td>
-                                        <td class="dehead text-center" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></td>
-                                        <td class="dehead text-center" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></td>
-                                        <td class="dehead text-center" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></td>
-                                        <td class="dehead text-center" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></td>
-                                        <td class="dehead text-center" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></td>
-                                        <td class="dehead text-center" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></td>
-                                        <td class="dehead text-center" width="50"><?php echo xlt('Paying'); ?></td>
+                                        <td class="font-weight-bold" width="70"><?php echo xlt('DOS'); ?></td>
+                                        <td class="font-weight-bold" width="65"><?php echo xlt('Encounter'); ?></td>
+                                        <td class="font-weight-bold text-center" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></td>
+                                        <td class="font-weight-bold text-center" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></td>
+                                        <td class="font-weight-bold text-center" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></td>
+                                        <td class="font-weight-bold text-center" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></td>
+                                        <td class="font-weight-bold text-center" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></td>
+                                        <td class="font-weight-bold text-center" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></td>
+                                        <td class="font-weight-bold text-center" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></td>
+                                        <td class="font-weight-bold text-center" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></td>
+                                        <td class="font-weight-bold text-center" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></td>
+                                        <td class="font-weight-bold text-center" width="50"><?php echo xlt('Paying'); ?></td>
                                     </tr>
                                 </thead>
                                 <?php
@@ -1199,16 +1197,16 @@ function make_insurance() {
                                 ?>
 
                                 <tr class="table-active">
-                                    <td class="dehead" id='td_total_1'></td>
-                                    <td class="dehead" id='td_total_2'></td>
-                                    <td class="dehead" id='td_total_3'></td>
-                                    <td class="dehead" id='td_total_4'></td>
-                                    <td class="dehead" id='td_total_5'></td>
-                                    <td class="dehead" id='td_total_6'></td>
-                                    <td class="dehead" id='td_total_7'></td>
-                                    <td class="dehead" id='td_total_8'></td>
-                                    <td class="dehead text-right"><?php echo xlt('Total');?></td>
-                                    <td class="dehead text-right">
+                                    <td class="font-weight-bold" id='td_total_1'></td>
+                                    <td class="font-weight-bold" id='td_total_2'></td>
+                                    <td class="font-weight-bold" id='td_total_3'></td>
+                                    <td class="font-weight-bold" id='td_total_4'></td>
+                                    <td class="font-weight-bold" id='td_total_5'></td>
+                                    <td class="font-weight-bold" id='td_total_6'></td>
+                                    <td class="font-weight-bold" id='td_total_7'></td>
+                                    <td class="font-weight-bold" id='td_total_8'></td>
+                                    <td class="font-weight-bold text-right"><?php echo xlt('Total');?></td>
+                                    <td class="font-weight-bold text-right">
                                         <input type='text' class='form-control text-success' name='form_paytotal' value='' readonly />
                                     </td>
                                 </tr>
