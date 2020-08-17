@@ -517,36 +517,7 @@ class Document extends ORDataObject
     //
     function change_patient($new_patient_id)
     {
-        $couch_docid = $this->get_couch_docid();
-        $couch_revid = $this->get_couch_revid();
-
-        // Set the new patient in CouchDB.
-        if ($couch_docid && $couch_revid) {
-            $couch = new CouchDB();
-            $db = $GLOBALS['couchdb_dbase'];
-            $data = array($db, $couch_docid);
-            $couchresp = $couch->retrieve_doc($data);
-            // CouchDB doesnot support updating a single value in a document.
-            // Have to retrieve the entire document, update the necessary value and save again
-            list ($db, $docid, $revid, $patient_id, $encounter, $type, $json) = $data;
-            $data = array($db, $couch_docid, $couch_revid, $new_patient_id, $couchresp->encounter,
-            $couchresp->mimetype, json_encode($couchresp->data), json_encode($couchresp->th_data));
-            $resp = $couch->update_doc($data);
-            // Sometimes the response from CouchDB is not available, still it would
-            // have saved in the DB. Hence check one more time.
-            if (!$resp->_id || !$resp->_rev) {
-                    $data = array($db, $couch_docid, $new_patient_id, $couchresp->encounter);
-                    $resp = $couch->retrieve_doc($data);
-            }
-
-            if ($resp->_rev == $couch_revid) {
-                  return false;
-            } else {
-                  $this->set_couch_revid($resp->_rev);
-            }
-        }
-
-        // Set the new patient in mysql.
+        // Set the new patient.
         $this->set_foreign_id($new_patient_id);
         $this->persist();
 
@@ -614,34 +585,35 @@ class Document extends ORDataObject
         $this->mimetype = $mimetype;
         if ($this->storagemethod == 1) {
             // Store it using CouchDB.
-            $couch = new CouchDB();
-            $docname = $_SESSION['authUserID'] . $filename . $patient_id . $encounter_id . date("%Y-%m-%d H:i:s");
-            $docid = $couch->stringToId($docname);
-            $json = json_encode(base64_encode($data));
+            if ($GLOBALS['couchdb_encryption']) {
+                $document = $cryptoGen->encryptStandard($data, null, 'database');
+            } else {
+                $document = base64_encode($data);
+            }
             if ($has_thumbnail) {
-                $th_json = json_encode(base64_encode($thumbnail_data));
+                if ($GLOBALS['couchdb_encryption']) {
+                    $th_document = $cryptoGen->encryptStandard($thumbnail_data, null, 'database');
+                } else {
+                    $th_document = base64_encode($thumbnail_data);
+                }
                 $this->thumb_url = $this->get_thumb_name($filename);
             } else {
-                $th_json = false;
+                $th_document = false;
             }
 
-            $db = $GLOBALS['couchdb_dbase'];
-            $couchdata = array($db, $docid, $patient_id, $encounter_id, $mimetype, $json, $th_json);
-            $resp = $couch->check_saveDOC($couchdata);
-            if (!$resp->id || !$resp->_rev) {
-                // Not sure what this is supposed to do.  The references to id, rev,
-                // _id and _rev seem pretty weird.
-                $couchdata = array($db, $docid, $patient_id, $encounter_id);
-                $resp = $couch->retrieve_doc($couchdata);
-                $docid = $resp->_id;
-                $revid = $resp->_rev;
+            $couch = new CouchDB();
+            $docid = $couch->createDocId('documents');
+            if (!empty($th_document)) {
+                $couchdata = ['_id' => $docid, 'data' => $document, 'th_data' => $th_document];
+            } else {
+                $couchdata = ['_id' => $docid, 'data' => $document];
+            }
+            $resp = $couch->save_doc($couchdata);
+            if (!$resp->id || !$resp->rev) {
+                return xl('CouchDB save failed');
             } else {
                 $docid = $resp->id;
                 $revid = $resp->rev;
-            }
-
-            if (!$docid && !$revid) {
-                return xl('CouchDB save failed');
             }
 
             $this->url = $filename;
@@ -734,7 +706,7 @@ class Document extends ORDataObject
             }
         }
 
-        if ($GLOBALS['drive_encryption'] && ($this->storagemethod != 1)) {
+        if (($GLOBALS['drive_encryption'] && ($this->storagemethod != 1)) || ($GLOBALS['couchdb_encryption'] && ($this->storagemethod == 1))) {
             $this->set_encrypted(1);
         } else {
             $this->set_encrypted(0);

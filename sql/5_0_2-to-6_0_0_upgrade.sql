@@ -74,6 +74,10 @@
 --    argument: table_name
 --    behavior: this will add and populate a uuid column into table
 
+--  #IfUuidNeedUpdateId
+--    argument: table_name primary_id
+--    behavior: this will add and populate a uuid column into table
+
 --  #IfUuidNeedUpdateVertical
 --    argument: table_name table_columns
 --    behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
@@ -550,6 +554,14 @@ CREATE TABLE `uuid_registry` (
 
 #IfMissingColumn uuid_registry table_id
 ALTER TABLE `uuid_registry` ADD `table_id` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn uuid_registry couchdb
+ALTER TABLE `uuid_registry` ADD `couchdb` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn uuid_registry mapped
+ALTER TABLE `uuid_registry` ADD `mapped` tinyint(4) NOT NULL DEFAULT '0';
 #EndIf
 
 #IfMissingColumn patient_data uuid
@@ -1937,6 +1949,17 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verific
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'entered-in-error', 'Entered in Error', 40);
 #EndIf
 
+#IfMissingColumn procedure_order uuid
+ALTER TABLE `procedure_order` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdateId procedure_order procedure_order_id
+#EndIf
+
+#IfNotIndex procedure_order uuid
+CREATE UNIQUE INDEX `uuid` ON `procedure_order` (`uuid`);
+#EndIf
+
 UPDATE `globals` SET `gl_value`='0.625' WHERE `gl_name`='font-size' AND `gl_value`='0.625rem';
 UPDATE `globals` SET `gl_value`='0.75' WHERE `gl_name`='font-size' AND `gl_value`='0.75rem';
 UPDATE `globals` SET `gl_value`='0.875' WHERE `gl_name`='font-size' AND `gl_value`='0.875rem';
@@ -1958,3 +1981,49 @@ UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#ced4da' WHERE `pc_c
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#d3c6ec' WHERE `pc_constant_id`='preventive_care_services' AND `pc_catcolor`='#CCCCFF';
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#febe89' WHERE `pc_constant_id`='ophthalmological_services' AND `pc_catcolor`='#F89219';
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#adb5bd' WHERE `pc_constant_id`='group_therapy' AND `pc_catcolor`='#BFBFBF';
+
+#IfMissingColumn drugs uuid
+ALTER TABLE `drugs` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdateId drugs drug_id
+#EndIf
+
+#IfNotIndex drugs uuid
+CREATE UNIQUE INDEX `uuid` ON `drugs` (`uuid`);
+#EndIf
+
+#IfMissingColumn prescriptions uuid
+ALTER TABLE `prescriptions` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate prescriptions
+#EndIf
+
+#IfNotIndex prescriptions uuid
+CREATE UNIQUE INDEX `uuid` ON `prescriptions` (`uuid`);
+#EndIf
+
+#IfNotColumnType prescriptions rxnorm_drugcode varchar(25)
+ALTER TABLE `prescriptions` MODIFY `rxnorm_drugcode` varchar(25) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn ccda encrypted
+ALTER TABLE `ccda` ADD `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes';
+#EndIf
+
+#IfNotTable uuid_mapping
+CREATE TABLE `uuid_mapping` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) NOT NULL DEFAULT '',
+  `resource` varchar(255) NOT NULL DEFAULT '',
+  `table` varchar(255) NOT NULL DEFAULT '',
+  `target_uuid` binary(16) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  PRIMARY KEY (`id`),
+  KEY `uuid` (`uuid`),
+  KEY `resource` (`resource`),
+  KEY `table` (`table`),
+  KEY `target_uuid` (`target_uuid`)
+) ENGINE=InnoDB AUTO_INCREMENT=1;
+#EndIf

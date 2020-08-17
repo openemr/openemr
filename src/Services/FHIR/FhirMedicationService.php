@@ -3,99 +3,85 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedication;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMedicationStatusCodes;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRRatio;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationBatch;
-use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
-use OpenEMR\Services\ListService;
+use OpenEMR\Services\DrugService;
+use OpenEMR\Services\FHIR\FhirServiceBase;
 
-class FhirMedicationService
+/**
+ * FHIR Medication Service
+ *
+ * @coversDefaultClass OpenEMR\Services\FHIR\FhirMedicationService
+ * @package            OpenEMR
+ * @link               http://www.open-emr.org
+ * @author             Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+class FhirMedicationService extends FhirServiceBase
 {
-
-    private $id;
+    /**
+     * @var MedicationService
+     */
+    private $medicationService;
 
     public function __construct()
     {
+        parent::__construct();
+        $this->medicationService = new DrugService();
     }
 
-    public function setId($id)
+    /**
+     * Returns an array mapping FHIR Medication Resource search parameters to OpenEMR Medication search parameters
+     *
+     * @return array The search parameters
+     */
+    protected function loadSearchParameters()
     {
-        $this->id = $id;
+        return  [];
     }
 
-    public function get()
+    /**
+     * Parses an OpenEMR medication record, returning the equivalent FHIR Medication Resource
+     *
+     * @param  array   $dataRecord The source OpenEMR data record
+     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @return FHIRMedication
+     */
+    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
-        return "SELECT d.name,
-                    d.ndc_number,
-                    d.active,
-                    d.form,
-                    di.manufacturer,
-                    di.lot_number,
-                    di.expiration
-                    FROM drugs AS d
-                    LEFT JOIN drug_inventory AS di 
-                    ON d.drug_id = di.drug_id";
-    }
+        $medicationResource = new FHIRMedication();
 
-    public function getAll()
-    {
-        $SQL = $this->get();
+        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $medicationResource->setMeta($meta);
 
-        $medicationResults = sqlStatement($SQL);
-        $results = array();
-        while ($row = sqlFetchArray($medicationResults)) {
-            array_push($results, $row);
-        }
-        return $results;
-    }
+        $id = new FHIRId();
+        $id->setValue($dataRecord['uuid']);
+        $medicationResource->setId($id);
 
-    public function getOne($id)
-    {
-        $SQL = $this->get();
-        $SQL .= " WHERE d.drug_id = ? ";
-
-        $sqlResult = sqlStatement($SQL, $id);
-        $result = sqlFetchArray($sqlResult);
-
-        return $result;
-    }
-
-    public function createMedicationResource($id = '', $data = '', $encode = true)
-    {
-        $code = new FHIRCodeableConcept();
-        $codeCoding = new FHIRCoding();
-        $codeCoding->setSystem("http://hl7.org/fhir/sid/ndc");
-        $codeCoding->setCode($data['ndc_number']);
-        $codeCoding->setDisplay($data['name']);
-        $code->addCoding($codeCoding);
-
-        $status = new FHIRString();
-
-        if ($data['active'] == '1') {
-            $status->setValue("active");
+        if ($dataRecord['active'] == '1') {
+            $medicationResource->setStatus("active");
         } else {
-            $status->setValue("inactive");
+            $medicationResource->setStatus("inactive");
         }
 
-        $manufacturer = new FHIRReference();
-        $manufacturer->setReference('Organization/' . $data['manufacturer']);
-
-        $form = new FHIRCodeableConcept();
-        $formCoding = new FHIRCoding();
-        $formCoding->setSystem("http://ncimeta.nci.nih.gov");
+        if (!empty($dataRecord['drug_code'])) {
+            $medicationCoding = new FHIRCoding();
+            $medicationCode = new FHIRCodeableConcept();
+            foreach ($dataRecord['drug_code'] as $code => $display) {
+                $medicationCoding->setSystem("http://www.nlm.nih.gov/research/umls/rxnorm");
+                $medicationCoding->setCode($code);
+                $medicationCoding->setDisplay($display);
+                $medicationCode->addCoding($medicationCoding);
+            }
+            $medicationResource->setCode($medicationCode);
+        }
 
         //alternative for switch case
-        list($formValue, $formCode) = [
+        list($formDisplay, $formCode) = [
             '1' => ['suspension', 'C60928'],
             '2' => ['tablet', 'C42998'],
             '3' => ['capsule', 'C25158'],
@@ -108,31 +94,79 @@ class FhirMedicationService
             '10' => ['cream', 'C28944'],
             '11' => ['ointment', 'C42966'],
             '12' => ['puff', 'C42944']
-        ][$data['form']] ?? ['', ''];
+        ][$dataRecord['form']] ?? ['', ''];
 
-        $formCoding->setCode($formCode);
-        $formCoding->setDisplay($formValue);
-        $form->addCoding($formCoding);
+        if (!empty($formCode)) {
+            $form = new FHIRCodeableConcept();
+            $formCoding = new FHIRCoding();
+            $formCoding->setSystem("http://ncimeta.nci.nih.gov");
+            $formCoding->setCode($formCode);
+            $formCoding->setDisplay($formDisplay);
+            $form->addCoding($formCoding);
+        }
 
-        $lotNumber = new FHIRString();
-        $lotNumber->setValue($data['lot_number']);
-        $expirationDate = new FHIRDateTime();
-        $expirationDate->setValue($data['expiration']);
-        $batch = new FHIRMedicationBatch();
-        $batch->setLotNumber($lotNumber);
-        $batch->setExpirationDate($expiration);
-
-        $resource = new FHIRMedication();
-        $resource->setCode($code);
-        $resource->setStatus($status);
-        $resource->setManufacturer($manufacturer);
-        $resource->setForm($form);
-        $resource->setBatch($batch);
+        if (isset($dataRecord['expiration']) || isset($dataRecord['expiration'])) {
+            $batch = new FHIRMedicationBatch();
+            if (isset($dataRecord['expiration'])) {
+                $expirationDate = new FHIRDateTime();
+                $expirationDate->setValue($dataRecord['expiration']);
+                $batch->setExpirationDate($expirationDate);
+            }
+            if (isset($dataRecord['lot_number'])) {
+                $batch->setLotNumber($dataRecord['lot_number']);
+            }
+            $medicationResource->setBatch($batch);
+        }
 
         if ($encode) {
-            return json_encode($resource);
+            return json_encode($medicationResource);
         } else {
-            return $resource;
+            return $medicationResource;
         }
+    }
+
+    /**
+     * Performs a FHIR Condition Resource lookup by FHIR Resource ID
+     *
+     * @param $fhirResourceId //The OpenEMR record's FHIR Condition Resource ID.
+     */
+    public function getOne($fhirResourceId)
+    {
+        $processingResult = $this->medicationService->getOne($fhirResourceId, true);
+        if (!$processingResult->hasErrors()) {
+            if (count($processingResult->getData()) > 0) {
+                $openEmrRecord = $processingResult->getData()[0];
+                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
+                $processingResult->setData([]);
+                $processingResult->addData($fhirRecord);
+            }
+        }
+        return $processingResult;
+    }
+
+    /**
+     * Searches for OpenEMR records using OpenEMR search parameters
+     *
+     * @param  array openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
+    public function searchForOpenEMRRecords($openEMRSearchParameters)
+    {
+        return $this->medicationService->getAll($openEMRSearchParameters, false, true);
+    }
+
+    public function parseFhirResource($fhirResource = array())
+    {
+        // TODO: If Required in Future
+    }
+
+    public function insertOpenEMRRecord($openEmrRecord)
+    {
+        // TODO: If Required in Future
+    }
+
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        // TODO: If Required in Future
     }
 }

@@ -831,98 +831,90 @@ function zip_content($source, $destination, $content = '', $create = true)
         </div>
 
     <?php
-    if ($PDF_OUTPUT) {
-        $content = getContent();
-        $ptd = report_basename($pid);
-        $fn = $ptd['base'] . ".pdf";
-        $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
-        $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
-        if (! $isit_utf8) {
-            if (function_exists('iconv')) { // if we can lets save the report
-                $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
-            } else { // no sense going on.
-                $die_str = xlt("Failed UTF8 encoding check! Could not automatically fix.");
-                die($die_str);
-            }
+if ($PDF_OUTPUT) {
+    $content = getContent();
+    $ptd = report_basename($pid);
+    $fn = $ptd['base'] . ".pdf";
+    $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
+    $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
+    if (! $isit_utf8) {
+        if (function_exists('iconv')) { // if we can lets save the report
+            $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
+        } else { // no sense going on.
+            $die_str = xlt("Failed UTF8 encoding check! Could not automatically fix.");
+            die($die_str);
         }
+    }
 
+    try {
+        $pdf->writeHTML($content); // convert html
+    } catch (MpdfException $exception) {
+        die(text($exception));
+    }
+
+    if ($PDF_OUTPUT == 1) {
         try {
-            $pdf->writeHTML($content); // convert html
+            if ($PDF_FAX === 1) {
+                $fax_pdf = $pdf->Output($fn, 'S');
+                $tmp_file = $GLOBALS['temporary_files_dir'] . '/' . $fn; // is deleted in sendFax...
+                file_put_contents($tmp_file, $fax_pdf);
+                echo $tmp_file;
+                exit();
+            } else {
+                if (!empty($archive_name) && sizeof($staged_docs) > 0) {
+                    $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
+                    header('Content-Description: File Transfer');
+                    header('Content-Transfer-Encoding: binary');
+                    header('Expires: 0');
+                    header("Cache-control: private");
+                    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                    header("Content-Type: application/zip; charset=utf-8");
+                    header("Content-Length: " . filesize($archive_name));
+                    header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
+
+                    ob_end_clean();
+                    @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
+
+                    unlink($archive_name);
+                } else {
+                    $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+                }
+            }
         } catch (MpdfException $exception) {
             die(text($exception));
         }
-
-        if ($PDF_OUTPUT == 1) {
-            try {
-                if ($PDF_FAX === 1) {
-                    $fax_pdf = $pdf->Output($fn, 'S');
-                    $tmp_file = $GLOBALS['temporary_files_dir'] . '/' . $fn; // is deleted in sendFax...
-                    file_put_contents($tmp_file, $fax_pdf);
-                    echo $tmp_file;
-                    exit();
-                } else {
-                    if (!empty($archive_name) && sizeof($staged_docs) > 0) {
-                        $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
-                        header('Content-Description: File Transfer');
-                        header('Content-Transfer-Encoding: binary');
-                        header('Expires: 0');
-                        header("Cache-control: private");
-                        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                        header("Content-Type: application/zip; charset=utf-8");
-                        header("Content-Length: " . filesize($archive_name));
-                        header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
-
-                        ob_end_clean();
-                        @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
-
-                        unlink($archive_name);
-                    } else {
-                        $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
-                    }
-                }
-            } catch (MpdfException $exception) {
-                die(text($exception));
-            }
-        } else {
-            // This is the case of writing the PDF as a message to the CMS portal.
-            $ptdata = getPatientData($pid, 'cmsportal_login');
-            $contents = $pdf->Output('', true);
-            echo "<html><head>\n";
-            Header::setupHeader();
-            echo "</head><body>\n";
-            $result = cms_portal_call(array(
-                'action' => 'putmessage',
-                'user' => $ptdata['cmsportal_login'],
-                'title' => xl('Your Clinical Report'),
-                'message' => xl('Please see the attached PDF.'),
-                'filename' => 'report.pdf',
-                'mimetype' => 'application/pdf',
-                'contents' => base64_encode($contents)
-            ));
-            if ($result['errmsg']) {
-                die(text($result['errmsg']));
-            }
-
-            echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
-            echo "</body></html>\n";
+    } else {
+        // This is the case of writing the PDF as a message to the CMS portal.
+        $ptdata = getPatientData($pid, 'cmsportal_login');
+        $contents = $pdf->Output('', true);
+        echo "<html><head>\n";
+        Header::setupHeader();
+        echo "</head><body class='body_top'>\n";
+        $result = cms_portal_call(array(
+            'action' => 'putmessage',
+            'user' => $ptdata['cmsportal_login'],
+            'title' => xl('Your Clinical Report'),
+            'message' => xl('Please see the attached PDF.'),
+            'filename' => 'report.pdf',
+            'mimetype' => 'application/pdf',
+            'contents' => base64_encode($contents)
+        ));
+        if ($result['errmsg']) {
+            die(text($result['errmsg']));
         }
-        foreach ($tmp_files_remove as $tmp_file) {
-            // Remove the tmp files that were created
-            unlink($tmp_file);
-        }
-    } else { ?>
-        <?php if (!$printable) { // Set up translated strings for use by interactive search ?>
-    <script>
-    var xl_string = <?php echo json_encode(array(
-        'spcl_chars' => xla('Special characters are not allowed') . '.',
-        'not_found'  => xla('No results found') . '.',
-        'results'    => xla('Showing result'),
-        'literal_of' => xla('of'),
-    ));
-                    ?>;
-    </script>
-    <script src="<?php echo $GLOBALS['web_root']?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
-    <?php } ?>
+
+        echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
+        echo "</body></html>\n";
+    }
+    foreach ($tmp_files_remove as $tmp_file) {
+        // Remove the tmp files that were created
+        unlink($tmp_file);
+    }
+} else {
+    ?>
+    <?php if (!$printable) { ?>
+<script src="<?php echo $GLOBALS['web_root']?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php } ?>
 </body>
 </html>
 <?php } ?>

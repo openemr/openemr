@@ -165,14 +165,19 @@ if (!$_REQUEST['flb_table']) {
     ?>
 <html>
 <head>
-    <meta name="author" content="OpenEMR: MedExBank">
+    <meta name="author" content="OpenEMR: MedExBank" />
     <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
     <title><?php echo xlt('Flow Board'); ?></title>
     <script>
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-    <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>">
+    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
+      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_bootstrap_navbar.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+    <?php } else { ?>
+      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/bootstrap_navbar.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+    <?php } ?>
+
     <script src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />

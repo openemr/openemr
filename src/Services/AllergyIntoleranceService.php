@@ -21,7 +21,7 @@ class AllergyIntoleranceService extends BaseService
     private const ALLERGY_TABLE = "lists";
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
-    private $uuidRegistery;
+    private $uuidRegistry;
     private $allergyIntoleranceValidator;
 
     /**
@@ -30,8 +30,8 @@ class AllergyIntoleranceService extends BaseService
     public function __construct()
     {
         parent::__construct('lists');
-        $this->uuidRegistery = new UuidRegistry(['table_name' => self::ALLERGY_TABLE]);
-        $this->uuidRegistery->createMissingUuids();
+        $this->uuidRegistry = new UuidRegistry(['table_name' => self::ALLERGY_TABLE]);
+        $this->uuidRegistry->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
         $this->allergyIntoleranceValidator = new AllergyIntoleranceValidator();
@@ -113,7 +113,7 @@ class AllergyIntoleranceService extends BaseService
                 UuidRegistry::uuidToString($row['practitioner']) :
                 $row['practitioner'];
             if ($row['diagnosis'] != "") {
-                $row['diagnosis'] = $this->addDiagnosis($row['diagnosis']);
+                $row['diagnosis'] = $this->addCoding($row['diagnosis']);
             }
             $processingResult->addData($row);
         }
@@ -160,7 +160,7 @@ class AllergyIntoleranceService extends BaseService
             UuidRegistry::uuidToString($sqlResult['practitioner']) :
             $sqlResult['practitioner'];
         if ($sqlResult['diagnosis'] != "") {
-            $row['diagnosis'] = $this->addDiagnosis($sqlResult['diagnosis']);
+            $row['diagnosis'] = $this->addCoding($sqlResult['diagnosis']);
         }
         $processingResult->addData($sqlResult);
         return $processingResult;

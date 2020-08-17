@@ -76,9 +76,9 @@ function row_delete($table, $where)
     }
 }
 
- // Deactivate rows, with logging, for the specified table using the
- // specified SET and WHERE clauses.
- //
+// Deactivate rows, with logging, for the specified table using the
+// specified SET and WHERE clauses.
+//
 function row_modify($table, $set, $where)
 {
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
@@ -197,7 +197,7 @@ function delete_document($document)
         //for CouchDB store
         case 1:
             $couchDB = new CouchDB();
-            $couchDB->DeleteDoc($GLOBALS['couchdb_dbase'], $trow['couch_docid'], $trow['couch_revid']);
+            $couchDB->DeleteDoc($trow['couch_docid'], $trow['couch_revid']);
             break;
     }
 }
@@ -212,7 +212,7 @@ function submit_form() {
     top.restoreSession();
     document.deletefrm.submit();
 }
-// Java script function for closing the popup
+// Javascript function for closing the popup
 function popup_close() {
     dlgclose();
 }
@@ -236,7 +236,7 @@ function popup_close() {
 
                 row_modify("billing", "activity = 0", "pid = '" . add_escape_custom($patient) . "'");
                 row_modify("pnotes", "deleted = 1", "pid = '" . add_escape_custom($patient) . "'");
-                // row_modify("prescriptions" , "active = 0"  , "patient_id = '$patient'");
+
                 row_delete("prescriptions", "patient_id = '" . add_escape_custom($patient) . "'");
                 row_delete("claims", "patient_id = '" . add_escape_custom($patient) . "'");
                 delete_drug_sales($patient);

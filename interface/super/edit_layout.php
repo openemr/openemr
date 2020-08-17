@@ -1163,8 +1163,8 @@ function extShow(lino, show) {
   x = dw - extdiv.offsetWidth;
   if (x < 0) x = 0;
   var y = extGetY(show) + show.offsetHeight;
-  extdiv.style.left = x;
-  extdiv.style.top  = y;
+  extdiv.style.left = x + 'px';
+  extdiv.style.top  = y + 'px';
   extdiv.style.visibility = 'visible';
  }
  else {
@@ -1197,8 +1197,8 @@ function extAddCondition(lino, btnelem) {
   // Replace contents of the tdplus cell.
   tdplus.innerHTML =
     "<select class='form-control' name='fld[" + lino + "][condition_andor][" + (i-1) + "]'>" +
-    "<option value='and'>" + <?php echo xlj('And') ?> + "</option>" +
-    "<option value='or' >" + <?php echo xlj('Or') ?> + "</option>" +
+    "<option value='and'>" + jsText(<?php echo xlj('And') ?>) + "</option>" +
+    "<option value='or' >" + jsText(<?php echo xlj('Or') ?>) + "</option>" +
     "</select>";
 
   // Add the new row.
@@ -1214,10 +1214,10 @@ function extAddCondition(lino, btnelem) {
     "</td>" +
     "<td class='text-left'>" +
     "<select class='form-control' name='fld[" + lino + "][condition_operator][" + i + "]'>" +
-    "<option value='eq'>" + <?php echo xlj('Equals') ?> + "</option>" +
-    "<option value='ne'>" + <?php echo xlj('Does not equal') ?> + "</option>" +
-    "<option value='se'>" + <?php echo xlj('Is selected') ?> + "</option>" +
-    "<option value='ns'>" + <?php echo xlj('Is not selected') ?> + "</option>" +
+    "<option value='eq'>" + jsText(<?php echo xlj('Equals') ?>) + "</option>" +
+    "<option value='ne'>" + jsText(<?php echo xlj('Does not equal') ?>) + "</option>" +
+    "<option value='se'>" + jsText(<?php echo xlj('Is selected') ?>) + "</option>" +
+    "<option value='ns'>" + jsText(<?php echo xlj('Is not selected') ?>) + "</option>" +
     "</select>" +
     "</td>" +
     "<td class='text-left'>" +
@@ -1350,8 +1350,7 @@ function myChangeCheck() {
 <input type="hidden" name="selectedfields" id="selectedfields" value="" />
 <input type="hidden" id="targetgroup" name="targetgroup" value="" />
 
-<div class="menubar" style='padding:5px 0;'>
-
+<div class="fixed-top py-2 px-1 bg-light text-dark">
 <strong><?php echo xlt('Edit layout'); ?>:</strong>&nbsp;
 <select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
  <option value=''>-- <?php echo xlt('Select') ?> --</option>
@@ -1720,8 +1719,9 @@ foreach ($datatypes as $key => $value) {
 <script>
 /* Field modifier objects - heading towards context based.
     Used by Select2 so rtl may be enabled*/
-<?php echo "var fldOptions = [
-	{id: 'A',text:" . xlj('Age') . ",ctx:['4'],ctxExcp:['0']},
+<?php echo "var fldOptions = [";
+echo !empty($GLOBALS['portal_onsite_two_enable']) ? "{id: 'EP',text:" . xlj('Exclude in Portal') . "}," : '';
+echo "{id: 'A',text:" . xlj('Age') . ",ctx:['4'],ctxExcp:['0']},
 	{id: 'B',text:" . xlj('Gestational Age') . ",ctx:['4'],ctxExcp:['0']},
 	{id: 'F',text:" . xlj('Add Time to Date') . ",ctx:['4'],ctxExcp:['0']},
 	{id: 'C',text:" . xlj('Capitalize') . ",ctx:['0'],ctxExcp:['4','15','40']},
