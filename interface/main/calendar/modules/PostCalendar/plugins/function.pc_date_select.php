@@ -35,7 +35,7 @@ function smarty_function_pc_date_select($args)
     }
 
     $Date = postcalendar_getDate();
-    
+
     if (!isset($y)) {
         $y = substr($Date, 0, 4);
     }
@@ -47,7 +47,7 @@ function smarty_function_pc_date_select($args)
     if (!isset($d)) {
         $d = substr($Date, 6, 2);
     }
-    
+
     if (!isset($args['day']) || strtolower($args['day']) == 'on') {
         $args['day'] = true;
         @define('_PC_FORM_DATE', true);
@@ -83,17 +83,17 @@ function smarty_function_pc_date_select($args)
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day' => $d));
         $dayselect = $output->FormSelectMultiple('jumpday', $sel_data);
     }
-        
+
     if ($args['month'] === true) {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month' => $m));
         $monthselect = $output->FormSelectMultiple('jumpmonth', $sel_data);
     }
-        
+
     if ($args['year'] === true) {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', array('pc_year' => $y));
         $yearselect = $output->FormSelectMultiple('jumpyear', $sel_data);
     }
-        
+
     if ($args['view'] === true) {
         $sel_data = array();
         $sel_data[0]['id']         = 'day';
@@ -115,15 +115,15 @@ function smarty_function_pc_date_select($args)
         $args['label'] = _PC_JUMP_MENU_SUBMIT;
     }
 
-        $jumpsubmit = '<input type="submit" valign="middle" name="submit" value="' . $args['label'] . '" />';
+        $jumpsubmit = '<input type="submit" class="btn btn-primary align-middle" name="submit" value="' . $args['label'] . '" />';
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
-    
+
     $orderArray = array('day' => $dayselect,
                         'month' => $monthselect,
                         'year' => $yearselect,
                         'view' => $viewselect,
                         'jump' => $jumpsubmit);
-                        
+
     if (isset($args['order'])) {
         $newOrder = array();
         $order = explode(',', $args['order']);
@@ -141,7 +141,7 @@ function smarty_function_pc_date_select($args)
     } else {
         $order = $orderArray;
     }
-    
+
     foreach ($order as $element) {
         echo $element;
     }

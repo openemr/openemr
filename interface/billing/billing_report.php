@@ -459,7 +459,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     if (ele) {
                         ele.style.display = "inline";
                         text.innerHTML =
-                            "<?php echo xla('Collapse'); ?>";
+                            jsText(<?php echo xlj('Collapse'); ?>);
                     }
                 }
             } else {
@@ -471,7 +471,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     if (ele) {
                         ele.style.display = "none";
                         text.innerHTML =
-                            <?php echo xlj('Expand'); ?>;
+                            jsText(<?php echo xlj('Expand'); ?>);
                     }
                 }
             }
@@ -484,11 +484,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 if (ele.style.display == "inline") {
                     ele.style.display = "none";
                     text.innerHTML =
-                        <?php echo xlj('Expand'); ?>;
+                        jsText(<?php echo xlj('Expand'); ?>);
                 } else {
                     ele.style.display = "inline";
                     text.innerHTML =
-                        <?php echo xlj('Collapse'); ?>;
+                        jsText(<?php echo xlj('Collapse'); ?>);
                 }
             }
         }
@@ -570,9 +570,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-header">
-                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-                </div>
+                <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
         </div>
         <div class="hideaway">
@@ -1322,7 +1320,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                 $rowcnt = 0;
                                 $resMoneyGot = sqlStatement(
                                     "SELECT pay_amount AS PatientPay,date(post_time) AS date FROM ar_activity WHERE " .
-                                    "pid = ? AND encounter = ? AND payer_type=0 AND account_code='PCP'",
+                                    "pid = ? AND encounter = ? AND deleted IS NULL AND payer_type = 0 AND account_code = 'PCP'",
                                     array(
                                         $iter['enc_pid'],
                                         $iter['enc_encounter']

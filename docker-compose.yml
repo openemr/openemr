@@ -10,10 +10,13 @@ services:
   mysql:
     restart: always
     image: mariadb:10.5
-    command: ['mysqld','--character-set-server=utf8', '--collation-server=utf8_general_ci']
+    command: ['mysqld','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - 8320:3306
     volumes:
+    - ./contrib/util/docker/sql-ssl-certs-keys/easy/ca.pem:/etc/ssl/ca.pem:ro
+    - ./contrib/util/docker/sql-ssl-certs-keys/easy/server-cert.pem:/etc/ssl/server-cert.pem:ro
+    - ./contrib/util/docker/sql-ssl-certs-keys/easy/server-key.pem:/etc/ssl/server-key.pem:ro
     - databasevolume:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -35,6 +38,7 @@ services:
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
     - logvolume:/var/log
+    - couchdbvolume:/couchdb/data
     environment:
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
@@ -55,6 +59,15 @@ services:
       OPENEMR_SETTING_rest_portal_fhir_api: 1
       OPENEMR_SETTING_portal_onsite_two_enable: 1
       OPENEMR_SETTING_ccda_alt_service_enable: 3
+      OPENEMR_SETTING_couchdb_host: couchdb
+      OPENEMR_SETTING_couchdb_port: 6984
+      OPENEMR_SETTING_couchdb_user: admin
+      OPENEMR_SETTING_couchdb_pass: password
+      OPENEMR_SETTING_couchdb_dbase: example
+      OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
+      OPENEMR_SETTING_user_debug: 3
+      OPENEMR_SETTING_gbl_ldap_host: openldap
+      OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
     depends_on:
     - mysql
   phpmyadmin:
@@ -64,6 +77,24 @@ services:
     - 8310:80
     environment:
       PMA_HOSTS: mysql
+  couchdb:
+    restart: always
+    image: couchdb
+    ports:
+    - 5984:5984
+    - 6984:6984
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
+    volumes:
+    - ./contrib/util/docker/couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.d/local.ini:rw
+    - ./contrib/util/docker/couchdb-config-ssl-cert-keys/easy/ca.pem:/etc/ssl/ca.pem:ro
+    - ./contrib/util/docker/couchdb-config-ssl-cert-keys/easy/server-cert.pem:/etc/ssl/server-cert.pem:ro
+    - ./contrib/util/docker/couchdb-config-ssl-cert-keys/easy/server-key.pem:/etc/ssl/server-key.pem:ro
+    - couchdbvolume:/opt/couchdb/data
+  openldap:
+    restart: always
+    image: osixia/openldap
 volumes:
   databasevolume: {}
   publicvolume: {}
@@ -72,3 +103,4 @@ volumes:
   vendordir: {}
   ccdamodule: {}
   logvolume: {}
+  couchdbvolume: {}

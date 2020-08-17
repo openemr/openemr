@@ -74,6 +74,10 @@
 --    argument: table_name
 --    behavior: this will add and populate a uuid column into table
 
+--  #IfUuidNeedUpdateId
+--    argument: table_name primary_id
+--    behavior: this will add and populate a uuid column into table
+
 --  #IfUuidNeedUpdateVertical
 --    argument: table_name table_columns
 --    behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
@@ -528,76 +532,6 @@ ALTER TABLE `api_token` ADD `token_api` varchar(40);
 ALTER TABLE `api_token` ADD `patient_id` bigint(20) NOT NULL;
 #EndIf
 
-#IfNotTable api_forced_id
-CREATE TABLE `api_forced_id` (
-    `pid` bigint(20) NOT NULL,
-    `forced_id` varchar(100) NOT NULL,
-    `resource_pid` bigint(20) NOT NULL,
-    `resource_type` varchar(100) DEFAULT NULL,
-    PRIMARY KEY (`pid`),
-    UNIQUE KEY `idx_forcedid_resid` (`resource_pid`),
-    UNIQUE KEY `idx_forcedid_type_resid` (`resource_type`,`resource_pid`),
-    KEY `idx_forcedid_type_forcedid` (`resource_type`,`forced_id`)
-) ENGINE=InnoDB;
-#EndIf
-
-#IfNotTable api_resource
-CREATE TABLE `api_resource` (
-     `res_id` bigint(20) NOT NULL,
-     `res_deleted_at` datetime DEFAULT NULL,
-     `res_version` varchar(7) DEFAULT NULL,
-     `has_tags` bit(1) NOT NULL,
-     `res_published` datetime DEFAULT NULL,
-     `res_updated` datetime DEFAULT NULL,
-     `reviewed_date` datetime DEFAULT NULL,
-     `hash_sha256` varchar(64) DEFAULT NULL,
-     `res_language` varchar(20) DEFAULT NULL,
-     `res_profile` varchar(200) DEFAULT NULL,
-     `res_type` varchar(30) DEFAULT NULL,
-     `res_ver` bigint(20) DEFAULT NULL,
-     `forced_id_pid` bigint(20) DEFAULT NULL,
-     PRIMARY KEY (`res_id`),
-     KEY `idx_res_date` (`res_updated`),
-     KEY `idx_res_lang` (`res_type`,`res_language`),
-     KEY `idx_res_profile` (`res_profile`),
-     KEY `idx_res_type` (`res_type`),
-     KEY `idx_reviewed_date` (`reviewed_date`),
-     KEY `fk_resource_forcedid` (`forced_id_pid`)
-) ENGINE=InnoDB;
-#EndIf
-
-#IfNotTable api_res_ver
-CREATE TABLE `api_res_ver` (
-    `pid` bigint(20) NOT NULL,
-    `res_deleted_at` datetime DEFAULT NULL,
-    `res_version` varchar(7) DEFAULT NULL,
-    `has_tags` bit(1) NOT NULL,
-    `res_published` datetime DEFAULT NULL,
-    `res_updated` datetime DEFAULT NULL,
-    `res_encoding` varchar(5) NOT NULL,
-    `res_text` longblob,
-    `res_id` bigint(20) DEFAULT NULL,
-    `res_type` varchar(30) NOT NULL,
-    `res_ver` bigint(20) NOT NULL,
-    `forced_id_pid` bigint(20) DEFAULT NULL,
-    PRIMARY KEY (`pid`),
-    UNIQUE KEY `idx_resver_id_ver` (`res_id`,`res_ver`),
-    KEY `idx_resver_type_date` (`res_type`,`res_updated`),
-    KEY `idx_resver_id_date` (`res_id`,`res_updated`),
-    KEY `idx_resver_date` (`res_updated`),
-    KEY `fk_resver_forcedid` (`forced_id_pid`)
-) ENGINE=InnoDB;
-
-ALTER TABLE `api_forced_id`
-    ADD CONSTRAINT `fk_forcedid_resource` FOREIGN KEY (`resource_pid`) REFERENCES `api_resource` (`res_id`);
-
-ALTER TABLE `api_resource`
-    ADD CONSTRAINT `fk_resource_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
-
-ALTER TABLE `api_res_ver`
-    ADD CONSTRAINT `fk_resver_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
-#EndIf
-
 -- Note the below block will also be skipped if the uuid_registry table does not yet exist
 #IfNotColumnType uuid_registry uuid binary(16)
 DROP TABLE `uuid_registry`;
@@ -616,6 +550,18 @@ CREATE TABLE `uuid_registry` (
   `created` timestamp NULL,
   PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn uuid_registry table_id
+ALTER TABLE `uuid_registry` ADD `table_id` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn uuid_registry couchdb
+ALTER TABLE `uuid_registry` ADD `couchdb` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn uuid_registry mapped
+ALTER TABLE `uuid_registry` ADD `mapped` tinyint(4) NOT NULL DEFAULT '0';
 #EndIf
 
 #IfMissingColumn patient_data uuid
@@ -1947,6 +1893,10 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "405300000X", "Prevention Professional", 8480);
 #EndIf
 
+#IfMissingColumn documents document_data
+ALTER TABLE `documents` ADD `document_data` MEDIUMTEXT;
+#EndIf
+
 #IfMissingColumn immunizations uuid
 ALTER TABLE `immunizations` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
@@ -1956,4 +1906,124 @@ ALTER TABLE `immunizations` ADD `uuid` binary(16) DEFAULT NULL;
 
 #IfNotIndex immunizations uuid
 CREATE UNIQUE INDEX `uuid` ON `immunizations` (`uuid`);
+#EndIf
+
+#IfMissingColumn lists uuid
+ALTER TABLE `lists` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate lists
+#EndIf
+
+#IfNotIndex lists uuid
+CREATE UNIQUE INDEX `uuid` ON `lists` (`uuid`);
+#EndIf
+
+#IfMissingColumn lists verification
+ALTER TABLE `lists` ADD `verification` VARCHAR(36) NOT NULL DEFAULT '' COMMENT 'Reference to list_options option_id = allergyintolerance-verification';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id allergyintolerance-verification
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq` ) VALUES ('lists' ,'allergyintolerance-verification', 'AllergyIntolerance Verification Status Codes', 1);
+#EndIf
+
+#IfNotRow list_options list_id allergyintolerance-verification
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'unconfirmed', 'Unconfirmed', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'confirmed', 'Confirmed', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'refuted', 'Refuted', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'entered-in-error', 'Entered in Error', 40);
+#EndIf
+
+#IfMissingColumn ar_activity deleted
+ALTER TABLE `ar_activity` ADD COLUMN `deleted` datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id condition-verification
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq` ) VALUES ('lists' ,'condition-verification', 'Condition Verification Status Codes', 1);
+#EndIf
+
+#IfNotRow list_options list_id condition-verification
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'confirmed', 'Confirmed', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'unconfirmed', 'Unconfirmed', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'refuted', 'Refuted', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'entered-in-error', 'Entered in Error', 40);
+#EndIf
+
+#IfMissingColumn procedure_order uuid
+ALTER TABLE `procedure_order` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdateId procedure_order procedure_order_id
+#EndIf
+
+#IfNotIndex procedure_order uuid
+CREATE UNIQUE INDEX `uuid` ON `procedure_order` (`uuid`);
+#EndIf
+
+UPDATE `globals` SET `gl_value`='0.625' WHERE `gl_name`='font-size' AND `gl_value`='0.625rem';
+UPDATE `globals` SET `gl_value`='0.75' WHERE `gl_name`='font-size' AND `gl_value`='0.75rem';
+UPDATE `globals` SET `gl_value`='0.875' WHERE `gl_name`='font-size' AND `gl_value`='0.875rem';
+UPDATE `globals` SET `gl_value`='1.0' WHERE `gl_name`='font-size' AND `gl_value`='1rem';
+UPDATE `globals` SET `gl_value`='1.125' WHERE `gl_name`='font-size' AND `gl_value`='1.125rem';
+
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#dee2e6' WHERE `pc_constant_id`='no_show' AND `pc_catcolor`='#DDDDDD';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#cce5ff' WHERE `pc_constant_id`='in_office' AND `pc_catcolor`='#99CCFF';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#fdb172' WHERE `pc_constant_id`='out_of_office' AND `pc_catcolor`='#99FFFF';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#e9ecef' WHERE `pc_constant_id`='vacation' AND `pc_catcolor`='#EFEFEF';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#ffecb4' WHERE `pc_constant_id`='office_visit' AND `pc_catcolor`='#FFFFCC';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#8663ba' WHERE `pc_constant_id`='holidays' AND `pc_catcolor`='#9676DB';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#2374ab' WHERE `pc_constant_id`='closed' AND `pc_catcolor`='#2374AB';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#ffd351' WHERE `pc_constant_id`='lunch' AND `pc_catcolor`='#FFFF33';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#93d3a2' WHERE `pc_constant_id`='established_patient' AND `pc_catcolor`='#CCFF33';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#a2d9e2' WHERE `pc_constant_id`='new_patient' AND `pc_catcolor`='#CCFFFF';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#b02a37' WHERE `pc_constant_id`='reserved' AND `pc_catcolor`='#FF7777';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#ced4da' WHERE `pc_constant_id`='health_and_behavioral_assessment' AND `pc_catcolor`='#C7C7C7';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#d3c6ec' WHERE `pc_constant_id`='preventive_care_services' AND `pc_catcolor`='#CCCCFF';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#febe89' WHERE `pc_constant_id`='ophthalmological_services' AND `pc_catcolor`='#F89219';
+UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#adb5bd' WHERE `pc_constant_id`='group_therapy' AND `pc_catcolor`='#BFBFBF';
+
+#IfMissingColumn drugs uuid
+ALTER TABLE `drugs` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdateId drugs drug_id
+#EndIf
+
+#IfNotIndex drugs uuid
+CREATE UNIQUE INDEX `uuid` ON `drugs` (`uuid`);
+#EndIf
+
+#IfMissingColumn prescriptions uuid
+ALTER TABLE `prescriptions` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate prescriptions
+#EndIf
+
+#IfNotIndex prescriptions uuid
+CREATE UNIQUE INDEX `uuid` ON `prescriptions` (`uuid`);
+#EndIf
+
+#IfNotColumnType prescriptions rxnorm_drugcode varchar(25)
+ALTER TABLE `prescriptions` MODIFY `rxnorm_drugcode` varchar(25) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn ccda encrypted
+ALTER TABLE `ccda` ADD `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes';
+#EndIf
+
+#IfNotTable uuid_mapping
+CREATE TABLE `uuid_mapping` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) NOT NULL DEFAULT '',
+  `resource` varchar(255) NOT NULL DEFAULT '',
+  `table` varchar(255) NOT NULL DEFAULT '',
+  `target_uuid` binary(16) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  PRIMARY KEY (`id`),
+  KEY `uuid` (`uuid`),
+  KEY `resource` (`resource`),
+  KEY `table` (`table`),
+  KEY `target_uuid` (`target_uuid`)
+) ENGINE=InnoDB AUTO_INCREMENT=1;
 #EndIf

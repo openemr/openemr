@@ -3,12 +3,6 @@
 --
 
 --
--- Disable FOREIGN_KEY_CHECKS
---
-SET FOREIGN_KEY_CHECKS=0;
--- --------------------------------------------------------
-
---
 -- Table structure for table `addresses`
 --
 
@@ -1178,6 +1172,7 @@ CREATE TABLE `documents` (
   `audit_master_id` int(11) default NULL,
   `documentationOf` varchar(255) DEFAULT NULL,
   `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
+  `document_data` MEDIUMTEXT,
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
@@ -1341,6 +1336,7 @@ CREATE TABLE `drug_templates` (
 DROP TABLE IF EXISTS `drugs`;
 CREATE TABLE `drugs` (
   `drug_id` int(11) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `name` varchar(255) NOT NULL DEFAULT '',
   `ndc_number` varchar(20) NOT NULL DEFAULT '',
   `on_order` int(11) NOT NULL default '0',
@@ -1361,7 +1357,8 @@ CREATE TABLE `drugs` (
   `drug_code` varchar(25) NULL,
   `consumable` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = will not show on the fee sheet',
   `dispensable` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0 = pharmacy elsewhere, 1 = dispensed here',
-  PRIMARY KEY  (`drug_id`)
+  PRIMARY KEY  (`drug_id`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -6287,6 +6284,20 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "390200000X", "Student in an Organized Health Care Education/Training Program", 8470);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-specialty", "405300000X", "Prevention Professional", 8480);
 
+-- AllergyIntolerance Verification Status Codes [FHIR AllergyIntolerance.verification]
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq` ) VALUES ('lists' ,'allergyintolerance-verification', 'AllergyIntolerance Verification Status Codes', 1);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'unconfirmed', 'Unconfirmed', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'confirmed', 'Confirmed', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'refuted', 'Refuted', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintolerance-verification', 'entered-in-error', 'Entered in Error', 40);
+
+-- Condition Verification Status Codes [FHIR Condition.verification]
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq` ) VALUES ('lists' ,'condition-verification', 'Condition Verification Status Codes', 1);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'confirmed', 'Confirmed', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'unconfirmed', 'Unconfirmed', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'refuted', 'Refuted', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'entered-in-error', 'Entered in Error', 40);
+
 -- --------------------------------------------------------
 
 --
@@ -6296,6 +6307,7 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ("us-core-provider-
 DROP TABLE IF EXISTS `lists`;
 CREATE TABLE `lists` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `date` datetime default NULL,
   `type` varchar(255) default NULL,
   `subtype` varchar(31) NOT NULL DEFAULT '',
@@ -6303,7 +6315,7 @@ CREATE TABLE `lists` (
   `begdate` date default NULL,
   `enddate` date default NULL,
   `returndate` date default NULL,
-  `occurrence` int(11) default '0',
+  `occurrence` int(11) default '0' COMMENT "Reference to list_options option_id='occurrence'",
   `classification` int(11) default '0',
   `referredby` varchar(255) default NULL,
   `extrainfo` varchar(255) default NULL,
@@ -6320,6 +6332,7 @@ CREATE TABLE `lists` (
   `injury_type` varchar(31) NOT NULL DEFAULT '',
   `injury_grade` varchar(31) NOT NULL DEFAULT '',
   `reaction` varchar(255) NOT NULL DEFAULT '',
+  `verification` VARCHAR(36) NOT NULL DEFAULT '' COMMENT 'Reference to list_options option_id = allergyintolerance-verification',
   `external_allergyid` INT(11) DEFAULT NULL,
   `erx_source` ENUM('0','1') DEFAULT '0' NOT NULL  COMMENT '0-OpenEMR 1-External',
   `erx_uploaded` ENUM('0','1') DEFAULT '0' NOT NULL  COMMENT '0-Pending NewCrop upload 1-Uploaded TO NewCrop',
@@ -6329,7 +6342,8 @@ CREATE TABLE `lists` (
   `list_option_id` VARCHAR(100) DEFAULT NULL COMMENT 'Reference to list_options table',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`),
-  KEY `type` (`type`)
+  KEY `type` (`type`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -6789,21 +6803,21 @@ CREATE TABLE `openemr_postcalendar_categories` (
 -- Inserting data for table `openemr_postcalendar_categories`
 --
 
-INSERT INTO `openemr_postcalendar_categories` VALUES (5,'office_visit', 'Office Visit', '#FFFFCC', 'Normal Office Visit', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,5,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (4,'vacation', 'Vacation', '#EFEFEF', 'Reserved for use to define Scheduled Vacation Time', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 1, 0, 1,1,4,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (1,'no_show', 'No Show', '#DDDDDD', 'Reserved to define when an event did not occur as specified.', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 0, 0, 0,1,1,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (2,'in_office', 'In Office', '#99CCFF', 'Reserved todefine when a provider may haveavailable appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 1,1,2,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (3,'out_of_office', 'Out Of Office', '#99FFFF', 'Reserved to define when a provider may not have available appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 1,1,3,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (6,'holidays','Holidays','#9676DB','Clinic holiday',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,6,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (7,'closed','Closed','#2374AB','Clinic closed',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,7,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (8,'lunch', 'Lunch', '#FFFF33', 'Lunch', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 3, 2, 0, 0, 1,1,8,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (9,'established_patient', 'Established Patient', '#CCFF33', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0, 0,1,9,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (10,'new_patient','New Patient', '#CCFFFF', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 1800, 0, 0, 0, 0, 0, 0,1,10,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (11,'reserved','Reserved','#FF7777','Reserved',1,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,900,0,3,2,0,0, 1,1,11,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (12,'health_and_behavioral_assessment', 'Health and Behavioral Assessment', '#C7C7C7', 'Health and Behavioral Assessment', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,12,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (13,'preventive_care_services', 'Preventive Care Services', '#CCCCFF', 'Preventive Care Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,13,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (14,'ophthalmological_services', 'Ophthalmological Services', '#F89219', 'Ophthalmological Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,14,'encounters|notes');
-INSERT INTO `openemr_postcalendar_categories` VALUES (15,'group_therapy', 'Group Therapy' , '#BFBFBF' , 'Group Therapy', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 0, 0, 0, 0, 3, 1, 15,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (1,'no_show', 'No Show', '#dee2e6', 'Reserved to define when an event did not occur as specified.', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 0, 0, 0,1,1,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (2,'in_office', 'In Office', '#cce5ff', 'Reserved todefine when a provider may haveavailable appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 1,1,2,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (3,'out_of_office', 'Out Of Office', '#fdb172', 'Reserved to define when a provider may not have available appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 1,1,3,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (4,'vacation', 'Vacation', '#e9ecef', 'Reserved for use to define Scheduled Vacation Time', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 1, 0, 1,1,4,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (5,'office_visit', 'Office Visit', '#ffecb4', 'Normal Office Visit', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,5,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (6,'holidays','Holidays','#8663ba','Clinic holiday',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,6,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (7,'closed','Closed','#2374ab','Clinic closed',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,7,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (8,'lunch', 'Lunch', '#ffd351', 'Lunch', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 3, 2, 0, 0, 1,1,8,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (9,'established_patient', 'Established Patient', '#93d3a2', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0, 0,1,9,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (10,'new_patient','New Patient', '#a2d9e2', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 1800, 0, 0, 0, 0, 0, 0,1,10,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (11,'reserved','Reserved','#b02a37','Reserved',1,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,900,0,3,2,0,0, 1,1,11,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (12,'health_and_behavioral_assessment', 'Health and Behavioral Assessment', '#ced4da', 'Health and Behavioral Assessment', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,12,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (13,'preventive_care_services', 'Preventive Care Services', '#d3c6ec', 'Preventive Care Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,13,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (14,'ophthalmological_services', 'Ophthalmological Services', '#febe89', 'Ophthalmological Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,14,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (15,'group_therapy', 'Group Therapy' , '#adb5bd' , 'Group Therapy', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 0, 0, 0, 0, 3, 1, 15,'encounters|notes');
 
 -- --------------------------------------------------------
 
@@ -7200,6 +7214,7 @@ CREATE TABLE `pnotes` (
 DROP TABLE IF EXISTS `prescriptions`;
 CREATE TABLE `prescriptions` (
   `id` int(11) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `patient_id` bigint(20) default NULL,
   `filled_by_id` int(11) default NULL,
   `pharmacy_id` int(11) default NULL,
@@ -7210,7 +7225,7 @@ CREATE TABLE `prescriptions` (
   `start_date` date default NULL,
   `drug` varchar(150) default NULL,
   `drug_id` int(11) NOT NULL default '0',
-  `rxnorm_drugcode` INT(11) DEFAULT NULL,
+  `rxnorm_drugcode` varchar(25) DEFAULT NULL,
   `form` int(3) default NULL,
   `dosage` varchar(100) default NULL,
   `quantity` varchar(31) default NULL,
@@ -7240,7 +7255,8 @@ CREATE TABLE `prescriptions` (
   `rtx` INT(2) DEFAULT NULL,
   `txDate` DATE NOT NULL,
   PRIMARY KEY  (`id`),
-  KEY `patient_id` (`patient_id`)
+  KEY `patient_id` (`patient_id`),
+  UNIQUE INDEX `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -8346,6 +8362,27 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `uuid_mapping`
+--
+
+DROP TABLE IF EXISTS `uuid_mapping`;
+CREATE TABLE `uuid_mapping` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) NOT NULL DEFAULT '',
+  `resource` varchar(255) NOT NULL DEFAULT '',
+  `table` varchar(255) NOT NULL DEFAULT '',
+  `target_uuid` binary(16) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  PRIMARY KEY (`id`),
+  KEY `uuid` (`uuid`),
+  KEY `resource` (`resource`),
+  KEY `table` (`table`),
+  KEY `target_uuid` (`target_uuid`)
+) ENGINE=InnoDB AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `uuid_registry`
 --
 
@@ -8353,7 +8390,10 @@ DROP TABLE IF EXISTS `uuid_registry`;
 CREATE TABLE `uuid_registry` (
   `uuid` binary(16) NOT NULL DEFAULT '',
   `table_name` varchar(255) NOT NULL DEFAULT '',
+  `table_id` varchar(255) NOT NULL DEFAULT '',
   `table_vertical` varchar(255) NOT NULL DEFAULT '',
+  `couchdb` varchar(255) NOT NULL DEFAULT '',
+  `mapped` tinyint(4) NOT NULL DEFAULT '0',
   `created` timestamp NULL,
   PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
@@ -8558,6 +8598,7 @@ CREATE TABLE ar_activity (
   follow_up_note text,
   account_code varchar(15) NOT NULL,
   reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code',
+  deleted        datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided',
   PRIMARY KEY (pid, encounter, sequence_no),
   KEY session_id (session_id)
 ) ENGINE=InnoDB;
@@ -8709,6 +8750,7 @@ CREATE TABLE `procedure_questions` (
 DROP TABLE IF EXISTS `procedure_order`;
 CREATE TABLE `procedure_order` (
   `procedure_order_id`     bigint(20)   NOT NULL AUTO_INCREMENT,
+  `uuid`                   binary(16)   DEFAULT NULL,
   `provider_id`            bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references users.id, the ordering provider',
   `patient_id`             bigint(20)   NOT NULL            COMMENT 'references patient_data.pid',
   `encounter_id`           bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
@@ -8729,6 +8771,7 @@ CREATE TABLE `procedure_order` (
   `history_order`          enum('0','1') DEFAULT '0' COMMENT 'references order is added for history purpose only.',
   `order_diagnosis`        varchar(255) DEFAULT '' COMMENT 'primary order diagnosis',
   PRIMARY KEY (`procedure_order_id`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY datepid (date_ordered, patient_id),
   KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB;
@@ -10796,6 +10839,7 @@ CREATE TABLE ccda (
   `view` tinyint(4) NOT NULL DEFAULT '0',
   `transfer` tinyint(4) NOT NULL DEFAULT '0',
   `emr_transfer` tinyint(4) NOT NULL DEFAULT '0',
+  `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
   PRIMARY KEY (id),
   UNIQUE KEY unique_key (pid,encounter,time)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
@@ -12175,93 +12219,3 @@ CREATE TABLE `benefit_eligibility` (
     `response_create_date` date DEFAULT NULL,
     `response_modify_date` date DEFAULT NULL
 ) ENGINE=InnoDB;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `api_forced_id`
---
-
-DROP TABLE IF EXISTS `api_forced_id`;
-CREATE TABLE `api_forced_id` (
-    `pid` bigint(20) NOT NULL,
-    `forced_id` varchar(100) NOT NULL,
-    `resource_pid` bigint(20) NOT NULL,
-    `resource_type` varchar(100) DEFAULT NULL,
-    PRIMARY KEY (`pid`),
-    UNIQUE KEY `idx_forcedid_resid` (`resource_pid`),
-    UNIQUE KEY `idx_forcedid_type_resid` (`resource_type`,`resource_pid`),
-    KEY `idx_forcedid_type_forcedid` (`resource_type`,`forced_id`)
-) ENGINE=InnoDB;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `api_resource`
---
-
-DROP TABLE IF EXISTS `api_resource`;
-CREATE TABLE `api_resource` (
-     `res_id` bigint(20) NOT NULL,
-     `res_deleted_at` datetime DEFAULT NULL,
-     `res_version` varchar(7) DEFAULT NULL,
-     `has_tags` bit(1) NOT NULL,
-     `res_published` datetime DEFAULT NULL,
-     `res_updated` datetime DEFAULT NULL,
-     `reviewed_date` datetime DEFAULT NULL,
-     `hash_sha256` varchar(64) DEFAULT NULL,
-     `res_language` varchar(20) DEFAULT NULL,
-     `res_profile` varchar(200) DEFAULT NULL,
-     `res_type` varchar(30) DEFAULT NULL,
-     `res_ver` bigint(20) DEFAULT NULL,
-     `forced_id_pid` bigint(20) DEFAULT NULL,
-     PRIMARY KEY (`res_id`),
-     KEY `idx_res_date` (`res_updated`),
-     KEY `idx_res_lang` (`res_type`,`res_language`),
-     KEY `idx_res_profile` (`res_profile`),
-     KEY `idx_res_type` (`res_type`),
-     KEY `idx_reviewed_date` (`reviewed_date`),
-     KEY `fk_resource_forcedid` (`forced_id_pid`)
-) ENGINE=InnoDB;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `api_res_ver`
---
-
-DROP TABLE IF EXISTS `api_res_ver`;
-CREATE TABLE `api_res_ver` (
-    `pid` bigint(20) NOT NULL,
-    `res_deleted_at` datetime DEFAULT NULL,
-    `res_version` varchar(7) DEFAULT NULL,
-    `has_tags` bit(1) NOT NULL,
-    `res_published` datetime DEFAULT NULL,
-    `res_updated` datetime DEFAULT NULL,
-    `res_encoding` varchar(5) NOT NULL,
-    `res_text` longblob,
-    `res_id` bigint(20) DEFAULT NULL,
-    `res_type` varchar(30) NOT NULL,
-    `res_ver` bigint(20) NOT NULL,
-    `forced_id_pid` bigint(20) DEFAULT NULL,
-    PRIMARY KEY (`pid`),
-    UNIQUE KEY `idx_resver_id_ver` (`res_id`,`res_ver`),
-    KEY `idx_resver_type_date` (`res_type`,`res_updated`),
-    KEY `idx_resver_id_date` (`res_id`,`res_updated`),
-    KEY `idx_resver_date` (`res_updated`),
-    KEY `fk_resver_forcedid` (`forced_id_pid`)
-) ENGINE=InnoDB;
-
-ALTER TABLE `api_forced_id`
-    ADD CONSTRAINT `fk_forcedid_resource` FOREIGN KEY (`resource_pid`) REFERENCES `api_resource` (`res_id`);
-
-ALTER TABLE `api_resource`
-    ADD CONSTRAINT `fk_resource_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
-
-ALTER TABLE `api_res_ver`
-    ADD CONSTRAINT `fk_resver_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
-
---
--- Reenable FOREIGN_KEY_CHECKS
---
-SET FOREIGN_KEY_CHECKS=1;

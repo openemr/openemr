@@ -41,13 +41,17 @@ $source = empty($_GET['source']) ? 'D' : $_GET['source'];
 
 // For what == groups
 $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
+
+// For setting limit on selection
+$limit = empty($_GET['limit']) ? 0 : intval($_GET['limit']);
+
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 <title><?php echo xlt('Code Finder'); ?></title>
 
-<?php Header::setupHeader(['opener', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-colreorder']); ?>
+<?php Header::setupHeader(['opener', 'datatables', 'datatables-bs', 'datatables-colreorder']); ?>
 
 <script>
 
@@ -106,22 +110,28 @@ $(function () {
 
  // OnClick handler for the rows
  $('#my_data_table').on('click', 'tbody tr', function () {
-  var jobj = JSON.parse(this.id.substring(4));
+    var limit= <?php echo js_escape($limit); ?>;
+    var target_element= <?php echo js_escape($target_element); ?>;
+    
+    if(Object.values(oChosenIDs).length<limit || limit<=0){
+    var jobj = JSON.parse(this.id.substring(4));
 
-  this.style.fontWeight = 'bold';
-  oChosenIDs[this.id] = 1;
+    this.style.fontWeight = 'bold';
+    oChosenIDs[this.id] = 1;
 
-<?php if ($what == 'codes') { ?>
-  // this.id is of the form "CID|jsonstring".
-  var codesel = jobj['code'].split('|');
-  selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description']);
-<?php } elseif ($what == 'fields') { ?>
-  selectField(jobj);
-<?php } elseif ($what == 'lists') { ?>
-  SelectList(jobj);
-<?php } elseif ($what == 'groups') { ?>
-  SelectItem(jobj);
-<?php } ?>
+  <?php if ($what == 'codes') { ?>
+    // this.id is of the form "CID|jsonstring".
+    var codesel = jobj['code'].split('|');
+    
+    selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description'], target_element, limit);
+  <?php } elseif ($what == 'fields') { ?>
+    selectField(jobj);
+  <?php } elseif ($what == 'lists') { ?>
+    SelectList(jobj);
+  <?php } elseif ($what == 'groups') { ?>
+    SelectItem(jobj);
+  <?php } ?>
+  }
 
  } );
 
@@ -145,12 +155,16 @@ $(function () {
 
 <?php if ($what == 'codes') { ?>
 // Pass info back to the opener and close this window. Specific to billing/product codes.
-function selcode(codetype, code, selector, codedesc) {
- if (opener.closed || ! opener.set_related) {
+function selcode(codetype, code, selector, codedesc, target_element, limit=0) {
+ if (opener.closed || (! opener.set_related && !opener.set_related_target)) {
   alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
  }
  else {
-  var msg = opener.set_related(codetype, code, selector, codedesc);
+   if(target_element!=''){
+    var msg = opener.set_related_target(codetype, code, selector, codedesc, target_element, limit);
+  } else {
+    var msg = opener.set_related(codetype, code, selector, codedesc);
+  }
   if (msg) alert(msg);
   // window.close();
   return false;
@@ -227,7 +241,7 @@ var SelectItem = function(jobj) {
 
 </head>
 
-<body id="codes_search" class="body_top">
+<body id="codes_search">
     <div class="container-fluid">
         <?php
             $string_target_element = empty($target_element) ? '?' : "?target_element=" . attr_url($target_element) . "&";

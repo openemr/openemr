@@ -15,7 +15,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -23,12 +23,14 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once "$srcdir/options.inc.php";
+require_once("$srcdir/options.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\InsuranceService;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -110,7 +112,7 @@ function showLineItem(
     global $paymethod, $paymethodleft, $methodpaytotal, $methodadjtotal,
     $grandpaytotal, $grandadjtotal, $showing_ppd;
 
-    if (! $rowmethod) {
+    if (!$rowmethod) {
         $rowmethod = 'Unknown';
     }
 
@@ -528,7 +530,7 @@ if ($_POST['form_refresh']) {
           "JOIN forms AS f ON f.pid = a.pid AND f.encounter = a.encounter AND f.formdir = 'newpatient' " .
           "LEFT JOIN ar_session AS s ON s.session_id = a.session_id " .
           "LEFT JOIN insurance_companies AS i ON i.id = s.payer_id " .
-          "WHERE ( a.pay_amount != 0 OR a.adj_amount != 0 )";
+          "WHERE a.deleted IS NULL AND (a.pay_amount != 0 OR a.adj_amount != 0)";
         //
         if ($form_use_edate) {
             $query .= " AND fe.date >= ? AND fe.date <= ?";
@@ -575,13 +577,20 @@ if ($_POST['form_refresh']) {
           // Compute reporting key: insurance company name or payment method.
             if ($form_report_by == '1') {
                 if (empty($row['payer_id'])) {
-                    $rowmethod = '';
-                } else {
-                    if (empty($row['name'])) {
-                        $rowmethod = xl('Unnamed insurance company');
+                    // 'ar_session' is not capturing payer_id when entering payments through invoice or era posting
+                    if ($row['payer_type'] == '1') {
+                        $insurance_id = InsuranceService::getOne($row['pid'], "primary");
+                    } elseif ($row['payer_type'] == '2') {
+                        $insurance_id = InsuranceService::getOne($row['pid'], "secondary");
+                    } elseif ($row['payer_type'] == '3') {
+                        $insurance_id = InsuranceService::getOne($row['pid'], "tertiary");
                     } else {
-                        $rowmethod = $row['name'];
+                        $rowmethod = xl('Unnamed insurance company');
                     }
+                    $insurance_company = InsuranceCompanyService::getOne($insurance_id['provider']);
+                    $rowmethod = xl($insurance_company['name']);
+                } else {
+                    $rowmethod = $row['name'];
                 }
             } else {
                 if (empty($row['session_id'])) {

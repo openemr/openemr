@@ -1,3 +1,4 @@
+dist: bionic
 language: php
 .steps:
   - &composer_github_auth |
@@ -316,6 +317,7 @@ language: php
       jobSummary+="--------------------------------------------"
 before_install:
   - echo "extension=ldap.so" >>php --ini | grep "Loaded Configuration" | sed -e "s|.:\s||"``
+  - nvm install --lts
 before_script:
   - echo 'error_reporting = "E_ALL & ~E_NOTICE & ~E_STRICT"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 jobs:
@@ -465,30 +467,6 @@ jobs:
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
-    - name: 'Build and test - PHP 7.3 - Apache - MariaDB 10.1'
-      php: '7.3'
-      env:
-        - DOCKER_DIR=apache_73_101
-        - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
-        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
-      script:
-        - failJob=false
-        - *dockers_env_start
-        - *composer_github_auth
-        - *main_build
-        - *ccda_build
-        - *install_configure
-        - *build_test_unit
-        - *build_test_e2e
-        - *build_test_api
-        - *build_test_fixtures
-        - *build_test_services
-        - *build_test_validators
-        - *build_test_controllers
-        - *build_test_common
-        - *job_summary_prep
-        - echo -e "${jobSummary}"
-        - if $failJob; then travis_terminate 1; fi
     - name: 'Build and test - PHP 7.3 - Apache - MySQL 8'
       php: '7.3'
       env:
@@ -537,36 +515,12 @@ jobs:
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
-    - name: 'Build and test - PHP 7.3 - Apache - MySQL 5.6'
-      php: '7.3'
-      env:
-        - DOCKER_DIR=apache_73_56
-        - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
-        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
-      script:
-        - failJob=false
-        - *dockers_env_start
-        - *composer_github_auth
-        - *main_build
-        - *ccda_build
-        - *install_configure
-        - *build_test_unit
-        - *build_test_e2e
-        - *build_test_api
-        - *build_test_fixtures
-        - *build_test_services
-        - *build_test_validators
-        - *build_test_controllers
-        - *build_test_common
-        - *job_summary_prep
-        - echo -e "${jobSummary}"
-        - if $failJob; then travis_terminate 1; fi
     - name: 'Build and test - PHP 7.2 - Nginx - MariaDB 10.5'
       php: '7.2'
       env:
         - DOCKER_DIR=nginx_72
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium=80.0.3987.162-1~deb10u1 chromium-common=80.0.3987.162-1~deb10u1"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
       script:
         - failJob=false
         - *dockers_env_start
@@ -575,7 +529,6 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
-        - *build_test_e2e
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
@@ -589,7 +542,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_73
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium=80.0.3987.162-1~deb10u1 chromium-common=80.0.3987.162-1~deb10u1"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
       script:
         - failJob=false
         - *dockers_env_start
@@ -598,7 +551,6 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
-        - *build_test_e2e
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
@@ -612,7 +564,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_74
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium=80.0.3987.162-1~deb10u1 chromium-common=80.0.3987.162-1~deb10u1"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
       script:
         - failJob=false
         - *dockers_env_start
@@ -621,7 +573,6 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
-        - *build_test_e2e
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
@@ -635,7 +586,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_80
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium=80.0.3987.162-1~deb10u1 chromium-common=80.0.3987.162-1~deb10u1"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
         - SKIP_COMPOSER_PLATFORM_REQS=true
       script:
         - failJob=false
@@ -645,7 +596,6 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
-        - *build_test_e2e
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators

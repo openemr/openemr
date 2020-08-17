@@ -315,7 +315,7 @@ if ($iter["portal_user"]) {
 <td><span class=text><?php echo xlt('Last Name'); ?>: </span></td><td><input type="text" name=lname id=lname style="width:150px;"  class="form-control" value="<?php echo attr($iter["lname"]); ?>"><span class="mandatory"></span></td>
 <td><span class=text><?php echo xlt('Default Facility'); ?>: </span></td><td><select name=facility_id style="width:150px;" class="form-control">
 <?php
-$fres = $facilityService->getAllBillingLocations();
+$fres = $facilityService->getAllServiceLocations();
 if ($fres) {
     for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++) {
                 $result[$iter2] = $fres[$iter2];

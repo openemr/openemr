@@ -11,7 +11,7 @@
  */
 
 ?>
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
     <head>
         <link rel=stylesheet href="../../public/themes/style_light.css">

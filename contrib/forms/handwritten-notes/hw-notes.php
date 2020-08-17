@@ -24,25 +24,25 @@ if ($_POST) {
         CsrfUtils::csrfNotVerified();
     }
 }
-    
+
 if (!empty($_POST['hw-notes'])) {
     // Create new document to spill the data in
     $document = new Document();
-        
+
     // Replace the unneccessary data in the beginning of the uri
     $formatted = str_replace("data:application/pdf;filename=generated.pdf;base64,", "", $_POST['hw-notes']);
-        
+
     // Set the document to the encounter id
     $document->set_encounter_id($_SESSION['encounter']);
 
 
     $doc_id = sqlQuery("SELECT `value` FROM `form_handwritten` WHERE `name` = 'doc_category'");
 
-        
+
     $doc = $document->createDocument($pid, $doc_id['value'], 'handwrittennotes-pid' . $pid . '-' . date('m-d-Y-g:ia') . '.pdf', 'application/pdf', base64_decode($formatted), '', '', $_SESSION['authUserID'], null);
     ?>
 
-<!doctype html>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -62,11 +62,11 @@ if (!empty($_POST['hw-notes'])) {
         <p class="lead"><?php echo xlt("The document has been saved to the patient's document tree."); ?></p>
         <a href="#" class="btn btn-primary text-white" onclick="window.close()"><?php echo xlt("Close Window"); ?></a>
     </div>
-    
+
 </body>
 </html>
 <?php } else { ?>
-<!doctype html>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -86,10 +86,10 @@ if (!empty($_POST['hw-notes'])) {
                 imageSize: {width: 2550, height: 3300},
                 backgroundColor: '#ffffff'
             });
-            
+
             lc.setZoom(0.1);
-            
-            $("#fileform").submit(function(e) {                
+
+            $("#fileform").submit(function(e) {
                 var img = lc.getImage();
 
                 // Convert to PDF using JavaScript jsPDF
@@ -98,10 +98,10 @@ if (!empty($_POST['hw-notes'])) {
                     unit: 'in',
                     format: 'letter'
                 });
-                                        
+
                 pdf.addImage(img, 'jpeg', 0, 0, 8.5, 11);
                 var uri = pdf.output('datauristring');
-                                
+
                 $('#hw-notes').val(uri);
             });
         });

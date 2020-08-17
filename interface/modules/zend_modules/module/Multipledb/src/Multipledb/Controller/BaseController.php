@@ -37,7 +37,7 @@ class BaseController extends AbstractActionController
         '/jquery/dist/jquery.min.js',
         //bootstrap
         '/bootstrap/dist/js/bootstrap.bundle.min.js',
-        '/jquery-validation/jquery.validate.min.js',
+        '/jquery-validation/dist/jquery.validate.min.js',
 
     );
 

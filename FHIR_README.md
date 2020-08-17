@@ -37,14 +37,15 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [FHIR Practitioner API](FHIR_README.md#get-fhirpractitioner)
     -   [FHIR PractitionerRole API](FHIR_README.md#get-fhirpractitionerrole)
     -   [FHIR Immunization API](FHIR_README.md#get-fhirimmunization)
-    -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
     -   [FHIR AllergyIntolerance API](FHIR_README.md#get-fhirallergyintolerance)
+    -   [FHIR Procedure API](FHIR_README.md#get-fhirprocedure)
+    -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
     -   [FHIR Observation API](FHIR_README.md#get-fhirobservation)
     -   [FHIR QuestionnaireResponse API](FHIR_README.md#get-fhirquestionnaireresponse)
     -   [FHIR Condition API](FHIR_README.md#get-fhircondition)
-    -   [FHIR Procedure API](FHIR_README.md#get-fhirprocedure)
-    -   [FHIR MedicationStatement API](FHIR_README.md#get-fhirmedicationstatement)
+    -   [FHIR MedicationRequest API](FHIR_README.md#get-fhirmedicationrequest)
     -   [FHIR Medication API](FHIR_README.md#get-fhirmedication)
+    -   [FHIR Location API](FHIR_README.md#get-fhirlocation)
 -   [Portal FHIR API Endpoints](FHIR_README.md#portalfhir-endpoints)
     -   [Patient API](FHIR_README.md#get-portalfhirpatient)
 -   [Todos](FHIR_README.md#project-management)
@@ -309,7 +310,7 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/PractitionerRole'
 ```
 
-#### GET [base]/PractitionerRole[id]
+#### GET [base]/PractitionerRole/[id]
 
 Request:
 
@@ -329,7 +330,7 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Immunization'
 ```
 
-#### GET [base]/Immunization/:id
+#### GET [base]/Immunization/[id]
 
 Request:
 
@@ -339,6 +340,22 @@ curl -X GET 'http://localhost:8300/apis/fhir/Immunization/90feaaa2-4097-4437-966
 
 -   Supported Search Parameters
     -   patient
+
+#### GET [base]/AllergyIntolerance
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance'
+```
+
+#### GET [base]/AllergyIntolerance/[id]
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance//90feaaa2-4097-4437-966e-c425d1958dd6'
+```
 
 #### GET /fhir/Organization
 
@@ -354,22 +371,6 @@ Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/fhir/Organization/1'
-```
-
-#### GET /fhir/AllergyIntolerance
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance'
-```
-
-#### GET /fhir/AllergyIntolerance/:id
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance/1'
 ```
 
 #### GET /fhir/Observation
@@ -421,7 +422,7 @@ curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/api
 }'
 ```
 
-#### GET /fhir/Condition
+#### GET [base]/Condition
 
 Request:
 
@@ -429,12 +430,12 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Condition'
 ```
 
-#### GET /fhir/Condition/:id
+#### GET [base]/Condition/[id]
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Condition/1'
+curl -X GET 'http://localhost:8300/apis/fhir/Condition/9109890a-6756-44c1-a82d-bdfac91c7424'
 ```
 
 #### GET /fhir/Procedure
@@ -445,28 +446,28 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Procedure'
 ```
 
-#### GET /fhir/Procedure/:id
+#### GET /fhir/Procedure/:uuid
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Procedure/1'
+curl -X GET 'http://localhost:8300/apis/fhir/Procedure/9109890a-6756-44c1-a82d-bdfac91c7424'
 ```
 
-#### GET /fhir/MedicationStatement
+#### GET /fhir/MedicationRequest
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/MedicationStatement'
+curl -X GET 'http://localhost:8300/apis/fhir/MedicationRequest'
 ```
 
-#### GET /fhir/MedicationStatement/:id
+#### GET /fhir/MedicationRequest/:uuid
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/MedicationStatement/1'
+curl -X GET 'http://localhost:8300/apis/fhir/MedicationRequest/9128a1ec-95be-4649-8a66-d3686b7ab0ca'
 ```
 
 #### GET /fhir/Medication
@@ -477,12 +478,27 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Medication'
 ```
 
-#### GET /fhir/Medication/:id
+#### GET /fhir/Medication/:uuid
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Medication/1'
+curl -X GET 'http://localhost:8300/apis/fhir/Medication/9109890a-6756-44c1-a82d-bdfac91c7424'
+```
+#### GET /fhir/Location
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Location'
+```
+
+#### GET /fhir/Location/:uuid
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Location/90f3d0e9-2a19-453b-84bd-1fa2b533f96c'
 ```
 
 ### /portalfhir/ Endpoints

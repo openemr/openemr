@@ -40,9 +40,13 @@ if ($_POST['check'] || $_POST['synchronize']) {
 
   // set up the mysql collation string to ensure case is sensitive in the mysql queries
     if (!$disable_utf8_flag) {
-        $case_sensitive_collation = "COLLATE utf8_bin";
+        if ($sqlconf["db_encoding"] == "utf8mb4") {
+            $case_sensitive_collation = "COLLATE utf8mb4_bin";
+        } else {
+            $case_sensitive_collation = "COLLATE utf8_bin";
+        }
     } else {
-        $case_sensitive_collation = "COLLATE latin_bin";
+        $case_sensitive_collation = "COLLATE latin1_bin";
     }
 
     $difference = 0; //flag

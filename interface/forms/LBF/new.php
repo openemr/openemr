@@ -583,7 +583,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 "<td class='text border-top-0'>" + code + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" + desc + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" +
-                "<select name='form_fs_bill[" + lino + "][provid]'>" +
+                "<select class='form-control' name='form_fs_bill[" + lino + "][provid]'>" +
                 "<?php echo addslashes($fs->genProviderOptionList('-- ' . xl('Default') . ' --')) ?>" +
                 "</select>&nbsp;" +
                 "</td>" +
@@ -608,10 +608,10 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             trelem.innerHTML =
                 "<td class='text border-top-0'>" + desc + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" +
-                "<select name='form_fs_prod[" + lino + "][warehouse]'>" + warehouses + "</select>&nbsp;" +
+                "<select class='form-control' name='form_fs_prod[" + lino + "][warehouse]'>" + warehouses + "</select>&nbsp;" +
                 "</td>" +
                 "<td class='text border-top-0 text-right'>" +
-                "<input type='text' name='form_fs_prod[" + lino + "][units]' size='3' value='1' />&nbsp;" +
+                "<input type='text' class='form-control' name='form_fs_prod[" + lino + "][units]' size='3' value='1' />&nbsp;" +
                 "</td>" +
                 "<td class='text border-top-0 text-right'>" + price + "&nbsp;</td>" +
                 "<td class='text border-top-0 text-right'>" +
@@ -787,50 +787,48 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <div class="page-header">
-                    <h3>
-                        <?php echo text($formtitle) . " " . xlt('for') . ' ';
-                        echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
-                        echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'], 0, 10))); ?>
-                    </h3>
-                    <?php
-                    $firow = sqlQuery(
-                        "SELECT issue_id, provider_id FROM forms WHERE " .
+                <h3>
+                    <?php echo text($formtitle) . " " . xlt('for') . ' ';
+                    echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
+                    echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'], 0, 10))); ?>
+                </h3>
+                <?php
+                $firow = sqlQuery(
+                    "SELECT issue_id, provider_id FROM forms WHERE " .
                         "formdir = ? AND form_id = ? AND deleted = 0",
-                        array($formname, $formid)
-                    );
-                    $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
-                    $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
+                    array($formname, $formid)
+                );
+                $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
+                $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
 
-                    // Provider selector.
+                // Provider selector.
+                echo "&nbsp;&nbsp;";
+                echo xlt('Provider') . ": ";
+                // TBD: Refactor this function out of the FeeSheetHTML class as that is not the best place for it.
+                echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $default);
+
+                // If appropriate build a drop-down selector of issues of this type for this patient.
+                // We skip this if in an issue form tab because removing and adding visit form tabs is
+                // beyond the current scope of that code.
+                if (!empty($LBF_ISSUE_TYPE) && !$from_issue_form) {
                     echo "&nbsp;&nbsp;";
-                    echo xlt('Provider') . ": ";
-                    // TBD: Refactor this function out of the FeeSheetHTML class as that is not the best place for it.
-                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $default);
-
-                    // If appropriate build a drop-down selector of issues of this type for this patient.
-                    // We skip this if in an issue form tab because removing and adding visit form tabs is
-                    // beyond the current scope of that code.
-                    if (!empty($LBF_ISSUE_TYPE) && !$from_issue_form) {
-                        echo "&nbsp;&nbsp;";
-                        $query = "SELECT id, title, date, begdate FROM lists WHERE pid = ? AND type = ? " .
-                            "ORDER BY COALESCE(begdate, date) DESC, id DESC";
-                        $ires = sqlStatement($query, array($pid, $LBF_ISSUE_TYPE));
-                        echo "<select name='form_issue_id'>\n";
-                        echo " <option value='0'>-- " . xlt('Select Case') . " --</option>\n";
-                        while ($irow = sqlFetchArray($ires)) {
-                            $issueid = $irow['id'];
-                            $issuedate = oeFormatShortDate(empty($irow['begdate']) ? $irow['date'] : $irow['begdate']);
-                            echo " <option value='" . attr($issueid) . "'";
-                            if ($issueid == $form_issue_id) {
-                                echo " selected";
-                            }
-                            echo ">" . text("$issuedate " . $irow['title']) . "</option>\n";
+                    $query = "SELECT id, title, date, begdate FROM lists WHERE pid = ? AND type = ? " .
+                        "ORDER BY COALESCE(begdate, date) DESC, id DESC";
+                    $ires = sqlStatement($query, array($pid, $LBF_ISSUE_TYPE));
+                    echo "<select name='form_issue_id'>\n";
+                    echo " <option value='0'>-- " . xlt('Select Case') . " --</option>\n";
+                    while ($irow = sqlFetchArray($ires)) {
+                        $issueid = $irow['id'];
+                        $issuedate = oeFormatShortDate(empty($irow['begdate']) ? $irow['date'] : $irow['begdate']);
+                        echo " <option value='" . attr($issueid) . "'";
+                        if ($issueid == $form_issue_id) {
+                            echo " selected";
                         }
-                        echo "</select>\n";
+                        echo ">" . text("$issuedate " . $irow['title']) . "</option>\n";
                     }
-                    ?>
-                </div>
+                    echo "</select>\n";
+                }
+                ?>
             </div>
 
             <?php $cmsportal_login = $enrow['cmsportal_login'];
@@ -1009,11 +1007,11 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     }
 
                     $group_table_active = true;
-                    echo " <table border='0' cellspacing='0' cellpadding='0' class='lbfdata'>\n";
+                    echo " <table cellspacing='0' cellpadding='0' class='border-0 lbfdata'>\n";
 
                     if ($subtitle) {
                         // There is a group subtitle so show it.
-                        echo "<tr><td class='font-weight-bold border-top-0' style='color:#0000ff' colspan='" . attr($CPR) . "'>" . text($subtitle) . "</td></tr>\n";
+                        echo "<tr><td class='font-weight-bold border-top-0 text-primary' colspan='" . attr($CPR) . "'>" . text($subtitle) . "</td></tr>\n";
                         echo "<tr><td class='font-weight-bold border-top-0' style='height:0.3125rem;' colspan='" . attr($CPR) . "'></td></tr>\n";
                     }
 
@@ -1100,7 +1098,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     echo "'";
 
                     if ($cell_count > 0) {
-                        echo " style='padding-left:10pt'";
+                        echo " style='padding-left: 0.8125rem'";
                     }
                     // This ID is used by action conditions and also show_graph().
                     echo " id='label_id_" . attr($field_id) . "'";
@@ -1115,7 +1113,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
                 ++$item_count;
 
-                echo "<b>";
+                echo "<strong>";
                 if ($frow['title']) {
                     $tmp = xl_layout_label($frow['title']);
                     echo text($tmp);
@@ -1126,7 +1124,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 } else {
                     echo "&nbsp;";
                 }
-                echo "</b>";
+                echo "</strong>";
 
 // Note the labels are not repeated in the history columns.
 
@@ -1144,7 +1142,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     // This ID is used by action conditions.
                     echo " id='value_id_" . attr($field_id) . "'";
                     if ($cell_count > 0) {
-                        echo " style='padding-left:5pt'";
+                        echo " style='padding-left: 0.4375rem'";
                     }
 
                     echo ">";
@@ -1202,14 +1200,14 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 if ($display_style == 'block') {
                     echo " checked";
                 }
-                echo " /><b>" . xlt('Services') . "</b></span>\n";
+                echo " /><strong>" . xlt('Services') . "</strong></span>\n";
                 echo "<div id='div_fs_services' class='section' style='display:" . attr($display_style) . ";'>\n";
                 echo "<center>\n";
                 $display_style = 'none';
 
                 // If there are associated codes, generate a checkbox for each one.
                 if ($LBF_SERVICES_SECTION) {
-                    echo "<table cellpadding='0' cellspacing='0' width='100%'>\n";
+                    echo "<table class='w-100' cellpadding='0' cellspacing='0'>\n";
                     $cols = 3;
                     $tdpct = (int)(100 / $cols);
                     $count = 0;
@@ -1252,7 +1250,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 $fscres = sqlStatement("SELECT * FROM fee_sheet_options ORDER BY fs_category, fs_option");
                 if (sqlNumRows($fscres)) {
                     $last_category = '';
-                    echo "<select onchange='fs_package_selected(this)'>\n";
+                    echo "<select class='form-control' onchange='fs_package_selected(this)'>\n";
                     echo " <option value=''>" . xlt('Add Package') . "</option>\n";
                     while ($row = sqlFetchArray($fscres)) {
                         $fs_category = $row['fs_category'];
@@ -1318,14 +1316,14 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 if ($display_style == 'block') {
                     echo " checked";
                 }
-                echo " /><b>" . xlt('Products') . "</b></span>\n";
+                echo " /><strong>" . xlt('Products') . "</strong></span>\n";
                 echo "<div id='div_fs_products' class='section' style='display:" . attr($display_style) . ";'>\n";
                 echo "<center>\n";
                 $display_style = 'none';
 
                 // If there are associated codes, generate a checkbox for each one.
                 if ($LBF_PRODUCTS_SECTION) {
-                    echo "<table cellpadding='0' cellspacing='0' width='100%'>\n";
+                    echo "<table class='w-100' cellpadding='0' cellspacing='0'>\n";
                     $cols = 3;
                     $tdpct = (int)(100 / $cols);
                     $count = 0;
@@ -1388,7 +1386,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         $fs->genWarehouseSelect("form_fs_prod[$lino][warehouse]", '', $li['warehouse'], false, $li['hidden']['drug_id'], true) .
                         "  &nbsp;</td>\n";
                     echo "  <td class='border-top-0 text text-right'>" .
-                        "<input type='text' name='form_fs_prod[" . attr($lino) . "][units]' size='3' value='" . attr($li['units']) . "' />" .
+                        "<input class='form-control' type='text' name='form_fs_prod[" . attr($lino) . "][units]' size='3' value='" . attr($li['units']) . "' />" .
                         "&nbsp;</td>\n";
                     echo "  <td class='border-top-0 text text-right'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
                     echo "  <td class='border-top-0 text text-right'>\n" .
@@ -1419,7 +1417,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
                 // If there are associated codes, generate a checkbox for each one.
                 if ($LBF_DIAGS_SECTION) {
-                    echo "<table cellpadding='0' cellspacing='0' width='100%'>\n";
+                    echo "<table class='w-100' cellpadding='0' cellspacing='0'>\n";
                     $cols = 3;
                     $tdpct = (int)(100 / $cols);
                     $count = 0;
@@ -1458,7 +1456,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 // A row for Search.
                 $ctype = collect_codetypes('diagnosis', 'csv');
                 echo "<p class='font-weight-bold'>";
-                echo "<input type='button' value='" . xla('Search Diagnoses') . "' onclick='sel_related(null," . attr_js($ctype) . ")' />";
+                echo "<input type='button' class='btn btn-primary' value='" . xla('Search Diagnoses') . "' onclick='sel_related(null," . attr_js($ctype) . ")' />";
                 echo "</p>\n";
 
                 // Generate a line for each diagnosis already in this FS.

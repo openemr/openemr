@@ -53,9 +53,7 @@ if (strtotime($current_date) > strtotime($pwd_expires)) {
 <div class="container">
     <div class="row">
         <div class="col-sm-12">
-            <div class="page-header">
-                <div class="alert alert-danger" role="alert"><?php echo text($msg_alert);?></div>
-            </div>
+            <div class="alert alert-danger" role="alert"><?php echo text($msg_alert);?></div>
         </div>
     </div>
     <div class="row">

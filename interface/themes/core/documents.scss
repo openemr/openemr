@@ -8,11 +8,11 @@
   width: 100%;
 
   td {
-    @include font-size("11px !important");
+    @include font-size("0.6875rem");
   }
 
   a {
-    @include font-size("11px !important");
+    @include font-size("0.6875rem");
   }
 
   .treeMenuDefault {

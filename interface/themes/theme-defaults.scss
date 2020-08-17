@@ -5,20 +5,6 @@
 *
 */
 
-.menuBar {
-  background-color: $white !important;
-  display: block;
-  height: auto;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 100;
-}
-
-.menuBar ~ .container {
-  margin-top: 95px;
-}
-
 .logout {
   color: $body-color;
   text-align: $right;
@@ -33,7 +19,7 @@
 .small span.text,
 span.required,
 span.bold {
-  @include font-size("1rem !important");
+  @include font-size("1rem");
 }
 
 .link,
@@ -42,15 +28,15 @@ span.bold {
 .link_selected,
 .link_selected:visited,
 .items {
-  @include font-size("0.7rem !important");
+  @include font-size("0.7rem");
 }
 
 .title {
-  @include font-size("1.5rem !important");
+  @include font-size("1.5rem");
 }
 
 .title_bar {
-  @include font-size("1.13rem !important");
+  @include font-size("1.13rem");
 }
 
 .bgcolor2 {
@@ -73,7 +59,7 @@ span.bold {
 
 #addressbook_list tr.search,
 #addressbook_list .inputtext {
-  @include font-size("0.9rem !important");
+  @include font-size("0.9rem");
 }
 
 [href~="deleter"],
@@ -97,7 +83,7 @@ span.bold {
 
 #documents_list td,
 #documents_list a {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
 }
 
 .body_title table tr td {
@@ -108,7 +94,7 @@ span.bold {
 #HIS .groupname,
 #HIS .label_custom,
 #HIS .data {
-  @include font-size("0.9rem !important");
+  @include font-size("0.9rem");
 }
 
 /*=============================================================
@@ -116,7 +102,7 @@ span.bold {
  * seen in the patient encounter screen
  *============================================================*/
 #patient_pastenc #tooltipdiv {
-  @include font-size("0.9rem !important");
+  @include font-size("0.9rem");
 }
 
 /*=============================================================
@@ -124,11 +110,11 @@ span.bold {
  * seen as the patient report (custom_report.php)
  *============================================================*/
 #report_custom h1 {
-  @include font-size("1.2rem !important");
+  @include font-size("1.2rem");
 }
 
 #report_custom .encounter h1 {
-  @include font-size("1.4rem !important");
+  @include font-size("1.4rem");
 }
 
 #addressbook_list {
@@ -191,14 +177,14 @@ ul.tabNav {
 .showborder_head th,
 .shownoborder td,
 .showborder_long tr td {
-  @include font-size("0.9rem !important");
+  @include font-size("0.9rem");
 }
 
 /**
 * Drug lookup
 **/
 .drug_lookup {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
 }
 
 #sddm li {
@@ -244,7 +230,7 @@ ul.tabNav {
 }
 
 .example_menu {
-  @include font-size("0.7rem !important");
+  @include font-size("0.7rem");
 
   ul a:hover {
     background: darken($light, 15%);
@@ -253,7 +239,7 @@ ul.tabNav {
 }
 
 .error-message {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
 }
 
 .attach-input {
@@ -265,11 +251,11 @@ ul.tabNav {
 }
 
 .sidebar {
-  @include font-size("0.95rem !important");
+  @include font-size("0.95rem");
   background-color: lighten($light, 10%);
 
   .submenu {
-    @include font-size("0.9rem !important");
+    @include font-size("0.9rem");
   }
 }
 
@@ -364,7 +350,7 @@ div.category-display {
 /*openemr 5 patient-finder*/
 @media screen and (max-width: 750px) {
   #pt_table {
-    @include font-size("1.2rem !important");
+    @include font-size("1.2rem");
   }
 }
 

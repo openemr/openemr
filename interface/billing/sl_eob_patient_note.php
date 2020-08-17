@@ -61,9 +61,7 @@ $info_msg = "";
     ?>
     <div class="container">
         <div class="row">
-            <div class="page-header">
-                <h2><?php echo xlt('Billing Note for ') . text($row['fname']) . " " . text($row['lname']); ?></h2>
-            </div>
+            <h2><?php echo xlt('Billing Note for ') . text($row['fname']) . " " . text($row['lname']); ?></h2>
         </div>
         <div class="row mx-auto">
             <form method='post' action='sl_eob_patient_note.php?patient_id=<?php echo attr_url($patient_id); ?>'>

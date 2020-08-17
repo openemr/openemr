@@ -1,10 +1,10 @@
-/*-----------------------openemr5.0.2 procedures styling---------------------- */
+/*-----------------------openemr procedures styling---------------------- */
 .oe-bold {
   font-weight: 700;
 }
 
 .oe-grp {
-  @include font-size("16px !important");
+  @include font-size("1rem");
   font-weight: 900;
 }
 

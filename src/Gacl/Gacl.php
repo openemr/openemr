@@ -71,8 +71,8 @@ class Gacl {
 	/** @var object An ADODB database connector object */
 	var $_db = '';
 
-        /** @var boolean The utf8 encoding flag - bm 05-2009 */
-        var $_db_utf8_flag = '';
+    /** @var boolean The utf8 encoding flag */
+    var $_db_encoding_setting = '';
 
 	/*
 	 * NOTE: 	This cache must be manually cleaned each time ACL's are modified.
@@ -127,19 +127,21 @@ class Gacl {
 			}
 		}
 
-                //collect openemr sql info from include at top of script - bm 05-2009
-                global $sqlconf, $disable_utf8_flag;
-                $this->_db_host = $sqlconf["host"];
-                $this->_db_user = $sqlconf["login"];
-                $this->_db_password = $sqlconf["pass"];
-                $this->_db_name = $sqlconf["dbase"];
-	        if (!$disable_utf8_flag) {
-		$utf8_flag = true;
-		}
-	        else {
-		$utf8_flag = false;
-		}
-                $this->_db_utf8_flag = $utf8_flag;
+        //collect openemr sql info from include at top of script - bm 05-2009
+        global $sqlconf, $disable_utf8_flag;
+        $this->_db_host = $sqlconf["host"];
+        $this->_db_user = $sqlconf["login"];
+        $this->_db_password = $sqlconf["pass"];
+        $this->_db_name = $sqlconf["dbase"];
+        if (!$disable_utf8_flag) {
+            if ($sqlconf["db_encoding"] == "utf8mb4") {
+                $this->_db_encoding_setting = "utf8mb4";
+            } else {
+                $this->_db_encoding_setting = "utf8";
+            }
+        } else {
+            $this->_db_encoding_setting = "";
+        }
 
 		require_once( ADODB_DIR .'/adodb.inc.php');
 		require_once( ADODB_DIR .'/adodb-pager.inc.php');
@@ -165,13 +167,18 @@ class Gacl {
 
 			$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
 
-		        // Modified 5/2009 by BM for UTF-8 project
-		        if ($this->_db_utf8_flag) {
-			        $success_flag = $this->db->Execute("SET NAMES 'utf8'");
-			        if (!$success_flag) {
-			                error_log("PHP custom error: from gacl src/Gacl/Gacl.php - Unable to set up UTF8 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
+            // Modified 5/2009 by BM for UTF-8 project
+            if ($this->_db_encoding_setting == "utf8mb4") {
+                $success_flag = $this->db->Execute("SET NAMES 'utf8mb4'");
+                if (!$success_flag) {
+                    error_log("PHP custom error: from gacl src/Gacl/Gacl.php - Unable to set up UTF8MB4 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
 				}
-			}
+			} elseif ($this->_db_encoding_setting == "utf8") {
+                $success_flag = $this->db->Execute("SET NAMES 'utf8'");
+                if (!$success_flag) {
+                    error_log("PHP custom error: from gacl src/Gacl/Gacl.php - Unable to set up UTF8 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
+                }
+            }
 		        // ---------------------------------------
 
 			//Turn off STRICT SQL

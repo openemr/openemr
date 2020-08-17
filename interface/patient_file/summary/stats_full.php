@@ -181,6 +181,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <th scope="col"><?php echo xlt('Occurrence'); ?></th>
                 <?php if ($focustype == "allergy") { ?>
                   <th scope="col"><?php echo xlt('Reaction'); ?></th>
+                <?php }
+                if ($focustype == "allergy" || $focustype == "medical_problem") { ?>
+                  <th scope="col"><?php echo xlt('Verification Status'); ?></th>
                 <?php } ?>
                 <th scope="col"><?php echo xlt('Referred By'); ?></th>
                 <th scope="col"><?php echo xlt('Modify Date'); ?></th>
@@ -279,7 +282,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo generate_display_field(array('data_type' => '1','list_id' => 'reaction'), $row['reaction']);
                           echo "</td>\n";
                     }
-
+                    if ($focustype == "allergy" || $focustype == "medical_problem") {
+                        $codeListName = ($thistype == 'medical_problem') ? 'condition-verification' : 'allergyintolerance-verification';
+                          echo "  <td>";
+                            echo generate_display_field(array('data_type' => '1','list_id' => $codeListName), $row['verification']);
+                          echo "</td>\n";
+                    }
                     echo "  <td>" . text($row['referredby']) . "</td>\n";
                     echo "  <td>" . text(oeFormatDateTime($row['modifydate'])) . "</td>\n";
                     echo "  <td>" . text($row['comments']) . "</td>\n";

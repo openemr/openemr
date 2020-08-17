@@ -4,7 +4,7 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -133,7 +133,7 @@ class InvoiceSummary
             "FROM ar_activity AS a " .
             "LEFT OUTER JOIN ar_session AS s ON s.session_id = a.session_id " .
             "LEFT OUTER JOIN insurance_companies AS i ON i.id = s.payer_id " .
-            "WHERE a.pid = ? AND a.encounter = ? " .
+            "WHERE a.deleted IS NULL AND a.pid = ? AND a.encounter = ? " .
             "ORDER BY s.check_date, a.sequence_no", array($patient_id, $encounter_id));
         while ($row = sqlFetchArray($res)) {
             $code = $row['code'];
