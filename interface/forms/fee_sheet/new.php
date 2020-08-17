@@ -569,15 +569,6 @@ $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, 
 <html>
 <head>
 <?php Header::setupHeader(['knockout', 'select2']);?>
-<style>
-/*.billcell { font-family: sans-serif; font-size: 10pt }*/
-.ui-autocomplete {
-    max-height: 250px;
-    max-width: 350px;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-</style>
 <script>
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 var diags = new Array();

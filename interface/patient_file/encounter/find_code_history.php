@@ -151,8 +151,9 @@ function get_history_codes($pid)
             let src = opener.targetProcedure.children[1].value;
             let rows = $("#historyTable tr td").filter(":contains(" + src + ")");
             let i = 0;
-            while (i < rows.length) {
-                $(rows[i]).closest('tr').addClass('text-danger');
+            while (i < rows.length && src !== '') {
+                rows[i].innerHTML = '<mark>' + rows[i].innerHTML + '</mark>';
+                $(rows[i]).closest('tr').addClass('text-danger ');
                 i++;
             }
             $('.loading').fadeOut();
@@ -174,7 +175,7 @@ function get_history_codes($pid)
             <input class='form-control text-danger' type='text' id='workingDx' title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
         </div>
         <div id="tips" class="tips">
-            <section class="card panel-default">
+            <section class="card panel-default bg-warning">
                 <header class="card-heading card-heading-sm">
                     <h4 class="card-title"><?php echo xlt('Usage Tips') ?></h4>
                 </header>
@@ -200,12 +201,12 @@ function get_history_codes($pid)
         <div class="table-responsive mt-5">
             <table class="table table-sm table-hover" id="historyTable">
                 <thead>
-                <tr>
-                    <th><?php echo xlt('Origin'); ?></th>
-                    <th><?php echo xlt('Code'); ?></th>
-                    <th><?php echo xlt('Code Description'); ?></th>
-                    <th><?php echo xlt('Origin Description'); ?></th>
-                </tr>
+                    <tr>
+                        <th><?php echo xlt('Origin'); ?></th>
+                        <th><?php echo xlt('Code'); ?></th>
+                        <th><?php echo xlt('Code Description'); ?></th>
+                        <th><?php echo xlt('Origin Description'); ?></th>
+                    </tr>
                 </thead>
                 <tbody>
                 <?php
