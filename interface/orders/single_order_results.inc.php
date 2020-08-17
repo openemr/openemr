@@ -515,8 +515,8 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
         <br/>
         <table class="table">
             <tr class='head'>
-                <td class="align-middle" style="font-size:12pt" width='20%'><?php echo xlt('Diagnosis'); ?></td>
-                <td class="align-middle" style="font-size:12pt"><?php echo xlt('Diagnosis Description'); ?></td>
+                <td class="align-middle" style="font-size: 1rem;" width='20%'><?php echo xlt('Diagnosis'); ?></td>
+                <td class="align-middle" style="font-size: 1rem;"><?php echo xlt('Diagnosis Description'); ?></td>
             </tr>
             <?php
             foreach ($codes as $code) {
@@ -660,7 +660,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                     if (!empty($aNotes)) {
                         echo "<div class='table-responsive'>";
                         echo "<table class='table'>\n";
-                        echo " <tr bgcolor='#e9e9e9'>\n";
+                        echo " <tr style='background-color: #e9e9e9;'>\n";
                         echo "  <th class='text-center' colspan='2'>" . xlt('Notes') . "</th>\n";
                         echo " </tr>\n";
                         foreach ($aNotes as $key => $value) {

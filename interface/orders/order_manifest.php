@@ -181,63 +181,63 @@ function generate_order_summary($orderid)
 <div class='ordsum table-responsive'>
     <table class='table table-active'>
         <tr>
-            <td nowrap><?php echo xlt('Patient Name'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Patient Name'); ?></td>
             <td><?php echo myCellText($orow['lname'] . ', ' . $orow['fname'] . ' ' . $orow['mname']); ?></td>
-            <td nowrap><?php echo xlt('Ordered By'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Ordered By'); ?></td>
             <td><?php echo myCellText($orow['ulname'] . ', ' . $orow['ufname'] . ' ' . $orow['umname']); ?></td>
         </tr>
         <tr>
-            <td width='5%' nowrap><?php echo xlt('MRN (pid)'); ?></td>
+            <td class="text-nowrap" width='5%'><?php echo xlt('MRN (pid)'); ?></td>
             <td width='45%'><?php echo myCellText($patient_id); ?></td>
-            <td width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
+            <td class="text-nowrap" width='5%'><?php echo xlt('Order ID'); ?></td>
             <td width='45%'><?php echo myCellText($orow['procedure_order_id']); ?></td>
         </tr>
         <tr>
-            <td nowrap><?php echo xlt('Encounter Date'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Encounter Date'); ?></td>
             <td><?php echo myCellText(oeFormatShortDate($encdate)); ?></td>
-            <td nowrap><?php echo xlt('Order Date'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Order Date'); ?></td>
             <td><?php echo myCellText(oeFormatShortDate($orow['date_ordered'])); ?></td>
         </tr>
         <tr>
-            <td nowrap><?php echo xlt('Birth Date'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Birth Date'); ?></td>
             <td><?php echo myCellText(oeFormatShortDate($orow['DOB'])); ?></td>
-            <td nowrap><?php echo xlt('Lab'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Lab'); ?></td>
             <td><?php echo myCellText($orow['labname']); ?></td>
         </tr>
         <tr>
-            <td nowrap><?php echo xlt('Sex'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Sex'); ?></td>
             <td><?php echo myCellText(getListItem('sex', $orow['sex'])); ?></td>
-            <td nowrap><?php echo xlt('Specimen Type'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Specimen Type'); ?></td>
             <td><?php echo myCellText($orow['specimen_type']); ?></td>
         </tr>
         <tr>
-            <td nowrap><?php echo xlt('Address'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Address'); ?></td>
             <td><?php echo myCellText($orow['street'] . ', ' . $orow['city'] . ', ' . $orow['state'] . ' ' . $orow['postal_code']); ?></td>
-            <td nowrap><?php echo xlt('Collection Date'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Collection Date'); ?></td>
             <td><?php echo myCellText(oeFormatShortDate($orow['date_collected'])); ?></td>
         </tr>
         <tr>
-            <td nowrap><?php echo xlt('Ins Name'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Ins Name'); ?></td>
             <td><?php echo myCellText($ins_name); ?></td>
-            <td nowrap><?php echo xlt('Clinical History'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Clinical History'); ?></td>
             <td><?php echo myCellText($orow['clinical_hx']); ?></td>
         </tr>
         <tr>
-            <td nowrap><?php echo xlt('Ins Address'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Ins Address'); ?></td>
             <td><?php echo myCellText("$ins_addr, $ins_city, $ins_state $ins_zip"); ?></td>
-            <td nowrap><?php echo xlt('Order Status'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Order Status'); ?></td>
             <td><?php echo myCellText(getListItem('ord_status', $orow['order_status'])); ?></td>
         </tr>
         <tr>
-            <td nowrap><?php echo xlt('Ins Policy'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Ins Policy'); ?></td>
             <td><?php echo myCellText($ins_policy); ?></td>
-            <td nowrap><?php echo xlt('Referrer'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Referrer'); ?></td>
             <td><?php echo myCellText($orow['ref_lname'] . ', ' . $orow['ref_fname'] . ' ' . $orow['ref_mname']); ?></td>
         </tr>
         <tr>
-            <td nowrap><?php echo xlt('Ins Group'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Ins Group'); ?></td>
             <td><?php echo myCellText($ins_group); ?></td>
-            <td nowrap><?php echo xlt('Referrer Address'); ?></td>
+            <td class="text-nowrap"><?php echo xlt('Referrer Address'); ?></td>
             <td><?php echo myCellText($orow['ref_street'] . ', ' . $orow['ref_city'] . ', ' . $orow['ref_state'] . ' ' . $orow['ref_zip']); ?></td>
         </tr>
     </table>
@@ -245,13 +245,15 @@ function generate_order_summary($orderid)
     <br />
 
     <table class='table'>
-        <tr class='head'>
-            <td><?php echo xlt('Omit'); ?></td>
-            <td><?php echo xlt('Code'); ?></td>
-            <td><?php echo xlt('Description'); ?></td>
-            <td><?php echo xlt('Diagnoses'); ?></td>
-            <td><?php echo xlt('Notes'); ?></td>
-        </tr>
+        <thead>
+            <tr class='head'>
+                <th><?php echo xlt('Omit'); ?></th>
+                <th><?php echo xlt('Code'); ?></th>
+                <th><?php echo xlt('Description'); ?></th>
+                <th><?php echo xlt('Diagnoses'); ?></th>
+                <th><?php echo xlt('Notes'); ?></th>
+            </tr>
+        </thead>
 
         <?php
         $query = "SELECT " .
@@ -316,7 +318,7 @@ function generate_order_summary($orderid)
 
             ++$encount;
             $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-            echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+            echo " <tr class='detail'style='background-color: $bgcolor;'>\n";
             echo "  <td><input type='checkbox' name='form_omit[" . attr($order_seq) . "]' value='1'";
             if (!empty($row['do_not_send'])) {
                 echo " checked";
