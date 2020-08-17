@@ -211,18 +211,20 @@ function generate_receipt($patient_id, $encounter = 0)
     <body>
         <div class="container mt-3">
             <div class="row text-center">
-                <?php
-                if ($GLOBALS['receipts_by_provider'] && !empty($providerrow)) {
-                    printProviderHeader($providerrow);
-                } else {
-                    printFacilityHeader($frow);
-                } ?>
-                <?php
-                  echo xlt("Receipt Generated") . ":" . text(date(' F j, Y'));
-                if ($invoice_refno) {
-                    echo " " . xlt("Invoice Number") . ": " . text($invoice_refno) . " " . xlt("Service Date")  . ": " . text($svcdate);
-                }
-                ?>
+                <p class="font-weight-bold">
+                    <?php
+                    if ($GLOBALS['receipts_by_provider'] && !empty($providerrow)) {
+                        printProviderHeader($providerrow);
+                    } else {
+                        printFacilityHeader($frow);
+                    } ?>
+                    <?php
+                    echo xlt("Receipt Generated") . ":" . text(date(' F j, Y'));
+                    if ($invoice_refno) {
+                        echo " " . xlt("Invoice Number") . ": " . text($invoice_refno) . " " . xlt("Service Date")  . ": " . text($svcdate);
+                    }
+                    ?>
+                </p>
             </div>
             <div class="row">
                 <div class="col-6 offset-lg-2">
@@ -435,19 +437,18 @@ function generate_receipt($patient_id, $encounter = 0)
     // Print receipt header for facility
     function printFacilityHeader($frow)
     {
-        echo "<p><b>" . text($frow['name']) .
+        echo text($frow['name']) .
         "<br />" . text($frow['street']) .
         "<br />" . text($frow['city']) . ', ' . text($frow['state']) . ' ' . text($frow['postal_code']) .
         "<br />" . text($frow['phone']) .
         "<br />&nbsp" .
         "<br />";
-        echo "</p>";
     }
 
     // Pring receipt header for Provider
     function printProviderHeader($pvdrow)
     {
-        echo "<p><b>" . text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " .
+        echo text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " .
         "<br />" . text($pvdrow['street']) .
         "<br />" . text($pvdrow['city']) . ', ' . text($pvdrow['state']) . ' ' . text($pvdrow['postal_code']) .
         "<br />" . text($pvdrow['phone']) .
@@ -860,7 +861,7 @@ function generate_receipt($patient_id, $encounter = 0)
     ?>
     </head>
     <body>
-        <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+        <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
             <div class="row">
                 <div class="col-sm-12">
                     <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
