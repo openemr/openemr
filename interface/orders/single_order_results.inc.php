@@ -176,7 +176,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
 
     $bgcolor = "#" . (($ctx['encount'] & 1) ? "ddddff" : "ffdddd");
 
-    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+    echo " <tr class='detail' style='background: $bgcolor;'>\n";
 
     if ($ctx['lastpcid'] != $order_seq) {
         $ctx['lastprid'] = -1; // force report fields on first line of each procedure
@@ -370,13 +370,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 
         <?php if (empty($_SESSION['language_direction']) || $_SESSION['language_direction'] == 'ltr') { ?>
     .labres tr.head {
-        font-size: 10pt;
-        background-color: #e9e9e9;
+        font-size: 0.8125rem;
+        background-color: var(--gray200);
         text-align: center;
     }
 
     .labres tr.detail {
-        font-size: 10pt;
+        font-size: 0.8125rem;
     }
 
     .labres a, .labres a:visited, .labres a:hover {
@@ -386,40 +386,46 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     .labres table {
         border-style: solid;
         border-width: 1px 0px 0px 1px;
-        border-color: black;
+        border-color: var(--black);
     }
 
     .labres td, .labres th {
         border-style: solid;
         border-width: 0px 1px 1px 0px;
-        border-color: black;
+        border-color: var(--black);
     }
 
     <?php } else { ?>
     .labres tr.head {
-        font-size: 10pt;
+        font-size: 0.8125rem;
         text-align: center;
     }
 
     .labres tr.detail {
-        font-size: 10pt;
+        font-size: 0.8125rem;
     }
 
     .labres table {
         border-style: none;
         border-width: 1px 0px 0px 1px;
-        border-color: black;
+        border-color: var(--black);
     }
 
     .labres td, .labres th {
         border-style: none;
         border-width: 0px 1px 1px 0px;
-        border-color: black;
+        border-color: var(--black);
         padding: 4px;
     }
 
     <?php } ?>
 
+    @media print {
+        .labres tr.head,
+        .labres tr.detail {
+            font-size: 10pt;
+        }
+    }
 </style>
 <?php } ?>
 
@@ -463,9 +469,9 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     <div class='labres table-responsive'>
         <table class="table">
             <tr>
-                <td class="font-weight-bold" width='5%' nowrap><?php echo xlt('Patient ID'); ?></td>
+                <td class="font-weight-bold text-nowrap" width='5%'><?php echo xlt('Patient ID'); ?></td>
                 <td width='45%'><?php echo myCellText($orow['pubpid']); ?></td>
-                <td class="font-weight-bold" width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
+                <td class="font-weight-bold text-nowrap" width='5%'><?php echo xlt('Order ID'); ?></td>
                 <td width='45%'>
                     <?php
                     if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
@@ -487,27 +493,27 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 </td>
             </tr>
             <tr>
-                <td class="font-weight-bold" nowrap><?php echo xlt('Patient Name'); ?></td>
+                <td class="font-weight-bold text-nowrap"><?php echo xlt('Patient Name'); ?></td>
                 <td><?php echo myCellText($orow['lname'] . ', ' . $orow['fname'] . ' ' . $orow['mname']); ?></td>
-                <td class="font-weight-bold" nowrap><?php echo xlt('Ordered By'); ?></td>
+                <td class="font-weight-bold text-nowrap"><?php echo xlt('Ordered By'); ?></td>
                 <td><?php echo myCellText($orow['ulname'] . ', ' . $orow['ufname'] . ' ' . $orow['umname']); ?></td>
             </tr>
             <tr>
-                <td class="font-weight-bold" nowrap><?php echo xlt('Order Date'); ?></td>
+                <td class="font-weight-bold text-nowrap"><?php echo xlt('Order Date'); ?></td>
                 <td><?php echo myCellText(oeFormatShortDate($orow['date_ordered'])); ?></td>
-                <td class="font-weight-bold" nowrap><?php echo xlt('Print Date'); ?></td>
+                <td class="font-weight-bold text-nowrap"><?php echo xlt('Print Date'); ?></td>
                 <td><?php echo text(oeFormatShortDate(date('Y-m-d'))); ?></td>
             </tr>
             <tr>
-                <td class="font-weight-bold" nowrap><?php echo xlt('Order Status'); ?></td>
+                <td class="font-weight-bold text-nowrap"><?php echo xlt('Order Status'); ?></td>
                 <td><?php echo $orow['order_status'] ? myCellText($orow['order_status']) : xlt('Pending'); ?></td>
-                <td class="font-weight-bold" nowrap><?php echo xlt('Encounter Date'); ?></td>
+                <td class="font-weight-bold text-nowrap"><?php echo xlt('Encounter Date'); ?></td>
                 <td><?php echo myCellText(oeFormatShortDate(substr($orow['date'], 0, 10))); ?></td>
             </tr>
             <tr>
-                <td class="font-weight-bold" nowrap><?php echo xlt('Lab'); ?></td>
+                <td class="font-weight-bold text-nowrap"><?php echo xlt('Lab'); ?></td>
                 <td><?php echo myCellText($orow['labname']); ?></td>
-                <td class="font-weight-bold" nowrap><?php echo xlt('Receiving Fac.'); ?></td>
+                <td class="font-weight-bold text-nowrap"><?php echo xlt('Receiving Fac.'); ?></td>
                 <td><?php echo myCellText($orow['rcvfacid']); ?></td>
                 <!-- replaced specimen with receiving facility -->
             </tr>
@@ -660,7 +666,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                     if (!empty($aNotes)) {
                         echo "<div class='table-responsive'>";
                         echo "<table class='table'>\n";
-                        echo " <tr style='background-color: #e9e9e9;'>\n";
+                        echo " <tr style='background-color: var(--gray200);'>\n";
                         echo "  <th class='text-center' colspan='2'>" . xlt('Notes') . "</th>\n";
                         echo " </tr>\n";
                         foreach ($aNotes as $key => $value) {

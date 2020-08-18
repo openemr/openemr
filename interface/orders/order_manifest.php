@@ -367,6 +367,7 @@ body {
 @media print {
     body {
         margin: 9pt;
+        font-size: 12pt;
     }
 }
 </style>
