@@ -273,21 +273,21 @@ function zip_content($source, $destination, $content = '', $create = true)
                 <br />
                 <div class="border-bottom fixed-top my-1 px-5 report_search_bar">
                     <div class="row">
-                        <div class="col">
+                        <div class="col-md">
                             <input type="text" class="form-control" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element"/>
                         </div>
-                        <div class="col">
+                        <div class="col-md">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-primary btn-search" onClick="clear_last_visit();remove_mark_all();find_all();" ><?php echo xlt('Find'); ?></button>
                                 <button type="button" class="btn btn-primary" onClick="next_prev('prev');" ><?php echo xlt('Prev'); ?></button>
                                 <button type="button" class="btn btn-primary" onClick="next_prev('next');" ><?php echo xlt('Next'); ?></button>
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col-md">
                             <span><?php echo xlt('Match case'); ?></span>
                             <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
                         </div>
-                        <div class="col">
+                        <div class="col-md">
                             <span class="text font-weight-bold"><?php echo xlt('Search In'); ?>:</span>
                             <br />
                             <?php
@@ -319,7 +319,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
                             ?>
                         </div>
-                        <div class="col">
+                        <div class="col-md">
                             <span id ='alert_msg' class='text-danger'></span>
                         </div>
                     </div>
@@ -439,8 +439,8 @@ function zip_content($source, $destination, $content = '', $create = true)
                         print "<h1>" . xlt('Billing Information') . ":</h1>";
                         if (!empty($ar['newpatient']) && count($ar['newpatient']) > 0) {
                             $billings = array();
-                            echo "<table>";
-                            echo "<tr><td width='400' class='font-weight-bold'>" . xlt('Code') . "</td><td class='font-weight-bold'>" . xlt('Fee') . "</td></tr>\n";
+                            echo "<div class='table-responsive'><table class='table'>";
+                            echo "<tr><td class='font-weight-bold'>" . xlt('Code') . "</td><td class='font-weight-bold'>" . xlt('Fee') . "</td></tr>\n";
                             $total = 0.00;
                             $copays = 0.00;
                             foreach ($ar['newpatient'] as $be) {
@@ -464,10 +464,10 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
 
                             echo "<tr><td>&nbsp;</td></tr>";
-                            echo "<tr><td class='font-weight-bold'>" . xlt('Sub-Total') . "</td><td class=text>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-                            echo "<tr><td class='font-weight-bold'>" . xlt('Paid') . "</td><td class=text>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-                            echo "<tr><td class='font-weight-bold'>" . xlt('Total') . "</td><td class=text>" . text(oeFormatMoney($total)) . "</td></tr>";
-                            echo "</table>";
+                            echo "<tr><td class='font-weight-bold'>" . xlt('Sub-Total') . "</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+                            echo "<tr><td class='font-weight-bold'>" . xlt('Paid') . "</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+                            echo "<tr><td class='font-weight-bold'>" . xlt('Total') . "</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
+                            echo "</table></div>";
                             echo "<pre>";
                             //print_r($billings);
                             echo "</pre>";
@@ -889,7 +889,7 @@ function zip_content($source, $destination, $content = '', $create = true)
             $contents = $pdf->Output('', true);
             echo "<html><head>\n";
             Header::setupHeader();
-            echo "</head><body class='body_top'>\n";
+            echo "</head><body>\n";
             $result = cms_portal_call(array(
                 'action' => 'putmessage',
                 'user' => $ptdata['cmsportal_login'],
@@ -903,7 +903,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                 die(text($result['errmsg']));
             }
 
-            echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
+            echo "<p class='mt-3'>" . xlt('Report has been sent to the patient.') . "</p>\n";
             echo "</body></html>\n";
         }
         foreach ($tmp_files_remove as $tmp_file) {

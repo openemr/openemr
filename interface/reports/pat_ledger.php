@@ -183,7 +183,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
         }
 
         $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-        $print = "<tr bgcolor='" . attr($bgcolor) . "'>";
+        $print = "<tr style='background-color:" . attr($bgcolor) . ";'>";
         $print .= "<td class='detail'>&nbsp;</td>";
         $method = List_Look($pmt['payment_method'], 'payment_method');
         $desc = $pmt['description'];
@@ -277,7 +277,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
         echo $print;
         if ($pmt['follow_up_note'] != '') {
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-            $print = "<tr bgcolor='" . attr($bgcolor) . "'>";
+            $print = "<tr style='background-color:" . attr($bgcolor) . ";'>";
             $print .= "<td class='detail' colspan='2'>&nbsp;</td>";
             $print .= "<td colspan='7'>" . xlt('Follow Up Note') . ": ";
             $print .= text($pmt['follow_up_note']);
@@ -675,42 +675,44 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         $pat_name = $patient['fname'] . ' ' . $patient['lname'];
         ?>
         <div id="report_header">
-            <table class="border-0" width="98%" cellspacing="0" cellpadding="0">
-                <tr>
-                    <td class="title"><?php echo text($facility['name']); ?></td>
-                </tr>
-                <tr>
-                    <td class="title"><?php echo text($facility['street']); ?></td>
-                </tr>
-                <tr>
-                    <td class="title"><?php echo text($facility['city']) . ", " . text($facility['state']) . " " . text($facility['postal_code']); ?></td>
-                </tr>
-                <tr>
-                    <td class="title"><?php echo xlt('Phone') . ': ' . text($facility['phone']); ?></td>
-                </tr>
-                <tr>
-                    <td class="title"><?php echo xlt('Tax Id') . ': ' . text($facility['federal_ein']); ?></td>
-                </tr>
-                <tr><td>&nbsp;</td></tr>
-                <tr>
-                    <td class="title"><?php echo xlt('Patient Ledger'); ?></td>
-                </tr>
-                <tr>
-                    <?php
-                    $title = xl('All Providers');
-                    if ($form_provider) {
-                        $title = xl('For Provider') . ': ' . User_Id_Look($form_provider);
-                    }
-                    ?>
-                    <td class="title" ><?php echo text($title); ?></td>
-                </tr>
-                <tr>
-                    <?php
-                    $title = xl('For Dates') . ': ' . oeFormatShortDate($form_from_date) . ' - ' . oeFormatShortDate($form_to_date);
-                    ?>
-                    <td class="title"><?php echo text($title); ?></td>
-                </tr>
-            </table>
+            <div class="table-responsive">
+                <table class="border-0 table" width="98%" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td class="title"><?php echo text($facility['name']); ?></td>
+                    </tr>
+                    <tr>
+                        <td class="title"><?php echo text($facility['street']); ?></td>
+                    </tr>
+                    <tr>
+                        <td class="title"><?php echo text($facility['city']) . ", " . text($facility['state']) . " " . text($facility['postal_code']); ?></td>
+                    </tr>
+                    <tr>
+                        <td class="title"><?php echo xlt('Phone') . ': ' . text($facility['phone']); ?></td>
+                    </tr>
+                    <tr>
+                        <td class="title"><?php echo xlt('Tax Id') . ': ' . text($facility['federal_ein']); ?></td>
+                    </tr>
+                    <tr><td>&nbsp;</td></tr>
+                    <tr>
+                        <td class="title"><?php echo xlt('Patient Ledger'); ?></td>
+                    </tr>
+                    <tr>
+                        <?php
+                        $title = xl('All Providers');
+                        if ($form_provider) {
+                            $title = xl('For Provider') . ': ' . User_Id_Look($form_provider);
+                        }
+                        ?>
+                        <td class="title" ><?php echo text($title); ?></td>
+                    </tr>
+                    <tr>
+                        <?php
+                        $title = xl('For Dates') . ': ' . oeFormatShortDate($form_from_date) . ' - ' . oeFormatShortDate($form_to_date);
+                        ?>
+                        <td class="title"><?php echo text($title); ?></td>
+                    </tr>
+                </table>
+            </div>
             <br/>
             <div class="table-responsove">
                 <table class="table border-0">
@@ -817,7 +819,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             }
 
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-            $print = "<tr bgcolor='" . attr($bgcolor) . "'>";
+            $print = "<tr style='background-color:" . attr($bgcolor) . ";'>";
             $print .= "<td class='detail'>" . text($erow['code']) . "</td>";
             $print .= "<td class='detail' colspan='2'>" . text($code_desc) . "</td>";
             $who = ($erow['name'] == '') ? xl('Self') : $erow['name'];
@@ -875,14 +877,14 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     if (count($uac) > 0) {
         if ($orow) {
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-            echo "<tr bgcolor='var(--white)'><td colspan='9'>&nbsp;</td></tr>\n";
+            echo "<tr style='background-color: var(--white);'><td colspan='9'>&nbsp;</td></tr>\n";
         }
 
         PrintCreditDetail($uac, $form_pid, true);
     }
 
     if (!$_REQUEST['form_csvexport'] && $orow) {
-        echo "<tr bgcolor='#DDFFFF'>\n";
+        echo "<tr style='background-color: #DDFFFF;'>\n";
         echo " <td colspan='2'>&nbsp;</td>";
         echo " <td class='font-weight-bold' colspan='2'>" . xlt("Grand Total") . "</td>\n";
         echo " <td class='font-weight-bold text-center'>" . text($total_units) . "</td>\n";
