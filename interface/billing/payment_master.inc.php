@@ -156,7 +156,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         </div>
         <div class="forms col-3">
             <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
-            <div style='padding-left:0px'>
+            <div class="pl-0">
                 <?php
                 if ($PaymentMethod == '' && $screen == 'edit_payment') {
                     $blankValue = ' ';
@@ -179,7 +179,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
             }
             ?>
             <input type="text" name="check_number" style="<?php echo $CheckDisplay; ?>" autocomplete="off" class="form-control" value="<?php echo attr($CheckNumber); ?>" onKeyUp="ConvertToUpperCase(this)" id="check_number" class="form-control " />
-            <div id="div_check_number" class="text" style="border:1px solid var(--black); width:140px;<?php echo $CheckDivDisplay; ?>">&nbsp;</div>
+            <div id="div_check_number" class="text border" style="width:140px;<?php echo $CheckDivDisplay; ?>">&nbsp;</div>
         </div>
     </div>
     <div class="row">
@@ -264,13 +264,13 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         </div>
     </div>
     <?php if ($screen == 'new_payment') { ?>
-        <div class="form-group">
+        <div class="form-group mt-3">
             <div class="row">
                 <div class="col-sm-12 text-left position-override">
                     <div class="btn-group btn-group-pinch" role="group">
                         <button onClick="return SavePayment();" class="btn btn-primary btn-save"><?php echo xlt('Save Changes'); ?></button>
-                        <button class="btn btn-secondary btn-save" onClick="OpenEOBEntry();"><?php echo xlt('Allocate'); ?></button>
-                        <button onclick="ResetForm(); return false;" class="btn btn-link btn-cancel btn-separate-left"><?php echo xlt('Cancel Changes'); ?></button>
+                        <button class="btn btn-primary btn-save" onClick="OpenEOBEntry();"><?php echo xlt('Allocate'); ?></button>
+                        <button onclick="ResetForm(); return false;" class="btn btn-secondary btn-cancel btn-separate-left"><?php echo xlt('Cancel Changes'); ?></button>
                         <br />
                     </div>
                 </div>
