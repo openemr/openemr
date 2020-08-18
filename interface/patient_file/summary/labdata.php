@@ -101,12 +101,12 @@ function checkAll(bx) {
                 <h2><?php echo xlt('Labs'); ?></h2>
                 <?php if (!$printable) { ?>
                 <div class="form-row">
-                    <div class="col">
+                    <div class="col-md">
                         <a href='../summary/demographics.php' class='btn btn-secondary btn-back' onclick='top.restoreSession()'>
                             <span><?php echo xlt('Back to Patient') ?></span>
                         </a>
                     </div>
-                    <div class="col text-right">
+                    <div class="col-md text-right">
                         <input type='checkbox' onclick="checkAll(this)" /> <?php echo xlt('Toggle All'); ?>
                     </div>
                 </div>
@@ -244,7 +244,7 @@ function checkAll(bx) {
                         $i = 0;
                         $item_graph = 0;
                         $rowspan = count($value_select);
-                        echo "<table class='border table' cellspacing='3'>";
+                        echo "<div class='table-responsive'><table class='border table'>";
                         echo "<tr>";
                         #echo "<th class='list'>Item</td>";
                         echo "<th class='list'>" . xlt('Name') . "</th> ";
@@ -312,7 +312,7 @@ function checkAll(bx) {
                             }
 
                             if ($value_count > 1 && !$printable) {
-                                echo "<tr><td colspan='7' align='center'>";
+                                echo "<tr><td colspan='7' class='text-center'>";
                                 echo "<input type='button' class='graph_button btn btn-secondary' onclick='get_my_graph" . attr($item_graph) . "()' name='' value='" . xla('Plot item') . " \"" . attr($the_item) . "\"'>";
                                 echo "</td></tr>";
                             }
@@ -362,7 +362,7 @@ function checkAll(bx) {
                             $item_graph++;
                         }
 
-                        echo "</table><br />";
+                        echo "</table></div><br />";
                     }// end if mode = list
 
                     //##########################################################################################################################
@@ -410,7 +410,7 @@ function checkAll(bx) {
                         $itemcount = count($value_matrix);
 
                         // print matrix
-                        echo "<table class='border table' cellpadding='2'>";
+                        echo "<div class='table-responsive'><table class='border table' cellpadding='2'>";
                         echo "<tr>";
                         #echo "<th class='matrix'>Item</th>";
                         echo "<th class='matrix'>" . xlt('Name') . "</th>";
@@ -470,7 +470,7 @@ function checkAll(bx) {
                                 $a = false;
                             }
                         }
-                        echo "</table>";
+                        echo "</table></div>";
                     }// end if mode = matrix
                 } else { // end of "are items selected"
                     echo "<p>" . xlt('No parameters selected') . ".</p>";
