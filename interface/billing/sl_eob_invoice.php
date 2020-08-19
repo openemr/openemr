@@ -567,7 +567,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </div>
                     <div class="form-group col-lg" id='ins_done'>
                         <label class="col-form-label" for=""><?php echo xlt('Done with'); ?>:</label>
-                        <a class="btn btn-sm btn-save"
+                        <a class="btn btn-save bg-light text-primary"
                             onclick="document.forms[0].isLastClosed.value='3'; document.forms[0].submit()"><?php echo xlt("Save Level"); ?>
                         </a>
                         <div class="pl-3">
