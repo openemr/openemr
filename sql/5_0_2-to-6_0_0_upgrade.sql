@@ -2028,11 +2028,11 @@ CREATE TABLE `uuid_mapping` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 #EndIf
 
-#IfNotColumnType form_bronchitis user text
+#IfNotColumnType form_bronchitis user varchar(50)
 ALTER TABLE `form_bronchitis` MODIFY `user` varchar(50);
 #EndIf
 
-#IfNotColumnType form_bronchitis groupname text
+#IfNotColumnType form_bronchitis groupname varchar(50)
 ALTER TABLE `form_bronchitis` MODIFY `groupname` varchar(50);
 #EndIf
 
