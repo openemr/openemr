@@ -289,7 +289,7 @@ if (empty($ferow)) {
 $patient_id = 0 + $ferow['pid'];
 $encounter_id = 0 + $ferow['encounter'];
 $svcdate = substr($ferow['date'], 0, 10);
-$form_payer_id = ($_POST['$form_payer_id']) ? (0 + $_POST['form_payer_id']) : 0;
+$form_payer_id = ($_POST['form_payer_id']) ? (0 + $_POST['form_payer_id']) : 0;
 $form_reference = $_POST['form_reference'];
 $form_check_date = ($_POST['form_check_date']) ? DateToYYYYMMDD($_POST['form_check_date']) : date('Y-m-d');
 $form_deposit_date = ($_POST['form_deposit_date']) ? DateToYYYYMMDD($_POST['form_deposit_date']) : date('Y-m-d');
@@ -415,8 +415,8 @@ if ($_POST['form_save'] || $_POST['form_cancel'] || $_POST['isLastClosed']) {
         echo "   }\n";
         echo " }\n";
     } else {
+        echo "<script language='JavaScript'>\n";
     }
-    echo "<script>\n";
     if ($info_msg) {
         echo " alert(" . js_escape($info_msg) . ");\n";
     }
