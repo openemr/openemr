@@ -2029,11 +2029,11 @@ CREATE TABLE `uuid_mapping` (
 #EndIf
 
 #IfNotColumnType form_bronchitis user text
-ALTER TABLE `form_bronchitis` MODIFY `user` text;
+ALTER TABLE `form_bronchitis` MODIFY `user` varchar(50);
 #EndIf
 
 #IfNotColumnType form_bronchitis groupname text
-ALTER TABLE `form_bronchitis` MODIFY `groupname` text;
+ALTER TABLE `form_bronchitis` MODIFY `groupname` varchar(50);
 #EndIf
 
 #IfNotColumnType form_bronchitis bronchitis_ops_fever text
