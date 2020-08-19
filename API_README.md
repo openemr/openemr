@@ -60,6 +60,7 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [Allergy API](API_README.md#get-apiallergy)
     -   [Procedure API](API_README.md#get-apiprocedure)
     -   [Drug API](API_README.md#get-apidrug)
+    -   [Prescription API](API_README.md#get-apiprescription)
     -   [Insurance API](API_README.md#get-apipatientpidinsurance)
     -   [Appointment API](API_README.md#get-apiappointment)
     -   [Document API](API_README.md#get-apipatientpiddocument)
@@ -77,9 +78,9 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [FHIR QuestionnaireResponse API](FHIR_README.md#get-fhirquestionnaireresponse)
     -   [FHIR Immunization API](FHIR_README.md#get-fhirimmunization)
     -   [FHIR Condition API](FHIR_README.md#get-fhircondition)
-    -   [FHIR MedicationStatement API](FHIR_README.md#get-fhirmedicationstatement)
+    -   [FHIR MedicationRequest API](FHIR_README.md#get-fhirmedicationrequest)
     -   [FHIR Medication API](FHIR_README.md#get-fhirmedication)
-    -   [FHIR MedicationStatement API](FHIR_README.md#get-fhirmedicationstatement)
+    -   [FHIR Location API](FHIR_README.md#get-fhirlocation)
 -   [Portal FHIR API Endpoints](FHIR_README.md#portalfhir-endpoints)
     -   [Patient API](FHIR_README.md#get-portalfhirpatient)
 -   [Dev notes](API_README.md#dev-notes)
@@ -945,6 +946,22 @@ Request:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/drug/90c196f2-51cc-4655-8858-3a80aebff3ef'
+```
+
+#### GET /api/prescription
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/api/prescription'
+```
+
+#### GET /api/prescription/:uuid
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/api/prescription/9128a1ec-95be-4649-8a66-d3686b7ab0ca'
 ```
 
 #### POST /api/patient/:pid/medication

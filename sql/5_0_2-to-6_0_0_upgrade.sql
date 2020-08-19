@@ -556,6 +556,14 @@ CREATE TABLE `uuid_registry` (
 ALTER TABLE `uuid_registry` ADD `table_id` varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
+#IfMissingColumn uuid_registry couchdb
+ALTER TABLE `uuid_registry` ADD `couchdb` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn uuid_registry mapped
+ALTER TABLE `uuid_registry` ADD `mapped` tinyint(4) NOT NULL DEFAULT '0';
+#EndIf
+
 #IfMissingColumn patient_data uuid
 ALTER TABLE `patient_data` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
@@ -1983,6 +1991,41 @@ ALTER TABLE `drugs` ADD `uuid` binary(16) DEFAULT NULL;
 
 #IfNotIndex drugs uuid
 CREATE UNIQUE INDEX `uuid` ON `drugs` (`uuid`);
+#EndIf
+
+#IfMissingColumn prescriptions uuid
+ALTER TABLE `prescriptions` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate prescriptions
+#EndIf
+
+#IfNotIndex prescriptions uuid
+CREATE UNIQUE INDEX `uuid` ON `prescriptions` (`uuid`);
+#EndIf
+
+#IfNotColumnType prescriptions rxnorm_drugcode varchar(25)
+ALTER TABLE `prescriptions` MODIFY `rxnorm_drugcode` varchar(25) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn ccda encrypted
+ALTER TABLE `ccda` ADD `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes';
+#EndIf
+
+#IfNotTable uuid_mapping
+CREATE TABLE `uuid_mapping` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) NOT NULL DEFAULT '',
+  `resource` varchar(255) NOT NULL DEFAULT '',
+  `table` varchar(255) NOT NULL DEFAULT '',
+  `target_uuid` binary(16) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  PRIMARY KEY (`id`),
+  KEY `uuid` (`uuid`),
+  KEY `resource` (`resource`),
+  KEY `table` (`table`),
+  KEY `target_uuid` (`target_uuid`)
+) ENGINE=InnoDB AUTO_INCREMENT=1;
 #EndIf
 
 #IfColumn automatic_notification next_app_date
