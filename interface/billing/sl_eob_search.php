@@ -1212,12 +1212,12 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     //to dynamically show /hide relevant divs and change Fieldset legends
     $(function () {
         $("input[name=radio-search]").on("change", function () {
-
             let flip = $(this).val();
             $(".oe-show-hide").hide();
             $("#" + flip).show();
             if (flip == 'inv-search') {
-                $('#payment-allocate').hide();
+                $("#search-upload").insertAfter("#payment-allocate");
+                $('#payment-allocate').show();
                 $('#search-btn').show();
                 $('#btn-inv-search').show();
                 var legend_text = $('#hid1').val();
@@ -1258,7 +1258,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 // not a good idea to do translate. it's a constant so pulling sjp.
 if ($_REQUEST['form_search'] == "Search") { ?>
     <script>
-        $('#payment-allocate').hide();
+        $("#payment-allocate").insertAfter("#search-upload");
+        $('#payment-allocate').show();
         $("#search-results").show();
         $("#statement-download").show();
     </script>
@@ -1266,10 +1267,7 @@ if ($_REQUEST['form_search'] == "Search") { ?>
 }
 if ($_REQUEST['form_search'] == "Upload") { ?>
     <script>
-        $("#payment-allocate").insertAfter("#search-upload");
-        $('#era-upld').hide();
-        $('#payment-allocate').show();
-        $('#search-btn').hide();
+        $('#era-upld').show();
         $('#search-results').show();
         $("#statement-download").show();
     </script>
