@@ -1056,20 +1056,38 @@ if (!isset($_GET["mode"])) {
                             }
 
                             if ($first_time) {
-                                print "<table border='0'><tr>\n";     // small table
+                                print "<div class='table-responsive'><table class='table'>";     // small table
                                 $first_time = 0;
-                            }
+                            } ?>
 
-                            // TODO: Further replace with classes
-                            print "<td width='70'><span class='text text-center font-weight-bold'>" . xlt("Date") . "</span></td>";
-                            print "<td width='50'><span class='text text-center font-weight-bold'>" . xlt("Acct") . '#' . "</span></td>";
-                            print "<td width='100'><span class='text text-center font-weight-bold'>" . xlt("Name") . "</span></td>";
-                            print "<td width='100'><span class='text text-center font-weight-bold'>" . xlt("Source") . "</span></td>";
-                            print "<td width='100'><span class='text text-center font-weight-bold'>" . xlt("CPT") . "</span></td>";
-                            print "<td width='100'><span class='small text-center font-weight-bold'>" . xlt("ICD") . "</span></td>";
-                            print "<td width='100'><span class='small text-center font-weight-bold'>" . xlt("Charges") . "</span></td>";
-                            print "<td width='100'><span class='small text-center font-weight-bold'>" . xlt("Payments") . '/' . xlt("Adj") . "." . "</span></td>";
-                            print "<td><br /></tr><tr>\n";
+                            <!-- TODO: Further replace with classes -->
+                            <tr>
+                                <td width='70'>
+                                    <span class='text text-center font-weight-bold'><?php echo xlt("Date"); ?></span>
+                                </td>
+                                <td width='50'>
+                                    <span class='text text-center font-weight-bold'><?php echo xlt("Acct"); ?>#</span>
+                                </td>
+                                <td width='100'>
+                                    <span class='text text-center font-weight-bold'><?php echo xlt("Name"); ?></span>
+                                </td>
+                                <td width='100'>
+                                    <span class='text text-center font-weight-bold'><?php echo xlt("Source"); ?></span>
+                                </td>
+                                <td width='100'>
+                                    <span class='text text-center font-weight-bold'><?php echo xlt("CPT"); ?></span>
+                                </td>
+                                <td width='100'>
+                                    <span class='small text-center font-weight-bold'><?php echo xlt("ICD"); ?></span>
+                                </td>
+                                <td width='100'>
+                                    <span class='small text-center font-weight-bold'><?php echo xlt("Charges"); ?></span>
+                                </td>
+                                <td width='100'>
+                                    <span class='small text-center font-weight-bold'><?php echo xlt("Payments") . '/' . xlt("Adj"); ?>.</span>
+                                </td>
+                            </tr>
+                        <?php
                         //Next patient
                             $old_pid = $iter['pid'];
                         }
@@ -1077,105 +1095,166 @@ if (!isset($_GET["mode"])) {
                         // get dollar amounts to appear on pat,ins payments and copays
 
                         if ($iter['code_type'] != 'payment_info') {
-                            if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
-                                print "<td width='70'><span class='text'><center>" . text(date("Y-m-d", strtotime($iter['date']))) . "</center>" ;
-                                print "</span></td><td width='50'><span class='text'><center>" . text($iter['pid']) . "</center>";
-                                print "</span></td><td width='180'><span class='text'><center>" . text($iter['last']) . ", " . text($iter['first']) . "</center>";
-                                if (($iter['ins_adjust_dollar']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
-                                    print  "</span></td><td width='180'><span class='text'><center>" . xlt('Insurance Adjustment') . "</center>";
-                                }
+                            if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') { ?>
+                                <tr>
+                                    <td width='70'>
+                                        <span class='text text-center'><?php echo text(date("Y-m-d", strtotime($iter['date']))); ?></span>
+                                    </td>
+                                    <td width='50'>
+                                        <span class='text text-center'><?php echo text($iter['pid']); ?></span>
+                                    </td>
+                                    <td width='180'>
+                                        <span class='text text-center'><?php echo text($iter['last']) . ", " . text($iter['first']) ?></span>
+                                    </td>
 
-                                if (($iter['pat_adjust_dollar']) != 0 and ($iter['code_type']) === 'Patient Payment') {
-                                    print  "</span></td><td width='180'><span class='text'><center>" . xlt('Patient Adjustment') . "</center>";
-                                }
+                                <?php if (($iter['ins_adjust_dollar']) != 0 and ($iter['code_type']) === 'Insurance Payment') { ?>
+                                    <td width='180'>
+                                        <span class='text'><?php echo xlt('Insurance Adjustment'); ?></span>
+                                    </td>
+                                <?php } ?>
 
-                                if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
-                                    print  "</span></td><td width='180'><span class='text'><center>" . xlt('Insurance Payment') . "</center>";
-                                }
+                                <?php
+                                if (($iter['pat_adjust_dollar']) != 0 and ($iter['code_type']) === 'Patient Payment') { ?>
+                                    <td width='180'>
+                                        <span class='text'><?php echo xlt('Patient Adjustment'); ?></span>
+                                    </td>
+                                <?php } ?>
 
-                                if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
-                                    print  "</span></td><td width='180'><span class='text'><center>" . xlt('Patient Payment') . "</center>";
-                                }
+                                <?php if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') { ?>
+                                    <td width='180'>
+                                        <span class='text'><?php echo xlt('Insurance Payment'); ?></span>
+                                    </td>
+                                <?php } ?>
 
-                                if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
-                                    print  "</span></td><td width='180'><span class='text'><center>" . xlt('Insurance Credit') . "</center>";
-                                }
+                                <?php if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') { ?>
+                                    <td width='180'>
+                                        <span class='text'><?php echo xlt('Patient Payment'); ?></span>
+                                    </td>
+                                <?php } ?>
 
-                                if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
-                                    print  "</span></td><td width='180'><span class='text'><center>" . xlt('Patient Credit') . "</center>";
-                                }
+                                <?php if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') { ?>
+                                    <td width='180'>
+                                        <span class='text'><?php echo xlt('Insurance Credit'); ?></span>
+                                    </td>
+                                <?php } ?>
 
-                                if ($iter['paytype'] === 'PCP') {
-                                    print  "</span></td><td width='180'><span class='text'><center>" . xlt('COPAY') . "</center>";
-                                }
+                                <?php if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') { ?>
+                                    <td width='180'>
+                                        <span class='text'><?php echo xlt('Patient Credit'); ?></span>
+                                    </td>
+                                <?php } ?>
 
-                                print  "</span></td><td width='100'><span class='text'>";
-                                print  "</span></td><td width='100'><span class='text'>";
-                                print  "</span></td><td width='100'><span class='text'>";
-                                if (($iter['ins_adjust_dollar']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
-                                    $line_total_pay = $line_total_pay + $iter['ins_adjust_dollar'];
-                                    print  "</span></td><td width='100'><span class='text'><center>" . text($iter['ins_adjust_dollar']) . "</center>";
-                                }
+                                <?php if ($iter['paytype'] === 'PCP') { ?>
+                                    <td width='180'>
+                                        <span class='text'><?php echo xlt('COPAY'); ?></span>
+                                    </td>
+                                <?php } ?>
 
-                                if (($iter['ins_code']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
-                                    $line_total_pay = $line_total_pay + $iter['ins_code'];
-                                    print  "</span></td><td width='100'><span class='text'><center>" . text($iter['ins_code']) . "</center>";
-                                }
+                                <td width='100'>
+                                    <span class='text'></span>
+                                </td>
+                                <td width='100'>
+                                    <span class='text'></span>
+                                </td>
+                                <td width='100'>
+                                    <span class='text'></span>
+                                </td>
 
-                                if (($iter['code_type']) != 'Patient Payment' and ($iter['code_type']) != 'Insurance Payment') {
-                                    $line_total_pay = $line_total_pay + $iter['code'];
-                                    print  "</span></td><td width='100'><span class='text'><center>" . text($iter['code']) . "</center>";
-                                }
+                                <?php if (($iter['ins_adjust_dollar']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
+                                    $line_total_pay = $line_total_pay + $iter['ins_adjust_dollar']; ?>
+                                    <td width='100'>
+                                        <span class='text'><?php echo text($iter['ins_adjust_dollar']) ?></span>
+                                    </td>
+                                <?php } ?>
 
-                                if (($iter['pat_adjust_dollar']) != 0 and ($iter['code_type']) === 'Patient Payment') {
-                                    $line_total_pay = $line_total_pay + $iter['pat_adjust_dollar'];
-                                    print  "</span></td><td width='100'><span class='text'><center>" . text($iter['pat_adjust_dollar']) . "</center>";
-                                }
+                                <?php if (($iter['ins_code']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
+                                    $line_total_pay = $line_total_pay + $iter['ins_code']; ?>
+                                    <td width='100'>
+                                        <span class='text'><?php echo text($iter['ins_code']); ?></span>
+                                    </td>
+                                <?php } ?>
 
-                                if (($iter['pat_code']) != 0 and ($iter['code_type']) === 'Patient Payment') {
-                                    $line_total_pay = $line_total_pay + $iter['pat_code'];
-                                    print  "</span></td><td width='100'><span class='text'><center>" . text($iter['pat_code']) . "</center>";
-                                }
+                                <?php if (($iter['code_type']) != 'Patient Payment' and ($iter['code_type']) != 'Insurance Payment') {
+                                    $line_total_pay = $line_total_pay + $iter['code']; ?>
+                                    <td width='100'>
+                                        <span class='text'><?php echo text($iter['code']); ?></span>
+                                    </td>
+                                <?php } ?>
 
-                                if (($iter['code_type']) != 'Insurance Payment' and ($iter['code_type']) != 'Patient Payment' and $iter['paytype'] != 'PCP') {
-                                    print  "</span></td><td width='100'><span class='text'><center>" . text($iter['code_type']) . "</center>";
-                                }
+                                <?php if (($iter['pat_adjust_dollar']) != 0 and ($iter['code_type']) === 'Patient Payment') {
+                                    $line_total_pay = $line_total_pay + $iter['pat_adjust_dollar']; ?>
+                                    <td width='100'>
+                                        <span class='text'><?php echo text($iter['pat_adjust_dollar']); ?></span>
+                                    </td>
+                                <?php } ?>
 
-                                print  "</span></td><td width='100'><span class='text'>";
-                                print  "</span></td>\n";
-                            } else {
-                                if ($iter['fee'] != 0) {
-                                    $line_total = $line_total + $iter['fee'];
-                                    print "<td width='70'><span class='text'><center>" . text(date("Y-m-d", strtotime($iter['date']))) . "</center>";
-                                    print "</span></td><td width='50'><span class='text'><center>" . text($iter['pid']) . "</center>";
-                                    print "</span></td><td width='180'><span class='text'><center>" . text($iter['last']) . ", " . text($iter['first']) . "</center>";
-                                    if ($GLOBALS['language_default'] === 'English (Standard)') {
-                                        print "</span></td><td width='100'><span class='text'><center>" . text(ucwords(strtolower(substr($iter['code_text'], 0, 25)))) . "</center>";
-                                    } else {
-                                        print "</span></td><td width='100'><span class='text'><center>" . text(substr($iter['code_text'], 0, 25)) . "</center>";
+                                <?php if (($iter['pat_code']) != 0 and ($iter['code_type']) === 'Patient Payment') {
+                                    $line_total_pay = $line_total_pay + $iter['pat_code']; ?>
+                                    <td width='100'>
+                                        <span class='text'><?php echo text($iter['pat_code']); ?></span>
+                                    </td>
+                                <?php } ?>
+
+                                <?php if (($iter['code_type']) != 'Insurance Payment' and ($iter['code_type']) != 'Patient Payment' and $iter['paytype'] != 'PCP') { ?>
+                                    <td width='100'>
+                                        <span class='text'><?php echo text($iter['code_type']); ?></span>
+                                    </td>
+                                <?php } ?>
+
+                                <td width='100'>
+                                    <span class='text'></span>
+                                </td>
+
+                                <?php } else { ?>
+                                    <?php if ($iter['fee'] != 0) {
+                                        $line_total = $line_total + $iter['fee']; ?>
+                                        <td width='70'>
+                                            <span class='text'><?php echo text(date("Y-m-d", strtotime($iter['date']))); ?></span>
+                                        </td>
+                                        <td width='50'>
+                                            <span class='text'><?php echo text($iter['pid']); ?></span>
+                                        </td>
+                                        <td width='180'>
+                                            <span class='text'><?php echo text($iter['last']) . ", " . text($iter['first']); ?></span>
+                                        </td>
+
+                                        <?php if ($GLOBALS['language_default'] === 'English (Standard)') { ?>
+                                            <td width='100'>
+                                                <span class='text'><?php echo text(ucwords(strtolower(substr($iter['code_text'], 0, 25)))); ?></span>
+                                            </td>
+                                        <?php } else { ?>
+                                            <td width='100'>
+                                                <span class='text'><?php echo text(substr($iter['code_text'], 0, 25)); ?></span>
+                                            </td>
+                                        <?php } ?>
+
+                                        <td width='100'>
+                                            <span class='text'><?php echo text($iter['code']); ?></span>
+                                        </td>
+                                        <td width='100'>
+                                            <span class='small'><?php echo text(substr($iter['justify'], 5, 3)); ?></span>
+                                        </td>
+                                        <td width='100'>
+                                            <span class='small'><?php echo text($iter['fee']); ?></span>
+                                        </td>
+                                            <?php
                                     }
-
-                                    print "</span></td><td width='100'><span class='text'><center>" . text($iter['code']) . "</center>";
-                                    print "</span></td><td width='100'><span class=small><center>" . text(substr($iter['justify'], 5, 3)) . "</center>";
-                                    print "</span></td><td width='100'><span class=small><center>" . text($iter['fee']) . "</center>";
-                                    print "</span></td>\n";
                                 }
-                            }
 
-                            if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment' || $iter['fee'] != 0) {
-                                $res_count++;
-                            }
+                                if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment' || $iter['fee'] != 0) {
+                                    $res_count++;
+                                }
 
-                            if ($res_count === $N) {
-                                print "</tr><tr>\n";
-                                $res_count = 0;
-                            }
+                                if ($res_count === $N) {
+                                    print "</tr><tr>\n";
+                                    $res_count = 0;
+                                }
 
-                            $itero = $iter;
+                                $itero = $iter;
 
-                            if ($old_pid != $new_old_pid and ($iter['code_type'] != 'payment_info')) {
-                                $new_old_pid = $old_pid;
-                            }
+                                if ($old_pid != $new_old_pid and ($iter['code_type'] != 'payment_info')) {
+                                    $new_old_pid = $old_pid;
+                                }
                         }
                     }
 
@@ -1187,7 +1266,7 @@ if (!isset($_GET["mode"])) {
 
 
             if ($anypats === 0) {
-                ?><p size = 5 ><?php echo xlt('No Data to Process')?></p><?php
+                ?><p><?php echo xlt('No Data to Process')?></p><?php
             }
 
             // TEST TO SEE IF THERE IS INFORMATION IN THE VARAIBLES THEN ADD TO AN ARRAY FOR PRINTING
@@ -1752,7 +1831,7 @@ if (!isset($_GET["mode"])) {
                 }
 
                 print "<br /></td>";
-                print "</table>";
+                print "</table></div>";
             } else {
                 print "<table border='0'><tr>\n";
                 print "<br /><br />";
