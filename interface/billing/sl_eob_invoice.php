@@ -291,8 +291,8 @@ $encounter_id = 0 + $ferow['encounter'];
 $svcdate = substr($ferow['date'], 0, 10);
 $form_payer_id = ($_POST['form_payer_id']) ? (0 + $_POST['form_payer_id']) : 0;
 $form_reference = $_POST['form_reference'];
-$form_check_date = ($_POST['form_check_date']) ? DateToYYYYMMDD($_POST['form_check_date']) : date('Y-m-d');
-$form_deposit_date = ($_POST['form_deposit_date']) ? DateToYYYYMMDD($_POST['form_deposit_date']) : date('Y-m-d');
+$form_check_date   = fixDate($_POST['form_check_date'], date('Y-m-d'));
+$form_deposit_date = fixDate($_POST['form_deposit_date'], $form_check_date);
 $form_pay_total = ($_POST['form_pay_total']) ? (0 + $_POST['form_pay_total']) : 0;
 
 
@@ -750,10 +750,10 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
             <div class="form-group clearfix">
                 <div class="col-sm-12 text-left position-override" id="search-btn">
                     <div class="btn-group" role="group">
-                        <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save-stay"
-                            onclick="this.value='1';"><?php echo xlt("Save Current"); ?></button>
-                        <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save"
-                            onclick="this.value='2';"><?php echo xlt("Save & Exit"); ?></button>
+                        <!--<button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save-stay"
+                            onclick="this.value='1';"><?php /*echo xlt("Save Current"); */?></button>-->
+                        <button type='submit' class="btn btn-primary btn-save" name='form_save' id="btn-save"
+                            onclick="this.value='2';"><?php echo xlt("Save"); ?></button>
                         <button type='button' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel'
                             id="btn-cancel" onclick='doClose()'><?php echo xlt("Close"); ?></button>
                     </div>
