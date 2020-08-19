@@ -54,33 +54,46 @@ switch ($task) {
         $pid = isset($_POST['pid']) ? $_POST['pid'] : 0;
         addPnote($pid, $note, 1, 1, $title, $sid, '', 'New');
         updatePortalMailMessageStatus($noteid, 'Sent');
-        echo 'ok';
+        if (empty($_POST["submit"])) {
+            echo 'ok';
+        }
+
         break;
     case "add":
         // each user has their own copy of message
         sendMail($owner, $note, $title, $header, $noteid, $sid, $sn, $rid, $rn, 'New');
         sendMail($rid, $note, $title, $header, $noteid, $sid, $sn, $rid, $rn, 'New', $reply_noteid);
-        echo 'ok';
+        if (empty($_POST["submit"])) {
+            echo 'ok';
+        }
         break;
     case "reply":
         sendMail($owner, $note, $title, $header, $noteid, $sid, $sn, $rid, $rn, 'Reply', '');
         sendMail($rid, $note, $title, $header, $noteid, $sid, $sn, $rid, $rn, 'New', $reply_noteid);
-        echo 'ok';
+        if (empty($_POST["submit"])) {
+            echo 'ok';
+        }
         break;
     case "delete":
         updatePortalMailMessageStatus($noteid, 'Delete');
-        echo 'ok';
+        if (empty($_POST["submit"])) {
+            echo 'ok';
+        }
         break;
     case "massdelete":
         foreach ($notejson as $deleteid) {
             updatePortalMailMessageStatus($deleteid, 'Delete');
-            echo 'ok';
+            if (empty($_POST["submit"])) {
+                echo 'ok';
+            }
         }
         break;
     case "setread":
         if ($noteid > 0) {
             updatePortalMailMessageStatus($noteid, 'Read');
-            echo 'ok';
+            if (empty($_POST["submit"])) {
+                echo 'ok';
+            }
         } else {
             echo 'missing note id';
         }
@@ -122,6 +135,8 @@ switch ($task) {
         break;
 }
 
-if (isset($_REQUEST["submit"])) {
-    header("Location: {$_REQUEST["submit"]}");
+if (!empty($_POST["submit"])) {
+    $url = $_POST["submit"];
+    header("Location: " . $url);
+    exit();
 }
