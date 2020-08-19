@@ -46,7 +46,7 @@ use OpenEMR\OeUI\OemrUI;
         });
 
         function listForms(param) {
-            param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla('Loading'); ?>";
+            param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> " + jsText(<?php echo xlj('Loading'); ?>);
 
             top.restoreSession();
             $.ajax({
@@ -190,7 +190,7 @@ use OpenEMR\OeUI\OemrUI;
         }
 
         function orderForm(param) {
-            param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla('Ordering'); ?>";
+            param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> " + jsText(<?php echo xlj('Ordering'); ?>);
 
             let selectedForm = $('#form-list').find('input:checked');
             if (selectedForm.length > 0) {
@@ -215,10 +215,10 @@ use OpenEMR\OeUI\OemrUI;
                                 // Expiration: Timestamp; duration: 3 days; timezone: CST
                                 writeOrder(formOID, formName, data.OID, data.Expiration, 'ordered')
 
-                                param.innerHTML = "<?php echo xla('Order Form'); ?>";
+                                param.innerHTML = jsText(<?php echo xlj('Order Form'); ?>);
                             },
                             error: function (jqXHR, textStatus, errorThrown) {
-                                param.innerHTML = "<?php echo xla('Order Form'); ?>";
+                                param.innerHTML = jsText(<?php echo xlj('Order Form'); ?>);
 
                                 document.write(jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
                             }

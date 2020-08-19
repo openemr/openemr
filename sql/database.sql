@@ -7214,6 +7214,7 @@ CREATE TABLE `pnotes` (
 DROP TABLE IF EXISTS `prescriptions`;
 CREATE TABLE `prescriptions` (
   `id` int(11) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `patient_id` bigint(20) default NULL,
   `filled_by_id` int(11) default NULL,
   `pharmacy_id` int(11) default NULL,
@@ -7224,7 +7225,7 @@ CREATE TABLE `prescriptions` (
   `start_date` date default NULL,
   `drug` varchar(150) default NULL,
   `drug_id` int(11) NOT NULL default '0',
-  `rxnorm_drugcode` INT(11) DEFAULT NULL,
+  `rxnorm_drugcode` varchar(25) DEFAULT NULL,
   `form` int(3) default NULL,
   `dosage` varchar(100) default NULL,
   `quantity` varchar(31) default NULL,
@@ -7254,7 +7255,8 @@ CREATE TABLE `prescriptions` (
   `rtx` INT(2) DEFAULT NULL,
   `txDate` DATE NOT NULL,
   PRIMARY KEY  (`id`),
-  KEY `patient_id` (`patient_id`)
+  KEY `patient_id` (`patient_id`),
+  UNIQUE INDEX `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
