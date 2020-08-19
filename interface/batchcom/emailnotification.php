@@ -55,17 +55,14 @@ if ($_POST['form_action'] == 'save') {
     }
 
     // Store the new settings.  sms_gateway_type is not used for email.
-    // next_app_time, next_app_date, and notification_sent_date don't appear
-    // to be used by anyone.  notification_id is the pk, and should always
-    // be 2 for email settings.
+    // notification_id is the pk, and should always be 2 for email settings.
 
     if (!$form_err) {
-        $sql_text = " ( `notification_id` , `sms_gateway_type` , `next_app_date` , `next_app_time` , `provider_name` , `message` , `email_sender` , `email_subject` , `type`, `notification_sent_date` ) ";
-        $sql_value = " (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
-        $values = array($_POST['notification_id'], '', '0000-00-00', ':',
-                        $_POST['provider_name'], $_POST['message'],
-                        $_POST['email_sender'], $_POST['email_subject'],
-                        'Email', '2007-09-30 00:00:00');
+        $sql_text = " ( `notification_id` , `sms_gateway_type` , `provider_name` , `message` , `email_sender` , `email_subject` , `type` ) ";
+        $sql_value = " (?, ?, ?, ?, ?, ?, ?) ";
+        $values = array($_POST['notification_id'], '', $_POST['provider_name'],
+                        $_POST['message'], $_POST['email_sender'],
+                        $_POST['email_subject'], 'Email');
         $query = "REPLACE INTO `automatic_notification` $sql_text VALUES $sql_value";
         //echo $query;
         $id = sqlInsert($query, $values);
@@ -77,8 +74,7 @@ if ($_POST['form_action'] == 'save') {
 }
 
 // fetch email config from table.  This should never fail, because one row
-// of each type is seeded when the db is created.  If the row IS missing,
-// we would need an INSERT to recover -- REPLACE can't work without a pk.
+// of each type is seeded when the db is created.
 $sql = "select * from automatic_notification where type='Email'";
 $result = sqlQuery($sql);
 if ($result) {

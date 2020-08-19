@@ -1984,3 +1984,15 @@ ALTER TABLE `drugs` ADD `uuid` binary(16) DEFAULT NULL;
 #IfNotIndex drugs uuid
 CREATE UNIQUE INDEX `uuid` ON `drugs` (`uuid`);
 #EndIf
+
+#IfColumn automatic_notification next_app_date
+ALTER TABLE `automatic_notification` DROP COLUMN `next_app_date`;
+#EndIf
+
+#IfColumn automatic_notification next_app_time
+ALTER TABLE `automatic_notification` DROP COLUMN `next_app_time`;
+#EndIf
+
+#IfColumn automatic_notification notification_sent_date
+ALTER TABLE `automatic_notification` DROP COLUMN `notification_sent_date`;
+#EndIf
