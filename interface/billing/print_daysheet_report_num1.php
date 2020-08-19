@@ -1062,33 +1062,33 @@ if (!isset($_GET["mode"])) {
 
                             <!-- TODO: Further replace with classes -->
                             <tr>
-                                <td width='70'>
-                                    <span class='text text-center font-weight-bold'><?php echo xlt("Date"); ?></span>
+                                <td class='text text-center font-weight-bold' width='70'>
+                                    <?php echo xlt("Date"); ?>
                                 </td>
-                                <td width='50'>
-                                    <span class='text text-center font-weight-bold'><?php echo xlt("Acct"); ?>#</span>
+                                <td class='text text-center font-weight-bold' width='50'>
+                                    <?php echo xlt("Acct"); ?>#
                                 </td>
-                                <td width='100'>
-                                    <span class='text text-center font-weight-bold'><?php echo xlt("Name"); ?></span>
+                                <td class='text text-center font-weight-bold' width='100'>
+                                    <?php echo xlt("Name"); ?>
                                 </td>
-                                <td width='100'>
-                                    <span class='text text-center font-weight-bold'><?php echo xlt("Source"); ?></span>
+                                <td class='text text-center font-weight-bold' width='100'>
+                                    <?php echo xlt("Source"); ?>
                                 </td>
-                                <td width='100'>
-                                    <span class='text text-center font-weight-bold'><?php echo xlt("CPT"); ?></span>
+                                <td class='text text-center font-weight-bold' width='100'>
+                                    <?php echo xlt("CPT"); ?>
                                 </td>
-                                <td width='100'>
-                                    <span class='small text-center font-weight-bold'><?php echo xlt("ICD"); ?></span>
+                                <td class='small text-center font-weight-bold' width='100'>
+                                    <?php echo xlt("ICD"); ?>
                                 </td>
-                                <td width='100'>
-                                    <span class='small text-center font-weight-bold'><?php echo xlt("Charges"); ?></span>
+                                <td class='small text-center font-weight-bold' width='100'>
+                                    <?php echo xlt("Charges"); ?>
                                 </td>
-                                <td width='100'>
-                                    <span class='small text-center font-weight-bold'><?php echo xlt("Payments") . '/' . xlt("Adj"); ?>.</span>
+                                <td class='small text-center font-weight-bold' width='100'>
+                                    <?php echo xlt("Payments") . '/' . xlt("Adj"); ?>.
                                 </td>
                             </tr>
-                        <?php
-                        //Next patient
+                            <?php
+                            //Next patient
                             $old_pid = $iter['pid'];
                         }
 
@@ -1097,145 +1097,141 @@ if (!isset($_GET["mode"])) {
                         if ($iter['code_type'] != 'payment_info') {
                             if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') { ?>
                                 <tr>
-                                    <td width='70'>
-                                        <span class='text text-center'><?php echo text(date("Y-m-d", strtotime($iter['date']))); ?></span>
+                                    <td class='text text-center' width='70'>
+                                        <?php echo text(date("Y-m-d", strtotime($iter['date']))); ?>
                                     </td>
-                                    <td width='50'>
-                                        <span class='text text-center'><?php echo text($iter['pid']); ?></span>
+                                    <td class='text text-center' width='50'>
+                                        <?php echo text($iter['pid']); ?>
                                     </td>
-                                    <td width='180'>
-                                        <span class='text text-center'><?php echo text($iter['last']) . ", " . text($iter['first']) ?></span>
+                                    <td class='text text-center' width='180'>
+                                        <?php echo text($iter['last']) . ", " . text($iter['first']) ?>
                                     </td>
 
                                 <?php if (($iter['ins_adjust_dollar']) != 0 and ($iter['code_type']) === 'Insurance Payment') { ?>
-                                    <td width='180'>
-                                        <span class='text'><?php echo xlt('Insurance Adjustment'); ?></span>
+                                    <td class='text' width='180'>
+                                        <?php echo xlt('Insurance Adjustment'); ?>
                                     </td>
                                 <?php } ?>
 
                                 <?php
                                 if (($iter['pat_adjust_dollar']) != 0 and ($iter['code_type']) === 'Patient Payment') { ?>
-                                    <td width='180'>
-                                        <span class='text'><?php echo xlt('Patient Adjustment'); ?></span>
+                                    <td class='text' width='180'>
+                                        <?php echo xlt('Patient Adjustment'); ?>
                                     </td>
                                 <?php } ?>
 
                                 <?php if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') { ?>
-                                    <td width='180'>
-                                        <span class='text'><?php echo xlt('Insurance Payment'); ?></span>
+                                    <td class='text' width='180'>
+                                        <?php echo xlt('Insurance Payment'); ?>
                                     </td>
                                 <?php } ?>
 
                                 <?php if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') { ?>
-                                    <td width='180'>
-                                        <span class='text'><?php echo xlt('Patient Payment'); ?></span>
+                                    <td class='text' width='180'>
+                                        <?php echo xlt('Patient Payment'); ?>
                                     </td>
                                 <?php } ?>
 
                                 <?php if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') { ?>
-                                    <td width='180'>
-                                        <span class='text'><?php echo xlt('Insurance Credit'); ?></span>
+                                    <td class='text' width='180'>
+                                        <?php echo xlt('Insurance Credit'); ?>
                                     </td>
                                 <?php } ?>
 
                                 <?php if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') { ?>
-                                    <td width='180'>
-                                        <span class='text'><?php echo xlt('Patient Credit'); ?></span>
+                                    <td class='text' width='180'>
+                                        <?php echo xlt('Patient Credit'); ?>
                                     </td>
                                 <?php } ?>
 
                                 <?php if ($iter['paytype'] === 'PCP') { ?>
-                                    <td width='180'>
-                                        <span class='text'><?php echo xlt('COPAY'); ?></span>
+                                    <td class='text' width='180'>
+                                        <?php echo xlt('COPAY'); ?>
                                     </td>
                                 <?php } ?>
 
-                                <td width='100'>
-                                    <span class='text'></span>
+                                <td class='text' width='100'>
                                 </td>
-                                <td width='100'>
-                                    <span class='text'></span>
+                                <td class='text' width='100'>
                                 </td>
-                                <td width='100'>
-                                    <span class='text'></span>
+                                <td class='text' width='100'>
                                 </td>
 
                                 <?php if (($iter['ins_adjust_dollar']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
                                     $line_total_pay = $line_total_pay + $iter['ins_adjust_dollar']; ?>
-                                    <td width='100'>
-                                        <span class='text'><?php echo text($iter['ins_adjust_dollar']) ?></span>
+                                    <td class='text' width='100'>
+                                        <?php echo text($iter['ins_adjust_dollar']) ?>
                                     </td>
                                 <?php } ?>
 
                                 <?php if (($iter['ins_code']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
                                     $line_total_pay = $line_total_pay + $iter['ins_code']; ?>
-                                    <td width='100'>
-                                        <span class='text'><?php echo text($iter['ins_code']); ?></span>
+                                    <td class='text' width='100'>
+                                        <?php echo text($iter['ins_code']); ?>
                                     </td>
                                 <?php } ?>
 
                                 <?php if (($iter['code_type']) != 'Patient Payment' and ($iter['code_type']) != 'Insurance Payment') {
                                     $line_total_pay = $line_total_pay + $iter['code']; ?>
-                                    <td width='100'>
-                                        <span class='text'><?php echo text($iter['code']); ?></span>
+                                    <td class='text' width='100'>
+                                        <?php echo text($iter['code']); ?>
                                     </td>
                                 <?php } ?>
 
                                 <?php if (($iter['pat_adjust_dollar']) != 0 and ($iter['code_type']) === 'Patient Payment') {
                                     $line_total_pay = $line_total_pay + $iter['pat_adjust_dollar']; ?>
-                                    <td width='100'>
-                                        <span class='text'><?php echo text($iter['pat_adjust_dollar']); ?></span>
+                                    <td class='text' width='100'>
+                                        <?php echo text($iter['pat_adjust_dollar']); ?>
                                     </td>
                                 <?php } ?>
 
                                 <?php if (($iter['pat_code']) != 0 and ($iter['code_type']) === 'Patient Payment') {
                                     $line_total_pay = $line_total_pay + $iter['pat_code']; ?>
-                                    <td width='100'>
-                                        <span class='text'><?php echo text($iter['pat_code']); ?></span>
+                                    <td class='text' width='100'>
+                                        <?php echo text($iter['pat_code']); ?>
                                     </td>
                                 <?php } ?>
 
                                 <?php if (($iter['code_type']) != 'Insurance Payment' and ($iter['code_type']) != 'Patient Payment' and $iter['paytype'] != 'PCP') { ?>
-                                    <td width='100'>
-                                        <span class='text'><?php echo text($iter['code_type']); ?></span>
+                                    <td class='text' width='100'>
+                                        <?php echo text($iter['code_type']); ?>
                                     </td>
                                 <?php } ?>
 
-                                <td width='100'>
-                                    <span class='text'></span>
+                                <td class='text' width='100'>
                                 </td>
 
                                 <?php } else { ?>
                                     <?php if ($iter['fee'] != 0) {
                                         $line_total = $line_total + $iter['fee']; ?>
-                                        <td width='70'>
-                                            <span class='text'><?php echo text(date("Y-m-d", strtotime($iter['date']))); ?></span>
+                                        <td class='text' width='70'>
+                                            <?php echo text(date("Y-m-d", strtotime($iter['date']))); ?>
                                         </td>
-                                        <td width='50'>
-                                            <span class='text'><?php echo text($iter['pid']); ?></span>
+                                        <td class='text' width='50'>
+                                            <?php echo text($iter['pid']); ?>
                                         </td>
-                                        <td width='180'>
-                                            <span class='text'><?php echo text($iter['last']) . ", " . text($iter['first']); ?></span>
+                                        <td class='text' width='180'>
+                                            <?php echo text($iter['last']) . ", " . text($iter['first']); ?>
                                         </td>
 
                                         <?php if ($GLOBALS['language_default'] === 'English (Standard)') { ?>
-                                            <td width='100'>
-                                                <span class='text'><?php echo text(ucwords(strtolower(substr($iter['code_text'], 0, 25)))); ?></span>
+                                            <td class='text' width='100'>
+                                                <?php echo text(ucwords(strtolower(substr($iter['code_text'], 0, 25)))); ?>
                                             </td>
                                         <?php } else { ?>
-                                            <td width='100'>
-                                                <span class='text'><?php echo text(substr($iter['code_text'], 0, 25)); ?></span>
+                                            <td class='text' width='100'>
+                                                <?php echo text(substr($iter['code_text'], 0, 25)); ?>
                                             </td>
                                         <?php } ?>
 
-                                        <td width='100'>
-                                            <span class='text'><?php echo text($iter['code']); ?></span>
+                                        <td class='text' width='100'>
+                                            <?php echo text($iter['code']); ?>
                                         </td>
-                                        <td width='100'>
-                                            <span class='small'><?php echo text(substr($iter['justify'], 5, 3)); ?></span>
+                                        <td class='small' width='100'>
+                                            <?php echo text(substr($iter['justify'], 5, 3)); ?>
                                         </td>
-                                        <td width='100'>
-                                            <span class='small'><?php echo text($iter['fee']); ?></span>
+                                        <td class='small' width='100'>
+                                            <?php echo text($iter['fee']); ?>
                                         </td>
                                             <?php
                                     }
@@ -1756,69 +1752,132 @@ if (!isset($_GET["mode"])) {
 
             if ($totals_only === 1) {
                 $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
-                $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));
-                print "<br /><br />";
-                ?><p><?php echo xlt('Totals for ') . text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></p><?php
-            }
+                $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));?>
+                <br />
+                <br />
+                <p><?php echo xlt('Totals for ') . text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></p>
+            <?php } ?>
 
-            if ($run_provider != 1) {
-                print "<table border='0'><tr>\n";
-                print "<br /><br />";
-                print  "<td width='25'><span class='text'>";
-                print  "</span></td><td width='250'><span class='text'><b><center>" . xlt("User") . "</center></b>";
-                print  "</span></td><td width='125'><span class='text'>";
-                print  "</span></td><td width='250'><span class='text'><b>" . xlt("Charges") . "</b>";
-                print  "</span></td><td width='125'><span class='text'>";
-                print  "</span></td><td width='250'><span class='text'><b>" . xlt("Payments") . "</b>";
-                print  "</span></td><td width='25'><span class='text'>";
 
-                for ($i = 1; $i < $k;) {
-                    print "<br /></td>";
-                    print "<table border='0'><tr>\n";
-                    print  "<td width='25'><span class='text'>" ;
-                    Printf("</span></td><td width='250'><span class='text'><center>" . text($user_info['user'][$i])) . "</center>";
-                    print  "</span></td><td width='125'><span class='text'>" ;
-                    printf("</span></td><td width='250'><span class='text'><b>" . xlt("Total Charges") . ': ' . " %1\$.2f ", text($user_info['fee'][$i])) . "</b>";
-                    print  "</span></td><td width='125'><span class='text'>";
-                    printf("</span></td><td width='250'><span class='text'><b>"  . xlt("Total Payments") . ': ' . "(%1\$.2f)", text($user_info['inspay'][$i] + $user_info['patpay'][$i])) . "</b>";
-                    print  "</span></td><td width='25'><span class='text'>" ;
-                    print "<br /></td>";
-                    print "<table border='0'><tr>\n";
-                    print "<td width='25'><span class='text'>" ;
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>" ;
-                    printf("</span></td><td width='250'><span class='text'><b>" . xlt("Total Adj") . '.: ' . "(%1\$.2f)", text($user_info['patadj'][$i] + $user_info['insadj'][$i])) . "</b>";
-                    print "</span></td><td width='125'><span class='text'>" ;
-                    printf("</span></td><td width='250'><span class='text'><b>" . xlt("Refund") . ': ' . "(%1\$.2f)", text($user_info['patref'][$i] + $user_info['insref'][$i])) . "</b>";
-                    print "</span></td><td width='25'><span class='text'>";
-                    print "<br /></td>";
-                    print "<table border='0'><tr>\n";
-                    print "<td width='25'><span class='text'>" ;
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width=175 height=5><span class='text'><b><hr noshade size=3>";
-                    print "</b></hr></span></td><td width='25'><span class='text'>";
-                    print "<br /></td>";
-                    print "<table border='0'><tr>\n";
-                    print "<td width='25'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    printf("</span></td><td width='250'><span class='text'><b>" . xlt("Actual Receipts") . ': ' . "(%1\$.2f)", text($user_info['patref'][$i] + $user_info['insref'][$i] + $user_info['inspay'][$i] + $user_info['patpay'][$i])) . "</b>";
-                    print "</span></td><td width='25'><span class='text'>";
-                    print "<br /></td>";
-                    print "<table border='0'><tr>\n";
-                    print "<td width='25'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width='25'><span class='text'>";
+            <?php if ($run_provider != 1) { ?>
+                <table class='table table-borderless'>
+                    <tr>
+                        <br />
+                        <br />
+                        <td class='text' width='25'>
+                        </td>
+                        <td class='text text-center font-weight-bold' width='250'>
+                            <?php echo xlt("User"); ?>
+                        </td>
+                        <td class='text' width='125'>
+                        </td>
+                        <td class='text text-center font-weight-bold' width='250'>
+                            <?php echo xlt("Charges"); ?>
+                        </td>
+                        <td class='text' width='125'>
+                        </td>
+                        <td class='text text-center font-weight-bold' width='250'>
+                            <?php echo xlt("Payments"); ?>
+                        </td>
+                        <td class='text' width='25'>
 
+                <?php for ($i = 1; $i < $k;) { ?>
+                            <br />
+                        </td>
+                        <table class='table table-borderless'>
+                            <tr>
+                                <td class='text' width='25'>
+                                </td>
+                                <td class='text' width='250'>
+                                    <?php echo text($user_info['user'][$i]); ?>
+                                </td>
+                                <td class='text' width='125'>
+                                </td>
+                                <td class='text font-weight-bold' width='250'>
+                                    <?php echo xlt("Total Charges") . ': ' . " %1\$.2f ", text($user_info['fee'][$i]) ?>
+                                </td>
+                                <td class='text' width='125'>
+                                </td>
+                                <td class='text font-weight-bold' width='250'>
+                                    <?php echo xlt("Total Payments") . ': ' . "(%1\$.2f)", text($user_info['inspay'][$i] + $user_info['patpay'][$i]) ?>
+                                </td>
+                                <td class='text' width='25'>
+                                    <br />
+                                </td>
+
+                                <table class='table table-borderless'>
+                                    <tr>
+                                        <td class='text' width='25'>
+                                        </td>
+                                        <td class='text' width='250'>
+                                        </td>
+                                        <td class='text' width='125'>
+                                        </td>
+                                        <td class='text font-weight-bold' width='250'>
+                                            <?php echo xlt("Total Adj") . '.: ' . "(%1\$.2f)", text($user_info['patadj'][$i] + $user_info['insadj'][$i]); ?>
+                                        </td>
+                                        <td width='125'><span class='text'></span></td>
+                                        <td class='text font-weight-bold' width='250'>
+                                            <?php echo xlt("Refund") . ': ' . "(%1\$.2f)", text($user_info['patref'][$i] + $user_info['insref'][$i]) ?>
+                                        </td>
+                                        <td class='text' width='25'>
+                                            <br />
+                                        </td>
+                                        <table class='table table-borderless'>
+                                            <tr>
+                                                <td class='text' width='25'>
+                                                </td>
+                                                <td class='text' width='250'>
+                                                </td>
+                                                <td class='text' width='125'>
+                                                </td>
+                                                <td class='text' width='250'>
+                                                </td>
+                                                <td class='text' width='125'>
+                                                </td>
+                                                <td class='text font-weight-bold' width='175' height='5'>
+                                                    <hr noshade size='3'>
+                                                </td>
+                                                <td class='text' width='25'>
+                                                    <br />
+                                                </td>
+
+                                                <table class='table table-borderless'>
+                                                    <tr>
+                                                        <td class='text' width='25'>
+                                                        </td>
+                                                        <td class='text' width='250'>
+                                                        </td>
+                                                        <td class='text' width='125'>
+                                                        </td>
+                                                        <td class='text' width='250'>
+                                                        </td>
+                                                        <td class='text' width='125'>
+                                                        </td>
+                                                        <td class='text font-weight-bold' width='250'>
+                                                            <?php echo xlt("Actual Receipts") . ': ' . "(%1\$.2f)", text($user_info['patref'][$i] + $user_info['insref'][$i] + $user_info['inspay'][$i] + $user_info['patpay'][$i]) ?>
+                                                        </td>
+                                                        <td class='text' width='25'>
+                                                            <br />
+                                                        </td>
+
+                                                        <table class='table table-borderless'>
+                                                            <tr>
+                                                                <td  class='text' width='25'>
+                                                                </td>
+                                                                <td  class='text' width='250'>
+                                                                </td>
+                                                                <td  class='text' width='125'>
+                                                                </td>
+                                                                <td  class='text' width='250'>
+                                                                </td>
+                                                                <td  class='text' width='125'>
+                                                                </td>
+                                                                <td  class='text' width='125'>
+                                                                </td>
+                                                                <td class='text' width='25'>
+
+                    <?php
                     $gtotal_fee = $gtotal_fee + $user_info['fee'][$i];
                     $gtotal_insadj = $gtotal_insadj + $user_info['insadj'][$i];
                     $gtotal_inspay = $gtotal_inspay + $user_info['inspay'][$i];
@@ -1828,68 +1887,131 @@ if (!isset($_GET["mode"])) {
                     ++$i;
 
                     print "<br /></td></tr>";
-                }
+                } ?>
 
-                print "<br /></td>";
-                print "</table></div>";
-            } else {
-                print "<table border='0'><tr>\n";
-                print "<br /><br />";
-                print  "<td width='25'><span class='text'>";
-                print  "</span></td><td width='250'><span class='text'><b><center>" . xlt("Provider") . "</center></b>";
-                print  "</span></td><td width='125'><span class='text'>";
-                print  "</span></td><td width='250'><span class='text'><b>" . xlt("Charges") . "</b>";
-                print  "</span></td><td width='125'><span class='text'>";
-                print  "</span></td><td width='250'><span class='text'><b>" . xlt("Payments") . "</b>";
-                print  "</span></td><td width='25'><span class='text'>";
+                            <br />
+                        </td>
+                    </table>
+                </div>
+            <?php } else { ?>
+                <table class='table table-borderless'>
+                    <tr>
+                        <br />
+                        <br />
+                        <td class='text' width='25'>
+                        </td>
+                        <td class='text text-center' width='250'>
+                            <?php echo xlt("Provider"); ?>
+                        </td>
+                        <td class='text' width='125'></td>
+                        <td class='text text-center' width='250'>
+                            <?php echo xlt("Charges"); ?>
+                        </td>
+                        <td class='text' width='125'>                            
+                        </td>
+                        <td class='text text-center' width='250'>
+                            <?php echo xlt("Payments"); ?>
+                        </td>
+                        <td class='text' width='25'>
 
-                for ($i = 1; $i < $k;) {
-                    print "<br /></td>";
-                    print "<table border='0'><tr>\n";
-                    print  "<td width='25'><span class='text'>";
-                    Printf("</span></td><td width='250'><span class='text'><center>" . text($provider_info['user'][$i])) . "</center>";
-                    print  "</span></td><td width='125'><span class='text'>";
-                    printf("</span></td><td width='250'><span class='text'><b>" . xlt("Total Charges") . ': ' . " %1\$.2f ", text($provider_info['fee'][$i])) . "</b>";
-                    print  "</span></td><td width='125'><span class='text'>";
-                    printf("</span></td><td width='250'><span class='text'><b>"  . xlt("Total Payments") . ': ' . "(%1\$.2f)", text($provider_info['inspay'][$i] + $provider_info['patpay'][$i])) . "</b>";
-                    print  "</span></td><td width='25'><span class='text'>";
-                    print "<br /></td>";
-                    print "<table border='0'><tr>\n";
-                    print "<td width='25'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    printf("</span></td><td width='250'><span class='text'><b>" . xlt("Total Adj") . '.: ' . "(%1\$.2f)", text($provider_info['patadj'][$i] + $provider_info['insadj'][$i])) . "</b>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    printf("</span></td><td width='250'><span class='text'><b>" . xlt("Refund") . ': ' . "(%1\$.2f)", text($provider_info['patref'][$i] + $provider_info['insref'][$i])) . "</b>";
-                    print "</span></td><td width='25'><span class='text'>";
-                    print "<br /></td>";
-                    print "<table border='0'><tr>\n";
-                    print "<td width='25'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width='175' height='5'><span class='text'><b><hr noshade size='3'>";
-                    print "</b></hr></span></td><td width='25'><span class='text'>";
-                    print "<br /></td>";
-                    print "<table border='0'><tr>\n";
-                    print "<td width='25'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    printf("</span></td><td width='250'><span class='text'><b>" . xlt("Actual Receipts") . ': ' . "(%1\$.2f)", text($provider_info['patref'][$i] + $provider_info['insref'][$i] + $provider_info['inspay'][$i] + $provider_info['patpay'][$i])) . "</b>";
-                    print "</span></td><td width='25'><span class='text'>";
-                    print "<br /></td>";
-                    print "<table border='0'><tr>\n";
-                    print "<td width='25'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width='250'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width='125'><span class='text'>";
-                    print "</span></td><td width='25'><span class='text'>";
+                <?php for ($i = 1; $i < $k;) { ?>
+                            <br />
+                        </td>
+                        <table class='table table-borderless'>
+                            <tr>
+                                <td class='text' width='25'>                                    
+                                </td>
+                                <td class='text text-center' width='250'>
+                                    <?php echo text($provider_info['user'][$i]); ?>
+                                </td>
+                                <td class='text' width='125'>
+                                </td>
+                                <td class='text font-weight-bold' width='250'>
+                                    <?php echo xlt("Total Charges") . ': ' . " %1\$.2f ", text($provider_info['fee'][$i]); ?>
+                                </td>
+                                <td class='text' width='125'>
+                                </td>
+                                <td class='text font-weight-bold' width='250'>
+                                    <?php echo xlt("Total Payments") . ': ' . "(%1\$.2f)", text($provider_info['inspay'][$i] + $provider_info['patpay'][$i]) ?>
+                                </td>
+                                <td class='text' width='25'>
+                                    <br />
+                                </td>
 
+                                <table class='table table-borderless'>
+                                    <tr>
+                                        <td class='text' width='25'>
+                                        </td>
+                                        <td class='text' width='250'>
+                                        </td>
+                                        <td class='text' width='125'>
+                                        </td>
+                                        <td class='text font-weight-bold' width='250'>
+                                            <?php echo xlt("Total Adj") . '.: ' . "(%1\$.2f)", text($provider_info['patadj'][$i] + $provider_info['insadj'][$i]); ?>
+                                        </td>
+                                        <td class='text' width='125'>
+                                        </td>
+                                        <td class='text font-weight-bold' width='250'>
+                                            <?php echo xlt("Refund") . ': ' . "(%1\$.2f)", text($provider_info['patref'][$i] + $provider_info['insref'][$i]); ?>
+                                        </td>
+                                        <td class='text' width='25'>
+                                            <br />
+                                        </td>
+
+                                        <table class='table table-borderless'>
+                                            <tr>
+                                                <td class='text' width='25'>
+                                                </td>
+                                                <td class='text' width='250'>
+                                                </td>
+                                                <td class='text' width='125'>
+                                                </td>
+                                                <td class='text' width='250'>
+                                                </td>
+                                                <td class='text' width='125'>
+                                                </td>
+                                                <td class='text' width='175' height='5'>
+                                                   <hr class='font-weight-bold' noshade size='3'>
+                                                </td>
+                                                <td class='text' width='25'>
+                                                    <br />
+                                                </td>
+
+                                                <table class='table table-borderless'>
+                                                    <tr>
+                                                        <td class='text' width='25'>
+                                                        </td>
+                                                        <td class='text' width='250'>
+                                                        </td>
+                                                        <td class='text' width='125'>
+                                                        </td>
+                                                        <td class='text' width='250'>
+                                                        </td>
+                                                        <td class='text' width='125'>
+                                                        </td>
+                                                        <td class='text font-weight-bold' width='250'>
+                                                            <?php echo xlt("Actual Receipts") . ': ' . "(%1\$.2f)", text($provider_info['patref'][$i] + $provider_info['insref'][$i] + $provider_info['inspay'][$i] + $provider_info['patpay'][$i]); ?>
+                                                        </td>
+                                                        <td class='text' width='25'>
+                                                        </td>
+
+                                                        <table class='table table-borderless'>
+                                                            <tr>
+                                                                <td class='text' width='25'>
+                                                                </td>
+                                                                <td class='text' width='250'>
+                                                                </td>
+                                                                <td class='text' width='125'>
+                                                                </td>
+                                                                <td class='text' width='250'>
+                                                                </td>
+                                                                <td class='text' width='125'>
+                                                                </td>
+                                                                <td class='text' width='125'>
+                                                                </td>
+                                                                <td class='text' width='25'>
+
+                <?php
                     $gtotal_fee = $gtotal_fee + $provider_info['fee'][$i];
                     $gtotal_insadj = $gtotal_insadj + $provider_info['insadj'][$i];
                     $gtotal_inspay = $gtotal_inspay + $provider_info['inspay'][$i];
