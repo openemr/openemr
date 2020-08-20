@@ -370,7 +370,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                                 <div class="btn-group" role="group">
                                     <button class="btn btn-secondary btn-save" href="#" onclick="return PostPayments();"><?php echo xlt('Post Payments');?></button>
                                     <button class="btn btn-secondary btn-save" href="#" onclick="return FinishPayments();"><?php echo xlt('Finish Payments');?></button>
-                                    <button class="btn btn-link btn-cancel btn-separate-left" href="#" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
+                                    <button class="btn btn-link btn-cancel" href="#" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
                                 </div>
                             </div>
                             </div>

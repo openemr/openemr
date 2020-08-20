@@ -115,7 +115,7 @@ $row = sqlQuery("select fname, lname " .
                 <?php echo generate_select_list('roomnum', 'patient_flow_board_rooms', $trow['lastroom'], xl('Exam Room Number')); ?>
             </div>
             <div class="position-override">
-                <div class="btn-group oe-opt-btn-group-pinch" role="group">
+                <div class="btn-group" role="group">
                     <button type="button" class='btn btn-primary btn-save btn-sm' onclick='document.getElementById("form_note").submit();'><?php echo xlt('Save')?></button>
                     <button type="button" class='btn btn-secondary btn-cancel btn-sm' onclick="dlgclose();" ><?php echo xlt('Cancel'); ?></button>
                 </div>

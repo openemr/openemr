@@ -739,7 +739,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             onclick="this.value='1';"><?php echo xlt("Save Current"); ?></button>
                         <button type='submit' class="btn btn-primary btn-save" name='form_save' id="btn-save"
                             onclick="this.value='2';"><?php echo xlt("Save & Exit"); ?></button>
-                        <button type='button' class="btn btn-secondary btn-cancel btn-separate-left" name='form_cancel'
+                        <button type='button' class="btn btn-secondary btn-cancel" name='form_cancel'
                             id="btn-cancel" onclick='doClose()'><?php echo xlt("Close"); ?></button>
                     </div>
                     <?php if ($from_posting) { ?>
