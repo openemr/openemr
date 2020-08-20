@@ -440,7 +440,7 @@ function invalue($name)
                    <div class="mt-3">
                     <div class="form-group clearfix" id="button-container">
                         <div class="col-sm-12 text-left position-override">
-                            <div class="btn-group btn-group-pinch" role="group">
+                            <div class="btn-group" role="group">
                                 <button type='submit' name='form_save'  class="btn btn-primary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-secondary btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
                                 <?php if ($ppid) { ?>

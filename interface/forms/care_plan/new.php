@@ -219,7 +219,7 @@ endforeach;
                     <div class="col-sm-12 position-override">
                         <div class="btn-group oe-opt-btn-group-pinch" role="group">
                             <button type="submit" onclick="top.restoreSession()" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
-                            <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
+                            <button type="button" class="btn btn-link btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
                             <input type="hidden" id="clickId" value="" />
                         </div>
                     </div>

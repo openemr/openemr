@@ -323,7 +323,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                 <div id="visit-details" class="px-5">
                     <div class="form-row align-items-center">
                         <div class="col-sm-2">
-                            <label for="pc_catid" class="oe-text-to-right"><?php echo xlt('Visit Category:'); ?></label>
+                            <label for="pc_catid" class="text-right"><?php echo xlt('Visit Category:'); ?></label>
                         </div>
                         <div class="col-sm">
                             <select name='pc_catid' id='pc_catid' class='form-control' <?php echo ($mode === "followup") ? 'disabled' : ''; ?>>
@@ -391,7 +391,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             usort($sensitivities, "sensitivity_compare");
                             ?>
                         <div class="col-sm-2">
-                            <label for="pc_catid" class="oe-text-to-right"><?php echo xlt('Sensitivity:'); ?> <i id='sensitivity-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
+                            <label for="pc_catid" class="text-right"><?php echo xlt('Sensitivity:'); ?> <i id='sensitivity-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                         </div>
                         <div class="col-sm">
                             <select name='form_sensitivity' id='form_sensitivity' class='form-control'>
@@ -419,7 +419,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                     </div>
                     <div class="form-row align-items-center mt-2">
                         <div class="col-sm-2">
-                            <label for='form_date' class="oe-text-to-right"><?php echo xlt('Date of Service:'); ?></label>
+                            <label for='form_date' class="text-right"><?php echo xlt('Date of Service:'); ?></label>
                         </div>
                         <div class="col-sm">
                             <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo $disabled ?> value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>' title='<?php echo xla('Date of service'); ?>' />
@@ -427,7 +427,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         <div class="col-sm-2" <?php if ($GLOBALS['ippf_specific']) {
                             echo " style='visibility:hidden;'";
                                               } ?>>
-                            <label for='form_onset_date' class="oe-text-to-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
+                            <label for='form_onset_date' class="text-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                         </div>
                         <div class="col-sm">
                             <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] !== '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
@@ -440,7 +440,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         } ?>
                     >
                         <div class="col-sm-2">
-                            <label for="form_referral_source" class="oe-text-to-right"><?php echo xlt('Referral Source'); ?>:</label>
+                            <label for="form_referral_source" class="text-right"><?php echo xlt('Referral Source'); ?>:</label>
                         </div>
                         <div class="col-sm">
                             <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', ''); ?>
@@ -449,7 +449,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                     <?php if ($GLOBALS['enable_group_therapy']) { ?>
                     <div class="form-group mx-auto mt-2" id="therapy_group_name" style="display: none">
                         <div class="col-sm-2">
-                            <label for="form_group" class="col-sm-2 oe-text-to-right"><?php echo xlt('Group name'); ?>:</label>
+                            <label for="form_group" class="col-sm-2 text-right"><?php echo xlt('Group name'); ?>:</label>
                         </div>
                         <div class="col-sm">
                             <input type='text' name='form_group' class='form-control' id="form_group" placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
@@ -459,7 +459,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                     <?php } ?>
                     <div class="form-row align-items-center mt-2">
                         <div class="col-sm-2">
-                            <label for='provider_id' class="oe-text-to-right"><?php echo xlt('Encounter Provider'); ?>:</label>
+                            <label for='provider_id' class="text-right"><?php echo xlt('Encounter Provider'); ?>:</label>
                         </div>
                         <div class="col-sm">
                             <select name='provider_id' id='provider_id' class='form-control' onChange="newUserSelected()">
@@ -492,7 +492,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             </select>
                         </div>
                         <div class="col-sm-2">
-                            <label for='class' class="oe-text-to-right"><?php echo xlt('Class'); ?>:</label>
+                            <label for='class' class="text-right"><?php echo xlt('Class'); ?>:</label>
                         </div>
                         <div class="col-sm">
                             <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
@@ -501,7 +501,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                     </div>
                     <div class="form-row align-items-center mt-2">
                         <div class="col-sm-2">
-                            <label for='facility_id' class="oe-text-to-right"><?php echo xlt('Facility'); ?>:</label>
+                            <label for='facility_id' class="text-right"><?php echo xlt('Facility'); ?>:</label>
                         </div>
                         <div class="col-sm">
                             <select name='facility_id' id='facility_id' class='form-control' onChange="getPOS()" <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
@@ -531,7 +531,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             <input type="hidden" name="facility_id" value="<?php echo attr($result['facility_id']); ?>" />
                         <?php } ?>
                         <div class="col-sm-2">
-                            <label for='billing_facility' class="oe-text-to-right"><?php echo xlt('Billing Facility'); ?>:</label>
+                            <label for='billing_facility' class="text-right"><?php echo xlt('Billing Facility'); ?>:</label>
                         </div>
                         <div id="ajaxdiv" class="col-sm">
                             <?php
@@ -551,7 +551,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                     <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
                     <div class="form-row mt-2">
                         <div class="col-sm-2">
-                            <label for='pos_code' class="oe-text-to-right"><?php echo xlt('POS Code'); ?>:</label>
+                            <label for='pos_code' class="text-right"><?php echo xlt('POS Code'); ?>:</label>
                         </div>
                         <div class="col-sm-8">
                             <select name="pos_code" id="pos_code" class='form-control'>

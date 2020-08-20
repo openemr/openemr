@@ -117,7 +117,7 @@ $row = sqlQuery("select fname, lname " .
             <div class="position-override">
                 <div class="btn-group oe-opt-btn-group-pinch" role="group">
                     <button type="button" class='btn btn-primary btn-save btn-sm' onclick='document.getElementById("form_note").submit();'><?php echo xlt('Save')?></button>
-                    <button type="button" class='btn btn-secondary btn-cancel btn-sm oe-opt-btn-separate-left' onclick="dlgclose();" ><?php echo xlt('Cancel'); ?></button>
+                    <button type="button" class='btn btn-secondary btn-cancel btn-sm' onclick="dlgclose();" ><?php echo xlt('Cancel'); ?></button>
                 </div>
             </div>
         </form>

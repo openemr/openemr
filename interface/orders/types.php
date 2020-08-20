@@ -327,7 +327,7 @@ if ($popup && $_POST['form_save']) {
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                     <div class="form-group clearfix">
                         <div class="col-sm-12 text-left position-override">
-                            <div class="btn-group btn-group-pinch" role="group">
+                            <div class="btn-group" role="group">
                                 <?php if ($popup) { ?>
                                     <button type="submit" class="btn btn-secondary btn-save" name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save');?></button>
                                     <button class="btn btn-link btn-cancel btn-separate-left" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>

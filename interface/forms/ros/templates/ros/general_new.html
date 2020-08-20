@@ -741,7 +741,7 @@
                         <div class="col-sm-12 offset-sm-2 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
                                 <button type="submit" class="btn btn-secondary btn-save" onclick="top.restoreSession();" name="Submit">{xlt t='Save'}</button>
-                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xlt t='Cancel'}</button>
+                                <button type="button" class="btn btn-link btn-cancel" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xlt t='Cancel'}</button>
                             </div>
                             <input type="hidden" name="id" value="{$form->get_id()|attr}" />
                             <input type="hidden" name="pid" value="{$form->get_pid()|attr}">
