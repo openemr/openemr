@@ -2028,6 +2028,17 @@ CREATE TABLE `uuid_mapping` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 #EndIf
 
+#IfMissingColumn procedure_result uuid
+ALTER TABLE `procedure_result` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdateId procedure_result procedure_result_id
+#EndIf
+
+#IfNotIndex procedure_result uuid
+CREATE UNIQUE INDEX `uuid` ON `procedure_result` (`uuid`);
+#EndIf
+
 #IfNotColumnType form_bronchitis user varchar(50)
 ALTER TABLE `form_bronchitis` MODIFY `user` varchar(50) default NULL;
 #EndIf
