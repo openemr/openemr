@@ -510,7 +510,7 @@ function proc_type_changed() {
                                 <div class="col-sm-12 ordonly foronly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_standard_code"><?php echo xlt('Standard Code'); ?>:</label><a href="#standard_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="control-label" for="form_standard_code"><?php echo xlt('Standard Code (LOINC)'); ?>:</label><a href="#standard_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_standard_code' id='form_standard_code'

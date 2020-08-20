@@ -381,12 +381,12 @@ Request:
 curl -X GET 'http://localhost:8300/apis/fhir/Observation'
 ```
 
-#### GET /fhir/Observation/:id
+#### GET /fhir/Observation/:uuid
 
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Observation/vitals-1'
+curl -X GET 'http://localhost:8300/apis/fhir/Observation/9150635b-0705-4a27-8820-df8b56cf07eb'
 ```
 
 #### POST /fhir/QuestionnaireResponse
