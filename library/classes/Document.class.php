@@ -5,6 +5,7 @@ require_once(dirname(__FILE__) . "/../gprelations.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
  * class Document
@@ -109,6 +110,12 @@ class Document extends ORDataObject
     */
     var $list_id;
 
+    // For name (used in OpenEMR 6.0.0+)
+    var $name = null;
+
+    // For label on drive (used in OpenEMR 6.0.0+)
+    var $drive_uuid = null;
+
     // For tagging with the encounter
     var $encounter_id;
     var $encounter_check;
@@ -186,59 +193,6 @@ class Document extends ORDataObject
         }
 
         return $documents;
-    }
-
-    /**
-     * Convenience function to get a document object from a url
-     * Checks to see if there is an existing document with that URL and if so returns that object, otherwise
-     * creates a new one, persists it and returns it
-     * @param string $url
-     * @return object new or existing document object with the specified URL
-     */
-    function document_factory_url($url)
-    {
-        $d = new Document();
-        //strip url handler, for now we always assume file://
-        $filename = preg_replace("|^(.*)://|", "", $url);
-
-        if (!file_exists($filename)) {
-            die("An invalid URL was specified to crete a new document, this would only be caused if files are being deleted as you are working through the queue. '$filename'\n");
-        }
-
-        $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE url= ?" ;
-        $result = $d->_db->Execute($sql, [$url]);
-
-        if ($result && !$result->EOF) {
-            if (file_exists($filename)) {
-                $d = new Document($result->fields['id']);
-            } else {
-                $sql = "DELETE FROM " . escape_table_name($d->_table) . " WHERE id= ?";
-                $result = $d->_db->Execute($sql, array($result->fields['id']));
-                echo("There is a database for the file but it no longer exists on the file system. Its document entry has been deleted. '$filename'\n");
-            }
-        } else {
-            $file_command = $GLOBALS['oer_config']['document']['file_command_path'];
-            $cmd_args = "-i " . escapeshellarg($new_path . $fname);
-
-            $command = $file_command . " " . $cmd_args;
-            $mimetype = exec($command);
-            $mime_array = explode(":", $mimetype);
-            $mimetype = $mime_array[1];
-            if ($mimetype == 'application/octet-stream') { // windows most likely...
-                $parts = pathinfo($fname);
-                if (strtolower($parts['extension']) == 'dcm') { // cheat for dicom on windows because MS must be different!!!
-                    $mimetype = 'application/dicom';
-                }
-            }
-            $d->set_mimetype($mimetype);
-            $d->url = $url;
-            $d->size = filesize($filename);
-            $d->type = $d->type_array['file_url'];
-            $d->persist();
-            $d->populate();
-        }
-
-        return $d;
     }
 
     /**
@@ -340,13 +294,6 @@ class Document extends ORDataObject
         return $this->thumb_url;
     }
     /**
-    * this returns the url stripped down to basename
-    */
-    function get_url_web()
-    {
-        return basename_international($this->url);
-    }
-    /**
     * get the url without the protocol handler
     */
     function get_url_filepath()
@@ -421,6 +368,22 @@ class Document extends ORDataObject
     function get_list_id()
     {
         return $this->list_id;
+    }
+    function set_name($name)
+    {
+        $this->name = $name;
+    }
+    function get_name()
+    {
+        return $this->name;
+    }
+    function set_drive_uuid($drive_uuid)
+    {
+        $this->drive_uuid = $drive_uuid;
+    }
+    function get_drive_uuid()
+    {
+        return $this->drive_uuid;
     }
     function set_encounter_id($encounter_id)
     {
@@ -531,7 +494,7 @@ class Document extends ORDataObject
    *
    * @param  string  $patient_id   Patient pid; if not known then this may be a simple directory name
    * @param  integer $category_id  The desired document category ID
-   * @param  string  $filename     Desired filename, may be modified for uniqueness
+   * @param  string  $filename     The desired filename
    * @param  string  $mimetype     MIME type
    * @param  string  &$data        The actual data to store (not encoded)
    * @param  string  $higher_level_path Optional subdirectory within the local document repository
@@ -649,34 +612,11 @@ class Document extends ORDataObject
                 }
             }
 
-            // Filename modification to force valid characters and uniqueness.
-            $filename = preg_replace("/[^a-zA-Z0-9_.]/", "_", $filename);
+            // collect the drive storage filename
+            $this->drive_uuid = (new UuidRegistry(['document_drive' => true]))->createUuid();
+            $filenameUuid = UuidRegistry::uuidToString($this->drive_uuid);
 
-            $fileExtension = pathinfo($filename, PATHINFO_EXTENSION);
-            if (empty($fileExtension)) {
-                return xl('Your file doesn\'t have an extension');
-            }
-
-            $fnsuffix = 0;
-            $fn1 = $filename;
-            $fn2 = '';
-            $fn3 = '';
-            $dotpos = strrpos($filename, '.');
-            if ($dotpos !== false) {
-                $fn1 = substr($filename, 0, $dotpos);
-                $fn2 = '.';
-                $fn3 = substr($filename, $dotpos + 1);
-            }
-
-            while (file_exists($filepath . $filename)) {
-                if (++$fnsuffix > 10000) {
-                    return xl('Failed to compute a unique filename');
-                }
-
-                $filename = $fn1 . '_' . $fnsuffix . $fn2 . $fn3;
-            }
-
-            $this->url = "file://" . $filepath . $filename;
+            $this->url = "file://" . $filepath . $filenameUuid;
             if (is_numeric($path_depth)) {
                 // this is for when directory structure is more than one level
                 $this->path_depth = $path_depth;
@@ -688,20 +628,28 @@ class Document extends ORDataObject
             } else {
                 $storedData = $data;
             }
-            if (file_put_contents($filepath . $filename, $storedData) === false) {
-                return xl('Failed to create') . " $filepath$filename";
+            if (file_exists($filepath . $filenameUuid)) {
+                // this should never happend with current uuid mechanism
+                return xl('Failed since file already exists') . " $filepath$filenameUuid";
+            }
+            if (file_put_contents($filepath . $filenameUuid, $storedData) === false) {
+                return xl('Failed to create') . " $filepath$filenameUuid";
             }
 
             if ($has_thumbnail) {
                 // Store the thumbnail.
-                $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filename);
+                $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filenameUuid);
                 if ($GLOBALS['drive_encryption']) {
                     $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, null, 'database');
                 } else {
                     $storedThumbnailData = $thumbnail_data;
                 }
-                if (file_put_contents($filepath . $this->get_thumb_name($filename), $storedThumbnailData) === false) {
-                    return xl('Failed to create') .  $filepath . $this->get_thumb_name($filename);
+                if (file_exists($filepath . $this->get_thumb_name($filenameUuid))) {
+                    // this should never happend with current uuid mechanism
+                    return xl('Failed since file already exists') .  $filepath . $this->get_thumb_name($filenameUuid);
+                }
+                if (file_put_contents($filepath . $this->get_thumb_name($filenameUuid), $storedThumbnailData) === false) {
+                    return xl('Failed to create') .  $filepath . $this->get_thumb_name($filenameUuid);
                 }
             }
         }
@@ -711,6 +659,7 @@ class Document extends ORDataObject
         } else {
             $this->set_encrypted(0);
         }
+        $this->name = $filename;
         $this->size  = strlen($data);
         $this->hash  = sha1($data);
         $this->type  = $this->type_array['file_url'];

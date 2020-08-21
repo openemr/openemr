@@ -651,6 +651,10 @@ function convertLayoutProperties()
 *   arguments: none
 *   behavior: can take a long time.
 *
+* #IfDocumentNamingNeeded
+*  desc: populate name field with document names.
+*  arguments: none
+*
 * #EndIf
 *   all blocks are terminated with a #EndIf statement.
 *
@@ -1054,6 +1058,26 @@ function upgradeFromSqlFile($filename, $path = '')
             } else {
                 echo "Converting layout properties ...<br />\n";
                 convertLayoutProperties();
+            }
+
+        } elseif (preg_match('/^#IfDocumentNamingNeeded/', $line)) {
+            $emptyNames = sqlStatementNoLog("SELECT `id`, `url`, `name`, `couch_docid` FROM `documents` WHERE `name` = '' OR `name` IS NULL");
+            if (sqlNumRows($emptyNames) > 0 ) {
+                echo "<p>Converting document names.</p>\n";
+                while ($row = sqlFetchArray($emptyNames)) {
+                    if (!empty($row['couch_docid'])) {
+                        sqlStatementNoLog("UPDATE `documents` SET `name` = ? WHERE `id` = ?", [$row['url'], $row['id']]);
+                    } else {
+                        sqlStatementNoLog("UPDATE `documents` SET `name` = ? WHERE `id` = ?", [basename_international($row['url']), $row['id']]);
+                    }
+                }
+                echo "<p class='text-success'>Completed conversion of document names</p>\n";
+                $skipping = false;
+            } else {
+                $skipping = true;
+            }
+            if ($skipping) {
+                echo "<p class='text-success'>Skipping section $line</p>\n";
             }
         } elseif (preg_match('/^#EndIf/', $line)) {
             $skipping = false;
