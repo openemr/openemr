@@ -1836,7 +1836,7 @@ if (!isset($_GET["mode"])) {
                                                 <td class='text' width='125'>
                                                 </td>
                                                 <td class='text font-weight-bold' width='175' height='5'>
-                                                    <hr noshade size='3'>
+                                                    <hr />
                                                 </td>
                                                 <td class='text' width='25'>
                                                     <br />
@@ -1907,7 +1907,7 @@ if (!isset($_GET["mode"])) {
                         <td class='text text-center' width='250'>
                             <?php echo xlt("Charges"); ?>
                         </td>
-                        <td class='text' width='125'>                            
+                        <td class='text' width='125'>
                         </td>
                         <td class='text text-center' width='250'>
                             <?php echo xlt("Payments"); ?>
@@ -1919,7 +1919,7 @@ if (!isset($_GET["mode"])) {
                         </td>
                         <table class='table table-borderless'>
                             <tr>
-                                <td class='text' width='25'>                                    
+                                <td class='text' width='25'>
                                 </td>
                                 <td class='text text-center' width='250'>
                                     <?php echo text($provider_info['user'][$i]); ?>
@@ -1971,7 +1971,7 @@ if (!isset($_GET["mode"])) {
                                                 <td class='text' width='125'>
                                                 </td>
                                                 <td class='text' width='175' height='5'>
-                                                   <hr class='font-weight-bold' noshade size='3'>
+                                                   <hr />
                                                 </td>
                                                 <td class='text' width='25'>
                                                     <br />
