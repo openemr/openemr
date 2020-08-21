@@ -8844,6 +8844,7 @@ CREATE TABLE `procedure_report` (
 DROP TABLE IF EXISTS `procedure_result`;
 CREATE TABLE `procedure_result` (
   `procedure_result_id` bigint(20)   NOT NULL AUTO_INCREMENT,
+  `uuid`                binary(16)   DEFAULT NULL,
   `procedure_report_id` bigint(20)   NOT NULL            COMMENT 'references procedure_report.procedure_report_id',
   `result_data_type`    char(1)      NOT NULL DEFAULT 'S' COMMENT 'N=Numeric, S=String, F=Formatted, E=External, L=Long text as first line of comments',
   `result_code`         varchar(31)  NOT NULL DEFAULT '' COMMENT 'LOINC code, might match a procedure_type.procedure_code',
@@ -8858,6 +8859,7 @@ CREATE TABLE `procedure_result` (
   `document_id`         bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references documents.id if this result is a document',
   `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incomplete...etc.',
   PRIMARY KEY (`procedure_result_id`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY procedure_report_id (procedure_report_id)
 ) ENGINE=InnoDB;
 

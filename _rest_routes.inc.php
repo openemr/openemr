@@ -507,13 +507,13 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "med");
         return (new FhirAllergyIntoleranceRestController(null))->getOne($id);
     },
-    "GET /fhir/Observation/:id" => function ($id) {
-        RestConfig::authorization_check("patients", "med");
-        return (new FhirObservationRestController(null))->getOne($id);
-    },
     "GET /fhir/Observation" => function () {
         RestConfig::authorization_check("patients", "med");
-        return (new FhirObservationRestController(null))->getAll($_GET);
+        return (new FhirObservationRestController())->getAll($_GET);
+    },
+    "GET /fhir/Observation/:uuid" => function ($uuid) {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirObservationRestController())->getOne($uuid);
     },
     "POST /fhir/QuestionnaireResponse" => function () {
         RestConfig::authorization_check("patients", "demo");
