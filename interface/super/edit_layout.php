@@ -1197,8 +1197,8 @@ function extAddCondition(lino, btnelem) {
   // Replace contents of the tdplus cell.
   tdplus.innerHTML =
     "<select class='form-control' name='fld[" + lino + "][condition_andor][" + (i-1) + "]'>" +
-    "<option value='and'>" + <?php echo xlj('And') ?> + "</option>" +
-    "<option value='or' >" + <?php echo xlj('Or') ?> + "</option>" +
+    "<option value='and'>" + jsText(<?php echo xlj('And') ?>) + "</option>" +
+    "<option value='or' >" + jsText(<?php echo xlj('Or') ?>) + "</option>" +
     "</select>";
 
   // Add the new row.
@@ -1214,10 +1214,10 @@ function extAddCondition(lino, btnelem) {
     "</td>" +
     "<td class='text-left'>" +
     "<select class='form-control' name='fld[" + lino + "][condition_operator][" + i + "]'>" +
-    "<option value='eq'>" + <?php echo xlj('Equals') ?> + "</option>" +
-    "<option value='ne'>" + <?php echo xlj('Does not equal') ?> + "</option>" +
-    "<option value='se'>" + <?php echo xlj('Is selected') ?> + "</option>" +
-    "<option value='ns'>" + <?php echo xlj('Is not selected') ?> + "</option>" +
+    "<option value='eq'>" + jsText(<?php echo xlj('Equals') ?>) + "</option>" +
+    "<option value='ne'>" + jsText(<?php echo xlj('Does not equal') ?>) + "</option>" +
+    "<option value='se'>" + jsText(<?php echo xlj('Is selected') ?>) + "</option>" +
+    "<option value='ns'>" + jsText(<?php echo xlj('Is not selected') ?>) + "</option>" +
     "</select>" +
     "</td>" +
     "<td class='text-left'>" +

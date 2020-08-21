@@ -146,18 +146,27 @@ class EncountermanagerTable extends AbstractTableGateway
 
     public function getFile($id)
     {
-        $query      = "select couch_docid, couch_revid, ccda_data from ccda where id=?";
+        $query      = "select couch_docid, couch_revid, ccda_data, encrypted from ccda where id=?";
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query, array($id));
         foreach ($result as $row) {
             if ($row['couch_docid'] != '') {
                 $couch   = new CouchDB();
-                $data    = array($GLOBALS['couchdb_dbase'], $row['couch_docid']);
-                $resp    = $couch->retrieve_doc($data);
-                $content = base64_decode($resp->data);
+                $resp    = $couch->retrieve_doc($row['couch_docid']);
+                if ($row['encrypted']) {
+                    $cryptoGen = new CryptoGen();
+                    $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
+                } else {
+                    $content = base64_decode($resp->data);
+                }
             } elseif (!$row['couch_docid']) {
                 $fccda   = fopen($row['ccda_data'], "r");
-                $content = fread($fccda, filesize($row['ccda_data']));
+                if ($row['encrypted']) {
+                    $cryptoGen = new CryptoGen();
+                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, 'database');
+                } else {
+                    $content = fread($fccda, filesize($row['ccda_data']));
+                }
                 fclose($fccda);
             } else {
                 $content = $row['ccda_data'];
@@ -190,7 +199,7 @@ class EncountermanagerTable extends AbstractTableGateway
                 return("$config_err 1");
             }
 
-            $fp = \Application\Plugin\Phimail::phimail_connect($err);
+            $fp = (new \Application\Plugin\Phimail())->phimail_connect($err);
             if ($fp === false) {
                 return("$config_err $err");
             }
@@ -198,7 +207,7 @@ class EncountermanagerTable extends AbstractTableGateway
             $phimail_username = $GLOBALS['phimail_username'];
             $cryptoGen = new CryptoGen();
             $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
-            $ret = \Application\Plugin\Phimail::phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
+            $ret = (new \Application\Plugin\Phimail())->phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
             if ($ret !== true) {
                 return("$config_err 4");
             }
@@ -221,16 +230,16 @@ class EncountermanagerTable extends AbstractTableGateway
             }
 
             $text_len = strlen($text_out);
-            \Application\Plugin\Phimail::phimail_write($fp, "TEXT $text_len\n");
+            (new \Application\Plugin\Phimail())->phimail_write($fp, "TEXT $text_len\n");
             $ret = @fgets($fp, 256);
             if ($ret != "BEGIN\n") {
-                \Application\Plugin\Phimail::phimail_close($fp);
+                (new \Application\Plugin\Phimail())->phimail_close($fp);
               //return("$config_err 5");
                 $d_Address .= ' ' . $recipient;
                 continue;
             }
 
-            $ret = \Application\Plugin\Phimail::phimail_write_expect_OK($fp, $text_out);
+            $ret = (new \Application\Plugin\Phimail())->phimail_write_expect_OK($fp, $text_out);
             if ($ret !== true) {
               //return("$config_err 6");
                 $d_Address .= $recipient;
