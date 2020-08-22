@@ -143,114 +143,116 @@ $display_collapse_msg = "display:inline;";
     border: 10px solid var(--gray);
 }
 
-
 .tooltip_doc {
     width: 100%;
     height: 100%;
 }
-
-
 </style>
 </head>
 
-<body class="body_top">
-
-<div>
-    <span class='title'><?php echo xlt('Lab Documents'); ?></span>
-    <span id='docexpand' onclick='expandOrCollapse(1,"doc")' style='cursor:pointer;<?php echo $display_expand_msg ?>'>(<?php echo xlt('expand'); ?>)</span>
-    <span id='doccollapse' onclick='expandOrCollapse(2,"doc")' style='cursor:pointer;<?php echo $display_collapse_msg ?>'>(<?php echo xlt('collapse'); ?>)</span>
-    <br /><br />
-    <div id='docfilterdiv'<?php echo $display_div; ?>>
-    <div class="form-inline mb-2">
-        <label for='form_from_doc_date' class='label_custom mx-1'><?php echo xlt('From'); ?>:</label>
-        <input type='text' class='form-control datepicker mx-1' name='form_from_doc_date' id="form_from_doc_date" size='10' value='<?php echo attr($form_from_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>' />
-        <label for='form_to_doc_date' class='label_custom mx-1'><?php echo xlt('To{{Range}}'); ?>:</label>
-        <input type='text' class='form-control datepicker mx-1' name='form_to_doc_date' id="form_to_doc_date" size='10' value='<?php echo attr($form_to_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>' />
-        <span id="docrefresh" class="mx-1">
-            <a href='#' class='btn btn-primary' onclick='return validateDate("form_from_doc_date","form_to_doc_date")'><?php echo xlt('Refresh'); ?></a>
-        </span>
+<body>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-12">
+            <h2 class='title'><?php echo xlt('Lab Documents'); ?></h2>
+            <span id='docexpand' onclick='expandOrCollapse(1,"doc")' style='cursor:pointer;<?php echo $display_expand_msg ?>'>(<?php echo xlt('expand'); ?>)</span>
+            <span id='doccollapse' onclick='expandOrCollapse(2,"doc")' style='cursor:pointer;<?php echo $display_collapse_msg ?>'>(<?php echo xlt('collapse'); ?>)</span>
+            <br />
+            <br />
+            <div id='docfilterdiv'<?php echo $display_div; ?>>
+                <div class="form-inline mb-2">
+                    <label for='form_from_doc_date' class='label_custom mx-1'><?php echo xlt('From'); ?>:</label>
+                    <input type='text' class='form-control datepicker mx-1' name='form_from_doc_date' id="form_from_doc_date" size='10' value='<?php echo attr($form_from_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>' />
+                    <label for='form_to_doc_date' class='label_custom mx-1'><?php echo xlt('To{{Range}}'); ?>:</label>
+                    <input type='text' class='form-control datepicker mx-1' name='form_to_doc_date' id="form_to_doc_date" size='10' value='<?php echo attr($form_to_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>' />
+                    <span id="docrefresh" class="mx-1">
+                        <button type="button" class="btn btn-primary btn-refresh" onclick='return validateDate("form_from_doc_date","form_to_doc_date")'>
+                            <?php echo xlt('Refresh'); ?>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
-    </div>
-</div>
 
-<div id='docdiv' <?php echo $display_div; ?>>
-    <?php
-    $current_user = $_SESSION['authUserID'];
-    $date_filter = '';
-        $query_array = array();
-    if ($form_from_doc_date) {
-        $form_from_doc_date = DateToYYYYMMDD($form_from_doc_date);
-        $date_filter = " DATE(d.date) >= ? ";
-                array_push($query_array, $form_from_doc_date);
-    }
-
-    if ($form_to_doc_date) {
-        $form_to_doc_date = DateToYYYYMMDD($form_to_doc_date);
-        $date_filter .= " AND DATE(d.date) <= ? ";
-                array_push($query_array, $form_to_doc_date);
-    }
-
-    // Get the category ID for lab reports.
-    $query = "SELECT rght FROM categories WHERE name = ?";
-    $catIDRs = sqlQuery($query, array($GLOBALS['lab_results_category_name']));
-    $catID = $catIDRs['rght'];
-
-    $query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,
-		GROUP_CONCAT(n.date ORDER BY n.date DESC SEPARATOR '|') AS docDates FROM documents d
-		INNER JOIN patient_data pd ON d.foreign_id = pd.pid
-		INNER JOIN categories_to_documents ctd ON d.id = ctd.document_id AND ctd.category_id = ?
-		LEFT JOIN notes n ON d.id = n.foreign_id
-		WHERE " . $date_filter . " GROUP BY d.id ORDER BY date DESC";
-        array_unshift($query_array, $catID);
-    $resultSet = sqlStatement($query, $query_array);
-    ?>
-
-    <div class="table-responsive">
-    <table class="table table-bordered" cellpadding="3" cellspacing="0">
-    <thead class='thead-light'>
-    <tr class='text font-weight-bold text-left'>
-        <th width="10%"><?php echo xlt('Date'); ?></th>
-        <th class="linkcell" width="20%"><?php echo xlt('Name'); ?></th>
-        <th><?php echo xlt('Patient'); ?></th>
-        <th><?php echo xlt('Note'); ?></th>
-        <th width="10%"><?php echo xlt('Encounter ID'); ?></th>
-    </tr>
-    </thead>
-    <?php
-    if (sqlNumRows($resultSet)) {
-        while ($row = sqlFetchArray($resultSet)) {
-            $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
-            // Get the notes for this document.
-            $notes = array();
-            $note = '';
-            if ($row['docNotes']) {
-                $notes = explode("|", $row['docNotes']);
-                $dates = explode("|", $row['docDates']);
-            }
-
-            for ($i = 0; $i < count($notes); $i++) {
-                $note .= text(oeFormatShortDate(date('Y-m-d', strtotime($dates[$i])))) . " : " . text($notes[$i]) . "<br />";
-            }
-            ?>
-            <tr class="text">
-                <td><?php echo text(oeFormatShortDate(date('Y-m-d', strtotime($row['date'])))); ?> </td>
-                <td class="linkcell">
-                    <a id="<?php echo attr($row['id']); ?>" title='<?php echo $url; ?>' onclick='top.restoreSession()'><?php echo text(basename($row['url'])); ?></a>
-                </td>
-                <td><?php echo text($row['pname']); ?> </td>
-                <td><?php echo $note; ?> &nbsp;</td>
-                <td align="center"><?php echo ( $row['encounter_id'] ) ? text($row['encounter_id']) : ''; ?> </td>
-            </tr>
-            <?php
-        } ?>
+    <div class='col-12' id='docdiv' <?php echo $display_div; ?>>
         <?php
-    } ?>
-    </table>
-    </div>
-    </div>
+        $current_user = $_SESSION['authUserID'];
+        $date_filter = '';
+            $query_array = array();
+        if ($form_from_doc_date) {
+            $form_from_doc_date = DateToYYYYMMDD($form_from_doc_date);
+            $date_filter = " DATE(d.date) >= ? ";
+                    array_push($query_array, $form_from_doc_date);
+        }
 
+        if ($form_to_doc_date) {
+            $form_to_doc_date = DateToYYYYMMDD($form_to_doc_date);
+            $date_filter .= " AND DATE(d.date) <= ? ";
+                    array_push($query_array, $form_to_doc_date);
+        }
+
+        // Get the category ID for lab reports.
+        $query = "SELECT rght FROM categories WHERE name = ?";
+        $catIDRs = sqlQuery($query, array($GLOBALS['lab_results_category_name']));
+        $catID = $catIDRs['rght'];
+
+        $query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,
+            GROUP_CONCAT(n.date ORDER BY n.date DESC SEPARATOR '|') AS docDates FROM documents d
+            INNER JOIN patient_data pd ON d.foreign_id = pd.pid
+            INNER JOIN categories_to_documents ctd ON d.id = ctd.document_id AND ctd.category_id = ?
+            LEFT JOIN notes n ON d.id = n.foreign_id
+            WHERE " . $date_filter . " GROUP BY d.id ORDER BY date DESC";
+            array_unshift($query_array, $catID);
+        $resultSet = sqlStatement($query, $query_array);
+        ?>
+
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class='thead-light'>
+                    <tr class='text font-weight-bold text-left'>
+                        <th width="10%"><?php echo xlt('Date'); ?></th>
+                        <th class="linkcell" width="20%"><?php echo xlt('Name'); ?></th>
+                        <th><?php echo xlt('Patient'); ?></th>
+                        <th><?php echo xlt('Note'); ?></th>
+                        <th width="10%"><?php echo xlt('Encounter ID'); ?></th>
+                    </tr>
+                </thead>
+                <?php
+                if (sqlNumRows($resultSet)) {
+                    while ($row = sqlFetchArray($resultSet)) {
+                        $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
+                        // Get the notes for this document.
+                        $notes = array();
+                        $note = '';
+                        if ($row['docNotes']) {
+                            $notes = explode("|", $row['docNotes']);
+                            $dates = explode("|", $row['docDates']);
+                        }
+
+                        for ($i = 0; $i < count($notes); $i++) {
+                            $note .= text(oeFormatShortDate(date('Y-m-d', strtotime($dates[$i])))) . " : " . text($notes[$i]) . "<br />";
+                        }
+                        ?>
+                        <tr class="text">
+                            <td><?php echo text(oeFormatShortDate(date('Y-m-d', strtotime($row['date'])))); ?> </td>
+                            <td class="linkcell">
+                                <a id="<?php echo attr($row['id']); ?>" title='<?php echo $url; ?>' onclick='top.restoreSession()'><?php echo text(basename($row['url'])); ?></a>
+                            </td>
+                            <td><?php echo text($row['pname']); ?> </td>
+                            <td><?php echo $note; ?> &nbsp;</td>
+                            <td class="text-center"><?php echo ( $row['encounter_id'] ) ? text($row['encounter_id']) : ''; ?> </td>
+                        </tr>
+                        <?php
+                    } ?>
+                    <?php
+                } ?>
+            </table>
+        </div>
+    </div>
     <div class="tooltip_container">
         <iframe class="tooltip_doc"></iframe>
     </div>
+</div>
 </body>
 </html>

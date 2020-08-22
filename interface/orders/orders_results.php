@@ -169,39 +169,6 @@ tr.detail {
     font-size: 13px;
 }
 
-.celltext {
-    font-size: 13px;
-    font-weight: normal;
-    border-style: solid;
-    border-top-width: 0px;
-    border-bottom-width: 0px;
-    border-left-width: 0px;
-    border-right-width: 0px;
-    border-color: var(--gray500);
-    background-color: transparent;
-    width: 100%;
-    color: var(--primary);
-}
-
-.celltextfw {
-    font-size: 13px;
-    font-weight: normal;
-    border-style: solid;
-    border-top-width: 0px;
-    border-bottom-width: 0px;
-    border-left-width: 0px;
-    border-right-width: 0px;
-    border-color: var(--gray500);
-    background-color: transparent;
-    color: var(--primary);
-}
-
-.cellselect {
-    font-size: 13px;
-    background-color: transparent;
-    color: var(--primary);
-}
-
 .reccolor {
     color: var(--success);
 }
@@ -331,7 +298,7 @@ $(function () {
     <div class="container mt-3">
         <div class="row">
             <form method='post' action='orders_results.php?batch=<?php echo attr_url($form_batch); ?>&review=<?php echo attr_url($form_review); ?>' onsubmit='return validate(this)'>
-                <table>
+                <table class="table table-borderless">
                     <tr>
                         <td class='text form-inline'>
                             <?php
@@ -379,7 +346,9 @@ $(function () {
                                 echo " checked";
                                                                                    } ?>><?php echo xlt('Include Completed') ?>
                             &nbsp;-->
-                            <input class='btn btn-primary' type='submit' name='form_refresh' value='<?php echo xla('Refresh'); ?>' />
+                            <button type="submit" class="btn btn-primary btn-refresh" name='form_refresh' value='<?php echo xla('Refresh'); ?>'>
+                                <?php echo xlt('Refresh'); ?>
+                            </button>
                         </td>
                     </tr>
                 </table>
@@ -600,147 +569,137 @@ $(function () {
                             // TBD: Also generate default report fields and another set of results if
                             // the previous report is marked "Preliminary".
                             //
-                            if ($report_id != $lastprid) {
-                                echo "  <td nowrap>";
-                                echo "<input type='text' size='13' name='form_date_report[" . attr($lino) . "]'" .
-                                " id='form_date_report[" . attr($lino) . "]' class='celltextfw datetimepicker' value='" . attr($date_report) . "' " .
-                                " title='" . xla('Date and time of this report') . "'" .
-                                " />";
-                                echo "</td>\n";
+                            if ($report_id != $lastprid) { ?>
+                                <td class="text-nowrap">
+                                    <input type='text' size='13' name='form_date_report[<?php echo attr($lino); ?>]'
+                                    id='form_date_report[<?php echo attr($lino); ?>]'
+                                    class='form-control datetimepicker' value='<?php echo attr($date_report); ?>'
+                                    title='<?php echo xla('Date and time of this report'); ?>' />
+                                </td>
+                                <td class="text-nowrap">
+                                    <input type='text' size='13' name='form_date_collected[<?php echo attr($lino); ?>]'
+                                        id='form_date_collected[<?php echo attr($lino); ?>]'
+                                        class='form-control datetimepicker' value='<?php echo attr($date_collected); ?>'
+                                        title='<?php echo xla('Date and time of sample collection'); ?>' />
+                                </td>
+                                <td>
+                                    <input type='text' size='8' name='form_specimen_num[<?php echo attr($lino); ?>]'
+                                        class='form-control'
+                                        value='<?php echo attr($specimen_num); ?>'
+                                        title='<?php echo xla('Specimen number/identifier'); ?>' />
+                                </td>
+                                <td>
+                                    <?php
+                                    echo generate_select_list(
+                                        "form_report_status[$lino]",
+                                        'proc_rep_status',
+                                        $report_status,
+                                        xl('Report Status'),
+                                        ' ',
+                                        'form-control'
+                                    ); ?>
+                                </td>
+                            <?php } else { ?>
+                                <td colspan='4'>&nbsp;</td>
+                            <?php } ?>
 
-                                echo "  <td nowrap>";
-                                echo "<input type='text' size='13' name='form_date_collected[" . attr($lino) . "]'" .
-                                " id='form_date_collected[" . attr($lino) . "]'" .
-                                " class='celltextfw datetimepicker' value='" . attr($date_collected) . "' " .
-                                " title='" . xla('Date and time of sample collection') . "'" .
-                                " />";
-                                echo "</td>\n";
+                                <td class="text-nowrap">
+                                    <input type='text' size='6' name='form_result_code[<?php echo attr($lino); ?>]'
+                                        class='form-control'
+                                        value='<?php echo attr($result_code); ?>' />
+                                </td>
+                                <td>
+                                    <input type='text' size='16' name='form_result_text[<?php echo attr($lino); ?>]'
+                                        class='form-control'
+                                        value='<?php echo attr($result_text); ?>' />
+                                </td>
+                                <td>
+                                    <?php echo generate_select_list(
+                                        "form_result_abnormal[$lino]",
+                                        'proc_res_abnormal',
+                                        $result_abnormal,
+                                        xl('Indicates abnormality'),
+                                        ' ',
+                                        'form-control'
+                                    ); ?>
+                                </td>
+                                <td>
+                                    <?php if ($result_units == 'bool') {
+                                        echo "&nbsp;--";
+                                    } else { ?>
+                                        <input type='text' size='7' name='form_result_result[<?php echo attr($lino); ?>]'
+                                            class='form-control'
+                                            value='<?php echo attr($result_result); ?>' />
+                                    <?php } ?>
+                                </td>
+                                <td>
+                                    <input type='text' size='4' name='form_result_units[<?php echo attr($lino); ?>]'
+                                        class='form-control'
+                                        value='<?php echo attr($result_units); ?>'
+                                        title='<?php echo xla('Units applicable to the result value'); ?>' />
+                                </td>
+                                <td>
+                                    <input type='text' size='8' name='form_result_range[<?php echo attr($lino); ?>]'
+                                        class='form-control'
+                                        value='<?php echo attr($result_range); ?>'
+                                        title='<?php echo xla('Reference range of results'); ?>' />
+                                    <!-- Include a hidden form field containing all IDs for this line. -->
+                                    <input type='hidden' name='form_line[<?php echo attr($lino); ?>]'
+                                        value='<?php echo attr($order_id) . ":" . attr($order_seq) . ":" . attr($report_id) . ":" . attr($result_id); ?>' />
+                                </td>
+                                <td class='font-weight-bold text-center' style='cursor:pointer' onclick='extShow(<?php echo attr_js($lino); ?>, this)'
+                                    title='<?php echo xla('Click here to view/edit more details'); ?>'>
+                                    &nbsp;?&nbsp;
+                                </td>
+                            </tr>
+                                <?php
+                                    // Create a floating div for additional attributes of this result.
+                                    $extra_html .= "<div id='ext_" . attr($lino) . "' " .
+                                    "style='position:absolute;width:750px;border:1px solid black;" .
+                                    "padding:2px;background-color:#cccccc;visibility:hidden;" .
+                                    "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
+                                    "<table class='table'>\n" .
+                                    "<tr><td class='font-weight-bold text-center' colspan='2' style='padding:4pt 0 4pt 0'>" .
+                                    text($result_text) .
+                                    "</td></tr>\n" .
+                                    "<tr><td class='text-nowrap'>" . xlt('Status') . ": </td>" .
+                                    "<td>" . generate_select_list(
+                                        "form_result_status[$lino]",
+                                        'proc_res_status',
+                                        $result_status,
+                                        xl('Result Status'),
+                                        ''
+                                    ) . "</td></tr>\n" .
+                                "<tr><td class='font-weight-bold text-nowrap'>" . xlt('Facility') . ": </td>" .     // Ensoftek: Changed Facility to Text Area as the field procedure_result-->facility is now multi-line
+                                "<td><textarea class='form-control' rows='3' cols='15' name='form_facility[" . attr($lino) . "]'" .
+                                " title='" . xla('Supplier facility name') . "'" .
+                                " />" . text($result_facility) .
+                                "</textarea></td></tr>\n" .
+                                "<tr><td class='font-weight-bold text-nowrap'>" . xlt('Comments') . ": </td>" .
+                                "<td><textarea class='form-control' rows='3' cols='15' name='form_comments[" . attr($lino) . "]'" .
+                                " title='" . xla('Comments for this result or recommendation') . "'" .
+                                " />" . text($result_comments) .
+                                "</textarea></td></tr>\n" .
+                                "<tr><td class='font-weight-bold text-nowrap'>" . xlt('Notes') . ": </td>" .
+                                "<td><textarea class='form-control' rows='4' cols='15' name='form_notes[" . attr($lino) . "]'" .
+                                " title='" . xla('Additional notes for this result or recommendation') . "'" .
+                                " />" . text($result_notes) .
+                                "</textarea></td></tr>\n" .
+                                "</table>\n" .
+                                "<p class='text-center'><input class='btn btn-primary' type='button' value='" . xla('Close') . "' " .
+                                "onclick='extShow(" . attr_js($lino) . ", false)' /></p>\n" .
+                                "</div>";
 
-                                echo "  <td>";
-                                echo "<input type='text' size='8' name='form_specimen_num[" . attr($lino) . "]'" .
-                                " class='celltext' value='" . attr($specimen_num) . "' " .
-                                " title='" . xla('Specimen number/identifier') . "'" .
-                                " />";
-                                echo "</td>\n";
-
-                                echo "  <td>";
-                                echo generate_select_list(
-                                    "form_report_status[$lino]",
-                                    'proc_rep_status',
-                                    $report_status,
-                                    xl('Report Status'),
-                                    ' ',
-                                    'cellselect'
-                                );
-                                echo "</td>\n";
-                            } else {
-                                echo "  <td colspan='4' style='background-color:transparent'>&nbsp;</td>\n";
-                            }
-
-                            echo "  <td nowrap>";
-                            echo "<input type='text' size='6' name='form_result_code[" . attr($lino) . "]'" .
-                            " class='celltext' value='" . attr($result_code) . "' />" .
-                            "</td>\n";
-
-                            echo "  <td>" .
-                            "<input type='text' size='16' name='form_result_text[" . attr($lino) . "]'" .
-                            " class='celltext' value='" . attr($result_text) . "' />";
-                            "</td>\n";
-
-                            echo "  <td>";
-                            echo generate_select_list(
-                                "form_result_abnormal[$lino]",
-                                'proc_res_abnormal',
-                                $result_abnormal,
-                                xl('Indicates abnormality'),
-                                ' ',
-                                'cellselect'
-                            );
-                            echo "</td>\n";
-
-                            echo "  <td>";
-                            if ($result_units == 'bool') {
-                                echo "&nbsp;--";
-                            } else {
-                                echo "<input type='text' size='7' name='form_result_result[" . attr($lino) . "]'" .
-                                " class='celltext' value='" . attr($result_result) . "' " .
-                                " />";
-                            }
-
-                            echo "</td>\n";
-
-                            echo "  <td>";
-                            echo "<input type='text' size='4' name='form_result_units[" . attr($lino) . "]'" .
-                            " class='celltext' value='" . attr($result_units) . "' " .
-                            " title='" . xla('Units applicable to the result value') . "'" .
-                            " />";
-                            echo "</td>\n";
-
-                            echo "  <td>";
-                            echo "<input type='text' size='8' name='form_result_range[" . attr($lino) . "]'" .
-                            " class='celltext' value='" . attr($result_range) . "' " .
-                            " title='" . xla('Reference range of results') . "'" .
-                            " />";
-                            // Include a hidden form field containing all IDs for this line.
-                            echo "<input type='hidden' name='form_line[" . attr($lino) . "]' " .
-                            "value='" . attr($order_id) . ":" . attr($order_seq) . ":" . attr($report_id) . ":" . attr($result_id) . "' />";
-                            echo "</td>\n";
-
-                            echo "  <td class='bold' style='cursor:pointer' " .
-                            "onclick='extShow(" . attr_js($lino) . ", this)' align='center' " .
-                            "title='" . xla('Click here to view/edit more details') . "'>";
-                            echo "&nbsp;?&nbsp;";
-                            echo "</td>\n";
-
-                            echo " </tr>\n";
-
-                            // Create a floating div for additional attributes of this result.
-                            $extra_html .= "<div id='ext_" . attr($lino) . "' " .
-                            "style='position:absolute;width:750px;border:1px solid black;" .
-                            "padding:2px;background-color:#cccccc;visibility:hidden;" .
-                            "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
-                            "<table width='100%'>\n" .
-                            "<tr><td class='bold' align='center' colspan='2' style='padding:4pt 0 4pt 0'>" .
-                            text($result_text) .
-                            "</td></tr>\n" .
-                            "<tr><td class='bold' width='1%' nowrap>" . xlt('Status') . ": </td>" .
-                            "<td>" . generate_select_list(
-                                "form_result_status[$lino]",
-                                'proc_res_status',
-                                $result_status,
-                                xl('Result Status'),
-                                ''
-                            ) . "</td></tr>\n" .
-                            "<tr><td class='bold' nowrap>" . xlt('Facility') . ": </td>" .     // Ensoftek: Changed Facility to Text Area as the field procedure_result-->facility is now multi-line
-                            "<td><textarea rows='3' cols='15' name='form_facility[" . attr($lino) . "]'" .
-                            " title='" . xla('Supplier facility name') . "'" .
-                            " style='width:100%' />" . text($result_facility) .
-                            "</textarea></td></tr>\n" .
-                            "<tr><td class='bold' nowrap>" . xlt('Comments') . ": </td>" .
-                            "<td><textarea rows='3' cols='15' name='form_comments[" . attr($lino) . "]'" .
-                            " title='" . xla('Comments for this result or recommendation') . "'" .
-                            " style='width:100%' />" . text($result_comments) .
-                            "</textarea></td></tr>\n" .
-                            "<tr><td class='bold' nowrap>" . xlt('Notes') . ": </td>" .
-                            "<td><textarea rows='4' cols='15' name='form_notes[" . attr($lino) . "]'" .
-                            " title='" . xla('Additional notes for this result or recommendation') . "'" .
-                            " style='width:100%' />" . text($result_notes) .
-                            "</textarea></td></tr>\n" .
-                            "</table>\n" .
-                            "<p><center><input class='btn btn-primary' type='button' value='" . xla('Close') . "' " .
-                            "onclick='extShow(" . attr_js($lino) . ", false)' /></center></p>\n" .
-                            "</div>";
-
-                            $lastpoid = $order_id;
-                            $lastpcid = $order_seq;
-                            $lastprid = $report_id;
-                            ++$lino;
+                                $lastpoid = $order_id;
+                                $lastpcid = $order_seq;
+                                $lastprid = $report_id;
+                                ++$lino;
                         }
                     }
 
                     if (!empty($facilities)) {
                     // display facility information
-                        $extra_html .= "<table>";
+                        $extra_html .= "<table class='table'>";
                         $extra_html .= "<tr><th>" . xlt('Performing Laboratory Facility') . "</th></tr>";
                         foreach ($facilities as $facilityID) {
                             foreach (explode(":", $facilityID) as $lab_facility) {
@@ -755,7 +714,6 @@ $(function () {
                                 }
                             }
                         }
-
                         $extra_html .= "</table>\n";
                     }
                     ?>
@@ -766,12 +724,18 @@ $(function () {
                     if ($form_review) {
                         // if user authorized for pending review.
                         if ($reviewauth) { ?>
-                            <input class='btn btn-primary' type='submit' name='form_submit' value='<?php echo xla('Sign Results'); ?>' />
+                            <button type="submit" class="btn btn-primary" name='form_submit' value='<?php echo xla('Sign Results'); ?>'>
+                                <?php echo xlt('Sign Results'); ?>
+                            </button>
                         <?php } else { ?>
-                            <input class='btn btn-primary' type='button' name='form_submit' value='<?php echo xla('Sign Results'); ?>' onclick="alert(<?php echo attr_js(xl('Not authorized')) ?>);" />
+                            <button type="button" class="btn btn-primary" name='form_submit' value='<?php echo xla('Sign Results'); ?>' onclick="alert(<?php echo attr_js(xl('Not authorized')) ?>);">
+                                <?php echo xlt('Sign Results'); ?>
+                            </button>
                         <?php }
                     } else { ?>
-                            <input class='btn btn-primary' type='submit' name='form_submit' value='<?php echo xla('Save'); ?>' />
+                            <button type="submit" class="btn btn-primary btn-save" name='form_submit' value='<?php echo xla('Save'); ?>'>
+                                <?php echo xlt('Save'); ?>
+                            </button>
                         <?php } ?>
                     <?php } ?>
                 </div>

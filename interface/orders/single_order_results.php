@@ -116,30 +116,26 @@ body {
 
 <script src="../../library/topdialog.js"></script>
 <script>
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>
 
 </head>
 <body>
-<?php
-if (empty($_POST['form_sign'])) {
+<?php if (empty($_POST['form_sign'])) {
     generate_order_report($orderid, true, true, $finals_only);
-} else {
-    ?>
+} else { ?>
 <script>
- if (opener.document.forms && opener.document.forms[0]) {
-  // Opener should be list_reports.php. Make it refresh.
-  var f = opener.document.forms[0];
-  if (f.form_external_refresh) {
-   f.form_external_refresh.value = '1';
-   f.submit();
-  }
- }
- let stayHere = './single_order_results.php?orderid=' + <?php echo js_escape($orderid); ?>;
- window.location.assign(stayHere);
+    if (opener.document.forms && opener.document.forms[0]) {
+        // Opener should be list_reports.php. Make it refresh.
+        var f = opener.document.forms[0];
+        if (f.form_external_refresh) {
+            f.form_external_refresh.value = '1';
+            f.submit();
+        }
+    }
+    let stayHere = './single_order_results.php?orderid=' + <?php echo js_escape($orderid); ?>;
+    window.location.assign(stayHere);
 </script>
-    <?php
-}
-?>
+<?php } ?>
 </body>
 </html>
