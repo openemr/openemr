@@ -1027,7 +1027,7 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('us-core-provider-
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('us-core-provider-role', '374U00000X', 'Home Health Aide', 2310);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('us-core-provider-role', '376G00000X', 'Nursing Home Administrator', 2320);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('us-core-provider-role', '376J00000X', 'Homemaker', 2330);
-INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('us-core-provider-role', '376K00000X', 'Nurse\'s Aide', 2340);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('us-core-provider-role', '376K00000X', "Nurse's Aide", 2340);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('us-core-provider-role', '385H00000X', 'Respite Care', 2350);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('us-core-provider-role', '390200000X', 'Student in an Organized Health Care Education/Training Program', 2360);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('us-core-provider-role', '405300000X', 'Prevention Professional', 2370);
@@ -2038,4 +2038,97 @@ ALTER TABLE `automatic_notification` DROP COLUMN `next_app_time`;
 
 #IfColumn automatic_notification notification_sent_date
 ALTER TABLE `automatic_notification` DROP COLUMN `notification_sent_date`;
+#EndIf
+
+#IfMissingColumn procedure_result uuid
+ALTER TABLE `procedure_result` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdateId procedure_result procedure_result_id
+#EndIf
+
+#IfNotIndex procedure_result uuid
+CREATE UNIQUE INDEX `uuid` ON `procedure_result` (`uuid`);
+#EndIf
+
+#IfNotColumnType form_bronchitis user varchar(50)
+ALTER TABLE `form_bronchitis` MODIFY `user` varchar(50) default NULL;
+#EndIf
+
+#IfNotColumnType form_bronchitis groupname varchar(50)
+ALTER TABLE `form_bronchitis` MODIFY `groupname` varchar(50) default NULL;
+#EndIf
+
+#IfNotColumnType form_bronchitis bronchitis_ops_fever text
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_ops_fever` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_ops_cough` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_ops_dizziness` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_ops_chest_pain` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_ops_dyspnea` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_ops_sweating` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_ops_wheezing` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_ops_malaise` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_ops_sputum` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_ops_all_reviewed` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_review_of_pmh` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_review_of_allergies` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_review_of_sh` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_review_of_fh` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_normal_right` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_normal_left` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_nares_normal_right` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_nares_normal_left` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_thickened_right` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_thickened_left` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_af_level_right` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_af_level_left` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_nares_swelling_right` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_nares_swelling_left` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_retracted_right` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_retracted_left` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_nares_discharge_right` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_nares_discharge_left` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_bulging_right` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_bulging_left` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_perforated_right` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_perforated_left` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_tms_nares_not_examined` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_no_sinus_tenderness` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_oropharynx_normal` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_sinus_tenderness_frontal_right` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_sinus_tenderness_frontal_left` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_oropharynx_erythema` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_oropharynx_exudate` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_oropharynx_abcess` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_oropharynx_ulcers` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_sinus_tenderness_maxillary_right` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_sinus_tenderness_maxillary_left` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_sinus_tenderness_not_examined` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_oropharynx_not_examined` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_heart_pmi` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_heart_s3` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_heart_s4` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_heart_click` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_heart_rub` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_heart_normal` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_heart_not_examined` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_bs_normal` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_bs_reduced` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_bs_increased` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_crackles_lll` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_crackles_rll` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_crackles_bll` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_rubs_lll` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_rubs_rll` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_rubs_bll` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_wheezes_lll` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_wheezes_rll` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_wheezes_bll` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_wheezes_dll` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_normal_exam` text;
+ALTER TABLE `form_bronchitis` MODIFY `bronchitis_lungs_not_examined` text;
+ALTER TABLE `form_bronchitis` MODIFY `diagnosis1_bronchitis_form` text;
+ALTER TABLE `form_bronchitis` MODIFY `diagnosis2_bronchitis_form` text;
+ALTER TABLE `form_bronchitis` MODIFY `diagnosis3_bronchitis_form` text;
+ALTER TABLE `form_bronchitis` MODIFY `diagnosis4_bronchitis_form` text;
 #EndIf

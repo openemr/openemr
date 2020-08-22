@@ -209,9 +209,16 @@ function DistributionInsert($CountRow, $created_time, $user_id)
 		pid ='" . trim(formData('hidden_patient_code')) . "' and encounter='" . trim(formData("HiddenEncounter$CountRow")) . "'");
               //multiple charges can come.
             if ($ferow['last_level_closed'] < trim(formData("HiddenIns$CountRow"))) {
-                  sqlStatement("update form_encounter set last_level_closed='" . trim(formData("HiddenIns$CountRow")) . "' where
-			pid ='" . trim(formData('hidden_patient_code')) . "' and encounter='" . trim(formData("HiddenEncounter$CountRow")) . "'");
-                  //last_level_closed gets increased.
+                //last_level_closed gets increased. unless a follow up is required.
+                // in which case we'll allow secondary to be re setup to current setup.
+                // just not advancing last closed.
+                $tmp = $_POST["Payment$CountRow"] * 1 + $_POST["AdjAmount$CountRow"] * 1;
+                if ($_POST["FollowUp$CountRow"] != 'y' && $tmp !== 0) {
+                    sqlStatement("update form_encounter set last_level_closed='" .
+                        trim(formData("HiddenIns$CountRow")) .
+                        "' where pid ='" . trim(formData('hidden_patient_code')) .
+                        "' and encounter='" . trim(formData("HiddenEncounter$CountRow")) . "'");
+                }
                   //-----------------------------------
                   // Determine the next insurance level to be billed.
                   $ferow = sqlQuery("SELECT date, last_level_closed " .

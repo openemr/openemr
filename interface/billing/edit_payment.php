@@ -363,7 +363,7 @@ $ResultSearchSub = sqlStatement(
 <!DOCTYPE html>
 <html>
 <head>
-
+    <title><?php echo xlt('Confirm Payment'); ?></title>
     <?php Header::setupHeader(['datetime-picker', 'common']); ?>
 
     <script>
