@@ -44,29 +44,28 @@ $res = sqlStatement($query);
 
 // Callback from popups to refresh this display.
 function refreshme() {
- // location.reload();
- document.forms[0].submit();
+    // location.reload();
+    document.forms[0].submit();
 }
 
 // Process click to pop up the add window.
 function doedclick_add() {
- top.restoreSession();
- var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
- dlgopen('procedure_provider_edit.php?ppid=0', '_blank', 800, 750, false, addTitle);
+    top.restoreSession();
+    var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
+    dlgopen('procedure_provider_edit.php?ppid=0', '_blank', 800, 750, false, addTitle);
 }
 
 // Process click to pop up the edit window.
 function doedclick_edit(ppid) {
- top.restoreSession();
- var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
- dlgopen('procedure_provider_edit.php?ppid=' + ppid, '_blank', 800, 750, false, editTitle);
+    top.restoreSession();
+    var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
+    dlgopen('procedure_provider_edit.php?ppid=' + ppid, '_blank', 800, 750, false, editTitle);
 }
-
 </script>
 
 </head>
 
-<body class="body_top">
+<body>
     <?php
     if ($GLOBALS['enable_help'] == 1) {
         $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray700)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
@@ -76,56 +75,55 @@ function doedclick_edit(ppid) {
         $help_icon = '';
     }
     ?>
-    <div class="container">
+    <div class="container mt-3">
         <div class="row">
             <div class="col-sm-12">
-                <div class="clearfix">
-                    <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo xlt('Procedure Providers');?></span><?php echo $help_icon; ?></h2>
-                </div>
+                    <h2 id="header_title">
+                        <span id='header_text'><?php echo xlt('Procedure Providers');?></span><?php echo $help_icon; ?>
+                    </h2>
             </div>
         </div>
         <div class="row">
             <div class="col-sm-12">
                <form method='post' action='procedure_provider_list.php'>
                     <div class="btn-group">
-                        <button type="button" name="form_search" class="btn btn-secondary btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
-                        <button type="button" class="btn btn-secondary btn-add" onclick="doedclick_add()"><?php echo xlt('Add New{{Provider}}');?></button>
+                        <button type="button" class="btn btn-primary btn-add" onclick="doedclick_add()"><?php echo xlt('Add New{{Provider}}');?></button>
+                        <button type="button" name="form_search" class="btn btn-primary btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
                     </div>
-                    <br />
-                    <br />
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th title='<?php echo xla('Click to view or edit'); ?>'><?php echo xlt('Name'); ?></th>
-                                <th><?php echo xlt('NPI'); ?></th>
-                                <th><?php echo xlt('Protocol'); ?></th>
-                                <th class="text-center"><?php echo xlt('Edit'); ?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            while ($row = sqlFetchArray($res)) {
-                                echo " <tr class='detail'>";
-                                echo "  <td>" . text($row['name']) . "</td>\n";
-                                echo "  <td>" . text($row['npi']) . "</td>\n";
-                                echo "  <td>" . text($row['protocol']) . "</td>\n";
-                                if (AclMain::aclCheckCore('admin', 'practice')) {
+                    <div class="table-responsive mt-3">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th title='<?php echo xla('Click to view or edit'); ?>'><?php echo xlt('Name'); ?></th>
+                                    <th><?php echo xlt('NPI'); ?></th>
+                                    <th><?php echo xlt('Protocol'); ?></th>
+                                    <th class="text-center"><?php echo xlt('Edit'); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                while ($row = sqlFetchArray($res)) {
+                                    echo " <tr class='detail'>";
+                                    echo "  <td>" . text($row['name']) . "</td>\n";
+                                    echo "  <td>" . text($row['npi']) . "</td>\n";
+                                    echo "  <td>" . text($row['protocol']) . "</td>\n";
+                                    if (AclMain::aclCheckCore('admin', 'practice')) {
                                         $trTitle = xl('Edit') . ' ' . $row['name'];
-                                        echo "  <td class=\"text-center text-body\"><span style=\"cursor: pointer;\"  onclick='doedclick_edit(" . attr_js($row['ppid']) . ")' class=\"haskids fa fa-pencil-alt\" title='" . attr($trTitle) . "'></span></td>\n";
-                                } else {
+                                        echo "  <td class='text-center text-body'><span style='cursor: pointer;'  onclick='doedclick_edit(" . attr_js($row['ppid']) . ")' class='haskids fa fa-pencil-alt' title='" . attr($trTitle) . "'></span></td>\n";
+                                    } else {
                                         $trTitle = xl("Not Allowed to Edit") . ' ' . $row['name'];
-                                        echo "  <td class=\"text-center\"><span style=\"color: var(--gray400); cursor: no-drop;\"  class=\"haskids fa fa-pencil-alt\" title='" . attr($trTitle) . "'></span></td>\n";
+                                        echo "  <td class='text-center'><span style='color: var(--gray400); cursor: no-drop;' class='haskids fa fa-pencil-alt' title='" . attr($trTitle) . "'></span></td>\n";
+                                    }
+                                    echo " </tr>\n";
                                 }
-                                echo " </tr>\n";
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </form>
             </div>
         </div>
     </div><!-- End of container div -->
-    <br />
     <?php
     //home of the help modal ;)
     //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page

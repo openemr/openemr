@@ -70,8 +70,8 @@ function invalue($name)
 
 </head>
 
-<body class="body_top">
-    <div class="container">
+<body>
+    <div class="container mt-3">
         <?php
         // If we are saving, then save and close the window.
         //
@@ -141,45 +141,39 @@ function invalue($name)
         }
         ?>
 
-
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr_url($ppid) ?>'>
                     <div class="card">
-                        <div class="card-header" name="form_legend" id="form_legend"><?php echo xlt('Enter Provider Details'); ?>  <i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript" aria-hidden="true"></i></div>
-
+                        <div class="card-header" name="form_legend" id="form_legend">
+                            <?php echo xlt('Enter Provider Details'); ?>  <i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript" aria-hidden="true"></i>
+                        </div>
                         <div class="card-body">
-
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="col-sm-6">
-                                    <div class="clearfix">
-                                        <div class="label-div">
-                                            <label for="form_name"><?php echo xlt('Name'); ?>:</label> <a href="#name_info" class="info-anchor icon-tooltip"  data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
-                                        </div>
-                                        <div class="">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="col-sm-6">
+                                        <div class="clearfix">
+                                            <div class="label-div">
+                                                <label for="form_name"><?php echo xlt('Name'); ?>:</label> <a href="#name_info" class="info-anchor icon-tooltip"  data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            </div>
                                             <select name='form_name' id='form_name' class='form-control'>
                                                 <?php echo $optionsStr; ?>
                                             </select>
                                         </div>
+                                        <div id="name_info" class="collapse">
+                                            <a href="#name_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                            <p><?php echo xlt("Name - Select a provider name from the drop-down list");?></p>
+                                            <p><?php echo xlt("For the name to appear on the drop-down list it must be first entered in Administration > Address Book ");?></p>
+                                            <p><?php echo xlt("Select Lab Service in the Type drop-down box and enter a name under organization");?></p>
+                                            <p><?php echo xlt("For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form. ");?><i class="fa fa-question-circle" aria-hidden="true"></i></p>
+                                        </div>
                                     </div>
-                                    <div id="name_info" class="collapse">
-                                        <a href="#name_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                        <p><?php echo xlt("Name - Select a provider name from the drop-down list");?></p>
-                                        <p><?php echo xlt("For the name to appear on the drop-down list it must be first entered in Administration > Address Book ");?></p>
-                                        <p><?php echo xlt("Select Lab Service in the Type drop-down box and enter a name under organization");?></p>
-                                        <p><?php echo xlt("For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form. ");?><i class="fa fa-question-circle" aria-hidden="true"></i></p>
-                                    </div>
-                                </div>
                                 <div class="col-sm-6 mt-3">
                                     <div class="clearfix">
                                         <div class="label-div">
                                             <label class="col-form-label" for="form_npi"><?php echo xlt('NPI'); ?>:</label> <a href="#npi_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
-                                        <div class="">
-                                            <input type='text' name='form_npi' id='form_npi' maxlength='10'
-                                            value='<?php echo attr($row['npi']); ?>' class='form-control' />
-                                        </div>
+                                        <input type='text' name='form_npi' id='form_npi' maxlength='10' value='<?php echo attr($row['npi']); ?>' class='form-control' />
                                     </div>
                                     <div id="npi_info" class="collapse">
                                         <a href="#npi_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
@@ -441,7 +435,7 @@ function invalue($name)
                     <div class="form-group clearfix" id="button-container">
                         <div class="col-sm-12 text-left position-override">
                             <div class="btn-group btn-group-pinch" role="group">
-                                <button type='submit' name='form_save'  class="btn btn-primary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
+                                <button type='submit' name='form_save' class="btn btn-primary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-secondary btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
                                 <?php if ($ppid) { ?>
                                     <button type='submit' name='form_delete' class="btn btn-danger btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
@@ -455,16 +449,16 @@ function invalue($name)
         </div>
     </div><!--end of conatainer div-->
     <script>
-            //jqury-ui tooltip
-            $(function () {
-                $('.icon-tooltip').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip({
-                    show: {
-                        delay: 700,
-                        duration: 0
-                    }
-                });
-                $('#enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+        //jqury-ui tooltip
+        $(function () {
+            $('.icon-tooltip').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip({
+                show: {
+                    delay: 700,
+                    duration: 0
+                }
             });
-        </script>
+            $('#enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+        });
+    </script>
 </body>
 </html>
