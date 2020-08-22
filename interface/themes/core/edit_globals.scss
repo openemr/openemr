@@ -1,40 +1,43 @@
 /*vertical menu styling for edit globals - common for all themes*/
 /*All individual color options shifted to edit_globals_colors.scss, light.scss and manila.scss as appropriate*/
-#oe-nav-ul a {
-  text-decoration: none;
-}
 
-#oe-nav-ul.tabNav li {
-  @include font-size("0.8rem !important");
-  float: $left;
-  padding: 0;
-  vertical-align: bottom;
-}
+#oe-nav-ul {
+  a {
+    text-decoration: none;
+  }
 
-#oe-nav-ul.tabNav li.current {
-  font-weight: 700;
-  margin-top: -4px;
-  padding-top: 0;
-  text-align: $left;
-  vertical-align: bottom;
-}
+  &.tabNav {
+    margin: 0;
+    padding: 4px 0 0;
 
-#oe-nav-ul.tabNav a {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  color: $gray-800;
-  padding: 4px 4px 5px;
-  text-decoration: none;
-}
+    .current a {
+      border: solid;
+      border-width: 3px 0 0 2px;
+    }
 
-#oe-nav-ul.tabNav {
-  margin: 0;
-  padding: 4px 0 0;
-}
+    li {
+      @include font-size("0.8rem");
+      float: $left;
+      padding: 0;
+      vertical-align: bottom;
 
-#oe-nav-ul.tabNav .current a {
-  border: solid;
-  border-width: 3px 0 0 2px;
+      &.current {
+        font-weight: 700;
+        margin-top: -4px;
+        padding-top: 0;
+        text-align: $left;
+        vertical-align: bottom;
+      }
+    }
+
+    a {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      color: $gray-800;
+      padding: 4px 4px 5px;
+      text-decoration: none;
+    }
+  }
 }
 
 #globals-div .tabContainer {

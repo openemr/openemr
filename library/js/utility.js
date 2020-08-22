@@ -22,6 +22,34 @@ function xl(string) {
     return string;
 }
 
+// html escaping functions - special case when sending js string to html (see codebase for examples)
+//   jsText (equivalent to text() )
+//   jsAttr (equivalent to attr() )
+var htmlEscapesText = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;'
+};
+var htmlEscapesAttr = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;'
+};
+var htmlEscaperText = /[&<>]/g;
+var htmlEscaperAttr = /[&<>"']/g;
+jsText = function(string) {
+    return ('' + string).replace(htmlEscaperText, function(match) {
+        return htmlEscapesText[match];
+    });
+};
+jsAttr = function(string) {
+    return ('' + string).replace(htmlEscaperAttr, function(match) {
+        return htmlEscapesAttr[match];
+    });
+};
+
 // another useful function
 async function syncFetchFile(fileUrl, type = 'text') {
     let content = '';
@@ -255,10 +283,11 @@ function oeSortable(callBackFn) {
                 if (childIsDragging) {
                     switchElem(elem, prevElem[0], true);
                     return true;
-                }
-                if (prevElem[0]) {
-                    if (moveUp(prevElem[0])) {
-                        switchElem(elem, prevElem[0]);
+                }else{
+                    if(prevElem[0]){
+                        if(moveUp(prevElem[0])){
+                            switchElem(elem, prevElem[0]);
+                        }
                     }
                 }
             }
@@ -274,10 +303,11 @@ function oeSortable(callBackFn) {
                 if (childIsDragging) {
                     switchElem(elem, nxtElem[0], true);
                     return true;
-                }
-                if (nxtElem[0]) {
-                    if (moveDown(nxtElem[0])) {
-                        switchElem(elem, nxtElem[0]);
+                }else{
+                    if(nxtElem[0]){
+                        if(moveDown(nxtElem[0])){
+                            switchElem(elem, nxtElem[0]);
+                        }
                     }
                 }
             }

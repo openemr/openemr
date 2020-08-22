@@ -9,6 +9,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 ?>
+<?php echo $this->headScript()->prependFile($this->basePath() . '/js/application/sendTo.js')
+    ->prependFile($this->basePath() . '/js/lib/jquery-ui.js')
+?>
 <script>
 var save_array = new Array();
 $(function () {

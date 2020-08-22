@@ -26,7 +26,7 @@ class C_Document extends Controller
     var $document_categories;
     var $tree;
     var $_config;
-        var $manual_set_owner = false; // allows manual setting of a document owner/service
+    var $manual_set_owner = false; // allows manual setting of a document owner/service
     var $facilityService;
     var $patientService;
 
@@ -373,8 +373,7 @@ class C_Document extends Controller
                         $couch_revid = $d->get_couch_revid();
             if ($couch_docid && $couch_revid) {
                 $couch = new CouchDB();
-                $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
-                $resp = $couch->retrieve_doc($data);
+                $resp = $couch->retrieve_doc($couch_docid);
                 $content = $resp->data;
                 if ($content == '' && $GLOBALS['couchdb_log'] == 1) {
                     $log_content = date('Y-m-d H:i:s') . " ==> Retrieving document\r\n";
@@ -608,8 +607,7 @@ class C_Document extends Controller
         if ($couch_docid && $couch_revid && $original_file) {
             // standard case for collecting a document from couchdb
             $couch = new CouchDB();
-            $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
-            $resp = $couch->retrieve_doc($data);
+            $resp = $couch->retrieve_doc($couch_docid);
             //Take thumbnail file when is not null and file is presented online
             if (!$as_file && !is_null($th_url) && !$show_original) {
                 $content = $resp->th_data;
@@ -626,7 +624,11 @@ class C_Document extends Controller
                 $this->document_upload_download_log($d->get_foreign_id(), $log_content);
                 die(xlt("File retrieval from CouchDB failed"));
             }
-            $filetext = base64_decode($content);
+            if ($d->get_encrypted() == 1) {
+                $filetext = $this->cryptoGen->decryptStandard($content, null, 'database');
+            } else {
+                $filetext = base64_decode($content);
+            }
             if ($disable_exit == true) {
                 return $filetext;
             }
@@ -654,15 +656,17 @@ class C_Document extends Controller
             //try to convert it if it has not yet been converted
             //first, see if the converted jpg already exists
             $couch = new CouchDB();
-            $data = array($GLOBALS['couchdb_dbase'], "converted_" . $couch_docid);
-            $resp = $couch->retrieve_doc($data);
+            $resp = $couch->retrieve_doc("converted_" . $couch_docid);
             $content = $resp->data;
             if ($content == '') {
                 //create the converted jpg
                 $couchM = new CouchDB();
-                $dataM = array($GLOBALS['couchdb_dbase'], $couch_docid);
-                $respM = $couchM->retrieve_doc($dataM);
-                $contentM = $respM->data;
+                $respM = $couchM->retrieve_doc($couch_docid);
+                if ($d->get_encrypted() == 1) {
+                    $contentM = $this->cryptoGen->decryptStandard($respM->data, null, 'database');
+                } else {
+                    $contentM = base64_decode($respM->data);
+                }
                 if ($contentM == '' && $GLOBALS['couchdb_log'] == 1) {
                     $log_content = date('Y-m-d H:i:s') . " ==> Retrieving document\r\n";
                     $log_content = date('Y-m-d H:i:s') . " ==> URL: " . $url . "\r\n";
@@ -675,7 +679,7 @@ class C_Document extends Controller
                 }
                 // place the from-file into a temporary file
                 $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
-                file_put_contents($from_file_tmp_name, base64_decode($contentM));
+                file_put_contents($from_file_tmp_name, $contentM);
                 // prepare a temporary file for the to-file
                 $to_file_tmp = tempnam($GLOBALS['temporary_files_dir'], "oer");
                 $to_file_tmp_name = $to_file_tmp . ".jpg";
@@ -686,9 +690,12 @@ class C_Document extends Controller
                 // save the to-file if a to-file was created in above convert call
                 if (is_file($to_file_tmp_name)) {
                     $couchI = new CouchDB();
-                    $json = json_encode(base64_encode(file_get_contents($to_file_tmp_name)));
-                    $couchdata = array($GLOBALS['couchdb_dbase'], "converted_" . $couch_docid, $d->get_foreign_id(), "", "image/jpeg", $json);
-                    $couchI->check_saveDOC($couchdata);
+                    if ($d->get_encrypted() == 1) {
+                        $document = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
+                    } else {
+                        $document = base64_encode(file_get_contents($to_file_tmp_name));
+                    }
+                    $couchI->save_doc(['_id' => "converted_" . $couch_docid, 'data' => $document]);
                     // remove to tmp files
                     unlink($to_file_tmp);
                     unlink($to_file_tmp_name);
@@ -697,11 +704,21 @@ class C_Document extends Controller
                 }
                 // now collect the newly created converted jpg
                 $couchF = new CouchDB();
-                $dataF = array($GLOBALS['couchdb_dbase'], "converted_" . $couch_docid);
-                $respF = $couchF->retrieve_doc($dataF);
-                $content = $respF->data;
+                $respF = $couchF->retrieve_doc("converted_" . $couch_docid);
+                if ($d->get_encrypted() == 1) {
+                    $content = $this->cryptoGen->decryptStandard($respF->data, null, 'database');
+                } else {
+                    $content = base64_decode($respF->data);
+                }
+            } else {
+                // decrypt/decode when converted jpg already exists
+                if ($d->get_encrypted() == 1) {
+                    $content = $this->cryptoGen->decryptStandard($resp->data, null, 'database');
+                } else {
+                    $content = base64_decode($resp->data);
+                }
             }
-            $filetext = base64_decode($content);
+            $filetext = $content;
             if ($disable_exit == true) {
                 return $filetext;
             }
@@ -1070,9 +1087,12 @@ class C_Document extends Controller
             $file_path = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/';
             $url = $file_path . $d->get_url();
             $couch = new CouchDB();
-            $data = array($GLOBALS['couchdb_dbase'],$d->couch_docid);
-            $resp = $couch->retrieve_doc($data);
-            $content = base64_decode($resp->data);
+            $resp = $couch->retrieve_doc($d->couch_docid);
+            if ($d->get_encrypted() == 1) {
+                $content = $this->cryptoGen->decryptStandard($resp->data, null, 'database');
+            } else {
+                $content = base64_decode($resp->data);
+            }
         } else {
                 $url =  $d->get_url();
 

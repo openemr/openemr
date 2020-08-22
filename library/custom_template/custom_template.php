@@ -38,8 +38,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 function listitemCode($strDisp, $strInsert)
 {
     if ($strInsert) {
-        echo '<li><span><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText(' .
-             "'" . htmlspecialchars($strInsert, ENT_QUOTES) . "'" . ');">' . htmlspecialchars($strDisp, ENT_QUOTES) . '</a></span></li>';
+        echo '<li><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText(' .
+             "'" . htmlspecialchars($strInsert, ENT_QUOTES) . "'" . ');">' . htmlspecialchars($strDisp, ENT_QUOTES) . '</a></li>';
     }
 }
 $allowTemplateWarning = checkUserSetting('disable_template_warning', '1') === true ? 0 : 1;
@@ -47,16 +47,16 @@ $contextName = !empty($_GET['contextName']) ? $_GET['contextName'] : '';
 $type = isset($_GET['type']) ? $_GET['type'] : '';
 $cc_flag = isset($_GET['ccFlag']) ? $_GET['ccFlag'] : '';
 $isNN = empty($cc_flag) ? 1 : 0;
-$rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_list_item_long=?", array($contextName));
+$rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_list_item_long = ?", array($contextName));
 ?>
 <html>
 <head>
 <style>
     .draggable {
-        cursor: pointer !important
+        cursor: pointer !important;
     }
     .is-dragging {
-        cursor: move !important
+        cursor: move !important;
     }
 </style>
 <?php Header::setupHeader(['common', 'opener', 'select2', 'ckeditor']); ?>
@@ -107,7 +107,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
             e.stopPropagation();
             dlgopen('', '', 330, 120, '', '', {
                 buttons: [
-                    {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+                    {text: '<?php echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
                 ],
                 onClosed: 'refreshme',
                 type: 'iframe',
@@ -120,7 +120,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
             e.stopPropagation();
             dlgopen('', '', 725, 500, '', '', {
                 buttons: [
-                    {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+                    {text: '<?php echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
                 ],
                 onClosed: 'refreshme',
                 type: 'iframe',
@@ -133,7 +133,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
             e.stopPropagation();
             dlgopen('', '', 700, 500, '', '', {
                 buttons: [
-                    {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+                    {text: '<?php echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
                 ],
                 onClosed: 'refreshme',
                 type: 'iframe',
@@ -166,162 +166,148 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 </script>
 </head>
 <body class="body_top">
-<input type="hidden" name="list_id" id="list_id" value="<?php echo $rowContext['cl_list_id']; ?>" />
-<table class="ml-0 w-100" align='left' cellpadding='0' cellspacing='0'>
-    <?php
-    if ($rowContext['cl_list_item_long'] || !$isNN) {
-        ?>
-        <tr class="text">
-            <th colspan="2" align="center"><?php echo strtoupper(text($rowContext['cl_list_item_long'])); ?></th>
-        </tr>
-        <tr>
-            <td>
-                <div id="tab1" class="tabset_content tabset_content_active">
-                    <form id="mainForm">
-                        <input type="hidden" name="type" id="type" value="<?php echo  attr($type); ?>" />
-                        <input type="hidden" name="ccFlag" id="type" value="<?php echo  attr($cc_flag); ?>" />
-                        <input type="hidden" name="contextName" id="contextName" value="<?php echo attr($contextName); ?>">
-                        <table class="w-100">
-                            <tr class="text">
-                                <td>
-                                    <a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary"><span><?php echo xlt('SAVE'); ?></span></a>
-                                </td>
-                                <?php if (!$isNN) { ?>
-                                    <td>
-                                        <div id="searchCriteria">
-                                            <div class="select-box form-inline mb-1">
-                                                <label><?php echo xlt('Context') . ':'; ?></label>
-                                                <select id="contextSearch" name="contextId" class="form-control w-50">
-                                                    <option value=""></option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </td>
-                                <?php } ?>
-                            </tr>
-                            <tr class="text">
-                                <td id="templateDD">
-                                    <select name="template" id="template" onchange="TemplateSentence(this.value)" style="width: 180px">
-                                        <option value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
+<div class="container-fluid">
+  <input type="hidden" name="list_id" id="list_id" value="<?php echo $rowContext['cl_list_id']; ?>" />
+  <?php if ($rowContext['cl_list_item_long'] || !$isNN) { ?>
+  <h3 class="text-center"><?php echo text($rowContext['cl_list_item_long']); ?></h3>
+    <div id="tab1" class="tabset_content tabset_content_active">
+        <form id="mainForm">
+            <input type="hidden" name="type" id="type" value="<?php echo  attr($type); ?>" />
+            <input type="hidden" name="ccFlag" id="type" value="<?php echo  attr($cc_flag); ?>" />
+            <input type="hidden" name="contextName" id="contextName" value="<?php echo attr($contextName); ?>" />
+            <div class="row">
+              <div class="col-md-12">
+                <p class='text'><a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary"><?php echo xlt('Save'); ?></a></p>
+                <?php if (!$isNN) { ?>
+                <div id="searchCriteria">
+                    <div class="select-box form-inline mb-1">
+                        <label for="contextId"><?php echo xlt('Context') . ':'; ?></label>
+                        <select id="contextSearch" name="contextId" class="form-control form-control-sm w-50">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+                <?php } ?>
+              </div>
+              <div class="col-md-3 text mb-2" id="templateDD">
+                <select class="form-control form-control-sm" name="template" id="template" onchange="TemplateSentence(this.value)">
+                    <option value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
+                    <?php
+                    $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", array($_SESSION['authUserID'], $rowContext['cl_list_id']));
+                    while ($rowTemplates = sqlFetchArray($resTemplates)) {
+                        echo "<option value='" . htmlspecialchars($rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars(xl($rowTemplates['cl_list_item_long']), ENT_QUOTES) . "</option>";
+                    }
+                    ?>
+                </select>
+              </div>
+              <div class="col-md-9 text mb-2">
+                <div id="share" style="display:none"></div>
+                <!-- Enter Key !-->
+                <a href="#" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');" title="<?php echo htmlspecialchars(xl('Enter Key'), ENT_QUOTES); ?>"><i class="fas fa-sign-in-alt"></i></a>&nbsp;
+                <!-- Question Mark !-->
+                <a href="#" id="quest" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');" title="<?php echo htmlspecialchars(xl('Question Mark'), ENT_QUOTES); ?>"><i class="fas fa-question-circle"></i></a>&nbsp;
+                <!-- Paragraph !-->
+                <a href="#" id="para" onclick="top.restoreSession();ascii_write('para','textarea1');" title="<?php echo htmlspecialchars(xl('New Paragraph'), ENT_QUOTES); ?>"><i class="fas fa-paragraph"></i></a>&nbsp;
+                <!-- Space !-->
+                <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" class="btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?></a>
+                <?php
+                $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno = tu.tu_template_id WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
+                while ($row = sqlFetchArray($res)) {
+                    ?>
+                    <a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short']; ?>');" class="btn btn-primary" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
+                    <?php
+                }
+                ?>
+              </div>
+              <div class="col-md-3">
+                <div class="bg-light">
+                    <div style="overflow-y: scroll; overflow-x: hidden; height: 400px">
+                        <ul id="menu5" class="example_menu w-100">
+                            <li>
+                                <a class="expanded"><?php echo htmlspecialchars(xl('Components'), ENT_QUOTES); ?></a>
+                                <ul>
+                                    <div id="template_sentence">
+                                    </div>
+                                </ul>
+                            </li>
+                            <?php
+                            if ($pid != '') {
+                                $row = sqlQuery("SELECT p.*, IF(ISNULL(p.providerID), NULL, CONCAT(u.lname,',',u.fname)) pcp " .
+                                    "FROM patient_data p LEFT OUTER JOIN users u " .
+                                    "ON u.id=p.providerID WHERE pid=?", array($pid));
+                                ?>
+                                <li>
+                                    <a class="collapsed"><?php echo htmlspecialchars(xl('Patient Details'), ENT_QUOTES); ?></a>
+                                    <ul>
                                         <?php
-                                        $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", array($_SESSION['authUserID'], $rowContext['cl_list_id']));
-                                        while ($rowTemplates = sqlFetchArray($resTemplates)) {
-                                            echo "<option value='" . htmlspecialchars($rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars(xl($rowTemplates['cl_list_item_long']), ENT_QUOTES) . "</option>";
-                                        }
+                                        listitemCode(xl('First name'), $row['fname']);
+                                        listitemCode(xl('Last name'), $row['lname']);
+                                        listitemCode(xl('Phone'), $row['phone_home']);
+                                        listitemCode(xl('SSN'), $row['ss']);
+                                        listitemCode(xl('Date Of Birth'), $row['DOB']);
+                                        listitemCode(xl('PCP'), $row['pcp']);
                                         ?>
-                                    </select>
-                                </td>
-                                <td>
-                                    <div id="share" style="display:none"></div>
-                                    <a href="#" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');"
-                                       title="<?php echo htmlspecialchars(xl('Enter Key'), ENT_QUOTES); ?>"><img border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/enter.gif"></a>&nbsp;
-                                    <a href="#" id="quest" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');" title="<?php echo htmlspecialchars(xl('Question Mark'), ENT_QUOTES); ?>"><img border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/question.png"></a>&nbsp;
-                                    <a href="#" id="para" onclick="top.restoreSession();ascii_write('para','textarea1');" title="<?php echo htmlspecialchars(xl('New Paragraph'), ENT_QUOTES); ?>"><img border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/paragraph.png" /></a>&nbsp;
-                                    <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" class="btn btn-primary" title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('SPACE'), ENT_QUOTES); ?></span></a>
-                                    <?php
-                                    $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno=tu.tu_template_id WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
-                                    while ($row = sqlFetchArray($res)) {
+                                    </ul>
+                                </li>
+                                <?php
+                                foreach ($ISSUE_TYPES as $issType => $issTypeDesc) {
+                                    $res = sqlStatement('SELECT title, IF(diagnosis="","",CONCAT(" [",diagnosis,"]")) codes FROM lists WHERE pid=? AND type=? AND enddate IS NULL ORDER BY title', array($pid, $issType));
+                                    if (sqlNumRows($res)) {
                                         ?>
-                                        <a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short']; ?>');" class="btn btn-primary" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><span><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></span></a>
-                                        <?php
-                                    }
-                                    ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td valign="top" style="width: 180px;">
-                                    <div class="bg-light">
-                                        <div style="overflow-y: scroll; overflow-x: hidden; height: 400px">
-                                            <ul id="menu5" class="example_menu w-100">
-                                                <li>
-                                                    <a class="expanded"><?php echo htmlspecialchars(xl('Components'), ENT_QUOTES); ?></a>
-                                                    <ul>
-                                                        <div id="template_sentence">
-                                                        </div>
-                                                    </ul>
-                                                </li>
+                                        <li>
+                                            <a class="collapsed"><?php echo htmlspecialchars(xl($issTypeDesc[0]), ENT_QUOTES); ?></a>
+                                            <ul>
                                                 <?php
-                                                if ($pid != '') {
-                                                    $row = sqlQuery("SELECT p.*, IF(ISNULL(p.providerID), NULL, CONCAT(u.lname,',',u.fname)) pcp " .
-                                                        "FROM patient_data p LEFT OUTER JOIN users u " .
-                                                        "ON u.id=p.providerID WHERE pid=?", array($pid));
-                                                    ?>
-                                                    <li>
-                                                        <a class="collapsed"><?php echo htmlspecialchars(xl('Patient Details'), ENT_QUOTES); ?></a>
-                                                        <ul>
-                                                            <?php
-                                                            listitemCode(xl('First name'), $row['fname']);
-                                                            listitemCode(xl('Last name'), $row['lname']);
-                                                            listitemCode(xl('Phone'), $row['phone_home']);
-                                                            listitemCode(xl('SSN'), $row['ss']);
-                                                            listitemCode(xl('Date Of Birth'), $row['DOB']);
-                                                            listitemCode(xl('PCP'), $row['pcp']);
-                                                            ?>
-                                                        </ul>
-                                                    </li>
-                                                    <?php
-                                                    foreach ($ISSUE_TYPES as $issType => $issTypeDesc) {
-                                                        $res = sqlStatement('SELECT title, IF(diagnosis="","",CONCAT(" [",diagnosis,"]")) codes FROM lists WHERE pid=? AND type=? AND enddate IS NULL ORDER BY title', array($pid, $issType));
-                                                        if (sqlNumRows($res)) {
-                                                            ?>
-                                                            <li>
-                                                                <a class="collapsed"><?php echo htmlspecialchars(xl($issTypeDesc[0]), ENT_QUOTES); ?></a>
-                                                                <ul>
-                                                                    <?php
-                                                                    while ($row = sqlFetchArray($res)) {
-                                                                        listitemCode((strlen($row['title']) > 20) ? (substr($row['title'], 0, 18) . '..') : $row['title'], ($row['title'] . $row['codes']));
-                                                                    }
-                                                                    ?>
-                                                                </ul>
-                                                            </li>
-                                                            <?php
-                                                        }
-                                                    }
+                                                while ($row = sqlFetchArray($res)) {
+                                                    listitemCode((strlen($row['title']) > 20) ? (substr($row['title'], 0, 18) . '..') : $row['title'], ($row['title'] . $row['codes']));
                                                 }
                                                 ?>
                                             </ul>
-                                        </div>
-                                    </div>
-                                    <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id']; ?>" id="personalize_link" class="iframe_medium btn btn-primary btn-sm"><?php echo htmlspecialchars(xl('Personalize'), ENT_QUOTES); ?></a>
-                                    <a href="add_custombutton.php" id="custombutton" class="iframe_medium btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></a>
-                                </td>
-                                <td valign=top style="width: 700px;">
-                                    <textarea class="ckeditor" cols="100" id="textarea1" name="textarea1" rows="80"></textarea>
-                                </td>
-                            </tr>
-                        </table>
-                        <span class="float-right">
-                            <a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary"><?php echo xlt('SAVE'); ?></a>
-                        </span>
-                    </form>
+                                        </li>
+                                        <?php
+                                    }
+                                }
+                            }
+                            ?>
+                        </ul>
+                    </div>
                 </div>
-            </td>
-        </tr>
-</table>
+                <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id']; ?>" id="personalize_link" class="iframe_medium btn btn-primary btn-sm"><?php echo htmlspecialchars(xl('Personalize'), ENT_QUOTES); ?></a>
+                <a href="add_custombutton.php" id="custombutton" class="iframe_medium btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></a>
+              </div>
+              <div class="col-md-9">
+                <textarea class="ckeditor" cols="100" id="textarea1" name="textarea1" rows="80"></textarea>
+              </div>
+              <div class="col-md-12 text-right">
+                <p class="text"><a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary"><?php echo xlt('Save'); ?></a></p>
+              </div>
+            </div>
+        </form>
+    </div>
         <?php
-    } else {
-        echo htmlspecialchars(xl('NO SUCH CONTEXT NAME') . $contextName, ENT_QUOTES);
-        exit();
-    }
+  } else {
+      echo htmlspecialchars(xl('NO SUCH CONTEXT NAME') . $contextName, ENT_QUOTES);
+      exit();
+  }
     ?>
-</table>
-<table>
-    <script>
-        <?php if (!$isNN) { ?>
-            CKEDITOR.on('instanceReady', function(){$("#cke_1_toolbar_collapser").click();});
-        <?php } ?>
-        $(function () {
-            edit(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>);
-        });
-        <?php if ($allowTemplateWarning && !$isNN) { ?>
-        // teeheehee
-        let msg = xl("These templates are text only and will not render any other formatting other than pure text.") + " ";
-        msg += xl("You may still use formatting if template is also used in Nation Notes however, pure text will still render here.") +
-            "<br /><br />";
-        msg += xl("Click Got it icon to dismiss this alert forever.");
-        alertMsg(msg, 10000, 'danger', 'lg', 'disable_template_warning');
-        <?php } ?>
-    </script>
-</table>
+  <table>
+      <script>
+          <?php if (!$isNN) { ?>
+              CKEDITOR.on('instanceReady', function(){$("#cke_1_toolbar_collapser").click();});
+          <?php } ?>
+          $(function () {
+              edit(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>);
+          });
+          <?php if ($allowTemplateWarning && !$isNN) { ?>
+          // teeheehee
+          let msg = xl("These templates are text only and will not render any other formatting other than pure text.") + " ";
+          msg += xl("You may still use formatting if template is also used in Nation Notes however, pure text will still render here.") +
+              "<br /><br />";
+          msg += xl("Click Got it icon to dismiss this alert forever.");
+          alertMsg(msg, 10000, 'danger', 'lg', 'disable_template_warning');
+          <?php } ?>
+      </script>
+  </table>
+</div>
 </body>
 </html>
