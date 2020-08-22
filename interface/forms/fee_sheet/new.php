@@ -1458,10 +1458,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     <div class="form-group">
                         <div class="col-sm-12 position-override">
-                            <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                                <button type='button' class='btn btn-primary btn-calendar' onclick='newEvt()'><?php echo xlt('New Appointment');?></button>
+                            <div class="btn-group" role="group">
+                                <button type='button' class='btn btn-primary btn-calendar' onclick='newEvt()'>
+                                    <?php echo xlt('New Appointment');?>
+                                </button>
                                 <?php if (!$isBilled) { // visit is not yet billed ?>
-                                    <button type='submit' name='bn_refresh' class='btn btn-primary btn-refresh' value='<?php echo xla('Refresh');?>' onclick='return this.clicked = true;'><?php echo xlt('Refresh');?></button>
+                                    <button type='submit' name='bn_refresh' class='btn btn-primary btn-refresh' value='<?php echo xla('Refresh');?>' onclick='return this.clicked = true;'>
+                                        <?php echo xlt('Refresh');?>
+                                    </button>
                                     <button type='submit' name='bn_save' class='btn btn-primary btn-save' value='<?php echo xla('Save');?>'
                                     <?php
                                     if ($rapid_data_entry) {
@@ -1477,22 +1481,27 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <?php } // end ippf-only ?>
                                 <?php } else { // visit is billed ?>
                                     <?php if ($fs->hasCharges) { // billed with charges ?>
-                                        <button type='button' class='btn btn-secondary btn-show' onclick="top.restoreSession();location='../../patient_file/pos_checkout.php?framed=1<?php echo "&ptid=" . attr_url($fs->pid) . "&enc=" . attr_url($fs->encounter); ?>'" value='<?php echo xla('Show Receipt'); ?>'><?php echo xlt('Show Receipt'); ?></button>
+                                        <button type='button' class='btn btn-secondary btn-show' onclick="top.restoreSession();location='../../patient_file/pos_checkout.php?framed=1<?php echo "&ptid=" . attr_url($fs->pid) . "&enc=" . attr_url($fs->encounter); ?>'" value='<?php echo xla('Show Receipt'); ?>'>
+                                            <?php echo xlt('Show Receipt'); ?>
+                                        </button>
                                         <button type='submit' class='btn btn-secondary btn-undo' name='bn_reopen' onclick='return this.clicked = 2;' value='<?php echo xla('Void Checkout and Re-Open'); ?>'>
                                             <?php echo xlt('Void Checkout and Re-Open'); ?></button>
                                     <?php } else { ?>
                                         <button type='submit' class='btn btn-secondary btn-undo' name='bn_reopen' onclick='return this.clicked = true;' value='<?php echo xla('Re-Open Visit'); ?>'>
-                                            <?php echo xlt('Re-Open Visit'); ?></button>
+                                            <?php echo xlt('Re-Open Visit'); ?>
+                                        </button>
                                     <?php } // end billed without charges ?>
                                     <button type='submit' class='btn btn-secondary btn-add' name='bn_addmore' onclick='return this.clicked = true;' value='<?php echo xla('Add More Items'); ?>'>
-                                        <?php echo xlt('Add More Items'); ?></button>
+                                        <?php echo xlt('Add More Items'); ?>
+                                    </button>
                                 <?php } // end billed ?>
                                     <button type='button' class='btn btn-secondary btn-cancel btn-separate-left' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
-                                    <?php echo xlt('Cancel');?></button>
-                                    <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
-                                    <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
-                                    <input type='hidden' name='form_alertmsg' value='<?php echo attr($alertmsg); ?>' />
+                                        <?php echo xlt('Cancel');?>
+                                    </button>
                             </div>
+                            <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
+                            <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
+                            <input type='hidden' name='form_alertmsg' value='<?php echo attr($alertmsg); ?>' />
                         </div>
                     </div>
                 </form>

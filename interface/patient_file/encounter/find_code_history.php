@@ -175,7 +175,7 @@ function get_history_codes($pid)
             <input class='form-control text-danger' type='text' id='workingDx' title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
         </div>
         <div id="tips" class="tips">
-            <section class="card panel-default bg-warning">
+            <section class="card bg-warning">
                 <header class="card-heading card-heading-sm">
                     <h4 class="card-title"><?php echo xlt('Usage Tips') ?></h4>
                 </header>

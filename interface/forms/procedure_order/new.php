@@ -547,7 +547,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="col-sm-12">
             <form class="form-horizontal" method="post" action="<?php echo $rootdir ?>/forms/procedure_order/new.php?id=<?php echo attr_url($formid); ?>" onsubmit="return validate(this)">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <fieldset>
+                <div class="container">
                     <legend><?php echo xlt('Select Options for Current Procedure Order Id ') . (($formid) ? text($formid) : 'New Order')?></legend>
                     <div class="form-row">
                         <div class="col-sm-3">
@@ -640,8 +640,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <textarea rows='3' cols='35' name='form_patient_instructions' class='form-control inputtext'><?php echo text($row['patient_instructions']); ?></textarea>
                         </div>
                     </div>
-                </fieldset>
-                <fieldset>
+                </div>
+                <div class="container">
                     <legend><?php xl('Procedure Order Details', 'e'); ?></legend>
                     <div class="procedure-order-container">
                         <div class="form-row">
@@ -731,8 +731,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 <input type='text' name='form_proc_type_desc[<?php echo attr($i); ?>]' value='<?php echo attr($oprow['procedure_name']) ?>' onclick="sel_proc_type(<?php echo attr_js($i); ?>)" onfocus='this.blur()' title='<?php echo xla('Click to select the desired procedure'); ?>' placeholder='<?php echo xla('Click to select the desired procedure'); ?>' style='cursor:pointer;' class='form-control' readonly />
                                                 <input type='hidden' name='form_proc_type[<?php echo attr($i); ?>]' value='<?php echo attr($ptid); ?>'/>
                                             </td>
+
                                             <td class="diagnosis-div input-group">
-                                                <span class="btn btn-secondary"><i onclick='current_diagnoses(this)' class='input-group-prepend fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i></span>
+                                                <div class="input-group-prepend">
+                                                    <span class="btn btn-secondary input-group-text"><i onclick='current_diagnoses(this)' class='fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i></span>
+                                                </div>
                                                 <input class='form-control' type='text' name='form_proc_type_diag[<?php echo attr($i); ?>]' value='<?php echo attr($oprow['diagnoses']) ?>' onclick='sel_related(this.name)' title='<?php echo xla('Click to add a diagnosis'); ?>' onfocus='this.blur()' style='cursor:pointer;' readonly/>
                                             </td>
                                             <td class="qoe-div">
@@ -756,7 +759,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                         ?>
                     </div>
-                </fieldset>
+                </div>
                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
                 <div class="form-group clearfix">
                     <div class="col-sm-12 text-left position-override">
