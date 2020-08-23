@@ -90,7 +90,7 @@ dwvOemr.gui.ToolboxContainer = function (app, infoController) {
         open.title = dwv.i18n('basics.open');
         open.onclick = function () {
             dwvOemr.gui.displayProgress(0);
-            toggle('button');
+            toggle('loaderlist');
         };
 
         // toolbox
