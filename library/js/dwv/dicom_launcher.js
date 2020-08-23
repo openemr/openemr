@@ -15,7 +15,7 @@
  * Application launcher.
  */
 // namespaces
-let dwvOemr = dwvOemr || {};
+var dwvOemr = dwvOemr || {};
 
 /**
  * Application launcher.

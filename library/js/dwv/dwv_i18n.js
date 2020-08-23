@@ -1,11 +1,11 @@
 // original file available at https://github.com/ivmartel/dwv/blob/e6ea132ba2bac98546a1b27476e7ebe27bfeb02d/src/utils/i18n.js
 
 // namespaces
-const dwv = dwv || {};
+var dwv = dwv || {};
 // external
-const i18next = i18next || {};
-const i18nextXHRBackend = i18nextXHRBackend || {};
-const i18nextBrowserLanguageDetector = i18nextBrowserLanguageDetector || {};
+var i18next = i18next || {};
+var i18nextXHRBackend = i18nextXHRBackend || {};
+var i18nextBrowserLanguageDetector = i18nextBrowserLanguageDetector || {};
 
 // This is mainly a wrapper around the i18next object.
 // see its API: http://i18next.com/docs/api/

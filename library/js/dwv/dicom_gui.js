@@ -12,7 +12,7 @@
  */
 
 // namespaces
-const dwvOemr = dwvOemr || {};
+var dwvOemr = dwvOemr || {};
 dwvOemr.utils = dwvOemr.utils || {};
 
 /**

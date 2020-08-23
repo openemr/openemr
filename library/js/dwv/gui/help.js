@@ -5,12 +5,11 @@ dwvOemr.gui = dwvOemr.gui || {};
 /**
  * Append the version HTML.
  */
-dwvOemr.gui.appendVersionHtml = function (version)
-{
-    var nodes = document.getElementsByClassName("dwv-version");
-    if ( nodes ) {
-        for( var i = 0; i < nodes.length; ++i ){
-            nodes[i].appendChild( document.createTextNode(version) );
+dwvOemr.gui.appendVersionHtml = function (version) {
+    const nodes = document.getElementsByClassName('dwv-version');
+    if (nodes) {
+        for (let i = 0; i < nodes.length; i += 1) {
+            nodes[i].appendChild(document.createTextNode(version));
         }
     }
 };
@@ -22,49 +21,46 @@ dwvOemr.gui.appendVersionHtml = function (version)
  * @param {Object} app The associated app.
  * @param {String} resourcesPath The path to help resources.
  */
-dwvOemr.gui.appendHelpHtml = function (toolList, mobile, app, resourcesPath)
-{
-    var actionType = "mouse";
-    if( mobile ) {
-        actionType = "touch";
+dwvOemr.gui.appendHelpHtml = function (toolList, mobile, app, resourcesPath) {
+    let actionType = 'mouse';
+    if (mobile) {
+        actionType = 'touch';
     }
 
-    var toolHelpDiv = document.createElement("div");
+    const toolHelpDiv = document.createElement('div');
 
-    var helpKeys = null;
-    var tkeys = Object.keys(toolList);
-    for ( var t=0; t < tkeys.length; ++t )
-    {
+    let helpKeys = null;
+    const tkeys = Object.keys(toolList);
+    for (let t = 0; t < tkeys.length; t += 1) {
         helpKeys = toolList[tkeys[t]].getHelpKeys();
         // title
-        var titleElement = document.createElement("h3");
-        var titleStr = dwv.i18n(helpKeys.title);
+        const titleElement = document.createElement('h3');
+        const titleStr = dwv.i18n(helpKeys.title);
         titleElement.appendChild(document.createTextNode(titleStr));
         // doc div
-        var docDiv = document.createElement("div");
+        const docDiv = document.createElement('div');
         // brief
-        var briefElement = document.createElement("p");
-        var briefStr = dwv.i18n(helpKeys.brief);
+        const briefElement = document.createElement('p');
+        const briefStr = dwv.i18n(helpKeys.brief);
         briefElement.appendChild(document.createTextNode(briefStr));
         docDiv.appendChild(briefElement);
         // details
-        if( helpKeys[actionType] ) {
-            var keys = Object.keys(helpKeys[actionType]);
-            for( var i=0; i<keys.length; ++i )
-            {
-                var action = keys[i];
+        if (helpKeys[actionType]) {
+            const keys = Object.keys(helpKeys[actionType]);
+            for (let i = 0; i < keys.length; i += 1) {
+                const action = keys[i];
 
-                var img = document.createElement("img");
-                img.src = resourcesPath + "/" + action + ".png";
-                img.style.float = "left";
-                img.style.margin = "0px 15px 15px 0px";
+                const img = document.createElement('img');
+                img.src = `${resourcesPath}/${action}.png`;
+                img.style.float = 'left';
+                img.style.margin = '0px 15px 15px 0px';
 
-                var br = document.createElement("br");
-                br.style.clear = "both";
+                const br = document.createElement('br');
+                br.style.clear = 'both';
 
-                var para = document.createElement("p");
+                const para = document.createElement('p');
                 para.appendChild(img);
-                var actionHelp = dwv.i18n(helpKeys[actionType][action]);
+                const actionHelp = dwv.i18n(helpKeys[actionType][action]);
                 para.appendChild(document.createTextNode(actionHelp));
                 para.appendChild(br);
                 docDiv.appendChild(para);
@@ -72,34 +68,31 @@ dwvOemr.gui.appendHelpHtml = function (toolList, mobile, app, resourcesPath)
         }
 
         // different div structure for mobile or static
-        if( mobile )
-        {
-            var toolDiv = document.createElement("div");
-            toolDiv.setAttribute("data-role", "collapsible");
+        if (mobile) {
+            const toolDiv = document.createElement('div');
+            toolDiv.setAttribute('data-role', 'collapsible');
             toolDiv.appendChild(titleElement);
             toolDiv.appendChild(docDiv);
             toolHelpDiv.appendChild(toolDiv);
-        }
-        else
-        {
-            toolHelpDiv.id = "accordion";
+        } else {
+            toolHelpDiv.id = 'accordion';
             toolHelpDiv.appendChild(titleElement);
             toolHelpDiv.appendChild(docDiv);
         }
     }
 
-    var helpNode = app.getElement("help");
+    const helpNode = app.getElement('help');
 
-    var headPara = document.createElement("p");
-    headPara.appendChild(document.createTextNode(dwv.i18n("help.intro.p0")));
+    const headPara = document.createElement('p');
+    headPara.appendChild(document.createTextNode(dwv.i18n('help.intro.p0')));
     helpNode.appendChild(headPara);
 
-    var secondPara = document.createElement("p");
-    secondPara.appendChild(document.createTextNode(dwv.i18n("help.intro.p1")));
+    const secondPara = document.createElement('p');
+    secondPara.appendChild(document.createTextNode(dwv.i18n('help.intro.p1')));
     helpNode.appendChild(secondPara);
 
-    var toolPara = document.createElement("p");
-    toolPara.appendChild(document.createTextNode(dwv.i18n("help.tool_intro")));
+    const toolPara = document.createElement('p');
+    toolPara.appendChild(document.createTextNode(dwv.i18n('help.tool_intro')));
     helpNode.appendChild(toolPara);
     helpNode.appendChild(toolHelpDiv);
 };

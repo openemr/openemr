@@ -8,29 +8,27 @@ dwvOemr.html = dwvOemr.html || {};
  * @param {Object} row The row to append the cell to.
  * @param {Object} content The content of the cell.
  */
-dwvOemr.html.appendCell = function (row, content)
-{
-    var cell = row.insertCell(-1);
-    var str = content;
+dwvOemr.html.appendCell = function (row, content) {
+    const cell = row.insertCell(-1);
+    let str = content;
     // special care for arrays
-    if ( content instanceof Array ||
-            content instanceof Uint8Array || content instanceof Int8Array ||
-            content instanceof Uint16Array || content instanceof Int16Array ||
-            content instanceof Uint32Array ) {
-        if ( content.length > 10 ) {
-            content = Array.prototype.slice.call( content, 0, 10 );
-            content[10] = "...";
+    if (content instanceof Array || content instanceof Uint8Array
+        || content instanceof Int8Array || content instanceof Uint16Array
+        || content instanceof Int16Array || content instanceof Uint32Array) {
+        if (content.length > 10) {
+            content = Array.prototype.slice.call(content, 0, 10);
+            content[10] = '...';
         }
-        str = Array.prototype.join.call( content, ', ' );
+        str = Array.prototype.join.call(content, ', ');
     } else if (dwv.utils.isObject(content)) {
-        str = "";
-        var keys = Object.keys(content);
-        for (var i = 0; i < keys.length; ++i ) {
-            var key = keys[i];
+        str = '';
+        const keys = Object.keys(content);
+        for (let i = 0; i < keys.length; i += 1) {
+            const key = keys[i];
             if (str.length !== 0) {
-                str += ", ";
+                str += ', ';
             }
-            str += key + ": " + content[key];
+            str += `${key}: ${content[key]}`;
         }
     }
     // append
@@ -42,9 +40,8 @@ dwvOemr.html.appendCell = function (row, content)
  * @param {Object} row The row to append the header cell to.
  * @param {String} text The text of the header cell.
  */
-dwvOemr.html.appendHCell = function (row, text)
-{
-    var cell = document.createElement("th");
+dwvOemr.html.appendHCell = function (row, text) {
+    const cell = document.createElement('th');
     cell.appendChild(document.createTextNode(text));
     row.appendChild(cell);
 };
@@ -57,26 +54,21 @@ dwvOemr.html.appendHCell = function (row, text)
  * @param {Number} maxLevel The maximum depth level.
  * @param {String} rowHeader The content of the first cell of a row (mainly for objects).
  */
-dwvOemr.html.appendRowForArray = function (table, input, level, maxLevel, rowHeader)
-{
-    var row = null;
+dwvOemr.html.appendRowForArray = function (table, input, level, maxLevel, rowHeader) {
+    let row = null;
     // loop through
-    for ( var i=0; i<input.length; ++i ) {
-        var value = input[i];
+    for (let i = 0; i < input.length; i += 1) {
+        const value = input[i];
         // last level
-        if ( typeof value === 'number' ||
-                typeof value === 'string' ||
-                value === null ||
-                value === undefined ||
-                level >= maxLevel ) {
-            if ( !row ) {
+        if (typeof value === 'number' || typeof value === 'string'
+            || value === null || value === undefined || level >= maxLevel) {
+            if (!row) {
                 row = table.insertRow(-1);
             }
             dwvOemr.html.appendCell(row, value);
-        }
-        // more to come
-        else {
-            dwvOemr.html.appendRow(table, value, level+i, maxLevel, rowHeader);
+        } else {
+            // more to come
+            dwvOemr.html.appendRow(table, value, level + i, maxLevel, rowHeader);
         }
     }
 };
@@ -89,41 +81,36 @@ dwvOemr.html.appendRowForArray = function (table, input, level, maxLevel, rowHea
  * @param {Number} maxLevel The maximum depth level.
  * @param {String} rowHeader The content of the first cell of a row (mainly for objects).
  */
-dwvOemr.html.appendRowForObject = function (table, input, level, maxLevel, rowHeader)
-{
-    var keys = Object.keys(input);
-    var row = null;
-    for ( var o=0; o<keys.length; ++o ) {
-        var value = input[keys[o]];
+dwvOemr.html.appendRowForObject = function (table, input, level, maxLevel, rowHeader) {
+    const keys = Object.keys(input);
+    let row = null;
+    for (let o = 0; o < keys.length; o += 1) {
+        const value = input[keys[o]];
         // last level
-        if ( typeof value === 'number' ||
-                typeof value === 'string' ||
-                value === null ||
-                value === undefined ||
-                level >= maxLevel ) {
-            if ( !row ) {
+        if (typeof value === 'number' || typeof value === 'string'
+            || value === null || value === undefined || level >= maxLevel) {
+            if (!row) {
                 row = table.insertRow(-1);
             }
-            if ( o === 0 && rowHeader) {
+            if (o === 0 && rowHeader) {
                 dwvOemr.html.appendCell(row, rowHeader);
             }
             dwvOemr.html.appendCell(row, value);
-        }
-        // more to come
-        else {
-            dwvOemr.html.appendRow(table, value, level+o, maxLevel, keys[o]);
+        } else {
+            // more to come
+            dwvOemr.html.appendRow(table, value, level + o, maxLevel, keys[o]);
         }
     }
     // header row
     // warn: need to create the header after the rest
     // otherwise the data will inserted in the thead...
-    if ( level === 2 ) {
-        var header = table.createTHead();
-        var th = header.insertRow(-1);
-        if ( rowHeader ) {
-            dwvOemr.html.appendHCell(th, "");
+    if (level === 2) {
+        const header = table.createTHead();
+        const th = header.insertRow(-1);
+        if (rowHeader) {
+            dwvOemr.html.appendHCell(th, '');
         }
-        for ( var k=0; k<keys.length; ++k ) {
+        for (let k = 0; k < keys.length; k += 1) {
             dwvOemr.html.appendHCell(th, keys[k]);
         }
     }
@@ -137,18 +124,15 @@ dwvOemr.html.appendRowForObject = function (table, input, level, maxLevel, rowHe
  * @param {Number} maxLevel The maximum depth level.
  * @param {String} rowHeader The content of the first cell of a row (mainly for objects).
  */
-dwvOemr.html.appendRow = function (table, input, level, maxLevel, rowHeader)
-{
+dwvOemr.html.appendRow = function (table, input, level, maxLevel, rowHeader) {
     // array
-    if ( input instanceof Array ) {
-        dwvOemr.html.appendRowForArray(table, input, level+1, maxLevel, rowHeader);
-    }
-    // object
-    else if ( typeof input === 'object') {
-        dwvOemr.html.appendRowForObject(table, input, level+1, maxLevel, rowHeader);
-    }
-    else {
-        throw new Error("Unsupported input data type.");
+    if (input instanceof Array) {
+        dwvOemr.html.appendRowForArray(table, input, level + 1, maxLevel, rowHeader);
+    } else if (typeof input === 'object') {
+        // object
+        dwvOemr.html.appendRowForObject(table, input, level + 1, maxLevel, rowHeader);
+    } else {
+        throw new Error('Unsupported input data type.');
     }
 };
 
@@ -158,14 +142,13 @@ dwvOemr.html.appendRow = function (table, input, level, maxLevel, rowHeader)
  * @return {Object} The created HTML table or null if the input is empty.
  * @warning Null is interpreted differently in browsers, firefox will not display it.
  */
-dwvOemr.html.toTable = function (input)
-{
+dwvOemr.html.toTable = function (input) {
     // check content
     if (input.length === 0) {
         return null;
     }
 
-    var table = document.createElement('table');
+    const table = document.createElement('table');
     dwvOemr.html.appendRow(table, input, 0, 2);
     return table;
 };
@@ -176,23 +159,22 @@ dwvOemr.html.toTable = function (input)
  * @param {string} elementId The HTML element id.
  * @return {Object} The HTML search form.
  */
-dwvOemr.html.getHtmlSearchForm = function (htmlTableToSearch, elementId)
-{
+dwvOemr.html.getHtmlSearchForm = function (htmlTableToSearch, elementId) {
     // input
-    var input = document.createElement("input");
+    const input = document.createElement('input');
     input.id = elementId;
     // TODO Use new html5 search type
-    //input.setAttribute("type", "search");
+    // input.setAttribute("type", "search");
     input.onkeyup = function () {
         dwvOemr.html.filterTable(input, htmlTableToSearch);
     };
     // label
-    var label = document.createElement("label");
-    label.setAttribute("for", input.id);
-    label.appendChild(document.createTextNode(dwv.i18n("basics.search") + ": "));
+    const label = document.createElement('label');
+    label.setAttribute('for', input.id);
+    label.appendChild(document.createTextNode(`${dwv.i18n('basics.search')}: `));
     // form
-    var form = document.createElement("form");
-    form.setAttribute("class", "filter");
+    const form = document.createElement('form');
+    form.setAttribute('class', 'filter');
     form.onsubmit = function (event) {
         event.preventDefault();
     };
@@ -212,21 +194,19 @@ dwvOemr.html.filterTable = function (term, table) {
     // de-highlight
     dwvOemr.html.dehighlight(table);
     // split search terms
-    var terms = term.value.toLowerCase().split(" ");
+    const terms = term.value.toLowerCase().split(' ');
 
     // search
-    var text = 0;
-    var display = 0;
-    for (var r = 1; r < table.rows.length; ++r) {
+    let text = 0;
+    let display = 0;
+    for (let r = 1; r < table.rows.length; r += 1) {
         display = '';
-        for (var i = 0; i < terms.length; ++i) {
-            text = table.rows[r].innerHTML.replace(/<[^>]+>/g, "").toLowerCase();
+        for (let i = 0; i < terms.length; i += 1) {
+            text = table.rows[r].innerHTML.replace(/<[^>]+>/g, '').toLowerCase();
             if (text.indexOf(terms[i]) < 0) {
                 display = 'none';
-            } else {
-                if (terms[i].length) {
-                    dwvOemr.html.highlight(terms[i], table.rows[r]);
-                }
+            } else if (terms[i].length) {
+                dwvOemr.html.highlight(terms[i], table.rows[r]);
             }
             table.rows[r].style.display = display;
         }
@@ -240,18 +220,18 @@ dwvOemr.html.filterTable = function (term, table) {
  * @param {Object} container The container to de-highlight.
  */
 dwvOemr.html.dehighlight = function (container) {
-    for (var i = 0; i < container.childNodes.length; i++) {
-        var node = container.childNodes[i];
+    for (let i = 0; i < container.childNodes.length; i += 1) {
+        const node = container.childNodes[i];
 
-        if (node.attributes &&
-                node.attributes['class'] &&
-                node.attributes['class'].value === 'highlighted') {
+        if (node.attributes && node.attributes.class && node.attributes.class.value === 'highlighted') {
             node.parentNode.parentNode.replaceChild(
-                    document.createTextNode(
-                        node.parentNode.innerHTML.replace(/<[^>]+>/g, "")),
-                    node.parentNode);
+                document.createTextNode(
+                    node.parentNode.innerHTML.replace(/<[^>]+>/g, ''),
+                ),
+                node.parentNode,
+            );
             // Stop here and process next parent
-            return;
+            break;
         } else if (node.nodeType !== 3) {
             // Keep going onto other elements
             dwvOemr.html.dehighlight(node);
@@ -267,27 +247,30 @@ dwvOemr.html.dehighlight = function (container) {
  * @param {Object} container The container where to highlight the term.
  */
 dwvOemr.html.highlight = function (term, container) {
-    for (var i = 0; i < container.childNodes.length; i++) {
-        var node = container.childNodes[i];
+    for (let i = 0; i < container.childNodes.length; i += 1) {
+        const node = container.childNodes[i];
 
         if (node.nodeType === 3) {
             // Text node
-            var data = node.data;
-            var data_low = data.toLowerCase();
+            let { data } = node;
+            let data_low = data.toLowerCase();
             if (data_low.indexOf(term) >= 0) {
-                //term found!
-                var new_node = document.createElement('span');
+                // term found!
+                const new_node = document.createElement('span');
                 node.parentNode.replaceChild(new_node, node);
 
-                var result;
+                let result;
                 while ((result = data_low.indexOf(term)) !== -1) {
                     // before term
                     new_node.appendChild(document.createTextNode(
-                                data.substr(0, result)));
+                        data.substr(0, result),
+                    ));
                     // term
                     new_node.appendChild(dwvOemr.html.createHighlightNode(
-                                document.createTextNode(data.substr(
-                                        result, term.length))));
+                        document.createTextNode(data.substr(
+                            result, term.length,
+                        )),
+                    ));
                     // reduce search string
                     data = data.substr(result + term.length);
                     data_low = data_low.substr(result + term.length);
@@ -307,9 +290,9 @@ dwvOemr.html.highlight = function (term, container) {
  * @return {Object} The created HTML node.
  */
 dwvOemr.html.createHighlightNode = function (child) {
-    var node = document.createElement('span');
+    const node = document.createElement('span');
     node.setAttribute('class', 'highlighted');
-    node.attributes['class'].value = 'highlighted';
+    node.attributes.class.value = 'highlighted';
     node.appendChild(child);
     return node;
 };
@@ -320,7 +303,7 @@ dwvOemr.html.createHighlightNode = function (child) {
  */
 dwvOemr.html.cleanNode = function (node) {
     // remove its children if node exists
-    if ( !node ) {
+    if (!node) {
         return;
     }
     while (node.hasChildNodes()) {
@@ -334,13 +317,13 @@ dwvOemr.html.cleanNode = function (node) {
  */
 dwvOemr.html.removeNode = function (node) {
     // check node
-    if ( !node ) {
+    if (!node) {
         return;
     }
     // remove its children
     dwvOemr.html.cleanNode(node);
     // remove it from its parent
-    var top = node.parentNode;
+    const top = node.parentNode;
     top.removeChild(node);
 };
 
@@ -349,7 +332,7 @@ dwvOemr.html.removeNode = function (node) {
  * @param {Array} nodes The list of nodes to delete.
  */
 dwvOemr.html.removeNodes = function (nodes) {
-    for ( var i = 0; i < nodes.length; ++i ) {
+    for (let i = 0; i < nodes.length; i += 1) {
         dwvOemr.html.removeNode(nodes[i]);
     }
 };
@@ -360,14 +343,14 @@ dwvOemr.html.removeNodes = function (nodes) {
  * @param {String} i18nPrefix The i18n prefix to use to find the translation.
  */
 dwvOemr.html.translateTableRow = function (row, i18nPrefix) {
-    var prefix = (typeof i18nPrefix === "undefined") ? "basics" : i18nPrefix;
+    let prefix = (typeof i18nPrefix === 'undefined') ? 'basics' : i18nPrefix;
     if (prefix.length !== 0) {
-        prefix += ".";
+        prefix += '.';
     }
-    var cells = row.cells;
-    for (var c = 0; c < cells.length; ++c) {
-        var text = cells[c].firstChild.data;
-        cells[c].firstChild.data = dwv.i18n( prefix + text );
+    const { cells } = row;
+    for (let c = 0; c < cells.length; c += 1) {
+        const text = cells[c].firstChild.data;
+        cells[c].firstChild.data = dwv.i18n(prefix + text);
     }
 };
 
@@ -379,20 +362,20 @@ dwvOemr.html.translateTableRow = function (row, i18nPrefix) {
  * @param {String} i18nSuffix The i18n suffix to use to find the translation.
  */
 dwvOemr.html.translateTableColumn = function (table, columnNumber, i18nPrefix, i18nSuffix) {
-    var prefix = (typeof i18nPrefix === "undefined") ? "basics" : i18nPrefix;
+    let prefix = (typeof i18nPrefix === 'undefined') ? 'basics' : i18nPrefix;
     if (prefix.length !== 0) {
-        prefix += ".";
+        prefix += '.';
     }
-    var suffix = (typeof i18nSuffix === "undefined") ? "" : i18nSuffix;
+    let suffix = (typeof i18nSuffix === 'undefined') ? '' : i18nSuffix;
     if (suffix.length !== 0) {
-        suffix = "." + suffix;
+        suffix = `.${suffix}`;
     }
     if (table.rows.length !== 0) {
-        for (var r = 1; r < table.rows.length; ++r) {
-            var cells = table.rows.item(r).cells;
+        for (let r = 1; r < table.rows.length; r += 1) {
+            const { cells } = table.rows.item(r);
             if (cells.length >= columnNumber) {
-                var text = cells[columnNumber].firstChild.data;
-                cells[columnNumber].firstChild.data = dwv.i18n( prefix + text + suffix );
+                const text = cells[columnNumber].firstChild.data;
+                cells[columnNumber].firstChild.data = dwv.i18n(prefix + text + suffix);
             }
         }
     }
@@ -407,27 +390,25 @@ dwvOemr.html.translateTableColumn = function (table, columnNumber, i18nPrefix, i
  */
 dwvOemr.html.makeCellEditable = function (cell, onchange, inputType) {
     // check event
-    if (typeof cell === "undefined" ) {
-        console.warn("Cannot create input for non existing cell.");
+    if (typeof cell === 'undefined') {
+        console.warn('Cannot create input for non existing cell.');
         return;
     }
     // HTML input
-    var input = document.createElement("input");
+    const input = document.createElement('input');
     // handle change
     if (onchange) {
         input.onchange = onchange;
-    }
-    else {
+    } else {
         input.disabled = true;
     }
     // set input value
     input.value = cell.firstChild.data;
     // input type
-    if (typeof inputType === "undefined" ||
-        (inputType === "color" && !dwvOemr.browser.hasInputColor() ) ) {
-        input.type = "text";
-    }
-    else {
+    if (typeof inputType === 'undefined'
+        || (inputType === 'color' && !dwvOemr.browser.hasInputColor())) {
+        input.type = 'text';
+    } else {
         input.type = inputType;
     }
 
@@ -435,7 +416,7 @@ dwvOemr.html.makeCellEditable = function (cell, onchange, inputType) {
     dwvOemr.html.cleanNode(cell);
 
     // HTML form
-    var form = document.createElement("form");
+    const form = document.createElement('form');
     form.onsubmit = function (event) {
         event.preventDefault();
     };
@@ -458,7 +439,6 @@ dwvOemr.html.setCursorToDefault = function () {
     document.body.style.cursor = 'default';
 };
 
-
 /**
  * Create a HTML select from an input array of options.
  * The values of the options are the name of the option made lower case.
@@ -471,53 +451,46 @@ dwvOemr.html.setCursorToDefault = function () {
  */
 dwvOemr.html.createHtmlSelect = function (name, list, i18nPrefix, i18nSafe) {
     // select
-    var select = document.createElement("select");
-    //select.name = name;
+    const select = document.createElement('select');
     select.className = name;
-    var prefix = (typeof i18nPrefix === "undefined") ? "" : i18nPrefix + ".";
-    var safe = (typeof i18nSafe === "undefined") ? false : true;
-    var getText = function(value) {
-        var key = prefix + value + ".name";
-        var text = "";
+    const prefix = (typeof i18nPrefix === 'undefined') ? '' : `${i18nPrefix}.`;
+    const safe = !(typeof i18nSafe === 'undefined');
+    const getText = function (value) {
+        const key = `${prefix}${value}.name`;
+        let text = '';
         if (safe) {
             if (dwv.i18nExists(key)) {
                 text = dwv.i18n(key);
-            }
-            else {
+            } else {
                 text = value;
             }
-        }
-        else {
+        } else {
             text = dwv.i18n(key);
         }
         return text;
     };
     // options
-    var option;
-    if ( list instanceof Array )
-    {
-        for ( var i in list ) {
-            if ( list.hasOwnProperty(i) ) {
-                option = document.createElement("option");
+    let option;
+    if (list instanceof Array) {
+        for (const i in list) {
+            if (Object.prototype.hasOwnProperty.call(list, i)) {
+                option = document.createElement('option');
                 option.value = list[i];
                 option.appendChild(document.createTextNode(getText(list[i])));
                 select.appendChild(option);
             }
         }
-    }
-    else if ( typeof list === 'object')
-    {
-        for ( var item in list )
-        {
-            option = document.createElement("option");
-            option.value = item;
-            option.appendChild(document.createTextNode(getText(item)));
-            select.appendChild(option);
+    } else if (typeof list === 'object') {
+        for (const item in list) {
+            if (Object.prototype.hasOwnProperty.call(list, item)) {
+                option = document.createElement('option');
+                option.value = item;
+                option.appendChild(document.createTextNode(getText(item)));
+                select.appendChild(option);
+            }
         }
-    }
-    else
-    {
-        throw new Error("Unsupported input list type.");
+    } else {
+        throw new Error('Unsupported input list type.');
     }
     return select;
 };
@@ -527,22 +500,19 @@ dwvOemr.html.createHtmlSelect = function (name, list, i18nPrefix, i18nSafe) {
  * @param {Object} element The HTML element to display.
  * @param {Boolean} flag True to display the element.
  */
-dwvOemr.html.displayElement = function (element, flag)
-{
-    element.style.display = flag ? "" : "none";
+dwvOemr.html.displayElement = function (element, flag) {
+    element.style.display = flag ? '' : 'none';
 };
 
 /**
  * Toggle the display of an element.
  * @param {Object} element The HTML element to display.
  */
-dwvOemr.html.toggleDisplay = function (element)
-{
-    if ( element.style.display === "none" ) {
+dwvOemr.html.toggleDisplay = function (element) {
+    if (element.style.display === 'none') {
         element.style.display = '';
-    }
-    else {
-        element.style.display = "none";
+    } else {
+        element.style.display = 'none';
     }
 };
 
@@ -551,8 +521,7 @@ dwvOemr.html.toggleDisplay = function (element)
  * @param {Object} parent The HTML element to append to.
  * @param {Object} element The HTML element to append.
  */
-dwvOemr.html.appendElement = function (parent, element)
-{
+dwvOemr.html.appendElement = function (parent, element) {
     // append
     parent.appendChild(element);
     // refresh
@@ -564,12 +533,11 @@ dwvOemr.html.appendElement = function (parent, element)
  * @param {String} type The type of the elemnt.
  * @param {String} className The className of the element.
  */
-dwvOemr.html.createHiddenElement = function (type, className)
-{
-    var element = document.createElement(type);
+dwvOemr.html.createHiddenElement = function (type, className) {
+    const element = document.createElement(type);
     element.className = className;
     // hide by default
-    element.style.display = "none";
+    element.style.display = 'none';
     // return
     return element;
 };

@@ -1,5 +1,5 @@
 // namespaces
-const dwvOemr = dwvOemr || {};
+var dwvOemr = dwvOemr || {};
 dwvOemr.gui = dwvOemr.gui || {};
 dwvOemr.gui.info = dwvOemr.gui.info || {};
 

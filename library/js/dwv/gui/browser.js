@@ -1,6 +1,6 @@
 // namespaces
-const dwv = dwv || {};
-const dwvOemr = dwvOemr || {};
+var dwv = dwv || {};
+var dwvOemr = dwvOemr || {};
 /** @namespace */
 dwvOemr.browser = dwvOemr.browser || {};
 
