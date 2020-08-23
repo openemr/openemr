@@ -28,6 +28,8 @@
         "camelcase":"off",
         "no-extend-native":"off",
         "no-underscore-dangle":"off",
-        "no-restricted-syntax":"off"
+        "no-restricted-syntax":"off",
+        "prefer-destructuring":"off",
+        "no-continue":"off"
     }
 }
