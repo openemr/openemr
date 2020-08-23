@@ -62,7 +62,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                 display: inline;
             }
             #report_results table {
-               margin-top: 0px;
+               margin-top: 0;
             }
         }
 
@@ -91,7 +91,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 <table>
  <tr>
   <td width='470px'>
-    <div style='float:left'>
+    <div class="float-left">
 
     <table class='text'>
 
@@ -101,7 +101,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                       </td>
                       <td>
                          <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr(oeFormatDateTime($form_begin_date, 0, true)); ?>'
-                            class='datepicker form-control'>
+                            class='datepicker form-control' />
                       </td>
                    </tr>
 
@@ -111,7 +111,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                         </td>
                         <td>
                            <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr(oeFormatDateTime($form_end_date, 0, true)); ?>'
-                                class='datepicker form-control'>
+                                class='datepicker form-control' />
                         </td>
                 </tr>
     </table>
@@ -119,7 +119,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
   </td>
   <td class='h-100' align='left' valign='middle'>
-    <table class='w-100 h-100' style='border-left:1px solid;'>
+    <table class='w-100 h-100' style='border-left: 1px solid;'>
         <tr>
             <td>
                 <div class="text-center">

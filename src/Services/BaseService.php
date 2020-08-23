@@ -351,10 +351,10 @@ class BaseService
      * @param string $diagnosis                 - All Diagnosis Codes
      * @return array Array of Code as Key and Description as Value
      */
-    protected function addDiagnosis($diagnosis)
+    protected function addCoding($diagnosis)
     {
-        $diagnosis = array();
         $diags = explode(";", $diagnosis);
+        $diagnosis = array();
         foreach ($diags as $diag) {
             $codedesc = lookup_code_descriptions($diag);
             $code = explode(':', $diag)[1];

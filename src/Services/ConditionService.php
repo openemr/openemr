@@ -21,7 +21,7 @@ class ConditionService extends BaseService
 {
     private const CONDITION_TABLE = "lists";
     private const PATIENT_TABLE = "patient_data";
-    private $uuidRegistery;
+    private $uuidRegistry;
     private $conditionValidator;
 
     /**
@@ -30,8 +30,8 @@ class ConditionService extends BaseService
     public function __construct()
     {
         parent::__construct('lists');
-        $this->uuidRegistery = new UuidRegistry(['table_name' => self::CONDITION_TABLE]);
-        $this->uuidRegistery->createMissingUuids();
+        $this->uuidRegistry = new UuidRegistry(['table_name' => self::CONDITION_TABLE]);
+        $this->uuidRegistry->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         $this->conditionValidator = new ConditionValidator();
     }
@@ -105,7 +105,7 @@ class ConditionService extends BaseService
             $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
             if ($row['diagnosis'] != "") {
-                $row['diagnosis'] = $this->addDiagnosis($row['diagnosis']);
+                $row['diagnosis'] = $this->addCoding($row['diagnosis']);
             }
             $processingResult->addData($row);
         }
@@ -145,7 +145,7 @@ class ConditionService extends BaseService
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
         if ($sqlResult['diagnosis'] != "") {
-            $row['diagnosis'] = $this->addDiagnosis($sqlResult['diagnosis']);
+            $row['diagnosis'] = $this->addCoding($sqlResult['diagnosis']);
         }
         $processingResult->addData($sqlResult);
         return $processingResult;

@@ -93,6 +93,10 @@ if ($GLOBALS['language_menu_login']) {
         var curPid = 0;
         var provider = 0;
 
+        function restoreSession() {
+            //dummy functions so the dlgopen function will work in the patient portal
+            return true;
+        }
         $(function () {
             var navListItems = $('div.setup-panel div a'),
                 allWells = $('.setup-content'),
@@ -143,21 +147,38 @@ if ($GLOBALS['language_menu_login']) {
                 }
                 if (isValid) {
                     if (curStepBtn == 'step-1') { // leaving step 1 setup profile frame. Prob not nec but in case
-                        profile.find('input#fname').val($("#fname").val());
+                    let fn = $("#fname").val().replace(/^./, $("#fname").val()[0].toUpperCase());
+                    let ln = $("#lname").val().replace(/^./, $("#lname").val()[0].toUpperCase());
+                    profile.find('input#fname').val(fn);
                         profile.find('input#mname').val($("#mname").val());
-                        profile.find('input#lname').val($("#lname").val());
+                    profile.find('input#lname').val(ln);
                         profile.find('input#dob').val($("#dob").val());
                         profile.find('input#email').val($("#emailInput").val());
+                    profile.find('input#emailDirect').val($("#emailInput").val());
+                    // disable to prevent already validated field changes.
+                    profile.find('input#fname').prop("disabled", true);
+                    profile.find('input#mname').prop("disabled", true);
+                    profile.find('input#lname').prop("disabled", true);
+                    profile.find('input#dob').prop("disabled", true);
+                    profile.find('input#email').prop("disabled", true);
+                    profile.find('input#emailDirect').prop("disabled", true);
+
                         profile.find('input[name=allowPatientPortal]').val(['YES']);
+                    profile.find('input[name=hipaaAllowemail]').val(['YES']);
                         // need these for validation.
                         profile.find('select#providerid option:contains("Unassigned")').val('');
+                    // must have a provider for many reasons. w/o save won't work.
                         profile.find('select#providerid').attr('required', true);
                         profile.find('select#sex option:contains("Unassigned")').val('');
                         profile.find('select#sex').attr('required', true);
 
                         var pid = profile.find('input#pid').val();
                         if (pid < 1) { // form pid set in promise
-                            callServer('get_newpid', '', $("#dob").val(), $("#lname").val(), $("#fname").val()); // @TODO escape these
+                        callServer('get_newpid', '',
+                            encodeURIComponent($("#dob").val()),
+                            encodeURIComponent($("#lname").val()),
+                            encodeURIComponent($("#fname").val()),
+                            encodeURIComponent($("#emailInput").val()));
                         }
                     }
                     nextstepwiz.removeClass('disabled').trigger('click');
@@ -184,6 +205,14 @@ if ($GLOBALS['language_menu_login']) {
                         $(curInputs[i]).closest(".form-group").addClass("has-error");
                     }
                 }
+            // test for new once again
+            // this time using the profile data that will be saved as new patient.
+            // callserver will intercept on fail or silence to continue.
+            let stillNew = callServer('get_newpid', '',
+                encodeURIComponent(profile.find('input#fname').val()),
+                encodeURIComponent(profile.find('input#lname').val()),
+                encodeURIComponent(profile.find('input#dob').val()),
+                encodeURIComponent(profile.find('input#email').val()));
                 if (isValid) {
                     provider = profile.find('select#providerid').val();
                     nextstepwiz.removeClass('disabled').trigger('click');
@@ -194,7 +223,7 @@ if ($GLOBALS['language_menu_login']) {
                 var profile = $("#profileFrame").contents();
                 var pid = profile.find('input#pid').val();
 
-                if (pid < 1) { // Just in case. Can never have too many pid checks!
+            if (pid < 1) {
                     callServer('get_newpid', '');
                 }
 
@@ -203,7 +232,8 @@ if ($GLOBALS['language_menu_login']) {
                     // Use portals rest api. flag 1 is write to chart. flag 0 writes an audit record for review in dashboard.
                     // rest update will determine if new or existing pid for save. In register step-1 we catch existing pid but,
                     // we can still use update here if we want to allow changing passwords.
-                    //
+
+                // save the new patient.
                     document.getElementById('profileFrame').contentWindow.page.updateModel(1);
                     $("#insuranceForm").submit();
                     //  cleanup is in callServer done promise. This starts end session.
@@ -249,6 +279,20 @@ if ($GLOBALS['language_menu_login']) {
                 }
             });
 
+        $("#dob").on('blur', function () {
+            let bday = $(this).val() ?? '';
+            let age = Math.round(Math.abs((new Date().getTime() - new Date(bday).getTime())));
+            age = Math.round(age / 1000 / 60 / 60 / 24);
+            // need to be at least 30 days old otherwise likely an error.
+            if (age < 30) {
+                let msg = <?php echo (xlj("Invalid Date format or value! Type date as YYYY-MM-DD or use the calendar.") ); ?> ;
+                $(this).val('');
+                $(this).prop('placeholder', 'Invalid Date');
+                alert(msg);
+                return false;
+            }
+        });
+
         }); // ready end
 
         function doCredentials(pid) {
@@ -283,14 +327,15 @@ if ($GLOBALS['language_menu_login']) {
             return true;
         }
 
-        function callServer(action, value, value2, last, first) {
+    function callServer(action, value, value2, last, first, email = null) {
             let message = '';
             let data = {
                 'action': action,
                 'value': value,
                 'dob': value2,
                 'last': last,
-                'first': first
+            'first': first,
+            'email': email
             }
             if (action == 'do_signup') {
                 data = {
@@ -315,7 +360,7 @@ if ($GLOBALS['language_menu_login']) {
                 data: data
             }).done(function (rtn) {
                 if (action == "cleanup") {
-                    window.location.href = "./../index.php"; // Goto landing page.
+                window.location.href = "./../index.php" // Goto landing page.
                 } else if (action == "set_lang") {
                     window.location.href = window.location.href;
                 } else if (action == "get_newpid") {

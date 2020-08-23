@@ -11,19 +11,19 @@ div.closeDlgIframe {
   width: 25px;
   z-index: 10010;
   #{$right}: -12px;
-}
 
-div.closeDlgIframe::before {
-  color: $white;
-  content: "\f00d";
-  display: inline-block;
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  height: 25px;
-  line-height: 25px;
-  margin: auto;
-  text-align: center;
-  width: 100%;
+  &::before {
+    @extend .fas;
+    color: $white;
+    content: fa-content('#{$fa-var-times}');
+    display: inline-block;
+    font-weight: 900;
+    height: 25px;
+    line-height: 25px;
+    margin: auto;
+    text-align: center;
+    width: 100%;
+  }
 }
 
 /* important for drag and resizing */

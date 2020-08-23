@@ -33,13 +33,13 @@ if (!class_exists($DOMClass)) {
 
 $DOM = new $DOMClass();
 
-$divMonths = $DOM->createElement("DIV");
-$divMonths->setAttribute("ID", "monthPicker");
-$divMonths->setAttribute("style", "display:none;position: absolute; top: 15px;");
+$divMonths = $DOM->createElement("div");
+$divMonths->setAttribute("id", "monthPicker");
+$divMonths->setAttribute("style", "display: none; position: absolute; top: 15px;");
 $DOM->appendChild($divMonths);
-$tblMonths = $DOM->createElement("TABLE");
+$tblMonths = $DOM->createElement("table");
 $divMonths->appendChild($tblMonths);
-$tbodyMonths = $DOM->createElement("TBODY");
+$tbodyMonths = $DOM->createElement("tbody");
 $tblMonths->appendChild($tbodyMonths);
 $pMonth = date("m");
 $pYear = date("Y");
@@ -58,10 +58,10 @@ for ($idx = 0; $idx < 13; $idx++) {
     }
 
     $pDate = sprintf("%d%02d%02d", $pYear, $pMonth, $pDay);
-    $trMonth = $DOM->createElement("TR");
-    $tdMonth = $DOM->createElement("TD", xl(date("F", strtotime($pDate))) . " " . $pYear);
-    $tdMonth->setAttribute("ID", $pDate);
-    $tdMonth->setAttribute("CLASS", $tdClasses);
+    $trMonth = $DOM->createElement("tr");
+    $tdMonth = $DOM->createElement("td", xl(date("F", strtotime($pDate))) . " " . $pYear);
+    $tdMonth->setAttribute("id", $pDate);
+    $tdMonth->setAttribute("class", $tdClasses);
     $trMonth->appendChild($tdMonth);
     $tbodyMonths->appendChild($trMonth);
     $pMonth = $pMonth + 1;

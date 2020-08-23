@@ -16,11 +16,12 @@
 <script>
 
 {literal}
-    function my_process () {
+    function my_process_lookup(drug) {
       // Pass the variable
-      opener.document.prescribe.drug.value = document.lookup.drug.value;
-      // Close the window
-      window.self.close();
+      var newOption = new Option(drug, drug, true, true);
+      $('#drug').append(newOption).trigger('change');
+      $('#hiddendiv').hide();
+      $("#hiddendiv").html( "&nbsp;" );
     }
 {/literal}
 </script>
@@ -48,7 +49,8 @@
   var i = f.drug_id.selectedIndex - 1;
   if (i >= 0) {
    var d = drugopts[i];
-   f.drug.value = d[0];
+   var newOption = new Option(d[0], d[0], true, true);
+   $('#drug').append(newOption).trigger('change');
    selchoose(f.form, d[1]);
    f.dosage.value = d[2];
    f.size.value = d[3];
@@ -155,7 +157,7 @@
         </div>
         <div class="form-group mt-3">
             <label>{xlt t='Drug'}</label>
-            <select class="input-sm form-control" type="input" size="35" name="drug" id="drug" value="{$prescription->drug|attr}"></select>
+            <select class="input-sm form-control" type="input" size="35" name="drug" id="drug"></select>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
                 ({xlt t='click here to search'})
             </a>
@@ -349,7 +351,7 @@ $(function () {
                     results: $.map(data, function(item, index) {
                         return {
                             text: item,
-                            id: index,
+                            id: item,
                             value: item
                         }
                     })
@@ -363,8 +365,15 @@ $(function () {
           });
         {/literal}
     {/if}
-    {literal}
+    {if $prescription->drug}
+        {literal}
+        // Show the current drug name in the select
+        var newOption = new Option({/literal}{$prescription->drug|js_escape}, {$prescription->drug|js_escape}{literal}, true, true);
+        $('#drug').append(newOption).trigger('change');
+        {/literal}
+    {/if}
 
+    {literal}
     $("#drug").focus();
     $("#prescribe").submit(function() { return CheckForErrors(this) });
 });

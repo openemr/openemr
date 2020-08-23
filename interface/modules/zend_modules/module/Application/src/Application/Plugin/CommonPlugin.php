@@ -22,51 +22,52 @@ class CommonPlugin extends AbstractPlugin
 {
     protected $application;
 
-  /**
-   * Application Table Object
-   * Listener Object
-   * @param type $container ContainerInterface
-   */
+    /**
+     * Application Table Object
+     * Listener Object
+     *
+     * @param type $container ContainerInterface
+     */
     public function __construct(ContainerInterface $container)
     {
         // TODO: this is crazy... why do we grab the service locator so we can load the db adapter?
         // is there some db related state that is being loaded here in a global type of way that we aren't aware of?? Or can we just remove this line?
         $container->get('Laminas\Db\Adapter\Adapter');
-        $this->application    = new ApplicationTable();
+        $this->application = new ApplicationTable();
         $this->listenerObject = new Listener();
     }
 
-  /**
-   * Function checkACL
-   * Plugin functions are easily access from any where in the project
-   * Call the ACL Check function zAclCheck from ApplicationTable
-   *
-   * @param int     $useID
-   * @param string  $sectionID
-   * @return type
-   */
+    /**
+     * Function checkACL
+     * Plugin functions are easily access from any where in the project
+     * Call the ACL Check function zAclCheck from ApplicationTable
+     *
+     * @param int    $useID
+     * @param string $sectionID
+     * @return type
+     */
     public function checkACL($useID, $sectionID)
     {
         return $this->application->zAclCheck($useID, $sectionID);
     }
 
-  /**
-    * Keyword color hightlight (primary keyword and secondary)
-    * ? - The question mark used for omit the error.
-    * Error occur in second word of the search keyword,
-    * if maches any of the letter in the html element
-  */
+    /**
+     * Keyword color hightlight (primary keyword and secondary)
+     * ? - The question mark used for omit the error.
+     * Error occur in second word of the search keyword,
+     * if maches any of the letter in the html element
+     */
     public function hightlight($str, $keywords = '')
     {
 
-        $keywords   = preg_replace('/\s\s+/', ' ', strip_tags(trim($keywords)));
-        $style      = '???';
-        $style_i  = 'highlight_i';
-        $var        = '';
+        $keywords = preg_replace('/\s\s+/', ' ', strip_tags(trim($keywords)));
+        $style = '???';
+        $style_i = 'highlight_i';
+        $var = '';
         foreach (explode(' ', $keywords) as $keyword) {
-            $replacement  =   "<?? ?='" . $style . "'>" . trim($keyword) . "</??>";
-            $var          .=  $replacement . " ";
-            $str      =   str_ireplace($keyword, $replacement, $str);
+            $replacement = "<?? ?='" . $style . "'>" . trim($keyword) . "</??>";
+            $var .= $replacement . " ";
+            $str = str_ireplace($keyword, $replacement, $str);
         }
 
         $str = str_ireplace(rtrim($var), "<?? ?='" . $style_i . "'>" . trim($keywords) . "</??>", $str);
@@ -78,7 +79,7 @@ class CommonPlugin extends AbstractPlugin
 
     public function date_format($date, $output_format, $input_format)
     {
-        $this->application    = new ApplicationTable();
+        $this->application = new ApplicationTable();
         $date_formatted = $this->application->fixDate($date, $output_format, $input_format);
         return $date_formatted;
     }
@@ -96,31 +97,31 @@ class CommonPlugin extends AbstractPlugin
   */
     public function insert_ccr_into_audit_data($var)
     {
-        $appTable   = new ApplicationTable();
-        $audit_master_id_to_delete  = $var['audit_master_id_to_delete'];
+        $appTable = new ApplicationTable();
+        $audit_master_id_to_delete = $var['audit_master_id_to_delete'];
         $approval_status = $var['approval_status'];
-        $type       = $var['type'];
+        $type = $var['type'];
         $ip_address = $var['ip_address'];
-        $field_name_value_array     = $var['field_name_value_array'];
+        $field_name_value_array = $var['field_name_value_array'];
         $entry_identification_array = $var['entry_identification_array'];
 
         if ($audit_master_id_to_delete) {
-            $qry  = "DELETE from audit_details WHERE audit_master_id=?";
+            $qry = "DELETE from audit_details WHERE audit_master_id=?";
             $appTable->zQuery($qry, array($audit_master_id_to_delete));
 
-            $qry  = "DELETE from audit_master WHERE id=?";
+            $qry = "DELETE from audit_master WHERE id=?";
             $appTable->zQuery($qry, array($audit_master_id_to_delete));
         }
 
         $master_query = "INSERT INTO audit_master SET pid = ?,approval_status = ?,ip_address = ?,type = ?";
-        $result       = $appTable->zQuery($master_query, array(0,$approval_status,$ip_address,$type));
-        $audit_master_id    = $result->getGeneratedValue();
+        $result = $appTable->zQuery($master_query, array(0, $approval_status, $ip_address, $type));
+        $audit_master_id = $result->getGeneratedValue();
         $detail_query = "INSERT INTO `audit_details` (`table_name`, `field_name`, `field_value`, `audit_master_id`, `entry_identification`) VALUES ";
         $detail_query_array = array();
         foreach ($field_name_value_array as $key => $val) {
             foreach ($field_name_value_array[$key] as $cnt => $field_details) {
                 foreach ($field_details as $field_name => $field_value) {
-                    $detail_query         .= "(? ,? ,? ,? ,?),";
+                    $detail_query .= "(? ,? ,? ,? ,?),";
                     $detail_query_array[] = $key;
                     $detail_query_array[] = trim($field_name);
                     if (is_array($field_value)) {
@@ -152,27 +153,27 @@ class CommonPlugin extends AbstractPlugin
         $res = $appTable->zQuery("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title", array($list_id));
         $i = 0;
         if ($opt == 'search') {
-            $rows[$i] = array (
-            'value' => 'all',
-            'label' => $this->listenerObject->z_xlt('All'),
-            'selected' => true,
-              );
-              $i++;
+            $rows[$i] = array(
+                'value' => 'all',
+                'label' => $this->listenerObject->z_xlt('All'),
+                'selected' => true,
+            );
+            $i++;
         } elseif ($opt == '') {
-            $rows[$i] = array (
-            'value' => '',
-            'label' => $this->listenerObject->z_xlt('Unassigned'),
-            'disabled' => false
+            $rows[$i] = array(
+                'value' => '',
+                'label' => $this->listenerObject->z_xlt('Unassigned'),
+                'disabled' => false
             );
             $i++;
         }
 
         foreach ($res as $row) {
             $sel = ($row['option_id'] == $selected) ? true : false;
-            $rows[$i] = array (
-            'value' => htmlspecialchars($row['option_id'], ENT_QUOTES),
-            'label' => $this->listenerObject->z_xlt($row['title']),
-            'selected' => $sel,
+            $rows[$i] = array(
+                'value' => htmlspecialchars($row['option_id'], ENT_QUOTES),
+                'label' => $this->listenerObject->z_xlt($row['title']),
+                'selected' => $sel,
             );
             $i++;
         }
@@ -180,11 +181,11 @@ class CommonPlugin extends AbstractPlugin
         return $rows;
     }
 
-  /*
-  * $this->escapeHtml() cannot be used in any files other than view.
-  * This function will enable a user to use escapeHtml in any files like controller model etc.
-  */
-    public function escape($string)
+    /*
+    * $this->escapeHtml() cannot be used in any files other than view.
+    * This function will enable a user to use escapeHtml in any files like controller model etc.
+    */
+    public static function escape($string)
     {
         return htmlspecialchars($string, ENT_QUOTES);
     }
@@ -193,7 +194,7 @@ class CommonPlugin extends AbstractPlugin
     {
         $appTable = new ApplicationTable();
         $sql = "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? ";
-        $result = $appTable->zQuery($sql, array($listId,$listOptionId));
+        $result = $appTable->zQuery($sql, array($listId, $listOptionId));
         $row = $result->current();
         $return = xl_list_label($row['title']);
         return $return;

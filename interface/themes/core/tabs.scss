@@ -6,33 +6,33 @@ ul.tabNav {
   float: $left;
   list-style: none;
   width: 100%;
-}
 
-ul.tabNav li {
-  float: $left;
-  text-align: $left;
-  vertical-align: bottom;
-}
+  li {
+    float: $left;
+    text-align: $left;
+    vertical-align: bottom;
+  }
 
-ul.tabNav a {
-  display: block;
+  a {
+    display: block;
+  }
 }
 
 div.tabContainer {
   clear: both;
   float: $left;
   width: 100%;
-}
 
-div.tabContainer div.tab {
-  border: 1px solid $white;
-  color: $body-color;
-  display: none;
-  padding: 10px;
-}
+  div.tab {
+    border: 1px solid $white;
+    color: $body-color;
+    display: none;
+    padding: 10px;
+  }
 
-div.tabContainer div.current {
-  display: block;
+  div.current {
+    display: block;
+  }
 }
 
 div.tab {
@@ -40,51 +40,51 @@ div.tab {
   margin-bottom: 10px;
   min-height: 180px;
   width: 665px;
-}
 
-div.tab_long {
-  background: $white none repeat scroll 0 0;
-  margin-bottom: 10px;
-  min-height: 180px;
-  width: 100%;
-}
+  p:last-child {
+    margin-bottom: 0;
+  }
 
-div.tab p:last-child {
-  margin-bottom: 0;
-}
+  table td {
+    padding-bottom: 0;
+    padding-#{$right}: 1px;
 
-div.tab table td {
-  padding-bottom: 0;
-  padding-#{$right}: 1px;
-}
+    &.label_custom {
+      min-width: 80px;
+    }
 
-div.tab table td.label_custom {
-  min-width: 80px;
-}
+    &.data {
+      min-width: 120px;
+    }
+  }
 
-div.tab table td.data {
-  min-width: 120px;
+  &_long {
+    background: $white none repeat scroll 0 0;
+    margin-bottom: 10px;
+    min-height: 180px;
+    width: 100%;
+  }
 }
 
 div.notab {
   margin-bottom: 10px;
   width: 100%;
-}
 
-div.notab-right {
-  margin-bottom: 10px;
-  width: 100%;
+  &-right {
+    margin-bottom: 10px;
+    width: 100%;
+  }
 }
 
 .section-header {
   border-bottom: 1px solid;
   margin-bottom: 5px;
   width: 685px;
-}
 
-.section-header-dynamic {
-  border-bottom: 1px solid;
-  margin-bottom: 5px;
+  &-dynamic {
+    border-bottom: 1px solid;
+    margin-bottom: 5px;
+  }
 }
 
 .summary_item {

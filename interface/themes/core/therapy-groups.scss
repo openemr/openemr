@@ -51,7 +51,7 @@ table.dataTable#therapy_groups_list tbody td {
 
 .therapy_group .delete_btn button,
 .therapy_group .delete_btn span {
-  @include font-size("15px !important");
+  @include font-size("0.9375rem");
   background-color: lighten($danger, 20%);
   padding: 2px 10px;
 }
@@ -62,7 +62,7 @@ table.dataTable#therapy_groups_list tbody td {
 }
 
 .therapy_group #therapy_groups_list_container .failed_message {
-  @include font-size("15px !important");
+  @include font-size("0.9375rem");
 }
 
 #updateParticipants {
@@ -86,14 +86,14 @@ table.dataTable#therapy_groups_list tbody td {
 }
 
 .groups-error-msg {
-  @include font-size("1.3rem !important");
+  @include font-size("1.3rem");
   color: $orange;
   padding: 8px;
   text-align: center;
 }
 
 .therapy_group .event_details {
-  @include font-size("14px !important");
+  @include font-size("0.875rem");
 }
 
 #add_participant {

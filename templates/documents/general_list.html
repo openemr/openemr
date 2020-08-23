@@ -49,15 +49,15 @@ border-radius: 4px 0 0 4px!important;
 </head>
 <!-- ViSolve - Call expandAll function on loading of the page if global value 'expand_document' is set -->
 {if $GLOBALS.expand_document_tree}
-  <body class="body_top" onload="javascript:objTreeMenu_1.expandAll();return false;">
+  <body onload="javascript:objTreeMenu_1.expandAll();return false;">
 {else}
-  <body class="body_top">
+  <body>
 {/if}
-<div class="container-fluid">
+<div class="container-fluid mt-3">
 	<div class="row">
 		<div class="col-sm-12">
 			<div class="title">
-					<h2>{xlt t='Documents'} <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()' title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
+				<h2>{xlt t='Documents'} <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()' title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
 			</div>
 		</div>
 	</div>
@@ -65,25 +65,23 @@ border-radius: 4px 0 0 4px!important;
 		<div class="col-sm-3">
 			<div id="documents_list">
 				<fieldset>
-				<legend>{xlt t='Documents List'}</legend>
-                <div style="padding: 0 10px">
-                    <div class="ui-widget form-inline" class='float-right'>
-                         <select id="selectPatient" class="form-control" type="text" data-placeholder="{$place_hld|attr}" style="width:150px;">
-                            <option></option></select>
-                        <button id='pid' class="btn btn-primary pBtn" type="button" class='float-right' style="border-radius: 0 0.25rem 0.25rem 0">0</button>
+                    <legend>{xlt t='Documents List'}</legend>
+                    <div class="pl-3">
+                        <div class="form-inline float-right" id="patientSearch">
+                            <select id="selectPatient" class="form-control" type="text" data-placeholder="{$place_hld|attr}">
+                                <option></option>
+                            </select>
+                            <button id='pid' type="button" class='float-right btn btn-primary pBtn'>&times;</button>
+                        </div>
+                        <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xlt t='Collapse all'})</a>
+                        {$tree_html}
                     </div>
-                    <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xlt t='Collapse all'})</a>
-                    {$tree_html}
-                </div>
-			</fieldset>
+			    </fieldset>
             </div>
 		</div>
-
 		<div class="col-sm-9">
 			<div id="documents_actions">
-
 				<fieldset>
-
 					<legend>{xlt t='Document Uploader/Viewer'}</legend>
                     <div style="padding: 0 10px">
 						{if $message}
@@ -95,7 +93,6 @@ border-radius: 4px 0 0 4px!important;
 						{$activity}
 					</div>
 				</fieldset>
-
 			</div>
 		</div>
 	</div>
@@ -107,7 +104,7 @@ var demoPid = {$demo_pid|js_escape};
 var inUseMsg = {$used_msg|js_escape};
 {literal}
 if(curpid == demoPid && !newVersion){
-    $(".ui-widget").hide();
+    $("#patientSearch").hide();
 }
 else{
     $("#pid").text(curpid);
