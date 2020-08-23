@@ -2028,6 +2028,18 @@ CREATE TABLE `uuid_mapping` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 #EndIf
 
+#IfColumn automatic_notification next_app_date
+ALTER TABLE `automatic_notification` DROP COLUMN `next_app_date`;
+#EndIf
+
+#IfColumn automatic_notification next_app_time
+ALTER TABLE `automatic_notification` DROP COLUMN `next_app_time`;
+#EndIf
+
+#IfColumn automatic_notification notification_sent_date
+ALTER TABLE `automatic_notification` DROP COLUMN `notification_sent_date`;
+#EndIf
+
 #IfMissingColumn procedure_result uuid
 ALTER TABLE `procedure_result` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
