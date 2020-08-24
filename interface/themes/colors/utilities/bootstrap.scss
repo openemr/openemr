@@ -28,28 +28,12 @@ textarea.form-control {
   background-color: $white !important;
 }
 
-// .btn-secondary {
-//   background: $darker !important;
-//   border-color: $darker !important;
-//   color: $white !important;
-// }
-
 .btn-link {
   background: $paler !important;
   border-color: $darkest !important;
   border-radius: 2px !important;
   color: $gray !important;
 }
-
-// .btn-secondary.active,
-// .btn-secondary.focus,
-// .btn-secondary:active,
-// .btn-secondary:focus,
-// .btn-secondary:hover,
-// .open > .dropdown-toggle.btn-secondary {
-//   background: $darkest !important;
-//   border-color: $darkest !important;
-// }
 
 .btn-link:focus,
 .btn-link:hover {

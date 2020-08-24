@@ -78,11 +78,13 @@ class Header
     public static function setupHeader($assets = [], $echoOutput = true)
     {
         // Required tag
-        $output = '<meta charset="utf-8" />';
+        $output = "\n<meta charset=\"utf-8\" />\n";
         // Makes only compatible with MS Edge
-        $output .= '<meta http-equiv="X-UA-Compatible" content="IE=edge" />';
+        $output .= "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\n";
         // BS4 required tag
-        $output .= '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />';
+        $output .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n";
+        // Favicon
+        $output .= "<link rel=\"shortcut icon\" href=\"" . $GLOBALS['images_static_relative'] . "/favicon.ico\" />\n";
         $output .= self::setupAssets($assets, true, false);
         if ($echoOutput) {
             echo $output;
@@ -310,7 +312,7 @@ class Header
     {
 
         $script = "<script src=\"%path%\"></script>\n";
-        $link = "<link rel=\"stylesheet\" href=\"%path%\">\n";
+        $link = "<link rel=\"stylesheet\" href=\"%path%\" />\n";
 
         $template = ($type == 'script') ? $script : $link;
         if (!$alreadyBuilt) {
