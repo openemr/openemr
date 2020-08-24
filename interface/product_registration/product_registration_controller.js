@@ -20,16 +20,15 @@
 "use strict";
 
 function ProductRegistrationController() {
-    var self = this;
+    const self = this;
 
-    var _productRegistrationService = new ProductRegistrationService();
+    const _productRegistrationService = new ProductRegistrationService();
 
     self.getProductRegistrationStatus = function (callback) {
         _productRegistrationService.getProductStatus(function (err, data) {
             if (err) {
                 return callback(err, null);
             }
-
             callback(null, data);
         });
     };
@@ -38,28 +37,25 @@ function ProductRegistrationController() {
         _displayFormView();
     };
 
-    var _displayFormView = function () {
+    const _displayFormView = function () {
         // Workaround to get i18n keys
-        var buttonObject = {};
+        const buttonObject = {};
         buttonObject[registrationTranslations.submit] = _formSubmissionHandler;
         buttonObject[registrationTranslations.noThanks] = _formCancellationHandler;
 
         $('.product-registration-modal .modal-header').text(registrationTranslations.title);
 
-        $('.product-registration-modal .submit').on('click', function(e){
-                _formSubmissionHandler();
-                return false;
-            });
+        $('.product-registration-modal .submit').on('click', function (e) {
+            _formSubmissionHandler();
+            return false;
+        });
 
-        $('.product-registration-modal .nothanks').on('click', function(e){
+        $('.product-registration-modal .nothanks').on('click', function (e) {
             _formCancellationHandler();
             return false;
         });
 
         $('.product-registration-modal').modal('toggle');
-
-
-
 
         // Wire up "enter key" handler in case user doesn't click the modal buttons manually
         $('.product-registration-modal .email').on('keypress', function (event) {
@@ -70,8 +66,8 @@ function ProductRegistrationController() {
         });
     };
 
-    var _formSubmissionHandler = function () {
-        var email = $('.product-registration-modal .email').val() || '';
+    const _formSubmissionHandler = function () {
+        const email = $('.product-registration-modal .email').val() || '';
 
         if (email === '' || email.indexOf('@') < 0) {
             $('.product-registration-modal .message').text(registrationTranslations.pleaseProvideValidEmail);
@@ -82,7 +78,6 @@ function ProductRegistrationController() {
                 if (err) {
                     return _registrationFailedHandler(err);
                 }
-
                 _registrationCreatedHandler(data);
             });
         }
@@ -95,18 +90,18 @@ function ProductRegistrationController() {
         }
     };
 
-    var _formCancellationHandler = function () {
+    const _formCancellationHandler = function () {
         _closeModal();
 
         // Note: not checking output here (don't want to bug the user more this session
         // after they said "no thanks" to the modal). If anything goes wrong, it will be silent.
         // The only reasons why this would fail would be because of no connection or our server
         // is down.
-        var _noop = function () {};
+        const _noop = function () {};
         _productRegistrationService.submitRegistration(false, _noop);
     };
 
-     var _registrationCreatedHandler = function (data) {
+    const _registrationCreatedHandler = function (data) {
         $('.product-registration-modal .context').remove();
         $('.product-registration-modal .email').remove();
         $('.product-registration-modal .message').text(registrationTranslations.registeredSuccess);
@@ -114,11 +109,11 @@ function ProductRegistrationController() {
         self.displayRegistrationInformationIfDivExists(data);
     };
 
-    var _registrationFailedHandler = function (error) {
+    const _registrationFailedHandler = function (error) {
         $('.product-registration-modal .message').text(error);
     };
 
-    var _closeModal = function (closeWaitTimeMilliseconds) {
+    const _closeModal = function (closeWaitTimeMilliseconds) {
         setTimeout(function () {
             $('.product-registration-modal').modal('toggle');
         }, closeWaitTimeMilliseconds || 0);

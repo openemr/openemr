@@ -29,7 +29,7 @@ ko.bindingHandlers.location = {
                     const jqDocument = $(cwDocument);
                     const titleDocument = jqDocument.attr('title');
                     let titleText = 'Unknown';
-                    const titleClass = jqDocument.find('.title:first');
+                    let titleClass = jqDocument.find('.title:first');
                     if (titleDocument.length >= 1) {
                         titleText = titleDocument;
                     } else if (titleClass.length >= 1) {
@@ -37,16 +37,16 @@ ko.bindingHandlers.location = {
                     } else {
                         const frameDocument = jqDocument.find('frame');
                         if (frameDocument.length >= 1) {
-                            titleText = frameDocument.attr("name");
-                            var jqFrameDocument = $(frameDocument.get(0).contentWindow.document);
-                            titleClass = jqFrameDocument.find(".title:first");
+                            titleText = frameDocument.attr('name');
+                            const jqFrameDocument = $(frameDocument.get(0).contentWindow.document);
+                            titleClass = jqFrameDocument.find('.title:first');
                             if (titleClass.length >= 1) {
                                 titleText = titleClass.text();
                             }
-                            var subFrame = frameDocument.get(0);
-                            subFrame.addEventListener("load", function () {
-                                var subFrameDocument = $(subFrame.contentWindow.document);
-                                titleClass = $(subFrameDocument).find(".title:first");
+                            const subFrame = frameDocument.get(0);
+                            subFrame.addEventListener('load', function () {
+                                const subFrameDocument = $(subFrame.contentWindow.document);
+                                titleClass = $(subFrameDocument).find('.title:first');
                                 if (titleClass.length >= 1) {
                                     titleText = titleClass.text();
                                     tabData.title(titleText);

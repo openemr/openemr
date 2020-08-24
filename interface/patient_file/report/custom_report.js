@@ -1,4 +1,4 @@
-  /**
+/**
  *
  * Javascript extracted from Patient custom report.
  * Uses - jquery instance and SearchHighlight plug-in
