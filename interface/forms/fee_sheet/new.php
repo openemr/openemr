@@ -903,8 +903,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $cleave_cat = is_numeric(substr($fs_category, 0, 2)) ? 2 : 1;
                                     $cleave_opt = is_numeric(substr($fs_option, 0, 2)) ? 2 : 1;
                                     echo ($i <= 1) ? " <tr>\n" : "";
-                                    echo "  <td width='50%'  nowrap>\n";
-                                    echo "   <select class='form-control' style='width:96%' onchange='codeselect(this)'>\n";
+                                    echo "  <td class='text-nowrap' width='50%'>\n";
+                                    echo "   <select class='form-control' onchange='codeselect(this)'>\n";
                                     echo "    <option value=''> " . xlt(substr($fs_category, $cleave_cat)) . "</option>\n";
                                 }
                                 echo "    <option value='" . attr($fs_codes) . "'>" . xlt(substr($fs_option, $cleave_opt)) . "</option>\n";
@@ -918,8 +918,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 global $code_types;
                                 ++$i;
                                 echo ($i <= 1) ? " <tr>\n" : "";
-                                echo "  <td width='50%' align='center' nowrap>\n";
-                                echo "   <select class='form-control' style='width:96%' onchange='codeselect(this)'>\n";
+                                echo "  <td class='text-center text-nowrap' width='50%'>\n";
+                                echo "   <select class='form-control' onchange='codeselect(this)'>\n";
                                 echo "    <option value=''> " . text(xl_list_label($prow['title'])) . "\n";
                                 $res = sqlStatement("SELECT code_type, code, code_text,modifier FROM codes " .
                                 "WHERE superbill = ? AND active = 1 " .
@@ -944,8 +944,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if ($GLOBALS['sell_non_drug_products']) {
                                 ++$i;
                                 echo ($i <= 1) ? " <tr>\n" : "";
-                                echo "  <td width='50%' align='center' nowrap>\n";
-                                echo "   <select name='Products' class='form-control' style='width:96%' onchange='codeselect(this)'>\n";
+                                echo "  <td class='text-center text-nowrap' width='50%'>\n";
+                                echo "   <select name='Products' class='form-control' onchange='codeselect(this)'>\n";
                                 echo "    <option value=''> " . xlt('Products') . "\n";
                                 $tres = sqlStatement("SELECT dt.drug_id, dt.selector, d.name " .
                                 "FROM drug_templates AS dt, drugs AS d WHERE " .
@@ -1021,7 +1021,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                 <div class="mx-5 mb-3 text-center">
                                     <?php
-                                    echo "<td colspan='" . attr($FEE_SHEET_COLUMNS) . "' class='text-center text-nowrap>\n";
+                                    echo "<td colspan='" . attr($FEE_SHEET_COLUMNS) . "' class='text-center text-nowrap'>\n";
 
                                     // If Search was clicked, do it and write the list of results here.
                                     // There's no limit on the number of results!
@@ -1037,7 +1037,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         echo "   <select name='search_results' class='form-control text-danger' " .
                                         "onchange='codeselect(this)' disabled >\n";
                                     } else {
-                                        echo "   <select name='search_results' style='width: 98%; background: var(--yellow)' " .
+                                        echo "   <select name='search_results' style='background: var(--yellow)' " .
                                         "onchange='codeselect(this)' >\n";
                                     }
 

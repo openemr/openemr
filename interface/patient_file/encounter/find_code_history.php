@@ -78,16 +78,6 @@ function get_history_codes($pid)
     <title><?php xlt("Find Code History"); ?></title>
     <meta charset="utf-8" />
     <?php Header::setupHeader(['opener']); ?>
-    <style>
-        .tips {
-            display: none;
-        }
-        .loading {
-             position: relative;
-             top: 40vh;
-             background: var(--white);
-         }
-    </style>
     <script>
         const errorMsg = '' + <?php echo xlj("Error finding diagnosis element. Try again."); ?>;
 
@@ -156,7 +146,7 @@ function get_history_codes($pid)
                 $(rows[i]).closest('tr').addClass('text-danger ');
                 i++;
             }
-            $('.loading').fadeOut();
+            $('.spinner-border').fadeOut();
             if (rows.length) {
                 // scroll to first match and make active
                 $(rows[0]).closest('tr').addClass('active');
@@ -174,7 +164,7 @@ function get_history_codes($pid)
             </div>
             <input class='form-control text-danger' type='text' id='workingDx' title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
         </div>
-        <div id="tips" class="tips">
+        <div id="tips" class="d-none">
             <section class="card bg-warning">
                 <header class="card-heading card-heading-sm">
                     <h4 class="card-title"><?php echo xlt('Usage Tips') ?></h4>
@@ -195,7 +185,9 @@ function get_history_codes($pid)
                 </div>
             </section>
         </div>
-        <div class="loading text-center"><i class="fa fa-sync fa-3x fa-spin"></i></div>
+        <div class="spinner-border" role="status">
+            <span class="sr-only"><?php echo xlt('Loading'); ?>...</span>
+        </div>
     </div>
     <div class="container-fluid">
         <div class="table-responsive mt-5">
@@ -214,16 +206,25 @@ function get_history_codes($pid)
                 foreach ($dxcodes as $pc) {
                     $code = explode(':', $pc['code']);
                     $code[0] = text($code[0]);
-                    $code[1] = text($code[1]);
-                    echo "<tr>\n" .
-                        "<td>" . $pc['origin'] . "</td>\n" .
-                        "<td><button class='btn btn-sm btn-secondary' onclick='rtnCode(this)' " .
-                        " value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u class='text-danger'>" . $code[1] . "</u></button></td>\n" .
-                        "<td>" . text($pc['desc']) . "</td>\n" .
-                        "<td>" . text($pc['procedure']) . "</td>\n" .
-                        "</tr>\n";
-                }
-                ?>
+                    $code[1] = text($code[1]); ?>
+
+                    <tr>
+                        <td>
+                            <?php echo $pc['origin']; ?>
+                        </td>
+                        <td>
+                            <button class='btn btn-sm btn-secondary' onclick='rtnCode(this)' value='<?php echo attr($pc['code']); ?>'>
+                                <?php echo $code[0]; ?>:&nbsp;<u class='text-danger'><?php echo $code[1]; ?></u>
+                            </button>
+                        </td>
+                        <td>
+                            <?php echo text($pc['desc']); ?>
+                        </td>
+                        <td>
+                            <?php echo text($pc['procedure']); ?>
+                        </td>
+                    </tr>
+                <?php } ?>
                 </tbody>
             </table>
         </div>

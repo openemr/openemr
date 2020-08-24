@@ -229,7 +229,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             #visit-details [class*="col-"],
             #visit-issues [class*="col-"] {
                 width: 100%;
-                text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ' : 'left '?> !Important;
+                text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ' : 'left '?> !important;
             }
         }
     </style>
