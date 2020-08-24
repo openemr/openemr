@@ -601,7 +601,6 @@ require_once("$srcdir/options.js.php");
         <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
         openReminderPopup();
         <?php }?>
-
     });
 
     // JavaScript stuff to do when a new patient is set.

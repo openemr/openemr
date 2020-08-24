@@ -63,6 +63,7 @@
 //   Polish                         // xl('Polish')
 //   Portuguese (Brazilian)         // xl('Portuguese (Brazilian)')
 //   Portuguese (European)          // xl('Portuguese (European)')
+//   Portuguese (European)          // xl('Portuguese (Angolan)')
 //   Romanian                       // xl('Romanian')
 //   Russian                        // xl('Russian')
 //   Serbian                        // xl('Serbian')
@@ -921,6 +922,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default = true
             xl('This will enable encryption of items that are stored on the drive.')
+        ),
+
+        'couchdb_encryption' => array(
+            xl('Enable Encryption of Items Stored on CouchDB'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('This will enable encryption of items that are stored on CouchDB.')
         ),
 
         'hide_document_encryption' => array(

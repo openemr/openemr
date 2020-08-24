@@ -137,6 +137,9 @@ services:
       OPENEMR_SETTING_couchdb_pass: password
       OPENEMR_SETTING_couchdb_dbase: example
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
+      OPENEMR_SETTING_user_debug: 3
+      OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
+      OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
   openemr-edge:
     restart: always
     image: openemr/openemr:flex-edge
@@ -277,15 +280,15 @@ services:
     ports:
     - 5984:5984
     - 6984:6984
-    environment:
-      COUCHDB_USER: admin
-      COUCHDB_PASSWORD: password
     volumes:
     - ./couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.d/local.ini:rw
     - ./couchdb-config-ssl-cert-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
     - ./couchdb-config-ssl-cert-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
     - ./couchdb-config-ssl-cert-keys/insane/server-key.pem:/etc/ssl/server-key.pem:ro
     - couchdbvolume:/opt/couchdb/data
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
   orthanc:
     restart: always
     image: jodogne/orthanc-plugins
@@ -460,6 +463,13 @@ services:
   openldap:
     restart: always
     image: osixia/openldap
+    volumes:
+    - ./ldap-ssl-certs-keys/insane:/container/service/slapd/assets/certs
+    environment:
+      LDAP_TLS_VERIFY_CLIENT: try
+      LDAP_TLS_CA_CRT_FILENAME: ca.pem
+      LDAP_TLS_CRT_FILENAME: server-cert.pem
+      LDAP_TLS_KEY_FILENAME: server-key.pem
   fhir:
     restart: always
     image: ibmcom/ibm-fhir-server

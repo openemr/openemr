@@ -240,17 +240,59 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
           ```sh
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools couchdb-ssl-client-off'
           ```
-18. Xdebug and profiling is also supported for PHPStorm.
+18. LDAP integration.
+    - In OpenEMR, LDAP is an option for authentication. If this is turned on, then this will be supported for the `admin` user, which will use the following password: `admin`
+    - Turn on LDAP:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools enable-ldap'
+      ```
+    - Turn off LDAP:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools disable-ldap'
+      ```
+    - Developer tools to place/remove testing ldap tls/ssl certificate and testing ldap tls/ssl client key/cert.
+        - Place the testing ldap tls/ssl CA cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools ldap-ssl'
+          ```
+        - Remove the testing ldap tls/ssl CA cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools ldap-ssl-off'
+          ```
+        - Place the testing ldap tls/ssl CA cert and testing ldap tls/ssl client key/cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools ldap-ssl-client'
+          ```
+        - Remove the testing ldap tls/ssl CA cert and testing ldap tls/ssl client key/cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools ldap-ssl-client-off'
+          ```
+19. Xdebug and profiling is also supported for PHPStorm.
     - Firefox install xdebug helper add on (configure for PHPSTORM)
     - PHPStorm Settings->Language & Frameworks->PHP->Debug
         - Start listening
         - Untoggle "Break at first line in PHP scripts"
         - Untoggle both settings that start with "Force Break at first line..."
-     - Make sure port 9000 is open on your host operating system
-     - Profiling output can be found in /tmp directory in the docker
-19. When you're done, it's best to clean up after yourself with `docker-compose down -v`
+    - Make sure port 9000 is open on your host operating system
+    - Profiling output can be found in /tmp directory in the docker. Following will list the profiling output files:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools list-xdebug-profiles'
+      ```
+    - To check Xdebug log:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools xdebug-log'
+      ```
+20. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
-20. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+21. To ensure you are using the most recent dockers, recommend running below set of commands intermittently:
+    ```console
+    docker pull openemr/openemr:flex
+    docker pull mariadb:10.5
+    docker pull phpmyadmin/phpmyadmin
+    docker pull couchdb
+    docker pull osixia/openldap
+    ```
+22. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 We look forward to your contribution...
 
