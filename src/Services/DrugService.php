@@ -82,10 +82,10 @@ class DrugService extends BaseService
 
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
-            if (!$codeRequired || $row['related_code'] != "") {
+            if (!$codeRequired || $row['drug_code'] != "") {
                 $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-                if ($row['related_code'] != "") {
-                    $row['related_code'] = $this->addCoding($row['related_code']);
+                if ($row['drug_code'] != "") {
+                    $row['drug_code'] = $this->addCoding($row['drug_code']);
                 }
                 $processingResult->addData($row);
             }
@@ -134,10 +134,10 @@ class DrugService extends BaseService
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
-        if (!$codeRequired || $sqlResult['related_code'] != "") {
+        if (!$codeRequired || $sqlResult['drug_code'] != "") {
             $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-            if ($sqlResult['related_code'] != "") {
-                $sqlResult['related_code'] = $this->addCoding($sqlResult['related_code']);
+            if ($sqlResult['drug_code'] != "") {
+                $sqlResult['drug_code'] = $this->addCoding($sqlResult['drug_code']);
             }
             $processingResult->addData($sqlResult);
         }

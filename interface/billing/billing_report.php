@@ -459,7 +459,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     if (ele) {
                         ele.style.display = "inline";
                         text.innerHTML =
-                            "<?php echo xla('Collapse'); ?>";
+                            jsText(<?php echo xlj('Collapse'); ?>);
                     }
                 }
             } else {
@@ -471,7 +471,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     if (ele) {
                         ele.style.display = "none";
                         text.innerHTML =
-                            <?php echo xlj('Expand'); ?>;
+                            jsText(<?php echo xlj('Expand'); ?>);
                     }
                 }
             }
@@ -484,11 +484,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 if (ele.style.display == "inline") {
                     ele.style.display = "none";
                     text.innerHTML =
-                        <?php echo xlj('Expand'); ?>;
+                        jsText(<?php echo xlj('Expand'); ?>);
                 } else {
                     ele.style.display = "inline";
                     text.innerHTML =
-                        <?php echo xlj('Collapse'); ?>;
+                        jsText(<?php echo xlj('Collapse'); ?>);
                 }
             }
         }

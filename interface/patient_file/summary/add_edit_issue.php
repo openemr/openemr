@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Thomas Pantelis <tompantelis@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Thomas Pantelis <tompantelis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -175,9 +177,9 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2)
         echo "listBoxOptionSets[" . attr($akey) . "] = new Array();\n";
 
         if ($displayCodeSet) {
-            foreach ($displayCodeSet as $dispCode2) {
-                $codeDesc2 = lookup_code_descriptions($dispCode2);
-                echo "listBoxOptionSets[" . attr($akey) . "][listBoxOptionSets[" . attr($akey) . "].length] = new Option(" . js_escape($dispCode2 . " (" . trim($codeDesc2) . ") ") . ", " . js_escape($dispCode2) . ", false, false);\n";
+            foreach ($displayCodeSet as $code) {
+                $text = getCodeText($code);
+                echo "listBoxOptionSets[" . attr($akey) . "][listBoxOptionSets[" . attr($akey) . "].length] = new Option(" . js_escape($text) . ", " . js_escape($code) . ", false, false);\n";
             }
         }
     }
@@ -365,6 +367,26 @@ if (!empty($irow['type'])) {
         ++$type_index;
     }
 }
+
+$code_texts = array();
+
+function getCodeText($code)
+{
+    global $code_texts;
+    if (array_key_exists($code, $code_texts)) {
+        return $code_texts[$code];
+    }
+
+    $codedesc = lookup_code_descriptions($code);
+    $text = $code;
+    if ($codedesc) {
+        $text .= " (" . $codedesc . ")";
+    }
+
+    $code_texts[$code] = $text;
+    return $text;
+}
+
 ?>
 <html>
 
@@ -388,6 +410,7 @@ if (!empty($irow['type'])) {
     <script>
         var aitypes = new Array(); // issue type attributes
         var aopts = new Array(); // Option objects
+        var codeTexts = new Map()
         <?php
         $i = 0;
         foreach ($ISSUE_TYPES as $key => $value) {
@@ -395,9 +418,15 @@ if (!empty($irow['type'])) {
             echo " aopts[" . attr($i) . "] = new Array();\n";
             $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1", array($key . "_issue_list"));
             while ($res = sqlFetchArray($qry)) {
-                echo " aopts[" . attr($i) . "][aopts[" . attr($i) . "].length] = new Option(" . js_escape(xl_list_label(trim($res['title']))) . ", " . js_escape(trim($res['option_id'])) . ", false, false);\n";
+                echo " opt = new Option(" . js_escape(xl_list_label(trim($res['title']))) . ", " . js_escape(trim($res['option_id'])) . ", false, false);\n";
+                echo " aopts[" . attr($i) . "][aopts[" . attr($i) . "].length] = opt\n";
                 if ($res['codes']) {
-                    echo " aopts[" . attr($i) . "][aopts[" . attr($i) . "].length-1].setAttribute('data-code'," . js_escape(trim($res['codes'])) . ");\n";
+                    $codes = explode(";", $res['codes']);
+                    foreach ($codes as $code) {
+                        $text = getCodeText($code);
+                        echo " codeTexts.set(" . js_escape($code) . ", " . js_escape($text) . ");\n";
+                    }
+                    echo " opt.setAttribute('codes'," . js_escape(trim($res['codes'])) . ");\n";
                 }
             }
 
@@ -412,14 +441,11 @@ if (!empty($irow['type'])) {
         <?php require $GLOBALS['srcdir'] . "/restoreSession.php"; ?>
 
         ///////////////////////////
-        function codeBoxFunction2() {
+        function onActiveCodeSelected() {
             var f = document.forms[0];
-            var x2 = f.form_codeSelect2.options[f.form_codeSelect2.selectedIndex].value;
-            f.form_codeSelect2.selectedIndex = -1;
-            var x6 = f.form_diagnosis.value;
-            if (x6.length > 0) x6 += ";";
-            x6 += x2;
-            f.form_diagnosis.value = x6;
+            var sel = f.form_active_codes.options[f.form_active_codes.selectedIndex];
+            addSelectedCode(sel.value, sel.text)
+            f.form_active_codes.selectedIndex = -1;
         }
         ///////////////////////////
         //
@@ -437,14 +463,14 @@ if (!empty($irow['type'])) {
             document.getElementById('row_titles').style.display = i ? '' : 'none';
             //
             ///////////////////////
-            var listBoxOpts2 = f.form_codeSelect2.options;
+            var listBoxOpts2 = f.form_active_codes.options;
             listBoxOpts2.length = 0;
             var ix = 0;
             for (ix = 0; ix < listBoxOptions2[index].length; ++ix) {
                 listBoxOpts2[ix] = listBoxOptions2[index][ix];
                 listBoxOpts2[ix].title = listBoxOptions2[index][ix].text;
             }
-            document.getElementById('row_codeSelect2').style.display = ix ? '' : 'none';
+            document.getElementById('row_active_codes').style.display = ix ? '' : 'none';
 
             //////////////////////
             //
@@ -465,7 +491,7 @@ if (!empty($irow['type'])) {
                 //  (which is desired functionality, since then use the end date
                 //   to inactivate the item.)
                 document.getElementById('row_active').style.display = revdisp;
-                document.getElementById('row_diagnosis').style.display = comdisp;
+                document.getElementById('row_selected_codes').style.display = comdisp;
                 document.getElementById('row_occurrence').style.display = comdisp;
                 document.getElementById('row_classification').style.display = injdisp;
                 document.getElementById('row_reinjury_id').style.display = injdisp;
@@ -494,10 +520,19 @@ if (!empty($irow['type'])) {
         // If it has a code, add that too.
         function set_text() {
             var f = document.forms[0];
-            f.form_title.value = f.form_titles.options[f.form_titles.selectedIndex].text;
-            f.form_title_id.value = f.form_titles.options[f.form_titles.selectedIndex].value;
-            f.form_diagnosis.value = f.form_titles.options[f.form_titles.selectedIndex].getAttribute('data-code');
-            f.form_titles.selectedIndex = -1;
+            var sel = f.form_titles.options[f.form_titles.selectedIndex];
+            f.form_title.value = sel.text;
+            f.form_title_id.value = sel.value;
+
+            f.form_selected_codes.options.length = 0
+
+            var str = sel.getAttribute('codes')
+            if (str) {
+                var codes = str.split(";")
+                for (i = 0; i < codes.length; i++) {
+                    addSelectedCode(codes[i], codeTexts.has(codes[i]) ? codeTexts.get(codes[i]) : codes[i])
+                }
+            }
         }
 
         // Process click on Delete link.
@@ -540,41 +575,53 @@ if (!empty($irow['type'])) {
             }
         }
 
-        // This is for callback by the find-code popup.
+        // This is for callback by the select codes popup.
         // Appends to or erases the current list of diagnoses.
-        function set_related(codetype, code, selector, codedesc) {
-            var f = document.forms[0];
-            var s = f.form_diagnosis.value;
-            var title = f.form_title.value;
-            if (code) {
-                //disabled duplicate codes
-                if (s.indexOf(codetype + ':' + code) == -1) {
-                    if (s.length > 0) s += ';';
-                    s += codetype + ':' + code;
-                }
-            } else {
-                s = '';
+        function OnCodeSelected(codetype, code, selector, codedesc) {
+            var codeKey = codetype + ':' + code
+            addSelectedCode(codeKey, codeKey + ' (' + codedesc + ')')
+
+            var f = document.forms[0]
+            if (f.form_title.value == '') {
+                f.form_title.value = codedesc;
             }
-            f.form_diagnosis.value = s;
-            if (title == '') f.form_title.value = codedesc;
         }
 
-        // This is for callback by the find-code popup.
-        // Returns the array of currently selected codes with each element in codetype:code format.
-        function get_related() {
-            return document.forms[0].form_diagnosis.value.split(';');
+        function addSelectedCode(codeKey, codeText) {
+            var f = document.forms[0]
+            var sel = f.form_selected_codes
+            for (i = 0; i < sel.options.length; i++) {
+                if (sel.options[i].value == codeKey) {
+                    return
+                }
+            }
+
+            var option = document.createElement("option");
+            option.value = codeKey
+            option.text = codeText
+            sel.add(option);
+
+            updateDiagnosisFromSelectedCodes()
         }
 
-        // This is for callback by the find-code popup.
-        // Deletes the specified codetype:code from the currently selected list.
-        function del_related(s) {
-            my_del_related(s, document.forms[0].form_diagnosis, false);
+        function updateDiagnosisFromSelectedCodes() {
+            var f = document.forms[0]
+            var diag = ''
+            options = f.form_selected_codes.options
+            if (options.length > 0) {
+                diag = options[0].value
+                for (i = 1; i < options.length; i++) {
+                    diag += ';' + options[i].value;
+                }
+            }
+
+            f.form_diagnosis.value = diag;
         }
 
         // This invokes the find-code popup.
-        function sel_diagnosis() {
+        function onAddCode() {
             <?php
-            $url = '../encounter/find_code_dynamic.php?codetype=';
+            $url = '../encounter/select_codes.php?codetype=';
             if ($irow['type'] == 'medical_problem') {
                 $url .= urlencode(collect_codetypes("medical_problem", "csv"));
             } else {
@@ -592,6 +639,23 @@ if (!empty($irow['type'])) {
             }
             ?>
             dlgopen(<?php echo js_escape($url); ?>, '_blank', 985, 800, '', <?php echo xlj("Select Codes"); ?>);
+        }
+
+        function onRemoveCode() {
+            var sel = document.forms[0].form_selected_codes
+            for (i = 0; i < sel.options.length; i++) {
+                if (sel.options[i].selected) {
+                    sel.remove(i)
+                    i--
+                }
+            }
+
+            onCodeSelectionChange()
+            updateDiagnosisFromSelectedCodes()
+        }
+
+        function onCodeSelectionChange() {
+            document.forms[0].rem_selected_code.disabled = document.forms[0].form_selected_codes.selectedIndex == -1
         }
 
         // Check for errors when the form is submitted.
@@ -724,13 +788,31 @@ if (!empty($irow['type'])) {
                             <input type='text' class="form-control" name='form_title' id='form_title' value='<?php echo attr($irow['title']) ?>' />
                             <input type='hidden' name='form_title_id' value='<?php echo attr($irow['list_option_id']) ?>'>
                         </div>
-                        <div class="form-group col-12" id='row_codeSelect2'>
-                            <label for="form_codeSelect2" class="col-form-label"><?php echo xlt('Active Issue Codes'); ?>:</label>
-                            <select name='form_codeSelect2' id='form_codeSelect2' class="form-control" multiple size='4' onchange="codeBoxFunction2()"></select>
+                        <div class="form-group col-12" id='row_active_codes'>
+                            <label for="form_active_codes" class="col-form-label"><?php echo xlt('Active Issue Codes'); ?>:</label>
+                            <select name='form_active_codes' id='form_active_codes' class= "form-control" size='4'
+                                onchange="onActiveCodeSelected()"></select>
                         </div>
-                        <div class="form-group col-12" id='row_diagnosis'>
-                            <label class="col-form-label" for="form_diagnosis"><?php echo xlt('Coding'); ?>:</label>
-                            <input type='text' class="form-control" name='form_diagnosis' id='form_diagnosis' value='<?php echo attr($irow['diagnosis']) ?>' onclick='sel_diagnosis()' title='<?php echo xla('Click to select or change coding'); ?>' readonly />
+                        <div class="form-group col-12" id='row_selected_codes'>
+                            <label for="form_selected_codes" class="col-form-label"><?php echo xlt('Coding'); ?>:</label>
+                            <select name='form_selected_codes' id='form_selected_codes' class= "form-control" multiple size='4'
+                                onchange="onCodeSelectionChange()">
+                            <?php
+                            if ($irow['diagnosis'] != "") {
+                                $codes = explode(";", $irow['diagnosis']);
+                                foreach ($codes as $code) {
+                                    echo "   <option value='" . attr($code) . "'>" . text(getCodeText($code)) . "</option>\n";
+                                }
+                            }
+                            ?>
+                            </select>
+                            <div class="btn-group" style="margin-top:3px;">
+                                <button type="button" class="btn btn-primary btn-sm" style="margin-right:5px;" onclick='onAddCode()'><?php echo xlt('Add');?></button>
+                                <button type="button" id="rem_selected_code" class="btn btn-secondary btn-sm" onclick='onRemoveCode()'><?php echo xlt('Remove');?></button>
+                            </div>
+                            <input type='hidden' class="form-control" name='form_diagnosis' id='form_diagnosis'
+                                   value='<?php echo attr($irow['diagnosis']) ?>' onclick='onAddCode()'
+                                   title='<?php echo xla('Click to select or change coding'); ?>' readonly >
                         </div>
                         <div class="form-group col-12">
                             <label class="col-form-label" for="form_begin"><?php echo xlt('Begin Date'); ?>:</label>
@@ -871,6 +953,8 @@ if (!empty($irow['type'])) {
         $(function() {
             // Include bs3 / bs4 classes here.  Keep html tags functional.
             $('table').addClass('table table-sm');
+
+            onCodeSelectionChange()
         });
     </script>
 

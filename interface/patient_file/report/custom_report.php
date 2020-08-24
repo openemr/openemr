@@ -955,16 +955,7 @@ if ($PDF_OUTPUT) {
     }
 } else {
     ?>
-    <?php if (!$printable) { // Set up translated strings for use by interactive search ?>
-<script>
-var xl_string = <?php echo json_encode(array(
-    'spcl_chars' => xla('Special characters are not allowed') . '.',
-    'not_found'  => xla('No results found') . '.',
-    'results'    => xla('Showing result'),
-    'literal_of' => xla('of'),
-));
-                ?>;
-</script>
+    <?php if (!$printable) { ?>
 <script src="<?php echo $GLOBALS['web_root']?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php } ?>
 </body>

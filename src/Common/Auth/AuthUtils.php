@@ -749,14 +749,64 @@ class AuthUtils
             error_log("Empty user or password for activeDirectoryValidation()");
             return false;
         }
+
+        // below can be uncommented for detailed debugging
+        // ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
+
         $ldapconn = ldap_connect($GLOBALS['gbl_ldap_host']);
         if ($ldapconn) {
+            // block of code to support encryption
+            $isTls = false;
+            if (
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-ca") &&
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-cert") &&
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-key")
+            ) {
+                // set ca cert and client key/cert
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-ca")) {
+                    error_log("Setting ldap-ca certificate failed");
+                }
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_CERTFILE, $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-cert")) {
+                    error_log("Setting ldap-cert client certificate failed");
+                }
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_KEYFILE, $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-key")) {
+                    error_log("Setting ldap-cert client key failed");
+                }
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_DEMAND)) {
+                    error_log("Setting require_cert to demand failed");
+                }
+                $isTls = true;
+            } elseif (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-ca")) {
+                // set ca cert
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-ca")) {
+                    error_log("Setting ldap-ca certificate failed");
+                }
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_CERTFILE, '')) {
+                    error_log("Clearing ldap-cert client certificate failed");
+                }
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_KEYFILE, '')) {
+                    error_log("Clearing ldap-cert client key failed");
+                }
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_TRY)) {
+                    error_log("Setting require_cert to try failed");
+                }
+                $isTls = true;
+            }
+
             if (!ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3)) {
                 error_log("Setting LDAP v3 protocol failed");
             }
             if (!ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, 0)) {
                 error_log("Disabling LDAP referrals failed");
             }
+
+            if ($isTls) {
+                if (!ldap_start_tls($ldapconn)) {
+                    error_log("ldap TLS (ldap_start_tls()) failed");
+                    return false;
+                }
+            }
+
             $ldapbind = ldap_bind(
                 $ldapconn,
                 str_replace('{login}', $user, $GLOBALS['gbl_ldap_dn']),

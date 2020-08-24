@@ -63,6 +63,7 @@
 //   Polish                         // xl('Polish')
 //   Portuguese (Brazilian)         // xl('Portuguese (Brazilian)')
 //   Portuguese (European)          // xl('Portuguese (European)')
+//   Portuguese (European)          // xl('Portuguese (Angolan)')
 //   Romanian                       // xl('Romanian')
 //   Russian                        // xl('Russian')
 //   Serbian                        // xl('Serbian')
@@ -200,6 +201,17 @@ $GLOBALS_METADATA = array(
             'tabs_css',
             'tabs_style_full.css',
             xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
+        ),
+
+        'login_page_layout' => array(
+            xl('Login Page Layout') . '*',
+            array(
+                'center' => xl("Centered Layout"),
+                'left' => xl("Left-Form Layout"),
+                'right' => xl("Right-Form Layout"),
+            ),
+            'center',
+            xl('Changes the layout of the login page.')
         ),
 
         'css_header' => array(

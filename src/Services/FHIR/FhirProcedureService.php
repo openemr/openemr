@@ -112,9 +112,9 @@ class FhirProcedureService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR Condition Resource lookup by FHIR Resource ID
+     * Performs a FHIR Procedure Resource lookup by FHIR Resource ID
      *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Condition Resource ID.
+     * @param $fhirResourceId //The OpenEMR record's FHIR Procedure Resource ID.
      */
     public function getOne($fhirResourceId)
     {

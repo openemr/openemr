@@ -288,7 +288,7 @@ docker for patient document storage in OpenEMR at Administration->Globals->Docum
 ##### OpenLDAP
 In OpenEMR, LDAP is an option for user authentication. You can configure OpenEMR to use the
 OpenLDAP docker patient authentication in OpenEMR at Administration->Globals->Security:
-- LDAP - Server Name or URI : openldap
+- LDAP - Server Name or URI : ldap://openldap:389
 - LDAP - Distinguished Name of User : cn={login},dc=example,dc=org
 - LDAP - Login Exclusions : (place whatever your admin login is; warning, do not use "admin" for your openemr admin login)
 

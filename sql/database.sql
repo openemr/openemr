@@ -7214,6 +7214,7 @@ CREATE TABLE `pnotes` (
 DROP TABLE IF EXISTS `prescriptions`;
 CREATE TABLE `prescriptions` (
   `id` int(11) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `patient_id` bigint(20) default NULL,
   `filled_by_id` int(11) default NULL,
   `pharmacy_id` int(11) default NULL,
@@ -7224,7 +7225,7 @@ CREATE TABLE `prescriptions` (
   `start_date` date default NULL,
   `drug` varchar(150) default NULL,
   `drug_id` int(11) NOT NULL default '0',
-  `rxnorm_drugcode` INT(11) DEFAULT NULL,
+  `rxnorm_drugcode` varchar(25) DEFAULT NULL,
   `form` int(3) default NULL,
   `dosage` varchar(100) default NULL,
   `quantity` varchar(31) default NULL,
@@ -7254,7 +7255,8 @@ CREATE TABLE `prescriptions` (
   `rtx` INT(2) DEFAULT NULL,
   `txDate` DATE NOT NULL,
   PRIMARY KEY  (`id`),
-  KEY `patient_id` (`patient_id`)
+  KEY `patient_id` (`patient_id`),
+  UNIQUE INDEX `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -8360,6 +8362,27 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `uuid_mapping`
+--
+
+DROP TABLE IF EXISTS `uuid_mapping`;
+CREATE TABLE `uuid_mapping` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) NOT NULL DEFAULT '',
+  `resource` varchar(255) NOT NULL DEFAULT '',
+  `table` varchar(255) NOT NULL DEFAULT '',
+  `target_uuid` binary(16) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  PRIMARY KEY (`id`),
+  KEY `uuid` (`uuid`),
+  KEY `resource` (`resource`),
+  KEY `table` (`table`),
+  KEY `target_uuid` (`target_uuid`)
+) ENGINE=InnoDB AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `uuid_registry`
 --
 
@@ -8370,6 +8393,7 @@ CREATE TABLE `uuid_registry` (
   `table_id` varchar(255) NOT NULL DEFAULT '',
   `table_vertical` varchar(255) NOT NULL DEFAULT '',
   `couchdb` varchar(255) NOT NULL DEFAULT '',
+  `mapped` tinyint(4) NOT NULL DEFAULT '0',
   `created` timestamp NULL,
   PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
@@ -8435,14 +8459,11 @@ DROP TABLE IF EXISTS `automatic_notification`;
 CREATE TABLE `automatic_notification` (
   `notification_id` int(5) NOT NULL auto_increment,
   `sms_gateway_type` varchar(255) NOT NULL,
-  `next_app_date` date NOT NULL,
-  `next_app_time` varchar(10) NOT NULL,
   `provider_name` varchar(100) NOT NULL,
   `message` text,
   `email_sender` varchar(100) NOT NULL,
   `email_subject` varchar(100) NOT NULL,
   `type` enum('SMS','Email') NOT NULL default 'SMS',
-  `notification_sent_date` datetime NOT NULL,
   PRIMARY KEY  (`notification_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3;
 
@@ -8450,8 +8471,8 @@ CREATE TABLE `automatic_notification` (
 -- Inserting data for table `automatic_notification`
 --
 
-INSERT INTO `automatic_notification` (`notification_id`, `sms_gateway_type`, `next_app_date`, `next_app_time`, `provider_name`, `message`, `email_sender`, `email_subject`, `type`, `notification_sent_date`) VALUES (1, 'CLICKATELL', '0000-00-00', ':', 'EMR GROUP 1 .. SMS', 'Welcome to EMR GROUP 1.. SMS', '', '', 'SMS', '0000-00-00 00:00:00'),
-(2, '', '2007-10-02', '05:50', 'EMR GROUP', 'Welcome to EMR GROUP . Email', 'EMR Group', 'Welcome to EMR GROUP', 'Email', '2007-09-30 00:00:00');
+INSERT INTO `automatic_notification` (`notification_id`, `sms_gateway_type`, `provider_name`, `message`, `email_sender`, `email_subject`, `type`) VALUES (1, 'CLICKATELL', 'EMR GROUP 1 .. SMS', 'Welcome to EMR GROUP 1.. SMS', '', '', 'SMS'),
+(2, '', 'EMR GROUP', 'Welcome to EMR GROUP . Email', 'EMR Group', 'Welcome to EMR GROUP', 'Email');
 
 -- --------------------------------------------------------
 
@@ -8820,6 +8841,7 @@ CREATE TABLE `procedure_report` (
 DROP TABLE IF EXISTS `procedure_result`;
 CREATE TABLE `procedure_result` (
   `procedure_result_id` bigint(20)   NOT NULL AUTO_INCREMENT,
+  `uuid`                binary(16)   DEFAULT NULL,
   `procedure_report_id` bigint(20)   NOT NULL            COMMENT 'references procedure_report.procedure_report_id',
   `result_data_type`    char(1)      NOT NULL DEFAULT 'S' COMMENT 'N=Numeric, S=String, F=Formatted, E=External, L=Long text as first line of comments',
   `result_code`         varchar(31)  NOT NULL DEFAULT '' COMMENT 'LOINC code, might match a procedure_type.procedure_code',
@@ -8834,6 +8856,7 @@ CREATE TABLE `procedure_result` (
   `document_id`         bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references documents.id if this result is a document',
   `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incomplete...etc.',
   PRIMARY KEY (`procedure_result_id`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY procedure_report_id (procedure_report_id)
 ) ENGINE=InnoDB;
 

@@ -134,7 +134,7 @@ $form_facility   = $_POST['form_facility'];
         // Erases the current entry
         // The target element is set by the find-code popup
         //  (this allows use of this in multiple form elements on the same page)
-        function set_related_target(codetype, code, selector, codedesc, target_element) {
+        function set_related_target(codetype, code, selector, codedesc, target_element, limit=0) {
             var f = document.forms[0];
             var s = f[target_element].value;
             if (code) {
