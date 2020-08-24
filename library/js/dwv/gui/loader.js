@@ -45,6 +45,7 @@ dwvOemr.gui.Loadbox = function (app) {
                 const guiClass = `${name}Load`;
                 if (typeof dwvOemr.gui[guiClass] === 'undefined') {
                     console.warn(`Could not create unknown loader gui: ${guiClass}`);
+                    continue;
                 }
                 const gui = new dwvOemr.gui[guiClass](app);
                 gui.setup();
