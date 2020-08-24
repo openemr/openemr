@@ -39,22 +39,24 @@ $returnurl = 'encounter_top.php';
             <div class="col-12">
                 <form name="my_form" method=post action="<?php echo $rootdir;?>/forms/dictation/save.php?mode=new" onsubmit="return top.restoreSession()">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <fieldset>
-                        <legend><?php echo xlt('Dictation')?></legend>
-                        <div class="form-group">
-                            <textarea name="dictation" class="form-control" cols="80" rows="15"></textarea>
-                        </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend><?php echo xlt('Additional Notes'); ?></legend>
-                        <div class="form-group">
-                            <textarea name="additional_notes" class="form-control" cols="80" rows="5"></textarea>
-                        </div>
-                    </fieldset>
+                    <div class="container">
+                        <fieldset>
+                            <legend><?php echo xlt('Dictation')?></legend>
+                            <div class="form-group">
+                                <textarea name="dictation" class="form-control" cols="80" rows="15"></textarea>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend><?php echo xlt('Additional Notes'); ?></legend>
+                            <div class="form-group">
+                                <textarea name="additional_notes" class="form-control" cols="80" rows="5"></textarea>
+                            </div>
+                        </fieldset>
+                    </div>
                     <div class="form-group clearfix">
-                        <div class="btn-group oe-opt-btn-group-pinch" role="group">
+                        <div class="btn-group" role="group">
                             <button type='submit' onclick='top.restoreSession()' class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
-                            <button type="button" class="btn btn-secondary btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
+                            <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
                         </div>
                     </div>
                 </form>
