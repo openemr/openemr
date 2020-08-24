@@ -734,11 +734,11 @@ if (!empty($irow['type'])) {
                         </div>
                         <div class="form-group col-12">
                             <label class="col-form-label" for="form_begin"><?php echo xlt('Begin Date'); ?>:</label>
-                            <input type='text' class='datepicker form-control' style="width:50%" name='form_begin' id='form_begin' value='<?php echo attr(oeFormatShortDate($irow['begdate'])) ?>' title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>'>
+                            <input type='text' class='datepicker form-control' name='form_begin' id='form_begin' value='<?php echo attr(oeFormatShortDate($irow['begdate'])) ?>' title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>'>
                         </div>
                         <div class="form-group col-12" id='row_enddate'>
                             <label class="col-form-label" for="form_begin"><?php echo xlt('End Date'); ?>:</label>
-                            <input type='text' class='datepicker form-control' style="width:50%" name='form_end' id='form_end' value='<?php echo attr(oeFormatShortDate($irow['enddate'])) ?>' title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
+                            <input type='text' class='datepicker form-control' name='form_end' id='form_end' value='<?php echo attr(oeFormatShortDate($irow['enddate'])) ?>' title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
                             &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
                         </div>
                         <div class="form-group col-12" id='row_active'>

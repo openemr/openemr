@@ -59,7 +59,7 @@ $records2 = array();
             $menuPatient = new PatientMenuRole();
             $menuPatient->displayHorizNavBarMenu();
             ?>
-            <div class="row">
+            <div class="row mt-3">
                 <div class="col-sm-12">
                     <ul class="nav nav-pills">
                         <li class="nav-item" id="btnEncounters">

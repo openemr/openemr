@@ -103,7 +103,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
             <?php
             if ($GLOBALS['activate_ccr_ccd_report']) { // show CCR/CCD reporting options ?>
-                <div id="ccr_report">
+                <div class="mt-3" id="ccr_report">
                     <form name='ccr_form' id='ccr_form' method='post' action='../../../ccr/createCCR.php'>
                         <fieldset>
                             <div class="col-sm-12">

@@ -69,11 +69,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $menuPatient = new PatientMenuRole();
         $menuPatient->displayHorizNavBarMenu();
         ?>
-        <div class="row">
+        <div class="row mt-3">
             <div class="col-sm-12">
                 <div class="btn-group">
-                    <!-- <a href="../summary/demographics.php" class="btn btn-secondary btn-back" onclick="top.restoreSession()">
-                        <?php echo xlt('Back to Patient'); ?></a> -->
                     <a href="add_transaction.php" class="btn btn-primary btn-add" onclick="top.restoreSession()">
                         <?php echo xlt('Create New Transaction'); ?></a>
                     <a href="print_referral.php" class="btn btn-primary btn-print" onclick="top.restoreSession()">

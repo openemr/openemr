@@ -471,7 +471,7 @@ if ($_REQUEST['form_csvexport']) {
         $arrOeUiSettings = array(
         'heading_title' => xl('Patient Ledger'),
         'include_patient_name' => true,
-        'expandable' => false,
+        'expandable' => true,
         'expandable_files' => array("patient_ledger_patient_xpd", "stats_full_patient_xpd", "external_data_patient_xpd"),//all file names need suffix _xpd
         'action' => "conceal",//conceal, reveal, search, reset, link or back
         'action_title' => "",
