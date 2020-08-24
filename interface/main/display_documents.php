@@ -37,8 +37,6 @@ if ($GLOBALS['date_display_format'] == 1) {
 }
 
 $display_div = "style='display:block;'";
-$display_expand_msg = "display:none;";
-$display_collapse_msg = "display:inline;";
 
 ?>
 <html>
@@ -108,20 +106,6 @@ $display_collapse_msg = "display:inline;";
         document.location='<?php echo $GLOBALS['webroot']; ?>/interface/main/display_documents.php?form_from_doc_date=' + encodeURIComponent(frmdate) + '&form_to_doc_date=' + encodeURIComponent(todate);
     }
 
-    function expandOrCollapse(type,prefixString) {
-        if(type == 1 ) {
-            $("#" + prefixString + "filterdiv").show();
-            $("#" + prefixString + "div").show();
-            $("#" + prefixString + "collapse").show();
-            $("#" + prefixString + "expand").hide();
-        } else {
-            $("#" + prefixString + "filterdiv").hide();
-            $("#" + prefixString + "div").hide();
-            $("#" + prefixString + "collapse").hide();
-            $("#" + prefixString + "expand").show();
-        }
-    }
-
 </script>
 
 <style>
@@ -155,9 +139,6 @@ $display_collapse_msg = "display:inline;";
     <div class="row">
         <div class="col-12">
             <h2 class='title'><?php echo xlt('Lab Documents'); ?></h2>
-            <span id='docexpand' onclick='expandOrCollapse(1,"doc")' style='cursor:pointer;<?php echo $display_expand_msg ?>'>(<?php echo xlt('expand'); ?>)</span>
-            <span id='doccollapse' onclick='expandOrCollapse(2,"doc")' style='cursor:pointer;<?php echo $display_collapse_msg ?>'>(<?php echo xlt('collapse'); ?>)</span>
-            <br />
             <br />
             <div id='docfilterdiv'<?php echo $display_div; ?>>
                 <div class="form-inline mb-2">
