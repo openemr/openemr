@@ -602,7 +602,7 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 
         // check/uncheck all Forms of an encounter
         $(".encounter").click(function () {
-            SelectForms($(this));
+            SelectForms(this);
         });
 
         $(".generateCCR").click(
@@ -787,15 +787,16 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
     // (it ain't pretty code folks)
     var SelectForms = function (selectedEncounter) {
         if ($(selectedEncounter).prop("checked")) {
-            $(selectedEncounter).parent().children().each(function (i, obj) {
-                $(this).children().each(function (i, obj) {
-                    $(this).attr("checked", "checked");
+            $(selectedEncounter).parent().children().each(function(i, obj) {
+                $(this).children().each(function(i, obj) {
+                    $(this).prop("checked", true);
                 });
             });
-        } else {
-            $(selectedEncounter).parent().children().each(function (i, obj) {
-                $(this).children().each(function (i, obj) {
-                    $(this).removeAttr("checked");
+        }
+        else {
+            $(selectedEncounter).parent().children().each(function(i, obj) {
+                $(this).children().each(function(i, obj) {
+                    $(this).prop("checked", false);
                 });
             });
         }
@@ -804,11 +805,11 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
     // When an issue is checked, auto-check all the related encounters and forms
     function issueClick(issue) {
         // do nothing when unchecked
-        if (!$(issue).prop("checked")) return;
+        if (! $(issue).prop("checked")) return;
 
-        $("#report_form :checkbox").each(function (i, obj) {
+        $("#report_form :checkbox").each(function(i, obj) {
             if ($(issue).val().indexOf('/' + $(this).val() + '/') >= 0) {
-                $(this).attr("checked", "checked");
+                $(this).prop("checked", true);
             }
 
         });
