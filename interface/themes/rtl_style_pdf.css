@@ -1322,14 +1322,6 @@ body {
   padding: 0;
 }
 
-.oe-text-to-right {
-  text-align: left;
-}
-
-.oe-text-to-left {
-  text-align: right;
-}
-
 .oe-pull-toward {
   float: right !important;
 }
