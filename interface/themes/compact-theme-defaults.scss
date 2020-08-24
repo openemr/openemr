@@ -21,7 +21,7 @@ $input-btn-padding-x: 0.4rem;
 $input-btn-line-height: 1.5;
 
 $side-calendar-date-padding: 0.2rem;
-$input-height: calc(1.5em + .4rem + 2px);
+$input-height: calc(1.5em + 0.4rem + 2px);
 
 // Nav Pills Padding Override
 .nav-pills .nav-link {
@@ -29,5 +29,5 @@ $input-height: calc(1.5em + .4rem + 2px);
 }
 
 .menuEntries li .menuLabel {
-	padding: 5px 10px !important;
+  padding: 5px 10px !important;
 }

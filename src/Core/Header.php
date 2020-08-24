@@ -262,9 +262,9 @@ class Header
                 $l = self::parsePlaceholders($l);
                 if ($alreadyBuilt) {
                     if ($GLOBALS['enable_compact_mode'] && strpos($l, "style_")) {
-                      $path = str_replace("style_", "compact_style_", $l);
+                        $path = str_replace("style_", "compact_style_", $l);
                     } else {
-                      $path = $l;
+                        $path = $l;
                     }
                 } else {
                     $path = self::createFullPath($basePath, $l);

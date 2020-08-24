@@ -1,9 +1,9 @@
 /*below section is override bootstrap 4 for openemr and some new classes all prefixed with oe-*/
 .form-horizontal {
-	.control-label,
-	.col-form-label {
-	  padding-top: 2px;
-	}
+  .control-label,
+  .col-form-label {
+    padding-top: 2px;
+  }
 }
 
 /* This code needs to be gone cuz it's terrible */

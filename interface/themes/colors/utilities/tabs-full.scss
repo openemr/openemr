@@ -78,10 +78,10 @@
 }
 
 .menuSection > .menuEntries {
+  background-color: $paler !important;
   border: 0 !important;
   border-radius: 0 !important;
   box-shadow: 0 2px 2px $midpale !important;
-  background-color: $paler !important;
 }
 
 .menuEntries li .menuLabel {

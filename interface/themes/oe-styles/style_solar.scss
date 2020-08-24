@@ -121,7 +121,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
   color: $ovr-light !important;
 
   &:hover {
-	  background: $gray-200 !important;
+    background: $gray-200 !important;
   }
 }
 
@@ -155,9 +155,11 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
   > #red-color {
     fill: $black;
   }
+
   > #blue-color {
     fill: $black;
   }
+
   > #gray-color {
     fill: $black;
   }
