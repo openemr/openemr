@@ -188,9 +188,9 @@ $check_res = $formid ? $check_res : array();
                     <h2><?php echo xlt('Observation'); ?></h2>
                     <form method='post' name='my_form' action='<?php echo $rootdir; ?>/forms/observation/save.php?id=<?php echo attr_url($formid); ?>'>
                         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                        <div class="container">
-                            <fieldset>
-                                <legend><?php echo xlt('Enter Details'); ?></legend>
+                        <fieldset>
+                            <legend><?php echo xlt('Enter Details'); ?></legend>
+                            <div class="container">
                                 <?php
                                 if (!empty($check_res)) {
                                     foreach ($check_res as $key => $obj) { ?>
@@ -324,8 +324,8 @@ $check_res = $formid ? $check_res : array();
                                     <?php
                                 }
                                 ?>
-                            </fieldset>
-                        </div>
+                            </div>
+                        </fieldset>
                         <div class="form-group clearfix">
                             <div class="col-sm-12 position-override">
                                 <div class="btn-group" role="group">

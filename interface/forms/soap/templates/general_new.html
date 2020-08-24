@@ -10,32 +10,38 @@
                 <h2>{xlt t='SOAP'}</h2>
                 <form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/soap/save.php" onsubmit="return top.restoreSession()">
                     <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
-                    <div class="container">
-                        <fieldset>
-                            <legend>{xlt t='Subjective'}</legend>
+                    <fieldset>
+                        <legend>{xlt t='Subjective'}</legend>
+                        <div class="container">
                             <div class="form-group" >
                                 <textarea name="subjective" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{$data->get_subjective()|text}</textarea>
                             </div>
-                        </fieldset>
-                        <fieldset>
-                            <legend>{xlt t='Objective'}</legend>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Objective'}</legend>
+                        <div class="container">
                             <div class="form-group">
                                 <textarea name="objective" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{$data->get_objective()|text}</textarea>
                             </div>
-                        </fieldset>
-                        <fieldset>
-                            <legend>{xlt t='Assessment'}</legend>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Assessment'}</legend>
+                        <div class="container">
                             <div class="form-group">
                                 <textarea name="assessment" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{$data->get_assessment()|text}</textarea>
                             </div>
-                        </fieldset>
-                        <fieldset>
-                            <legend>{xlt t='Plan'}</legend>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Plan'}</legend>
+                        <div class="container">
                             <div class="form-group">
                                 <textarea name="plan" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{$data->get_plan()|text}</textarea>
                             </div>
-                        </fieldset>
-                    </div>
+                        </div>
+                    </fieldset>
                     <div class="form-group clearfix">
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-primary btn-save" name="Submit">{xlt t='Save'}</button>

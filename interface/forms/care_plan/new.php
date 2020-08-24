@@ -125,9 +125,9 @@ endforeach;
                     <h2><?php echo xlt('Care Plan Form'); ?></h2>
                     <form method='post' name='my_form' action='<?php echo $rootdir?>/forms/care_plan/save.php?id=<?php echo attr_url($formid) ?>'>
                         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                        <div class="container">
-                            <fieldset>
-                                <legend><?php echo xlt('Enter Details'); ?></legend>
+                        <fieldset>
+                            <legend><?php echo xlt('Enter Details'); ?></legend>
+                            <div class="container">
                                 <?php
                                 if (!empty($check_res)) {
                                     foreach ($check_res as $key => $obj) {
@@ -211,8 +211,8 @@ endforeach;
                                         </div>
                                     </div>
                                 <?php } ?>
-                            </fieldset>
-                        </div>
+                            </div>
+                        </fieldset>
                         <div class="form-group">
                             <div class="col-sm-12 position-override">
                                 <div class="btn-group" role="group">

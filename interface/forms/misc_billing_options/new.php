@@ -80,9 +80,9 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                 <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
             <form method=post <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr_url($formid) . "'\n"; ?>>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <div class="container">
-                    <fieldset>
-                        <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
+                <fieldset>
+                    <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
+                    <div class="container">
                         <span class="text"><?php echo xlt('Checked box = yes, empty = no'); ?><br /><br /></span>
                         <div class="form-group">
                             <label><?php echo xlt('Box 10 A. Employment related'); ?>:
@@ -265,15 +265,17 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                     value="<?php echo attr($obj["icn_resubmission_number"]); ?>" />
                             </div>
                         </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend><?php echo xlt('Additional Notes'); ?></legend>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend><?php echo xlt('Additional Notes'); ?></legend>
+                    <div class="container">
                         <div class="form-group">
                             <textarea name="comments" id="comments" class="form-control" cols="80"
                                 rows="3"><?php echo text($obj["comments"]); ?></textarea>
                         </div>
-                    </fieldset>
-                </div>
+                    </div>
+                </fieldset>
                 <div class="form-group">
                     <div class="col-sm-12 position-override">
                         <div class="btn-group btn-pinch" role="group">
