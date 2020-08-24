@@ -30,6 +30,7 @@
         "no-underscore-dangle":"off",
         "no-restricted-syntax":"off",
         "prefer-destructuring":"off",
-        "no-continue":"off"
+        "no-continue":"off",
+        "new-cap":"off"
     }
 }
