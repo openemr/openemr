@@ -1960,12 +1960,6 @@ ALTER TABLE `procedure_order` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `procedure_order` (`uuid`);
 #EndIf
 
-UPDATE `globals` SET `gl_value`='0.625' WHERE `gl_name`='font-size' AND `gl_value`='0.625rem';
-UPDATE `globals` SET `gl_value`='0.75' WHERE `gl_name`='font-size' AND `gl_value`='0.75rem';
-UPDATE `globals` SET `gl_value`='0.875' WHERE `gl_name`='font-size' AND `gl_value`='0.875rem';
-UPDATE `globals` SET `gl_value`='1.0' WHERE `gl_name`='font-size' AND `gl_value`='1rem';
-UPDATE `globals` SET `gl_value`='1.125' WHERE `gl_name`='font-size' AND `gl_value`='1.125rem';
-
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#dee2e6' WHERE `pc_constant_id`='no_show' AND `pc_catcolor`='#DDDDDD';
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#cce5ff' WHERE `pc_constant_id`='in_office' AND `pc_catcolor`='#99CCFF';
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#fdb172' WHERE `pc_constant_id`='out_of_office' AND `pc_catcolor`='#99FFFF';
@@ -2026,6 +2020,18 @@ CREATE TABLE `uuid_mapping` (
   KEY `table` (`table`),
   KEY `target_uuid` (`target_uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
+#EndIf
+
+#IfColumn automatic_notification next_app_date
+ALTER TABLE `automatic_notification` DROP COLUMN `next_app_date`;
+#EndIf
+
+#IfColumn automatic_notification next_app_time
+ALTER TABLE `automatic_notification` DROP COLUMN `next_app_time`;
+#EndIf
+
+#IfColumn automatic_notification notification_sent_date
+ALTER TABLE `automatic_notification` DROP COLUMN `notification_sent_date`;
 #EndIf
 
 #IfMissingColumn procedure_result uuid
@@ -2151,3 +2157,6 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 #IfNotRow2D layout_options form_id DEM field_id care_team_facility
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 22, 35, 1, 0, 0, '', 1, 1, '', '', '', 0);
 #EndIf
+
+DELETE FROM `globals` WHERE `gl_name`='font-size';
+DELETE FROM `globals` WHERE `gl_name`='font-family';
