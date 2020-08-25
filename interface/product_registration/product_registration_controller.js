@@ -17,8 +17,6 @@
  * @link    http://www.open-emr.org
  */
 
-"use strict";
-
 function ProductRegistrationController() {
     const self = this;
 
@@ -30,64 +28,21 @@ function ProductRegistrationController() {
                 return callback(err, null);
             }
             callback(null, data);
-        });
-    };
-
-    self.showProductRegistrationModal = function () {
-        _displayFormView();
-    };
-
-    const _displayFormView = function () {
-        // Workaround to get i18n keys
-        const buttonObject = {};
-        buttonObject[registrationTranslations.submit] = _formSubmissionHandler;
-        buttonObject[registrationTranslations.noThanks] = _formCancellationHandler;
-
-        $('.product-registration-modal .modal-header').text(registrationTranslations.title);
-
-        $('.product-registration-modal .submit').on('click', function (e) {
-            _formSubmissionHandler();
             return false;
         });
-
-        $('.product-registration-modal .nothanks').on('click', function (e) {
-            _formCancellationHandler();
-            return false;
-        });
-
-        $('.product-registration-modal').modal('toggle');
-
-        // Wire up "enter key" handler in case user doesn't click the modal buttons manually
-        $('.product-registration-modal .email').on('keypress', function (event) {
-            if (event.which == 13) {
-                _formSubmissionHandler();
-                return false;
-            }
-        });
-    };
-
-    const _formSubmissionHandler = function () {
-        const email = $('.product-registration-modal .email').val() || '';
-
-        if (email === '' || email.indexOf('@') < 0) {
-            $('.product-registration-modal .message').text(registrationTranslations.pleaseProvideValidEmail);
-        } else {
-            $('.product-registration-modal .message').text('');
-
-            _productRegistrationService.submitRegistration(email, function (err, data) {
-                if (err) {
-                    return _registrationFailedHandler(err);
-                }
-                _registrationCreatedHandler(data);
-            });
-        }
     };
 
     // If we are on the about_page, show the registration data.
     self.displayRegistrationInformationIfDivExists = function (data) {
         if ($('.product-registration').length > 0) {
-            $('.product-registration .email').text(registrationTranslations.registeredEmail + ' ' + data.email);
+            $('.product-registration .email').text(`${registrationTranslations.registeredEmail} ${data.email}`);
         }
+    };
+
+    const _closeModal = function (closeWaitTimeMilliseconds) {
+        setTimeout(function () {
+            $('.product-registration-modal').modal('toggle');
+        }, closeWaitTimeMilliseconds || 0);
     };
 
     const _formCancellationHandler = function () {
@@ -113,9 +68,55 @@ function ProductRegistrationController() {
         $('.product-registration-modal .message').text(error);
     };
 
-    const _closeModal = function (closeWaitTimeMilliseconds) {
-        setTimeout(function () {
-            $('.product-registration-modal').modal('toggle');
-        }, closeWaitTimeMilliseconds || 0);
+    const _formSubmissionHandler = function () {
+        const email = $('.product-registration-modal .email').val() || '';
+
+        if (email === '' || email.indexOf('@') < 0) {
+            $('.product-registration-modal .message').text(registrationTranslations.pleaseProvideValidEmail);
+        } else {
+            $('.product-registration-modal .message').text('');
+
+            _productRegistrationService.submitRegistration(email, function (err, data) {
+                if (err) {
+                    return _registrationFailedHandler(err);
+                }
+                _registrationCreatedHandler(data);
+                return true;
+            });
+        }
+    };
+
+    const _displayFormView = function () {
+        // Workaround to get i18n keys
+        const buttonObject = {};
+        buttonObject[registrationTranslations.submit] = _formSubmissionHandler;
+        buttonObject[registrationTranslations.noThanks] = _formCancellationHandler;
+
+        $('.product-registration-modal .modal-header').text(registrationTranslations.title);
+
+        $('.product-registration-modal .submit').on('click', function (e) {
+            _formSubmissionHandler();
+            return false;
+        });
+
+        $('.product-registration-modal .nothanks').on('click', function (e) {
+            _formCancellationHandler();
+            return false;
+        });
+
+        $('.product-registration-modal').modal('toggle');
+
+        // Wire up "enter key" handler in case user doesn't click the modal buttons manually
+        $('.product-registration-modal .email').on('keypress', function (event) {
+            if (Number(event.which) === 13) {
+                _formSubmissionHandler();
+                return false;
+            }
+            return true;
+        });
+
+        self.showProductRegistrationModal = function () {
+            _displayFormView();
+        };
     };
 }

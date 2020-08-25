@@ -3,12 +3,11 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
-//Author:- Author:- ViCarePlus Team, Visolve
-//Email ID:- vicareplus_engg@visolve.com
+// Author:- Author:- ViCarePlus Team, Visolve
+// Email ID:- vicareplus_engg@visolve.com
 //-------------------------------------------------------------------
 
-
-/* 
+/*
  *  Fuction to check that the password contains at least 3 of the following:
  *  - an integer one integer
  *  - a lower case letter
@@ -17,12 +16,12 @@
  *  Also, the password should be at least 8 characters.
  */
 function passwordvalidate(password_string) {
-    var pwd = password_string;
-    var items = 0;
+    const pwd = password_string;
+    let items = 0;
     if (pwd.length < 8) {
         return false;
     }
-    var rgx = /[a-z]+/;
+    let rgx = /[a-z]+/;
     if (rgx.test(pwd)) {
         items += 1;
     }
@@ -46,14 +45,14 @@ function passwordvalidate(password_string) {
 
 // Removes leading whitespaces
 function LTrim(value) {
-    var re = /\s*((\S+\s*)*)/;
-    return value.replace(re, "$1");
+    const re = /\s*((\S+\s*)*)/;
+    return value.replace(re, '$1');
 }
 
 // Removes ending whitespaces
 function RTrim(value) {
-    var re = /((\s*\S+)*)\s*/;
-    return value.replace(re, "$1");
+    const re = /((\s*\S+)*)\s*/;
+    return value.replace(re, '$1');
 }
 
 // Removes leading and ending whitespaces

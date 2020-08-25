@@ -191,7 +191,7 @@ function analyze_menu() {
                     const subSubMenu = $(elem).children('ul');
                     // Third Level Menu Items
                     if (subSubMenu.length > 0 && sub_entry.label !== 'Visit Forms') {
-                        subSubMenu.children('li').each(function(idx, elem) {
+                        subSubMenu.children('li').each(function (idx, elem) {
                             const sub_sub_anchor = $(elem).children('a');
                             const sub_sub_entry = menu_entry_from_jq(sub_sub_anchor);
                             sub_entry.children.push(sub_sub_entry);
@@ -221,7 +221,7 @@ function analyze_menu() {
 
         post_process(menu_entries);
         const data = $("<div id='#menuData'></div>");
-        data.text("$menu_json=\""+JSON.stringify(menu_entries).replace(/\"/g,"\\\"")+"\";");
+        data.text(`$menu_json=\"${JSON.stringify(menu_entries).replace(/\"/g, '\\\"')}\";`);
         $('body').append(data);
     });
 }

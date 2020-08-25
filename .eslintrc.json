@@ -31,6 +31,10 @@
         "no-restricted-syntax":"off",
         "prefer-destructuring":"off",
         "no-continue":"off",
-        "new-cap":"off"
+        "new-cap":"off",
+        "no-useless-escape":"off",
+        "no-shadow":"off",
+        "prefer-rest-params":"off",
+        "no-loop-func":"off"
     }
 }

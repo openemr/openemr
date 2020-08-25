@@ -18,46 +18,42 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-if (!opener) {
-    opener = top.get_opener(window.name);
+if (!window.opener) {
+    window.opener = window.top.get_opener(window.name);
 }
 
-window.close =
-    function (call, args) {
-        var frameName = window.name;
-        var wframe = top;
-        var dialogModal = top.$('div#' + frameName);
+window.close = function (call, args) {
+    const frameName = window.name;
+    const wframe = window.top;
+    const dialogModal = window.top.$(`div#${frameName}`);
 
-        var removeFrame = dialogModal.find("iframe[name='" + frameName + "']");
-        if (removeFrame.length > 0) {
-            removeFrame.remove();
+    const removeFrame = dialogModal.find(`iframe[name='${frameName}']`);
+    if (removeFrame.length > 0) {
+        removeFrame.remove();
+    }
+
+    if (dialogModal.length > 0) {
+        if (call) {
+            wframe.setCallBack(call, args);
         }
+        dialogModal.modal('hide');
+    }
+};
 
-        if (dialogModal.length > 0) {
-            if(call){
-                wframe.setCallBack(call, args);
-            }
-            dialogModal.modal('hide');
+const dlgclose = function (call, args) {
+    const frameName = window.name;
+    const wframe = window.top;
+    const dialogModal = window.top.$(`div#${frameName}`);
+
+    const removeFrame = dialogModal.find(`iframe[name='${frameName}']`);
+    if (removeFrame.length > 0) {
+        removeFrame.remove();
+    }
+
+    if (dialogModal.length > 0) {
+        if (call) {
+            wframe.setCallBack(call, args);
         }
-
-    };
-
-var dlgclose =
-    function (call, args) {
-        var frameName = window.name;
-        var wframe = top;
-        var dialogModal = top.$('div#' + frameName);
-
-        var removeFrame = dialogModal.find("iframe[name='" + frameName + "']");
-        if (removeFrame.length > 0) {
-            removeFrame.remove();
-        }
-
-        if (dialogModal.length > 0) {
-            if(call){
-                wframe.setCallBack(call, args);
-            }
-            dialogModal.modal('hide');
-        }
-
-    };
+        dialogModal.modal('hide');
+    }
+};

@@ -17,42 +17,10 @@
  * @link    http://www.open-emr.org
  */
 
-"use strict";
 function ProductRegistrationService() {
-    var self = this;
+    const self = this;
 
-    self.getProductStatus = function(callback) {
-        $.ajax({
-            url: registrationConstants.webroot + '/interface/product_registration/product_registration_controller.php',
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                _genericAjaxSuccessHandler(response, callback);
-            },
-            error: function(jqXHR) {
-                _genericAjaxFailureHandler(jqXHR, callback);
-            }
-        });
-    };
-
-    self.submitRegistration = function(email, callback) {
-        $.ajax({
-            url: registrationConstants.webroot + '/interface/product_registration/product_registration_controller.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                email: email
-            },
-            success: function(response) {
-                _genericAjaxSuccessHandler(response, callback);
-            },
-            error: function(jqXHR) {
-                _genericAjaxFailureHandler(jqXHR, callback);
-            }
-        });
-    };
-
-    var _genericAjaxSuccessHandler = function(response, callback) {
+    const _genericAjaxSuccessHandler = function (response, callback) {
         if (response) {
             return callback(null, response);
         }
@@ -60,13 +28,13 @@ function ProductRegistrationService() {
         return callback(registrationTranslations.genericError, null);
     };
 
-    var _genericAjaxFailureHandler = function(jqXHR, callback) {
-        if (jqXHR && jqXHR.hasOwnProperty('responseText')) {
+    const _genericAjaxFailureHandler = function (jqXHR, callback) {
+        if (jqXHR && Object.prototype.hasOwnProperty.call(jqXHR, 'responseText')) {
             try {
-                var rawErrorObject = jqXHR.responseText;
-                var parsedErrorObject = JSON.parse(rawErrorObject);
+                const rawErrorObject = jqXHR.responseText;
+                const parsedErrorObject = JSON.parse(rawErrorObject);
 
-                if (parsedErrorObject && parsedErrorObject.hasOwnProperty('message')) {
+                if (parsedErrorObject && Object.prototype.hasOwnProperty.call(parsedErrorObject, 'message')) {
                     callback(parsedErrorObject.message, null);
                 }
             } catch (jsonParseException) {
@@ -75,5 +43,36 @@ function ProductRegistrationService() {
         } else {
             callback(registrationTranslations.genericError, null);
         }
+    };
+
+    self.getProductStatus = function (callback) {
+        $.ajax({
+            url: `${registrationConstants.webroot}/interface/product_registration/product_registration_controller.php`,
+            type: 'GET',
+            dataType: 'json',
+            success(response) {
+                _genericAjaxSuccessHandler(response, callback);
+            },
+            error(jqXHR) {
+                _genericAjaxFailureHandler(jqXHR, callback);
+            },
+        });
+    };
+
+    self.submitRegistration = function (email, callback) {
+        $.ajax({
+            url: `${registrationConstants.webroot}/interface/product_registration/product_registration_controller.php`,
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                email,
+            },
+            success(response) {
+                _genericAjaxSuccessHandler(response, callback);
+            },
+            error(jqXHR) {
+                _genericAjaxFailureHandler(jqXHR, callback);
+            },
+        });
     };
 }

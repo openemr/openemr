@@ -8,7 +8,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-const RTop = {
+// eslint-disable-next-line no-var
+var RTop = {
     set location(url) {
         navigateTab(url, 'pat', function () {
             activateTabByName('pat', true);
@@ -16,8 +17,12 @@ const RTop = {
     },
 };
 
-let attendant_type = 'patient';
-const left_nav = { };
+// eslint-disable-next-line no-var
+var attendant_type = 'patient';
+
+// eslint-disable-next-line no-var
+var left_nav = {
+};
 
 left_nav.setPatient = function (pname, pid, pubpid, frname, str_dob) {
     if ((app_view_model.application_data.patient() !== null)
@@ -27,7 +32,6 @@ left_nav.setPatient = function (pname, pid, pubpid, frname, str_dob) {
         app_view_model.application_data.patient().str_dob(str_dob);
         return;
     }
-
     const new_patient = new patient_data_view_model(pname, pid, pubpid, str_dob);
     app_view_model.application_data.patient(new_patient);
     app_view_model.application_data.therapy_group(null);
@@ -71,9 +75,7 @@ left_nav.setPatientEncounter = function (EncounterIdAry, EncounterDateAry, Calen
     for (let encIdx = 0; encIdx < EncounterIdAry.length; encIdx += 1) {
         app_view_model.application_data[attendant_type]().encounterArray.push(
             new encounter_data(
-                EncounterIdAry[encIdx],
-                EncounterDateAry[encIdx],
-                CalendarCategoryAry[encIdx],
+                EncounterIdAry[encIdx], EncounterDateAry[encIdx], CalendarCategoryAry[encIdx],
             ),
         );
     }
