@@ -27,6 +27,8 @@ services:
     # if editing the Dockerfile, clone the devops repo and point to the path:
     # build: ../openemr-devops/docker/openemr/flex-edge/
     ports:
+    - 3000:3000 # browsersync
+    - 3001:3001 # browsersync-admin
     - 8300:80
     - 9300:443
     volumes:

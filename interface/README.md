@@ -42,6 +42,7 @@ From here you can either:
     * [See video of `dev-sync` in action](https://imgur.com/a/C0dVnfq)
 
 ## TODOs
+- [ ] update/move/migrate this outdated document!
 - [ ] Incorporate tabs_style_compact.css and tabs_style_full.css (and associated RTL) into scss
 - [x] Don't require 2 build runs to build the rtl themes
 - [ ] Add a lot of documentation on current component usage (starting with theme-only components)
