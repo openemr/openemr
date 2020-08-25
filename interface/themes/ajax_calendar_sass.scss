@@ -2,12 +2,8 @@
  * the style sheet for the ajax_template calendar
  * ====================================*/
 
-/* Bootstrap Breakpoints */
-@each $breakpoint in map-keys($grid-breakpoints) {
-  @include media-breakpoint-up($breakpoint) {
-    $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
-  }
-}
+
+$side-calendar-date-padding: 0.3rem !default;
 
 div.tiny {
   @include font-size("0.0625rem");
@@ -188,7 +184,7 @@ div.tiny {
     background-color: $white;
     border: 0;
     color: $gray-600;
-    padding: 0.3rem;
+    padding: $side-calendar-date-padding;
     vertical-align: top;
   }
 
@@ -197,7 +193,7 @@ div.tiny {
     background-color: $white;
     border: 0;
     color: $danger;
-    padding: 0.3rem;
+    padding: $side-calendar-date-padding;
     vertical-align: top;
   }
 
@@ -206,7 +202,7 @@ div.tiny {
     background-color: $white;
     border: 0;
     color: $gray-600;
-    padding: 0.3rem;
+    padding: $side-calendar-date-padding;
     vertical-align: top;
   }
 
@@ -214,7 +210,7 @@ div.tiny {
     @include font-size("0.825rem");
     background-color: $white;
     border: 0;
-    padding: 0.3rem;
+    padding: $side-calendar-date-padding;
     vertical-align: top;
   }
 
@@ -499,7 +495,7 @@ div.tiny {
 @use "sass:meta";
 
 @if variable-exists("ovr-dark") {
-  .providerXbtn i {
+  .event_time {
     color: $ovr-dark !important;
   }
 

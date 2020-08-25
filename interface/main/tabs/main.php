@@ -178,9 +178,6 @@ $esignApi = new Api();
     </script>
 
     <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next']); ?>
-
-    <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
-
     <script>
         // set up global translations for js
         function setupI18n(lang_id) {
