@@ -89,7 +89,7 @@ class LocationService extends BaseService
                     fax,
                     url as website,
                     email from users) as location
-                    LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.target_uuid';
+                    LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.target_uuid AND uuid_mapping.resource="Location"';
 
         if (!empty($search)) {
             $sql .= ' WHERE ';
@@ -175,7 +175,7 @@ class LocationService extends BaseService
                     fax,
                     url as website,
                     email from users) as location
-                    LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.target_uuid
+                    LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.target_uuid AND uuid_mapping.resource="Location"
                     WHERE uuid_mapping.uuid=?';
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);

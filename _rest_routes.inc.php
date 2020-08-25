@@ -405,6 +405,7 @@ RestConfig::$ROUTE_MAP = array(
 );
 
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
+use OpenEMR\RestControllers\FHIR\FhirCareTeamRestController;
 use OpenEMR\RestControllers\FHIR\FhirConditionRestController;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
 use OpenEMR\RestControllers\FHIR\FhirObservationRestController;
@@ -567,6 +568,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/Location/:uuid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
         return (new FhirLocationRestController())->getOne($uuid);
+    },
+    "GET /fhir/CareTeam" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirCareTeamRestController())->getAll($_GET);
+    },
+    "GET /fhir/CareTeam/:uuid" => function ($uuid) {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirCareTeamRestController())->getOne($uuid);
     }
 );
 
