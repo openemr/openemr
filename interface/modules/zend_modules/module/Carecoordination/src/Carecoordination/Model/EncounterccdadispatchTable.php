@@ -2257,10 +2257,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getCareTeamProviderId($pid)
     {
         $appTable = new ApplicationTable();
-        $query = "SELECT care_team FROM patient_data WHERE `pid`  = ?";
+        $query = "SELECT care_team_provider FROM patient_data WHERE `pid`  = ?";
         $result = $appTable->zQuery($query, array($pid));
         $row = $result->current();
-        return $row['care_team'];
+        return $row['care_team_provider'];
     }
 
     public function getClinicalInstructions($pid, $encounter)
