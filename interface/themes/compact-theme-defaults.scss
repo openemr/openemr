@@ -1,0 +1,33 @@
+/*
+*	Compact Theme Defaults
+*	Used on all themes to make them more compact
+*/
+
+// Changes the spacer used in multiple BS4 variables to a smaller number
+$spacer: 0.73rem;
+// Changes the <p> element margin bottom to be more compact
+$paragraph-margin-bottom: 0.8rem;
+// Makes grid columns closer to one another
+$grid-gutter-width: 20px;
+
+// Changes the table cell padding to table small cell padding
+$table-cell-padding: 0.3rem;
+
+$label-margin-bottom: 0.5rem / 2;
+
+// Changes the input buttons to be smaller as well as all forms
+$input-btn-padding-y: 0.2rem;
+$input-btn-padding-x: 0.4rem;
+$input-btn-line-height: 1.5;
+
+$side-calendar-date-padding: 0.2rem;
+$input-height: calc(1.5em + 0.4rem + 2px);
+
+// Nav Pills Padding Override
+.nav-pills .nav-link {
+  padding: 0.5rem !important;
+}
+
+.menuEntries li .menuLabel {
+  padding: 5px 10px !important;
+}
