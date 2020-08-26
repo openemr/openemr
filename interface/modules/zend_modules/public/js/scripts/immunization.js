@@ -13,7 +13,6 @@ $(function () {
     $('.date_field').datepicker({
         changeMonth: true,
         changeYear: true,
-        // dateFormat:'yy-mm-dd'
     });
 
     $('#immunization').keypress(function (e) {
@@ -96,8 +95,6 @@ function isNumber(evt) {
     if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode !== 13) {
         return false;
     }
-    // $('#immunization').attr('action', "index");
-    // $('#immunization').submit();
     return true;
 }
 
