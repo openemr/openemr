@@ -50,6 +50,11 @@ assets:
         link: '%css_header%'
         autoload: true
         allowNoLoad: true
+    compact-theme:
+        alreadyBuilt: true
+        link: '%compact_header%'
+        autoload: true
+        allowNoLoad: true
     tabs-theme:
         basePath: '%webroot%/public/themes/'
         link: '%theme_tabs_layout%'

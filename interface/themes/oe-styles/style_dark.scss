@@ -7,17 +7,9 @@
 *
 */
 
-/* Bootstrap Magic Code */
-$blue: #007bff;
-$indigo: #6610f2;
-$purple: #6f42c1;
-$pink: #e83e8c;
-$red: #dc3545;
-$orange: #fd7e14;
-$yellow: #ffc107;
-$green: #28a745;
-$teal: #20c997;
-$cyan: #17a2b8;
+@import "../default-variables";
+
+/* Dark theme overrides */
 $white: #000;
 $gray-100: #212529;
 $gray-200: #343a40;
@@ -40,62 +32,11 @@ $body-bg: $white;
 $body-color: $gray-900;
 /* This is actually light */
 
-$theme-colors: (
-  primary: $blue,
-  secondary: $gray-900,
-  success: $green,
-  info: $cyan,
-  warning: $yellow,
-  danger: $red,
-  light: $gray-100,
-  dark: $gray-800,
-  ovr-dark: $ovr-dark,
-  ovr-light: $ovr-light,
-  body-color: $body-color
-);
-/* Above adds override class in case we HAVE to have a dark/light color */
-
-$colors: (
-  "blue": $blue,
-  "indigo": $indigo,
-  "purple": $purple,
-  "pink": $pink,
-  "red": $red,
-  "orange": $orange,
-  "yellow": $yellow,
-  "green": $green,
-  "teal": $teal,
-  "cyan": $cyan,
-  "white": $white,
-  "gray": $gray-600,
-  "gray-dark": $gray-800,
-  "black": $black,
-  "gray100": $gray-100,
-  "gray200": $gray-200,
-  "gray300": $gray-300,
-  "gray400": $gray-400,
-  "gray500": $gray-500,
-  "gray600": $gray-600,
-  "gray700": $gray-700,
-  "gray800": $gray-800,
-  "gray900": $gray-900
-);
-/* Above adds overrides to allow regular CSS coloring */
-
-$font-family-sans-serif: "Lato", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-$font-size-base: 0.875rem;
-$rfs-base-value: 0.875rem;
-$font-family-base: $font-family-sans-serif;
-
 $btn-link-disabled-color: $gray-400;
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 $login-text-color: #000;
 
-$displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
-
-// Enables responsive text for Bootstrap
-$enable-responsive-font-sizes: true;
 // Import Bootstrap 4 SCSS Files before doing anything
 // This gets replaced in gulp now -- do not touch
 // bs4import

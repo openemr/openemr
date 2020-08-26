@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 // modules
 const csso = require('gulp-csso');
@@ -99,8 +99,8 @@ function styles_style_uni() {
 // standard themes compact css compilation
 function styles_style_uni_compact() {
     return gulp.src(config.src.styles.style_uni)
-        .pipe(gap.prependText('@import "../compact-theme-defaults.scss";\n'))
-        .pipe(injector.replace('// bs4import', '@import "../../../public/assets/bootstrap/scss/bootstrap";'))
+        .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
+        .pipe(injector.replace('// bs4import', '@import "../oemr_compact_imports";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(postcss([prefix()]))
@@ -129,8 +129,8 @@ function styles_style_color() {
 // color themes compact css compilation
 function styles_style_color_compact() {
     return gulp.src(config.src.styles.style_color)
-        .pipe(gap.prependText('@import "../compact-theme-defaults.scss";\n'))
-        .pipe(injector.replace('// bs4import', '@import "../../../public/assets/bootstrap/scss/bootstrap";'))
+        .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
+        .pipe(injector.replace('// bs4import', '@import "../oemr_compact_imports";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(postcss([prefix()]))
@@ -206,10 +206,10 @@ function rtl_style_uni() {
 // rtl standard themes compact css compilation
 function rtl_style_uni_compact() {
     return gulp.src(config.src.styles.style_uni)
-        .pipe(gap.prependText('@import "../compact-theme-defaults.scss";\n'))
+        .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
         .pipe(gap.prependText('$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
-        .pipe(injector.replace('// bs4import', '@import "../oemr-rtl";'))
+        .pipe(injector.replace('// bs4import', '@import "../oemr_rtl_compact_imports";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(postcss([prefix()]))
@@ -243,10 +243,10 @@ function rtl_style_color() {
 // rtl color themes compact css compilation
 function rtl_style_color_compact() {
     return gulp.src(config.src.styles.style_color)
-        .pipe(gap.prependText('@import "../compact-theme-defaults.scss";\n'))
+        .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
         .pipe(gap.prependText('$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
-        .pipe(injector.replace('// bs4import', '@import "../oemr-rtl";'))
+        .pipe(injector.replace('// bs4import', '@import "../oemr_rtl_compact_imports";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(postcss([prefix()]))
