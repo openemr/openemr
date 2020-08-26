@@ -8,23 +8,26 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function getDateFormat(date,id) {
-  var seperator = date.match(/[^1234567890]/);
-  var input_date_arr = date.split(seperator[0]);
-  var dateobj = new Date();
-  currentyear = dateobj.getFullYear();
-  if (input_date_arr[0] > 99) {
-    input_date_arr = input_date_arr[0] + seperator[0] + input_date_arr[1] + seperator[0] + input_date_arr[2];
-  }
-  else {
-    if (input_date_arr[0] != 0 || input_date_arr[1] != 0 || input_date_arr[2] != 0) {
-      if (input_date_arr[2] < 1000)
-        input_date_arr[2] = parseInt(input_date_arr[2]) + parseInt(1900);
-      if (input_date_arr[2] < (currentyear - 96)) //Entered 2 digit year greater than current year+3 will be preceded by 20, otherwise 19 is used
-        input_date_arr[2] = parseInt(input_date_arr[2]) + parseInt(100);
-
-      input_date_arr = input_date_arr[2] + seperator[0] + input_date_arr[0] + seperator[0] + input_date_arr[1];
+function getDateFormat(date, id) {
+    const seperator = date.match(/[^1234567890]/);
+    let input_date_arr = date.split(seperator[0]);
+    const dateobj = new Date();
+    currentyear = dateobj.getFullYear();
+    if (input_date_arr[0] > 99) {
+        input_date_arr = input_date_arr[0] + seperator[0]
+        + input_date_arr[1] + seperator[0] + input_date_arr[2];
+    } else if (input_date_arr[0] !== 0 || input_date_arr[1] !== 0 || input_date_arr[2] !== 0) {
+        if (input_date_arr[2] < 1000) {
+            input_date_arr[2] = Number.parseInt(input_date_arr[2], 10) + Number.parseInt(1900, 10);
+        }
+        if (input_date_arr[2] < (currentyear - 96)) {
+            // Entered 2 digit year greater than current year + 3
+            // will be preceded by 20, otherwise 19 is used
+            input_date_arr[2] = Number.parseInt(input_date_arr[2], 10) + Number.parseInt(100, 10);
+        }
+        input_date_arr = input_date_arr[2] + seperator[0] + input_date_arr[0]
+         + seperator[0] + input_date_arr[1];
     }
-  }
-  $("#" + id).val(input_date_arr);
+
+    $(`#${id}`).val(input_date_arr);
 }
