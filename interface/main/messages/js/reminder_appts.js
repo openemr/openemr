@@ -8,8 +8,11 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// eslint-disable-next-line no-var
 var labels = [];
+// eslint-disable-next-line no-var
 var postcards = [];
+// eslint-disable-next-line no-var
 var show_just;
 
 /**
@@ -26,68 +29,79 @@ function recall_name_click(field) {
  * Function to insert patient data into addRecall fields
  * pid is sent to server for the data to display
  */
-function setpatient(pid, lname='', fname='', dob='') {
-    top.restoreSession();
+function setpatient(pid, lname = '', fname = '', dob = '') {
+    window.top.restoreSession();
     $.ajax({
-        type: "POST",
-        url: "save.php",
+        type: 'POST',
+        url: 'save.php',
         data: {
-            'pid': pid,
-            'action': 'new_recall'
-        }
+            pid,
+            action: 'new_recall',
+        },
     }).done(function (result) {
         obj = JSON.parse(result);
         if (obj.DOLV > '') {
-            //check to see if this is an already scheduled appt for the future
-            //if so, do you really want a recall? Ask.
-            //Maybe that appt needs to be removed...
-            var now = moment(); //new Date()).format('YYYY-MM-DD'); //todays date
-            var dolv = moment(obj.DOLV); // another date
-            var duration = dolv.diff(now, 'days');
-            if (duration > '0') { //it's a future appt dude!
-                alert(xljs_NOTE + ': ' + xljs_PthsApSched + ' ' + obj.DOLV );
+            // check to see if this is an already scheduled appt for the future
+            // if so, do you really want a recall? Ask.
+            // Maybe that appt needs to be removed...
+            const now = moment(); // new Date()).format('YYYY-MM-DD'); //todays date
+            const dolv = moment(obj.DOLV); // another date
+            const duration = dolv.diff(now, 'days');
+            if (duration > '0') { // it's a future appt dude!
+                alert(`${xljs_NOTE}: ${xljs_PthsApSched} ${obj}.DOLV`);
             }
         }
-        $(".news").removeClass('nodisplay');
-        $("#new_pid").val(obj.pid);
-        $("#new_phone_home").val(obj.phone_home);
-        $("#new_phone_cell").val(obj.phone_cell);
-        if (obj.hipaa_allowsms === "NO") {
+        $('.news').removeClass('nodisplay');
+        $('#new_pid').val(obj.pid);
+        $('#new_phone_home').val(obj.phone_home);
+        $('#new_phone_cell').val(obj.phone_cell);
+        if (obj.hipaa_allowsms === 'NO') {
             $('#new_allowsms_no').prop('checked', true);
         } else {
             $('#new_allowsms_yes').prop('checked', true);
         }
         if (obj.hipaa_allowemail === 'NO') {
-            $("#new_email_no").prop('checked', true);
+            $('#new_email_no').prop('checked', true);
         } else {
-            $("#new_email_yes").prop('checked', true);
+            $('#new_email_yes').prop('checked', true);
         }
         if (obj.hipaa_voice === 'NO') {
-            $("#new_voice_no").prop('checked', true);
+            $('#new_voice_no').prop('checked', true);
         } else {
-            $("#new_voice_yes").prop('checked', true);
+            $('#new_voice_yes').prop('checked', true);
         }
-        $("#new_address").val(obj.street);
-        $("#new_city").val(obj.city);
-        $("#new_state").val(obj.state);
-        $("#new_postal_code").val(obj.postal_code);
-        $("#new_DOB").html(obj.DOB);
-        $("#new_email").val(obj.email);
+        $('#new_address').val(obj.street);
+        $('#new_city').val(obj.city);
+        $('#new_state').val(obj.state);
+        $('#new_postal_code').val(obj.postal_code);
+        $('#new_DOB').html(obj.DOB);
+        $('#new_email').val(obj.email);
         if (obj.DOLV > '') {
-            $("#DOLV").val(obj.DOLV);
+            $('#DOLV').val(obj.DOLV);
         } else {
-            var today = moment().format('YYYY-MM-DD');
-            $("#DOLV").val(today);
+            const today = moment().format('YYYY-MM-DD');
+            $('#DOLV').val(today);
         }
-        //there is an openemr global for age display under X years old (eg. under "2", so == 17 months old)
-        //not sure where it is though... or if we can use it here.
-        $("#new_age").html(obj.age + ' years old');
-        $("#new_reason").val(obj.PLAN);
-        $("#new_recall_name").val(obj.lname + ', ' + obj.fname);
-        $("#form_recall_date").val(obj.recall_date);
-        $("#new_provider").val(obj.provider).change();
-        $("#new_facility").val(obj.facility).change();
+        // there is an openemr global for age display under X years old
+        // (eg. under "2", so == 17 months old)
+        // not sure where it is though... or if we can use it here.
+        $('#new_age').html(`${obj.age} years old`);
+        $('#new_reason').val(obj.PLAN);
+        $('#new_recall_name').val(`${obj.lname}, ${obj.fname}`);
+        $('#form_recall_date').val(obj.recall_date);
+        $('#new_provider').val(obj.provider).change();
+        $('#new_facility').val(obj.facility).change();
     });
+}
+
+// in bootstrap_menu.js
+function tabYourIt(tabNAME, url) {
+    tabNAME = window.name;
+    window.parent.left_nav.loadFrame('1', tabNAME, url);
+}
+
+function goReminderRecall(choice) {
+    tabYourIt('recall', `main/messages/messages.php?go=${choice}`);
 }
 
 /**
@@ -96,43 +110,42 @@ function setpatient(pid, lname='', fname='', dob='') {
 function add_this_recall(e) {
     if ($('#form_recall_date').val() === '') {
         alert(xljs_PlsDecRecDate);
-        $("#form_recall_date").focus();
-        //e.defaultPrevented();
+        $('#form_recall_date').focus();
         e.preventDefault();
         return false;
-    } else {
-        var url = "save.php";
-        formData = JSON.stringify($("form#addRecall").serialize());
-        top.restoreSession();
-        $.ajax({
-            type: 'POST',
-            url: url,
-            dataType: 'json',
-            action: 'add_recall',
-            data: formData
-        }).done(function (result) {
-            goReminderRecall('Recalls');
-        });
     }
+    const url = 'save.php';
+    formData = JSON.stringify($('form#addRecall').serialize());
+    window.top.restoreSession();
+    $.ajax({
+        type: 'POST',
+        url,
+        dataType: 'json',
+        action: 'add_recall',
+        data: formData,
+    }).done(function (result) {
+        goReminderRecall('Recalls');
+    });
+    return true;
 }
 
 /**
  * This function is called when a preference is changed
  */
 function save_preferences(event) {
-    event.preventDefault;
-    var url = "save.php";
-    formData = JSON.stringify($("form#addRecall").serialize());
-    top.restoreSession();
+    event.preventDefault();
+    const url = 'save.php';
+    const formData = JSON.stringify($('form#addRecall').serialize());
+    window.top.restoreSession();
     $.ajax({
         type: 'POST',
-        url: url,
+        url,
         dataType: 'json',
         action: 'add_recall',
-        data: formData
+        data: formData,
     }).done(function (result) {
         if (result.msg > '') {
-            $("#message").html = result.msg
+            $('#message').html = result.msg;
         }
     });
 }
@@ -141,8 +154,8 @@ function show_patient(newpid) {
     if (newpid.length === 0) {
         return;
     }
-    top.restoreSession();
-    top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + newpid;
+    window.top.restoreSession();
+    window.top.RTop.location = `../../patient_file/summary/demographics.php?set_pid=${newpid}`;
 }
 
 /**
@@ -151,90 +164,91 @@ function show_patient(newpid) {
  *  which can then be printed locally (labels or postcards at present 10/31/2016).
  */
 function checkAll(chk, set) {
-    if ($("#chk_" + chk).hasClass('fa-square-o')) {
-        $("[name=" + chk + "]").each(function () {
+    if ($(`#chk_${chk}`).hasClass('fa-square-o')) {
+        $(`[name=${chk}]`).each(function () {
             this.checked = !$(this).parents('.nodisplay').length;
         });
     } else {
-        $("[name=" + chk + "]").each(function () {
+        $(`[name=${chk}]`).each(function () {
             this.checked = false;
         });
     }
-    $("#chk_" + chk).toggleClass('fa-check-square-o').toggleClass('fa-square-o');
+    $(`#chk_${chk}`).toggleClass('fa-check-square-o').toggleClass('fa-square-o');
 }
 
 /**
  * This function sends a list of checked items to the server for processing.
  */
-function process_this(material, id, eid='') {
-    var make_this = [];
-    var make_that = [];
-    var make_all = [];
-    if ((material === "phone") || (material === "notes")) {  //we just checked a phone box or left/blurred away from a notes field
+function process_this(material, id, eid = '') {
+    const make_this = [];
+    const make_that = [];
+    const make_all = [];
+    if ((material === 'phone') || (material === 'notes')) {
+        // we just checked a phone box or left/blurred away from a notes field
         make_this.push(id);
         make_that.push(eid);
-        make_all.push(id + '_' + eid);
-        var notes = $("#msg_notes_" + id).val();
+        make_all.push(`${id}_${eid}`);
+        const notes = $(`#msg_notes_${id}`).val();
     } else {
-        $('input:checkbox[name=' + material + ']:checked').each(function () {
+        $(`input:checkbox[name=${material}]:checked`).each(function () {
             make_this.push(this.value);
         });
     }
 
-    var url = "save.php";
-    var formData = JSON.stringify(make_this);
-    var pc_Data = JSON.stringify(make_that);
-    var all_Data = JSON.stringify(make_all);
-    top.restoreSession();
+    const url = 'save.php';
+    const formData = JSON.stringify(make_this);
+    const pc_Data = JSON.stringify(make_that);
+    const all_Data = JSON.stringify(make_all);
+    window.top.restoreSession();
     $.ajax({
         type: 'POST',
-        url: url,
+        url,
         dataType: 'json',
         data: {
-            'parameter': formData,
-            'pc_eid': pc_Data,
-            'uid_pc_eid': all_Data,
-            'msg_notes': notes,
-            'action': 'process',
-            'item': material
-        }
+            parameter: formData,
+            pc_eid: pc_Data,
+            uid_pc_eid: all_Data,
+            msg_notes: notes,
+            action: 'process',
+            item: material,
+        },
     }).done(function (result) {
-        if (material === 'labels') window.open("../../patient_file/addr_appt_label.php", "_blank");
-        if (material === 'postcards') window.open("print_postcards.php", "rbot");
-        //now change the checkmark to a date, turn it red and leave a comment
-        $('input:checkbox[name=' + material + ']:checked').each(function () {
-            r_uid = this.value;
-            var dateval = $.datepicker.formatDate('mm/dd/yy', new Date());
+        if (material === 'labels') {
+            window.open('../../patient_file/addr_appt_label.php', '_blank');
+        }
+        if (material === 'postcards') {
+            window.open('print_postcards.php', 'rbot');
+        }
+        // now change the checkmark to a date, turn it red and leave a comment
+        $(`input:checkbox[name=${material}]:checked`).each(function () {
+            const r_uid = this.value;
+            const dateval = $.datepicker.formatDate('mm/dd/yy', new Date());
             if (material !== 'phone') {
-                $(this).parents('.' + material).append(' ' + dateval);
-                $("#remind_" + r_uid).removeClass('whitish')
+                $(this).parents(`.${material}`).append(` ${dateval}`);
+                $(`#remind_${r_uid}`).removeClass('whitish')
                     .removeClass('reddish')
                     .removeClass('greenish')
                     .removeClass('yellowish')
                     .addClass('yellowish');
             } else {
-                $("#msg_phone_" + r_uid).append('<br />' + dateval);
+                $(`#msg_phone_${r_uid}`).append(`<br />${dateval}`);
             }
-         });
+        });
     });
-    //
-
 }
 
-
 $.date = function (dateObject) {
-    var d = new Date(dateObject);
-    var day = d.getDate();
-    var month = d.getMonth() + 1;
-    var year = d.getFullYear();
+    const d = new Date(dateObject);
+    let day = d.getDate();
+    let month = d.getMonth() + 1;
+    const year = d.getFullYear();
     if (day < 10) {
-        day = "0" + day;
+        day = `0${day}`;
     }
     if (month < 10) {
-        month = "0" + month;
+        month = `0${month}`;
     }
-    var date = day + "/" + month + "/" + year;
-
+    const date = `${day}/${month}/${year}`;
     return date;
 };
 
@@ -243,9 +257,9 @@ $(function () {
      * this swallows backspace keys.
      * stops backspace -> back a page in the browser, a very annoying thing indeed.
      */
-    var rx = /INPUT|SELECT|TEXTAREA|SPAN|DIV/i;
+    const rx = /INPUT|SELECT|TEXTAREA|SPAN|DIV/i;
 
-    $(document).bind("keydown keypress", function (e) {
+    $(document).bind('keydown keypress', function (e) {
         if (e.which === 8) { // 8 == backspace
             if (!rx.test(e.target.tagName) || e.target.disabled || e.target.readOnly) {
                 e.preventDefault();
@@ -256,76 +270,69 @@ $(function () {
 
 // Open the add-event dialog.
 function newEvt(pid, pc_eid) {
-    var f = document.forms[0];
-    var url = '../../main/calendar/add_edit_event.php?patientid=' + pid + '&eid=' + pc_eid;
+    const f = document.forms[0];
+    const url = `../../main/calendar/add_edit_event.php?patientid=${pid}&eid=${pc_eid}`;
     dlgopen(url, '_blank', 800, 480);
     return false;
 }
 
+function refresh_me() {
+    window.location.reload();
+}
+
 function delete_Recall(pid, r_ID) {
-    if (confirm('Are you sure you want to delete this Recall?')) {
-        //top.restoreSession();
-        var url = 'save.php';
+    if (window.confirm('Are you sure you want to delete this Recall?')) {
+        const url = 'save.php';
         $.ajax({
             type: 'POST',
-            url: url,
+            url,
             data: {
-                'action': 'delete_Recall',
-                'pid': pid,
-                'r_ID': r_ID
-            }
-
+                action: 'delete_Recall',
+                pid,
+                r_ID,
+            },
         }).done(function (result) {
             refresh_me();
         });
     }
-
 }
 
-function refresh_me() {
-    location.reload();
-}
-
-/****  FUNCTIONS RELATED TO NAVIGATION *****/
+// FUNCTIONS RELATED TO NAVIGATION
 // Process click to pop up the edit window.
 function doRecallclick_edit(goHere) {
-    top.restoreSession();
+    window.top.restoreSession();
     if (window.location.pathname.match(/patient_tracker/)) {
-        zone ='main/';
+        zone = 'main/';
     } else {
         zone = '';
     }
-    dlgopen('../'+zone+'messages/messages.php?nomenu=1&go=' + goHere, '_blank', 900, 400);
-}
-
-function goReminderRecall(choice) {
-    tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
+    dlgopen(`../${zone}messages/messages.php?nomenu=1&go=${goHere}`, '_blank', 900, 400);
 }
 
 function goMessages() {
     R = 'messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1';
-    top.restoreSession();
-    location.href = R;
+    window.top.restoreSession();
+    window.location.href = R;
 }
 
 function goMedEx() {
-    location.href = 'https://medexbank.com/cart/upload/index.php?route=information/campaigns';
+    window.location.href = 'https://medexbank.com/cart/upload/index.php?route=information/campaigns';
 }
 
-/****  END FUNCTIONS RELATED TO NAVIGATION *****/
+// END FUNCTIONS RELATED TO NAVIGATION
 
-function show_this(colorish='') {
-    var facV = $("#form_facility").val();
-    var provV = $("#form_provider").val();
-    var pidV = $("#form_patient_id").val();
-    var pidRE = new RegExp(pidV, 'i');
-    var pnameV = $("#form_patient_name").val();
-    var pnameRE = new RegExp(pnameV, 'i');
+function show_this(colorish = '') {
+    const facV = $('#form_facility').val();
+    const provV = $('#form_provider').val();
+    const pidV = $('#form_patient_id').val();
+    const pidRE = new RegExp(pidV, 'i');
+    const pnameV = $('#form_patient_name').val();
+    const pnameRE = new RegExp(pnameV, 'i');
 
     $('.ALL').hide().filter(function () {
-        var d = $(this).data();
-        meets_fac = (facV === '') || (facV == d.facility);
-        meets_prov = (provV === '') || (provV == d.provider);
+        const d = $(this).data();
+        meets_fac = (facV === '') || (facV === d.facility);
+        meets_prov = (provV === '') || (provV === d.provider);
         meets_pid = pidV === '';
         if ((pidV > '') && pidRE.test(d.pid)) {
             meets_pid = true;
@@ -334,53 +341,52 @@ function show_this(colorish='') {
         if ((pnameV > '') && pnameRE.test(d.pname)) {
             meets_pname = true;
         }
-        meets_color = (colorish === '') || (colorish == d.status );
+        meets_color = (colorish === '') || (colorish === d.status);
         return meets_fac && meets_prov && meets_pid && meets_pname && meets_color;
     }).show('4000', 'linear');
 }
 
-//in bootstrap_menu.js
-function tabYourIt(tabNAME, url) {
-    tabNAME = window.name;
-    parent.left_nav.loadFrame('1', tabNAME, url);
-}
-
 $(function () {
-    //bootstrap menu functions
+    // bootstrap menu functions
     $('.dropdown').hover(function () {
-        $(".dropdown").removeClass('open');
+        $('.dropdown').removeClass('open');
         $(this).addClass('open');
-        $(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideDown();
+        $(this).find('.dropdown-menu').first().stop(true, true)
+            .delay(250)
+            .slideDown();
     }, function () {
-        $(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideUp();
+        $(this).find('.dropdown-menu').first().stop(true, true)
+            .delay(250)
+            .slideUp();
         $('.dropdown').removeClass('open');
         $(this).parent().removeClass('open');
     });
     $("[class='dropdown-toggle']").hover(function () {
-        $(".dropdown").removeClass('open');
+        $('.dropdown').removeClass('open');
         $(this).parent().addClass('open');
-        $(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideDown();
+        $(this).find('.dropdown-menu').first().stop(true, true)
+            .delay(250)
+            .slideDown();
     });
     $("[name='new_recall_when']").change(function () {
-        var dolv = moment($("#DOLV").val());
+        const dolv = moment($('#DOLV').val());
         now = dolv.add($(this).val(), 'days').format(format_date_moment_js);
-        $("#form_recall_date").val(now);
+        $('#form_recall_date').val(now);
     });
-    $(".update").on('change', function (e) {
-        var formData = $("form#save_prefs").serialize();
-        var url = "save.php";
-        top.restoreSession();
+    $('.update').on('change', function (e) {
+        const formData = $('form#save_prefs').serialize();
+        const url = 'save.php';
+        window.top.restoreSession();
         $.ajax({
             type: 'POST',
-            url: url,
+            url,
             data: formData,
-            action: 'save_prefs'
+            action: 'save_prefs',
         }).done(function (result) {
-            $("#div_response").html('<span class="text-danger">' + xljs1 + '.</span>');
+            $('#div_response').html(`<span class="text-danger">${xljs1}</span>`);
             setTimeout(function () {
-                $("#div_response").html('<br />');
+                $('#div_response').html('<br />');
             }, 2000);
         });
     });
 });
-
