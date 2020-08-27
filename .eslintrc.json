@@ -35,6 +35,7 @@
         "no-useless-escape":"off",
         "no-shadow":"off",
         "prefer-rest-params":"off",
-        "no-loop-func":"off"
+        "no-loop-func":"off",
+        "no-nested-ternary": "off"
     }
 }
