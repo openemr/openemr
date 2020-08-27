@@ -12,6 +12,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 2. `cd openemr` (the directory you cloned the code into)
     - If you haven't already, [install Docker](https://docs.docker.com/install/) and [install compose](https://docs.docker.com/compose/install/) for your system
 	- If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
+    - If you want to monitor and easily manage the docker environment, please also [install openemr-monitor](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-monitor) and [install portainer](https://github.com/openemr/openemr-devops/tree/master/utilities/portainer) for your system
 3. Run `docker-compose up` from your command line
     - When the build is done, you'll see the following message:
     ```sh
@@ -250,6 +251,23 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools disable-ldap'
       ```
+    - Developer tools to place/remove testing ldap tls/ssl certificate and testing ldap tls/ssl client key/cert.
+        - Place the testing ldap tls/ssl CA cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools ldap-ssl'
+          ```
+        - Remove the testing ldap tls/ssl CA cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools ldap-ssl-off'
+          ```
+        - Place the testing ldap tls/ssl CA cert and testing ldap tls/ssl client key/cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools ldap-ssl-client'
+          ```
+        - Remove the testing ldap tls/ssl CA cert and testing ldap tls/ssl client key/cert:
+          ```sh
+          docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools ldap-ssl-client-off'
+          ```
 19. Xdebug and profiling is also supported for PHPStorm.
     - Firefox install xdebug helper add on (configure for PHPSTORM)
     - PHPStorm Settings->Language & Frameworks->PHP->Debug

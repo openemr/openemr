@@ -88,8 +88,6 @@ if (
     </script>
 
     <script src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
-
-    <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
     <style>
         @media only screen and (max-width: 768px) {
             [class*="col-"] {

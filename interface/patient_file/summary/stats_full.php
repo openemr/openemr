@@ -297,7 +297,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 echo " </tr>\n";
                             }
                         }
-
                         echo "</table></div>";
                         ?>
                     </table>
