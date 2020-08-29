@@ -12,9 +12,11 @@
 var opener_list = [];
 
 function set_opener(window, opener) {
-    window.top.opener_list[window] = opener;
+    // eslint-disable-next-line no-restricted-globals
+    top.opener_list[window] = opener;
 }
 
 function get_opener(window) {
-    return window.top.opener_list[window];
+    // eslint-disable-next-line no-restricted-globals
+    return top.opener_list[window];
 }

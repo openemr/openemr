@@ -43,8 +43,7 @@ function tabs_view_model() {
 }
 
 function activateTab(data) {
-    for (let tabIdx = 0;
-        tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
+    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
         const curTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
         if (data !== curTab) {
             if (!curTab.locked()) {
@@ -57,8 +56,7 @@ function activateTab(data) {
 }
 
 function activateTabByName(name, hideOthers) {
-    for (let tabIdx = 0;
-        tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
+    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
         const curTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
         if (curTab.name() === name) {
             curTab.visible(true);
@@ -96,8 +94,7 @@ function tabClose(data, evt) {
 }
 
 function tabCloseByName(name) {
-    for (let tabIdx = 0;
-        tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
+    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
         const curTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
         if (curTab.name() === name) {
             tabClose(curTab);
@@ -107,18 +104,18 @@ function tabCloseByName(name) {
 
 function navigateTab(url, name, afterLoadFunction, loading_label = '') {
     window.top.restoreSession();
-    if ($("iframe[name='" + name + "']").length > 0) {
+    if ($(`iframe[name='${name}']`).length > 0) {
         if (typeof afterLoadFunction !== 'function') {
-            $("body").off("load", "iframe[name='" + name + "']");
+            $('body').off('load', `iframe[name='${name}']`);
         } else {
-            $("iframe[name='" + name + "']").on('load', function () {
+            $(`iframe[name='${name}']`).on('load', function () {
                 afterLoadFunction();
             });
         }
         openExistingTab(url, name);
-        $("iframe[name='" + name + "']").get(0).contentWindow.location = url;
+        $(`iframe[name='${name}']`).get(0).contentWindow.location = url;
     } else {
-        const curTab = new tabStatus(xl("Loading") + "...", url, name, loading_label, true, false, false);
+        const curTab = new tabStatus(`${xl('Loading')}...`, url, name, loading_label, true, false, false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
         if (typeof afterLoadFunction === 'function') {
             afterLoadFunction();
@@ -157,20 +154,18 @@ function chooseEncounterEvent(data, evt) {
 }
 
 function goToEncounter(encId) {
-    var url = webroot_url + '/interface/patient_file/encounter/encounter_top.php?set_encounter=' + encId;
+    const url = `${webroot_url}/interface/patient_file/encounter/encounter_top.php?set_encounter=${encId}`;
 
-    navigateTab(url, "enc", function () {
-        activateTabByName("enc", true);
+    navigateTab(url, 'enc', function () {
+        activateTabByName('enc', true);
     });
-
 }
 
 function reviewEncounter(encId) {
-    var url = webroot_url + '/interface/patient_file/encounter/forms.php?review_id=' + encId;
-    navigateTab(url, "rev", function () {
-        activateTabByName("rev", true);
+    const url = `${webroot_url}/interface/patient_file/encounter/forms.php?review_id=${encId}`;
+    navigateTab(url, 'rev', function () {
+        activateTabByName('rev', true);
     });
-
 }
 
 function reviewEncounterEvent(data, evt) {
@@ -190,204 +185,193 @@ function clickNewGroupEncounter(data, evt) {
 }
 
 function newEncounter(data, evt) {
-    var url = '';
-    if (typeof (data) === "object" && data.mode === "follow_up_encounter") {
-        url = webroot_url + '/interface/forms/newpatient/new.php?mode=followup&enc=' + data.encounterId + '&autoloaded=1&calenc=';
+    let url = '';
+    if (typeof (data) === 'object' && data.mode === 'follow_up_encounter') {
+        url = `${webroot_url}/interface/forms/newpatient/new.php?mode=followup&enc=${data.encounterId}&autoloaded=1&calenc=`;
     } else {
-        url = webroot_url + '/interface/forms/newpatient/new.php?autoloaded=1&calenc=';
+        url = `${webroot_url}/interface/forms/newpatient/new.php?autoloaded=1&calenc=`;
     }
-    navigateTab(url, "enc", function () {
-        activateTabByName("enc", true);
+    navigateTab(url, 'enc', function () {
+        activateTabByName('enc', true);
     });
-
 }
 
 function newTherapyGroupEncounter() {
-    var url = webroot_url + '/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc==';
-    navigateTab(url, "enc", function () {
-        activateTabByName("enc", true);
+    const url = `${webroot_url}/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc==`;
+    navigateTab(url, 'enc', function () {
+        activateTabByName('enc', true);
     });
 }
 
 function encounterList() {
-    var url = webroot_url + '/interface/patient_file/history/encounters.php';
-    navigateTab(url, "enc", function () {
-        activateTabByName("enc", true);
+    const url = `${webroot_url}/interface/patient_file/history/encounters.php`;
+    navigateTab(url, 'enc', function () {
+        activateTabByName('enc', true);
     });
 }
 
 function loadCurrentPatient() {
-    var url = webroot_url + '/interface/patient_file/summary/demographics.php';
-    navigateTab(url, "pat", function () {
-        activateTabByName("pat", true);
+    const url = `${webroot_url}/interface/patient_file/summary/demographics.php`;
+    navigateTab(url, 'pat', function () {
+        activateTabByName('pat', true);
     });
 }
 
 function loadCurrentTherapyGroup() {
-
-    var url = webroot_url + '/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session';
-    navigateTab(url, "gdg", function () {
-        activateTabByName("gdg", true);
+    const url = `${webroot_url}/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session`;
+    navigateTab(url, 'gdg', function () {
+        activateTabByName('gdg', true);
     });
 }
 
 function loadCurrentEncounter() {
-    var url = webroot_url + '/interface/patient_file/encounter/encounter_top.php';
-    navigateTab(url, "enc", function () {
-        activateTabByName("enc", true);
+    const url = `${webroot_url}/interface/patient_file/encounter/encounter_top.php`;
+    navigateTab(url, 'enc', function () {
+        activateTabByName('enc', true);
     });
 }
 
 function popMenuDialog(url, title) {
-    let notlike = title.toLowerCase();
+    const notlike = title.toLowerCase();
     dlgopen(url, 'menupopup', 'modal-mlg', 500, '', title, {
-        sizeHeight: notlike.search('label') !== -1 ? 'full' : 'auto'
+        sizeHeight: notlike.search('label') !== -1 ? 'full' : 'auto',
     });
 }
 
 function menuActionClick(data, evt) {
-
     // Yet another menu fixup for legacy 'popup'.
     // let's abandon a tab and call a support function from this view.
     // we'll take along uri and current menu label as title for dialog.
     // @TODO Possibly add global to allow tab or popup.
     if (data.target === 'pop') {
-        let title = $(evt.currentTarget).text();
+        const title = $(evt.currentTarget).text();
         return popMenuDialog(webroot_url + data.url(), title);
     }
 
     if (data.enabled()) {
         if (data.requirement === 2) {
-            var encounterID = app_view_model.application_data[attendant_type]().selectedEncounterID();
+            const encounterID = app_view_model.application_data[attendant_type]()
+                .selectedEncounterID();
             if (isEncounterLocked(encounterID)) {
                 alert(xl('This encounter is locked. No new forms can be added.'));
-                return;
+                return false;
             }
         }
 
         // Fixups for loading a new encounter form, as these are now in tabs.
-        var dataurl = data.url();
-        var dataLabel = data.label();
-        var matches = dataurl.match(/load_form.php\?formname=(\w+)/);
+        let dataurl = data.url();
+        const dataLabel = data.label();
+        const matches = dataurl.match(/load_form.php\?formname=(\w+)/);
         if (matches) {
             // If the encounter frameset already exists, just tell it to add a tab for this form.
-            for (var i = 0; i < frames.length; ++i) {
-                if (frames[i].twAddFrameTab) {
-                    frames[i].twAddFrameTab('enctabs', data.label(), webroot_url + dataurl);
+            for (let i = 0; i < window.frames.length; i += 1) {
+                if (window.frames[i].twAddFrameTab) {
+                    window.frames[i].twAddFrameTab('enctabs', data.label(), webroot_url + dataurl);
                     activateTabByName(data.target, true);
-                    return;
+                    return false;
                 }
             }
             // Otherwise continue by creating the encounter frameset including this form.
-            dataurl = '/interface/patient_file/encounter/encounter_top.php?formname=' +
-                matches[1] + '&formdesc=' + encodeURIComponent(data.label());
+            dataurl = `/interface/patient_file/encounter/encounter_top.php?formname=${matches[1]}&formdesc=${encodeURIComponent(data.label())}`;
         }
 
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target, true);
-        }, xl("Loading") + " " + dataLabel);
+        }, `${xl('Loading')} ${dataLabel}`);
 
-        var par = $(evt.currentTarget).closest("ul.menuEntries");
+        const par = $(evt.currentTarget).closest('ul.menuEntries');
         par.wrap("<ul class='timedReplace' style='display:none;'></ul>");
         par.detach();
         setTimeout(function () {
-            par.insertBefore(".timedReplace");
-            $(".timedReplace").remove();
+            par.insertBefore('.timedReplace');
+            $('.timedReplace').remove();
         }, 500);
-    } else {
-        if (data.requirement === 1) {
-            alert((jsGlobals['globals']['enable_group_therapy'] == 1) ? xl('You must first select or add a patient or therapy group.') : xl('You must first select or add a patient.'));
-        } else if ((data.requirement === 2) || data.requirement === 3) {
-            alert(xl('You must first select or create an encounter.'));
-        }
+    } else if (data.requirement === 1) {
+        alert((jsGlobals.globals.enable_group_therapy === 1) ? xl('You must first select or add a patient or therapy group.') : xl('You must first select or add a patient.'));
+    } else if ((data.requirement === 2) || data.requirement === 3) {
+        alert(xl('You must first select or create an encounter.'));
     }
-
 }
 
 function clearPatient() {
-    top.restoreSession();
+    window.top.restoreSession();
     app_view_model.application_data.patient(null);
     tabCloseByName('enc');
     tabCloseByName('rev');
     tabCloseByName('pop');
     tabCloseByName('pat');
-    navigateTab(webroot_url + '/interface/main/finder/dynamic_finder.php', 'fin', function () {
+    navigateTab(`${webroot_url}/interface/main/finder/dynamic_finder.php`, 'fin', function () {
         activateTabByName('fin', true);
     });
 
-    //Ajax call to clear active patient in session
+    // Ajax call to clear active patient in session
     $.ajax({
-        type: "POST",
-        url: webroot_url + "/library/ajax/unset_session_ajax.php",
+        type: 'POST',
+        url: `${webroot_url}/library/ajax/unset_session_ajax.php`,
         data: {
-            func: "unset_pid",
-            csrf_token_form: csrf_token_js
+            func: 'unset_pid',
+            csrf_token_form: csrf_token_js,
         },
-        success: function (msg) {
-
-
-        }
+        success(msg) {
+        },
     });
 }
 
-
 function clearTherapyGroup() {
-    top.restoreSession();
+    window.top.restoreSession();
     app_view_model.application_data.therapy_group(null);
     tabCloseByName('gdg');
     tabCloseByName('enc');
-    navigateTab(webroot_url + '/interface/therapy_groups/index.php?method=listGroups', 'gfn', function () {
+    navigateTab(`${webroot_url}/interface/therapy_groups/index.php?method=listGroups`, 'gfn', function () {
         activateTabByName('gfn', true);
     });
 
-    //Ajax call to clear active patient in session
+    // Ajax call to clear active patient in session
     $.ajax({
-        type: "POST",
-        url: webroot_url + "/library/ajax/unset_session_ajax.php",
+        type: 'POST',
+        url: `${webroot_url}/library/ajax/unset_session_ajax.php`,
         data: {
-            func: "unset_gid",
-            csrf_token_form: csrf_token_js
+            func: 'unset_gid',
+            csrf_token_form: csrf_token_js,
         },
-        success: function (msg) {
-
-
-        }
+        success(msg) {
+        },
     });
 }
 
 function openExistingTab(url, name) {
-    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx++) {
-        let currTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
+    for (let tabIdx = 0;
+        tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
+        const currTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
         let currTabUrl = currTab.url();
-        let currTabName = currTab.name();
-        //Check if URL is from $GLOBAL['default_tab']
+        const currTabName = currTab.name();
+        // Check if URL is from $GLOBAL['default_tab']
         switch (currTabUrl) {
-            case '../main_info.php':
-                currTabUrl = webroot_url + '/interface/main/main_info.php';
-                break;
-            case '../../new/new.php':
-                currTabUrl = webroot_url + '/interface/new/new.php';
-                break;
-            case '../../../interface/main/finder/dynamic_finder.php':
-                currTabUrl = webroot_url + '/interface/main/finder/dynamic_finder.php';
-                break;
-            case '../../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1':
-                currTabUrl = webroot_url + '/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1';
-                break;
-            case '../../../interface/main/messages/messages.php?form_active=1':
-                currTabUrl = webroot_url + '/interface/main/messages/messages.php?form_active=1';
-                break;
+        case '../main_info.php':
+            currTabUrl = `${webroot_url}/interface/main/main_info.php`;
+            break;
+        case '../../new/new.php':
+            currTabUrl = `${webroot_url}/interface/new/new.php`;
+            break;
+        case '../../../interface/main/finder/dynamic_finder.php':
+            currTabUrl = `${webroot_url}/interface/main/finder/dynamic_finder.php`;
+            break;
+        case '../../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1':
+            currTabUrl = `${webroot_url}/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1`;
+            break;
+        case '../../../interface/main/messages/messages.php?form_active=1':
+            currTabUrl = `${webroot_url}/interface/main/messages/messages.php?form_active=1`;
+            break;
+        default:
         }
         if (url === currTabUrl) {
             currTab.visible(true);
             exist = true;
-        } else if (url !== currTabUrl && currTabName == name) {
+        } else if (url !== currTabUrl && currTabName === name) {
             currTab.visible(true);
             currTab.url(url);
-        } else {
-            if (!currTab.locked()) {
-                currTab.visible(false);
-            }
+        } else if (!currTab.locked()) {
+            currTab.visible(false);
         }
     }
 }
