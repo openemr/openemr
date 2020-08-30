@@ -48,5 +48,4 @@ class UserCreatedEvent extends Event
     {
         $this->userData = $userData;
     }
-
 }

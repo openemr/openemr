@@ -354,7 +354,6 @@ if (isset($_POST["mode"])) {
 
         $userCreatedEvent = new UserCreatedEvent($_POST);
         $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UserCreatedEvent::EVENT_HANDLE, $userCreatedEvent, 10);
-
     } elseif ($_POST["mode"] == "new_group") {
         $res = sqlStatement("select distinct name, user from `groups`");
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
