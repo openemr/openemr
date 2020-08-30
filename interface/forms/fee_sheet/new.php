@@ -341,8 +341,8 @@ function echoProductLines()
         $warehouse_id = $li['warehouse'];
         $rx           = $li['rx'];
 
-        $strike1 = ($sale_id && $del) ? "<strike>" : "";
-        $strike2 = ($sale_id && $del) ? "</strike>" : "";
+        $strike1 = ($sale_id && $del) ? "<s>" : "";
+        $strike2 = ($sale_id && $del) ? "</s>" : "";
 
         echo " <tr>\n";
         echo "  <td class='billcell'>{$strike1}" . xlt("Product") . "$strike2";
