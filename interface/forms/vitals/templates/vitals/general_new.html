@@ -142,9 +142,9 @@ function vitalsFormSubmitted() {
 </head>
 <body>
 
- <div class="container">
+ <div class="container mt-3">
     <div class="row">
-        <h2>{xlt t="Vitals"}</h2>
+        <h2>{xlt t="Vitals"}&nbsp;&nbsp;&nbsp;<a href="../summary/demographics.php" class="text-decoration-none" onclick="top.restoreSession()" title="{xla t='Back to patient dashboard'}"><i id="advanced-tooltip" class="readonly fas fa-arrow-circle-left fa-2x small" aria-hidden="true"></i> </a></h2>
         <div class="col-sm-12">
             <form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return vitalsFormSubmitted()">
                 <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
