@@ -526,8 +526,8 @@ $(function () {
                     echo "  <td>" . text($procedure_code) . "</td>\n";
                     echo "  <td>" . text($procedure_name) . "</td>\n";
                 } else {
-                    echo "  <td><strike>" . text($procedure_code) . "</strike></td>\n";
-                    echo "  <td><strike>" . text($procedure_name) . "</strike></td>\n";
+                    echo "  <td><s>" . text($procedure_code) . "</s></td>\n";
+                    echo "  <td><s>" . text($procedure_name) . "</s></td>\n";
                 }
             } else {
                 echo "  <td colspan='2' style='background-color: transparent'>&nbsp;</td>";

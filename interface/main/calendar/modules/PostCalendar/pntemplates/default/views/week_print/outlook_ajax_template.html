@@ -500,7 +500,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
                 $content .= text(date("h:i", $eventdatetime)) . " ";
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 if ($patientid) {
-                    if ($catid == 1) $content .= "<strike>";
+                    if ($catid == 1) $content .= "<s>";
                     $content .= text($lname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
                         $content .= "," . text($fname);
@@ -511,7 +511,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
                             $content .= ")";
                         }
                     }
-                    if ($catid == 1) $content .= "</strike>";
+                    if ($catid == 1) $content .= "</s>";
                 }
                 else {
                     // no patient id, just output the category name
