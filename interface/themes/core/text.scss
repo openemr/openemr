@@ -1,3 +1,4 @@
+@if $compact-theme == false {
 .text {
   @include font-size("0.9rem");
   text-decoration: none;
@@ -110,4 +111,4 @@ body.admin-layout input[type="button"] {
   height: 22px;
   width: 44px;
 }
-
+}

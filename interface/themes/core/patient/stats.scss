@@ -3,26 +3,28 @@
  * seen in the patient stats screens
  *============================================================*/
 
-#patient_stats {
-  padding: 10px;
+@if $compact-theme == false {
+  #patient_stats {
+    padding: 10px;
 
-  table {
-    border-collapse: collapse;
-  }
+    table {
+      border-collapse: collapse;
+    }
 
-  .statrow {
-    cursor: pointer;
-  }
+    .statrow {
+      cursor: pointer;
+    }
 
-  .detail {
-    vertical-align: top;
-  }
+    .detail {
+      vertical-align: top;
+    }
 
-  .bg1 {
-    background-color: $gray-300;
-  }
+    .bg1 {
+      background-color: $gray-300;
+    }
 
-  .bg2 {
-    background-color: lighten($light, 20%);
+    .bg2 {
+      background-color: lighten($light, 20%);
+    }
   }
 }

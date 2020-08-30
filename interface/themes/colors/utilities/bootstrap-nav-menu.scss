@@ -2,6 +2,7 @@
 
 /* TODO: Fix compatibility issue here */
 
+@if $compact-theme == false {
 .navbar-custom,
 .navbar-nav,
 .nav > .active > a,
@@ -33,4 +34,5 @@
 .navbar-collapse.collapse.in {
   background-color: $dark !important;
   color: $black !important;
+}
 }

@@ -24,154 +24,156 @@ $login-text-color: #fff !default;
 $login-form-bg-color: $white !default;
 $login-button-primary: false !default;
 
-body.login {
-  background: $light;
-  display: flex;
-  height: 100%;
-  justify-content: center;
-  resize: both;
-}
-
-@media (min-width: map-get($grid-breakpoints, "sm")) {
+@if $compact-theme == false {
   body.login {
-    align-items: center;
-  }
-}
-
-.login-failure {
-  background-color: $danger;
-  color: $white;
-  font-weight: bold;
-}
-
-.login .login-row {
-  background: $login-form-bg-color;
-  border-radius: 0.625rem;
-  box-shadow: 0 30px 60px 0 rgba($black, 0.3);
-  resize: both;
-}
-
-.login-area-left,
-.login-area-right,
-.login-area-center {
-  background: $login-form-bg-color;
-}
-
-.login-bg-left,
-.login-bg-right,
-.login-bg-center {
-  background: linear-gradient(140deg, $login-color-1 0%, $login-color-2 35%, $login-color-3 100%);
-}
-
-@media (max-width: map-get($grid-breakpoints, "md")) {
-  .login-area-left {
-    border-bottom-left-radius: 0.625rem;
-    border-bottom-right-radius: 0.625rem;
+    background: $light;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    resize: both;
   }
 
-  .login-area-right {
-    border-bottom-left-radius: 0.625rem;
-    border-bottom-right-radius: 0.625rem;
+  @media (min-width: map-get($grid-breakpoints, "sm")) {
+    body.login {
+      align-items: center;
+    }
   }
 
+  .login-failure {
+    background-color: $danger;
+    color: $white;
+    font-weight: bold;
+  }
+
+  .login .login-row {
+    background: $login-form-bg-color;
+    border-radius: 0.625rem;
+    box-shadow: 0 30px 60px 0 rgba($black, 0.3);
+    resize: both;
+  }
+
+  .login-area-left,
+  .login-area-right,
   .login-area-center {
-    border-bottom-left-radius: 0.625rem;
-    border-bottom-right-radius: 0.625rem;
+    background: $login-form-bg-color;
   }
 
-  .login-bg-left {
-    border-top-left-radius: 0.625rem;
-    border-top-right-radius: 0.625rem;
-  }
-
-  .login-bg-right {
-    border-top-left-radius: 0.625rem;
-    border-top-right-radius: 0.625rem;
-  }
-
+  .login-bg-left,
+  .login-bg-right,
   .login-bg-center {
-    border-top-left-radius: 0.625rem;
-    border-top-right-radius: 0.625rem;
+    background: linear-gradient(140deg, $login-color-1 0%, $login-color-2 35%, $login-color-3 100%);
   }
 
-  .login-row-center {
-    max-width: inherit;
-  }
-}
+  @media (max-width: map-get($grid-breakpoints, "md")) {
+    .login-area-left {
+      border-bottom-left-radius: 0.625rem;
+      border-bottom-right-radius: 0.625rem;
+    }
 
-@media (min-width: map-get($grid-breakpoints, "md")) {
-  .login-area-left {
-    border-bottom-left-radius: 0.625rem;
-    border-top-left-radius: 0.625rem;
-  }
+    .login-area-right {
+      border-bottom-left-radius: 0.625rem;
+      border-bottom-right-radius: 0.625rem;
+    }
 
-  .login-area-right {
-    border-bottom-right-radius: 0.625rem;
-    border-top-right-radius: 0.625rem;
-  }
+    .login-area-center {
+      border-bottom-left-radius: 0.625rem;
+      border-bottom-right-radius: 0.625rem;
+    }
 
-  .login-area-center {
-    border-bottom-left-radius: 0.625rem;
-    border-bottom-right-radius: 0.625rem;
-  }
+    .login-bg-left {
+      border-top-left-radius: 0.625rem;
+      border-top-right-radius: 0.625rem;
+    }
 
-  .login-bg-left {
-    border-bottom-right-radius: 0.625rem;
-    border-top-right-radius: 0.625rem;
-  }
+    .login-bg-right {
+      border-top-left-radius: 0.625rem;
+      border-top-right-radius: 0.625rem;
+    }
 
-  .login-bg-right {
-    border-bottom-left-radius: 0.625rem;
-    border-top-left-radius: 0.625rem;
-  }
+    .login-bg-center {
+      border-top-left-radius: 0.625rem;
+      border-top-right-radius: 0.625rem;
+    }
 
-  .login-bg-center {
-    border-top-left-radius: 0.625rem;
-    border-top-right-radius: 0.625rem;
-  }
-
-  .login-row-center {
-    margin-left: auto !important;
-    margin-right: auto !important;
-    max-width: 50%;
+    .login-row-center {
+      max-width: inherit;
+    }
   }
 
-  // Makes size bigger to accommodate color bug
-  // Requires important tag to avoid collision with BS4
-  .py-md-login {
-    padding-bottom: 6.25rem !important;
-    padding-top: 6.25rem !important;
+  @media (min-width: map-get($grid-breakpoints, "md")) {
+    .login-area-left {
+      border-bottom-left-radius: 0.625rem;
+      border-top-left-radius: 0.625rem;
+    }
+
+    .login-area-right {
+      border-bottom-right-radius: 0.625rem;
+      border-top-right-radius: 0.625rem;
+    }
+
+    .login-area-center {
+      border-bottom-left-radius: 0.625rem;
+      border-bottom-right-radius: 0.625rem;
+    }
+
+    .login-bg-left {
+      border-bottom-right-radius: 0.625rem;
+      border-top-right-radius: 0.625rem;
+    }
+
+    .login-bg-right {
+      border-bottom-left-radius: 0.625rem;
+      border-top-left-radius: 0.625rem;
+    }
+
+    .login-bg-center {
+      border-top-left-radius: 0.625rem;
+      border-top-right-radius: 0.625rem;
+    }
+
+    .login-row-center {
+      margin-left: auto !important;
+      margin-right: auto !important;
+      max-width: 50%;
+    }
+
+    // Makes size bigger to accommodate color bug
+    // Requires important tag to avoid collision with BS4
+    .py-md-login {
+      padding-bottom: 6.25rem !important;
+      padding-top: 6.25rem !important;
+    }
   }
-}
 
-.btn-login {
-  @if ($login-button-primary) {
-    @extend .btn-primary;
-  } @else {
-    @extend .btn-secondary;
+  .btn-login {
+    @if ($login-button-primary) {
+      @extend .btn-primary;
+    } @else {
+      @extend .btn-secondary;
+    }
   }
-}
 
-// Needed for logo
-.w-40 {
-  width: 40%;
-}
+  // Needed for logo
+  .w-40 {
+    width: 40%;
+  }
 
-// Needed for logo
-.w-15 {
-  width: 15%;
-}
+  // Needed for logo
+  .w-15 {
+    width: 15%;
+  }
 
-.login-bg-text-color {
-  color: $login-text-color !important;
-}
+  .login-bg-text-color {
+    color: $login-text-color !important;
+  }
 
-.login-title-label {
-  font-size: 130%;
-  font-weight: bold;
-}
+  .login-title-label {
+    font-size: 130%;
+    font-weight: bold;
+  }
 
-#ui-id-1 > .message {
-  color: $danger;
-  font-weight: bold;
+  #ui-id-1 > .message {
+    color: $danger;
+    font-weight: bold;
+  }
 }

@@ -86,6 +86,7 @@ function styles_style_portal() {
 // standard themes css compilation
 function styles_style_uni() {
     return gulp.src(config.src.styles.style_uni)
+        .pipe(gap.prependText('$compact-theme: false;\n'))
         .pipe(injector.replace('// bs4import', '@import "../../../public/assets/bootstrap/scss/bootstrap";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
@@ -116,6 +117,7 @@ function styles_style_uni_compact() {
 // color themes css compilation
 function styles_style_color() {
     return gulp.src(config.src.styles.style_color)
+        .pipe(gap.prependText('$compact-theme: false;\n'))
         .pipe(injector.replace('// bs4import', '@import "../../../public/assets/bootstrap/scss/bootstrap";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
@@ -188,7 +190,7 @@ function rtl_style_portal() {
 // rtl standard themes css compilation
 function rtl_style_uni() {
     return gulp.src(config.src.styles.style_uni)
-        .pipe(gap.prependText('$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
+        .pipe(gap.prependText('$compact-theme: false;\n$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
         .pipe(injector.replace('// bs4import', '@import "../oemr-rtl";'))
         .pipe(sourcemaps.init())
@@ -225,7 +227,7 @@ function rtl_style_uni_compact() {
 // rtl color themes css compilation
 function rtl_style_color() {
     return gulp.src(config.src.styles.style_color)
-        .pipe(gap.prependText('$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
+        .pipe(gap.prependText('$compact-theme: false;\n$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
         .pipe(injector.replace('// bs4import', '@import "../oemr-rtl";'))
         .pipe(sourcemaps.init())

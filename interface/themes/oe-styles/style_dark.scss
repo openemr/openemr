@@ -57,36 +57,37 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 @import "../navigation-slide/future-bootstrap";
 
 /* Overrides go here */
-.btn-secondary {
-  color: $ovr-dark !important;
-}
+@if $compact-theme == false {
+  .btn-secondary {
+    color: $ovr-dark !important;
+  }
 
-.menuLabel:hover {
-  color: $ovr-dark !important;
-}
+  .menuLabel:hover {
+    color: $ovr-dark !important;
+  }
 
-.menuDisabled {
-  color: $ovr-dark !important;
-}
+  .menuDisabled {
+    color: $ovr-dark !important;
+  }
 
-.menuEntries li .menuLabel:hover {
-  color: $ovr-dark !important;
-}
+  .menuEntries li .menuLabel:hover {
+    color: $ovr-dark !important;
+  }
 
-.documents_list a {
-  color: $body-color !important;
-}
+  .documents_list a {
+    color: $body-color !important;
+  }
 
-/* Changes all SVG colors to white to match theme */
-.about-review-image > #color {
-  fill: $black !important;
-}
+  /* Changes all SVG colors to white to match theme */
+  .about-review-image > #color {
+    fill: $black !important;
+  }
 
-#mainBox .logo .emr-menu-logo > #blue-color,
-#mainBox_vertical .logo .emr-menu-logo > #blue-color {
-  fill: $black !important;
+  #mainBox .logo .emr-menu-logo > #blue-color,
+  #mainBox_vertical .logo .emr-menu-logo > #blue-color {
+    fill: $black !important;
+  }
 }
 
 /*search any*/
 @import "../oe-bootstrap";
-@import "../oe-common/all-common-import";

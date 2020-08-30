@@ -1,4 +1,5 @@
 /* OpenEMR Bootstrap Override */
+@if $compact-theme == false {
 fieldset {
   margin-bottom: 10px !important;
   padding: 0 0 15px !important;
@@ -156,4 +157,5 @@ input[type=radio] {
   padding: 2px 0;
   text-align: center;
   width: 20px;
+}
 }

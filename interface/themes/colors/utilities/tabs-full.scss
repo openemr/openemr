@@ -1,14 +1,15 @@
 /* OpenEMR tabs-Full Override */
 
-#mainBox > .body_top,
-.body_top_tabs {
-  background-color: $dark !important;
-}
+@if $compact-theme == false {
+  #mainBox > .body_top,
+  .body_top_tabs {
+    background-color: $dark !important;
+  }
 
-#mainBox_vertical > .body_top,
-.body_top_tabs {
-  background-color: $midpale !important;
-}
+  #mainBox_vertical > .body_top,
+  .body_top_tabs {
+    background-color: $midpale !important;
+  }
 
 .tabSpan {
   border-left: 1px solid $dark !important;
@@ -18,24 +19,24 @@
   box-shadow: 0 0 0 rgba(0, 0, 0, 0) !important;
 }
 
-.tabNotchosen {
-  border-bottom: 2px solid $dark !important;
-  border-left: 0 !important;
-  border-right: 0 !important;
-  border-top: 0 !important;
+  .tabNotchosen {
+    border-bottom: 2px solid $dark !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
 
-  &:hover {
-    background: transparent !important;
+    &:hover {
+      background: transparent !important;
+    }
   }
-}
 
-.tabsNoHover {
-  border-bottom: 2px solid $dark !important;
-}
+  .tabsNoHover {
+    border-bottom: 2px solid $dark !important;
+  }
 
-.tabSpan_tabs:hover {
-  background: $palepale !important;
-}
+  .tabSpan_tabs:hover {
+    background: $palepale !important;
+  }
 
 .menuLabel {
   &:hover {
@@ -43,15 +44,15 @@
   }
 }
 
-.patientEncounterList {
-  background: $white;
-  border: 1px solid $darker;
-}
+  .patientEncounterList {
+    background: $white;
+    border: 1px solid $darker;
+  }
 
-.appMenu > span:hover,
-.menuSection:hover {
-  background-color: $palepale !important;
-}
+  .appMenu > span:hover,
+  .menuSection:hover {
+    background-color: $palepale !important;
+  }
 
 .menuSection > .menuEntries {
   background-color: $paler !important;
@@ -64,40 +65,39 @@
     color: $bs-dark;
   }
 }
+  .appMenu li:hover {
+    background-color: $palepale !important;
+  }
 
-.appMenu li:hover {
-  background-color: $palepale !important;
-}
+  .body_title,
+  .body_title_tabs {
+    background-color: $midpale !important;
+  }
 
-.body_title,
-.body_title_tabs {
-  background-color: $midpale !important;
-}
+  /* tabs body */
 
-/* tabs body */
+  .tabs_body,
+  #searchCriteria {
+    background-color: $pale;
+  }
 
-.tabs_body,
-#searchCriteria {
-  background-color: $pale;
-}
+  .tabs_body_light {
+    background-color: $palepale;
+  }
 
-.tabs_body_light {
-  background-color: $palepale;
-}
-
-/* tabs calendar */
+  /* tabs calendar */
 
 #calsearch_params {
   background-color: $palepale !important;
 }
 
-.calsearch_body {
-  background-color: $paler !important;
-}
+  .calsearch_body {
+    background-color: $paler !important;
+  }
 
-.chevron_color {
-  color: $darker;
-}
+  .chevron_color {
+    color: $darker;
+  }
 
 /* tabs menu, user, and logout icon */
 #menu_icon,
@@ -110,4 +110,5 @@
 #search_globals,
 .oe-expandable-search .any-search-legacy {
   background: $dark !important;
+}
 }

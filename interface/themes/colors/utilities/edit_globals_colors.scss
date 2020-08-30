@@ -1,37 +1,39 @@
 /* vertical menu styling for edit globals - colors */
 /* OpenEMR edit_globals vertical menu Override */
-#oe-nav-ul.tabNav {
-  background: rgba($black, 0.05) !important;
+@if $compact-theme == false {
+  #oe-nav-ul.tabNav {
+    background: rgba($black, 0.05) !important;
 
-  li.current {
-    color: $gray-800;
+    li.current {
+      color: $gray-800;
+    }
+
+    a {
+      background: $palepale;
+      border: solid 5px $paler;
+      border-bottom: 0;
+      border-left: 0;
+    }
+
+    .current a {
+      background: $pale;
+      border-bottom: 0;
+      border-color: $dark;
+      border-left: 0;
+      color: $gray-800;
+    }
+
+    a:hover {
+      background-color: $pale !important;
+      color: $gray-800;
+    }
   }
 
-  a {
-    background: $palepale;
-    border: solid 5px $paler;
-    border-bottom: 0;
-    border-left: 0;
-  }
-
-  .current a {
-    background: $pale;
-    border-bottom: 0;
+  #globals-div .tabContainer {
     border-color: $dark;
-    border-left: 0;
-    color: $gray-800;
   }
 
-  a:hover {
-    background-color: $pale !important;
-    color: $gray-800;
+  .oe-global-tab-heading {
+    color: $black;
   }
-}
-
-#globals-div .tabContainer {
-  border-color: $dark;
-}
-
-.oe-global-tab-heading {
-  color: $black;
 }
