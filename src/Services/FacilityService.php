@@ -20,6 +20,8 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\FacilityValidator;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Events\Facility\FacilityCreatedEvent;
+use OpenEMR\Events\Facility\FacilityUpdatedEvent;
 use Particle\Validator\Validator;
 
 class FacilityService extends BaseService
@@ -182,15 +184,21 @@ class FacilityService extends BaseService
 
     public function updateFacility($data)
     {
+        $dataBeforeUpdate = $this->getById($data['id']);
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE facility SET ";
         $sql .= $query['set'];
         $sql .= " WHERE id = ?";
         array_push($query['bind'], $data['id']);
-        return sqlStatement(
+        $result = sqlStatement(
             $sql,
             $query['bind']
         );
+
+        $facilityUpdatedEvent = new FacilityUpdatedEvent($dataBeforeUpdate, $data);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(FacilityUpdatedEvent::EVENT_HANDLE, $facilityUpdatedEvent, 10);
+
+        return $result;
     }
 
     public function insertFacility($data)
@@ -198,10 +206,15 @@ class FacilityService extends BaseService
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO facility SET ";
         $sql .= $query['set'];
-        return sqlInsert(
+        $facilityId = sqlInsert(
             $sql,
             $query['bind']
         );
+
+        $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(FacilityCreatedEvent::EVENT_HANDLE, $facilityCreatedEvent, 10);
+
+        return $facilityId;
     }
 
     public function updateUsersFacility($facility_name, $facility_id)
