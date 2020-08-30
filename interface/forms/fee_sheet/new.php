@@ -1475,7 +1475,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <!--&nbsp; &nbsp; &nbsp;-->
                     <div class="form-group">
                         <div class="col-sm-12 position-override">
-                            <div class="btn-group oe-opt-btn-group-pinch" role="group">
+                            <div class="btn-group" role="group">
                                 <button type='button' class='btn btn-secondary btn-calendar' onclick='newEvt()'><?php echo xlt('New Appointment');?></button>
                                 <?php if (!$isBilled) { // visit is not yet billed ?>
                                     <button type='submit' name='bn_refresh' class='btn btn-secondary btn-refresh' value='<?php echo xla('Refresh');?>' onclick='return this.clicked = true;'><?php echo xlt('Refresh');?></button>
@@ -1504,7 +1504,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <button type='submit' class='btn btn-secondary btn-add' name='bn_addmore' onclick='return this.clicked = true;' value='<?php echo xla('Add More Items'); ?>'>
                                         <?php echo xlt('Add More Items'); ?></button>
                                 <?php } // end billed ?>
-                                    <button type='button' class='btn btn-link btn-cancel btn-separate-left' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
+                                    <button type='button' class='btn btn-link btn-cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
                                     <?php echo xlt('Cancel');?></button>
                                     <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
                                     <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
