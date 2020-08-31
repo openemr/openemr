@@ -78,7 +78,7 @@ $info_msg = "";
                         <div class="col-sm-12 text-left position-override" id="search-btn">
                             <div class="btn-group" role="group">
                                 <button type='submit' class="btn btn-secondary btn-save" name='form_save' id="btn-save"><?php echo xlt("Save"); ?></button>
-                                <button type='submit' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel' id="btn-cancel" onclick='dlgclose();'><?php echo xlt("Cancel"); ?></button>
+                                <button type='submit' class="btn btn-link btn-cancel" name='form_cancel' id="btn-cancel" onclick='dlgclose();'><?php echo xlt("Cancel"); ?></button>
                             </div>
                         </div>
                     </div>

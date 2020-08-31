@@ -263,7 +263,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                             <!-- Save/Cancel buttons -->
                             <button type="submit" class="btn btn-secondary btn-save save"><?php echo xlt('Save'); ?></button>
                             <button type="button"
-                                    class="dontsave btn btn-link btn-cancel btn-separate-left"><?php echo xlt('Cancel'); ?></button>
+                                    class="dontsave btn btn-link btn-cancel"><?php echo xlt('Cancel'); ?></button>
                         </div>
                     </div>
                 </div>
