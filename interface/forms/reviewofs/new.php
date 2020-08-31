@@ -631,9 +631,9 @@ $returnurl = 'encounter_top.php';
                     <div class="form-group">
                         <div class="row">
                             <div class="col-12 position-override">
-                                <div class="btn-group oe-opt-btn-group-pinch" role="group">
+                                <div class="btn-group" role="group">
                                     <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
-                                    <button type="button" class="btn btn-secondary btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
+                                    <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
                                 </div>
                             </div>
                         </div>
