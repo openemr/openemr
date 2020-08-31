@@ -22,6 +22,8 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
+use OpenEMR\Events\User\UserUpdatedEvent;
+use OpenEMR\Events\User\UserCreatedEvent;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -91,8 +93,9 @@ if (is_array($_POST['access_group'])) {
 /* To refresh and save variables in mail frame */
 if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
     if ($_POST["mode"] == "update") {
+        $user_data = sqlFetchArray(sqlStatement("select * from users where id= ? ", array($_POST["id"])));
+
         if (isset($_POST["username"])) {
-            $user_data = sqlFetchArray(sqlStatement("select * from users where id= ? ", array($_POST["id"])));
             sqlStatement("update users set username=? where id= ? ", array(trim($_POST["username"]), $_POST["id"]));
             sqlStatement("update `groups` set user=? where user= ?", array(trim($_POST["username"]), $user_data["username"]));
         }
@@ -240,6 +243,9 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             (isset($_POST['mname']) ? $_POST['mname'] : ''),
             (isset($_POST['lname']) ? $_POST['lname'] : '')
         );
+
+        $userUpdatedEvent = new UserUpdatedEvent($user_data, $_POST);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UserUpdatedEvent::EVENT_HANDLE, $userUpdatedEvent, 10);
     }
 }
 
@@ -345,6 +351,9 @@ if (isset($_POST["mode"])) {
                 }
             }
         }
+
+        $userCreatedEvent = new UserCreatedEvent($_POST);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UserCreatedEvent::EVENT_HANDLE, $userCreatedEvent, 10);
     } elseif ($_POST["mode"] == "new_group") {
         $res = sqlStatement("select distinct name, user from `groups`");
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {

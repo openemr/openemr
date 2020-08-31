@@ -209,7 +209,7 @@ $check_res = $formid ? $check_res : array();
                             ?>
                             </div>
                         </fieldset>
-                        <div class="form-group clearfix">
+                        <div class="form-group">
                             <div class="col-sm-12 position-override">
                                 <div class="btn-group" role="group">
                                     <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>

@@ -174,24 +174,12 @@ body {
   padding: 0 !important;
 }
 
-#addressbook_list td {
-  font-family: "source_sans_pro", "FontAwesome", "Arial", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-}
-
 #addressbook_list tr.head {
   @include font-size("0.9rem");
 }
 
 #addressbook_list .inputtext {
   @include font-size("0.8rem");
-  font-family: 'source_sans_pro', 'FontAwesome', monospace, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-}
-
-#reports_list td,
-#reports_list a,
-#documents_list td,
-#documents_list a {
-  font-family: "source_sans_pro", "FontAwesome", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
 /*=============================================================
@@ -403,7 +391,6 @@ div.summary_item div {
 **/
 .drug_lookup {
   @include font-size("0.6875rem");
-  font-family: 'source_sans_pro', 'FontAwesome', "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
 /* Style for red font */

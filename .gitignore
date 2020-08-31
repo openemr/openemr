@@ -20,6 +20,9 @@ ccdaservice/node_modules
 /.idea/*
 /nbproject/*
 .DS_Store
+.buildpath
+.project
+.settings
 
 # testing
 .phpunit.result.cache

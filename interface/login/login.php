@@ -85,14 +85,27 @@ if (count($emr_app)) {
     }
 }
 
+// This code allows configurable positioning in the login page
+$loginrow = "row login-row align-items-center m-5";
+
+if ($GLOBALS['login_page_layout'] == 'left') {
+    $logoarea = "col-md-6 login-bg-left py-3 px-5 py-md-login order-1 order-md-2";
+    $formarea = "col-md-6 p-5 login-area-left order-2 order-md-1";
+} else if ($GLOBALS['login_page_layout'] == 'right') {
+    $logoarea = "col-md-6 login-bg-right py-3 px-5 py-md-login order-1 order-md-1";
+    $formarea = "col-md-6 p-5 login-area-right order-2 order-md-2";
+} else {
+    $logoarea = "col-12 login-bg-center py-3 px-5 order-1";
+    $formarea = "col-12 p-5 login-area-center order-2";
+    $loginrow = "row login-row login-row-center align-items-center m-5";
+}
+
 ?>
 <html>
 <head>
     <?php Header::setupHeader(); ?>
 
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
-
-    <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
     <script>
         var registrationTranslations = <?php echo json_encode(array(
@@ -157,8 +170,8 @@ if (count($emr_app)) {
 </head>
 <body class="login">
   <form method="POST" id="login_form" autocomplete="off" action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>" target="_top" name="login_form">
-      <div class="row login-row align-items-center m-5">
-          <div class="col-md-6 p-5 login-area order-2 order-md-1">
+      <div class="<?php echo $loginrow; ?>">
+          <div class="<?php echo $formarea; ?>">
               <input type='hidden' name='new_login_session_management' value='1' />
 
               <?php
@@ -268,7 +281,7 @@ if (count($emr_app)) {
                             <option value="user_default"><?php echo xlt('My default facility'); ?></option>
                             <?php foreach ($facilities as $facility) { ?>
                                 <?php if (!is_null($facilitySelected) && $facilitySelected == $facility['id']) { ?>
-                                    <option value="<?php echo attr($facility['id']);?>" selected ><?php echo text($facility['name']);?></option>
+                                    <option value="<?php echo attr($facility['id']);?>" selected><?php echo text($facility['name']);?></option>
                                 <?php } else { ?>
                                     <option value="<?php echo attr($facility['id']);?>"><?php echo text($facility['name']);?></option>
                                 <?php } ?>
@@ -281,7 +294,7 @@ if (count($emr_app)) {
                 <button type="submit" class="btn btn-login btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in-alt"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
             </div>
           </div>
-          <div class="col-md-6 login-bg py-3 px-5 py-md-login order-1 order-md-2">
+          <div class="<?php echo $logoarea; ?>">
             <?php $extraLogo = $GLOBALS['extra_logo_login']; ?>
             <?php if ($extraLogo) { ?>
             <div class="text-center">

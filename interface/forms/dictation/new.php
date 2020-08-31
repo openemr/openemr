@@ -55,7 +55,7 @@ $returnurl = 'encounter_top.php';
                                 </div>
                             </div>
                         </fieldset>
-                    <div class="form-group clearfix">
+                    <div class="form-group">
                         <div class="btn-group" role="group">
                             <button type='submit' onclick='top.restoreSession()' class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
                             <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>

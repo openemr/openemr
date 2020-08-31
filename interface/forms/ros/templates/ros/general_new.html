@@ -728,11 +728,11 @@
                         </div>
 
                     </fieldset>
-                    <div class="form-group mt-3 clearfix">
+                    <div class="form-group mt-3">
                         <div class="col-sm-12 position-override">
-                            <div class="btn-group oe-opt-btn-group-pinch" role="group">
+                            <div class="btn-group" role="group">
                                 <button type="submit" class="btn btn-primary btn-save" onclick="top.restoreSession();" name="Submit">{xlt t='Save'}</button>
-                                <button type="button" class="btn btn-secondary btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xlt t='Cancel'}</button>
+                                <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xlt t='Cancel'}</button>
                             </div>
                             <input type="hidden" name="id" value="{$form->get_id()|attr}" />
                             <input type="hidden" name="pid" value="{$form->get_pid()|attr}" />
