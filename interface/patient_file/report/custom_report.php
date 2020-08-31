@@ -196,14 +196,9 @@ function zip_content($source, $destination, $content = '', $create = true)
     <?php  } ?>
 
     </head>
-    <?php
-    // remove blank header for printable version to conserve space
-    // adjust this if you are printing to letterhead to appropriate height
-    ($printable) ? ($style = '') : ($style = 'padding-top:95px;');
-    ?>
 <?php } ?>
 
-<body style="<?php echo $style; ?>">
+<body>
     <div class="container">
         <div id="report_custom w-100">  <!-- large outer DIV -->
             <?php
@@ -260,7 +255,59 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                 <?php } else { // not printable
                 ?>
+                <div class="border-bottom my-1 px-5 report_search_bar">
+                    <div class="row">
+                            <div class="col-md">
+                                <input type="text" class="form-control" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element"/>
+                            </div>
+                            <div class="col-md">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-primary btn-search" onClick="clear_last_visit();remove_mark_all();find_all();" ><?php echo xlt('Find'); ?></button>
+                                    <button type="button" class="btn btn-primary" onClick="next_prev('prev');" ><?php echo xlt('Prev'); ?></button>
+                                    <button type="button" class="btn btn-primary" onClick="next_prev('next');" ><?php echo xlt('Next'); ?></button>
+                                </div>
+                            </div>
+                            <div class="col-md">
+                                <span><?php echo xlt('Match case'); ?></span>
+                                <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
+                            </div>
+                            <div class="col-md">
+                                <span class="text font-weight-bold"><?php echo xlt('Search In'); ?>:</span>
+                                <br />
+                                <?php
+                                $form_id_arr = array();
+                                $form_dir_arr = array();
+                                $last_key = '';
+                                //ksort($ar);
+                                foreach ($ar as $key_search => $val_search) {
+                                    if ($key_search == 'pdf' || $key_search == '') {
+                                        continue;
+                                    }
 
+                                    if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
+                                                preg_match('/^(.*)_(\d+)$/', $key_search, $res_search);
+                                                $form_id_arr[] = add_escape_custom($res_search[2]);
+                                                $form_dir_arr[] = add_escape_custom($res_search[1]);
+                                    }
+                                }
+
+                                //echo json_encode(json_encode($array_key_id));
+                                if (sizeof($form_id_arr) > 0) {
+                                    $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '" . implode("','", $form_id_arr) . "') AND formdir IN ( '" . implode("','", $form_dir_arr) . "')";
+                                    $arr = sqlStatement($query);
+                                    echo "<select multiple size='4' class='form-control' id='forms_to_search' onchange='clear_last_visit();remove_mark_all();find_all();' >";
+                                    while ($res_forms_ids = sqlFetchArray($arr)) {
+                                        echo "<option value='" . attr($res_forms_ids['formdir']) . "' selected>" . text($res_forms_ids['form_name']) . "</option>";
+                                    }
+                                    echo "</select>";
+                                }
+                                ?>
+                            </div>
+                            <div class="col-md">
+                                <span id ='alert_msg' class='text-danger'></span>
+                            </div>
+                    </div>
+                </div>
                 <a href="patient_report.php" onclick='top.restoreSession()'>
                     <span class='title'><?php echo xlt('Patient Report'); ?></span>
                     <span class='back'><?php echo text($tback); ?></span>
@@ -270,60 +317,6 @@ function zip_content($source, $destination, $content = '', $create = true)
                 <a href="custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
                     [<?php echo xlt('Printable Version'); ?>]
                 </a>
-                <br />
-                <div class="border-bottom fixed-top my-1 px-5 report_search_bar">
-                    <div class="row">
-                        <div class="col-md">
-                            <input type="text" class="form-control" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element"/>
-                        </div>
-                        <div class="col-md">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-primary btn-search" onClick="clear_last_visit();remove_mark_all();find_all();" ><?php echo xlt('Find'); ?></button>
-                                <button type="button" class="btn btn-primary" onClick="next_prev('prev');" ><?php echo xlt('Prev'); ?></button>
-                                <button type="button" class="btn btn-primary" onClick="next_prev('next');" ><?php echo xlt('Next'); ?></button>
-                            </div>
-                        </div>
-                        <div class="col-md">
-                            <span><?php echo xlt('Match case'); ?></span>
-                            <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
-                        </div>
-                        <div class="col-md">
-                            <span class="text font-weight-bold"><?php echo xlt('Search In'); ?>:</span>
-                            <br />
-                            <?php
-                            $form_id_arr = array();
-                            $form_dir_arr = array();
-                            $last_key = '';
-                            //ksort($ar);
-                            foreach ($ar as $key_search => $val_search) {
-                                if ($key_search == 'pdf' || $key_search == '') {
-                                    continue;
-                                }
-
-                                if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
-                                            preg_match('/^(.*)_(\d+)$/', $key_search, $res_search);
-                                            $form_id_arr[] = add_escape_custom($res_search[2]);
-                                            $form_dir_arr[] = add_escape_custom($res_search[1]);
-                                }
-                            }
-
-                            //echo json_encode(json_encode($array_key_id));
-                            if (sizeof($form_id_arr) > 0) {
-                                $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '" . implode("','", $form_id_arr) . "') AND formdir IN ( '" . implode("','", $form_dir_arr) . "')";
-                                $arr = sqlStatement($query);
-                                echo "<select multiple size='4' class='form-control' id='forms_to_search' onchange='clear_last_visit();remove_mark_all();find_all();' >";
-                                while ($res_forms_ids = sqlFetchArray($arr)) {
-                                    echo "<option value='" . attr($res_forms_ids['formdir']) . "' selected>" . text($res_forms_ids['form_name']) . "</option>";
-                                }
-                                echo "</select>";
-                            }
-                            ?>
-                        </div>
-                        <div class="col-md">
-                            <span id ='alert_msg' class='text-danger'></span>
-                        </div>
-                    </div>
-                </div>
             <?php } // end not printable ?>
 
             <?php
