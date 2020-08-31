@@ -340,7 +340,7 @@ function doclick(pfx, id) {
                     <tr>
                         <td colspan='2' class="text-center">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-primary btn-sm btn-save" name='form_save' value='<?php echo xla('Save'); ?>' disabled>
+                                <button type="submit" class="btn btn-primary btn-sm btn-save" name='form_save' value='<?php echo xla('Save'); ?>' disabled>
                                     <?php echo xlt('Save'); ?>
                                 </button>
                                 <button type="button" class="btn btn-primary btn-sm btn-add" value='<?php echo xla('Add Issue'); ?>' onclick='newIssue()'>

@@ -268,7 +268,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
 
                                 echo " <tr class='" . attr($bgclass) . " detail' $colorstyle>\n";
-                                echo "  <td class='text-left " . attr($click_class) . "' id='" . attr($rowid) . "'>" . text($disptitle) . "</td>\n";
+                                echo "  <td class='text-left " . attr($click_class) . "' style='text-decoration: underline' id='" . attr($rowid) . "'>" . text($disptitle) . "</td>\n";
                                 echo "  <td>" . text(oeFormatShortDate($row['begdate'])) . "&nbsp;</td>\n";
                                 echo "  <td>" . text(oeFormatShortDate($row['enddate'])) . "&nbsp;</td>\n";
                                 // both codetext and statusCompute have already been escaped above with htmlspecialchars)
