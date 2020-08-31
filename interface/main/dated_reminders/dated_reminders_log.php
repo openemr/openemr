@@ -189,7 +189,7 @@ if ($_GET) {
                     </fieldset>
                     <div class="form-group row">
                         <div class="col-sm-12 position-override">
-                            <div class="btn-group oe-opt-btn-group-pinch form-group" role="group">
+                            <div class="btn-group form-group" role="group">
                                 <button type="button" value="Refresh" id="submitForm" class="btn btn-secondary btn-refresh" ><?php echo xlt('Refresh') ?></button>
                             </div>
                         </div>

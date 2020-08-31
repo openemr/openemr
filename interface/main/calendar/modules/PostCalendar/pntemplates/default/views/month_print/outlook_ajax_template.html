@@ -419,9 +419,9 @@ foreach ($providers as $provider) {
                 // some sort of patient appointment
 
                 $content .= text($displayTime). " ";
-                if ($catid == 1) $content .= "<strike>";
+                if ($catid == 1) $content .= "<s>";
                 $content .= text($lname);
-                if ($catid == 1) $content .= "</strike>";
+                if ($catid == 1) $content .= "</s>";
             }
 
             echo "<div class='" . attr($evtClass) . "' style='background-color:" . attr($event['catcolor']) . ";'>";
