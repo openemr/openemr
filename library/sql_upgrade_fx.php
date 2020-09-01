@@ -1059,10 +1059,9 @@ function upgradeFromSqlFile($filename, $path = '')
                 echo "Converting layout properties ...<br />\n";
                 convertLayoutProperties();
             }
-
         } elseif (preg_match('/^#IfDocumentNamingNeeded/', $line)) {
             $emptyNames = sqlStatementNoLog("SELECT `id`, `url`, `name`, `couch_docid` FROM `documents` WHERE `name` = '' OR `name` IS NULL");
-            if (sqlNumRows($emptyNames) > 0 ) {
+            if (sqlNumRows($emptyNames) > 0) {
                 echo "<p>Converting document names.</p>\n";
                 while ($row = sqlFetchArray($emptyNames)) {
                     if (!empty($row['couch_docid'])) {
