@@ -7,11 +7,6 @@
 */
 
 /* Bootstrap Code */
-
-/* All variables are imported by bootswatch */
-@import "../../../public/assets/bootswatch/dist/solar/variables";
-@import "../default-variables";
-
 $gray-100: #002b36;
 $gray-200: #073642;
 $gray-300: #495057;
@@ -35,15 +30,19 @@ $body-color: $gray-900;
 
 $secondary-color: $gray-100;
 
+// Theme-specific Changes
+$input-color: $gray-300;
+$modal-content-bg: $body-bg;
+
+/* All variables are imported by bootswatch */
+@import "../../../public/assets/bootswatch/dist/solar/variables";
+@import "../default-variables";
+
 // Login form bg change
 $login-form-bg-color: $gray-200;
 $login-color-2: $primary;
 $login-color-3: darken($primary, 20%);
 $login-button-primary: true;
-
-// Theme-specific Changes
-$input-color: $gray-300;
-$modal-content-bg: $body-bg;
 
 // Import Bootstrap 4 SCSS Files before doing anything
 // This gets replaced in gulp now -- do not touch
@@ -67,53 +66,54 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 @import "../navigation-slide/future-bootstrap";
 
 /* Overrides go here */
-.btn-secondary {
-  color: $ovr-light !important;
+@if $compact-theme == false {
+  .btn-secondary {
+    color: $ovr-light !important;
 
-  &:hover {
-    background: $gray-200 !important;
-  }
-}
-
-.menuLabel:hover {
-  color: $ovr-dark !important;
-}
-
-.menuDisabled {
-  color: $ovr-dark !important;
-}
-
-.menuEntries li .menuLabel:hover {
-  color: $ovr-dark !important;
-}
-
-.documents_list a {
-  color: $body-color !important;
-}
-
-/* Changes all SVG colors to white to match theme */
-.about-review-image > #color {
-  fill: $black !important;
-}
-
-#mainBox .logo .emr-menu-logo > #blue-color,
-#mainBox_vertical .logo .emr-menu-logo > #blue-color {
-  fill: $black !important;
-}
-
-.login-emr-logo {
-  > #red-color {
-    fill: $black;
+    &:hover {
+      background: $gray-200 !important;
+    }
   }
 
-  > #blue-color {
-    fill: $black;
+  .menuLabel:hover {
+    color: $ovr-dark !important;
   }
 
-  > #gray-color {
-    fill: $black;
+  .menuDisabled {
+    color: $ovr-dark !important;
+  }
+
+  .menuEntries li .menuLabel:hover {
+    color: $ovr-dark !important;
+  }
+
+  .documents_list a {
+    color: $body-color !important;
+  }
+
+  /* Changes all SVG colors to white to match theme */
+  .about-review-image > #color {
+    fill: $black !important;
+  }
+
+  #mainBox .logo .emr-menu-logo > #blue-color,
+  #mainBox_vertical .logo .emr-menu-logo > #blue-color {
+    fill: $black !important;
+  }
+
+  .login-emr-logo {
+    > #red-color {
+      fill: $black;
+    }
+
+    > #blue-color {
+      fill: $black;
+    }
+
+    > #gray-color {
+      fill: $black;
+    }
   }
 }
-
 /* search any */
 @import "../oe-bootstrap";

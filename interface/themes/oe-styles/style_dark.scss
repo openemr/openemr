@@ -7,8 +7,6 @@
 *
 */
 
-@import "../default-variables";
-
 /* Dark theme overrides */
 $white: #000;
 $gray-100: #212529;
@@ -35,7 +33,10 @@ $body-color: $gray-900;
 $btn-link-disabled-color: $gray-400;
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
+$secondary-color: $gray-900;
 $login-text-color: #000;
+
+@import "../default-variables";
 
 // Import Bootstrap 4 SCSS Files before doing anything
 // This gets replaced in gulp now -- do not touch
