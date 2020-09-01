@@ -11,13 +11,13 @@
     background-color: $midpale !important;
   }
 
-.tabSpan {
-  border-left: 1px solid $dark !important;
-  border-radius: 3px 6px 0 0 !important;
-  border-right: 1px solid $dark !important;
-  border-top: 5px solid $dark !important;
-  box-shadow: 0 0 0 rgba(0, 0, 0, 0) !important;
-}
+  .tabSpan {
+    border-left: 1px solid $dark !important;
+    border-radius: 3px 6px 0 0 !important;
+    border-right: 1px solid $dark !important;
+    border-top: 5px solid $dark !important;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0) !important;
+  }
 
   .tabNotchosen {
     border-bottom: 2px solid $dark !important;
@@ -38,11 +38,11 @@
     background: $palepale !important;
   }
 
-.menuLabel {
-  &:hover {
-    background: $palepale !important;
+  .menuLabel {
+    &:hover {
+      background: $palepale !important;
+    }
   }
-}
 
   .patientEncounterList {
     background: $white;
@@ -54,17 +54,18 @@
     background-color: $palepale !important;
   }
 
-.menuSection > .menuEntries {
-  background-color: $paler !important;
-  box-shadow: 0 2px 2px $midpale !important;
-}
-
-.menuEntries li .menuLabel {
-  &:hover {
-    background-color: $palepale !important;
-    color: $bs-dark;
+  .menuSection > .menuEntries {
+    background-color: $paler !important;
+    box-shadow: 0 2px 2px $midpale !important;
   }
-}
+
+  .menuEntries li .menuLabel {
+    &:hover {
+      background-color: $palepale !important;
+      color: $bs-dark;
+    }
+  }
+
   .appMenu li:hover {
     background-color: $palepale !important;
   }
@@ -87,9 +88,9 @@
 
   /* tabs calendar */
 
-#calsearch_params {
-  background-color: $palepale !important;
-}
+  #calsearch_params {
+    background-color: $palepale !important;
+  }
 
   .calsearch_body {
     background-color: $paler !important;
@@ -99,16 +100,16 @@
     color: $darker;
   }
 
-/* tabs menu, user, and logout icon */
-#menu_icon,
-#logout_icon,
-#user_icon {
-  color: $darker !important;
-}
+  /* tabs menu, user, and logout icon */
+  #menu_icon,
+  #logout_icon,
+  #user_icon {
+    color: $darker !important;
+  }
 
-/* Search Globals Button */
-#search_globals,
-.oe-expandable-search .any-search-legacy {
-  background: $dark !important;
-}
+  /* Search Globals Button */
+  #search_globals,
+  .oe-expandable-search .any-search-legacy {
+    background: $dark !important;
+  }
 }
