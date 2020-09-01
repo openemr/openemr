@@ -30,31 +30,29 @@ $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array(
 
         <?php Header::setupHeader(); ?>
     </head>
-    <body class="body_top">
-        <div class="container">
+    <body>
+        <div class="container mt-3">
             <div class="row">
-                <h2><?php echo xlt('Clinical Instructions'); ?></h2>
-            </div>
-            <div class="row">
-                <form method="post" name="my_form" action="<?php echo $rootdir; ?>/forms/clinical_instructions/save.php?id=<?php echo attr_url($formid); ?>">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <fieldset>
-                        <legend class=""><?php echo xlt('Instructions'); ?></legend>
-                            <div class="form-group">
-                                <div class="col-sm-10 offset-sm-1">
-                                    <textarea name="instruction" id ="instruction"  class="form-control" cols="80" rows="5" ><?php echo text($check_res['instruction']); ?></textarea>
+                <div class="col-12">
+                    <h2><?php echo xlt('Clinical Instructions'); ?></h2>
+                    <form method="post" name="my_form" action="<?php echo $rootdir; ?>/forms/clinical_instructions/save.php?id=<?php echo attr_url($formid); ?>">
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                        <fieldset>
+                            <legend><?php echo xlt('Instructions'); ?></legend>
+                            <div class="container">
+                                <div class="form-group">
+                                    <textarea name="instruction" id="instruction" class="form-control" cols="80" rows="5" ><?php echo text($check_res['instruction']); ?></textarea>
                                 </div>
                             </div>
-                    </fieldset>
-                    <div class="form-group clearfix">
-                        <div class="col-sm-12 offset-sm-1 position-override">
-                            <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                                <button type='submit' onclick='top.restoreSession()' class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
-                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
+                        </fieldset>
+                        <div class="form-group">
+                            <div class="btn-group" role="group">
+                                <button type="submit" onclick='top.restoreSession()' class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
+                                <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
                             </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </body>

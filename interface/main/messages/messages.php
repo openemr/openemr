@@ -88,8 +88,6 @@ if (
     </script>
 
     <script src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
-
-    <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
     <style>
         @media only screen and (max-width: 768px) {
             [class*="col-"] {
@@ -544,11 +542,11 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <!-- This is for displaying an existing note. -->
                                                 <button type="button" class="btn btn-primary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
                                                 <button type="button" class="btn btn-primary btn-print" id="printnote" value="<?php echo xla('Print message'); ?>"><?php echo xlt('Print message'); ?></button>
-                                                <button type="button" class="btn btn-secondary btn-cancel oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+                                                <button type="button" class="btn btn-secondary btn-cancel" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
                                             <?php } else { ?>
                                                 <!-- This is for displaying a new note. -->
                                                 <button type="button" class="btn btn-primary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
-                                                <button type="button" class="btn btn-cancel btn-secondary oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+                                                <button type="button" class="btn btn-cancel btn-secondary" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
                                             <?php }
                                             ?>
                                         </div>

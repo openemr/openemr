@@ -222,35 +222,11 @@ $GLOBALS_METADATA = array(
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 
-        'font-family' => array(
-            xl('Default font') . '*',
-            array(
-                '__default__' => 'Use Theme Font',
-                '"Arial", "Helvetica", sans-serif' => "Arial",
-                '"Arial Black", "Gadget", sans-serif' => "Arial Black",
-                '"Impact", "Charcoal", sans-serif' => "Impact",
-                '"Lucida Sans Unicode", "Lucida Grande", sans-serif' => "Lucida Sans",
-                '"Tahoma", "Geneva", sans-serif' => "Tahoma",
-                '"Trebuchet MS", "Helvetica", sans-serif' => "Trebuchet MS",
-                '"Verdana", "Geneva", sans-serif' => "Verdana",
-                '"Lato", sans-serif' => "Lato",
-            ),
-            '__default__',
-            xl('Select the default font (need to logout/login after changing this setting).'),
-        ),
-
-        'font-size' => array(
-            xl('Default font size') . '*',
-            array(
-                '__default__' => 'Use Theme Font Size',
-                '0.625' => '10px',
-                '0.75' => '12px',
-                '0.875' => '14px',
-                '1.0' => '16px',
-                '1.125' => '18px',
-            ),
-            '__default__',
-            xl("Select the default font size (need to logout/login after changing this setting)."),
+        'enable_compact_mode' => array(
+            xl('Enable Compact Mode'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Changes the current theme to be more compact.')
         ),
 
         'menu_styling_vertical' => array(

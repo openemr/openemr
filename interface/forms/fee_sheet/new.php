@@ -338,8 +338,8 @@ function echoProductLines()
         $warehouse_id = $li['warehouse'];
         $rx           = $li['rx'];
 
-        $strike1 = ($sale_id && $del) ? "<strike>" : "";
-        $strike2 = ($sale_id && $del) ? "</strike>" : "";
+        $strike1 = ($sale_id && $del) ? "<s>" : "";
+        $strike2 = ($sale_id && $del) ? "</s>" : "";
 
         echo " <tr>\n";
         echo "  <td class='billcell'>{$strike1}" . xlt("Product") . "$strike2";
@@ -1495,9 +1495,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php echo xlt('Add More Items'); ?>
                                     </button>
                                 <?php } // end billed ?>
-                                    <button type='button' class='btn btn-secondary btn-cancel btn-separate-left' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
-                                        <?php echo xlt('Cancel');?>
-                                    </button>
+                                    <button type='button' class='btn btn-link btn-cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
+                                    <?php echo xlt('Cancel');?></button>
+                                    <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
+                                    <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
+                                    <input type='hidden' name='form_alertmsg' value='<?php echo attr($alertmsg); ?>' />
                             </div>
                             <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
                             <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />

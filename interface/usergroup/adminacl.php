@@ -585,7 +585,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                                     <div class="col-12" style="padding: 15px 18px">
                                         <button type="submit" class="button_acl_add btn btn-secondary" id="button_acl_add_submit" title='<?php echo xla('Add Group'); ?>'><?php echo xlt('Add Group'); ?></button>
                                         <button type="reset" class="button_acl_add btn btn-link" id="button_acl_add_clear" title='<?php echo xla('Clear'); ?>'><?php echo xlt('Clear'); ?></button>
-                                        <button type="reset" class="button_acl_add btn btn-link btn-cancel oe-opt-btn-separate-left" id="button_acl_add_cancel" title='<?php echo xla('Cancel'); ?>'><?php echo xlt('Cancel'); ?></button>
+                                        <button type="reset" class="button_acl_add btn btn-link btn-cancel" id="button_acl_add_cancel" title='<?php echo xla('Cancel'); ?>'><?php echo xlt('Cancel'); ?></button>
                                     </div>
                                 </div>
                             </div>
@@ -627,7 +627,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                                 <div class="row">
                                     <div class="col-12" style="padding:15px 18px">
                                         <button type="submit" class="button_acl_remove btn btn-secondary" id="button_acl_remove_delete" title='<?php echo xla('Delete Group'); ?>'><?php echo xlt('Delete Group'); ?></button>
-                                        <button type="reset" class="button_acl_remove btn btn-link btn-cancel oe-opt-btn-separate-left" id="button_acl_remove_cancel" title='<?php echo xla('Cancel'); ?>'><?php echo xlt('Cancel'); ?></button>
+                                        <button type="reset" class="button_acl_remove btn btn-link btn-cancel" id="button_acl_remove_cancel" title='<?php echo xla('Cancel'); ?>'><?php echo xlt('Cancel'); ?></button>
                                     </div>
                                 </div>
                             </div>

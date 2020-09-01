@@ -784,11 +784,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
                 <div class="form-group clearfix">
                     <div class="col-sm-12 text-left position-override">
-                        <div class="btn-group btn-group-pinch" role="group">
+                        <div class="btn-group" role="group">
                             <button type="button" class="btn btn-primary btn-add" onclick="addProcLine()"><?php echo xlt('Add Procedure'); ?></button>
                             <button type="submit" class="btn btn-primary btn-save" name='bn_save' value="save" onclick='transmitting = false;'><?php echo xlt('Save'); ?></button>
                             <button type="submit" class="btn btn-primary btn-transmit" name='bn_xmit' value="transmit" onclick='transmitting = true;'><?php echo xlt('Save and Transmit'); ?></button>
-                            <button type="button" class="btn btn-secondary btn-cancel btn-separate-left" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel'); ?></button>
+                            <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel'); ?></button>
                         </div>
                     </div>
                 </div>

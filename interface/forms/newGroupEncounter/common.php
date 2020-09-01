@@ -354,9 +354,9 @@ $help_icon = '';
                 <div class="col-md-12 form-group clearfix">
                       <button type="button" class="btn btn-secondary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
                       <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
-                          <button type="button" class="btn btn-link btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
+                          <button type="button" class="btn btn-link btn-cancel" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
                       <?php } else { // not $viewmode ?>
-                          <button class="btn btn-link btn-cancel btn-separate-left link_submit" onClick="return cancelClickedNew()">
+                          <button class="btn btn-link btn-cancel link_submit" onClick="return cancelClickedNew()">
                               <?php echo xlt('Cancel'); ?></button>
                       <?php } // end not $viewmode ?>
                 </div>

@@ -107,8 +107,6 @@ if ($GLOBALS['login_page_layout'] == 'left') {
 
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 
-    <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
-
     <script>
         var registrationTranslations = <?php echo json_encode(array(
             'title' => xla('OpenEMR Product Registration'),

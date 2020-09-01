@@ -57,7 +57,7 @@ if ($days_deceased) { ?>
 } ?>
     <div class="form-group">
 
-            <div class="btn-group oe-opt-btn-group-pinch" role="group">
+            <div class="btn-group" role="group">
 
             <?php
             if (AclMain::aclCheckCore('admin', 'super') && $GLOBALS['allow_pat_delete']) { ?>

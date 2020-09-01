@@ -17,17 +17,6 @@
   background-color: $palepale !important;
 }
 
-.dropdown-menu > li > a:focus,
-.dropdown-menu > li > a:hover {
-  background-color: $palepale !important;
-}
-
-.dropdown-menu {
-  background-color: $paler !important;
-  border-radius: 0 !important;
-  border-top: 1px solid $paler !important;
-}
-
 .navbar-nav {
   @include font-size("0.9375rem");
 }
@@ -50,12 +39,4 @@
   background-color: $dark !important;
   color: $black !important;
   font-weight: 700;
-}
-
-.navbar-light .navbar-brand {
-  color: $black !important;
-}
-
-.navbar-light .navbar-nav > li > a {
-  color: $black !important;
 }

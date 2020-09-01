@@ -127,7 +127,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                 <div class="form-group clearfix">
                                 <div class="col-sm-12 text-left position-override">
                                         <button type="button" class="btn btn-secondary btn-save" value="<?php echo xla('Submit'); ?>" onclick="doregister('reg2')"><?php echo xlt('Submit'); ?></button>
-                                        <button type="button" class="btn btn-link btn-cancel btn-separate-left" value="<?php echo xla('Cancel'); ?>" onclick="docancel()" ><?php echo xlt('Cancel'); ?></button>
+                                        <button type="button" class="btn btn-link btn-cancel" value="<?php echo xla('Cancel'); ?>" onclick="docancel()" ><?php echo xlt('Cancel'); ?></button>
                                     </div>
                                 </div>
                             </div>
@@ -206,9 +206,9 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                 <div class="col-sm-12 text-left position-override">
                                     <?php if (!$doesExist) { ?>
                                         <button type="button" class="btn btn-secondary btn-save" value="<?php echo xla('Register'); ?>" onclick="doregister('reg3')"><?php echo xlt('Register'); ?></button>
-                                        <button type="button" class="btn btn-link btn-cancel btn-separate-left" value="<?php echo xla('Cancel'); ?>" onclick="docancel()" ><?php echo xlt('Cancel'); ?></button>
+                                        <button type="button" class="btn btn-link btn-cancel" value="<?php echo xla('Cancel'); ?>" onclick="docancel()" ><?php echo xlt('Cancel'); ?></button>
                                     <?php } else { // $doesExist ?>
-                                        <button type="button" class="btn btn-link btn-back btn-separate-left" value="<?php echo xla('Back'); ?>" onclick="docancel()" ><?php echo xlt('Back'); ?></button>
+                                        <button type="button" class="btn btn-link btn-back" value="<?php echo xla('Back'); ?>" onclick="docancel()" ><?php echo xlt('Back'); ?></button>
                                     <?php } ?>
                                     </div>
                                 </div>

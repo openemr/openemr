@@ -752,7 +752,7 @@ foreach ($providers as $provider) {
 
                     $content .= "<a href='javascript:goPid(" . attr_js($patientid) . ")' title='" . attr($link_title) . "'>";
                     $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\" onmouseout=\"javascript:HideImage();\" title='" . attr($link_title) . "'></i>";
-                    if ($catid == 1) $content .= "<strike>";
+                    if ($catid == 1) $content .= "<s>";
                     $content .= text($lname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
                         $content .= "," . text($fname);
@@ -763,7 +763,7 @@ foreach ($providers as $provider) {
                             $content .= ")";
                         }
                     }
-                    if ($catid == 1) $content .= "</strike>";
+                    if ($catid == 1) $content .= "</s>";
                     $content .= "</a>";
                 }
                 elseif($groupid){
@@ -773,7 +773,7 @@ foreach ($providers as $provider) {
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goGid(" . attr_js($groupid) . ")' title='" . attr($link_title) . "'>";
                     $content .= "<i class='fas fa-user text-primary' title='" . attr($link_title) . "'></i>";
-                    if ($catid == 1) $content .= "<strike>";
+                    if ($catid == 1) $content .= "<s>";
                     $content .= text($groupname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
                         if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
@@ -783,7 +783,7 @@ foreach ($providers as $provider) {
                             $content .= ")";
                         }
                     }
-                    if ($catid == 1) $content .= "</strike>";
+                    if ($catid == 1) $content .= "</s>";
                     $content .= "</a>";
 
                     //Add class to wrapping div so EditEvent js function can differentiate between click on group and patient
