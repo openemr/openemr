@@ -87,7 +87,7 @@ $target_element = $_GET['target_element'];
 <?php
 $focus = "document.theform.search_term.select();";
 ?>
-<body class="body_top" OnLoad="<?php echo $focus; ?>">
+<body onload="<?php echo $focus; ?>">
     <div class="container-fluid">
         <?php
         $string_target_element = "";
@@ -100,7 +100,7 @@ $focus = "document.theform.search_term.select();";
         <?php if (!empty($allowed_codes)) { ?>
         <form class="form-inline" method='post' name='theform' action='find_code_popup.php<?php echo $string_target_element ?>codetype=<?php echo attr_url($codetype) ?>'>
         <?php } else { ?>
-        <form class="form-inline"  method='post' name='theform' action='find_code_popup.php<?php echo $string_target_element ?>'>
+        <form class="form-inline" method='post' name='theform' action='find_code_popup.php<?php echo $string_target_element ?>'>
         <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <div class="form-group">

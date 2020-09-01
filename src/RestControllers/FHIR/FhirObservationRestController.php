@@ -1,9 +1,18 @@
 <?php
 
+/**
+ * FhirObservationRestController
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Services\FHIR\FhirObservationService;
-use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
@@ -12,112 +21,44 @@ class FhirObservationRestController
 {
     private $fhirObservationService;
     private $fhirService;
-    private $fhirValidate;
 
     public function __construct()
     {
         $this->fhirObservationService = new FhirObservationService();
-        $this->fhirValidate = new FhirValidationService();
         $this->fhirService = new FhirResourcesService();
     }
 
-    public function getAll($search)
+    /**
+     * Queries for a single FHIR observation resource by FHIR id
+     * @param $fhirId The FHIR observation resource id (uuid)
+     * @returns 200 if the operation completes successfully
+     */
+    public function getOne($fhirId)
     {
-        $resourceURL = \RestConfig::$REST_FULL_URL;
-        if (strpos($resourceURL, '?') > 0) {
-            $resourceURL = strstr($resourceURL, '?', true);
-        }
-
-        $searchParam = array(
-            'pid' => $search['patient'],
-            'category' => $search['category'],
-            'date' => $search['date'],
-            'code' => $search['code'] ? explode(',', $search['code']) : null
-        );
-        $code = array(
-            "85353-1" => 'vitals',
-            "29463-7" => 'weight',
-            "8302-2" => 'height',
-            "85354-9" => 'bp',
-            "8310-5"  => 'temperature',
-            "8867-4"  => 'pulse',
-            "9279-1"  => 'respiration',
-            "39156-5"  => 'BMI',
-            "9843-4"  => 'head_circ',
-            "8280-0"  => 'waist_circ',
-            "2708-6"  => 'oxygen_saturation',
-        );
-
-        $searchResult = $this->fhirObservationService->getAll($searchParam);
-        if ($searchResult !== false) {
-            $entries = array();
-            foreach ($searchResult as $profile) {
-                foreach ($code as $value) {
-                    if (empty($search['code']) && $value == 'vitals') {
-                        continue;
-                    }
-                    $id = $value . '-' . $profile['form_id'];
-                    $profile_data = $this->fhirObservationService->getOne($id);
-                    $entryResource = $this->fhirObservationService->createObservationResource(
-                        $id,
-                        $profile_data,
-                        false
-                    );
-                    if (
-                        (empty($search['code']) || $this->checkCode($code, $searchParam['code'], $id))
-                        && $profile_data['profile'] == $value
-                    ) {
-                        $entry = array(
-                            'fullUrl' => $resourceURL . "/" . $id,
-                            'resource' => $entryResource
-                        );
-                        $entries[] = new FHIRBundleEntry($entry);
-                    }
-                };
-            }
-            $searchResult = $this->fhirService->createBundle('Observation', $entries, false);
-            $statusCode = 200;
-        } else {
-            $statusCode = 400;
-            $searchResult = $this->fhirValidate->operationOutcomeResourceService(
-                'error',
-                'invalid',
-                false,
-                "Invalid Parameter"
-            );
-        }
-        return RestControllerHelper::responseHandler($searchResult, null, $statusCode);
+        $processingResult = $this->fhirObservationService->getOne($fhirId);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
-    public function getOne($id)
+    /**
+     * Queries for FHIR observation resources using various search parameters.
+     * Search parameters include:
+     * - patient (puuid)
+     * @return FHIR bundle with query results, if found
+     */
+    public function getAll($searchParams)
     {
-        $profile_data = $this->fhirObservationService->getOne($id);
-        if ($profile_data) {
-            $resource = $this->fhirObservationService->createObservationResource($id, $profile_data, false);
-            $statusCode = 200;
-        } else {
-            $statusCode = 404;
-            $resource = $this->fhirValidate->operationOutcomeResourceService(
-                'error',
-                'invalid',
-                false,
-                "Resource Id $id does not exist"
-            );
+        $processingResult = $this->fhirObservationService->getAll($searchParams);
+        $bundleEntries = array();
+        foreach ($processingResult->getData() as $index => $searchResult) {
+            $bundleEntry = [
+                'fullUrl' =>  \RestConfig::$REST_FULL_URL . '/' . $searchResult->getId(),
+                'resource' => $searchResult
+            ];
+            $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
+            array_push($bundleEntries, $fhirBundleEntry);
         }
-
-        return RestControllerHelper::responseHandler($resource, null, $statusCode);
-    }
-
-    private function checkCode($code, $searchParam, $param)
-    {
-        $param = explode("-", $param);
-        if (is_array($searchParam)) {
-            foreach ($searchParam as $search) {
-                if ($code[$search] == $param[0]) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        $bundleSearchResult = $this->fhirService->createBundle('Observation', $bundleEntries, false);
+        $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
+        return $searchResponseBody;
     }
 }

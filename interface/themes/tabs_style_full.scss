@@ -155,10 +155,10 @@ body {
   border-right: 0;
   border-top: 4px solid transparent !important;
   display: block;
-}
 
-.tabNotchosen:hover {
-  background: var(--light);
+  &:hover {
+    background: var(--light);
+  }
 }
 
 .tabsNoHover {

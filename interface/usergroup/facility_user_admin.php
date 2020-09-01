@@ -206,7 +206,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                             <button type="submit" class="btn btn-secondary btn-save" name='form_save' id='form_save' href='#'>
                                 <?php echo xlt('Save'); ?>
                             </button>
-                            <a class="btn btn-link btn-cancel oe-opt-btn-separate-left" id='cancel' href='#'>
+                            <a class="btn btn-link btn-cancel" id='cancel' href='#'>
                                 <?php echo xlt('Cancel'); ?>
                             </a>
                         </td>

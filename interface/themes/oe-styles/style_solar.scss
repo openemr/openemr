@@ -1,6 +1,6 @@
 /*
 *
-*   Superhero Theme for OpenEMR
+*   Solar Theme for OpenEMR
 *   @author Tyler Wrenn
 *   Powered and Colored by Bootswatch
 *
@@ -9,23 +9,46 @@
 /* Bootstrap Code */
 
 /* All variables are imported by bootswatch */
-@import "../../../public/assets/bootswatch/dist/superhero/variables";
+@import "../../../public/assets/bootswatch/dist/solar/variables";
+
+$gray-100: #002b36;
+$gray-200: #073642;
+$gray-300: #495057;
+$gray-400: #839496;
+$gray-500: #adb5bd;
+$gray-600: #ced4da;
+$gray-700: #dee2e6;
+$gray-800: #e9ecef;
+$gray-900: #f8f9fa;
+$black: #fff;
+$white: #000;
+$ovr-dark: $gray-100;
+$ovr-light: $gray-800;
+$light: $gray-100;
+$dark: $gray-800;
 
 /* Required for OpenEMR */
 $gray: $gray-600;
 
-/* Color fix */
+$body-bg: $white;
+/* This is actually dark */
+$body-color: $gray-900;
+/* This is actually light */
+
+/* Array of theme colors that can be added to */
 $theme-colors: (
-  primary: $primary,
-  secondary: $secondary,
+  primary: $blue,
+  secondary: $gray-100,
   success: $green,
   info: $cyan,
   warning: $yellow,
   danger: $red,
-  light: $light,
-  dark: $dark,
+  light: $gray-100,
+  dark: $gray-800,
   body-color: $body-color
 );
+
+/* Array of random colors that can be added to */
 $colors: (
   "blue": $blue,
   "indigo": $indigo,
@@ -53,20 +76,20 @@ $colors: (
 );
 /* Above adds overrides to allow regular CSS coloring */
 
-/* This needs to be the default Bootstrap value for OpenEMR so it doesn't break */
-$input-btn-padding-y: 0.5rem;
-$input-btn-padding-x: 0.75rem;
-
 $font-family-sans-serif: "Lato", -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 $font-size-base: 0.875rem;
 $rfs-base-value: 0.875rem;
 $font-family-base: $font-family-sans-serif;
 
 // Login form bg change
-$login-form-bg-color: $dark;
+$login-form-bg-color: $gray-200;
 $login-color-2: $primary;
 $login-color-3: darken($primary, 20%);
 $login-button-primary: true;
+
+// Theme-specific Changes
+$input-color: $gray-300;
+$modal-content-bg: $body-bg;
 
 $displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
 
@@ -87,96 +110,59 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 @import "../core";
 
 /* Required bootswatch import */
-@import "../../../public/assets/bootswatch/dist/superhero/bootswatch";
+@import "../../../public/assets/bootswatch/dist/solar/bootswatch";
 
 @import "../theme-defaults";
 
 @import "../navigation-slide/future-bootstrap";
 
 /* Overrides go here */
-.calsearch_body {
-  color: $body-color !important;
-}
-
-.bgcolor2 {
-  background-color: $dark !important;
-}
-
-div.tab,
-div.tab_long {
-  background: $dark none repeat scroll 0 0 !important;
-}
-
-.oe-help-redirect {
-  color: $white !important;
-}
-
-/* Add login design */
-.login .container {
-  background: $black !important;
-  border: 10px solid $dark !important;
-}
-
-/* Makes tab font black */
-.menuLabel {
-  color: $dark;
-}
-
-.menuEntries li .menuLabel {
-  color: $white;
+.btn-secondary {
+  color: $ovr-light !important;
 
   &:hover {
-    color: $dark;
+    background: $gray-200 !important;
   }
 }
 
-.appMenu ul .menuLabel,
-.appMenu_small ul .menuLabel {
-  color: $white !important;
-
-  &:hover {
-    color: $dark !important;
-  }
+.menuLabel:hover {
+  color: $ovr-dark !important;
 }
 
-.section {
-  background: $gray-700 !important;
-  border-color: $gray-600 !important;
+.menuDisabled {
+  color: $ovr-dark !important;
 }
 
-/* Calendar Overrides */
-#dateNAV,
-#topToolbarRight #menu-toggle,
-#providerPicker {
-  color: $white !important;
+.menuEntries li .menuLabel:hover {
+  color: $ovr-dark !important;
 }
 
-#datePicker .tdMonthName-small {
+.documents_list a {
   color: $body-color !important;
-}
-
-
-/* Tabs fixes */
-.tabSpan,
-.tabSpan .tabHidden,
-.tabSpan .fa {
-  color: $white !important;
-}
-
-.tabNotchosen,
-.tabNotchosen .tabHidden,
-.tabNotchosen .fa {
-  color: $dark !important;
 }
 
 /* Changes all SVG colors to white to match theme */
 .about-review-image > #color {
-  fill: $white !important;
+  fill: $black !important;
 }
 
 #mainBox .logo .emr-menu-logo > #blue-color,
 #mainBox_vertical .logo .emr-menu-logo > #blue-color {
-  fill: $primary !important;
+  fill: $black !important;
+}
+
+.login-emr-logo {
+  > #red-color {
+    fill: $black;
+  }
+
+  > #blue-color {
+    fill: $black;
+  }
+
+  > #gray-color {
+    fill: $black;
+  }
 }
 
 /* search any */

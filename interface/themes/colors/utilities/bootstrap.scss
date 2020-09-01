@@ -28,27 +28,11 @@ textarea.form-control {
   background-color: $white !important;
 }
 
-.btn-secondary {
-  background: $darker !important;
-  border-color: $darker !important;
-  color: $white !important;
-}
-
 .btn-link {
   background: $paler !important;
   border-color: $darkest !important;
   border-radius: 2px !important;
   color: $gray !important;
-}
-
-.btn-secondary.active,
-.btn-secondary.focus,
-.btn-secondary:active,
-.btn-secondary:focus,
-.btn-secondary:hover,
-.open > .dropdown-toggle.btn-secondary {
-  background: $darkest !important;
-  border-color: $darkest !important;
 }
 
 .btn-link:focus,
@@ -57,7 +41,7 @@ textarea.form-control {
 }
 
 .btn-link {
-  border: 1px solid #ccc;
+  border: 1px solid $gray-400;
   border-radius: 3px !important;
 }
 
@@ -74,11 +58,6 @@ textarea.form-control {
   transition: border-color ease-in-out 0.3s, box-shadow ease-in-out 0.3s;
 }
 
-.btn-separate-left,
-.oe-opt-btn-separate-left {
-  margin-left: 20px !important;
-}
-
 .btn-group .btn {
   margin-right: 2px !important;
 }
@@ -88,12 +67,6 @@ textarea.form-control {
   border-bottom-right-radius: 0 !important;
   border-top-left-radius: 3px !important;
   border-top-right-radius: 0 !important;
-}
-
-.btn-group-pinch > .btn:nth-last-child(2):not(.dropdown-toggle),
-.oe-opt-btn-group-pinch > .btn:nth-last-child(2):not(.dropdown-toggle) {
-  border-bottom-right-radius: 3px !important;
-  border-top-right-radius: 3px !important;
 }
 
 .btn-sm {

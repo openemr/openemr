@@ -231,14 +231,14 @@ services:
     restart: always
     image: mariadb:10.5
     command: ['mysqld','--character-set-server=utf8mb4']
+    ports:
+    - 8210:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
   mariadb-old:
     restart: always
     image: mariadb:10.4
     command: ['mysqld','--character-set-server=utf8mb4']
-    ports:
-    - 8210:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
   mariadb-very-old:
@@ -464,7 +464,7 @@ services:
     restart: always
     image: osixia/openldap
     volumes:
-    - ./dockers/ldap-ssl-certs-keys/insane:/container/service/slapd/assets/certs
+    - ./ldap-ssl-certs-keys/insane:/container/service/slapd/assets/certs
     environment:
       LDAP_TLS_VERIFY_CLIENT: try
       LDAP_TLS_CA_CRT_FILENAME: ca.pem

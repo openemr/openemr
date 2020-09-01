@@ -613,7 +613,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         function editInvoice(e, id) {
             e.preventDefault();
             let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
-            dlgopen(url,'','modal-lg',750,false,'', {
+            dlgopen(url,'','modal-full',700,false,'', {
+                sizeHeight: 'full',
                 onClosed: 'reSubmit'
             });
         }
@@ -1211,17 +1212,16 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     //to dynamically show /hide relevant divs and change Fieldset legends
     $(function () {
         $("input[name=radio-search]").on("change", function () {
-
             let flip = $(this).val();
             $(".oe-show-hide").hide();
             $("#" + flip).show();
             if (flip == 'inv-search') {
-                $('#payment-allocate').hide();
+                $("#search-upload").insertAfter("#payment-allocate");
+                $('#payment-allocate').show();
                 $('#search-btn').show();
                 $('#btn-inv-search').show();
                 var legend_text = $('#hid1').val();
                 $('#search-upload').find('legend').find('span').text(legend_text);
-                $('#search-upload').find('#form_name').focus();
                 $('#select-method-tooltip').hide();
             }
             else if (flip == 'era-upld') {
@@ -1240,12 +1240,15 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 $('#select-method-tooltip').show();
             }
         });
+
+        <?php if (empty($_REQUEST['form_search'])) { ?>
+        $("#invoice_search").click();
+        <?php } ?>
     });
     <?php
     if ($alertmsg) {
         echo "alert('" . addslashes($alertmsg) . "');\n";
     }
-
     ?>
     $(function () {
         $('#select-method-tooltip').attr({"title": <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
@@ -1255,7 +1258,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 // not a good idea to do translate. it's a constant so pulling sjp.
 if ($_REQUEST['form_search'] == "Search") { ?>
     <script>
-        $('#payment-allocate').hide();
+        $("#payment-allocate").insertAfter("#search-upload");
+        $('#payment-allocate').show();
         $("#search-results").show();
         $("#statement-download").show();
     </script>
@@ -1263,10 +1267,7 @@ if ($_REQUEST['form_search'] == "Search") { ?>
 }
 if ($_REQUEST['form_search'] == "Upload") { ?>
     <script>
-        $("#payment-allocate").insertAfter("#search-upload");
-        $('#era-upld').hide();
-        $('#payment-allocate').show();
-        $('#search-btn').hide();
+        $('#era-upld').show();
         $('#search-results').show();
         $("#statement-download").show();
     </script>
