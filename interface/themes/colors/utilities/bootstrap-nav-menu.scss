@@ -11,24 +11,19 @@
   color: $white;
 }
 
-.navbar-light .navbar-nav > .active > a,
-.navbar-light .navbar-nav > .active > a:focus,
-.navbar-light .navbar-nav > .active > a:hover {
-  background-color: $palepale !important;
-}
-
-.navbar-nav {
-  @include font-size("0.9375rem");
-}
-
 .navbar-light {
   background-color: $dark !important;
-  border: 0;
-}
 
-.navbar-light .navbar-nav > li > a:focus,
-.navbar-light .navbar-nav > li > a:hover {
-  background-color: $palepale !important;
+  .navbar-nav > .active > a,
+  .navbar-nav > .active > a:focus,
+  .navbar-nav > .active > a:hover {
+    background-color: $palepale !important;
+  }
+
+  .navbar-nav > li > a:focus,
+  .navbar-nav > li > a:hover {
+    background-color: $palepale !important;
+  }
 }
 
 .navbar-nav > li > .dropdown-menu {
@@ -38,5 +33,4 @@
 .navbar-collapse.collapse.in {
   background-color: $dark !important;
   color: $black !important;
-  font-weight: 700;
 }
