@@ -803,7 +803,11 @@ class C_Document extends Controller
                 //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
                 //try to convert it if it has not yet been converted
                 $originalUrl = $url;
-                $convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
+                if (strrpos(basename_international($url), '.') === false) {
+                    $convertedFile = basename_international($url) . '_converted.jpg';
+                } else {
+                    $convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
+                }
                 $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $convertedFile;
                 if (!is_file($url)) {
                     if ($d->get_encrypted() == 1) {
