@@ -98,7 +98,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
 
             $docHref = $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
             echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . attr($docTitle) . "'>\n";
-            echo "<a href='$docHref' onclick='top.restoreSession()' >" . xlt('Document') . ": " . text(basename($documentrow['url'])) . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
+            echo "<a href='$docHref' onclick='top.restoreSession()' >" . xlt('Document') . ": " . text($documentrow['document_name'])  . '-' . $documentrow['id'] . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
             echo "</div>";
         }
     }
@@ -144,7 +144,7 @@ function showDocument(&$drow)
 
   // show document name and category
     echo "<td colspan='3'>" .
-    text(xl('Document') . ": " . basename($drow['url']) . ' (' . xl_document_category($drow['name']) . ')') .
+    text(xl('Document') . ": " . $drow['document_name'] . '-' . $drow['id'] . ' (' . xl_document_category($drow['name']) . ')') .
     "</td>\n";
     echo "<td colspan='5'>&nbsp;</td>\n";
     echo "</tr>\n";
@@ -366,7 +366,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
             // Query the documents for this patient.  If this list is issue-specific
             // then also limit the query to documents that are linked to the issue.
                 $queryarr = array($pid);
-                $query = "SELECT d.id, d.type, d.url, d.docdate, d.list_id, d.encounter_id, c.name " .
+                $query = "SELECT d.id, d.type, d.url, d.name as document_name, d.docdate, d.list_id, d.encounter_id, c.name " .
                 "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
                 "d.foreign_id = ? AND cd.document_id = d.id AND c.id = cd.category_id ";
                 if ($issue) {
