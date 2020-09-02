@@ -1,39 +1,40 @@
 <?php
 
 /**
-* Upgrading and patching functions of database.
-*
-* Functions to allow safe database modifications
-* during upgrading and patches.
-*
-* Copyright (C) 2008-2012 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-* @author    Brady Miller <brady.g.miller@gmail.com>
-* @author  Teny <teny@zhservices.com>
-* @link      https://www.open-emr.org
-*/
+ * Upgrading and patching functions of database.
+ *
+ * Functions to allow safe database modifications
+ * during upgrading and patches.
+ *
+ * Copyright (C) 2008-2012 Rod Roark <rod@sunsetsystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+ *
+ * @package   OpenEMR
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Teny <teny@zhservices.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @link      https://www.open-emr.org
+ */
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
-* Check if a Sql table exists.
-*
-* @param  string  $tblname  Sql Table Name
-* @return boolean           returns true if the sql table exists
-*/
+ * Check if a Sql table exists.
+ *
+ * @param string $tblname Sql Table Name
+ * @return boolean           returns true if the sql table exists
+ */
 function tableExists($tblname)
 {
     $row = sqlQuery("SHOW TABLES LIKE '$tblname'");
@@ -45,12 +46,12 @@ function tableExists($tblname)
 }
 
 /**
-* Check if a Sql column exists in a selected table.
-*
-* @param  string  $tblname  Sql Table Name
-* @param  string  $colname  Sql Column Name
-* @return boolean           returns true if the sql column exists
-*/
+ * Check if a Sql column exists in a selected table.
+ *
+ * @param string $tblname Sql Table Name
+ * @param string $colname Sql Column Name
+ * @return boolean           returns true if the sql column exists
+ */
 function columnExists($tblname, $colname)
 {
     $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
@@ -62,13 +63,13 @@ function columnExists($tblname, $colname)
 }
 
 /**
-* Check if a Sql column has a certain type.
-*
-* @param  string  $tblname  Sql Table Name
-* @param  string  $colname  Sql Column Name
-* @param  string  $coltype  Sql Column Type
-* @return boolean           returns true if the sql column is of the specified type
-*/
+ * Check if a Sql column has a certain type.
+ *
+ * @param string $tblname Sql Table Name
+ * @param string $colname Sql Column Name
+ * @param string $coltype Sql Column Type
+ * @return boolean           returns true if the sql column is of the specified type
+ */
 function columnHasType($tblname, $colname, $coltype)
 {
     $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
@@ -82,10 +83,10 @@ function columnHasType($tblname, $colname, $coltype)
 /**
  * Check if a Sql column has a certain type and a certain default value.
  *
- * @param  string $tblname      Sql Table Name
- * @param  string $colname      Sql Column Name
- * @param  string $coltype      Sql Column Type
- * @param  string $coldefault   Sql Column Default
+ * @param string $tblname    Sql Table Name
+ * @param string $colname    Sql Column Name
+ * @param string $coltype    Sql Column Type
+ * @param string $coldefault Sql Column Default
  * @return boolean              returns true if the sql column is of the specified type and default
  */
 function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
@@ -116,84 +117,84 @@ function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
 }
 
 /**
-* Check if a Sql row exists. (with one value)
-*
-* @param  string  $tblname  Sql Table Name
-* @param  string  $colname  Sql Column Name
-* @param  string  $value    Sql value
-* @return boolean           returns true if the sql row does exist
-*/
+ * Check if a Sql row exists. (with one value)
+ *
+ * @param string $tblname Sql Table Name
+ * @param string $colname Sql Column Name
+ * @param string $value   Sql value
+ * @return boolean           returns true if the sql row does exist
+ */
 function tableHasRow($tblname, $colname, $value)
 {
     $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
-    "$colname LIKE '$value'");
+        "$colname LIKE '$value'");
     return $row['count'] ? true : false;
 }
 
 /**
-* Check if a Sql row exists. (with two values)
-*
-* @param  string  $tblname   Sql Table Name
-* @param  string  $colname   Sql Column Name 1
-* @param  string  $value     Sql value 1
-* @param  string  $colname2  Sql Column Name 2
-* @param  string  $value2    Sql value 2
-* @return boolean            returns true if the sql row does exist
-*/
+ * Check if a Sql row exists. (with two values)
+ *
+ * @param string $tblname  Sql Table Name
+ * @param string $colname  Sql Column Name 1
+ * @param string $value    Sql value 1
+ * @param string $colname2 Sql Column Name 2
+ * @param string $value2   Sql value 2
+ * @return boolean            returns true if the sql row does exist
+ */
 function tableHasRow2D($tblname, $colname, $value, $colname2, $value2)
 {
     $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
-    "$colname LIKE '$value' AND $colname2 LIKE '$value2'");
+        "$colname LIKE '$value' AND $colname2 LIKE '$value2'");
     return $row['count'] ? true : false;
 }
 
 /**
-* Check if a Sql row exists. (with three values)
-*
-* @param  string  $tblname   Sql Table Name
-* @param  string  $colname   Sql Column Name 1
-* @param  string  $value     Sql value 1
-* @param  string  $colname2  Sql Column Name 2
-* @param  string  $value2    Sql value 2
-* @param  string  $colname3  Sql Column Name 3
-* @param  string  $value3    Sql value 3
-* @return boolean            returns true if the sql row does exist
-*/
+ * Check if a Sql row exists. (with three values)
+ *
+ * @param string $tblname  Sql Table Name
+ * @param string $colname  Sql Column Name 1
+ * @param string $value    Sql value 1
+ * @param string $colname2 Sql Column Name 2
+ * @param string $value2   Sql value 2
+ * @param string $colname3 Sql Column Name 3
+ * @param string $value3   Sql value 3
+ * @return boolean            returns true if the sql row does exist
+ */
 function tableHasRow3D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3)
 {
     $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
-    "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3'");
+        "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3'");
     return $row['count'] ? true : false;
 }
 
 /**
-* Check if a Sql row exists. (with four values)
-*
-* @param  string  $tblname   Sql Table Name
-* @param  string  $colname   Sql Column Name 1
-* @param  string  $value     Sql value 1
-* @param  string  $colname2  Sql Column Name 2
-* @param  string  $value2    Sql value 2
-* @param  string  $colname3  Sql Column Name 3
-* @param  string  $value3    Sql value 3
-* @param  string  $colname4  Sql Column Name 4
-* @param  string  $value4    Sql value 4
-* @return boolean            returns true if the sql row does exist
-*/
+ * Check if a Sql row exists. (with four values)
+ *
+ * @param string $tblname  Sql Table Name
+ * @param string $colname  Sql Column Name 1
+ * @param string $value    Sql value 1
+ * @param string $colname2 Sql Column Name 2
+ * @param string $value2   Sql value 2
+ * @param string $colname3 Sql Column Name 3
+ * @param string $value3   Sql value 3
+ * @param string $colname4 Sql Column Name 4
+ * @param string $value4   Sql value 4
+ * @return boolean            returns true if the sql row does exist
+ */
 function tableHasRow4D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3, $colname4, $value4)
 {
     $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
-    "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3' AND $colname4 LIKE '$value4'");
+        "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3' AND $colname4 LIKE '$value4'");
     return $row['count'] ? true : false;
 }
 
 /**
-* Check if a Sql table has a certain index/key.
-*
-* @param  string  $tblname  Sql Table Name
-* @param  string  $colname  Sql Index/Key
-* @return boolean           returns true if the sql tables has the specified index/key
-*/
+ * Check if a Sql table has a certain index/key.
+ *
+ * @param string $tblname Sql Table Name
+ * @param string $colname Sql Index/Key
+ * @return boolean           returns true if the sql tables has the specified index/key
+ */
 function tableHasIndex($tblname, $colname)
 {
     $row = sqlQuery("SHOW INDEX FROM `$tblname` WHERE `Key_name` = '$colname'");
@@ -205,23 +206,22 @@ function tableHasIndex($tblname, $colname)
  * Check if a table has a certain engine
  *
  * @param string $tblname database table Name
- * @param string $engine engine name ( myisam, memory, innodb )...
+ * @param string $engine  engine name ( myisam, memory, innodb )...
  * @return boolean true if the table has been created using specified engine
  */
 function tableHasEngine($tblname, $engine)
 {
-    $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', array($tblname,$engine ));
+    $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', array($tblname, $engine));
     return (empty($row)) ? false : true;
 }
 
 
-
 /**
-* Check if a list exists.
-*
-* @param  string  $option_id  Sql List Option ID
-* @return boolean           returns true if the list exists
-*/
+ * Check if a list exists.
+ *
+ * @param string $option_id Sql List Option ID
+ * @return boolean           returns true if the list exists
+ */
 function listExists($option_id)
 {
     $row = sqlQuery("SELECT * FROM list_options WHERE list_id = 'lists' AND option_id = ?", array($option_id));
@@ -231,17 +231,18 @@ function listExists($option_id)
 
     return true;
 }
+
 /**
-* Function to migrate the Clickoptions settings (if exist) from the codebase into the database.
-*  Note this function is only run once in the sql upgrade script (from 4.1.1 to 4.1.2) if the
-*  issue_types sql table does not exist.
-*/
+ * Function to migrate the Clickoptions settings (if exist) from the codebase into the database.
+ *  Note this function is only run once in the sql upgrade script (from 4.1.1 to 4.1.2) if the
+ *  issue_types sql table does not exist.
+ */
 function clickOptionsMigrate()
 {
-  // If the clickoptions.txt file exist, then import it.
+    // If the clickoptions.txt file exist, then import it.
     if (file_exists(dirname(__FILE__) . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt")) {
         $file_handle = fopen(dirname(__FILE__) . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt", "rb");
-        $seq  = 10;
+        $seq = 10;
         $prev = '';
         echo "Importing clickoption setting<br />";
         while (!feof($file_handle)) {
@@ -259,7 +260,7 @@ function clickOptionsMigrate()
             $parts[1] = trim(str_replace("\r\n", "", $parts[1]));
             if ($parts[0] != $prev) {
                 $sql1 = "INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES (?,?,?)";
-                SqlStatement($sql1, array('lists',$parts[0] . '_issue_list',ucwords(str_replace("_", " ", $parts[0])) . ' Issue List'));
+                SqlStatement($sql1, array('lists', $parts[0] . '_issue_list', ucwords(str_replace("_", " ", $parts[0])) . ' Issue List'));
                 $seq = 10;
             }
 
@@ -272,10 +273,11 @@ function clickOptionsMigrate()
         fclose($file_handle);
     }
 }
+
 /**
-*  Function to create list Occupation.
-*  Note this function is only run once in the sql upgrade script  if the list Occupation does not exist
-*/
+ *  Function to create list Occupation.
+ *  Note this function is only run once in the sql upgrade script  if the list Occupation does not exist
+ */
 function CreateOccupationList()
 {
     $res = sqlStatement("SELECT DISTINCT occupation FROM patient_data WHERE occupation <> ''");
@@ -292,10 +294,11 @@ function CreateOccupationList()
         }
     }
 }
+
 /**
-*  Function to create list reaction.
-*  Note this function is only run once in the sql upgrade script  if the list reaction does not exist
-*/
+ *  Function to create list reaction.
+ *  Note this function is only run once in the sql upgrade script  if the list reaction does not exist
+ */
 function CreateReactionList()
 {
     $res = sqlStatement("SELECT DISTINCT reaction FROM lists WHERE reaction <> ''");
@@ -385,7 +388,7 @@ function getTablesList($arg = array())
 
     $records = array();
     while ($row = sqlFetchArray($res)) {
-        $records[ $row['table_name'] ] = $row['table_name'];
+        $records[$row['table_name']] = $row['table_name'];
     }
 
     return $records;
@@ -410,11 +413,11 @@ function convertLayoutProperties()
     while ($row = sqlFetchArray($res)) {
         $form_id = $row['form_id'];
         $props = array(
-        'title'    => 'Unknown',
-        'mapping'  => 'Core',
-        'notes'    => '',
-        'activity' => '1',
-        'option_value' => '0',
+            'title' => 'Unknown',
+            'mapping' => 'Core',
+            'notes' => '',
+            'activity' => '1',
+            'option_value' => '0',
         );
         if (substr($form_id, 0, 3) == 'LBF') {
             $props = sqlQuery(
@@ -453,12 +456,12 @@ function convertLayoutProperties()
         }
 
         $query = "INSERT INTO layout_group_properties SET " .
-        "grp_form_id = ?, " .
-        "grp_group_id = '', " .
-        "grp_title = ?, " .
-        "grp_mapping = ?, " .
-        "grp_activity = ?, " .
-        "grp_repeats = ?";
+            "grp_form_id = ?, " .
+            "grp_group_id = '', " .
+            "grp_title = ?, " .
+            "grp_mapping = ?, " .
+            "grp_activity = ?, " .
+            "grp_repeats = ?";
         $sqlvars = array($form_id, $props['title'], $props['mapping'], $props['activity'], $props['option_value']);
         if ($props['notes']) {
             $jobj = json_decode($props['notes'], true);
@@ -480,17 +483,17 @@ function convertLayoutProperties()
             }
             if (isset($jobj['services'])) {
                 $query .= ", grp_services = ?";
-              // if present but empty, means all services
+                // if present but empty, means all services
                 $sqlvars[] = $jobj['services'] ? $jobj['services'] : '*';
             }
             if (isset($jobj['products'])) {
                 $query .= ", grp_products = ?";
-              // if present but empty, means all products
+                // if present but empty, means all products
                 $sqlvars[] = $jobj['products'] ? $jobj['products'] : '*';
             }
             if (isset($jobj['diags'])) {
                 $query .= ", grp_diags = ?";
-              // if present but empty, means all diags
+                // if present but empty, means all diags
                 $sqlvars[] = $jobj['diags'] ? $jobj['diags'] : '*';
             }
         }
@@ -501,7 +504,7 @@ function convertLayoutProperties()
             array($form_id)
         );
 
-      // For each group within this layout...
+        // For each group within this layout...
         while ($grow = sqlFetchArray($gres)) {
             $group_name = $grow['group_name'];
             $group_id = '';
@@ -516,12 +519,12 @@ function convertLayoutProperties()
                 array($group_id, $form_id, $group_name)
             );
             $query = "INSERT IGNORE INTO layout_group_properties SET " .
-            "grp_form_id = ?, " .
-            "grp_group_id = ?, " .
-            "grp_title = '" . add_escape_custom($title) . "'";
-          // grp_title not using $sqlvars because of a bug causing '' to become '0'.
+                "grp_form_id = ?, " .
+                "grp_group_id = ?, " .
+                "grp_title = '" . add_escape_custom($title) . "'";
+            // grp_title not using $sqlvars because of a bug causing '' to become '0'.
             $sqlvars = array($form_id, $group_id);
-          /****************************************************************
+            /****************************************************************
           if ($props['notes']) {
             if (isset($jobj['columns'])) {
               $query .= ", grp_columns = ?";
@@ -532,134 +535,134 @@ function convertLayoutProperties()
               $sqlvars[] = $jobj['size'];
             }
           }
-          ****************************************************************/
-          // echo $query; foreach ($sqlvars as $tmp) echo " '$tmp'"; echo "<br />\n"; // debugging
+             ****************************************************************/
+            // echo $query; foreach ($sqlvars as $tmp) echo " '$tmp'"; echo "<br />\n"; // debugging
             sqlStatement($query, $sqlvars);
         } // end group
     } // end form
 }
 
 /**
-* Upgrade or patch the database with a selected upgrade/patch file.
-*
-* The following "functions" within the selected file will be processed:
-*
-* #IfNotTable
-*   argument: table_name
-*   behavior: if the table_name does not exist,  the block will be executed
-*
-* #IfTable
-*   argument: table_name
-*   behavior: if the table_name does exist, the block will be executed
-*
-* #IfColumn
-*   arguments: table_name colname
-*   behavior:  if the table and column exist,  the block will be executed
-*
-* #IfMissingColumn
-*   arguments: table_name colname
-*   behavior:  if the table exists but the column does not,  the block will be executed
-*
-* #IfNotColumnType
-*   arguments: table_name colname value
-*   behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
-*
-* #IfNotColumnTypeDefault
-*   arguments: table_name colname value value2
-*   behavior:  If the table table_name does not have a column colname with a data type equal to value and a default equal to value2, then the block will be executed
-*
-* #IfNotRow
-*   arguments: table_name colname value
-*   behavior:  If the table table_name does not have a row where colname = value, the block will be executed.
-*
-* #IfNotRow2D
-*   arguments: table_name colname value colname2 value2
-*   behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2, the block will be executed.
-*
-* #IfNotRow3D
-*   arguments: table_name colname value colname2 value2 colname3 value3
-*   behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2 AND colname3 = value3, the block will be executed.
-*
-* #IfNotRow4D
-*   arguments: table_name colname value colname2 value2 colname3 value3 colname4 value4
-*   behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2 AND colname3 = value3 AND colname4 = value4, the block will be executed.
-*
-* #IfNotRow2Dx2
-*   desc:      This is a very specialized function to allow adding items to the list_options table to avoid both redundant option_id and title in each element.
-*   arguments: table_name colname value colname2 value2 colname3 value3
-*   behavior:  The block will be executed if both statements below are true:
-*              1) The table table_name does not have a row where colname = value AND colname2 = value2.
-*              2) The table table_name does not have a row where colname = value AND colname3 = value3.
-*
-* #IfRow
-*   arguments: table_name colname value
-*   behavior:  If the table table_name does have a row where colname = value, the block will be executed.
-*
-* #IfRow2D
-*   arguments: table_name colname value colname2 value2
-*   behavior:  If the table table_name does have a row where colname = value AND colname2 = value2, the block will be executed.
-*
-* #IfRow3D
-*   arguments: table_name colname value colname2 value2 colname3 value3
-*   behavior:  If the table table_name does have a row where colname = value AND colname2 = value2 AND colname3 = value3, the block will be executed.
-*
-* #IfIndex
-*   desc:      This function is most often used for dropping of indexes/keys.
-*   arguments: table_name colname
-*   behavior:  If the table and index exist the relevant statements are executed, otherwise not.
-*
-* #IfNotIndex
-*   desc:      This function will allow adding of indexes/keys.
-*   arguments: table_name colname
-*   behavior:  If the index does not exist, it will be created
-*
-* #IfUuidNeedUpdate
-*   argument: table_name
-*   behavior: this will add and populate a uuid column into table
-*
-*  #IfUuidNeedUpdateId
-*   argument: table_name primary_id
-*   behavior: this will add and populate a uuid column into table
-*
-* #IfUuidNeedUpdateVertical
-*   argument: table_name table_columns
-*   behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
-*
-* #IfNotMigrateClickOptions
-*   Custom function for the importing of the Clickoptions settings (if exist) from the codebase into the database
-*
-* #IfNotListOccupation
-* Custom function for creating Occupation List
-*
-* #IfNotListReaction
-* Custom function for creating Reaction List
-*
-* #IfNotWenoRx
-* Custom function for importing new drug data
-*
-* #IfTextNullFixNeeded
-*   desc: convert all text fields without default null to have default null.
-*   arguments: none
-*
-* #IfTableEngine
-*   desc:      Execute SQL if the table has been created with given engine specified.
-*   arguments: table_name engine
-*   behavior:  Use when engine conversion requires more than one ALTER TABLE
-*
-* #IfInnoDBMigrationNeeded
-*   desc: find all MyISAM tables and convert them to InnoDB.
-*   arguments: none
-*   behavior: can take a long time.
-*
+ * Upgrade or patch the database with a selected upgrade/patch file.
+ *
+ * The following "functions" within the selected file will be processed:
+ *
+ * #IfNotTable
+ *   argument: table_name
+ *   behavior: if the table_name does not exist,  the block will be executed
+ *
+ * #IfTable
+ *   argument: table_name
+ *   behavior: if the table_name does exist, the block will be executed
+ *
+ * #IfColumn
+ *   arguments: table_name colname
+ *   behavior:  if the table and column exist,  the block will be executed
+ *
+ * #IfMissingColumn
+ *   arguments: table_name colname
+ *   behavior:  if the table exists but the column does not,  the block will be executed
+ *
+ * #IfNotColumnType
+ *   arguments: table_name colname value
+ *   behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
+ *
+ * #IfNotColumnTypeDefault
+ *   arguments: table_name colname value value2
+ *   behavior:  If the table table_name does not have a column colname with a data type equal to value and a default equal to value2, then the block will be executed
+ *
+ * #IfNotRow
+ *   arguments: table_name colname value
+ *   behavior:  If the table table_name does not have a row where colname = value, the block will be executed.
+ *
+ * #IfNotRow2D
+ *   arguments: table_name colname value colname2 value2
+ *   behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2, the block will be executed.
+ *
+ * #IfNotRow3D
+ *   arguments: table_name colname value colname2 value2 colname3 value3
+ *   behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2 AND colname3 = value3, the block will be executed.
+ *
+ * #IfNotRow4D
+ *   arguments: table_name colname value colname2 value2 colname3 value3 colname4 value4
+ *   behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2 AND colname3 = value3 AND colname4 = value4, the block will be executed.
+ *
+ * #IfNotRow2Dx2
+ *   desc:      This is a very specialized function to allow adding items to the list_options table to avoid both redundant option_id and title in each element.
+ *   arguments: table_name colname value colname2 value2 colname3 value3
+ *   behavior:  The block will be executed if both statements below are true:
+ *              1) The table table_name does not have a row where colname = value AND colname2 = value2.
+ *              2) The table table_name does not have a row where colname = value AND colname3 = value3.
+ *
+ * #IfRow
+ *   arguments: table_name colname value
+ *   behavior:  If the table table_name does have a row where colname = value, the block will be executed.
+ *
+ * #IfRow2D
+ *   arguments: table_name colname value colname2 value2
+ *   behavior:  If the table table_name does have a row where colname = value AND colname2 = value2, the block will be executed.
+ *
+ * #IfRow3D
+ *   arguments: table_name colname value colname2 value2 colname3 value3
+ *   behavior:  If the table table_name does have a row where colname = value AND colname2 = value2 AND colname3 = value3, the block will be executed.
+ *
+ * #IfIndex
+ *   desc:      This function is most often used for dropping of indexes/keys.
+ *   arguments: table_name colname
+ *   behavior:  If the table and index exist the relevant statements are executed, otherwise not.
+ *
+ * #IfNotIndex
+ *   desc:      This function will allow adding of indexes/keys.
+ *   arguments: table_name colname
+ *   behavior:  If the index does not exist, it will be created
+ *
+ * #IfUuidNeedUpdate
+ *   argument: table_name
+ *   behavior: this will add and populate a uuid column into table
+ *
+ *  #IfUuidNeedUpdateId
+ *   argument: table_name primary_id
+ *   behavior: this will add and populate a uuid column into table
+ *
+ * #IfUuidNeedUpdateVertical
+ *   argument: table_name table_columns
+ *   behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
+ *
+ * #IfNotMigrateClickOptions
+ *   Custom function for the importing of the Clickoptions settings (if exist) from the codebase into the database
+ *
+ * #IfNotListOccupation
+ * Custom function for creating Occupation List
+ *
+ * #IfNotListReaction
+ * Custom function for creating Reaction List
+ *
+ * #IfNotWenoRx
+ * Custom function for importing new drug data
+ *
+ * #IfTextNullFixNeeded
+ *   desc: convert all text fields without default null to have default null.
+ *   arguments: none
+ *
+ * #IfTableEngine
+ *   desc:      Execute SQL if the table has been created with given engine specified.
+ *   arguments: table_name engine
+ *   behavior:  Use when engine conversion requires more than one ALTER TABLE
+ *
+ * #IfInnoDBMigrationNeeded
+ *   desc: find all MyISAM tables and convert them to InnoDB.
+ *   arguments: none
+ *   behavior: can take a long time.
+ *
 * #IfDocumentNamingNeeded
 *  desc: populate name field with document names.
 *  arguments: none
 *
-* #EndIf
-*   all blocks are terminated with a #EndIf statement.
-*
-* @param  string  $filename  Sql upgrade/patch filename
-*/
+ * #EndIf
+ *   all blocks are terminated with a #EndIf statement.
+ *
+ * @param string $filename Sql upgrade/patch filename
+ */
 function upgradeFromSqlFile($filename, $path = '')
 {
     global $webserver_root;
@@ -667,7 +670,9 @@ function upgradeFromSqlFile($filename, $path = '')
     flush();
     echo "<p class='text-success'>Processing $filename ...</p>\n";
 
-    $fullname = ( (!empty($path) && is_dir($path)) ? $path : $webserver_root) . "/sql/$filename";
+    $fullname = ((!empty($path) && is_dir($path)) ? $path : $webserver_root) . "/sql/$filename";
+    $file_size = filesize($fullname);
+    $progress = 0;
 
     $fd = fopen($fullname, 'r');
     if ($fd == false) {
@@ -683,7 +688,9 @@ function upgradeFromSqlFile($filename, $path = '')
     while (!feof($fd)) {
         $line = fgets($fd, 2048);
         $line = rtrim($line);
-
+        $progress += strlen($line);
+        $progress_stat = 100 - round((($file_size - $progress) / $file_size) * 100, 0);
+        echo "<script>processProgress = $progress_stat;</script>";
         if (preg_match('/^\s*--/', $line)) {
             continue;
         }
@@ -698,7 +705,7 @@ function upgradeFromSqlFile($filename, $path = '')
                 echo "<p class='text-success'>Skipping section $line</p>\n";
             }
         } elseif (preg_match('/^#IfTable\s+(\S+)/', $line, $matches)) {
-            $skipping = ! tableExists($matches[1]);
+            $skipping = !tableExists($matches[1]);
             if ($skipping) {
                 echo "<p class='text-success'>Skipping section $line</p>\n";
             }
@@ -828,13 +835,13 @@ function upgradeFromSqlFile($filename, $path = '')
             }
         } elseif (preg_match('/^#IfNotRow2Dx2\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
-            // If either check exist, then will skip
+                // If either check exist, then will skip
                 $firstCheck = tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
                 $secondCheck = tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[6], $matches[7]);
                 if ($firstCheck || $secondCheck) {
                     $skipping = true;
                 } else {
-                      $skipping = false;
+                    $skipping = false;
                 }
             } else {
                 // If no such table then the row is deemed not "missing".
@@ -944,25 +951,25 @@ function upgradeFromSqlFile($filename, $path = '')
         } elseif (preg_match('/^#IfTextNullFixNeeded/', $line)) {
             $items_to_convert = sqlStatement(
                 "SELECT col.`table_name`, col.`column_name`, col.`data_type`, col.`column_comment`
-          FROM `information_schema`.`columns` col INNER JOIN `information_schema`.`tables` tab
-          ON tab.TABLE_CATALOG=col.TABLE_CATALOG AND tab.table_schema=col.table_schema AND tab.table_name=col.table_name
-          WHERE col.`data_type` IN ('tinytext', 'text', 'mediumtext', 'longtext')
-          AND col.is_nullable='NO' AND col.table_schema=database() AND tab.table_type='BASE TABLE'"
+      FROM `information_schema`.`columns` col INNER JOIN `information_schema`.`tables` tab
+      ON tab.TABLE_CATALOG=col.TABLE_CATALOG AND tab.table_schema=col.table_schema AND tab.table_name=col.table_name
+      WHERE col.`data_type` IN ('tinytext', 'text', 'mediumtext', 'longtext')
+      AND col.is_nullable='NO' AND col.table_schema=database() AND tab.table_type='BASE TABLE'"
             );
             if (sqlNumRows($items_to_convert) == 0) {
                 $skipping = true;
             } else {
                 $skipping = false;
-                echo '<p>Starting conversion of *TEXT types to use default NULL.</p>',"\n";
+                echo '<p>Starting conversion of *TEXT types to use default NULL.</p>', "\n";
                 while ($item = sqlFetchArray($items_to_convert)) {
                     if (!empty($item['column_comment'])) {
-                        $res = sqlStatement("ALTER TABLE `" . add_escape_custom($item['table_name']) . "` MODIFY `" . add_escape_custom($item['column_name']) . "` " . add_escape_custom($item['data_type'])  . " COMMENT '" . add_escape_custom($item['column_comment']) . "'");
+                        $res = sqlStatement("ALTER TABLE `" . add_escape_custom($item['table_name']) . "` MODIFY `" . add_escape_custom($item['column_name']) . "` " . add_escape_custom($item['data_type']) . " COMMENT '" . add_escape_custom($item['column_comment']) . "'");
                     } else {
                         $res = sqlStatement("ALTER TABLE `" . add_escape_custom($item['table_name']) . "` MODIFY `" . add_escape_custom($item['column_name']) . "` " . add_escape_custom($item['data_type']));
                     }
 
                     // If above query didn't work, then error will be outputted via the sqlStatement function.
-                    echo "<p class='text-success'>" . text($item['table_name']) . "." . text($item['column_name'])  . " sql column was successfully converted to " . text($item['data_type']) . " with default NULL setting.</p>\n";
+                    echo "<p class='text-success'>" . text($item['table_name']) . "." . text($item['column_name']) . " sql column was successfully converted to " . text($item['data_type']) . " with default NULL setting.</p>\n";
                 }
             }
 
@@ -985,7 +992,7 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = true;
             } else {
                 $skipping = false;
-                echo '<p>Starting migration to InnoDB, please wait.</p>',"\n";
+                echo '<p>Starting migration to InnoDB, please wait.</p>', "\n";
                 foreach ($tables_list as $k => $t) {
                     if (in_array($t, $tables_skip_migration)) {
                         printf('<p class="text-success">Table %s was purposefully skipped and NOT migrated to InnoDB.</p>', $t);
@@ -1095,8 +1102,9 @@ function upgradeFromSqlFile($filename, $path = '')
             $query = rtrim($query, ';');
             echo "$query<br />\n";
             if (!sqlStatement($query)) {
+                /* don't see how we'd ever get here! */
                 echo "<p class='text-danger'>The above statement failed: " .
-                getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n";
+                    getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n";
             }
 
             $query = '';

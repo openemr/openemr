@@ -22,6 +22,7 @@ class ModulesApplication
 {
     /**
      * The application reference pointer for the zend mvc modules application
+     *
      * @var Application
      *
      */
@@ -75,21 +76,25 @@ class ModulesApplication
         $resultSet = sqlStatementNoLog($statement = "SELECT mod_name, mod_directory FROM modules WHERE mod_active = 1 AND type != 1 ORDER BY `mod_ui_order`, `date`");
         $db_modules = [];
         while ($row = sqlFetchArray($resultSet)) {
-            $db_modules[] = ["name" => $row["mod_name"], "directory" => $row['mod_directory'], "path" => $customModulePath . $row['mod_directory']];
+            if (is_readable($customModulePath . $row['mod_directory'] . '/' . attr(self::CUSTOM_MODULE_BOOSTRAP_NAME))) {
+                $db_modules[] = ["name" => $row["mod_name"], "directory" => $row['mod_directory'], "path" => $customModulePath . $row['mod_directory']];
+            } else {
+                // no reason to try and include a missing bootstrap
+                // notify user and move on...
+                error_log("Custom module " . errorLogEscape($customModulePath . $row['mod_directory'])
+                    . '/' . self::CUSTOM_MODULE_BOOSTRAP_NAME
+                    . " is enabled but not installed. Install or disable in module manager.");
+            }
         }
         foreach ($db_modules as $module) {
             $this->loadCustomModule($module, $eventDispatcher);
         }
         // TODO: stephen we should fire an event saying we've now loaded all the modules here.
+        // Unsure who'd be listening or care.
     }
 
     private function loadCustomModule($module, $eventDispatcher)
     {
-        if (!is_readable($module['path'] . '/' . attr(self::CUSTOM_MODULE_BOOSTRAP_NAME))) {
-            error_log("Custom module file path " . errorLogEscape($module['path'])
-                . '/' . self::CUSTOM_MODULE_BOOSTRAP_NAME
-                . " is not readable.  Check directory permissions");
-        }
         try {
             // the only thing in scope here is $module and $eventDispatcher which is ok for our bootstrap piece.
             // do we really want to just include a file??  Should we go all zend and actually force a class instantiation

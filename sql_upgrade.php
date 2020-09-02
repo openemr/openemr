@@ -11,8 +11,10 @@
 // Its purpose is to upgrade the MySQL OpenEMR database as needed
 // for the new release.
 
+/* @TODO add language selection. needs RTL testing */
+
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/src/Common/Compatibility/Checker.php");
+require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
@@ -50,12 +52,12 @@ $GLOBALS["enable_auditlog"] = 0;
 $versions = array();
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
-if (! $dh) {
+if (!$dh) {
     die("Cannot read $sqldir");
 }
 
 while (false !== ($sfname = readdir($dh))) {
-    if (substr($sfname, 0, 1) == '.') {
+    if ($sfname[0] === '.') {
         continue;
     }
 
@@ -70,52 +72,141 @@ ksort($versions);
 ?>
 <html>
 <head>
-<title>OpenEMR Database Upgrade</title>
+    <title>OpenEMR Database Upgrade</title>
     <?php Header::setupHeader(); ?>
     <link rel="shortcut icon" href="public/images/favicon.ico" />
+    <script>
+        let processProgress = 0;
+        let doPoll = 1;
+        // the magic that is JS...
+        // doPoll gets reset to stop polling when progress
+        // exceeds 98% or end of upgrade script. New script restarts.
+        async function serverStatus() {
+            let url = "library/ajax/sql_server_status.php?poll=";
+            url += encodeURIComponent(doPoll);
+            let response = await fetch(url);
+
+            if (response.status === 502) {
+                // connection timeout, just reconnect
+                if (doPoll) {
+                    await serverStatus();
+                }
+            } else if (response.status !== 200) {
+                // show error
+                progressStatus(response.statusText);
+                // reconnect in one second
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                if (doPoll) {
+                    await serverStatus();
+                }
+            } else {
+                // await status
+                let status = await response.text();
+                // display to screen div
+                progressStatus(status);
+                // and so forth.
+                if (doPoll) {
+                    await serverStatus();
+                } else {
+                    progressStatus("<li>Done this upgrade</li>");
+                }
+            }
+        }
+
+
+        function progressStatus(msg) {
+            if (processProgress > 98) {
+                doPoll = 0;
+                processProgress = 100;
+            }
+            let eventList = document.getElementById('status-message');
+            let progressEl = document.getElementById('progress');
+            progressEl.style.width = processProgress + "%";
+            progressEl.innerHTML = processProgress + "%";
+            eventList.innerHTML += msg;
+        }
+
+        function setWarnings(othis) {
+            if (othis.value < '5.0.0') {
+                document.querySelector('.version-warning').classList.remove("d-none");
+            } else {
+                document.querySelector('.version-warning').classList.add("d-none");
+            }
+        }
+
+        window.onload = (event) => {
+            // I'll eventually find a reason to use this!
+        }
+    </script>
 </head>
 <body>
-    <div class="container mt-3">
+    <div class="container my-3">
         <div class="row">
             <div class="col-12">
-                <h2>OpenEMR Database Upgrade</h2>
+                <h2><?php echo xlt("OpenEMR Database Upgrade"); ?></h2>
             </div>
         </div>
-        <div class="jumbotron p-4">
+        <div>
             <form class="form-inline" method='post' action='sql_upgrade.php'>
-                <div class="form-group mb-3">
-                    <label>Please select the prior release you are converting from:</label>
-                    <select class='ml-3 form-control' name='form_old_version'>
+                <div class="form-group mb-1">
+                    <label><?php echo xlt("Please select the prior release you are converting from"); ?>:</label>
+                    <select class='mx-3 form-control' name='form_old_version' onchange="setWarnings(this)">
                         <?php
+                        $cnt_versions = count($versions);
                         foreach ($versions as $version => $filename) {
+                            --$cnt_versions;
                             echo " <option value='$version'";
-                            // Defaulting to most recent version, which is now 5.0.2.
-                            if ($version === '5.0.2') {
+                            // Defaulting to most recent version or last version in list.
+                            if ($cnt_versions === 0) {
                                 echo " selected";
                             }
                             echo ">$version</option>\n";
                         }
                         ?>
                     </select>
+                    <span><?php echo xlt("If you are unsure or were using a development version between two releases, then choose the older of possible releases"); ?>.</span>
                 </div>
-                <p>If you are unsure or were using a development version between two
-                    releases, then choose the older of possible releases.</p>
-                <p class="text-danger">If you are upgrading from a version below 5.0.0 to version 5.0.0 or greater, do note that this upgrade can take anywhere from several minutes to several hours (you will only see a whitescreen until it is complete; do not stop the script before it is complete or you risk corrupting your data).</p>
-                <button type='submit' class='btn btn-primary btn-transmit' name='form_submit' value='Upgrade Database'>Upgrade Database</button>
+                <span class="alert alert-warning text-danger version-warning d-none">
+                    <?php echo xlt("If you are upgrading from a version below 5.0.0 to version 5.0.0 or greater, do note that this upgrade can take anywhere from several minutes to several hours (you will only see a whitescreen until it is complete; do not stop the script before it is complete or you risk corrupting your data)"); ?>.</span>
+                <button type='submit' class='btn btn-primary btn-transmit' name='form_submit' value='Upgrade Database'>
+                    <?php echo xlt("Upgrade Database"); ?>
+                </button>
+                <div class="btn-group">
+                </div>
             </form>
+            <!-- server status card -->
+            <div class="card card-header">
+                <a class="btn btn-primary" data-toggle="collapse" href="#serverStatus">
+                    <?php echo xlt("Server Status"); ?><i class="fas fa-angle-down rotate-icon float-right"></i>
+                </a>
+            </div>
+            <div id="serverStatus" class="card card-body pb-2 h-25 overflow-auto collapse">
+                <div class="bg-light text-dark">
+                    <ul id="status-message"></ul>
+                </div>
+            </div>
         </div>
-
-        <?php
-        if (!empty($_POST['form_submit'])) {
-            echo '<div class="jumbotron p-4">';
+        <!-- collapse place holder for upgrade processing on submit. -->
+        <div class="card card-header">
+            <a class="btn btn-primary" data-toggle="collapse" href="#processDetails">
+                <?php echo xlt("Processing Details"); ?><i class="fas fa-angle-down rotate-icon float-right"></i>
+            </a>
+            <div id="progress-div" class="bg-secondary float-left">
+                <div id="progress" class="progress-bar bg-success" style="height:1rem;width:0;"></div>
+            </div>
+        </div>
+        <div id='processDetails' class='card card-body pb-2 h-50 overflow-auto collapse show'>
+            <div class='bg-light text-dark'>
+        <?php if (!empty($_POST['form_submit'])) {
             $form_old_version = $_POST['form_old_version'];
 
             foreach ($versions as $version => $filename) {
                 if (strcmp($version, $form_old_version) < 0) {
                     continue;
                 }
-
+                echo "<script>serverStatus();</script>";
                 upgradeFromSqlFile($filename);
+                echo "<script>doPoll = 0;</script>";
             }
 
             if (!empty($GLOBALS['ippf_specific'])) {
@@ -125,12 +216,14 @@ ksort($versions);
 
             if ((!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0)) {
                 // This release contains a patch file, so process it.
+                echo "<script>serverStatus();</script>";
                 upgradeFromSqlFile('patch.sql');
+                echo "<script>doPoll = 0;</script>";
             }
 
             flush();
 
-            echo "<p class='text-success'>Updating global configuration defaults...</p><br />\n";
+            echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
             $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
             require_once("library/globals.inc.php");
             foreach ($GLOBALS_METADATA as $grpname => $grparr) {
@@ -140,13 +233,13 @@ ksort($versions);
                         $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
                         if (empty($row['count'])) {
                             sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                            "VALUES ( '$fldid', '0', '$flddef' )");
+                                "VALUES ( '$fldid', '0', '$flddef' )");
                         }
                     }
                 }
             }
 
-            echo "<p class='text-success'>Updating Access Controls...</p><br />\n";
+            echo "<p class='text-success'>" . xlt("Updating Access Controls") . "..." . "</p><br />\n";
             require("acl_upgrade.php");
             echo "<br />\n";
 
@@ -154,22 +247,24 @@ ksort($versions);
             $line = "Updating version indicators";
 
             if ($canRealPatchBeApplied) {
-                $line = $line . ". Patch was also installed, updating version patch indicator";
+                $line = $line . ". " . xlt("Patch was also installed, updating version patch indicator");
             }
 
             echo "<p class='text-success'>" . $line . "...</p><br />\n";
             $result = $versionService->update($desiredVersion);
 
             if (!$result) {
-                echo "<p class='text-danger'>Version could not be updated</p><br />\n";
+                echo "<p class='text-danger'>" . xlt("Version could not be updated") . "</p><br />\n";
                 exit();
             }
 
-            echo "<p><p class='text-success'>Database and Access Control upgrade finished.</p></p>\n";
+            echo "<p><p class='text-success'>" . xlt("Database and Access Control upgrade finished.") . "</p></p>\n";
             echo "</div></body></html>\n";
             exit();
         }
         ?>
+            </div>
+        </div>
     </div>
 </body>
 </html>
