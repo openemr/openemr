@@ -1348,6 +1348,47 @@ function generate_form_field($frow, $currvalue)
         echo "<img class='signature' id='form_{$field_id_esc}_img' title='$description'
             data-pid='$cpid' data-user='$cuser' data-type='$datatype'
             data-action='fetch_signature' alt='Get Signature' src='" . attr($currvalue) . "'>\n";
+    } elseif ($data_type == 44) { //multiple select facility
+        if (empty($currvalue)) {
+            $currvalue = 0;
+        }
+
+        dropdown_facility(
+            $selected = $currvalue,
+            $name = "form_$field_id_esc",
+            $allow_unspecified = false,
+            $allow_allfacilities = false,
+            $disabled,
+            $lbfchange,
+            true
+        );
+    } elseif ($data_type == 45) { // Multiple provider list, local providers only
+        $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
+        "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+        "AND authorized = 1 ORDER BY lname, fname");
+        echo "<select name='form_$field_id_esc" . "[]'" . " id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform  select-dropdown'  multiple='multiple'>";
+        $got_selected = false;
+        while ($urow = sqlFetchArray($ures)) {
+            $uname = text($urow['fname'] . ' ' . $urow['lname']);
+            $optionId = attr($urow['id']);
+            echo "<option value='$optionId'";
+            $selectedValues = explode("|", $currvalue);
+
+            if (in_array($optionId, $selectedValues)) {
+                echo " selected";
+                $got_selected = true;
+            }
+
+            echo ">$uname</option>";
+        }
+
+        if (!$got_selected && $currvalue) {
+            echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
+            echo "</select>";
+            echo " <span class='text-danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
+        } else {
+            echo "</select>";
+        }
     }
 }
 
@@ -2026,6 +2067,36 @@ function generate_print_field($frow, $currvalue)
         if ($currvalue) {
             echo "<img class='w-auto' style='height: 70px;' src='" . attr($currvalue) . "'>";
         }
+    } elseif ($data_type == 44 || $data_type == 45) {
+        $tmp = '';
+
+        $values_array = explode("|", $currvalue);
+
+        $i = 0;
+        foreach ($values_array as $value) {
+            if ($value) {
+                if ($data_type == 44) {
+                    $lrow = sqlQuery("SELECT name as name FROM facility WHERE id = ?", array($value));
+                }
+                if ($data_type == 45) {
+                    $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", array($value));
+                }
+                $tmp = xl_list_label($lrow['name']);
+            }
+
+            if ($tmp === '') {
+                $tmp = '&nbsp;';
+            } else {
+                $tmp = htmlspecialchars($tmp, ENT_QUOTES);
+            }
+
+            if ($i != 0 && $tmp != '&nbsp;') {
+                echo ",";
+            }
+
+            echo $tmp;
+                $i++;
+        }
     }
 }
 
@@ -2465,6 +2536,23 @@ function generate_display_field($frow, $currvalue)
         if ($currvalue) {
             $s .= "<img class='w-auto' style='height: 70px;' src='" . attr($currvalue) . "'>";
         }
+    } elseif ($data_type == 44 || $data_type == 45) { // Multiple select facility and provider
+        $values_array = explode("|", $currvalue);
+        $i = 0;
+        foreach ($values_array as $value) {
+            if ($data_type == 44) {
+                $lrow = sqlQuery("SELECT name as name FROM facility WHERE id = ?", array($value));
+            }
+            if ($data_type == 45) {
+                $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", array($value));
+            }
+            if ($i > 0) {
+                  $s = $s . ", " . htmlspecialchars(xl_list_label($lrow['name']), ENT_NOQUOTES);
+            } else {
+                $s = htmlspecialchars(xl_list_label($lrow['name']), ENT_NOQUOTES);
+            }
+            $i++;
+        }
     }
 
     return $s;
@@ -2756,6 +2844,26 @@ function generate_plaintext_field($frow, $currvalue)
                   $s = $s . ", " . xl_list_label($lrow['title']);
             } else {
                 $s = xl_list_label($lrow['title']);
+            }
+
+            $i++;
+        }
+    } elseif ($data_type == 44 || $data_type == 45) {
+        $values_array = explode("|", $currvalue);
+
+        $i = 0;
+        foreach ($values_array as $value) {
+            if ($data_type == 44) {
+                $lrow = sqlQuery("SELECT name as name FROM facility WHERE id = ?", array($value));
+            }
+            if ($data_type == 45) {
+                $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", array($value));
+            }
+
+            if ($i > 0) {
+                $s = $s . ", " . xl_list_label($lrow['name']);
+            } else {
+                $s = xl_list_label($lrow['name']);
             }
 
             $i++;
@@ -3513,7 +3621,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
             } else {
                 $value = "$resnote|$restype|$resdate";
             }
-        } elseif ($data_type == 36) {
+        } elseif ($data_type == 36 || $data_type == 44 || $data_type == 45) {
             $value_array = $_POST["form_$field_id"];
             $i = 0;
             foreach ($value_array as $key => $valueofkey) {
@@ -3660,17 +3768,30 @@ function dropdown_facility(
     $allow_unspecified = true,
     $allow_allfacilities = true,
     $disabled = '',
-    $onchange = ''
+    $onchange = '',
+    $multiple = false
 ) {
 
     global $facilityService;
 
     $have_selected = false;
     $fres = $facilityService->getAllFacility();
+    $id = $name;
 
-    echo "   <select class='form-control' name='" . attr($name) . "' id='" . attr($name) . "'";
+    if ($multiple) {
+        $name = $name . "[]";
+    }
+    echo "   <select class='form-control";
+    if ($multiple) {
+        echo " select-dropdown";
+    }
+    echo "' name='" . attr($name) . "' id='" . attr($id) . "'";
     if ($onchange) {
         echo " onchange='$onchange'";
+    }
+
+    if ($multiple) {
+        echo " multiple='multiple'";
     }
 
     echo " $disabled>\n";
@@ -3701,9 +3822,18 @@ function dropdown_facility(
         $facility_id = $frow['id'];
         $option_value = $facility_id;
         $option_selected_attr = '';
-        if ($selected == $facility_id) {
-            $option_selected_attr = ' selected="selected"';
-            $have_selected = true;
+        if ($multiple) {
+            $selectedValues = explode("|", $selected);
+
+            if (in_array($facility_id, $selectedValues)) {
+                $option_selected_attr = ' selected="selected"';
+                $have_selected = true;
+            }
+        } else {
+            if ($selected == $facility_id) {
+                $option_selected_attr = ' selected="selected"';
+                $have_selected = true;
+            }
         }
 
         $option_content = $frow['name'];
@@ -3722,7 +3852,7 @@ function dropdown_facility(
         echo "    <option value='" . attr($option_value) . "' $option_selected_attr>" . text($option_content) . "</option>\n";
     }
 
-    if (!$have_selected) {
+    if (!$have_selected && !$multiple) {
         $option_value = $selected;
         $option_label = '(' . xl('Do not change') . ')';
         $option_content = xl('Missing or Invalid');

@@ -2128,30 +2128,15 @@ ALTER TABLE `form_bronchitis` MODIFY `diagnosis4_bronchitis_form` text;
 #EndIf
 
 #IfColumn patient_data care_team
-ALTER TABLE `patient_data` DROP COLUMN `care_team`;
-#EndIf
-
-#IfMissingColumn patient_data care_team_provider
-ALTER TABLE `patient_data` ADD COLUMN `care_team_provider` int(11) DEFAULT NULL;
+ALTER TABLE `patient_data` CHANGE `care_team` `care_team_provider` text;
 #EndIf
 
 #IfMissingColumn patient_data care_team_facility
-ALTER TABLE `patient_data` ADD COLUMN `care_team_facility` int(11) DEFAULT NULL;
+ALTER TABLE `patient_data` ADD COLUMN `care_team_facility` text;
 #EndIf
 
 #IfRow2D layout_options form_id DEM field_id care_team
-DELETE FROM `layout_options` WHERE form_id='DEM' AND field_id='care_team';
-UPDATE `layout_options` SET seq='14' WHERE form_id='DEM' AND field_id='cmsportal_login';
-UPDATE `layout_options` SET seq='15' WHERE form_id='DEM' AND field_id='imm_reg_status';
-UPDATE `layout_options` SET seq='16' WHERE form_id='DEM' AND field_id='imm_reg_stat_effdate';
-UPDATE `layout_options` SET seq='17' WHERE form_id='DEM' AND field_id='publicity_code';
-UPDATE `layout_options` SET seq='18' WHERE form_id='DEM' AND field_id='publ_code_eff_date';
-UPDATE `layout_options` SET seq='19' WHERE form_id='DEM' AND field_id='protect_indicator';
-UPDATE `layout_options` SET seq='20' WHERE form_id='DEM' AND field_id='prot_indi_effdate';
-#EndIf
-
-#IfNotRow2D layout_options form_id DEM field_id care_team_provider
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_provider', '3', 'Care Team (Provider)', 21, 11, 1, 0, 0, '', 1, 1, '', '', '', 0);
+UPDATE `layout_options` SET field_id='care_team_provider', seq=`22`, group_id=`3`, title='Care Team (Facility)', data_type=`11` WHERE form_id='DEM' AND field_id='care_team';
 #EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id care_team_facility
