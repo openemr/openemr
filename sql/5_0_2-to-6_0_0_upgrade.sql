@@ -2136,11 +2136,11 @@ ALTER TABLE `patient_data` ADD COLUMN `care_team_facility` text;
 #EndIf
 
 #IfRow2D layout_options form_id DEM field_id care_team
-UPDATE `layout_options` SET field_id='care_team_provider', seq=`22`, group_id=`3`, title='Care Team (Facility)', data_type=`11` WHERE form_id='DEM' AND field_id='care_team';
+UPDATE `layout_options` SET field_id='care_team_provider', seq=22, group_id=3, title='Care Team (Provider)', data_type=45 WHERE form_id='DEM' AND field_id='care_team';
 #EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id care_team_facility
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 22, 35, 1, 0, 0, '', 1, 1, '', '', '', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 22, 44, 1, 0, 0, '', 1, 1, '', '', '', 0);
 #EndIf
 
 DELETE FROM `globals` WHERE `gl_name`='font-size';

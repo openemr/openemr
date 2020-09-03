@@ -2081,7 +2081,7 @@ function generate_print_field($frow, $currvalue)
                 if ($data_type == 45) {
                     $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", array($value));
                 }
-                $tmp = xl_list_label($lrow['name']);
+                $tmp = $lrow['name'];
             }
 
             if ($tmp === '') {
@@ -2547,9 +2547,9 @@ function generate_display_field($frow, $currvalue)
                 $lrow = sqlQuery("SELECT CONCAT(fname,' ',lname) as name FROM users WHERE id = ?", array($value));
             }
             if ($i > 0) {
-                  $s = $s . ", " . htmlspecialchars(xl_list_label($lrow['name']), ENT_NOQUOTES);
+                  $s = $s . ", " . htmlspecialchars($lrow['name'], ENT_NOQUOTES);
             } else {
-                $s = htmlspecialchars(xl_list_label($lrow['name']), ENT_NOQUOTES);
+                $s = htmlspecialchars($lrow['name'], ENT_NOQUOTES);
             }
             $i++;
         }
@@ -2861,9 +2861,9 @@ function generate_plaintext_field($frow, $currvalue)
             }
 
             if ($i > 0) {
-                $s = $s . ", " . xl_list_label($lrow['name']);
+                $s = $s . ", " . $lrow['name'];
             } else {
-                $s = xl_list_label($lrow['name']);
+                $s = $lrow['name');
             }
 
             $i++;

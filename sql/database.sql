@@ -3277,8 +3277,8 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'publ_code_eff_date'  , '3', 'Publicity Code Effective Date'  ,18, 4, 1,10,10, '', 1, 1, '', '', 'Publicity Code Effective Date', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'protect_indicator'  , '3', 'Protection Indicator'  ,19, 1, 1,1,0, 'yesno', 1, 1, '', '', 'Protection Indicator', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'prot_indi_effdate'  , '3', 'Protection Indicator Effective Date'  ,20, 4, 1,10,10, '', 1, 1, '', '', 'Protection Indicator Effective Date', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_provider', '3', 'Care Team (Provider)', 21, 11, 1, 0, 0, '', 1, 1, '', '', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 22, 35, 1, 0, 0, '', 1, 1, '', '', '', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_provider', '3', 'Care Team (Provider)', 21, 45, 1, 0, 0, '', 1, 1, '', '', '', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 22, 44, 1, 0, 0, '', 1, 1, '', '', '', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'occupation', '4', 'Occupation', 1, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Occupation', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'industry', '4', 'Industry', 1, 26, 1, 0, 0, 'Industry', 1, 1, '', '', 'Industry', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_name', '4', 'Employer Name', 2, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Employer Name', 0);
@@ -6987,8 +6987,8 @@ CREATE TABLE `patient_data` (
   `deceased_reason` varchar(255) NOT NULL default '',
   `soap_import_status` TINYINT(4) DEFAULT NULL COMMENT '1-Prescription Press 2-Prescription Import 3-Allergy Press 4-Allergy Import',
   `cmsportal_login` varchar(60) NOT NULL default '',
-  `care_team_provider` int(11) DEFAULT NULL,
-  `care_team_facility` int(11) DEFAULT NULL,
+  `care_team_provider` text DEFAULT NULL,
+  `care_team_facility` text DEFAULT NULL,
   `county` varchar(40) NOT NULL default '',
   `industry` TEXT,
   `imm_reg_status` TEXT,
