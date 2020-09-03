@@ -47,20 +47,28 @@ use OpenEMR\RestControllers\ProcedureRestController;
 RestConfig::$ROUTE_MAP = array(
     "POST /api/auth" => function () {
         $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
-        return (new AuthRestController())->authenticate($data);
+        $return = (new AuthRestController())->authenticate($data);
+        RestConfig::apiLog($GLOBALS['resource'], 'Sensitive data, so not logged.', 'Sensitive data, so not logged.');
+        return $return;
     },
     "GET /api/facility" => function () {
         RestConfig::authorization_check("admin", "users");
-        return (new FacilityRestController())->getAll($_GET);
+        $return = (new FacilityRestController())->getAll($_GET);
+        RestConfig::apiLog($GLOBALS['resource'], json_encode($return));
+        return $return;
     },
     "GET /api/facility/:fuuid" => function ($fuuid) {
         RestConfig::authorization_check("admin", "users");
-        return (new FacilityRestController())->getOne($fuuid);
+        $return = (new FacilityRestController())->getOne($fuuid);
+        RestConfig::apiLog($GLOBALS['resource'], json_encode($return));
+        return $return;
     },
     "POST /api/facility" => function () {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        return (new FacilityRestController())->post($data);
+        $return = (new FacilityRestController())->post($data);
+        RestConfig::apiLog($GLOBALS['resource'], json_encode($return), json_encode($data));
+        return $return;
     },
     "PATCH /api/facility/:fuuid" => function ($fuuid) {
         RestConfig::authorization_check("admin", "super");

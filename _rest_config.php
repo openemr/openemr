@@ -254,6 +254,11 @@ class RestConfig
             }
         }
     }
+
+    static function apiLog($requestUrl, $response, $requestBody = '')
+    {
+        sqlStatementNoLog("INSERT INTO `api_log` (`user_id`, `patient_id`, `request_url`, `request_body`, `response`, `created_time`) VALUES (?, ?, ?, ?, ?, NOW())", [($_SESSION['authUserID'] ?? 0), ($_SESSION['pid'] ?? 0), $requestUrl, $requestBody, $response]);
+    }
 }
 
 // Include our routes and init routes global

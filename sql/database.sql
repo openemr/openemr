@@ -80,6 +80,43 @@ KEY amendment_history_id(`amendment_id`)
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `api_log`
+--
+
+DROP TABLE IF EXISTS `api_log`;
+CREATE TABLE `api_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL,
+  `patient_id` bigint(20) NOT NULL,
+  `request_url` text,
+  `request_body` text,
+  `response` longtext,
+  `created_time` timestamp NULL,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `api_token`
+--
+
+DROP TABLE IF EXISTS `api_token`;
+CREATE TABLE `api_token` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `token_api` varchar(4),
+  `user_id` bigint(20) NOT NULL,
+  `patient_id` bigint(20) NOT NULL,
+  `token` varchar(40) DEFAULT NULL,
+  `token_auth` varchar(255),
+  `expiry` datetime NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`)
+) ENGINE = InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `audit_master`
 --
 
@@ -12180,26 +12217,6 @@ CREATE TABLE `login_mfa_registrations` (
   `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer etc.',
   PRIMARY KEY (`user_id`, `name`)
 ) ENGINE=InnoDB;
-
-
--- --------------------------------------------------------
-
---
--- Table structure for table `api_token`
---
-
-DROP TABLE IF EXISTS `api_token`;
-CREATE TABLE `api_token` (
-    `id`           bigint(20) NOT NULL AUTO_INCREMENT,
-    `token_api`    varchar(4),
-    `user_id`      bigint(20) NOT NULL,
-    `patient_id`   bigint(20) NOT NULL,
-    `token`        varchar(40) DEFAULT NULL,
-    `token_auth`   varchar(255),
-    `expiry`       datetime NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `token` (`token`)
-) ENGINE = InnoDB;
 
 DROP TABLE IF EXISTS `benefit_eligibility`;
 CREATE TABLE `benefit_eligibility` (

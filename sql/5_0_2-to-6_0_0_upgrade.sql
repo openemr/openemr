@@ -2153,3 +2153,16 @@ CREATE UNIQUE INDEX `drive_uuid` ON `documents` (`drive_uuid`);
 
 #IfDocumentNamingNeeded
 #EndIf
+
+#IfNotTable api_log
+CREATE TABLE `api_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL,
+  `patient_id` bigint(20) NOT NULL,
+  `request_url` text,
+  `request_body` text,
+  `response` longtext,
+  `created_time` timestamp NULL,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+#EndIf

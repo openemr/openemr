@@ -36,6 +36,8 @@ if (!empty($_REQUEST['_REWRITE_COMMAND'])) {
     }
 }
 
+$GLOBALS['resource'] = $resource;
+
 if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     // Calling api from within the same session (ie. isLocalApi) since a apicsrftoken header was passed
     $isLocalApi = true;
