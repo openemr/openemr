@@ -794,9 +794,9 @@ foreach ($ar as $key => $val) {
                 }
 
                 $d = new Document($document_id);
-                $fname = basename($d->get_url());
+                $fname = basename($d->get_name());
                 $extension = substr($fname, strrpos($fname, "."));
-                echo "<h1>" . xlt('Document') . " '" . text($fname) . "'</h1>";
+                echo "<h1>" . xlt('Document') . " '" . text($fname) . "-" . text($d->get_id()) . "'</h1>";
 
                 $notes = $d->get_notes();
                 if (!empty($notes)) {

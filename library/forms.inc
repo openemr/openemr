@@ -167,7 +167,7 @@ function getDocumentsByEncounter($patientID = null, $encounterID = null)
     $currentPatient = ( $patientID ) ? $patientID : $_SESSION['pid'];
 
     if ($currentPatient != "" && $currentEncounter != "") {
-        $sql = "SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name,d.encounter_id FROM documents AS d, categories_to_documents AS cd,
+        $sql = "SELECT d.id, d.type, d.url, d.name as document_name, d.docdate, d.list_id, c.name, d.encounter_id FROM documents AS d, categories_to_documents AS cd,
 			categories AS c WHERE d.foreign_id = ? AND d.encounter_id=? AND cd.document_id = d.id AND c.id = cd.category_id ORDER BY d.docdate DESC, d.id DESC";
         $res = sqlStatement($sql, array($currentPatient,$currentEncounter));
 

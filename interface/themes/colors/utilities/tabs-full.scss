@@ -10,8 +10,7 @@
   background-color: $midpale !important;
 }
 
-.tabSpan,
-.tabSpan_tabs {
+.tabSpan {
   border-left: 1px solid $dark !important;
   border-radius: 3px 6px 0 0 !important;
   border-right: 1px solid $dark !important;
@@ -38,30 +37,7 @@
   background: $palepale !important;
 }
 
-.tabControls_tabs {
-  border-bottom: 0 !important;
-}
-
-.ptName {
-  @include font-size("1.25rem");
-  background: #ffff9e;
-  padding: 0 5px;
-}
-
-.patientInfo {
-  @include font-size("1rem");
-  font-weight: 600;
-  padding: 1px 1px 1px 10px;
-}
-
-.patientCurrentEncounter {
-  @include font-size("1rem");
-  font-weight: 600;
-}
-
 .menuLabel {
-  @include font-size("0.875rem");
-
   &:hover {
     background: $palepale !important;
   }
@@ -79,14 +55,10 @@
 
 .menuSection > .menuEntries {
   background-color: $paler !important;
-  border: 0 !important;
-  border-radius: 0 !important;
   box-shadow: 0 2px 2px $midpale !important;
 }
 
 .menuEntries li .menuLabel {
-  padding: 5px 10px !important;
-
   &:hover {
     background-color: $palepale !important;
     color: $bs-dark;
@@ -117,7 +89,6 @@
 
 #calsearch_params {
   background-color: $palepale !important;
-  width: 98% !important;
 }
 
 .calsearch_body {
@@ -126,29 +97,6 @@
 
 .chevron_color {
   color: $darker;
-}
-
-div#providerPicker select {
-  margin: 0;
-}
-
-#calsearch_results_header {
-  margin-top: 5px;
-  width: 99% !important;
-}
-
-#calsearch_results_data {
-  width: 99% !important;
-}
-
-#topToolbarRight {
-  padding: 3px;
-}
-
-/* calendar icon */
-
-img[src *="show_calendar.gif"] {
-  margin-bottom: 3px;
 }
 
 /* tabs menu, user, and logout icon */
@@ -162,9 +110,4 @@ img[src *="show_calendar.gif"] {
 #search_globals,
 .oe-expandable-search .any-search-legacy {
   background: $dark !important;
-}
-
-/* Patient Panel Toggler Override */
-#patient_caret {
-  margin-right: 4px !important;
 }
