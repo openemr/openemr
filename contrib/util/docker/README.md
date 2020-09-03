@@ -104,7 +104,7 @@ options to choose from:
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
 setup input screen:
- - for `Server Host`, use either `mariadb` or `mariadb-ssl` or `mysql` or `mariadb-very-old` or
+ - for `Server Host`, use either `mariadb` or `mariadb-ssl` or `mysql` or `mariadb-old` or `mariadb-very-old` or
    `mariadb-very-very-old` or `mysql-old` (you have all
    mariadb/mysql/mariadb-\*/mysql-\* dockers ready to go to make testing either one easy;
    `mysql` is version 8.0; `mysql-old` is version 5.7;
