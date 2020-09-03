@@ -189,6 +189,21 @@ function zip_content($source, $destination, $content = '', $create = true)
       // can also be used by other forms that require output in the
       // encounter listings output, but not in the custom report. ?>
 
+<style>
+    div.navigateLink {
+        display:none;
+    }
+    .hilite, mark, .next {
+        background-color: var(--yellow);
+    }
+    .hilite2 {
+        background-color: transparent;
+    }
+    img {
+        max-width:700px;
+    }
+</style>
+
 <?php if (!$PDF_OUTPUT) { ?>
     <?php // if the track_anything form exists, then include the styling
     if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
@@ -258,7 +273,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                 <div class="border-bottom my-1 px-5 report_search_bar">
                     <div class="row">
                             <div class="col-md">
-                                <input type="text" class="form-control" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element"/>
+                                <input type="text" class="form-control" onkeyup="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element"/>
                             </div>
                             <div class="col-md">
                                 <div class="btn-group">
