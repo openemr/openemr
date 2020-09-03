@@ -730,7 +730,7 @@ $(function () {
         <script>
             //jqury-ui tooltip
             $(function () {
-                $('.icon-tooltip').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip({
+                $('.icon-tooltip i').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip({
                     show: {
                         delay: 700,
                         duration: 0

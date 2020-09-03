@@ -224,7 +224,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="col-form-label" for="form_send_app_id"><?php echo xlt('Sender IDs'); ?>:</label> <a href="#sender_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_send_app_id"><?php echo xlt('Sender IDs'); ?>:</label> <a href="#sender_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                 <div class="row col-12">
                                     <div class="col-sm-6">
@@ -451,7 +451,7 @@ function invalue($name)
     <script>
         //jqury-ui tooltip
         $(function () {
-            $('.icon-tooltip').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip({
+            $('.icon-tooltip i').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip({
                 show: {
                     delay: 700,
                     duration: 0

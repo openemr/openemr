@@ -296,8 +296,7 @@ $(function () {
 
 <body>
     <div class="container mt-3">
-        <div class="row">
-            <form method='post' action='orders_results.php?batch=<?php echo attr_url($form_batch); ?>&review=<?php echo attr_url($form_review); ?>' onsubmit='return validate(this)'>
+        <form method='post' action='orders_results.php?batch=<?php echo attr_url($form_batch); ?>&review=<?php echo attr_url($form_review); ?>' onsubmit='return validate(this)'>
                 <table class="table table-borderless">
                     <tr>
                         <td class='text form-inline'>
@@ -740,8 +739,7 @@ $(function () {
                     <?php } ?>
                 </div>
                 <?php echo $extra_html; ?>
-            </form>
-        </div>
+        </form>
     </div>
 </body>
 </html>
