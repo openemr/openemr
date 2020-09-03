@@ -36,6 +36,7 @@
         "no-shadow":"off",
         "prefer-rest-params":"off",
         "no-loop-func":"off",
-        "no-nested-ternary": "off"
+        "no-nested-ternary": "off",
+        "linebreak-style":"off"
     }
 }
