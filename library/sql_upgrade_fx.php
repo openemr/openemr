@@ -667,6 +667,8 @@ function upgradeFromSqlFile($filename, $path = '')
     $query = "";
     $line = "";
     $skipping = false;
+    $special = false;
+    $trim=true;
 
     while (!feof($fd)) {
         $line = fgets($fd, 2048);
@@ -1016,18 +1018,41 @@ function upgradeFromSqlFile($filename, $path = '')
         } elseif (preg_match('/^#EndIf/', $line)) {
             $skipping = false;
         }
+        elseif (preg_match('/^#EndIf/', $line)) {
+            $skipping = false;
+        }
 
-        if (preg_match('/^\s*#/', $line)) {
-            continue;
+        if (preg_match('/^#specialSql/', $line)) {
+            $special=true;
+            $line=" ";
+        }
+
+        if (preg_match('/^#endSpecialSql/', $line)) {
+            $special=false;
+            $trim = false;
+            $line=" ";
         }
 
         if ($skipping) {
             continue;
         }
 
+        if ($special) {
+            $query = $query ." ".$line;
+            continue;
+        }
+
         $query = $query . $line;
-        if (substr($query, -1) == ';') {
-            $query = rtrim($query, ';');
+
+        if (substr(trim($query), -1) == ';') {
+
+            if($trim){
+                $query = rtrim($query, ';');
+            }else{
+                $trim =true;
+            }
+
+
             echo "$query<br />\n";
             if (!sqlStatement($query)) {
                 echo "<font color='red'>The above statement failed: " .
