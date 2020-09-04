@@ -88,9 +88,11 @@ CREATE TABLE `api_log` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) NOT NULL,
   `patient_id` bigint(20) NOT NULL,
+  `ip_address` varchar(255) NOT NULL,
   `request_url` text,
-  `request_body` text,
+  `request_body` longtext,
   `response` longtext,
+  `encrypted` tinyint(1) NOT NULL,
   `created_time` timestamp NULL,
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;

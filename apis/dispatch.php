@@ -35,7 +35,6 @@ if (!empty($_REQUEST['_REWRITE_COMMAND'])) {
         }
     }
 }
-
 $GLOBALS['resource'] = $resource;
 
 if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
@@ -78,6 +77,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
         exit();
     }
 }
+$GLOBALS['is_local_api'] = $isLocalApi;
 
 // Set $sessionAllowWrite to true here for following reasons:
 //  1. !$isLocalApi - in this case setting sessions far downstream and no benefit to set to false since single process

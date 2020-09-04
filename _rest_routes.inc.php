@@ -48,26 +48,27 @@ RestConfig::$ROUTE_MAP = array(
     "POST /api/auth" => function () {
         $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
         $return = (new AuthRestController())->authenticate($data);
-        RestConfig::apiLog($GLOBALS['resource'], 'Sensitive data, so not logged.', 'Sensitive data, so not logged.');
+        // sensitive data, so will not log the $data or $return for this endpoint
+        RestConfig::apiLog();
         return $return;
     },
     "GET /api/facility" => function () {
         RestConfig::authorization_check("admin", "users");
         $return = (new FacilityRestController())->getAll($_GET);
-        RestConfig::apiLog($GLOBALS['resource'], json_encode($return));
+        RestConfig::apiLog($return);
         return $return;
     },
     "GET /api/facility/:fuuid" => function ($fuuid) {
         RestConfig::authorization_check("admin", "users");
         $return = (new FacilityRestController())->getOne($fuuid);
-        RestConfig::apiLog($GLOBALS['resource'], json_encode($return));
+        RestConfig::apiLog($return);
         return $return;
     },
     "POST /api/facility" => function () {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new FacilityRestController())->post($data);
-        RestConfig::apiLog($GLOBALS['resource'], json_encode($return), json_encode($data));
+        RestConfig::apiLog($return, $data);
         return $return;
     },
     "PATCH /api/facility/:fuuid" => function ($fuuid) {

@@ -15,6 +15,7 @@
 require_once(dirname(__FILE__) . "/src/Common/Session/SessionUtil.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\RestControllers\AuthRestController;
 
 // also a handy place to add utility methods
@@ -255,9 +256,37 @@ class RestConfig
         }
     }
 
-    static function apiLog($requestUrl, $response, $requestBody = '')
+    static function apiLog($response = '', $requestBody = '')
     {
-        sqlStatementNoLog("INSERT INTO `api_log` (`user_id`, `patient_id`, `request_url`, `request_body`, `response`, `created_time`) VALUES (?, ?, ?, ?, ?, NOW())", [($_SESSION['authUserID'] ?? 0), ($_SESSION['pid'] ?? 0), $requestUrl, $requestBody, $response]);
+        // only log when using standard api calls (skip when using local api calls from within OpenEMR)
+        if (!$GLOBALS['is_local_api']) {
+            // convert pertinent elements to json
+            $requestBody = (!empty($requestBody)) ? json_encode($requestBody) : '';
+            $response = (!empty($response)) ? json_encode($response) : '';
+
+            // encrypt pertinent elements if log encryption is turned on
+            $encrypted = 0;
+            if ($GLOBALS['enable_auditlog_encryption']) {
+                $encrypted = 1;
+                $cryptoGen = new CryptoGen();
+                $requestBody = (!empty($requestBody)) ? $cryptoGen->encryptStandard($requestBody) : '';
+                $response =  (!empty($response)) ? $cryptoGen->encryptStandard($response): '';
+            }
+
+            // log the api call
+            sqlStatementNoLog(
+                "INSERT INTO `api_log` (`ip_address`, `user_id`, `patient_id`, `request_url`, `request_body`, `response`, `encrypted`, `created_time`) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())",
+                [
+                    collectIpAddresses()['ip_string'],
+                    ($_SESSION['authUserID'] ?? 0),
+                    ($_SESSION['pid'] ?? 0),
+                    $GLOBALS['resource'],
+                    $requestBody,
+                    $response,
+                    $encrypted
+                ]
+            );
+        }
     }
 }
 
