@@ -121,6 +121,9 @@ if ($popup && $_POST['form_save']) {
         .col6 {
             width: 8%;
         }
+        .tooltip {
+            pointer-events: none;
+        }
     </style>
 
 
