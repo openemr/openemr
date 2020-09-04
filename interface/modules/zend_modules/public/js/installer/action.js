@@ -106,6 +106,7 @@ function manage(id, action) {
             $('.modal').hide();
         },
     });
+    return true;
 }
 
 function blockInput(element) {

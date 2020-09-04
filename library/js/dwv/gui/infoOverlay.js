@@ -1,3 +1,6 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-var */
+
 // namespaces
 var dwv = dwv || {};
 var dwvOemr = dwvOemr || {};

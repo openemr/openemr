@@ -37,6 +37,7 @@
         "prefer-rest-params":"off",
         "no-loop-func":"off",
         "no-nested-ternary": "off",
-        "linebreak-style":"off"
+        "linebreak-style":"off",
+        "unicode-bom":"off"
     }
 }

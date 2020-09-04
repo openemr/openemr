@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-var */
 /**
  * DWV (Dicom Web Viewer) application launcher
  * OpenEMR v5.0.2

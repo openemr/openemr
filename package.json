@@ -10,7 +10,7 @@
     "dev": "gulp --dev && gulp watch",
     "gulp-build": "gulp -b --dev",
     "gulp-watch": "gulp watch",
-    "lint": "eslint .\"interface\"**\"*.js",
+    "lint": "eslint **/*.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

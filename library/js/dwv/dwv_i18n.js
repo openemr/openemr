@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-var */
 // original file available at https://github.com/ivmartel/dwv/blob/e6ea132ba2bac98546a1b27476e7ebe27bfeb02d/src/utils/i18n.js
 
 // namespaces

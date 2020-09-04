@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-var */
 /**
  * DWV (Dicom Web Viewer) application GUI
  * OpenEMR v5.0.2
@@ -61,10 +63,10 @@ function toggle(popupId) {
 dwvOemr.gui.ToolboxContainer = function (app, infoController) {
     const base = new dwvOemr.gui.Toolbox(app);
     // save document url
-    dwvOemr.oemrDocumentUrl = $('#dwv').attr('src') ?? false;
-    dwvOemr.oemrDocumentStateUrl = $('#state_url').val() ?? false;
-    dwvOemr.oemrDocumentDocId = $('#doc_id').val() ?? false;
-    dwvOemr.oemrDocumentCsrf = $('#csrf').val() ?? false;
+    dwvOemr.oemrDocumentUrl = $('#dwv').attr('src') || false;
+    dwvOemr.oemrDocumentStateUrl = $('#state_url').val() || false;
+    dwvOemr.oemrDocumentDocId = $('#doc_id').val() || false;
+    dwvOemr.oemrDocumentCsrf = $('#csrf').val() || false;
 
     this.setup = function (list) {
         // toolbar

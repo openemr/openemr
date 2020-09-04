@@ -43,7 +43,8 @@ function tabs_view_model() {
 }
 
 function activateTab(data) {
-    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
+    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length;
+        tabIdx += 1) {
         const curTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
         if (data !== curTab) {
             if (!curTab.locked()) {
@@ -56,7 +57,8 @@ function activateTab(data) {
 }
 
 function activateTabByName(name, hideOthers) {
-    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
+    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length;
+        tabIdx += 1) {
         const curTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
         if (curTab.name() === name) {
             curTab.visible(true);
@@ -94,10 +96,48 @@ function tabClose(data, evt) {
 }
 
 function tabCloseByName(name) {
-    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
+    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length;
+        tabIdx += 1) {
         const curTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
         if (curTab.name() === name) {
             tabClose(curTab);
+        }
+    }
+}
+
+function openExistingTab(url, name) {
+    for (let tabIdx = 0;
+        tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
+        const currTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
+        let currTabUrl = currTab.url();
+        const currTabName = currTab.name();
+        // Check if URL is from $GLOBAL['default_tab']
+        switch (currTabUrl) {
+        case '../main_info.php':
+            currTabUrl = `${webroot_url}/interface/main/main_info.php`;
+            break;
+        case '../../new/new.php':
+            currTabUrl = `${webroot_url}/interface/new/new.php`;
+            break;
+        case '../../../interface/main/finder/dynamic_finder.php':
+            currTabUrl = `${webroot_url}/interface/main/finder/dynamic_finder.php`;
+            break;
+        case '../../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1':
+            currTabUrl = `${webroot_url}/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1`;
+            break;
+        case '../../../interface/main/messages/messages.php?form_active=1':
+            currTabUrl = `${webroot_url}/interface/main/messages/messages.php?form_active=1`;
+            break;
+        default:
+        }
+        if (url === currTabUrl) {
+            currTab.visible(true);
+            exist = true;
+        } else if (url !== currTabUrl && currTabName === name) {
+            currTab.visible(true);
+            currTab.url(url);
+        } else if (!currTab.locked()) {
+            currTab.visible(false);
         }
     }
 }
@@ -132,25 +172,8 @@ function tabLockToggle(data, evt) {
     }
 }
 
-function refreshPatient(data, evt) {
-    loadCurrentPatient();
-}
-
-function refreshGroup(data, evt) {
-    loadCurrentTherapyGroup();
-}
-
-function refreshEncounter(data, evt) {
-    loadCurrentEncounter();
-}
-
 function setEncounter(id) {
     app_view_model.application_data[attendant_type]().selectedEncounterID(id);
-}
-
-function chooseEncounterEvent(data, evt) {
-    setEncounter(data.id());
-    goToEncounter(data.id());
 }
 
 function goToEncounter(encId) {
@@ -170,18 +193,6 @@ function reviewEncounter(encId) {
 
 function reviewEncounterEvent(data, evt) {
     reviewEncounter(data.id());
-}
-
-function clickNewEncounter(data, evt) {
-    newEncounter(data, evt);
-}
-
-function clickEncounterList(data, evt) {
-    encounterList();
-}
-
-function clickNewGroupEncounter(data, evt) {
-    newTherapyGroupEncounter();
 }
 
 function newEncounter(data, evt) {
@@ -291,6 +302,7 @@ function menuActionClick(data, evt) {
     } else if ((data.requirement === 2) || data.requirement === 3) {
         alert(xl('You must first select or create an encounter.'));
     }
+    return true;
 }
 
 function clearPatient() {
@@ -339,39 +351,31 @@ function clearTherapyGroup() {
     });
 }
 
-function openExistingTab(url, name) {
-    for (let tabIdx = 0;
-        tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx += 1) {
-        const currTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
-        let currTabUrl = currTab.url();
-        const currTabName = currTab.name();
-        // Check if URL is from $GLOBAL['default_tab']
-        switch (currTabUrl) {
-        case '../main_info.php':
-            currTabUrl = `${webroot_url}/interface/main/main_info.php`;
-            break;
-        case '../../new/new.php':
-            currTabUrl = `${webroot_url}/interface/new/new.php`;
-            break;
-        case '../../../interface/main/finder/dynamic_finder.php':
-            currTabUrl = `${webroot_url}/interface/main/finder/dynamic_finder.php`;
-            break;
-        case '../../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1':
-            currTabUrl = `${webroot_url}/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1`;
-            break;
-        case '../../../interface/main/messages/messages.php?form_active=1':
-            currTabUrl = `${webroot_url}/interface/main/messages/messages.php?form_active=1`;
-            break;
-        default:
-        }
-        if (url === currTabUrl) {
-            currTab.visible(true);
-            exist = true;
-        } else if (url !== currTabUrl && currTabName === name) {
-            currTab.visible(true);
-            currTab.url(url);
-        } else if (!currTab.locked()) {
-            currTab.visible(false);
-        }
-    }
+function clickNewEncounter(data, evt) {
+    newEncounter(data, evt);
+}
+
+function clickEncounterList(data, evt) {
+    encounterList();
+}
+
+function clickNewGroupEncounter(data, evt) {
+    newTherapyGroupEncounter();
+}
+
+function refreshPatient(data, evt) {
+    loadCurrentPatient();
+}
+
+function refreshGroup(data, evt) {
+    loadCurrentTherapyGroup();
+}
+
+function refreshEncounter(data, evt) {
+    loadCurrentEncounter();
+}
+
+function chooseEncounterEvent(data, evt) {
+    setEncounter(data.id());
+    goToEncounter(data.id());
 }

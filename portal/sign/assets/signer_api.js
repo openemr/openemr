@@ -1,3 +1,10 @@
+/* eslint-disable no-multi-assign */
+/* eslint-disable no-use-before-define */
+/* eslint-disable vars-on-top */
+/* eslint-disable no-var */
+/* eslint-disable no-restricted-globals */
+/* eslint-disable prefer-spread */
+/* eslint-disable block-scoped-var */
 /**
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -6,16 +13,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-const signhere = "data:image/png;base64,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";
+const signhere = 'data:image/png;base64,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';
 
 (function (global) {
-    var channels = [];
+    const channels = [];
 
     function BroadcastChannel(channel) {
-        var $this = this;
+        const $this = this;
         channel = String(channel);
 
-        var id = '$BroadcastChannel$' + channel + '$';
+        const id = `$BroadcastChannel$${channel}$`;
 
         channels[id] = channels[id] || [];
         channels[id].push(this);
@@ -28,10 +35,16 @@ const signhere = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA1QAAAEJCAYAAACT
         this._mc.port2.start();
 
         global.addEventListener('storage', function (e) {
-            if (e.storageArea !== global.localStorage) return;
-            if (e.newValue === null || e.newValue === '') return;
-            if (e.key.substring(0, id.length) !== id) return;
-            var data = JSON.parse(e.newValue);
+            if (e.storageArea !== global.localStorage) {
+                return;
+            }
+            if (e.newValue === null || e.newValue === '') {
+                return;
+            }
+            if (e.key.substring(0, id.length) !== id) {
+                return;
+            }
+            const data = JSON.parse(e.newValue);
             $this._mc.port2.postMessage(data);
         });
     }
@@ -41,17 +54,17 @@ const signhere = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA1QAAAEJCAYAAACT
         get name() {
             return this._name;
         },
-        postMessage: function (message) {
-            var $this = this;
+        postMessage(message) {
+            const $this = this;
             if (this._closed) {
-                var e = new Error();
+                const e = new Error();
                 e.name = 'InvalidStateError';
                 throw e;
             }
-            var value = JSON.stringify(message);
+            const value = JSON.stringify(message);
 
             // Broadcast to other contexts via storage events...
-            var key = this._id + String(Date.now()) + '$' + String(Math.random());
+            const key = `${this._id + String(Date.now())}$${String(Math.random())}`;
             global.localStorage.setItem(key, value);
             setTimeout(function () {
                 global.localStorage.removeItem(key);
@@ -63,13 +76,15 @@ const signhere = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA1QAAAEJCAYAAACT
                 bc._mc.port2.postMessage(JSON.parse(value));
             });
         },
-        close: function () {
-            if (this._closed) return;
+        close() {
+            if (this._closed) {
+                return;
+            }
             this._closed = true;
             this._mc.port1.close();
             this._mc.port2.close();
 
-            var index = channels[this._id].indexOf(this);
+            const index = channels[this._id].indexOf(this);
             channels[this._id].splice(index, 1);
         },
 
@@ -80,15 +95,15 @@ const signhere = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA1QAAAEJCAYAAACT
         set onmessage(value) {
             this._mc.port1.onmessage = value;
         },
-        addEventListener: function (type, listener /*, useCapture*/) {
+        addEventListener(type, listener) {
             return this._mc.port1.addEventListener.apply(this._mc.port1, arguments);
         },
-        removeEventListener: function (type, listener /*, useCapture*/) {
+        removeEventListener(type, listener) {
             return this._mc.port1.removeEventListener.apply(this._mc.port1, arguments);
         },
-        dispatchEvent: function (event) {
+        dispatchEvent(event) {
             return this._mc.port1.dispatchEvent.apply(this._mc.port1, arguments);
-        }
+        },
     };
     global.BroadcastChannel = global.BroadcastChannel || BroadcastChannel;
 }(self));
@@ -96,15 +111,16 @@ const signhere = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA1QAAAEJCAYAAACT
 let adminName = '';
 let $lastEl = '';
 let isAdmin = false;
+// eslint-disable-next-line no-use-before-define
 if (typeof isPortal === 'undefined') {
     var isPortal = 0;
 }
-let useRemote = !isPortal;
+const useRemote = !isPortal;
 if (typeof ptName === 'undefined') {
     var ptName = '';
 }
-if (typeof webRoot === 'undefined' && typeof top.webroot_url !== 'undefined') {
-    var webRoot = top.webroot_url;
+if (typeof webRoot === 'undefined' && typeof window.top.webroot_url !== 'undefined') {
+    var webRoot = window.top.webroot_url;
 }
 if (typeof isModule === 'undefined') {
     var isModule = false;
@@ -112,14 +128,19 @@ if (typeof isModule === 'undefined') {
 
 function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
     $('#alert_box').remove();
-    size = (size == 'lg') ? 'left:25%;width:50%;' : 'left:35%;width:30%;';
-    let style = "position:fixed;top:25%;" + size + " bottom:0;z-index:1020;";
-    $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
-    let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
-        '<button type="button" class="close btn btn-link btn-cancel" data-dismiss="alert" aria-hidden="true">&times;</button>' +
-        '<h5 class="alert-heading text-center">Alert!</h5><hr>' +
-        '<p>' + message + '</p>' +
-        '</div>';
+    size = (size === 'lg') ? 'left:25%;width:50%;' : 'left:35%;width:30%;';
+    const style = `position:fixed;top:25%;${size} bottom:0;z-index:1020;`;
+
+    $('body').prepend(`<div class='container text-center' id='alert_box' style='${style}'></div>`);
+    const mHtmla = `
+        <div id="alertmsg" class="alert alert-${type} alert-dismissable">
+            <button type="button" class="close btn btn-link btn-cancel" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <button type="button" class="close btn btn-link btn-cancel" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <h5 class="alert-heading text-center">Alert!</h5>
+            <hr>
+            <p>${message}</p>
+        </div>`;
+
     $('#alert_box').append(mHtml);
     $('#alertmsg').on('closed.bs.alert', function () {
         clearTimeout(AlertMsg);
@@ -133,116 +154,126 @@ function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
 }
 
 function getSignature(othis, isInit = false, returnSignature = false) {
-    return new Promise(resolve => {
-            let signer, signerType = "";
-            let isSigned = isDataURL($(othis).attr('src'));
-            let libUrl = "./";
+    return new Promise((resolve) => {
+        let signer = '';
+        let signerType = '';
+        const isSigned = isDataURL($(othis).attr('src'));
+        let libUrl = './';
 
-            if ($(othis).attr('src') != signhere && !isInit) {
-                $(othis).attr('src', signhere);
-                return;
-            }
-            if (typeof webRoot !== 'undefined' && typeof webRoot !== null) {
-                libUrl = webRoot + '/portal/';
-            } else {
-                libUrl = top.webroot_url ? (top.webroot_url + '/portal/') : "./";
-            }
-
-            if (typeof cpid === 'undefined' && typeof cuser === 'undefined') {
-                cpid = $(othis).data('pid');
-                cuser = $(othis).data('user');
-            }
-            let otype = $(othis).attr('type');
-            if (typeof otype === 'undefined' || typeof otype === null) {
-                otype = $(othis).data('type');
-            }
-            if (otype == 'admin-signature') {
-                signer = adminName ? adminName : cuser;
-                signerType = "admin-signature";
-                $("#isAdmin").prop('checked', true);
-                isAdmin = true;
-            } else {
-                signer = ptName;
-                signerType = "patient-signature";
-                $("#isAdmin").prop('checked', false);
-                isAdmin = false;
-            }
-
-            let params = {
-                pid: cpid,
-                user: cuser,
-                is_portal: isPortal,
-                type: signerType
-            };
-
-            let url = libUrl + "sign/lib/show-signature.php";
-            fetch(url, {
-                credentials: 'include',
-                method: 'POST',
-                body: JSON.stringify(params),
-                headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                }
-            }).then(signature => signature.json())
-                .then(signature => {
-                    if (returnSignature === true) {
-                        return signature;
-                    }
-                    placeSignature(signature, othis).then(function (r) {
-                        resolve(r)
-                    })
-
-                }).catch(error => signerAlertMsg(error));
+        if ($(othis).attr('src') !== signhere && !isInit) {
+            $(othis).attr('src', signhere);
+            return;
         }
-    )
+        if (typeof webRoot !== 'undefined') {
+            libUrl = `${webRoot}/portal/`;
+        } else {
+            libUrl = window.top.webroot_url ? (`${window.top.webroot_url}/portal/`) : './';
+        }
+
+        if (typeof cpid === 'undefined' && typeof cuser === 'undefined') {
+            cpid = $(othis).data('pid');
+            cuser = $(othis).data('user');
+        }
+        let otype = $(othis).attr('type');
+        if (typeof otype === 'undefined') {
+            otype = $(othis).data('type');
+        }
+        if (otype === 'admin-signature') {
+            if (adminName) {
+                signer = adminName;
+            } else {
+                signer = cuser;
+            }
+            signerType = 'admin-signature';
+            $('#isAdmin').prop('checked', true);
+            isAdmin = true;
+        } else {
+            signer = ptName;
+            signerType = 'patient-signature';
+            $('#isAdmin').prop('checked', false);
+            isAdmin = false;
+        }
+
+        const params = {
+            pid: cpid,
+            user: cuser,
+            is_portal: isPortal,
+            type: signerType,
+        };
+
+        const url = `${libUrl}sign/lib/show-signature.php`;
+        fetch(url, {
+            credentials: 'include',
+            method: 'POST',
+            body: JSON.stringify(params),
+            headers: {
+                Accept: 'application/json, text/plain, */*',
+                'Content-Type': 'application/json',
+            },
+        }).then((signature) => signature.json())
+            .then((signature) => {
+                if (returnSignature === true) {
+                    return signature;
+                }
+                placeSignature(signature, othis).then(function (r) {
+                    resolve(r);
+                });
+                return true;
+            }).catch((error) => signerAlertMsg(error));
+    });
 }
 
 function placeSignature(responseData, el) {
-    return new Promise(resolve => {
-        if (responseData.message == "error") {
-            $(el).attr('src', "");
-            $(el).attr('alt', "No Signature on File");
+    return new Promise((resolve) => {
+        if (responseData.message === 'error') {
+            $(el).attr('src', '');
+            $(el).attr('alt', 'No Signature on File');
             signerAlertMsg('Error Patient and or User Id missing');
             return;
-        } else if (responseData.message == "insert error") {
-            $(el).attr('src', "");
-            $(el).attr('alt', "No Signature on File");
+        }
+        if (responseData.message === 'insert error') {
+            $(el).attr('src', '');
+            $(el).attr('alt', 'No Signature on File');
             signerAlertMsg('Error adding signature');
             return;
-        } else if (responseData.message == "waiting" && $(el).attr('type') == 'patient-signature') {
-            $(el).attr('src', "");
-            $(el).attr('alt', "No Signature on File");
-            $("#isAdmin").attr('checked', false);
-            return;
-        } else if (responseData.message == "waiting" && $(el).attr('type') == 'admin-signature') {
-            $(el).attr('src', "");
-            $(el).attr('alt', "No Signature on File");
-            $("#isAdmin").attr('checked', true);
-            return;
-        } else if (responseData.message == "waiting") {
-            $(el).attr('src', "");
-            $(el).attr('alt', "No Signature on File");
+        }
+        if (responseData.message === 'waiting' && $(el).attr('type') === 'patient-signature') {
+            $(el).attr('src', '');
+            $(el).attr('alt', 'No Signature on File');
+            $('#isAdmin').attr('checked', false);
             return;
         }
-        let i = new Image();
+        if (responseData.message === 'waiting' && $(el).attr('type') === 'admin-signature') {
+            $(el).attr('src', '');
+            $(el).attr('alt', 'No Signature on File');
+            $('#isAdmin').attr('checked', true);
+            return;
+        }
+        if (responseData.message === 'waiting') {
+            $(el).attr('src', '');
+            $(el).attr('alt', 'No Signature on File');
+            return;
+        }
+        const i = new Image();
         i.onload = function () {
-            $(el).attr('src', i.src)
+            $(el).attr('src', i.src);
             resolve('done'); // display image
         };
-        i.src = isDataURL(responseData) ? responseData : 'data:image/png;base64,' + responseData; // load image
-    })
+        i.src = isDataURL(responseData) ? responseData : `data:image/png;base64,${responseData}`; // load image
+    });
 }
 
 function archiveSignature(signImage = '', edata = '') {
-    let libUrl, signer, signerType = "";
+    let libUrl;
+    let signer;
+    let signerType = '';
     let pid = 0;
     let data = {};
 
-    if (typeof webRoot !== 'undefined' && typeof webRoot !== null) {
-        libUrl = webRoot + '/portal/';
+    if (typeof webRoot !== 'undefined') {
+        libUrl = `${webRoot}/portal/`;
     } else {
-        libUrl = "./";
+        libUrl = './';
     }
 
     if (edata) {
@@ -252,41 +283,49 @@ function archiveSignature(signImage = '', edata = '') {
             is_portal: isPortal,
             signer: edata.data.signer,
             type: edata.data.type,
-            output: signImage
+            output: signImage,
         };
     } else {
-        if ($("#isAdmin").is(':checked') === false) {
+        if ($('#isAdmin').is(':checked') === false) {
             pid = cpid;
-            signer = ptName ? ptName : cuser;
-            signerType = "patient-signature";
+            if (ptName) {
+                signer = ptName;
+            } else {
+                signer = cuser;
+            }
+            signerType = 'patient-signature';
         } else {
             pid = 0;
-            signer = adminName ? adminName : cuser;
-            signerType = "admin-signature";
+            if (adminName) {
+                signer = adminName;
+            } else {
+                signer = cuser;
+            }
+            signerType = 'admin-signature';
         }
         data = {
-            pid: pid,
+            pid,
             user: cuser,
             is_portal: isPortal,
-            signer: signer,
+            signer,
             type: signerType,
-            output: signImage
+            output: signImage,
         };
     }
-    let url = libUrl + "sign/lib/save-signature.php";
+    const url = `${libUrl}sign/lib/save-signature.php`;
     fetch(url, {
         credentials: 'include',
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
             'Content-Type': 'application/json',
-            'Connection': 'close'
-        }
-    }).then(response => response.json())
+            Connection: 'close',
+        },
+    }).then((response) => response.json())
         .then(function (response) {
-                $("#openSignModal").modal("hide");
-            }
-        ).catch(error => signerAlertMsg(error));
+            $('#openSignModal').modal('hide');
+        })
+        .catch((error) => signerAlertMsg(error));
 
     return true;
 }
@@ -307,19 +346,19 @@ let bindFetch = '';
 // fetch modal template and append to body.
 //
 $(function () {
-    let url = top.webroot_url ? top.webroot_url : webRoot;
-    url += "/portal/sign/assets/signer_modal.php?isPortal=" + encodeURIComponent(isPortal);
+    let url = window.top.webroot_url ? window.top.webroot_url : webRoot;
+    url += `/portal/sign/assets/signer_modal.php?isPortal=${encodeURIComponent(isPortal)}`;
     fetch(url, {
-        credentials: 'include'
+        credentials: 'include',
     })
-        .then(jsonTemplate => jsonTemplate.json())
-        .then(jsonTemplate => {
-            $("body").append(jsonTemplate);
+        .then((jsonTemplate) => jsonTemplate.json())
+        .then((jsonTemplate) => {
+            $('body').append(jsonTemplate);
         })
         .then(function () {
             initSignerApi();
         })
-        .catch((error) => alert("Modal Template Fetch:" + error));
+        .catch((error) => alert(`Modal Template Fetch:${error}`));
 });
 
 function initSignerApi() {
@@ -328,7 +367,7 @@ function initSignerApi() {
     if (useRemote) actionChannel = new BroadcastChannel('signer-channel:action');
 
     function ack() {
-        actionChannel.postMessage({cmd: 'available'});
+        actionChannel.postMessage({ cmd: 'available' });
         AckBack = setTimeout(function () {
             $lastEl.attr('src', signhere);
             isRemoteAvail = false;
@@ -337,130 +376,136 @@ function initSignerApi() {
     }
 
     responseChannel.onmessage = function (r) {
-        let command = r.data.cmd;
+        const command = r.data.cmd;
+        const msg = `${msgWaiting}: ${r.data.device}`;
         switch (command) {
-            case 'fetch_response':
-                if (r.data.auth !== apiToken) {
-                    break;
-                }
-                doConfirm(r);
+        case 'fetch_response':
+            if (r.data.auth !== apiToken) {
                 break;
-            case 'fetch_canceled':
-                if (r.data.auth !== apiToken) {
-                    break;
-                }
-                $lastEl.attr('src', signhere);
-                signerAlertMsg(msgNoSign);
+            }
+            doConfirm(r);
+            break;
+        case 'fetch_canceled':
+            if (r.data.auth !== apiToken) {
                 break;
-            case 'is_busy':
-                if (r.data.auth !== apiToken) {
-                    break;
-                }
-                signerAlertMsg(msgBusy);
+            }
+            $lastEl.attr('src', signhere);
+            signerAlertMsg(msgNoSign);
+            break;
+        case 'is_busy':
+            if (r.data.auth !== apiToken) {
                 break;
-            case 'working':
-                if (r.data.auth !== apiToken) {
-                    break;
-                }
-                let msg = msgWaiting + ": " + r.data.device;
-                signerAlertMsg(msg, 5000, 'success');
+            }
+            signerAlertMsg(msgBusy);
+            break;
+        case 'working':
+            if (r.data.auth !== apiToken) {
                 break;
-            default:
-                break;
+            }
+            signerAlertMsg(msg, 5000, 'success');
+            break;
+        default:
+            break;
         }
     };
     actionChannel.onmessage = function (r) {
-        let command = r.data.cmd;
+        const command = r.data.cmd;
+        const msg = `${msgCheckIn}: ${r.data.device}`;
         switch (command) {
-            case 'fetch_signature':
-                if (iAmRemote) {
-                    currentAuth = r.data.auth;
-                    let isBusy = ($("#openSignModal").data('bs.modal') || {isShown: false}).isShown;
-                    if (isBusy) {
-                        responseChannel.postMessage({cmd: 'is_busy', device: remoteDevice, auth: currentAuth});
-                        break;
-                    }
-                    responseChannel.postMessage({cmd: 'working', device: remoteDevice, auth: currentAuth});
-                    $(".save").hide();
-                    $(".send").show();
-                    $(".signer-banners").hide();
-                    callModal(r);
+        case 'fetch_signature':
+            if (iAmRemote) {
+                currentAuth = r.data.auth;
+                const isBusy = ($('#openSignModal').data('bs.modal') || { isShown: false }).isShown;
+                if (isBusy) {
+                    responseChannel.postMessage({ cmd: 'is_busy', device: remoteDevice, auth: currentAuth });
+                    break;
                 }
-                break;
-            case 'fetch_confirmed':
-                $(".send").hide();
-                $(".save").show();
-                break;
-            case 'error' :
-                $(".send").hide();
-                $(".save").show();
-                signerAlertMsg(msgFail);
-                break;
-            case 'device_report':
-                if (iAmRemote && useRemote) {
-                    currentAuth = r.data.auth;
-                    actionChannel.postMessage({cmd: 'device_ack', device: remoteDevice, auth: currentAuth});
-                }
-                break;
-            case 'available':
-                if (iAmRemote && useRemote) {
-                    let isBusy = ($("#openSignModal").data('bs.modal') || {isShown: false}).isShown;
-                    actionChannel.postMessage({cmd: 'device_ack', polled: true, busy: isBusy, device: remoteDevice, auth: currentAuth});
-                }
-                break;
-            case 'device_ack':
+                responseChannel.postMessage({ cmd: 'working', device: remoteDevice, auth: currentAuth });
+                $('.save').hide();
+                $('.send').show();
+                $('.signer-banners').hide();
+                callModal(r);
+            }
+            break;
+        case 'fetch_confirmed':
+            $('.send').hide();
+            $('.save').show();
+            break;
+        case 'error':
+            $('.send').hide();
+            $('.save').show();
+            signerAlertMsg(msgFail);
+            break;
+        case 'device_report':
+            if (iAmRemote && useRemote) {
+                currentAuth = r.data.auth;
+                actionChannel.postMessage({ cmd: 'device_ack', device: remoteDevice, auth: currentAuth });
+            }
+            break;
+        case 'available':
+            if (iAmRemote && useRemote) {
+                const isBusy = ($('#openSignModal').data('bs.modal') || { isShown: false }).isShown;
+                actionChannel.postMessage({
+                    cmd: 'device_ack',
+                    polled: true,
+                    busy: isBusy,
+                    device: remoteDevice,
+                    auth: currentAuth,
+                });
+            }
+            break;
+        case 'device_ack':
+            isRemoteAvail = true;
+            if (r.data.check_in === true) {
+                // report check in to everybody. Someone may be waiting to sign.
+                signerAlertMsg(msgCheckIn, 5000, 'success');
                 isRemoteAvail = true;
-                if (r.data.check_in === true) {
-                    // report check in to everybody. Someone may be waiting to sign.
-                    signerAlertMsg(msgCheckIn, 5000, 'success');
-                    isRemoteAvail = true;
-                    break;
-                }
-                if (r.data.auth !== apiToken) {
-                    break;
-                }
-                if (r.data.polled === true) {
-                    isRemoteAvail = true;
-                    clearTimeout(AckBack);
-                    break;
-                }
-                let msg = msgCheckIn + ": " + r.data.device;
-                signerAlertMsg(msg, 2000, 'success');
                 break;
+            }
+            if (r.data.auth !== apiToken) {
+                break;
+            }
+            if (r.data.polled === true) {
+                isRemoteAvail = true;
+                clearTimeout(AckBack);
+                break;
+            }
+            signerAlertMsg(msg, 2000, 'success');
+            break;
 
-            default:
-                if (useRemote) actionChannel.postMessage({cmd: 'error', type: 'transactional', comment: "Unknown Command Received"});
-                break;
+        default:
+            if (useRemote) actionChannel.postMessage({ cmd: 'error', type: 'transactional', comment: 'Unknown Command Received' });
+            break;
         }
     };
     // ya think there'd be more!
     function callModal(e) {
         cpid = e.data.cpid;
         cuser = e.data.cuser;
-        let type = e.data.type;
-        let signerName = e.data.signerName || '';
+        const type = e.data.type;
+        const signerName = e.data.signerName || '';
 
         $('#openSignModal #name').val(signerName);
-        $('#openSignModal #labelName').html("&nbsp;" + msgSignator + ":&nbsp;<b>" + signerName + "</b>");
+        $('#openSignModal #labelName').html(`&nbsp;${msgSignator}:&nbsp;<b>${signerName}</b>`);
         $('#openSignModal #pid').val(cpid);
         $('#openSignModal #user').val(cuser);
         $('#openSignModal #signatureModal').data('type', type);
 
         if (type === 'admin-signature') {
             adminName = signerName;
-            $("#isAdmin").prop('checked', true);
+            $('#isAdmin').prop('checked', true);
             isAdmin = true;
         } else {
             ptName = signerName;
-            $("#isAdmin").prop('checked', false);
+            $('#isAdmin').prop('checked', false);
             isAdmin = false;
         }
-        $("#openSignModal").modal('show');
+        $('#openSignModal').modal('show');
     }
 
     function doConfirm(result) {
         placeSignature(result.data.signature, $lastEl);
-        if (useRemote) actionChannel.postMessage({cmd: 'fetch_confirmed'});
+        if (useRemote) actionChannel.postMessage({ cmd: 'fetch_confirmed' });
     }
 
     // global binding for signer form/template tag clicks.
@@ -468,19 +513,21 @@ function initSignerApi() {
     // mostly used with Patient Documents list however,
     // existing portal workflow is legacy and will deprecate here soon.
     bindFetch = function () {
-        $("img[data-action=fetch_signature]").on("click", function (e) {
-            e.stopPropagation();e.preventDefault();
+        $('img[data-action=fetch_signature]').on('click', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
             $lastEl = $(this);
-            let pid = $lastEl.data('pid');
-            let user = $lastEl.data('user');
-            let type = $lastEl.data('type');
-            let signerName = '';
-            let url = webRoot + "/portal/sign/lib/show-signature.php";
+            const pid = $lastEl.data('pid');
+            const user = $lastEl.data('user');
+            const type = $lastEl.data('type');
+            const signerName = '';
+            const url = `${webRoot}/portal/sign/lib/show-signature.php`;
 
-            if (type === "admin-signature" && isPortal) {
+            if (type === 'admin-signature' && isPortal) {
                 // don't allow patient to change user signature.
                 return false;
-            } else if(isPortal) {
+            }
+            if (isPortal) {
                 getSignature(this);
                 return false;
             }
@@ -490,20 +537,20 @@ function initSignerApi() {
                 credentials: 'include',
                 method: 'POST',
                 body: JSON.stringify({
-                    pid: pid,
-                    user: user,
-                    type: type,
+                    pid,
+                    user,
+                    type,
                     is_portal: isPortal,
-                    mode: 'fetch_info'
+                    mode: 'fetch_info',
                 }),
                 headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                }
-            }).then(response => response.json())
+                    Accept: 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json',
+                },
+            }).then((response) => response.json())
                 .then(function (response) {
                     let signerName = '';
-                    if (type === "admin-signature") {
+                    if (type === 'admin-signature') {
                         signerName = response.userName;
                         adminName = signerName;
                     } else {
@@ -511,12 +558,12 @@ function initSignerApi() {
                         ptName = signerName;
                     } // response.signature is available if needed in future.
                     if (!isRemoteAvail) {
-                        let e = [];
+                        const e = [];
                         e.data = {
                             cpid: pid,
                             cuser: user,
-                            type: type,
-                            signerName: signerName
+                            type,
+                            signerName,
                         };
                         callModal(e);
                         return;
@@ -527,19 +574,21 @@ function initSignerApi() {
                             auth: apiToken,
                             cpid: pid,
                             cuser: user,
-                            signerName: signerName,
-                            type: type
+                            signerName,
+                            type,
                         });
                         ack();
                     }
-                }).catch(error => signerAlertMsg(error));
+                }).catch((error) => signerAlertMsg(error));
+            return true;
         });
 
         $(function () {
             // default all signatures to icon regardless of new or edit..
-            $(".signature").each(function (index, value) {
-                if (!$(this).attr('src'))
+            $('.signature').each(function (index, value) {
+                if (!$(this).attr('src')) {
                     $(this).attr('src', signhere);
+                }
             });
         });
     };
@@ -547,87 +596,86 @@ function initSignerApi() {
     // initial binds for form pen clicks
     bindFetch();
 
-//-------------------- Continue loading seq with init of modal buttons and various bindings --------------------//
+    // Continue loading seq with init of modal buttons and various bindings
     $(function (global) {
-        var wrapper = document.getElementById("openSignModal");
-        var canvasOptions = {
-            minWidth: .75,
+        const wrapper = document.getElementById('openSignModal');
+        const canvasOptions = {
+            minWidth: 0.75,
             maxWidth: 2.75,
             penColor: 'rgb(0, 0, 0)',
             minDistance: 4,
-            /*throttle: 0,*/
-            velocityFilterWeight: .2,
+            velocityFilterWeight: 0.2,
         };
-        var openPatientButton = document.querySelector("[data-type=patient-signature]");
-        var openAdminButton = document.querySelector("[data-type=admin-signature]");
-        var placeSignatureButton = wrapper.querySelector("[data-action=place]");
-        var showSignature = wrapper.querySelector("[data-action=show]");
-        var saveSignature = wrapper.querySelector("[data-action=save_signature]");
-        var sendSignature = wrapper.querySelector("[data-action=send_signature]");
-        var clearButton = wrapper.querySelector("[data-action=clear]");
-        var canvas = wrapper.querySelector("canvas");
+        const openPatientButton = document.querySelector('[data-type=patient-signature]');
+        const openAdminButton = document.querySelector('[data-type=admin-signature]');
+        let placeSignatureButton = wrapper.querySelector('[data-action=place]');
+        const showSignature = wrapper.querySelector('[data-action=show]');
+        const saveSignature = wrapper.querySelector('[data-action=save_signature]');
+        const sendSignature = wrapper.querySelector('[data-action=send_signature]');
+        const clearButton = wrapper.querySelector('[data-action=clear]');
+        const canvas = wrapper.querySelector('canvas');
         let signaturePad;
 
         // this offsets signature image to center on element somewhat
         // on any form (css) box height:70px length:auto center at 20px.
         $(function (e) {
-            let els = this.querySelectorAll("img[data-action=fetch_signature]");
-            let i; // caution using let in for
-            for (i = 0; i < els.length; i++) {
-                els[i].style.top = (els[i].offsetTop - 20) + 'px';
-                els[i].setAttribute("data-offset", true);
+            const els = this.querySelectorAll('img[data-action=fetch_signature]');
+            for (let i = 0; i < els.length; i += 1) {
+                els[i].style.top = `${els[i].offsetTop - 20}px`;
+                els[i].setAttribute('data-offset', true);
             }
         });
 
-        $(openPatientButton).on("click", function (e) {
-            $(wrapper).modal({backdrop: "static"});
+        $(openPatientButton).on('click', function (e) {
+            $(wrapper).modal({ backdrop: 'static' });
         });
-        $(openAdminButton).on("click", function (e) {
-            $(wrapper).modal({backdrop: "static"});
+        $(openAdminButton).on('click', function (e) {
+            $(wrapper).modal({ backdrop: 'static' });
         });
 
-        $("#openSignModal .close").on("click", function (e) {
+        $('#openSignModal .close').on('click', function (e) {
             signaturePad.clear();
         });
 
-        if(typeof placeSignatureButton === 'undefined' || !placeSignatureButton) {
-            placeSignatureButton = wrapper.querySelector("[data-action=place]");
+        if (typeof placeSignatureButton === 'undefined' || !placeSignatureButton) {
+            placeSignatureButton = wrapper.querySelector('[data-action=place]');
         }
 
         // for our dynamically added modal
-        $("#openSignModal").on('show.bs.modal', function (e) {
+        $('#openSignModal').on('show.bs.modal', function (e) {
             let type = '';
             if (typeof e.relatedTarget !== 'undefined') {
                 type = e.relatedTarget.getAttribute('data-type');
                 if (!type) { // rarely should this be seen but in case. Won't translate.
-                    let torf = confirm("Click Okay if Signatory is Patient.\nClick Cancel if Signatory is User");
+                    const torf = window.confirm('Click Okay if Signatory is Patient.\nClick Cancel if Signatory is User');
                     if (torf) {
-                        type = "patient-signature";
+                        type = 'patient-signature';
                     } else {
-                        type = "admin-signature";
+                        type = 'admin-signature';
                     }
                 }
             }
             if (type) {
-                if (type === "admin-signature") {
-                    $("#isAdmin").prop('checked', true);
-                    placeSignatureButton.setAttribute("type", type);
+                if (type === 'admin-signature') {
+                    $('#isAdmin').prop('checked', true);
+                    placeSignatureButton.setAttribute('type', type);
                     isAdmin = true;
                 } else {
-                    $("#isAdmin").prop('checked', false);
-                    placeSignatureButton.setAttribute("type", type);
+                    $('#isAdmin').prop('checked', false);
+                    placeSignatureButton.setAttribute('type', type);
                     isAdmin = false;
                 }
                 $('#signatureModal').data('type', type);
             }
-            let showElement = document.getElementById('signatureModal');
+            const showElement = document.getElementById('signatureModal');
             $('#signatureModal').attr('src', signhere);
-            $("#openSignModal").modal({backdrop: false});
+            $('#openSignModal').modal({ backdrop: false });
             $('html').css({
-                'overflow': 'hidden', 'padding-right': '15px'
+                overflow: 'hidden',
+                'padding-right': '15px',
             });
             $(this).css({
-                'padding-right': '0px'
+                'padding-right': '0px',
             });
             $('body').bind('selectstart', function () {
                 return false;
@@ -637,115 +685,139 @@ function initSignerApi() {
             signaturePad = new SignaturePad(canvas, canvasOptions);
             resizeCanvas();
         }).on('hide.bs.modal', function () {
-            if ((typeof $lastEl !== 'undefined' || !$lastEl) && typeof event === "undefined" && !isRemoteAvail) {
+            if ((typeof $lastEl !== 'undefined' || !$lastEl) && typeof window.event === 'undefined' && !isRemoteAvail) {
                 if (!signaturePad.isEmpty()) {
-                    let dataURL = signaturePad.toDataURL();
+                    const dataURL = signaturePad.toDataURL();
                     placeSignature(dataURL, $lastEl);
                 }
             }
-        }).on('hidden.bs.modal', function () {
-            if (iAmRemote) {
-                $(".signer-banners").show();
-                if (responseChannel !== '') {
-                    if (signaturePad.isEmpty()) {
-                        if (useRemote) responseChannel.postMessage({cmd: 'fetch_canceled', auth: currentAuth});
+        })
+            .on('hidden.bs.modal', function () {
+                if (iAmRemote) {
+                    $('.signer-banners').show();
+                    if (responseChannel !== '') {
+                        if (signaturePad.isEmpty()) {
+                            if (useRemote) {
+                                responseChannel.postMessage({ cmd: 'fetch_canceled', auth: currentAuth });
+                            }
+                        }
                     }
                 }
-            }
-            $('html').css({
-                'overflow': 'inherit'
+                $('html').css({
+                    overflow: 'inherit',
+                });
+                $('body').unbind('selectstart');
             });
-            $('body').unbind('selectstart');
-        });
 
-        clearButton.addEventListener("click", function (event) {
+        clearButton.addEventListener('click', function (event) {
             signaturePad.clear();
         });
 
-        sendSignature.addEventListener("click", function (event) {
+        sendSignature.addEventListener('click', function (event) {
             if (signaturePad.isEmpty()) {
                 signerAlertMsg(msgNeedSign, 3000);
             } else {
-                let dataURL = signaturePad.toDataURL();
+                const dataURL = signaturePad.toDataURL();
                 archiveSignature(encodeURIComponent(dataURL));
-                if (useRemote)
-                    responseChannel.postMessage({cmd: 'fetch_response', signature: dataURL, auth: currentAuth});
+                if (useRemote) {
+                    responseChannel.postMessage({ cmd: 'fetch_response', signature: dataURL, auth: currentAuth });
+                }
             }
         });
 
-        saveSignature.addEventListener("click", function (event) {
+        saveSignature.addEventListener('click', function (event) {
             if (signaturePad.isEmpty()) {
                 signerAlertMsg(msgNeedSign, 3000);
             } else {
-                let signerName, type = '';
-                if ($("#isAdmin").is(':checked') === true) {
-                    type = "admin-signature";
+                let signerName;
+                let type = '';
+                if ($('#isAdmin').is(':checked') === true) {
+                    type = 'admin-signature';
                     isAdmin = true;
                 } else {
-                    type = "patient-signature";
+                    type = 'patient-signature';
                 }
-                webRoot = webRoot ? webRoot : top.webroot_url;
-                let url = webRoot + "/portal/sign/lib/show-signature.php";
+                if (!webRoot) {
+                    webRoot = window.top.webroot_url;
+                }
+
+                const url = `${webRoot}/portal/sign/lib/show-signature.php`;
                 fetch(url, {
                     credentials: 'include',
                     method: 'POST',
                     body: JSON.stringify({
                         pid: cpid,
                         user: cuser,
-                        type: type,
+                        type,
                         is_portal: isPortal,
-                        mode: 'fetch_info'
+                        mode: 'fetch_info',
                     }),
                     headers: {
-                        'Accept': 'application/json, text/plain, */*',
-                        'Content-Type': 'application/json'
-                    }
-                }).then(response => response.json()).then(function (response) {
+                        Accept: 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json',
+                    },
+                }).then((response) => response.json()).then(function (response) {
                     signerName = ptName = response.ptName;
                     if (isAdmin) {
                         signerName = adminName = response.userName;
                     }
-                    let dataURL = signaturePad.toDataURL();
-                    let e = [];
+                    const dataURL = signaturePad.toDataURL();
+                    const e = [];
                     e.data = {
-                        cpid: cpid,
-                        cuser: cuser,
-                        type: type,
-                        signer: signerName
+                        cpid,
+                        cuser,
+                        type,
+                        signer: signerName,
                     };
                     archiveSignature(encodeURIComponent(dataURL), e);
                 });
             }
         });
 
-        placeSignatureButton.addEventListener("click", function (event) {
-            let thisElement = $(this);
-            getSignature(thisElement, true).then(r => {
-                let imgurl = thisElement.attr('src');
+        placeSignatureButton.addEventListener('click', function (event) {
+            const thisElement = $(this);
+            getSignature(thisElement, true).then((r) => {
+                const imgurl = thisElement.attr('src');
                 signaturePad.fromDataURL(imgurl);
             });
         });
 
-        if (showSignature !== null)
-        showSignature.addEventListener("click", function (event) { // for modal view
-            let showElement = document.getElementById('signatureModal');
-            getSignature(showElement);
-        });
+        if (showSignature !== null) {
+            showSignature.addEventListener('click', function (event) { // for modal view
+                const showElement = document.getElementById('signatureModal');
+                getSignature(showElement);
+            });
+        }
 
         function resizeCanvas() {
-            let ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
+            canvas.getContext('2d').scale(ratio, ratio);
+        }
+
+        function dataURLToBlob(dataURL) {
+            // Code taken from https://github.com/ebidel/filer.js
+            const parts = dataURL.split(';base64,');
+            const contentType = parts[0].split(':')[1];
+            const raw = window.atob(parts[1]);
+            const rawLength = raw.length;
+            const uInt8Array = new Uint8Array(rawLength);
+
+            for (let i = 0; i < rawLength; i += 1) {
+                uInt8Array[i] = raw.charCodeAt(i);
+            }
+
+            return new Blob([uInt8Array], { type: contentType });
         }
 
         // this is nifty JS download. leaving for future.
         // plus someone may come across and find useful.
         function download(dataURL, filename) {
-            let blob = dataURLToBlob(dataURL);
-            let url = window.URL.createObjectURL(blob);
-            let a = document.createElement("a");
-            a.style = "display: none";
+            const blob = dataURLToBlob(dataURL);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style = 'display: none';
             a.href = url;
             a.download = filename;
             document.body.appendChild(a);
@@ -753,25 +825,10 @@ function initSignerApi() {
             window.URL.revokeObjectURL(url);
         }
 
-        function dataURLToBlob(dataURL) {
-            // Code taken from https://github.com/ebidel/filer.js
-            let parts = dataURL.split(';base64,');
-            let contentType = parts[0].split(":")[1];
-            let raw = window.atob(parts[1]);
-            let rawLength = raw.length;
-            let uInt8Array = new Uint8Array(rawLength);
-
-            for (var i = 0; i < rawLength; ++i) {
-                uInt8Array[i] = raw.charCodeAt(i);
-            }
-
-            return new Blob([uInt8Array], {type: contentType});
-        }
-
         // TODO create method to remove line on canvas save
         function drawSignatureLine() {
-            let context = canvas.getContext('2d');
-            context.lineWidth = .4;
+            const context = canvas.getContext('2d');
+            context.lineWidth = 0.4;
             context.strokeStyle = '#333';
             context.beginPath();
             context.moveTo(0, 200);
@@ -787,12 +844,12 @@ function initSignerApi() {
 
         if (iAmRemote) {
             // tell user that a signer is available
-            if (useRemote) actionChannel.postMessage({cmd: 'device_ack', device: remoteDevice, check_in: true});
-        } else {
+            if (useRemote) {
+                actionChannel.postMessage({ cmd: 'device_ack', device: remoteDevice, check_in: true });
+            }
+        } else if (useRemote) {
             // check if a remote signer is available
-            if (useRemote) actionChannel.postMessage({cmd: 'device_report', auth: apiToken});
+            actionChannel.postMessage({ cmd: 'device_report', auth: apiToken });
         }
-
     }); // dom
-
 }

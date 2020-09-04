@@ -35,8 +35,8 @@ function updateApptTime(marker, index, y, date, provider) {
 function displayApptTime(evt) {
     marker = $(this).find('a.apptMarker');
     if (marker.length === 0) {
-        style="style=\'height:"+tsHeight+";\'"
-        $(this).find('div.calendar_day').append("<a class=\'apptMarker event event_appointment\'"+style+"></a>");
+        const style = `style=\'height:${tsHeight};\'`;
+        $(this).find('div.calendar_day').append(`<a class=\'apptMarker event event_appointment\'${style}></a>`);
         marker = $(this).find('a.apptMarker');
         marker.css('z-index', 1);
     }

@@ -1,3 +1,6 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-var */
+
 // namespaces
 var dwvOemr = dwvOemr || {};
 /** @namespace */
@@ -260,6 +263,7 @@ dwvOemr.html.highlight = function (term, container) {
                 node.parentNode.replaceChild(new_node, node);
 
                 let result;
+                // eslint-disable-next-line no-cond-assign
                 while ((result = data_low.indexOf(term)) !== -1) {
                     // before term
                     new_node.appendChild(document.createTextNode(

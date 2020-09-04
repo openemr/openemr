@@ -8,7 +8,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-"use strict";
+
 var net = require('net');
 var to_json = require('xmljson').to_json;
 var bbg = require('oe-blue-button-generate');

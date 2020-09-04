@@ -22,7 +22,6 @@ $(document).mouseup(function (e) {
     }
 });
 
-
 (function ($) {
     window.addRule = function (selector, styles, sheet) {
         styles = (function (styles) {

@@ -1,3 +1,4 @@
+/* eslint-disable no-cond-assign */
 /**
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,77 +26,154 @@
 validate.extend(validate.validators.datetime, {
     // The value is guaranteed not to be null or undefined but otherwise it
     // could be anything.
-    parse: function(value, options) {
-        var format = '';
-        if(typeof options.format !== 'undefined') {
-            format =options.format;
-        }
-        else {
-            if (typeof g_date_format !== 'undefined') {
-                switch(g_date_format) {
-                    case "0":
-                        format = 'YYYY-MM-DD';
-                        break;
-                    case "1":
-                        format = 'MM/DD/YYYY';
-                        break;
-                    case "2":
-                        format = 'DD/MM/YYYY';
-                        break;
-                    default:
-                        format = 'YYYY-MM-DD';
-                }
+    parse(value, options) {
+        let format = '';
+        if (typeof options.format !== 'undefined') {
+            format = options.format;
+        } else if (typeof g_date_format !== 'undefined') {
+            switch (g_date_format) {
+            case '0':
+                format = 'YYYY-MM-DD';
+                break;
+            case '1':
+                format = 'MM/DD/YYYY';
+                break;
+            case '2':
+                format = 'DD/MM/YYYY';
+                break;
+            default:
+                format = 'YYYY-MM-DD';
             }
-            else{format = 'YYYY-MM-DD';} //default
+        } else {
+            format = 'YYYY-MM-DD';
         }
         return (moment.utc(value, format));
     },
     // Input is a unix timestamp
-    format: function(value, options) {
-        var format = '';
-        if (options.dateOnly){
-            if(typeof options.format !== 'undefined') {
-                format =options.format;
-            }
-            else {
-                if (typeof g_date_format !== 'undefined') {
-                    switch(g_date_format) {
-                        case "0":
-                            format = 'YYYY-MM-DD';
-                            break;
-                        case "1":
-                            format = 'MM/DD/YYYY';
-                            break;
-                        case "2":
-                            format = 'DD/MM/YYYY';
-                            break;
-                        default:
-                            format = 'YYYY-MM-DD';
-                    }
+    format(value, options) {
+        let format = '';
+        if (options.dateOnly) {
+            if (typeof options.format !== 'undefined') {
+                format = options.format;
+            } else if (typeof g_date_format !== 'undefined') {
+                switch (g_date_format) {
+                case '0':
+                    format = 'YYYY-MM-DD';
+                    break;
+                case '1':
+                    format = 'MM/DD/YYYY';
+                    break;
+                case '2':
+                    format = 'DD/MM/YYYY';
+                    break;
+                default:
+                    format = 'YYYY-MM-DD';
                 }
-                else{format = 'YYYY-MM-DD';} //default
+            } else {
+                format = 'YYYY-MM-DD'; // default
             }
-        }else{
-            format="YYYY-MM-DD hh:mm:ss";
+        } else {
+            format = 'YYYY-MM-DD hh:mm:ss';
         }
-
         return (moment.utc(value, format));
-    }
+    },
 });
 
-
 /*
-*  Custom validator documentation - https://validatejs.org/#custom-validator
-*/
+ *  Custom validator documentation - https://validatejs.org/#custom-validator
+ */
+
+// throw error
+function throwError(message) {
+    if (validate.isObject(options) && options.message !== undefined) {
+        return options.message;
+    }
+    return message;
+}
 
 /**
-* validate that date is past date, recommended to put it after {date: {dateOnly: true}}
-* you can specify the message option {pastDate:{message:'text example'}}
-* optional options -
-* 1)(string) massage
-* 2)(boolean) onlyYear
-*/
-validate.validators.pastDate = function(value, options) {
+ * date validation helper method
+ * @param value
+ * @param options
+ * @param type  =>  1 to check date is past, 2 to check date is future
+ * @returns {*}
+ */
+function dateValidation(value, options, type) {
+    // exit if empty value
+    if (validate.isEmpty(value)) {
+        return false;
+    }
+    // exit if options = false
+    if (!options) {
+        return false;
+    }
+    // Without this fix an empty date doesn't pass validation because value in DB is "0000-00-00".
+    if (value === '0000-00-00') {
+        return false;
+    }
+    const now = new Date().getTime();
+
+    // if set onlyYear option
+    if (value < 1800 || value > 9999) {
+        return throwError('Year must be between 1800 and 9999');
+    }
+
+    if (options.onlyYear !== undefined && options.onlyYear) {
+        if (type === '1' && value > now.getFullYear) {
+            return throwError('Must be past date');
+        }
+        if (type === '2' && value < now.getFullYear) {
+            return throwError('Must be future date');
+        }
+        return false; // passed validation
+    }
+
+    let format = 0;
+    if (typeof (g_date_format) !== 'undefined') {
+        format = g_date_format;
+    }
+
+    let date = '';
+    const datetimeParts = value.split(' ');
+    const dateParts = datetimeParts[0].split('/');
+    const hoursMinutesParts = datetimeParts[1].split(':');
+
+    switch (format) {
+    // case date format is dd/mm/YYYY
+    case '2':
+        if (typeof datetimeParts[1] === 'undefined') {
+            date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+        } else {
+            date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0],
+                hoursMinutesParts[0], hoursMinutesParts[1] + 1);
+        }
+        break;
+    default:
+        date = new Date(value);
+    }
+
+    const mls_date = date.getTime();
+    if (Number.isNaN(mls_date)) {
+        return throwError('Must be valid date');
+    }
+
+    if (type === '1' && mls_date > now) {
+        return throwError('Must be past date');
+    }
+    if (type === '2' && mls_date < now) {
+        return throwError('Must be future date');
+    }
+    return true;
+}
+
+/**
+ * validate that date is past date, recommended to put it after {date: {dateOnly: true}}
+ * you can specify the message option {pastDate:{message:'text example'}}
+ * optional options -
+ * 1)(string) massage
+ * 2)(boolean) onlyYear
+ */
+validate.validators.pastDate = function (value, options) {
     return dateValidation(value, options, '1');
 };
 
@@ -106,88 +184,9 @@ validate.validators.pastDate = function(value, options) {
  * 1)(string) massage
  * 2)(boolean) onlyYear
  */
-validate.validators.futureDate = function(value, options) {
+validate.validators.futureDate = function (value, options) {
     return dateValidation(value, options, '2');
 };
-
-/**
- * date validation helper method
- * @param value
- * @param options
- * @param type  =>  1 to check date is past, 2 to check date is future
- * @returns {*}
- */
-function dateValidation(value, options, type){
-    //exit if empty value
-    if(validate.isEmpty(value)) { return;}
-    // exit if options = false
-    if(!options) return;
-    //Without this fix an empty date doesn't pass validation because value in DB is "0000-00-00".
-    if(value == "0000-00-00"){
-        return;
-    }
-    var now = new Date().getTime();
-
-    //if set onlyYear option
-    if(value < 1800 || value > 9999 ){
-        return throwError('Year must be between 1800 and 9999');
-    }
-
-    if (options.onlyYear != undefined && options.onlyYear) {
-        if(type === '1' && value > now.getFullYear) {
-            return throwError('Must be past date');
-        }
-        if(type === '2' && value < now.getFullYear){
-            return throwError('Must be future date');
-        }
-        return; // passed validation
-    }
-
-    var format=0;
-    if (typeof(g_date_format) !== 'undefined') {
-        format=g_date_format;
-    }
-
-    var date = '';
-
-    switch(format) {
-        // case date format is dd/mm/YYYY
-        case "2":
-            var datetimeParts = value.split(" ");
-            var dateParts = datetimeParts[0].split("/");
-            if(typeof datetimeParts[1] === 'undefined') {
-                var date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
-            } else {
-                var hoursMinutesParts = datetimeParts[1].split(":");
-                var date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], hoursMinutesParts[0], hoursMinutesParts[1] + 1);
-            }
-            break;
-        default:
-            date =  new Date(value);
-    }
-
-
-    var mls_date = date.getTime();
-    if(isNaN(mls_date)) {
-        return throwError('Must be valid date');
-    }
-
-    if(type === '1' && mls_date > now) {
-        return throwError('Must be past date');
-    }
-    if(type === '2' && mls_date < now){
-        return throwError('Must be future date');
-    }
-
-    // throw error
-    function throwError(message){
-        if(validate.isObject(options) && options.message != undefined) {
-            return options.message;
-        } else {
-            return message;
-        }
-    }
-}
 
 /**
  * Luhn algorithm in JavaScript: validate credit card number supplied as string of numbers
@@ -196,19 +195,18 @@ function dateValidation(value, options, type){
  *
  */
 
-validate.validators.luhn = function(value, options) {
-
-    //calculate Luhn algorithm
-    var luhnChk = (function (arr) {
+validate.validators.luhn = function (value, options) {
+    // calculate Luhn algorithm
+    const luhnChk = (function (arr) {
         return function (ccNum) {
-            var
-                len = ccNum.length,
-                bit = 1,
-                sum = 0,
-                val;
+            let len = ccNum.length;
+            let bit = 1;
+            let sum = 0;
+            let val = 0;
 
             while (len) {
-                val = parseInt(ccNum.charAt(--len), 10);
+                val = parseInt(ccNum.charAt(len -= 1), 10);
+                // eslint-disable-next-line no-bitwise
                 sum += (bit ^= 1) ? arr[val] : val;
             }
 
@@ -216,21 +214,22 @@ validate.validators.luhn = function(value, options) {
         };
     }([0, 2, 4, 6, 8, 1, 3, 5, 7, 9]));
 
-    //exit if empty value
-    if(validate.isEmpty(value)) { return; }
-    // exit if options = false
-    if(!options) return;
-
-    var valid = luhnChk(value);
-
-    if(!valid) {
-        if(validate.isObject(options) && options.message != undefined) {
-            return options.message;
-        } else {
-            return 'Invalid luhn algorithm';
-        }
+    // exit if empty value
+    if (validate.isEmpty(value)) {
+        return false;
     }
-}
+    // exit if options = false
+    if (!options) {
+        return false;
+    }
 
+    const valid = luhnChk(value);
 
-
+    if (!valid) {
+        if (validate.isObject(options) && options.message !== undefined) {
+            return options.message;
+        }
+        return 'Invalid luhn algorithm';
+    }
+    return true;
+};
