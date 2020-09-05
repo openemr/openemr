@@ -152,7 +152,9 @@ RestConfig::$ROUTE_MAP = array(
     },
     "GET /api/patient/:pid/encounter/:eid/vital" => function ($pid, $eid) {
         RestConfig::authorization_check("encounters", "notes");
-        return (new EncounterRestController())->getVitals($pid, $eid);
+        $return = (new EncounterRestController())->getVitals($pid, $eid);
+        RestConfig::apiLog($return);
+        return $return;
     },
     "GET /api/patient/:pid/encounter/:eid/vital/:vid" => function ($pid, $eid, $vid) {
         RestConfig::authorization_check("encounters", "notes");
@@ -162,7 +164,7 @@ RestConfig::$ROUTE_MAP = array(
     },
     "GET /api/patient/:pid/encounter/:eid/soap_note/:sid" => function ($pid, $eid, $sid) {
         RestConfig::authorization_check("encounters", "notes");
-        $return =(new EncounterRestController())->getSoapNote($pid, $eid, $sid);
+        $return = (new EncounterRestController())->getSoapNote($pid, $eid, $sid);
         RestConfig::apiLog($return);
         return $return;
     },
