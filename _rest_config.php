@@ -259,7 +259,18 @@ class RestConfig
     static function apiLog($response = '', $requestBody = '')
     {
         // only log when using standard api calls (skip when using local api calls from within OpenEMR)
-        if (!$GLOBALS['is_local_api']) {
+        //  and when api log option is set
+        if (!$GLOBALS['is_local_api'] && $GLOBALS['api_log_option']) {
+            if ($GLOBALS['api_log_option'] == 1) {
+                // Do not log the response and requestBody
+                $response = '';
+                $requestBody = '';
+            }
+
+            // collect pertinent elements
+            $method = $_SERVER['REQUEST_METHOD'];
+            $url = $_SERVER['REQUEST_URI'];
+
             // convert pertinent elements to json
             $requestBody = (!empty($requestBody)) ? json_encode($requestBody) : '';
             $response = (!empty($response)) ? json_encode($response) : '';
@@ -269,18 +280,21 @@ class RestConfig
             if ($GLOBALS['enable_auditlog_encryption']) {
                 $encrypted = 1;
                 $cryptoGen = new CryptoGen();
+                $url = (!empty($url)) ? $cryptoGen->encryptStandard($url) : '';
                 $requestBody = (!empty($requestBody)) ? $cryptoGen->encryptStandard($requestBody) : '';
-                $response =  (!empty($response)) ? $cryptoGen->encryptStandard($response): '';
+                $response =  (!empty($response)) ? $cryptoGen->encryptStandard($response) : '';
             }
 
             // log the api call
             sqlStatementNoLog(
-                "INSERT INTO `api_log` (`ip_address`, `user_id`, `patient_id`, `request_url`, `request_body`, `response`, `encrypted`, `created_time`) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())",
+                "INSERT INTO `api_log` (`user_id`, `patient_id`, `ip_address`, `method`, `request`, `request_url`, `request_body`, `response`, `encrypted`, `created_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
                 [
-                    collectIpAddresses()['ip_string'],
                     ($_SESSION['authUserID'] ?? 0),
                     ($_SESSION['pid'] ?? 0),
+                    collectIpAddresses()['ip_string'],
+                    $method,
                     $GLOBALS['resource'],
+                    $url,
                     $requestBody,
                     $response,
                     $encrypted

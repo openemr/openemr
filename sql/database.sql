@@ -89,6 +89,8 @@ CREATE TABLE `api_log` (
   `user_id` bigint(20) NOT NULL,
   `patient_id` bigint(20) NOT NULL,
   `ip_address` varchar(255) NOT NULL,
+  `method` varchar(20) NOT NULL,
+  `request` varchar(255) NOT NULL,
   `request_url` text,
   `request_body` longtext,
   `response` longtext,
