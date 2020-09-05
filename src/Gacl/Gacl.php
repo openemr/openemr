@@ -165,8 +165,11 @@ class Gacl {
 			// Port to be used in connection
 			$this->db->port = $sqlconf["port"];
 
-			$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
-
+            if ($GLOBALS["enable_database_connection_pooling"]) {
+                $this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
+            } else {
+                $this->db->connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
+            }
             // Modified 5/2009 by BM for UTF-8 project
             if ($this->_db_encoding_setting == "utf8mb4") {
                 $success_flag = $this->db->Execute("SET NAMES 'utf8mb4'");

@@ -88,11 +88,9 @@ final class Connector
     }
 
     /**
-     * Creates the pooled Doctrine connection. All connection data is configurable via sqlconf.php.
-     * By default, the connection is pooled, in a nondev mode, and uses the pdo_mysql driver. Note
-     * that $GLOBALS["doctrine_connection_pooling"] and $GLOBALS["doctrine_dev_mode"] are used instead
-     * of $sqlconf[] because editing the sqlconf.php is not allowed (will mess up endusers trying to
-     * upgrade their install).
+     * Creates the Doctrine connection. All connection data is configurable via sqlconf.php.
+     * Pooling os controlled by $GLOBALS["enable_database_connection_pooling"] set in Globals at
+     * 'Enable Database Connection Pooling' setting.
      *
      * @todo document throwables
      */
@@ -101,7 +99,13 @@ final class Connector
         global $sqlconf;
         $entityPath = array(__DIR__ . "../entities");
 
-        $this->logger->trace("Connecting with " . ($GLOBALS["doctrine_connection_pooling"] ? "pooled" : "non-pooled") . " mode");
+        if ($GLOBALS["enable_database_connection_pooling"]) {
+            $doctrinePooling = true;
+        } else {
+            $doctrinePooling = false;
+        }
+
+        $this->logger->trace("Connecting with " . ($doctrinePooling ? "pooled" : "non-pooled") . " mode");
         $connection = array(
             'driver'   => "pdo_mysql",
             'host'     => $sqlconf["host"],
@@ -109,7 +113,7 @@ final class Connector
             'user'     => $sqlconf["login"],
             'password' => $sqlconf["pass"],
             'dbname'   => $sqlconf["dbase"],
-            'pooled'   => $GLOBALS["doctrine_connection_pooling"]
+            'pooled'   => $doctrinePooling
         );
 
         global $disable_utf8_flag;

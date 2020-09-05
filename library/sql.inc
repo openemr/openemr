@@ -39,7 +39,11 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
     }
 }
 $database->port = $port;
-$database->PConnect($host, $login, $pass, $dbase);
+if ($GLOBALS["enable_database_connection_pooling"]) {
+    $database->PConnect($host, $login, $pass, $dbase);
+} else {
+    $database->connect($host, $login, $pass, $dbase);
+}
 $GLOBALS['adodb']['db'] = $database;
 $GLOBALS['dbh'] = $database->_connectionID;
 
@@ -685,7 +689,11 @@ function getPrivDB()
                 }
             }
             $GLOBALS['PRIV_DB']->port = $port;
-            $GLOBALS['PRIV_DB']->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);
+            if ($GLOBALS["enable_database_connection_pooling"]) {
+                $GLOBALS['PRIV_DB']->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);
+            } else {
+                $GLOBALS['PRIV_DB']->connect($secure_host, $secure_login, $secure_pass, $secure_dbase);
+            }
             // set up associations in adodb calls
             $GLOBALS['PRIV_DB']->SetFetchMode(ADODB_FETCH_ASSOC);
             // debug hook for ssl stuff

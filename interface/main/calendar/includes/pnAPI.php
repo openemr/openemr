@@ -267,7 +267,12 @@ function pnDBInit()
         }
     }
     $dbconn->port = $dbport;
-    $dbh = $dbconn->Connect($dbhost, $dbuname, $dbpass, $dbname);
+
+    if ($GLOBALS["enable_database_connection_pooling"]) {
+        $dbh = $dbconn->PConnect($dbhost, $dbuname, $dbpass, $dbname);
+    } else {
+        $dbh = $dbconn->connect($dbhost, $dbuname, $dbpass, $dbname);
+    }
     if (!$dbh) {
         //$dbpass = "";
         //die("$dbtype://$dbuname:$dbpass@$dbhost/$dbname failed to connect" . $dbconn->ErrorMsg());
