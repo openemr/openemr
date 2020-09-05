@@ -605,4 +605,5 @@ jobs:
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
   allow_failures:
+    - name: 'Syntax - PHP 8.0'
     - name: 'Build and test - PHP 8.0 - Nginx - MariaDB 10.5'
