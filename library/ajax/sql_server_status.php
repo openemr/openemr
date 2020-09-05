@@ -41,10 +41,7 @@ if (isset($_POST['poll'])) {
     $stat_result = sqlStatementNoLog($trans_query, array($db_in_question));
     $q_msg = '';
     while ($stat_row = sqlFetchArray($stat_result)) {
-        // remove select reporting.
-        if (stripos($stat_row['INFO'], 'SELECT') !== false) {
-            //continue;
-        }
+        $stat_row['INFO'] = preg_replace('![a-z]+!', '*', $stat_row['INFO']);
         $q_msg .= "<li class='text-primary'>";
         $q_msg .= $cur_date . "  " . $_GET['poll'] . " " . $stat_row['INFO'];
         $q_msg .= "</li>";
