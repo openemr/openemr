@@ -2732,6 +2732,17 @@ $GLOBALS_METADATA = array(
             xl('Enable Audit Log Encryption')
         ),
 
+        'api_log_option' => array(
+            xl('API Log Option'),
+            array(
+                '0' => xl('No logging'),
+                '1' => xl('Minimal Logging'),
+                '2' => xl('Full Logging'),
+            ),
+            '2',                               // default
+            xl('API Log Option (Full includes requests and responses).')
+        ),
+
         'billing_log_option' => array(
             xl('Billing Log Option'),
             array(
