@@ -99,7 +99,7 @@ final class Connector
         global $sqlconf;
         $entityPath = array(__DIR__ . "../entities");
 
-        if ($GLOBALS["enable_database_connection_pooling"]) {
+        if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
             $doctrinePooling = true;
         } else {
             $doctrinePooling = false;

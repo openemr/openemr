@@ -69,7 +69,7 @@ class DataDriverMySQLi implements IDataDriver
         $host = $hostAndPort [0];
         $port = count($hostAndPort) > 1 ? $hostAndPort [1] : null;
 
-        if ($GLOBALS["enable_database_connection_pooling"]) {
+        if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
             $host = "p:" . $host;
         }
 
