@@ -20,6 +20,14 @@ $ignoreAuth = true;
 
 require_once(__DIR__ . '/../../interface/globals.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!empty($_POST)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
+    }
+}
+
 $trans_query = <<< strQuery
 Select * From INFORMATION_SCHEMA.PROCESSLIST
 Where COMMAND <> 'Sleep'
@@ -27,7 +35,7 @@ And INFO NOT LIKE '%INFORMATION_SCHEMA.PROCESSLIST%'
 And DB = ?;
 strQuery;
 
-if (isset($_GET['poll'])) {
+if (isset($_POST['poll'])) {
     $cur_date = date("m/d H:i:s");
     $db_in_question = $GLOBALS ['dbase'];
     $stat_result = sqlStatementNoLog($trans_query, array($db_in_question));
@@ -35,10 +43,10 @@ if (isset($_GET['poll'])) {
     while ($stat_row = sqlFetchArray($stat_result)) {
         // remove select reporting.
         if (stripos($stat_row['INFO'], 'SELECT') !== false) {
-            continue;
+            //continue;
         }
-        $q_msg .= "<li>";
-        $q_msg .= $cur_date . "  " . $stat_row['INFO'];
+        $q_msg .= "<li class='text-primary'>";
+        $q_msg .= $cur_date . "  " . $_GET['poll'] . " " . $stat_row['INFO'];
         $q_msg .= "</li>";
     }
 

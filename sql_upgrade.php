@@ -24,11 +24,12 @@ if ($response !== true) {
 ini_set('max_execution_time', '0');
 
 $ignoreAuth = true; // no login required
+$sessionAllowWrite = true;
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
-
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\VersionService;
 
@@ -69,81 +70,143 @@ while (false !== ($sfname = readdir($dh))) {
 
 closedir($dh);
 ksort($versions);
+
+$res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
+for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
+    $result2[$iter] = $row;
+}
+
+if (count($result2) == 1) {
+    $defaultLangID = $result2[0]["lang_id"];
+    $defaultLangName = $result2[0]["lang_description"];
+    $direction = (int)$result2[0]["lang_is_rtl"] === 1 ? 'rtl' : 'ltr';
+} else {
+    //default to english if any problems
+    $defaultLangID = 1;
+    $defaultLangName = "English";
+}
+
+$_SESSION['language_choice'] = $defaultLangID;
+$_SESSION['language_direction'] = $direction;
+CsrfUtils::setupCsrfKey();
+session_write_close();
 ?>
+<!-- @todo Adding DOCTYPE html breaks BS width/height percentages. Why? -->
 <html>
 <head>
     <title>OpenEMR Database Upgrade</title>
     <?php Header::setupHeader(); ?>
     <link rel="shortcut icon" href="public/images/favicon.ico" />
-    <script>
-        let processProgress = 0;
-        let doPoll = 1;
-        // the magic that is JS...
-        // doPoll gets reset to stop polling when progress
-        // exceeds 98% or end of upgrade script. New script restarts.
-        async function serverStatus() {
-            let url = "library/ajax/sql_server_status.php?poll=";
-            url += encodeURIComponent(doPoll);
-            let response = await fetch(url);
+<script>
+    let currentVersion = "";
+    let processProgress = 0;
+    let doPoll = 1;
 
-            if (response.status === 502) {
-                // connection timeout, just reconnect
-                if (doPoll) {
-                    await serverStatus();
-                }
-            } else if (response.status !== 200) {
-                // show error
-                progressStatus(response.statusText);
-                // reconnect in one second
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                if (doPoll) {
-                    await serverStatus();
-                }
-            } else {
-                // await status
-                let status = await response.text();
-                // display to screen div
-                progressStatus(status);
-                // and so forth.
-                if (doPoll) {
-                    await serverStatus();
-                } else {
-                    progressStatus("<li>Done this upgrade</li>");
-                }
+    // recursive long polling where ending is based
+    // on global doPoll true or false.
+    async function serverStatus(version = '', start = 0) {
+        let updateMsg = "";
+        let endMsg = "<li class='text-success bg-light'>" +
+            <?php echo  xlj("End watching server processes for upgrade version"); ?>  + " " + currentVersion + "</li>";
+        if (version) {
+            currentVersion = version;
+            updateMsg = "<li class='text-light bg-success'>" +
+              <?php echo  xlj("Start watching server processes for upgrade version"); ?> + " " + version + "</li>";
+        }
+
+        // start polling
+        let url = "library/ajax/sql_server_status.php?poll=" + encodeURIComponent(currentVersion);
+        let data = new FormData;
+        data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+        data.append("poll", currentVersion);
+
+        let response = await fetch(url, {
+            method: 'post',
+            body: data
+        });
+
+        if (response.status === 502) {
+            progressStatus("<li class='text-light bg-danger'> ERROR: Restarting. " + response.statusText) + "</li>";
+            // connection timeout, just reconnect
+            if (doPoll) {
+                await serverStatus();
             }
-        }
-
-
-        function progressStatus(msg) {
-            if (processProgress > 98) {
-                doPoll = 0;
-                processProgress = 100;
+        } else if (response.status !== 200) {
+            // show error
+            progressStatus("<li class='text-light bg-danger'> ERROR: " + response.statusText) + "</li>";
+            // reconnect in one second
+            if (doPoll) {
+                await serverStatus();
             }
-            let eventList = document.getElementById('status-message');
-            let progressEl = document.getElementById('progress');
-            progressEl.style.width = processProgress + "%";
-            progressEl.innerHTML = processProgress + "%";
-            eventList.innerHTML += msg;
+        } else {
+            // await status
+            let status = await response.text();
+            if (status === 'Internal Server Error') {
+                let errorMsg = "<li class='text-light bg-danger'>" +
+                <?php echo  xlj("Stopping activity status checks. Internal Server Error"); ?> + "</li>";
+            progressStatus(errorMsg);
+            // end polling
+            doPoll = 0;
         }
+        if (version) {
+            progressStatus(updateMsg);
+        }
+        if (start === 1) {
+            doPoll = 1;
+        }
+        // display to screen div
+        if(status > "") {
+            progressStatus(status);
+        }
+        // and so forth.
+        if (doPoll) {
+            await serverStatus();
+        } else {
+            progressStatus(endMsg);
+        }
+    }
+}
+/*
+* Focus scrolls to bottom of view
+* */
+function doScrolls() {
+    let serverStatus = document.getElementById("serverStatus");
+    let isServerBottom = serverStatus.scrollHeight - serverStatus.clientHeight <= serverStatus.scrollTop + 1;
+    let processDetails = document.getElementById("processDetails");
+    let isDetailsBottom = processDetails.scrollHeight - processDetails.clientHeight <= processDetails.scrollTop + 1;
 
-        function setWarnings(othis) {
-            if (othis.value < '5.0.0') {
-                document.querySelector('.version-warning').classList.remove("d-none");
-            } else {
-                document.querySelector('.version-warning').classList.add("d-none");
-            }
-        }
+    if(!isServerBottom) {
+        serverStatus.scrollTop = serverStatus.scrollHeight - serverStatus.clientHeight;
+    }if(!isDetailsBottom) {
+        processDetails.scrollTop = processDetails.scrollHeight - processDetails.clientHeight;
+    }
+}
 
-        window.onload = (event) => {
-            // I'll eventually find a reason to use this!
-        }
-    </script>
+function progressStatus(msg) {
+    let eventList = document.getElementById('status-message');
+    let progressEl = document.getElementById('progress');
+
+    progressEl.style.width = processProgress + "%";
+    progressEl.innerHTML = processProgress + "%" + " v" + currentVersion;
+    eventList.innerHTML += msg;
+
+    doScrolls();
+}
+
+function setWarnings(othis) {
+    if (othis.value < '5.0.0') {
+        document.querySelector('.version-warning').classList.remove("d-none");
+    } else {
+        document.querySelector('.version-warning').classList.add("d-none");
+    }
+}
+</script>
 </head>
 <body>
-    <div class="container my-3">
-        <div class="row">
-            <div class="col-12">
-                <h2><?php echo xlt("OpenEMR Database Upgrade"); ?></h2>
+<div class="container my-3">
+    <div class="row">
+        <div class="col-12">
+            <h2><?php echo xlt("OpenEMR Database Upgrade"); ?></h2>
             </div>
         </div>
         <div>
@@ -167,7 +230,8 @@ ksort($versions);
                     <span><?php echo xlt("If you are unsure or were using a development version between two releases, then choose the older of possible releases"); ?>.</span>
                 </div>
                 <span class="alert alert-warning text-danger version-warning d-none">
-                    <?php echo xlt("If you are upgrading from a version below 5.0.0 to version 5.0.0 or greater, do note that this upgrade can take anywhere from several minutes to several hours (you will only see a whitescreen until it is complete; do not stop the script before it is complete or you risk corrupting your data)"); ?>.</span>
+                    <?php echo xlt("If you are upgrading from a version below 5.0.0 to version 5.0.0 or greater, do note that this upgrade can take anywhere from several minutes to several hours (you will only see a whitescreen until it is complete; do not stop the script before it is complete or you risk corrupting your data)"); ?>.
+                </span>
                 <button type='submit' class='btn btn-primary btn-transmit' name='form_submit' value='Upgrade Database'>
                     <?php echo xlt("Upgrade Database"); ?>
                 </button>
@@ -180,7 +244,7 @@ ksort($versions);
                     <?php echo xlt("Server Status"); ?><i class="fas fa-angle-down rotate-icon float-right"></i>
                 </a>
             </div>
-            <div id="serverStatus" class="card card-body pb-2 h-25 overflow-auto collapse">
+            <div id="serverStatus" class="card card-body pb-2 h-25 overflow-auto collapse show">
                 <div class="bg-light text-dark">
                     <ul id="status-message"></ul>
                 </div>
@@ -192,7 +256,7 @@ ksort($versions);
                 <?php echo xlt("Processing Details"); ?><i class="fas fa-angle-down rotate-icon float-right"></i>
             </a>
             <div id="progress-div" class="bg-secondary float-left">
-                <div id="progress" class="progress-bar bg-success" style="height:1rem;width:0;"></div>
+                <div id="progress" class="mt-1 progress-bar bg-success" style="height:1.125rem;width:0;"></div>
             </div>
         </div>
         <div id='processDetails' class='card card-body pb-2 h-50 overflow-auto collapse show'>
@@ -204,9 +268,12 @@ ksort($versions);
                 if (strcmp($version, $form_old_version) < 0) {
                     continue;
                 }
-                echo "<script>serverStatus();</script>";
+                // set polling version and start
+                echo "<script>serverStatus(" . js_escape($version) . ", 1);</script>";
+                flush();
                 upgradeFromSqlFile($filename);
-                echo "<script>doPoll = 0;</script>";
+                // end polling
+                echo "<script>processProgress = 100;doPoll = 0;</script>";
             }
 
             if (!empty($GLOBALS['ippf_specific'])) {
@@ -216,11 +283,9 @@ ksort($versions);
 
             if ((!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0)) {
                 // This release contains a patch file, so process it.
-                echo "<script>serverStatus();</script>";
+                echo "<script>serverStatus('Patch');</script>";
                 upgradeFromSqlFile('patch.sql');
-                echo "<script>doPoll = 0;</script>";
             }
-
             flush();
 
             echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";

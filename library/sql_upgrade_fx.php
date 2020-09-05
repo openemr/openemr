@@ -666,17 +666,17 @@ function convertLayoutProperties()
 function upgradeFromSqlFile($filename, $path = '')
 {
     global $webserver_root;
+    $skip_msg = xlt("Skipping section");
 
     flush();
-    echo "<p class='text-success'>Processing $filename ...</p>\n";
+    echo "<p class='text-success'>" . xlt("Processing") . " " . $filename . "...</p>\n";
 
     $fullname = ((!empty($path) && is_dir($path)) ? $path : $webserver_root) . "/sql/$filename";
     $file_size = filesize($fullname);
-    $progress = 0;
 
     $fd = fopen($fullname, 'r');
     if ($fd == false) {
-        echo "ERROR.  Could not open '$fullname'.\n";
+        echo xlt("ERROR. Could not open") . " " . $fullname . ".\n";
         flush();
         return;
     }
@@ -684,13 +684,14 @@ function upgradeFromSqlFile($filename, $path = '')
     $query = "";
     $line = "";
     $skipping = false;
+    $progress = 0;
 
     while (!feof($fd)) {
         $line = fgets($fd, 2048);
         $line = rtrim($line);
+
         $progress += strlen($line);
-        $progress_stat = 100 - round((($file_size - $progress) / $file_size) * 100, 0);
-        echo "<script>processProgress = $progress_stat;</script>";
+
         if (preg_match('/^\s*--/', $line)) {
             continue;
         }
@@ -699,15 +700,19 @@ function upgradeFromSqlFile($filename, $path = '')
             continue;
         }
 
+        $progress_stat = 100 - round((($file_size - $progress) / $file_size) * 100, 0);
+        $progress_stat = $progress_stat > 100 ? 100 : $progress_stat;
+        echo "<script>processProgress = $progress_stat;</script>";
+
         if (preg_match('/^#IfNotTable\s+(\S+)/', $line, $matches)) {
             $skipping = tableExists($matches[1]);
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfTable\s+(\S+)/', $line, $matches)) {
             $skipping = !tableExists($matches[1]);
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfColumn\s+(\S+)\s+(\S+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -718,7 +723,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfMissingColumn\s+(\S+)\s+(\S+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -729,7 +734,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             // This allows capturing a default setting that is not blank
@@ -741,7 +746,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
             // This allows capturing a default setting that is blank
@@ -753,7 +758,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotColumnType\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -764,7 +769,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfIndex\s+(\S+)\s+(\S+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -776,7 +781,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotIndex\s+(\S+)\s+(\S+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -787,7 +792,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotRow\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -798,7 +803,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotRow2D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -809,7 +814,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotRow3D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -820,7 +825,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotRow4D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -831,7 +836,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotRow2Dx2\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -849,7 +854,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfRow2D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -860,7 +865,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfRow3D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -871,7 +876,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfRow\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
@@ -882,7 +887,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotMigrateClickOptions/', $line)) {
             if (tableExists("issue_types")) {
@@ -894,7 +899,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotListOccupation/', $line)) {
             if ((listExists("Occupation")) || (!columnExists('patient_data', 'occupation'))) {
@@ -907,7 +912,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotListReaction/', $line)) {
             if ((listExists("reaction")) || (!columnExists('lists', 'reaction'))) {
@@ -920,7 +925,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotListImmunizationManufacturer/', $line)) {
             if (listExists("Immunization_Manufacturer")) {
@@ -933,7 +938,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfNotWenoRx/', $line)) {
             if (tableHasRow('erx_weno_drugs', "drug_id", '1008') == true) {
@@ -945,7 +950,7 @@ function upgradeFromSqlFile($filename, $path = '')
                 echo "<p class='text-success'>Imported eRx Weno Drug Data</p>\n";
             }
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
             // convert all *text types to use default null setting
         } elseif (preg_match('/^#IfTextNullFixNeeded/', $line)) {
@@ -974,13 +979,13 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfTableEngine\s+(\S+)\s+(MyISAM|InnoDB)/', $line, $matches)) {
             // perform special actions if table has specific engine
             $skipping = !tableHasEngine($matches[1], $matches[2]);
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
             // find MyISAM tables and attempt to convert them
@@ -1010,7 +1015,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfUuidNeedUpdate\s+(\S+)/', $line, $matches)) {
             $uuidRegistry = new UuidRegistry(['table_name' => $matches[1]]);
@@ -1023,7 +1028,7 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = true;
             }
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfUuidNeedUpdateId\s+(\S+)\s+(\S+)/', $line, $matches)) {
             $uuidRegistry = new UuidRegistry([
@@ -1043,7 +1048,7 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = true;
             }
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfUuidNeedUpdateVertical\s+(\S+)\s+(\S+)/', $line, $matches)) {
             $vertical_table_columns = explode(":", $matches[2]);
@@ -1057,11 +1062,11 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = true;
             }
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#ConvertLayoutProperties/', $line)) {
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             } else {
                 echo "Converting layout properties ...<br />\n";
                 convertLayoutProperties();
@@ -1083,7 +1088,7 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = true;
             }
             if ($skipping) {
-                echo "<p class='text-success'>Skipping section $line</p>\n";
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#EndIf/', $line)) {
             $skipping = false;
@@ -1102,7 +1107,6 @@ function upgradeFromSqlFile($filename, $path = '')
             $query = rtrim($query, ';');
             echo "$query<br />\n";
             if (!sqlStatement($query)) {
-                /* don't see how we'd ever get here! */
                 echo "<p class='text-danger'>The above statement failed: " .
                     getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n";
             }

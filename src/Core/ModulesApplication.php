@@ -79,11 +79,17 @@ class ModulesApplication
             if (is_readable($customModulePath . $row['mod_directory'] . '/' . attr(self::CUSTOM_MODULE_BOOSTRAP_NAME))) {
                 $db_modules[] = ["name" => $row["mod_name"], "directory" => $row['mod_directory'], "path" => $customModulePath . $row['mod_directory']];
             } else {
-                // no reason to try and include a missing bootstrap
-                // notify user and move on...
+                // no reason to try and include a missing bootstrap.
+                // notify user, turn off module and move on...
                 error_log("Custom module " . errorLogEscape($customModulePath . $row['mod_directory'])
                     . '/' . self::CUSTOM_MODULE_BOOSTRAP_NAME
-                    . " is enabled but not installed. Install or disable in module manager.");
+                    . " is enabled but missing bootstrap.php script. Install and enable in module manager. This is the only warning.");
+                // disable to prevent flooding log with this error
+                $error = sqlQueryNoLog("UPDATE `modules` SET `mod_active` = '0' WHERE `modules`.`mod_name` = ? AND `modules`.`mod_directory` = ?", array($row['mod_name'], $row['mod_directory']));
+                // tell user we did it.
+                if (!$error) {
+                    error_log("Custom module " . errorLogEscape($row['mod_name']) . " has been disabled");
+                }
             }
         }
         foreach ($db_modules as $module) {
