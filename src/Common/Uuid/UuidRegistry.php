@@ -39,6 +39,7 @@ class UuidRegistry
     private $table_vertical;  // false or array. if table is vertical, will store the critical columns (uuid set for matching columns)
     private $disable_tracker; // disable check and storage of uuid in the main uuid_registry table
     private $couchdb;         // blank or string (documents or ccda label for now, which represents the tables that hold the doc ids).
+    private $document_drive;  // set to true if this is for labeling a document saved to drive
     private $mapped;          // set to true if this was mapped in uuid_mapping table
 
     public function __construct($associations = [])
@@ -52,6 +53,11 @@ class UuidRegistry
         $this->table_vertical = $associations['table_vertical'] ?? false;
         $this->disable_tracker = $associations['disable_tracker'] ?? false;
         $this->couchdb = $associations['couchdb'] ?? '';
+        if (!empty($associations['document_drive']) && $associations['document_drive'] === true) {
+            $this->document_drive = 1;
+        } else {
+            $this->document_drive = 0;
+        }
         if (!empty($associations['mapped']) && $associations['mapped'] === true) {
             $this->mapped = 1;
         } else {
@@ -107,9 +113,15 @@ class UuidRegistry
                 $checkUniqueRegistry = sqlQueryNoLog("SELECT * FROM `uuid_registry` WHERE `uuid` = ?", [$uuid]);
             }
             if (empty($checkUniqueRegistry)) {
-                // If using $this->table_name, then ensure uuid is unique in that table
                 if (!empty($this->table_name)) {
+                    // If using $this->table_name, then ensure uuid is unique in that table
                     $checkUniqueTable = sqlQueryNoLog("SELECT * FROM `" . $this->table_name . "` WHERE `uuid` = ?", [$uuid]);
+                    if (empty($checkUniqueTable)) {
+                        $isUnique = true;
+                    }
+                } elseif ($this->document_drive === 1) {
+                    // If using for document labeling on drive, then ensure drive_uuid is unique in documents table
+                    $checkUniqueTable = sqlQueryNoLog("SELECT * FROM `documents` WHERE `drive_uuid` = ?", [$uuid]);
                     if (empty($checkUniqueTable)) {
                         $isUnique = true;
                     }
@@ -122,9 +134,9 @@ class UuidRegistry
         // Insert the uuid into uuid_registry (unless $this->disable_tracker is set to true)
         if (!$this->disable_tracker) {
             if (!$this->table_vertical) {
-                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `couchdb`, `mapped`, `created`) VALUES (?, ?, ?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id, $this->couchdb, $this->mapped]);
+                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `couchdb`, `document_drive`, `mapped`, `created`) VALUES (?, ?, ?, ?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id, $this->couchdb, $this->document_drive, $this->mapped]);
             } else {
-                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `couchdb`, `mapped`, `created`) VALUES (?, ?, ?, ?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id, json_encode($this->table_vertical), $this->couchdb, $this->mapped]);
+                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `couchdb`, `document_drive`, `mapped`, `created`) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id, json_encode($this->table_vertical), $this->couchdb, $this->document_drive, $this->mapped]);
             }
         }
 

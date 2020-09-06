@@ -80,6 +80,47 @@ KEY amendment_history_id(`amendment_id`)
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `api_log`
+--
+
+DROP TABLE IF EXISTS `api_log`;
+CREATE TABLE `api_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL,
+  `patient_id` bigint(20) NOT NULL,
+  `ip_address` varchar(255) NOT NULL,
+  `method` varchar(20) NOT NULL,
+  `request` varchar(255) NOT NULL,
+  `request_url` text,
+  `request_body` longtext,
+  `response` longtext,
+  `encrypted` tinyint(1) NOT NULL,
+  `created_time` timestamp NULL,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `api_token`
+--
+
+DROP TABLE IF EXISTS `api_token`;
+CREATE TABLE `api_token` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `token_api` varchar(4),
+  `user_id` bigint(20) NOT NULL,
+  `patient_id` bigint(20) NOT NULL,
+  `token` varchar(40) DEFAULT NULL,
+  `token_auth` varchar(255),
+  `expiry` datetime NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`)
+) ENGINE = InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `audit_master`
 --
 
@@ -1161,6 +1202,8 @@ CREATE TABLE `documents` (
   `docdate` date default NULL,
   `hash` varchar(40) DEFAULT NULL COMMENT '40-character SHA-1 hash of document',
   `list_id` bigint(20) NOT NULL default '0',
+  `name` varchar(255) DEFAULT NULL,
+  `drive_uuid` binary(16) DEFAULT NULL,
   `couch_docid` VARCHAR(100) DEFAULT NULL,
   `couch_revid` VARCHAR(100) DEFAULT NULL,
   `storagemethod` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->Harddisk,1->CouchDB',
@@ -1174,6 +1217,7 @@ CREATE TABLE `documents` (
   `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
   `document_data` MEDIUMTEXT,
   PRIMARY KEY  (`id`),
+  UNIQUE KEY `drive_uuid` (`drive_uuid`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
   KEY `owner` (`owner`)
@@ -7214,6 +7258,7 @@ CREATE TABLE `pnotes` (
 DROP TABLE IF EXISTS `prescriptions`;
 CREATE TABLE `prescriptions` (
   `id` int(11) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `patient_id` bigint(20) default NULL,
   `filled_by_id` int(11) default NULL,
   `pharmacy_id` int(11) default NULL,
@@ -7224,7 +7269,7 @@ CREATE TABLE `prescriptions` (
   `start_date` date default NULL,
   `drug` varchar(150) default NULL,
   `drug_id` int(11) NOT NULL default '0',
-  `rxnorm_drugcode` INT(11) DEFAULT NULL,
+  `rxnorm_drugcode` varchar(25) DEFAULT NULL,
   `form` int(3) default NULL,
   `dosage` varchar(100) default NULL,
   `quantity` varchar(31) default NULL,
@@ -7254,7 +7299,8 @@ CREATE TABLE `prescriptions` (
   `rtx` INT(2) DEFAULT NULL,
   `txDate` DATE NOT NULL,
   PRIMARY KEY  (`id`),
-  KEY `patient_id` (`patient_id`)
+  KEY `patient_id` (`patient_id`),
+  UNIQUE INDEX `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -8391,6 +8437,7 @@ CREATE TABLE `uuid_registry` (
   `table_id` varchar(255) NOT NULL DEFAULT '',
   `table_vertical` varchar(255) NOT NULL DEFAULT '',
   `couchdb` varchar(255) NOT NULL DEFAULT '',
+  `document_drive` tinyint(4) NOT NULL DEFAULT '0',
   `mapped` tinyint(4) NOT NULL DEFAULT '0',
   `created` timestamp NULL,
   PRIMARY KEY (`uuid`)
@@ -8457,14 +8504,11 @@ DROP TABLE IF EXISTS `automatic_notification`;
 CREATE TABLE `automatic_notification` (
   `notification_id` int(5) NOT NULL auto_increment,
   `sms_gateway_type` varchar(255) NOT NULL,
-  `next_app_date` date NOT NULL,
-  `next_app_time` varchar(10) NOT NULL,
   `provider_name` varchar(100) NOT NULL,
   `message` text,
   `email_sender` varchar(100) NOT NULL,
   `email_subject` varchar(100) NOT NULL,
   `type` enum('SMS','Email') NOT NULL default 'SMS',
-  `notification_sent_date` datetime NOT NULL,
   PRIMARY KEY  (`notification_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3;
 
@@ -8472,8 +8516,8 @@ CREATE TABLE `automatic_notification` (
 -- Inserting data for table `automatic_notification`
 --
 
-INSERT INTO `automatic_notification` (`notification_id`, `sms_gateway_type`, `next_app_date`, `next_app_time`, `provider_name`, `message`, `email_sender`, `email_subject`, `type`, `notification_sent_date`) VALUES (1, 'CLICKATELL', '0000-00-00', ':', 'EMR GROUP 1 .. SMS', 'Welcome to EMR GROUP 1.. SMS', '', '', 'SMS', '0000-00-00 00:00:00'),
-(2, '', '2007-10-02', '05:50', 'EMR GROUP', 'Welcome to EMR GROUP . Email', 'EMR Group', 'Welcome to EMR GROUP', 'Email', '2007-09-30 00:00:00');
+INSERT INTO `automatic_notification` (`notification_id`, `sms_gateway_type`, `provider_name`, `message`, `email_sender`, `email_subject`, `type`) VALUES (1, 'CLICKATELL', 'EMR GROUP 1 .. SMS', 'Welcome to EMR GROUP 1.. SMS', '', '', 'SMS'),
+(2, '', 'EMR GROUP', 'Welcome to EMR GROUP . Email', 'EMR Group', 'Welcome to EMR GROUP', 'Email');
 
 -- --------------------------------------------------------
 
@@ -8842,6 +8886,7 @@ CREATE TABLE `procedure_report` (
 DROP TABLE IF EXISTS `procedure_result`;
 CREATE TABLE `procedure_result` (
   `procedure_result_id` bigint(20)   NOT NULL AUTO_INCREMENT,
+  `uuid`                binary(16)   DEFAULT NULL,
   `procedure_report_id` bigint(20)   NOT NULL            COMMENT 'references procedure_report.procedure_report_id',
   `result_data_type`    char(1)      NOT NULL DEFAULT 'S' COMMENT 'N=Numeric, S=String, F=Formatted, E=External, L=Long text as first line of comments',
   `result_code`         varchar(31)  NOT NULL DEFAULT '' COMMENT 'LOINC code, might match a procedure_type.procedure_code',
@@ -8856,6 +8901,7 @@ CREATE TABLE `procedure_result` (
   `document_id`         bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references documents.id if this result is a document',
   `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incomplete...etc.',
   PRIMARY KEY (`procedure_result_id`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY procedure_report_id (procedure_report_id)
 ) ENGINE=InnoDB;
 
@@ -12175,26 +12221,6 @@ CREATE TABLE `login_mfa_registrations` (
   `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer etc.',
   PRIMARY KEY (`user_id`, `name`)
 ) ENGINE=InnoDB;
-
-
--- --------------------------------------------------------
-
---
--- Table structure for table `api_token`
---
-
-DROP TABLE IF EXISTS `api_token`;
-CREATE TABLE `api_token` (
-    `id`           bigint(20) NOT NULL AUTO_INCREMENT,
-    `token_api`    varchar(4),
-    `user_id`      bigint(20) NOT NULL,
-    `patient_id`   bigint(20) NOT NULL,
-    `token`        varchar(40) DEFAULT NULL,
-    `token_auth`   varchar(255),
-    `expiry`       datetime NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `token` (`token`)
-) ENGINE = InnoDB;
 
 DROP TABLE IF EXISTS `benefit_eligibility`;
 CREATE TABLE `benefit_eligibility` (

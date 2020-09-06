@@ -1114,10 +1114,10 @@ function generate_receipt($patient_id, $encounter = 0)
                         </fieldset>
                         <div class="form-group">
                             <div class="col-sm-12 text-left position-override">
-                                <div class="btn-group btn-group-pinch" role="group">
+                                <div class="btn-group" role="group">
                                     <button type='submit' class="btn btn-primary btn-save" name='form_save' id='form_save' value='save'><?php echo xlt('Save');?></button>
                                     <?php if (empty($_GET['framed'])) { ?>
-                                    <button type='button' class="btn btn-secondary btn-cancel btn-separate-left" onclick='window.close()'><?php echo xlt('Cancel'); ?></button>
+                                    <button type='button' class="btn btn-secondary btn-cancel" onclick='window.close()'><?php echo xlt('Cancel'); ?></button>
                                     <?php } ?>
                                     <input type='hidden' name='form_provider'  value='<?php echo attr($inv_provider)  ?>' />
                                     <input type='hidden' name='form_payer'     value='<?php echo attr($inv_payer)     ?>' />

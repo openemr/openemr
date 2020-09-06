@@ -354,10 +354,10 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                             <div class="form-group clearfix">
                                 <div class="col-sm-12 text-left position-override">
                                     <br />
-                                    <div class="btn-group btn-group-pinch" role="group">
+                                    <div class="btn-group" role="group">
                                         <button class="btn btn-primary btn-save" href="#" onclick="return PostPayments();"><?php echo xlt('Post Payments');?></button>
                                         <button class="btn btn-primary btn-save" href="#" onclick="return FinishPayments();"><?php echo xlt('Finish Payments');?></button>
-                                        <button class="btn btn-secondary btn-cancel btn-separate-left" href="#" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
+                                        <button class="btn btn-secondary btn-cancel" href="#" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
                                     </div>
                                 </div>
                             </div>

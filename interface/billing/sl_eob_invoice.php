@@ -59,7 +59,7 @@ function bucks($amount)
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener', 'no_dialog']); ?>
     <title><?php echo xlt('EOB Posting - Invoice') ?></title>
     <script>
 
@@ -284,10 +284,10 @@ if (empty($ferow)) {
 $patient_id = 0 + $ferow['pid'];
 $encounter_id = 0 + $ferow['encounter'];
 $svcdate = substr($ferow['date'], 0, 10);
-$form_payer_id = ($_POST['$form_payer_id']) ? (0 + $_POST['form_payer_id']) : 0;
+$form_payer_id = ($_POST['form_payer_id']) ? (0 + $_POST['form_payer_id']) : 0;
 $form_reference = $_POST['form_reference'];
-$form_check_date = ($_POST['form_check_date']) ? DateToYYYYMMDD($_POST['form_check_date']) : date('Y-m-d');
-$form_deposit_date = ($_POST['form_deposit_date']) ? DateToYYYYMMDD($_POST['form_deposit_date']) : date('Y-m-d');
+$form_check_date   = fixDate($_POST['form_check_date'], date('Y-m-d'));
+$form_deposit_date = fixDate($_POST['form_deposit_date'], $form_check_date);
 $form_pay_total = ($_POST['form_pay_total']) ? (0 + $_POST['form_pay_total']) : 0;
 
 
@@ -296,7 +296,7 @@ if (preg_match('/^Ins(\d)/i', $_POST['form_insurance'], $matches)) {
     $payer_type = $matches[1];
 }
 
-if (($_POST['form_save'] || $_POST['form_cancel'])) {
+if ($_POST['form_save'] || $_POST['form_cancel'] || $_POST['isLastClosed']) {
     if ($_POST['form_save']) {
         if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
             CsrfUtils::csrfNotVerified();
@@ -424,11 +424,21 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
     if ($info_msg) {
         echo " alert(" . js_escape($info_msg) . ");\n";
     }
-    if (!$debug && !$save_stay) {
+    if (!$debug && !$save_stay && !$_POST['isLastClosed']) {
         echo "doClose();\n";
     }
-    echo "</script></body></html>\n";
-    if (!$save_stay) {
+    if (!$debug && ($save_stay || $_POST['isLastClosed'])) {
+        if ($_POST['isLastClosed']) {
+            // save last closed level
+            $form_done = 0 + $_POST['form_done'];
+            $form_stmt_count = 0 + $_POST['form_stmt_count'];
+            sqlStatement("UPDATE form_encounter SET last_level_closed = ?, stmt_count = ? WHERE pid = ? AND encounter = ?", array($form_done, $form_stmt_count, $patient_id, $encounter_id));
+        }
+        // will reload page w/o reposting
+        echo "location.replace(location)\n";
+    }
+    echo "</script>\n";
+    if (!$save_stay && !$_POST['isLastClosed']) {
         exit();
     }
 }
@@ -446,7 +456,8 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
         <form class="form" action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
             <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>"/>
-            <fieldset class="px-2">
+            <input type="hidden" name="isLastClosed" value="" />
+            <fieldset>
                 <legend><?php echo xlt('Invoice Actions'); ?></legend>
                 <div class="form-row">
                     <div class="form-group col-lg">
@@ -556,6 +567,9 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </div>
                     <div class="form-group col-lg" id='ins_done'>
                         <label class="col-form-label" for=""><?php echo xlt('Done with'); ?>:</label>
+                        <a class="btn btn-save bg-light text-primary"
+                            onclick="document.forms[0].isLastClosed.value='3'; document.forms[0].submit()"><?php echo xlt("Save Level"); ?>
+                        </a>
                         <div class="pl-3">
                             <?php
                             // Write a checkbox for each insurance.  It is to be checked when
@@ -735,11 +749,12 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
             <div class="form-group col-lg clearfix">
                 <div class="col-sm-12 text-left position-override" id="search-btn">
                     <div class="btn-group" role="group">
-                        <button type='submit' class="btn btn-primary btn-save" name='form_save' id="btn-save-stay"
-                            onclick="this.value='1';"><?php echo xlt("Save Current"); ?></button>
+                        <!-- @todo leave as I may still use sjp 08/2020 -->
+                        <!--<button type='submit' class="btn btn-primary btn-save" name='form_save' id="btn-save-stay"
+                            onclick="this.value='1';"><?php /*echo xlt("Save Current"); */?></button>-->
                         <button type='submit' class="btn btn-primary btn-save" name='form_save' id="btn-save"
-                            onclick="this.value='2';"><?php echo xlt("Save & Exit"); ?></button>
-                        <button type='button' class="btn btn-secondary btn-cancel btn-separate-left" name='form_cancel'
+                            onclick="this.value='2';"><?php echo xlt("Save"); ?></button>
+                        <button type='button' class="btn btn-secondary btn-cancel" name='form_cancel'
                             id="btn-cancel" onclick='doClose()'><?php echo xlt("Close"); ?></button>
                     </div>
                     <?php if ($from_posting) { ?>

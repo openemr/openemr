@@ -125,7 +125,7 @@ function ImgProcedure() {literal}{{/literal}
     <tr>
         <td>
             <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 3px solid var(--gray);">
-            <h4>{$file->get_url_web()|text}
+            <h4>{$file->get_name()|text}
               <div class="btn-group btn-toggle">
                 <button class="btn btn-sm btn-secondary properties">{xlt t='Properties'}</button>
                 <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
@@ -174,7 +174,7 @@ function ImgProcedure() {literal}{{/literal}
         <form method="post" name="document_update" action="{$UPDATE_ACTION|attr}" onsubmit="return top.restoreSession()">
           <div class="form-group">
             <label for="docname">{xlt t='Rename'}:</label>
-            <input type='text' class="form-control" size='20' name='docname' id='docname' value='{$file->get_url_web()|attr}'/>
+            <input type='text' class="form-control" size='20' name='docname' id='docname' value='{$file->get_name()|attr}'/>
           </div>
           <div class="form-group">
             <label for="docdate">{xlt t='Date'}:</label>

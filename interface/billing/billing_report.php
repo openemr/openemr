@@ -116,11 +116,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
     <?php Header::setupHeader(['datetime-picker', 'common']); ?>
     <style>
-        .btn-group-pinch > .btn:nth-last-child(4):not(.dropdown-toggle) {
-            border-top-right-radius: 3px !important;
-            border-bottom-right-radius: 3px !important;
-        }
-
         .modal {
             overflow-y: auto;
         }

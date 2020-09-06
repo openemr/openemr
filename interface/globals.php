@@ -293,11 +293,6 @@ try {
     die();
 }
 
-// Should Doctrine make use of connection pooling? Database connection pooling is a method
-// used to keep database connections open so they can be reused by others. (The only reason
-// to not use connection pooling is if your server has limited resources.)
-$GLOBALS["doctrine_connection_pooling"] = true;
-
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
@@ -501,7 +496,7 @@ $GLOBALS['restore_sessions'] = 1; // 0=no, 1=yes, 2=yes+debug
 //
 $top_bg_line = ' bgcolor="#dddddd" ';
 $GLOBALS['style']['BGCOLOR2'] = "#dddddd";
-$logocode = "<img class='img-fluid' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/login_logo.gif' />";
+$logocode = "<img class='img-responsive' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/login_logo.gif' />";
 // optimal size for the tiny logo is height 43 width 86 px
 // inside the open emr they will be auto reduced
 $tinylogocode1 = "<img class='img-responsive d-block mx-auto' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png'>";

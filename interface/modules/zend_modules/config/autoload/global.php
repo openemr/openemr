@@ -28,7 +28,12 @@ if (!$GLOBALS['disable_utf8_flag']) {
     $tmp = "SET sql_mode = ''";
 }
 $tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
-$utf8 = array(PDO::MYSQL_ATTR_INIT_COMMAND => $tmp);
+
+if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
+    $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp, PDO::ATTR_PERSISTENT => true];
+} else {
+    $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];
+}
 
 // Set mysql to use ssl, if applicable.
 // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
