@@ -2770,6 +2770,13 @@ $GLOBALS_METADATA = array(
     //
     'Miscellaneous' => array(
 
+        'enable_database_connection_pooling' => array(
+            xl('Enable Database Connection Pooling'),
+            'bool',                           // data type
+            '1',                              // default
+            xl('Enable Database Connection Pooling')
+        ),
+
         'mysql_bin_dir' => array(
             xl('Path to MySQL Binaries'),
             'text',                           // data type
