@@ -1495,7 +1495,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php echo xlt('Add More Items'); ?>
                                     </button>
                                 <?php } // end billed ?>
-                                    <button type='button' class='btn btn-link btn-cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
+                                    <button type='button' class='btn btn-secondary btn-cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
                                     <?php echo xlt('Cancel');?></button>
                                     <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
                                     <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
