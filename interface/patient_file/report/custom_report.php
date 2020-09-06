@@ -193,11 +193,11 @@ function zip_content($source, $destination, $content = '', $create = true)
     div.navigateLink {
         display:none;
     }
-    .hilite, mark, .next {
-        background-color: var(--yellow);
-    }
     .hilite2 {
         background-color: transparent;
+    }
+    .hilite, mark, .next {
+        background-color: var(--yellow);
     }
     img {
         max-width:700px;
@@ -268,9 +268,9 @@ function zip_content($source, $destination, $content = '', $create = true)
                 <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
                 <?php echo "</td></tr></tbody></table></div>";?>
 
-                <?php } else { // not printable
+            <?php } else { // not printable
                 ?>
-                <div class="border-bottom my-1 px-5 report_search_bar">
+                <div class="border-bottom fixed-top px-5 report_search_bar">
                     <div class="row">
                             <div class="col-md">
                                 <input type="text" class="form-control" onkeyup="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element"/>
@@ -323,10 +323,12 @@ function zip_content($source, $destination, $content = '', $create = true)
                             </div>
                     </div>
                 </div>
-                <a href="patient_report.php" onclick='top.restoreSession()'>
-                    <span class='title'><?php echo xlt('Patient Report'); ?></span>
-                    <span class='back'><?php echo text($tback); ?></span>
-                </a>
+                <div id="backLink">
+                    <a href="patient_report.php" onclick='top.restoreSession()'>
+                        <span class='title'><?php echo xlt('Patient Report'); ?></span>
+                        <span class='back'><?php echo text($tback); ?></span>
+                    </a>
+                </div>
                 <br />
                 <br />
                 <a href="custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
@@ -923,6 +925,10 @@ function zip_content($source, $destination, $content = '', $create = true)
         <?php if (!$printable) { ?>
 <script src="<?php echo $GLOBALS['web_root']?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php } ?>
+<script>
+    const searchBarHeight = document.querySelectorAll('.report_search_bar')[0].clientHeight;
+    document.getElementById('backLink').style.marginTop = `${searchBarHeight}px`;
+</script>
 </body>
 </html>
 <?php } ?>
