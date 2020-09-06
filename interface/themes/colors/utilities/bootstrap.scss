@@ -16,22 +16,12 @@ textarea.form-control {
   height: auto !important;
 }
 
-:focus {
-  outline: none !important;
-}
-
 .table > thead {
   background: $mid !important;
 }
 
 .table-striped > tbody > tr:nth-of-type(odd) {
   background-color: $white !important;
-}
-
-.btn-secondary {
-  background: $darker !important;
-  border-color: $darker !important;
-  color: $white !important;
 }
 
 .btn-link {
@@ -41,23 +31,13 @@ textarea.form-control {
   color: $gray !important;
 }
 
-.btn-secondary.active,
-.btn-secondary.focus,
-.btn-secondary:active,
-.btn-secondary:focus,
-.btn-secondary:hover,
-.open > .dropdown-toggle.btn-secondary {
-  background: $darkest !important;
-  border-color: $darkest !important;
-}
-
 .btn-link:focus,
 .btn-link:hover {
   text-decoration: none !important;
 }
 
 .btn-link {
-  border: 1px solid #ccc;
+  border: 1px solid $gray-400;
   border-radius: 3px !important;
 }
 
@@ -74,11 +54,6 @@ textarea.form-control {
   transition: border-color ease-in-out 0.3s, box-shadow ease-in-out 0.3s;
 }
 
-.btn-separate-left,
-.oe-opt-btn-separate-left {
-  margin-left: 20px !important;
-}
-
 .btn-group .btn {
   margin-right: 2px !important;
 }
@@ -88,12 +63,6 @@ textarea.form-control {
   border-bottom-right-radius: 0 !important;
   border-top-left-radius: 3px !important;
   border-top-right-radius: 0 !important;
-}
-
-.btn-group-pinch > .btn:nth-last-child(2):not(.dropdown-toggle),
-.oe-opt-btn-group-pinch > .btn:nth-last-child(2):not(.dropdown-toggle) {
-  border-bottom-right-radius: 3px !important;
-  border-top-right-radius: 3px !important;
 }
 
 .btn-sm {
@@ -155,17 +124,15 @@ input[type=radio] {
 }
 
 .oe-legend-radio {
-  @include font-size("0.75rem");
   padding: 5px 5px 0 0;
 }
 
 .oe-bold-black {
-  color: #000 !important;
+  color: $black !important;
   font-weight: 700 !important;
 }
 
 .oe-btn-circle {
-  @include font-size("0.75rem");
   background: $darker !important;
   border-color: $darkest !important;
   border-radius: 15px;
@@ -179,7 +146,6 @@ input[type=radio] {
 
 .patientInfo a.btn,
 .patientDataColumn a.btn {
-  @include font-size("0.75rem");
   background: $darker !important;
   border-color: $darkest !important;
   border-radius: 10px !important;

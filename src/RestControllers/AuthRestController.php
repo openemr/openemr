@@ -59,6 +59,7 @@ class AuthRestController
             }
             $event = 'portalapi';
             $genericUserId = $patientId;
+            $_SESSION['pid'] = $patientId;
         } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
             // authentication for core api or fhir
             $authAPILogin = new AuthUtils('api');
@@ -76,6 +77,7 @@ class AuthRestController
             }
             $event = 'api';
             $genericUserId = $userId;
+            $_SESSION['authUserID'] = $userId;
         }
 
         // PASSED

@@ -24,6 +24,7 @@ namespace OpenEMR\Billing;
 
 require_once(dirname(__FILE__) . "/../../library/edihistory/codes/edih_271_code_class.php");
 
+use edih_271_codes;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Utils\RandomGenUtils;
 

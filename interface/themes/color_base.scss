@@ -80,10 +80,6 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
   text-decoration: none;
 }
 
-.small {
-  font-size: 80%;
-}
-
 .link,
 .more,
 .back,
@@ -257,19 +253,18 @@ ul.tabNav li.current a {
 #report_parameters {
   background-color: $palepale;
   margin: 10px 0 5px;
-}
 
-#report_parameters table {
-  border: solid 1px $darkest;
-}
+  table {
+    border: solid 1px $darkest;
+  }
 
-#report_parameters > table > tbody > tr > td > table {
-  border-left: 1px solid $darkest !important;
-  /*openemr5*/
-}
+  > table > tbody > tr > td > table {
+    border-left: 1px solid $darkest !important;
+  }
 
-#report_parameters .form-control {
-  width: auto;
+  .form-control {
+    width: auto;
+  }
 }
 
 #report_results table {
@@ -382,7 +377,7 @@ ul.tabNav li.current a {
   background-color: $white;
   border: 1px solid $darker;
   color: $gray;
-  margin: 5 0;
+  margin: 5px 0;
   padding: 5px;
   width: 648px;
 }

@@ -553,11 +553,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <legend><?php echo xlt('Select Options for Current Procedure Order Id ') . (($formid) ? text($formid) : 'New Order')?></legend>
                     <div class="col-12">
                         <div class="form-row">
-                            <label for="provider_id" class="col-form-label col-sm-3 oe-text-to-right"><?php echo xlt('Ordering Provider'); ?></label>
+                            <label for="provider_id" class="col-form-label col-sm-3 text-right"><?php echo xlt('Ordering Provider'); ?></label>
                             <div class="col-sm-2">
                                 <?php generate_form_field(array('data_type' => 10, 'field_id' => 'provider_id'), $row['provider_id']); ?>
                             </div>
-                            <label for="lab_id" class="col-form-label col-sm-3 oe-text-to-right"><?php echo xlt('Sending To'); ?></label>
+                            <label for="lab_id" class="col-form-label col-sm-3 text-right"><?php echo xlt('Sending To'); ?></label>
                             <div class="col-sm-2">
                                 <select name='form_lab_id' onchange='lab_id_changed()' class='form-control'>
                                     <?php
@@ -576,18 +576,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <div class="clearfix"></div>
                         </div>
                         <div class="form-row">
-                            <label for="form_data_ordered" class="col-form-label col-sm-3 oe-text-to-right"><?php echo xlt('Order Date'); ?></label>
+                            <label for="form_data_ordered" class="col-form-label col-sm-3 text-right"><?php echo xlt('Order Date'); ?></label>
                             <div class="col-sm-2">
                                 <input type='text' class='datepicker form-control' name='form_date_ordered' id='form_date_ordered' value="<?php echo attr($row['date_ordered']); ?>" title="<?php echo xla('Date of this order'); ?>"/>
                             </div>
-                            <label for="form_data_ordered" class="col-form-label col-sm-3 oe-text-to-right"><?php echo xlt('Internal Time Collected'); ?></label>
+                            <label for="form_data_ordered" class="col-form-label col-sm-3 text-right"><?php echo xlt('Internal Time Collected'); ?></label>
                             <div class="col-sm-2">
                                 <input class='datetimepicker form-control' type='text' name='form_date_collected' id='form_date_collected' value="<?php echo attr(substr($row['date_collected'], 0, 16)); ?>" title="<?php echo xla('Date and time that the sample was collected'); ?>"/>
                             </div>
                             <div class="clearfix"></div>
                         </div>
                         <div class="form-row">
-                            <label for="form_data_ordered" class="col-form-label col-sm-3 oe-text-to-right"><?php echo xlt('Priority'); ?></label>
+                            <label for="form_data_ordered" class="col-form-label col-sm-3 text-right"><?php echo xlt('Priority'); ?></label>
                             <div class="col-sm-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'order_priority',
@@ -595,7 +595,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 ?>
                             </div>
 
-                            <label for="form_data_ordered" class="col-form-label col-sm-3 oe-text-to-right"><?php echo xlt('Status'); ?></label>
+                            <label for="form_data_ordered" class="col-form-label col-sm-3 text-right"><?php echo xlt('Status'); ?></label>
                             <div class="col-sm-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'order_status',
@@ -605,7 +605,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <div class="clearfix"></div>
                         </div>
                         <div class="form-row">
-                            <label for="form_data_ordered" class="col-form-label col-sm-3 oe-text-to-right"><?php echo xlt('History Order'); ?></label>
+                            <label for="form_data_ordered" class="col-form-label col-sm-3 text-right"><?php echo xlt('History Order'); ?></label>
                             <div class="col-sm-2">
                                 <?php
                                 $historyOrderOpts = array(
@@ -625,7 +625,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </div>
                         <?php // Hide this for now with a hidden class as it does not yet do anything ?>
                         <div class="form-row hidden">
-                            <label for="form_data_ordered" class="col-form-label col-sm-3 oe-text-to-right"><?php echo xlt('Patient Instructions'); ?></label>
+                            <label for="form_data_ordered" class="col-form-label col-sm-3 text-right"><?php echo xlt('Patient Instructions'); ?></label>
                             <div class="col-sm-7">
                                 <textarea rows='3' cols='35' name='form_patient_instructions' class='form-control inputtext'><?php echo text($row['patient_instructions']); ?></textarea>
                             </div>
@@ -748,11 +748,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
                 <div class="form-group clearfix">
                     <div class="col-sm-12 text-left position-override">
-                        <div class="btn-group btn-group-pinch" role="group">
+                        <div class="btn-group" role="group">
                             <button type="button" class="btn btn-secondary btn-add" onclick="addProcLine()"><?php echo xlt('Add Procedure'); ?></button>
                             <button type="submit" class="btn btn-secondary btn-save" name='bn_save' value="save" onclick='transmitting = false;'><?php echo xlt('Save'); ?></button>
                             <button type="submit" class="btn btn-secondary btn-transmit" name='bn_xmit' value="transmit" onclick='transmitting = true;'><?php echo xlt('Save and Transmit'); ?></button>
-                            <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel'); ?></button>
+                            <button type="button" class="btn btn-link btn-cancel" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel'); ?></button>
                         </div>
                     </div>
                 </div>

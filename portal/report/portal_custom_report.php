@@ -321,7 +321,7 @@ input[type="radio"] {
     var match = null;
     match = keys.match(/[\^\$\.\|\?\+\(\)\\~`\!@#%&\+={}<>]{1,}/);
     if(match){
-      document.getElementById('alert_msg').innerHTML='<?php echo xla('Special characters are not allowed');?>..!';
+      document.getElementById('alert_msg').innerHTML = jsText(<?php echo xlj('Special characters are not allowed'); ?>) + '..!';
       return;
     }
     else{
@@ -345,7 +345,7 @@ input[type="radio"] {
     }
     if($j('.hilite').length <1){
       if(keys != '')
-      document.getElementById('alert_msg').innerHTML='<?php echo xla('No results found');?>..!';
+      document.getElementById('alert_msg').innerHTML = jsText(<?php echo xlj('No results found'); ?>) + '..!';
     }
     else{
       document.getElementById('alert_msg').innerHTML='';
@@ -490,7 +490,7 @@ input[type="radio"] {
     var match = null;
     match = keys.match(/[\^\$\.\|\?\+\(\)\\~`\!@#%&\+={}<>]{1,}/);
     if(match){
-      document.getElementById('alert_msg').innerHTML='<?php echo xla('Special characters are not allowed');?>..!';
+      document.getElementById('alert_msg').innerHTML = jsText(<?php echo xlj('Special characters are not allowed'); ?>) + '..!';
       return;
     }
     else{
@@ -515,7 +515,7 @@ input[type="radio"] {
     }
     if(w_count <1){
       if(keys != '')
-      document.getElementById('alert_msg').innerHTML='<?php echo xla('No results found');?>..!';
+      document.getElementById('alert_msg').innerHTML = jsText(<?php echo xlj('No results found'); ?>) + '..!';
     }
     else{
       document.getElementById('alert_msg').innerHTML='';
@@ -527,7 +527,7 @@ input[type="radio"] {
       }
       var tot_res = res_array.length/w_count;
       if(tot_res > 0){
-        document.getElementById('alert_msg').innerHTML='<?php echo xla('Showing result');?> '+cur_res+' <?php echo xla('of');?> '+tot_res;
+        document.getElementById('alert_msg').innerHTML = jsText(<?php echo xlj('Showing result'); ?>) + ' ' + cur_res + ' ' + jsText(<?php echo xlj('of'); ?>) + ' ' + tot_res;
       }
     }
 
@@ -794,9 +794,9 @@ foreach ($ar as $key => $val) {
                 }
 
                 $d = new Document($document_id);
-                $fname = basename($d->get_url());
+                $fname = basename($d->get_name());
                 $extension = substr($fname, strrpos($fname, "."));
-                echo "<h1>" . xlt('Document') . " '" . text($fname) . "'</h1>";
+                echo "<h1>" . xlt('Document') . " '" . text($fname) . "-" . text($d->get_id()) . "'</h1>";
 
                 $notes = $d->get_notes();
                 if (!empty($notes)) {

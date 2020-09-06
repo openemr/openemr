@@ -116,11 +116,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
     <?php Header::setupHeader(['datetime-picker', 'common']); ?>
     <style>
-        .btn-group-pinch > .btn:nth-last-child(4):not(.dropdown-toggle) {
-            border-top-right-radius: 3px !important;
-            border-bottom-right-radius: 3px !important;
-        }
-
         .modal {
             overflow-y: auto;
         }
@@ -459,7 +454,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     if (ele) {
                         ele.style.display = "inline";
                         text.innerHTML =
-                            "<?php echo xla('Collapse'); ?>";
+                            jsText(<?php echo xlj('Collapse'); ?>);
                     }
                 }
             } else {
@@ -471,7 +466,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     if (ele) {
                         ele.style.display = "none";
                         text.innerHTML =
-                            <?php echo xlj('Expand'); ?>;
+                            jsText(<?php echo xlj('Expand'); ?>);
                     }
                 }
             }
@@ -484,11 +479,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 if (ele.style.display == "inline") {
                     ele.style.display = "none";
                     text.innerHTML =
-                        <?php echo xlj('Expand'); ?>;
+                        jsText(<?php echo xlj('Expand'); ?>);
                 } else {
                     ele.style.display = "inline";
                     text.innerHTML =
-                        <?php echo xlj('Collapse'); ?>;
+                        jsText(<?php echo xlj('Collapse'); ?>);
                 }
             }
         }

@@ -21,6 +21,7 @@ Docker Environment. See below for instructions of use of the Insane Development 
 [compose](https://docs.docker.com/compose/install/) for your system. Also, make
 sure you have a [fork](https://help.github.com/articles/fork-a-repo/) of OpenEMR.
 - If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
+- If you want to monitor and easily manage the docker environment, please also [install openemr-monitor](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-monitor) and [install portainer](https://github.com/openemr/openemr-devops/tree/master/utilities/portainer) for your system
 
 **Step 2.** Start OpenEMR.
 ```bash
@@ -103,7 +104,7 @@ options to choose from:
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
 setup input screen:
- - for `Server Host`, use either `mariadb` or `mariadb-ssl` or `mysql` or `mariadb-very-old` or
+ - for `Server Host`, use either `mariadb` or `mariadb-ssl` or `mysql` or `mariadb-old` or `mariadb-very-old` or
    `mariadb-very-very-old` or `mysql-old` (you have all
    mariadb/mysql/mariadb-\*/mysql-\* dockers ready to go to make testing either one easy;
    `mysql` is version 8.0; `mysql-old` is version 5.7;
@@ -288,7 +289,7 @@ docker for patient document storage in OpenEMR at Administration->Globals->Docum
 ##### OpenLDAP
 In OpenEMR, LDAP is an option for user authentication. You can configure OpenEMR to use the
 OpenLDAP docker patient authentication in OpenEMR at Administration->Globals->Security:
-- LDAP - Server Name or URI : openldap
+- LDAP - Server Name or URI : ldap://openldap:389
 - LDAP - Distinguished Name of User : cn={login},dc=example,dc=org
 - LDAP - Login Exclusions : (place whatever your admin login is; warning, do not use "admin" for your openemr admin login)
 
