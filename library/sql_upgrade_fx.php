@@ -1018,19 +1018,15 @@ function upgradeFromSqlFile($filename, $path = '')
         } elseif (preg_match('/^#EndIf/', $line)) {
             $skipping = false;
         }
-        elseif (preg_match('/^#EndIf/', $line)) {
-            $skipping = false;
-        }
-
         if (preg_match('/^#specialSql/', $line)) {
-            $special=true;
-            $line=" ";
-        }
-
-        if (preg_match('/^#endSpecialSql/', $line)) {
-            $special=false;
+            $special = true;
+            $line = " ";
+        } elseif (preg_match('/^#endSpecialSql/', $line)) {
+            $special = false;
             $trim = false;
-            $line=" ";
+            $line = " ";
+        } elseif (preg_match('/^\s*#/', $line)) {
+            continue;
         }
 
         if ($skipping) {
