@@ -10,16 +10,12 @@
 
     a {
       background: $palepale;
-      border: solid 5px $paler;
-      border-bottom: 0;
-      border-left: 0;
+      border: 5px solid $paler;
     }
 
     .current a {
       background: $pale;
-      border-bottom: 0;
       border-color: $dark;
-      border-left: 0;
       color: $gray-800;
     }
 
@@ -35,5 +31,35 @@
 
   .oe-global-tab-heading {
     color: $black;
+  }
+
+  /*
+   * TABS A7A7A7
+  */
+
+  ul.tabNav {
+    padding: 0 !important;
+
+    li {
+      margin: 0 !important;
+      padding-top: 6px !important;
+
+      &.current {
+        a {
+          background: $pale !important;
+          padding: 8px !important;
+        }
+      }
+    }
+
+    a {
+      background: $palepale !important;
+      color: $bs-dark !important;
+
+      &:hover {
+        background-color: $dark !important;
+        color: $body-color !important;
+      }
+    }
   }
 }

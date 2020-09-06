@@ -1,22 +1,5 @@
 /* OpenEMR Bootstrap Override */
 @if $compact-theme == false {
-  fieldset {
-    margin-bottom: 10px !important;
-    padding: 0 0 15px !important;
-  }
-
-  legend {
-    padding: 0 10px !important;
-  }
-
-  label {
-    padding: 0 5px !important;
-  }
-
-  textarea.form-control {
-    height: auto !important;
-  }
-
   .table > thead {
     background: $mid !important;
   }
@@ -61,43 +44,6 @@
       border-top-left-radius: 3px !important;
       border-top-right-radius: 0 !important;
     }
-  }
-
-  .btn-sm {
-    @include font-size("0.625rem");
-  }
-
-  .btn-lg {
-    border-radius: 3px !important;
-  }
-
-  .col-form-label {
-    font-weight: 600 !important;
-  }
-
-  input[type=checkbox],
-  input[type=radio] {
-    margin: 4px;
-  }
-
-  .form-group {
-    margin-bottom: 5px !important;
-  }
-
-  .form-horizontal .col-form-label {
-    padding-top: 2px !important;
-  }
-
-  .checkbox input[type=checkbox],
-  .checkbox-inline input[type=checkbox],
-  .radio input[type=radio],
-  .radio-inline input[type=radio] {
-    margin-left: -20px !important;
-  }
-
-  .checkbox label,
-  .radio label {
-    padding-left: 20px !important;
   }
 
   .position-override {
