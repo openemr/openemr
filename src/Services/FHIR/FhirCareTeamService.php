@@ -62,16 +62,16 @@ class FhirCareTeamService extends FhirServiceBase
 
         $careTeamResource->setSubject("Patient/" . $dataRecord['puuid']);
 
-        if (!empty($dataRecord['pruuid'])) {
+        foreach ($dataRecord['providers'] as $pruuid) {
             $provider = new FHIRCareTeamParticipant();
-            $provider->setMember("Practitioner/" . $dataRecord['pruuid']);
+            $provider->setMember("Practitioner/" . $pruuid);
             $careTeamResource->addParticipant($provider);
         }
 
-        if (!empty($dataRecord['ouuid'])) {
+        foreach ($dataRecord['facilities'] as $ouuid) {
             $organization = new FHIRCareTeamParticipant();
-            $organization->setMember("Organization/" . $dataRecord['ouuid']);
-            $careTeamResource->addParticipant($provider);
+            $organization->setMember("Organization/" . $ouuid);
+            $careTeamResource->addParticipant($organization);
         }
 
         if ($encode) {

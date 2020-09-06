@@ -2863,7 +2863,7 @@ function generate_plaintext_field($frow, $currvalue)
             if ($i > 0) {
                 $s = $s . ", " . $lrow['name'];
             } else {
-                $s = $lrow['name');
+                $s = $lrow['name'];
             }
 
             $i++;

@@ -49,38 +49,22 @@ class CareTeamService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true)
     {
-        $sqlBindArray = array();
 
-        $sql = "SELECT careTeam.*, uuid_mapping.uuid as uuid FROM 
-                (SELECT patient.uuid as puuid,
-                users.fname as prac_name,
-                users.uuid as pruuid,
-                facility.name as fac_name,
-                facility.uuid as ouuid
+        $sql = "SELECT patient.uuid as puuid,
+                patient.care_team_provider as providers,
+                patient.care_team_facility as facilities,
+                uuid_mapping.uuid as uuid
                 FROM patient_data as patient
-                LEFT JOIN users ON users.id=patient.care_team_provider
-                LEFT JOIN facility ON facility.id=patient.care_team_facility) as careTeam
-                LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=careTeam.puuid AND uuid_mapping.resource='CareTeam'";
+                LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=patient.uuid AND uuid_mapping.resource='CareTeam'";
 
-        if (!empty($search)) {
-            $sql .= ' WHERE ';
-            $whereClauses = array();
-            foreach ($search as $fieldName => $fieldValue) {
-                array_push($whereClauses, $fieldName . ' = ?');
-                array_push($sqlBindArray, $fieldValue);
-            }
-            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
-            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
-        }
-
-        $statementResults = sqlStatement($sql, $sqlBindArray);
+        $statementResults = sqlStatement($sql);
 
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
+            $row['providers'] = $this->splitAndProcessMultipleFields($row['providers'], "users");
+            $row['facilities'] = $this->splitAndProcessMultipleFields($row['facilities'], "facility");
             $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
-            $row['pruuid'] = $row['pruuid'] ? UuidRegistry::uuidToString($row['pruuid']) : null;
-            $row['ouuid'] = $row['ouuid'] ? UuidRegistry::uuidToString($row['ouuid']) : null;
             $processingResult->addData($row);
         }
 

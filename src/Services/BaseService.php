@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
 use Particle\Validator\Exception\InvalidValueException;
 
 require_once(__DIR__  . '/../../custom/code_types.inc.php');
@@ -361,5 +362,27 @@ class BaseService
             $diagnosis[$code] = $codedesc;
         }
         return $diagnosis;
+    }
+
+    /**
+     * Split IDs and Process the fields subsequently
+     *
+     * @param string $fields                    - All IDs sperated with | sign
+     * @param string $table                     - Name of the table of targeted ID
+     * @param string $primaryId                 - Name of Primary ID field
+     * @return array Array UUIDs
+     */
+    protected function splitAndProcessMultipleFields($fields, $table, $primaryId = "id")
+    {
+        $fields = explode("|", $fields);
+        $result = array();
+        foreach ($fields as $field) {
+            $data = sqlQuery("SELECT uuid
+                    FROM $table WHERE $primaryId = ?", array($field));
+            if ($data) {
+                array_push($result, UuidRegistry::uuidToString($data['uuid']));
+            }
+        }
+        return $result;
     }
 }
