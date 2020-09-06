@@ -1060,10 +1060,10 @@ function upgradeFromSqlFile($filename, $path = '')
         } elseif (preg_match('/^#EndIf/', $line)) {
             $skipping = false;
         }
-        if (preg_match('/^#specialSql/', $line)) {
+        if (preg_match('/^#SpecialSql/', $line)) {
             $special = true;
             $line = " ";
-        } elseif (preg_match('/^#endSpecialSql/', $line)) {
+        } elseif (preg_match('/^#EndSpecialSql/', $line)) {
             $special = false;
             $trim = false;
             $line = " ";
