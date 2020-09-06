@@ -1,10 +1,10 @@
 .text {
-  @include font-size("0.9rem !important");
+  @include font-size("0.9rem");
   text-decoration: none;
 }
 
 .required {
-  @include font-size("0.9rem !important");
+  @include font-size("0.9rem");
   color: $danger;
   font-weight: bold;
   text-decoration: none;
@@ -12,13 +12,13 @@
 
 /* Deprecated - Please use font-weight-bold class - Will be removed soon */
 .bold {
-  @include font-size("0.9rem !important");
+  @include font-size("0.9rem");
   font-weight: bold;
   text-decoration: none;
 }
 
 .small {
-  @include font-size("0.8rem !important");
+  @include font-size("0.8rem");
   text-decoration: none;
 }
 
@@ -35,9 +35,9 @@ a.disabled_button:hover {
 
 .pwdalert {
   display: block;
-  margin-#{$left}: 100px;
   padding: 10px 10px 10px 15px;
   width: 520px;
+  margin-#{$left}: 100px;
 }
 
 .alertmsg1 {

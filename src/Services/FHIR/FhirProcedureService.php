@@ -3,231 +3,156 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIREventStatus;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRProcedure\FHIRProcedurePerformer;
-use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
+use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\ProcedureService;
 
-class FhirProcedureService
+/**
+ * FHIR Procedure Service
+ *
+ * @coversDefaultClass OpenEMR\Services\FHIR\FhirProcedureService
+ * @package            OpenEMR
+ * @link               http://www.open-emr.org
+ * @author             Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+class FhirProcedureService extends FhirServiceBase
 {
-
-    private $id;
+    /**
+     * @var ProcedureService
+     */
+    private $procedureService;
 
     public function __construct()
     {
+        parent::__construct();
+        $this->procedureService = new ProcedureService();
     }
 
-    public function setId($id)
+    /**
+     * Returns an array mapping FHIR Procedure Resource search parameters to OpenEMR Procedure search parameters
+     *
+     * @return array The search parameters
+     */
+    protected function loadSearchParameters()
     {
-        $this->id = $id;
+        return  [
+            'patient' => ['patient.uuid']
+        ];
     }
 
-    public function get()
+    /**
+     * Parses an OpenEMR procedure record, returning the equivalent FHIR Procedure Resource
+     *
+     * @param  array   $dataRecord The source OpenEMR data record
+     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @return FHIRProcedure
+     */
+    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
-        return "SELECT ptype.procedure_code,
-                        ptype.body_site,
-                        ptype.notes,
-                        pcode.procedure_name,
-                        porder.procedure_order_id,
-                        porder.patient_id,
-                        porder.encounter_id,
-                        porder.date_collected,
-                        porder.provider_id,
-                        porder.order_diagnosis,
-                        porder.order_status,
-                        presult.result_status
-                        FROM procedure_order AS porder 
-                        LEFT JOIN procedure_order_code AS pcode 
-                        ON porder.procedure_order_id = pcode.procedure_order_id 
-                        LEFT JOIN procedure_type AS ptype 
-                        ON pcode.procedure_code = ptype.procedure_code 
-                        LEFT JOIN procedure_report AS preport 
-                        ON preport.procedure_order_id = porder.procedure_order_id 
-                        LEFT JOIN procedure_result AS presult 
-                        ON presult.procedure_report_id = preport.procedure_report_id";
-    }
+        $procedureResource = new FHIRProcedure();
 
-    public function getAll($search)
-    {
-        $SQL = $this->get();
-        if (isset($search['patient'])) {
-            $SQL .= " WHERE porder.patient_id = ?;";
-        }
+        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $procedureResource->setMeta($meta);
 
-        $SQLFollowUpNotes = "SELECT p.body,
-                                p.update_date
-                                FROM pnotes AS p
-                                LEFT JOIN gprelations AS r
-                                ON p.id = r.id2
-                                AND r.type1 = 2
-                                AND r.id1 = ?
-                                AND r.type2 = 6
-                                AND p.pid != p.`user`;";
-
-        $SQLProvider = "SELECT specialty, organization FROM users WHERE id = ?;";
-
-        $procedureResults = sqlStatement($SQL, $search['patient']);
-        $results = array();
-        while ($row = sqlFetchArray($procedureResults)) {
-            $provider = sqlQuery($SQLProvider, array($row['provider_id']));
-            $row['function'] = $provider['specialty'];
-            $row['organization'] = $provider['organization'];
-
-            $followUpNotes = sqlQuery($SQLFollowUpNotes, array($row['procedure_order_id']));
-            $row['followUp'] = $followUpNotes['body'] . " " . $followUpNotes['update_date'];
-
-            array_push($results, $row);
-        }
-
-        return $results;
-    }
-
-    public function getOne($id)
-    {
-        $SQL = $this->get();
-        $SQL .= " WHERE porder.procedure_order_id = ? ";
-
-        $sqlResult = sqlStatement($SQL, $id);
-        $result = sqlFetchArray($sqlResult);
-        if ($result) {
-            $SQLProvider = "SELECT specialty, organization FROM users WHERE id = ?";
-            $provider = sqlQuery($SQLProvider, array($result['provider_id']));
-            $result['function'] = $provider['specialty'];
-            $result['organization'] = $provider['organization'];
-
-            $SQLFollowUpNotes = "SELECT p.body,
-                                    p.update_date
-                                    FROM pnotes AS p
-                                    LEFT JOIN gprelations AS r
-                                    ON p.id = r.id2
-                                    AND r.type1 = 2
-                                    AND r.id1 = ?
-                                    AND r.type2 = 6
-                                    AND p.pid != p.`user`;";
-
-            $followUpNotes = sqlQuery($SQLFollowUpNotes, array($result['procedure_order_id']));
-            $result['followUp'] = $followUpNotes['body'] . " " . $followUpNotes['update_date'];
-        }
-        return $result;
-    }
-
-    public function createProcedureResource($id = '', $data = '', $encode = true)
-    {
-        $status = new FHIREventStatus();
-        if ($data['order_status'] == "completed") {
-            $status->setValue("completed");
-        } elseif ($data['order_status'] == "pending") {
-            $status->setValue("in-progress");
-        } elseif ($data['order_status'] == "cancelled") {
-            $status->setValue("stopped");
-        } else {
-            $status->setvalue("Unknown");
-        }
-
-        $procedureCode = new FHIRCodeableConcept();
-        $procedureCodeCoding = new FHIRCoding();
-        $procedureCodeCoding->setSystem("http://www.ama-assn.org/go/cpt");
-        $procedureCodeCoding->setCode($data['procedure_code']);
-        $procedureCodeCoding->setDisplay($data['procedure_name']);
-        $procedureCode->addCoding($procedureCodeCoding);
+        $id = new FHIRId();
+        $id->setValue($dataRecord['uuid']);
+        $procedureResource->setId($id);
 
         $subject = new FHIRReference();
-        $subject->setReference('Patient/' . $data['patient_id']);
+        $subject->setReference('Patient/' . $dataRecord['puuid']);
+        $procedureResource->setSubject($subject);
 
         $encounter = new FHIRReference();
-        $encounter->setReference('Encounter/' . $data['encounter_id']);
+        $encounter->setReference('Encounter/' . $dataRecord['euuid']);
+        $procedureResource->setEncounter($encounter);
 
-        $performedDateTime = new FHIRDateTime();
-        $performedDateTime->setValue($data['date_collected']);
+        $practitioner = new FHIRReference();
+        $practitioner->setReference('Practitioner/' . $dataRecord['pruuid']);
+        $procedureResource->addPerformer(['actor' => $practitioner]);
 
-        $recorder = new FHIRReference();
-        $recorder->setReference('Practitioner/' . $data['provider_id']);
-
-        $asserter = new FHIRReference();
-        $asserter->setReference('Practitioner/' . $data['provider_id']);
-
-        $function = new FHIRCodeableConcept();
-        $functionCoding = new FHIRCoding();
-        $functionCoding->setSystem("http://snomed.info/sct");
-        $functionCoding->setCode($data['specialty']);
-        $functionCoding->setDisplay($data['specialty']);
-        $function->addCoding($functionCoding);
-
-        $actor = new FHIRReference();
-        $actor->setReference('Practitioner/' . $data['provider_id']);
-
-        $onBehalfOf = new FHIRReference();
-        $onBehalfOf->setReference('Organization/' . $data['organization']);
-
-        $performer = new FHIRProcedurePerformer();
-        $performer->setActor($actor);
-        $performer->setFunction($function);
-        $performer->setOnBehalfOf($onBehalfOf);
-
-        $reasonCode = new FHIRCodeableConcept();
-        $reasonCodeCoding = new FHIRCoding();
-        $reasonCodeCoding->setSystem("http://hl7.org/fhir/sid/icd-10-cm");
-        $reasonCodeCoding->setCode($data['order_diagnosis']);
-        $reasonCodeCoding->setDisplay($data['order_diagnosis']);
-        $reasonCode->addCoding($reasonCodeCoding);
-
-        $outcome = new FHIRCodeableConcept();
-        $outcomeCoding = new FHIRCoding();
-        $outcomeCoding->setSystem("http://snomed.info/sct");
-        if (strtolower($data['result_status']) == "corrected" || strtolower($data['result_status']) == "final") {
-            $outcomeCoding->setCode("385669000");
-            $outcomeCoding->setDisplay("Successful");
-        } elseif (strtolower($data['result_status']) == "incomplete" || strtolower($data['result_status']) == "preliminary") {
-            $outcomeCoding->setCode("385670004");
-            $outcomeCoding->setDisplay("Partially successful");
+        if ($dataRecord['order_status'] == "completed") {
+            $procedureResource->setStatus("completed");
+        } elseif ($dataRecord['order_status'] == "pending") {
+            $procedureResource->setStatus("in-progress");
+        } elseif ($dataRecord['order_status'] == "cancelled") {
+            $procedureResource->setStatus("stopped");
         } else {
-            $outcomeCoding->setCode("385671000");
-            $outcomeCoding->setDisplay("Unsuccessful");
+            $procedureResource->setStatus("unknown");
         }
-        $outcomeCoding->setCode($data['body_site']);
-        $outcomeCoding->setDisplay($data['body_site']);
-        $outcome->addCoding($bodySiteCoding);
 
-        $bodySite = new FHIRCodeableConcept();
-        $bodySiteCoding = new FHIRCoding();
-        $bodySiteCoding->setSystem("http://snomed.info/sct");
-        $bodySiteCoding->setCode($data['body_site']);
-        $bodySiteCoding->setDisplay($data['body_site']);
-        $bodySite->addCoding($bodySiteCoding);
+        if (!empty($dataRecord['diagnoses'])) {
+            $diagnosisCoding = new FHIRCoding();
+            $diagnosisCode = new FHIRCodeableConcept();
+            foreach ($dataRecord['diagnoses'] as $code => $display) {
+                $diagnosisCoding->setCode($code);
+                $diagnosisCoding->setDisplay($display);
+                $diagnosisCode->addCoding($diagnosisCoding);
+            }
+            $procedureResource->setCode($diagnosisCode);
+        }
 
-        $followUp = new FHIRCodeableConcept();
-        $followUp->setText($data['followUp']);
+        if (!empty($dataRecord['date_collected'])) {
+            $procedureResource->setPerformedDateTime($dataRecord['date_collected']);
+        }
 
-        $note = new FHIRAnnotation();
-        $note->setText($data['notes']);
-
-        $resource = new FHIRProcedure();
-        $resource->setStatus($status);
-        $resource->setCode($procedureCode);
-        $resource->setSubject($subject);
-        $resource->setEncounter($encounter);
-        $resource->setPerformedDateTime($performedDateTime);
-        $resource->setRecorder($recorder);
-        $resource->setAsserter($asserter);
-        $resource->addPerformer($performer);
-        $resource->addReasonCode($reasonCode);
-        $resource->addBodySite($bodySite);
-        $resource->setOutcome($outcome);
-        $resource->addFollowUp($followUp);
-        $resource->addNote($note);
+        if (!empty($dataRecord['notes'])) {
+            $procedureResource->addNote(['text' => $dataRecord['notes']]);
+        }
 
         if ($encode) {
-            return json_encode($resource);
+            return json_encode($procedureResource);
         } else {
-            return $resource;
+            return $procedureResource;
         }
+    }
+
+    /**
+     * Performs a FHIR Condition Resource lookup by FHIR Resource ID
+     *
+     * @param $fhirResourceId //The OpenEMR record's FHIR Condition Resource ID.
+     */
+    public function getOne($fhirResourceId)
+    {
+        $processingResult = $this->procedureService->getOne($fhirResourceId);
+        if (!$processingResult->hasErrors()) {
+            if (count($processingResult->getData()) > 0) {
+                $openEmrRecord = $processingResult->getData()[0];
+                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
+                $processingResult->setData([]);
+                $processingResult->addData($fhirRecord);
+            }
+        }
+        return $processingResult;
+    }
+
+    /**
+     * Searches for OpenEMR records using OpenEMR search parameters
+     *
+     * @param  array openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
+    public function searchForOpenEMRRecords($openEMRSearchParameters)
+    {
+        return $this->procedureService->getAll($openEMRSearchParameters, false);
+    }
+
+    public function parseFhirResource($fhirResource = array())
+    {
+        // TODO: If Required in Future
+    }
+
+    public function insertOpenEMRRecord($openEmrRecord)
+    {
+        // TODO: If Required in Future
+    }
+
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        // TODO: If Required in Future
     }
 }

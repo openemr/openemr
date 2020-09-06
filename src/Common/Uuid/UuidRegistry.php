@@ -33,11 +33,21 @@ class UuidRegistry
     // Maximum tries to create a unique uuid before failing (this should never happen)
     const MAX_TRIES = 100;
 
-    private $table_name;
+    private $table_name;      // table to check if uuid has already been used in
+    private $table_id;        // the label of the column in above table that is used for id (defaults to 'id')
+    private $table_vertical;  // false or array. if table is vertical, will store the critical columns (uuid set for matching columns)
+    private $disable_tracker; // disable check and storage of uuid in the main uuid_registry table
 
     public function __construct($associations = [])
     {
         $this->table_name = $associations['table_name'] ?? '';
+        if (!empty($this->table_name)) {
+            $this->table_id = $associations['table_id'] ?? 'id';
+        } else {
+            $this->table_id = '';
+        }
+        $this->table_vertical = $associations['table_vertical'] ?? false;
+        $this->disable_tracker = $associations['disable_tracker'] ?? false;
     }
 
     /**
@@ -81,10 +91,12 @@ class UuidRegistry
             $test_uuid = (\Ramsey\Uuid\Uuid::fromBytes($uuid))->toString(); // convert byte uuid to string and log below
             error_log($test_uuid);
             error_log(bin2hex((\Ramsey\Uuid\Uuid::fromString($test_uuid))->getBytes())); // convert string uuid to byte and log hex
-            */
+             */
 
-            // Check to ensure uuid is unique in uuid_registry
-            $checkUniqueRegistry = sqlQueryNoLog("SELECT * FROM `uuid_registry` WHERE `uuid` = ?", [$uuid]);
+            // Check to ensure uuid is unique in uuid_registry (unless $this->disable_tracker is set to true)
+            if (!$this->disable_tracker) {
+                $checkUniqueRegistry = sqlQueryNoLog("SELECT * FROM `uuid_registry` WHERE `uuid` = ?", [$uuid]);
+            }
             if (empty($checkUniqueRegistry)) {
                 // If using $this->table_name, then ensure uuid is unique in that table
                 if (!empty($this->table_name)) {
@@ -98,8 +110,14 @@ class UuidRegistry
             }
         }
 
-        // Insert the uuid into uuid_registry
-        sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `created`) VALUES (?, ?, NOW())", [$uuid, $this->table_name]);
+        // Insert the uuid into uuid_registry (unless $this->disable_tracker is set to true)
+        if (!$this->disable_tracker) {
+            if (!$this->table_vertical) {
+                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `created`) VALUES (?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id]);
+            } else {
+                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `created`) VALUES (?, ?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id, json_encode($this->table_vertical)]);
+            }
+        }
 
         // Return the uuid
         return $uuid;
@@ -108,18 +126,46 @@ class UuidRegistry
     // Generic function to create missing uuids in a sql table (table needs an `id` column to work)
     public function createMissingUuids()
     {
-        // Note needed the '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' to check for empty in binary(16) field
-        $resultSet = sqlStatementNoLog("SELECT `id` FROM `" . $this->table_name . "` WHERE `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
+        // Empty should be NULL, but to be safe also checking for empty and null bytes
+        $resultSet = sqlStatementNoLog("SELECT * FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
         while ($row = sqlFetchArray($resultSet)) {
-            sqlQuery("UPDATE " . $this->table_name . " SET `uuid` = ? WHERE `id` = ?", [$this->createUuid(), $row['id']]);
+            if (!$this->table_vertical) {
+                // standard case, add missing uuid
+                sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$this->createUuid(), $row[$this->table_id]]);
+            } else {
+                // more complicated case where setting uuid in a vertical table. In this case need a uuid for each combination of table columns stored in $this->table_vertical array
+                $stringQuery = "";
+                $arrayQuery = [];
+                $prependAnd = false;
+                foreach ($this->table_vertical as $column) {
+                    if ($prependAnd) {
+                        $stringQuery .= " AND `" . $column . "` = ? ";
+                    } else {
+                        $stringQuery .= " `" . $column . "` = ? ";
+                    }
+                    $arrayQuery[] = $row[$column];
+                    $prependAnd = true;
+                }
+                // First, see if it has already been set
+                $setUuid = sqlQueryNoLog("SELECT `uuid` FROM `" . $this->table_name . "` WHERE `uuid` IS NOT NULL AND `uuid` != '' AND `uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' AND " . $stringQuery, $arrayQuery)['uuid'];
+                if (!empty($setUuid)) {
+                    // Already set
+                    array_unshift($arrayQuery, $setUuid);
+                } else {
+                    // Not already set, so create
+                    array_unshift($arrayQuery, $this->createUuid());
+                }
+                // Now populate
+                sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " . $stringQuery, $arrayQuery);
+            }
         }
     }
 
     // Generic function to see if there are missing uuids in a sql table (table needs an `id` column to work)
     public function tableNeedsUuidCreation()
     {
-        // Note needed the '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' to check for empty in binary(16) field
-        $resultSet = sqlQueryNoLog("SELECT count(`id`) as `total` FROM `" . $this->table_name . "` WHERE `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
+        // Empty should be NULL, but to be safe also checking for empty and null bytes
+        $resultSet = sqlQueryNoLog("SELECT count(`" . $this->table_id . "`) as `total` FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
         if ($resultSet['total'] > 0) {
             return true;
         }
@@ -142,5 +188,23 @@ class UuidRegistry
     public static function uuidToBytes($uuidString)
     {
         return Uuid::fromString($uuidString)->getBytes();
+    }
+
+    /**
+     * Check if UUID String is Valid
+     * @return boolean
+     */
+    public static function isValidStringUUID($uuidString)
+    {
+        return (Uuid::isValid($uuidString));
+    }
+
+    /**
+     * Check if UUID Brinary is Empty
+     * @return boolean
+     */
+    public static function isEmptyBinaryUUID($uuidString)
+    {
+        return (empty($uuidString) || ($uuidString == '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'));
     }
 }

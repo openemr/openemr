@@ -228,7 +228,7 @@ function postcalendar_getDate($format = '%Y%m%d')
     $y = substr($Date, 0, 4);
     $m = substr($Date, 4, 2);
     $d = substr($Date, 6, 2);
-    $_SESSION['lastcaldate'] = "$y-$m-$d"; // remember the last chosen date
+    OpenEMR\Common\Session\SessionUtil::setSession('lastcaldate', "$y-$m-$d"); // remember the last chosen date
     return strftime($format, mktime(0, 0, 0, $m, $d, $y));
 }
 

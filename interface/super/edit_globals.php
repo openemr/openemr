@@ -349,7 +349,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
              <div class="col-sm-12">
-                <div class="page-header mt-3">
+                <div class="mt-3">
                     <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
@@ -529,7 +529,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     // this is used when value has not yet been encrypted (only happens once when upgrading)
                                                     $fldvalueDecrypted = $fldvalue;
                                                 }
-                                                echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                                                echo "  <input type='password' class='form-control' name='form_$i' id='form_$i' " .
                                                     "maxlength='255' value='" . attr($fldvalueDecrypted) . "' />\n";
                                                 if ($userMode) {
                                                     if (empty($globalValue)) {

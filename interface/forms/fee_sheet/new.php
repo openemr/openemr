@@ -8,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -847,7 +847,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-header clearfix">
+                <div class="clearfix">
                     <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
@@ -1203,8 +1203,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
 
                                     $resMoneyGot = sqlStatement(
-                                        "SELECT pay_amount as PatientPay,session_id as id,date(post_time) as date " .
-                                        "FROM ar_activity where pid =? and encounter =? and payer_type=0 and account_code='PCP'",
+                                        "SELECT pay_amount as PatientPay,session_id as id, date(post_time) as date " .
+                                        "FROM ar_activity where deleted IS NULL AND pid = ? and encounter = ? and " .
+                                        "payer_type = 0 and account_code = 'PCP'",
                                         array($fs->pid, $fs->encounter)
                                     ); //new fees screen copay gives account_code='PCP'
                                     while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {
@@ -1450,7 +1451,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 if (!$GLOBALS['ippf_specific']) { ?>
                                     <label class='col-form-label col-2'><?php echo xlt('Supervising'); ?></label>
                                     <div class="col-10">
-                                    <?php echo $fs->genProviderSelect('SupervisorID', '-- ' . xl("N/A") . ' --', $fs->supervisor_id, $isBilled); ?>
+                                    <?php
+                                    $super_id = sqlQuery("Select supervisor_id From users Where id = ?", array($default_rid))['supervisor_id'];
+                                    $select_id = !empty($fs->supervisor_id) ? $fs->supervisor_id : $super_id;
+                                    echo $fs->genProviderSelect('SupervisorID', '-- ' . xl("N/A") . ' --', $select_id, $isBilled); ?>
                                     </div>
                                     <?php
                                 }

@@ -8,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -779,7 +779,10 @@ if ($_GET['original'] == 'original') {
             $rs = sqlQ("select pay_total from ar_session where session_id=?", array($value));
             $row = sqlFetchArray($rs);
             $pay_total = $row['pay_total'];
-            $rs = sqlQ("select sum(pay_amount) sum_pay_amount from ar_activity where session_id=?", array($value));
+            $rs = sqlQ(
+                "select sum(pay_amount) sum_pay_amount from ar_activity where deleted IS NULL AND session_id = ?",
+                array($value)
+            );
             $row = sqlFetchArray($rs);
             $pay_amount = $row['sum_pay_amount'];
 

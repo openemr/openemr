@@ -105,11 +105,9 @@ $version = $versionService->fetch();
     <div class="container">
         <div class="row">
             <div class="col-12 col-md-4 offset-md-4 text-center">
-                <div class="page-header">
-                    <h1><?php echo xlt("About");?>&nbsp;OpenEMR</h1>
-                </div>
+                <h1><?php echo xlt("About");?>&nbsp;OpenEMR</h1>
                 <h4><?php echo xlt('Version Number'); ?>: <?php echo "v" . text($openemr_version); ?></h4>
-                <span class="text product-registration"><span class="email"></span> <span class="id"></span></span><br />
+                <span class="text product-registration"><span class="email"></span></span><br />
                 <?php if (!empty($GLOBALS['support_phone_number'])) { ?>
                     <span class="text"><?php  echo xlt('Support Phone Number'); ?>: <?php echo text($GLOBALS['support_phone_number']); ?></span><br />
                 <?php } ?>

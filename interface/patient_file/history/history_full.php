@@ -38,7 +38,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'common']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'common', 'select2']); ?>
 <title><?php echo xlt("History & Lifestyle");?></title>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
@@ -180,6 +180,16 @@ $(function () {
     }
     tabbify();
 
+    $(".select-dropdown").select2({
+        theme: "bootstrap4",
+        <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+    });
+    if (typeof error !== 'undefined') {
+        if (error) {
+            alertMsg(error);
+        }
+    }
+
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -227,11 +237,11 @@ $arrOeUiSettings = array(
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
-<body class="body_top">
+<body>
 
-<div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+<div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-12">
             <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
         </div>
     </div>
@@ -252,12 +262,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
             <form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS',constraints)">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-                <input type='hidden' name='mode' value='save'>
+                <input type='hidden' name='mode' value='save' />
 
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
-                    <a href="history.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
+                    <button type="submit" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
+                    <a href="history.php" class="btn btn-secondary btn-cancel" onclick="top.restoreSession()">
                         <?php echo xlt('Cancel'); ?>
                     </a>
                 </div>
@@ -265,7 +274,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <br/>
 
                 <!-- history tabs -->
-                <div id="HIS" style='float:none; margin-top: 10px; margin-right:20px'>
+                <div id="HIS" class="float-none mt-3">
                     <ul class="tabNav" >
                         <?php display_layout_tabs('HIS', $result, $result2); ?>
                     </ul>
@@ -295,7 +304,7 @@ var skipArray = [
 
 </script>
 
-<script language='JavaScript'>
+<script>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
         <?php echo $condition_str; ?>

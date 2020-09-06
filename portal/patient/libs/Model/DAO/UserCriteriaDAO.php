@@ -12,7 +12,6 @@
 
 /** import supporting libraries */
 require_once("verysimple/Phreeze/Criteria.php");
-
 /**
  * UserCriteria allows custom querying for the User object.
  *
@@ -870,4 +869,19 @@ class UserCriteriaDAO extends Criteria
     public $PhysicianType_IsEmpty;
     public $PhysicianType_BitwiseOr;
     public $PhysicianType_BitwiseAnd;
+    public $PortalUser_Equals;
+    public $PortalUser_NotEquals;
+    public $PortalUser_IsLike;
+    public $PortalUser_IsNotLike;
+    public $PortalUser_BeginsWith;
+    public $PortalUser_EndsWith;
+    public $PortalUser_GreaterThan;
+    public $PortalUser_GreaterThanOrEqual;
+    public $PortalUser_LessThan;
+    public $PortalUser_LessThanOrEqual;
+    public $PortalUser_In;
+    public $PortalUser_IsNotEmpty;
+    public $PortalUser_IsEmpty;
+    public $PortalUser_BitwiseOr;
+    public $PortalUser_BitwiseAnd;
 }

@@ -131,6 +131,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div id='patient_stats'>
             <form method='post' action='stats_full.php' onsubmit='return top.restoreSession()'>
 
+            <div class="table-responsive">
             <table class="table">
 
             <?php
@@ -180,6 +181,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <th scope="col"><?php echo xlt('Occurrence'); ?></th>
                 <?php if ($focustype == "allergy") { ?>
                   <th scope="col"><?php echo xlt('Reaction'); ?></th>
+                <?php }
+                if ($focustype == "allergy" || $focustype == "medical_problem") { ?>
+                  <th scope="col"><?php echo xlt('Verification Status'); ?></th>
                 <?php } ?>
                 <th scope="col"><?php echo xlt('Referred By'); ?></th>
                 <th scope="col"><?php echo xlt('Modify Date'); ?></th>
@@ -211,7 +215,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo " disabled";
                         }
 
-                          echo " /><b>" . xlt("None{{Issue}}") . "</b></td></tr>";
+                          echo " /><strong>" . xlt("None{{Issue}}") . "</strong></td></tr>";
                     }
                 }
 
@@ -278,12 +282,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo generate_display_field(array('data_type' => '1','list_id' => 'reaction'), $row['reaction']);
                           echo "</td>\n";
                     }
-
+                    if ($focustype == "allergy" || $focustype == "medical_problem") {
+                        $codeListName = ($thistype == 'medical_problem') ? 'condition-verification' : 'allergyintolerance-verification';
+                          echo "  <td>";
+                            echo generate_display_field(array('data_type' => '1','list_id' => $codeListName), $row['verification']);
+                          echo "</td>\n";
+                    }
                     echo "  <td>" . text($row['referredby']) . "</td>\n";
                     echo "  <td>" . text(oeFormatDateTime($row['modifydate'])) . "</td>\n";
                     echo "  <td>" . text($row['comments']) . "</td>\n";
                     echo "  <td id='e_" . attr($rowid) . "' class='noclick text-center' title='" . xla('View related encounters') . "'>";
-                    echo "  <input type='button' value='" . attr($ierow['count']) . "' class='editenc' id='" . attr($rowid) . "' />";
+                    echo "  <button value='" . attr($ierow['count']) . "' class='btn btn-primary btn-sm editenc' id='" . attr($rowid) . "'>" . xlt("Edit") . "</button>";
                     echo "  </td>";
                     echo " </tr>\n";
                 }
@@ -293,6 +302,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
 
             </table>
+          </div>
 
             </form>
         </div> <!-- end patient_stats -->

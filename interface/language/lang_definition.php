@@ -22,14 +22,9 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
-if (
-    (empty($_SESSION['lang_module_unique_id'])) ||
-    (empty($unique_id)) ||
-    ($unique_id != $_SESSION['lang_module_unique_id'])
-) {
-    die(xlt('Authentication Error'));
+if ($langModuleFlag !== true) {
+    die(function_exists('xlt') ? xlt('Authentication Error') : 'Authentication Error');
 }
-unset($_SESSION['lang_module_unique_id']);
 
 // gacl control
 $thisauth = AclMain::aclCheckCore('admin', 'language');
@@ -105,10 +100,15 @@ if (!$thisauth) {
 
 // set up the mysql collation string to ensure case is sensitive (or insensitive) in the mysql queries
 if (!$disable_utf8_flag) {
-    $case_sensitive_collation = "COLLATE utf8_bin";
-    $case_insensitive_collation = "COLLATE utf8_general_ci";
+    if ($sqlconf["db_encoding"] == "utf8mb4") {
+        $case_sensitive_collation = "COLLATE utf8mb4_bin";
+        $case_insensitive_collation = "COLLATE utf8mb4_general_ci";
+    } else {
+        $case_sensitive_collation = "COLLATE utf8_bin";
+        $case_insensitive_collation = "COLLATE utf8_general_ci";
+    }
 } else {
-    $case_sensitive_collation = "COLLATE latin_bin";
+    $case_sensitive_collation = "COLLATE latin1_bin";
     $case_insensitive_collation = "COLLATE latin1_swedish_ci";
 }
 

@@ -84,7 +84,6 @@ if (empty($id)) {
     );
 }
 
-$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();

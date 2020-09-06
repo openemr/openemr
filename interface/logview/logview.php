@@ -70,7 +70,7 @@ if (!empty($_GET)) {
 <div id="container_div" class="container">
     <div class="row">
         <div class="col-sm-12">
-            <div class="page-header clearfix">
+            <div class="clearfix">
                 <h2><?php echo xlt('Logs Viewer'); ?></h2>
             </div>
         </div>

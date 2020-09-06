@@ -20,6 +20,7 @@ Docker Environment. See below for instructions of use of the Insane Development 
 [docker](https://www.docker.com/get-docker) and
 [compose](https://docs.docker.com/compose/install/) for your system. Also, make
 sure you have a [fork](https://help.github.com/articles/fork-a-repo/) of OpenEMR.
+- If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
 
 **Step 2.** Start OpenEMR.
 ```bash
@@ -102,12 +103,12 @@ options to choose from:
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
 setup input screen:
- - for `Server Host`, use either `mariadb` or `mysql` or `mariadb-very-old` or
-   `mariadb-very-very-old` or `mariadb-dev` or `mysql-old` or `mysql-very-old` (you have all
+ - for `Server Host`, use either `mariadb` or `mariadb-ssl` or `mysql` or `mariadb-very-old` or
+   `mariadb-very-very-old` or `mysql-old` (you have all
    mariadb/mysql/mariadb-\*/mysql-\* dockers ready to go to make testing either one easy;
-   `mysql` is version 8.0; `mysql-old` is version 5.7; `mysql-very-old` is version 5.6;
-   `mariadb` is version 10.4; `mariadb-old` is version 10.3; `mariadb-very-old` is
-   version 10.2; `mariadb-very-very-old` is version 10.1; `mariadb-dev` is version 10.5)
+   `mysql` is version 8.0; `mysql-old` is version 5.7;
+   `mariadb` is version 10.5; `mariadb-ssl` is version 10.5 with support for ssl; `mariadb-old` is version 10.4; `mariadb-very-old` is
+   version 10.3; `mariadb-very-very-old` is version 10.2)
  - for `Root Pass`, use `root`
  - for `User Hostname`, use `%`
 
@@ -150,10 +151,8 @@ docker pull mariadb:10.5
 docker pull mariadb:10.4
 docker pull mariadb:10.3
 docker pull mariadb:10.2
-docker pull mariadb:10.1
 docker pull mysql:8
 docker pull mysql:5.7
-docker pull mysql:5.6
 docker pull phpmyadmin/phpmyadmin
 docker pull couchdb
 docker pull jodogne/orthanc-plugins
@@ -276,13 +275,14 @@ build tools can simply `bash` into the OpenEMR container and use them as expecte
 ##### CouchDB
 In OpenEMR, CouchDB is an option for the patients document storage. For this reason, a CouchDB
 docker is included in this OpenEMR docker development environment. You can visit the CouchDB
-GUI directly via http://localhost:5984/_utils/ with username `admin` and password `password`.
-You can configure OpenEMR to use this CouchDB docker for patient document storage in OpenEMR
-at Administration->Globals->Documents:
+GUI directly via http://localhost:5984/_utils/ or https://localhost:6984/_utils/ with
+username `admin` and password `password`. You can configure OpenEMR to use this CouchDB
+docker for patient document storage in OpenEMR at Administration->Globals->Documents:
 - Document Storage Method->CouchDB
 - CouchDB HostName->couchdb
 - CouchDB UserName->admin
 - CouchDB Password->password
+- CouchDB Port->6984
 - CouchDB Database can be set to any name you want
 
 ##### OpenLDAP
@@ -308,7 +308,7 @@ proxy is still a work in progress)
 
 ##### FHIR
 A FHIR server is included to make it easier to test on a bona fide FHIR server as developers
-work towards supporting FHIR via OpenEMR's API. The FHIR server is docker from 
+work towards supporting FHIR via OpenEMR's API. The FHIR server is docker from
 https://hub.docker.com/r/ibmcom/ibm-fhir-server and see there for instructions of use.
 
 #### The Insane Docker Development Environment is a work in progress

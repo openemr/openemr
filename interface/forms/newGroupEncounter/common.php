@@ -55,7 +55,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   "pid = ? AND enddate IS NULL " .
   "ORDER BY type, begdate", array($pid));
 */?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
 
@@ -140,9 +140,10 @@ function cancelClickedOld() {
 </script>
 <style>
 @media only screen and (max-width: 1024px) {
-    #visit-details [class*="col-"], #visit-issues [class*="col-"]{
-    width: 100%;
-    text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ' : 'left '?> !Important;
+    #visit-details [class*="col-"], #visit-issues [class*="col-"] {
+      width: 100%;
+      text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ' : 'left '?> !important;
+    }
 }
 </style>
 <?php
@@ -161,34 +162,27 @@ $help_icon = '';
 
 <body class="body_top" <?php echo $body_javascript;?>>
 <div class="container">
-    <div class="row">
-        <div class="col-12">
             <!-- Required for the popup date selectors -->
-            <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-            <div class="">
-                <div class="page-header">
-                    <h2><?php echo text($heading_caption); ?><?php echo $help_icon; ?></h2>
-                </div>
+            <div id="overDiv" class="position-absolute" style="visibility: hidden; z-index: 1000;"></div>
+            <div>
+                <h2><?php echo text($heading_caption); ?><?php echo $help_icon; ?></h2>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
             <form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newGroupEncounter/save.php" name='new_encounter'>
                 <?php if ($viewmode) { ?>
-                    <input type=hidden name='mode' value='update'>
-                    <input type=hidden name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>'>
+                    <input type="hidden" name='mode' value='update' />
+                    <input type="hidden" name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>' />
                 <?php } else { ?>
-                    <input type='hidden' name='mode' value='new'>
+                    <input type='hidden' name='mode' value='new' />
                 <?php } ?>
                 <fieldset>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <legend><?php echo xlt('Visit Details')?></legend>
-                    <div id = "visit-details">
-                        <div class="form-group ">
-                            <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Visit Category'); ?>:</label>
+                    <div id="visit-details">
+                      <div class="row p-3">
+                        <div class="col-md-6 form-group row">
+                            <label for="pc_catid" class="col-form-label col-sm-2"><?php echo xlt('Visit Category'); ?>:</label>
                             <div class="col-sm-3">
-                                <select  name='pc_catid' id='pc_catid' class='form-control col-sm-12'>
+                                <select name='pc_catid' id='pc_catid' class='form-control'>
                                     <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
                                     <?php
                                     $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
@@ -220,9 +214,9 @@ $help_icon = '';
                             if ($sensitivities && count($sensitivities)) {
                                 usort($sensitivities, "sensitivity_compare");
                                 ?>
-                            <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Sensitivity'); ?>:</label>
+                            <label for="pc_catid" class="col-form-label col-sm-2"><?php echo xlt('Sensitivity'); ?>:</label>
                             <div class="col-sm-3">
-                                <select name='form_sensitivity' id='form_sensitivity' class='form-control col-sm-12' >
+                                <select name='form_sensitivity' id='form_sensitivity' class='form-control'>
                                     <?php
                                     foreach ($sensitivities as $value) {
                                         // Omit sensitivities to which this user does not have access.
@@ -254,54 +248,52 @@ $help_icon = '';
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="form-group">
-                            <label for='form_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Date of Service'); ?>:</label>
+                        <div class="col-md-6 form-group row">
+                            <label for='form_date' class="col-form-label col-sm-2"><?php echo xlt('Date of Service'); ?>:</label>
                             <div class="col-sm-3">
-                                <input type='text' class='form-control datepicker col-sm-12' name='form_date' id='form_date' <?php echo $disabled ?>
+                                <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo $disabled ?>
                                        value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>'
                                        title='<?php echo xla('Date of service'); ?>'/>
                             </div>
 
-                            <div
-                                <?php
-                                if ($GLOBALS['ippf_specific']) {
-                                    echo " style='visibility:hidden;'";
-                                } ?>>
-                                <label for='form_onset_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Onset/hosp. date'); ?>:</label>
+                            <?php if ($GLOBALS['ippf_specific']) {
+                                echo "<div class='invisible'>"; } ?>
+                                <label for='form_onset_date' class="col-form-label col-sm-2"><?php echo xlt('Onset/hosp. date'); ?>:</label>
                                 <div class="col-sm-3">
-                                    <input type='text' class='form-control datepicker col-sm-12' name='form_onset_date' id='form_onset_date'
+                                    <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date'
                                            value='<?php echo $viewmode && $result['onset_date'] != '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>'
                                            title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                                 </div>
-                            </div>
+                            <?php if ($GLOBALS['ippf_specific']) {
+                                echo "</div>"; } ?>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="form-group"
+                        <div class="col-md-6 form-group row"
                             <?php
                             if (!$GLOBALS['gbl_visit_referral_source']) {
                                 echo "style='display:none'";
                             } ?>>">
-                            <label  class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Referral Source'); ?>:</label>
+                            <label  class="col-form-label col-sm-2"><?php echo xlt('Referral Source'); ?>:</label>
                             <div class="col-sm-3">
                                 <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', '');?>
                             </div>
                             <div class="clearfix"></div>
                         </div>
                         <?php if ($GLOBALS['enable_group_therapy']) { ?>
-                            <div class="form-group"id="therapy_group_name" style="display: none">
-                                <label for="form_group" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Group name'); ?>:</label>
+                            <div class="col-md-6 form-group row" id="therapy_group_name" style="display: none">
+                                <label for="form_group" class="col-form-label col-sm-2"><?php echo xlt('Group name'); ?>:</label>
                                 <div class="col-sm-3">
-                                    <input type='text'name='form_group' class='form-control col-sm-12' id="form_group"  placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
+                                    <input type='text'name='form_group' class='form-control' id="form_group" placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
                                     <input type='hidden' name='form_gid' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr($result['external_id']) : '' ?>' />
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
                         <?php }?>
                         <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
-                            <div class="form-group">
-                                <label for='facility_id' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('POS Code'); ?>:</label>
+                            <div class="col-md-6 form-group row">
+                                <label for='facility_id' class="col-form-label col-sm-2"><?php echo xlt('POS Code'); ?>:</label>
                                 <div class="col-sm-8">
-                                    <select name="pos_code" id="pos_code" class='form-control col-sm-9'>
+                                    <select name="pos_code" id="pos_code" class='form-control'>
                                         <?php
                                         $pc = new POSRef();
                                         foreach ($pc->get_pos_ref() as $pos) {
@@ -318,10 +310,10 @@ $help_icon = '';
                                 <div class="clearfix"></div>
                             </div>
                         <?php }?>
-                        <div class="form-group">
-                            <label for='facility_id' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Facility'); ?>:</label>
+                        <div class="col-md-6 form-group row">
+                            <label for='facility_id' class="col-form-label col-sm-2"><?php echo xlt('Facility'); ?>:</label>
                             <div class="col-sm-8">
-                                <select name='facility_id' id='facility_id' class='form-control col-sm-9' onChange="bill_loc()">
+                                <select name='facility_id' id='facility_id' class='form-control' onChange="bill_loc()">
                                     <?php
                                     if ($viewmode) {
                                         $def_facility = $result['facility_id'];
@@ -350,31 +342,26 @@ $help_icon = '';
                                 </select>
                             </div>
                         </div>
+                      </div>
                     </div>
                 </fieldset>
                 <fieldset>
-                    <legend><?php echo xlt('Reason for Visit')?></legend>
-                    <div class="form-group">
-                        <div class="col-sm-10 offset-sm-1">
-                            <textarea name="reason" id="reason" class="form-control" cols="80" rows="4" ><?php echo $viewmode ? text($result['reason']) : text($GLOBALS['default_chief_complaint']); ?></textarea>
-                        </div>
+                    <div class="col-md-12 form-group">
+                      <legend><?php echo xlt('Reason for Visit')?></legend>
+                      <textarea name="reason" id="reason" class="form-control" cols="80" rows="4"><?php echo $viewmode ? text($result['reason']) : text($GLOBALS['default_chief_complaint']); ?></textarea>
                     </div>
                 </fieldset>
-                <div class="form-group clearfix">
-                    <div class="col-sm-12 text-left position-override">
-                        <button type="button" class="btn btn-secondary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
-                        <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
-                            <button type="button" class="btn btn-link btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
-                        <?php } else { // not $viewmode ?>
-                            <button class="btn btn-link btn-cancel btn-separate-left link_submit" onClick="return cancelClickedNew()">
-                                <?php echo xlt('Cancel'); ?></button>
-                        <?php } // end not $viewmode ?>
-                    </div>
+                <div class="col-md-12 form-group clearfix">
+                      <button type="button" class="btn btn-secondary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
+                      <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
+                          <button type="button" class="btn btn-link btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
+                      <?php } else { // not $viewmode ?>
+                          <button class="btn btn-link btn-cancel btn-separate-left link_submit" onClick="return cancelClickedNew()">
+                              <?php echo xlt('Cancel'); ?></button>
+                      <?php } // end not $viewmode ?>
                 </div>
                 <div class="clearfix"></div>
             </form>
-        </div>
-    </div>
 </div><!--end of co
 
 </form>

@@ -21,10 +21,8 @@ use OpenEMR\Core\Header;
 ?>
 <!doctype html>
 
-<html lang="">
+<html>
 <head>
-    <meta charset="utf-8">
-
     <?php Header::setupHeader(['datetime-picker', 'topdialog', 'moment', 'datatables', 'datatables-dt', 'datatables-bs']); ?>
 
     <script>
@@ -33,5 +31,3 @@ use OpenEMR\Core\Header;
 </head>
 
 <body class="body_top therapy_group">
-
-

@@ -17,16 +17,26 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Validators\FacilityValidator;
+use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
 
 class FacilityService extends BaseService
 {
+    private $facilityValidator;
+    private $uuidRegistry;
+    private const FACILITY_TABLE = "facility";
+
     /**
      * Default constructor.
      */
     public function __construct()
     {
-        parent::__construct('facility');
+        parent::__construct(self::FACILITY_TABLE);
+        $this->uuidRegistry = new UuidRegistry(['table_name' => self::FACILITY_TABLE]);
+        $this->uuidRegistry->createMissingUuids();
+        $this->facilityValidator = new FacilityValidator();
     }
 
     public function validate($facility)
@@ -61,14 +71,14 @@ class FacilityService extends BaseService
         return $validator->validate($facility);
     }
 
-    public function getAll()
+    public function getAllFacility()
     {
         return $this->get(array("order" => "ORDER BY FAC.name ASC"));
     }
 
     public function getPrimaryBusinessEntity($options = null)
     {
-        if (! empty($options) && ! empty($options["useLegacyImplementation"])) {
+        if (!empty($options) && !empty($options["useLegacyImplementation"])) {
             return $this->getPrimaryBusinessEntityLegacy();
         }
 
@@ -78,7 +88,7 @@ class FacilityService extends BaseService
             "limit" => 1
         );
 
-        if (! empty($options) && ! empty($options["excludedId"])) {
+        if (!empty($options) && !empty($options["excludedId"])) {
             $args["where"] .= " AND FAC.id != ?";
             $args["data"] = $options["excludedId"];
             return $this->get($args);
@@ -94,7 +104,7 @@ class FacilityService extends BaseService
             "order" => "ORDER BY FAC.name ASC"
         );
 
-        if (! empty($options) && ! empty($options["orderField"])) {
+        if (!empty($options) && !empty($options["orderField"])) {
             $args["order"] = "ORDER BY FAC." . escape_sql_column_name($options["orderField"], array("facility")) . " ASC";
         }
 
@@ -142,7 +152,7 @@ class FacilityService extends BaseService
     {
         $facility = $this->getFacilityForUser($userId);
 
-        if (! empty($facility)) {
+        if (!empty($facility)) {
             $formatted = "";
             $formatted .= $facility["name"];
             $formatted .= "\n";
@@ -170,7 +180,7 @@ class FacilityService extends BaseService
         ));
     }
 
-    public function update($data)
+    public function updateFacility($data)
     {
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE facility SET ";
@@ -183,12 +193,12 @@ class FacilityService extends BaseService
         );
     }
 
-    public function insert($data)
+    public function insertFacility($data)
     {
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO facility SET ";
         $sql .= $query['set'];
-        return sqlStatement(
+        return sqlInsert(
             $sql,
             $query['bind']
         );
@@ -212,6 +222,7 @@ class FacilityService extends BaseService
     private function get($map)
     {
         $sql = " SELECT FAC.id,";
+        $sql .= "        FAC.uuid,";
         $sql .= "        FAC.name,";
         $sql .= "        FAC.phone,";
         $sql .= "        FAC.fax,";
@@ -256,5 +267,168 @@ class FacilityService extends BaseService
             "order" => "ORDER BY FAC.billing_location DESC, FAC.accepts_assignment DESC, FAC.id ASC",
             "limit" => 1
         ));
+    }
+
+    /**
+     * Returns a list of facilities matching optional search criteria.
+     * Search criteria is conveyed by array where key = field/column name, value = field value.
+     * If no search criteria is provided, all records are returned.
+     *
+     * @param  $search search array parameters
+     * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function getAll($search = array(), $isAndCondition = true)
+    {
+        $processingResult = new ProcessingResult();
+
+        // Validating and Converting _id to UUID byte
+        if (isset($search['uuid'])) {
+            $isValid = $this->facilityValidator->validateId(
+                'uuid',
+                self::FACILITY_TABLE,
+                $search['uuid'],
+                true
+            );
+            if ($isValid != true) {
+                return $isValid;
+            }
+            $search['uuid'] = UuidRegistry::uuidToBytes($search['uuid']);
+        }
+        $additionalSql = array();
+        if (!empty($search)) {
+            $additionalSql['where'] = ' WHERE ';
+            $additionalSql["data"] = array();
+            $whereClauses = array();
+            foreach ($search as $fieldName => $fieldValue) {
+                // equality match
+                array_push($whereClauses, $fieldName . ' = ?');
+                array_push($additionalSql["data"], $fieldValue);
+            }
+            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
+            $additionalSql['where'] .= implode(' ' . $sqlCondition . ' ', $whereClauses);
+        }
+        $statementResults = $this->get($additionalSql);
+        if ($statementResults) {
+            foreach ($statementResults as $row) {
+                $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+                $processingResult->addData($row);
+            }
+        }
+
+        return $processingResult;
+    }
+
+    /**
+     * Returns a single facility record by facility uuid.
+     * @param $uuid - The facility uuid identifier in string format.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function getOne($uuid)
+    {
+        $processingResult = new ProcessingResult();
+        $isValid = $this->facilityValidator->validateId('uuid', self::FACILITY_TABLE, $uuid, true);
+        if ($isValid !== true) {
+            return $isValid;
+        }
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $sqlResult = $this->get(array(
+            "where" => "WHERE FAC.uuid = ?",
+            "data" => array($uuidBytes),
+            "limit" => 1
+        ));
+
+        if ($sqlResult) {
+            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
+            $processingResult->addData($sqlResult);
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
+    }
+
+    /**
+     * Inserts a new facility record.
+     *
+     * @param $data The facility fields (array) to insert.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function insert($data)
+    {
+        $processingResult = $this->facilityValidator->validate(
+            $data,
+            FacilityValidator::DATABASE_INSERT_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $data['uuid'] = (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+        $sql = " INSERT INTO " . self::FACILITY_TABLE . " SET ";
+        $sql .= $query['set'];
+
+        $results = sqlInsert(
+            $sql,
+            $query['bind']
+        );
+
+        if ($results) {
+            $processingResult->addData(array(
+                'id' => $results,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ));
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
+    }
+
+    /**
+     * Updates an existing facility record.
+     *
+     * @param $uuid - The facility uuid identifier in string format used for update.
+     * @param $data - The updated facility data fields
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function update($uuid, $data)
+    {
+        if (empty($data)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages("Invalid Data");
+            return $processingResult;
+        }
+        $data["uuid"] = $uuid;
+        $processingResult = $this->facilityValidator->validate(
+            $data,
+            FacilityValidator::DATABASE_UPDATE_CONTEXT
+        );
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE " . self::FACILITY_TABLE . " SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE `uuid` = ?";
+
+        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
+        array_push($query['bind'], $uuidBinary);
+        $sqlResult = sqlStatement($sql, $query['bind']);
+
+        if (!$sqlResult) {
+            $processingResult->addErrorMessage("error processing SQL Update");
+        } else {
+            $processingResult = $this->getOne($uuid);
+        }
+        return $processingResult;
     }
 }

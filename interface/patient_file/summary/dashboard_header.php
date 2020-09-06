@@ -21,7 +21,7 @@ $url_webroot = $GLOBALS['webroot'];
 $portal_login_href = $url_webroot . "/interface/patient_file/summary/create_portallogin.php";
 ?>
 
-<div class="page-header clearfix">
+<div class="clearfix">
         <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
 <?php
 // If patient is deceased, then show this (along with the number of days patient has been deceased for)
@@ -63,19 +63,17 @@ if ($days_deceased) { ?>
             if (AclMain::aclCheckCore('admin', 'super') && $GLOBALS['allow_pat_delete']) { ?>
                 <a class='btn btn-secondary btn-sm btn-delete deleter delete'
                    href='<?php echo attr($url_webroot)?>/interface/patient_file/deleter.php?patient=<?php echo attr_url($pid);?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>'
-                   onclick='return top.restoreSession()'>
-                    <span><?php echo xlt('Delete');?></span>
-                </a>
+                   onclick='return top.restoreSession()'><?php echo xlt('Delete'); ?></a>
                 <?php
             } // Allow PT delete
             if ($GLOBALS['erx_enable']) { ?>
                 <a class="btn btn-secondary btn-sm btn-add erx" href="<?php echo attr($url_webroot)?>/interface/eRx.php?page=medentry" onclick="top.restoreSession()">
-                    <span><?php echo xlt('NewCrop MedEntry');?></span>
+                  <?php echo xlt('NewCrop MedEntry');?>
                 </a>
                 <a class="btn btn-secondary btn-sm btn-save iframe1"
                    href="<?php echo attr($url_webroot)?>/interface/soap_functions/soap_accountStatusDetails.php"
                    onclick="top.restoreSession()">
-                    <span><?php echo xlt('NewCrop Account Status');?></span>
+                   <?php echo xlt('NewCrop Account Status');?>
                 </a>
             <!--<div id='accountstatus'></div>RP_MOVED-->
                 <?php
@@ -91,7 +89,7 @@ if ($days_deceased) { ?>
                         href='<?php echo attr($portal_login_href); ?>?patient=<?php echo attr_url($pid);?>'
                         onclick='top.restoreSession()'>
                         <?php $display = (empty($portalLogin)) ? xl('Create Onsite Portal Credentials') : xl('Reset Onsite Portal Credentials'); ?>
-                        <span><?php echo text($display); ?></span>
+                        <?php echo text($display); ?>
                     </a>
 
                     <?php
@@ -101,7 +99,7 @@ if ($days_deceased) { ?>
             } // Onsite Patient Portal
             if (!($portalUserSetting)) { // Show that the patient has not authorized portal access ?>
                 <p>
-                    <i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo xlt('Patient has not authorized the Patient Portal.');?>
+                    <i class="fa fa-exclamation-circle oe-text-orange"></i> <?php echo xlt('Patient has not authorized the Patient Portal.');?>
                 </p>
                 <?php
             }

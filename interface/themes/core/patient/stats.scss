@@ -5,24 +5,24 @@
 
 #patient_stats {
   padding: 10px;
-}
 
-#patient_stats table {
-  border-collapse: collapse;
-}
+  table {
+    border-collapse: collapse;
+  }
 
-#patient_stats .statrow {
-  cursor: pointer;
-}
+  .statrow {
+    cursor: pointer;
+  }
 
-#patient_stats .detail {
-  vertical-align: top;
-}
+  .detail {
+    vertical-align: top;
+  }
 
-#patient_stats .bg1 {
-  background-color: $gray-300;
-}
+  .bg1 {
+    background-color: $gray-300;
+  }
 
-#patient_stats .bg2 {
-  background-color: lighten($light, 20%);
+  .bg2 {
+    background-color: lighten($light, 20%);
+  }
 }

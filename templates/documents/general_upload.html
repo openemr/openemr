@@ -6,87 +6,102 @@
 * @author    Brady Miller <brady.g.miller@gmail.com>
 * @author    Jerry Padgett <sjpadgett@gmail.com>
 * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2019-2020 Jerry Padgett <sjpadgett@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 *}
 
-<form method=post enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
-<input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
-
-{if (!($patient_id > 0)) }
-  <div class="text text-danger">
-    {xlt t="IMPORTANT: This upload tool is only for uploading documents on patients that are not yet entered into the system. To upload files for patients whom already have been entered into the system, please use the upload tool linked within the Patient Summary screen."}
-    <br/>
-    <br/>
-  </div>
-{/if}
-
-<div class="text">
-    {xlt t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."}
-    <br/>
-    <br/>
-</div>
-<div class="text bold">
-    {xlt t="Upload Document"} {if $category_name} {xlt t="to category"} '{$category_name|text}'{/if}
-</div>
-<div class="text">
-    <p><span>{xlt t="Source File Path"}:</span> <input type="file" name="file[]" id="source-name" multiple="true"/>&nbsp;(<font size="1">{xlt t="Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click."}</font>)</p>
-    <p><span title="{xla t='Leave Blank To Keep Original Filename'}">{xlt t="Optional Destination Name"}:</span> <input type="text" name="destination" title="{xla t='Leave Blank To Keep Original Filename'}" id="destination-name" /></p>
-    {if !$hide_encryption}
-	<br />
-	<p><span title="{xla t='Check the box if this is an encrypted file'}">{xlt t="Is The File Encrypted?"}:</span> <input type="checkbox" name="encrypted" title="{xla t='Check the box if this is an encrypted file'}" id="encrypted" /></p>
-	<p><span title="{xla t='Pass phrase to decrypt document'}">{xlt t="Pass Phrase"}:</span> <input type="text" name="passphrase" title="{xla t='Pass phrase to decrypt document'}" id="passphrase" /></p>
-	<p><i>{xlt t='Supports AES-256-CBC encryption/decryption only.'}</i></p>
+<form method="post" enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
+    <h3>{$error}</h3>
+    {if (!($patient_id > 0)) }
+    <div class="text text-danger">
+        {xlt t="IMPORTANT: This upload tool is only for uploading documents on patients that are not yet entered into the system. To upload files for patients whom already have been entered into the system, please use the upload tool linked within the Patient Summary screen."}
+        <br/>
+        <br/>
+    </div>
     {/if}
-    <p><input type="submit" value="{xl t='Upload'|attr}" /></p>
-</div>
+    <div class="text">
+        {xlt t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."}
+        <br/>
+        <br/>
+    </div>
+    <div class="text font-weight-bold">
+        {xlt t="Upload Document"} {if $category_name} {xlt t="to category"} '{$category_name|text}'{/if}
+    </div>
+    <div class="text">
+        <div class="form-group">
+            <p>(<small>{xlt t="Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click."}</small>)</p>
+            <span>{xlt t="Source File Path"}:</span>
+            <input type="file" class="form-control-file" name="file[]" id="source-name" multiple="true" />
+        </div>
+        <div class="form-group">
+            <p>(<small>{xlt t="Select below to Zip Directory of image slices."}</small>)</p>
+            <input type="file" class="form-control-file" name="dicom_folder[]" id="dicom_folder" multiple directory=""  webkitdirectory="" moxdirectory="" />
+        </div>
+        <p>
+            <span title="{xla t='Leave Blank To Keep Original Filename'}">{xlt t="Optional Destination or Dicom Study Name"}:</span>
+            <input type="text" class="form-control" name="destination" title="{xla t='Leave Blank To Keep Original Filename'}" id="destination-name" />
+        </p>
+        {if !$hide_encryption}
+        <br />
+        <p>
+            <span title="{xla t='Check the box if this is an encrypted file'}">{xlt t="Is The File Encrypted?"}:</span>
+            <input type="checkbox" name="encrypted" title="{xla t='Check the box if this is an encrypted file'}" id="encrypted" />
+        </p>
+        <p>
+            <span title="{xla t='Pass phrase to decrypt document'}">{xlt t="Pass Phrase"}:</span>
+            <input type="text" class="form-control" name="passphrase" title="{xla t='Pass phrase to decrypt document'}" id="passphrase" />
+        </p>
+        <p><i>{xlt t='Supports AES-256-CBC encryption/decryption only.'}</i></p>
+        {/if}
+    </div>
+    <p>
+        <input type="submit" class="btn btn-primary" value="{xl t='Upload'|attr}" />
+    </p>
 
-<input type="hidden" name="patient_id" value="{$patient_id|attr}" />
-<input type="hidden" name="category_id" value="{$category_id|attr}" />
-<input type="hidden" name="process" value="{$PROCESS|attr}" />
+    <input type="hidden" name="patient_id" value="{$patient_id|attr}" />
+    <input type="hidden" name="category_id" value="{$category_id|attr}" />
+    <input type="hidden" name="process" value="{$PROCESS|attr}" />
 </form>
 
 <br /><br />
 
 <!-- Drag and drop uploader -->
 <div id="autouploader">
-<form method="post" enctype="multipart/form-data" action="{$GLOBALS.webroot}/library/ajax/upload.php?patient_id={$patient_id|attr_url}&parent_id={$category_id|attr_url}&csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" class="dropzone">
-<input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
-</form>
+    <form method="post" enctype="multipart/form-data" action="{$GLOBALS.webroot}/library/ajax/upload.php?patient_id={$patient_id|attr_url}&parent_id={$category_id|attr_url}&csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" class="dropzone">
+        <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
+    </form>
 </div>
 
 <!-- Section for document template download -->
 <form method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
-<input type='hidden' name='patient_id' value='{$patient_id|attr}' />
-<div class='col-sm-6'>
-	<p class='text bold'>
-		{xlt t="Download document template for this patient and visit"}
-	</p>
-	<div class="input-group">
-		<span class="input-group-prepend">
-        	<button type="submit" class="btn btn-download">{xlt t="Fetch"}</button>
-        </span>
-		<select class="form-control" name='form_filename'>{$TEMPLATES_LIST}</select>
-	</div>
-</div>
+    <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
+    <input type='hidden' name='patient_id' value='{$patient_id|attr}' />
+    <div class='col-sm-6'>
+        <p class='text font-weight-bold'>{xlt t="Download document template for this patient and visit"}</p>
+        <div class="input-group">
+            <span class="input-group-prepend">
+                <button type="submit" class="btn btn-primary btn-download">{xlt t="Fetch"}</button>
+            </span>
+            <select class="form-control" name='form_filename'>{$TEMPLATES_LIST}</select>
+        </div>
+    </div>
 </form>
 <!-- End document template download section -->
 
 <!-- Section for portal document templates -->
 <div class='col-sm-6'>
-	<p class='text bold'>
-		{xlt t="Patient Document Template Forms"}
-	</p>
+	<p class='text font-weight-bold'>{xlt t="Patient Document Template Forms"}</p>
 	<div class="input-group">
 		<span class="input-group-prepend">
-			<button class="btn btn-download" onclick="callTemplateModule()">{xlt t="Open"}</button>
+			<button class="btn btn-primary btn-download" onclick="callTemplateModule()">{xlt t="Open"}</button>
 		</span>
 		<select class="form-control" id='template_filename'>{$TEMPLATES_LIST_PATIENT}</select>
 	</div>
 </div>
 
 {if !empty($file)}
-	<div class="text bold">
+	<div class="text font-weight-bold">
 		<br/>
 		{xlt t='Upload Report'}
 	</div>
@@ -104,4 +119,3 @@
 		</div>
 	{/foreach}
 {/if}
-<h3>{$error}</h3>

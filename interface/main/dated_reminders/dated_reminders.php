@@ -13,7 +13,7 @@
  */
 
 // removed as jquery is already called in messages page (if you need to use jQuery, uncomment it futher down)
-require_once('../../globals.php');
+require_once(__DIR__ . '/../../globals.php');
 require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -160,7 +160,7 @@ if (isset($_POST['drR'])) {
           // initialize html string
           $pdHTML = '<div class="container">
                             <div class="drHide col-12">' .
-                                '<a title="' . xla('View Past and Future Reminders') . '" onclick="openLogScreen()" class="btn btn-secondary btn-show" href="#">' . xlt('View Log') . '</a>&nbsp;' . '<a onclick="openAddScreen(0)" class="btn btn-secondary btn-add" href="#">' . xlt('Create A Dated Reminder') . '</a>
+                                '<a title="' . xla('View Past and Future Reminders') . '" onclick="openLogScreen()" class="btn btn-secondary  btn-sm btn-show" href="#">' . xlt('View Log') . '</a>&nbsp;' . '<a onclick="openAddScreen(0)" class="btn btn-primary btn-sm btn-add" href="#">' . xlt('Create A Dated Reminder') . '</a>
                             </div>
                             <div class="col-12 pre-scrollable oe-margin-t-10">
                             <fieldset>

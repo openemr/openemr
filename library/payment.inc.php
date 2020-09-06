@@ -6,8 +6,10 @@
  * @author Eldho Chacko <eldho@zhservices.com>
  * @author Paul Simon K <paul@zhservices.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2020 Rod Roark <rod@sunsetsystems.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -262,4 +264,23 @@ function row_delete($table, $where)
         sqlStatement($query);
     }
 }
+
+// Deactivate rows, with logging, for the specified table using the
+// specified SET and WHERE clauses.  Borrowed from deleter.php.
+//
+function row_modify($table, $set, $where)
+{
+    if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
+        EventAuditLogger::instance()->newEvent(
+            "deactivate",
+            $_SESSION['authUser'],
+            $_SESSION['authProvider'],
+            1,
+            "$table: $where"
+        );
+        $query = "UPDATE $table SET $set WHERE $where";
+        sqlStatement($query);
+    }
+}
+
 //===============================================================================

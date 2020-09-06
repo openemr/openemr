@@ -231,11 +231,11 @@ $GLOBALS_METADATA = array(
             xl('Default font size') . '*',
             array(
                 '__default__' => 'Use Theme Font Size',
-                '0.625rem' => '10px',
-                '0.75rem' => '12px',
-                '0.875rem' => '14px',
-                '1rem' => '16px',
-                '1.125rem' => '18px',
+                '0.625' => '10px',
+                '0.75' => '12px',
+                '0.875' => '14px',
+                '1.0' => '16px',
+                '1.125' => '18px',
             ),
             '__default__',
             xl("Select the default font size (need to logout/login after changing this setting)."),
@@ -923,6 +923,13 @@ $GLOBALS_METADATA = array(
             xl('This will enable encryption of items that are stored on the drive.')
         ),
 
+        'couchdb_encryption' => array(
+            xl('Enable Encryption of Items Stored on CouchDB'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('This will enable encryption of items that are stored on CouchDB.')
+        ),
+
         'hide_document_encryption' => array(
             xl('Hide Encryption/Decryption Options In Document Management'),
             'bool',                           // data type
@@ -1461,7 +1468,7 @@ $GLOBALS_METADATA = array(
         'couchdb_port' => array(
             xl('CouchDB Port'),
             'text',
-            '5984',
+            '6984',
             xl('CouchDB port'),
         ),
         'couchdb_dbase' => array(
@@ -1469,6 +1476,18 @@ $GLOBALS_METADATA = array(
             'text',
             '',
             xl('CouchDB database name'),
+        ),
+        'couchdb_connection_ssl' => array(
+            xl('CouchDB Connection SSL'),
+            'bool',
+            '1',
+            xl('Use SSL (encrypted) connection to CouchDB'),
+        ),
+        'couchdb_ssl_allow_selfsigned' => array(
+            xl('CouchDB SSL Allow Selfsigned Certificate'),
+            'bool',
+            '0',
+            xl('Allow self-signed certificate for SSL (encrypted) connection to CouchDB'),
         ),
         'couchdb_log' => array(
             xl('CouchDB Log Enable'),
@@ -3224,7 +3243,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'ccda_alt_service_enable' => array(
-            xl('Enable C-CDA Alternate Service'),
+            xl('Enable C-CDA Service'),
             array(
                 0 => xl('Off'),
                 1 => xl('Care Coordination Only'),
@@ -3232,7 +3251,7 @@ $GLOBALS_METADATA = array(
                 3 => xl('Both'),
             ),
             '0',
-            xl('Enable C-CDA Alternate Service')
+            xl('Enable C-CDA Service')
         ),
 
         'phimail_enable' => array(

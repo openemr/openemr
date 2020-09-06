@@ -33,11 +33,14 @@ class PatientRestController
         "phone_home",
         "phone_biz",
         "phone_cell",
+        'postal_contact',
+        'sex',
+        'country_code',
         "email",
         "DOB",
     );
 
-    function __construct()
+    public function __construct()
     {
         $this->patientService = new PatientService();
     }
@@ -47,7 +50,7 @@ class PatientRestController
      * @param $data - array of patient fields.
      * @return a 201/Created status code and the patient identifier if successful.
      */
-    function post($data)
+    public function post($data)
     {
         $processingResult = $this->patientService->insert($data);
         return RestControllerHelper::handleProcessingResult($processingResult, 201);
@@ -59,7 +62,7 @@ class PatientRestController
      * @param $data - array of patient fields (full resource).
      * @return a 200/Ok status code and the patient resource.
      */
-    function put($puuidString, $data)
+    public function put($puuidString, $data)
     {
         $processingResult = $this->patientService->update($puuidString, $data);
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
@@ -69,7 +72,7 @@ class PatientRestController
      * Fetches a single patient resource by id.
      * @param $puuidString - The patient uuid identifier in string format.
      */
-    function getOne($puuidString)
+    public function getOne($puuidString)
     {
         $processingResult = $this->patientService->getOne($puuidString);
 
@@ -83,7 +86,7 @@ class PatientRestController
     /**
      * Returns patient resources which match an optional search criteria.
      */
-    function getAll($search = array())
+    public function getAll($search = array())
     {
         $validSearchFields = array_filter(
             $search,

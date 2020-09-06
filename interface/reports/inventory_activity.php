@@ -420,7 +420,7 @@ table.mymaintable td, table.mymaintable th {
 }
 </style>
 
-<script language='JavaScript'>
+<script>
 
     $(function () {
         oeFixedHeaderSetup(document.getElementById('mymaintable'));

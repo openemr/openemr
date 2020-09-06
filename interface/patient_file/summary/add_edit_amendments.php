@@ -115,21 +115,6 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
-<style>
-.highlight {
-  color: var(--success);
-}
-tr.selected {
-  background-color: var(--white);
-}
-.historytbl {
- border-collapse: collapse;
-}
-.historytbl td th{
-  border: 1px solid var(--black);
-}
-</style>
-
 <script>
 
 function formValidation() {
@@ -161,113 +146,109 @@ $(function () {
 
 </head>
 
-<body class="body_top">
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2><?php echo xlt('Amendments'); ?></h2>
+            </div>
+            <div class="col-12">
+                <div class="btn-group">
+                    <?php if (! $onlyRead) { ?>
+                        <a href=# onclick="formValidation()" class="btn btn-primary btn-sm btn-save"><span><?php echo xlt('Save');?></span></a>
+                    <?php } ?>
+                    <a href="list_amendments.php" class="btn btn-secondary btn-sm btn-back"><span><?php echo xlt('Back');?></span></a>
+                </div>
+            </div>
+            <div class="col-12">
+                <form action="add_edit_amendments.php" name="add_edit_amendments" id="add_edit_amendments" method="post" onsubmit='return top.restoreSession()'>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<form action="add_edit_amendments.php" name="add_edit_amendments" id="add_edit_amendments" method="post" onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Requested Date'); ?></label>
+                        <?php if (! $onlyRead) { ?>
+                            <input type='text' size='10' class='form-control datepicker' name="amendment_date" id="amendment_date"
+                                value='<?php echo $amendment_date ? attr(oeFormatShortDate($amendment_date)) : attr(oeFormatShortDate()); ?>'
+                            />
+                        <?php } else { ?>
+                            <input type='text' size='10' class='form-control' name="amendment_date" id="amendment_date" readonly
+                                value='<?php echo $amendment_date ? attr(oeFormatShortDate($amendment_date)) : attr(oeFormatShortDate()); ?>'
+                            />
+                        <?php } ?>
+                    </div>
 
-    <table>
-    <tr>
-        <td>
-            <span class="title"><?php echo xlt('Amendments'); ?></span>&nbsp;
-        </td>
-        <?php if (! $onlyRead) { ?>
-        <td>
-            <a href=# onclick="formValidation()" class="btn btn-primary btn-sm"><span><?php echo xlt('Save');?></span></a>
-        </td>
-        <?php } ?>
-        <td>
-            <a href="list_amendments.php" class="btn btn-secondary btn-sm"><span><?php echo xlt('Back');?></span></a>
-        </td>
-    </tr>
-    </table>
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Requested By'); ?></label>
+                        <?php echo generate_select_list("form_amendment_by", "amendment_from", $amendment_by, 'Amendment Request By', ' ', '', '', '', $customAttributes); ?>
+                    </div>
 
-    <br />
-    <table border='0' cellpadding='1' cellspacing='1'>
-        <tr>
-            <td><span class='text'><?php echo xlt('Requested Date'); ?></span></td>
-            <td>
-            <?php if (! $onlyRead) { ?>
-                <input type='text' size='10' class='datepicker' name="amendment_date" id="amendment_date"
-                    value='<?php echo $amendment_date ? attr(oeFormatShortDate($amendment_date)) : attr(oeFormatShortDate()); ?>'
-                />
-            <?php } else { ?>
-                <input type='text' size='10' name="amendment_date" id="amendment_date" readonly
-                    value='<?php echo $amendment_date ? attr(oeFormatShortDate($amendment_date)) : attr(oeFormatShortDate()); ?>'
-                />
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Request Description'); ?></label>
+                        <textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="desc" class="form-control" name="desc" rows="4" cols="30"><?php
+                        if ($amendment_id) {
+                            echo text($amendment_desc);
+                        } else {
+                            echo "";
+                        }
+                        ?></textarea>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Request Status'); ?></label>
+                        <?php echo generate_select_list("form_amendment_status", "amendment_status", $amendment_status, 'Amendment Status', ' ', '', '', '', $customAttributes); ?>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label><?php echo xlt('Comments'); ?></label>
+                        <textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="note" class="form-control" name="note" rows="4" cols="30"><?php
+                        if ($amendment_id) {
+                            echo "";
+                        } else {
+                            echo xlt('New amendment request');
+                        }
+                        ?></textarea>
+                    </div>
+
+                    <input type="hidden" id="mode" name="mode" value=""/>
+                    <input type="hidden" id="amendment_id" name="amendment_id" value="<?php echo attr($amendment_id); ?>"/>
+                </form>
+            </div>
+            <?php if ($amendment_id) { ?>
+            <hr />
+            <div class="col-12">
+                <h2><?php echo xlt("History") ; ?></h2>
+            </div>
+
+            <table class="table table-bordered table-hover">
+                <!-- some columns are sortable -->
+                <thead class="table-primary font-weight-bold">
+                    <tr>
+                        <th><?php echo xlt('Date'); ?></th>
+                        <th><?php echo xlt('By'); ?></th>
+                        <th><?php echo xlt('Status'); ?></th>
+                        <th><?php echo xlt('Comments'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php
+                if (sqlNumRows($resultSet)) {
+                    while ($row = sqlFetchArray($resultSet)) {
+                        $created_date = date('Y-m-d', strtotime($row['created_time']));
+                        echo "<tr>";
+                        $userName = $row['lname'] . ", " . $row['fname'];
+                        echo "<td>" . text(oeFormatShortDate($created_date)) . "</td>";
+                        echo "<td>" . text($userName) . "</td>";
+                        echo "<td>" . ( ( $row['amendment_status'] ) ? generate_display_field(array('data_type' => '1','list_id' => 'amendment_status'), $row['amendment_status']) : '') . "</td>";
+                        echo "<td>" . text($row['amendment_note']) . "</td>";
+                        echo "<tr>";
+                    }
+                }
+                ?>
+                </tbody>
+            </table>
             <?php } ?>
-            </td>
-        </tr>
+        </div>
+    </div>
 
-        <tr>
-            <td><span class=text ><?php echo xlt('Requested By'); ?></span></td>
-            <td>
-                <?php echo generate_select_list("form_amendment_by", "amendment_from", $amendment_by, 'Amendment Request By', ' ', '', '', '', $customAttributes); ?>
-            </td>
-        </tr>
-
-        <tr>
-            <td><span class=text ><?php echo xlt('Request Description'); ?></span></td>
-            <td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="desc" name="desc" rows="4" cols="30"><?php
-            if ($amendment_id) {
-                echo text($amendment_desc);
-            } else {
-                echo "";
-            } ?></textarea></td>
-        </tr>
-
-        <tr>
-            <td><span class=text ><?php echo xlt('Request Status'); ?></span></td>
-            <td>
-                <?php echo generate_select_list("form_amendment_status", "amendment_status", $amendment_status, 'Amendment Status', ' ', '', '', '', $customAttributes); ?>
-            </td>
-        </tr>
-
-        <tr>
-            <td><span class=text ><?php echo xlt('Comments'); ?></span></td>
-            <td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="note" name="note" rows="4" cols="30"><?php
-            if ($amendment_id) {
-                echo "";
-            } else {
-                echo xlt('New amendment request');
-            } ?></textarea></td>
-        </tr>
-    </table>
-
-    <?php if ($amendment_id) { ?>
-    <hr>
-
-    <span class="title"><?php echo xlt("History") ; ?></span>
-
-    <table border="1" cellpadding=3 cellspacing=0 class="historytbl">
-
-    <!-- some columns are sortable -->
-    <tr class='text bold'>
-        <th align="left" style="width:15%"><?php echo xlt('Date'); ?></th>
-        <th align="left" style="width:25%"><?php echo xlt('By'); ?></th>
-        <th align="left" style="width:15%"><?php echo xlt('Status'); ?></th>
-        <th align="left"><?php echo xlt('Comments'); ?></th>
-    </tr>
-
-        <?php
-        if (sqlNumRows($resultSet)) {
-            while ($row = sqlFetchArray($resultSet)) {
-                $created_date = date('Y-m-d', strtotime($row['created_time']));
-                echo "<tr>";
-                $userName = $row['lname'] . ", " . $row['fname'];
-                echo "<td align=left class=text>" . text(oeFormatShortDate($created_date)) . "</td>";
-                echo "<td align=left class=text>" . text($userName) . "</td>";
-                echo "<td align=left class=text>" . ( ( $row['amendment_status'] ) ? generate_display_field(array('data_type' => '1','list_id' => 'amendment_status'), $row['amendment_status']) : '') . "</td>";
-                echo "<td align=left class=text>" . text($row['amendment_note']) . "</td>";
-                echo "<tr>";
-            }
-        }
-        ?>
-    </table>
-    <?php } ?>
-
-    <input type="hidden" id="mode" name="mode" value=""/>
-    <input type="hidden" id="amendment_id" name="amendment_id" value="<?php echo attr($amendment_id); ?>"/>
-</form>
 </body>
 </html>

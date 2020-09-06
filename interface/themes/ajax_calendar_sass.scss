@@ -10,7 +10,7 @@
 }
 
 div.tiny {
-  @include font-size("0.0625rem !important");
+  @include font-size("0.0625rem");
   height: 0.0625rem;
   width: 0.0625rem;
 }
@@ -32,13 +32,12 @@ div.tiny {
 }
 
 .sidebar-wrapper {
-  margin-#{$left}: -30rem;
   transition: margin 0.25s ease-out;
+  margin-#{$left}: -30rem;
 }
 
 #wrapper.toggled .sidebar-wrapper {
   margin-#{$left}: 0;
-  top: 68px;
 }
 
 #wrapper.toggled .page-content-wrapper {
@@ -46,67 +45,62 @@ div.tiny {
 }
 
 #functions {
-  float: $left;
-  margin-#{$right}: 0%;
-  min-width: 20%;
-  padding: 0 0.3125rem;
-  /* added because of the width issue above */
+  @extend .col-md-3;
+  text-align: $left;
 }
 
-
 #topToolbarRight {
-  border-bottom: 1px solid $black;
-  float: $right;
+  @extend .row;
+  border-bottom: 1px solid $gray-300;
   padding: 0.3125rem 0 0.1875rem;
-  position: fixed;
-  width: 100%;
   z-index: 3;
 }
 
 #dateNAV {
-  @include font-size("1.1875rem !important");
-  float: $left;
-  font-family: "Arial", "Helvetica", sans-serif;
+  @extend .col-md-6;
+  @include font-size("1.5rem");
 }
 
 #dateDisplay {
   float: $left;
-  font-family: "Arial", "Helvetica", sans-serif;
   padding-#{$left}: 0.625rem;
 }
 
 #viewPicker {
-  float: $right;
-  margin-#{$right}: 0.625rem;
+  @extend .col-md-3;
+  text-align: $right;
 }
 
 #bigCalHeader {
-  @include font-size("1.1875rem !important");
+  @include font-size("1.1875rem");
   float: $right;
-  font-family: "Arial", "Helvetica", sans-serif;
   text-align: center;
   width: 70%;
 }
 
 #providerPicker {
-  font-family: "Arial", "Helvetica", sans-serif;
-  width: 100%;
-}
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
 
-#providerPicker #pc_facility,
-#providerPicker #pc_username {
-  width: 100%;
+  #pc_facility,
+  #pc_username {
+    margin-bottom: 0.3rem;
+    width: 100%;
+  }
 }
 
 #facilityColor {
-  float: $left;
-  font-family: "Arial", "Helvetica", sans-serif;
-  width: 100%;
-}
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0.3rem;
+  width: 90%;
 
-#facilityColor table {
-  border-collapse: collapse;
-  width: 100%;
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
 }
 
 #bottom {
@@ -117,21 +111,30 @@ div.tiny {
 
 #bigCal {
   background-color: $light;
-  border-#{$left}: 1px solid $black;
   overflow: hidden;
-}
 
-#bigCal table {
-  border: 0;
-  border-collapse: collapse;
-  margin-top: 2.75rem;
-  vertical-align: middle;
-  width: 100%;
-}
+  table {
+    border: 0;
+    border-collapse: collapse;
+    margin-top: 0;
+    vertical-align: middle;
+    width: 100%;
+  }
 
-#bigCal td {
-  margin: 0;
-  padding: 0.0625rem;
+  td {
+    margin: 0;
+    padding: 0.3125rem;
+  }
+
+  .providerday {
+    border: 1px solid $gray-300;
+  }
+
+  .providerXbtn {
+    @include font-size("1rem");
+    padding: 0;
+  }
+  border-#{$left}: 1px solid $gray-300;
 }
 
 #bottomLeft {
@@ -139,146 +142,148 @@ div.tiny {
   float: $left;
   min-width: 8.125rem;
   position: fixed;
-  top: 2.75rem;
-  width: 15%;
+  top: 2.78rem;
+  width: 20%;
 }
 
 /* these are for the small datepicker DIV */
 #datePicker {
+  @extend .table-responsive-md;
   width: 100%;
-}
 
-#datePicker table {
-  border-collapse: collapse;
-  width: 100%;
-}
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
 
-#datePicker td {
-  @include font-size("0.7rem !important");
-  font-family: "Arial", "Helvetica", sans-serif;
-  text-align: center;
-  width: 1.21875rem;
-}
+  td {
+    @include font-size("0.7rem");
+    text-align: center;
+  }
 
-#datePicker .tdMonthName-small {
-  @include font-size("0.75rem !important");
-  background-color: lighten($light, 20%);
-  color: $body-color;
-  cursor: pointer;
-  font-family: "Arial", "Helvetica", sans-serif;
-  font-style: normal;
-  text-align: center;
-}
+  .tdMonthName-small {
+    @include font-size("0.85rem");
+    background-color: lighten($light, 20%);
+    color: $body-color;
+    cursor: pointer;
+    font-style: normal;
+    text-align: center;
+  }
 
-#datePicker .tdDOW-small {
-  @include font-size("0.625rem !important");
-  background-color: lighten($light, 20%);
-  border: 0;
-  font-family: "Arial", "Helvetica", sans-serif;
-  padding: 0.125rem 0.1875rem;
-  text-align: center;
-  vertical-align: top;
-}
+  .tdDOW-small {
+    @include font-size("0.825rem");
+    background-color: lighten($light, 20%);
+    border: 0;
+    text-align: center;
+    vertical-align: top;
+  }
 
-#datePicker .tdDatePicker {
-  cursor: pointer;
-  cursor: hand;
-}
+  .tdDatePicker {
+    cursor: pointer;
+    cursor: hand;
+  }
 
-#datePicker .tdWeekend-small {
-  @include font-size("0.625rem !important");
-  background-color: $white;
-  border: 0;
-  color: $gray-600;
-  font-family: "Arial", "Helvetica", sans-serif;
-  padding: 0.125rem 0.1875rem;
-  vertical-align: top;
-}
+  .tdWeekend-small {
+    @include font-size("0.825rem");
+    background-color: $white;
+    border: 0;
+    color: $gray-600;
+    padding: 0.3rem;
+    vertical-align: top;
+  }
 
-#datePicker .tdHoliday-small {
-  @include font-size("0.625rem !important");
-  background-color: $white;
-  border: 0;
-  color: $danger;
-  font-family: "Arial", "Helvetica", sans-serif;
-  padding: 0.125rem 0.1875rem;
-  vertical-align: top;
-}
+  .tdHoliday-small {
+    @include font-size("0.825rem");
+    background-color: $white;
+    border: 0;
+    color: $danger;
+    padding: 0.3rem;
+    vertical-align: top;
+  }
 
-#datePicker .tdOtherMonthDay-small {
-  @include font-size("0.625rem !important");
-  background-color: $white;
-  border: 0;
-  color: $gray-600;
-  font-family: "Arial", "Helvetica", sans-serif;
-  padding: 0.125rem 0.1875rem;
-  vertical-align: top;
-}
+  .tdOtherMonthDay-small {
+    @include font-size("0.825rem");
+    background-color: $white;
+    border: 0;
+    color: $gray-600;
+    padding: 0.3rem;
+    vertical-align: top;
+  }
 
-#datePicker .tdMonthDay-small {
-  @include font-size("0.625rem !important");
-  background-color: $white;
-  border: 0;
-  font-family: "Arial", "Helvetica", sans-serif;
-  padding: 0.125rem 0.1875rem;
-  vertical-align: top;
-}
+  .tdMonthDay-small {
+    @include font-size("0.825rem");
+    background-color: $white;
+    border: 0;
+    padding: 0.3rem;
+    vertical-align: top;
+  }
 
-#datePicker .currentWeek {
-  background-color: lighten($dark, 50%);
-}
+  .currentWeek {
+    background-color: lighten($light, 50%);
+  }
 
-#datePicker .currentDate {
-  background-color: lighten($dark, 20%);
-  color: $light;
-}
+  .currentDate {
+    background-color: lighten($primary, 20%);
+    border-radius: 0.25rem;
+    color: $light;
+  }
 
-#datePicker .tdDatePickerHighlight {
-  background-color: lighten($dark, 30%);
-  color: $light;
+  .tdDatePickerHighlightCurrent {
+    background-color: $primary;
+    border-radius: 0.25rem;
+    color: $light;
+  }
+
+  .tdDatePickerHighlight {
+    background-color: lighten($primary, 30%);
+    border-radius: 0.25rem;
+    color: $light;
+  }
 }
 
 /* the DIV of times */
 #times {
-  background-color: lighten($yellow, 40%);
-  border-#{$right}: 1px solid $gray-600;
-  padding: 0;
+  background-color: $white;
+  padding: 0.3125rem !important;
   width: 1%;
-}
 
-#times table {
-  background-color: lighten($yellow, 40%);
-  border-collapse: collapse;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
+  table {
+    background-color: $white;
+    border-collapse: collapse;
+    margin: 0;
+    padding: 0;
+    width: 100%;
 
-#times table td {
-  @include font-size("0.8rem !important");
-  border-bottom: 1px solid $gray-600;
-  margin: 0;
-  padding: 0;
+    td {
+      @include font-size("0.8rem");
+      margin: 0;
+      padding: 0;
+    }
+  }
+  border-#{$right}: 1px solid $gray-300;
 }
 
 .timeslot {
   /* height value is tied to two PHP variables in the ajax_*.html files
      * if you change this value then be sure to change the matching value
      * in those files */
-  height: 1.25rem;
+  height: 20px;
   margin: 0;
   padding: 0;
   text-align: center;
+
+  a {
+    @extend .text-body;
+  }
 }
 
 .schedule {
   background-color: $white;
-  border: 1px solid $gray-600;
+  border: 1px solid $gray-300;
   margin: 0;
   padding: 0;
   vertical-align: top;
   width: 25rem;
-
 }
 
 /* for the header row with provider names */
@@ -301,145 +306,174 @@ div.tiny {
 
 /* classes specific to the WEEK view */
 .week_dateheader {
-  @include font-size("0.7rem !important");
-  border-left: 1px solid $gray-600;
-  border-right: 1px solid $gray-600;
+  @include font-size("0.7rem");
+  border-left: 1px solid $gray-300;
+  border-right: 1px solid $gray-300;
   font-weight: bold;
-}
 
-.week_dateheader a,
-.week_dateheader a:link,
-.week_dateheader a:visited,
-.week_dateheader a:active {
-  color: $body-color;
-}
+  a,
+  a:link,
+  a:visited,
+  a:active {
+    color: $body-color;
+  }
 
-.week_dateheader a:hover {
-  color: $dark;
+  a:hover {
+    color: $dark;
+  }
 }
 
 .week_currday {
   background-color: $primary;
-}
 
-.week_currday a,
-.week_currday a:link,
-.week_currday a:visited,
-.week_currday a:active {
-  color: $white;
-}
+  a,
+  a:link,
+  a:visited,
+  a:active {
+    color: $white;
+  }
 
-.week_currday a:hover {
-  color: $light;
+  a:hover {
+    color: $light;
+  }
 }
 
 /* classes specific to the MONTH view */
-.month_daylink {
-  @include font-size("0.8rem !important");
-  background-color: $white;
-  padding: 0.0625rem 0.125rem;
-  text-align: $right;
-  width: 95%;
+
+.month {
+  &_daylink {
+    @include font-size("0.8rem");
+    background-color: $white;
+    padding: 0.0625rem 0.125rem;
+    text-align: $right;
+    width: 95%;
+  }
+
+  &_dateheader {
+    @include font-size("0.7rem");
+    width: 13%;
+  }
+
+  &_event {
+    @include font-size("0.8rem");
+    width: 100%;
+  }
 }
 
-.month_dateheader {
-  @include font-size("0.7rem !important");
-  width: 13%;
-}
 
-.month_event {
-  @include font-size("0.8rem !important");
-  width: 100%;
+%highlight {
+  &.event_highlight {
+    background-color: $black;
+    border-bottom: 2px solid $gray-700;
+    border-radius: 0.25rem;
+    border-top: 1px solid $gray-600;
+    font-weight: bold;
+    margin: -0.1875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-#{$left}: 1px solid $gray-600;
+    border-#{$right}: 2px solid $gray-700;
+  }
 }
 
 /* types of events */
 .event {
   position: absolute;
   width: 100%;
+
+  img {
+    vertical-align: middle;
+  }
+
+  &_in {
+    border: 1px solid $gray-300;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    z-index: 1;
+  }
+
+  &_out {
+    @extend %highlight;
+    z-index: 3;
+  }
+
+  &_appointment {
+    @extend %highlight;
+    background-color: $white;
+    border: 1px solid $black;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    z-index: 2;
+  }
+
+  &_noshow {
+    @extend %highlight;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  &_reserved {
+    @extend %highlight;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  &_holiday {
+    @extend %highlight;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    width: 100% !important;
+    z-index: 2;
+  }
+
+  &_time {
+
+    @extend %highlight;
+    cursor: pointer;
+
+    &:hover {
+      color: $danger;
+    }
+  }
 }
 
-.event img {
-  vertical-align: middle;
-}
-
-.event_in {
-  background-color: $white;
-  border: 1px solid $black;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
-  z-index: 1;
-}
-
-.event_appointment {
-  background-color: $white;
-  border: 1px solid $black;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
-  z-index: 2;
-}
-
-.event_noshow {
-  background-color: $pink;
-  border: 1px solid lighten($pink, 20%);
-  overflow: hidden;
-  z-index: 2;
-}
-
-.event_reserved {
-  background-color: $pink;
-  border: 1px solid lighten($green, 30%);
-  overflow: hidden;
-  z-index: 2;
-}
-
-.event_holiday {
-  background-color: lighten($dark, 20%);
-  border: 1px solid lighten($green, 30%);
-  overflow: hidden;
-  z-index: 2;
-}
-
-.event_highlight {
-  background-color: $black;
-  border: 1px solid $black;
-  border-bottom: 2px solid $gray-700;
-  border-#{$left}: 1px solid $gray-600;
-  border-#{$right}: 2px solid $gray-700;
-  border-top: 1px solid $gray-600;
-  font-weight: bold;
-  margin: -0.1875rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.event_time {
-  cursor: pointer;
-}
-
-.event_time:hover {
-  color: $danger;
+.userClose {
+  &::before {
+    @extend .fas;
+    content: fa-content('#{$fa-var-times}');
+    display: inline !important;
+    line-height: inherit !important;
+  }
 }
 
 .show-appointment {
   bottom: 0.125rem;
-  font-family: 'FontAwesome', sans-serif;
   position: absolute;
+
+  &.unshown::before {
+    @extend .fas;
+    content: fa-content('#{$fa-var-eye}');
+    cursor: pointer;
+    display: inline !important;
+    line-height: inherit !important;
+  }
+
+  &.shown::before {
+    @extend .fas;
+    content: fa-content('#{$fa-var-eye-slash}');
+    cursor: pointer;
+    display: inline !important;
+    line-height: inherit !important;
+  }
   #{$right}: 0.25rem;
-}
-
-.show-appointment.unshown::before {
-  content: "\f06e";
-  cursor: pointer;
-}
-
-.show-appointment.shown::before {
-  content: "\f070";
-  cursor: pointer;
 }
 
 .in_start {
@@ -450,24 +484,11 @@ div.tiny {
 .event_out.event_highlight,
 .in_start.event_highlight {
   background-color: $yellow;
-  border-bottom: 2px solid $gray-700;
-  border-#{$left}: 1px solid $gray-600;
-  border-#{$right}: 2px solid $gray-700;
-  border-top: 1px solid $gray-600;
   cursor: pointer;
   font-weight: bold;
   margin: 0;
   opacity: 1;
   z-index: 2;
-}
-
-.event_out {
-  background-color: $orange;
-  z-index: 3;
-}
-
-.event_holiday {
-  width: 100% !important;
 }
 
 .pop-up img {
@@ -487,42 +508,60 @@ div.tiny {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: map-get($grid-breakpoints, "md")) {
   #prevday,
   #nextday,
   #prevweek,
   #nextweek,
   #prevmonth,
   #nextmonth {
-    @include font-size("1.3rem !important");
+    @include font-size("1.3rem");
+  }
+
+  .sidebar-wrapper {
+    display: none;
+    width: 0%;
+    margin-#{$left}: 0 !important;
   }
 
   .page-content-wrapper {
-    margin-#{$left}: 0%;
+    width: 100% !important;
+    margin-#{$left}: 0 !important;
+  }
+
+  #wrapper.toggled .sidebar-wrapper {
+    display: block;
     width: 100%;
+    margin-#{$left}: -30rem;
   }
 
   #wrapper.toggled .page-content-wrapper {
-    margin-#{$left}: 130px;
-    width: calc(100% - 150px);
+    margin-#{$left}: 8.125rem;
+  }
+
+  #bottomLeft {
+    background-color: var(--white);
+    height: 100%;
+    top: 4.78rem;
+    width: 100%;
   }
 }
 
-@media(max-width: 665px) {
-  #bigCal > table {
-    margin-top: 68px;
+@media (max-width: map-get($grid-breakpoints, "sm")) {
+  #bottomLeft {
+    top: 6.9rem;
   }
 }
 
-@media (min-width: 860px) {
+@media (min-width: map-get($grid-breakpoints, "md")) {
   .sidebar-wrapper {
     margin-#{$left}: 0;
   }
 
   .page-content-wrapper {
-    margin-#{$left}: 15%;
     min-width: 0;
-    width: 85%;
+    width: 80%;
+    margin-#{$left}: 20%;
   }
 
   #wrapper.toggled .sidebar-wrapper {
@@ -530,7 +569,7 @@ div.tiny {
   }
 
   #wrapper.toggled .page-content-wrapper {
-    margin-#{$left}: 0%;
     width: 100%;
+    margin-#{$left}: 0;
   }
 }

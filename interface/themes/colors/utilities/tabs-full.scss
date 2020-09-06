@@ -1,0 +1,174 @@
+/* OpenEMR tabs-Full Override */
+
+#mainBox > .body_top,
+.body_top_tabs {
+  background-color: $dark !important;
+}
+
+#mainBox_vertical > .body_top,
+.body_top_tabs {
+  background-color: $midpale !important;
+}
+
+.tabSpan,
+.tabSpan_tabs {
+  border-left: 1px solid $dark !important;
+  border-radius: 3px 6px 0 0 !important;
+  border-right: 1px solid $dark !important;
+  border-top: 5px solid $dark !important;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0) !important;
+}
+
+.tabNotchosen {
+  border-bottom: 2px solid $dark !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-top: 0 !important;
+}
+
+.tabsNoHover {
+  border-bottom: 2px solid $dark !important;
+}
+
+.tabNotchosen:hover {
+  background: transparent !important;
+}
+
+.tabSpan_tabs:hover {
+  background: $palepale !important;
+}
+
+.tabControls_tabs {
+  border-bottom: 0 !important;
+}
+
+.ptName {
+  @include font-size("1.25rem");
+  background: #ffff9e;
+  padding: 0 5px;
+}
+
+.patientInfo {
+  @include font-size("1rem");
+  font-weight: 600;
+  padding: 1px 1px 1px 10px;
+}
+
+.patientCurrentEncounter {
+  @include font-size("1rem");
+  font-weight: 600;
+}
+
+.menuLabel {
+  @include font-size("0.875rem");
+  color: $black !important;
+}
+
+.patientEncounterList {
+  background: $white;
+  border: 1px solid $darker;
+}
+
+.appMenu > span:hover,
+.menuSection:hover {
+  background-color: $palepale !important;
+}
+
+.menuLabel:hover {
+  background: $palepale !important;
+}
+
+.menuSection > .menuEntries {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: 0 2px 2px $midpale !important;
+}
+
+.menuEntries li .menuLabel {
+  padding: 5px 10px !important;
+}
+
+.menuEntres li .menuLabel:hover {
+  background-color: $palepale !important;
+  color: $bs-dark;
+}
+
+.appMenu li:hover {
+  background-color: $palepale !important;
+}
+
+.menuSection > .menuEntries {
+  background-color: $paler !important;
+}
+
+.body_title,
+.body_title_tabs {
+  background-color: $midpale !important;
+}
+
+/* tabs body */
+
+.tabs_body,
+#searchCriteria {
+  background-color: $pale;
+}
+
+.tabs_body_light {
+  background-color: $palepale;
+}
+
+/* tabs calendar */
+
+#calsearch_params {
+  background-color: $palepale !important;
+  width: 98% !important;
+}
+
+.calsearch_body {
+  background-color: $paler !important;
+}
+
+.chevron_color {
+  color: $darker;
+}
+
+div#providerPicker select {
+  margin: 0;
+}
+
+#calsearch_results_header {
+  margin-top: 5px;
+  width: 99% !important;
+}
+
+#calsearch_results_data {
+  width: 99% !important;
+}
+
+#topToolbarRight {
+  padding: 3px;
+}
+
+/* calendar icon */
+
+img[src *="show_calendar.gif"] {
+  margin-bottom: 3px;
+}
+
+/* tabs menu, user, and logout icon */
+#menu_icon,
+#logout_icon,
+#user_icon {
+  color: $darker !important;
+}
+
+/* Search Globals Button */
+#search_globals,
+.oe-expandable-search .any-search-legacy {
+  background: $dark !important;
+}
+
+/* Patient Panel Toggler Override */
+#patient_caret {
+  margin-right: 4px !important;
+}

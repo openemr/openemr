@@ -10,14 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-//INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
 require_once("$srcdir/registry.inc");
 require_once("language.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Utils\RandomGenUtils;
 
 //START OUT OUR PAGE....
 ?>
@@ -30,7 +28,7 @@ use OpenEMR\Common\Utils\RandomGenUtils;
     <div id="container_div" class="container">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-header clearfix">
+                <div class="clearfix">
                     <h2 class="title"><?php  echo xlt('Multi Language Tool'); ?></h2>
                 </div>
             </div>
@@ -67,10 +65,9 @@ use OpenEMR\Common\Utils\RandomGenUtils;
                                 CsrfUtils::csrfNotVerified();
                             }
 
-                            // Pass a unique variable, so below scripts can
+                            // Set a variable, so below scripts can
                             // not be run on their own
-                            $unique_id = RandomGenUtils::createUniqueToken();
-                            $_SESSION['lang_module_unique_id'] = $unique_id;
+                            $langModuleFlag = true;
 
                             switch ($_GET['m']) :
                                 case 'definition':

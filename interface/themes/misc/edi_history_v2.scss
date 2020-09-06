@@ -1,0 +1,1192 @@
+/**
+ * edi_history_v2.css
+ *
+ * Copyright 2016 Kevin McCormick Carrollton, Texas
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 3 or later.  You should have
+ * received a copy of the GNU General Public License along with this program;
+ * if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *  <http://opensource.org/licenses/gpl-license.php>
+ *
+ * css styles for edi claim history project
+ *
+ * @author Kevin McCormick
+ * @link: http://www.open-emr.org
+ * @package OpenEMR
+ * @subpackage ediHistory
+ */
+
+// RTL required here regardless if it is needed or not
+@import "../directional";
+
+$rfs-base-value: 0.875rem;
+$enable-responsive-font-sizes: true;
+
+@import "../../../public/assets/bootstrap/scss/vendor/rfs";
+
+@media print {
+  .print {
+    width: 100%;
+  }
+
+  .noPrint {
+    display: none;
+  }
+
+  table.era835 {
+    thead {
+      display: table-header-group;
+    }
+
+    tfoot {
+      display: table-footer-group;
+    }
+
+    tbody.eraclp {
+      page-break-after: auto;
+      page-break-inside: avoid;
+    }
+  }
+}
+
+/**  CSS Outline
+ * tables -- processed files html
+ * 		  -- csv tables
+ * 		  -- html detail
+ *
+ * text -- x12 segments display
+ *      -- notes file
+ *  	-- uploaded files list
+ *
+ * jquery ui -- tabs, dialogs
+ *
+ * DataTables
+ *
+ */
+table#csvTable a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+table#csvTable a:visited {
+  color: #3f260e;
+}
+
+table#csvTable a:hover {
+  color: var(--danger);
+}
+
+div#tbrsp {
+  height: 100%;
+}
+
+.outlinetr {
+  border-color: #bfd4e3;
+  border-width: 2px;
+}
+
+/* **** upload lists box-sizing: content-box; **  */
+div#fileupl1 {
+  background-color: #cad8da;
+  border-color: #cad8da;
+  border-style: solid;
+  border-width: 6px 2px;
+  float: $left;
+  font-size: medium;
+  margin: 2em 0 0;
+  max-width: 50%;
+  min-width: 40ch;
+  padding: 1em;
+  vertical-align: top;
+}
+
+div#fileupl2 {
+  background-color: #abf0cb;
+  border-color: #abf0cb;
+  border-style: solid;
+  border-width: 6px 2px;
+  float: $left;
+  font-size: medium;
+  margin: 2em 0 0;
+  max-width: 50%;
+  min-width: 40ch;
+  padding: 1em;
+  vertical-align: top;
+}
+
+ul.fupl {
+  font-size: medium;
+  list-style-type: none;
+  text-align: $left;
+}
+
+/* ***** process class dl.process  padding: 10px; border: none; margin: 2px;*******/
+div#processed {
+  max-width: fit-content;
+}
+
+div#processed * {
+  box-sizing: border-box;
+}
+
+h2.prcs {
+  @include font-size("1.2rem");
+  background-color: #cadfdd;
+  border-collapse: collapse;
+  border-style: none;
+  margin: 1em;
+  vertical-align: middle;
+}
+
+div#processed dl {
+  display: block;
+  margin-bottom: 0.5em;
+  margin-left: 2;
+  margin-right: 2;
+  margin-top: 0.5em;
+}
+
+div#processed dt {
+  margin-bottom: 0.5em;
+  margin-left: 2;
+  margin-right: 2;
+  margin-top: 0.5em;
+  min-width: 50%;
+  padding: 2px 4px;
+}
+
+div#processed dd {
+  margin-bottom: 3px;
+  margin-left: 2;
+  margin-right: 2;
+  margin-top: 3px;
+  min-width: 50%;
+  padding: 2px 4px;
+}
+
+dl.f837 {
+  background-color: #b5d4cc;
+}
+
+dl.f837 > dt.fodd {
+  background-color: #c6dad5;
+}
+
+dl.f837 > dt.feven {
+  background-color: #bdc1c0;
+}
+
+dl.f837 > dd.codd {
+  background-color: #b4ded3;
+}
+
+dl.f837 > dd.ceven {
+  background-color: #a8cdc4;
+}
+
+dl.f997 {
+  background-color: #e2dbcc;
+}
+
+dl.f997 > dt.fodd {
+  background-color: #efe1c2;
+}
+
+dl.f997 > dt.feven {
+  background-color: #dfd2b6;
+}
+
+dl.f997 > dd.codd {
+  background-color: #e7e5e1;
+}
+
+dl.f997 > dd.ceven {
+  background-color: #e2dbcc;
+}
+
+dl.f835 {
+  background-color: #d2e6e0;
+}
+
+dl.f835 > dt.fodd {
+  background-color: #dadada;
+}
+
+dl.f835 > dt.feven {
+  background-color: #d4eae4;
+}
+
+dl.f835 > dd.codd {
+  background-color: #cdded9;
+}
+
+dl.f835 > dd.ceven {
+  background-color: #e7eceb;
+}
+
+dl.f270 {
+  background-color: #c0d9da;
+}
+
+dl.f270 > dt.fodd {
+  background-color: #c6d8d8;
+}
+
+dl.f270 > dt.feven {
+  background-color: #acccca;
+}
+
+dl.f270 > dd.codd {
+  background-color: #b4d9db;
+}
+
+dl.f270 > dd.ceven {
+  background-color: #c1e5e7;
+}
+
+dl.f271 {
+  background-color: #c0dddd;
+}
+
+dl.f271 > dt.fodd {
+  background-color: #cdcfcf;
+}
+
+dl.f271 > dt.feven {
+  background-color: #c4e5e5;
+}
+
+dl.f271 > dd.codd {
+  background-color: #bfd0d0;
+}
+
+dl.f271 > dd.ceven {
+  background-color: #c0e4e4;
+}
+
+/* ***** f276 class *******/
+dl.f276 {
+  background-color: #c6dfe8;
+}
+
+dl.f276 > dt.fodd {
+  background-color: #d1d6d8;
+}
+
+dl.f276 > dt.feven {
+  background-color: #cbe1e9;
+}
+
+dl.f276 > dd.codd {
+  background-color: #cdd7db;
+}
+
+dl.f276 > dd.ceven {
+  background-color: #cbe7f1;
+}
+
+/* ***** f277 class *******/
+dl.f277 {
+  background-color: #c8e6de;
+}
+
+dl.f277 > dt.fodd {
+  background-color: #d9e4e1;
+}
+
+dl.f277 > dt.feven {
+  background-color: #caece3;
+}
+
+dl.f277 > dd.codd {
+  background-color: #c3ddd7;
+}
+
+dl.f277 > dd.ceven {
+  background-color: #c8ede3;
+}
+
+/* ***** f278 class *******/
+dl.f278 {
+  background-color: #d4e7ea;
+}
+
+dl.f278 > dt.fodd {
+  background-color: #dae5e6;
+}
+
+dl.f278 > dt.feven {
+  background-color: #daeef1;
+}
+
+dl.f278 > dd.codd {
+  background-color: #cbe0e3;
+}
+
+dl.f278 > dd.ceven {
+  background-color: #c9e7ec;
+}
+
+/*  width: 940px;  */
+div#tblshow {
+  max-width: fit-content;
+  width: 896px;
+}
+
+/*
+ * encounter record table
+ */
+table.clmhist {
+  background-color: #a4e1c7;
+  border: 2px solid #007342;
+  border-collapse: collapse;
+  empty-cells: show;
+  font-size: medium;
+  font-weight: normal;
+  max-height: fit-content;
+  max-width: fit-content;
+  padding: 2px 10px;
+  text-align: $left;
+}
+
+table.clmhist caption {
+  font-size: medium;
+  font-weight: bold;
+}
+
+table.clmhist tr.chhead {
+  background-color: #7fcba9;
+  font-size: medium;
+  font-weight: bold;
+  padding: 5px;
+}
+
+table.clmhist td {
+  padding: 2px;
+}
+
+table.clmhist tr.ch278 td {
+  background-color: #caefdc;
+}
+
+table.clmhist tr.ch270 td {
+  background-color: #d0e1de;
+}
+
+table.clmhist tr.ch271 td {
+  background-color: #c8eae3;
+}
+
+table.clmhist tr.ch837 td {
+  background-color: #d8e6da;
+}
+
+table.clmhist tr.ch997 td {
+  background-color: #e2ccbd;
+}
+
+table.clmhist tr.ch277 td {
+  background-color: #e1eff2;
+}
+
+table.clmhist tr.ch835 td {
+  background-color: #d4edce;
+}
+
+/* ***** 999/997 error report*******/
+p.rpt997 {
+  background-color: #cae2f2;
+  border: 2px solid #d6d6d6;
+  font-size: medium;
+  margin: 8px;
+}
+
+p.err997 {
+  background-color: #caeaf2;
+  border: 2px solid #d6d6d6;
+  font-size: medium;
+  margin: 8px;
+}
+
+/* ***** process class table.process*******/
+div#processed table {
+  border: 1px solid var(--black);
+  border-collapse: collapse;
+  empty-cells: show;
+  font-size: medium;
+  max-width: 800px;
+  vertical-align: middle;
+}
+
+/*  div#processed table  */
+div#processed table caption {
+  background-color: #bcf8e7;
+  border: 1px solid var(--black);
+  font-size: medium;
+  font-weight: bold;
+  padding: 2px 10px;
+  text-align: $left;
+}
+
+div#processed table td {
+  color: var(--body-color);
+  padding: 3px;
+}
+
+div#processed table td.reject {
+  color: var(--danger);
+}
+
+/* ***** f837 class *******/
+div#processed table.f837 {
+  background-color: #9fd7ad;
+}
+
+div#processed table.f837 tr.fodd td {
+  background-color: #92dd99;
+}
+
+div#processed table.f837 tr.feven td {
+  background-color: #b9ccbb;
+}
+
+div#processed table.cf837 {
+  background-color: #c7e2ce;
+}
+
+div#processed table.cf837 tr.codd td {
+  background-color: #92dd99;
+}
+
+div#processed table.cf837 tr.ceven td {
+  background-color: #9bcca7;
+}
+
+/* ***** f997 class *******/
+div#processed table.f997 {
+  background-color: #ebd195;
+}
+
+div#processed table.f997 caption {
+  background-color: #ebd195;
+}
+
+div#processed table.f997 tr.fodd td {
+  background-color: #d7cfbd;
+}
+
+div#processed table.f997 tr.feven td {
+  background-color: #ecdcb8;
+}
+
+div#processed table.cf997 {
+  background-color: #e8dabb;
+}
+
+div#processed table.cf997 tr.codd td {
+  background-color: #ebdab4;
+}
+
+div#processed table.cf997 tr.ceven td {
+  background-color: #e1d6bd;
+}
+
+/* ***** f835 class *******/
+div#processed table.f835 {
+  background-color: #acc3a5;
+}
+
+div#processed table.f835 caption {
+  background-color: #ebd195;
+}
+
+div#processed table.f835 tr.fodd td {
+  background-color: #b3c7a1;
+}
+
+div#processed table.f835 tr.feven td {
+  background-color: #c2c8bc;
+}
+
+div#processed table.cf835 {
+  background-color: #cedacb;
+}
+
+div#processed table.cf835 tr.codd td {
+  background-color: #aed0a2;
+}
+
+div#processed table.cf835 tr.ceven td {
+  background-color: #b5d1aa;
+}
+
+/* ***** f270 class *******/
+div#processed table.f270 {
+  background-color: #c0d9da;
+}
+
+div#processed table.f270 caption {
+  background-color: #c0d9da;
+}
+
+div#processed table.f270 tr.fodd td {
+  background-color: #c6d8d8;
+}
+
+div#processed table.f270 tr.feven td {
+  background-color: #acccca;
+}
+
+div#processed table.cf270 {
+  background-color: #def1f2;
+}
+
+div#processed table.cf270 tr.codd td {
+  background-color: #b4d9db;
+}
+
+div#processed table.cf270 tr.ceven td {
+  background-color: #c1e5e7;
+}
+
+/* ***** f271 class *******/
+div#processed table.f271 {
+  background-color: #ccefe4;
+}
+
+div#processed table.f271 caption {
+  background-color: #ccefe4;
+}
+
+div#processed table.f271 tr.fodd td {
+  background-color: #96d6c2;
+}
+
+div#processed table.f271 tr.feven td {
+  background-color: #afd0c6;
+}
+
+div#processed table.cf271 {
+  background-color: #e3eeeb;
+}
+
+div#processed table.cf271 tr.codd td {
+  background-color: #c0dad2;
+}
+
+div#processed table.cf271 tr.ceven td {
+  background-color: #aee3d2;
+}
+
+/* ***** f276 class *******/
+div#processed table.f276 {
+  background-color: #bce8f8;
+}
+
+div#processed table.f276 caption {
+  background-color: #bce8f8;
+}
+
+div#processed table.f276 tr.fodd td {
+  background-color: #c4d7dd;
+}
+
+div#processed table.f276 tr.feven td {
+  background-color: #aee1f4;
+}
+
+div#processed table.cf276 {
+  background-color: #bce8f8;
+}
+
+div#processed table.cf276 tr.codd td {
+  background-color: #bce8f8;
+}
+
+div#processed table.cf276 tr.ceven td {
+  background-color: #bce8f8;
+}
+
+/* ***** f277 class *******/
+div#processed table.f277 {
+  background-color: #bcf8e7;
+}
+
+div#processed table.f277 caption {
+  background-color: #bcf8e7;
+}
+
+div#processed table.f277 tr.fodd td {
+  background-color: #badcd7;
+}
+
+div#processed table.f277 tr.feven td {
+  background-color: #b7f3e1;
+}
+
+div#processed table.cf277 {
+  background-color: #d4ebe5;
+}
+
+div#processed table.cf277 tr.codd td {
+  background-color: #bdd5d1;
+}
+
+div#processed table.cf277 tr.ceven td {
+  background-color: #a3e0d7;
+}
+
+/* ***** f278 class *******/
+div#processed table.f278 {
+  background-color: #cceaef;
+}
+
+div#processed table.f278 caption {
+  background-color: #b8dce2;
+}
+
+div#processed table.f278 tr.fodd td {
+  background-color: #abecd8;
+}
+
+div#processed table.f278 tr.feven td {
+  background-color: #dbe3e0;
+}
+
+div#processed table.cf278 {
+  background-color: #d9eaed;
+}
+
+div#processed table.cf278 tr.codd td {
+  background-color: #dce0df;
+}
+
+div#processed table.cf278 tr.ceven td {
+  background-color: #aee3d2;
+}
+
+/*
+ * ***** 27x transaction html display ******
+ */
+/* ***** h271 eligibility transaction display *******/
+table.h271 {
+  background-color: #deeae6;
+  border-collapse: collapse;
+  padding: 1em 1em 3em;
+  vertical-align: bottom;
+  width: 45em;
+  word-wrap: normal;
+}
+
+table.h271 caption {
+  background-color: #c8e4da;
+  font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
+  font-size: 1.2em;
+  text-align: $left;
+}
+
+table.h271 td {
+  vertical-align: top;
+}
+
+table.h271 tr.ebe td {
+  background-color: #d2e7e0;
+}
+
+table.h271 tr.ebo td {
+  background-color: #deeae6;
+}
+
+/* ***** h277 claim status transaction display *******/
+table.h277 {
+  background-color: #cfedd9;
+  border-collapse: collapse;
+  font-family: "Liberation Serif", "Times New Roman", serif;
+  padding: 1em 1em 3em;
+  vertical-align: bottom;
+  width: 45em;
+  word-wrap: normal;
+}
+
+table.h277 caption {
+  background-color: #cbe3cd;
+  font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
+  font-size: 1.2em;
+  padding: 0.5em;
+  text-align: $left;
+}
+
+table.h277 td {
+  vertical-align: top;
+}
+
+table.h277 tr.src td {
+  background-color: #cadcd0;
+}
+
+table.h277 tr.rcv td {
+  background-color: #cdded3;
+}
+
+table.h277 tr.prv td {
+  background-color: #cbe3cd;
+}
+
+table.h277 tr.sbr td {
+  background-color: #cde7d2;
+}
+
+table.h277 tr.dep td {
+  background-color: #caf6c8;
+}
+
+/* ***** h278 eligibility transaction display *******/
+table.h278 {
+  background-color: #dde4e2;
+  border-collapse: collapse;
+  font-family: "Liberation Serif", "Times New Roman", serif;
+  padding: 1em 1em 3em;
+  vertical-align: bottom;
+  width: 45em;
+  word-wrap: normal;
+}
+
+table.h278 caption {
+  background-color: #dde4e2;
+  font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
+  font-size: 1.2em;
+  padding: 0.5em;
+  text-align: $left;
+}
+
+table.h278 td {
+  vertical-align: top;
+}
+
+table.h278 tr.src td {
+  background-color: #c9e7dd;
+}
+
+table.h278 tr.rcv td {
+  background-color: #dde4e2;
+}
+
+table.h278 tr.sbr td {
+  background-color: #c9e6dc;
+}
+
+table.h278 tr.dep td {
+  background-color: #d3dfdb;
+}
+
+table.h278 tr.evt td {
+  background-color: #e0ece8;
+}
+
+table.h278 tr.svc td {
+  background-color: #c9e7dd;
+}
+
+/* ***** h835 claim payment display *******/
+table.h835c {
+  background-color: #9edc9f;
+  border-collapse: collapse;
+  font-family: "Liberation Serif", "Times New Roman", serif;
+  padding: 1em 1em 3em;
+  vertical-align: bottom;
+  width: 45em;
+  word-wrap: normal;
+}
+
+table.h835c caption {
+  background-color: #9edc9f;
+  font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
+  font-size: 1em;
+  padding: 0.5em;
+  text-align: $left;
+}
+
+table.h835c td {
+  vertical-align: top;
+}
+
+table.h835c td:first-child {
+  min-width: 8em;
+}
+
+table.h835c tr.lx td {
+  background-color: #e3dac6;
+}
+
+table.h835c tr.sbr td {
+  background-color: #d6eed5;
+}
+
+table.h835c tr.clp td {
+  background-color: #d6eed5;
+}
+
+table.h835c tr.svc td {
+  background-color: #c5e2e7;
+}
+
+table.h835c tr.mia td {
+  background-color: #dcd8ce;
+}
+
+table.h835c tr.rems td {
+  background-color: #d4e2e4;
+}
+
+table.h835c tr.remc td {
+  background-color: #cfddce;
+}
+
+table.h835 {
+  background-color: #9edc9f;
+  border-collapse: collapse;
+  font-family: "Liberation Serif", "Times New Roman", serif;
+  padding: 1.2em;
+  vertical-align: bottom;
+  width: 45em;
+  word-wrap: normal;
+}
+
+table.h835 caption {
+  background-color: #b4d2d8;
+  font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
+  font-size: 1.2em;
+  padding: 0.5em;
+  text-align: $left;
+}
+
+table.h835 td {
+  vertical-align: top;
+}
+
+table.h835 td:first-child {
+  min-width: 8em;
+}
+
+table.h835 tr.pmt td {
+  background-color: #e6d6c9;
+}
+
+table.h835 tr.src td {
+  background-color: #c4e0e0;
+}
+
+table.h835 tr.rcv td {
+  background-color: #cadc9e;
+}
+
+/* ***** edi segments display *******/
+table.segtxt {
+  background-color: #ece3be;
+  border-collapse: collapse;
+  font-family: "Liberation Mono", "Lucida Console", Consolas, Courier, monospace;
+  font-size: 1em;
+  padding: 0.5em 0.5em 3em;
+  text-align: $left;
+  vertical-align: bottom;
+  width: 45em;
+  word-wrap: break-word;
+}
+
+table.segtxt hr > td {
+  text-align: center;
+}
+
+table.segtxt caption {
+  background-color: #f2efde !important;
+  font-family: "Dejavu Sans", "Trebuchet MS", "Liberation Sans", sans-serif;
+  font-size: 1.2em;
+  text-align: $left;
+}
+
+table.segtxt td.bterr {
+  background-color: #f9f3e0;
+  color: #a92315;
+  padding: 0.5em, 2px;
+}
+
+table.segtxt td.btseg {
+  background-color: #f8f6e8;
+  color: #140c0c;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+table.segtxt td.btloop {
+  background-color: #f4f3ea;
+  color: #3b2f2f;
+  text-align: center;
+}
+
+table.segtxt td.btnum {
+  background-color: #f6f3dd;
+  color: #3b2f2f;
+  padding: 2px;
+  text-align: $right;
+}
+
+/*
+ * to show log file
+ * http://dean.resplace.net/blog/2011/08/jquery-tabs-iframes/
+ */
+ol.logview {
+  background: none repeat scroll 0 0 #ede8ce;
+  border: 1px solid #999;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px #999;
+  color: #333;
+  font-family: MonoSpace, MonoSpace;
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 0 0 20px;
+  max-height: 360px;
+  overflow: auto;
+  padding: 10px;
+  position: relative;
+}
+
+ol.logview li {
+  background-color: #f5efdb;
+  overflow: auto;
+}
+
+/*
+ * era summary RA
+ */
+table.summaryRA {
+  background-color: #d8e0e0;
+  border: 1px solid var(--black);
+  border-collapse: collapse;
+  empty-cells: show;
+  width: 640px;
+}
+
+table.summaryRA tr.summary td {
+  background-color: #97dfd9;
+}
+
+table.summaryRA tr.svccode td {
+  background-color: #bad8db;
+  padding: 4px;
+  vertical-align: top;
+}
+
+table.summaryRA td.denied {
+  color: #a40808;
+  font-weight: bold;
+  padding: 3px;
+}
+
+table.summaryRA caption {
+  background-color: #c0e8e7;
+  border: 2px solid var(--black);
+  font-size: large;
+  font-weight: bold;
+  padding: 2px 10px;
+  text-align: $left;
+}
+
+/*
+ * 997/999 status
+*/
+p.ak999stat {
+  background-color: #eae1d0;
+  font-size: medium;
+  margin: 1.6em 8px;
+  text-align: $left;
+}
+
+/*
+ * css for the era Remittance Advice html output
+ * TO-DO figure out a scheme for print output
+ *       possibly a start claim style e.g.
+ *       table.era835 tbody.claimdetail {
+ *             page-break-before: auto;
+ *		  }
+ */
+table.era835 {
+  background-color: #f2e7cf;
+  border: 1px solid var(--black);
+  border-collapse: collapse;
+  empty-cells: show;
+  font-size: medium;
+  width: 960px;
+}
+
+table.era835 th {
+  background-color: #cfccc5;
+  padding: 5px;
+}
+
+table.era835 td {
+  color: var(--black);
+  padding: 3px;
+}
+
+table.era835 td.denied {
+  color: #a40808;
+  font-weight: bold;
+  padding: 3px;
+}
+
+table.era835 tr.bpr td {
+  background-color: #c0ecc9;
+}
+
+table.era835 tr.clp0 td {
+  background-color: #cbd7e3;
+}
+
+table.era835 tr.clp1 td {
+  background-color: #d5eacc;
+}
+
+table.era835 tr.clpd td {
+  background-color: #fcd1c5;
+}
+
+table.era835 tr.ts3 td {
+  background-color: #f2dea3;
+}
+
+table.era835 tr.code td {
+  background-color: #f8dbc9;
+}
+
+table.era835 tr.plb td {
+  background-color: #97dfaa;
+}
+
+table.era835 tbody.eraclp {
+  border-top: 1px solid var(--black);
+  overflow: auto;
+}
+
+table.era835 tfoot {
+  border-top: 1px solid var(--black);
+}
+
+table.era835 caption {
+  background-color: #d8f4df;
+  border: 2px solid var(--black);
+  font-size: large;
+  font-weight: bold;
+  padding: 2px;
+  text-align: $left;
+}
+
+/*
+ * files display, text files, monospace
+ * word-wrap: break-word;
+ */
+div.filetext {
+  background-color: #fdf5db;
+  clear: both;
+  font-family: sans-serif;
+  width: auto;
+}
+
+div.filetext pre,
+code,
+kbd,
+samp,
+tt {
+  background-color: #fdf5db;
+  float: $left;
+  font-family: monospace, monospace;
+  font-size: medium;
+  margin-bottom: 2em;
+  padding: 1em 0;
+  width: auto;
+  margin-#{$left}: 0.9em;
+}
+
+div.filetext code {
+  float: $left;
+  width: auto;
+}
+
+div.filetext ol {
+  background-color: #fcde93;
+  font-family: "Lucida Sans", "DejaVu Sans", sans-serif;
+  font-size: medium;
+  width: auto;
+}
+
+div.filetext li {
+  background-color: #f1e8d1;
+  margin-bottom: 0.1em;
+  margin-left: 1em;
+  margin-right: 1em;
+  margin-top: 0;
+  padding-#{$left}: 0.2em;
+}
+
+div.filetext ol p {
+  display: inline-block;
+  font-family: monospace, monospace;
+  font-size: 0.9em;
+  font-style: normal;
+  margin: 1px;
+  word-wrap: break-word;
+
+  /*overflow: break-word; */
+}
+
+div.filetext table.batchst caption {
+  font-family: "Lucida Sans", "DejaVu Sans", sans-serif;
+  font-size: large;
+  font-weight: bold;
+  padding: 4px;
+  text-align: $left;
+}
+
+div.filetext table.batchst thead {
+  border-width: thin;
+  font-family: monospace, monospace;
+  font-size: medium;
+}
+
+div.filetext table.batchst tbody {
+  border-width: thin;
+  font-family: monospace, monospace;
+  font-size: medium;
+  width: auto;
+}
+
+div.filetext table.batchst td.btloop {
+  background-color: #ddd8c4;
+  border-right-color: #9e948c;
+  font-family: "Lucida Sans", "DejaVu Sans", sans-serif;
+  font-style: italic;
+  padding: 1px 3px;
+  text-align: center;
+}
+
+div.filetext table.batchst td.btseg {
+  background-color: #efe8d0;
+  border-color: #e5e1d1 #e5e1d1 #e5e1d1 #9e948c;
+  padding: 1px 3px;
+  text-align: $left;
+}
+
+div.filetext table.batchst td.bterr {
+  background-color: #fcf4d8;
+  border-color: #e12417;
+  padding: 1px 3px;
+  text-align: $left;
+}

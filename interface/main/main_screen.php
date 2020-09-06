@@ -14,12 +14,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/* Include our required headers */
+// Set $sessionAllowWrite to true to prevent session concurrency issues during authorization and app setup related code
+$sessionAllowWrite = true;
 require_once('../globals.php');
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -110,6 +112,12 @@ function generate_html_middle()
     posted_to_hidden('languageChoice');
     posted_to_hidden('authUser');
     posted_to_hidden('clearPass');
+    // to be safe, remove clearPass from memory now
+    if (function_exists('sodium_memzero')) {
+        sodium_memzero($_POST["clearPass"]);
+    } else {
+        $_POST["clearPass"] = '';
+    }
 }
 
 require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
@@ -265,9 +273,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '<div class="container">';
                 echo '<div class="row">';
                 echo '    <div class="col-sm-12">';
-                echo '        <div class="page-header">';
-                echo '            <h2>' . xlt('TOTP Verification') . '</h2>';
-                echo '        </div>';
+                echo '        <h2>' . xlt('TOTP Verification') . '</h2>';
                 echo '    </div>';
                 echo '</div>';
                 if ($errormsg && $errortype == "TOTP") {
@@ -309,9 +315,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '<div class="container">';
                 echo '<div class="row">';
                 echo '    <div class="col-sm-12">';
-                echo '        <div class="page-header">';
-                echo '            <h2>' . xlt('U2F Key Verification') . '</h2>';
-                echo '        </div>';
+                echo '        <h2>' . xlt('U2F Key Verification') . '</h2>';
                 echo '    </div>';
                 echo '</div>';
                 if ($errormsg && $errortype == "U2F") {
@@ -360,6 +364,12 @@ if (isset($_POST['new_login_session_management'])) {
 
     // This is a new login, so create a new session id and remove the old session
     session_regenerate_id(true);
+    // Also need to delete clearPass from memory
+    if (function_exists('sodium_memzero')) {
+        sodium_memzero($_POST["clearPass"]);
+    } else {
+        $_POST["clearPass"] = '';
+    }
 } else {
     // This is not a new login, so check csrf and then create a new session id and do NOT remove the old session
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -371,6 +381,9 @@ if (isset($_POST['new_login_session_management'])) {
 //  Note this key always remains private and never leaves server session. It is used to create
 //  the csrf tokens.
 CsrfUtils::setupCsrfKey();
+// Set up the session uuid. This will be used for mapping session setting to database.
+//  At this time only used for lastupdate tracking
+SessionTracker::setupSessionDatabaseTracker();
 
 $_SESSION["encounter"] = '';
 

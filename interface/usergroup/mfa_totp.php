@@ -14,6 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
+// Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
+$sessionAllowWrite = true;
 require_once('../globals.php');
 require_once("$srcdir/classes/Totp.class.php");
 require_once("$srcdir/options.inc.php");
@@ -88,9 +90,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
         <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="page-header">
-                        <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-                    </div>
+                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
         <?php

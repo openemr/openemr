@@ -719,6 +719,7 @@ model.UserModel = Backbone.Model.extend({
 	newcropUserRole: '',
 	cpoe: '',
 	physicianType: '',
+    portalUser: '',
 	defaults: {
 		'id': null,
 		'username': '',
@@ -775,7 +776,8 @@ model.UserModel = Backbone.Model.extend({
 		'stateLicenseNumber': '',
 		'newcropUserRole': '',
 		'cpoe': '',
-		'physicianType': ''
+		'physicianType': '',
+        'portalUser': 0
 	}
 });
 

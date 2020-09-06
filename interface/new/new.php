@@ -119,7 +119,7 @@ $(function () {
 <?php if (!$GLOBALS['omit_employers']) { ?>
  <tr>
   <td>
-   <span class='font-weight-bold'><?php echo xlt('Title'); ?>: </span>
+   <span class='font-weight-bold'><?php echo xlt('Title'); ?>:</span>
   </td>
   <td>
    <select name='title'>
@@ -197,7 +197,7 @@ while ($orow = sqlFetchArray($ores)) {
   </td>
   <td>
    <select name='refsource'>
-    <option value=''>Unassigned</option>
+    <option value=''><?php echo xlt("Unassigned"); ?></option>
     <?php
     $ores = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'refsource' AND activity = 1 ORDER BY seq");
@@ -217,7 +217,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr>
   <td>
-   <span class='font-weight-bold'><?php echo xlt('Birth Date'); ?>: </span>
+   <span class='font-weight-bold'><?php echo xlt('Birth Date'); ?>:</span>
   </td>
   <td>
    <input type='text' size='10' class='datepicker' name='DOB' id='DOB'

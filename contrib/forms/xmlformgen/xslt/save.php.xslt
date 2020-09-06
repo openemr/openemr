@@ -227,8 +227,6 @@ elseif ($_GET['mode'] == 'update') {
 </xsl:if>
 <xsl:text disable-output-escaping="yes"><![CDATA[
 
-$_SESSION['encounter'] = $encounter;
-
 formHeader('Redirecting....');
 ]]></xsl:text>
 <xsl:if test="//table[@type='extended']">

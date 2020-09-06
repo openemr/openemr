@@ -1,14 +1,14 @@
 /*-------------------openemr ACL-------------------*/
 
 #adminacl .loading {
-  @include font-size("10px !important");
+  @include font-size("0.625rem");
   color: $danger;
   font-weight: bold;
   text-decoration: blink;
 }
 
 #adminacl .alert {
-  @include font-size("10px !important");
+  @include font-size("0.625rem");
   color: $danger;
   font-weight: bold;
 }
@@ -29,7 +29,7 @@
 .section a,
 .section a:visited,
 .section a:hover {
-  color: $body-color !important;
+  color: $body-color;
   text-decoration: none;
 }
 

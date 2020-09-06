@@ -18,9 +18,7 @@ use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
-
     <title><?php echo xlt('Patient Records Request'); ?></title>
-
     <?php Header::setupHeader(); ?>
 
     <script>
@@ -41,7 +39,6 @@ use OpenEMR\Core\Header;
             });
         });
     </script>
-
 </head>
 
 <?php // collect data
@@ -50,22 +47,20 @@ $recordRequest = sqlQuery("SELECT * FROM `amc_misc_data` WHERE `pid`=? AND `amc_
     "ORDER BY `date_created` DESC", array($pid));
 ?>
 
-<body class="body_top">
-    <div class="container">
+<body>
+    <div class="container mt-3">
         <div class="row">
             <div class="col-12">
-                <div class="page-header">
-                    <h2><?php echo xlt('Patient Records Request'); ?></h2>
-                </div>
+                <h2><?php echo xlt('Patient Records Request'); ?></h2>
             </div>
         </div>
         <div class="row">
-            <div class="col-12">
+            <div class="col-12 jumbotron py-4">
                 <?php if (empty($recordRequest)) { ?>
-                    <a href="javascript:void(0)" id="req_button" class="btn btn-secondary btn-save"><?php echo xlt('Patient Record Request'); ?></a>
+                    <a href="javascript:void(0)" id="req_button" class="btn btn-primary btn-save"><?php echo xlt('Patient Record Request'); ?></a>
                     <span class="lead" id="openreq" style="display:none"><?php echo xlt('The patient record request has been recorded.'); ?></span>
                 <?php } else { ?>
-                    <a href="javascript:void(0)" id="req_button" class="btn btn-secondary btn-save" style="display:none"><?php echo xlt('Patient Record Request'); ?></a>
+                    <a href="javascript:void(0)" id="req_button" class="btn btn-primary btn-save" style="display:none"><?php echo xlt('Patient Record Request'); ?></a>
                     <span class="lead" id="openreq"><?php echo xlt('There is already an open patient record request.'); ?></span>
                 <?php } ?>
             </div>

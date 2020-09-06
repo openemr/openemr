@@ -405,7 +405,7 @@ if ($PDF_OUTPUT) {
 } else {
     ?>
 <!-- This should really be in the onload handler but that seems to be unreliable and can crash Firefox 3. -->
-<script language='JavaScript'>
+<script>
 opener.top.printLogPrint(window);
 </script>
 </body>

@@ -46,7 +46,7 @@ $obj = formFetch("form_pain", $_GET["id"]);
 <input type=checkbox name="sharp"  <?php if ($obj["sharp"] == "on") {
     echo "checked";
                                    };?>><span class=text>Sharp</span>
-<span class=text>Duration of Pain: </span><input type=entry name="duration_of_pain" value="<?php echo attr($obj["duration_of_pain"]);?>" ><br />
+<span class=text>Duration of Pain: </span><input type="text" name="duration_of_pain" value="<?php echo attr($obj["duration_of_pain"]);?>" ><br />
 
 
 <span class=text>History of Pain: </span><br /><textarea cols=40 rows=8 wrap=virtual name="history_of_pain" ><?php echo text($obj["history_of_pain"]);?></textarea><br />
@@ -54,11 +54,11 @@ $obj = formFetch("form_pain", $_GET["id"]);
 
 <table><tr><td>
 <table><tr>
-<td><span class=text>Accompanying Symptoms Vomitting: </span></td><td><input type=entry name="accompanying_symptoms_vomitting" value="<?php echo attr($obj["accompanying_symptoms_vomitting"]);?>" ></td>
+<td><span class=text>Accompanying Symptoms Vomitting: </span></td><td><input type="text" name="accompanying_symptoms_vomitting" value="<?php echo attr($obj["accompanying_symptoms_vomitting"]);?>" ></td>
 </tr><tr>
-<td><span class=text>Accompanying Symptoms Nausea: </span></td><td><input type=entry name="accompanying_symptoms_nausea" value="<?php echo attr($obj["accompanying_symptoms_nausea"]);?>" ></td>
+<td><span class=text>Accompanying Symptoms Nausea: </span></td><td><input type="text" name="accompanying_symptoms_nausea" value="<?php echo attr($obj["accompanying_symptoms_nausea"]);?>" ></td>
 </tr><tr>
-<td><span class=text>Accompanying Symptoms Headache: </span></td><td><input type=entry name="accompanying_symptoms_headache" value="<?php echo attr($obj["accompanying_symptoms_headache"]);?>" ></td>
+<td><span class=text>Accompanying Symptoms Headache: </span></td><td><input type="text" name="accompanying_symptoms_headache" value="<?php echo attr($obj["accompanying_symptoms_headache"]);?>" ></td>
 </tr></table>
 </td><td>
 <span class=text>Accompanying Symptoms Other: </span><br /><textarea cols=40 rows=8 wrap=virtual name="accompanying_symptoms_other" ><?php echo text($obj["accompanying_symptoms_other"]);?></textarea><br />

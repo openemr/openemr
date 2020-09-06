@@ -223,11 +223,14 @@ $(function () {
     });
 
     // load divs
-    $("#stats_div").load("stats.php",
+
+    // I can't find a reason to load this!
+    /*$("#stats_div").load("stats.php",
         {
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
-    );
+    );*/
+
     $("#notes_div").load("pnotes_fragment.php",
         {
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
@@ -273,469 +276,461 @@ function restoreSession() {
 }
 </script>
 </head>
-<body class="body_top">
+<body>
 
-<div class="container-fluid" id="pnotes"> <!-- large outer DIV -->
+<div class="container mt-3" id="pnotes"> <!-- large outer DIV -->
 
-<form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo attr_url($docid); ?>&orderid=<?php echo attr_url($orderid); ?>&<?php echo $activity_string_html; ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <form method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo attr_url($docid); ?>&orderid=<?php echo attr_url($orderid); ?>&<?php echo $activity_string_html; ?>' onsubmit='return top.restoreSession()'>
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<?php
-$title_docname = "";
-if ($docid) {
-    $title_docname .= " " . xl("linked to document") . " ";
-    $d = new Document($docid);
-    $title_docname .= $d->get_url_file();
-}
+        <?php
+        $title_docname = "";
+        if ($docid) {
+            $title_docname .= " " . xl("linked to document") . " ";
+            $d = new Document($docid);
+            $title_docname .= $d->get_url_file();
+        }
 
-if ($orderid) {
-    $title_docname .= " " . xl("linked to procedure order") . " $orderid";
-}
+        if ($orderid) {
+            $title_docname .= " " . xl("linked to procedure order") . " $orderid";
+        }
 
-$urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
-$title = text(getPatientName($patient_id));
-?>
+        $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
+        $title = text(getPatientName($patient_id));
+        ?>
     <title><?php echo $title; ?></title>
     <div class="row">
-        <div class="col-md-12">
-            <div class="page-header">
-                <h3><?php echo xlt('Patient Messages') . text($title_docname) . " " . xlt('for');
-                if (!$orderid) {
-                    ?>&nbsp;
-                        <span><a href="../summary/demographics.php"
-                                           onclick="return top.restoreSession()"><?php echo $title; ?></a></span>
-                    <?php } else { ?>
-                        <span><?php echo $title; ?></span><?php } ?>
-                </h3>
+        <div class="col-12">
+            <h3><?php echo xlt('Patient Messages') . text($title_docname) . " " . xlt('for');
+            if (!$orderid) {
+                ?><span>
+                    <a href="../summary/demographics.php" onclick="return top.restoreSession()"><?php echo $title; ?></a>
+                </span>
+                <?php } else { ?>
+                    <span><?php echo $title; ?></span><?php } ?>
+            </h3>
+        </div>
+        <div class="row oe-margin-b-10">
+            <div class="col-12">
+            <div class="btn-group">
+                    <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="btn btn-primary btn-add note_modal" onclick='return top.restoreSession()'><?php echo xlt('Add'); ?></a>
+                    <?php if (!$orderid) { ?>
+                        <a href="demographics.php" class="btn btn-secondary btn-back" onclick="top.restoreSession()"><?php echo xlt('Back to Patient'); ?></a>
+                    <?php } ?>
+                    <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="btn btn-secondary btn-update" id='Submit' onclick='return top.restoreSession()'><?php echo xlt('Refresh'); ?></a>
+                    <a href="#" class="change_activity btn btn-secondary btn"><?php echo xlt('Update Active'); ?></a>
+            </div>
+            </div>
+
+        </div>
+        <div class="row oe-margin-b-10">
+            <div class="col-12">
+                <?php
+                // Get the billing note if there is one.
+                $billing_note = "";
+                $colorbeg = "";
+                $colorend = "";
+                $resnote = getPatientData($patient_id, "billing_note");
+                if (!empty($resnote['billing_note'])) {
+                    $billing_note = $resnote['billing_note'];
+                    $colorbeg = "<span class='text-danger'>";
+                    $colorend = "</span>";
+                }
+
+                //Display what the patient owes
+                $balance = get_patient_balance($patient_id);
+                ?>
+
+                <?php if ($billing_note || $balance) { ?>
+                    <div class="table-responsive mt-1">
+                        <table class="table">
+                            <?php
+                            if ($balance != "0") {
+                                // $formatted = sprintf((xl('$').'%01.2f'), $balance);
+                                $formatted = oeFormatMoney($balance);
+                                echo " <tr class='text billing'>\n";
+                                echo "  <td>" . $colorbeg . xlt('Balance Due') .
+                                    $colorend . "&nbsp;" . $colorbeg . text($formatted) .
+                                    $colorend . "</td>\n";
+                                echo " </tr>\n";
+                            }
+
+                            if ($billing_note) {
+                                echo " <tr class='text billing'>\n";
+                                echo "  <td>" . $colorbeg . xlt('Billing Note') .
+                                    $colorend . "&nbsp;" . $colorbeg . text($billing_note) .
+                                    $colorend . "</td>\n";
+                                echo " </tr>\n";
+                            }
+                            ?>
+                        </table>
+                    </div>
+                <?php } ?>
             </div>
         </div>
-    </div>
-    <div class="row oe-margin-b-10">
-        <div class="col-md-12">
-            <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="btn btn-secondary note_modal" onclick='return top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
-            <a href="#" class="change_activity btn btn-secondary" ><span><?php echo xlt('Update Active'); ?></span></a>
-            <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="btn btn-secondary" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
-            <?php if (!$orderid) { ?>
-                <a href="demographics.php" class="btn btn-secondary" onclick="top.restoreSession()"><span><?php echo xlt('Back to Patient'); ?></span></a>
-            <?php } ?>
-        </div>
 
-    </div>
-    <div class="row oe-margin-b-10">
-        <div class="col-md-12">
-            <?php
-            // Get the billing note if there is one.
-            $billing_note = "";
-            $colorbeg = "";
-            $colorend = "";
-            $resnote = getPatientData($patient_id, "billing_note");
-            if (!empty($resnote['billing_note'])) {
-                $billing_note = $resnote['billing_note'];
-                $colorbeg = "<span style='color:red'>";
-                $colorend = "</span>";
-            }
+        <input type='hidden' name='mode' id="mode" value="new" />
+        <input type='hidden' name='offset' id="offset" value="<?php echo attr($offset); ?>" />
+        <input type='hidden' name='offset_sent' id="offset_sent" value="<?php echo attr($offset_sent); ?>" />
+        <input type='hidden' name='form_active' id="form_active" value="<?php echo attr($form_active); ?>" />
+        <input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo attr($form_inactive); ?>" />
+        <input type='hidden' name='noteid' id="noteid" value="<?php echo attr($noteid); ?>" />
+        <input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo attr($form_doc_only); ?>" />
+    </form>
 
-            //Display what the patient owes
-            $balance = get_patient_balance($patient_id);
-            ?>
+    <div class='tabContainer jumbotron p-4'>
+        <?php if ($active == "all") { ?>
+            <span><?php echo xlt('Show All'); ?></span>
+        <?php } else { ?>
+            <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
+        <?php } ?>
+        |
+        <?php if ($active == '1') { ?>
+            <span><?php echo xlt('Show Active'); ?></span>
+        <?php } else { ?>
+            <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
+        <?php } ?>
+        |
+        <?php if ($active == '0') { ?>
+            <span><?php echo xlt('Show Inactive'); ?></span>
+        <?php } else { ?>
+            <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
+        <?php } ?>
+        <div id='inbox_div' class="table-responsive">
+            <form method='post' name='update_activity' id='update_activity'
+                action="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" onsubmit='return top.restoreSession()'>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-            <?php if ($billing_note || $balance) { ?>
-                <div style='margin-top:3px'>
-                    <table width='80%'>
+                <!-- start of previous notes DIV -->
+                <div class="pat_notes">
+                    <input type='hidden' name='mode' value="update" />
+                    <input type='hidden' name='offset' id='offset' value="<?php echo attr($offset); ?>" />
+                    <input type='hidden' name='offset_sent' id='offset_sent' value="<?php echo attr($offset_sent); ?>" />
+                    <input type='hidden' name='noteid' id='noteid' value="0" />
+
+                    <table class="table table-borderless text">
+                    <?php if ($result != "") : ?>
+                    </table>
+                    <?php endif; ?>
+
+                    <table class="table table-borderless text">
                         <?php
-                        if ($balance != "0") {
-                            // $formatted = sprintf((xl('$').'%01.2f'), $balance);
-                            $formatted = oeFormatMoney($balance);
-                            echo " <tr class='text billing'>\n";
-                            echo "  <td>" . $colorbeg . xlt('Balance Due') .
-                                $colorend . "&nbsp;" . $colorbeg . text($formatted) .
-                                $colorend . "</td>\n";
-                            echo " </tr>\n";
-                        }
+                        // display all of the notes for the day, as well as others that are active
+                        // from previous dates, up to a certain number, $N
 
-                        if ($billing_note) {
-                            echo " <tr class='text billing'>\n";
-                            echo "  <td>" . $colorbeg . xlt('Billing Note') .
-                                $colorend . "&nbsp;" . $colorbeg . text($billing_note) .
-                                $colorend . "</td>\n";
+                        if ($result != "") {
+                            echo " <tr class='showborder_head'>\n";
+                            echo "  <th>" . xlt('Actions') . "</th>\n";
+                            echo "  <th>" . xlt('Active{{Note}}') . "&nbsp;</th>\n";
+                            echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
+                            echo "  <th>" . xlt('Type') . "</th>\n";
+                            echo "  <th>" . xlt('Content') . "</th>\n";
+                            echo "  <th>" . xlt('Status') . "</th>\n";
+                            echo "  <th>" . xlt('Last update') . "</th>\n";
+                            echo "  <th>" . xlt('Update by') . "</th>\n";
                             echo " </tr>\n";
+
+                            $result_count = 0;
+                            foreach ($result as $iter) {
+                                $result_count++;
+                                $row_note_id = $iter['id'];
+
+                                $linked = "";
+                                if ($docid) {
+                                    if (isGpRelation(1, $docid, 6, $row_note_id)) {
+                                        $linked = "checked";
+                                    } else {
+                                        // Skip unlinked notes if that is requested.
+                                        if ($form_doc_only) {
+                                            continue;
+                                        }
+                                    }
+                                } elseif ($orderid) {
+                                    if (isGpRelation(2, $orderid, 6, $row_note_id)) {
+                                        $linked = "checked";
+                                    } else {
+                                        // Skip unlinked notes if that is requested.
+                                        if ($form_doc_only) {
+                                            continue;
+                                        }
+                                    }
+                                }
+
+                                $body = $iter['body'];
+                                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
+                                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
+                                if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+                                    $body = nl2br(text(oeFormatPatientNote($body)));
+                                } else {
+                                    $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
+                                    ' (' . text($iter['user']) . ') ' . nl2br(text(oeFormatPatientNote($body)));
+                                }
+
+                                if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
+                                    $checked = "checked";
+                                } else {
+                                    $checked = "";
+                                }
+
+                                // highlight the row if it's been selected for updating
+                                if ($_REQUEST['noteid'] == $row_note_id) {
+                                    echo " <tr class='noterow highlightcolor' id='" . attr($row_note_id) . "'>\n";
+                                } else {
+                                    echo " <tr class='noterow' id='" . attr($row_note_id) . "'>\n";
+                                }
+
+
+                                echo "  <td class='text-nowrap'><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
+                                "' class='btn btn-primary btn-sm btn-edit note_modal' onclick='return top.restoreSession()'>" . xlt('Edit') . "</a>\n";
+
+                                // display, or not, a button to delete the note
+                                // if the user is an admin or if they are the author of the note, they can delete it
+                                if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
+                                    echo " <a href='#' class='deletenote btn btn-danger btn-sm btn-delete' id='del" . attr($row_note_id) .
+                                    "' title='" . xla('Delete this note') . "' onclick='return top.restoreSession()'>" .
+                                    xlt('Delete') . "</a>\n";
+                                }
+
+                                echo "  </td>\n";
+
+
+                                echo "  <td class='text font-weight-bold'>\n";
+                                echo "   <input type='hidden' name='act" . attr($row_note_id) . "' value='1' />\n";
+                                echo "   <input type='checkbox' name='chk" . attr($row_note_id) . "' $checked />\n";
+                                echo "  </td>\n";
+
+                                echo "  <td class='text font-weight-bold'>\n";
+                                if ($docid || $orderid) {
+                                    echo "   <input type='checkbox' name='lnk" . attr($row_note_id) . "' $linked />\n";
+                                }
+
+                                echo "  </td>\n";
+
+                                echo "  <td class='font-weight-bold notecell' id='" . attr($row_note_id) . "'>" .
+                                "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
+                                // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
+                                echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
+                                echo "  </a></td>\n";
+
+                                echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
+                                echo "   $body";
+                                echo "  </td>\n";
+                                echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
+                                echo getListItemTitle("message_status", $iter['message_status']);
+                                echo "  </td>\n";
+                                echo "  <td class='notecell'>";
+                                echo text(oeFormatDateTime($iter['update_date']));
+                                echo "  </td>\n";
+                                echo "  <td class='notecell'>";
+                                $updateBy = $userService->getUser($iter['update_by']);
+                                echo !is_null($updateBy) ? text($updateBy->getFname()) . ' ' . text($updateBy->getLname()) : '';
+                                echo "  </td>\n";
+                                echo " </tr>\n";
+
+                                $notes_count++;
+                            }
+                        } else {
+                            //no results
+                            print "<tr><td colspan='3' class='text'>" . xlt('None{{Note}}') . ".</td></tr>\n";
                         }
                         ?>
                     </table>
                 </div>
+            </form>
 
-            <?php } ?>
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <?php
+                        if ($offset > ($N - 1)) {
+                            $offsetN = $offset - $N;
+                            echo "   <a class='link' href='pnotes_full.php" .
+                            "?$urlparms" .
+                            "&form_active=" . attr_url($form_active) .
+                            "&form_inactive=" . attr_url($form_inactive) .
+                            "&form_doc_only=" . attr_url($form_doc_only) .
+                            "&offset=" . attr_url($offsetN) . "&" . $activity_string_html . "' onclick='return top.restoreSession()'>[" .
+                                xlt('Previous') . "]</a>\n";
+                        }
+                        ?>
+                    </td>
+                    <td class="text-right">
+                        <?php
+                        if ($result_count == $N) {
+                            $offsetN = $offset + $N;
+                            echo "   <a class='link' href='pnotes_full.php" .
+                            "?$urlparms" .
+                            "&form_active=" . attr_url($form_active) .
+                            "&form_inactive=" . attr_url($form_inactive) .
+                            "&form_doc_only=" . attr_url($form_doc_only) .
+                            "&offset=" . attr_url($offsetN) . "&" . $activity_string_html . "' onclick='return top.restoreSession()'>[" .
+                                xlt('Next') . "]</a>\n";
+                        }
+                        ?>
+                    </td>
+                </tr>
+            </table>
         </div>
 
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <?php if ($active == "all") { ?>
-                <span><?php echo xlt('Show All'); ?></span>
-            <?php } else { ?>
-                <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
-            <?php } ?>
-            |
-            <?php if ($active == '1') { ?>
-                <span><?php echo xlt('Show Active'); ?></span>
-            <?php } else { ?>
-                <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
-            <?php } ?>
-            |
-            <?php if ($active == '0') { ?>
-                <span><?php echo xlt('Show Inactive'); ?></span>
-            <?php } else { ?>
-                <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
-            <?php } ?>
+        <div id='outbox_div table-resonsive' <?php echo $outbox_style; ?> >
+            <table class="table table-borderless text">
+                <?php if ($result_sent != "") : ?>
+                    <tr>
+                        <td colspan="5" class="p-1">
+                            <a href="pnotes_full.php?<?php echo $urlparms; ?>&s=1&<?php echo $activity_string_html; ?>"
+                                id='Submit' onclick='return top.restoreSession()'><?php echo xlt('Refresh'); ?></a>
+                        </td>
+                    </tr>
+                </table>
+            <?php endif; ?>
+
+            <table class="table table-borderless text w-75">
+                <?php
+                // display all of the notes for the day, as well as others that are active
+                // from previous dates, up to a certain number, $N
+
+                if ($result_sent != "") {
+                    echo " <tr class='showborder_head'>\n";
+                    echo "  <th>&nbsp;</th>\n";
+                    echo "  <th>" . xlt('Active{{Note}}') . "&nbsp;</th>\n";
+                    echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
+                    echo "  <th>" . xlt('Type') . "</th>\n";
+                    echo "  <th>" . xlt('Content') . "</th>\n";
+                    echo " </tr>\n";
+
+                    $result_sent_count = 0;
+                    foreach ($result_sent as $iter) {
+                        $result_sent_count++;
+                        $row_note_id = $iter['id'];
+
+                        $linked = "";
+                        if ($docid) {
+                            if (isGpRelation(1, $docid, 6, $row_note_id)) {
+                                $linked = "checked";
+                            } else {
+                                // Skip unlinked notes if that is requested.
+                                if ($form_doc_only) {
+                                    continue;
+                                }
+                            }
+                        } elseif ($orderid) {
+                            if (isGpRelation(2, $orderid, 6, $row_note_id)) {
+                                $linked = "checked";
+                            } else {
+                                // Skip unlinked notes if that is requested.
+                                if ($form_doc_only) {
+                                    continue;
+                                }
+                            }
+                        }
+
+                        $body = $iter['body'];
+                        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+                            $body = nl2br(text(oeFormatPatientNote($body)));
+                        } else {
+                            $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
+                            ' (' . text($iter['user']) . ') ' . nl2br(text(oeFormatPatientNote($body)));
+                        }
+
+                        $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
+                        if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
+                            $checked = "checked";
+                        } else {
+                            $checked = "";
+                        }
+
+                        // highlight the row if it's been selected for updating
+                        if ($_REQUEST['noteid'] == $row_note_id) {
+                            echo " <tr class='noterow highlightcolor' id='" . attr($row_note_id) . "'>\n";
+                        } else {
+                            echo " <tr class='noterow' id='" . attr($row_note_id) . "'>\n";
+                        }
+
+                        echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
+                        "' class='btn btn-primary btn-sm btn-edit note_modal' onclick='return top.restoreSession()'>" . xlt('Edit') . "</a>\n";
+
+                        // display, or not, a button to delete the note
+                        // if the user is an admin or if they are the author of the note, they can delete it
+                        if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
+                            echo " <a href='#' class='deletenote btn btn-danger btn-sm btn-delete' id='del" . attr($row_note_id) .
+                            "' title='" . xla('Delete this note') . "' onclick='return restoreSession()'><span>" .
+                            xlt('Delete') . "</span>\n";
+                        }
+
+                        echo "  </td>\n";
+
+
+                        echo "  <td class='text font-weight-bold'>\n";
+                        echo "   <input type='hidden' name='act" . attr($row_note_id) . "' value='1' />\n";
+                        echo "   <input type='checkbox' name='chk" . attr($row_note_id) . "' $checked />\n";
+                        echo "  </td>\n";
+
+                        echo "  <td class='text font-weight-bold'>\n";
+                        if ($docid || $orderid) {
+                            echo "   <input type='checkbox' name='lnk" . attr($row_note_id) . "' $linked />\n";
+                        }
+
+                        echo "  </td>\n";
+
+                        echo "  <td class='font-weight-bold notecell' id='" . attr($row_note_id) . "'>" .
+                        "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
+                        // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
+                        echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
+                        echo "  </a></td>\n";
+
+                        echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
+                        echo "   $body";
+                        echo "  </td>\n";
+                        echo " </tr>\n";
+
+                        $notes_sent_count++;
+                    }
+                } else {
+                    //no results
+                    print "<tr><td colspan='3' class='text'>" . xlt('None{{Result}}') . ".</td></tr>\n";
+                }
+                ?>
+            </table>
+
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <?php
+                        if ($offset_sent > ($M - 1)) {
+                            $offsetSentM = $offset_sent - $M;
+                            echo "   <a class='link' href='pnotes_full.php" .
+                            "?$urlparms" .
+                            "&s=1" .
+                            "&form_active=" . attr_url($form_active) .
+                            "&form_inactive=" . attr_url($form_inactive) .
+                            "&form_doc_only=" . attr_url($form_doc_only) .
+                            "&offset_sent=" . attr_url($offsetSentM) . "&" . $activity_string_html . "' onclick='return top.restoreSession()'>[" .
+                            xlt('Previous') . "]</a>\n";
+                        }
+                        ?>
+                    </td>
+                    <td>
+                        <?php
+                        if ($result_sent_count == $M) {
+                            $offsetSentM = $offset_sent + $M;
+                            echo "   <a class='link' href='pnotes_full.php" .
+                            "?$urlparms" .
+                            "&s=1" .
+                            "&form_active=" . attr_url($form_active) .
+                            "&form_inactive=" . attr_url($form_inactive) .
+                            "&form_doc_only=" . attr_url($form_doc_only) .
+                            "&offset_sent=" .  attr_url($offsetSentM) . "&" . $activity_string_html . "' onclick='return top.restoreSession()'>[" .
+                            xlt('Next') . "]</a>\n";
+                        }
+                        ?>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
-
-    <input type='hidden' name='mode' id="mode" value="new">
-    <input type='hidden' name='offset' id="offset" value="<?php echo attr($offset); ?>">
-    <input type='hidden' name='offset_sent' id="offset_sent" value="<?php echo attr($offset_sent); ?>">
-    <input type='hidden' name='form_active' id="form_active" value="<?php echo attr($form_active); ?>">
-    <input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo attr($form_inactive); ?>">
-    <input type='hidden' name='noteid' id="noteid" value="<?php echo attr($noteid); ?>">
-    <input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo attr($form_doc_only); ?>">
-</form>
-
-<div class='tabContainer' >
-  <div id='inbox_div' <?php echo $inbox_style; ?> >
-<form border='0' method='post' name='update_activity' id='update_activity'
- action="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<!-- start of previous notes DIV -->
-<div class=pat_notes>
-<input type='hidden' name='mode' value="update">
-<input type='hidden' name='offset' id='offset' value="<?php echo attr($offset); ?>">
-<input type='hidden' name='offset_sent' id='offset_sent' value="<?php echo attr($offset_sent); ?>">
-<input type='hidden' name='noteid' id='noteid' value="0">
-<table border='0' cellpadding="1" class="text">
-<?php if ($result != "") : ?>
-</table>
-<?php endif; ?>
-
-<table border='0' cellpadding="1"  class="text" width = "100%">
-<?php
-// display all of the notes for the day, as well as others that are active
-// from previous dates, up to a certain number, $N
-
-if ($result != "") {
-    echo " <tr class=showborder_head align='left'>\n";
-    echo "  <th style='width:130px;'>" . xlt('Actions') . "</th>\n";
-    echo "  <th>" . xlt('Active{{Note}}') . "&nbsp;</th>\n";
-    echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
-    echo "  <th>" . xlt('Type') . "</th>\n";
-    echo "  <th>" . xlt('Content') . "</th>\n";
-    echo "  <th>" . xlt('Status') . "</th>\n";
-    echo "  <th>" . xlt('Last update') . "</th>\n";
-    echo "  <th>" . xlt('Update by') . "</th>\n";
-    echo " </tr>\n";
-
-    $result_count = 0;
-    foreach ($result as $iter) {
-        $result_count++;
-        $row_note_id = $iter['id'];
-
-        $linked = "";
-        if ($docid) {
-            if (isGpRelation(1, $docid, 6, $row_note_id)) {
-                $linked = "checked";
-            } else {
-                // Skip unlinked notes if that is requested.
-                if ($form_doc_only) {
-                    continue;
-                }
-            }
-        } elseif ($orderid) {
-            if (isGpRelation(2, $orderid, 6, $row_note_id)) {
-                $linked = "checked";
-            } else {
-                // Skip unlinked notes if that is requested.
-                if ($form_doc_only) {
-                    continue;
-                }
-            }
-        }
-
-        $body = $iter['body'];
-        $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
-        $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
-        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-            $body = nl2br(text(oeFormatPatientNote($body)));
-        } else {
-            $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
-            ' (' . text($iter['user']) . ') ' . nl2br(text(oeFormatPatientNote($body)));
-        }
-
-        if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
-            $checked = "checked";
-        } else {
-            $checked = "";
-        }
-
-        // highlight the row if it's been selected for updating
-        if ($_REQUEST['noteid'] == $row_note_id) {
-            echo " <tr height=20 class='noterow highlightcolor' id='" . attr($row_note_id) . "'>\n";
-        } else {
-            echo " <tr class='noterow' id='" . attr($row_note_id) . "'>\n";
-        }
-
-
-        echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
-        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') . "</span></a>\n";
-
-        // display, or not, a button to delete the note
-        // if the user is an admin or if they are the author of the note, they can delete it
-        if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
-            echo " <a href='#' class='deletenote btn btn-danger btn-sm' id='del" . attr($row_note_id) .
-            "' title='" . xla('Delete this note') . "' onclick='return top.restoreSession()'><span>" .
-            xlt('Delete') . "</span>\n";
-        }
-
-        echo "  </td>\n";
-
-
-        echo "  <td class='text bold'>\n";
-        echo "   <input type='hidden' name='act" . attr($row_note_id) . "' value='1' />\n";
-        echo "   <input type='checkbox' name='chk" . attr($row_note_id) . "' $checked />\n";
-        echo "  </td>\n";
-
-        echo "  <td class='text bold'>\n";
-        if ($docid || $orderid) {
-            echo "   <input type='checkbox' name='lnk" . attr($row_note_id) . "' $linked />\n";
-        }
-
-        echo "  </td>\n";
-
-        echo "  <td class='bold notecell' id='" . attr($row_note_id) . "'>" .
-        "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
-        // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-        echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
-        echo "  </a></td>\n";
-
-        echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
-        echo "   $body";
-        echo "  </td>\n";
-        echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
-        echo getListItemTitle("message_status", $iter['message_status']);
-        echo "  </td>\n";
-        echo "  <td class='notecell'>";
-        echo text(oeFormatDateTime($iter['update_date']));
-        echo "  </td>\n";
-        echo "  <td class='notecell'>";
-        $updateBy = $userService->getUser($iter['update_by']);
-        echo !is_null($updateBy) ? text($updateBy->getFname()) . ' ' . text($updateBy->getLname()) : '';
-        echo "  </td>\n";
-        echo " </tr>\n";
-
-        $notes_count++;
-    }
-} else {
-  //no results
-    print "<tr><td colspan='3' class='text'>" . xlt('None{{Note}}') . ".</td></tr>\n";
-}
-
-?>
-
-</table>
-</div>
-</form>
-
-<table width='400' border='0' cellpadding='0' cellspacing='0'>
- <tr>
-  <td>
-<?php
-if ($offset > ($N - 1)) {
-    $offsetN = $offset - $N;
-    echo "   <a class='link' href='pnotes_full.php" .
-    "?$urlparms" .
-    "&form_active=" . attr_url($form_active) .
-    "&form_inactive=" . attr_url($form_inactive) .
-    "&form_doc_only=" . attr_url($form_doc_only) .
-    "&offset=" . attr_url($offsetN) . "&" . $activity_string_html . "' onclick='return top.restoreSession()'>[" .
-        xlt('Previous') . "]</a>\n";
-}
-?>
-  </td>
-  <td align='right'>
-<?php
-if ($result_count == $N) {
-    $offsetN = $offset + $N;
-    echo "   <a class='link' href='pnotes_full.php" .
-    "?$urlparms" .
-    "&form_active=" . attr_url($form_active) .
-    "&form_inactive=" . attr_url($form_inactive) .
-    "&form_doc_only=" . attr_url($form_doc_only) .
-    "&offset=" . attr_url($offsetN) . "&" . $activity_string_html . "' onclick='return top.restoreSession()'>[" .
-        xlt('Next') . "]</a>\n";
-}
-?>
-  </td>
- </tr>
-</table>
-
-</div>
-  <div id='outbox_div' <?php echo $outbox_style; ?> >
-<table border='0' cellpadding="1" class="text">
-<?php if ($result_sent != "") : ?>
- <tr>
-  <td colspan='5' style="padding: 5px;" >
-    <a href="pnotes_full.php?<?php echo $urlparms; ?>&s=1&<?php echo $activity_string_html; ?>"
-     class="" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
-  </td>
- </tr></table>
-<?php endif; ?>
-
-<table border='0' cellpadding="1"  class="text" width = "80%">
-<?php
-// display all of the notes for the day, as well as others that are active
-// from previous dates, up to a certain number, $N
-
-if ($result_sent != "") {
-    echo " <tr class=showborder_head align='left'>\n";
-    echo "  <th style='width:100px';>&nbsp;</th>\n";
-    echo "  <th>" . xlt('Active{{Note}}') . "&nbsp;</th>\n";
-    echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
-    echo "  <th>" . xlt('Type') . "</th>\n";
-    echo "  <th>" . xlt('Content') . "</th>\n";
-    echo " </tr>\n";
-
-    $result_sent_count = 0;
-    foreach ($result_sent as $iter) {
-        $result_sent_count++;
-        $row_note_id = $iter['id'];
-
-        $linked = "";
-        if ($docid) {
-            if (isGpRelation(1, $docid, 6, $row_note_id)) {
-                $linked = "checked";
-            } else {
-                // Skip unlinked notes if that is requested.
-                if ($form_doc_only) {
-                    continue;
-                }
-            }
-        } elseif ($orderid) {
-            if (isGpRelation(2, $orderid, 6, $row_note_id)) {
-                $linked = "checked";
-            } else {
-                // Skip unlinked notes if that is requested.
-                if ($form_doc_only) {
-                    continue;
-                }
-            }
-        }
-
-        $body = $iter['body'];
-        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-            $body = nl2br(text(oeFormatPatientNote($body)));
-        } else {
-            $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
-            ' (' . text($iter['user']) . ') ' . nl2br(text(oeFormatPatientNote($body)));
-        }
-
-        $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
-        if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
-            $checked = "checked";
-        } else {
-            $checked = "";
-        }
-
-        // highlight the row if it's been selected for updating
-        if ($_REQUEST['noteid'] == $row_note_id) {
-            echo " <tr height=20 class='noterow highlightcolor' id='" . attr($row_note_id) . "'>\n";
-        } else {
-            echo " <tr class='noterow' id='" . attr($row_note_id) . "'>\n";
-        }
-
-        echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
-        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') . "</span></a>\n";
-
-        // display, or not, a button to delete the note
-        // if the user is an admin or if they are the author of the note, they can delete it
-        if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
-            echo " <a href='#' class='deletenote btn btn-danger btn-sm' id='del" . attr($row_note_id) .
-            "' title='" . xla('Delete this note') . "' onclick='return restoreSession()'><span>" .
-            xlt('Delete') . "</span>\n";
-        }
-
-        echo "  </td>\n";
-
-
-        echo "  <td class='text bold'>\n";
-        echo "   <input type='hidden' name='act" . attr($row_note_id) . "' value='1' />\n";
-        echo "   <input type='checkbox' name='chk" . attr($row_note_id) . "' $checked />\n";
-        echo "  </td>\n";
-
-        echo "  <td class='text bold'>\n";
-        if ($docid || $orderid) {
-            echo "   <input type='checkbox' name='lnk" . attr($row_note_id) . "' $linked />\n";
-        }
-
-        echo "  </td>\n";
-
-        echo "  <td class='bold notecell' id='" . attr($row_note_id) . "'>" .
-        "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
-        // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-        echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
-        echo "  </a></td>\n";
-
-        echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
-        echo "   $body";
-        echo "  </td>\n";
-        echo " </tr>\n";
-
-        $notes_sent_count++;
-    }
-} else {
-  //no results
-    print "<tr><td colspan='3' class='text'>" . xlt('None{{Result}}') . ".</td></tr>\n";
-}
-
-?>
-
-</table>
-
-<table width='400' border='0' cellpadding='0' cellspacing='0'>
- <tr>
-  <td>
-<?php
-if ($offset_sent > ($M - 1)) {
-    $offsetSentM = $offset_sent - $M;
-    echo "   <a class='link' href='pnotes_full.php" .
-    "?$urlparms" .
-    "&s=1" .
-    "&form_active=" . attr_url($form_active) .
-    "&form_inactive=" . attr_url($form_inactive) .
-    "&form_doc_only=" . attr_url($form_doc_only) .
-    "&offset_sent=" . attr_url($offsetSentM) . "&" . $activity_string_html . "' onclick='return top.restoreSession()'>[" .
-    xlt('Previous') . "]</a>\n";
-}
-?>
-  </td>
-  <td align='right'>
-<?php
-if ($result_sent_count == $M) {
-    $offsetSentM = $offset_sent + $M;
-    echo "   <a class='link' href='pnotes_full.php" .
-    "?$urlparms" .
-    "&s=1" .
-    "&form_active=" . attr_url($form_active) .
-    "&form_inactive=" . attr_url($form_inactive) .
-    "&form_doc_only=" . attr_url($form_doc_only) .
-    "&offset_sent=" .  attr_url($offsetSentM) . "&" . $activity_string_html . "' onclick='return top.restoreSession()'>[" .
-    xlt('Next') . "]</a>\n";
-}
-?>
-  </td>
- </tr>
-</table>
-
-  </div>
-</div>
-<script language='JavaScript'>
-
+</div> <!-- end outer 'pnotes' -->
+</body>
+<script>
 <?php
 if ($_GET['set_pid']) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
@@ -760,15 +755,9 @@ if ($noteid /* && $title == 'New Document' */) {
     }
 }
 ?>
-
 </script>
 
-</div> <!-- end outer 'pnotes' -->
-
-</body>
-
 <script>
-
 // jQuery stuff to make the page a little easier to use
 
 $(function () {

@@ -20,21 +20,23 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// TODO: Convert this to a modal or a dialog
+
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 ?>
 
 
 <!-- hidden DIV used for creating new list items -->
-<div id="newlistitem" class="body_top" style="border: 2px outset #666; display:none; position:absolute; padding:5px; ">
- <input type="hidden" name="newlistitem_listid" id="newlistitem_listid" value="">
- <input type="hidden" name="newlistitem_fieldid" id="newlistitem_fieldid" value="">
+<div id="newlistitem" class="position-absolute bg-light border border-dark" style="display: none; padding: 5px; z-index: 5000;">
+ <input type="hidden" name="newlistitem_listid" id="newlistitem_listid" value="" />
+ <input type="hidden" name="newlistitem_fieldid" id="newlistitem_fieldid" value="" />
  <div id="specificForm">
  </div>
- <div style = 'text-align:center;'>
-  <div style='margin:0.5em 0 0 0;'>
-   <input type='button' name='newlistitem_submit' id='newlistitem_submit' value='<?php echo xla('Add'); ?>'>
-   <input type='button' name='newlistitem_cancel' id='newlistitem_cancel' value='<?php echo xla('Cancel'); ?>'>
+ <div class="text-center">
+  <div style='margin-top: 0.5rem;'>
+   <input type='button' class='btn btn-primary' name='newlistitem_submit' id='newlistitem_submit' value='<?php echo xla('Add'); ?>' />
+   <input type='button' class='btn btn-secondary' name='newlistitem_cancel' id='newlistitem_cancel' value='<?php echo xla('Cancel'); ?>' />
   </div>
  </div>
 </div>
@@ -46,21 +48,21 @@ use OpenEMR\Common\Csrf\CsrfUtils;
     var stateCustomFlag = <?php echo json_encode($GLOBALS['state_custom_addlist_widget']); ?>;
 
     // generic form for input box
-    var generic = "<input type='textbox' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50'>"
+    var generic = "<input type='text' class='form-control' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50' />";
 
     // state form for input box
     var state   = "\
-<ul style='list-style-type:none; margin:0; padding:0;'>\
- <li style='font-weight:bold; font-size:120%; text-align:center;'>\
+<ul class='m-0 p-0 list-unstyled'>\
+ <li class='text-center font-weight-bold' style='font-size:120%;'>\
     <?php echo xlt('Enter new State'); ?></li>\
- <li style='margin:0.5em 0 0 0; padding:0;'>\
+ <li class='p-0' style='margin-top: 0.5rem;'>\
     <?php echo xlt('Full Name'); ?>:\
-  <input type='textbox' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50'><li>\
- <li style='margin:0.5em 0 0 0; padding:0;'>\
+  <input type='text' class='form-control' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50' /><li>\
+ <li class='p-0' style='margin-top: 0.5rem;'>\
     <?php echo xlt('Abbreviation'); ?>:\
-  <input type='textbox' name='newlistitem_abbr' id='newlistitem_abbr' size='10' maxlength='50'><li>\
+  <input type='text' class='form-control' name='newlistitem_abbr' id='newlistitem_abbr' size='10' maxlength='50' /><li>\
 </ul>\
-"
+";
 
 // jQuery makes life easier (sometimes)
 
@@ -88,8 +90,8 @@ $(function () {
     if (($("#newlistitem_listid").val() == "state") && (stateCustomFlag)) {
      // insert state form and clear values
          $("#specificForm").append(state);
-     $('#newlistitem_value').val("");
-     $('#newlistitem_abbr').val("");
+         $('#newlistitem_value').val("");
+         $('#newlistitem_abbr').val("");
     }
     else {
      // insert generic form and clear values
@@ -103,8 +105,8 @@ $(function () {
         var height = $('#newlistitem').height();
         var width = $('#newlistitem').width();
         //calculating offset for displaying popup message
-        leftVal=e.pageX-(width/2)+"px";
-        topVal=e.pageY-(height/2)+"px";
+        leftVal = e.pageX - (width / 2) + "px";
+        topVal = e.pageY - (height / 2) + "px";
         //show the DIV and set cursor focus
         $('#newlistitem').css({left:leftVal,top:topVal}).show();
         $('#newlistitem_value').focus();
@@ -193,20 +195,18 @@ $(function () {
                     // build select for the other widgets using the same list
                     listbox.options[listbox.options.length] = new Option(this.title, this.id);
                     if (this.id == currentselected) {
-                                        pointer.val(currentselected);
+                      pointer.val(currentselected);
                     }
                 }
-                            });
+              });
             });
-
-                        // now hide the DIV
-                        $('#newlistitem').hide();
-             }else{
-
-                 alert( jsondata.error );
+            // now hide the DIV
+            $('#newlistitem').hide();
+             } else {
+               alert(jsondata.error);
              }
-                    }
-                );
+           }
+         );
 
     }  // end SaveNewListItem
 

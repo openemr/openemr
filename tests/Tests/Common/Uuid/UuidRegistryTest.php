@@ -16,7 +16,7 @@ use Ramsey\Uuid\UuidFactory;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
-class BaseServiceTest extends TestCase
+class UuidRegistryTest extends TestCase
 {
     private $uuidFactory;
 

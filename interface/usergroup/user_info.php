@@ -38,7 +38,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 
 <script src="checkpwd_validation.js"></script>
 
-<script language='JavaScript'>
+<script>
 //Validating password and display message if password field is empty - starts
 var webroot=<?php echo js_escape($webroot); ?>;
 function update_password()
@@ -92,9 +92,7 @@ $row = sqlFetchArray($res);
 <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
     <div class="row">
         <div class="col-sm-12">
-            <div class="page-header">
             <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-            </div>
         </div>
     </div>
     <div class="row">

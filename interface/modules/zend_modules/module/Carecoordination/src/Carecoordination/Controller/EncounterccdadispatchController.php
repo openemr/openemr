@@ -58,7 +58,6 @@ class EncounterccdadispatchController extends AbstractActionController
 
         global $assignedEntity;
         global $representedOrganization;
-        $mirth_ip   = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_mirth_ip');
 
         //$assignedEntity['streetAddressLine']    = '17 Daws Rd.';
         //$assignedEntity['city']                 = 'Blue Bell';
@@ -131,7 +130,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 }
 
                 $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, $this->components);
-                $content            = $this->socket_get("$mirth_ip", "6661", $this->data);
+                $content            = $this->socket_get($this->data);
 
                 // TODO: Is this supposed to be mispelled by the mirth server like this??  Seems odd...
                 if ($content == 'Authetication Failure') {
@@ -179,7 +178,7 @@ class EncounterccdadispatchController extends AbstractActionController
         } else {
             $practice_filename  = "CCDA_{$this->patient_id}.xml";
             $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send);
-            $content            = $this->socket_get("$mirth_ip", "6661", $this->data);
+            $content            = $this->socket_get($this->data);
             $to_replace = '<?xml version="1.0" encoding="UTF-8"?>
             <?xml-stylesheet type="text/xsl" href="CDA.xsl"?>
             <ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -207,7 +206,7 @@ class EncounterccdadispatchController extends AbstractActionController
         }
     }
 
-    public function socket_get($ip, $port, $data)
+    public function socket_get($data)
     {
         $output = "";
 
@@ -217,60 +216,58 @@ class EncounterccdadispatchController extends AbstractActionController
             throw new Exception("Socket Creation Failed");
         }
 
-        // Connect to the server.
-        $result = socket_connect($socket, $ip, $port);
         $system = new System();
-        if ($result === false) {
-            // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
-            if ($GLOBALS['ccda_alt_service_enable'] > 0) { // we're local service
-                $path = $GLOBALS['fileroot'] . "/ccdaservice";
-                if (IS_WINDOWS) {
-                    // TODO: we need to test the system commands / escape commands on windows.
-                    $cmd = "node " . $path . "/serveccda.js";
-                    $pipeHandle = popen("start /B " . $cmd, "r");
-                    if ($pipeHandle === false) {
-                        throw new Exception("Failed to start local ccdaservice");
-                    }
-                    if (pclose($pipeHandle) === -1) {
-                        error_log("Failed to close pipehandle for ccdaservice");
-                    }
-                } else {
-                    $command = 'nodejs';
-                    if (!$system->command_exists($command)) {
-                        if ($system->command_exists('node')) { // older or custom Ubuntu systems that have node rather than nodejs command
-                            $command = 'node';
-                        } else {
-                            error_log("Node is not installed on the system.  Connection failed");
-                            throw new Exception('Connection Failed.');
-                        }
-                    }
-                    $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
-                    exec($cmd . " > /dev/null &");
+        // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
+        if ($GLOBALS['ccda_alt_service_enable'] > 0) { // we're local service
+            $path = $GLOBALS['fileroot'] . "/ccdaservice";
+            if (IS_WINDOWS) {
+                // TODO: we need to test the system commands / escape commands on windows.
+                $cmd = "node " . $path . "/serveccda.js";
+                $pipeHandle = popen("start /B " . $cmd, "r");
+                if ($pipeHandle === false) {
+                    throw new Exception("Failed to start local ccdaservice");
                 }
-                sleep(2); // give cpu a rest
-                $result = socket_connect($socket, $ip, $port);
-                if ($result === false) { // hmm something is amiss with service. user will likely try again.
-                    error_log("Failed to start and connect to local ccdaservice server on ip " . errorLogEscape($ip) . " and port " . errorLogEscape($port));
-                    throw new Exception("Connection Failed");
+                if (pclose($pipeHandle) === -1) {
+                    error_log("Failed to close pipehandle for ccdaservice");
                 }
             } else {
-                error_log("Failed to connect to mirth server on ip " . errorLogEscape($ip) . " and port " . errorLogEscape($port));
-                throw new Exception("Please Enable C-CDA Alternate Service in Global Settings");
+                $command = 'nodejs';
+                if (!$system->command_exists($command)) {
+                    if ($system->command_exists('node')) { // older or custom Ubuntu systems that have node rather than nodejs command
+                        $command = 'node';
+                    } else {
+                        error_log("Node is not installed on the system.  Connection failed");
+                        throw new Exception('Connection Failed.');
+                    }
+                }
+                $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
+                exec($cmd . " > /dev/null &");
             }
+            sleep(2); // give cpu a rest
+            $result = socket_connect($socket, "localhost", "6661");
+            if ($result === false) { // hmm something is amiss with service. user will likely try again.
+                error_log("Failed to start and connect to local ccdaservice server on port 6661");
+                throw new Exception("Connection Failed");
+            }
+        } else {
+            error_log("C-CDA Service is not enabled in Global Settings");
+            throw new Exception("Please Enable C-CDA Alternate Service in Global Settings");
         }
+
 
         $data = chr(11) . $data . chr(28) . "\r";
         // Write to socket!
         $out = socket_write($socket, $data, strlen($data));
 
+        socket_set_nonblock($socket);
         //Read from socket!
         do {
             $line = "";
-            $line = socket_read($socket, 1024, PHP_NORMAL_READ);
+            $line = trim(socket_read($socket, 1024, PHP_NORMAL_READ));
             $output .= $line;
-        } while ($line != "");
+        } while (!empty($line) && $line !== false);
 
-        $output = substr(trim($output), 0, strlen($output) - 3);
+        $output = substr(trim($output), 0, strlen($output) - 1);
         // Close and return.
         socket_close($socket);
         return $output;
@@ -286,15 +283,12 @@ class EncounterccdadispatchController extends AbstractActionController
         $sections_list = explode('|', $sections);
         $components_list = explode('|', $components);
         $this->createdtime = time();
-        $username = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_mirth_username');
-        $password = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_mirth_password');
-        $client_id = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_mirth_clientid');
         $this->data .= "<CCDA>";
-        $this->data .= "<username>$username</username>";
-        $this->data .= "<password>$password</password>";
+        $this->data .= "<username></username>";
+        $this->data .= "<password></password>";
         $this->data .= "<hie>MyHealth</hie>";
         $this->data .= "<time>" . $this->createdtime . "</time>";
-        $this->data .= "<client_id>" . $client_id . "</client_id>";
+        $this->data .= "<client_id></client_id>";
         $this->data .= "<created_time>" . date('YmdHis') . "</created_time>";
         $this->data .= "<created_time_timezone>" . date('YmdHisO') . "</created_time_timezone>";
         $this->data .= "<send>" . htmlspecialchars($send, ENT_QUOTES) . "</send>";
