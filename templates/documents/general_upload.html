@@ -103,19 +103,12 @@
 {if !empty($file)}
 	<div class="text font-weight-bold">
 		<br/>
-		{xlt t='Upload Report'}
+		{xlt t='Uploaded'}
 	</div>
 	{foreach from=$file item=file}
 		<div class="text">
 			{if $error}<i>{$error|text}</i><br/>{/if}
-			{xlt t='ID'}: {$file->get_id()|text}<br />
-			{xlt t='Patient'}: {$file->get_foreign_id()|text}<br />
-			{xlt t='URL'}: {$file->get_url()|text}<br />
-			{xlt t='Size'}: {$file->get_size()|text}<br />
-			{xlt t='Date'}: {$file->get_date()|text}<br />
-			{xlt t='Hash'}: {$file->get_hash()|text}<br />
-			{xlt t='MimeType'}: {$file->get_mimetype()|text}<br />
-			{xlt t='Revision'}: {$file->revision|text}<br /><br />
+			{xlt t='Name'}: {$file->get_name()|text}<br /><br />
 		</div>
 	{/foreach}
 {/if}

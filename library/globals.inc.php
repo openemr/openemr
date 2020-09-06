@@ -2732,6 +2732,17 @@ $GLOBALS_METADATA = array(
             xl('Enable Audit Log Encryption')
         ),
 
+        'api_log_option' => array(
+            xl('API Log Option'),
+            array(
+                '0' => xl('No logging'),
+                '1' => xl('Minimal Logging'),
+                '2' => xl('Full Logging'),
+            ),
+            '2',                               // default
+            xl('API Log Option (Full includes requests and responses).')
+        ),
+
         'billing_log_option' => array(
             xl('Billing Log Option'),
             array(
@@ -2758,6 +2769,13 @@ $GLOBALS_METADATA = array(
     // Miscellaneous Tab
     //
     'Miscellaneous' => array(
+
+        'enable_database_connection_pooling' => array(
+            xl('Enable Database Connection Pooling'),
+            'bool',                           // data type
+            '1',                              // default
+            xl('Enable Database Connection Pooling')
+        ),
 
         'mysql_bin_dir' => array(
             xl('Path to MySQL Binaries'),

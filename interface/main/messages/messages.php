@@ -492,7 +492,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     $pname = $prow['fname'] . " " . $prow['lname'];
                                                     echo "<a href='javascript:void(0);' ";
                                                     echo "onClick=\"gotoReport(" . attr(addslashes($d->get_id())) . ",'" . attr(addslashes($pname)) . "'," . attr(addslashes($prow['pid'])) . "," . attr(addslashes($prow['pubpid'])) . ",'" . attr(addslashes($str_dob)) . "');\">";
-                                                    echo text($d->get_url_file());
+                                                    echo text($d->get_name()) . "-" . text($d->get_id());
                                                     echo "</a>\n";
                                                 }
                                                 echo "  </td>\n";

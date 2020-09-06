@@ -105,6 +105,11 @@
 --    arguments: none
 --    behavior: can take a long time.
 
+--  #IfDocumentNamingNeeded
+--    desc: populate name field with document names.
+--    arguments: none
+
+
 #IfMissingColumn facility iban
 ALTER TABLE `facility` ADD `iban` varchar(50) default NULL;
 #EndIf
@@ -562,6 +567,10 @@ ALTER TABLE `uuid_registry` ADD `couchdb` varchar(255) NOT NULL DEFAULT '';
 
 #IfMissingColumn uuid_registry mapped
 ALTER TABLE `uuid_registry` ADD `mapped` tinyint(4) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfMissingColumn uuid_registry document_drive
+ALTER TABLE `uuid_registry` ADD `document_drive` tinyint(4) NOT NULL DEFAULT '0';
 #EndIf
 
 #IfMissingColumn patient_data uuid
@@ -2129,3 +2138,35 @@ ALTER TABLE `form_bronchitis` MODIFY `diagnosis4_bronchitis_form` text;
 
 DELETE FROM `globals` WHERE `gl_name`='font-size';
 DELETE FROM `globals` WHERE `gl_name`='font-family';
+
+#IfMissingColumn documents name
+ALTER TABLE `documents` ADD `name` varchar(255) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn documents drive_uuid
+ALTER TABLE `documents` ADD `drive_uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfNotIndex documents drive_uuid
+CREATE UNIQUE INDEX `drive_uuid` ON `documents` (`drive_uuid`);
+#EndIf
+
+#IfDocumentNamingNeeded
+#EndIf
+
+#IfNotTable api_log
+CREATE TABLE `api_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL,
+  `patient_id` bigint(20) NOT NULL,
+  `ip_address` varchar(255) NOT NULL,
+  `method` varchar(20) NOT NULL,
+  `request` varchar(255) NOT NULL,
+  `request_url` text,
+  `request_body` longtext,
+  `response` longtext,
+  `encrypted` tinyint(1) NOT NULL,
+  `created_time` timestamp NULL,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+#EndIf
