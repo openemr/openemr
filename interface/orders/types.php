@@ -364,18 +364,23 @@ if ($popup && $_POST['form_save']) {
         $(function () {
             $('#name-tooltip').tooltip({
                 title: <?php echo xlj('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>,
+                placement: 'right',
             });
             $('#order-tooltip').tooltip({
                 title: <?php echo xlj('The entries highlighted in yellow can be ordered as a test or procedure those highlighted in pink can be ordered as a Custom Group'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>,
+                placement: 'right',
             });
             $('#code-tooltip').tooltip({
                 title: <?php echo xlj('Category - Order, Result and Recommendation need an identifying code');?> + ". " + <?php echo xlj('Red Triangle indicates a required code that is missing')?> + ".",
+                placement: 'right',
             });
             $('#tier-tooltip').tooltip({
                 title: <?php echo xlj('Shows the hierarchal level of this line');?> + ". " + <?php echo xlj('Tier 1 entries should be of Category Top Group')?> + ".",
+                placement: 'right',
             });
             $('table td .required-tooltip').tooltip({
                 title: <?php echo xlj('For proper tabulated display of tests and results an identifying code is required'); ?>,
+                placement: 'right',
             });
 
             $("table td .required-tooltip").fadeIn(500);
