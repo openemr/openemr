@@ -31,7 +31,7 @@ if (ob_get_level() === 0) {
 
 $ignoreAuth = true; // no login required
 $sessionAllowWrite = true;
-$GLOBALS['connection_pooling_off'] = true;
+$GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
