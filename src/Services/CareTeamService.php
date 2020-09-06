@@ -88,24 +88,20 @@ class CareTeamService extends BaseService
             true
         );
 
-        $sql = "SELECT careTeam.*, uuid_mapping.uuid as uuid FROM 
-                (SELECT patient.uuid as puuid,
-                users.fname as prac_name,
-                users.uuid as pruuid,
-                facility.name as fac_name,
-                facility.uuid as ouuid
+        $sql = "SELECT patient.uuid as puuid,
+                patient.care_team_provider as providers,
+                patient.care_team_facility as facilities,
+                uuid_mapping.uuid as uuid
                 FROM patient_data as patient
-                LEFT JOIN users ON users.id=patient.care_team_provider
-                LEFT JOIN facility ON facility.id=patient.care_team_facility) as careTeam
-                LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=careTeam.puuid AND uuid_mapping.resource='CareTeam'
+                LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=patient.uuid AND uuid_mapping.resource='CareTeam'
                 WHERE uuid_mapping.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
-        $sqlResult['pruuid'] = UuidRegistry::uuidToString($sqlResult['pruuid']);
-        $sqlResult['ouuid'] = UuidRegistry::uuidToString($sqlResult['ouuid']);
+        $sqlResult['providers'] = $this->splitAndProcessMultipleFields($sqlResult['providers'], "users");
+        $sqlResult['facilities'] = $this->splitAndProcessMultipleFields($sqlResult['facilities'], "facility");
         $processingResult->addData($sqlResult);
         return $processingResult;
     }
