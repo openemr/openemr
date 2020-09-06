@@ -29,7 +29,7 @@ if (!$GLOBALS['disable_utf8_flag']) {
 }
 $tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
 
-if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
+if ($GLOBALS["enable_database_connection_pooling"]) {
     $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp, PDO::ATTR_PERSISTENT => true];
 } else {
     $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];

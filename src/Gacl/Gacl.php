@@ -165,7 +165,7 @@ class Gacl {
 			// Port to be used in connection
 			$this->db->port = $sqlconf["port"];
 
-            if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
+            if ($GLOBALS["enable_database_connection_pooling"]) {
                 $this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
             } else {
                 $this->db->connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);

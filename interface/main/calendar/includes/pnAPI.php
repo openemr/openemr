@@ -268,7 +268,7 @@ function pnDBInit()
     }
     $dbconn->port = $dbport;
 
-    if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
+    if ($GLOBALS["enable_database_connection_pooling"]) {
         $dbh = $dbconn->PConnect($dbhost, $dbuname, $dbpass, $dbname);
     } else {
         $dbh = $dbconn->connect($dbhost, $dbuname, $dbpass, $dbname);
