@@ -1118,7 +1118,6 @@ function upgradeFromSqlFile($filename, $path = '')
         $query = $query . $line;
 
         if (substr(trim($query), -1) == ';') {
-
             if($trim){
                 $query = rtrim($query, ';');
             }else{
