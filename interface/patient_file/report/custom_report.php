@@ -560,13 +560,13 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
 
                             $d = new Document($document_id);
-                            $fname = basename($d->get_url());
+                            $fname = basename($d->get_name());
                             //  Extract the extension by the mime/type and not the file name extension
                             // -There is an exception. Need to manually see if it a pdf since
                             //  the image_type_to_extension() is not working to identify pdf.
                             $extension = strtolower(substr($fname, strrpos($fname, ".")));
                             if ($extension != '.pdf') { // Will print pdf header within pdf import
-                                echo "<h3>" . xlt('Document') . " '" . text($fname) . "'</h3>";
+                                echo "<h3>" . xlt('Document') . " '" . text($fname) . "-" . text($d->get_id()) . "'</h3>";
                             }
 
                             $notes = $d->get_notes();
@@ -634,7 +634,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                     $err = '';
                                     try {
                                         // below header isn't being used. missed maybe!
-                                        $pg_header = "<span>" . xlt('Document') . " " . text($fname) . "</span>";
+                                        $pg_header = "<span>" . xlt('Document') . " " . text($fname) . "-" . text($d->get_id()) . "</span>";
                                         $tempDocC = new C_Document();
                                         $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                                         // tmp file in temporary_files_dir

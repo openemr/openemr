@@ -236,7 +236,6 @@ function popup_close() {
 
                 row_modify("billing", "activity = 0", "pid = '" . add_escape_custom($patient) . "'");
                 row_modify("pnotes", "deleted = 1", "pid = '" . add_escape_custom($patient) . "'");
-
                 row_delete("prescriptions", "patient_id = '" . add_escape_custom($patient) . "'");
                 row_delete("claims", "patient_id = '" . add_escape_custom($patient) . "'");
                 delete_drug_sales($patient);
