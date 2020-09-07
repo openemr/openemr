@@ -685,7 +685,7 @@ function upgradeFromSqlFile($filename, $path = '')
     $line = "";
     $skipping = false;
     $special = false;
-    $trim=true;
+    $trim = true;
     $progress = 0;
 
     while (!feof($fd)) {
@@ -1123,20 +1123,20 @@ function upgradeFromSqlFile($filename, $path = '')
         }
 
         if ($special) {
-            $query = $query ." ".$line;
+            $query = $query . " " . $line;
             continue;
         }
 
         $query = $query . $line;
 
         if (substr(trim($query), -1) == ';') {
-            if($trim){
+            if ($trim) {
                 $query = rtrim($query, ';');
-            }else{
-                $trim =true;
+            } else {
+                $trim = true;
             }
 
-           flush_echo("$query<br />\n");
+            flush_echo("$query<br />\n");
 
             if (!sqlStatement($query)) {
                 echo "<p class='text-danger'>The above statement failed: " .
