@@ -25,7 +25,7 @@ $login-form-bg-color: $white !default;
 $login-button-primary: false !default;
 
 @if $compact-theme == false {
-  body.login {
+  .login {
     background: $light;
     display: flex;
     height: 100%;
@@ -34,7 +34,7 @@ $login-button-primary: false !default;
   }
 
   @media (min-width: map-get($grid-breakpoints, "sm")) {
-    body.login {
+    .login {
       align-items: center;
     }
   }
@@ -50,6 +50,10 @@ $login-button-primary: false !default;
     border-radius: 0.625rem;
     box-shadow: 0 30px 60px 0 rgba($black, 0.3);
     resize: both;
+  }
+
+  .login-row-center {
+    @extend .m-5;
   }
 
   .login-area-left,

@@ -2,7 +2,7 @@
 
 @if $compact-theme == false {
   #documents_list {
-    border-right: dashed 1px;
+    border-#{$right}: dashed 1px;
     float: $left;
     height: 95%;
     overflow: auto;

@@ -4,7 +4,6 @@
 
 
 $side-calendar-date-padding: 0.3rem !default;
-@use "sass:meta";
 
 @if $compact-theme == false {
   div.tiny {
@@ -128,10 +127,6 @@ $side-calendar-date-padding: 0.3rem !default;
       border: 1px solid $gray-300;
     }
 
-    .providerXbtn {
-      @include font-size("1rem");
-      padding: 0;
-    }
     border-#{$left}: 1px solid $gray-300;
   }
 
@@ -293,6 +288,28 @@ $side-calendar-date-padding: 0.3rem !default;
     text-align: center;
     white-space: nowrap;
     width: 100%;
+  }
+
+  // Based off of BS4's close class
+  .providerXbtn {
+    color: $white;
+    float: $right;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    opacity: 0.5;
+    padding: 0;
+    text-shadow: $close-text-shadow;
+
+    @include hover() {
+      color: $white;
+      text-decoration: none;
+    }
+
+    &:not(:disabled):not(.disabled) {
+      @include hover-focus() {
+        opacity: 0.75;
+      }
+    }
   }
 
   /* for the DIV inside each TD, this DIV contains any events for a single day */
@@ -494,13 +511,21 @@ $side-calendar-date-padding: 0.3rem !default;
     width: 9.375rem;
   }
 
-  @if variable-exists("ovr-dark") {
+  @if $gray-800 == #e9ecef {
     .event_time {
       color: $ovr-dark !important;
     }
 
     .providerheader {
       color: $ovr-dark !important;
+    }
+
+    .providerXbtn {
+      color: $ovr-dark !important;
+
+      &:hover {
+        color: lighten($ovr-dark, 20%) !important;
+      }
     }
   }
 
