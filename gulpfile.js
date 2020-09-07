@@ -350,6 +350,11 @@ function install(done) {
                             to: '',
                         });
                     });
+            } else if (key == "moment") {
+                gulp.src('node_modules/' + key + '/min/**/*')
+                    .pipe(gulp.dest(config.dist.assets + key + '/min'));
+                gulp.src('node_modules/' + key + '/moment.js')
+                    .pipe(gulp.dest(config.dist.assets + key));
             } else if (fs.existsSync('node_modules/' + key + '/dist')) {
                 // only copy dist directory, if it exists
                 gulp.src('node_modules/' + key + '/dist/**/*')
@@ -408,7 +413,7 @@ exports.watch = watch;
 //    which is generally how this script is always used (except in
 //    rare case where the user is running the watch task).
 if (config.install) {
-    exports.default = gulp.series(install)
+    exports.default = gulp.series(install);
 } else {
     exports.default = gulp.series(clean, ingest, styles, sync);
 }
