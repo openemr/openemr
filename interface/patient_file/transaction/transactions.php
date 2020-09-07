@@ -56,8 +56,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
 
-<body class="body_top">
-    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+<body>
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
         <div class="row">
             <div class="col-sm-12">
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
@@ -69,100 +69,97 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $menuPatient = new PatientMenuRole();
         $menuPatient->displayHorizNavBarMenu();
         ?>
-        <div class="row">
+        <div class="row mt-3">
             <div class="col-sm-12">
                 <div class="btn-group">
-                    <!--<a href="../summary/demographics.php" class="btn btn-secondary btn-back" onclick="top.restoreSession()">
-                        <?php echo xlt('Back to Patient'); ?></a>-->
-                    <a href="add_transaction.php" class="btn btn-secondary btn-add" onclick="top.restoreSession()">
+                    <a href="add_transaction.php" class="btn btn-primary btn-add" onclick="top.restoreSession()">
                         <?php echo xlt('Create New Transaction'); ?></a>
-                    <a href="print_referral.php" class="btn btn-secondary btn-print" onclick="top.restoreSession()">
+                    <a href="print_referral.php" class="btn btn-primary btn-print" onclick="top.restoreSession()">
                         <?php echo xlt('View/Print Blank Referral Form'); ?></a>
                 </div>
             </div>
         </div>
         <br />
         <div class="row">
-            <div class="col-sm-12 text">
-
+            <div class="col-sm-12 text jumbotron py-4">
                 <?php
                 if ($result = getTransByPid($pid)) {
                     ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">&nbsp;</th>
+                                    <th scope="col"><?php echo xlt('Type'); ?></th>
+                                    <th scope="col"><?php echo xlt('Date'); ?></th>
+                                    <th scope="col"><?php echo xlt('User'); ?></th>
+                                    <th scope="col"><?php echo xlt('Details'); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                foreach ($result as $item) {
+                                    if (!isset($item['body'])) {
+                                        $item['body'] = '';
+                                    }
 
-                    <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">&nbsp;</th>
-                            <th scope="col"><?php echo xlt('Type'); ?></th>
-                            <th scope="col"><?php echo xlt('Date'); ?></th>
-                            <th scope="col"><?php echo xlt('User'); ?></th>
-                            <th scope="col"><?php echo xlt('Details'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        foreach ($result as $item) {
-                            if (!isset($item['body'])) {
-                                $item['body'] = '';
-                            }
+                                    // Collect date
+                                    if (!empty($item['refer_date'])) {
+                                        // Special case for referrals, which uses refer_date stored in lbt_data table
+                                        //  rather than date in transactions table.
+                                        //  (note this only contains a date without a time)
+                                        $date = oeFormatShortDate($item['refer_date']);
+                                    } else {
+                                        $date = oeFormatDateTime($item['date']);
+                                    }
 
-                            // Collect date
-                            if (!empty($item['refer_date'])) {
-                                // Special case for referrals, which uses refer_date stored in lbt_data table
-                                //  rather than date in transactions table.
-                                //  (note this only contains a date without a time)
-                                $date = oeFormatShortDate($item['refer_date']);
-                            } else {
-                                $date = oeFormatDateTime($item['date']);
-                            }
-
-                            $id = $item['id'];
-                            $edit = xl('View/Edit');
-                            $view = xl('Print'); //actually prints or displays ready to print
-                            $delete = xl('Delete');
-                            $title = xl($item['title']);
-                            ?>
-                            <tr>
-                                <td>
-                                    <div class="btn-group oe-pull-toward">
-                                        <a href='add_transaction.php?transid=<?php echo attr_url($id); ?>&title=<?php echo attr_url($title); ?>&inmode=edit'
-                                            onclick='top.restoreSession()'
-                                            class='btn btn-secondary btn-edit'>
-                                            <?php echo text($edit); ?>
-                                        </a>
-                                        <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
-                                            <a href='#'
-                                                onclick='deleteme(<?php echo attr_js($id); ?>)'
-                                                class='btn btn-secondary btn-delete'>
-                                                <?php echo text($delete); ?>
-                                            </a>
-                                        <?php } ?>
-                                        <?php if ($item['title'] == 'LBTref') { ?>
-                                            <a href='print_referral.php?transid=<?php echo attr_url($id); ?>' onclick='top.restoreSession();'
-                                                class='btn btn-print btn-secondary'>
-                                                <?php echo text($view); ?>
-                                            </a>
-                                        <?php } ?>
-                                    </div>
-                                </td>
-                                <td><?php echo getLayoutTitle('Transactions', $item['title']); ?></td>
-                                <td><?php echo text($date); ?></td>
-                                <td><?php echo text($item['user']); ?></td>
-                                <td><?php echo text($item['body']); ?></td>
-                            </tr>
-                            <?php
-                        }
-                        ?>
-                    </tbody>
-                    </table>
-
+                                    $id = $item['id'];
+                                    $edit = xl('View/Edit');
+                                    $view = xl('Print'); //actually prints or displays ready to print
+                                    $delete = xl('Delete');
+                                    $title = xl($item['title']);
+                                    ?>
+                                    <tr>
+                                        <td>
+                                            <div class="btn-group oe-pull-toward">
+                                                <a href='add_transaction.php?transid=<?php echo attr_url($id); ?>&title=<?php echo attr_url($title); ?>&inmode=edit'
+                                                    onclick='top.restoreSession()'
+                                                    class='btn btn-primary btn-edit'>
+                                                    <?php echo text($edit); ?>
+                                                </a>
+                                                <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
+                                                    <a href='#'
+                                                        onclick='deleteme(<?php echo attr_js($id); ?>)'
+                                                        class='btn btn-danger btn-delete'>
+                                                        <?php echo text($delete); ?>
+                                                    </a>
+                                                <?php } ?>
+                                                <?php if ($item['title'] == 'LBTref') { ?>
+                                                    <a href='print_referral.php?transid=<?php echo attr_url($id); ?>' onclick='top.restoreSession();'
+                                                        class='btn btn-print btn-primary'>
+                                                        <?php echo text($view); ?>
+                                                    </a>
+                                                <?php } ?>
+                                            </div>
+                                        </td>
+                                        <td><?php echo getLayoutTitle('Transactions', $item['title']); ?></td>
+                                        <td><?php echo text($date); ?></td>
+                                        <td><?php echo text($item['user']); ?></td>
+                                        <td><?php echo text($item['body']); ?></td>
+                                    </tr>
+                                    <?php
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                     <?php
                 } else {
                     ?>
-                <span class="text"><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo xlt('There are no transactions on file for this patient.'); ?></span>
-                    <?php
-                }
-                ?>
+                <span class="text">
+                    <i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <?php echo xlt('There are no transactions on file for this patient.'); ?>
+                </span>
+                    <?php } ?>
             </div>
         </div>
     </div><!--end of container div-->

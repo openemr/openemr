@@ -221,7 +221,6 @@ function popup_close() {
 
 <body>
     <div class="container mt-3">
-
         <?php
         // If the delete is confirmed...
         //
@@ -462,28 +461,32 @@ function popup_close() {
         <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <p><?php echo xlt('Do you really want to delete'); ?>
-            <?php
-            if ($patient) {
-                echo xlt('patient') . " " . text($patient);
-            } elseif ($encounterid) {
-                echo xlt('encounter') . " " . text($encounterid);
-            } elseif ($formid) {
-                echo xlt('form') . " " . text($formid);
-            } elseif ($issue) {
-                echo xlt('issue') . " " . text($issue);
-            } elseif ($document) {
-                echo xlt('document') . " " . text($document);
-            } elseif ($payment) {
-                echo xlt('payment') . " " . text($payment);
-            } elseif ($billing) {
-                echo xlt('invoice') . " " . text($billing);
-            } elseif ($transaction) {
-                echo xlt('transaction') . " " . text($transaction);
-            }
-            ?> <?php echo xlt('and all subordinate data? This action will be logged'); ?>!</p>
+                <span class="font-weight-bold">
+                    <?php
+                    if ($patient) {
+                        echo xlt('patient') . " " . text($patient);
+                    } elseif ($encounterid) {
+                        echo xlt('encounter') . " " . text($encounterid);
+                    } elseif ($formid) {
+                        echo xlt('form') . " " . text($formid);
+                    } elseif ($issue) {
+                        echo xlt('issue') . " " . text($issue);
+                    } elseif ($document) {
+                        echo xlt('document') . " " . text($document);
+                    } elseif ($payment) {
+                        echo xlt('payment') . " " . text($payment);
+                    } elseif ($billing) {
+                        echo xlt('invoice') . " " . text($billing);
+                    } elseif ($transaction) {
+                        echo xlt('transaction') . " " . text($transaction);
+                    }
+                    ?>
+                </span>
+                <?php echo xlt('and all subordinate data? This action will be logged'); ?>!
+            </p>
             <div class="btn-group">
-                <a href="#" onclick="submit_form()" class="btn btn-danger btn-sm btn-delete"><?php echo xlt('Yes, Delete and Log'); ?></a>
-                <a href='#' class="btn btn-secondary btn-sm btn-cancel" onclick="popup_close();"><?php echo xlt('No, Cancel');?></a>
+                <a href="#" onclick="submit_form()" class="btn btn-sm btn-delete btn-danger"><?php echo xlt('Yes, Delete and Log'); ?></a>
+                <a href='#' class="btn btn-sm btn-secondary btn-cancel" onclick="popup_close();"><?php echo xlt('No, Cancel');?></a>
             </div>
             <input type='hidden' name='form_submit' value='Yes, Delete and Log'/>
         </form>
