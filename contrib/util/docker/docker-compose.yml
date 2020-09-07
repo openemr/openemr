@@ -281,7 +281,7 @@ services:
     - 5984:5984
     - 6984:6984
     volumes:
-    - ./couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.d/local.ini:rw
+    - ./couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.ini:rw
     - ./couchdb-config-ssl-cert-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
     - ./couchdb-config-ssl-cert-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
     - ./couchdb-config-ssl-cert-keys/insane/server-key.pem:/etc/ssl/server-key.pem:ro
