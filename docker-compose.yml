@@ -96,7 +96,9 @@ services:
     restart: always
     image: osixia/openldap
     volumes:
-    - ./contrib/util/docker/ldap-ssl-certs-keys/easy:/container/service/slapd/assets/certs
+    - ./contrib/util/docker/ldap-ssl-certs-keys/easy/ca.pem:/container/service/slapd/assets/certs/ca.pem:rw
+    - ./contrib/util/docker/ldap-ssl-certs-keys/easy/server-cert.pem:/container/service/slapd/assets/certs/server-cert.pem:rw
+    - ./contrib/util/docker/ldap-ssl-certs-keys/easy/server-key.pem:/container/service/slapd/assets/certs/server-key.pem:rw
     environment:
       LDAP_TLS_VERIFY_CLIENT: try
       LDAP_TLS_CA_CRT_FILENAME: ca.pem
