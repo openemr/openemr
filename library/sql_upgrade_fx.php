@@ -704,7 +704,7 @@ function upgradeFromSqlFile($filename, $path = '')
 
         $progress_stat = 100 - round((($file_size - $progress) / $file_size) * 100, 0);
         $progress_stat = $progress_stat > 100 ? 100 : $progress_stat;
-        echo "<script>processProgress = $progress_stat;</script>";
+        echo "<script>processProgress = $progress_stat;progressStatus();</script>";
 
         if (preg_match('/^#IfNotTable\s+(\S+)/', $line, $matches)) {
             $skipping = tableExists($matches[1]);
@@ -968,6 +968,7 @@ function upgradeFromSqlFile($filename, $path = '')
             } else {
                 $skipping = false;
                 echo '<p>Starting conversion of *TEXT types to use default NULL.</p>', "\n";
+                flush_echo();
                 while ($item = sqlFetchArray($items_to_convert)) {
                     if (!empty($item['column_comment'])) {
                         $res = sqlStatement("ALTER TABLE `" . add_escape_custom($item['table_name']) . "` MODIFY `" . add_escape_custom($item['column_name']) . "` " . add_escape_custom($item['data_type']) . " COMMENT '" . add_escape_custom($item['column_comment']) . "'");
@@ -977,6 +978,7 @@ function upgradeFromSqlFile($filename, $path = '')
 
                     // If above query didn't work, then error will be outputted via the sqlStatement function.
                     echo "<p class='text-success'>" . text($item['table_name']) . "." . text($item['column_name']) . " sql column was successfully converted to " . text($item['data_type']) . " with default NULL setting.</p>\n";
+                    flush_echo();
                 }
             }
 
@@ -1000,6 +1002,7 @@ function upgradeFromSqlFile($filename, $path = '')
             } else {
                 $skipping = false;
                 echo '<p>Starting migration to InnoDB, please wait.</p>', "\n";
+                flush_echo();
                 foreach ($tables_list as $k => $t) {
                     if (in_array($t, $tables_skip_migration)) {
                         printf('<p class="text-success">Table %s was purposefully skipped and NOT migrated to InnoDB.</p>', $t);
@@ -1024,8 +1027,10 @@ function upgradeFromSqlFile($filename, $path = '')
             if (tableExists($matches[1]) && $uuidRegistry->tableNeedsUuidCreation()) {
                 $skipping = false;
                 echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
+                flush_echo();
                 $uuidRegistry->createMissingUuids();
                 echo "<p class='text-success'>Successfully completed adding UUIDs to " . $matches[1] . " table</p>\n";
+                flush_echo();
             } else {
                 $skipping = true;
             }
@@ -1044,8 +1049,10 @@ function upgradeFromSqlFile($filename, $path = '')
             ) {
                 $skipping = false;
                 echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
+                flush_echo();
                 $uuidRegistry->createMissingUuids();
                 echo "<p class='text-success'>Successfully completed adding UUIDs to " . $matches[1] . " table</p>\n";
+                flush_echo();
             } else {
                 $skipping = true;
             }
@@ -1058,8 +1065,10 @@ function upgradeFromSqlFile($filename, $path = '')
             if (tableExists($matches[1]) && $uuidRegistry->tableNeedsUuidCreation()) {
                 $skipping = false;
                 echo "<p>Going to add UUIDs to " . $matches[1] . " vertical table</p>\n";
+                flush_echo();
                 $uuidRegistry->createMissingUuids();
                 echo "<p class='text-success'>Successfully completed adding UUIDs to " . $matches[1] . " vertical table</p>\n";
+                flush_echo();
             } else {
                 $skipping = true;
             }
@@ -1071,12 +1080,14 @@ function upgradeFromSqlFile($filename, $path = '')
                 echo "<p class='text-success'>$skip_msg $line</p>\n";
             } else {
                 echo "Converting layout properties ...<br />\n";
+                flush_echo();
                 convertLayoutProperties();
             }
         } elseif (preg_match('/^#IfDocumentNamingNeeded/', $line)) {
             $emptyNames = sqlStatementNoLog("SELECT `id`, `url`, `name`, `couch_docid` FROM `documents` WHERE `name` = '' OR `name` IS NULL");
             if (sqlNumRows($emptyNames) > 0) {
                 echo "<p>Converting document names.</p>\n";
+                flush_echo();
                 while ($row = sqlFetchArray($emptyNames)) {
                     if (!empty($row['couch_docid'])) {
                         sqlStatementNoLog("UPDATE `documents` SET `name` = ? WHERE `id` = ?", [$row['url'], $row['id']]);
@@ -1085,6 +1096,7 @@ function upgradeFromSqlFile($filename, $path = '')
                     }
                 }
                 echo "<p class='text-success'>Completed conversion of document names</p>\n";
+                flush_echo();
                 $skipping = false;
             } else {
                 $skipping = true;
@@ -1124,11 +1136,12 @@ function upgradeFromSqlFile($filename, $path = '')
                 $trim =true;
             }
 
+           flush_echo("$query<br />\n");
 
-            echo "$query<br />\n";
             if (!sqlStatement($query)) {
                 echo "<p class='text-danger'>The above statement failed: " .
                     getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n";
+                flush_echo();
             }
 
             $query = '';

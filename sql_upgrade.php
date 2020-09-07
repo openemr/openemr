@@ -20,11 +20,18 @@ if ($response !== true) {
     die(htmlspecialchars($response));
 }
 
+@ini_set('zlib.output_compression', 0);
+@ini_set('implicit_flush', 1);
+@ob_end_clean();
 // Disable PHP timeout.  This will not work in safe mode.
-ini_set('max_execution_time', '0');
+@ini_set('max_execution_time', '0');
+if (ob_get_level() === 0) {
+    ob_start();
+}
 
 $ignoreAuth = true; // no login required
 $sessionAllowWrite = true;
+$GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
@@ -90,6 +97,19 @@ $_SESSION['language_choice'] = $defaultLangID;
 $_SESSION['language_direction'] = $direction;
 CsrfUtils::setupCsrfKey();
 session_write_close();
+
+header('Content-type: text/html; charset=utf-8');
+
+function flush_echo($string = '')
+{
+    if ($string) {
+        echo $string;
+    }
+    // now flush to force browser to pay attention.
+    echo str_pad('', 4096) . "\n";
+    ob_flush();
+    flush();
+}
 ?>
 <!-- @todo Adding DOCTYPE html breaks BS width/height percentages. Why? -->
 <html>
@@ -98,10 +118,10 @@ session_write_close();
     <?php Header::setupHeader(); ?>
     <link rel="shortcut icon" href="public/images/favicon.ico" />
 <script>
-    let currentVersion = "";
+    let currentVersion;
     let processProgress = 0;
-    let doPoll = 1;
-
+    let doPoll = 0;
+    let serverPaused = 0;
     // recursive long polling where ending is based
     // on global doPoll true or false.
     async function serverStatus(version = '', start = 0) {
@@ -143,28 +163,36 @@ session_write_close();
             let status = await response.text();
             if (status === 'Internal Server Error') {
                 let errorMsg = "<li class='text-light bg-danger'>" +
-                <?php echo  xlj("Stopping activity status checks. Internal Server Error"); ?> + "</li>";
-            progressStatus(errorMsg);
-            // end polling
-            doPoll = 0;
+                    <?php echo xlj("Stopping activity status checks. Internal Server Error"); ?> +"</li>";
+                progressStatus(errorMsg);
+                // end polling
+                doPoll = 0;
+            }
+            if (status === 'Authentication Error') {
+                let errorMsg = "<li class='text-light bg-danger'>" +
+                    <?php echo xlj("Stopping status checks. Csrf Error. No harm to upgrade and will continue."); ?> +"</li>";
+                progressStatus(errorMsg);
+                // end polling
+                doPoll = 0;
+            }
+            if (version) {
+                progressStatus(updateMsg);
+            }
+            if (start === 1) {
+                doPoll = 1;
+            }
+            // display to screen div
+            if (status > "") {
+                progressStatus(status);
+            }
+
+            // and so forth.
+            if (doPoll) {
+                await serverStatus();
+            } else {
+                progressStatus(endMsg);
+            }
         }
-        if (version) {
-            progressStatus(updateMsg);
-        }
-        if (start === 1) {
-            doPoll = 1;
-        }
-        // display to screen div
-        if(status > "") {
-            progressStatus(status);
-        }
-        // and so forth.
-        if (doPoll) {
-            await serverStatus();
-        } else {
-            progressStatus(endMsg);
-        }
-    }
 }
 /*
 * Focus scrolls to bottom of view
@@ -182,15 +210,16 @@ function doScrolls() {
     }
 }
 
-function progressStatus(msg) {
+function progressStatus(msg = '') {
     let eventList = document.getElementById('status-message');
     let progressEl = document.getElementById('progress');
 
     progressEl.style.width = processProgress + "%";
     progressEl.innerHTML = processProgress + "%" + " v" + currentVersion;
-    eventList.innerHTML += msg;
-
-    doScrolls();
+    if (msg) {
+        eventList.innerHTML += msg;
+        doScrolls();
+    }
 }
 
 function setWarnings(othis) {
@@ -198,6 +227,27 @@ function setWarnings(othis) {
         document.querySelector('.version-warning').classList.remove("d-none");
     } else {
         document.querySelector('.version-warning').classList.add("d-none");
+    }
+}
+
+function pausePoll(othis) {
+    if (serverPaused === 0 && doPoll === 1) {
+        let alertMsg = "<li class='text-dark bg-warning'>" +
+            <?php echo xlj("Paused status checks."); ?> +"</li>";
+        progressStatus(alertMsg);
+        serverPaused = 1;
+        doPoll = 0;
+        document.querySelector('.pause-server').classList.remove("btn-success");
+        document.querySelector('.pause-server').classList.add("btn-warning");
+    } else if (serverPaused === 1) {
+        let alertMsg = "<li class='text-dark bg-success'>" +
+            <?php echo xlj("Resuming status checks."); ?> +"</li>";
+        progressStatus(alertMsg);
+        serverPaused = 0;
+        doPoll = 1;
+        serverStatus('', 1);
+        document.querySelector('.pause-server').classList.remove("btn-warning");
+        document.querySelector('.pause-server').classList.add("btn-success");
     }
 }
 </script>
@@ -240,9 +290,12 @@ function setWarnings(othis) {
             </form>
             <!-- server status card -->
             <div class="card card-header">
-                <a class="btn btn-primary" data-toggle="collapse" href="#serverStatus">
-                    <?php echo xlt("Server Status"); ?><i class="fas fa-angle-down rotate-icon float-right"></i>
-                </a>
+                <span class="btn-group">
+                    <a class="btn btn-success pause-server fa fa-pause float-left" onclick="pausePoll(this)" title="<?php echo xla("Click to start or end sql server activity checks."); ?>"></a>
+                    <a class="btn btn-primary w-100" data-toggle="collapse" href="#serverStatus">
+                        <?php echo xlt("Server Status"); ?><i class="fa fa-angle-down rotate-icon float-right"></i>
+                    </a>
+                </span>
             </div>
             <div id="serverStatus" class="card card-body pb-2 h-25 overflow-auto collapse show">
                 <div class="bg-light text-dark">
@@ -269,11 +322,10 @@ function setWarnings(othis) {
                     continue;
                 }
                 // set polling version and start
-                echo "<script>serverStatus(" . js_escape($version) . ", 1);</script>";
-                flush();
+                flush_echo("<script>serverStatus(" . js_escape($version) . ", 1);</script>");
                 upgradeFromSqlFile($filename);
                 // end polling
-                echo "<script>processProgress = 100;doPoll = 0;</script>";
+                flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
             }
 
             if (!empty($GLOBALS['ippf_specific'])) {
