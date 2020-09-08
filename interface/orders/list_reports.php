@@ -171,7 +171,7 @@ $(function () {
     <div class="row">
         <div class="col-12">
             <h2>
-                <?php echo ('Electronic Reports'); ?>
+                <?php echo xlt('Electronic Reports'); ?>
             </h2>
             <form method='post' action='list_reports.php' enctype='multipart/form-data'>
                 <!-- This might be set by the results window: -->
