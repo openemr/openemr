@@ -133,8 +133,8 @@ class PatientData implements InputFilterAwareInterface
 'guardianphone', 'text', 'YES', '', NULL, ''
 'guardianworkphone', 'text', 'YES', '', NULL, ''
 'guardianemail', 'text', 'YES', '', NULL, ''
-'care_team_provider', 'int(11)', 'YES', '', NULL, ''
-'care_team_facility', 'int(11)', 'YES', '', NULL, ''
+'care_team_provider', 'text', 'YES', '', NULL, ''
+'care_team_facility', 'text', 'YES', '', NULL, ''
     */
     const FIELD_ID = "id";
     protected $inputFilter;
