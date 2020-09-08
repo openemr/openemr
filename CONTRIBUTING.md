@@ -291,7 +291,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     docker pull mariadb:10.5
     docker pull phpmyadmin/phpmyadmin
     docker pull couchdb
-    docker pull osixia/openldap
+    docker pull openemr/dev-ldap:easy
     ```
 22. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
