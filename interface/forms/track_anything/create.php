@@ -284,7 +284,7 @@ while ($myrow = sqlFetchArray($result)) {
         echo "<td class='deactive'>&nbsp;&nbsp;" . text($type_pos) . "</td>\n";
     }
 
-    echo "<td class='op'>";#[" . xlt('Edit') . "] [" . xlt('Add') . "]</td>";
+    echo "<td class='op'>";
     echo "<input type='submit' class='ta_button' name='add' value='" . xla('Add') . "'>\n";
     echo "<input type='submit' class='ta_button' name='edit' value='" . xla('Edit') . "'>\n";
     if ($type_active == '1') {
