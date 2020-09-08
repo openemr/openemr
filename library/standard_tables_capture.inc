@@ -47,7 +47,7 @@ function temp_unarchive($filename, $type)
     if (!file_exists($filename)) {
         return false;
     } else {
-    // unzip the file
+    // copy zip file contents to /tmp/ICD10
         $zip = new ZipArchive();
         $path = $GLOBALS['temporary_files_dir'] . "/" . $type;        
         if ($zip->open($filename) === true) {
