@@ -1201,7 +1201,7 @@ if (!isset($_GET["mode"])) {
                                 <td class='text' width='100'>
                                 </td>
 
-                                <?php } else { ?>
+                            <?php } else { ?>
                                     <?php if ($iter['fee'] != 0) {
                                         $line_total = $line_total + $iter['fee']; ?>
                                         <td class='text' width='70'>
@@ -1235,22 +1235,22 @@ if (!isset($_GET["mode"])) {
                                         </td>
                                             <?php
                                     }
-                                }
+                            }
 
-                                if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment' || $iter['fee'] != 0) {
-                                    $res_count++;
-                                }
+                            if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment' || $iter['fee'] != 0) {
+                                $res_count++;
+                            }
 
-                                if ($res_count === $N) {
-                                    print "</tr><tr>\n";
-                                    $res_count = 0;
-                                }
+                            if ($res_count === $N) {
+                                print "</tr><tr>\n";
+                                $res_count = 0;
+                            }
 
-                                $itero = $iter;
+                            $itero = $iter;
 
-                                if ($old_pid != $new_old_pid and ($iter['code_type'] != 'payment_info')) {
-                                    $new_old_pid = $old_pid;
-                                }
+                            if ($old_pid != $new_old_pid and ($iter['code_type'] != 'payment_info')) {
+                                $new_old_pid = $old_pid;
+                            }
                         }
                     }
 
@@ -2011,18 +2011,18 @@ if (!isset($_GET["mode"])) {
                                                                 </td>
                                                                 <td class='text' width='25'>
 
-                <?php
-                    $gtotal_fee = $gtotal_fee + $provider_info['fee'][$i];
-                    $gtotal_insadj = $gtotal_insadj + $provider_info['insadj'][$i];
-                    $gtotal_inspay = $gtotal_inspay + $provider_info['inspay'][$i];
-                    $gtotal_insref = $gtotal_insref + $provider_info['insref'][$i];
-                    $gtotal_patadj = $gtotal_patadj + $provider_info['patadj'][$i];
-                    $gtotal_patpay = $gtotal_patpay + $provider_info['patpay'][$i];
-                    $gtotal_patref = $gtotal_patref + $provider_info['patref'][$i];
+                    <?php
+                        $gtotal_fee = $gtotal_fee + $provider_info['fee'][$i];
+                        $gtotal_insadj = $gtotal_insadj + $provider_info['insadj'][$i];
+                        $gtotal_inspay = $gtotal_inspay + $provider_info['inspay'][$i];
+                        $gtotal_insref = $gtotal_insref + $provider_info['insref'][$i];
+                        $gtotal_patadj = $gtotal_patadj + $provider_info['patadj'][$i];
+                        $gtotal_patpay = $gtotal_patpay + $provider_info['patpay'][$i];
+                        $gtotal_patref = $gtotal_patref + $provider_info['patref'][$i];
 
-                    ++$i;
+                        ++$i;
 
-                    print "<br /></td></tr>";
+                        print "<br /></td></tr>";
                 }
 
                 print "<br /></td>";
