@@ -25,7 +25,7 @@
     // get the temporary folder
     $tmp = $GLOBALS['temporary_files_dir'];
     // get all the documents of the patient
-    $sql = "SELECT url, id, mimetype FROM `documents` WHERE `foreign_id` = ?";
+    $sql = "SELECT url, id, mimetype, `name` FROM `documents` WHERE `foreign_id` = ?";
     $fres = sqlStatement($sql, array($pid));
 
     // for every document
@@ -60,17 +60,17 @@ while ($file = sqlFetchArray($fres)) {
     $obj = new \C_Document();
     $document = $obj->retrieve_action("", $documentId, true, true, true);
     if ($document) {
-        $pos = strpos(substr($file['url'], -5), '.');
+        $pos = strpos(substr($file['name'], -5), '.');
         // check if has an extension or find it from the mimetype
         if ($pos === false) {
-            $file['url'] = $file['url'] . get_extension($file['mimetype']);
+            $file['name'] = $file['name'] . get_extension($file['mimetype']);
         }
 
-        $dest = $tmp . "/" . $pid . "/" . $path . "/" . convert_safe_file_dir_name(basename($file['url']));
+        $dest = $tmp . "/" . $pid . "/" . $path . "/" . convert_safe_file_dir_name($file['name']);
         if (file_exists($dest)) {
             $x = 1;
             do {
-                $dest = $tmp . "/" . $pid . "/" . $path . "/" . $x . "_" . convert_safe_file_dir_name(basename($file['url']));
+                $dest = $tmp . "/" . $pid . "/" . $path . "/" . $x . "_" . convert_safe_file_dir_name($file['name']);
                 $x++;
             } while (file_exists($dest));
         }

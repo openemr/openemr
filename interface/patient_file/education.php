@@ -111,8 +111,8 @@ if ($_POST['bn_submit']) {
     <?php Header::setupHeader(); ?>
 
 </head>
-<body class="body_top">
-    <div class="container">
+<body>
+    <div class="container mt-3">
         <div class="row">
             <div class="col-12">
                 <h3>
@@ -129,7 +129,7 @@ if ($_POST['bn_submit']) {
                 </h3>
                 <?php
                 if ($errmsg) {
-                    echo "<p style='color:red'>" . text($errmsg) . "</p>\n";
+                    echo "<p class='text-danger'>" . text($errmsg) . "</p>\n";
                 }
                 ?>
             </div>
@@ -138,22 +138,22 @@ if ($_POST['bn_submit']) {
             <div class='col-12'>
                 <form method='post' action='education.php' onsubmit='return top.restoreSession()'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <input type='hidden' name='type'     value='<?php echo attr($codetype); ?>' />
-                    <input type='hidden' name='code'     value='<?php echo attr($codevalue); ?>' />
+                    <input type='hidden' name='type' value='<?php echo attr($codetype); ?>' />
+                    <input type='hidden' name='code' value='<?php echo attr($codevalue); ?>' />
                     <input type='hidden' name='language' value='<?php echo attr($language); ?>' />
                     <div class='form-group'>
                         <label for="source"><?php echo xlt('Select source'); ?></label>
                         <select name='source' id='source' class='form-control'>
-                            <option value='MLP'  ><?php echo xlt('MedlinePlus Connect'); ?></option>
+                            <option value='MLP'><?php echo xlt('MedlinePlus Connect'); ?></option>
                             <option value='Local'><?php echo xlt('Local Content'); ?></option>
                         </select>
                     </div>
                     <div class='form-group'>
                         <div class='btn-group' role='group'>
-                            <button type='submit' class='btn btn-secondary btn-search' name='bn_submit' value='bn_submit'>
+                            <button type='submit' class='btn btn-primary btn-search' name='bn_submit' value='bn_submit'>
                                 <?php echo xlt('Submit'); ?>
                             </button>
-                            <button type='button' class='btn btn-link btn-cancel' onclick='window.close()'>
+                            <button type='button' class='btn btn-secondary btn-cancel' onclick='window.close()'>
                                 <?php echo xlt('Cancel'); ?>
                             </button>
                         </div>
