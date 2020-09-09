@@ -110,7 +110,7 @@ class OnsiteActivityViewReporter extends Reporter
 			,` patient_data`.`providerID` as Providerid
 			,` patient_data`.`ref_providerID` as RefProviderid
 			,` patient_data`.`pubpid` as Pubpid
-			,` patient_data`.`care_team` as CareTeam
+			,` patient_data`.`care_team_provider` as CareTeam
 			,`users`.`username` as Username
 			,`users`.`authorized` as Authorized
 			,`users`.`ufname` as Ufname

@@ -462,11 +462,7 @@ services:
     image: redis
   openldap:
     restart: always
-    image: osixia/openldap
-    volumes:
-    - ./ldap-ssl-certs-keys/insane/ca.pem:/container/service/slapd/assets/certs/ca.pem:rw
-    - ./ldap-ssl-certs-keys/insane/server-cert.pem:/container/service/slapd/assets/certs/server-cert.pem:rw
-    - ./ldap-ssl-certs-keys/insane/server-key.pem:/container/service/slapd/assets/certs/server-key.pem:rw
+    image: openemr/dev-ldap:insane
     environment:
       LDAP_TLS_VERIFY_CLIENT: try
       LDAP_TLS_CA_CRT_FILENAME: ca.pem

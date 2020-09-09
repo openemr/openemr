@@ -147,7 +147,7 @@ class PatientMap implements IDaoMap, IDaoMap2
             //self::$FM["DeceasedReason"] = new FieldMap("DeceasedReason","patient_data","deceased_reason",false,FM_TYPE_VARCHAR,255,null,false);
             //self::$FM["SoapImportStatus"] = new FieldMap("SoapImportStatus","patient_data","soap_import_status",false,FM_TYPE_TINYINT,4,0,false);
             //self::$FM["CmsportalLogin"] = new FieldMap("CmsportalLogin","patient_data","cmsportal_login",false,FM_TYPE_VARCHAR,60,null,false);
-            self::$FM["CareTeam"] = new FieldMap("CareTeam", "patient_data", "care_team", false, FM_TYPE_INT, 11, null, false);
+            self::$FM["CareTeam"] = new FieldMap("CareTeam", "patient_data", "care_team_provider", false, FM_TYPE_INT, 11, null, false);
             self::$FM["County"] = new FieldMap("County", "patient_data", "county", false, FM_TYPE_VARCHAR, 40, null, false);
             self::$FM["Industry"] = new FieldMap("Industry", "patient_data", "industry", false, FM_TYPE_TEXT, null, null, false);
         }

@@ -157,7 +157,7 @@ docker pull mysql:5.7
 docker pull phpmyadmin/phpmyadmin
 docker pull couchdb
 docker pull jodogne/orthanc-plugins
-docker pull osixia/openldap
+docker pull openemr/dev-ldap:insane
 docker pull redis
 docker pull ibmcom/ibm-fhir-server
 
