@@ -219,7 +219,7 @@ class PatientReporter extends Reporter
 			,`patient_data`.`deceased_reason` as DeceasedReason
 			,`patient_data`.`soap_import_status` as SoapImportStatus
 			,`patient_data`.`cmsportal_login` as CmsportalLogin
-			,`patient_data`.`care_team` as CareTeam
+			,`patient_data`.`care_team_provider` as CareTeam
 			,`patient_data`.`county` as County
 			,`patient_data`.`industry` as Industry
 		from `patient_data`";

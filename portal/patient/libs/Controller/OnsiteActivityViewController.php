@@ -168,7 +168,7 @@ class OnsiteActivityViewController extends AppBaseController
   patient_data.providerID,
   patient_data.ref_providerID,
   patient_data.pubpid,
-  patient_data.care_team,
+  patient_data.care_team_provider,
   users.username,
   users.authorized,
   users.fname As ufname,

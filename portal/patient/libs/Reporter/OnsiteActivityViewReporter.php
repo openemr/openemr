@@ -111,7 +111,7 @@ class OnsiteActivityViewReporter extends Reporter
 			,`onsite_activity_view`.`providerID` as Providerid
 			,`onsite_activity_view`.`ref_providerID` as RefProviderid
 			,`onsite_activity_view`.`pubpid` as Pubpid
-			,`onsite_activity_view`.`care_team` as CareTeam
+			,`onsite_activity_view`.`care_team_provider` as CareTeam
 			,`onsite_activity_view`.`username` as Username
 			,`onsite_activity_view`.`authorized` as Authorized
 			,`onsite_activity_view`.`ufname` as Ufname
