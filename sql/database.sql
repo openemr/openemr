@@ -8246,6 +8246,10 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2019-10-01', '2020-ICD-10-PCS-Order.zip', '8dc136d780ec60916e9e1fc999837bc8');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('CQM_VALUESET', 'NIH_VSAC', '2018-09-17', 'ep_ec_eh_cms_20180917.xml.zip', 'a1e584714b080aced6ca73b4b7b076a1');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2020-10-01', 'Code-Descriptions.zip', 'f22e7201fa662689d85b926a32359701');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2020-10-01', 'Zip File 5 2021 ICD-10-PCS Order File (Long and Abbreviated Titles).zip', '6a61cee7a8f774e23412ca1330980bbb');
 -- --------------------------------------------------------
 
 --

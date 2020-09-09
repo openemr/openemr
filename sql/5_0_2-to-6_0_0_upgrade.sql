@@ -2192,3 +2192,13 @@ SET @backup_group_id = (SELECT group_id FROM layout_options WHERE field_id='DOB'
 SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_id = IFNULL(@group_id,@backup_group_id) AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', IFNULL(@group_id,@backup_group_id), 'Care Team (Facility)', @seq+1, 44, 1, 0, 0, '', 1, 1, '', '', '', 0);
 #EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2020-10-01 load_filename 2020-ICD-10-CM-Codes.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2020-10-01', 'Code-Descriptions.zip', 'f22e7201fa662689d85b926a32359701');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2020-10-01 load_filename 2020-ICD-10-PCS-Order.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2020-10-01', 'Zip File 5 2021 ICD-10-PCS Order File (Long and Abbreviated Titles).zip', '6a61cee7a8f774e23412ca1330980bbb');
+#EndIf
