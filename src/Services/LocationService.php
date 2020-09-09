@@ -22,20 +22,18 @@ class LocationService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
-    private $uuidMapping;
 
     /**
      * Default constructor.
      */
     public function __construct()
     {
-        $this->uuidMapping = new UuidMapping();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        $this->uuidMapping->createMissingResourceUuids("Location", self::PATIENT_TABLE);
+        UuidMapping::createMissingResourceUuids("Location", self::PATIENT_TABLE);
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
-        $this->uuidMapping->createMissingResourceUuids("Location", self::PRACTITIONER_TABLE);
+        UuidMapping::createMissingResourceUuids("Location", self::PRACTITIONER_TABLE);
         (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
-        $this->uuidMapping->createMissingResourceUuids("Location", self::FACILITY_TABLE);
+        UuidMapping::createMissingResourceUuids("Location", self::FACILITY_TABLE);
     }
 
     /**
@@ -52,7 +50,7 @@ class LocationService extends BaseService
     {
         $sqlBindArray = array();
 
-        $sql = 'SELECT location.*, uuid_mapping.uuid FROM 
+        $sql = 'SELECT location.*, uuid_mapping.uuid FROM
                 (SELECT
                     uuid as target_uuid,
                     CONCAT(fname,"\'s Home") as name,
@@ -138,7 +136,7 @@ class LocationService extends BaseService
             return $processingResult;
         }
 
-        $sql = 'SELECT location.*, uuid_mapping.uuid FROM 
+        $sql = 'SELECT location.*, uuid_mapping.uuid FROM
                 (SELECT
                     uuid as target_uuid,
                     CONCAT(fname,"\'s Home") as name,

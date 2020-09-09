@@ -23,18 +23,16 @@ class CareTeamService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
-    private $uuidMapping;
 
     /**
      * Default constructor.
      */
     public function __construct()
     {
-        $this->uuidMapping = new UuidMapping();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
-        $this->uuidMapping->createMissingResourceUuids("CareTeam", self::PATIENT_TABLE);
+        UuidMapping::createMissingResourceUuids("CareTeam", self::PATIENT_TABLE);
     }
 
     /**
