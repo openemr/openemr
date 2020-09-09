@@ -18,7 +18,7 @@ $id = (isset($_GET['id']) ? $_GET['id'] : '') + 0;
 $order = (isset($_GET['order']) ? $_GET['order'] : '') + 0;
 $labid = (isset($_GET['labid']) ? $_GET['labid'] : '') + 0;
 
-echo "$('#con" . attr($id) . "').html('<table width=\"100%\" cellspacing=\"0\">";
+echo "$('#con" . attr($id) . "').html('<table class=\"table\">";
 // Determine indentation level for this container.
 for ($level = 0, $parentid = $id; $parentid; ++$level) {
     $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = ?", [$parentid]);
@@ -35,7 +35,7 @@ while ($row = sqlFetchArray($res)) {
     $chid = $row['procedure_type_id'] + 0;
     $isOrder = substr($row['procedure_type'], 0, 3);
 
-  // Find out if this child has any children.
+    // Find out if this child has any children.
     $trow = sqlQuery("SELECT procedure_type_id FROM procedure_type WHERE parent = ? LIMIT 1", [$chid]);
     $iscontainer = !empty($trow['procedure_type_id']);
 
