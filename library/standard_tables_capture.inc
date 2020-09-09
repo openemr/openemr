@@ -49,15 +49,15 @@ function temp_unarchive($filename, $type)
     } else {
     // copy zip file contents to /tmp/ICD10
         $zip = new ZipArchive();
-        $path = $GLOBALS['temporary_files_dir'] . "/" . $type;        
+        $path = $GLOBALS['temporary_files_dir'] . "/" . $type;
         if ($zip->open($filename) === true) {
             for ($i = 0; $i < $zip->numFiles; $i++) {
                 $sub_dir_filename = $zip->getNameIndex($i);
                 $fileinfo = pathinfo($sub_dir_filename);
                 if (!(copy("zip://" . $filename . "#" . $sub_dir_filename, "$path/" . $fileinfo['basename']))) {
                     return false;
-                }     
-            }    
+                }
+            }
             $zip->close();
             return true;
         } else {
