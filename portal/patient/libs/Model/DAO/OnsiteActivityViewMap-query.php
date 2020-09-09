@@ -86,7 +86,7 @@ class OnsiteActivityViewMap implements IDaoMap, IDaoMap2
             self::$FM["Providerid"] = new FieldMap("Providerid", "patient_data", "providerID", false, FM_TYPE_INT, 11, null, false);
             self::$FM["RefProviderid"] = new FieldMap("RefProviderid", "patient_data", "ref_providerID", false, FM_TYPE_INT, 11, null, false);
             self::$FM["Pubpid"] = new FieldMap("Pubpid", "patient_data", "pubpid", false, FM_TYPE_VARCHAR, 255, null, false);
-            self::$FM["CareTeam"] = new FieldMap("CareTeam", "patient_data", "care_team", false, FM_TYPE_INT, 11, null, false);
+            self::$FM["CareTeam"] = new FieldMap("CareTeam", "patient_data", "care_team_provider", false, FM_TYPE_INT, 11, null, false);
             self::$FM["Username"] = new FieldMap("Username", "users", "username", false, FM_TYPE_VARCHAR, 255, null, false);
             self::$FM["Authorized"] = new FieldMap("Authorized", "users", "authorized", false, FM_TYPE_TINYINT, 4, null, false);
             self::$FM["Ufname"] = new FieldMap("Ufname", "users", "ufname", false, FM_TYPE_VARCHAR, 255, null, false);

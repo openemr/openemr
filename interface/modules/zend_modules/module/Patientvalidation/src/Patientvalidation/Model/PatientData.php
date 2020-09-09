@@ -115,7 +115,6 @@ class PatientData implements InputFilterAwareInterface
 'deceased_reason', 'varchar(255)', 'NO', '', '', ''
 'soap_import_status', 'tinyint(4)', 'YES', '', NULL, ''
 'cmsportal_login', 'varchar(60)', 'NO', '', '', ''
-'care_team', 'int(11)', 'YES', '', NULL, ''
 'county', 'varchar(40)', 'NO', '', '', ''
 'industry', 'text', 'YES', '', NULL, ''
 'imm_reg_status', 'text', 'YES', '', NULL, ''
@@ -134,7 +133,8 @@ class PatientData implements InputFilterAwareInterface
 'guardianphone', 'text', 'YES', '', NULL, ''
 'guardianworkphone', 'text', 'YES', '', NULL, ''
 'guardianemail', 'text', 'YES', '', NULL, ''
-
+'care_team_provider', 'text', 'YES', '', NULL, ''
+'care_team_facility', 'text', 'YES', '', NULL, ''
     */
     const FIELD_ID = "id";
     protected $inputFilter;

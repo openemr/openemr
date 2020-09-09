@@ -2136,6 +2136,28 @@ ALTER TABLE `form_bronchitis` MODIFY `diagnosis3_bronchitis_form` text;
 ALTER TABLE `form_bronchitis` MODIFY `diagnosis4_bronchitis_form` text;
 #EndIf
 
+#IfColumn patient_data care_team
+ALTER TABLE `patient_data` CHANGE `care_team` `care_team_provider` text;
+#EndIf
+
+#IfMissingColumn patient_data care_team_facility
+ALTER TABLE `patient_data` ADD COLUMN `care_team_facility` text;
+#EndIf
+
+#IfRow2D layout_options form_id DEM field_id care_team
+SET @group_name = (SELECT group_name FROM layout_options WHERE field_id='care_team' AND form_id='DEM');
+SET @backup_group_name = (SELECT group_name FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name = IFNULL(@group_name,@backup_group_name) AND form_id='DEM');
+UPDATE `layout_options` SET field_id='care_team_provider', group_name=IFNULL(@group_name,@backup_group_name), seq=@seq+1, title='Care Team (Provider)', data_type=45 WHERE form_id='DEM' AND field_id='care_team';
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id care_team_facility
+SET @group_name = (SELECT group_name FROM layout_options WHERE field_id='care_team_provider' AND form_id='DEM');
+SET @backup_group_name = (SELECT group_name FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name = IFNULL(@group_name,@backup_group_name) AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', IFNULL(@group_name,@backup_group_name), 'Care Team (Facility)', @seq+1, 44, 1, 0, 0, '', 1, 1, '', '', '', 0);
+#EndIf
+
 DELETE FROM `globals` WHERE `gl_name`='font-size';
 DELETE FROM `globals` WHERE `gl_name`='font-family';
 
