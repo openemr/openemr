@@ -105,6 +105,11 @@
 --    arguments: none
 --    behavior: can take a long time.
 
+--  #IfDocumentNamingNeeded
+--    desc: populate name field with document names.
+--    arguments: none
+
+
 #IfMissingColumn facility iban
 ALTER TABLE `facility` ADD `iban` varchar(50) default NULL;
 #EndIf
@@ -562,6 +567,10 @@ ALTER TABLE `uuid_registry` ADD `couchdb` varchar(255) NOT NULL DEFAULT '';
 
 #IfMissingColumn uuid_registry mapped
 ALTER TABLE `uuid_registry` ADD `mapped` tinyint(4) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfMissingColumn uuid_registry document_drive
+ALTER TABLE `uuid_registry` ADD `document_drive` tinyint(4) NOT NULL DEFAULT '0';
 #EndIf
 
 #IfMissingColumn patient_data uuid
@@ -1960,12 +1969,6 @@ ALTER TABLE `procedure_order` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `procedure_order` (`uuid`);
 #EndIf
 
-UPDATE `globals` SET `gl_value`='0.625' WHERE `gl_name`='font-size' AND `gl_value`='0.625rem';
-UPDATE `globals` SET `gl_value`='0.75' WHERE `gl_name`='font-size' AND `gl_value`='0.75rem';
-UPDATE `globals` SET `gl_value`='0.875' WHERE `gl_name`='font-size' AND `gl_value`='0.875rem';
-UPDATE `globals` SET `gl_value`='1.0' WHERE `gl_name`='font-size' AND `gl_value`='1rem';
-UPDATE `globals` SET `gl_value`='1.125' WHERE `gl_name`='font-size' AND `gl_value`='1.125rem';
-
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#dee2e6' WHERE `pc_constant_id`='no_show' AND `pc_catcolor`='#DDDDDD';
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#cce5ff' WHERE `pc_constant_id`='in_office' AND `pc_catcolor`='#99CCFF';
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#fdb172' WHERE `pc_constant_id`='out_of_office' AND `pc_catcolor`='#99FFFF';
@@ -2026,6 +2029,18 @@ CREATE TABLE `uuid_mapping` (
   KEY `table` (`table`),
   KEY `target_uuid` (`target_uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
+#EndIf
+
+#IfColumn automatic_notification next_app_date
+ALTER TABLE `automatic_notification` DROP COLUMN `next_app_date`;
+#EndIf
+
+#IfColumn automatic_notification next_app_time
+ALTER TABLE `automatic_notification` DROP COLUMN `next_app_time`;
+#EndIf
+
+#IfColumn automatic_notification notification_sent_date
+ALTER TABLE `automatic_notification` DROP COLUMN `notification_sent_date`;
 #EndIf
 
 #IfMissingColumn procedure_result uuid
@@ -2119,4 +2134,71 @@ ALTER TABLE `form_bronchitis` MODIFY `diagnosis1_bronchitis_form` text;
 ALTER TABLE `form_bronchitis` MODIFY `diagnosis2_bronchitis_form` text;
 ALTER TABLE `form_bronchitis` MODIFY `diagnosis3_bronchitis_form` text;
 ALTER TABLE `form_bronchitis` MODIFY `diagnosis4_bronchitis_form` text;
+#EndIf
+
+DELETE FROM `globals` WHERE `gl_name`='font-size';
+DELETE FROM `globals` WHERE `gl_name`='font-family';
+
+#IfMissingColumn documents name
+ALTER TABLE `documents` ADD `name` varchar(255) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn documents drive_uuid
+ALTER TABLE `documents` ADD `drive_uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfNotIndex documents drive_uuid
+CREATE UNIQUE INDEX `drive_uuid` ON `documents` (`drive_uuid`);
+#EndIf
+
+#IfDocumentNamingNeeded
+#EndIf
+
+#IfNotTable api_log
+CREATE TABLE `api_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL,
+  `patient_id` bigint(20) NOT NULL,
+  `ip_address` varchar(255) NOT NULL,
+  `method` varchar(20) NOT NULL,
+  `request` varchar(255) NOT NULL,
+  `request_url` text,
+  `request_body` longtext,
+  `response` longtext,
+  `encrypted` tinyint(1) NOT NULL,
+  `created_time` timestamp NULL,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+#EndIf
+
+#IfColumn patient_data care_team
+ALTER TABLE `patient_data` CHANGE `care_team` `care_team_provider` text;
+#EndIf
+
+#IfMissingColumn patient_data care_team_facility
+ALTER TABLE `patient_data` ADD COLUMN `care_team_facility` text;
+#EndIf
+
+#IfRow2D layout_options form_id DEM field_id care_team
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='care_team' AND form_id='DEM');
+SET @backup_group_id = (SELECT group_id FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_id = IFNULL(@group_id,@backup_group_id) AND form_id='DEM');
+UPDATE `layout_options` SET field_id='care_team_provider', group_id = IFNULL(@group_id,@backup_group_id), seq=@seq+1, title='Care Team (Provider)', data_type=45 WHERE form_id='DEM' AND field_id='care_team';
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id care_team_facility
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='care_team_provider' AND form_id='DEM');
+SET @backup_group_id = (SELECT group_id FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_id = IFNULL(@group_id,@backup_group_id) AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', IFNULL(@group_id,@backup_group_id), 'Care Team (Facility)', @seq+1, 44, 1, 0, 0, '', 1, 1, '', '', '', 0);
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2020-10-01 load_filename 2020-ICD-10-CM-Codes.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2020-10-01', 'Code-Descriptions.zip', 'f22e7201fa662689d85b926a32359701');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2020-10-01 load_filename 2020-ICD-10-PCS-Order.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2020-10-01', 'Zip File 5 2021 ICD-10-PCS Order File (Long and Abbreviated Titles).zip', '6a61cee7a8f774e23412ca1330980bbb');
 #EndIf

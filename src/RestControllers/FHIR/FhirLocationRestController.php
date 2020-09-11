@@ -41,8 +41,6 @@ class FhirLocationRestController
 
     /**
      * Queries for FHIR location resources using various search parameters.
-     * Search parameters include:
-     * - patient (puuid)
      * @return FHIR bundle with query results, if found
      */
     public function getAll($searchParams)

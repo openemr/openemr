@@ -28,9 +28,10 @@ class UuidMapping
         $resultSet = sqlStatementNoLog(
             "SELECT `" . $table . "`.`uuid`
                        FROM `" . $table . "`
-                       LEFT OUTER JOIN `uuid_mapping` ON `" . $table . "`.`uuid` = `uuid_mapping`.`target_uuid`
+                       LEFT OUTER JOIN `uuid_mapping` ON `" . $table . "`.`uuid` = `uuid_mapping`.`target_uuid` AND `uuid_mapping`.`resource` = ?
                        WHERE (`uuid_mapping`.`uuid` IS NULL OR `uuid_mapping`.`uuid` = '' OR `uuid_mapping`.`uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')
-                       AND (`" . $table . "`.`uuid` IS NOT NULL AND `" . $table . "`.`uuid` != '' AND `" . $table . "`.`uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')"
+                       AND (`" . $table . "`.`uuid` IS NOT NULL AND `" . $table . "`.`uuid` != '' AND `" . $table . "`.`uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')",
+            [$resource]
         );
         while ($row = sqlFetchArray($resultSet)) {
             // populate the missing mapped uuids

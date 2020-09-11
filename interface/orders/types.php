@@ -63,7 +63,7 @@ if ($popup && $_POST['form_save']) {
 <html>
 
 <head>
-    <?php Header::setupHeader(['opener', 'datetime-picker', 'jquery-ui', 'jquery-ui-base']);?>
+    <?php Header::setupHeader(['opener', 'datetime-picker']);?>
 
     <title><?php echo xlt('Configure Orders and Results'); ?></title>
 
@@ -121,6 +121,9 @@ if ($popup && $_POST['form_save']) {
         .col6 {
             width: 8%;
         }
+        .tooltip {
+            pointer-events: none;
+        }
     </style>
 
 
@@ -154,85 +157,86 @@ if ($popup && $_POST['form_save']) {
 
     // initiate by loading the top-level nodes
     $(function () {
-     nextOpen();
+        nextOpen();
     });
 
     // This is called repeatedly at initialization until all desired nodes
     // have been opened.
     function nextOpen() {
-      if (preopen.length) {
-        var thisid = preopen.pop();
+        if (preopen.length) {
+            var thisid = preopen.pop();
 
-      if (thisid == 0 || preopen.length > 0) {
-       if (thisid > 0)
-        toggle(thisid);
-       else
-        $.getScript('types_ajax.php?id=' + encodeURIComponent(thisid) + '&order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid); ?>);
-      }
-      else {
-       recolor();
-      }
-     }
-     else {
-      recolor();
-     }
+            if (thisid == 0 || preopen.length > 0) {
+                if (thisid > 0) {
+                    toggle(thisid);
+                } else {
+                    $.getScript('types_ajax.php?id=' + encodeURIComponent(thisid) + '&order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid); ?>);
+                }
+            } else {
+                recolor();
+            }
+        } else {
+            recolor();
+        }
     }
 
     // toggle expansion indicator from + to - or vice versa
     function swapsign(td1, from, to) {
-     var s = td1.html();
-     var i = s.indexOf('>' + from + ' <');
-     if (i >= 0) td1.html(s.substring(0,i+1) + to + s.substring(i+2));
+        var s = td1.html();
+        var i = s.indexOf('>' + from + ' <');
+        if (i >= 0) {
+            td1.html(s.substring(0,i+1) + to + s.substring(i+2));
+        }
     }
 
     // onclick handler to expand or collapse a node
     function toggle(id) {
-      var td1 = $('#td' + id);
-     if (!td1.hasClass('haskids')) return;
-     if (td1.hasClass('isExpanded')) {
-      $('#con' + id).remove();
-      td1.removeClass('isExpanded');
-      swapsign(td1, '-', '+');
-      recolor();
-     }
-     else {
-      td1.parent().after('<tr class="outertr"><td colspan="7" id="con' + id + '" style="padding:0">Loading...</td></tr>');
-      td1.addClass('isExpanded');
-      swapsign(td1, '+', '-');
-      $.getScript('types_ajax.php?id=' + encodeURIComponent(id) + '&order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid); ?>);
-     }
+        var td1 = $('#td' + id);
+        if (!td1.hasClass('haskids')) {
+            return;
+        }
+        if (td1.hasClass('isExpanded')) {
+            $('#con' + id).remove();
+            td1.removeClass('isExpanded');
+            swapsign(td1, '-', '+');
+            recolor();
+        } else {
+            td1.parent().after('<tr class="outertr"><td colspan="7" class="p-0" id="con' + id + '">Loading...</td></tr>');
+            td1.addClass('isExpanded');
+            swapsign(td1, '+', '-');
+            $.getScript('types_ajax.php?id=' + encodeURIComponent(id) + '&order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid); ?>);
+        }
     }
 
     // Called by the edit window to refresh a given node's children
     function refreshFamily(id, haskids) {
-     if (id) { // id == 0 means top level
-      var td1 = $('#td' + id);
-      if (td1.hasClass('isExpanded')) {
-       $('#con' + id).remove();
-       td1.removeClass('isExpanded');
-       swapsign(td1, '-', '+');
-      }
-      if (td1.hasClass('haskids') && !haskids) {
-       td1.removeClass('haskids');
-       // swapsign(td1, '+', '.');
-       swapsign(td1, '+', '|');
-       return;
-      }
-      if (!td1.hasClass('haskids') && haskids) {
-       td1.addClass('haskids');
-       // swapsign(td1, '.', '+');
-       swapsign(td1, '|', '+');
-      }
-      if (haskids) {
-       td1.parent().after('<tr class="outertr"><td colspan="7" id="con' + id + '" style="padding:0">Loading...</td></tr>');
-       td1.addClass('isExpanded');
-       swapsign(td1, '+', '-');
-      }
-     }
-     if (haskids)
-      $.getScript('types_ajax.php?id=' + encodeURIComponent(id) + '&order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid); ?>);
-     else
-      recolor();
+        if (id) { // id == 0 means top level
+            var td1 = $('#td' + id);
+            if (td1.hasClass('isExpanded')) {
+                $('#con' + id).remove();
+                td1.removeClass('isExpanded');
+                swapsign(td1, '-', '+');
+            }
+            if (td1.hasClass('haskids') && !haskids) {
+                td1.removeClass('haskids');
+                swapsign(td1, '+', '|');
+                return;
+            }
+            if (!td1.hasClass('haskids') && haskids) {
+                td1.addClass('haskids');
+                swapsign(td1, '|', '+');
+            }
+            if (haskids) {
+                td1.parent().after('<tr class="outertr"><td colspan="7" class="p-0" id="con' + id + '">Loading...</td></tr>');
+                td1.addClass('isExpanded');
+                swapsign(td1, '+', '-');
+            }
+        }
+        if (haskids) {
+            $.getScript('types_ajax.php?id=' + encodeURIComponent(id) + '&order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid); ?>);
+        } else {
+            recolor();
+        }
     }
 
     // edit/add a node
@@ -254,18 +258,20 @@ if ($popup && $_POST['form_save']) {
 
     // call this to alternate row colors when anything changes the number of rows
     function recolor() {
-     var i = 0;
-     $('#con0 tr').each(function(index) {
-      // skip any row that contains other rows
-      if ($(this).hasClass('outertr')) return;
-      this.className = (i++ & 1) ? "evenrow" : "oddrow";
-     });
+        var i = 0;
+        $('#con0 tr').each(function(index) {
+            // skip any row that contains other rows
+            if ($(this).hasClass('outertr')) {
+                return;
+            }
+            this.className = (i++ & 1) ? "evenrow" : "oddrow";
+        });
     }
 
     // Callback from popups to refresh this display.
     function refreshme() {
-     // location.reload();
-     document.forms[0].submit();
+        // location.reload();
+        document.forms[0].submit();
     }
     </script>
 
@@ -281,12 +287,10 @@ if ($popup && $_POST['form_save']) {
         $help_icon = '';
     }
     ?>
-    <div class="container">
+    <div class="container mt-3">
         <div class="row">
              <div class="col-sm-12">
-                <div class="clearfix">
-                    <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo xlt('Configure Orders and Results');?></span><?php echo $help_icon; ?></h2>
-                </div>
+                <h2 id="header_title"><span id='header_text'><?php echo xlt('Configure Orders and Results');?></span><?php echo $help_icon; ?></h2>
             </div>
         </div>
         <div class="row">
@@ -303,34 +307,42 @@ if ($popup && $_POST['form_save']) {
                     }
                     ?>'>
                     <div class="btn-group">
-                        <button type="button" name="form_search" class="btn btn-secondary btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
-                        <button type="button" class="btn btn-secondary btn-add" name='add_node_btn' id='add_node_button'  onclick='handleNode(0,"",true,"")'><?php echo xlt('Add Top Level');?></button>
+                        <button type="button" class="btn btn-primary btn-add" name='add_node_btn' id='add_node_button' onclick='handleNode(0,"",true,"")'>
+                            <?php echo xlt('Add Top Level');?>
+                        </button>
+                        <button type="button" name="form_search" class="btn btn-primary btn-refresh" onclick="refreshme()">
+                            <?php echo xlt('Refresh');?>
+                        </button>
                     </div>
                     <br />
                     <br />
-                    <div class = "table-responsive">
+                    <div class="table-responsive">
                         <table class="table mb-0">
                             <thead>
                                 <tr class='head'>
-                                    <td class='col1' align='left'>&nbsp;&nbsp;<?php echo xlt('Name') ?> <i id="name-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col2 oe-pl0' align='left'><?php echo xlt('Category') ?> <i id="order-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col3 oe-pl0' align='left'><?php echo xlt('Code') ?> <i id="code-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col6 oe-pl0' align='left'><?php echo xlt('Tier') ?> <i id="tier-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col4 oe-pl0' align='left'><?php echo xlt('Description') ?></td>
-                                    <td class='col5 oe-pl0' align='left'><?php echo xlt('Edit') ?></td>
-                                    <td class='col5 oe-pl0' align='center'><?php echo xlt('Add') ?></td>
+                                    <td class='col1 text-left'>&nbsp;&nbsp;<?php echo xlt('Name') ?> <i id="name-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col2 oe-pl0 text-left'><?php echo xlt('Category') ?> <i id="order-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col3 oe-pl0 text-left'><?php echo xlt('Code') ?> <i id="code-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col6 oe-pl0 text-left'><?php echo xlt('Tier') ?> <i id="tier-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col4 oe-pl0 text-left'><?php echo xlt('Description') ?></td>
+                                    <td class='col5 oe-pl0 text-left'><?php echo xlt('Edit') ?></td>
+                                    <td class='col5 oe-pl0 text-center'><?php echo xlt('Add') ?></td>
                                 </tr>
                             </thead>
                         </table>
                     </div>
                     <div id="con0"></div>
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                    <div class="form-group clearfix">
+                    <div class="form-group">
                         <div class="col-sm-12 text-left position-override">
-                            <div class="btn-group btn-group-pinch" role="group">
+                            <div class="btn-group" role="group">
                                 <?php if ($popup) { ?>
-                                    <button type="submit" class="btn btn-secondary btn-save" name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save');?></button>
-                                    <button class="btn btn-link btn-cancel btn-separate-left" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
+                                    <button type="submit" class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Save'); ?>'>
+                                        <?php echo xlt('Save');?>
+                                    </button>
+                                    <button class="btn btn-secondary btn-cancel" onclick="CancelDistribute()">
+                                        <?php echo xlt('Cancel');?>
+                                    </button>
                                 <?php } ?>
                             </div>
                         </div>
@@ -339,7 +351,6 @@ if ($popup && $_POST['form_save']) {
             </div>
         </div>
     </div><!--End of Container div-->
-   <br />
     <?php
     //home of the help modal ;)
     //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
@@ -350,15 +361,27 @@ if ($popup && $_POST['form_save']) {
     }
     ?>
     <script>
-    //jqury-ui tooltip
         $(function () {
-            //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
-            // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
-            $('#name-tooltip').attr({"title": <?php echo xlj('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-            $('#order-tooltip').attr({"title": <?php echo xlj('The entries highlighted in yellow can be ordered as a test or procedure those highlighted in pink can be ordered as a Custom Group'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-            $('#code-tooltip').attr({"title": <?php echo xlj('Category - Order, Result and Recommendation need an identifying code');?> + ". " + <?php echo xlj('Red Triangle indicates a required code that is missing')?> + ".", "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-            $('#tier-tooltip').attr({"title": <?php echo xlj('Shows the hierarchal level of this line');?> + ". " + <?php echo xlj('Tier 1 entries should be of Category Top Group')?> + ".", "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-            $('table td .required-tooltip').attr({"title": <?php echo xlj('For proper tabulated display of tests and results an identifying code is required'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#name-tooltip').tooltip({
+                title: <?php echo xlj('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>,
+                placement: 'right',
+            });
+            $('#order-tooltip').tooltip({
+                title: <?php echo xlj('The entries highlighted in yellow can be ordered as a test or procedure those highlighted in pink can be ordered as a Custom Group'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>,
+                placement: 'right',
+            });
+            $('#code-tooltip').tooltip({
+                title: <?php echo xlj('Category - Order, Result and Recommendation need an identifying code');?> + ". " + <?php echo xlj('Red Triangle indicates a required code that is missing')?> + ".",
+                placement: 'right',
+            });
+            $('#tier-tooltip').tooltip({
+                title: <?php echo xlj('Shows the hierarchal level of this line');?> + ". " + <?php echo xlj('Tier 1 entries should be of Category Top Group')?> + ".",
+                placement: 'right',
+            });
+            $('table td .required-tooltip').tooltip({
+                title: <?php echo xlj('For proper tabulated display of tests and results an identifying code is required'); ?>,
+                placement: 'right',
+            });
 
             $("table td .required-tooltip").fadeIn(500);
             $("table td .required-tooltip3").fadeOut(1000);

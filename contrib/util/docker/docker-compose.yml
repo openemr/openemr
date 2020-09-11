@@ -231,14 +231,14 @@ services:
     restart: always
     image: mariadb:10.5
     command: ['mysqld','--character-set-server=utf8mb4']
+    ports:
+    - 8210:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
   mariadb-old:
     restart: always
     image: mariadb:10.4
     command: ['mysqld','--character-set-server=utf8mb4']
-    ports:
-    - 8210:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
   mariadb-very-old:
@@ -281,7 +281,7 @@ services:
     - 5984:5984
     - 6984:6984
     volumes:
-    - ./couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.d/local.ini:rw
+    - ./couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.ini:rw
     - ./couchdb-config-ssl-cert-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
     - ./couchdb-config-ssl-cert-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
     - ./couchdb-config-ssl-cert-keys/insane/server-key.pem:/etc/ssl/server-key.pem:ro
@@ -462,9 +462,7 @@ services:
     image: redis
   openldap:
     restart: always
-    image: osixia/openldap
-    volumes:
-    - ./ldap-ssl-certs-keys/insane:/container/service/slapd/assets/certs
+    image: openemr/dev-ldap:insane
     environment:
       LDAP_TLS_VERIFY_CLIENT: try
       LDAP_TLS_CA_CRT_FILENAME: ca.pem

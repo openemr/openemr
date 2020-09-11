@@ -22,10 +22,6 @@ Files specific to different themes are named with the following conventions:
 ### Special Classes
 
 * `position-override` gives a hook for style to change placement of buttons. In light/manila style this is ignored and buttons go to left positioned under data entry field. Whereas in the other styles this is used to center the buttons.
-* `oe-opt-btn-group-pinch` gives a hook for style to pinch the buttons (i think make them more rounded). Not used in light/manila, but used in other styles.
-* `oe-opt-btn-separate-left` gives a hook to place a space between the buttons. Not used in light/manila, but used in other styles.
-* `oe-text-to-right` does as it says (and then does the opposite for RTL languages).
-* `oe-text-to-left` does as it says (and then does the opposite for RTL languages).
 
 ## Getting Started
 

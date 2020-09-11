@@ -179,8 +179,6 @@ if (!$_REQUEST['flb_table']) {
     <?php } ?>
 
     <script src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
-
-    <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
 </head>
 
 <body>
