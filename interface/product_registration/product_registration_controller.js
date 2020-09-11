@@ -28,7 +28,7 @@ function ProductRegistrationController() {
                 return callback(err, null);
             }
             callback(null, data);
-            return false;
+            return true;
         });
     };
 
@@ -37,6 +37,10 @@ function ProductRegistrationController() {
         if ($('.product-registration').length > 0) {
             $('.product-registration .email').text(`${registrationTranslations.registeredEmail} ${data.email}`);
         }
+    };
+
+    const _registrationFailedHandler = function (error) {
+        $('.product-registration-modal .message').text(error);
     };
 
     const _closeModal = function (closeWaitTimeMilliseconds) {
@@ -64,10 +68,6 @@ function ProductRegistrationController() {
         self.displayRegistrationInformationIfDivExists(data);
     };
 
-    const _registrationFailedHandler = function (error) {
-        $('.product-registration-modal .message').text(error);
-    };
-
     const _formSubmissionHandler = function () {
         const email = $('.product-registration-modal .email').val() || '';
 
@@ -80,8 +80,7 @@ function ProductRegistrationController() {
                 if (err) {
                     return _registrationFailedHandler(err);
                 }
-                _registrationCreatedHandler(data);
-                return true;
+                return _registrationCreatedHandler(data);
             });
         }
     };
@@ -108,15 +107,15 @@ function ProductRegistrationController() {
 
         // Wire up "enter key" handler in case user doesn't click the modal buttons manually
         $('.product-registration-modal .email').on('keypress', function (event) {
-            if (Number(event.which) === 13) {
+            if (event.which === 13) {
                 _formSubmissionHandler();
                 return false;
             }
             return true;
         });
+    };
 
-        self.showProductRegistrationModal = function () {
-            _displayFormView();
-        };
+    self.showProductRegistrationModal = function () {
+        _displayFormView();
     };
 }
