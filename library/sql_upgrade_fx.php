@@ -542,6 +542,20 @@ function convertLayoutProperties()
     } // end form
 }
 
+function flush_echo($string = '')
+{
+    if ($string) {
+        echo $string;
+    }
+    // now flush to force browser to pay attention.
+    if (empty($GLOBALS['force_simple_sql_upgrade'])) {
+        // this is skipped when running sql upgrade from command line
+        echo str_pad('', 4096) . "\n";
+    }
+    ob_flush();
+    flush();
+}
+
 /**
  * Upgrade or patch the database with a selected upgrade/patch file.
  *
@@ -700,9 +714,12 @@ function upgradeFromSqlFile($filename, $path = '')
             continue;
         }
 
-        $progress_stat = 100 - round((($file_size - $progress) / $file_size) * 100, 0);
-        $progress_stat = $progress_stat > 100 ? 100 : $progress_stat;
-        echo "<script>processProgress = $progress_stat;progressStatus();</script>";
+        if (empty($GLOBALS['force_simple_sql_upgrade'])) {
+            // this is skipped when running sql upgrade from command line
+            $progress_stat = 100 - round((($file_size - $progress) / $file_size) * 100, 0);
+            $progress_stat = $progress_stat > 100 ? 100 : $progress_stat;
+            echo "<script>processProgress = $progress_stat;progressStatus();</script>";
+        }
 
         if (preg_match('/^#IfNotTable\s+(\S+)/', $line, $matches)) {
             $skipping = tableExists($matches[1]);
