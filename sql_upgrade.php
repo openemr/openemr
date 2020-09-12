@@ -13,6 +13,12 @@
 
 /* @TODO add language selection. needs RTL testing */
 
+if (php_sapi_name() === 'cli') {
+    // setting for when running as command line script
+    // need this for output to be readable when running as command line
+    $GLOBALS['force_simple_sql_upgrade'] = true;
+}
+
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
@@ -100,16 +106,6 @@ session_write_close();
 
 header('Content-type: text/html; charset=utf-8');
 
-function flush_echo($string = '')
-{
-    if ($string) {
-        echo $string;
-    }
-    // now flush to force browser to pay attention.
-    echo str_pad('', 4096) . "\n";
-    ob_flush();
-    flush();
-}
 ?>
 <!-- @todo Adding DOCTYPE html breaks BS width/height percentages. Why? -->
 <html>
