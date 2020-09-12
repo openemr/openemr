@@ -375,32 +375,28 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 
 </head>
-<body class="body_top" onload="<?php echo $body_onload_code; ?>" >
-    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+<body onload="<?php echo $body_onload_code; ?>" >
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
         <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url($transid); ?>' onsubmit='return validate(this)'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-        <input type='hidden' name='mode' value='add'>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type='hidden' name='mode' value='add' />
             <div class="row">
                 <div class="col-sm-12">
                     <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
                 </div>
-            </div>
-            <div class="row">
+                <br />
+                <br />
                 <div class="col-sm-12">
                     <div class="btn-group">
-                        <a href="#" class="btn btn-secondary btn-save" onclick="submitme();">
+                        <a href="#" class="btn btn-primary btn-save" onclick="submitme();">
                             <?php echo xlt('Save'); ?>
                         </a>
-                        <a href="transactions.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
+                        <a href="transactions.php" class="btn btn-secondary btn-cancel" onclick="top.restoreSession()">
                             <?php echo xlt('Cancel'); ?>
                         </a>
                     </div>
                 </div>
-            </div>
-            <br />
-            <br />
-            <div class="row">
-                <div class="col-sm-12">
+                <div class="col-sm-12 mt-3">
                     <fieldset>
                         <legend><?php echo xlt('Select Transaction Type'); ?></legend>
                         <div class="forms col-sm-8">
@@ -458,9 +454,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     </fieldset>
                 </div>
             </div>
+
             <div id='referdiv'>
-
-
                 <div id="DEM">
                     <ul class="tabNav">
                         <?php
@@ -607,7 +602,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 </div><!-- end of DEM div -->
             </div><!-- end of referdiv -->
         </form>
-        <p />
 
         <!-- include support for the list-add selectbox feature -->
         <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>

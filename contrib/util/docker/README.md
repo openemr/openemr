@@ -20,6 +20,7 @@ Docker Environment. See below for instructions of use of the Insane Development 
 [docker](https://www.docker.com/get-docker) and
 [compose](https://docs.docker.com/compose/install/) for your system. Also, make
 sure you have a [fork](https://help.github.com/articles/fork-a-repo/) of OpenEMR.
+- If you want to set up the base services(e.g. git, docker, docker-compose, openemr-cmd) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
 - If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
 - If you want to monitor and easily manage the docker environment, please also [install openemr-monitor](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-monitor) and [install portainer](https://github.com/openemr/openemr-devops/tree/master/utilities/portainer) for your system
 
@@ -157,7 +158,7 @@ docker pull mysql:5.7
 docker pull phpmyadmin/phpmyadmin
 docker pull couchdb
 docker pull jodogne/orthanc-plugins
-docker pull osixia/openldap
+docker pull openemr/dev-ldap:insane
 docker pull redis
 docker pull ibmcom/ibm-fhir-server
 

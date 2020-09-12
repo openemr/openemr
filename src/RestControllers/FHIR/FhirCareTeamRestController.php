@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FhirLocationRestController
+ * FhirCareTeamRestController
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -12,19 +12,19 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Services\FHIR\FhirLocationService;
+use OpenEMR\Services\FHIR\FhirCareTeamService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
-class FhirLocationRestController
+class FhirCareTeamRestController
 {
-    private $fhirLocationService;
+    private $fhirCareTeamService;
     private $fhirService;
 
     public function __construct()
     {
-        $this->fhirLocationService = new FhirLocationService();
+        $this->fhirCareTeamService = new FhirCareTeamService();
         $this->fhirService = new FhirResourcesService();
     }
 
@@ -35,7 +35,7 @@ class FhirLocationRestController
      */
     public function getOne($fhirId)
     {
-        $processingResult = $this->fhirLocationService->getOne($fhirId);
+        $processingResult = $this->fhirCareTeamService->getOne($fhirId);
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
@@ -45,7 +45,7 @@ class FhirLocationRestController
      */
     public function getAll($searchParams)
     {
-        $processingResult = $this->fhirLocationService->getAll($searchParams);
+        $processingResult = $this->fhirCareTeamService->getAll($searchParams);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [
@@ -55,7 +55,7 @@ class FhirLocationRestController
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
             array_push($bundleEntries, $fhirBundleEntry);
         }
-        $bundleSearchResult = $this->fhirService->createBundle('Location', $bundleEntries, false);
+        $bundleSearchResult = $this->fhirService->createBundle('CareTeam', $bundleEntries, false);
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
     }

@@ -706,8 +706,8 @@ function getCodeText($code)
 
 </head>
 
-<body class="body_top">
-    <div class="container">
+<body>
+    <div class="container mt-3">
         <ul class="tabNav">
             <li class='current'><a href='#'><?php echo xlt('Issue'); ?></a></li>
             <?php
@@ -752,7 +752,7 @@ function getCodeText($code)
                         }
                         ?>
                         <div class="form-group col-12">
-                            <label for="" class="col-form-label"><?php echo xlt('Type'); ?>:</label>
+                            <label class="col-form-label"><?php echo xlt('Type'); ?>:</label>
                             <?php
                             $index = 0;
                             foreach ($ISSUE_TYPES as $key => $value) {
@@ -816,11 +816,11 @@ function getCodeText($code)
                         </div>
                         <div class="form-group col-12">
                             <label class="col-form-label" for="form_begin"><?php echo xlt('Begin Date'); ?>:</label>
-                            <input type='text' class='datepicker form-control' style="width:50%" name='form_begin' id='form_begin' value='<?php echo attr(oeFormatShortDate($irow['begdate'])) ?>' title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>'>
+                            <input type='text' class='datepicker form-control' name='form_begin' id='form_begin' value='<?php echo attr(oeFormatShortDate($irow['begdate'])) ?>' title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>'>
                         </div>
                         <div class="form-group col-12" id='row_enddate'>
                             <label class="col-form-label" for="form_begin"><?php echo xlt('End Date'); ?>:</label>
-                            <input type='text' class='datepicker form-control' style="width:50%" name='form_end' id='form_end' value='<?php echo attr(oeFormatShortDate($irow['enddate'])) ?>' title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
+                            <input type='text' class='datepicker form-control' name='form_end' id='form_end' value='<?php echo attr(oeFormatShortDate($irow['enddate'])) ?>' title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
                             &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
                         </div>
                         <div class="form-group col-12" id='row_active'>
@@ -917,11 +917,11 @@ function getCodeText($code)
                         <div class="form-group clearfix" id="button-container">
                             <div class="col-sm-12 text-left position-override">
                                 <div class="btn-group" role="group">
-                                    <button type='submit' name='form_save' class="btn btn-secondary btn-save" value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
-                                    <button type="button" class="btn btn-link btn-cancel" onclick='closeme();'><?php echo xlt('Cancel'); ?></button>
+                                    <button type='submit' name='form_save' class="btn btn-primary btn-save" value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
+                                    <button type="button" class="btn btn-secondary btn-cancel" onclick='closeme();'><?php echo xlt('Cancel'); ?></button>
                                     <?php
                                     if ($issue && AclMain::aclCheckCore('admin', 'super')) { ?>
-                                        <button type='submit' name='form_delete' class="btn btn-secondary btn-cancel btn-delete" onclick='deleteme()' value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
+                                        <button type='submit' name='form_delete' class="btn btn-danger btn-cancel btn-delete" onclick='deleteme()' value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
                                         <?php
                                     } ?>
                                 </div>
