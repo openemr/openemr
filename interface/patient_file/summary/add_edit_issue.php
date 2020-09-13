@@ -535,17 +535,6 @@ function getCodeText($code)
             }
         }
 
-        // Process click on Delete link.
-        function deleteme() {
-            dlgopen('../deleter.php?issue=' + <?php echo js_url($issue); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
-            return false;
-        }
-
-        // Called by the deleteme.php window on a successful delete.
-        function imdeleted() {
-            closeme();
-        }
-
         function closeme() {
             dlgclose();
         }
@@ -919,11 +908,6 @@ function getCodeText($code)
                                 <div class="btn-group" role="group">
                                     <button type='submit' name='form_save' class="btn btn-primary btn-save" value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                     <button type="button" class="btn btn-secondary btn-cancel" onclick='closeme();'><?php echo xlt('Cancel'); ?></button>
-                                    <?php
-                                    if ($issue && AclMain::aclCheckCore('admin', 'super')) { ?>
-                                        <button type='submit' name='form_delete' class="btn btn-danger btn-cancel btn-delete" onclick='deleteme()' value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
-                                        <?php
-                                    } ?>
                                 </div>
                             </div>
                         </div>

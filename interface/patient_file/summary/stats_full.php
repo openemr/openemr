@@ -64,17 +64,77 @@ function refreshIssue(issue, title) {
     location.reload();
 }
 
-function dopclick(id,category) {
+function dopclick(id, category) {
     top.restoreSession();
     if (category == 0) category = '';
     dlgopen('add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category), '_blank', 650, 500, '', <?php echo xlj("Add/Edit Issue"); ?>);
-    //dlgopen('add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category), '_blank', 650, 600);
 }
 
 // Process click on number of encounters.
 function doeclick(id) {
     top.restoreSession();
     dlgopen('../problem_encounter.php?issue=' + encodeURIComponent(id), '_blank', 700, 400);
+}
+
+function getSelectionCheckBoxes(tableName) {
+    var result = [];
+    var table = document.getElementById(tableName);
+    for (var i = 0, row; row = table.rows[i]; i++) {
+        selBoxes = row.getElementsByClassName("selection-check");
+        if (selBoxes.length > 0 && selBoxes[0].id) {
+            result[result.length] = selBoxes[0];
+        }
+    }
+
+    return result;
+}
+
+function rowSelectionChanged(tableName) {
+    var deleteBtn = document.getElementById(tableName + "-delete");
+    if (!deleteBtn) {
+        return;
+    }
+
+    var selBoxes = getSelectionCheckBoxes(tableName);
+    for (var i = 0; i < selBoxes.length; i++) {
+        if (selBoxes[i].checked) {
+            deleteBtn.disabled = false;
+            return;
+        }
+    }
+
+    deleteBtn.disabled = true;
+}
+
+function headerSelectionChanged(checkBox, tableName) {
+    var selBoxes = getSelectionCheckBoxes(tableName);
+    for (var i = 0; i < selBoxes.length; i++) {
+        selBoxes[i].checked = checkBox.checked
+    }
+
+    rowSelectionChanged(tableName);
+}
+
+function deleteSelectedIssues(tableName) {
+    var selBoxes = getSelectionCheckBoxes(tableName);
+    var ids = ""
+    var count = 0;
+    for (var i = 0; i < selBoxes.length; i++) {
+        if (selBoxes[i].checked) {
+            if (count > 0) {
+                ids += ","
+            }
+            ids += selBoxes[i].id.split("_")[1]
+            count++
+        }
+    }
+
+    dlgopen('../deleter.php?issue=' + ids + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+}
+
+// Called by the deleter.php window on a successful delete.
+function imdeleted() {
+    refreshIssue('', '')
 }
 
 // Process click on diagnosis for patient education popup.
@@ -112,6 +172,15 @@ $arrOeUiSettings = array(
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
+
+<style>
+    .selection-check {
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+    }
+</style>
 </head>
 
 <body class="patient-medical-issues">
@@ -135,7 +204,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         <?php
                         $encount = 0;
-                        $lasttype = "";
                         $first = 1; // flag for first section
                         foreach ($ISSUE_TYPES as $focustype => $focustitles) {
                             if (!AclMain::aclCheckIssue($focustype)) {
@@ -157,22 +225,40 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Show header
                             $disptype = $focustitles[0];
+                            echo "<div class='mb-3'><span class='title mr-2'>" . text($disptype) . "</span>\n";
+
                             if (AclMain::aclCheckIssue($focustype, '', array('write', 'addonly'))) {
                                 if (($focustype == 'allergy' || $focustype == 'medication') && $GLOBALS['erx_enable']) {
                                     echo "<a href='../../eRx.php?page=medentry' class='btn btn-primary btn-sm' onclick='top.restoreSession()' >" .
-                                    xlt('Add') . "</a>\n";
+                                        xlt('Add') . "</a>\n";
                                 } else {
-                                    echo "<a href='javascript:;' class='btn btn-primary btn-sm btn-add mr-3' onclick='dopclick(0," .
-                                    attr_js($focustype)  . ")'>" . xlt('Add') . "</a>\n";
+                                    echo "<a href='javascript:;' class='btn btn-primary btn-sm btn-add mr-1' onclick='dopclick(0," .
+                                        attr_js($focustype)  . ")'>" . xlt('Add') . "</a>\n";
                                 }
                             }
 
-                            echo "  <span class='title'>" . text($disptype) . "</span>\n";
-                            echo "<div class='table-responsive'><table class='table mb-3'>";
+                            $canDelete = AclMain::aclCheckCore('admin', 'super');
+                            if ($canDelete) {
+                                echo "<button id='" . $focustype . "-delete' disabled
+                                    class='btn btn-primary btn-sm btn-delete btn-danger mr-1'
+                                    onclick='deleteSelectedIssues(" . attr_js($focustype)  . ")'>" . xlt('Delete') . "</button>\n";
+                            }
+
+                            echo "</div>";
+
+                            $canSelect = $canDelete;
+
+                            echo "<div class='table-responsive'><table id='" . $focustype . "' class='table mb-3'>";
                             ?>
 
                             <thead>
                                 <tr>
+                                    <?php if ($canSelect) { ?>
+                                    <th scope="col">
+                                        <input type="checkbox" class="selection-check"
+                                            onclick="headerSelectionChanged(this, <?php echo attr_js($focustype);?>);"/>
+                                    </th>
+                                    <?php } ?>
                                     <th scope="col"><?php echo xlt('Title'); ?></th>
                                     <th scope="col"><?php echo xlt('Begin'); ?></th>
                                     <th scope="col"><?php echo xlt('End'); ?></th>
@@ -268,6 +354,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
 
                                 echo " <tr class='" . attr($bgclass) . " detail' $colorstyle>\n";
+                                if ($canSelect) {
+                                    echo "  <td><input type='checkbox' class='selection-check' id='sel_" . attr($rowid) . "'
+                                        onclick='rowSelectionChanged(" . attr_js($focustype) . ");'/></td>\n";
+                                }
                                 echo "  <td class='text-left " . attr($click_class) . "' style='text-decoration: underline' id='" . attr($rowid) . "'>" . text($disptitle) . "</td>\n";
                                 echo "  <td>" . text(oeFormatShortDate($row['begdate'])) . "&nbsp;</td>\n";
                                 echo "  <td>" . text(oeFormatShortDate($row['enddate'])) . "&nbsp;</td>\n";
