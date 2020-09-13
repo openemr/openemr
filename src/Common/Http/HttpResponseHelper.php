@@ -27,10 +27,6 @@ class HttpResponseHelper
     {
         $response = null;
 
-        if (method_exists($payload, 'toSerializedObject')) {
-            $payload = $payload->toSerializedObject();
-        }
-
         switch ($serializationStrategy) {
             case 'JSON':
                 $messageObject = null;

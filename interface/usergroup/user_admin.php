@@ -399,16 +399,16 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
         $userService = new UserService();
         $users = $userService->getActiveUsers();
         foreach ($users as $activeUser) {
-            $p_id = (int)$activeUser->getId();
-            if ($activeUser->getAuthorized() !== true) {
+            $p_id = (int)$activeUser['id'];
+            if ($activeUser['authorized'] != 1) {
                 continue;
             }
             echo "<option value='" . attr($p_id) . "'";
             if ((int)$iter["supervisor_id"] === $p_id) {
                 echo " selected";
             }
-            echo ">" . text($activeUser->getLname()) . ' ' .
-                text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) . "</option>\n";
+            echo ">" . text($activeUser['lname']) . ' ' .
+                text($activeUser['fname']) . ' ' . text($activeUser['mname']) . "</option>\n";
         }
         ?>
     </select>

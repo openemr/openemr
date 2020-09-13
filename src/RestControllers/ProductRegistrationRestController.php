@@ -26,7 +26,8 @@ class ProductRegistrationRestController
 
     public function getOne()
     {
-        $serviceResult = $this->productRegistrationService->getProductStatus()->getStatusAsString();
+        $serviceResult = $this->productRegistrationService->getProductStatus();
+        $serviceResult = $serviceResult['statusAsString'];
         return RestControllerHelper::responseHandler($serviceResult, array("status" => $serviceResult), 200);
     }
 }

@@ -14,57 +14,32 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Database\Connector;
-use OpenEMR\Common\Logging\Logger;
-use OpenEMR\Entities\ProductRegistration;
-
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
 
 class ProductRegistrationService
 {
     /**
-     * Logger used primarily for logging events that are of interest to
-     * developers.
-     */
-    private $logger;
-
-    /**
-     * The product registration repository to be used for db CRUD operations.
-     */
-    private $repository;
-
-    /**
      * Default constructor.
      */
     public function __construct()
     {
-        $this->logger = new Logger("\OpenEMR\Services\ProductRegistrationService");
-        $database = Connector::Instance();
-        $entityManager = $database->entityManager;
-        $this->repository = $entityManager->getRepository('\OpenEMR\Entities\ProductRegistration');
     }
 
     public function getProductStatus()
     {
-        $this->logger->debug('Getting current product registration status');
-        $row = $this->repository->findFirst();
+        $row = sqlQuery("SELECT * FROM `product_registration`");
 
-        // Unboxing these here to avoid PHP 5.4 "Can't use method
-        // return value in write context" error.
-        $optOut = '';
-
-        if ($row !== null) {
-            $email = $row->getEmail();
-            $optOut = $row->getOptOut();
+        if (!empty($row)) {
+            $email = $row['email'];
+            $optOut = $row['opt_out'];
         }
 
         if (empty($row)) {
-            $row = new ProductRegistration();
-            $row->setStatusAsString('UNREGISTERED');
+            $row['statusAsString'] = 'UNREGISTERED';
         } elseif (!empty($email)) {
-            $row->setStatusAsString('REGISTERED');
-        } elseif (!empty($optOut) && $optOut == true) {
-            $row->setStatusAsString('OPT_OUT');
+            $row['statusAsString'] = 'REGISTERED';
+        } elseif (!empty($optOut) && $optOut == 1) {
+            $row['statusAsString'] = 'OPT_OUT';
         }
 
         return $row;
@@ -89,7 +64,6 @@ class ProductRegistrationService
             $info['distribution'] = getenv('OPENEMR_DOCKER_ENV_TAG', true);
         }
 
-        $this->logger->debug('Attempting to register product with email ' . $email);
         $curl = curl_init('https://reg.open-emr.org/api/registration');
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($info));
@@ -100,17 +74,10 @@ class ProductRegistrationService
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
-        $this->logger->debug('Raw response from remote server: ' . $responseBodyRaw);
         switch ($responseCode) {
             case 201:
-                $entry = new ProductRegistration();
-                $entry->setEmail($email);
-                $entry->setOptOut(false);
-
-                $newEmail = $this->repository->save($entry);
-                $this->logger->debug('Successfully registered product ' . $newEmail);
-
-                return $newEmail;
+                sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`) VALUES (?, 0)", [$email]);
+                return $email;
                 break;
             default:
                 throw new \GenericProductRegistrationException(xl("Server error: try again later"));
@@ -120,11 +87,6 @@ class ProductRegistrationService
     // void... don't bother checking for success/failure.
     private function optOutStrategy()
     {
-        $this->logger->debug('Attempting to opt out of product registration');
-        $entry = new ProductRegistration();
-        $entry->setEmail(null);
-        $entry->setOptOut(true);
-
-        $this->repository->save($entry);
+        sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`) VALUES (null, 1)");
     }
 }

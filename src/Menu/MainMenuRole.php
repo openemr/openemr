@@ -113,7 +113,7 @@ class MainMenuRole extends MenuRole
     {
         $userService = new UserService();
         $user = $userService->getCurrentlyLoggedInUser();
-        $mainMenuRole = $user->getMainMenuRole();
+        $mainMenuRole = $user['main_menu_role'];
         if (empty($mainMenuRole)) {
             $mainMenuRole = "standard";
         }
