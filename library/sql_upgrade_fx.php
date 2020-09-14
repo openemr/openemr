@@ -698,6 +698,8 @@ function upgradeFromSqlFile($filename, $path = '')
     $query = "";
     $line = "";
     $skipping = false;
+    $special = false;
+    $trim = true;
     $progress = 0;
 
     while (!feof($fd)) {
@@ -1122,8 +1124,14 @@ function upgradeFromSqlFile($filename, $path = '')
         } elseif (preg_match('/^#EndIf/', $line)) {
             $skipping = false;
         }
-
-        if (preg_match('/^\s*#/', $line)) {
+        if (preg_match('/^#SpecialSql/', $line)) {
+            $special = true;
+            $line = " ";
+        } elseif (preg_match('/^#EndSpecialSql/', $line)) {
+            $special = false;
+            $trim = false;
+            $line = " ";
+        } elseif (preg_match('/^\s*#/', $line)) {
             continue;
         }
 
@@ -1131,11 +1139,22 @@ function upgradeFromSqlFile($filename, $path = '')
             continue;
         }
 
+        if ($special) {
+            $query = $query . " " . $line;
+            continue;
+        }
+
         $query = $query . $line;
-        if (substr($query, -1) == ';') {
-            $query = rtrim($query, ';');
+
+        if (substr(trim($query), -1) == ';') {
+            if ($trim) {
+                $query = rtrim($query, ';');
+            } else {
+                $trim = true;
+            }
 
             flush_echo("$query<br />\n");
+
             if (!sqlStatement($query)) {
                 echo "<p class='text-danger'>The above statement failed: " .
                     getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n";
