@@ -82,7 +82,7 @@ class InstModuleTable
             if ($sqlarray = @file($sqltext)) {
                 $sql = implode("", $sqlarray);
 
-                $specialPattern = '/#specialSql[\w\W]*#endSpecialSql/sU';
+                $specialPattern = '/#SpecialSql[\w\W]*#EndSpecialSql/sU';
                 $specialReplacement = '';
                 preg_match_all($specialPattern, $sql, $specialMatches);
                 //separate spacial sql and clean sql string
@@ -98,7 +98,7 @@ class InstModuleTable
                     }
                 }
                 //handle special sql
-                $cleanSpecialPattern = '/(#specialSql|#endSpecialSql)/';
+                $cleanSpecialPattern = '/(#SpecialSql|#EndSpecialSql)/';
                 foreach ($specialMatches[0] as $sqlq) {
                     $query = rtrim("$sqlq");
                     //remove special sql prefix suffix
