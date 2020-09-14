@@ -60,34 +60,19 @@ class SessionUtil
 
     public static function coreSessionStart($web_root, $read_only = true): void
     {
-        if (version_compare(phpversion(), '7.3.0', '>=')) {
-            session_start([
-                'read_and_close' => $read_only,
-                'cookie_samesite' => "Strict",
-                'name' => 'OpenEMR',
-                'cookie_httponly' => false,
-                'cookie_path' => $web_root ?: '/',
-                'gc_maxlifetime' => self::$gc_maxlifetime,
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length,
-                'use_strict_mode' => self::$use_strict_mode,
-                'use_cookies' => self::$use_cookies,
-                'use_only_cookies' => self::$use_only_cookies,
-            ]);
-        } else {
-            session_start([
-                'read_and_close' => $read_only,
-                'name' => 'OpenEMR',
-                'cookie_httponly' => false,
-                'cookie_path' => $web_root ?: '/',
-                'gc_maxlifetime' => self::$gc_maxlifetime,
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length,
-                'use_strict_mode' => self::$use_strict_mode,
-                'use_cookies' => self::$use_cookies,
-                'use_only_cookies' => self::$use_only_cookies
-            ]);
-        }
+        session_start([
+            'read_and_close' => $read_only,
+            'cookie_samesite' => "Strict",
+            'name' => 'OpenEMR',
+            'cookie_httponly' => false,
+            'cookie_path' => $web_root ?: '/',
+            'gc_maxlifetime' => self::$gc_maxlifetime,
+            'sid_bits_per_character' => self::$sid_bits_per_character,
+            'sid_length' => self::$sid_length,
+            'use_strict_mode' => self::$use_strict_mode,
+            'use_cookies' => self::$use_cookies,
+            'use_only_cookies' => self::$use_only_cookies,
+        ]);
     }
 
     public static function setSession($session_key_or_array, $session_value = null): void
@@ -140,30 +125,17 @@ class SessionUtil
 
     public static function portalSessionStart(): void
     {
-        if (version_compare(phpversion(), '7.3.0', '>=')) {
-            session_start([
-                'cookie_samesite' => "Strict",
-                'name' => 'PortalOpenEMR',
-                'cookie_httponly' => true,
-                'gc_maxlifetime' => self::$gc_maxlifetime,
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length,
-                'use_strict_mode' => self::$use_strict_mode,
-                'use_cookies' => self::$use_cookies,
-                'use_only_cookies' => self::$use_only_cookies
-            ]);
-        } else {
-            session_start([
-                'name' => 'PortalOpenEMR',
-                'cookie_httponly' => true,
-                'gc_maxlifetime' => self::$gc_maxlifetime,
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length,
-                'use_strict_mode' => self::$use_strict_mode,
-                'use_cookies' => self::$use_cookies,
-                'use_only_cookies' => self::$use_only_cookies
-            ]);
-        }
+        session_start([
+            'cookie_samesite' => "Strict",
+            'name' => 'PortalOpenEMR',
+            'cookie_httponly' => true,
+            'gc_maxlifetime' => self::$gc_maxlifetime,
+            'sid_bits_per_character' => self::$sid_bits_per_character,
+            'sid_length' => self::$sid_length,
+            'use_strict_mode' => self::$use_strict_mode,
+            'use_cookies' => self::$use_cookies,
+            'use_only_cookies' => self::$use_only_cookies
+        ]);
     }
 
     public static function portalSessionCookieDestroy(): void
@@ -175,30 +147,18 @@ class SessionUtil
     {
         // Destroy the cookie
         $params = session_get_cookie_params();
-        if (version_compare(phpversion(), '7.3.0', '>=')) {
-            setcookie(
-                session_name(),
-                '',
-                [
-                    'expires' => time() - 42000,
-                    'path' => $params["path"],
-                    'domain' => $params["domain"],
-                    'secure' => $params["secure"],
-                    'httponly' => $params["httponly"],
-                    'samesite' => $params["samesite"]
-                ]
-            );
-        } else {
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params["path"],
-                $params["domain"],
-                $params["secure"],
-                $params["httponly"]
-            );
-        }
+        setcookie(
+            session_name(),
+            '',
+            [
+                'expires' => time() - 42000,
+                'path' => $params["path"],
+                'domain' => $params["domain"],
+                'secure' => $params["secure"],
+                'httponly' => $params["httponly"],
+                'samesite' => $params["samesite"]
+            ]
+        );
 
         // Destroy the session.
         session_destroy();

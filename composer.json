@@ -11,7 +11,7 @@
         "source": "https://github.com/openemr/openemr"
     },
     "require": {
-        "php": ">=7.2.0",
+        "php": ">=7.3.0",
         "academe/omnipay-authorizenetapi": "3.1.2",
         "adodb/adodb-php": "5.20.18",
         "dompdf/dompdf": "0.8.6",
@@ -61,7 +61,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.2"
+            "php": "7.3"
         }
     },
     "require-dev": {
