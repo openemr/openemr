@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Code selectoor.
+ * Code selector.
  * For DataTables documentation see: http://legacy.datatables.net/
  *
  * @package   OpenEMR
@@ -89,11 +89,19 @@ $(function () {
         oSelectedIDs[this.id] = oSelectedIDs[this.id] ? 0 : 1;
         showRowSelection(this)
      });
+    
+    // onmouseover handler for rows
+    oTable.on('mouseover', 'tr', function() {
+        showCursor(this);
+    });
 });
 
 function showRowSelection(row) {
     row.style.fontWeight = oSelectedIDs[row.id] ? 'bold' : 'normal';
-    //row.style.backgroundColor = "lightblue"
+}
+
+function showCursor(row) {
+    row.style.cursor = "pointer";
 }
 
 function onOK() {
