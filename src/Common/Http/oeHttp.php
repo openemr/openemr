@@ -14,14 +14,12 @@
 
 namespace OpenEMR\Common\Http;
 
-use Doctrine\Common\Cache\PhpFileCache;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use kamermans\OAuth2\OAuth2Middleware;
 use kamermans\OAuth2\GrantType\PasswordCredentials;
-use kamermans\OAuth2\Persistence\DoctrineCacheTokenPersistence;
+use kamermans\OAuth2\Persistence\FileTokenPersistence;
 
-//use kamermans\OAuth2\Persistence\FileTokenPersistence;
 //use kamermans\OAuth2\GrantType\RefreshToken;
 
 /**
@@ -74,11 +72,10 @@ class oeOAuth
         //
         $this->auth_client = new Client($this->auth_options);
 
-        // Use doctrine and php file cache to persist a safe token storage.
+        // Use php file to persist a safe token storage.
         //
-        $this->httpCache = new PhpFileCache($GLOBALS['temporary_files_dir'], '');
-        $this->token_storage = new DoctrineCacheTokenPersistence($this->httpCache);
-
+        $token_path = $GLOBALS['OE_SITE_DIR'] . '/documents/logs_and_misc/methods/_cache';
+        $this->token_storage = new FileTokenPersistence($token_path);
         $this->grant_type = new PasswordCredentials($this->auth_client, $this->auth_config);
         $this->oauth = new OAuth2Middleware($this->grant_type);
         $this->oauth->setTokenPersistence($this->token_storage);
