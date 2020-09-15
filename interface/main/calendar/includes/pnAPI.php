@@ -311,7 +311,7 @@ function pnDBInit()
     // Sync MySQL time zone with PHP time zone.
     $dbconn->Execute("SET time_zone = '" . add_escape_custom((new DateTime())->format("P")) . "'");
 
-    if ($GLOBALS['debug_ssl_mysql_connection']) {
+    if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
         error_log("CHECK SSL CIPHER IN CALENDAR ADODB: " . errorLogEscape(print_r($dbconn->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
     }
 

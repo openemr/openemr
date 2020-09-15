@@ -72,7 +72,7 @@ if (!$sql_strict_set_success) {
 //  command does not work)
 $GLOBALS['adodb']['db']->SetFetchMode(ADODB_FETCH_ASSOC);
 
-if ($GLOBALS['debug_ssl_mysql_connection']) {
+if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
     error_log("CHECK SSL CIPHER IN MAIN ADODB: " . errorLogEscape(print_r($GLOBALS['adodb']['db']->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
 }
 
@@ -697,7 +697,7 @@ function getPrivDB()
             // set up associations in adodb calls
             $GLOBALS['PRIV_DB']->SetFetchMode(ADODB_FETCH_ASSOC);
             // debug hook for ssl stuff
-            if ($GLOBALS['debug_ssl_mysql_connection']) {
+            if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
                 error_log("CHECK SSL CIPHER IN PRIV_DB ADODB: " . errorLogEscape(print_r($GLOBALS[PRIV_DB]->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields), true));
             }
         } else {

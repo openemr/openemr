@@ -152,7 +152,7 @@ class DataDriverMySQLi implements IDataDriver
             }
         }
 
-        if ($GLOBALS['debug_ssl_mysql_connection']) {
+        if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
             $sslTestCipher = mysqli_query($connection, "SHOW STATUS LIKE 'Ssl_cipher';");
             error_log("CHECK SSL CIPHER IN PATIENT PORTAL MYSQLI: " . htmlspecialchars(print_r(mysqli_fetch_assoc($sslTestCipher), true), ENT_QUOTES));
             mysqli_free_result($sslTestCipher);
