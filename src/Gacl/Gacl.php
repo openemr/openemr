@@ -134,7 +134,7 @@ class Gacl {
         $this->_db_password = $sqlconf["pass"];
         $this->_db_name = $sqlconf["dbase"];
         if (!$disable_utf8_flag) {
-            if ($sqlconf["db_encoding"] == "utf8mb4") {
+            if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
                 $this->_db_encoding_setting = "utf8mb4";
             } else {
                 $this->_db_encoding_setting = "utf8";

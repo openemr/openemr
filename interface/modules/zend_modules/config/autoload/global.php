@@ -19,7 +19,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 
 // If to use utf-8 or not in my sql query
 if (!$GLOBALS['disable_utf8_flag']) {
-    if ($GLOBALS["db_encoding"] == "utf8mb4") {
+    if (!empty($GLOBALS["db_encoding"]) && ($GLOBALS["db_encoding"] == "utf8mb4")) {
         $tmp = "SET NAMES 'UTF8MB4', sql_mode = ''";
     } else {
         $tmp = "SET NAMES 'UTF8', sql_mode = ''";
