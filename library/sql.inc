@@ -39,7 +39,7 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
     }
 }
 $database->port = $port;
-if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
+if (!empty($GLOBALS["enable_database_connection_pooling"]) && empty($GLOBALS['connection_pooling_off'])) {
     $database->PConnect($host, $login, $pass, $dbase);
 } else {
     $database->connect($host, $login, $pass, $dbase);
@@ -689,7 +689,7 @@ function getPrivDB()
                 }
             }
             $GLOBALS['PRIV_DB']->port = $port;
-            if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
+            if (!empty($GLOBALS["enable_database_connection_pooling"]) && empty($GLOBALS['connection_pooling_off'])) {
                 $GLOBALS['PRIV_DB']->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);
             } else {
                 $GLOBALS['PRIV_DB']->connect($secure_host, $secure_login, $secure_pass, $secure_dbase);
