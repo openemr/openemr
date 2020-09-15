@@ -32,12 +32,6 @@
         <delete dir="${dir.vendor}/adodb/adodb-php/tests" verbose="true"/>
         <delete dir="${dir.vendor}/adodb/adodb-php/docs" verbose="true"/>
         <delete dir="${dir.vendor}/container-interop/container-interop/docs" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/cache/docs" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/common/docs" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/couchdb/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/event-manager/docs" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/orm/docs" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/reflection/docs" verbose="true"/>
         <delete dir="${dir.vendor}/ezyang/htmlpurifier/test" verbose="true"/>
         <delete dir="${dir.vendor}/ezyang/htmlpurifier/maintenance" verbose="true"/>
         <delete dir="${dir.vendor}/ezyang/htmlpurifier/plugins" verbose="true"/>

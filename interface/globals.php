@@ -523,13 +523,13 @@ if (!empty($version)) {
     $patch_appending = "";
     //Collected below function call to a variable, since unable to directly include
     // function calls within empty() in php versions < 5.5 .
-    $version_getrealpatch = $version->getRealPatch();
-    if (($version->getRealPatch() != '0') && (!(empty($version_getrealpatch)))) {
-        $patch_appending = " (" . $version->getRealPatch() . ")";
+    $version_getrealpatch = $version['v_realpatch'];
+    if (($version['v_realpatch'] != '0') && (!(empty($version_getrealpatch)))) {
+        $patch_appending = " (" . $version['v_realpatch'] . ")";
     }
 
-    $openemr_version = $version->getMajor() . "." . $version->getMinor() . "." . $version->getPatch();
-    $openemr_version .= $version->getTag() . $patch_appending;
+    $openemr_version = $version['v_major'] . "." . $version['v_minor'] . "." . $version['v_patch'];
+    $openemr_version .= $version['v_tag'] . $patch_appending;
 } else {
     $openemr_version = xl('Unknown version');
 }

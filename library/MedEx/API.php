@@ -3241,11 +3241,11 @@ class MedEx
         'key'       => $info['ME_api_key'],
         'UID'       => $info['MedEx_id'],
         'MedEx'     => 'OpenEMR',
-        'major'     => attr($version->getMajor()),
-        'minor'     => attr($version->getMinor()),
-        'patch'     => attr($version->getPatch()),
-        'database'  => attr($version->getDatabase()),
-        'acl'       => attr($version->getAcl()),
+        'major'     => attr($version['v_major']),
+        'minor'     => attr($version['v_minor']),
+        'patch'     => attr($version['v_patch']),
+        'database'  => attr($version['v_database']),
+        'acl'       => attr($version['v_acl']),
         'callback_key' => $info['callback_key']
         ));
 

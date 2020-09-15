@@ -789,10 +789,5 @@ if ($acl_version < $upgrade_acl) {
 */
 
 //All done
-$response = AclExtended::setAclVersion($acl_version);
-
-if ($response) {
-    echo "DONE upgrading access controls";
-} else {
-    echo "ERROR upgrading access control version";
-}
+AclExtended::setAclVersion($acl_version);
+echo "DONE upgrading access controls";

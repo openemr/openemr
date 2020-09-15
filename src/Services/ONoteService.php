@@ -12,39 +12,13 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Database\Connector;
-use OpenEMR\Common\Logging\Logger;
-use OpenEMR\Entities\ONote;
-use OpenEMR\Services\UserService;
-
 class ONoteService
 {
-    /**
-     * Logger used primarily for logging events that are of interest to
-     * developers.
-     */
-    private $logger;
-
-    /**
-     * The onote repository to be used for db CRUD operations.
-     */
-    private $repository;
-
-    /**
-     * Service used for correlating a user with a new onote.
-     */
-    private $userService;
-
     /**
      * Default constructor.
      */
     public function __construct()
     {
-        $this->logger = new Logger("\OpenEMR\Services\ONoteService");
-        $database = Connector::Instance();
-        $entityManager = $database->entityManager;
-        $this->repository = $entityManager->getRepository('\OpenEMR\Entities\ONote');
-        $this->userService = new UserService();
     }
 
     /**
@@ -55,23 +29,7 @@ class ONoteService
      */
     public function add($body)
     {
-        $newNote = new ONote();
-        $newNote->setBody($body);
-        $newNote->setGroupName($this->userService->getCurrentlyLoggedInUserGroup());
-        $newNote->setUser($this->userService->getCurrentlyLoggedInUser());
-        $newNote->setActivity(1);
-        $newNote->setDate(new \DateTime());
-
-        $this->logger->debug("Adding new office note");
-        $result = $this->repository->save($newNote);
-
-        if (empty($result)) {
-            $this->logger->error("Failed adding new office note");
-        }
-
-        $this->logger->debug("Added new office note " . $result);
-
-        return $result;
+        return sqlInsert("INSERT INTO `onotes` (`date`, `body`, `user`, `groupname`, `activity`) VALUES (NOW(), ?, ?, ?, 1)", [$body, $_SESSION["authUser"], $_SESSION['authProvider']]);
     }
 
     /**
@@ -82,14 +40,7 @@ class ONoteService
      */
     public function enableNoteById($id)
     {
-        $this->logger->debug("Enabling office note with id " . $id);
-        $result = $this->repository->enableNoteById($id);
-
-        if (empty($result)) {
-            $this->logger->error("Failed updating office note " . $id);
-        }
-
-        return $result;
+        sqlStatement("UPDATE `onotes` SET `activity` = 1 WHERE `id` = ?", [$id]);
     }
 
     /**
@@ -100,14 +51,7 @@ class ONoteService
      */
     public function disableNoteById($id)
     {
-        $this->logger->debug("Disabling office note with id " . $id);
-        $result = $this->repository->disableNoteById($id);
-
-        if (empty($result)) {
-            $this->logger->error("Failed updating office note " . $id);
-        }
-
-        return $result;
+        sqlStatement("UPDATE `onotes` SET `activity` = 0 WHERE `id` = ?", [$id]);
     }
 
     /**
@@ -116,11 +60,19 @@ class ONoteService
      * @param $activity -1/0/1 to indicate filtered notes.
      * @param $offset The start index for pagination.
      * @param $limit The limit for pagination.
-     * @return list of office notes.
+     * @return array of office notes.
      */
     public function getNotes($activity, $offset, $limit)
     {
-        $this->logger->debug("Getting " . $activity . " onotes with filters: " . $offset . " " . $limit);
-        return $this->repository->getNotes($activity, $offset, $limit);
+        $notes = [];
+        if (($activity == 0) || ($activity == 1)) {
+            $note = sqlStatement("SELECT * FROM `onotes` WHERE `activity` = ? ORDER BY `date` DESC LIMIT " . escape_limit($limit) . " OFFSET " . escape_limit($offset), [$activity]);
+        } else {
+            $note = sqlStatement("SELECT * FROM `onotes` ORDER BY `date` DESC LIMIT " . escape_limit($limit) . " OFFSET " . escape_limit($offset));
+        }
+        while ($row = sqlFetchArray($note)) {
+            $notes[] = $row;
+        }
+        return $notes;
     }
 }

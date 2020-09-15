@@ -46,20 +46,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\VersionService;
 
-$versionService = new VersionService();
-
-// Fetching current version because it was updated by the sql_upgrade_fx
-// script and this script will further modify it.
-$currentVersion = $versionService->fetch();
-
-$desiredVersion = $currentVersion;
-$desiredVersion->setDatabase($v_database);
-$desiredVersion->setTag($v_tag);
-$desiredVersion->setRealPatch($v_realpatch);
-$desiredVersion->setPatch($v_patch);
-$desiredVersion->setMinor($v_minor);
-$desiredVersion->setMajor($v_major);
-
 // Force logging off
 $GLOBALS["enable_auditlog"] = 0;
 
@@ -356,6 +342,16 @@ function pausePoll(othis) {
             require("acl_upgrade.php");
             echo "<br />\n";
 
+            $versionService = new VersionService();
+            $currentVersion = $versionService->fetch();
+            $desiredVersion = $currentVersion;
+            $desiredVersion['v_database'] = $v_database;
+            $desiredVersion['v_tag'] = $v_tag;
+            $desiredVersion['v_realpatch'] = $v_realpatch;
+            $desiredVersion['v_patch'] = $v_patch;
+            $desiredVersion['v_minor'] = $v_minor;
+            $desiredVersion['v_major'] = $v_major;
+
             $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
             $line = "Updating version indicators";
 
@@ -364,12 +360,7 @@ function pausePoll(othis) {
             }
 
             echo "<p class='text-success'>" . $line . "...</p><br />\n";
-            $result = $versionService->update($desiredVersion);
-
-            if (!$result) {
-                echo "<p class='text-danger'>" . xlt("Version could not be updated") . "</p><br />\n";
-                exit();
-            }
+            $versionService->update($desiredVersion);
 
             echo "<p><p class='text-success'>" . xlt("Database and Access Control upgrade finished.") . "</p></p>\n";
             echo "</div></body></html>\n";

@@ -22,10 +22,6 @@ if ($response !== true) {
 
 require_once "version.php";
 
-// Please note that the plain sql is used over the Doctrine ORM for
-// `version` table interactions because it cannot connect due to a
-// lack of context (this code is ran outside of the OpenEMR context).
-
 $webserver_root = dirname(__FILE__);
 if (stripos(PHP_OS, 'WIN') === 0) {
     $webserver_root = str_replace("\\", "/", $webserver_root);

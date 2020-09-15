@@ -334,9 +334,6 @@ class Installer
         return $sql_results;
     }
 
-  // Please note that the plain sql is used over the Doctrine ORM for
-  // `version` table interactions because it cannot connect due to a
-  // lack of context (this code is ran outside of the OpenEMR context).
     public function add_version_info()
     {
         include dirname(__FILE__) . "/../../version.php";

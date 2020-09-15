@@ -22,8 +22,6 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Entities\ChartTracker;
-use OpenEMR\Services\ChartTrackerService;
 use OpenEMR\Services\UserService;
 
 $form_newid   = isset($_POST['form_newid'  ]) ? trim($_POST['form_newid'  ]) : '';
@@ -85,14 +83,7 @@ if ($form_newloc || $form_newuser) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-
-    $tracker = new ChartTracker();
-    $tracker->setPid($form_curpid);
-    $tracker->setWhen(new \DateTime(date('Y-m-d H:i:s')));
-    $tracker->setUserId($form_newuser);
-    $tracker->setLocation($form_newloc);
-    $chartTrackerService = new ChartTrackerService();
-    $chartTrackerService->trackPatientLocation($tracker);
+    sqlStatement("INSERT INTO `chart_tracker` (`ct_pid`, `ct_when`, `ct_userid`, `ct_location`) VALUES (?, NOW(), ?, ?)", [$form_curpid, $form_newuser, $form_newloc]);
     echo "<div class='alert alert-success'>" . xlt('Save Successful for chart ID') . " " . "'" . text($form_curid) . "'.</div>";
 }
 
@@ -125,7 +116,7 @@ if (!empty($row)) {
     $current_location = xlt('Unassigned');
     if ($ct_userid) {
         $user = $userService->getUser($ct_userid);
-        $current_location = text($user->getLname() . ", " . $user->getFname() . " " . $user->getMname() . " " . oeFormatDateTime($row['ct_when'], "global", true));
+        $current_location = text($user['lname'] . ", " . $user['fname'] . " " . $user['mname'] . " " . oeFormatDateTime($row['ct_when'], "global", true));
     } elseif ($ct_location) {
         $current_location = generate_display_field(array('data_type' => '1','list_id' => 'chartloc'), $ct_location);
     }
@@ -180,8 +171,8 @@ if (!empty($row)) {
                         $users = $userService->getActiveUsers();
 
                         foreach ($users as $activeUser) {
-                            echo "    <option value='" . attr($activeUser->getId()) . "'";
-                            echo ">" . text($activeUser->getLname()) . ', ' . text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) .
+                            echo "    <option value='" . attr($activeUser['id']) . "'";
+                            echo ">" . text($activeUser['lname']) . ', ' . text($activeUser['fname']) . ' ' . text($activeUser['mname']) .
                             "</option>\n";
                         }
                         ?>

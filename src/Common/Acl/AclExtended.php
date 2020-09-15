@@ -757,7 +757,7 @@ class AclExtended
     {
         $versionService = new VersionService();
         $version = $versionService->fetch();
-        return $version->getAcl();
+        return $version['v_acl'];
     }
 
     /**
@@ -769,9 +769,9 @@ class AclExtended
     {
         $versionService = new VersionService();
         $version = $versionService->fetch();
-        $version->setAcl($acl_version);
-        $response = $versionService->update($version);
-        return $response;
+        $version['v_acl'] = $acl_version;
+        $versionService->update($version);
+        return;
     }
 
     /**

@@ -523,7 +523,7 @@ function restoreSession() {
                                 echo "  </td>\n";
                                 echo "  <td class='notecell'>";
                                 $updateBy = $userService->getUser($iter['update_by']);
-                                echo !is_null($updateBy) ? text($updateBy->getFname()) . ' ' . text($updateBy->getLname()) : '';
+                                echo !is_null($updateBy) ? text($updateBy['fname']) . ' ' . text($updateBy['lname']) : '';
                                 echo "  </td>\n";
                                 echo " </tr>\n";
 

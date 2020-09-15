@@ -26,7 +26,7 @@ class VersionRestController
 
     public function getOne()
     {
-        $serviceResult = $this->versionService->fetch()->toSerializedObject();
+        $serviceResult = $this->versionService->fetch();
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 }

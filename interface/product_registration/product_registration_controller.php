@@ -24,7 +24,6 @@ require_once("../globals.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
 
 use OpenEMR\Common\Http\HttpResponseHelper;
-use OpenEMR\Entities\ProductRegistration;
 use OpenEMR\Services\ProductRegistrationService;
 
 class ProductRegistrationController
@@ -59,9 +58,9 @@ class ProductRegistrationController
         $status = 500;
 
         try {
-            $response = new ProductRegistration();
+            $response = [];
             $registrationEmail = $this->productRegistrationService->registerProduct($_POST['email']);
-            $response->setEmail($registrationEmail);
+            $response['email'] = $registrationEmail;
             $status = 201;
         } catch (GenericProductRegistrationException $genericProductRegistrationException) {
             $response = $genericProductRegistrationException->errorMessage();
