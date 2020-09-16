@@ -39,7 +39,7 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
     }
 }
 $database->port = $port;
-if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
+if (!empty($GLOBALS["enable_database_connection_pooling"]) && empty($GLOBALS['connection_pooling_off'])) {
     $database->PConnect($host, $login, $pass, $dbase);
 } else {
     $database->connect($host, $login, $pass, $dbase);
@@ -49,7 +49,7 @@ $GLOBALS['dbh'] = $database->_connectionID;
 
 // Modified 5/2009 by BM for UTF-8 project ---------
 if (!$disable_utf8_flag) {
-    if ($sqlconf["db_encoding"] == "utf8mb4") {
+    if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
         $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8mb4'");
         if (!$success_flag) {
             error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8MB4 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
@@ -72,7 +72,7 @@ if (!$sql_strict_set_success) {
 //  command does not work)
 $GLOBALS['adodb']['db']->SetFetchMode(ADODB_FETCH_ASSOC);
 
-if ($GLOBALS['debug_ssl_mysql_connection']) {
+if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
     error_log("CHECK SSL CIPHER IN MAIN ADODB: " . errorLogEscape(print_r($GLOBALS['adodb']['db']->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
 }
 
@@ -689,7 +689,7 @@ function getPrivDB()
                 }
             }
             $GLOBALS['PRIV_DB']->port = $port;
-            if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
+            if (!empty($GLOBALS["enable_database_connection_pooling"]) && empty($GLOBALS['connection_pooling_off'])) {
                 $GLOBALS['PRIV_DB']->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);
             } else {
                 $GLOBALS['PRIV_DB']->connect($secure_host, $secure_login, $secure_pass, $secure_dbase);
@@ -697,7 +697,7 @@ function getPrivDB()
             // set up associations in adodb calls
             $GLOBALS['PRIV_DB']->SetFetchMode(ADODB_FETCH_ASSOC);
             // debug hook for ssl stuff
-            if ($GLOBALS['debug_ssl_mysql_connection']) {
+            if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
                 error_log("CHECK SSL CIPHER IN PRIV_DB ADODB: " . errorLogEscape(print_r($GLOBALS[PRIV_DB]->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields), true));
             }
         } else {

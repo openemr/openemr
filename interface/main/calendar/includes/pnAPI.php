@@ -268,7 +268,7 @@ function pnDBInit()
     }
     $dbconn->port = $dbport;
 
-    if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
+    if (!empty($GLOBALS["enable_database_connection_pooling"]) && empty($GLOBALS['connection_pooling_off'])) {
         $dbh = $dbconn->PConnect($dbhost, $dbuname, $dbpass, $dbname);
     } else {
         $dbh = $dbconn->connect($dbhost, $dbuname, $dbpass, $dbname);
@@ -311,7 +311,7 @@ function pnDBInit()
     // Sync MySQL time zone with PHP time zone.
     $dbconn->Execute("SET time_zone = '" . add_escape_custom((new DateTime())->format("P")) . "'");
 
-    if ($GLOBALS['debug_ssl_mysql_connection']) {
+    if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
         error_log("CHECK SSL CIPHER IN CALENDAR ADODB: " . errorLogEscape(print_r($dbconn->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
     }
 

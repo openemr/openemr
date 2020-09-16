@@ -245,7 +245,7 @@ foreach ($DOWlist as $dow) {
 [-php-]
 $atmp = array_keys($A_EVENTS);
 $caldate = strtotime($atmp[0]);
-$caldateEnd = strtotime($atmp[6]);
+$caldateEnd = strtotime($atmp[6] ?? '');
 
 // to make a complete week row we need to compute the real
 // start and end dates for the view

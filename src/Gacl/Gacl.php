@@ -134,7 +134,7 @@ class Gacl {
         $this->_db_password = $sqlconf["pass"];
         $this->_db_name = $sqlconf["dbase"];
         if (!$disable_utf8_flag) {
-            if ($sqlconf["db_encoding"] == "utf8mb4") {
+            if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
                 $this->_db_encoding_setting = "utf8mb4";
             } else {
                 $this->_db_encoding_setting = "utf8";
@@ -165,7 +165,7 @@ class Gacl {
 			// Port to be used in connection
 			$this->db->port = $sqlconf["port"];
 
-            if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
+            if (!empty($GLOBALS["enable_database_connection_pooling"]) && empty($GLOBALS['connection_pooling_off'])) {
                 $this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
             } else {
                 $this->db->connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
@@ -190,7 +190,7 @@ class Gacl {
 				error_log("Unable to set strict sql setting: " . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
 			}
 
-            if ($GLOBALS['debug_ssl_mysql_connection']) {
+            if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
                 error_log("CHECK SSL CIPHER IN GACL ADODB: " . htmlspecialchars(print_r($this->db->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true), ENT_QUOTES));
             }
 
