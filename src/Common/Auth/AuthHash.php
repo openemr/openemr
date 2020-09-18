@@ -170,7 +170,7 @@ class AuthHash
     public function passwordNeedsRehash($hash)
     {
         if ($this->algo == "SHA512HASH") {
-            // Process SHA512HASH algo separately, since uses crypt
+            // Process when going to SHA512HASH algo separately, since not supported by standard password_needs_rehash
             if (empty(preg_match('/^\$6\$rounds=/', $hash))) {
                 // algo does not match, so needs rehash
                 return true;
@@ -181,8 +181,12 @@ class AuthHash
                 // number of rounds does not match, so needs rehash
                 return true;
             }
+        } elseif (!empty(preg_match('/^\$6\$rounds=/', $hash))) {
+            // Process when going from SHA512HASH algo separately, since not supported by standard password_needs_rehash
+            // Note we already know that $this->algo != "SHA512HASH", so we return true
+            return true;
         } else {
-            // Process algos supported by standard password_needs_rehash
+            // Process when going to and from algos supported by standard password_needs_rehash
             if (empty($this->options)) {
                 return password_needs_rehash($hash, $this->algo_constant);
             } else {
