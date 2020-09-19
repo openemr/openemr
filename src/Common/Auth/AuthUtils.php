@@ -27,7 +27,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
- * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -216,10 +216,7 @@ class AuthUtils
 
         // Authentication
         // First, ensure the user hash is a valid hash
-        //  (note need to preg_match for \$2a\$05\$ for backward compatibility since
-        //   password_get_info() call can not identify older bcrypt hashes)
-        $hash_info = password_get_info($patientInfo['portal_pwd']);
-        if (empty($hash_info['algo']) && empty(preg_match('/^\$2a\$05\$/', $patientInfo['portal_pwd']))) {
+        if (!AuthHash::hashValid($patientInfo['portal_pwd'])) {
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient stored password hash is invalid", $patientDataInfo['pid']);
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -333,10 +330,7 @@ class AuthUtils
         } else {
             // standard authentication
             // First, ensure the user hash is a valid hash
-            //  (note need to preg_match for \$2a\$05\$ for backward compatibility since
-            //   password_get_info() call can not identify older bcrypt hashes)
-            $hash_info = password_get_info($userSecure['password']);
-            if (empty($hash_info['algo']) && empty(preg_match('/^\$2a\$05\$/', $userSecure['password']))) {
+            if (!AuthHash::hashValid($userSecure['password'])) {
                 EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
                 $this->clearFromMemory($password);
                 $this->preventTimingAttack();
