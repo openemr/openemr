@@ -567,7 +567,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="container">
                     <fieldset>
                         <legend><?php echo xlt('Select Options for Current Procedure Order Id ') . (($formid) ? text($formid) : 'New Order')?></legend>
-                        <div class="form-row">
+                        <div class="form-row p-2">
                             <div class="col-sm-3">
                                 <label for="provider_id" class="col-form-label"><?php echo xlt('Ordering Provider'); ?></label>
                             </div>
@@ -593,7 +593,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </select>
                             </div>
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="form-row mt-3 p-2">
                             <div class="col-sm-3">
                                 <label for="form_data_ordered" class="col-form-label"><?php echo xlt('Order Date'); ?></label>
                             </div>
@@ -607,7 +607,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <input class='datetimepicker form-control' type='text' name='form_date_collected' id='form_date_collected' value="<?php echo attr(substr($row['date_collected'], 0, 16)); ?>" title="<?php echo xla('Date and time that the sample was collected'); ?>"/>
                             </div>
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="form-row mt-3 p-2">
                             <div class="col-sm-3">
                                 <label for="form_data_ordered" class="col-form-label"><?php echo xlt('Priority'); ?></label>
                             </div>
@@ -627,7 +627,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 ?>
                             </div>
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="form-row mt-3 p-2">
                             <div class="col-sm-3">
                                 <label for="form_data_ordered" class="col-form-label"><?php echo xlt('History Order'); ?></label>
                             </div>
@@ -641,7 +641,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 generate_form_field($historyOrderOpts, $row['history_order']); ?>
                             </div>
                         </div>
-                        <div class="form-row mt-3">
+                        <div class="form-row mt-3 p-2">
                             <div class="col-sm-3">
                                 <label for="form_clinical_hx" class="col-form-label"><?php echo xlt('Clinical History'); ?></label>
                             </div>
@@ -650,7 +650,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </div>
                         </div>
                         <?php // Hide this for now with a hidden class as it does not yet do anything ?>
-                        <div class="form-row mt-3 hidden">
+                        <div class="form-row mt-3 p-2 hidden">
                             <div class="col-sm-3">
                                 <label for="form_data_ordered" class="col-form-label"><?php echo xlt('Patient Instructions'); ?></label>
                             </div>
@@ -664,7 +664,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <fieldset>
                         <legend><?php xl('Procedure Order Details', 'e'); ?></legend>
                         <div class="procedure-order-container">
-                            <div class="form-row">
+                            <div class="form-row p-2">
                                 <div class="col-sm-6">
                                     <label for="procedure_type_names" class="col-form-label"><?php echo xlt('Procedure Type'); ?></label>
                                 </div>
