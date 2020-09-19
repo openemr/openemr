@@ -16,10 +16,6 @@ textarea.form-control {
   height: auto !important;
 }
 
-:focus {
-  outline: none !important;
-}
-
 .table > thead {
   background: $mid !important;
 }
@@ -128,17 +124,15 @@ input[type=radio] {
 }
 
 .oe-legend-radio {
-  @include font-size("0.75rem");
   padding: 5px 5px 0 0;
 }
 
 .oe-bold-black {
-  color: #000 !important;
+  color: $black !important;
   font-weight: 700 !important;
 }
 
 .oe-btn-circle {
-  @include font-size("0.75rem");
   background: $darker !important;
   border-color: $darkest !important;
   border-radius: 15px;
@@ -152,7 +146,6 @@ input[type=radio] {
 
 .patientInfo a.btn,
 .patientDataColumn a.btn {
-  @include font-size("0.75rem");
   background: $darker !important;
   border-color: $darkest !important;
   border-radius: 10px !important;

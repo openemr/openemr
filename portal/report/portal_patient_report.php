@@ -609,7 +609,7 @@ while ($row = sqlFetchArray($res)) {
 <?php
 // show available documents
 $db = $GLOBALS['adodb']['db'];
-$sql = "SELECT d.id, d.url, c.name FROM documents AS d " .
+$sql = "SELECT d.id, d.url, d.name as document_name, c.name FROM documents AS d " .
         "LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id " .
         "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
         "d.foreign_id = ?";
@@ -623,7 +623,7 @@ while ($result && !$result->EOF) {
     echo '<input type="checkbox" name="documents[]" value="' .
         $result->fields['id'] . '">';
     echo '&nbsp;&nbsp;<i>' .  text(xl_document_category($result->fields['name'])) . "</i>";
-    echo '&nbsp;&nbsp;' . xlt('Name') . ': <i>' . text(basename($result->fields['url'])) . "</i>";
+    echo '&nbsp;&nbsp;' . xlt('Name') . ': <i>' . text($result->fields['document_name']) . '-' . text($result->fields['id']) . "</i>";
     echo '</li>';
     $result->MoveNext();
 }

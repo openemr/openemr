@@ -14,6 +14,8 @@ CN assignments in certs/keys:
   - Client: openemr-7-3-312 (client-cert.pem, client-key.pem)
 
 files in `easy`/`insane` directories:
+- Dockerfile
+  - Used to build the docker with the below pertinent keys/certs in it
 - CA
   - ca.pem -> (ldap-ca when copied into sites/default/documents/certificates/)
   - ca-key.pem
