@@ -736,7 +736,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                     <legend>
                         &nbsp;<?php echo xlt('Post Item'); ?><i id="payment-info-do-not-remove"> </i>
                     </legend>
-                    <div class="form-row">
+                    <div class="form-row p-2">
                         <div class="form-group col-lg">
                             <label class="control-label" for="form_payer_id"> <?php echo xlt('Payer'); ?>:</label>
                             <?php
@@ -797,7 +797,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         <input type="hidden" id="hid3" value="<?php echo xla('Select Method'); ?>" />
                     </legend>
                     <div class="oe-show-hide" id='inv-search'>
-                        <div class="form-row">
+                        <div class="form-row p-2">
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
                                 <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($_REQUEST['form_name']); ?>' title='<?php echo xla("Any part of the patient name, or \"last,first\", or \"X-Y\""); ?>' placeholder='<?php echo xla('Last name, First name'); ?>' />
@@ -848,7 +848,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </fieldset>
 
                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
-                <div class="form-row clearfix">
+                <div class="form-row p-2">
                     <div class="form-group position-override oe-show-hide" id="search-btn">
                         <div class="btn-group" role="group">
                             <button type='submit' class="btn btn-primary btn-search oe-show-hide" name='form_search' id="btn-inv-search" value='Search'><?php echo xlt("Search"); ?></button>
