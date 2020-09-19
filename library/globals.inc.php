@@ -2068,10 +2068,10 @@ $GLOBALS_METADATA = array(
             xl('Hash Algorithm for Authentication'),
             array(
                 'DEFAULT' => xl('PHP Default'),
-                'BCRYPT' => xl('Bcrypt'),
-                'ARGON2I' => xl('Argon2I') . ' (PHP 7.3 or greater)',
-                'ARGON2ID' => xl('Argon2ID') . ' (PHP 7.3 or greater)',
-                'SHA512HASH' => xl('SHA512') . ' (ONC 2015)',
+                'BCRYPT' => 'Bcrypt',
+                'ARGON2I' => 'Argon2I',
+                'ARGON2ID' => 'Argon2ID',
+                'SHA512HASH' => 'SHA512 (ONC 2015)',
             ),
             'DEFAULT',                // default
             xl('Hashing algorithm for authentication. Suggest PHP Default unless you know what you are doing.')
@@ -2218,10 +2218,10 @@ $GLOBALS_METADATA = array(
             xl('Hash Algorithm for Token'),
             array(
                 'DEFAULT' => xl('PHP Default'),
-                'BCRYPT' => xl('Bcrypt'),
-                'ARGON2I' => xl('Argon2I') . ' (PHP 7.3 or greater)',
-                'ARGON2ID' => xl('Argon2ID') . ' (PHP 7.3 or greater)',
-                'SHA512HASH' => xl('SHA512') . ' (ONC 2015)',
+                'BCRYPT' => 'Bcrypt',
+                'ARGON2I' => 'Argon2I',
+                'ARGON2ID' => 'Argon2ID',
+                'SHA512HASH' => 'SHA512 (ONC 2015)',
             ),
             'DEFAULT',                // default
             xl('Hashing algorithm for token. Suggest PHP Default unless you know what you are doing.')

@@ -42,7 +42,7 @@ class AuthHash
                             //  Note this is used to collect the mode specific algorithm options from globals
 
     private $algo;          // Algorithm setting from globals
-    private $algo_constant; // Standard algorithm constant
+    private $algo_constant; // Standard algorithm constant, if exists
 
     private $options;       // Standardized array of options
 
@@ -136,7 +136,7 @@ class AuthHash
             if (check_integer($GLOBALS['gbl_' . $this->mode . '_sha512_rounds'])) {
                 $this->options = ['rounds' => $GLOBALS['gbl_' . $this->mode . '_sha512_rounds']];
             } else {
-                $this->options = ['rounds' => 10000];
+                $this->options = ['rounds' => 100000];
             }
         } else {
             // This should never happen.
