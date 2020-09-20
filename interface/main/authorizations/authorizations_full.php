@@ -51,7 +51,7 @@ if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user from bil
         $result[$iter] = $row;
     }
 
-    if ($result) {
+    if (!empty($result)) {
         foreach ($result as $iter) {
             $authorize[$iter["pid"]]["billing"] .= "<span class=small>" .
               text($iter["user"]) . ": </span><span class=text>" .
@@ -67,7 +67,7 @@ if ($res = sqlStatement("select * from transactions where authorized=0 and group
         $result2[$iter] = $row;
     }
 
-    if ($result2) {
+    if (!empty($result2)) {
         foreach ($result2 as $iter) {
             $authorize[$iter["pid"]]["transaction"] .= "<span class=small>" .
               text($iter["user"]) . ": </span><span class=text>" .
@@ -101,7 +101,7 @@ if ($res = sqlStatement("select * from forms where authorized=0 and groupname=?"
         $result4[$iter] = $row;
     }
 
-    if ($result4) {
+    if (!empty($result4)) {
         foreach ($result4 as $iter) {
             $authorize[$iter["pid"]]["forms"] .= "<span class=small>" .
               text($iter["user"]) . ": </span><span class=text>" .
@@ -117,7 +117,7 @@ if ($res = sqlStatement("select * from forms where authorized=0 and groupname=?"
 <td valign=top>
 
 <?php
-if ($authorize) {
+if (!empty($authorize)) {
     foreach ($authorize as $ppid => $patient) {
         $name = getPatientData($ppid);
 

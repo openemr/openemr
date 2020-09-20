@@ -272,7 +272,7 @@
         //Readjusts the various values.
         let UnpostedAmt = 0;
         <?php
-        if ($screen == 'new_payment') { ?>
+        if (!empty($screen) && ($screen == 'new_payment')) { ?>
         UnpostedAmt = formatNumber(document.getElementById('HidUnpostedAmount').value * 1);
             <?php
         } else { ?>
@@ -384,7 +384,7 @@
             return false;
         }
         <?php
-        if ($screen == 'edit_payment') {
+        if (!empty($screen) && ($screen == 'edit_payment')) {
             ?>
         if (document.getElementById('check_number').value != '' &&
             document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value == '') {
@@ -418,7 +418,7 @@
             return false;
         }
         <?php
-        if ($screen == 'edit_payment') {
+        if (!empty($screen) && ($screen == 'edit_payment')) {
             ?>
         if (document.getElementById('adjustment_code').options[document.getElementById('adjustment_code').selectedIndex].value == '') {
             let message = <?php echo xlj('Please Fill the Payment Category') ?>;

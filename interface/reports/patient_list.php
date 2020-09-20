@@ -26,8 +26,8 @@ if (!empty($_POST)) {
     }
 }
 
-$from_date = DateToYYYYMMDD($_POST['form_from_date']);
-$to_date   = DateToYYYYMMDD($_POST['form_to_date']);
+$from_date = DateToYYYYMMDD($_POST['form_from_date'] ?? '');
+$to_date   = DateToYYYYMMDD($_POST['form_to_date'] ?? '');
 if (empty($to_date) && !empty($from_date)) {
     $to_date = date('Y-12-31');
 }
@@ -39,7 +39,7 @@ if (empty($from_date) && !empty($to_date)) {
 $form_provider = empty($_POST['form_provider']) ? 0 : intval($_POST['form_provider']);
 
 // In the case of CSV export only, a download will be forced.
-if ($_POST['form_csvexport']) {
+if (!empty($_POST['form_csvexport'])) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -138,8 +138,7 @@ $(function () {
       </td>
       <td>
             <?php
-            generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
-            'empty_title' => '-- All --'), $_POST['form_provider']);
+            generate_form_field(array('data_type' => 10, 'field_id' => 'provider', 'empty_title' => '-- All --'), ($_POST['form_provider'] ?? ''));
             ?>
       </td>
             <td class='col-form-label'>
@@ -172,7 +171,7 @@ $(function () {
                     <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Export to CSV'); ?>
                     </a>
-                    <?php if ($_POST['form_refresh']) { ?>
+                    <?php if (!empty($_POST['form_refresh'])) { ?>
                       <a href='#' id='printbutton' class='btn btn-secondary btn-print'>
                             <?php echo xlt('Print'); ?>
                       </a>
@@ -190,7 +189,7 @@ $(function () {
     <?php
 } // end not form_csvexport
 
-if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     if ($_POST['form_csvexport']) {
         // CSV headers:
         echo csvEscape(xl('Last Visit')) . ',';
@@ -274,7 +273,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
         $prevpid = $row['pid'];
         $age = '';
-        if ($row['DOB']) {
+        if (!empty($row['DOB'])) {
             $dob = $row['DOB'];
             $tdy = $row['edate'] ? $row['edate'] : date('Y-m-d');
             $ageInMonths = (substr($tdy, 0, 4) * 12) + substr($tdy, 5, 2) -
@@ -352,7 +351,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     } // end not export
 } // end if refresh or export
 
-if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) {
+if (empty($_POST['form_refresh']) && empty($_POST['form_csvexport'])) {
     ?>
 <div class='text'>
     <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
@@ -360,7 +359,7 @@ if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) {
     <?php
 }
 
-if (!$_POST['form_csvexport']) {
+if (empty($_POST['form_csvexport'])) {
     ?>
 
 </form>

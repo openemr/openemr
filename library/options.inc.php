@@ -325,11 +325,13 @@ function generate_form_field($frow, $currvalue)
 
     $data_type   = $frow['data_type'];
     $field_id    = $frow['field_id'];
-    $list_id     = $frow['list_id'];
-    $backup_list = $frow['list_backup_id'];
+    $list_id     = $frow['list_id'] ?? null;
+    $backup_list = $frow['list_backup_id'] ?? null;
+    $edit_options = $frow['edit_options'] ?? null;
+    $form_id = $frow['form_id'] ?? null;
 
     // Get if we want a smaller form field
-    $smallform = $frow['smallform'];
+    $smallform = $frow['smallform'] ?? null;
 
     if ($smallform === 'true') {
         $smallform = ' form-control-sm';
@@ -344,7 +346,7 @@ function generate_form_field($frow, $currvalue)
 
     // Support edit option T which assigns the (possibly very long) description as
     // the default value.
-    if (isOption($frow['edit_options'], 'T') !== false) {
+    if (isOption($edit_options, 'T') !== false) {
         if (strlen($currescaped) == 0) {
             $currescaped = $description;
         }
@@ -371,13 +373,13 @@ function generate_form_field($frow, $currvalue)
         $empty_title = "Unassigned";
     }
 
-    $disabled = isOption($frow['edit_options'], '0') === false ? '' : 'disabled';
+    $disabled = isOption($edit_options, '0') === false ? '' : 'disabled';
 
     $lbfchange = (
-        strpos($frow['form_id'], 'LBF') === 0 ||
-        strpos($frow['form_id'], 'LBT') === 0 ||
-        $frow['form_id'] == 'DEM'             ||
-        $frow['form_id'] == 'HIS'
+        strpos($form_id, 'LBF') === 0 ||
+        strpos($form_id, 'LBT') === 0 ||
+        $form_id == 'DEM'             ||
+        $form_id == 'HIS'
     ) ? "checkSkipConditions();" : "";
     $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
@@ -415,9 +417,9 @@ function generate_form_field($frow, $currvalue)
         " title='$description'" .
         " value='$currescaped'";
         $tmp = $lbfchange;
-        if (isOption($frow['edit_options'], 'C') !== false) {
+        if (isOption($edit_options, 'C') !== false) {
             $tmp .= "capitalizeMe(this);";
-        } elseif (isOption($frow['edit_options'], 'U') !== false) {
+        } elseif (isOption($edit_options, 'U') !== false) {
             $tmp .= "this.value = this.value.toUpperCase();";
         }
 
@@ -435,7 +437,7 @@ function generate_form_field($frow, $currvalue)
             echo " onblur='maskblur(this,\"$tmp\")'";
         }
 
-        if (isOption($frow['edit_options'], '1') !== false && strlen($currescaped) > 0) {
+        if (isOption($edit_options, '1') !== false && strlen($currescaped) > 0) {
             echo " readonly";
         }
 
@@ -457,7 +459,7 @@ function generate_form_field($frow, $currvalue)
         ">" . $currescaped . "</textarea>";
     } elseif ($data_type == 4) { // date
         $age_asof_date = ''; // optionalAge() sets this
-        $age_format = isOption($frow['edit_options'], 'A') === false ? 3 : 0;
+        $age_format = isOption($edit_options, 'A') === false ? 3 : 0;
         $agestr = optionalAge($frow, $currvalue, $age_asof_date, $description);
         if ($agestr) {
             echo "<table class='table'><tr><td class='text'>";
@@ -469,7 +471,7 @@ function generate_form_field($frow, $currvalue)
             "updateAgeString('$field_id','$age_asof_date', $age_format, '$description')\"";
         }
         if ($data_type == 4) {
-            $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
+            $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
             $datetimepickerclass = $frow['validation'] === 'past_date' ? '-past' : ( $frow['validation'] === 'future_date' ? '-future' : '' );
             if (!$modtmp) {
                 $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
@@ -619,13 +621,13 @@ function generate_form_field($frow, $currvalue)
         // Alternatively the letter R in edit_options means that abook_type
         // must be "dist", indicating the Distributor type.
 
-        if (isOption($frow['edit_options'], 'L') !== false) {
+        if (isOption($edit_options, 'L') !== false) {
             $tmp = "abook_type = 'ord_lab'";
-        } elseif (isOption($frow['edit_options'], 'O') !== false) {
+        } elseif (isOption($edit_options, 'O') !== false) {
             $tmp = "abook_type LIKE 'ord\\_%'";
-        } elseif (isOption($frow['edit_options'], 'V') !== false) {
+        } elseif (isOption($edit_options, 'V') !== false) {
             $tmp = "abook_type LIKE 'vendor%'";
-        } elseif (isOption($frow['edit_options'], 'R') !== false) {
+        } elseif (isOption($edit_options, 'R') !== false) {
             $tmp = "abook_type LIKE 'dist'";
         } else {
             $tmp = "( username = '' OR authorized = 1 )";
@@ -677,7 +679,7 @@ function generate_form_field($frow, $currvalue)
         }
 
         //
-        if (isOption($frow['edit_options'], '2') !== false && substr($frow['form_id'], 0, 3) == 'LBF') {
+        if (isOption($edit_options, '2') !== false && substr($form_id, 0, 3) == 'LBF') {
             // Option "2" generates a hidden input for the codes, and a matching visible field
             // displaying their descriptions. First step is computing the description string.
             $currdescstring = '';
@@ -1066,7 +1068,7 @@ function generate_form_field($frow, $currvalue)
         // In this special case, fld_length is the number of columns generated.
         $cols = max(1, $frow['fld_length']);
         // Support for edit option M.
-        if (isOption($frow['edit_options'], 'M')) {
+        if (isOption($edit_options, 'M')) {
             ++$membership_group_number;
         }
         //
@@ -1088,10 +1090,10 @@ function generate_form_field($frow, $currvalue)
             echo "<input type='radio' name='form_{$field_id_esc}' id='form_{$field_id_esc}[$option_id_esc]'" .
             " value='$option_id_esc' $lbfonchange";
             // Support for edit options M and m.
-            if (isOption($frow['edit_options'], 'M')) {
+            if (isOption($edit_options, 'M')) {
                 echo " class='form-control$smallform'";
                 echo " onclick='checkGroupMembers(this, $membership_group_number);'";
-            } elseif (isOption($frow['edit_options'], 'm')) {
+            } elseif (isOption($edit_options, 'm')) {
                 echo " class='form-control$smallform lbf_memgroup_$membership_group_number'";
             } else {
                 echo " class='form-control$smallform'";
@@ -2520,10 +2522,11 @@ function generate_display_field($frow, $currvalue)
                     "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$value));
             }
 
+            $title = $lrow['title'] ?? '';
             if ($i > 0) {
-                  $s = $s . ", " . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
+                  $s = $s . ", " . text(xl_list_label($title));
             } else {
-                $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
+                $s = text(xl_list_label($title));
             }
 
             $i++;

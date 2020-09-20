@@ -33,18 +33,18 @@ $_POST['form_details'] = true;
 $sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_from']) : date('Y-01-01 H:i:s');
 $sql_date_to = (!empty($_POST['date_to'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_to']) : date('Y-m-d H:i:s');
 
-$patient_id = trim($_POST["patient_id"]);
-$age_from = $_POST["age_from"];
-$age_to = $_POST["age_to"];
-$sql_gender = $_POST["gender"];
-$sql_ethnicity = $_POST["cpms_ethnicity"];
-$sql_race = $_POST["race"];
-$form_drug_name = trim($_POST["form_drug_name"]);
-$form_diagnosis = trim($_POST["form_diagnosis"]);
-$form_lab_results = trim($_POST["form_lab_results"]);
-$form_service_codes = trim($_POST["form_service_codes"]);
-$form_immunization = trim($_POST["form_immunization"]);
-$communication = trim($_POST["communication"]);
+$patient_id = trim($_POST["patient_id"] ?? '');
+$age_from = $_POST["age_from"] ?? '';
+$age_to = $_POST["age_to"] ?? '';
+$sql_gender = $_POST["gender"] ?? '';
+$sql_ethnicity = $_POST["cpms_ethnicity"] ?? '';
+$sql_race = $_POST["race"] ?? '';
+$form_drug_name = trim($_POST["form_drug_name"] ?? '');
+$form_diagnosis = trim($_POST["form_diagnosis"] ?? '');
+$form_lab_results = trim($_POST["form_lab_results"] ?? '');
+$form_service_codes = trim($_POST["form_service_codes"] ?? '');
+$form_immunization = trim($_POST["form_immunization"] ?? '');
+$communication = trim($_POST["communication"] ?? '');
 ?>
 <html>
     <head>
@@ -151,7 +151,7 @@ $communication = trim($_POST["communication"]);
                         }
                     }
                 });
-                <?php if ($_POST['srch_option'] == "Communication") { ?>
+                <?php if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Communication")) { ?>
                     $('#com_pref').show();
                 <?php } ?>
 
@@ -185,8 +185,8 @@ $communication = trim($_POST["communication"]);
             <p>
             <?php echo "<span style='margin-left:5px;'><strong>" . xlt('Date Range') . ":</strong>&nbsp;" . text(oeFormatDateTime($sql_date_from, "global", true)) .
               " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatDateTime($sql_date_to, "global", true)) . "</span>"; ?>
-            <span style="margin-left:5px;"><strong><?php echo xlt('Option'); ?>:</strong>&nbsp;<?php echo text($_POST['srch_option']);
-            if ($_POST['srch_option'] == "Communication" && $_POST['communication'] != "") {
+            <span style="margin-left:5px;"><strong><?php echo xlt('Option'); ?>:</strong>&nbsp;<?php echo text($_POST['srch_option'] ?? '');
+            if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Communication") && ($_POST['communication'] != "")) {
                 if (isset($comarr[$_POST['communication']])) {
                     echo "(" . text($comarr[$_POST['communication']]) . ")";
                 } else {
@@ -215,7 +215,7 @@ $communication = trim($_POST["communication"]);
                                 <td class='col-form-label'>
                                     <select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}">
                                         <?php foreach ($search_options as $skey => $svalue) { ?>
-                                            <option <?php echo ($_POST['srch_option'] == $skey) ? 'selected' : ''; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
+                                            <option <?php echo (!empty($_POST['srch_option']) && ($_POST['srch_option'] == $skey)) ? 'selected' : ''; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
                                         <?php } ?>
                                     </select>
                                     <?php ?>
@@ -296,7 +296,7 @@ $communication = trim($_POST["communication"]);
 
         // SQL scripts for the various searches
         $sqlBindArray = array();
-        if ($_POST['form_refresh']) {
+        if (!empty($_POST['form_refresh'])) {
             $sqlstmt = "select
 						pd.date as patient_date,
 						concat(pd.lname, ', ', pd.fname) AS patient_name,
@@ -408,8 +408,8 @@ $communication = trim($_POST["communication"]);
             }
 
             //Sorting By filter fields
-            $sortby = $_POST['sortby'];
-            $sortorder = $_POST['sortorder'];
+            $sortby = $_POST['sortby'] ?? '';
+            $sortorder = $_POST['sortorder'] ?? '';
 
              // This is for sorting the records.
             switch ($srch_option) {

@@ -77,10 +77,10 @@
     scrollInput: false,
     scrollMonth: false,
     rtl: <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "false"; ?>,
-    <?php if ($datetimepicker_minDate) { ?>
+    <?php if (!empty($datetimepicker_minDate)) { ?>
         minDate: '<?php echo $datetimepicker_minDate; ?>',
     <?php } ?>
-    <?php if ($datetimepicker_maxDate) { ?>
+    <?php if (!empty($datetimepicker_maxDate)) { ?>
         maxDate: '<?php echo $datetimepicker_maxDate; ?>',
     <?php } ?>
     <?php if ($datetimepicker_timepicker) { ?>
