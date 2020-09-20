@@ -22,15 +22,14 @@ use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 $web_path = $_REQUEST['web_path'] ?? null;
-$patid = $_REQUEST['patient_id'];
-$docid = isset($_REQUEST['document_id']) ? $_REQUEST['document_id'] : $_REQUEST['doc_id'];
-$d = new Document(attr($docid));
-$type = '.dcm';
-if ($d->get_mimetype() == 'application/dicom+zip') {
-    $type = '.zip';
-}
-
 if ($web_path) {
+    $patid = $_REQUEST['patient_id'] ?? null;
+    $docid = isset($_REQUEST['document_id']) ? $_REQUEST['document_id'] : ($_REQUEST['doc_id'] ?? null);
+    $d = new Document(attr($docid));
+    $type = '.dcm';
+    if ($d->get_mimetype() == 'application/dicom+zip') {
+        $type = '.zip';
+    }
     $csrf = attr(CsrfUtils::collectCsrfToken());
     $state_url = $GLOBALS['web_root'] . "/library/ajax/upload.php";
     $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
@@ -408,10 +407,11 @@ if ($web_path) {
 <body>
     <!-- DWV -->
     <div id="dwv" class="container-fluid" src='<?php echo $web_path ?>'>
+    <?php if ($web_path) { ?>
         <input type="hidden" id="state_url" value='<?php echo $state_url ?>' />
         <input type="hidden" id="csrf" value='<?php echo $csrf ?>' />
         <input type="hidden" id="doc_id" value='<?php echo attr($docid) ?>'' />
-
+    <?php } ?>
         <div id="pageHeader">
             <!-- Title -->
             <h2>DICOM Viewer<span>&nbsp;<em>( Not for Diagnostics )</em></h2>

@@ -88,14 +88,17 @@ if (isset($_POST['mode'])) {
 
             <?php //change the view on the current mode, whether all, active, or inactive
             if ($active === "1") {
+                $active_class = null;
                 $inactive_class = "_small";
                 $all_class = "_small";
             } elseif ($active === "0") {
                 $active_class = "_small";
+                $inactive_class = null;
                 $all_class = "_small";
             } else {
-                    $active_class = "_small";
-                    $inactive_class = "_small";
+                $active_class = "_small";
+                $inactive_class = "_small";
+                $all_class = null;
             }
             ?>
 
