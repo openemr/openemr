@@ -146,7 +146,7 @@ $sortby = $_GET['sortby'];
 &nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
 </td>
 <td>
-<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo ($form_patient) ? attr($form_patient) : '' ?>' placeholder= '<?php echo xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
 <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
 </td>
 </tr>
@@ -174,7 +174,7 @@ $check_sum = isset($_GET['check_sum']);
 <span class="text" id="display_tamper" style="display:none;"><?php echo xlt('Following rows in the audit log have been tampered'); ?></span>
 <table>
  <tr>
-  <th id="sortby_date" class="text" title="<?php echo xla('Sort by Tamper date/time'); ?>"><?php echo xlt('Tamper Date'); ?></th>
+  <th id="sortby_date" class="text" title="<?php echo xla('Sort by date/time'); ?>"><?php echo xlt('Date'); ?></th>
   <th id="sortby_user" class="text" title="<?php echo xla('Sort by User'); ?>"><?php echo xlt('User'); ?></th>
   <th id="sortby_pid" class="text" title="<?php echo xla('Sort by PatientID'); ?>"><?php echo xlt('PatientID'); ?></th>
   <th id="sortby_comments" class="text" title="<?php echo xla('Sort by Comments'); ?>"><?php echo xlt('Comments'); ?></th>
@@ -190,7 +190,7 @@ $check_sum = isset($_GET['check_sum']);
     ?>
 <input type="hidden" name="event" value="<?php echo attr($eventname) . "-" . attr($type_event) ?>">
     <?php
-    $type_event = "update";
+    $type_event = "";
     $tevent = "";
     $gev = "";
     if ($eventname != "" && $type_event != "") {
@@ -219,26 +219,35 @@ $check_sum = isset($_GET['check_sum']);
             $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));
 
             $dispCheck = false;
-            $log_id = $iter['id'];
-            $commentEncrStatus = "No";
-            $encryptVersion = 0;
-            $logEncryptData = EventAuditLogger::instance()->logCommentEncryptData($log_id);
 
-            if (count($logEncryptData) > 0) {
-                $commentEncrStatus = $logEncryptData['encrypt'];
-                $checkSumOld = $logEncryptData['checksum'];
-                $encryptVersion = $logEncryptData['version'];
-                $concatLogColumns = $iter['date'] . $iter['event'] . $iter['user'] . $iter['groupname'] . $iter['comments'] . $iter['patient_id'] . $iter['success'] . $iter['checksum'] . $iter['crt_user'];
-                $checkSumNew = sha1($concatLogColumns);
-
-                if ($checkSumOld != $checkSumNew) {
-                    $dispCheck = true;
-                } else {
-                    $dispCheck = false;
-                    continue;
-                }
-            } else {
+            $checkSumOld = $iter['checksum'];
+            if (empty($checkSumOld)) {
+                // no checksum, so skip
                 continue;
+            } elseif (strlen($checkSumOld) < 50) {
+                // for backward compatibility (for log checksums created in the sha1 days)
+                $checkSumNew = sha1($iter['date'] . $iter['event'] . $iter['user'] . $iter['groupname'] . $iter['comments'] . $iter['patient_id'] . $iter['success'] . $iter['checksum'] . $iter['crt_user']);
+            } else {
+
+                $checkSumNew = hash('sha3-512', $iter['date'] . $iter['event'] . $iter['category'] . $iter['user'] . $iter['groupname'] . $iter['comments'] . $iter['user_notes'] . $iter['patient_id'] . $iter['success'] . $iter['crt_user'] . $iter['log_from'] . $iter['menu_item_id'] . $iter['ccda_doc_id']);
+            }
+
+            if ($checkSumOld != $checkSumNew) {
+                $dispCheck = true;
+            } else {
+                $dispCheck = false;
+                continue;
+            }
+
+            if (!empty($iter['encrypt'])) {
+                $commentEncrStatus = $iter['encrypt'];
+            } else {
+                $commentEncrStatus = "No";
+            }
+            if (!empty($iter['version'])) {
+                $encryptVersion = $iter['version'];
+            } else {
+                $encryptVersion = 0;
             }
 
             if ($commentEncrStatus == "Yes") {

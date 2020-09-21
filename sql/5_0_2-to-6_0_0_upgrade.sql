@@ -2171,6 +2171,14 @@ CREATE TABLE `api_log` (
 ) ENGINE = InnoDB;
 #EndIf
 
+#IfMissingColumn api_log log_id
+ALTER TABLE `api_log` ADD COLUMN `log_id` int(11) NOT NULL;
+#EndIf
+
+#IfColumn api_log encrypted
+ALTER TABLE `api_log` DROP COLUMN `encrypted`;
+#EndIf
+
 #IfColumn patient_data care_team
 ALTER TABLE `patient_data` CHANGE `care_team` `care_team_provider` text;
 #EndIf
@@ -2201,4 +2209,16 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2020-10-01 load_filename Zip File 5 2021 ICD-10-PCS Order File (Long and Abbreviated Titles).zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2020-10-01', 'Zip File 5 2021 ICD-10-PCS Order File (Long and Abbreviated Titles).zip', '6a61cee7a8f774e23412ca1330980bbb');
+#EndIf
+
+#IfNotColumnType documents hash varchar(255)
+ALTER TABLE `documents` MODIFY `hash` varchar(255);
+#EndIf
+
+#IfTable log_validator
+DROP TABLE `log_validator`;
+#EndIf
+
+#IfMissingColumn log_comment_encrypt checksum_api
+ALTER TABLE `log_comment_encrypt` ADD COLUMN `checksum_api` longtext;
 #EndIf

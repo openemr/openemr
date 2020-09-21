@@ -573,15 +573,13 @@ if ($form_step == 301) {
     $res = sqlStatement("rename table log_comment_encrypt to log_comment_encrypt_backup,log_comment_encrypt_new to log_comment_encrypt");
     $res = sqlStatement("create table if not exists log_new like log");
     $res = sqlStatement("rename table log to log_backup,log_new to log");
-    $res = sqlStatement("create table if not exists log_validator_new like log_validator");
-    $res = sqlStatement("rename table log_validator to log_validator_backup, log_validator_new to log_validator");
     echo "<br />";
     $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h " . escapeshellarg($sqlconf["host"]) .
     " --port=" . escapeshellarg($sqlconf["port"]) .
     " --hex-blob --opt --quote-names -r " . escapeshellarg($BACKUP_EVENTLOG_FILE) . " $mysql_ssl " .
-    escapeshellarg($sqlconf["dbase"]) . " --tables log_comment_encrypt_backup log_backup log_validator_backup";
+    escapeshellarg($sqlconf["dbase"]) . " --tables log_comment_encrypt_backup log_backup";
 # Set Eventlog Flag when it is done
     $eventlog = 1;
 // 301 If ends here.
@@ -612,8 +610,6 @@ if ($cmd) {
              $res = sqlStatement("rename table log_comment_encrypt_backup to log_comment_encrypt");
              $res = sqlStatement("drop table if exists log");
              $res = sqlStatement("rename table log_backup to log");
-             $res = sqlStatement("drop table if exists log_validator");
-             $res = sqlStatement("rename table log_validator_backup to log_validator");
         }
         //Removed the connection details as it exposes all the database credentials
 
@@ -624,7 +620,6 @@ if ($cmd) {
     if ($eventlog == 1) {
         $res = sqlStatement("drop table if exists log_backup");
         $res = sqlStatement("drop table if exists log_comment_encrypt_backup");
-        $res = sqlStatement("drop table if exists log_validator_backup");
         echo "<br /><b>";
         echo xlt('Backup Successfully taken in') . " ";
         echo text($BACKUP_EVENTLOG_DIR);

@@ -270,15 +270,9 @@ if (!empty($_GET)) {
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <?php $check_sum = isset($_GET['check_sum']) ? $_GET['check_sum'] : ''; ?>
-                                <input type="checkbox" name="check_sum" id="check_sum" <?php echo ($check_sum == 'on') ? "checked" : ""; ?> />
-                                <label for="check_sum"><?php echo xlt('Include Checksum'); ?></label>
-                                <input type="hidden" name="event" value="<?php echo attr($event); ?>" />
-                            </div>
+                            <input type="hidden" name="event" value="<?php echo attr($event); ?>" />
                             <div class="btn-group" role="group">
                                 <a href="javascript:document.theform.submit();" class="btn btn-secondary btn-save"><?php echo xlt('Submit'); ?></a>
-                                <button type="button" id="valid_button" class="btn btn-secondary btn-transmit" onclick="validatelog();" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla("Processing..."); ?>"><?php echo xlt('Validate'); ?></button>
                             </div>
                         </form>
 
@@ -301,9 +295,6 @@ if (!empty($_GET)) {
                     <th id="sortby_pid" class="sortby" title="<?php echo xla('Sort by PatientID'); ?>"><?php echo xlt('Patient ID'); ?></th>
                     <th id="sortby_success" class="sortby" title="<?php echo xla('Sort by Success'); ?>"><?php echo xlt('Success'); ?></th>
                     <th id="sortby_comments" class="sortby" title="<?php echo xla('Sort by Comments'); ?>"><?php echo xlt('Comments'); ?></th>
-                        <?php  if ($check_sum) {?>
-                    <th id="sortby_checksum" class="sortby" title="<?php echo xla('Sort by Checksum'); ?>"><?php echo xlt('Checksum'); ?></th>
-                        <?php } ?>
                     </tr>
                         <?php
                         ?>
@@ -335,13 +326,15 @@ if (!empty($_GET)) {
                                 $patterns = array ('/^success/','/^failure/','/ encounter/');
                                 $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));
 
-                                $log_id = $iter['id'];
-                                $commentEncrStatus = "No";
-                                $encryptVersion = 0;
-                                $logEncryptData = EventAuditLogger::instance()->logCommentEncryptData($log_id);
-                                if (count($logEncryptData) > 0) {
-                                    $commentEncrStatus = $logEncryptData['encrypt'];
-                                    $encryptVersion = $logEncryptData['version'];
+                                if (!empty($iter['encrypt'])) {
+                                    $commentEncrStatus = $iter['encrypt'];
+                                } else {
+                                    $commentEncrStatus = "No";
+                                }
+                                if (!empty($iter['version'])) {
+                                    $encryptVersion = $iter['version'];
+                                } else {
+                                    $encryptVersion = 0;
                                 }
 
                                 //July 1, 2014: Ensoftek: Decrypt comment data if encrypted
@@ -399,9 +392,6 @@ if (!empty($_GET)) {
                         <td><?php echo text($iter["patient_id"]); ?></td>
                         <td><?php echo text($iter["success"]); ?></td>
                         <td><?php echo nl2br(text(preg_replace('/^select/i', 'Query', $trans_comments))); //Convert select term to Query for MU2 requirements ?></td>
-                                <?php  if ($check_sum) { ?>
-                    <td><?php echo text($iter["checksum"]); ?></td>
-                        <?php } ?>
                         </tr>
 
                                 <?php
@@ -424,9 +414,6 @@ if (!empty($_GET)) {
                             <td><?php echo text($iter["patient_id"]); ?></td>
                             <td><?php echo text($iter["success"]); ?></td>
                             <td><?php echo text($comments); ?></td>
-                                    <?php  if ($check_sum) { ?>
-                                    <td><?php echo text($iter["checksum"]); ?></td>
-                                <?php } ?>
                         </tr>
                                     <?php
                                 }
@@ -499,7 +486,6 @@ $(function () {
     $("#sortby_pid").click(function() { set_sort_direction(); $("#sortby").val("patient_id"); $("#theform").submit(); });
     $("#sortby_success").click(function() { set_sort_direction(); $("#sortby").val("success"); $("#theform").submit(); });
     $("#sortby_comments").click(function() { set_sort_direction(); $("#sortby").val("comments"); $("#theform").submit(); });
-    $("#sortby_checksum").click(function() { set_sort_direction(); $("#sortby").val("checksum"); $("#theform").submit(); });
 
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
@@ -515,29 +501,6 @@ function set_sort_direction(){
         $('#direction').val('desc');
     else
         $('#direction').val('asc');
-}
-
-function validatelog(){
-    var this_button = $("#valid_button").button();
-    this_button.button('loading');
-
-    $.ajax({
-        url:"../../library/log_validation.php",
-        data: {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-        },
-        asynchronous : true,
-        method: "post",
-        success :function(response){
-            alert(response);
-            this_button.button('reset');
-        },
-        failure :function(){
-            alert(<?php echo xlj("Audit Log Validation Failed"); ?>);
-            this_button.button('reset');
-        }
-    });
-
 }
 </script>
 

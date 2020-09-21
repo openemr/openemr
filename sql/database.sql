@@ -86,6 +86,7 @@ KEY amendment_history_id(`amendment_id`)
 DROP TABLE IF EXISTS `api_log`;
 CREATE TABLE `api_log` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `log_id` int(11) NOT NULL,
   `user_id` bigint(20) NOT NULL,
   `patient_id` bigint(20) NOT NULL,
   `ip_address` varchar(255) NOT NULL,
@@ -94,7 +95,6 @@ CREATE TABLE `api_log` (
   `request_url` text,
   `request_body` longtext,
   `response` longtext,
-  `encrypted` tinyint(1) NOT NULL,
   `created_time` timestamp NULL,
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
@@ -1200,7 +1200,7 @@ CREATE TABLE `documents` (
   `revision` timestamp NOT NULL,
   `foreign_id` bigint(20) default NULL,
   `docdate` date default NULL,
-  `hash` varchar(40) DEFAULT NULL COMMENT '40-character SHA-1 hash of document',
+  `hash` varchar(255) DEFAULT NULL,
   `list_id` bigint(20) NOT NULL default '0',
   `name` varchar(255) DEFAULT NULL,
   `drive_uuid` binary(16) DEFAULT NULL,
@@ -10728,6 +10728,7 @@ CREATE TABLE `log_comment_encrypt` (
   `log_id` int(11) NOT NULL,
   `encrypt` enum('Yes','No') NOT NULL DEFAULT 'No',
   `checksum` longtext,
+  `checksum_api` longtext,
   `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt and 1 for openssl',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
@@ -11359,19 +11360,6 @@ CREATE TABLE `product_registration` (
   `email` varchar(255) NULL,
   `opt_out` TINYINT(1) NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB;
-
--- -----------------------------------------------------
-
---
--- Table structure for table 'log_validator'
---
-
-DROP TABLE IF EXISTS `log_validator`;
-CREATE TABLE `log_validator` (
-  `log_id` bigint(20) NOT NULL,
-  `log_checksum` longtext,
-  PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------
