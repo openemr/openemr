@@ -61,7 +61,7 @@ $language = $tmp['language'];
 // callback from add_edit_issue.php:
 function refreshIssue(issue, title) {
     top.restoreSession();
-    location.reload();
+    window.location=window.location;
 }
 
 function dopclick(id, category) {
@@ -239,8 +239,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             $canDelete = AclMain::aclCheckCore('admin', 'super');
                             if ($canDelete) {
-                                echo "<button id='" . $focustype . "-delete' disabled
-                                    class='btn btn-primary btn-sm btn-delete btn-danger mr-1'
+                                echo "<button id='" . $focustype . "-delete' disabled type='button'
+                                    class='btn btn-sm btn-delete btn-danger mr-1'
                                     onclick='deleteSelectedIssues(" . attr_js($focustype)  . ")'>" . xlt('Delete') . "</button>\n";
                             }
 
