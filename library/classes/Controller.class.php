@@ -111,10 +111,10 @@ class Controller extends Smarty
             //this is a workaround because call user func does funny things with passing args if they have no assigned value
             //2013-02-10 EMR Direct: workaround modified since "0" is also considered empty;
             if (empty($qarray[$arg]) && $qarray[$arg] != "0") {
-                //if argument is empty pass null as value and arg as assoc array key
-                $args_array[$arg] = null;
+                //if argument is empty pass null as value
+                $args_array[] = null;
             } else {
-                $args_array[$arg] = $qarray[$arg];
+                $args_array[] = $qarray[$arg];
             }
         }
 

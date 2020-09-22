@@ -2146,7 +2146,7 @@ function generate_display_field($frow, $currvalue)
     if ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43) {
         $lrow = sqlQuery("SELECT title FROM list_options " .
         "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue));
-          $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
+          $s = htmlspecialchars(xl_list_label($lrow['title'] ?? ''), ENT_NOQUOTES);
         //if there is no matching value in the corresponding lists check backup list
         // only supported in data types 1,26,33,43
         if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43)) {
