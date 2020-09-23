@@ -82,7 +82,7 @@ class FhirObservationService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['result_status'])) {
-            $observationResource->setStatus(strtoupper($dataRecord['result_status']));
+            $observationResource->setStatus(($dataRecord['result_status']));
         } else {
             $observationResource->setStatus("unknown");
         }
