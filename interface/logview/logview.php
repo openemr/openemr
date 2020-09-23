@@ -392,7 +392,7 @@ if (!empty($_GET)) {
                         <td><?php echo text($iter["groupname"]); ?></td>
                         <td><?php echo text($iter["patient_id"]); ?></td>
                         <td><?php echo text($iter["success"]); ?></td>
-                        <?php if (!empty($iter["ip_address"])) { ?>
+                                <?php if (!empty($iter["ip_address"])) { ?>
                             <td><?php echo text($iter["ip_address"]) . ", " . text($iter["method"]) . ", " . text($iter["request"]); ?></td>
                         <?php } else { ?>
                             <td> </td>

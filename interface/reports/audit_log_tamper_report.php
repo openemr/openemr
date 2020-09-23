@@ -326,20 +326,20 @@ $check_sum = isset($_GET['check_sum']);
           <TD class="text tamperColor"><?php echo text($iter["user"]); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["patient_id"]);?></TD>
           <TD class="text tamperColor"><?php echo text($trans_comments);?></TD>
-          <?php
-          if ($check_sum) {
-              if (!empty($mainFail) && !empty($apiFail)) {
-                  echo '<TD class="text tamperColor">' . text($checkSumNew) . '<br>' . text($checkSumNewApi) . '</TD>';
-                  echo '<TD class="text tamperColor">' . text($checkSumOld) . '<br>' . text($checkSumOldApi) . '</TD>';
-              } elseif (!empty($mainFail)) {
-                  echo '<TD class="text tamperColor">' . text($checkSumNew) . '</TD>';
-                  echo '<TD class="text tamperColor">' . text($checkSumOld) . '</TD>';
-              } else { // !empty($apiFail)
-                  echo '<TD class="text tamperColor">' . text($checkSumNewApi) . '</TD>';
-                  echo '<TD class="text tamperColor">' . text($checkSumOldApi) . '</TD>';
-              }
-          }
-          ?>
+                <?php
+                if ($check_sum) {
+                    if (!empty($mainFail) && !empty($apiFail)) {
+                        echo '<TD class="text tamperColor">' . text($checkSumNew) . '<br>' . text($checkSumNewApi) . '</TD>';
+                        echo '<TD class="text tamperColor">' . text($checkSumOld) . '<br>' . text($checkSumOldApi) . '</TD>';
+                    } elseif (!empty($mainFail)) {
+                        echo '<TD class="text tamperColor">' . text($checkSumNew) . '</TD>';
+                        echo '<TD class="text tamperColor">' . text($checkSumOld) . '</TD>';
+                    } else { // !empty($apiFail)
+                        echo '<TD class="text tamperColor">' . text($checkSumNewApi) . '</TD>';
+                        echo '<TD class="text tamperColor">' . text($checkSumOldApi) . '</TD>';
+                    }
+                }
+                ?>
      </TR>
                 <?php
             }
