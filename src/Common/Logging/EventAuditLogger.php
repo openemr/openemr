@@ -184,7 +184,7 @@ MSG;
         // parse the parameters
         $cols = "DISTINCT l.`date`, l.`event`, l.`category`, l.`user`, l.`groupname`, l.`patient_id`, l.`success`, l.`comments`, l.`user_notes`, l.`crt_user`, l.`log_from`, l.`menu_item_id`, l.`ccda_doc_id`, l.`id`,
                  el.`encrypt`, el.`checksum`, el.`checksum_api`, el.`version`,
-                 al.`user_id`, al.`patient_id` as patient_id_api, al.`ip_address`, al.`method`, al.`request`, al.`request_url`, al.`request_body`, al.`response`, al.`created_time` ";
+                 al.`log_id` as log_id_api, al.`user_id`, al.`patient_id` as patient_id_api, al.`ip_address`, al.`method`, al.`request`, al.`request_url`, al.`request_body`, al.`response`, al.`created_time` ";
         if (isset($params['cols']) && $params['cols'] != "") {
             $cols = $params['cols'];
         }
@@ -763,31 +763,41 @@ MSG;
         //  4. if atna server is on, then send entry to atna server
         //
         // 1. insert entry into log table
-        sqlInsertClean_audit(
-            "insert into `log` (`date`, `event`, `category`, `user`, `groupname`, `comments`, `user_notes`, `patient_id`, `success`, `crt_user`, `log_from`, `menu_item_id`, `ccda_doc_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [
-                $current_datetime,
-                $event,
-                $category,
-                $user,
-                $group,
-                $comments,
-                $user_notes,
-                $patientId,
-                $success,
-                $SSL_CLIENT_S_DN_CN,
-                $logFrom,
-                $menuItemId,
-                $ccdaDocId
-            ]
-        );
-        // 2. insert associated entry (in addition to applicable checksums) into log_comment_encrypt
+        $logEntry = [
+            $current_datetime,
+            $event,
+            $category,
+            $user,
+            $group,
+            $comments,
+            $user_notes,
+            $patientId,
+            $success,
+            $SSL_CLIENT_S_DN_CN,
+            $logFrom,
+            $menuItemId,
+            $ccdaDocId
+        ];
+        sqlInsertClean_audit("insert into `log` (`date`, `event`, `category`, `user`, `groupname`, `comments`, `user_notes`, `patient_id`, `success`, `crt_user`, `log_from`, `menu_item_id`, `ccda_doc_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $logEntry);
+        // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
-        $checksumGenerate = hash('sha3-512', $current_datetime . $event . $category . $user . $group . $comments . $user_notes . $patientId . $success . $SSL_CLIENT_S_DN_CN . $logFrom . $menuItemId . $ccdaDocId);
+        $checksumGenerate = hash('sha3-512', implode($logEntry));
         if (!empty($api)) {
             // api log
             $ipAddress = collectIpAddresses()['ip_string'];
-            $checksumGenerateApi = hash('sha3-512', $api['user_id'] . $api['patient_id'] . $ipAddress . $api['method'] . $GLOBALS['resource'] . $api['url'] . $api['request_body'] . $api['response'] . $current_datetime);
+            $apiLogEntry = [
+                $last_log_id,
+                $api['user_id'],
+                $api['patient_id'],
+                $ipAddress,
+                $api['method'],
+                $api['request'],
+                $api['request_url'],
+                $api['request_body'],
+                $api['response'],
+                $current_datetime
+            ];
+            $checksumGenerateApi = hash('sha3-512', implode($apiLogEntry));
         } else {
             $checksumGenerateApi = '';
         }
@@ -803,21 +813,7 @@ MSG;
         // 3. if api log entry, then insert insert associated entry into api_log
         if (!empty($api)) {
             // api log
-            sqlInsertClean_audit(
-                "INSERT INTO `api_log` (`log_id`, `user_id`, `patient_id`, `ip_address`, `method`, `request`, `request_url`, `request_body`, `response`, `created_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                [
-                    $last_log_id,
-                    $api['user_id'],
-                    $api['patient_id'],
-                    $ipAddress,
-                    $api['method'],
-                    $GLOBALS['resource'],
-                    $api['url'],
-                    $api['request_body'],
-                    $api['response'],
-                    $current_datetime
-                ]
-            );
+            sqlInsertClean_audit("INSERT INTO `api_log` (`log_id`, `user_id`, `patient_id`, `ip_address`, `method`, `request`, `request_url`, `request_body`, `response`, `created_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $apiLogEntry);
         }
         // 4. if atna server is on, then send entry to atna server
         if ($patientId == null) {

@@ -283,7 +283,8 @@ class RestConfig
                 'user_id' => $userId,
                 'patient_id' => $patientId,
                 'method' => $method,
-                'url' => $url,
+                'request' => $GLOBALS['resource'],
+                'request_url' => $url,
                 'request_body' => $requestBody,
                 'response' => $response
             ];
