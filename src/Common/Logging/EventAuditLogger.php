@@ -748,7 +748,7 @@ MSG;
                 $api['request_body'] = (!empty($api['request_body'])) ? $this->cryptoGen->encryptStandard($api['request_body']) : '';
                 $api['response'] =  (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
             }
-            $encrypt= 'Yes';
+            $encrypt = 'Yes';
         }
 
         // Collect timestamp and if pertinent, collect client cert name

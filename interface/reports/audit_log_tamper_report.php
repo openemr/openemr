@@ -228,7 +228,6 @@ $check_sum = isset($_GET['check_sum']);
                 // for backward compatibility (for log checksums created in the sha1 days)
                 $checkSumNew = sha1($iter['date'] . $iter['event'] . $iter['user'] . $iter['groupname'] . $iter['comments'] . $iter['patient_id'] . $iter['success'] . $iter['checksum'] . $iter['crt_user']);
             } else {
-
                 $checkSumNew = hash('sha3-512', $iter['date'] . $iter['event'] . $iter['category'] . $iter['user'] . $iter['groupname'] . $iter['comments'] . $iter['user_notes'] . $iter['patient_id'] . $iter['success'] . $iter['crt_user'] . $iter['log_from'] . $iter['menu_item_id'] . $iter['ccda_doc_id']);
             }
 
