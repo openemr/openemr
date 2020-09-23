@@ -294,6 +294,7 @@ if (!empty($_GET)) {
                     <th id="sortby_group" class="sortby" title="<?php echo xla('Sort by Group'); ?>"><?php echo xlt('Group'); ?></th>
                     <th id="sortby_pid" class="sortby" title="<?php echo xla('Sort by PatientID'); ?>"><?php echo xlt('Patient ID'); ?></th>
                     <th id="sortby_success" class="sortby" title="<?php echo xla('Sort by Success'); ?>"><?php echo xlt('Success'); ?></th>
+                    <th title="<?php echo xla('API logging'); ?>"><?php echo xlt('API logging'); ?></th>
                     <th id="sortby_comments" class="sortby" title="<?php echo xla('Sort by Comments'); ?>"><?php echo xlt('Comments'); ?></th>
                     </tr>
                         <?php
@@ -321,7 +322,7 @@ if (!empty($_GET)) {
                             // Set up crypto object (object will increase performance since caches used keys)
                             $cryptoGen = new CryptoGen();
 
-                            foreach ($ret as $iter) {
+                            while ($iter = sqlFetchArray($ret)) {
                                 //translate comments
                                 $patterns = array ('/^success/','/^failure/','/ encounter/');
                                 $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));
@@ -391,6 +392,11 @@ if (!empty($_GET)) {
                         <td><?php echo text($iter["groupname"]); ?></td>
                         <td><?php echo text($iter["patient_id"]); ?></td>
                         <td><?php echo text($iter["success"]); ?></td>
+                        <?php if (!empty($iter["ip_address"])) { ?>
+                            <td><?php echo text($iter["ip_address"]) . ", " . text($iter["method"]) . ", " . text($iter["request"]); ?></td>
+                        <?php } else { ?>
+                            <td> </td>
+                        <?php } ?>
                         <td><?php echo nl2br(text(preg_replace('/^select/i', 'Query', $trans_comments))); //Convert select term to Query for MU2 requirements ?></td>
                         </tr>
 
@@ -401,7 +407,7 @@ if (!empty($_GET)) {
                         if (($eventname == "disclosure") || ($gev == "")) {
                             $eventname = "disclosure";
                             if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname))) {
-                                foreach ($ret as $iter) {
+                                while ($iter = sqlFetchArray($ret)) {
                                     $comments = xl('Recipient Name') . ":" . $iter["recipient"] . ";" . xl('Disclosure Info') . ":" . $iter["description"];
                                     ?>
                                 <tr>
@@ -413,6 +419,7 @@ if (!empty($_GET)) {
                             <td><?php echo text($iter["groupname"]); ?></td>
                             <td><?php echo text($iter["patient_id"]); ?></td>
                             <td><?php echo text($iter["success"]); ?></td>
+                            <td> </td>
                             <td><?php echo text($comments); ?></td>
                         </tr>
                                     <?php

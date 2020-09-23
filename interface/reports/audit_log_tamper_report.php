@@ -174,6 +174,8 @@ $check_sum = isset($_GET['check_sum']);
 <span class="text" id="display_tamper" style="display:none;"><?php echo xlt('Following rows in the audit log have been tampered'); ?></span>
 <table>
  <tr>
+  <th id="sortby_date" class="text" title="<?php echo xla('Sort by date/time'); ?>"><?php echo xlt('Log Types'); ?></th>
+  <th id="sortby_date" class="text" title="<?php echo xla('Sort by date/time'); ?>"><?php echo xlt('ID'); ?></th>
   <th id="sortby_date" class="text" title="<?php echo xla('Sort by date/time'); ?>"><?php echo xlt('Date'); ?></th>
   <th id="sortby_user" class="text" title="<?php echo xla('Sort by User'); ?>"><?php echo xlt('User'); ?></th>
   <th id="sortby_pid" class="text" title="<?php echo xla('Sort by PatientID'); ?>"><?php echo xlt('PatientID'); ?></th>
@@ -213,12 +215,10 @@ $check_sum = isset($_GET['check_sum']);
         // Set up crypto object (object will increase performance since caches used keys)
         $cryptoGen = new CryptoGen();
 
-        foreach ($ret as $iter) {
+        while ($iter = sqlFetchArray($ret)) {
             //translate comments
             $patterns = array ('/^success/','/^failure/','/ encounter/');
             $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));
-
-            $dispCheck = false;
 
             $checkSumOld = $iter['checksum'];
             if (empty($checkSumOld)) {
@@ -231,11 +231,33 @@ $check_sum = isset($_GET['check_sum']);
                 $checkSumNew = hash('sha3-512', $iter['date'] . $iter['event'] . $iter['category'] . $iter['user'] . $iter['groupname'] . $iter['comments'] . $iter['user_notes'] . $iter['patient_id'] . $iter['success'] . $iter['crt_user'] . $iter['log_from'] . $iter['menu_item_id'] . $iter['ccda_doc_id']);
             }
 
+            $checkSumOldApi = $iter['checksum_api'];
+            if (!empty($checkSumOldApi)) {
+                $checkSumNewApi = hash('sha3-512', $iter['user_id'] . $iter['patient_id_api'] . $iter['ip_address'] . $iter['method'] . $iter['request'] . $iter['request_url'] . $iter['request_body'] . $iter['response'] . $iter['created_time']);
+            }
+
+            $dispCheck = false;
+            $mainFail = false;
+            $apiFail = false;
             if ($checkSumOld != $checkSumNew) {
                 $dispCheck = true;
-            } else {
-                $dispCheck = false;
+                $mainFail = true;
+            }
+            if (!empty($checkSumOldApi) && ($checkSumOldApi != $checkSumNewApi)) {
+                $dispCheck = true;
+                $apiFail = true;
+            }
+            if (!$dispCheck) {
                 continue;
+            }
+
+            $logType = '';
+            if (!empty($mainFail) && !empty($apiFail)) {
+                $logType = xl('Main and API');
+            } elseif (!empty($mainFail)) {
+                $logType = xl('Main');
+            } else { // !empty($apiFail)
+                $logType = xl('API');
             }
 
             if (!empty($iter['encrypt'])) {
@@ -298,14 +320,26 @@ $check_sum = isset($_GET['check_sum']);
                 $dispArr[] = $icnt++;
                 ?>
      <TR class="oneresult">
+          <TD class="text tamperColor"><?php echo text($logType); ?></TD>
+          <TD class="text tamperColor"><?php echo text($iter["id"]); ?></TD>
           <TD class="text tamperColor"><?php echo text(oeFormatDateTime($iter["date"], "global", true)); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["user"]); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["patient_id"]);?></TD>
           <TD class="text tamperColor"><?php echo text($trans_comments);?></TD>
-                <?php  if ($check_sum) { ?>
-          <TD class="text tamperColor"><?php echo text($checkSumNew);?></TD>
-          <TD class="text tamperColor"><?php echo text($checkSumOld);?></TD>
-            <?php } ?>
+          <?php
+          if ($check_sum) {
+              if (!empty($mainFail) && !empty($apiFail)) {
+                  echo '<TD class="text tamperColor">' . text($checkSumNew) . '<br>' . text($checkSumNewApi) . '</TD>';
+                  echo '<TD class="text tamperColor">' . text($checkSumOld) . '<br>' . text($checkSumOldApi) . '</TD>';
+              } elseif (!empty($mainFail)) {
+                  echo '<TD class="text tamperColor">' . text($checkSumNew) . '</TD>';
+                  echo '<TD class="text tamperColor">' . text($checkSumOld) . '</TD>';
+              } else { // !empty($apiFail)
+                  echo '<TD class="text tamperColor">' . text($checkSumNewApi) . '</TD>';
+                  echo '<TD class="text tamperColor">' . text($checkSumOldApi) . '</TD>';
+              }
+          }
+          ?>
      </TR>
                 <?php
             }

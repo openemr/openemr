@@ -182,7 +182,9 @@ MSG;
     public function getEvents($params)
     {
         // parse the parameters
-        $cols = "DISTINCT l.`date`, l.`event`, l.`category`, l.`user`, l.`groupname`, l.`patient_id`, l.`success`, l.`comments`, l.`user_notes`, l.`crt_user`, l.`log_from`, l.`menu_item_id`, l.`ccda_doc_id`, l.`id`, el.`encrypt`, el.`checksum`, el.`checksum_api`, el.`version`, al.`ip_address` ";
+        $cols = "DISTINCT l.`date`, l.`event`, l.`category`, l.`user`, l.`groupname`, l.`patient_id`, l.`success`, l.`comments`, l.`user_notes`, l.`crt_user`, l.`log_from`, l.`menu_item_id`, l.`ccda_doc_id`, l.`id`,
+                 el.`encrypt`, el.`checksum`, el.`checksum_api`, el.`version`,
+                 al.`user_id`, al.`patient_id` as patient_id_api, al.`ip_address`, al.`method`, al.`request`, al.`request_url`, al.`request_body`, al.`response`, al.`created_time` ";
         if (isset($params['cols']) && $params['cols'] != "") {
             $cols = $params['cols'];
         }
@@ -310,12 +312,7 @@ MSG;
             $sql .= " LIMIT 5000";
         }
 
-        $res = sqlStatement($sql, $sqlBindArray);
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
-        }
-
-        return $all;
+        return sqlStatement($sql, $sqlBindArray);
     }
 
     /**
