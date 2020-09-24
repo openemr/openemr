@@ -6736,7 +6736,7 @@ CREATE TABLE `onsite_signatures` (
   `signator` varchar(255) NOT NULL,
   `sig_image` text,
   `signature` text,
-  `sig_hash` varchar(128) NOT NULL,
+  `sig_hash` varchar(255) NOT NULL,
   `ip` varchar(46) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `pid` (`pid`,`user`),

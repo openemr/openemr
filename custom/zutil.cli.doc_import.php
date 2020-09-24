@@ -127,7 +127,7 @@ foreach ($docs as $doc) {
         $objDoc->set_mimetype($str_mime);
         $objDoc->set_url($doc_url);
         $objDoc->set_size($doc->getSize());
-        $objDoc->set_hash(sha1_file($doc_pathname));
+        $objDoc->set_hash(hash_file('sha3-512', $doc_pathname));
         $objDoc->set_type($objDoc->type_array['file_url']);
         $objDoc->set_owner($arg['owner']);
         $objDoc->set_foreign_id($arg['pid']);

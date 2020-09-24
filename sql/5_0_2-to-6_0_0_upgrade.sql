@@ -2222,3 +2222,7 @@ DROP TABLE `log_validator`;
 #IfMissingColumn log_comment_encrypt checksum_api
 ALTER TABLE `log_comment_encrypt` ADD COLUMN `checksum_api` longtext;
 #EndIf
+
+#IfNotColumnType onsite_signatures sig_hash varchar(255)
+ALTER TABLE `onsite_signatures` MODIFY `sig_hash` varchar(255) NOT NULL;
+#EndIf
