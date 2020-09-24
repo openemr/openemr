@@ -12,8 +12,8 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\AddressService;
+use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\RestControllers\RestControllerHelper;
 
 class InsuranceCompanyRestController
