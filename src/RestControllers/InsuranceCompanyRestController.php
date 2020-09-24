@@ -33,6 +33,12 @@ class InsuranceCompanyRestController
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
+    public function getOne($iid)
+    {
+        $serviceResult = $this->insuranceCompanyService->getOne($iid);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
+
     public function getInsuranceTypes()
     {
         $serviceResult = $this->insuranceCompanyService->getInsuranceTypes();

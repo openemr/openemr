@@ -450,6 +450,11 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+    "GET /api/insurance_company/:iid" => function ($iid) {
+        $return = (new InsuranceCompanyRestController())->getOne($iid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
     "GET /api/insurance_type" => function () {
         $return = (new InsuranceCompanyRestController())->getInsuranceTypes();
         RestConfig::apiLog($return);
