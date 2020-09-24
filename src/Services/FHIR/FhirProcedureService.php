@@ -97,7 +97,7 @@ class FhirProcedureService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['date_collected'])) {
-            $procedureResource->setPerformedDateTime($dataRecord['date_collected']);
+            $procedureResource->setPerformedDateTime(gmdate('c', strtotime($dataRecord['date_collected'])));
         }
 
         if (!empty($dataRecord['notes'])) {
