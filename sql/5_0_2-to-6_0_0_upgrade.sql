@@ -337,7 +337,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #EndIf
 
 #IfMissingColumn patient_access_onsite portal_login_username
-ALTER TABLE `patient_access_onsite`  ADD `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username', ADD `portal_onetime` VARCHAR(255) DEFAULT NULL;
+ALTER TABLE `patient_access_onsite` ADD `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username', ADD `portal_onetime` VARCHAR(255) DEFAULT NULL;
 UPDATE `patient_access_onsite` SET `portal_pwd_status` = '0', `portal_login_username` = `portal_username`;
 #EndIf
 
@@ -1944,7 +1944,7 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintoleranc
 #EndIf
 
 #IfMissingColumn ar_activity deleted
-ALTER TABLE `ar_activity` ADD COLUMN `deleted` datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided';
+ALTER TABLE `ar_activity` ADD `deleted` datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided';
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id condition-verification
@@ -2172,7 +2172,7 @@ CREATE TABLE `api_log` (
 #EndIf
 
 #IfMissingColumn api_log log_id
-ALTER TABLE `api_log` ADD COLUMN `log_id` int(11) NOT NULL;
+ALTER TABLE `api_log` ADD `log_id` int(11) NOT NULL;
 #EndIf
 
 #IfColumn api_log encrypted
@@ -2184,7 +2184,7 @@ ALTER TABLE `patient_data` CHANGE `care_team` `care_team_provider` text;
 #EndIf
 
 #IfMissingColumn patient_data care_team_facility
-ALTER TABLE `patient_data` ADD COLUMN `care_team_facility` text;
+ALTER TABLE `patient_data` ADD `care_team_facility` text;
 #EndIf
 
 #IfRow2D layout_options form_id DEM field_id care_team
@@ -2220,7 +2220,7 @@ DROP TABLE `log_validator`;
 #EndIf
 
 #IfMissingColumn log_comment_encrypt checksum_api
-ALTER TABLE `log_comment_encrypt` ADD COLUMN `checksum_api` longtext;
+ALTER TABLE `log_comment_encrypt` ADD `checksum_api` longtext;
 #EndIf
 
 #IfNotColumnType onsite_signatures sig_hash varchar(255)
@@ -2228,7 +2228,7 @@ ALTER TABLE `onsite_signatures` MODIFY `sig_hash` varchar(255) NOT NULL;
 #EndIf
 
 #IfMissingColumn ccda hash
-ALTER TABLE `ccda` ADD COLUMN `hash` varchar(255) DEFAULT NULL;
+ALTER TABLE `ccda` ADD `hash` varchar(255) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn ccda uuid
