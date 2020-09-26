@@ -199,6 +199,7 @@ function amcCollect($amc_id, $patient_id, $object_category = '', $object_id = '0
 // $provider_id - provider id
 function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
 {
+    $where = '';
 
   # Collect the patient list first (from the provider)
     $patients = array();

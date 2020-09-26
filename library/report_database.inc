@@ -299,7 +299,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
                 $dispTitle = generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
             }
 
-            if (($row['itemized_test_id'] == $itemized_test_id) && ($row['numerator_label'] == $numerator_label)) {
+            if (($row['itemized_test_id'] == $itemized_test_id) && (($row['numerator_label'] ?? '') == $numerator_label)) {
                 // We have a hit, build on the $dispTitle created above
                 if (isset($row['is_main'])) {
                     $tempCqmAmcString = "";

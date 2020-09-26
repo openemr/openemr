@@ -233,7 +233,7 @@ $res = sqlStatement($query, $sqlBindArray);
                  //
 
                  $query = "SELECT id, lname, fname FROM users WHERE " .
-                  "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
+                  "authorized = 1 ORDER BY lname, fname"; //(CHEMED) facility filter
 
                  $ures = sqlStatement($query);
 

@@ -25,19 +25,19 @@ abstract class ClinicalType
     const CHARACTERISTIC = 'Characteristic';
     const PHYSICAL_EXAM = 'PhysicalExam';
     const LAB_RESULT = 'LabResult';
-    
+
     private $_optionId;
     private $_title;
     private $_notes;
-    
+
     public function __construct($optionId)
     {
         $this->_optionId = $optionId;
         $result = $this->getListOptionById($optionId);
-        $this->_title = $result['title'];
-        $this->_notes = $result['notes'];
+        $this->_title = $result['title'] ?? '';
+        $this->_notes = $result['notes'] ?? '';
     }
-        
+
     /*
      * Check if this clinical type applies to this patient.
      *
@@ -49,22 +49,22 @@ abstract class ClinicalType
      */
     abstract public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null);
     abstract public function getListId();
-    
+
     public function getOptionId()
     {
         return $this->_optionId;
     }
-    
+
     public function getNotes()
     {
         return $this->_notes;
     }
-    
+
     public function getListOptions()
     {
         return array();
     }
-    
+
     private function getListOptionById($id)
     {
         $query = "SELECT * " .

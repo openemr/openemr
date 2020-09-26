@@ -21,14 +21,14 @@
  * @author  Ensoftek
  * @link    http://www.open-emr.org
  */
- 
+
 class NQF_0002_InitialPatientPopulation implements CqmFilterIF
 {
     public function getTitle()
     {
         return "Initial Patient Population";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         $age = $patient->calculateAgeOnDate($beginDate);
@@ -40,9 +40,9 @@ class NQF_0002_InitialPatientPopulation implements CqmFilterIF
                      "INNER JOIN prescriptions p ON fe.pid = p.patient_id " .
                      "WHERE opc.pc_catname = 'Office Visit' AND fe.pid = ? AND (fe.date BETWEEN ? AND ? ) " .
                      " AND p.rxnorm_drugcode in ( $antibiotics ) AND DATEDIFF(fe.date,p.date_added) <= 3";
-            
+
             $check = sqlQuery($query, array($patient->id, $beginDate, $endDate));
-            if ($check['drug'] != "") {
+            if (!empty($check['drug'])) {
                 if (Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_PHARYNGITIS, $patient, $beginDate, $endDate) || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_TONSILLITIS, $patient, $beginDate, $endDate)) {
                     return true;
                 } else {
@@ -52,7 +52,7 @@ class NQF_0002_InitialPatientPopulation implements CqmFilterIF
                 return false;
             }
         }
-        
+
         return false;
     }
 }
