@@ -13,7 +13,6 @@
 
 namespace Carecoordination\Model;
 
-
 use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
 use CouchDB;
