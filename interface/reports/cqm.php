@@ -79,7 +79,7 @@ if (!empty($report_id)) {
     $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : "";
     $plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
     $organize_method = (empty($plan_filter)) ? "default" : "plans";
-    $provider  = trim($_POST['form_provider']);
+    $provider  = trim($_POST['form_provider'] ?? '');
     $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['form_pat_prov_rel']);
 }
 ?>
@@ -341,6 +341,7 @@ if (!empty($report_id)) {
     <?php echo xlt('Automated Measure Calculations (AMC) - 2014 Stage II'); ?>
 <?php } ?>
 
+<?php $dis_text = ''; ?>
 <?php if (!empty($report_id)) { ?>
     <?php echo " - " . xlt('Date of Report') . ": " . text(oeFormatDateTime($date_report, "global", true));
         //prepare to disable form elements
@@ -492,7 +493,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                  //
 
                  $query = "SELECT id, lname, fname FROM users WHERE " .
-                  "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
+                  "authorized = 1 ORDER BY lname, fname"; //(CHEMED) facility filter
 
                  $ures = sqlStatement($query);
 
@@ -679,6 +680,9 @@ if (!empty($report_id)) {
  <tbody>  <!-- added for better print-ability -->
     <?php
 
+    if (empty($dataSheet)) {
+        $dataSheet = [];
+    }
     $firstProviderFlag = true;
     $firstPlanFlag = true;
     $existProvider = false;
@@ -754,7 +758,7 @@ if (!empty($report_id)) {
             }
 
             if (isset($row['itemized_test_id']) && ($row['pass_filter'] > 0)) {
-                echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['pass_filter']) . "</a></td>";
+                echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['pass_filter']) . "</a></td>";
             } else {
                 echo "<td align='center'>" . text($row['pass_filter']) . "</td>";
             }
@@ -763,7 +767,7 @@ if (!empty($report_id)) {
                 // Note that amc will likely support in excluded items in the future for MU2
                 if (($type_report != "standard") && isset($row['itemized_test_id']) && ($row['excluded'] > 0)) {
                     // Note standard reporting exluded is different than cqm/amc and will not support itemization
-                    echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exclude&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['excluded']) . "</a></td>";
+                    echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exclude&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['excluded']) . "</a></td>";
                 } else {
                     echo "<td align='center'>" . text($row['excluded']) . "</td>";
                 }
@@ -773,14 +777,14 @@ if (!empty($report_id)) {
                 // Note that amc will likely support in exception items in the future for MU2
                 if (isset($row['itemized_test_id']) && ($row['exception'] > 0)) {
                    // Note standard reporting exluded is different than cqm/amc and will not support itemization
-                    echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exception&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['exception']) . "</a></td>";
+                    echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exception&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['exception']) . "</a></td>";
                 } else {
                      echo "<td align='center'>" . text($row['exception']) . "</td>";
                 }
             }
 
             if (isset($row['itemized_test_id']) && ($row['pass_target'] > 0)) {
-                echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=pass&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['pass_target']) . "</a></td>";
+                echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=pass&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['pass_target']) . "</a></td>";
             } else {
                 echo "<td align='center'>" . text($row['pass_target']) . "</td>";
             }
@@ -799,7 +803,7 @@ if (!empty($report_id)) {
             }
 
             if (isset($row['itemized_test_id']) && ($failed_items > 0)) {
-                echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=fail&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($failed_items) . "</a></td>";
+                echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=fail&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($failed_items) . "</a></td>";
             } else {
                 echo "<td align='center'>" . text($failed_items) . "</td>";
             }

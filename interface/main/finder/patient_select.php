@@ -163,7 +163,7 @@ $sqllimit = $MAXSHOW;
 $given = "*";
 $orderby = "lname ASC, fname ASC";
 
-$search_service_code = trim($_POST['search_service_code']);
+$search_service_code = trim($_POST['search_service_code'] ?? '');
 echo "<input type='hidden' name='search_service_code' value='" .
   attr($search_service_code) . "' />\n";
 
@@ -320,7 +320,7 @@ if ($popup) {
   </td>
   <td>
     <?php if ($from_page == "cdr_report") { ?>
-        <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label']) . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-primary' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
+        <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-primary' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
     <?php } ?> &nbsp;
   </td>
   <td class='text' align='right'>
@@ -392,7 +392,7 @@ if ($fend > $count) {
 <th class="srDateNext">
     <?php
     $add_days = 90;
-    if (!$popup && preg_match('/^(\d+)\s*(.*)/', $patient, $matches) > 0) {
+    if (!$popup && preg_match('/^(\d+)\s*(.*)/', ($patient ?? ''), $matches) > 0) {
         $add_days = $matches[1];
         $patient = $matches[2];
     }
