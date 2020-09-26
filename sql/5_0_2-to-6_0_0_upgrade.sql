@@ -2226,3 +2226,19 @@ ALTER TABLE `log_comment_encrypt` ADD COLUMN `checksum_api` longtext;
 #IfNotColumnType onsite_signatures sig_hash varchar(255)
 ALTER TABLE `onsite_signatures` MODIFY `sig_hash` varchar(255) NOT NULL;
 #EndIf
+
+#IfMissingColumn ccda hash
+ALTER TABLE `ccda` ADD COLUMN `hash` varchar(255) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn ccda uuid
+ALTER TABLE `ccda` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate ccda
+#EndIf
+
+#IfNotIndex ccda uuid
+CREATE UNIQUE INDEX `uuid` ON `ccda` (`uuid`);
+#EndIf
+

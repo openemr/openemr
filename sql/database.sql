@@ -10878,6 +10878,7 @@ CREATE TABLE ccda_field_mapping (
 DROP TABLE IF EXISTS `ccda`;
 CREATE TABLE ccda (
   id INT(11) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
   pid BIGINT(20) DEFAULT NULL,
   encounter BIGINT(20) DEFAULT NULL,
   ccda_data MEDIUMTEXT,
@@ -10887,11 +10888,13 @@ CREATE TABLE ccda (
   user_id VARCHAR(50) null,
   couch_docid VARCHAR(100) NULL,
   couch_revid VARCHAR(100) NULL,
+  `hash` varchar(255) DEFAULT NULL,
   `view` tinyint(4) NOT NULL DEFAULT '0',
   `transfer` tinyint(4) NOT NULL DEFAULT '0',
   `emr_transfer` tinyint(4) NOT NULL DEFAULT '0',
   `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
   PRIMARY KEY (id),
+  UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY unique_key (pid,encounter,time)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
