@@ -742,7 +742,7 @@ MSG;
             $comments =  $this->cryptoGen->encryptStandard($comments);
             if (!empty($api)) {
                 // api log
-                $api['url'] = (!empty($api['url'])) ? $this->cryptoGen->encryptStandard($api['url']) : '';
+                $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
                 $api['request_body'] = (!empty($api['request_body'])) ? $this->cryptoGen->encryptStandard($api['request_body']) : '';
                 $api['response'] =  (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
             }
