@@ -732,6 +732,10 @@ MSG;
             $patientId = null;
         }
 
+        // Remove binary characters (ie. the uuid related stuff) from the comments, since will break hashing auditing if not done.
+        //  (And also avoid storing binary data in a varchar sql field.)
+        $comments = mb_convert_encoding($comments, 'UTF-8', 'UTF-8');
+
         // Encrypt if applicable
         if (!isset($this->cryptoGen)) {
             $this->cryptoGen = new CryptoGen();
