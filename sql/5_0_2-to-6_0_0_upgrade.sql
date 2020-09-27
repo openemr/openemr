@@ -2212,7 +2212,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #EndIf
 
 #IfNotColumnType documents hash varchar(255)
-ALTER TABLE `documents` MODIFY `hash` varchar(255);
+ALTER TABLE `documents` MODIFY `hash` varchar(255) DEFAULT NULL;
 #EndIf
 
 #IfTable log_validator

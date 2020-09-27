@@ -382,7 +382,7 @@ if (!empty($_GET)) {
                                 } else {
                                     // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding
                                     //  of comments in OpenEMR 6.0.0 and greater when the comments are not encrypted since they hold binary (uuid) elements)
-                                    if ($encryptVersion == 4) {
+                                    if ($encryptVersion >= 4) {
                                         $iter["comments"] = base64_decode($iter["comments"]);
                                     }
                                     $trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
@@ -406,7 +406,7 @@ if (!empty($_GET)) {
                             // Convert select term to Query for MU2 requirements
                             // Also using mb_convert_encoding to change binary stuff (uuid) to just be '?' characters
                             echo nl2br(text(preg_replace('/^select/i', 'Query', mb_convert_encoding($trans_comments, 'UTF-8', 'UTF-8'))));
-                            ?>
+                        ?>
                         </td>
                         </tr>
 
