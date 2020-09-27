@@ -272,7 +272,7 @@ $check_sum = isset($_GET['check_sum']);
             }
 
             if ($commentEncrStatus == "Yes") {
-                if ($encryptVersion == 3) {
+                if ($encryptVersion >= 3) {
                     // Use new openssl method
                     if (extension_loaded('openssl')) {
                         $trans_comments = $cryptoGen->decryptStandard($iter["comments"]);
@@ -312,6 +312,11 @@ $check_sum = isset($_GET['check_sum']);
                     }
                 }
             } else {
+                // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding
+                //  of comments in OpenEMR 6.0.0 and greater when the comments are not encrypted since they hold binary (uuid) elements)
+                if ($encryptVersion == 4) {
+                    $iter["comments"] = base64_decode($iter["comments"]);
+                }
                 $trans_comments = preg_replace($patterns, $replace, trim($iter["comments"]));
             }
 
@@ -325,7 +330,8 @@ $check_sum = isset($_GET['check_sum']);
           <TD class="text tamperColor"><?php echo text(oeFormatDateTime($iter["date"], "global", true)); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["user"]); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["patient_id"]);?></TD>
-          <TD class="text tamperColor"><?php echo text($trans_comments);?></TD>
+          <?php // Using mb_convert_encoding to change binary stuff (uuid) to just be '?' characters ?>
+          <TD class="text tamperColor"><?php echo text(mb_convert_encoding($trans_comments, 'UTF-8', 'UTF-8'));?></TD>
                 <?php
                 if ($check_sum) {
                     if (!empty($mainFail) && !empty($apiFail)) {

@@ -732,16 +732,13 @@ MSG;
             $patientId = null;
         }
 
-        // Remove binary characters (ie. the uuid related stuff) from the comments, since will break hashing auditing if not done.
-        //  (And also avoid storing binary data in a varchar sql field.)
-        $comments = mb_convert_encoding($comments, 'UTF-8', 'UTF-8');
-
         // Encrypt if applicable
         if (!isset($this->cryptoGen)) {
             $this->cryptoGen = new CryptoGen();
         }
         $encrypt = 'No';
         if (!empty($GLOBALS["enable_auditlog_encryption"])) {
+            // encrypt the comments field
             $comments =  $this->cryptoGen->encryptStandard($comments);
             if (!empty($api)) {
                 // api log
@@ -750,6 +747,9 @@ MSG;
                 $api['response'] =  (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
             }
             $encrypt = 'Yes';
+        } else {
+            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
+            $comments = base64_encode($comments);
         }
 
         // Collect timestamp and if pertinent, collect client cert name
@@ -806,7 +806,7 @@ MSG;
             $checksumGenerateApi = '';
         }
         sqlInsertClean_audit(
-            "INSERT INTO `log_comment_encrypt` (`log_id`, `encrypt`, `checksum`, `checksum_api`, `version`) VALUES (?, ?, ?, ?, '3')",
+            "INSERT INTO `log_comment_encrypt` (`log_id`, `encrypt`, `checksum`, `checksum_api`, `version`) VALUES (?, ?, ?, ?, '4')",
             [
                 $last_log_id,
                 $encrypt,
