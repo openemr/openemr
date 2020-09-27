@@ -408,10 +408,14 @@ function sqlQueryCdrEngine($statement, $binds = false)
 *
 * @param  string  $statement  query
 */
-function sqlInsertClean_audit($statement)
+function sqlInsertClean_audit($statement, $binds = false)
 {
+    // Below line is to avoid a nasty bug in windows.
+    if (empty($binds)) {
+        $binds = false;
+    }
 
-    $ret = $GLOBALS['adodb']['db']->ExecuteNoLog($statement);
+    $ret = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
     if ($ret === false) {
         HelpfulDie("insert failed: $statement", getSqlLastError());
     }

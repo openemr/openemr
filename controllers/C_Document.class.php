@@ -959,9 +959,14 @@ class C_Document extends Controller
             }
         }
 
-        $current_hash = sha1($content);
-        $messages = xl('Current Hash') . ": " . $current_hash . "<br />";
-        $messages .= xl('Stored Hash') . ": " . $d->get_hash() . "<br />";
+        if (!empty($d->get_hash()) && (strlen($d->get_hash()) < 50)) {
+            // backward compatibility for documents that were hashed prior to OpenEMR 6.0.0
+            $current_hash = sha1($content);
+        } else {
+            $current_hash = hash('sha3-512', $content);
+        }
+        $messages = xl('Current Hash') . ": " . $current_hash . " | ";
+        $messages .= xl('Stored Hash') . ": " . $d->get_hash();
         if ($d->get_hash() == '') {
             $d->hash = $current_hash;
             $d->persist();
@@ -970,7 +975,7 @@ class C_Document extends Controller
         } elseif ($current_hash != $d->get_hash()) {
             $messages .= xl('Hash does not match. Data integrity has been compromised.');
         } else {
-            $messages .= xl('Document passed integrity check.');
+            $messages = xl('Document passed integrity check. | ') . $messages;
         }
         $this->_state = false;
         $this->assign("messages", $messages);
