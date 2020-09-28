@@ -555,12 +555,16 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
         }
 
         //Update database to track results
-        updateReportDatabase($report_id, $total_patients);
+        updateReportDatabase($report_id, ($total_patients ?? null));
     }
 
   // Record results in database and send to screen, if applicable.
-    finishReportDatabase($report_id, json_encode($dataSheet));
-    return $dataSheet;
+    if (!empty($dataSheet)) {
+        finishReportDatabase($report_id, json_encode($dataSheet));
+        return $dataSheet;
+    } else {
+        return [];
+    }
 }
 
 /**
@@ -2125,13 +2129,13 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
     $history = getHistoryData($patient_id, $lifestyle, '', $dateTarget);
 
   // See if match
-    $stringFlag = strstr($history[$lifestyle], "|" . $status);
+    $stringFlag = strstr(($history[$lifestyle] ?? ''), "|" . $status);
     if (empty($status)) {
         // Only ensuring any data has been entered into the field
         $stringFlag = true;
     }
 
-    return $history[$lifestyle] &&
+    return !empty($history[$lifestyle]) &&
         $history[$lifestyle] != '|0|' &&
         $stringFlag;
 }

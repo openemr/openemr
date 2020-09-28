@@ -24,8 +24,8 @@ if (!empty($_POST)) {
     }
 }
 
-$form_begin_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_begin_date']);
-$form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
+$form_begin_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_begin_date'] ?? '');
+$form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
 ?>
 
 <html>
@@ -138,7 +138,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
 <br />
 
-<?php if ($_POST['search'] == 1) { ?>
+<?php if (!empty($_POST['search']) && ($_POST['search'] == 1)) { ?>
  <div id="report_results">
  <table class="table">
 

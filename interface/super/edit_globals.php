@@ -195,11 +195,6 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         foreach ($grparr as $fldid => $fldarr) {
             list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-            if ($fldtype == 'pwd') {
-                $pass = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = ?", array($fldid));
-                $fldvalueold = $pass['gl_value'];
-            }
-
             /* Multiple choice fields - do not compare , overwrite */
             if (!is_array($fldtype) && substr($fldtype, 0, 2) == 'm_') {
                 if (isset($_POST["form_$i"])) {
@@ -219,10 +214,6 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                     $fldvalue = trim($_POST["form_$i"]);
                 } else {
                     $fldvalue = "";
-                }
-
-                if ($fldtype == 'pwd') {
-                    $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold; // TODO: salted passwords?
                 }
 
                 if ($fldtype == 'encrypted') {
@@ -543,12 +534,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     }
                                                 }
                                                 $fldvalueDecrypted = '';
-                                            } elseif ($fldtype == 'pwd') {
-                                                if ($userMode) {
-                                                    $globalTitle = $globalValue;
-                                                }
-                                                echo "  <input type='password' class='form-control' name='form_$i' " .
-                                                "maxlength='255' value='' />\n";
                                             } elseif ($fldtype == 'pass') {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;

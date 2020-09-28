@@ -77,7 +77,9 @@ class AuthRestController
             }
             $event = 'api';
             $genericUserId = $userId;
+            $_SESSION['authUser'] = $authPayload["username"];
             $_SESSION['authUserID'] = $userId;
+            $_SESSION['authProvider'] = $userGroup;
         }
 
         // PASSED
@@ -250,6 +252,7 @@ class AuthRestController
             // For core api or fhir api
             $_SESSION['authUser'] = $tokenResult['username'];
             $_SESSION['authUserID'] = $tokenResult['user_id'];
+            $_SESSION['authProvider'] =  sqlQueryNoLog("SELECT `name` FROM `groups` WHERE `user` = ?", [$_SESSION['authUser']])['name'];
         }
 
         return true;

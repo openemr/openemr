@@ -13,12 +13,13 @@
 
 namespace Carecoordination\Model;
 
-use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Carecoordination\Model\CarecoordinationTable;
 use CouchDB;
+use Laminas\Db\Adapter\Driver\Pdo\Result;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 require_once(dirname(__FILE__) . "/../../../../../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__) . "/../../../../../../../forms/vitals/report.php");
@@ -1974,6 +1975,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if ($GLOBALS['document_storage_method'] == 1) {
             $couch = new CouchDB();
             $docid = $couch->createDocId('ccda');
+            $binaryUuid = UuidRegistry::uuidToBytes($docid);
             if ($GLOBALS['couchdb_encryption']) {
                 $encrypted = 1;
                 $cryptoGen = new CryptoGen();
@@ -1985,8 +1987,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $docid = $resp->id;
             $revid = $resp->rev;
         } else {
+            $binaryUuid = (new UuidRegistry(['table_name' => 'ccda']))->createUuid();
+            $file_name = UuidRegistry::uuidToString($binaryUuid);
             $file_path = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $pid . '/CCDA';
-            $file_name = $pid . "_" . $encounter . "_" . $time . ".xml";
             if (!is_dir($file_path)) {
                 mkdir($file_path, 0777, true);
             }
@@ -2004,9 +2007,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $file_path = $file_path . "/" . $file_name;
         }
 
-        $query = "insert into ccda (pid, encounter, ccda_data, time, status, user_id, couch_docid, couch_revid, view, transfer,emr_transfer, encrypted) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)";
+        $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $hash = hash('sha3-512', $content);
         $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $view, $transfer, $emr_transfer, $encrypted));
+        $result = $appTable->zQuery($query, array($binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted));
         return $moduleInsertId = $result->getGeneratedValue();
     }
 

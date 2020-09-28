@@ -363,35 +363,9 @@ class ApplicationTable
     {
         return generate_id();
     }
+
     public function portalNewEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)
     {
-        $adodb = $GLOBALS['adodb']['db'];
-        $crt_user = isset($_SERVER['SSL_CLIENT_S_DN_CN']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
-
-        $encrypt_comment = 'No';
-        if (! empty($comments)) {
-            if ($GLOBALS["enable_auditlog_encryption"]) {
-                $cryptoGen = new CryptoGen();
-                $comments = $cryptoGen->encryptStandard($comments);
-                $encrypt_comment = 'Yes';
-            }
-        }
-
-        $sql = "insert into log ( date, event, user, groupname, success, comments, log_from, crt_user, patient_id, user_notes) " . "values ( NOW(), " . $adodb->qstr($event) . "," .
-            $adodb->qstr($user) . "," . $adodb->qstr($groupname) . "," . $adodb->qstr($success) . "," .
-            $adodb->qstr($comments) . "," . $adodb->qstr($log_from) . "," . $adodb->qstr($crt_user) . "," .
-            $adodb->qstr($patient_id) . "," . $adodb->qstr($user_notes) . ")";
-
-        $ret = sqlInsertClean_audit($sql);
-
-        $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
-        $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum, version) " . " VALUES ( " . $adodb->qstr($last_log_id) . "," . $adodb->qstr($encrypt_comment) . "," . "'','3')";
-        sqlInsertClean_audit($encryptLogQry);
-
-        if (( $patient_id == "NULL" ) || ( $patient_id == null )) {
-            $patient_id = 0;
-        }
-
-        EventAuditLogger::instance()->sendAtnaAuditMsg($user, $groupname, $event, $patient_id, $success, $comments);
+        EventAuditLogger::instance()->recordLogItem($success, $event, $user, $groupname, $comments, $patient_id, null, $log_from, null, $ccda_doc_id, $user_notes);
     }
 }// app query class

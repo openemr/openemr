@@ -28,7 +28,7 @@ if (!empty($_POST)) {
 $begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_begin_date'])) : "";
 $end_date = (isset($_POST['form_end_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_end_date'])) : "";
 $rule = (isset($_POST['form_rule'])) ? trim($_POST['form_rule']) : "";
-$provider  = trim($_POST['form_provider']);
+$provider  = trim($_POST['form_provider'] ?? '');
 
 ?>
 
@@ -232,7 +232,7 @@ $provider  = trim($_POST['form_provider']);
                  //
 
                  $query = "SELECT id, lname, fname FROM users WHERE " .
-                  "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
+                  "authorized = 1 ORDER BY lname, fname"; //(CHEMED) facility filter
 
                  $ures = sqlStatement($query);
 
@@ -242,7 +242,7 @@ $provider  = trim($_POST['form_provider']);
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
-                    if ($provid == $_POST['form_provider']) {
+                    if ($provid == ($_POST['form_provider'] ?? '')) {
                         echo " selected";
                     }
 
@@ -268,7 +268,7 @@ $provider  = trim($_POST['form_provider']);
             <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); top.restoreSession(); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
             </a>
-            <?php if ($_POST['form_refresh']) { ?>
+            <?php if (!empty($_POST['form_refresh'])) { ?>
               <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                 <?php echo xlt('Print'); ?>
               </a>
@@ -287,7 +287,7 @@ $provider  = trim($_POST['form_provider']);
 <br />
 
 <?php
-if ($_POST['form_refresh']) {
+if (!empty($_POST['form_refresh'])) {
     ?>
 
 
