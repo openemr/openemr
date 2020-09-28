@@ -193,13 +193,13 @@ class ProcedureService extends BaseService
         return $processingResult;
     }
 
-    public function addDiagnosis($data){
-        error_log("the code is ".$data);
+    public function addDiagnosis($data)
+    {
         $diagnosisArray = array();
-        $dataArray = explode(";",$data);
-        foreach($dataArray as $diagnosis){
-            $diagnosisSplit = explode(":",$diagnosis);
-            array_push($diagnosisArray,$diagnosisSplit);
+        $dataArray = explode(";", $data);
+        foreach ($dataArray as $diagnosis) {
+            $diagnosisSplit = explode(":", $diagnosis);
+            array_push($diagnosisArray, $diagnosisSplit);
         }
         return $diagnosisArray;
     }

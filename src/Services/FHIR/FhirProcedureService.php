@@ -89,16 +89,13 @@ class FhirProcedureService extends FhirServiceBase
             foreach ($dataRecord['diagnoses'] as $code) {
                 $diagnosisCoding = new FHIRCoding();
                 $diagnosisCode = new FHIRCodeableConcept();
-                if($code[0]=="ICD10"){
+                if ($code[0] == "ICD10") {
                     $diagnosisCoding->setSystem("http://hl7.org/fhir/sid/icd-10");
                     $diagnosisCoding->setCode($code[1]);
                     $diagnosisCode->addCoding($diagnosisCoding);
                     $procedureResource->addReasonCode($diagnosisCode);
                 }
-                
-                
             }
-
         }
         if (!empty($dataRecord['procedure_code'])) {
             $procedureCoding = new FHIRCoding();
