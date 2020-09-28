@@ -686,7 +686,8 @@ foreach ($providers as $provider) {
             $patientid = $event['pid'];
             $commapos = strpos($event['patient_name'], ",");
             $lname = substr($event['patient_name'], 0, $commapos);
-	        $fname = substr($event['patient_name'], $commapos + 2);
+            $fname = substr($event['patient_name'], $commapos + 2);
+            $mname = substr($event['patient_name'], $commapos + 3);
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];

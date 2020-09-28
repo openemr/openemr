@@ -1605,7 +1605,14 @@ $GLOBALS_METADATA = array(
             '2',                               // default
             xl('This determines how appointments display on the calendar.')
         ),
-
+        
+        'calendar_tussenvoegsel' => array(
+            xl('Use Middle name as surname prefix and display'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Use field-middle name in place of surname prefix (Tussenvoegsel).')
+        ),
+        
         'event_color' => array(
             xl('Appointment/Event Color'),
             array(

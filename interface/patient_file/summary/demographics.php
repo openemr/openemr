@@ -608,8 +608,9 @@ require_once("$srcdir/options.js.php");
     function setMyPatient() {
         <?php
         if (isset($_GET['set_pid'])) {
+            $mname = $GLOBALS['calendar_tussenvoegsel']? $result['mname'] : "";
             $date_of_death = is_patient_deceased($pid)['date_deceased']; ?>
-        parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) .
+        parent.left_nav.setPatient(<?php echo js_escape($mname . $result['fname'] . " " . $result['lname']) .
                 "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",'',";
         if (empty($date_of_death)) {
             echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']));

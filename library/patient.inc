@@ -754,8 +754,13 @@ function getPatientName($pid)
     if (empty($patientData[0]['lname'])) {
         return "";
     }
-
-    $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
+    
+    if ($GLOBALS['calendar_tussenvoegsel']) {
+        $patientName = $patientData[0]['mname']. ' '.$patientData[0]['lname'] . ", " . $patientData[0]['fname'];
+    } else {
+        $patientName = $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
+    }
+    
     return $patientName;
 }
 
@@ -770,8 +775,12 @@ function getPatientNameFirstLast($pid)
     if (empty($patientData[0]['lname'])) {
         return "";
     }
-
-    $patientName =  $patientData[0]['fname'] . " " . $patientData[0]['lname'];
+    
+    if ($GLOBALS['calendar_tussenvoegsel']) {
+        $patientName = $patientData[0]['fname'] . " " .$patientData[0]['mname']." " . $patientData[0]['lname'];
+    } else {
+        $patientName = $patientData[0]['fname'] . " " . $patientData[0]['lname'];
+    }
     return $patientName;
 }
 

@@ -610,7 +610,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     "a.pc_prefcatid, " .
     "b.pc_catcolor, b.pc_catname, b.pc_catdesc, a.pc_pid, a.pc_aid, " .
     "concat(u.fname,' ',u.lname) as provider_name, " .
-    "concat(pd.fname,' ',pd.lname) as patient_name, " .
+    "concat(pd.fname,' ',pd.lname,' ',pd.mname) as patient_name, " .
     "concat(u2.fname, ' ', u2.lname) as owner_name, pd.DOB as patient_dob, " .
     "a.pc_facility" .
     "FROM  $table AS a " .
@@ -863,6 +863,12 @@ function &postcalendar_userapi_pcQueryEvents($args)
     $table      =  $pntable['postcalendar_events'];
     $cattable   =  $pntable['postcalendar_categories'];
 
+    if ($GLOBALS["calendar_tussenvoegsel"]){
+        $pt_displayname =  "concat(pd.mname,' ', pd.lname,', ',pd.fname,' ') as patient_name, " ;
+    } else {
+        $pt_displayname = "concat(pd.lname,', ',pd.fname) as patient_name, " ;
+    }
+    
     $sql = "SELECT DISTINCT a.pc_eid,  a.pc_informant, a.pc_catid, " .
     "a.pc_title, a.pc_time, a.pc_hometext, a.pc_eventDate, a.pc_duration, " .
     "a.pc_endDate, a.pc_startTime, a.pc_recurrtype, a.pc_recurrfreq, " .
@@ -871,7 +877,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "a.pc_sharing, a.pc_prefcatid, b.pc_catcolor, b.pc_catname, " .
     "b.pc_catdesc, a.pc_pid, a.pc_apptstatus, a.pc_aid, " .
     "concat(u.fname,' ',u.lname) as provider_name, " .
-    "concat(pd.lname,', ',pd.fname) as patient_name, " .
+     $pt_displayname.
     "concat(u2.fname, ' ', u2.lname) as owner_name, " .
     "DOB as patient_dob, a.pc_facility, pd.pubpid, a.pc_gid, " .
     "tg.group_name, tg.group_type, tg.group_status " .
