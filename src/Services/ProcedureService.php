@@ -73,6 +73,7 @@ class ProcedureService extends BaseService
                 pcode.diagnoses,
                 pcode.procedure_order_title,
                 pcode.procedure_name,
+                pcode.procedure_code,
                 presult.result_status,
                 presult.result_code,
                 presult.result_text,
@@ -150,6 +151,7 @@ class ProcedureService extends BaseService
                 pcode.diagnoses,
                 pcode.procedure_order_title,
                 pcode.procedure_name,
+                pcode.procedure_code,
                 presult.result_status,
                 presult.result_code,
                 presult.result_text,
@@ -189,5 +191,16 @@ class ProcedureService extends BaseService
         }
         $processingResult->addData($sqlResult);
         return $processingResult;
+    }
+
+    public function addDiagnosis($data){
+        error_log("the code is ".$data);
+        $diagnosisArray = array();
+        $dataArray = explode(";",$data);
+        foreach($dataArray as $diagnosis){
+            $diagnosisSplit = explode(":",$diagnosis);
+            array_push($diagnosisArray,$diagnosisSplit);
+        }
+        return $diagnosisArray;
     }
 }
