@@ -173,7 +173,7 @@ function is_tracker_encounter_exist($apptdate, $appttime, $pid, $eid)
     #Check to see if there is an encounter in the patient_tracker table.
     $enc_yn = sqlQuery("SELECT encounter from patient_tracker WHERE `apptdate` = ? AND encounter > 0 " .
         "AND `eid` = ? AND `pid` = ?", array($apptdate, $eid, $pid));
-    if (!$enc_yn['encounter'] || $enc_yn === false) {
+    if (empty($enc_yn['encounter']) || $enc_yn === false) {
         return (0);
     }
 

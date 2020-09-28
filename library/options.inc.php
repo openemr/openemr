@@ -72,10 +72,12 @@ function optionalAge($frow, $date, &$asof, $description = '')
         return '';
     }
 
+    $edit_options = $frow['edit_options'] ?? null;
+
     $date = substr($date, 0, 10);
-    if (isOption($frow['edit_options'], 'A') !== false) {
+    if (isOption($edit_options, 'A') !== false) {
         $format = 0;
-    } elseif (isOption($frow['edit_options'], 'B') !== false) {
+    } elseif (isOption($edit_options, 'B') !== false) {
         $format = 3;
     } else {
         return '';
@@ -2185,7 +2187,7 @@ function generate_display_field($frow, $currvalue)
     } elseif ($data_type == 10 || $data_type == 11) { // provider
         $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
         "WHERE id = ?", array($currvalue));
-        $s = htmlspecialchars(ucwords($urow['fname'] . " " . $urow['lname']), ENT_NOQUOTES);
+        $s = text(ucwords(($urow['fname'] ?? '') . " " . ($urow['lname'] ?? '')));
     } elseif ($data_type == 12) { // pharmacy list
         $pres = get_pharmacies();
         while ($prow = sqlFetchArray($pres)) {
@@ -2552,7 +2554,7 @@ function generate_display_field($frow, $currvalue)
             if ($i > 0) {
                   $s = $s . ", " . htmlspecialchars($lrow['name'], ENT_NOQUOTES);
             } else {
-                $s = htmlspecialchars($lrow['name'], ENT_NOQUOTES);
+                $s = text($lrow['name'] ?? '');
             }
             $i++;
         }
@@ -2572,7 +2574,8 @@ function generate_plaintext_field($frow, $currvalue)
     $data_type = $frow['data_type'];
     $field_id  = isset($frow['field_id']) ? $frow['field_id'] : null;
     $list_id   = $frow['list_id'];
-    $backup_list = $frow['backup_list'];
+    $backup_list = $frow['backup_list'] ?? null;
+    $edit_options = $frow['edit_options'] ?? null;
     $s = '';
 
     // generic selection list or the generic selection list with add on the fly
@@ -2595,7 +2598,7 @@ function generate_plaintext_field($frow, $currvalue)
     } elseif ($data_type == 2 || $data_type == 3 || $data_type == 15) { // simple or long text field
         $s = $currvalue;
     } elseif ($data_type == 4) { // date
-        $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
+        $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
         if (!$modtmp) {
             $s = text(oeFormatShortDate($currvalue));
         } else {

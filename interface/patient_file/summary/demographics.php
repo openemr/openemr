@@ -132,7 +132,7 @@ function get_document_by_catg($pid, $doc_catg)
         "ORDER BY d.date DESC LIMIT 1", array($pid, $doc_catg));
     }
 
-    return ($result['id']);
+    return ($result['id'] ?? false);
 }
 
 // Display image in 'widget style'
@@ -608,7 +608,11 @@ require_once("$srcdir/options.js.php");
     function setMyPatient() {
         <?php
         if (isset($_GET['set_pid'])) {
-            $date_of_death = is_patient_deceased($pid)['date_deceased']; ?>
+            $date_of_death = is_patient_deceased($pid);
+            if (!empty($date_of_death)) {
+                $date_of_death = $date_of_death['date_deceased'];
+            }
+         ?>
         parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) .
                 "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",'',";
         if (empty($date_of_death)) {
@@ -1897,11 +1901,11 @@ if ($track_is_registered) {
 <script>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
-        <?php echo $condition_str; ?>
+        <?php echo ($condition_str ?? ''); ?>
     ];
     checkSkipConditions();
 
-    var isPost = <?php echo js_escape($showEligibility); ?>;
+    var isPost = <?php echo js_escape($showEligibility ?? false); ?>;
     var listId = '#' + <?php echo js_escape($list_id); ?>;
     $(function () {
         $(listId).addClass("active");
