@@ -1301,21 +1301,25 @@ function find_available(extra) {
     // when making an appointment for a specific provider
     var s = document.forms[0].form_provider;
     var f = document.forms[0].facility;
+    var r = document.forms[0].form_room.value;
     <?php if ($userid != 0) { ?>
-        s = document.forms[0].form_provider.value;
-        f = document.forms[0].facility.value;
+    s = document.forms[0].form_provider.value;
+    f = document.forms[0].facility.value;
     <?php } else {?>
-        s = document.forms[0].form_provider.options[s.selectedIndex].value;
-        f = document.forms[0].facility.options[f.selectedIndex].value;
+    s = document.forms[0].form_provider.options[s.selectedIndex].value;
+    f = document.forms[0].facility.options[f.selectedIndex].value;
     <?php }?>
     var c = document.forms[0].form_category;
     var formDate = document.forms[0].form_date;
+    var startTime = document.forms[0].form_hour.value + ':' + document.forms[0].form_minute.value;
     let title = <?php echo xlj('Available Appointments Calendar'); ?>;
     dlgopen('<?php echo $GLOBALS['web_root']; ?>/interface/main/calendar/find_appt_popup.php' +
         '?providerid=' + s +
         '&catid=' + c.options[c.selectedIndex].value +
         '&facility=' + f +
+        '&room=' + r +
         '&startdate=' + formDate.value +
+        '&startTime=' + startTime +
         '&evdur=' + document.forms[0].form_duration.value +
         '&eid=<?php echo 0 + $eid; ?>' + extra,
         '', 725, 200, '', title);
@@ -1973,9 +1977,10 @@ function SubmitForm() {
     if (f.form_action.value != 'delete') {
         // Check slot availability.
         var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
+        var room = f.form_room.value;
         <?php if ($GLOBALS['time_display_format']  == 1) :
             ?>if (f.form_ampm.value == '2' && mins < 720) mins += 720;<?php endif ?>
-        find_available('&cktime=' + mins);
+        find_available('&cktime=' + mins +'&room=' + room);
     }
     else {
         top.restoreSession();

@@ -39,6 +39,11 @@ $eid = empty($_REQUEST['eid']) ? 0 : 0 + $_REQUEST['eid'];
 
 $input_catid = $_REQUEST['catid'];
 
+//For room check
+$startTime = $_REQUEST['startTime'];
+$room = $_REQUEST['room'];
+$dur = $_REQUEST['evdur'];
+$roomInuse = false;
 // Record an event into the slots array for a specified day.
 function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
 {
@@ -81,6 +86,14 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
             $slots[$i] |= 4;
         }
     }
+}
+
+function checkRoom($date, $starttime, $dur, $room) {
+    $udate = strtotime($starttime, $date);
+    $end = strtotime("+" . $dur . " minutes", $udate);
+    $endTime = date('H:i', ($end));
+    $start = date('H:i', ($udate));
+    return sqlQuery("Select * from openemr_postcalendar_events where pc_room = '$room' AND pc_eventDate = '$date' and pc_startTime BETWEEN '$start' AND '$endTime'");
 }
 
 // seconds per time slot
@@ -245,6 +258,7 @@ if (in_array($sdate, $holidays)) {
 // the opener and go away quietly if it is.  If it's not then we have more
 // work to do.
 
+
 if (isset($_REQUEST['cktime'])) {
     $cktime = 0 + $_REQUEST['cktime'];
     $ckindex = (int) ($cktime * 60 / $slotsecs);
@@ -255,6 +269,10 @@ if (isset($_REQUEST['cktime'])) {
             if (isset($prov[$j])) {
                 $isProv = 'TRUE';
             }
+        }
+        if (checkRoom($sdate, $startTime, $dur, $room)) {
+            $ckavail = false;
+            $roomInuse = true;
         }
     }
 
@@ -449,7 +467,7 @@ $(function () {
     });
 });
 
-
+//Fixed this to be less confusing
 <?php
 if (!$ckavail) {
     if (AclMain::aclCheckCore('patients', 'appt', '', 'write')) {
@@ -459,21 +477,31 @@ if (!$ckavail) {
                 opener.document.forms[0].submit();
                 dlgclose();
             } <?php
-        } else {
-            //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
-            if ($isProv) { ?>
+        //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
+        } elseif ($isProv) { ?>
                 if (confirm(<?php echo xlj('Provider not available, use it anyway?'); ?>)) {
-                <?php
-            } else { ?>
+                    opener.top.restoreSession();
+                    opener.document.forms[0].submit();
+                    dlgclose();
+                }
+        <?php
+        } elseif ($roomInuse && $GLOBALS['calendar_check_rooms']) { ?>
+              if (confirm(<?php echo xlj('This Room slot is already used, use it anyway?'); ?>)) {
+                    opener.top.restoreSession();
+                    opener.document.forms[0].submit();
+                    dlgclose();
+              }
+<?php
+        } else { ?>
                 if (confirm(<?php echo xlj('This appointment slot is already used, use it anyway?'); ?>)) {
-                <?php
-            } ?>
-            opener.top.restoreSession();
-            opener.document.forms[0].submit();
-            dlgclose();
-        }
-            <?php
-        }
+                    opener.top.restoreSession();
+                    opener.document.forms[0].submit();
+                    dlgclose();
+                }
+        <?php
+        } ?>
+  <?php
+//Why are we bypassing the permissions check ?
     } else {
         if ($is_holiday) { ?>
             alert(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>);
