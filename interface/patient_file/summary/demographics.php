@@ -612,7 +612,7 @@ require_once("$srcdir/options.js.php");
             if (!empty($date_of_death)) {
                 $date_of_death = $date_of_death['date_deceased'];
             }
-         ?>
+            ?>
         parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) .
                 "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",'',";
         if (empty($date_of_death)) {
