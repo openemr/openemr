@@ -43,6 +43,7 @@ class FhirPatientService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
+            '_id' => ['uuid'],
             'address' => ['street', 'postal_code', 'city', 'state'],
             'address-city' => ['city'],
             'address-postalcode' => ['postal_code'],
