@@ -1707,7 +1707,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                                 $count2++;
                             }
                             //if there is no appt and no recall
-                            if (($count < 1) && ($count2 < 1)) {
+                            if (($count < 1) && empty($count2)) {
                                 echo "<br /><br />&nbsp;&nbsp;<a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">" . xlt('No Recall') . "</a>";
                             }
                             $count = 0;

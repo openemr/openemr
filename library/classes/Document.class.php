@@ -132,6 +132,18 @@ class Document extends ORDataObject
     */
     var $encrypted;
 
+    // Storage method
+    var $storagemethod;
+
+    // For storing couch docid
+    var $couch_docid;
+
+    // For storing couch revid
+    var $couch_revid;
+
+    // For storing path depth
+    var $path_depth;
+
     /**
      * Constructor sets all Document attributes to their default value
      * @param int $id optional existing id of a specific document, if omitted a "blank" document is created
@@ -148,7 +160,7 @@ class Document extends ORDataObject
         //load the enum type from the db using the parent helper function, this uses psuedo-class variables so it is really cheap
         $this->type_array = $this->_load_enum("type");
 
-        $this->type = $this->type_array[0];
+        $this->type = $this->type_array[0] ?? '';
         $this->size = 0;
         $this->date = date("Y-m-d H:i:s");
         $this->url = "";
