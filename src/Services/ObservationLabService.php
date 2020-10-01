@@ -52,13 +52,15 @@ class ObservationLabService extends BaseService
     {
         $sqlBindArray = array();
 
-        $sql = "SELECT presult.*,
-                patient.uuid AS puuid
+        $sql = "SELECT presult.*,poc.procedure_name,poc.procedure_code ,
+                patient.uuid AS puuid,preport.date_report 
                 FROM procedure_result AS presult
                 LEFT OUTER JOIN procedure_report AS preport
                 ON preport.procedure_report_id = presult.procedure_report_id
                 LEFT OUTER JOIN procedure_order AS porder
                 ON porder.procedure_order_id = preport.procedure_order_id
+                LEFT OUTER JOIN procedure_order_code AS poc
+                ON poc.procedure_order_id = porder.procedure_order_id
                 LEFT OUTER JOIN patient_data AS patient
                 ON patient.pid = porder.patient_id";
 
@@ -94,7 +96,6 @@ class ObservationLabService extends BaseService
     public function getOne($uuid)
     {
         $processingResult = new ProcessingResult();
-
         $isValid = BaseValidator::validateId("uuid", self::PROCEDURE_RESULT_TABLE, $uuid, true);
         if ($isValid !== true) {
             $validationMessages = [
@@ -103,17 +104,18 @@ class ObservationLabService extends BaseService
             $processingResult->setValidationMessages($validationMessages);
             return $processingResult;
         }
-        $sql = "SELECT presult.*,
-                patient.uuid AS puuid
+        $sql = "SELECT presult.*,poc.procedure_name,poc.procedure_code ,
+                patient.uuid AS puuid,preport.date_report 
                 FROM procedure_result AS presult
                 LEFT OUTER JOIN procedure_report AS preport
                 ON preport.procedure_report_id = presult.procedure_report_id
                 LEFT OUTER JOIN procedure_order AS porder
                 ON porder.procedure_order_id = preport.procedure_order_id
+                LEFT OUTER JOIN procedure_order_code AS poc
+                ON poc.procedure_order_id = porder.procedure_order_id
                 LEFT OUTER JOIN patient_data AS patient
                 ON patient.pid = porder.patient_id
-                WHERE preport.uuid = ?";
-
+                WHERE presult.uuid = ?";
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
