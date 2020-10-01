@@ -373,7 +373,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     </div>
                     <br />
                     <div id="globals-div">
-                        <ul class="tabNav tabWidthWide" id="oe-nav-ul">
+                        <ul class="tabNav tabWidthWide sticky-top" id="oe-nav-ul">
                         <?php
                         $i = 0;
                         foreach ($GLOBALS_METADATA as $grpname => $grparr) {
