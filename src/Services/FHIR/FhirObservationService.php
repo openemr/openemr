@@ -11,7 +11,6 @@ use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\ObservationLabService;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 
-
 /**
  * FHIR Observation Service
  *
