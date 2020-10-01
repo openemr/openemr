@@ -184,8 +184,8 @@ class C_Document extends Controller
         }
 
         $doDecryption = false;
-        $encrypted = $_POST['encrypted'];
-        $passphrase = $_POST['passphrase'];
+        $encrypted = $_POST['encrypted'] ?? false;
+        $passphrase = $_POST['passphrase'] ?? '';
         if (
             !$GLOBALS['hide_document_encryption'] &&
             $encrypted && $passphrase
@@ -557,8 +557,8 @@ class C_Document extends Controller
      * */
     function retrieve_action(string $patient_id = null, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
     {
-        $encrypted = $_POST['encrypted'];
-        $passphrase = $_POST['passphrase'];
+        $encrypted = $_POST['encrypted'] ?? false;
+        $passphrase = $_POST['passphrase'] ?? '';
         $doEncryption = false;
         if (
             !$GLOBALS['hide_document_encryption'] &&

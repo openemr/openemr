@@ -54,7 +54,7 @@ class Tree
         //get the left and right value of the root node
         $sql = "SELECT * FROM " . $this->_table . " WHERE id=?";
 
-        if ($this->root_type == ROOT_TYPE_NAME) {
+        if ($this->_root_type == ROOT_TYPE_NAME) {
             $sql = "SELECT * FROM " . $this->_table . " WHERE name=?";
         }
 
