@@ -3200,7 +3200,6 @@ class MedEx
             $response['generate']   = $this->events->generate($response['token'], $response['campaigns']['events']);
             $response['success']    = "200";
         }
-        $this->MedEx->logging->log_this($reponse);
             
         $sql = "UPDATE medex_prefs set status = ?";
         sqlQuery($sql, array(json_encode($response)));
