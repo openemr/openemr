@@ -57,8 +57,7 @@ $(function () {
 
     $("#profilereport").load("./get_profile.php", {}, function () {
         $("table").addClass("table  table-responsive");
-        $(".demographics td").removeClass("label");
-        $(".demographics td").addClass("bold");
+        $(".demographics td").removeClass("label").addClass("bold");
         $(".insurance table").addClass("table-sm table-striped");
         $("#editDems").click(function () {
             showProfileModal()
@@ -70,7 +69,7 @@ $(function () {
     $("#amendmentslist").load("./get_amendments.php", {}, function () {});
     $("#problemslist").load("./get_problems.php", {}, function () {});
     $("#allergylist").load("./get_allergies.php", {}, function () {});
-    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr_url($pid) ?>'", {}, function () {});
+    //$("#reports").load("./../interface/patient_file/report/patient_report.php?pid='<?php echo attr_url($pid) ?>'", {}, function () {});
 
     <?php if ($GLOBALS['portal_two_payments']) { ?>
     $("#payment").load("./portal_payment.php", {}, function () {});
@@ -81,7 +80,9 @@ $(function () {
     });
 
     function showProfileModal() {
-        var title = <?php echo xlj('Demographics Legend Red: Charted Values. Blue: Patient Edits'); ?> + ' ';
+        var title = <?php echo xlj('Profile Edit') ?> + " <small class='text-danger'> " +
+            <?php echo xlj('Red items are Current.') ?> + "</small><small class='text-primary'> " +
+            <?php echo xlj('Blue items are Edits') ?> + "</small>";
 
         var params = {
             buttons: [
@@ -94,7 +95,7 @@ $(function () {
             type: 'GET',
             url: webRoot + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
         };
-        dlgopen('','','modal-xl', 500, '', title, params);
+        dlgopen('','','modal-xl', 550, '', title, params);
     }
 
     function saveProfile() {
@@ -132,15 +133,17 @@ $(function () {
 });
 
 function editAppointment(mode,deid){
-    if(mode == 'add'){
-        var title = <?php echo xlj('Request New Appointment'); ?>;
-        var mdata = {pid:deid};
+    let params = mdata = {};
+    let title = "";
+    if(mode === 'add'){
+        title = <?php echo xlj('Request New Appointment'); ?>;
+        mdata = {pid:deid};
     }
     else{
-        var title = <?php echo xlj('Edit Appointment'); ?>;
-        var mdata = {eid:deid};
+        title = <?php echo xlj('Edit Appointment'); ?>;
+        mdata = {eid:deid};
     }
-    var params = {
+    params = {
         dialogId: 'editpop',
         buttons: [
             { text: <?php echo xlj('Cancel'); ?>, close: true, style: 'default' }
@@ -155,7 +158,7 @@ function editAppointment(mode,deid){
 }
 
 function changeCredentials(e) {
-    title = <?php echo xlj('Please Enter New Credentials'); ?>;
+    let title = <?php echo xlj('Please Enter New Credentials'); ?>;
     dlgopen("./account/index_reset.php", '', 600, 360, null, title, {});
 }
 </script>
@@ -270,7 +273,6 @@ function changeCredentials(e) {
                                 </a>
                             </div>
                         </div>
-                        <div class="panel-footer"></div>
                     </div><!-- /.panel -->
                 </div><!-- /.col -->
             </div><!-- /.row -->
@@ -292,19 +294,20 @@ function changeCredentials(e) {
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" style="padding-top:0;padding-bottom:0;" id="messagespanel">
                         <!-- <header class="panel-heading"><?php //echo xlt('Secure Chat'); ?>  </header>-->
-                        <div id="messages" class="panel-body" style="height:calc(100vh - 120px);overflow:auto;padding:0 0 0 0;" >
-                             <iframe src="./messaging/secure_chat.php" width="100%" height="100%"></iframe>
+                        <div id="messages" class="panel-body" style="height:calc(100vh - 175px);overflow:hidden;padding:0 0;" >
+                             <iframe style="height:100%;width:100%;overflow:auto;border:0px;" src="./messaging/secure_chat.php"></iframe>
                         </div>
                     </div>
                 </div><!-- /.col -->
             </div>
             <?php } ?>
             <div class="row">
-                <div class="col-sm-8">
+                <div class="col-sm-10">
                     <div class="panel panel-primary collapse" id="reportpanel">
                         <header class="panel-heading"><?php echo xlt('Reports'); ?>  </header>
-                        <div id="reports" class="panel-body"></div>
-                        <div class="panel-footer"></div>
+                        <div id="reports" class="panel-body" style="height:calc(100vh - 175px);overflow:hidden;padding:0 0;">
+                            <iframe style="height:100%;width:100%;overflow:auto;border:0;border-bottom: 2px solid #000;" src="./report/portal_patient_report.php?pid='<?php echo attr_url($pid) ?>'"></iframe>
+                        </div>
                     </div>
                 </div>
                 <!-- /.col -->
@@ -330,10 +333,8 @@ function changeCredentials(e) {
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="ledgerpanel">
                         <header class="panel-heading"><?php echo xlt('Ledger');?> </header>
-                        <div id="patledger" class="panel-body"></div>
-                        <div class="panel-footer">
-                          <iframe src="./report/pat_ledger.php" width="100%" height="475" scrolling="yes"></iframe>
-                        </div>
+                        <div id="patledger" class="panel-body" style="height:calc(100vh - 175px);overflow:hidden;padding:0 0;">
+                            <iframe style="height:100%;width:100%;overflow:auto;border:0px;" src="./report/pat_ledger.php"></iframe></div>
                     </div>
                 </div><!-- /.col -->
             </div>

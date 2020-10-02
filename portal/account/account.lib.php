@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 /* Library functions for register*/
 
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -22,6 +23,10 @@ function notifyAdmin($pid, $provider)
     $title = xlt("New Patient");
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($provider));
 
+    if (empty($user['username'])) {
+        $user['username'] = "portal-user";
+    }
+
     $rtn = addPnote($pid, $note, 1, 1, $title, $user['username'], '', 'New');
 
     return $rtn;
@@ -29,28 +34,53 @@ function notifyAdmin($pid, $provider)
 
 function isNew($dob = '', $lname = '', $fname = '', $email = '')
 {
-    $last = trim($lname);
-    $first = trim($fname);
-    $dob = trim($dob);
-    $semail = trim($email);
+    // no sense doing a weighted search because we want specific criteria
+    // for new patients. Mainly catch those trying to just get a new password.
+    // or change email.
+    $last = trim(urldecode($lname));
+    $first = trim(urldecode($fname));
+    $dob = trim(urldecode($dob));
+    $semail = trim(urldecode($email));
+    // first check email both contact and secure
+    if ($email) {
+        $sql = "select pid from patient_data " .
+            "Where (patient_data.email LIKE ? OR patient_data.email_direct LIKE ?) " .
+            "And patient_data.DOB LIKE ? order by date limit 0,1";
+        $data = array(
+            $semail,
+            $semail,
+            $dob
+        );
+        $tier1 = sqlQuery($sql, $data);
+        if (!empty($tier1['pid'])) {
+            // email with this dob already on file so, skedaddle ...
+            return $tier1['pid'];
+        }
+    }
+    // fully matched for our purposes
+    $sql = "select pid from patient_data Where patient_data.lname LIKE ? And patient_data.fname LIKE ? And patient_data.DOB LIKE ? And (patient_data.email LIKE ? OR patient_data.email_direct LIKE ?) order by date limit 0,1";
+    $data = array(
+        $last,
+        $first,
+        $dob,
+        $semail,
+        $semail
+    );
+    $tier2 = sqlQuery($sql, $data);
+    if (!empty($tier2['pid'])) {
+        return $tier2['pid'];
+    }
+    // name and dob match. Most likely trying to change email!
+    // too much of a coincidence...
     $sql = "select pid from patient_data Where patient_data.lname LIKE ? And patient_data.fname LIKE ? And patient_data.DOB LIKE ? order by date limit 0,1";
     $data = array(
         $last,
         $first,
         $dob
     );
-    if ($email) {
-        $sql = "select pid from patient_data Where patient_data.lname LIKE ? And patient_data.fname LIKE ? And patient_data.DOB LIKE ? And patient_data.email LIKE ? order by date limit 0,1";
-        $data = array(
-            $last,
-            $first,
-            $dob,
-            $semail
-        );
-    }
-    $row = sqlQuery($sql, $data);
+    $tier3 = sqlQuery($sql, $data);
 
-    return $row['pid'] ? $row['pid'] : 0;
+    return $tier3['pid'] ? $tier3['pid'] : 0;
 }
 
 function saveInsurance($pid)
@@ -131,9 +161,9 @@ function doCredentials($pid)
     global $srcdir;
     require_once("$srcdir/authentication/common_operations.php");
 
-    $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct FROM `patient_data` WHERE `pid`=?", array(
-        $pid
-    ));
+    $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid`=?", array($pid));
+    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($newpd['providerID']));
+
 
     $crypto = new CryptoGen();
     $uname = $newpd['fname'] . $newpd['id'];
@@ -160,7 +190,7 @@ function doCredentials($pid)
     // Will store unencrypted token in database with the pin and expiration date
     $one_time = $token_new . $pin . bin2hex($expiry->format('U'));
     $res = sqlStatement("SELECT * FROM patient_access_onsite WHERE pid=?", array($pid));
-    $query_parameters = array($uname,$one_time);
+    $query_parameters = array($uname, $one_time);
     $new_salt = oemr_password_salt();
     $salt_clause = ",portal_salt=? ";
     array_push($query_parameters, oemr_password_hash($clear_pass, $new_salt), $new_salt);
@@ -196,8 +226,27 @@ function doCredentials($pid)
         $sent = 1;
     } else {
         $email_status = $mail->ErrorInfo;
-        error_log("EMAIL ERROR: " . errorLogEscape($email_status), 0);
-        return xlt("EMAIL ERROR") . ": " . errorLogEscape($email_status) . ': ' . xlt("Contact your provider administrator.");
+        $errorMsg = "EMAIL ERROR: " . errorLogEscape($email_status) . '<br />';
+        if ($newpd['id']) {
+            $errorMsg .= xlt("Your account has been successfully created however, we were unable to send the account information.");
+            $errorMsg .= "<br />" . xlt("Please contact your providers office with the following account information") . ":<br />";
+            $errorMsg1 = xlt("Account Id") . ": " . $uname . " " . xlt("MRN Reference") . ": " . $pid;
+            $errorMsg .= $errorMsg1;
+            $errorMsg .= "<br /><br />" . xlt("The providers office has been notified. Thank you.") . "<br />";
+            // notify admin of failure.
+            $title = xlt("Failed Registration");
+            $admin_msg = "\n" . xlt("A new patients credentials could not be sent after portal registration.");
+            $admin_msg .= "\n" . $errorMsg1;
+            $admin_msg .= "\n" . xlt("Please follow up.");
+            // send note
+            addPnote($pid, $admin_msg, 1, 1, $title, $user['username'], '', 'New');
+        } else {
+            $errorMsg .= "<br />" . xlt("We were unable to create an account.") . "<br />";
+            $errorMsg .= xlt("Please try again or contact the providers office for further assistance.");
+        }
+        error_log("Portal Registration error: " . errorLogEscape($errorMsg), 0);
+
+        return $errorMsg;
     }
 
     return $sent;

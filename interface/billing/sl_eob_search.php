@@ -610,7 +610,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         }
         function editInvoice(e, id) {
             let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
-            dlgopen(url,'','modal-lg',750,false,'', {
+            dlgopen(url,'','modal-full',700,false,'', {
+                sizeHeight: 'full',
                 onClosed: 'reSubmit'
             });
         }
@@ -719,11 +720,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 <body>
 <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
     <div class="row">
-            <div class="col-sm-12">
-                <div class="page-header">
-                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-                </div>
+        <div class="col-sm-12">
+            <div class="page-header">
+                <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
+        </div>
     </div>
     <div class="row">
         <div class="col-sm-12">
@@ -1278,7 +1279,6 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 $('#btn-inv-search').show();
                 var legend_text = $('#hid1').val();
                 $('#search-upload').find('legend').find('span').text(legend_text);
-                $('#search-upload').find('#form_name').focus();
                 $('#select-method-tooltip').hide();
             }
             else if (flip == 'era-upld') {
@@ -1297,6 +1297,10 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 $('#select-method-tooltip').show();
             }
         });
+
+        <?php if (empty($_REQUEST['form_search'])) { ?>
+            $("#invoice_search").click();
+        <?php } ?>
     });
     <?php
     if ($alertmsg) {

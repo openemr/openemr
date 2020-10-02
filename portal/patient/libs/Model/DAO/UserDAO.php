@@ -197,6 +197,8 @@ class UserDAO extends Phreezable
     /** @var string */
     public $PhysicianType;
 
+    /** @var int */
+    public $PortalUser;
 
     /**
      * Returns a dataset of FormHearing objects with matching ExaminerId

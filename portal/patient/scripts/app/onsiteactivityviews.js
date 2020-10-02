@@ -58,7 +58,7 @@ var actpage = {
                 type: 'GET',
                 url: top.webroot_url + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
             };
-            dlgopen('','','modal-xl', 525, '', title, params);
+            dlgopen('','','modal-full', 415, '', title, params);
         }
         function showDocumentModal(cpid, recid) {
             var title = 'Audit Document';

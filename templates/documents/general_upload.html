@@ -29,8 +29,13 @@
     {xlt t="Upload Document"} {if $category_name} {xlt t="to category"} '{$category_name|text}'{/if}
 </div>
 <div class="text">
-    <p><span>{xlt t="Source File Path"}:</span> <input type="file" name="file[]" id="source-name" multiple="true"/>&nbsp;(<font size="1">{xlt t="Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click."}</font>)</p>
-    <p><span title="{xla t='Leave Blank To Keep Original Filename'}">{xlt t="Optional Destination Name"}:</span> <input type="text" name="destination" title="{xla t='Leave Blank To Keep Original Filename'}" id="destination-name" /></p>
+    <div class="input-group">(<small>{xlt t="Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click."}</small>)<span>{xlt t="Source File Path"}:</span> <input type="file" name="file[]" id="source-name" multiple="true" />
+    </div>
+    <div class="input-group">
+        (<small>{xlt t="Select below to Zip Directory of image slices."}</small>)
+        <input type="file" name="dicom_folder[]" id="dicom_folder" multiple directory=""  webkitdirectory="" moxdirectory="" />
+    </div>
+    <p><span title="{xla t='Leave Blank To Keep Original Filename'}">{xlt t="Optional Destination or Dicom Study Name"}:</span> <input type="text" name="destination" title="{xla t='Leave Blank To Keep Original Filename'}" id="destination-name" /></p>
     {if !$hide_encryption}
 	</br>
 	<p><span title="{xla t='Check the box if this is an encrypted file'}">{xlt t="Is The File Encrypted?"}:</span> <input type="checkbox" name="encrypted" title="{xla t='Check the box if this is an encrypted file'}" id="encrypted" /></p>

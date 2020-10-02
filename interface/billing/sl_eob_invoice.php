@@ -289,10 +289,10 @@ if (empty($ferow)) {
 $patient_id = 0 + $ferow['pid'];
 $encounter_id = 0 + $ferow['encounter'];
 $svcdate = substr($ferow['date'], 0, 10);
-$form_payer_id = ($_POST['$form_payer_id']) ? (0 + $_POST['form_payer_id']) : 0;
+$form_payer_id = ($_POST['form_payer_id']) ? (0 + $_POST['form_payer_id']) : 0;
 $form_reference = $_POST['form_reference'];
-$form_check_date = ($_POST['form_check_date']) ? DateToYYYYMMDD($_POST['form_check_date']) : date('Y-m-d');
-$form_deposit_date = ($_POST['form_deposit_date']) ? DateToYYYYMMDD($_POST['form_deposit_date']) : date('Y-m-d');
+$form_check_date   = fixDate($_POST['form_check_date'], date('Y-m-d'));
+$form_deposit_date = fixDate($_POST['form_deposit_date'], $form_check_date);
 $form_pay_total = ($_POST['form_pay_total']) ? (0 + $_POST['form_pay_total']) : 0;
 
 
@@ -301,7 +301,7 @@ if (preg_match('/^Ins(\d)/i', $_POST['form_insurance'], $matches)) {
     $payer_type = $matches[1];
 }
 
-if (($_POST['form_save'] || $_POST['form_cancel'])) {
+if ($_POST['form_save'] || $_POST['form_cancel'] || $_POST['isLastClosed']) {
     if ($_POST['form_save']) {
         if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
             CsrfUtils::csrfNotVerified();
@@ -420,11 +420,21 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
     if ($info_msg) {
         echo " alert(" . js_escape($info_msg) . ");\n";
     }
-    if (!$debug && !$save_stay) {
+    if (!$debug && !$save_stay && !$_POST['isLastClosed']) {
         echo "doClose();\n";
     }
-    echo "</script></body></html>\n";
-    if (!$save_stay) {
+    if (!$debug && ($save_stay || $_POST['isLastClosed'])) {
+        if ($_POST['isLastClosed']) {
+            // save last closed level
+            $form_done = 0 + $_POST['form_done'];
+            $form_stmt_count = 0 + $_POST['form_stmt_count'];
+            sqlStatement("UPDATE form_encounter SET last_level_closed = ?, stmt_count = ? WHERE pid = ? AND encounter = ?", array($form_done, $form_stmt_count, $patient_id, $encounter_id));
+        }
+        // will reload page w/o reposting
+        echo "location.replace(location)\n";
+    }
+    echo "</script>\n";
+    if (!$save_stay && !$_POST['isLastClosed']) {
         exit();
     }
 }
@@ -442,19 +452,20 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
     </div>
     <div class="row">
         <form action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
-            <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>"/>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>" />
+            <input type="hidden" name="isLastClosed" value="" />
             <fieldset>
                 <legend><?php echo xlt('Invoice Actions'); ?></legend>
                 <div class="col-xs-12 oe-custom-line">
-                    <div class="col-xs-3">
+                    <div class="col-xs-2">
                         <label class="control-label" for="form_name"><?php echo xlt('Patient'); ?>:</label>
                         <input type="text" class="form-control" class="form-control" class="form-control" id='form_name'
                                name='form_name'
                                value="<?php echo attr($ferow['fname']) . ' ' . attr($ferow['mname']) . ' ' . attr($ferow['lname']); ?>"
                                disabled>
                     </div>
-                    <div class="col-xs-3">
+                    <div class="col-xs-2">
                         <label class="control-label" for="form_provider"><?php echo xlt('Provider'); ?>:</label>
                         <?php
                         $tmp = sqlQuery("SELECT fname, mname, lname " .
@@ -479,7 +490,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <input type="text" class="form-control" class="form-control" id='svc_date' name='form_provider'
                                value='<?php echo attr($svcdate); ?>' disabled>
                     </div>
-                    <div class="col-xs-2">
+                    <div class="col-xs-4">
                         <label class="control-label" for="insurance_name"><?php echo xlt('Insurance'); ?>:</label>
                         <?php
                         for ($i = 1; $i <= 3; ++$i) {
@@ -495,7 +506,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </div>
                 </div>
                 <div class="col-xs-12 oe-custom-line">
-                    <div class="col-xs-3">
+                    <div class="col-xs-2">
                         <label class="control-label" for="form_stmt_count"><?php echo xlt('Statements Sent'); ?>
                             :</label>
                         <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control"
@@ -507,17 +518,17 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <input type='text' name="form_last_bill" id='form_last_bill' class="form-control"
                                value ='<?php echo attr($billdate); ?>' disabled/>
                     </div>
-                    <div class="col-xs-3">
+                    <div class="col-xs-2">
                         <label class="control-label" for="form_reference"><?php echo xlt('Check/EOB No.'); ?>:</label>
                         <input type='text' name='form_reference' id='form_reference' class="form-control" value=''/>
                     </div>
-                    <div class="form-group col-lg">
-                        <label class="col-form-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
-                        <input type='text' name='form_check_date' id='form_check_date" class='form-control datepicker' value=''/>
-                    </div>
                     <div class="col-xs-2">
+                        <label class="control-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
+                        <input type='text' name='form_check_date' id='form_check_date' class='form-control datepicker' value='' />
+                    </div>
+                    <div class="col-xs-4">
                         <label class="control-label" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
-                        <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value=''/>
+                        <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value='' />
                         <input type='hidden' name='form_payer_id' value=''/>
                         <input type='hidden' name='form_orig_reference' value=''/>
                         <input type='hidden' name='form_orig_check_date' value=''/>
@@ -528,7 +539,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                 <div class="col-xs-12 oe-custom-line">
                     <div class="col-xs-4">
                         <label class="control-label" for="type_code"><?php echo xlt('Now posting for'); ?>:</label>
-                        <div style="padding-left:15px">
+                        <div style="padding-left:5px">
                             <?php
                                 $last_level_closed = 0 + $ferow['last_level_closed'];
                             ?>
@@ -555,8 +566,11 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         </div>
                     </div>
                     <div class="col-xs-4">
-                        <label class="control-label" for=""><?php echo xlt('Done with'); ?>:</label>
-                        <div style="padding-left:15px">
+                        <label class="control-label" for=""><?php echo xlt('Done with'); ?></label>
+                        <a class="btn btn-sm btn-save"
+                            onclick="document.forms[0].isLastClosed.value='3'; document.forms[0].submit()"><?php echo xlt("Save Level"); ?>
+                        </a>
+                        <div style="padding-left:5px">
                             <?php
                             // Write a checkbox for each insurance.  It is to be checked when
                             // we no longer expect any payments from that company for the claim.
@@ -577,8 +591,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <label class="control-label" for=""><?php echo xlt('Secondary billing'); ?>:</label>
                         <div style="padding-left:15px">
                             <label class="checkbox-inline">
-                                <input name="form_secondary" type="checkbox"
-                                       value="1"><?php echo xlt('Needs secondary billing') ?>
+                                <input name="form_secondary" type="checkbox" value="1"><?php echo xlt('Needs secondary billing') ?>
                             </label>
                         </div>
                     </div>
@@ -737,10 +750,10 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
             <div class="form-group clearfix">
                 <div class="col-sm-12 text-left position-override" id="search-btn">
                     <div class="btn-group" role="group">
-                        <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save-stay"
-                            onclick="this.value='1';"><?php echo xlt("Save Current"); ?></button>
-                        <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save"
-                            onclick="this.value='2';"><?php echo xlt("Save & Exit"); ?></button>
+                        <!--<button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save-stay"
+                            onclick="this.value='1';"><?php /*echo xlt("Save Current"); */?></button>-->
+                        <button type='submit' class="btn btn-primary btn-save" name='form_save' id="btn-save"
+                            onclick="this.value='2';"><?php echo xlt("Save"); ?></button>
                         <button type='button' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel'
                             id="btn-cancel" onclick='doClose()'><?php echo xlt("Close"); ?></button>
                     </div>

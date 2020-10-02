@@ -229,7 +229,7 @@ function genTreeLink($frame, $name, $title, $mono = false)
         }
 
         echo "return loadFrame2(" . attr_js($id) . "," . attr_js($frame) . "," .
-            attr_js($primary_docs[$name][2]) . ")\">" . text($title) . ($name == 'msg' ? ' <span id="reminderCountSpan" class="bold"></span>' : '')."</a></li>";
+            attr_js($primary_docs[$name][2]) . ") \">" . text($title) . ($name == 'msg' ? ' <span id="reminderCountSpan" class="bold"></span>' : '')."</a></li>";
     }
 }
 
@@ -529,7 +529,8 @@ function genModuleMenuFromMenuItems($navMenuItems, $disallowed)
        csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
      },
      function(data) {
-       $("#reminderCountSpan").html(data);
+       data = JSON.parse(data);
+       $("#reminderCountSpan").html(data.reminderText);
     // run updater every 60 seconds
      var repeater = setTimeout("getReminderCount()", 60000);
    });

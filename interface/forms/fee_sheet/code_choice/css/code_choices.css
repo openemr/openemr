@@ -12,7 +12,7 @@ div.code-choices
 {
     font-size: 10pt;
     position:relative;
-    z-index: 0;
+    z-index: 99;
 }
 div.category-display
 {
