@@ -65,13 +65,15 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
     ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
-    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";</script>";
+    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var webroot_url=" . js_escape($webroot) . ";</script>";
     echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";</script>";
     // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
-    echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
+    echo "<script>var msgSuccess='" . xlt("Updates Successful") . "';</script>";
     echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
-    Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny', 'emodal']);
+
+    Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-lightness', 'emodal', 'datetime-picker']);
+
     ?>
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
@@ -79,6 +81,7 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
 <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
 <script type="text/javascript">
+
     $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
     $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js")
         .script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js")
@@ -86,10 +89,12 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+
 </script>
 </head>
 <body class="skin-blue">
 <script type="text/javascript">
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
     $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(
         function () {
@@ -107,11 +112,21 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
             }, 1000);
         });
 
+// v6.0
+    /*$(function () {
+        $('.datepicker').datetimepicker({
+            <?php //$datetimepicker_timepicker = false; ?>
+            <?php //$datetimepicker_showseconds = false; ?>
+            <?php //$datetimepicker_formatInput = true; ?>
+            <?php //require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        });
+    });*/
+
     function printaDoc(divName) {
-        divName = 'templatediv';
         flattenDocument();
-        var printContents = document.getElementById(divName).innerHTML;
-        var originalContents = document.body.innerHTML;
+        divName = 'templatediv';
+        let printContents = document.getElementById(divName).innerHTML;
+        let originalContents = document.body.innerHTML;
         document.body.innerHTML = printContents;
         window.print();
         document.body.innerHTML = originalContents;
@@ -144,6 +159,14 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
         return false;
     }
 
+    function tfTemplateRadio(el) {
+        var rid = $(el).data('id')
+        $('#tfrgrp' + rid).data('value', $(el).val());
+        $('#tfrgrp' + rid).attr('data-value', $(el).val());
+        $(el).prop('checked', true);
+        return false;
+    }
+
     function replaceTextInputs() {
         $('.templateInput').each(function () {
             var rv = $(this).data('textvalue');
@@ -158,16 +181,23 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
             var rv = $('input:radio[name="ynradio' + gid + '"]:checked').val();
             $(this).replaceWith(rv);
         });
+
+        $('.tfuGroup').each(function () {
+            var gid = $(this).data('id');
+            var grpid = $(this).prop('id');
+            var rv = $('input:radio[name="tfradio' + gid + '"]:checked').val();
+            $(this).replaceWith(rv);
+        });
     }
 
     function replaceCheckMarks() {
         $('.checkMark').each(function () {
             var ckid = $(this).data('id');
             var v = $('#' + ckid).data('value');
-            if (v)
-                $(this).replaceWith(v)
+            if (v === 'Yes')
+                $(this).replaceWith('[\u2713]')
             else {
-                $(this).replaceWith('No')
+                $(this).replaceWith("[ ]")
             }
         });
     }
@@ -185,6 +215,13 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
             var grpid = $(this).prop('id');
             var value = $(this).data('value');
             $("input[name=ynradio" + gid + "][value='" + value + "']").prop('checked', true);
+        });
+
+        $('.tfuGroup').each(function () {
+            var gid = $(this).data('id');
+            var grpid = $(this).prop('id');
+            var value = $(this).data('value');
+            $("input[name=tfradio" + gid + "][value='" + value + "']").prop('checked', true);
         });
     }
 
@@ -214,7 +251,7 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
         replaceCheckMarks();
         replaceRadioValues();
         replaceTextInputs();
-        replaceSignatures()
+        replaceSignatures();
     }
 
     function restoreDocumentEdits() {
@@ -247,16 +284,17 @@ body {
 </style>
 <script type="text/template" id="onsiteDocumentModelTemplate">
 <div class="container-fluid">
-    <aside class="col-lg-2 col-sm-2 col-xs-2 container-fluid" id="sidebar-pills">
+    <aside class="col-lg-2 col-md-2 col-sm-2 container-fluid" id="sidebar-pills">
         <ul class="nav nav-pills  nav-stacked" id="sidebar">
             <li data-toggle="pill" class="bg-info"><a id="signTemplate" href="#openSignModal"
                 data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><span><?php echo xlt('Signature');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="saveTemplate" href="#"><span"><?php echo xlt('Save');?></span></a></li>
-            <li data-toggle="pill" class="bg-info"><a id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><span"><?php echo xlt('Print');?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="printTemplate" href="#" onclick="printaDoc('templatecontent');"><span"><?php echo xlt('Print');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="submitTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="sendTemplate"  href="#"><span"><?php echo xlt('Send for Review');?></span></a></li>
-            <li data-toggle="pill" class="bg-info"><a id="chartTemplate"  href="#"><span"><?php echo xlt('Chart to Category') . ' ' . text($catname);?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="chartTemplate"  href="#"><span"><?php echo xlt('Chart to Category') . '<br />' . text($catname);?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="downloadTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="chartHistory"  href="#"><span"><?php echo xlt('Chart History');?></span></a></li>
             <?php if (!$is_module) { ?>
                 <li data-toggle="pill" class="bg-warning">
                     <a id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home'); ?></a>
@@ -268,15 +306,23 @@ body {
             <?php } ?>
         </ul>
     </aside>
-    <div class="col-md-8 col-xs-10 col-xs-10">
-        <span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
+    <div class="col-lg-10 col-md-10 col-sm-10">
+        <span id="modelLoader" class="loader progress progress-striped hide"><span class="bar"></span></span>
         <div class="panel panel-primary" id="docpanel">
             <header class="panel-heading" id='docPanelHeader'><?php echo xlt('Patient Document');?></header>
+            <!--<div class="card"  style="display: none;">
+                <div id="info-block" class="card-block text-center" style="display: none;">
+                    <h4 class="card-title">Help</h4>
+                    <h6 class="card-subtitle text-muted">A little help with form</h6>
+                    <p id="info-content" class="card-text">A little help with form content</p>
+                </div>
+                <button type="button" class="btn btn-info btn-sm" onclick="$('#info-block').toggle();">Help</button>
+            </div>-->
             <div id="loader" style="display:none;"></div>
             <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST" >
                 <div id="loader" style="display:none;"></div>
-                <div id="templatediv" class="panel-body" style="margin:0 auto; background:white">
-                    <div id="templatecontent" class="template-body" style="margin:0 auto; background:white;padding:0 20px 0 20px"></div>
+                <div id="templatediv" class="panel-body" style="padding:0 0; background:white">
+                    <div id="templatecontent" class="template-body" style="margin:0 auto; background:white;"></div>
                 </div>
                 <input type="hidden" name="content" id="content" value="">
                 <input type="hidden" name="cpid" id="cpid" value="">
@@ -284,17 +330,20 @@ body {
                 <input type="hidden" name="handler" id="handler" value="download">
                 <input type="hidden" name="status" id="status" value="Open">
              </form>
-            <div class="panel-footer">
+            <div class="panel-footer clearfix">
+                <span>
+                    <button id="dismissOnsiteDocumentButton" class="btn btn-primary pull-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form');?></button>
+                </span>
 <!-- delete button is a separate form to prevent enter key from triggering a delete-->
 <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
     <fieldset>
         <div class="form-group">
             <label class="control-label"></label>
-            <div class="controls">
-                <button id="deleteOnsiteDocumentButton" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document');?></button>
-                <span id="confirmDeleteOnsiteDocumentContainer">
-                    <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-mini"><?php echo xlt('Cancel');?></button>
-                    <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-mini btn-danger"><?php echo xlt('Confirm');?></button>
+            <div class="btn-group">
+                <button id="deleteOnsiteDocumentButton" class="btn btn-danger"><i class="fa fa-trash-o">&nbsp;</i><?php echo xlt('Delete Document');?></button>
+                <span class="btn-group" id="confirmDeleteOnsiteDocumentContainer">
+                    <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-default"><?php echo xlt('Cancel');?></button>
+                    <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-danger"><?php echo xlt('Confirm');?></button>
                 </span>
             </div>
         </div>
@@ -302,25 +351,26 @@ body {
 </form>
 </div>
 </div>
-    </div></div>
+</div>
+</div>
 </div>
 </div>
 </script>
 <script type="text/template" id="onsiteDocumentCollectionTemplate">
     <div class="container-fluid">
-        <nav class="nav navbar-nav" id="topnav">
+        <nav class="nav navbar-nav navbar-default" id="topnav">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#"><i class="fa fa-file-text-o">&nbsp;</i><?php echo xla('Pending') ?></a>
+                    <a class="btn text-primary navbar-btn" href="#"><i class="fa fa-file-text-o">&nbsp;</i><?php echo xlt('Pending Documents') ?></a>
                 </div>
-                <ul class="nav navbar-nav" style='margin:5px;font-weight:600'>
-                    <?php require_once(dirname(__FILE__) . '/../../lib/template_menu.php'); ?>
+                <ul class="nav navbar-nav">
+                    <?php require_once(__DIR__ . '/../../lib/template_menu.php'); ?>
                     <?php if (!$is_module) { ?>
-                        <li class="bg-warning">
-                            <a href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Exit'); ?></a>
+                        <li>
+                            <button class="btn btn-danger navbar-btn" onclick='window.location.replace("./../home.php")'><?php echo xlt('Exit'); ?></button>
                         </li>
                     <?php } else { ?>
-                        <li class="bg-warning">
-                            <a id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
+                        <li>
+                            <button class="btn btn-danger navbar-btn" id="a_docReturn" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></button>
                         </li>
                     <?php } ?>
                 </ul>
@@ -359,7 +409,7 @@ body {
         <%=  view.getPaginationHtml(page) %>
     </div>
 </script>
-    <!-- modal edit dialog -->
+    <!-- modal edit dialog unused. v6.0 plans though-->
 <div class="modal fade" id="onsiteDocumentDetailDialog" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">

@@ -71,7 +71,7 @@ var actpage = {
                 onClosed: 'reload',
                 url: './onsitedocuments?pid=' + cpid + '&user=' + encodeURIComponent(cuser) + '&recid=' + encodeURIComponent(recid)
             };
-            dlgopen('', '', 'modal-lg', '', '', '', params);
+            dlgopen('', '', 'modal-full', '', '', '', params);
         }
 
 		// initialize the collection view

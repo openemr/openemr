@@ -12,17 +12,17 @@
  */
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -32,15 +32,15 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/classes/Note.class.php");
-require_once(dirname(__FILE__) . "/appsql.class.php");
+require_once(__DIR__ . "/appsql.class.php");
 
 use Mpdf\Mpdf;
 
 $logit = new ApplicationTable();
-$htmlin = $_POST['content'];
-$dispose = $_POST['handler'];
-$cpid = $_POST['cpid'] ? $_POST['cpid'] : $GLOBALS['pid'];
-$category = isset($_POST['catid']) ? $_POST['catid'] : 0;
+$htmlin = $_REQUEST['content'];
+$dispose = $_REQUEST['handler'];
+$cpid = $_REQUEST['cpid'] ? $_REQUEST['cpid'] : $GLOBALS['pid'];
+$category = isset($_REQUEST['catid']) ? $_REQUEST['catid'] : 0;
 
 try {
     if (!$category) {
@@ -74,13 +74,10 @@ try {
         $pdf->SetDirectionality('rtl');
     }
 
-    $htmlin = "<html><body>$htmlin</body></html>";
-    // need custom stylesheet for templates
+    // @todo need custom stylesheet for templates
     $pdf->writeHtml($htmlin);
 
     if ($dispose == 'download') {
-        header('Content-type: application/pdf');
-        header("Content-Disposition: attachment; filename=$form_filename");
         $pdf->Output($form_filename, 'D');
         $logit->portalLog('download document', $cpid, ('document:' . $form_filename));
         exit();
@@ -101,6 +98,7 @@ try {
         $d = new Document();
         $rc = $d->createDocument($cpid, $category, $form_filename, 'application/pdf', $data);
         $logit->portalLog('chart document', $cpid, ('document:' . $form_filename));
+        echo js_escape('done');
         exit();
     };
 } catch (Exception $e) {

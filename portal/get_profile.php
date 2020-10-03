@@ -78,11 +78,11 @@ $N = 7;
 <body>
 
 <div class='demographics table-responsive' id='DEM'>
-    <div class="col-sm-9">
+    <div class="col-sm-12">
 
         <?php
-                    $result1 = getPatientData($pid);
-                    $result2 = getEmployerData($pid);
+        $result1 = getPatientData($pid);
+        $result2 = getEmployerData($pid);
         ?>
         <div class="panel panel-primary" >
                 <header class="panel-heading"><?php echo xlt('Profile Demographics'); ?>
