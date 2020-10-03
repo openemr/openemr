@@ -326,7 +326,7 @@ while ($currdate <= $enddate) {
 // ==============================
 // FACILITY FILTERING (lemonsoftware)
 // $facilities = getFacilities();
-if ($_SESSION['authorizeduser'] == 1) {
+if (!empty($_SESSION['authorizeduser']) && ($_SESSION['authorizeduser'] == 1)) {
   $facilities = getFacilities();
 } else {
   $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
@@ -970,12 +970,12 @@ foreach ($providers as $provider) {
      */
     var ChangeDate = function(eObj) {
         baseURL = "[-php-]echo pnModURL(__POSTCALENDAR__,'user','view',
-                        array('tplview'=>$template_view,
+                        array('tplview'=>($template_view ?? ''),
                         'viewtype'=>$viewtype,
                         'Date'=> '~REPLACEME~',
-                        'pc_username'=>$pc_username,
-                        'pc_category'=>$category,
-                        'pc_topic'=>$topic));[-/php-]";
+                        'pc_username'=>($pc_username ?? ''),
+                        'pc_category'=>($category ?? ''),
+                        'pc_topic'=>($topic ?? '')));[-/php-]";
         newURL = baseURL.replace(/~REPLACEME~/, eObj.id);
         document.location.href=newURL;
     }
@@ -984,13 +984,13 @@ foreach ($providers as $provider) {
      */
     var PrintView = function (eventObject) {
         printURL = "[-php-]echo pnModURL(__POSTCALENDAR__,'user','view',
-                        array('tplview'=>$template_view,
+                        array('tplview'=>($template_view ?? ''),
                         'viewtype'=>$viewtype,
                         'Date'=> $Date,
                         'print'=> 1,
-                        'pc_username'=>$pc_username,
-                        'pc_category'=>$category,
-                        'pc_topic'=>$topic));[-/php-]";
+                        'pc_username'=>($pc_username ?? ''),
+                        'pc_category'=>($category ?? ''),
+                        'pc_topic'=>($topic ?? '')));[-/php-]";
         window.open(printURL,'printwindow','width=740,height=480,toolbar=no,location=no,directories=no,status=no,menubar=yes,scrollbars=yes,copyhistory=no,resizable=yes');
         return false;
     }

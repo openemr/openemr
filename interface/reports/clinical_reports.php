@@ -31,20 +31,20 @@ $comarr = array('allow_sms' => xl('Allow SMS'),'allow_voice' => xl('Allow Voice 
 $sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_from']) : date('Y-01-01 H:i:s');
 $sql_date_to = (!empty($_POST['date_to'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_to']) : date('Y-m-d H:i:s');
 
-$type = $_POST["type"];
+$type = $_POST["type"] ?? '';
 $facility = isset($_POST['facility']) ? $_POST['facility'] : '';
-$patient_id = trim($_POST["patient_id"]);
-$age_from = $_POST["age_from"];
-$age_to = $_POST["age_to"];
-$sql_gender = $_POST["gender"];
-$sql_ethnicity = $_POST["ethnicity"];
-$sql_race = $_POST["race"];
-$form_drug_name = trim($_POST["form_drug_name"]);
-$form_diagnosis = trim($_POST["form_diagnosis"]);
-$form_lab_results = trim($_POST["form_lab_results"]);
-$form_service_codes = trim($_POST["form_service_codes"]);
-$form_immunization = trim($_POST["form_immunization"]);
-$communication = trim($_POST["communication"]);
+$patient_id = trim($_POST["patient_id"] ?? '');
+$age_from = $_POST["age_from"] ?? '';
+$age_to = $_POST["age_to"] ?? '';
+$sql_gender = $_POST["gender"] ?? '';
+$sql_ethnicity = $_POST["ethnicity"] ?? '';
+$sql_race = $_POST["race"] ?? '';
+$form_drug_name = trim($_POST["form_drug_name"] ?? '');
+$form_diagnosis = trim($_POST["form_diagnosis"] ?? '');
+$form_lab_results = trim($_POST["form_lab_results"] ?? '');
+$form_service_codes = trim($_POST["form_service_codes"] ?? '');
+$form_immunization = trim($_POST["form_immunization"] ?? '');
+$communication = trim($_POST["communication"] ?? '');
 
 ?>
 <html>
@@ -326,7 +326,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                    <tr>
                                                    <td>
                                                    <input type='checkbox' class='form-control' name='form_pt_name'<?php
-                                                    if ($_POST['form_pt_name'] == true) {
+                                                    if (!empty($_POST['form_pt_name'])) {
                                                         echo ' checked';
                                                     } ?>>
                                                    </td>
@@ -335,7 +335,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                    </td>
                                                    <td>
                                                    <input type='checkbox' class='form-control' name='form_pt_age'<?php
-                                                    if ($_POST['form_pt_age'] == true) {
+                                                    if (!empty($_POST['form_pt_age'])) {
                                                         echo ' checked';
                                                     } ?>>
                                                    </td>
@@ -344,7 +344,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                    </td>
                                                    <td>
                                                    <input type='checkbox' class='form-control' name='form_diagnosis_allergy'<?php
-                                                    if ($_POST['form_diagnosis_allergy'] == true) {
+                                                    if (!empty($_POST['form_diagnosis_allergy'])) {
                                                         echo ' checked';
                                                     } ?>>
                                                    </td>
@@ -353,7 +353,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                    </td>
                                                    <td>
                                                    <input type='checkbox' class='form-control' name='form_diagnosis_medprb'<?php
-                                                    if ($_POST['form_diagnosis_medprb'] == true) {
+                                                    if (!empty($_POST['form_diagnosis_medprb'])) {
                                                         echo ' checked';
                                                     } ?>>
                                                    </td>
@@ -362,7 +362,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                    </td>
                                                    <td>
                                                    <input type='checkbox' class='form-control' name='form_drug'<?php
-                                                    if ($_POST['form_drug'] == true) {
+                                                    if (!empty($_POST['form_drug'])) {
                                                         echo ' checked';
                                                     } ?>>
                                                    </td>
@@ -371,7 +371,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                    </td>
                                                    <td>
                                                    <input type='checkbox' class='form-control' name='ndc_no'<?php
-                                                    if ($_POST['ndc_no'] == true) {
+                                                    if (!empty($_POST['ndc_no'])) {
                                                         echo ' checked';
                                                     } ?>>
                                                    </td>
@@ -380,7 +380,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                    </td>
                                                    <td>
                                                    <input type='checkbox' class='form-control' name='lab_results'<?php
-                                                    if ($_POST['lab_results'] == true) {
+                                                    if (!empty($_POST['lab_results'])) {
                                                         echo ' checked';
                                                     } ?>>
                                                    </td>
@@ -389,7 +389,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                   </td>
                                                    <td>
                                                   <input type='checkbox' class='form-control' name='communication_check'<?php
-                                                    if ($_POST['communication_check'] == true) {
+                                                    if (!empty($_POST['communication_check'])) {
                                                         echo ' checked';
                                                     } ?>>
                                                    </td>
@@ -416,7 +416,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                     <a href='#' class='btn btn-secondary btn-save' onclick='submitForm();'>
                                         <?php echo xlt('Submit'); ?>
                                     </a>
-                                    <?php if ($_POST['form_refresh']) { ?>
+                                    <?php if (!empty($_POST['form_refresh'])) { ?>
                                         <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                             <?php echo xlt('Print'); ?>
                                         </a>
@@ -433,7 +433,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 <?php
 // SQL scripts for the various searches
 $sqlBindArray = array();
-if ($_POST['form_refresh']) {
+if (!empty($_POST['form_refresh'])) {
     $sqlstmt = "select
                 concat(pd.fname, ' ', pd.lname) AS patient_name,
                 pd.pid AS patient_id,
@@ -442,18 +442,18 @@ if ($_POST['form_refresh']) {
                 pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
                 concat(u.fname, ' ', u.lname)  AS users_provider,
                 REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
-    if (strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_allergy'] == true || $_POST['form_diagnosis_medprb'] == true) {
+    if (strlen($form_diagnosis) > 0 || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
         $sqlstmt = $sqlstmt . ",li.date AS lists_date,
                    li.diagnosis AS lists_diagnosis,
                         li.title AS lists_title";
     }
 
-    if (strlen($form_drug_name) > 0 || $_POST['form_drug'] == true) {
+    if (strlen($form_drug_name) > 0 || !empty($_POST['form_drug'])) {
         $sqlstmt = $sqlstmt . ",r.id as id, r.date_modified AS prescriptions_date_modified, r.dosage as dosage, r.route as route, r.interval as hinterval, r.refills as refills, r.drug as drug,
 		r.form as hform, r.size as size, r.unit as hunit, d.name as name, d.ndc_number as ndc_number,r.quantity as quantity";
     }
 
-    if (strlen($form_lab_results) > 0 || $_POST['lab_results'] == true) {
+    if (strlen($form_lab_results) > 0 || !empty($_POST['lab_results'])) {
         $sqlstmt = $sqlstmt . ",pr.date AS procedure_result_date,
                            pr.facility AS procedure_result_facility,
                                 pr.units AS procedure_result_units,
@@ -499,22 +499,22 @@ if ($_POST['form_refresh']) {
     $sqlstmt = $sqlstmt . " from patient_data as pd left outer join users as u on u.id = pd.providerid
             left outer join facility as f on f.id = u.facility_id";
 
-    if (strlen($form_diagnosis) > 0 || ($_POST['form_diagnosis_allergy'] == true && $_POST['form_diagnosis_medprb'] == true)) {
+    if (strlen($form_diagnosis) > 0 || (!empty($_POST['form_diagnosis_allergy']) && !empty($_POST['form_diagnosis_medprb']))) {
         $sqlstmt = $sqlstmt . " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem' OR li.type='allergy')) ";
-    } elseif ($_POST['form_diagnosis_allergy'] == true) {
+    } elseif (!empty($_POST['form_diagnosis_allergy'])) {
         $sqlstmt = $sqlstmt . " left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
-    } elseif ($_POST['form_diagnosis_medprb'] == true) {
+    } elseif (!empty($_POST['form_diagnosis_medprb'])) {
         $sqlstmt = $sqlstmt . " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem')) ";
     }
 
-    if ($type == 'Procedure' || ( strlen($form_lab_results) != 0) || $_POST['lab_results'] == true) {
+    if ($type == 'Procedure' || ( strlen($form_lab_results) != 0) || !empty($_POST['lab_results'])) {
         $sqlstmt = $sqlstmt . " left outer join procedure_order as po on po.patient_id = pd.pid
     left outer join procedure_order_code as pc on pc.procedure_order_id = po.procedure_order_id
     left outer join procedure_report as pp on pp.procedure_order_id   = po.procedure_order_id
     left outer join procedure_type as pt on pt.procedure_code = pc.procedure_code and pt.lab_id = po.lab_id ";
     }
 
-    if (strlen($form_lab_results) != 0 || $_POST['lab_results'] == true) {
+    if (strlen($form_lab_results) != 0 || !empty($_POST['lab_results'])) {
         $sqlstmt = $sqlstmt . " left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id ";
     }
 
@@ -524,7 +524,7 @@ if ($_POST['form_refresh']) {
 						  LEFT OUTER JOIN codes as immc ON imm.cvx_code = immc.id ";
     }
 
-    if (strlen($form_drug_name) != 0 || $_POST['form_drug'] == true) {
+    if (strlen($form_drug_name) != 0 || !empty($_POST['form_drug'])) {
            $sqlstmt = $sqlstmt . " left outer join prescriptions AS r on r.patient_id=pd.pid
                         LEFT OUTER JOIN drugs AS d ON d.drug_id = r.drug_id";
     }
@@ -544,17 +544,17 @@ if ($_POST['form_refresh']) {
 
 //where
       $whr_stmt = "where 1=1";
-    if (strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_allergy'] == true || $_POST['form_diagnosis_medprb'] == true) {
+    if (strlen($form_diagnosis) > 0 || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
         $whr_stmt = $whr_stmt . " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(li.date) <= ?";
         array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
     }
 
-    if (strlen($form_lab_results) != 0 || $_POST['lab_results'] == true) {
+    if (strlen($form_lab_results) != 0 || !empty($_POST['lab_results'])) {
               $whr_stmt = $whr_stmt . " AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(pr.date) <= ?";
               array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
     }
 
-    if (strlen($form_drug_name) != 0 || $_POST['form_drug'] == true) {
+    if (strlen($form_drug_name) != 0 || !empty($_POST['form_drug'])) {
         $whr_stmt = $whr_stmt . " AND r.date_modified >= ? AND r.date_modified < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(r.date_modified) <= ?";
         array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
     }
@@ -574,7 +574,7 @@ if ($_POST['form_refresh']) {
              array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
     }
 
-    if (strlen($form_lab_results) != 0 || $_POST['lab_results'] == true) {
+    if (strlen($form_lab_results) != 0 || !empty($_POST['lab_results'])) {
         $whr_stmt = $whr_stmt . " AND (pr.result LIKE ?) ";
         if (empty($form_lab_results)) {
             $form_lab_results = "%";
@@ -583,7 +583,7 @@ if ($_POST['form_refresh']) {
         array_push($sqlBindArray, $form_lab_results);
     }
 
-    if (strlen($form_drug_name) > 0 || $_POST['form_drug'] == true) {
+    if (strlen($form_drug_name) > 0 || !empty($_POST['form_drug'])) {
             $whr_stmt .= " AND (
                         d.name LIKE ?
                         OR r.drug LIKE ?
@@ -644,7 +644,7 @@ if ($_POST['form_refresh']) {
     }
 
   //communication preferences added in clinical report
-    if (strlen($communication) > 0 || $_POST['communication_check'] == true) {
+    if (strlen($communication) > 0 || !empty($_POST['communication_check'])) {
         if ($communication == "allow_sms") {
             $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
         } elseif ($communication == "allow_voice") {
@@ -653,7 +653,7 @@ if ($_POST['form_refresh']) {
             $whr_stmt .= " AND pd.hipaa_mail  = 'YES' ";
         } elseif ($communication == "allow_email") {
             $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
-        } elseif ($communication == "" && $_POST['communication_check'] == true) {
+        } elseif ($communication == "" && !empty($_POST['communication_check'])) {
             $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
         }
     }
@@ -668,38 +668,38 @@ if ($_POST['form_refresh']) {
     }
 
 // order by
-    if ($_POST['form_pt_name'] == true) {
+    if (!empty($_POST['form_pt_name'])) {
         $odrstmt = $odrstmt . ",patient_name";
     }
 
-    if ($_POST['form_pt_age'] == true) {
+    if (!empty($_POST['form_pt_age'])) {
         $odrstmt = $odrstmt . ",patient_age";
     }
 
     if ((strlen($form_diagnosis) > 0)) {
         $odrstmt = $odrstmt . ",lists_diagnosis";
-    } elseif (($_POST['form_diagnosis_allergy'] == true) || ($_POST['form_diagnosis_medprb'] == true)) {
+    } elseif ((!empty($_POST['form_diagnosis_allergy'])) || (!empty($_POST['form_diagnosis_medprb']))) {
         $odrstmt = $odrstmt . ",lists_title";
     }
 
-    if (($_POST['form_drug'] == true) || (strlen($form_drug_name) > 0)) {
+    if ((!empty($_POST['form_drug'])) || (strlen($form_drug_name) > 0)) {
         $odrstmt = $odrstmt . ",r.drug";
     }
 
-    if (($_POST['ndc_no'] == true) && (strlen($form_drug_name) > 0)) {
+    if ((!empty($_POST['ndc_no'])) && (strlen($form_drug_name) > 0)) {
          $odrstmt = $odrstmt . ",d.ndc_number";
     }
 
-    if (($_POST['lab_results'] == true) || (strlen($form_lab_results) > 0)) {
+    if ((!empty($_POST['lab_results'])) || (strlen($form_lab_results) > 0)) {
          $odrstmt = $odrstmt . ",procedure_result_result";
     }
 
-    if (strlen($communication) > 0 || $_POST['communication_check'] == true) {
+    if (strlen($communication) > 0 || !empty($_POST['communication_check'])) {
         $odrstmt = $odrstmt . ",ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
     }
 
 
-    if ($odrstmt == '') {
+    if (empty($odrstmt)) {
         $odrstmt = " ORDER BY patient_id";
     } else {
         $odrstmt = " ORDER BY " . ltrim($odrstmt, ",");
@@ -746,10 +746,10 @@ if ($_POST['form_refresh']) {
                 <td width="15%"><strong><?php echo xlt('Race');?></strong></td>
                 <td width="15%"><strong><?php echo xlt('Ethnicity');?></strong></td>
                 <td width="15%" <?php
-                if (strlen($communication) == 0 || $_POST['communication_check'] == true) {
+                if (strlen($communication) == 0 || !empty($_POST['communication_check'])) {
                     ?> colspan='5' <?php
                 } ?>><strong><?php echo xlt('Provider');?></strong></td>
-                <?php if (strlen($communication) > 0 || ($_POST['communication_check'] == true)) { ?>
+                <?php if (strlen($communication) > 0 || (!empty($_POST['communication_check']))) { ?>
                 <td colspan='4'><strong><?php echo xlt('Communication');?></strong></td>
                 <?php } ?>
                 </tr>
@@ -761,17 +761,17 @@ if ($_POST['form_refresh']) {
                 <td> <?php echo generate_display_field(array('data_type' => '1','list_id' => 'race'), $row['patient_race']); ?>&nbsp;</td>
                                <td> <?php echo generate_display_field(array('data_type' => '1','list_id' => 'ethnicity'), $row['patient_ethinic']); ?>&nbsp;</td>
                                <td <?php
-                                if (strlen($communication) == 0 || ($_POST['communication_check'] == true)) {
+                                if (strlen($communication) == 0 || (!empty($_POST['communication_check']))) {
                                     ?> colspan='5' <?php
                                 } ?>> <?php echo text($row['users_provider']); ?>&nbsp;</td>
 
-                                <?php if (strlen($communication) > 0 || $_POST['communication_check'] == true) { ?>
+                                <?php if (strlen($communication) > 0 || !empty($_POST['communication_check'])) { ?>
                                         <td colspan='4'><?php echo text($row['communications']); ?></td>
                                 <?php }  ?>
                 </tr>
 <!-- Diagnosis Report Start-->
                 <?php
-                if (strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_allergy'] == true || $_POST['form_diagnosis_medprb'] == true) {
+                if (strlen($form_diagnosis) > 0 || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
                     ?>
                 <tr bgcolor="#C3FDB8" align="left">
                     <td colspan='12'><strong><?php echo "#";
@@ -793,7 +793,7 @@ if ($_POST['form_refresh']) {
 
 <!-- Prescription Report Start-->
             <?php
-            if (strlen($form_drug_name) > 0 || $_POST['form_drug'] == true) {
+            if (strlen($form_drug_name) > 0 || !empty($_POST['form_drug'])) {
                 ?>
                 <tr bgcolor="#C3FDB8" align= "left">
                 <td colspan='12'><strong><?php echo "#";
@@ -837,7 +837,7 @@ if ($_POST['form_refresh']) {
 
 <!-- Lab Results Report Start-->
                 <?php
-                if (strlen($form_lab_results) > 0 || $_POST['lab_results'] == true) {
+                if (strlen($form_lab_results) > 0 || !empty($_POST['lab_results'])) {
                     ?>
                             <tr bgcolor="#C3FDB8" align= "left">
                 <td colspan='12'><strong><?php echo "#";

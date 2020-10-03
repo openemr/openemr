@@ -35,7 +35,7 @@ $hipaa_choices = array(xl('No'), xl('Yes'));
 $sort_by_choices = array(xl('Zip Code') => 'patient_data.postal_code', xl('Last Name') => 'patient_data.lname', xl('Appointment Date') => 'last_appt');
 
 // process form
-if ($_POST['form_action'] == 'process') {
+if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -183,7 +183,7 @@ if ($_POST['form_action'] == 'process') {
 </header>
 <main class="mx-4">
     <?php
-    if ($form_err) {
+    if (!empty($form_err)) {
         echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';
     }
     ?>

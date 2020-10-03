@@ -35,7 +35,7 @@ if (isset($_POST['mode'])) {
             if ($val == "true" || $val == "false") {
                 $id = str_replace("act", "", $var);
                 if ($val == "true") {
-                    $result = $oNoteService->enableNoteById($id);
+                    $oNoteService->enableNoteById($id);
                 } elseif ($val == "false") {
                     $oNoteService->disableNoteById($id);
                 }
@@ -88,14 +88,17 @@ if (isset($_POST['mode'])) {
 
             <?php //change the view on the current mode, whether all, active, or inactive
             if ($active === "1") {
+                $active_class = null;
                 $inactive_class = "_small";
                 $all_class = "_small";
             } elseif ($active === "0") {
                 $active_class = "_small";
+                $inactive_class = null;
                 $all_class = "_small";
             } else {
-                    $active_class = "_small";
-                    $inactive_class = "_small";
+                $active_class = "_small";
+                $inactive_class = "_small";
+                $all_class = null;
             }
             ?>
 
@@ -116,12 +119,12 @@ if (isset($_POST['mode'])) {
 
                 $result_count = 0;
                 //retrieve all notes
-                if ($notes) {
+                if (!empty($notes)) {
                     print "<thead><tr><th>" . xlt("Active") . "</th><th>" . xlt("Date") . " (" . xlt("Sender") . ")</th><th>" . xlt("Office Note") . "</th></tr></thead><tbody>";
                     foreach ($notes as $note) {
                         $result_count++;
 
-                        $date = $note->getDate()->format('Y-m-d');
+                        $date = (new DateTime($note['date']))->format('Y-m-d');
 
                         $todaysDate = new DateTime();
                         if ($todaysDate->format('Y-m-d') == $date) {
@@ -130,17 +133,17 @@ if (isset($_POST['mode'])) {
                             $date_string = oeFormatShortDate($date);
                         }
 
-                        if ($note->getActivity()) {
+                        if ($note['activity'] == 1) {
                             $checked = "checked";
                         } else {
                             $checked = "";
                         }
 
-                        print "<tr><td><input type=hidden value='' name='act" . attr($note->getId()) . "' id='act" . attr($note->getId()) . "'>";
-                        print "<input name='box" . attr($note->getId()) . "' id='box" . attr($note->getId()) . "' onClick='javascript:document.update_activity.act" . attr($note->getId()) . ".value=this.checked' type=checkbox $checked></td>";
-                        print "<td><label for='box" . attr($note->getId()) . "' class='bold'>" . text($date_string) . "</label>";
-                        print " <label for='box" . attr($note->getId()) . "' class='bold'>(" . text($note->getUser()->getUsername()) . ")</label></td>";
-                        print "<td><label for='box" . attr($note->getId()) . "' class='text'>" . nl2br(text($note->getBody())) . "&nbsp;</label></td></tr>";
+                        print "<tr><td><input type=hidden value='' name='act" . attr($note['id']) . "' id='act" . attr($note['id']) . "'>";
+                        print "<input name='box" . attr($note['id']) . "' id='box" . attr($note['id']) . "' onClick='javascript:document.update_activity.act" . attr($note['id']) . ".value=this.checked' type=checkbox $checked></td>";
+                        print "<td><label for='box" . attr($note['id']) . "' class='bold'>" . text($date_string) . "</label>";
+                        print " <label for='box" . attr($note['id']) . "' class='bold'>(" . text($note['user']) . ")</label></td>";
+                        print "<td><label for='box" . attr($note['id']) . "' class='text'>" . nl2br(text($note['body'])) . "&nbsp;</label></td></tr>";
                     }
                     print "</tbody>\n";
                 } else {

@@ -74,7 +74,7 @@ $query =
     "i.patient_id as patientid, " .
     "p.language, " .
     "i.cvx_code , ";
-if ($_POST['form_get_hl7'] === 'true') {
+if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
     $query .=
         "DATE_FORMAT(p.DOB,'%Y%m%d') as DOB, " .
         "concat(p.street, '^^', p.city, '^', p.state, '^', p.postal_code) as address, " .
@@ -143,7 +143,7 @@ $now1 = date('Y-m-d G:i');
 $filename = "imm_reg_" . $now . ".hl7";
 
 // GENERATE HL7 FILE
-if ($_POST['form_get_hl7'] === 'true') {
+if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
     $content = '';
 
     $res = sqlStatement($query, $sqlBindArray);
@@ -409,7 +409,7 @@ if ($_POST['form_get_hl7'] === 'true') {
                                                 '>
                                                 <?php echo xlt('Refresh'); ?>
                                             </a>
-                                            <?php if ($_POST['form_refresh']) { ?>
+                                            <?php if (!empty($_POST['form_refresh'])) { ?>
                                                 <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                                     <?php echo xlt('Print'); ?>
                                                 </a>
@@ -428,7 +428,7 @@ if ($_POST['form_get_hl7'] === 'true') {
         </div> <!-- end of parameters -->
 
         <?php
-        if ($_POST['form_refresh']) {
+        if (!empty($_POST['form_refresh'])) {
             ?>
             <div id="report_results">
                 <table class='table'>

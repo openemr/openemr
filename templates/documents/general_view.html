@@ -165,7 +165,7 @@ function ImgProcedure() {literal}{{/literal}
       {/if}
 			<div class="mb-2">
         <form method="post" name="document_validate" action="{$VALIDATE_ACTION|attr}" onsubmit="return top.restoreSession()">
-          <p class="font-weight-bold">{xlt t='Sha-1 Hash'}:</p>
+          <p class="font-weight-bold">{$file->get_hash_algo_title()|text} {xlt t='Hash'}:</p>
           <p<i>{$file->get_hash()|text}</i></p>
           <a class="btn btn-primary btn-sm" href="javascript:;" onclick="document.forms['document_validate'].submit();">{xlt t='Validate'}</a>
         </form>

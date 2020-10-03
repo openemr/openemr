@@ -99,7 +99,7 @@ class Document extends ORDataObject
     var $docdate;
 
     /*
-    * 40-character sha1 hash key of the document from when it was uploaded.
+    * hash key of the document from when it was uploaded.
     * @var string
     */
     var $hash;
@@ -132,6 +132,18 @@ class Document extends ORDataObject
     */
     var $encrypted;
 
+    // Storage method
+    var $storagemethod;
+
+    // For storing couch docid
+    var $couch_docid;
+
+    // For storing couch revid
+    var $couch_revid;
+
+    // For storing path depth
+    var $path_depth;
+
     /**
      * Constructor sets all Document attributes to their default value
      * @param int $id optional existing id of a specific document, if omitted a "blank" document is created
@@ -148,7 +160,7 @@ class Document extends ORDataObject
         //load the enum type from the db using the parent helper function, this uses psuedo-class variables so it is really cheap
         $this->type_array = $this->_load_enum("type");
 
-        $this->type = $this->type_array[0];
+        $this->type = $this->type_array[0] ?? '';
         $this->size = 0;
         $this->date = date("Y-m-d H:i:s");
         $this->url = "";
@@ -276,6 +288,14 @@ class Document extends ORDataObject
     function get_hash()
     {
         return $this->hash;
+    }
+    function get_hash_algo_title()
+    {
+        if (!empty($this->hash) && strlen($this->hash) < 50) {
+            return "SHA1";
+        } else {
+            return "SHA3-512";
+        }
     }
     function set_url($url)
     {
@@ -661,7 +681,7 @@ class Document extends ORDataObject
         }
         $this->name = $filename;
         $this->size  = strlen($data);
-        $this->hash  = sha1($data);
+        $this->hash  = hash('sha3-512', $data);
         $this->type  = $this->type_array['file_url'];
         $this->owner = $owner ? $owner : $_SESSION['authUserID'];
         $this->set_foreign_id($patient_id);

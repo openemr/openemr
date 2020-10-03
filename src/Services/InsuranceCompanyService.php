@@ -14,8 +14,8 @@
 
 namespace OpenEMR\Services;
 
-use Particle\Validator\Validator;
 use OpenEMR\Services\AddressService;
+use Particle\Validator\Validator;
 
 class InsuranceCompanyService
 {

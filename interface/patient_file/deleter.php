@@ -297,8 +297,11 @@ function popup_close() {
                     die("Not authorized!");
                 }
 
-                row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
-                row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
+                $ids = explode(",", $issue);
+                foreach ($ids as $id) {
+                    row_delete("issue_encounter", "list_id = '" . add_escape_custom($id) . "'");
+                    row_delete("lists", "id = '" . add_escape_custom($id) . "'");
+                }
             } elseif ($document) {
                 if (!AclMain::aclCheckCore('patients', 'docs_rm')) {
                     die("Not authorized!");

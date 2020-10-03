@@ -28,7 +28,7 @@ require_once $GLOBALS['srcdir'] . '/ESign/VerificationIF.php';
 
 class Utils_Verification implements VerificationIF
 {
-    public function hash($data)
+    public function hash($data, $algo = 'sha3-512')
     {
         $string = "";
         if (is_array($data)) {
@@ -37,7 +37,12 @@ class Utils_Verification implements VerificationIF
             $string = $data;
         }
 
-        $hash = sha1($string);
+        if ($algo == 'sha1') {
+            // support backward compatibility of prior hashes in sha1
+            $hash = sha1($string);
+        } else {
+            $hash = hash('sha3-512', $string);
+        }
         return $hash;
     }
 
@@ -57,8 +62,13 @@ class Utils_Verification implements VerificationIF
 
     public function verify($data, $hash)
     {
-        $currentHash = $this->hash($data);
-        if ($currentHash == $hash) {
+        if (strlen($hash) < 50) {
+            // support backward compatibility of prior hashes in sha1
+            $currentHash = $this->hash($data, 'sha1');
+        } else {
+            $currentHash = $this->hash($data);
+        }
+        if (hash_equals($currentHash, $hash)) {
             return true;
         }
 

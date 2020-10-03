@@ -24,7 +24,7 @@ require_once(dirname(__FILE__) . "/../../../library/ADODB_mysqli_mod.php");
 // Modified 5/2009 by BM for UTF-8 project
 global $host,$port,$login,$pass,$dbase,$db_encoding,$disable_utf8_flag;
 if (!$disable_utf8_flag) {
-    if ($db_encoding == "utf8mb4") {
+    if (!empty($db_encoding) && ($db_encoding == "utf8mb4")) {
         $pnconfig['db_encoding'] = "utf8mb4";
     } else {
         $pnconfig['db_encoding'] = "utf8";

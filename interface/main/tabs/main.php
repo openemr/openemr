@@ -227,7 +227,7 @@ $esignApi = new Api();
 
     // prepare track anything to be used in creating the menu
     $track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
-    $GLOBALS['track_anything_state'] = $track_anything_sql['state'];
+    $GLOBALS['track_anything_state'] = ($track_anything_sql['state'] ?? 0);
     // prepare Issues popup link global that is used in creating the menu
     $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write')) &&
         AclMain::aclCheckCore('patients', 'med', '', 'write'));

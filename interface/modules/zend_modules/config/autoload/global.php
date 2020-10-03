@@ -19,7 +19,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 
 // If to use utf-8 or not in my sql query
 if (!$GLOBALS['disable_utf8_flag']) {
-    if ($GLOBALS["db_encoding"] == "utf8mb4") {
+    if (!empty($GLOBALS["db_encoding"]) && ($GLOBALS["db_encoding"] == "utf8mb4")) {
         $tmp = "SET NAMES 'UTF8MB4', sql_mode = ''";
     } else {
         $tmp = "SET NAMES 'UTF8', sql_mode = ''";
@@ -29,7 +29,7 @@ if (!$GLOBALS['disable_utf8_flag']) {
 }
 $tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
 
-if ($GLOBALS["enable_database_connection_pooling"] && ($GLOBALS['connection_pooling_off'] !== true)) {
+if (!empty($GLOBALS["enable_database_connection_pooling"]) && empty($GLOBALS['connection_pooling_off'])) {
     $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp, PDO::ATTR_PERSISTENT => true];
 } else {
     $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];

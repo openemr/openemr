@@ -84,7 +84,7 @@ if (
 //  can be used by scripts that continually request information from the server; for example the Messages
 //  and Reminders automated intermittent requests.
 // Also skipping this all on login since entry in session_tracker is not ready yet
-if ($skipSessionExpirationCheck !== true) {
+if (empty($skipSessionExpirationCheck)) {
     if (!SessionTracker::isSessionExpired()) {
         if (empty($_REQUEST['skip_timeout_reset']) && empty($GLOBALS['DAEMON_FLAG'])) {
             SessionTracker::updateSessionExpiration();

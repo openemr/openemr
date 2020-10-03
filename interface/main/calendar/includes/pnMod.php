@@ -486,7 +486,7 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
     global $HTTP_SERVER_VARS;
 
     // Hostname
-    $host = $HTTP_SERVER_VARS['HTTP_HOST'];
+    $host = $HTTP_SERVER_VARS['HTTP_HOST'] ?? '';
     if (empty($host)) {
         $host = getenv('HTTP_HOST');
         if (empty($host)) {

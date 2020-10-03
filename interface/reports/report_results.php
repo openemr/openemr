@@ -26,8 +26,8 @@ if (!empty($_POST)) {
     }
 }
 
-$form_begin_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_begin_date']);
-$form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
+$form_begin_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_begin_date'] ?? '');
+$form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
 ?>
 
 <html>

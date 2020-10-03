@@ -470,11 +470,11 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 $userService = new UserService();
                                 $users = $userService->getActiveUsers();
                                 foreach ($users as $activeUser) {
-                                    $p_id = (int)$activeUser->getId();
+                                    $p_id = (int)$activeUser['id'];
                                     // Check for the case where an encounter is created by non-auth user
                                     // but has permissions to create/edit encounter.
                                     $flag_it = "";
-                                    if ($activeUser->getAuthorized() !== true) {
+                                    if ($activeUser['authorized'] != 1) {
                                         if ($p_id === (int)$result['provider_id']) {
                                             $flag_it = " (" . xlt("Non Provider") . ")";
                                         } else {
@@ -485,8 +485,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                     if ((int)$provider_id === $p_id) {
                                         echo "selected";
                                     }
-                                    echo ">" . text($activeUser->getLname()) . ' ' .
-                                        text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) . $flag_it . "</option>\n";
+                                    echo ">" . text($activeUser['lname']) . ' ' .
+                                        text($activeUser['fname']) . ' ' . text($activeUser['mname']) . $flag_it . "</option>\n";
                                 }
                                 ?>
                             </select>

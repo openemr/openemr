@@ -28,11 +28,13 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Auth;
+
+use OpenEMR\Common\Utils\RandomGenUtils;
 
 class AuthHash
 {
@@ -40,7 +42,7 @@ class AuthHash
                             //  Note this is used to collect the mode specific algorithm options from globals
 
     private $algo;          // Algorithm setting from globals
-    private $algo_constant; // Standard algorithm constant
+    private $algo_constant; // Standard algorithm constant, if exists
 
     private $options;       // Standardized array of options
 
@@ -56,6 +58,14 @@ class AuthHash
             $this->mode = 'auth';
         }
         $this->algo = $GLOBALS['gbl_' . $this->mode . '_hash_algo'];
+
+        // If SHA512HASH is selected, then ensure CRYPT_SHA512 is supported
+        if ($this->algo == "SHA512HASH") {
+            if (CRYPT_SHA512 != 1) {
+                $this->algo == "DEFAULT";
+                error_log("OpenEMR WARNING: SHA512HASH not supported, so using DEFAULT instead");
+            }
+        }
 
         // If set to php default algorithm, then figure out what it is.
         //  This basically resolves what PHP is using as PASSWORD_DEFAULT,
@@ -120,6 +130,14 @@ class AuthHash
             if (($GLOBALS['gbl_' . $this->mode . '_bcrypt_hash_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_' . $this->mode . '_bcrypt_hash_cost']))) {
                 $this->options = ['cost' => $GLOBALS['gbl_' . $this->mode . '_bcrypt_hash_cost']];
             }
+        } elseif ($this->algo == "SHA512HASH") {
+            // SHA512HASH - Using crypt and set up crypt option for this algo
+            $this->algo_constant = $this->algo;
+            if (check_integer($GLOBALS['gbl_' . $this->mode . '_sha512_rounds'])) {
+                $this->options = ['rounds' => $GLOBALS['gbl_' . $this->mode . '_sha512_rounds']];
+            } else {
+                $this->options = ['rounds' => 100000];
+            }
         } else {
             // This should never happen.
             //  Will only happen if unable to map the DEFAULT setting above or if using a invalid setting other than
@@ -132,6 +150,16 @@ class AuthHash
 
     public function passwordHash(&$password)
     {
+        // Process SHA512HASH algo separately, since uses crypt
+        if ($this->algo == "SHA512HASH") {
+            // Create salt
+            $salt = RandomGenUtils::produceRandomString(16, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+
+            // Create hash
+            return crypt($password, '$6$rounds=' . $this->options['rounds'] . '$' . $salt . '$');
+        }
+
+        // Process algos supported by standard password_hash
         if (empty($this->options)) {
             return password_hash($password, $this->algo_constant);
         } else {
@@ -141,10 +169,29 @@ class AuthHash
 
     public function passwordNeedsRehash($hash)
     {
-        if (empty($this->options)) {
-            return password_needs_rehash($hash, $this->algo_constant);
+        if ($this->algo == "SHA512HASH") {
+            // Process when going to SHA512HASH algo separately, since not supported by standard password_needs_rehash
+            if (empty(preg_match('/^\$6\$rounds=/', $hash))) {
+                // algo does not match, so needs rehash
+                return true;
+            }
+            preg_match('/^\$6\$rounds=([0-9]*)\$/', $hash, $matches);
+            $rounds = $matches[1];
+            if ($rounds != $this->options['rounds']) {
+                // number of rounds does not match, so needs rehash
+                return true;
+            }
+        } elseif (!empty(preg_match('/^\$6\$rounds=/', $hash))) {
+            // Process when going from SHA512HASH algo separately, since not supported by standard password_needs_rehash
+            // Note we already know that $this->algo != "SHA512HASH", so we return true
+            return true;
         } else {
-            return password_needs_rehash($hash, $this->algo_constant, $this->options);
+            // Process when going to and from algos supported by standard password_needs_rehash
+            if (empty($this->options)) {
+                return password_needs_rehash($hash, $this->algo_constant);
+            } else {
+                return password_needs_rehash($hash, $this->algo_constant, $this->options);
+            }
         }
     }
 
@@ -160,7 +207,13 @@ class AuthHash
             $millisecondsStart = round(microtime(true) * 1000);
         }
 
-        $valid = password_verify($password, $hash);
+        if (!empty(preg_match('/^\$6\$rounds=/', $hash))) {
+            // Process SHA512HASH algo separately, since uses crypt
+            $valid = hash_equals($hash, crypt($password, $hash));
+        } else {
+            // Process algos supported by standard password_verify
+            $valid = password_verify($password, $hash);
+        }
 
         if ($GLOBALS['gbl_debug_hash_verify_execution_time']) {
             // Reporting collection time to allow fine tuning of hashing algorithm
@@ -169,5 +222,22 @@ class AuthHash
         }
 
         return $valid;
+    }
+
+    // To improve performance, this function is run as static since
+    //  requires no defines from the class
+    public static function hashValid($hash)
+    {
+        //  (note need to preg_match for \$2a\$05\$ for backward compatibility since
+        //   password_get_info() call can not identify older bcrypt hashes)
+        //  (note also need to preg_match for /^\$6\$rounds=/ to support the SHA512HASH hashing option)
+        $hash_info = password_get_info($hash);
+        if (empty($hash_info['algo']) && empty(preg_match('/^\$2a\$05\$/', $hash)) && empty(preg_match('/^\$6\$rounds=/', $hash))) {
+            // Invalid hash
+            return false;
+        } else {
+            // Valid hash
+            return true;
+        }
     }
 }

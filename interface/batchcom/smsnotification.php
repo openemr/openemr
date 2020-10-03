@@ -29,7 +29,7 @@ if (!AclMain::aclCheckCore('admin', 'notification')) {
 }
 
 // process form
-if ($_POST['form_action'] == 'save') {
+if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'save')) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -106,11 +106,11 @@ $sms_gateway = array ('CLICKATELL','TMB4');
     </header>
     <main class="mx-4">
         <?php
-        if ($form_err) {
+        if (!empty($form_err)) {
             echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';
         }
 
-        if ($sql_msg) {
+        if (!empty($sql_msg)) {
             echo '<div class="alert alert-info">' . xlt('The following occurred') . ': ' . text($sql_msg) . '</div>';
         }
         ?>

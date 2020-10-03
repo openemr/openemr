@@ -27,7 +27,7 @@ function insert_language_log($lang_desc, $lang_code, $cons_name, $def)
 
   // set up the mysql collation string to ensure case is sensitive in the mysql queries
     if (!$disable_utf8_flag) {
-        if ($sqlconf["db_encoding"] == "utf8mb4") {
+        if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
             $case_sensitive_collation = "COLLATE utf8mb4_bin";
         } else {
             $case_sensitive_collation = "COLLATE utf8_bin";

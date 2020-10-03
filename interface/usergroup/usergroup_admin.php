@@ -52,7 +52,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         //block non-administrator user from update administrator
         $user_service = new UserService();
         $user = $user_service->getUser($_POST['id']);
-        $aro_groups = AclExtended::aclGetGroupTitles($user->getUsername());
+        $aro_groups = AclExtended::aclGetGroupTitles($user['username']);
         foreach ($aro_groups as $aro_group) {
             if (AclExtended::isGroupIncludeSuperuser($aro_group)) {
                 die(xlt('Saving denied'));

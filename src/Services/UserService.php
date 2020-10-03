@@ -14,58 +14,41 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Database\Connector;
-
 class UserService
 {
-    /**
-     * The user repository to be used for db CRUD operations.
-     */
-    private $repository;
-
     /**
      * Default constructor.
      */
     public function __construct()
     {
-        $database = Connector::Instance();
-        $entityManager = $database->entityManager;
-        $this->repository = $entityManager->getRepository('\OpenEMR\Entities\User');
     }
 
     /**
-     * @return Fully hydrated user object
+     * @return array hydrated user object
      */
     public function getUser($userId)
     {
-        return $this->repository->getUser($userId);
+        return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$userId]);
     }
 
     /**
-     * @return active users (fully hydrated)
+     * @return array active users (fully hydrated)
      */
     public function getActiveUsers()
     {
-        return $this->repository->getActiveUsers();
+        $users = [];
+        $user = sqlStatement("SELECT * FROM `users` WHERE (`username` != '' AND `username` IS NOT NULL) AND `active` = 1 ORDER BY `lname` ASC, `fname` ASC, `mname` ASC");
+        while ($row = sqlFetchArray($user)) {
+            $users[] = $row;
+        }
+        return $users;
     }
 
     /**
-     * @return Fully hydrated user object.
+     * @return array
      */
     public function getCurrentlyLoggedInUser()
     {
-        return $this->repository->getCurrentlyLoggedInUser();
-    }
-
-    /**
-     * Centralized holder of the `authProvider` session
-     * value to encourage service ownership of global
-     * session values.
-     *
-     * @return String of the current user group.
-     */
-    public function getCurrentlyLoggedInUserGroup()
-    {
-        return $_SESSION['authProvider'];
+        return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$_SESSION['authUserID']]);
     }
 }

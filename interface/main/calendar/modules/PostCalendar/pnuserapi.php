@@ -899,7 +899,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
             $sql .= " AND a.pc_facility = '" . pnVarPrepForStore($pc_facility) . "' "; /*
                       AND u.facility_id = $pc_facility
                       AND u2.facility_id = $pc_facility "; */
-    } elseif ($pc_facility) {
+    } elseif (!empty($pc_facility)) {
         // pc_facility could be provided in the search arguments -- JRM March 2008
         $sql .= " AND a.pc_facility = '" . pnVarPrepForStore($pc_facility) . "' "; /*.
                 " AND u.facility_id = $pc_facility".
@@ -1205,6 +1205,8 @@ function &postcalendar_userapi_pcGetEvents($args)
         if (!isset($s_keywords)) {
             $s_keywords = '';
         }
+
+        $providerID = $providerID ?? '';
 
         $a = array('start' => $start_date,'end' => $end_date,'s_keywords' => $s_keywords,'s_category' => $s_category,'s_topic' => $s_topic,'viewtype' => $viewtype, "sort" => "pc_startTime ASC, a.pc_duration ASC ",'providerID' => $providerID, 'provider_id' => $provider_id);
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEvents', $a);

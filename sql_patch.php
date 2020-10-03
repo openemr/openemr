@@ -28,20 +28,6 @@ require_once('library/sql_upgrade_fx.php');
 
 use OpenEMR\Services\VersionService;
 
-$versionService = new VersionService();
-
-// Fetching current version because it was updated by the sql_upgrade_fx
-// script and this script will further modify it.
-$currentVersion = $versionService->fetch();
-
-$desiredVersion = $currentVersion;
-$desiredVersion->setDatabase($v_database);
-$desiredVersion->setTag($v_tag);
-$desiredVersion->setRealPatch($v_realpatch);
-$desiredVersion->setPatch($v_patch);
-$desiredVersion->setMinor($v_minor);
-$desiredVersion->setMajor($v_major);
-
 // Force logging off
 $GLOBALS["enable_auditlog"] = 0;
 
@@ -59,7 +45,7 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
 
 <div style="box-shadow: 3px 3px 5px 6px #ccc; border-radius: 20px; padding: 10px 40px;background-color:#EFEFEF; width:500px; margin:40px auto">
 
-  <p style="font-weight:bold; font-size:1.8em; text-align:center">OpenEMR <?php echo text($EMRversion),' ',xlt('Database Patch'),' ',text($desiredVersion->getRealPatch()) ?></p>
+  <p style="font-weight:bold; font-size:1.8em; text-align:center">OpenEMR <?php echo text($EMRversion),' ',xlt('Database Patch'),' ',text($v_realpatch) ?></p>
   <p style="font-weight:bold; text-align:center;"><?php echo xlt('Applying Patch to site'),' : ',text($_SESSION['site_id']) ?></p>
 
 
@@ -83,19 +69,25 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
         }
     }
 
+    $versionService = new VersionService();
+    $currentVersion = $versionService->fetch();
+    $desiredVersion = $currentVersion;
+    $desiredVersion['v_database'] = $v_database;
+    $desiredVersion['v_tag'] = $v_tag;
+    $desiredVersion['v_realpatch'] = $v_realpatch;
+    $desiredVersion['v_patch'] = $v_patch;
+    $desiredVersion['v_minor'] = $v_minor;
+    $desiredVersion['v_major'] = $v_major;
+
     $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
     if ($canRealPatchBeApplied) {
         echo '<p style="font-weight:bold; text-align:left;">',xlt('Updating version indicators'),'...</p>';
-        $result = $versionService->update($desiredVersion);
-
-        if (!$result) {
-            echo '<p style="font-weight:bold; text-align:left; color:red">',xlt('Unable insert version information into database'),'...</p>';
-        }
+        $versionService->update($desiredVersion);
     }
 
-    echo '<p style="text-align:center; font-size:1.8em;">',xlt('Database Patch'),' ',text($desiredVersion->getRealPatch()),' ',xlt('finished'),'.</p>';
+    echo '<p style="text-align:center; font-size:1.8em;">',xlt('Database Patch'),' ',text($desiredVersion['v_realpatch']),' ',xlt('finished'),'.</p>';
 
-    echo '<p style="text-align:center; font-size:1.8em;">OpenEMR ',xlt('Version'),' = ',text($EMRversion . '(' . $desiredVersion->getRealPatch() . ')'),'.</p>';
+    echo '<p style="text-align:center; font-size:1.8em;">OpenEMR ',xlt('Version'),' = ',text($EMRversion . '(' . $desiredVersion['v_realpatch'] . ')'),'.</p>';
 
     echo '<p><a style="border-radius: 10px; padding:5px; width:200px; margin:0 auto; background-color:green; color:white; font-weight:bold; display:block; text-align:center;" href="index.php?site=',attr($_SESSION['site_id']) . '">',xlt('Log in'),'</a></p>';
 

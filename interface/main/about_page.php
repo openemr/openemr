@@ -111,7 +111,7 @@ $version = $versionService->fetch();
                 <?php if (!empty($GLOBALS['support_phone_number'])) { ?>
                     <span class="text"><?php  echo xlt('Support Phone Number'); ?>: <?php echo text($GLOBALS['support_phone_number']); ?></span><br />
                 <?php } ?>
-                <a href="<?php echo "https://open-emr.org/wiki/index.php/OpenEMR_" . attr($version->getMajor()) . "." . attr($version->getMinor()) . "." . attr($version->getPatch()) . "_Users_Guide"; ?>" rel="noopener" target="_blank" class="btn btn-block btn-secondary"><i class="fa fa-fw fa-book"></i>&nbsp;<?php echo xlt('User Manual'); ?></a>
+                <a href="<?php echo "https://open-emr.org/wiki/index.php/OpenEMR_" . attr($version['v_major']) . "." . attr($version['v_minor']) . "." . attr($version['v_patch']) . "_Users_Guide"; ?>" rel="noopener" target="_blank" class="btn btn-block btn-secondary"><i class="fa fa-fw fa-book"></i>&nbsp;<?php echo xlt('User Manual'); ?></a>
                 <?php if (!empty($GLOBALS['online_support_link'])) { ?>
                     <a href='<?php echo attr($GLOBALS["online_support_link"]); ?>' rel="noopener" target="_blank" class="btn btn-secondary btn-block"><i class="fa fa-fw fa-question-circle"></i>&nbsp;<?php echo xlt('Online Support'); ?></a>
                 <?php } ?>

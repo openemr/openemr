@@ -158,20 +158,8 @@ function &pcVarPrepHTMLDisplay($s)
 }
 function pcGetTopicName($topicid)
 {
-    list($dbconn) = pnDBGetConn();
-    $pntable = pnDBGetTables();
-
-    $topics_table = $pntable['topics'];
-    $topics_column = &$pntable['topics_column'];
-    $sql = "SELECT $topics_column[topicname]
-            FROM $topics_table
-            WHERE $topics_column[topicid] = ?";
-    $result = $dbconn->Execute($sql, [$topicid]);
-    if ($result === false) {
-        return '';
-    } else {
-        return $result->fields[0];
-    }
+    // not using topics in OpenEMR, so just return nothing
+    return '';
 }
 function &postcalendar_makeValidURL($s)
 {
@@ -202,7 +190,7 @@ function postcalendar_getDate($format = '%Y%m%d')
             $jumpmonth = substr($jumpdate, 5, 2);
             $jumpday   = substr($jumpdate, 8, 2);
         } else {
-            if ($_SESSION['lastcaldate']) {
+            if (!empty($_SESSION['lastcaldate'])) {
                 $time = strtotime($_SESSION['lastcaldate']);
             } else {
                 $time = time();

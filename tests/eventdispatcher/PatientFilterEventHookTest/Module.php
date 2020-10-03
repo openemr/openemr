@@ -112,7 +112,7 @@ class Module
     {
         $userService = new UserService();
         $user = $userService->getCurrentlyLoggedInUser();
-        $patientsToHide = $this->getBlacklist($user->getUsername());
+        $patientsToHide = $this->getBlacklist($user['username']);
         if (count($patientsToHide)) {
             $filterString = "(p.pid IS NULL OR p.pid NOT IN (";
             foreach ($patientsToHide as $patientToHide) {
@@ -141,7 +141,7 @@ class Module
     {
         $userService = new UserService();
         $user = $userService->getCurrentlyLoggedInUser();
-        $patientsToHide = $this->getBlacklist($user->getUsername());
+        $patientsToHide = $this->getBlacklist($user['username']);
 
         // If there are patients to hide from this user, build a filter
         if (count($patientsToHide)) {
@@ -172,7 +172,7 @@ class Module
     {
         $userService = new UserService();
         $user = $userService->getCurrentlyLoggedInUser();
-        $patientsToHide = $this->getBlacklist($user->getUsername());
+        $patientsToHide = $this->getBlacklist($user['username']);
         if (in_array($event->getPid(), $patientsToHide)) {
             $event->setAuthorized(false);
         }
@@ -188,7 +188,7 @@ class Module
     {
         $userService = new UserService();
         $user = $userService->getCurrentlyLoggedInUser();
-        $patientsToHide = $this->getBlacklist($user->getUsername());
+        $patientsToHide = $this->getBlacklist($user['username']);
         if (in_array($event->getPid(), $patientsToHide)) {
             $event->setAuthorized(false);
         }
