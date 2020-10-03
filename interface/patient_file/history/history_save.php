@@ -22,6 +22,11 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
+$module_call_pid = $_GET['requestPid'] ?? null;
+if (!empty($module_call_pid)) {
+    $pid = (int)$module_call_pid;
+}
+
 // Check authorization.
 if (acl_check('patients', 'med')) {
     $tmp = getPatientData($pid, "squad");
@@ -58,5 +63,10 @@ while ($frow = sqlFetchArray($fres)) {
 }
 
 updateHistoryData($pid, $newdata);
+
+if ($module_call_pid) {
+    header("Location: " . $_SERVER['HTTP_REFERER']);
+    exit;
+}
 
 include_once("history.php");

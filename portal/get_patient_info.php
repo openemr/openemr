@@ -242,10 +242,11 @@ if ($userData = sqlQuery($sql, array(
         $tmp = getUserIDInfo($userData['providerID']);
         $_SESSION['providerName'] = $tmp['fname'] . ' ' . $tmp['lname'];
         $_SESSION['providerUName'] = $tmp['username'];
-        $_SESSION['sessionUser'] = '-patient-'; // $_POST['uname'];
+        $_SESSION['sessionUser'] = '-patient-';
         $_SESSION['providerId'] = $userData['providerID'] ? $userData['providerID'] : 'undefined';
         $_SESSION['ptName'] = $userData['fname'] . ' ' . $userData['lname'];
-
+        // never set authUserID authUser is used for ACL!
+        $_SESSION['authUser'] = 'portal-user';
         // Set up the csrf private_key (for the paient portal)
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.

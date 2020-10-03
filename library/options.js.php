@@ -294,7 +294,6 @@ function lbfSetSignature(el) {
     let imgel = el + "_img";
     let sign = $("#"+ imgel).attr('src');
     $("#"+ el).val(sign);
-    return true;
 }
 // This is invoked when a field with edit option M is changed.
 // Its purpose is to make the corresponding change to the member fields (edit option m).

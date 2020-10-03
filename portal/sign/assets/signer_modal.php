@@ -9,20 +9,20 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../../../src/Common/Session/SessionUtil.php");
+require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 $is_portal = isset($_SESSION['portal_init']) ? 1 : $_GET['isPortal'];
 if (!$is_portal) {
     session_destroy();
-    require_once(dirname(__FILE__) . '/../../../interface/globals.php');
+    require_once(__DIR__ . '/../../../interface/globals.php');
 } else {
-    require_once dirname(__FILE__) . "/../../verify_session.php";
+    require_once __DIR__ . "/../../verify_session.php";
 }
 
-$cuser = attr(isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "-patient-");
-$cpid = attr(isset($_SESSION['pid']) ? $_SESSION['pid'] : "0");
-$api_id = isset($_SESSION['api_csrf_token']) ? $_SESSION['api_csrf_token'] : ''; // portal doesn't do remote
+$cuser = attr($_SESSION['authUserID'] ?? "-patient-");
+$cpid = attr($_SESSION['pid'] ?? "0");
+$api_id = $_SESSION['api_csrf_token'] ?? ''; // portal doesn't do remote
 
 $msg1 = xlt('Show Current Signature On File');
 $msg2 = xlt('As appears on documents');
@@ -40,9 +40,14 @@ $msg12 = xlt('Transaction Failed');
 $msg14 = xlt("A Remote Signing Device is not answering.") . "<br><h4>" . xlt("Using this device until remote becomes available.") . "</h4>";
 $msg15 = xlt("Remote is Currently Busy");
 // module translations
-$vars = "<script>const msgSignator='" . $msg7 . "';const msgNoSign='" . $msg8 . "';const msgWaiting='" . $msg9 . "';const msgBusy='" . $msg15 . "';</script>\n";
-$vars .= "<script>const msgNeedSign='" . $msg10 . "';const msgCheckIn='" . $msg11 . "';const msgFail='" . $msg12 . "';const msgAnswering='" . $msg14 . "';</script>\n";
+$vars = "<script>var msgSignator='" . $msg7 . "';var msgNoSign='" . $msg8 . "';var msgWaiting='" . $msg9 . "';var msgBusy='" . $msg15 . "';</script>\n";
+$vars .= "<script>var msgNeedSign='" . $msg10 . "';var msgCheckIn='" . $msg11 . "';var msgFail='" . $msg12 . "';var msgAnswering='" . $msg14 . "';</script>\n";
 $vars .= "<script>var apiToken=" . js_escape($api_id) . ";</script>\n";
+// override templates or source to ensure these are set correctly for signer api.
+// you'll always have two signatures, portal(not witnessed, thats coming) and clinic.
+if ($is_portal) {
+    $vars .= "<script>var isPortal=" . js_escape($is_portal) . ";var cuser=" . js_escape($cuser) . ";var cpid=" . js_escape($cpid) . ";</script>\n";
+}
 // short & sweet dynamic modal
 $modal = <<<MODAL
 $vars
@@ -57,7 +62,7 @@ $vars
 <div class='signature-pad--body'><canvas width='800' height="400"></canvas></div><div class='signature-pad--footer'><div class='description'>$msg4</div>
 <div class='signature-pad--actions'><div><button type='button' class='btn btn-primary btn-sm clear' data-action='clear'>$msg5</button>
 </div><div><button type='button' class='btn btn-primary btn-sm save' data-action='save_signature'>$msg6</button>
-<button type='button' class='btn btn-primary btn-sm send' data-action='send_signature'style='display:none'>$msg6</button>
+<button type='button' class='btn btn-primary btn-sm send' data-action='send_signature' style='display:none'>$msg6</button>
 <input type='hidden' id='name'/><input type='hidden' id='user' value='$cuser' /><input type='hidden' id='pid' value='$cpid' /></div>
 </div></div></div></div></div></div></div></div></div></div>
 <i id='waitend' class='fa fa-refresh fa-spin' style='display: none;'></i>
