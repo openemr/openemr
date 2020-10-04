@@ -24,7 +24,7 @@ use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
 // Session pid must be right or bad things can happen when demographics are saved!
 //
-$set_pid = $_GET["set_pid"] ? ($_GET["set_pid"] ?? '') : $_GET["pid"];
+$set_pid = isset($_GET["set_pid"]) ? $_GET["set_pid"] : ($_GET["pid"] ?? null);
 if ($set_pid && $set_pid != $_SESSION["pid"]) {
     setpid($set_pid);
 }
@@ -1040,7 +1040,7 @@ $use_validate_js = $GLOBALS['new_validate'];
 
     $(function () {
         //When document is ready collect all the values Marked with D (check duplicate) stored in the db into array duplicateFieldsArray.
-        var flds = new Array(<?php echo $mflist; ?>);
+        var flds = new Array(<?php echo ($mflist ?? ''); ?>);
         for (var i = 0; i < flds.length; ++i) {
             var fval = $('#form_' + flds[i]).val();
             duplicateFieldsArray['#form_' + flds[i]] = fval;
