@@ -212,6 +212,7 @@ function submit_form() {
     top.restoreSession();
     document.deletefrm.submit();
 }
+
 // Javascript function for closing the popup
 function popup_close() {
     dlgclose();
@@ -461,37 +462,53 @@ function popup_close() {
         }
         ?>
 
-        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-            <p><?php echo xlt('Do you really want to delete'); ?>
-                <span class="font-weight-bold">
-                    <?php
-                    if ($patient) {
-                        echo xlt('patient') . " " . text($patient);
-                    } elseif ($encounterid) {
-                        echo xlt('encounter') . " " . text($encounterid);
-                    } elseif ($formid) {
-                        echo xlt('form') . " " . text($formid);
-                    } elseif ($issue) {
-                        echo xlt('issue') . " " . text($issue);
-                    } elseif ($document) {
-                        echo xlt('document') . " " . text($document);
-                    } elseif ($payment) {
-                        echo xlt('payment') . " " . text($payment);
-                    } elseif ($billing) {
-                        echo xlt('invoice') . " " . text($billing);
-                    } elseif ($transaction) {
-                        echo xlt('transaction') . " " . text($transaction);
-                    }
-                    ?>
-                </span>
-                <?php echo xlt('and all subordinate data? This action will be logged'); ?>!
+        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>'>
+            <input type="hidden" name="csrf_token_form"
+                value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <p>
+            <?php
+            $type = '';
+            $id = '';
+            if ($patient) {
+                $id = $patient;
+                $type = 'patient';
+            } elseif ($encounterid) {
+                $id = $encounterid;
+                $type = 'encounter';
+            } elseif ($formid) {
+                $id = $formid;
+                $type = 'form';
+            } elseif ($issue) {
+                $id = $issue;
+                $type = ('issue');
+            } elseif ($document) {
+                $id = $document;
+                $type = 'document';
+            } elseif ($payment) {
+                $id = $payment;
+                $type = 'payment';
+            } elseif ($billing) {
+                $id = $billing;
+                $type = 'invoice';
+            } elseif ($transaction) {
+                $id = $transaction;
+                $type = 'transaction';
+            }
+
+            $ids = explode(",", $id);
+            if (count($ids) > 1) {
+                $type .= 's';
+            }
+
+            $msg = xl("You have selected to delete") . ' ' . count($ids) . ' ' . xl($type) . ". " . xl("Are you sure you want to continue?");
+            echo text($msg);
+            ?>
             </p>
             <div class="btn-group">
-                <a href="#" onclick="submit_form()" class="btn btn-sm btn-delete btn-danger"><?php echo xlt('Yes, Delete and Log'); ?></a>
-                <a href='#' class="btn btn-sm btn-secondary btn-cancel" onclick="popup_close();"><?php echo xlt('No, Cancel');?></a>
+                <button onclick="submit_form()" class="btn btn-sm btn-primary mr-2"><?php echo xlt('Yes'); ?></button>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="popup_close();"><?php echo xlt('No');?></button>
             </div>
-            <input type='hidden' name='form_submit' value='Yes, Delete and Log'/>
+            <input type='hidden' name='form_submit' value='delete'/>
         </form>
     </div>
 </body>
