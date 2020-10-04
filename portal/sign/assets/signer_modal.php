@@ -58,7 +58,7 @@ $vars
             <div class='modal-body signature-pad-body'><span class='sigNav'><label style='display: none;'>
                 <input style='display:none;' type='checkbox' id='isAdmin' name='isAdmin' />$msg3</label></span>
                 <div class='row signature-pad-content'>
-                    <div class='embed-responsive embed-responsive-21by9 border border-dark'>
+                    <div class='embed-responsive embed-responsive-21by7 border border-dark'>
                         <canvas class="canvas embed-responsive-item"></canvas>
                     </div>
                     <div class='signature-pad-footer text-dark'>

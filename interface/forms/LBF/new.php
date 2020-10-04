@@ -19,13 +19,10 @@ if (isset($_GET['isPortal']) && (int)$_GET['isPortal'] !== 0) {
     OpenEMR\Common\Session\SessionUtil::portalSessionStart();
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         $ignoreAuth_onsite_portal_two = true;
-        $ignoreAuth = true;
     } else {
-        $ignoreAuth_onsite_portal_two = false;
-        $ignoreAuth = false;
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        exit;
     }
-    // do not destroy portal session.
-    // @todo add redirect portal landing on fail.
 }
 
 require_once("../../globals.php");
