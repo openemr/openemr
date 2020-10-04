@@ -67,8 +67,10 @@ class C_FormPriorAuth extends Controller
             $GLOBALS['encounter'] = date("Ymd");
         }
 
-        addForm($GLOBALS['encounter'], "Prior Authorization Form", $this->prior_auth->id, "prior_auth", $GLOBALS['pid'], $_SESSION['userauthorized']);
-        $_POST['process'] = "";
+        if (empty($_POST['id'])) {
+            addForm($GLOBALS['encounter'], "Prior Authorization", $this->prior_auth->id, "prior_auth", $GLOBALS['pid'], $_SESSION['userauthorized']);
+            $_POST['process'] = "";
+        }    
         return;
     }
 }

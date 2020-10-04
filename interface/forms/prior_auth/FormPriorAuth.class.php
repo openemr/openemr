@@ -32,12 +32,13 @@ class FormPriorAuth extends ORDataObject
      */
 
     var $id;
-    var $date;
     var $pid;
     var $activity;
+    var $date;
     var $prior_auth_number;
     var $comments;
-
+    var $date_from;
+    var $date_to;
 
     /**
      * Constructor sets all Form attributes to their default value
@@ -47,17 +48,21 @@ class FormPriorAuth extends ORDataObject
     {
         parent::__construct();
 
+        $this->_table = "form_prior_auth";
+
         if (is_numeric($id)) {
             $this->id = $id;
         } else {
             $id = "";
         }
 
-        $this->_table = "form_prior_auth";
-        $this->date = date("Y-m-d H:i:s");
-        $this->activity = 1;
         $this->pid = $GLOBALS['pid'];
+        $this->activity = 1;
+        $this->date = date("Y-m-d H:i:s");
         $this->prior_auth_number = "";
+        $this->date_from = date("Y-m-d");
+        $this->date_to = NULL;
+
         if ($id != "") {
             $this->populate();
         }
@@ -125,4 +130,24 @@ class FormPriorAuth extends ORDataObject
     {
         return $this->date;
     }
+
+    function get_date_from()
+    {
+        return $this->date_from;
+    }
+
+    function set_date_from($dt)
+    {
+        $this->date_from = $dt;        
+    }    
+
+    function get_date_to()
+    {
+        return $this->date_to;
+    }
+
+    function set_date_to($dt)
+    {
+        $this->date_to = $dt;        
+    }    
 }   // end of Form
