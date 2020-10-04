@@ -250,7 +250,8 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
         $_SESSION['sessionUser'] = '-patient-'; // $_POST['uname'];
         $_SESSION['providerId'] = $userData['providerID'] ? $userData['providerID'] : 'undefined';
         $_SESSION['ptName'] = $userData['fname'] . ' ' . $userData['lname'];
-
+        // never set authUserID though authUser is used for ACL!
+        $_SESSION['authUser'] = 'portal-user';
         // Set up the csrf private_key (for the paient portal)
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.

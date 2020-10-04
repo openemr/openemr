@@ -20,30 +20,9 @@ var app = {
 	 * @param string containerId (default = 'alert')
 	 */
 	appendAlert: function(message,style, timeout,containerId) {
+        if (!timeout) timeout = 5000;
 
-		if (!style) style = '';
-		if (!timeout) timeout = 0;
-		if (!containerId) containerId = 'alert';
-
-		var id = _.uniqueId('alert_');
-
-		var html = '<div id="'+id+'" class="alert '+ this.escapeHtml(style) +'" style="display: none;">'
-			+ '<a class="close" data-dismiss="alert">&times;</a>'
-			+ '<span>'+ this.escapeHtml(message) +'</span>'
-			+ '</div>';
-
-		// scroll the alert message into view
-		var container = $('#' + containerId);
-		container.append(html);
-		container.parent().animate({
-			scrollTop: container.offset().top - container.parent().offset().top + container.parent().scrollTop() - 10 // (10 is for top padding)
-		});
-
-		$('#'+id).slideDown('fast');
-
-		if (timeout > 0) {
-			setTimeout("app.removeAlert('"+id+"')",timeout);
-		}
+		signerAlertMsg("Error: " + message, timeout);
 	},
 
 	/**
@@ -139,22 +118,25 @@ var app = {
 	getErrorMessage: function(resp) {
 
 		var msg = 'An unknown error occured';
-		try	{
+		/*try	{
 			var json = $.parseJSON(resp.responseText);
 			msg = json.message;
 		} catch (error)	{
-			// TODO: possibly use regex or some other more robust way to get details...?
+
 			var parts = resp.responseText.split(app.errorLandmarkStart);
 
 			if (parts.length > 1) {
 				var parts2 = parts[1].split(app.errorLandmarkEnd);
 				msg = parts2[0];
-			}
-		}
-
+			} else {
+                msg = resp.responseText;
+            }
+		}*/
+        msg = resp.responseText;
 		return msg ? msg : 'Unknown server error';
 	},
 
 	version: 1.1
 
 }
+
