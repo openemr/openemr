@@ -7,12 +7,28 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../globals.php");
+if (isset($_GET['isPortal']) && (int)$_GET['isPortal'] !== 0) {
+    require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
+    OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+        $ignoreAuth_onsite_portal_two = true;
+        $ignoreAuth = true;
+    } else {
+        $ignoreAuth_onsite_portal_two = false;
+        $ignoreAuth = false;
+    }
+    // do not destroy portal session.
+    // @todo add redirect portal landing on fail.
+}
+
+require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
@@ -72,30 +88,45 @@ function end_row()
 $from_trend_form = !empty($is_lbf);
 // Yet another invocation from somewhere other than encounter.
 // don't show any action buttons.
-$from_lbf_edit = isset($_GET['isShow']) ? true : false;
+$from_lbf_edit = isset($_GET['isShow']) ? 1 : 0;
+$patient_portal = $ignoreAuth_onsite_portal_two ? 1 : 0;
+$from_lbf_edit = $patient_portal ? 1 : $from_lbf_edit;
 // This is true if the page is loaded into an iframe in add_edit_issue.php.
 $from_issue_form = !empty($_REQUEST['from_issue_form']);
 
 $formname = isset($_GET['formname']) ? $_GET['formname'] : '';
-$formid = isset($_GET['id']) ? intval($_GET['id']) : 0;
-$portalid = isset($_GET['portalid']) ? intval($_GET['portalid']) : 0;
+$formid = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$portalid = isset($_GET['portalid']) ? (int)$_GET['portalid'] : 0;
+// know LBF origin
+$form_origin = isset($_GET['formOrigin']) ? (int)$_GET['formOrigin'] : null;
+$is_portal_module = $form_origin === 2;
+$is_portal_dashboard = $form_origin === 1; // 0 is portal
+// can be used to assign to existing encounter
+$portal_form_pid = 0;
+if ($form_origin !== null) {
+    $portal_form_pid = sqlQuery(
+        "SELECT id, pid FROM `onsite_documents` WHERE `encounter` != 0 AND `encounter` = ?",
+        array($formid)
+    )['pid'] ?? 0;
+}
+$is_core = !($portal_form_pid || $patient_portal || $is_portal_dashboard || $is_portal_module);
 
-$visitid = intval(empty($_GET['visitid']) ? $encounter : $_GET['visitid']);
+$visitid = (int)(empty($_GET['visitid']) ? $encounter : $_GET['visitid']);
 
 // If necessary get the encounter from the forms table entry for this form.
-if ($formid && !$visitid) {
+if ($formid && !$visitid && $is_core) {
     $frow = sqlQuery(
         "SELECT pid, encounter FROM forms WHERE " .
         "form_id = ? AND formdir = ? AND deleted = 0",
         array($formid, $formname)
     );
-    $visitid = intval($frow['encounter']);
+    $visitid = (int)$frow['encounter'];
     if ($frow['pid'] != $pid) {
         die("Internal error: patient ID mismatch!");
     }
 }
 
-if (!$from_trend_form && !$visitid && !$from_lbf_edit) {
+if (!$from_trend_form && !$visitid && !$from_lbf_edit && $is_core) {
     die("Internal error: we do not seem to be in an encounter!");
 }
 
@@ -105,10 +136,10 @@ $lobj = $grparr[''];
 $formtitle = $lobj['grp_title'];
 $formhistory = 0 + $lobj['grp_repeats'];
 if (!empty($lobj['grp_columns'])) {
-    $CPR = intval($lobj['grp_columns']);
+    $CPR = (int)$lobj['grp_columns'];
 }
 if (!empty($lobj['grp_size'])) {
-    $FONTSIZE = intval($lobj['grp_size']);
+    $FONTSIZE = (int)$lobj['grp_size'];
 }
 if (!empty($lobj['grp_issue_type'])) {
     $LBF_ISSUE_TYPE = $lobj['grp_issue_type'];
@@ -263,7 +294,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 );
             }
         }
-    }
+    } // end while save
 
     if ($portalid) {
         // Delete the request from the portal.
@@ -557,14 +588,19 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         }
 
         // Validation logic for form submission.
-        function validate(f) {
+        // Added prevent restoreSession for remotes
+        function validate(f, restore = true) {
+            var errMsgs = new Array();
             <?php generate_layout_validation($formname); ?>
             // Validation for Fee Sheet stuff. Skipping this because CV decided (2015-11-03)
             // that these warning messages are not appropriate for layout based visit forms.
             //
             // if (window.jsLineItemValidation && !jsLineItemValidation(f)) return false;
             somethingChanged = false; // turn off "are you sure you want to leave"
+            if (restore) {
             top.restoreSession();
+            }
+
             return true;
         }
 
@@ -769,7 +805,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 <div class='container'>
     <?php
     echo "<form method='post' " .
-        "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&portalid=" . attr_url($portalid) . "' " .
+        "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&portalid=" . attr_url($portalid) . "&formOrigin=" . attr_url($form_origin) . "&isPortal=" . attr_url($patient_portal) . "' " .
         "onsubmit='return validate(this)'>\n";
 
     $cmsportal_login = '';
@@ -788,9 +824,12 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         <div class="row">
             <div class="col-12">
                 <h3>
-                    <?php echo text($formtitle) . " " . xlt('for') . ' ';
-                    echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
-                    echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'], 0, 10))); ?>
+                    <?php echo text($formtitle);
+                    if ($is_core) {
+                        echo  " " . xlt('for') . ' ';
+                        echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
+                        echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'], 0, 10)));
+                    } ?>
                 </h3>
                 <?php
                 $firow = sqlQuery(
@@ -801,12 +840,13 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
                 $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
 
+                if (!$patient_portal) {
                 // Provider selector.
-                echo "&nbsp;&nbsp;";
-                echo xlt('Provider') . ": ";
+                    echo "&nbsp;&nbsp;";
+                    echo xlt('Provider') . ": ";
                 // TBD: Refactor this function out of the FeeSheetHTML class as that is not the best place for it.
-                echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $default);
-
+                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $form_provider_id);
+                }
                 // If appropriate build a drop-down selector of issues of this type for this patient.
                 // We skip this if in an issue form tab because removing and adding visit form tabs is
                 // beyond the current scope of that code.
@@ -888,6 +928,10 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 $graphable = isOption($edit_options, 'G') !== false;
                 if ($graphable) {
                     $form_is_graphable = true;
+                }
+
+                if (isOption($edit_options, 'EP') && $patient_portal) {
+                    continue;
                 }
 
                 // Accumulate action conditions into a JSON expression for the browser side.
@@ -1494,7 +1538,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             <div class="col-12">
                 <div class="btn-group">
                     <?php
-                    if (!$from_trend_form && !$from_lbf_edit) {
+                    if (!$from_trend_form && !$from_lbf_edit && $is_core) {
                         // Generate price level selector if we are doing services or products.
                         if (isset($LBF_SERVICES_SECTION) || isset($LBF_PRODUCTS_SECTION)) {
                             echo xlt('Price Level') . ": ";
@@ -1541,7 +1585,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         } // end not from issue form
                         ?>
                         <?php
-                    } elseif (!$from_lbf_edit) { // $from_trend_form is true but lbf edit doesn't want button
+                    } elseif (!$from_lbf_edit && $is_core) { // $from_trend_form is true but lbf edit doesn't want button
                         ?>
                         <button type='button' class="btn btn-secondary btn-back" onclick='window.history.back();'>
                             <?php echo xlt('Back') ?>
@@ -1558,7 +1602,10 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 <?php } ?>
 
     <input type='hidden' name='from_issue_form' value='<?php echo attr($from_issue_form); ?>'/>
-
+    <?php if (!$is_core) {
+        echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken() . '" />';
+        echo "\n<input type='hidden' name='bn_save_continue' value='set' />\n";
+    } ?>
     </form>
 
     <!-- include support for the list-add selectbox feature -->
@@ -1581,6 +1628,49 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             echo "alert(" . js_escape($alertmsg) . ");\n";
         }
         ?>
+        /*
+        * Setup channel with portal
+        * Mainly for form submission from remote for now.
+        * umm you never know!
+        * */
+        <?php if (empty($is_core)) { ?>
+        $(function () {
+            window.addEventListener("message", (e) => {
+                if (event.origin !== window.location.origin) {
+                    signerAlertMsg(<?php echo xlj("Request is not same origin!)") ?>, 15000);
+                    return false;
+                }
+                if (e.data.submitForm === true) {
+                    let pass = validate(document.forms[0], false);
+                    if (pass) {
+                        signerAlertMsg(<?php echo xlj("Working on request.") ?>, 5000, 'info');
+                        e.preventDefault();
+                        document.forms[0].submit();
+                    } else {
+                        signerAlertMsg(<?php echo xlj("Form validation failed. Fix any errors and resubmit.") ?>);
+                        return false;
+                    }
+                } else if (e.data.submitForm === 'history') {
+                    e.preventDefault();
+                    let portal_form_pid = Number(<?php echo js_escape($portal_form_pid); ?>);
+                    if (portal_form_pid) {
+                        signerAlertMsg(<?php echo xlj("Charting History.") ?>, 5000, 'info');
+                    } else {
+                        signerAlertMsg(<?php echo xlj("Sorry. Can not update history.") ?>, 8000, 'danger');
+                        return false;
+                    }
+                    top.restoreSession();
+                    document.forms[0].action = "<?php echo $rootdir; ?>/patient_file/history/history_save.php?requestPid=" + encodeURIComponent(portal_form_pid);
+                    document.forms[0].onsubmit = "";
+                    document.forms[0].submit();
+                }
+            });
+        });
+        <?php }
+        if (empty($is_core) && !empty($_POST['bn_save_continue'])) { ?>
+        /* post event to portal with current formid from save/edit action */
+        parent.postMessage({formid:<?php echo attr($formid) ?>}, window.location.origin);
+        <?php } ?>
     </script>
 </div>
 </body>

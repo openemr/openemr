@@ -845,7 +845,7 @@ function generate_form_field($frow, $currvalue)
                 }
                 echo "<td width='" . attr($tdpct) . "%' nowrap>";
                 echo "<input type='checkbox' name='form_{$field_id_esc}[$option_id_esc]'" .
-                "id='form_{$field_id_esc}[$option_id_esc]' class='form-control$smallform' value='1' $lbfonchange";
+                "id='form_{$field_id_esc}[$option_id_esc]' class='form-check-inline' value='1' $lbfonchange";
                 if (in_array($option_id, $avalue)) {
                     echo " checked";
                 }
@@ -1013,7 +1013,7 @@ function generate_form_field($frow, $currvalue)
 
             $option_id = htmlspecialchars($option_id, ENT_QUOTES);
             echo "<td><input type='checkbox' name='check_{$field_id_esc}[$option_id_esc]'" .
-            " id='check_{$field_id_esc}[$option_id_esc]' class='form-control$smallform' value='1' $lbfonchange";
+            " id='check_{$field_id_esc}[$option_id_esc]' class='form-check-inline' value='1' $lbfonchange";
             if ($restype) {
                 echo " checked";
             }
@@ -1093,12 +1093,12 @@ function generate_form_field($frow, $currvalue)
             " value='$option_id_esc' $lbfonchange";
             // Support for edit options M and m.
             if (isOption($edit_options, 'M')) {
-                echo " class='form-control$smallform'";
+                echo " class='form-check-inline'";
                 echo " onclick='checkGroupMembers(this, $membership_group_number);'";
             } elseif (isOption($edit_options, 'm')) {
-                echo " class='form-control$smallform lbf_memgroup_$membership_group_number'";
+                echo " class='form-check-inline lbf_memgroup_$membership_group_number'";
             } else {
-                echo " class='form-control$smallform'";
+                echo " class='form-check-inline'";
             }
             //
             if (
@@ -1214,7 +1214,7 @@ function generate_form_field($frow, $currvalue)
         echo "<td class='text'><input type='radio'" .
         " name='radio_{$field_id_esc}'" .
         " id='radio_{$field_id_esc}[current]'" .
-        " class='form-control$smallform'" .
+        " class='form-check-inline'" .
         " value='current" . $field_id_esc . "' $lbfonchange";
         if ($restype == "current" . $field_id) {
             echo " checked";
@@ -1229,7 +1229,7 @@ function generate_form_field($frow, $currvalue)
         echo "<td class='text'><input type='radio'" .
         " name='radio_{$field_id_esc}'" .
         " id='radio_{$field_id_esc}[quit]'" .
-        " class='form-control$smallform'" .
+        " class='form-check-inline'" .
         " value='quit" . $field_id_esc . "' $lbfonchange";
         if ($restype == "quit" . $field_id) {
             echo " checked";
@@ -1249,7 +1249,7 @@ function generate_form_field($frow, $currvalue)
         // never
         echo "<td class='text'><input type='radio'" .
         " name='radio_{$field_id_esc}'" .
-        " class='form-control$smallform'" .
+        " class='form-check-inline'" .
         " id='radio_{$field_id_esc}[never]'" .
         " value='never" . $field_id_esc . "' $lbfonchange";
         if ($restype == "never" . $field_id) {
@@ -1263,7 +1263,7 @@ function generate_form_field($frow, $currvalue)
         echo " />" . xlt('Never') . "&nbsp;</td>";
         // Not Applicable
         echo "<td class='text'><input type='radio'" .
-        " class='form-control$smallform' " .
+        " class='form-check-inline' " .
         " name='radio_{$field_id}'" .
         " id='radio_{$field_id}[not_applicable]'" .
         " value='not_applicable" . $field_id . "' $lbfonchange";
@@ -1947,14 +1947,14 @@ function generate_print_field($frow, $currvalue)
             echo "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":&nbsp;&nbsp;</td>";
         }
 
-        echo "<td><input type='radio' class='form-control'";
+        echo "<td><input type='radio' class='form-check-inline'";
         if ($restype == "current" . $field_id) {
             echo " checked";
         }
 
         echo "/>" . htmlspecialchars(xl('Current'), ENT_NOQUOTES) . "&nbsp;</td>";
 
-        echo "<td><input type='radio' class='form-control'";
+        echo "<td><input type='radio' class='form-check-inline'";
         if ($restype == "current" . $field_id) {
             echo " checked";
         }
@@ -1966,14 +1966,14 @@ function generate_print_field($frow, $currvalue)
         " class='under form-control'" .
         " /></td>";
 
-        echo "<td><input type='radio' class='form-control'";
+        echo "<td><input type='radio' class='form-check-inline'";
         if ($restype == "current" . $field_id) {
             echo " checked";
         }
 
         echo " />" . htmlspecialchars(xl('Never'), ENT_NOQUOTES) . "</td>";
 
-        echo "<td><input type='radio' class='form-control'";
+        echo "<td><input type='radio' class='form-check-inline'";
         if ($restype == "not_applicable" . $field_id) {
             echo " checked";
         }
