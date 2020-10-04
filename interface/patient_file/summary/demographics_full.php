@@ -24,7 +24,7 @@ use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
 // Session pid must be right or bad things can happen when demographics are saved!
 //
-$set_pid = $_GET["set_pid"] ? $_GET["set_pid"] : $_GET["pid"];
+$set_pid = $_GET["set_pid"] ? ($_GET["set_pid"] ?? '') : $_GET["pid"];
 if ($set_pid && $set_pid != $_SESSION["pid"]) {
     setpid($set_pid);
 }
