@@ -32,6 +32,7 @@ class EncounterService extends BaseService
     private $uuidRegistry;
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PATIENT_TABLE = "patient_data";
+    private const PROVIDER_TABLE = "users";
 
     /**
      * Default constructor.
@@ -340,8 +341,10 @@ class EncounterService extends BaseService
         if ($statementResults) {
             while ($row = sqlFetchArray($statementResults)) {
                 $puuidBytes = $this->getUuidById($row['pid'], self::PATIENT_TABLE, "pid");
+                $provideruuidBytes = $this->getUuidById($row['pid'], self::PROVIDER_TABLE, "id");
                 $row['puuid'] = UuidRegistry::uuidToString($puuidBytes);
                 $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+                $row['provider_id'] = UuidRegistry::uuidToString($provideruuidBytes);
                 $processingResult->addData($row);
             }
         } else {
