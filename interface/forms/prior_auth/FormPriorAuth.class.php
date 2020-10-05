@@ -61,7 +61,7 @@ class FormPriorAuth extends ORDataObject
         $this->date = date("Y-m-d H:i:s");
         $this->prior_auth_number = "";
         $this->date_from = date("Y-m-d");
-        $this->date_to = NULL;
+        $this->date_to = null;
 
         if ($id != "") {
             $this->populate();
@@ -138,8 +138,8 @@ class FormPriorAuth extends ORDataObject
 
     function set_date_from($dt)
     {
-        $this->date_from = $dt;        
-    }    
+        $this->date_from = $dt;
+    }
 
     function get_date_to()
     {
@@ -148,6 +148,6 @@ class FormPriorAuth extends ORDataObject
 
     function set_date_to($dt)
     {
-        $this->date_to = $dt;        
-    }    
+        $this->date_to = $dt;
+    }
 }   // end of Form

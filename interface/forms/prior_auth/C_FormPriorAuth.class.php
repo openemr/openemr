@@ -70,7 +70,7 @@ class C_FormPriorAuth extends Controller
         if (empty($_POST['id'])) {
             addForm($GLOBALS['encounter'], "Prior Authorization", $this->prior_auth->id, "prior_auth", $GLOBALS['pid'], $_SESSION['userauthorized']);
             $_POST['process'] = "";
-        }    
+        }
         return;
     }
 }
