@@ -22,7 +22,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 }
 
 $type = $_GET['type'];
-$search = $_GET['search'];
+$search = $_GET['search'] ?? '';
 
 switch ($type) {
     case 'by-id':

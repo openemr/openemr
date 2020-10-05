@@ -4,7 +4,7 @@
  * Document Template Download Module.
  *
  * Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -144,22 +144,63 @@ function doSubs($s)
             $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
+        } elseif (keySearch($s, '{WitnessSignature}')) {
+            $sigfld = '<span>';
+            $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
+            $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{ParseAsHTML}')) {
             $html_flag = true;
             $s = keyReplace($s, "");
-        } elseif (keySearch($s, '{TextBox}')) {
+        } elseif (preg_match('/^\{(EncounterForm):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+            $formname = $matches[2];
+            $keyLength = strlen($matches[0]);
+            $sigfld = "<script>page.isFrameForm=1;page.lbfFormName=" . js_escape($formname) . "</script>";
+            $sigfld .= "<iframe id='lbfForm' class='lbfFrame' style='height:100vh;width:100%;border:0;'></iframe>";
+            $s = keyReplace($s, $sigfld);
+        } elseif (preg_match('/^\{(TextBox):([0-9][0-9])x([0-9][0-9][0-9])\}/', substr($s, $keyLocation), $matches)) {
+            $rows = $matches[2];
+            $cols = $matches[3];
+            $keyLength = strlen($matches[0]);
             $sigfld = '<span>';
-            $sigfld .= '<textarea class="templateInput" rows="3" cols="40" style="margin:2px auto;" data-textvalue="" onblur="templateText(this);"></textarea>';
+            $sigfld .= '<textarea class="templateInput" rows="' . attr($rows) . '" cols="' . attr($cols) . '" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);"></textarea>';
+            $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
+        } elseif (keySearch($s, '{TextBox}')) { // legacy 03by040
+            $sigfld = '<span>';
+            $sigfld .= '<textarea class="templateInput" rows="3" cols="40" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);"></textarea>';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{TextInput}')) {
             $sigfld = '<span>';
-            $sigfld .= '<input class="templateInput" type="text" style="margin:2px auto;" data-textvalue="" onblur="templateText(this);">';
+            $sigfld .= '<input class="templateInput" type="text" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{smTextInput}')) {
             $sigfld = '<span>';
-            $sigfld .= '<input class="templateInput" type="text" style="margin:2px auto;max-width:50px;" data-textvalue="" onblur="templateText(this);">';
+            $sigfld .= '<input class="templateInput" type="text" style="margin:2px 2px;max-width:50px;" data-textvalue="" onblur="templateText(this);">';
+            $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
+        } elseif (preg_match('/^\{(sizedTextInput):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+            $len = $matches[2];
+            $keyLength = strlen($matches[0]);
+            $sigfld = '<span>';
+            $sigfld .= '<input class="templateInput" type="text" style="margin:2px 2px;min-width:' . $len . ';" data-textvalue="" onblur="templateText(this);">';
+            $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
+        } elseif (keySearch($s, '{StandardDatePicker}')) {
+            $sigfld = '<span>';
+            $sigfld .= '<input class="templateInput" type="date" maxlength="10" size="10" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);">';
+            $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
+        } elseif (keySearch($s, '{DatePicker}')) {
+            $sigfld = '<span>';
+            $sigfld .= '<input class="templateInput datepicker" type="text" maxlength="10" size="10" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);">';
+            $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
+        } elseif (keySearch($s, '{DateTimePicker}')) {
+            $sigfld = '<span>';
+            $sigfld .= '<input class="templateInput datetimepicker" type="text" maxlength="18" size="18" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{CheckMark}')) {
@@ -176,21 +217,26 @@ function doSubs($s)
             $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" checked="checked" data-id="' . $grcnt . '" value="Unk">Unk</label>';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
+        } elseif (keySearch($s, '{TrueFalseRadioGroup}')) {
+            $grcnt++;
+            $sigfld = '<span class="tfuGroup" data-value="N/A" data-id="' . $grcnt . '" id="tfrgrp' . $grcnt . '">';
+            $sigfld .= '<label><input onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="True">' . xlt("True") . '</label>';
+            $sigfld .= '<label><input onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="False">' . xlt("False") . '</label>';
+            $sigfld .= '<label><input onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" checked="checked" data-id="' . $grcnt . '" value="Unk">Unk</label>';
+            $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{PatientName}')) {
             $tmp = $ptrow['fname'];
             if ($ptrow['mname']) {
                 if ($tmp) {
                     $tmp .= ' ';
                 }
-
                 $tmp .= $ptrow['mname'];
             }
-
             if ($ptrow['lname']) {
                 if ($tmp) {
                     $tmp .= ' ';
                 }
-
                 $tmp .= $ptrow['lname'];
             }
             $s = keyReplace($s, dataFixup($tmp, xl('Name')));
@@ -209,19 +255,15 @@ function doSubs($s)
             if (empty($ptphone)) {
                 $ptphone = $ptrow['phone_home'];
             }
-
             if (empty($ptphone)) {
                 $ptphone = $ptrow['phone_cell'];
             }
-
             if (empty($ptphone)) {
                 $ptphone = $ptrow['phone_biz'];
             }
-
             if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $ptphone, $tmp)) {
                 $ptphone = '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
             }
-
             $s = keyReplace($s, dataFixup($ptphone, xl('Phone')));
         } elseif (keySearch($s, '{PatientDOB}')) {
             $s = keyReplace($s, dataFixup(oeFormatShortDate($ptrow['DOB']), xl('Birth Date')));
@@ -237,30 +279,25 @@ function doSubs($s)
             // Prefer appointment comment if one is present.
             $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, array($patientid));
             foreach ($evlist as $tmp) {
-                if ($tmp['pc_pid'] == $pid && ! empty($tmp['pc_hometext'])) {
+                if ($tmp['pc_pid'] == $pid && !empty($tmp['pc_hometext'])) {
                     $cc = $tmp['pc_hometext'];
                 }
             }
-
             $s = keyReplace($s, dataFixup($cc, xl('Chief Complaint')));
         } elseif (keySearch($s, '{ReferringDOC}')) {
             $tmp = empty($ptrow['ur_fname']) ? '' : $ptrow['ur_fname'];
-            if (! empty($ptrow['ur_mname'])) {
+            if (!empty($ptrow['ur_mname'])) {
                 if ($tmp) {
                     $tmp .= ' ';
                 }
-
                 $tmp .= $ptrow['ur_mname'];
             }
-
-            if (! empty($ptrow['ur_lname'])) {
+            if (!empty($ptrow['ur_lname'])) {
                 if ($tmp) {
                     $tmp .= ' ';
                 }
-
                 $tmp .= $ptrow['ur_lname'];
             }
-
             $s = keyReplace($s, dataFixup($tmp, xl('Referer')));
         } elseif (keySearch($s, '{Allergies}')) {
             $tmp = generate_plaintext_field(array(
@@ -282,7 +319,6 @@ function doSubs($s)
             if ($groupLevel > 0) {
                 --$groupLevel;
             }
-
             $s = keyReplace($s, '');
         } elseif (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr($s, $keyLocation), $matches)) {
             // This is how we specify the separator between group items in a way that
@@ -303,23 +339,21 @@ function doSubs($s)
                 $formname,
                 $fieldid
             ));
-            if (! empty($frow)) {
+            if (!empty($frow)) {
                 $ldrow = sqlQuery("SELECT ld.field_value " . "FROM lbf_data AS ld, forms AS f WHERE " . "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " . "ld.form_id = f.form_id AND ld.field_id = ? " . "ORDER BY f.form_id DESC LIMIT 1", array(
                     $pid,
                     $encounter,
                     $formname,
                     $fieldid
                 ));
-                if (! empty($ldrow)) {
+                if (!empty($ldrow)) {
                     $currvalue = $ldrow['field_value'];
                     $title = $frow['title'];
                 }
-
                 if ($currvalue !== '') {
                     $data = generate_plaintext_field($frow, $currvalue);
                 }
             }
-
             $s = keyReplace($s, dataFixup($data, $title));
         } elseif (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $keyLocation), $matches)) {
             // This handles keys like {DEM:fieldid} and {HIS:fieldid}.
@@ -333,24 +367,23 @@ function doSubs($s)
                 $formname,
                 $fieldid
             ));
-            if (! empty($frow)) {
+            if (!empty($frow)) {
                 $tmprow = $formname == 'DEM' ? $ptrow : $hisrow;
                 if (isset($tmprow[$fieldid])) {
                     $currvalue = $tmprow[$fieldid];
                     $title = $frow['title'];
                 }
-
                 if ($currvalue !== '') {
                     $data = generate_plaintext_field($frow, $currvalue);
                 }
             }
-
             $s = keyReplace($s, dataFixup($data, $title));
         }
     } // End if { character found.
 
     return $s;
 }
+
 // Get patient demographic info. pd.ref_providerID
 $ptrow = sqlQuery("SELECT pd.*, " . "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, ur.title AS ur_title, ur.specialty AS ur_specialty " . "FROM patient_data AS pd " . "LEFT JOIN users AS ur ON ur.id = ? " . "WHERE pd.pid = ?", array($user, $pid));
 
@@ -373,7 +406,7 @@ $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/tem
 check_file_dir_name($form_filename);
 $templatepath = "$templatedir/$form_filename";
 // test if this is folder with template, if not, must be for a specific patient
-if (! file_exists($templatepath)) {
+if (!file_exists($templatepath)) {
     check_file_dir_name($pid);
     $templatepath = "$templatedir/" . $pid . "/$form_filename";
 }
@@ -384,6 +417,6 @@ $edata = doSubs($edata);
 if ($html_flag) { // return raw minified html template
     $html = trim(str_replace(["\r\n", "\r", "\n"], '', $edata));
 } else { // add br for lf in text template
-    $html = trim(str_replace(["\r\n", "\r", "\n"], '<br/>', $edata));
+    $html = trim(str_replace(["\r\n", "\r", "\n"], '<br />', $edata));
 }
 echo $html;

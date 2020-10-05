@@ -72,9 +72,11 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
     echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
 // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
-    echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
+    echo "<script>var msgSuccess='" . xlt("Updates Successful") . "';</script>";
     echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
-    Header::setupHeader(['no_main-theme', 'patientportal-style']);
+
+    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']);
+
     ?>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
@@ -105,6 +107,7 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
 
 <body class="p-0 m-0">
     <script>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
         $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script(
             "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(
             function() {
@@ -123,10 +126,10 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
             });
 
         function printaDoc(divName) {
-            divName = 'templatediv';
             flattenDocument();
-            var printContents = document.getElementById(divName).innerHTML;
-            var originalContents = document.body.innerHTML;
+            divName = 'templatediv';
+            let printContents = document.getElementById(divName).innerHTML;
+            let originalContents = document.body.innerHTML;
             document.body.innerHTML = printContents;
             window.print();
             document.body.innerHTML = originalContents;
@@ -135,12 +138,12 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
 
         function templateText(el) {
             $(el).data('textvalue', $(el).val());
-            $(el).attr("data-textvalue", $(el).val());
+        $(el).attr("data-textvalue", $(el).val())
             return false;
         }
 
         function templateCheckMark(el) {
-            if ($(el).data('value') == 'Yes') {
+            if ($(el).data('value') === 'Yes') {
                 $(el).data('value', 'No');
                 $(el).attr('data-value', 'No');
             } else {
@@ -154,6 +157,14 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
             var rid = $(el).data('id')
             $('#rgrp' + rid).data('value', $(el).val());
             $('#rgrp' + rid).attr('data-value', $(el).val());
+        $(el).prop('checked', true)
+        return false;
+    }
+
+    function tfTemplateRadio(el) {
+        var rid = $(el).data('id')
+        $('#tfrgrp' + rid).data('value', $(el).val());
+        $('#tfrgrp' + rid).attr('data-value', $(el).val());
             $(el).prop('checked', true);
             return false;
         }
@@ -167,9 +178,16 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
 
         function replaceRadioValues() {
             $('.ynuGroup').each(function() {
-                let gid = $(this).data('id');
-                let grpid = $(this).prop('id');
-                let rv = $('input:radio[name="ynradio' + gid + '"]:checked').val();
+            var gid = $(this).data('id');
+            var grpid = $(this).prop('id');
+            var rv = $('input:radio[name="ynradio' + gid + '"]:checked').val();
+            $(this).replaceWith(rv);
+        });
+
+        $('.tfuGroup').each(function () {
+            var gid = $(this).data('id');
+            var grpid = $(this).prop('id');
+            var rv = $('input:radio[name="tfradio' + gid + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
         }
@@ -178,10 +196,10 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
             $('.checkMark').each(function() {
                 var ckid = $(this).data('id');
                 var v = $('#' + ckid).data('value');
-                if (v) {
-                    $(this).replaceWith(v);
-                } else {
-                    $(this).replaceWith('No');
+            if (v === 'Yes')
+                $(this).replaceWith('[\u2713]')
+            else {
+                $(this).replaceWith("[ ]")
                 }
             });
         }
@@ -189,7 +207,7 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
         function restoreTextInputs() {
             $('.templateInput').each(function() {
                 var rv = $(this).data('textvalue');
-                $(this).val(rv);
+            $(this).val(rv)
             });
         }
 
@@ -200,23 +218,29 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
                 var value = $(this).data('value');
                 $("input[name=ynradio" + gid + "][value='" + value + "']").prop('checked', true);
             });
+
+        $('.tfuGroup').each(function () {
+            var gid = $(this).data('id');
+            var grpid = $(this).prop('id');
+            var value = $(this).data('value');
+            $("input[name=tfradio" + gid + "][value='" + value + "']").prop('checked', true);
+        });
         }
 
         function restoreCheckMarks() {
             $('.checkMark').each(function() {
                 var ckid = $(this).data('id');
-                if ($('#' + ckid).data('value') == 'Yes') {
+            if ($('#' + ckid).data('value') === 'Yes')
                     $('#' + ckid).prop('checked', true);
-                } else {
+            else
                     $('#' + ckid).prop('checked', false);
-                }
             });
         }
 
         function replaceSignatures() {
             $('.signature').each(function() {
                 let type = $(this).data('type');
-                if ($(this).attr('src') != signhere && $(this).attr('src')) {
+                if ($(this).attr('src') !== signhere && $(this).attr('src')) {
                     $(this).removeAttr('data-action');
                 }
                 if (!isPortal) {
@@ -256,6 +280,7 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
                     <li class="nav-item"><a class="nav-link text-primary" id="sendTemplate" href="#"><?php echo xlt('Send for Review'); ?></a></li>
                     <li class="nav-item"><a class="nav-link text-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to Category') . ' ' . text($catname); ?></a></li>
                     <li class="nav-item"><a class="nav-link text-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
+                    <li class="nav-item"><a class="nav-link text-primary" id="chartHistory" href="#"><?php echo xlt('Chart History'); ?></a></li>
                     <?php if (!$is_module) { ?>
                       <li class="nav-item">
                         <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
@@ -282,7 +307,11 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
                   <input type="hidden" name="handler" id="handler" value="download" />
                   <input type="hidden" name="status" id="status" value="Open" />
                 </form>
-                <div class="card-footer">
+            <div class="card-footer clearfix">
+                <span>
+                    <button id="dismissOnsiteDocumentButton" class="btn btn-primary float-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form');?></button>
+                </span>
+<!-- delete button is a separate form to prevent enter key from triggering a delete-->
                   <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
                     <fieldset>
                       <div class="form-group">
@@ -308,7 +337,7 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
             <a class="navbar-brand text-primary" href="#"><i class="fa fa-file-text-o">&nbsp;</i><?php echo xla('Pending') ?></a>
         </div>
         <ul class="nav nav-pills nav-pills-ovr mr-auto">
-            <?php require_once dirname(__FILE__) . '/../../lib/template_menu.php'; ?>
+            <?php require_once __DIR__ . '/../../lib/template_menu.php'; ?>
             <?php if (!$is_module) { ?>
                 <li class="nav-item px-1 py-1 py-md-0">
                     <a class="nav-link text-danger btn btn-outline-danger" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>

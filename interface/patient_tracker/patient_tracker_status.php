@@ -53,7 +53,7 @@ $theroom = '';
     </head>
 
 <?php
-if ($_POST['statustype'] != '') {
+if (!empty($_POST['statustype'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
