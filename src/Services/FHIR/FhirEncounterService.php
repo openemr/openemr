@@ -96,13 +96,14 @@ class FhirEncounterService extends FhirServiceBase
             $encounterResource->setClass($class);
         }
 
-        if (!empty($dataRecord['pc_catid'])) {
-                $type = new FHIRCodeableConcept();
-                $encounterType = $this->getEncounterType($dataRecord['pc_catid']);
-                $type->addCoding($encounterType);
-                $type->setText("Encounter for check up");
-                $encounterResource->addType($type);
-        }
+        // Encounter.type
+        $type = new FHIRCodeableConcept();
+        $type->addCoding(array(
+            "system" => "http://snomed.info/sct",
+            "code" => "185349003"
+        ));
+        $type->setText("Encounter for check up (procedure)");
+        $encounterResource->addType($type);
 
         if ($encode) {
             return json_encode($encounterResource);
@@ -129,18 +130,6 @@ class FhirEncounterService extends FhirServiceBase
         return $processingResult;
     }
 
-    // Based on category id setting the Encounter type code
-    //As currrently there is no identifying system sending the category id as code
-    //Need to be fixed once the system and corresponding code is in place.
-    public function getEncounterType($categoryId)
-    {
-        $encounterType = array(
-            "system" => "http://openemr.org/category_id",
-            "code" => $categoryId
-        );
-        return $encounterType;
-    }
-    
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
