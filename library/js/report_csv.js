@@ -42,7 +42,7 @@ function export_table_to_csv(html, filename) {
 
         for (let j = 0; j < cols.length; j++)
             row.push(cols[j].innerText);
-        csv.push(row.join(","));
+        csv.push(row.join("\t"));
     }
 
     // Download CSV
