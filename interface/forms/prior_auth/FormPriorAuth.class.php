@@ -150,4 +150,5 @@ class FormPriorAuth extends ORDataObject
     {
         $this->date_to = $dt;
     }
-}   // end of Form
+}
+// end of Form
