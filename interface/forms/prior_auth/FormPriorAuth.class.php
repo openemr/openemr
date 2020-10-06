@@ -12,8 +12,6 @@
 
  use OpenEMR\Common\ORDataObject\ORDataObject;
 
- require_once($srcdir . "/formatting.inc.php");
-
 /**
  * class PriorAuth
  *
