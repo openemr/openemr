@@ -10,7 +10,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\ORDataObject\ORDataObject;
+ use OpenEMR\Common\ORDataObject\ORDataObject;
+
+ require_once($srcdir . "/formatting.inc.php");
 
 /**
  * class PriorAuth
@@ -133,21 +135,21 @@ class FormPriorAuth extends ORDataObject
 
     function get_date_from()
     {
-        return $this->date_from;
+        return oeFormatShortDate($this->date_from);
     }
 
     function set_date_from($dt)
     {
-        $this->date_from = $dt;
+        $this->date_from = DateToYYYYMMDD($dt);
     }
 
     function get_date_to()
     {
-        return $this->date_to;
+        return oeFormatShortDate($this->date_to);
     }
 
     function set_date_to($dt)
     {
-        $this->date_to = $dt;
+        $this->date_to = DateToYYYYMMDD($dt);
     }
 }   // end of Form

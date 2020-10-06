@@ -9,7 +9,7 @@
 	*}
 <html>
 <head>
-<title>{xl t='Prior authorization'|text}</title>
+<title>{xlt t='Prior Authorization'|text}</title>
 {headerTemplate assets='datetime-picker'}
 
 {literal}
@@ -25,7 +25,7 @@
 		$('.datetimepicker').datetimepicker({
 			{/literal}
 			{php} $datetimepicker_timepicker = false; {/php}
-			{php} $datetimepicker_showhours = false; {/php}
+			{php} $datetimepicker_showseconds = false; {/php}
 			{php} $datetimepicker_formatInput = true; {/php}
 			{php} require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); {/php}
 			{literal}
@@ -52,11 +52,11 @@
 						    </div>	
 						    <div class="col-sm-4">
 							    <label for="date_from" class="col-form-label">{xlt t="From"}:</label>
-							    <input type='text' size='10' class='form-control datetimepicker' name='date_from' id='date_from' value='{$prior_auth->get_date_from()|date_format:"%Y-%m-%d"|attr}' />
+							    <input type='text' size='10' class='form-control datetimepicker' name='date_from' id='date_from' value='{$prior_auth->get_date_from()|attr}' />
 						    </div>
 						    <div class="col-sm-4">	
 							   <label for="date_to" class="col-form-label">{xlt t="To"}:</label>
-							   <input type='text' size='10' class='form-control datetimepicker' name='date_to' id='date_to' value='{$prior_auth->get_date_to()|date_format:"%Y-%m-%d"|attr}' />
+							   <input type='text' size='10' class='form-control datetimepicker' name='date_to' id='date_to' value='{$prior_auth->get_date_to()|attr}' />
 						    </div>
 						</div>
 					</div>	
