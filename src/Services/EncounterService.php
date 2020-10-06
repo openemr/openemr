@@ -42,6 +42,8 @@ class EncounterService extends BaseService
         parent::__construct('form_encounter');
         $this->uuidRegistry = new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]);
         $this->uuidRegistry->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::PROVIDER_TABLE]))->createMissingUuids();
         $this->encounterValidator = new EncounterValidator();
     }
 
