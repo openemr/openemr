@@ -9,7 +9,7 @@
 	*}
 <html>
 <head>
-<title>{xlt t='Prior Authorization'|text}</title>
+<title>{xlt t='Prior Authorization'}</title>
 {headerTemplate assets='datetime-picker'}
 
 {literal}
@@ -52,11 +52,11 @@
 						    </div>	
 						    <div class="col-sm-4">
 							    <label for="date_from" class="col-form-label">{xlt t="From"}:</label>
-							    <input type='text' size='10' class='form-control datetimepicker' name='date_from' id='date_from' value='{$prior_auth->get_date_from()|attr}' />
+							    <input type='text' size='10' class='form-control datetimepicker' name='date_from' id='date_from' value='{$prior_auth->get_date_from()|oeFormatShortDate|attr}' />
 						    </div>
 						    <div class="col-sm-4">	
 							   <label for="date_to" class="col-form-label">{xlt t="To"}:</label>
-							   <input type='text' size='10' class='form-control datetimepicker' name='date_to' id='date_to' value='{$prior_auth->get_date_to()|attr}' />
+							   <input type='text' size='10' class='form-control datetimepicker' name='date_to' id='date_to' value='{$prior_auth->get_date_to()|oeFormatShortDate|attr}' />
 						    </div>
 						</div>
 					</div>	

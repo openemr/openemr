@@ -133,21 +133,21 @@ class FormPriorAuth extends ORDataObject
 
     function get_date_from()
     {
-        return oeFormatShortDate($this->date_from);
+        return $this->date_from;
     }
 
     function set_date_from($dt)
     {
-        $this->date_from = DateToYYYYMMDD($dt);
+        $this->date_from = $dt;
     }
 
     function get_date_to()
     {
-        return oeFormatShortDate($this->date_to);
+        return $this->date_to;
     }
 
     function set_date_to($dt)
     {
-        $this->date_to = DateToYYYYMMDD($dt);
+        $this->date_to = $dt;
     }
 }   // end of Form
