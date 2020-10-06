@@ -93,16 +93,14 @@ class FhirConditionService extends FhirServiceBase
             )
         );
         $conditionResource->setClinicalStatus($clinical_Status);
-        $conditionCategory = new FHIRCodeableConcept();
-        $conditionCategory->addCoding(
+
+        $conditionResource->addCategory(
             array(
-                'system' => "http://terminology.hl7.org/CodeSystem/condition-category",
+                'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-category",
                 'code' => 'problem-list-item',
                 'display' => 'Problem List Item'
             )
         );
-        $conditionResource->addCategory($conditionCategory);
-
 
         if (isset($dataRecord['puuid'])) {
             $patient = new FHIRReference();
@@ -122,20 +120,18 @@ class FhirConditionService extends FhirServiceBase
         }
 
         $verificationCoding = array(
-            'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+            'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
             'code' => 'unconfirmed',
             'display' => 'Unconfirmed',
         );
         if (!empty($dataRecord['verification'])) {
-            $verificationStatus = new FHIRCodeableConcept();
             $verificationCoding = array(
-                'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
                 'code' => $dataRecord['verification'],
                 'display' => $dataRecord['verification_title']
             );
-            $verificationStatus->addCoding($verificationCoding);
         }
-        $conditionResource->setVerificationStatus($verificationStatus);
+        $conditionResource->setVerificationStatus($verificationCoding);
 
         if ($encode) {
             return json_encode($conditionResource);

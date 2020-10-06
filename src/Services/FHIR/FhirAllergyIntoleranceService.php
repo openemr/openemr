@@ -76,14 +76,14 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
             $clinicalStatus = "active";
         }
         $allergyIntoleranceResource->setClinicalStatus(array(
-            'system' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+            'sysytem' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
             'code' => $clinicalStatus,
             'display' => strtoupper($clinicalStatus),
         ));
 
         $allergyIntoleranceCategory = new FHIRAllergyIntoleranceCategory();
         $allergyIntoleranceCategory->setValue(array(
-            'system' => "http://hl7.org/fhir/allergy-intolerance-category",
+            'sysytem' => "http://hl7.org/fhir/allergy-intolerance-category",
             'code' => "medication",
             'display' => strtoupper("Medication"),
         ));
@@ -102,7 +102,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
             );
             $criticality = new FHIRAllergyIntoleranceCriticality();
             $criticality->setValue(array(
-                'system' => "http://hl7.org/fhir/allergy-intolerance-criticality",
+                'sysytem' => "http://hl7.org/fhir/allergy-intolerance-criticality",
                 'code' => $criticalityCode[$dataRecord['severity_al']]['code'],
                 'display' => $criticalityCode[$dataRecord['severity_al']]['display'],
             ));
@@ -133,13 +133,13 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
         }
 
         $verificationCoding = array(
-            'system' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+            'sysytem' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
             'code' => 'unconfirmed',
             'display' => 'Unconfirmed',
         );
         if (!empty($dataRecord['verification'])) {
             $verificationCoding = array(
-                'system' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                'sysytem' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
                 'code' => $dataRecord['verification'],
                 'display' => $dataRecord['verification_title']
             );
