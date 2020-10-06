@@ -146,7 +146,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                 e.preventDefault();
                 e.stopPropagation();
                 dlgopen('', '', 700, 650, '', '', {
-                    buttons: [{text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}],
                     allowResize: true,
                     allowDrag: true,
                     dialogId: '',

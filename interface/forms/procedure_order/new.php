@@ -424,8 +424,8 @@ function addProcLine(flag = false) {
 var rcvarname, targetElement, targetProcedure;
 
 function current_diagnoses(whereElement) {
-    targetProcedure = whereElement.parentElement.parentElement.previousElementSibling;
-    targetElement = whereElement.parentElement.nextElementSibling;
+    targetProcedure = whereElement.parentElement.parentElement.parentElement.previousElementSibling;
+    targetElement = whereElement.parentElement.parentElement.nextElementSibling;
     let title = <?php echo xlj("Diagnosis Codes History"); ?>;
     dlgopen('find_code_history.php', 'dxDialog', 'modal-mlg', 450, '', title, {
         buttons: [

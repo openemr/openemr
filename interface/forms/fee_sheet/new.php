@@ -1501,9 +1501,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
                                     <input type='hidden' name='form_alertmsg' value='<?php echo attr($alertmsg); ?>' />
                             </div>
-                            <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
-                            <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
-                            <input type='hidden' name='form_alertmsg' value='<?php echo attr($alertmsg); ?>' />
                         </div>
                     </div>
                 </form>

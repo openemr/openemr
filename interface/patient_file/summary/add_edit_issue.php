@@ -891,7 +891,7 @@ function getCodeText($code)
                         } ?>>
                             <label class="col-form-label" for="form_destination"><?php echo xlt('Destination'); ?>:</label>
                             <?php if (true) { ?>
-                                <input type='text' class='form-control' name='form_destination' id='form_destination' value='<?php echo attr($irow['destination']) ?>' style='width:100%' title='GP, delete care specialist, etc.' />
+                                <input type='text' class='form-control' name='form_destination' id='form_destination' value='<?php echo attr($irow['destination']) ?>' style='width:100%' title='GP, Secondary care specialist, etc.' />
                             <?php } else { // leave this here for now, please -- Rod
                                 ?>
                                 <?php echo rbinput('form_destination', '1', 'GP', 'destination') ?>&nbsp;
