@@ -67,30 +67,30 @@ class FhirConditionService extends FhirServiceBase
         $clinicalStatus = "inactive";
         $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/condition-clinical";
         if (
-            (!isset($data['enddate']) && isset($data['begdate']))
-            || isset($data['enddate']) && strtotime($data['enddate']) >= strtotime("now")
+            (!isset($dataRecord['enddate']) && isset($dataRecord['begdate']))
+            || isset($dataRecord['enddate']) && strtotime($dataRecord['enddate']) >= strtotime("now")
         ) {
             // Active if Only Begin Date isset OR End Date isnot expired
             $clinicalStatus = "active";
-            if ($data['occurrence'] == 1 || $data['outcome'] == 1) {
+            if ($dataRecord['occurrence'] == 1 || $dataRecord['outcome'] == 1) {
                 $clinicalStatus = "resolved";
-            } elseif ($data['occurrence'] > 1) {
+            } elseif ($dataRecord['occurrence'] > 1) {
                 $clinicalStatus = "recurrence";
             }
-        } elseif (isset($data['enddate']) && strtotime($data['enddate']) < strtotime("now")) {
+        } elseif (isset($dataRecord['enddate']) && strtotime($dataRecord['enddate']) < strtotime("now")) {
             //Inactive if End Date is expired
             $clinicalStatus = "inactive";
         } else {
             $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/data-absent-reason";
             $clinicalStatus = "unknown";
         }
-        $conditionResource->setClinicalStatus(
-            array(
-                'sysytem' => $clinicalSysytem,
-                'code' => $clinicalStatus,
-                'display' => strtoupper($clinicalStatus),
-            )
-        );
+        $clinical_Status = new FHIRCodeableConcept();
+        $clinical_Status->addCoding(array(
+            'system' => $clinicalSysytem,
+            'code' => $clinicalStatus,
+            'display' => ucwords($clinicalStatus),
+        ));
+        $conditionResource->setClinicalStatus($clinical_Status);
 
         $conditionResource->addCategory(
             array(
