@@ -84,11 +84,13 @@ class FhirConditionService extends FhirServiceBase
             $clinicalStatus = "unknown";
         }
         $clinical_Status = new FHIRCodeableConcept();
-        $clinical_Status->addCoding(array(
+        $clinical_Status->addCoding(
+            array(
             'system' => $clinicalSysytem,
             'code' => $clinicalStatus,
             'display' => ucwords($clinicalStatus),
-        ));
+            )
+        );
         $conditionResource->setClinicalStatus($clinical_Status);
 
         $conditionResource->addCategory(
