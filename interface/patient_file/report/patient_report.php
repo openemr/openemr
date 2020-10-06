@@ -445,9 +445,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
 
                                         foreach ($registry_form_name as $var) {
-                                            if ($toprint = $html_strings[$var]) {
-                                                foreach ($toprint as $var) {
-                                                    print $var;
+                                            if (!empty($html_strings[$var])) {
+                                                if ($toprint = $html_strings[$var]) {
+                                                    foreach ($toprint as $var) {
+                                                        print $var;
+                                                    }
                                                 }
                                             }
                                         }
@@ -563,7 +565,7 @@ $(function () {
     $(".genreport").click(function() { top.restoreSession(); document.report_form.pdf.value = 0; $("#report_form").submit(); });
     $(".genpdfrep").click(function() { top.restoreSession(); document.report_form.pdf.value = 1; $("#report_form").submit(); });
     $(".genportal").click(function() { top.restoreSession(); document.report_form.pdf.value = 2; $("#report_form").submit(); });
-    $("#genfullreport").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
+    $("#genfullreport").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/" . ($returnurl ?? ''); ?>'; });
     //$("#printform").click(function() { PrintForm(); });
     $(".issuecheckbox").click(function() { issueClick(this); });
 

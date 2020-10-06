@@ -55,8 +55,8 @@
         </tbody>
     </table>
     <div class="btn-group">
-        <input type="button" class="btn btn-primary" data-bind="click: add_review" value="<?php echo xla("Add");?>" />
-        <input class="cancel_dialog btn btn-secondary" type="button" data-bind="click: cancel_review" value="<?php echo xla("Cancel");?>" />
+        <input type="button" class="btn btn-primary btn-sm" data-bind="click: add_review" value="<?php echo xla("Add");?>" />
+        <input type="button" class="cancel_dialog btn btn-secondary btn-sm" data-bind="click: cancel_review" value="<?php echo xla("Cancel");?>" />
     </div>
     </div>
 </script>

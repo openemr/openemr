@@ -112,7 +112,7 @@ $(function () {
  $('#my_data_table').on('click', 'tbody tr', function () {
     var limit= <?php echo js_escape($limit); ?>;
     var target_element= <?php echo js_escape($target_element); ?>;
-    
+
     if(Object.values(oChosenIDs).length<limit || limit<=0){
     var jobj = JSON.parse(this.id.substring(4));
 
@@ -122,7 +122,7 @@ $(function () {
   <?php if ($what == 'codes') { ?>
     // this.id is of the form "CID|jsonstring".
     var codesel = jobj['code'].split('|');
-    
+
     selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description'], target_element, limit);
   <?php } elseif ($what == 'fields') { ?>
     selectField(jobj);
@@ -253,7 +253,7 @@ var SelectItem = function(jobj) {
             if ($what == 'codes') {
                 if (isset($allowed_codes)) {
                     if (count($allowed_codes) == 1) {
-                        echo "<div class='col'><input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly /></div>\n";
+                        echo "<div class='col'><input type='text' class='form-control' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly /></div>\n";
                     } else {
                         echo "<div class='col'><select name='form_code_type' onchange='oTable.fnDraw()'>\n";
                         foreach ($allowed_codes as $code) {
@@ -276,7 +276,7 @@ var SelectItem = function(jobj) {
                 echo "<input type='checkbox' name='form_include_inactive' value='1' onclick='oTable.fnDraw()' />" .
                 xlt('Include Inactive') . "\n";
                 echo "\n";
-                echo "<button class='btn btn-secondary btn-sm btn-delete' value='" . xla('Delete') . "' onclick='delcode()'>" . xla('Delete') . "</button>\n";
+                echo "<button class='btn btn-danger btn-sm btn-delete' value='" . xla('Delete') . "' onclick='delcode()'>" . xla('Delete') . "</button>\n";
                 echo "<select name='form_delcodes'>\n";
                 echo " <option value=''>" . xlt('All') . "</option>\n";
                 echo "</select>\n";
