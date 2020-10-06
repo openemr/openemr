@@ -103,6 +103,7 @@ class FhirEncounterService extends FhirServiceBase
             "code" => "185349003"
         ));
         $type->setText("Encounter for check up (procedure)");
+        $encounterResource->addType($type);
 
         if ($encode) {
             return json_encode($encounterResource);
