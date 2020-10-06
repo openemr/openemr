@@ -2242,3 +2242,19 @@ ALTER TABLE `ccda` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `ccda` (`uuid`);
 #EndIf
 
+#IfNotColumnTypeDefault form_prior_auth date datetime NULL
+ALTER TABLE `form_prior_auth` MODIFY `date` datetime NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `form_prior_auth` SET `date` = NULL WHERE `date` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfMissingColumn form_prior_auth date_from
+ALTER TABLE `form_prior_auth` ADD `date_from` date DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_prior_auth date_to
+ALTER TABLE `form_prior_auth` ADD `date_to` date DEFAULT NULL;
+#EndIf
+
