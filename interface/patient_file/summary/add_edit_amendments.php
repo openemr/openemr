@@ -89,8 +89,8 @@ if (isset($_POST['mode'])) {
     exit;
 }
 
-$amendment_id = ( $amendment_id ) ? $amendment_id : $_REQUEST['id'];
-if ($amendment_id) {
+$amendment_id = $amendment_id ?? ($_REQUEST['id'] ?? '');
+if (!empty($amendment_id)) {
     $query = "SELECT * FROM amendments WHERE amendment_id = ? ";
     $resultSet = sqlQuery($query, array($amendment_id));
     $amendment_date = $resultSet['amendment_date'];
@@ -105,7 +105,7 @@ if ($amendment_id) {
 // Check the ACL
 $haveAccess = AclMain::aclCheckCore('patients', 'trans');
 $onlyRead = ( $haveAccess ) ? 0 : 1;
-$onlyRead = ( $onlyRead || $amendment_status ) ? 1 : 0;
+$onlyRead = ( $onlyRead || (!empty($amendment_status)) ) ? 1 : 0;
 $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 
 ?>
@@ -168,24 +168,24 @@ $(function () {
                         <label><?php echo xlt('Requested Date'); ?></label>
                         <?php if (! $onlyRead) { ?>
                             <input type='text' size='10' class='form-control datepicker' name="amendment_date" id="amendment_date"
-                                value='<?php echo $amendment_date ? attr(oeFormatShortDate($amendment_date)) : attr(oeFormatShortDate()); ?>'
+                                value='<?php echo (!empty($amendment_date)) ? attr(oeFormatShortDate($amendment_date)) : attr(oeFormatShortDate()); ?>'
                             />
                         <?php } else { ?>
                             <input type='text' size='10' class='form-control' name="amendment_date" id="amendment_date" readonly
-                                value='<?php echo $amendment_date ? attr(oeFormatShortDate($amendment_date)) : attr(oeFormatShortDate()); ?>'
+                                value='<?php echo (!empty($amendment_date)) ? attr(oeFormatShortDate($amendment_date)) : attr(oeFormatShortDate()); ?>'
                             />
                         <?php } ?>
                     </div>
 
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Requested By'); ?></label>
-                        <?php echo generate_select_list("form_amendment_by", "amendment_from", $amendment_by, 'Amendment Request By', ' ', '', '', '', $customAttributes); ?>
+                        <?php echo generate_select_list("form_amendment_by", "amendment_from", ($amendment_by ?? ''), 'Amendment Request By', ' ', '', '', '', $customAttributes); ?>
                     </div>
 
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Request Description'); ?></label>
                         <textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="desc" class="form-control" name="desc" rows="4" cols="30"><?php
-                        if ($amendment_id) {
+                        if (!empty($amendment_id)) {
                             echo text($amendment_desc);
                         } else {
                             echo "";
@@ -195,13 +195,13 @@ $(function () {
 
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Request Status'); ?></label>
-                        <?php echo generate_select_list("form_amendment_status", "amendment_status", $amendment_status, 'Amendment Status', ' ', '', '', '', $customAttributes); ?>
+                        <?php echo generate_select_list("form_amendment_status", "amendment_status", ($amendment_status ?? ''), 'Amendment Status', ' ', '', '', '', $customAttributes); ?>
                     </div>
 
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Comments'); ?></label>
                         <textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="note" class="form-control" name="note" rows="4" cols="30"><?php
-                        if ($amendment_id) {
+                        if (!empty($amendment_id)) {
                             echo "";
                         } else {
                             echo xlt('New amendment request');
@@ -213,7 +213,7 @@ $(function () {
                     <input type="hidden" id="amendment_id" name="amendment_id" value="<?php echo attr($amendment_id); ?>"/>
                 </form>
             </div>
-            <?php if ($amendment_id) { ?>
+            <?php if (!empty($amendment_id)) { ?>
             <hr />
             <div class="col-12">
                 <h2><?php echo xlt("History") ; ?></h2>

@@ -932,8 +932,8 @@ function generate_form_field($frow, $currvalue)
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
             $option_id_esc = htmlspecialchars($option_id, ENT_QUOTES);
-            $restype = substr($avalue[$option_id], 0, 1);
-            $resnote = substr($avalue[$option_id], 2);
+            $restype = substr(($avalue[$option_id] ?? ''), 0, 1);
+            $resnote = substr(($avalue[$option_id] ?? ''), 2);
 
             // Added 5-09 by BM - Translate label if applicable
             echo "<tr><td>" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES) . "&nbsp;</td>";
@@ -1049,10 +1049,7 @@ function generate_form_field($frow, $currvalue)
         );
         // show the add button if user has access to correct list
         $inputValue = htmlspecialchars(xl('Add'), ENT_QUOTES);
-        if ($small_btn) {
-            $btnsm = " btn-sm";
-        }
-        $outputAddButton = "<div class='input-group-append'><input type='button' class='btn btn-primary" . $btnsm . " addtolist' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
+        $outputAddButton = "<div class='input-group-append'><input type='button' class='btn btn-primary addtolist' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
         $field_id_esc . "' value='$inputValue' $disabled /></div>";
         if (AclExtended::acoExist('lists', $list_id)) {
             // a specific aco exist for this list, so ensure access
@@ -1142,18 +1139,22 @@ function generate_form_field($frow, $currvalue)
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = oeFormatShortDate($tmp[2]);
+                $reslist = '';
                 break;
             case "2":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = "";
+                $reslist = '';
                 break;
             case "1":
                 $resnote = $tmp[0];
                 $resdate = $restype = "";
+                $reslist = '';
                 break;
             default:
                 $restype = $resdate = $resnote = "";
+                $reslist = '';
                 break;
         }
 
@@ -1904,18 +1905,22 @@ function generate_print_field($frow, $currvalue)
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = oeFormatShortDate($tmp[2]);
+                $reslist = '';
                 break;
             case "2":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = "";
+                $reslist = '';
                 break;
             case "1":
                 $resnote = $tmp[0];
                 $resdate = $restype = "";
+                $reslist = '';
                 break;
             default:
                 $restype = $resdate = $resnote = "";
+                $reslist = '';
                 break;
         }
 
@@ -2329,8 +2334,8 @@ function generate_display_field($frow, $currvalue)
         $s .= "<table class='table'>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
-            $restype = substr($avalue[$option_id], 0, 1);
-            $resnote = substr($avalue[$option_id], 2);
+            $restype = substr(($avalue[$option_id] ?? ''), 0, 1);
+            $resnote = substr(($avalue[$option_id] ?? ''), 2);
             if (empty($restype) && empty($resnote)) {
                 continue;
             }
@@ -2435,18 +2440,22 @@ function generate_display_field($frow, $currvalue)
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = oeFormatShortDate($tmp[2]);
+                $reslist = '';
                 break;
             case "2":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = "";
+                $reslist = '';
                 break;
             case "1":
                 $resnote = $tmp[0];
                 $resdate = $restype = "";
+                $reslist = '';
                 break;
             default:
                 $restype = $resdate = $resnote = "";
+                $reslist = '';
                 break;
         }
 
@@ -3612,7 +3621,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
         } elseif ($data_type == 28 || $data_type == 32) {
             // $_POST["$prefix$field_id"] is an date text fields with companion
             // radio buttons to be imploded into "notes|type|date".
-            $restype = $_POST["radio_{$field_id}"];
+            $restype = $_POST["radio_{$field_id}"] ?? '';
             if (empty($restype)) {
                 $restype = '0';
             }

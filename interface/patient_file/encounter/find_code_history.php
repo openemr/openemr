@@ -78,20 +78,6 @@ function get_history_codes($pid)
     <title><?php xlt("Find Code History"); ?></title>
     <meta charset="utf-8" />
     <?php Header::setupHeader(['opener']); ?>
-    <style>
-        body {
-            height: 100%;
-            width: 100%;
-        }
-        .tips {
-            display: none;
-        }
-        .loading {
-             position: relative;
-             top: 40vh;
-             background: var(--white);
-         }
-    </style>
     <script>
         const errorMsg = '' + <?php echo xlj("Error finding diagnosis element. Try again."); ?>;
 
@@ -149,18 +135,18 @@ function get_history_codes($pid)
                 setFormDx();
             };
             targetTipsButton.onclick = function () {
-                $("#tips").toggle();
+                $("#tips").toggleClass("d-none");
             };
             // search table to find a match for procedure we are seeking dx for.
             let src = opener.targetProcedure.children[1].value;
             let rows = $("#historyTable tr td").filter(":contains(" + src + ")");
             let i = 0;
-            while (i < rows.length) {
+            while (i < rows.length && src !== '') {
                 rows[i].innerHTML = '<mark>' + rows[i].innerHTML + '</mark>';
-                $(rows[i]).closest('tr').addClass('text-danger');
+                $(rows[i]).closest('tr').addClass('text-danger ');
                 i++;
             }
-            $('.loading').fadeOut();
+            $('.spinner-border').fadeOut();
             if (rows.length) {
                 // scroll to first match and make active
                 $(rows[0]).closest('tr').addClass('active');
@@ -171,19 +157,19 @@ function get_history_codes($pid)
 </head>
 
 <body>
-    <div class="container-fluid w-100 position-fixed" style="margin-right: 10px;">
+    <div class="container-fluid position-fixed">
         <div class="input-group bg-white">
             <div class="input-group-prepend">
-                <button class="btn btn-secondary" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
+                <button class="btn btn-danger" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
             </div>
             <input class='form-control text-danger' type='text' id='workingDx' title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
         </div>
-        <div id="tips" class="tips">
-            <section class="card panel-default">
+        <div id="tips" class="d-none">
+            <section class="card bg-warning">
                 <header class="card-heading card-heading-sm">
                     <h4 class="card-title"><?php echo xlt('Usage Tips') ?></h4>
                 </header>
-                <div class="card-body bg-warning">
+                <div class="card-body">
                     <ul>
                         <?php
                         echo "<li>" . xlt("This dialog is generated from patient problem diagnoses and the accumulated diagnoses of all past procedures.") . "</li>";
@@ -195,22 +181,24 @@ function get_history_codes($pid)
                         echo "<li>" . xlt("The legacy code finder is still available for codes not found in this finder or code list editing.") . "</li>";
                         ?>
                     </ul>
-                    <button class='btn btn-sm btn-success float-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss') ?></button>
+                    <button class='btn btn-sm btn-success float-right' onclick='$("#tips").toggleClass("d-none");return false;'><?php echo xlt('Dismiss') ?></button>
                 </div>
             </section>
         </div>
-        <div class="loading text-center"><i class="fa fa-sync fa-3x fa-spin"></i></div>
+        <div class="spinner-border" role="status">
+            <span class="sr-only"><?php echo xlt('Loading'); ?>...</span>
+        </div>
     </div>
     <div class="container-fluid">
-        <div style="margin-top: 45px;">
+        <div class="table-responsive mt-5">
             <table class="table table-sm table-hover" id="historyTable">
                 <thead>
-                <tr>
-                    <th><?php echo xlt('Origin'); ?></th>
-                    <th><?php echo xlt('Code'); ?></th>
-                    <th><?php echo xlt('Code Description'); ?></th>
-                    <th><?php echo xlt('Origin Description'); ?></th>
-                </tr>
+                    <tr>
+                        <th><?php echo xlt('Origin'); ?></th>
+                        <th><?php echo xlt('Code'); ?></th>
+                        <th><?php echo xlt('Code Description'); ?></th>
+                        <th><?php echo xlt('Origin Description'); ?></th>
+                    </tr>
                 </thead>
                 <tbody>
                 <?php
@@ -218,22 +206,28 @@ function get_history_codes($pid)
                 foreach ($dxcodes as $pc) {
                     $code = explode(':', $pc['code']);
                     $code[0] = text($code[0]);
-                    $code[1] = text($code[1]);
-                    echo "<tr>\n" .
-                        "<td>" . $pc['origin'] . "</td>\n" .
-                        "<td><button class='btn btn-sm btn-secondary' onclick='rtnCode(this)' " .
-                        " value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u class='text-danger'>" . $code[1] . "</u></button></td>\n" .
-                        "<td>" . text($pc['desc']) . "</td>\n" .
-                        "<td>" . text($pc['procedure']) . "</td>\n" .
-                        "</tr>\n";
-                }
-                ?>
+                    $code[1] = text($code[1]); ?>
+
+                    <tr>
+                        <td>
+                            <?php echo $pc['origin']; ?>
+                        </td>
+                        <td>
+                            <button class='btn btn-sm btn-secondary' onclick='rtnCode(this)' value='<?php echo attr($pc['code']); ?>'>
+                                <?php echo $code[0]; ?>:&nbsp;<u class='text-danger'><?php echo $code[1]; ?></u>
+                            </button>
+                        </td>
+                        <td>
+                            <?php echo text($pc['desc']); ?>
+                        </td>
+                        <td>
+                            <?php echo text($pc['procedure']); ?>
+                        </td>
+                    </tr>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
     </div>
-<script>
-
-</script>
 </body>
 </html>
