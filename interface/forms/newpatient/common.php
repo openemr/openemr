@@ -146,9 +146,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                 e.preventDefault();
                 e.stopPropagation();
                 dlgopen('', '', 700, 650, '', '', {
-
                     buttons: [{text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}],
-
                     allowResize: true,
                     allowDrag: true,
                     dialogId: '',
@@ -232,8 +230,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             #visit-details [class*="col-"],
             #visit-issues [class*="col-"] {
                 width: 100%;
-                text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ' : 'left '?> !Important;
+                text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ' : 'left '?> !important;
             }
+        }
     </style>
     <?php
     if ($viewmode) {
@@ -291,34 +290,33 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
     }
     ?>
 </head>
-<body class="body_top" <?php echo $body_javascript; ?>>
-    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
+<body <?php echo $body_javascript; ?>>
+    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?> mt-3">
         <div class="row">
             <div class="col-sm-12">
                 <!-- Required for the popup date selectors -->
                 <div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;"></div>
-                <div class="clearfix">
-                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-                </div>
+                <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
         </div>
         <form class="mt-3" id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'>
             <?php if ($viewmode && $mode !== "followup") { ?>
-                <input type=hidden name='mode' value='update' />
-                <input type=hidden name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>' />
+                <input type='hidden' name='mode' value='update' />
+                <input type='hidden' name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>' />
             <?php } else { ?>
                 <input type='hidden' name='mode' value='new' />
             <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
             <?php if ($mode === "followup") { ?>
-                <input type=hidden name='parent_enc_id' value='<?php echo attr($encounterId); ?>' />
+                <input type='hidden' name='parent_enc_id' value='<?php echo attr($encounterId); ?>' />
             <?php } ?>
 
             <fieldset>
                 <legend><?php echo xlt('Visit Details') ?>
                     <small>
-                        <?php echo $encounter_followup ? (xlt("Follow up for") . ": " . $encounter_followup . " Dated: " . $followup_date) : ''; ?></small>
+                        <?php echo $encounter_followup ? (xlt("Follow up for") . ": " . $encounter_followup . " Dated: " . $followup_date) : ''; ?>
+                    </small>
                 </legend>
                 <div id="visit-details" class="px-5">
                     <div class="form-row align-items-center">
@@ -437,8 +435,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         <?php
                         if (!$GLOBALS['gbl_visit_referral_source']) {
                             echo "style='display:none' ";
-                        } ?>
-                    >
+                        } ?>>
                         <div class="col-sm-2">
                             <label for="form_referral_source" class="text-right"><?php echo xlt('Referral Source'); ?>:</label>
                         </div>
@@ -449,7 +446,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                     <?php if ($GLOBALS['enable_group_therapy']) { ?>
                     <div class="form-group mx-auto mt-2" id="therapy_group_name" style="display: none">
                         <div class="col-sm-2">
-                            <label for="form_group" class="col-sm-2 text-right"><?php echo xlt('Group name'); ?>:</label>
+                            <label for="form_group" class="text-right"><?php echo xlt('Group name'); ?>:</label>
                         </div>
                         <div class="col-sm">
                             <input type='text' name='form_group' class='form-control' id="form_group" placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
@@ -496,7 +493,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         </div>
                         <div class="col-sm">
                             <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
-
                         </div>
                     </div>
                     <div class="form-row align-items-center mt-2">
