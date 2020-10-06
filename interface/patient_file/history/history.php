@@ -131,10 +131,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <!-- Demographics -->
             <div id="HIS">
                 <ul class="tabNav">
-                    <?php display_layout_tabs('HIS', $result, $result2); ?>
+                    <?php display_layout_tabs('HIS', $result, ($result2 ?? '')); ?>
                 </ul>
                 <div class="tabContainer">
-                    <?php display_layout_tabs_data('HIS', $result, $result2); ?>
+                    <?php display_layout_tabs_data('HIS', $result, ($result2 ?? '')); ?>
                 </div>
             </div>
         </div>

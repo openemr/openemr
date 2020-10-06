@@ -276,11 +276,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <!-- history tabs -->
                 <div id="HIS" class="float-none mt-3">
                     <ul class="tabNav" >
-                        <?php display_layout_tabs('HIS', $result, $result2); ?>
+                        <?php display_layout_tabs('HIS', $result, ($result2 ?? '')); ?>
                     </ul>
 
                     <div class="tabContainer">
-                        <?php display_layout_tabs_data_editable('HIS', $result, $result2); ?>
+                        <?php display_layout_tabs_data_editable('HIS', $result, ($result2 ?? '')); ?>
                     </div>
                 </div>
             </form>

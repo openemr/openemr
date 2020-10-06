@@ -901,10 +901,13 @@ function myLocalJS()
          */
         function refreshMe(fromTimer) {
 
-            if(typeof fromTimer === 'undefined' || !fromTimer) {
+            if (typeof fromTimer === 'undefined' || !fromTimer) {
                 //Show loader in the first loading or manual loading not by timer
                 $("#flb_table").html('');
                 $('#loader').show();
+                skip_timeout_reset = 0;
+            } else {
+                skip_timeout_reset = 1;
             }
 
             var startRequestTime = Date.now();
@@ -920,6 +923,7 @@ function myLocalJS()
                 form_patient_id: $("#form_patient_id").val(),
                 form_apptcat: $("#form_apptcat").val(),
                 kiosk: $("#kiosk").val(),
+                skip_timeout_reset: skip_timeout_reset,
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }).done(
                 function (data) {

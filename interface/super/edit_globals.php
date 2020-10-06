@@ -736,7 +736,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <?php $oemr_ui->oeBelowContainerDiv();?>
 </div>
 <?php
-$post_srch_desc = $_POST['srch_desc'];
+$post_srch_desc = $_POST['srch_desc'] ?? '';
 if (!empty($post_srch_desc) && $srch_item == 0) {
     echo "<script>alert(" . js_escape($post_srch_desc . " - " . xl('search term was not found, please try another search')) . ");</script>";
 }

@@ -832,7 +832,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         // increment pass target counter
                         $pass_target++;
                         // If report itemization is turned on, then record the "passed" item and set the flag
-                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                             insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
                             $temp_track_pass = 1;
                         }
