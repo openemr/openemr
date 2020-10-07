@@ -117,181 +117,165 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
 
 
     <script>
-    var mypcc = '1';
+        var mypcc = '1';
     </script>
     <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
     <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
     <script>
-    function CancelDistribute()
-    {//Used in the cancel button.Helpful while cancelling the distribution.
-       if(confirm(<?php echo xlj('Would you like to Cancel Distribution for this Patient?') ?>))
-        {
-           document.getElementById('hidden_patient_code').value='';
-           document.getElementById('mode').value='search';
-           top.restoreSession();
-           document.forms[0].submit();
-        }
-       else
-        return false;
-    }
-    function PostPayments()
-    {//Used in saving the allocation
-       if(CompletlyBlank())//Checks whether any of the allocation row is filled.
-        {
-         alert(<?php echo xlj('Fill the Row.'); ?>);
-         return false;
-        }
-       if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
-        {
-         return false;
-        }
-       PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
-       if(PostValue==1)
-        {
-         alert(<?php echo xlj('Cannot Post Payments.Undistributed is Negative.'); ?>);
-         return false;
-        }
-       if(confirm(<?php echo xlj('Would you like to Post Payments?'); ?>))
-        {
-           document.getElementById('mode').value='PostPayments';
-           top.restoreSession();
-           document.forms[0].submit();
-        }
-       else
-        return false;
-    }
-    function FinishPayments()
-    {//Used in finishig the allocation.Usually done when the amount gets reduced to zero.
-    //After this is pressed a confirmation screen comes,where you can edit if needed.
-       if(CompletlyBlank())//Checks whether any of the allocation row is filled.
-        {
-         alert(<?php echo xlj('Fill the Row.'); ?>);
-         return false;
-        }
-       if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
-        {
-         return false;
-        }
-       PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
-       if(PostValue==1)
-        {
-         alert(<?php echo xlj('Cannot Post Payments.Undistributed is Negative.'); ?>);
-         return false;
-        }
-       if(PostValue==2)
-        {
-           if(confirm(<?php echo xlj('Would you like to Post and Finish Payments?'); ?>))
-            {
-               UnappliedAmount=document.getElementById('TdUnappliedAmount').innerHTML*1;
-               if(confirm(<?php echo xlj('Undistributed is'); ?> + ' ' + UnappliedAmount +  '.' + '\n' + <?php echo xlj('Would you like the balance amount to apply to Global Account?'); ?>))
-                {
-                   document.getElementById('mode').value='FinishPayments';
-                   document.getElementById('global_amount').value='yes';
-                   top.restoreSession();
-                   document.forms[0].submit();
-                }
-               else
-                {
-                   document.getElementById('mode').value='FinishPayments';
-                   top.restoreSession();
-                   document.forms[0].submit();
-                }
-            }
-           else
-            return false;
-        }
-       else
-        {
-           if(confirm(<?php echo xlj('Would you like to Post and Finish Payments?'); ?>))
-            {
-               document.getElementById('mode').value='FinishPayments';
-               top.restoreSession();
-               document.forms[0].submit();
-            }
-           else
-            return false;
-        }
-
-    }
-    function CompletlyBlank()
-    {//Checks whether any of the allocation row is filled.
-     for(RowCount=1;;RowCount++)
-      {
-         if(!document.getElementById('Payment'+RowCount))
-          break;
-         else
-          {
-              if(document.getElementById('Allowed'+RowCount).value=='' && document.getElementById('Payment'+RowCount).value=='' && document.getElementById('AdjAmount'+RowCount).value=='' && document.getElementById('Deductible'+RowCount).value=='' && document.getElementById('Takeback'+RowCount).value=='' && document.getElementById('FollowUp'+RowCount).checked==false)
-               {
-
-               }
-               else
+        function CancelDistribute() {
+            // Used in the cancel button.Helpful while cancelling the distribution.
+            if (confirm(<?php echo xlj('Would you like to Cancel Distribution for this Patient?') ?>)) {
+                document.getElementById('hidden_patient_code').value='';
+                document.getElementById('mode').value='search';
+                top.restoreSession();
+                document.forms[0].submit();
+            } else {
                 return false;
-          }
-      }
-     return true;
-    }
-    function OnloadAction()
-    {//Displays message after saving to master table.
-     after_value=document.getElementById("after_value").value;
-     payment_id=document.getElementById('payment_id').value;
-     if(after_value=='distribute')
-      {
-      }
-     else if(after_value=='new_payment')
-      {
-       if(document.getElementById('TablePatientPortion'))
-        {
-           document.getElementById('TablePatientPortion').style.display='none';
-        }
-       if(confirm(<?php echo xlj('Successfully Saved.Would you like to Allocate?'); ?>))
-        {
-           if(document.getElementById('TablePatientPortion'))
-            {
-               document.getElementById('TablePatientPortion').style.display='';
-                document.getElementById('TablePatientPortion').scrollIntoView(false)
             }
         }
-      }
 
-    }
-    function ResetForm()
-    {//Resets form used in the 'Cancel Changes' button in the master screen.
-     document.forms[0].reset();
-     document.getElementById('TdUnappliedAmount').innerHTML='0.00';
-     document.getElementById('div_insurance_or_patient').innerHTML='&nbsp;';
-     CheckVisible('yes');//Payment Method is made 'Check Payment' and the Check box is made visible.
-     PayingEntityAction();//Paying Entity is made 'insurance' and Payment Category is 'Insurance Payment'
-    }
-    function FillUnappliedAmount()
-    {//Filling the amount
-     document.getElementById('TdUnappliedAmount').innerHTML=document.getElementById('payment_amount').value;
-    }
+        function PostPayments() {
+            // Used in saving the allocation
+            if (CompletlyBlank()) {
+                // Checks whether any of the allocation row is filled.
+                alert(<?php echo xlj('Fill the Row.'); ?>);
+                return false;
+            }
+            if (!CheckPayingEntityAndDistributionPostFor()) {
+                // Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
+                return false;
+            }
+            PostValue = CheckUnappliedAmount();
+            // Decides TdUnappliedAmount >0, or <0 or =0
+            if (PostValue == 1) {
+                alert(<?php echo xlj('Cannot Post Payments.Undistributed is Negative.'); ?>);
+                return false;
+            }
+            if (confirm(<?php echo xlj('Would you like to Post Payments?'); ?>)) {
+                document.getElementById('mode').value='PostPayments';
+                top.restoreSession();
+                document.forms[0].submit();
+            } else {
+                return false;
+            }
+        }
 
-    $(function () {
-       $('.datepicker').datetimepicker({
-            <?php $datetimepicker_timepicker = false; ?>
-            <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-       });
-    });
-    </script>
-    <script>
-    document.onclick=HideTheAjaxDivs;
+        function FinishPayments() {
+            // Used in finishig the allocation.Usually done when the amount gets reduced to zero.
+            // After this is pressed a confirmation screen comes,where you can edit if needed.
+            // Checks whether any of the allocation row is filled.
+            if (CompletlyBlank()) {
+                alert(<?php echo xlj('Fill the Row.'); ?>);
+                return false;
+            }
+            // Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
+            if (!CheckPayingEntityAndDistributionPostFor()){
+                return false;
+            }
+            PostValue = CheckUnappliedAmount();
+            // Decides TdUnappliedAmount >0, or <0 or =0
+            if (PostValue == 1) {
+                alert(<?php echo xlj('Cannot Post Payments.Undistributed is Negative.'); ?>);
+                return false;
+            }
+
+            if (PostValue == 2) {
+                if (confirm(<?php echo xlj('Would you like to Post and Finish Payments?'); ?>)) {
+                UnappliedAmount = document.getElementById('TdUnappliedAmount').innerHTML*1;
+                if(confirm(<?php echo xlj('Undistributed is'); ?> + ' ' + UnappliedAmount +  '.' + '\n' + <?php echo xlj('Would you like the balance amount to apply to Global Account?'); ?>)) {
+                    document.getElementById('mode').value='FinishPayments';
+                    document.getElementById('global_amount').value='yes';
+                    top.restoreSession();
+                    document.forms[0].submit();
+                } else {
+                    document.getElementById('mode').value='FinishPayments';
+                    top.restoreSession();
+                    document.forms[0].submit();
+                }
+                } else {
+                return false;
+               }
+            } else {
+                if (confirm(<?php echo xlj('Would you like to Post and Finish Payments?'); ?>)) {
+                    document.getElementById('mode').value='FinishPayments';
+                    top.restoreSession();
+                    document.forms[0].submit();
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        function CompletlyBlank() {
+            // Checks whether any of the allocation row is filled.
+            for (RowCount = 1;;RowCount++) {
+                if(!document.getElementById('Payment'+RowCount)) {
+                    break;
+                } else {
+                    if(document.getElementById('Allowed'+RowCount).value==''
+                        && document.getElementById('Payment'+RowCount).value==''
+                        && document.getElementById('AdjAmount'+RowCount).value==''
+                        && document.getElementById('Deductible'+RowCount).value==''
+                        && document.getElementById('Takeback'+RowCount).value==''
+                        && document.getElementById('FollowUp'+RowCount).checked==false) {
+
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function OnloadAction() {
+            // Displays message after saving to master table.
+            after_value = document.getElementById("after_value").value;
+            payment_id = document.getElementById('payment_id').value;
+            if (after_value === 'distribute') {
+
+            } else if (after_value=='new_payment') {
+                if (document.getElementById('TablePatientPortion')) {
+                    document.getElementById('TablePatientPortion').style.display = 'none';
+                }
+                if (confirm(<?php echo xlj('Successfully Saved.Would you like to Allocate?'); ?>)) {
+                    if (document.getElementById('TablePatientPortion')) {
+                        document.getElementById('TablePatientPortion').style.display = '';
+                        document.getElementById('TablePatientPortion').scrollIntoView(false);
+                    }
+                }
+            }
+        }
+
+        function ResetForm() {
+            // Resets form used in the 'Cancel Changes' button in the master screen.
+            document.forms[0].reset();
+            document.getElementById('TdUnappliedAmount').innerHTML = '0.00';
+            document.getElementById('div_insurance_or_patient').innerHTML = '&nbsp;';
+            CheckVisible('yes'); // Payment Method is made 'Check Payment' and the Check box is made visible.
+            PayingEntityAction(); // Paying Entity is made 'insurance' and Payment Category is 'Insurance Payment'
+        }
+
+        function FillUnappliedAmount(){
+            // Filling the amount
+            document.getElementById('TdUnappliedAmount').innerHTML = document.getElementById('payment_amount').value;
+        }
+
+        $(function () {
+            $('.datepicker').datetimepicker({
+                    <?php $datetimepicker_timepicker = false; ?>
+                    <?php $datetimepicker_showseconds = false; ?>
+                    <?php $datetimepicker_formatInput = true; ?>
+                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
+
+        document.onclick = HideTheAjaxDivs;
     </script>
     <style>
-    .class1 {
-        width: 125px;
-    }
-
-    @media only screen and (max-width: 768px) {
-        [class*="col-"] {
-            width: 100%;
-            text-align: left !important;
+        .class1 {
+            width: 125px;
         }
-    }
     </style>
     <title><?php echo xlt('New Payment'); ?></title>
     <?php
@@ -309,14 +293,14 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
-<body class="body_top" onload="OnloadAction()">
-    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
+<body onload="OnloadAction()">
+    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?> mt-3">
         <div class="row">
             <div class="col-sm-12">
                 <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
         </div>
-        <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light mb-4 p-4">
+        <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light mb-4 p-2">
             <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"> <span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="myNavbar">
                 <ul class="navbar-nav mr-auto">
@@ -341,10 +325,13 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                 } else {
                     echo 'return false;';
                 }?>" style="display:inline">
+
                     <fieldset>
+                        <div class="jumbotron py-4">
                         <?php
                             require_once("payment_master.inc.php"); //Check/cash details are entered here.
                         ?>
+                        </div>
                         <br />
                         <?php
                         if ($payment_id * 1 > 0) {
@@ -365,14 +352,14 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                             <br />
                             <div class="form-group clearfix">
-                            <div class="col-sm-12 text-left position-override">
-                                <br />
-                                <div class="btn-group" role="group">
-                                    <button class="btn btn-secondary btn-save" href="#" onclick="return PostPayments();"><?php echo xlt('Post Payments');?></button>
-                                    <button class="btn btn-secondary btn-save" href="#" onclick="return FinishPayments();"><?php echo xlt('Finish Payments');?></button>
-                                    <button class="btn btn-link btn-cancel" href="#" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
+                                <div class="col-sm-12 text-left position-override">
+                                    <br />
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-primary btn-save" href="#" onclick="return PostPayments();"><?php echo xlt('Post Payments');?></button>
+                                        <button class="btn btn-primary btn-save" href="#" onclick="return FinishPayments();"><?php echo xlt('Finish Payments');?></button>
+                                        <button class="btn btn-secondary btn-cancel" href="#" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
+                                    </div>
                                 </div>
-                            </div>
                             </div>
                                 <?php
                             }//if($CountIndexBelow>0)

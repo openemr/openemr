@@ -509,17 +509,25 @@ function process_form($ar)
         });
     </script>
 </head>
-<body class="body_top">
-    <br />
-    <p>
-    <h3><?php echo xlt('Billing queue results'); ?>:</h3><a href="#" id="close-link"><?php echo xlt('Close'); ?></a>
-    <ul>
-        <?php
-        foreach ($bill_info as $infoline) {
-            echo nl2br($infoline);
-        }
-        ?>
-    </ul>
-    </p>
+<body>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <h3><?php echo xlt('Billing queue results'); ?>:</h3>
+                <ul>
+                    <li>
+                        <?php
+                        foreach ($bill_info as $infoline) {
+                            echo nl2br($infoline);
+                        }
+                        ?>
+                    </li>
+                </ul>
+                <button class="btn btn-secondary btn-sm btn-cancel" id="close-link">
+                    <?php echo xlt('Close'); ?>
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
