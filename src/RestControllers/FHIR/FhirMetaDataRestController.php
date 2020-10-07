@@ -170,12 +170,11 @@ class FhirMetaDataRestController
         $capabilityStatement->addRest($restObj);
         $composerStr = file_get_contents($gbl::$webserver_root."/composer.json");
         $composerObj = json_decode($composerStr, true);
-        if(in_array("version", $composerObj)){
-            $software = new FHIRCapabilityStatementSoftware();
-            $software->setName("Open EMR");
-            $software->setVersion($composerObj["version"]);
-            $capabilityStatement->setSoftware($software);
-        }
+        $software = new FHIRCapabilityStatementSoftware();
+        $software->setName("OpenEMR");
+        $software->setVersion($composerObj["version"]);
+        $capabilityStatement->setSoftware($software);
+        
 
         // $resObj["rest"][0]["resource"]=$resources;
         // $resObj["date"] = date("Y-m-d",time());
