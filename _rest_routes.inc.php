@@ -41,6 +41,8 @@ use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
 
+
+
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
 //
@@ -595,6 +597,7 @@ use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseController;
+use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 
 RestConfig::$FHIR_ROUTE_MAP = array(
     "POST /fhir/auth" => function () {
@@ -603,6 +606,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         // sensitive data, so will not log the $data or $return for this endpoint
         RestConfig::apiLog();
         return $return;
+    },
+    "GET /fhir/metadata" => function () {
+        error_log("Route Meta");
+        RestConfig::authorization_check("patients", "demo");
+        return (new FhirMetaDataRestController())->getAll($_GET);
     },
     "POST /fhir/Patient" => function () {
         RestConfig::authorization_check("patients", "demo");
