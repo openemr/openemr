@@ -158,8 +158,8 @@ abstract class FhirServiceBase
     /*
     * public function to return search params
     */
-    public function getSearchParams(){
+    public function getSearchParams()
+    {
         return $this->loadSearchParameters();
     }
-
 }
