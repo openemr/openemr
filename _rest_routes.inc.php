@@ -610,7 +610,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/metadata" => function () {
         error_log("Route Meta");
         RestConfig::authorization_check("patients", "demo");
-        return (new FhirMetaDataRestController())->getAll($_GET);
+        return (new FhirMetaDataRestController())->getMetaData();
     },
     "POST /fhir/Patient" => function () {
         RestConfig::authorization_check("patients", "demo");

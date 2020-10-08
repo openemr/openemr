@@ -5,8 +5,6 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,12 +20,14 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCapabilityStatement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSoftware;
-
+use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementImplementation;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
 
 require_once(__DIR__ . '/../../../_rest_config.php');
 
+
 /**
- * Supports REST interactions with the FHIR patient resource
+ * Supports REST interactions with the FHIR METADATA
  */
 class FhirMetaDataRestController
 {
@@ -41,113 +41,111 @@ class FhirMetaDataRestController
         $this->fhirValidate = new FhirValidationService();
     }
 
-    
-
-    /**
-     * Queries for a single FHIR patient resource by FHIR id
-     * @param $fhirId The FHIR patient resource id (uuid)
-     * @returns 200 if the operation completes successfully
-     */
-    public function getOne($fhirId)
-    {
-        $processingResult = $this->fhirPatientService->getOne($fhirId, true);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+    protected function setSearchParams($resource,$paramsList){
+        $serviceClass = "OpenEMR\\Services\\FHIR\\Fhir".$resource."Service";
+        if(class_exists($serviceClass)){
+            $service = new $serviceClass;
+            foreach($service->getSearchParams() as $searchParam=>$searchFields){
+                $paramExists = false;
+                foreach($paramsList as $param){
+                    if(strcmp($param["name"],$searchParam) == 0){
+                        $paramExists = true;
+                    }
+                }
+                if(!$paramExists){
+                    $param = array(
+                        "name"=>$searchParam
+                    );
+                    array_push($paramsList,$param);
+                }
+                
+            }
+        }
+        return $paramsList;
+        // error_log(print_r($paramsList,TRUE));
     }
 
-    /**
-     * 
-     * 
-     * Returns CapabilityStatement FHIR resource 
-     * 
-     */
-    public function getAll($searchParams)
-    {
-        $gbl = \RestConfig::GetInstance();
+    protected function addRequestMethods($items,$methods){
+        $reqMethod = trim($items[0]," ");
+        if(strcmp($reqMethod,"GET") == 0){
+            if( sizeof($items)  == 4){
+                if(strcmp($items[3],":id") == 0 || strcmp($items[3],":uuid") == 0){
+                    $method = array(
+                        "code"=>"read"
+                    );
+                    array_push($methods,$method);
+                }
+            }
+            else{
+                $method = array(
+                    "code"=>"search-type"
+                );
+                array_push($methods,$method);
+            }
+        }
+        elseif (strcmp($reqMethod,"POST") == 0) {
+            $method = array(
+                "code"=>"insert"
+            );
+            array_push($methods,$method);
+        }
+        elseif (strcmp($reqMethod,"PUT") == 0) {
+            $method = array(
+                "code"=>"update"
+            );
+            array_push($methods,$method);
+        }
+        return $methods;
+    }
+
+
+    protected function getCapabilityRESTJSON($routes){
         $ignore = ["metadata","auth"];
         $resourcesHash = array();
-        foreach($gbl::$FHIR_ROUTE_MAP as $key=>$function){
+        foreach($routes as $key=>$function){
             $items  = explode("/",$key);
             $resource = $items[2];
             if(!in_array($resource, $ignore)){
-                $reqMethod = trim($items[0]," ");
                 if(!array_key_exists($resource,$resourcesHash)){
                     $resourcesHash[$resource] = array(
                         "methods" => [],
                         "params" => []
                     );
                 }
-                $serviceClass = "OpenEMR\\Services\\FHIR\\Fhir".$resource."Service";
-                if(class_exists($serviceClass)){
-                    $service = new $serviceClass;
-                    foreach($service->getSearchParams() as $searchParam=>$searchFields){
-                        $paramExists = false;
-                        foreach($resourcesHash[$resource]["params"] as $param){
-                            if(strcmp($param["name"],$searchParam) == 0){
-                                $paramExists = true;
-                            }
-                        }
-                        if(!$paramExists){
-                            $param = array(
-                                "name"=>$searchParam
-                            );
-                            array_push($resourcesHash[$resource]["params"],$param);
-                        }
-                        
-                    }
-                }
-                if(strcmp($reqMethod,"GET") == 0){
-                    if( sizeof($items)  == 4){
-                        if(strcmp($items[3],":id") == 0 || strcmp($items[3],":uuid") == 0){
-                            $method = array(
-                                "code"=>"read"
-                            );
-                            array_push($resourcesHash[$resource]["methods"],$method);
-                        }
-                    }
-                    else{
-                        $method = array(
-                            "code"=>"search-type"
-                        );
-                        array_push($resourcesHash[$resource]["methods"],$method);
-                    }
-                }
-                elseif (strcmp($reqMethod,"POST") == 0) {
-                    $method = array(
-                        "code"=>"insert"
-                    );
-                    array_push($resourcesHash[$resource]["methods"],$method);
-                }
-                elseif (strcmp($reqMethod,"PUT") == 0) {
-                    $method = array(
-                        "code"=>"update"
-                    );
-                    array_push($resourcesHash[$resource]["methods"],$method);
-                }
+                $resourcesHash[$resource]["params"] = $this->setSearchParams($resource,$resourcesHash[$resource]["params"]);
+                $resourcesHash[$resource]["methods"] = $this->addRequestMethods($items,$resourcesHash[$resource]["methods"]);
                 
-                
-            }
-           
+            }  
         }
         $resources = [];
         foreach($resourcesHash as $resource=>$data){
+          
             $resArray = array(
                 "type" => $resource,
                 "profile"=> "http://hl7.org/fhir/StructureDefinition/".$resource,
                 "interaction" => $data["methods"],
                 "searchParam"=>$data["params"]
             );
-            
             array_push($resources ,$resArray );
         }
-        $responseBody = '{
+        $restItem = array(
+            "resource" => $resources,
+            "mode"=>"server"
+        );
+        return $restItem;
+
+    }
+
+    protected function buildCapabilityStatement(){
+        $gbl = \RestConfig::GetInstance();
+        $routes = $gbl::$FHIR_ROUTE_MAP;
+        $serverRoot = $gbl::$webserver_root;
+
+        $initJSON = '{
             "resourceType": "CapabilityStatement",
             "status": "active",
             "publisher": "Not provided",
-            "kind": "instance",
-            "software": {
-                "name": "OpenEMR",
-                "version": "5.0.2"
-            },
+            "kind": "instance"
             "implementation": {
                 "description": "HAPI FHIR",
                 "url": "http://localhost/openemr/apis/fhir"
@@ -157,28 +155,42 @@ class FhirMetaDataRestController
                 "application/json"
             ]
         }';
-        $resObj = json_decode($responseBody,true);
+        $resObj = json_decode($initJSON,true);
         $capabilityStatement = new FHIRCapabilityStatement($resObj);
+        
+        $resturl = new FHIRUrl();
+        $resturl->setValue("http://" . $_SERVER['SERVER_NAME'].$gbl::$SITE.$gbl::$ROOT_URL."/fhir");
+        $implementation = new FHIRCapabilityStatementImplementation();
+        $implementation->setUrl($resturl);
+        $implementation->setDescription("OpenEMR FHIR API");
+        $capabilityStatement->setImplementation($implementation);
         $dateTime = new FHIRDateTime();
         $dateTime->setValue(date("Y-m-d",time()));
         $capabilityStatement->setDate($dateTime);
-        $restItem = array(
-            "resource" => $resources,
-            "mode"=>"server"
-        );
-        $restObj = new FHIRCapabilityStatementRest($restItem);
+        $restJSON = $this->getCapabilityRESTJSON($routes);
+        // error_log(print_r($restJSON,TRUE));
+        $restObj = new FHIRCapabilityStatementRest($restJSON);
         $capabilityStatement->addRest($restObj);
-        $composerStr = file_get_contents($gbl::$webserver_root."/composer.json");
+        $composerStr = file_get_contents($serverRoot."/composer.json");
         $composerObj = json_decode($composerStr, true);
         $software = new FHIRCapabilityStatementSoftware();
         $software->setName("OpenEMR");
         $software->setVersion($composerObj["version"]);
         $capabilityStatement->setSoftware($software);
-        
-
-        // $resObj["rest"][0]["resource"]=$resources;
-        // $resObj["date"] = date("Y-m-d",time());
         return $capabilityStatement;
-    
+
+    }
+
+
+
+    /**
+     * 
+     * 
+     * Returns Metadata in CapabilityStatement FHIR resource format
+     * 
+     */
+    public function getMetaData()
+    {
+        return $this->buildCapabilityStatement();
     }
 }
