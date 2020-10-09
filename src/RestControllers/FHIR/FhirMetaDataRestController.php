@@ -58,7 +58,7 @@ class FhirMetaDataRestController
                 if (!$paramExists) {
                     $param = array(
                         "name" => $searchParam,
-                        "type" =>"string"
+                        "type" => "string"
                     );
                     array_push($paramsList, $param);
                 }
@@ -114,9 +114,9 @@ class FhirMetaDataRestController
                         "params" => []
                     );
                 }
-                $resourcesHash[$resource]["params"] = $this->setSearchParams($resource,$resourcesHash[$resource]["params"]);
-                $resourcesHash[$resource]["methods"] = $this->addRequestMethods($items,$resourcesHash[$resource]["methods"]);
-            }  
+                $resourcesHash[$resource]["params"] = $this->setSearchParams($resource, $resourcesHash[$resource]["params"]);
+                $resourcesHash[$resource]["methods"] = $this->addRequestMethods($items, $resourcesHash[$resource]["methods"]);
+            }
         }
         $resources = [];
         foreach ($resourcesHash as $resource => $data) {
