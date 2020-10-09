@@ -22,6 +22,8 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatement
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSoftware;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementImplementation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRVersion;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 
 require_once(__DIR__ . '/../../../_rest_config.php');
 
@@ -55,7 +57,8 @@ class FhirMetaDataRestController
                 }
                 if (!$paramExists) {
                     $param = array(
-                        "name" => $searchParam
+                        "name" => $searchParam,
+                        "type" =>"string"
                     );
                     array_push($paramsList, $param);
                 }
@@ -111,9 +114,9 @@ class FhirMetaDataRestController
                         "params" => []
                     );
                 }
-                $resourcesHash[$resource]["params"] = $this->setSearchParams($resource, $resourcesHash[$resource]["params"]);
-                $resourcesHash[$resource]["methods"] = $this->addRequestMethods($items, $resourcesHash[$resource]["methods"]);
-            }
+                $resourcesHash[$resource]["params"] = $this->setSearchParams($resource,$resourcesHash[$resource]["params"]);
+                $resourcesHash[$resource]["methods"] = $this->addRequestMethods($items,$resourcesHash[$resource]["methods"]);
+            }  
         }
         $resources = [];
         foreach ($resourcesHash as $resource => $data) {
@@ -137,24 +140,14 @@ class FhirMetaDataRestController
         $gbl = \RestConfig::GetInstance();
         $routes = $gbl::$FHIR_ROUTE_MAP;
         $serverRoot = $gbl::$webserver_root;
-
-        $initJSON = '{
-            "resourceType": "CapabilityStatement",
-            "status": "active",
-            "publisher": "Not provided",
-            "kind": "instance"
-            "implementation": {
-                "description": "HAPI FHIR",
-                "url": "http://localhost/openemr/apis/fhir"
-            },
-            "fhirVersion": "4.0.1",
-            "format": [
-                "application/json"
-            ]
-        }';
-        $resObj = json_decode($initJSON, true);
-        $capabilityStatement = new FHIRCapabilityStatement($resObj);
-        
+        $capabilityStatement = new FHIRCapabilityStatement();
+        $capabilityStatement->setStatus("active");
+        $fhirVersion = new FHIRFHIRVersion();
+        $fhirVersion->setValue("4.0.1");
+        $capabilityStatement->setFhirVersion($fhirVersion);
+        $capabilityStatement->setKind("instance");
+        $capabilityStatement->setStatus("Not provided");
+        $capabilityStatement->addFormat(new FHIRCode("application/json"));
         $resturl = new FHIRUrl();
         $resturl->setValue("http://" . $_SERVER['SERVER_NAME'] . $gbl::$SITE . $gbl::$ROOT_URL . "/fhir");
         $implementation = new FHIRCapabilityStatementImplementation();
@@ -175,8 +168,6 @@ class FhirMetaDataRestController
         $capabilityStatement->setSoftware($software);
         return $capabilityStatement;
     }
-
-
 
     /**
      *
