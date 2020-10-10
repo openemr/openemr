@@ -251,7 +251,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                         const stg_load_id = `#${dbName}_stg_loading`;
                         $(stg_load_id).show();
                         let thisInterval;
-                        const parm = `db=${dbName}&newInstall=` + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).prop('file_checksum') + '&file_revision_date=' + $(this).prop('file_revision_date') + '&version=' + $(this).prop('version') + '&rf=' + $(this).prop('rf');
+                        const parm = `db=${dbName}&newInstall=` + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).attr('file_checksum') + '&file_revision_date=' + $(this).attr('file_revision_date') + '&version=' + $(this).attr('version') + '&rf=' + $(this).attr('rf');
                         const stg_dets_id = `#${dbName}_stage_details`;
 
                         $.ajax({
