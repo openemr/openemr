@@ -11,9 +11,10 @@ function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
         $lines = @file($GLOBALS['srcdir'] . "/../interface/forms/$directory/info.txt");
         if ($lines) {
             $name = $lines[0];
-            $category = $category ?? ($lines[1] ?? '');
+            $category = $category ?? ($lines[1] ?? 'Miscellaneous');
         } else {
             $name = $directory;
+            $category = "Miscellaneous";
         }
 
         return sqlInsert("insert into registry set
