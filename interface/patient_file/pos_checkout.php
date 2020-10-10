@@ -94,9 +94,9 @@ function receiptDetailLine($svcdate, $description, $amount, $quantity)
     echo " <tr>\n";
     echo "  <td>" . ($svcdate == $prevsvcdate ? '&nbsp;' : text(oeFormatShortDate($svcdate))) . "</td>\n";
     echo "  <td>" . text($description) . "</td>\n";
-    echo "  <td align='right'>" . text(oeFormatMoney($price)) . "</td>\n";
-    echo "  <td align='right'>" . text($quantity) . "</td>\n";
-    echo "  <td align='right'>" . text(oeFormatMoney($amount)) . "</td>\n";
+    echo "  <td class='text-right'>" . text(oeFormatMoney($price)) . "</td>\n";
+    echo "  <td class='text-right'>" . text($quantity) . "</td>\n";
+    echo "  <td class='text-right'>" . text(oeFormatMoney($amount)) . "</td>\n";
     echo " </tr>\n";
     $prevsvcdate = $svcdate;
 }
@@ -110,7 +110,7 @@ function receiptPaymentLine($paydate, $amount, $description = '')
     echo "  <td>" . text(oeFormatShortDate($paydate)) . "</td>\n";
     echo "  <td>" . xlt('Payment') . " " . text($description) . "</td>\n";
     echo "  <td colspan='2'>&nbsp;</td>\n";
-    echo "  <td align='right'>" . text(oeFormatMoney($amount)) . "</td>\n";
+    echo "  <td class='text-right'>" . text(oeFormatMoney($amount)) . "</td>\n";
     echo " </tr>\n";
 }
 
@@ -164,13 +164,12 @@ function generate_receipt($patient_id, $encounter = 0)
     $encrow = sqlQuery("SELECT invoice_refno FROM form_encounter WHERE " .
     "pid = ? AND encounter = ? LIMIT 1", array($patient_id,$encounter));
     $invoice_refno = $encrow['invoice_refno'];
-
-    // being deliberately echoed to indicate it is part of the php function generate_receipt
-    echo "<!DOCTYPE html>" . PHP_EOL;
-    echo "<html>" . PHP_EOL;
-    echo"<head>" . PHP_EOL;
     ?>
+    <!-- being deliberately echoed to indicate it is part of the php function generate_receipt -->
 
+    <!DOCTYPE html>
+    <html>
+    <head>
         <?php Header::setupHeader(['datetime-picker']);?>
         <title><?php echo xlt('Receipt for Payment'); ?></title>
         <script>
@@ -178,39 +177,29 @@ function generate_receipt($patient_id, $encounter = 0)
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
         $(function () {
-         var win = top.printLogSetup ? top : opener.top;
-         win.printLogSetup(document.getElementById('printbutton'));
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
         });
 
         // Process click on Print button.
         function printlog_before_print() {
-         var divstyle = document.getElementById('hideonprint').style;
-         divstyle.display = 'none';
+            var divstyle = document.getElementById('hideonprint').style;
+            divstyle.display = 'none';
         }
 
         // Process click on Delete button.
         function deleteme() {
-         dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id . "." . $encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
-         return false;
+            dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id . "." . $encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+            return false;
         }
 
         // Called by the deleteme.php window on a successful delete.
         function imdeleted() {
-         window.close();
+            window.close();
         }
 
         </script>
         <style>
-        @media only screen and (max-width: 768px) {
-            [class*="col-"] {
-            width: 100%;
-            text-align:left!Important;
-            }
-        }
-        .table {
-            margin: auto;
-            width: 90% !important;
-        }
         @media (min-width: 992px){
             .modal-lg {
                 width: 1000px !Important;
@@ -218,11 +207,11 @@ function generate_receipt($patient_id, $encounter = 0)
         }
         </style>
         <title><?php echo xlt('Patient Checkout'); ?></title>
-
     </head>
-    <body class="body_top">
-        <div class="container">
-            <div class= "row text-center">
+    <body>
+        <div class="container mt-3">
+            <div class="row text-center">
+                <p class="font-weight-bold">
                     <?php
                     if ($GLOBALS['receipts_by_provider'] && !empty($providerrow)) {
                         printProviderHeader($providerrow);
@@ -230,21 +219,22 @@ function generate_receipt($patient_id, $encounter = 0)
                         printFacilityHeader($frow);
                     } ?>
                     <?php
-                      echo xlt("Receipt Generated") . ":" . text(date(' F j, Y'));
+                    echo xlt("Receipt Generated") . ":" . text(date(' F j, Y'));
                     if ($invoice_refno) {
                         echo " " . xlt("Invoice Number") . ": " . text($invoice_refno) . " " . xlt("Service Date")  . ": " . text($svcdate);
                     }
                     ?>
+                </p>
             </div>
-            <div class= "row">
-                <div class= 'col-6 offset-lg-2'>
+            <div class="row">
+                <div class="col-6 offset-lg-2">
                     <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) ?><br />
                     <?php echo text($patdata['street']) ?><br />
                     <?php echo text($patdata['city']) . ', ' . text($patdata['state']) . ' ' . text($patdata['postal_code']) ?><br />
                 </div>
             </div>
-            <div class= "row ">
-                <div class= 'col-6 offset-lg-3'>
+            <div class="row">
+                <div class="col-6 offset-lg-3">
                     <table class="table">
                         <thead>
                             <tr>
@@ -256,15 +246,15 @@ function generate_receipt($patient_id, $encounter = 0)
                             </tr>
                         </thead>
                         <?php
-                          $charges = 0.00;
+                        $charges = 0.00;
 
-                            // Product sales
-                            $inres = sqlStatement("SELECT s.sale_id, s.sale_date, s.fee, " .
-                              "s.quantity, s.drug_id, d.name " .
-                              "FROM drug_sales AS s LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
-                              // "WHERE s.pid = '$patient_id' AND s.encounter = '$encounter' AND s.fee != 0 " .
-                              "WHERE s.pid = ? AND s.encounter = ? " .
-                              "ORDER BY s.sale_id", array($patient_id,$encounter));
+                        // Product sales
+                        $inres = sqlStatement("SELECT s.sale_id, s.sale_date, s.fee, " .
+                          "s.quantity, s.drug_id, d.name " .
+                          "FROM drug_sales AS s LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
+                          // "WHERE s.pid = '$patient_id' AND s.encounter = '$encounter' AND s.fee != 0 " .
+                          "WHERE s.pid = ? AND s.encounter = ? " .
+                          "ORDER BY s.sale_id", array($patient_id,$encounter));
                         while ($inrow = sqlFetchArray($inres)) {
                             $charges += sprintf('%01.2f', $inrow['fee']);
                             receiptDetailLine(
@@ -274,12 +264,13 @@ function generate_receipt($patient_id, $encounter = 0)
                                 $inrow['quantity']
                             );
                         }
-                            // Service and tax items
-                            $inres = sqlStatement("SELECT * FROM billing WHERE " .
-                              "pid = ? AND encounter = ? AND " .
-                              // "code_type != 'COPAY' AND activity = 1 AND fee != 0 " .
-                              "code_type != 'COPAY' AND activity = 1 " .
-                              "ORDER BY id", array($patient_id,$encounter));
+
+                        // Service and tax items
+                        $inres = sqlStatement("SELECT * FROM billing WHERE " .
+                          "pid = ? AND encounter = ? AND " .
+                          // "code_type != 'COPAY' AND activity = 1 AND fee != 0 " .
+                          "code_type != 'COPAY' AND activity = 1 " .
+                          "ORDER BY id", array($patient_id,$encounter));
                         while ($inrow = sqlFetchArray($inres)) {
                             $charges += sprintf('%01.2f', $inrow['fee']);
                             receiptDetailLine(
@@ -289,15 +280,16 @@ function generate_receipt($patient_id, $encounter = 0)
                                 $inrow['units']
                             );
                         }
-                            // Adjustments.
-                            $inres = sqlStatement("SELECT " .
-                              "a.code_type, a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
-                              "s.payer_id, s.reference, s.check_date, s.deposit_date " .
-                              "FROM ar_activity AS a " .
-                              "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
-                              "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
-                              "a.adj_amount != 0 " .
-                              "ORDER BY s.check_date, a.sequence_no", array($patient_id,$encounter));
+
+                        // Adjustments.
+                        $inres = sqlStatement("SELECT " .
+                          "a.code_type, a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
+                          "s.payer_id, s.reference, s.check_date, s.deposit_date " .
+                          "FROM ar_activity AS a " .
+                          "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
+                          "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
+                          "a.adj_amount != 0 " .
+                          "ORDER BY s.check_date, a.sequence_no", array($patient_id,$encounter));
                         while ($inrow = sqlFetchArray($inres)) {
                             $charges -= sprintf('%01.2f', $inrow['adj_amount']);
                             $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
@@ -356,7 +348,7 @@ function generate_receipt($patient_id, $encounter = 0)
                         </tr>
                         <tr>
                             <td>&nbsp;</td>
-                            <td><b><?php echo xlt('Balance Due'); ?></b></td>
+                            <td class="font-weight-bold"><?php echo xlt('Balance Due'); ?></td>
                             <td colspan='2'>&nbsp;</td>
                             <td class='text-right'><?php echo text(oeFormatMoney($charges, true)) ?></td>
                         </tr>
@@ -364,27 +356,25 @@ function generate_receipt($patient_id, $encounter = 0)
                 </div>
             </div>
             <br />
-            <div class= "row ">
-                <div class="form-group clearfix">
-                    <div class="col-sm-12 text-center" id="hideonprint">
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-secondary btn-print"  id='printbutton'><?php echo xlt('Print'); ?></button>
-                            <?php if (AclMain::aclCheckCore('acct', 'disc')) { ?>
-                                <button class="btn btn-secondary btn-undo" onclick='return deleteme();'><?php echo xlt('Undo Checkout'); ?></button>
-                            <?php } ?>
-                            <?php if ($details) { ?>
-                                <button class="btn btn-secondary btn-hide" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=0&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'"><?php echo xlt('Hide Details'); ?></button>
-                            <?php } else { ?>
-                                <button class="btn btn-secondary btn-show" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=1&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'"><?php echo xlt('Show Details'); ?></button>
-                            <?php } ?>
-                        </div>
+            <div class="row">
+                <div class="col-sm-12 mb-5" id="hideonprint">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-primary btn-print"  id='printbutton'><?php echo xlt('Print'); ?></button>
+                        <?php if (AclMain::aclCheckCore('acct', 'disc')) { ?>
+                            <button class="btn btn-secondary btn-undo" onclick='return deleteme();'><?php echo xlt('Undo Checkout'); ?></button>
+                        <?php } ?>
+                        <?php if ($details) { ?>
+                            <button class="btn btn-secondary btn-hide" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=0&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'"><?php echo xlt('Hide Details'); ?></button>
+                        <?php } else { ?>
+                            <button class="btn btn-secondary btn-show" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=1&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'"><?php echo xlt('Show Details'); ?></button>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
         </div><!--end of receipt container div-->
+    </body>
+    </html>
     <?php // echoing the closing tags for receipts
-        echo"</body>" . PHP_EOL;
-        echo "</html>" . PHP_EOL;
 } // end function generate_receipt()
 ?>
     <?php
@@ -414,21 +404,21 @@ function generate_receipt($patient_id, $encounter = 0)
         }
         echo " <tr>\n";
         echo "  <td>" . text(oeFormatShortDate($date));
-        echo "<input type='hidden' name='line[$lino][code_type]' value='" . attr($code_type) . "'>";
-        echo "<input type='hidden' name='line[$lino][code]' value='" . attr($code) . "'>";
-        echo "<input type='hidden' name='line[$lino][id]' value='" . attr($id) . "'>";
-        echo "<input type='hidden' name='line[$lino][description]' value='" . attr($description) . "'>";
-        echo "<input type='hidden' name='line[$lino][taxrates]' value='" . attr($taxrates) . "'>";
-        echo "<input type='hidden' name='line[$lino][price]' value='" . attr($price) . "'>";
-        echo "<input type='hidden' name='line[$lino][units]' value='" . attr($units) . "'>";
+        echo "<input type='hidden' name='line[$lino][code_type]' value='" . attr($code_type) . "' />";
+        echo "<input type='hidden' name='line[$lino][code]' value='" . attr($code) . "' />";
+        echo "<input type='hidden' name='line[$lino][id]' value='" . attr($id) . "' />";
+        echo "<input type='hidden' name='line[$lino][description]' value='" . attr($description) . "' />";
+        echo "<input type='hidden' name='line[$lino][taxrates]' value='" . attr($taxrates) . "' />";
+        echo "<input type='hidden' name='line[$lino][price]' value='" . attr($price) . "' />";
+        echo "<input type='hidden' name='line[$lino][units]' value='" . attr($units) . "' />";
         echo "</td>\n";
         echo "  <td>" . text($description) . "</td>";
-        echo "  <td align='right'>" . text($units) . "</td>";
-        echo "  <td align='right'><input type='text' name='line[$lino][amount]' " .
+        echo "  <td class='text-right'>" . text($units) . "</td>";
+        echo "  <td class='text-right'><input type='text' class='form-control' name='line[$lino][amount]' " .
            "value='" . attr($amount) . "' size='6' maxlength='8'";
         // Modifying prices requires the acct/disc permission.
         // if ($code_type == 'TAX' || ($code_type != 'COPAY' && !AclMain::aclCheckCore('acct','disc')))
-        echo " style='text-align:right;background-color:transparent' readonly";
+        echo "  readonly";
         // else echo " style='text-align:right' onkeyup='computeTotals()'";
         echo "></td>\n";
         echo " </tr>\n";
@@ -447,7 +437,7 @@ function generate_receipt($patient_id, $encounter = 0)
     // Print receipt header for facility
     function printFacilityHeader($frow)
     {
-        echo "<p><b>" . text($frow['name']) .
+        echo text($frow['name']) .
         "<br />" . text($frow['street']) .
         "<br />" . text($frow['city']) . ', ' . text($frow['state']) . ' ' . text($frow['postal_code']) .
         "<br />" . text($frow['phone']) .
@@ -458,7 +448,7 @@ function generate_receipt($patient_id, $encounter = 0)
     // Pring receipt header for Provider
     function printProviderHeader($pvdrow)
     {
-        echo "<p><b>" . text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " .
+        echo text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " .
         "<br />" . text($pvdrow['street']) .
         "<br />" . text($pvdrow['city']) . ', ' . text($pvdrow['state']) . ' ' . text($pvdrow['postal_code']) .
         "<br />" . text($pvdrow['phone']) .
@@ -720,122 +710,141 @@ function generate_receipt($patient_id, $encounter = 0)
     // and OK and Cancel buttons.
     ?>
 <!DOCTYPE html>
+    <html>
     <head>
-            <?php Header::setupHeader(['datetime-picker']);?>
-            <script>
+        <?php Header::setupHeader(['datetime-picker']);?>
+
+        <script>
             var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
             <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
             // This clears the tax line items in preparation for recomputing taxes.
             function clearTax(visible) {
-             var f = document.forms[0];
-             for (var lino = 0; true; ++lino) {
-              var pfx = 'line[' + lino + ']';
-              if (! f[pfx + '[code_type]']) break;
-              if (f[pfx + '[code_type]'].value != 'TAX') continue;
-              f[pfx + '[price]'].value = '0.00';
-              if (visible) f[pfx + '[amount]'].value = '0.00';
-             }
+                var f = document.forms[0];
+                for (var lino = 0; true; ++lino) {
+                    var pfx = 'line[' + lino + ']';
+                    if (! f[pfx + '[code_type]']) {
+                        break
+                    };
+                    if (f[pfx + '[code_type]'].value != 'TAX') {
+                        continue
+                    };
+                    f[pfx + '[price]'].value = '0.00';
+                    if (visible) {
+                        f[pfx + '[amount]'].value = '0.00'
+                    };
+                }
             }
 
             // For a given tax ID and amount, compute the tax on that amount and add it
             // to the "price" (same as "amount") of the corresponding tax line item.
             // Note the tax line items include their "taxrate" to make this easy.
             function addTax(rateid, amount, visible) {
-             if (rateid.length == 0) return 0;
-             var f = document.forms[0];
-             for (var lino = 0; true; ++lino) {
-              var pfx = 'line[' + lino + ']';
-              if (! f[pfx + '[code_type]']) break;
-              if (f[pfx + '[code_type]'].value != 'TAX') continue;
-              if (f[pfx + '[code]'].value != rateid) continue;
-              var tax = amount * parseFloat(f[pfx + '[taxrates]'].value);
-              tax = parseFloat(tax.toFixed(<?php echo js_escape($currdecimals); ?>));
-              var cumtax = parseFloat(f[pfx + '[price]'].value) + tax;
-              f[pfx + '[price]'].value  = cumtax.toFixed(<?php echo js_escape($currdecimals); ?>); // requires JS 1.5
-              if (visible) f[pfx + '[amount]'].value = cumtax.toFixed(<?php echo js_escape($currdecimals); ?>); // requires JS 1.5
-              if (isNaN(tax)) alert('Tax rate not numeric at line ' + lino);
-              return tax;
+                if (rateid.length == 0) {
+                    return 0
+                };
+                var f = document.forms[0];
+                for (var lino = 0; true; ++lino) {
+                    var pfx = 'line[' + lino + ']';
+                    if (! f[pfx + '[code_type]']) {
+                        break
+                    };
+                    if (f[pfx + '[code_type]'].value != 'TAX') {
+                        continue
+                    };
+                    if (f[pfx + '[code]'].value != rateid) {
+                        continue
+                    };
+                    var tax = amount * parseFloat(f[pfx + '[taxrates]'].value);
+                    tax = parseFloat(tax.toFixed(<?php echo js_escape($currdecimals); ?>));
+                    var cumtax = parseFloat(f[pfx + '[price]'].value) + tax;
+                    f[pfx + '[price]'].value  = cumtax.toFixed(<?php echo js_escape($currdecimals); ?>); // requires JS 1.5
+                    if (visible) {
+                        f[pfx + '[amount]'].value = cumtax.toFixed(<?php echo js_escape($currdecimals); ?>); // requires JS 1.5
+                    }
+                    if (isNaN(tax)) {
+                        alert('Tax rate not numeric at line ' + lino);
+                    }
+                return tax;
              }
              return 0;
             }
 
             // This mess recomputes the invoice total and optionally applies a discount.
             function computeDiscountedTotals(discount, visible) {
-             clearTax(visible);
-             var f = document.forms[0];
-             var total = 0.00;
-             for (var lino = 0; f['line[' + lino + '][code_type]']; ++lino) {
-              var code_type = f['line[' + lino + '][code_type]'].value;
-              // price is price per unit when the form was originally generated.
-              // By contrast, amount is the dynamically-generated discounted line total.
-              var price = parseFloat(f['line[' + lino + '][price]'].value);
-              if (isNaN(price)) alert('Price not numeric at line ' + lino);
-              if (code_type == 'COPAY' || code_type == 'TAX') {
-               // This works because the tax lines come last.
-               total += parseFloat(price.toFixed(<?php echo js_escape($currdecimals); ?>));
-               continue;
-              }
-              var units = f['line[' + lino + '][units]'].value;
-              var amount = price * units;
-              amount = parseFloat(amount.toFixed(<?php echo js_escape($currdecimals); ?>));
-              if (visible) f['line[' + lino + '][amount]'].value = amount.toFixed(<?php echo js_escape($currdecimals); ?>);
-              total += amount;
-              var taxrates  = f['line[' + lino + '][taxrates]'].value;
-              var taxids = taxrates.split(':');
-              for (var j = 0; j < taxids.length; ++j) {
-               addTax(taxids[j], amount, visible);
-              }
-             }
-             return total - discount;
+                clearTax(visible);
+                var f = document.forms[0];
+                var total = 0.00;
+                for (var lino = 0; f['line[' + lino + '][code_type]']; ++lino) {
+                    var code_type = f['line[' + lino + '][code_type]'].value;
+                    // price is price per unit when the form was originally generated.
+                    // By contrast, amount is the dynamically-generated discounted line total.
+                    var price = parseFloat(f['line[' + lino + '][price]'].value);
+                    if (isNaN(price)) {
+                        alert('Price not numeric at line ' + lino);
+                    }
+                    if (code_type == 'COPAY' || code_type == 'TAX') {
+                        // This works because the tax lines come last.
+                        total += parseFloat(price.toFixed(<?php echo js_escape($currdecimals); ?>));
+                        continue;
+                    }
+                    var units = f['line[' + lino + '][units]'].value;
+                    var amount = price * units;
+                    amount = parseFloat(amount.toFixed(<?php echo js_escape($currdecimals); ?>));
+                    if (visible) {
+                        f['line[' + lino + '][amount]'].value = amount.toFixed(<?php echo js_escape($currdecimals); ?>);
+                    }
+                    total += amount;
+                    var taxrates  = f['line[' + lino + '][taxrates]'].value;
+                    var taxids = taxrates.split(':');
+                    for (var j = 0; j < taxids.length; ++j) {
+                        addTax(taxids[j], amount, visible);
+                    }
+                }
+                return total - discount;
             }
 
             // Recompute displayed amounts with any discount applied.
             function computeTotals() {
-             var f = document.forms[0];
-             var discount = parseFloat(f.form_discount.value);
-             if (isNaN(discount)) discount = 0;
-            <?php if (!$GLOBALS['discount_by_money']) { ?>
-             // This site discounts by percentage, so convert it to a money amount.
-             if (discount > 100) discount = 100;
-             if (discount < 0  ) discount = 0;
-             discount = 0.01 * discount * computeDiscountedTotals(0, false);
-            <?php } ?>
-             var total = computeDiscountedTotals(discount, true);
-             f.form_amount.value = total.toFixed(<?php echo js_escape($currdecimals); ?>);
-             return true;
+                var f = document.forms[0];
+                var discount = parseFloat(f.form_discount.value);
+                if (isNaN(discount)) {
+                    discount = 0;
+                }
+                <?php if (!$GLOBALS['discount_by_money']) { ?>
+                // This site discounts by percentage, so convert it to a money amount.
+                if (discount > 100) {
+                    discount = 100;
+                }
+                if (discount < 0) {
+                    discount = 0;
+                }
+                discount = 0.01 * discount * computeDiscountedTotals(0, false);
+                <?php } ?>
+                var total = computeDiscountedTotals(discount, true);
+                f.form_amount.value = total.toFixed(<?php echo js_escape($currdecimals); ?>);
+                return true;
             }
 
             $(function () {
-             $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
-                <?php $datetimepicker_showseconds = false; ?>
-                <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-             });
+                $('.datepicker').datetimepicker({
+                   <?php $datetimepicker_timepicker = false; ?>
+                   <?php $datetimepicker_showseconds = false; ?>
+                   <?php $datetimepicker_formatInput = false; ?>
+                   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                });
             });
-
-            </script>
-            <style>
-                @media only screen and (max-width: 768px) {
-                    [class*="col-"] {
-                    width: 100%;
-                    text-align:left!Important;
-                    }
+        </script>
+        <style>
+            @media (min-width: 992px){
+                .modal-lg {
+                    width: 1000px !Important;
                 }
-                .table {
-                    margin: auto;
-                    width: 90% !important;
-                }
-                @media (min-width: 992px){
-                    .modal-lg {
-                        width: 1000px !Important;
-                    }
-                }
-            </style>
-            <title><?php echo xlt('Patient Checkout'); ?></title>
+            }
+        </style>
+        <title><?php echo xlt('Patient Checkout'); ?></title>
     <?php
     $arrOeUiSettings = array(
         'heading_title' => xl('Patient Checkout'),
@@ -852,7 +861,7 @@ function generate_receipt($patient_id, $encounter = 0)
     ?>
     </head>
     <body>
-        <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+        <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
             <div class="row">
                 <div class="col-sm-12">
                     <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
@@ -862,17 +871,18 @@ function generate_receipt($patient_id, $encounter = 0)
                 <div class="col-sm-12">
                     <form action='pos_checkout.php' method='post'>
                         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                        <input name='form_pid' type='hidden' value='<?php echo attr($patient_id) ?>'>
+                        <input name='form_pid' type='hidden' value='<?php echo attr($patient_id) ?>' />
                         <fieldset>
                             <legend><?php echo xlt('Item Details'); ?></legend>
-                            <div class= "table-responsive">
-                                <table class = "table">
+                            <div class="table-responsive">
+                                <table class="table">
                                     <tr>
-                                        <td><b><?php echo xlt('Date'); ?></b></td>
-                                        <td><b><?php echo xlt('Description'); ?></b></td>
-                                        <td align='right'><b><?php echo xlt('Qty'); ?></b></td>
-                                        <td align='right'><b><?php echo xlt('Amount'); ?></b></td>
-                                    </tr><?php
+                                        <td class="font-weight-bold"><?php echo xlt('Date'); ?></td>
+                                        <td class="font-weight-bold"><?php echo xlt('Description'); ?></td>
+                                        <td class="font-weight-bold text-right"><?php echo xlt('Qty'); ?></td>
+                                        <td class="font-weight-bold text-right"><?php echo xlt('Amount'); ?></td>
+                                    </tr>
+                                    <?php
                                     $inv_encounter = '';
                                     $inv_date      = '';
                                     $inv_provider  = 0;
@@ -1026,7 +1036,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                     <label class="control-label" for="form_discount"><?php echo $GLOBALS['discount_by_money'] ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
                                 </div>
                                 <div class="col-3">
-                                    <input maxlength='8' name='form_discount' id='form_discount' onkeyup='computeTotals()' class= 'form-control' type='text' value=''>
+                                    <input maxlength='8' name='form_discount' id='form_discount' onkeyup='computeTotals()' class= 'form-control' type='text' value='' />
                                 </div>
                             </div>
                             <div class="col-12 oe-custom-line">
@@ -1053,7 +1063,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                     <label class="control-label" for="form_source"><?php echo xlt('Check/Reference Number'); ?>:</label>
                                 </div>
                                 <div class="col-3">
-                                    <input name='form_source' id='form_source' class= 'form-control' type='text' value=''>
+                                    <input name='form_source' id='form_source' class= 'form-control' type='text' value='' />
                                 </div>
                             </div>
                             <div class="col-12 oe-custom-line">
@@ -1061,7 +1071,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                     <label class="control-label" for="form_amount"><?php echo xlt('Amount Paid'); ?>:</label>
                                 </div>
                                 <div class="col-3">
-                                    <input name='form_amount' id='form_amount'class='form-control' type='text' value='0.00'>
+                                    <input name='form_amount' id='form_amount'class='form-control' type='text' value='0.00' />
                                 </div>
                             </div>
                             <div class="col-12 oe-custom-line">
@@ -1069,7 +1079,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                     <label class="control-label" for="form_date"><?php echo xlt('Posting Date'); ?>:</label>
                                 </div>
                                 <div class="col-3">
-                                    <input class='form-control datepicker' id='form_date' name='form_date' title='yyyy-mm-dd date of service' type='text' value='<?php echo attr($inv_date) ?>'>
+                                    <input class='form-control datepicker' id='form_date' name='form_date' title='yyyy-mm-dd date of service' type='text' value='<?php echo attr($inv_date) ?>' />
                                 </div>
                             </div>
                             <?php
@@ -1105,9 +1115,9 @@ function generate_receipt($patient_id, $encounter = 0)
                         <div class="form-group">
                             <div class="col-sm-12 text-left position-override">
                                 <div class="btn-group" role="group">
-                                    <button type='submit' class="btn btn-secondary btn-save"  name='form_save' id='form_save' value='save'><?php echo xlt('Save');?></button>
+                                    <button type='submit' class="btn btn-primary btn-save" name='form_save' id='form_save' value='save'><?php echo xlt('Save');?></button>
                                     <?php if (empty($_GET['framed'])) { ?>
-                                    <button type='button' class="btn btn-link btn-cancel" onclick='window.close()'><?php echo xlt('Cancel'); ?></button>
+                                    <button type='button' class="btn btn-secondary btn-cancel" onclick='window.close()'><?php echo xlt('Cancel'); ?></button>
                                     <?php } ?>
                                     <input type='hidden' name='form_provider'  value='<?php echo attr($inv_provider)  ?>' />
                                     <input type='hidden' name='form_payer'     value='<?php echo attr($inv_payer)     ?>' />
@@ -1143,6 +1153,6 @@ function generate_receipt($patient_id, $encounter = 0)
                     }
                 } // end if ($gcac_related_visit)
                 ?>
-            </script>
+        </script>
     </body>
 </html>

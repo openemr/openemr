@@ -37,8 +37,8 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
     <?php } ?>
 </head>
 <!-- style for OpenEMR color -->
-<body class='body_top'>
-    <div class="container">
+<body>
+    <div class="container mt-3">
         <div class="row">
             <div class="col-sm-12">
                 <div class="clearfix">
@@ -75,7 +75,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                 </li>
             </ul>
 
-            <div class="tab-content" id="nav-tabContent">
+            <div class="tab-content jumbotron py-4" id="nav-tabContent">
                 <!-- New Files Section -->
                 <div class="tab-pane fade show active" id="nav-newfiles" role="tabpanel" aria-labelledby="nav-newfiles-tab">
                     <div class="container">
@@ -88,8 +88,12 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                         <label class="custom-file-label"><?php echo xlt("Choose file"); ?></label>
                                         <input type="file" class="custom-file-input" id="uplmulti" name="fileUplMulti[]" multiple />
                                         <input type="hidden" name="NewFiles" form="formupl" value="ProcessNew" />
-                                        <input type="submit" class="btn btn-primary" id="uplsubmit" name="upl_submit" form="formupl" value="<?php echo xla("Submit"); ?>" />
-                                        <input type="reset" class="btn btn-secondary" id="uplreset" name="upl_reset" form="formupl" value="<?php echo xla("Reset"); ?>" />
+                                        <div class="btn-group mt-3">
+                                            <button type="submit" class="btn btn-primary btn-add" id="uplsubmit" name="upl_submit" form="formupl" value="<?php echo xla("Submit"); ?>">
+                                                <?php echo xlt("Submit"); ?>
+                                            </button>
+                                            <input type="reset" class="btn btn-secondary" id="uplreset" name="upl_reset" form="formupl" value="<?php echo xla("Reset"); ?>" />
+                                        </div>
                                     </div>
                                 </form>
                             </div>
@@ -160,8 +164,10 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                                 <input type="text" size="10" class="datepicker" name="csv_date_end" id="caldte2" value="" title="<?php echo xla('yyyy-mm-dd End Date'); ?>" />
                                             </td>
                                             <td class='text-left'>
-                                                <input type="hidden" name="csvShowTable" form="formcsvtables" value="gettable">
-                                                <input id="csvshow" type="submit" class="btn btn-primary" name="csv_show" form="formcsvtables" value="<?php echo xla("Submit"); ?>" />
+                                                <input type="hidden" name="csvShowTable" form="formcsvtables" value="gettable" />
+                                                <button type="button" class="btn btn-primary btn-add" id="csvshow" name="csv_show" form="formcsvtables" value="<?php echo xla("Submit"); ?>">
+                                                    <?php echo xlt("Submit"); ?>
+                                                </button>
                                             </td>
                                         </tr>
                                     </table>
@@ -181,7 +187,11 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                         </tr>
                                         <tr>
                                             <td><input id="histenctr" type="text" class="form-control" size=10 name="hist_enctr" value="" /></td>
-                                            <td><input id="histsbmt" type="submit" class="btn btn-primary" name="hist_sbmt" form="formcsvhist" value="<?php echo xla("Submit"); ?>" /></td>
+                                            <td>
+                                                <button type="submit" class="btn btn-primary btn-add" id="histsbmt" name="hist_sbmt" form="formcsvhist" value="<?php echo xla("Submit"); ?>">
+                                                    <?php echo xlt("Submit"); ?>
+                                                </button>
+                                            </td>
                                         </tr>
                                     </table>
                                 </form>
@@ -215,8 +225,8 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                         </tr>
                                         <tr>
                                             <td class='text-left'>
-                                                <input type="hidden" name="viewx12Files" value="view_x12">
-                                                <input type="checkbox" id="x12htm" name="x12_html" value="html"  />
+                                                <input type="hidden" name="viewx12Files" value="view_x12" />
+                                                <input type="checkbox" id="x12htm" name="x12_html" value="html" />
                                             </td>
                                             <td class='text-left'>
                                                 <div class="custom-file">
@@ -225,10 +235,14 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                                 </div>
                                             </td>
                                             <td class='text-center'>
-                                                <input type="submit" class="btn btn-primary" id="x12filebtn" name="x12_filebtn" form="x12view" value="<?php echo xla("Submit"); ?>" />
+                                                <button type="submit" class="btn btn-primary btn-add" id="x12filebtn" name="x12_filebtn" form="x12view" value="<?php echo xla("Submit"); ?>">
+                                                    <?php echo xlt("Submit"); ?>
+                                                </button>
                                             </td>
                                             <td class='text-center'>
-                                                <input type="button" class="btn btn-secondary" id="x12filerst" name="x12_filereset" form="x12view" value="<?php echo xla("Reset"); ?>" />
+                                                <button type="button" class="btn btn-secondary btn-cancel" id="x12filerst" name="x12_filereset" form="x12view" value="<?php echo xla("Reset"); ?>">
+                                                    <?php echo xlt("Reset"); ?>
+                                                </button>
                                             </td>
                                         </tr>
                                     </table>
@@ -252,9 +266,17 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                     <label for="logfile"><?php echo xlt("View Log"); ?></label>
                                     <select class="custom-select" id="logselect" name="log_select"></select>
                                     <input type="hidden" name="logshowfile" value="getlog">
-                                    <input class="btn btn-primary" id="logshow" type="submit" form="formlog" value="<?php echo xla("Submit"); ?>" />
-                                    <input class="btn btn-secondary" id="logclose" type="button" form="formlog" value="<?php echo xla("Close"); ?>" />
-                                    <input class="btn btn-secondary" id="logarch" type="button" form="formlog" value="<?php echo xla("Archive"); ?>" />
+                                    <div class="btn-group mt-3">
+                                        <button type="submit" class="btn btn-primary btn-add" id="logshow" form="formlog" value="<?php echo xla("Submit"); ?>">
+                                            <?php echo xlt("Submit"); ?>
+                                        </button>
+                                        <button type="button" class="btn btn-primary" id="logarch" form="formlog" value="<?php echo xla("Archive"); ?>">
+                                            <?php echo xlt("Archive"); ?>
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-cancel" id="logclose" form="formlog" value="<?php echo xla("Close"); ?>">
+                                            <?php echo xlt("Close"); ?>
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                             <div class="col-sm-12 col-md-6">
@@ -262,10 +284,18 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                                     <h4><?php echo xlt("Notes"); ?></h4>
                                     <label for="notesget"><?php echo xlt("Notes"); ?></label>
-                                    <input class="btn btn-primary" id="notesget" type="button" name="notes_get" form="formnotes" value="<?php echo xla("Open"); ?>" />
-                                    <input id="noteshidden" type="hidden" name="notes_hidden" value="putnotes" />
-                                    <input class="btn btn-primary" id="notessave" type="submit" name="notes_save" form="formnotes" value="<?php echo xla("Save"); ?>" />
-                                    <input class="btn btn-secondary" id="notesclose" type="button" name="notes_close" form="formnotes" value="<?php echo xla("Close"); ?>" />
+                                    <div class="btn-group ml-2">
+                                        <button type="button" class="btn btn-primary" id="notesget" name="notes_get" form="formnotes" value="<?php echo xla("Open"); ?>">
+                                            <?php echo xlt("Open"); ?>
+                                        </button>
+                                        <input id="noteshidden" type="hidden" name="notes_hidden" value="putnotes" />
+                                        <button type="submit" class="btn btn-primary btn-save" id="notessave" name="notes_save" form="formnotes" value="<?php echo xla("Save"); ?>">
+                                            <?php echo xlt("Save"); ?>
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-cancel" id="notesclose" name="notes_close" form="formnotes" value="<?php echo xla("Close"); ?>">
+                                            <?php echo xlt("Close"); ?>
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                             <div class="col-12">
@@ -375,7 +405,10 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             success: function(rsp){ phpserver = rsp }
         });
     });
-/* *** update the list of available csv tables  *** */
+
+    /**
+     * update the list of available csv tables
+     */
     function csvlist() {
         $.ajax({
             type: 'GET',

@@ -183,6 +183,11 @@ class PatientService extends BaseService
     {
         $sqlBindArray = array();
 
+        //Converting _id to UUID byte
+        if (isset($search['uuid'])) {
+            $search['uuid'] = UuidRegistry::uuidToBytes($search['uuid']);
+        }
+
         $sql = 'SELECT  id,
                         pid,
                         uuid,

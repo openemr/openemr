@@ -20,7 +20,7 @@ $getdir = isset($_POST['sel_pt']) ? $_POST['sel_pt'] : 0;
 if ($getdir > 0) {
     $tdir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . convert_safe_file_dir_name($getdir) . '/';
     if (!is_dir($tdir)) {
-        if (!mkdir($tdir, 0755, true)) {
+        if (!mkdir($tdir, 0755, true) && !is_dir($tdir)) {
             die(xl('Failed to create folder'));
         }
     }
@@ -42,13 +42,13 @@ function getAuthUsers()
 function getTemplateList($dir)
 {
     $retval = array();
-    if (substr($dir, -1) != "/") {
+    if (substr($dir, -1) !== "/") {
         $dir .= "/";
     }
 
     $d = @dir($dir) or die("File List: Failed opening directory " . text($dir) . " for reading");
     while (false !== ($entry = $d->read())) {
-        if ($entry[0] == "." || substr($entry, -3) != 'tpl') {
+        if ($entry[0] === "." || substr($entry, -3) !== 'tpl') {
             continue;
         }
 
@@ -118,9 +118,21 @@ function getTemplateList($dir)
             },
             success: function (templateHtml, textStatus, jqXHR) {
                 if (mode == 'get') {
+                    let editHtml = '<div class="edittpl" id="templatecontent"></div>';
+                    dlgopen('','popeditor','modal-full', 850,'', '', {
+                        buttons: [
+                            {text: <?php echo xlj('Save'); ?>, close: false, style: 'success btn-sm', click: tsave},
+                            {text: <?php echo xlj('Dismiss'); ?>, style: 'danger btn-sm', close: true}
+                        ],
+                        allowDrag: false,
+                        allowResize: true,
+                        sizeHeight: 'full',
+                        onClosed: 'reload',
+                        html: editHtml,
+                        type: 'alert'
+                    });
                     $('#templatecontent').summernote('destroy');
                     $('#templatecontent').empty().append(templateHtml);
-                    $('#popeditor').modal({backdrop: "static"});
                     $('#templatecontent').summernote({
                         focus: true,
                         placeholder: '',
@@ -136,10 +148,10 @@ function getTemplateList($dir)
                         ],
                         nugget: {
                             list: [
-                                '{ParseAsHTML}', '{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{TextBox}', '{DOS}', '{ReferringDOC}', '{PatientID}', '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'
+                                '{ParseAsHTML}','{TextInput}','{sizedTextInput:120px}','{smTextInput}','{TextBox:03x080}','{DatePicker}','{CheckMark}','{ynRadioGroup}','{TrueFalseRadioGroup}','{DateTimePicker}','{StandardDatePicker}','{DOS}','{ReferringDOC}','{PatientID}','{PatientName}','{PatientSex}','{PatientDOB}','{PatientPhone}','{Address}','{City}','{State}','{Zip}','{PatientSignature}','{AdminSignature}','{Medications}','{ProblemList}','{Allergies}','{ChiefComplaint}','{EncounterForm:LBF}','{DEM: }','{HIS: }','{LBF: }','{GRP}{/GRP}'
                             ],
-                            label: 'Tags/Keywords',
-                            tooltip: 'Select Tag/Keywords'
+                            label: 'Directives',
+                            tooltip: 'Select Directive to insert at current cursor position.'
                         },
                         options: {}
                     });
@@ -229,36 +241,12 @@ function getTemplateList($dir)
             ?>
             <script>
                 $(function () {
-                    $("#popeditor").on("show.bs.modal", function () {
-                        let height = $(window).height() - 200;
-                        $(this).find(".modal-body").css("max-height", height);
-                    });
                     $("#sel_pt").change(function () {
                         $("#edit_form").submit();
                     });
                     $("#ptstatus").text($("#sel_pt").find(":selected").text())
                 });
             </script>
-        </div>
-        <div class="modal modal-wide fade" id="popeditor">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">
-                            <span aria-hidden="true">&times;</span>
-                            <span class="sr-only"><?php echo xlt('Close'); ?></span>
-                        </button>
-                        <h4 class="modal-title"><?php echo xlt('Edit Template'); ?></h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="edittpl" id="templatecontent"></div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>
-                        <button type="button" class="btn btn-success btn-sm" data-dismiss="modal" onclick="tsave()"><?php echo xlt('Save'); ?></button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </body>

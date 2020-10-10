@@ -46,8 +46,8 @@ function temp_unarchive($filename, $type)
     $filename = $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename($filename);
     if (!file_exists($filename)) {
         return false;
-    } else {
-    // copy zip file contents to /tmp/ICD10
+    } elseif ($type == "ICD10") {
+        // copy zip file contents to /tmp/ICD10 due to CMS zip file
         $zip = new ZipArchive();
         $path = $GLOBALS['temporary_files_dir'] . "/" . $type;
         if ($zip->open($filename) === true) {
@@ -62,6 +62,16 @@ function temp_unarchive($filename, $type)
             return true;
         } else {
             return false;
+        }
+    } else {
+        // unzip the file
+        $zip = new ZipArchive();
+        if ($zip->open($filename) === true) {
+            if (!($zip->extractTo($GLOBALS['temporary_files_dir'] . "/" . $type))) {
+                return false;
+            }
+            $zip->close();
+            return true;
         }
     }
 }
