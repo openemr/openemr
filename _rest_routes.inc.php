@@ -41,8 +41,6 @@ use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
 
-
-
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
 //
