@@ -580,7 +580,7 @@ function ctSelector($opt_line_no, $data_array, $name, $option_array, $title = ''
 //
 function writeCTLine($ct_array)
 {
-    global $opt_line_no, $cd_external_options;
+    global $opt_line_no, $ct_external_options;
 
     ++$opt_line_no;
     $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
@@ -711,7 +711,7 @@ function writeCTLine($ct_array)
         $opt_line_no,
         $ct_array,
         'ct_external',
-        $cd_external_options,
+        $ct_external_options,
         xl('Is this using external sql tables? If it is, then choose the format.')
     );
     echo " </tr>\n";
