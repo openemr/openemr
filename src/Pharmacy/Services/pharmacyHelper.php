@@ -11,7 +11,7 @@
  *
  */
 
-require_once('../globals.php');
+require_once('../../../interface/globals.php');
 
 use OpenEMR\Pharmacy\Services\ImportPharmacies;
 use OpenEMR\Common\Csrf\CsrfUtils;

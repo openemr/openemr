@@ -12,7 +12,7 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once('../globals.php');
+require_once('../../../interface/globals.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -27,7 +27,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 function insertDrugData()
 {
-    $drugs = file_get_contents('../../contrib/weno/erx_weno_drugs.sql');
+    $drugs = file_get_contents('../../../contrib/weno/erx_weno_drugs.sql');
     $drugsArray = explode(";\n", $drugs);
 
     // Settings to drastically speed up import with InnoDB

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * weno admin.
+ * 
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once('../globals.php');
+require_once('../../../interface/globals.php');
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -29,7 +29,7 @@ $data = new AdminProperties();
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/html">
 <head>
-     <title><?php print xlt("Weno Admin"); ?></title>
+     <title><?php print xlt("Pharmacy Drug Import"); ?></title>
         <?php Header::setupHeader(); ?>
 
 <style>
@@ -37,6 +37,28 @@ $data = new AdminProperties();
     display: inline-block;
     float: none;
 }
+
+#addpharmacies {
+    position: relative;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 575px;
+    height: 100px;
+}
+
+.fetchdrugs {
+    position: relative;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 575px;
+}
+
+#form_btn {
+    padding-left: 9px;
+}
+
 #loader {
     border: 6px solid #f3f3f3;
     border-radius: 50%;
@@ -47,6 +69,17 @@ $data = new AdminProperties();
     -webkit-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;
 }
+#fetchdrugs {
+    border: 6px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 6px solid blue;
+    border-bottom: 6px solid blue;
+    width: 22px;
+    height: 22px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
 @-webkit-keyframes spin {
     0% { -webkit-transform: rotate(0deg); }
     100% { -webkit-transform: rotate(360deg); }
@@ -61,6 +94,7 @@ $data = new AdminProperties();
 
 <body class="body_top text-center">
 <div class="container center-block">
+    <br><br>
 <?php
 
 // check to make sure only administrators access this page.
@@ -68,42 +102,35 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt("You are not authorized!"));
 }
 
-if ($GLOBALS['weno_rx_enable'] != 1) {
-    print xlt("You must activate Weno first! Go to Administration, Globals, Connectors");
-    exit;
-} else {
-    print xlt("Weno Service is Enabled") . "<br /><br />";
-}
-
 if ($tableHasData['count'] > 1) {
     print xlt("Formularies are inserted into table") . "<br />";
 } else {
-    echo "<a href='drugDataInsert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-secondary'>" . xlt("Import Formularies") . "</a> <br />" . xlt("Be patient, this can take a while.");
+    echo "<a href='drugDataInsert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' id='load_drugs' class='btn btn-secondary'>" . xlt("Import Drug Formularies") . "</a> <br />" . xlt("Be patient, this can take a while.");
 }
 
 ?>
+<div id="fetchdrugs" class="fetchdrugs"></div>
+<br><br>
 
-<br /><br />
-<?php
-
-
-?>
     <h2><?php echo xlt("Pharmacy Import / Update"); ?></h2><br />
-    <form class="form-inline" id="addpharmacies">
-        <div class="form-group">
-            <label for="city" ><?php print xlt("City");?></label>
-            <input type="text" class="form-control" id="city">
-        </div>
-        <div class="form-group">
-            <label for="state"><?php print xlt("State");?></label>
-            <input type="text" class="form-control" id="state">
-        </div>
-        <div class="form-group" id="form_btn">
-            <button type="submit"  class="btn btn-primary" ><?php echo xlt("Submit"); ?></button>
-        </div>
-        <div class="form-group" id="loader"></div>
-
-    </form>
+    <div class="">
+        <form class="form-inline" id="addpharmacies" >
+            <div class="row clearfix">
+                <div class="form-group">
+                    <label for="city" ><?php print xlt("City");?></label>
+                    <input type="text" class="form-control" id="city">
+                </div>
+                <div class="form-group">
+                    <label for="state"><?php print xlt("State");?></label>
+                    <input type="text" class="form-control" id="state">
+                </div>
+                <div class="form-group" id="form_btn">
+                    <button type="submit"  class="btn btn-primary" ><?php echo xlt("Submit"); ?></button>
+                </div>
+                <div class="form-group" id="loader"></div>
+            </div>
+        </form>
+    </div>
     <p>
         <h4><?php echo xlt("Disclaimer"); ?>:</h4>
     <?php echo xlt("This is public information maintained by HHS/CMS. We cannot be responsible for the data received"); ?>.<br />
@@ -111,6 +138,9 @@ if ($tableHasData['count'] > 1) {
     </p>
 </div>
 <script>
+window.onload = function() {
+    $('#fetchdrugs').hide();
+}
 
 let f = document.getElementById('addpharmacies');
 f.addEventListener('submit', importPharm);
@@ -148,6 +178,13 @@ function importPharm(e) {
         }
 
  });
+
+let d = document.getElementById("load_drugs");
+d.addEventListener('click', drugWait);
+
+function drugWait() {
+    $('#fetchdrugs').show();
+}
 
 }
 
