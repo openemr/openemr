@@ -249,10 +249,6 @@ class RestConfig
                 self::destroySession();
                 http_response_code(401);
                 exit();
-            } else {
-                // Note the isValidToken() set the $_SESSION['authUser'] and $_SESSION['authUserId'] for core/fhir api
-                //  or $_SESSION['pid'] for patient portal api/fhir
-                $authRestController->optionallyAddMoreTokenTime($token);
             }
         }
     }
