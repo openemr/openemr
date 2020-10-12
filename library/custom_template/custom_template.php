@@ -26,6 +26,14 @@
 //
 // +------------------------------------------------------------------------------+
 
+require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+    $ignoreAuth_onsite_portal_two = 1;
+    $ignoreAuth = true;
+} else {
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+}
 require_once("../../interface/globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/user.inc");
@@ -55,6 +63,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
 
 <script language="JavaScript" type="text/javascript">
+    let isPortal = <?php echo js_escape($ignoreAuth_onsite_portal_two) ?>;
     let allowTemplateWarning = <?php echo $allowTemplateWarning; ?>;
     <?php if (!$isNN) { ?>
         $(function () {
@@ -317,10 +326,10 @@ WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_o
 <table>
     <script type="text/javascript">
         <?php if (!$isNN) { ?>
-            CKEDITOR.on('instanceReady', function(){$("#cke_1_toolbar_collapser").click();});
+        CKEDITOR.on('instanceReady', function(){$("#cke_1_toolbar_collapser").click();});
         <?php } ?>
         edit(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>);
-        <?php if ($allowTemplateWarning && !$isNN) { ?>
+        <?php if ($allowTemplateWarning && !$isNN && !$ignoreAuth_onsite_portal_two) { ?>
         let isPromise = top.jsFetchGlobals('custom_template');
         isPromise.then(msg => {
             alertMsg(msg.custom_template.templatesWarn, 9000, 'danger', '', 'disable_template_warning');

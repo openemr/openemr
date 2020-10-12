@@ -20,11 +20,9 @@ if (isset($_GET['isPortal']) && (int)$_GET['isPortal'] !== 0) {
         $ignoreAuth_onsite_portal_two = true;
         $ignoreAuth = true;
     } else {
-        $ignoreAuth_onsite_portal_two = false;
-        $ignoreAuth = false;
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        exit;
     }
-    // do not destroy portal session.
-    // @todo add redirect portal landing on fail.
 }
 
 require_once("../../globals.php");
@@ -350,8 +348,14 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['opener', 'common', 'datetime-picker', 'jquery-ui',]); ?>
-
+    <?php Header::setupHeader(['opener', 'common', 'datetime-picker', 'jquery-ui',]);
+    if ($is_portal_module) {
+        echo "var isPortal = 1;\n";
+    }
+    ?>
+    <?php if (!empty($GLOBALS['text_templates_enabled'])) { ?>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
+    <?php } ?>
     <style>
 
         td, input, select, textarea {
@@ -911,7 +915,11 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 if (isOption($edit_options, 'EP') && $patient_portal) {
                     continue;
                 }
-
+                if ($formname === 'HIS' && $patient_portal) {
+                    if (strpos($field_id, 'dc_') === 0) {
+                        continue;
+                    }
+                }
                 // Accumulate action conditions into a JSON expression for the browser side.
                 accumActionConditions($field_id, $condition_str, $frow['conditions']);
 
@@ -1640,7 +1648,6 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 if (e.data.submitForm === true) {
                     let pass = validate(document.forms[0], false);
                     if (pass) {
-                        signerAlertMsg(<?php echo xlj("Working on request.") ?>, 5000, 'info');
                         e.preventDefault();
                         document.forms[0].submit();
                     } else {
