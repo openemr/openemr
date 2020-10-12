@@ -6,6 +6,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+isPortal = typeof isPortal === 'undefined' ? 0 : isPortal;
+if (isPortal) {
+    top.restoreSession = function() {
+        // dummy function;
+    }
+    top.tab_mode = 1;
+}
+
 // open a new cascaded window
 function cascwin(url, winname, width, height, options) {
     var mywin = window.parent ? window.parent : window;
@@ -319,7 +327,7 @@ if (typeof dlgclose !== "function") {
             }
             dialogModal.modal('hide');
         }
-    };
+    }
 }
 
 /*
@@ -338,7 +346,11 @@ if (typeof dlgclose !== "function") {
 * */
 function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // First things first...
-    top.restoreSession();
+    isPortal = typeof isPortal === 'undefined' ? 0 : isPortal;
+    if (!isPortal) {
+        top.restoreSession();
+    }
+
     // A matter of Legacy
     if (forceNewWindow) {
         return dlgOpenWindow(url, winname, width, height);

@@ -62,7 +62,7 @@ var dlgclose =
     function (call, args) {
         var frameName = window.name;
         var wframe = opener;
-        if (!top.tab_mode) {
+        if (!top.tab_mode && !isPortal) {
             for (; wframe.name !== 'Calendar' && wframe.name !== 'RTop' && wframe.name !== 'RBot'; wframe = wframe.parent) {
                 if (wframe.parent === wframe) {
                     wframe = window;
