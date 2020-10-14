@@ -173,9 +173,9 @@ class RestConfig
         self::$notRestCall = true;
     }
 
-    static function is_authentication($resource)
+    static function is_skip_auth($resource)
     {
-        return ($resource === "/api/auth" || $resource === "/fhir/auth" || $resource === "/portal/auth" || $resource === "/portalfhir/auth");
+        return ($resource === "/api/auth" || $resource === "/fhir/auth" || $resource === "/portal/auth" || $resource === "/portalfhir/auth" || $resource === "/fhir/metadata");
     }
 
     static function get_bearer_token()
@@ -242,7 +242,7 @@ class RestConfig
 
     static function authentication_check($resource)
     {
-        if (!self::is_authentication($resource)) {
+        if (!self::is_skip_auth($resource)) {
             $token = $_SERVER["HTTP_X_API_TOKEN"];
             $authRestController = new AuthRestController();
             if (!$authRestController->isValidToken($token)) {
