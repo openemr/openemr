@@ -524,7 +524,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $sql = "SELECT d.id, d.url, d.name as document_name, c.name, c.aco_spec FROM documents AS d " .
                                 "LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id " .
                                 "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
-                                "d.foreign_id = ?";
+                                "d.foreign_id = ? AND d.deleted = 0";
                         $result = $db->Execute($sql, array($pid));
                         if ($db->ErrorMsg()) {
                             echo $db->ErrorMsg();

@@ -38,7 +38,7 @@ function make_task($ajax_req)
     $to_data    =  sqlQuery($query, array($to_id));
     $filename   = "Fax_" . $encounter . "_" . $to_data['lname'] . ".pdf";
 
-    $query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like ?";
+    $query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like ? and deleted = 0";
     $doc = sqlQuery($query, array($encounter,$pid,'%' . $filename . '%' ));
 
 
