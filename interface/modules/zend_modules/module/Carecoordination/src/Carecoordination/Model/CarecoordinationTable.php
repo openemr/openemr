@@ -1916,7 +1916,7 @@ class CarecoordinationTable extends AbstractTableGateway
     public function InsertReconcilation($pid, $doc_id)
     {
         $appTable = new ApplicationTable();
-        $query    = "SELECT encounter FROM documents d inner join form_encounter e on ( e.pid = d.foreign_id and e.date = d.docdate ) where d.id = ? and pid = ? and deleted = 0";
+        $query    = "SELECT encounter FROM documents d inner join form_encounter e on ( e.pid = d.foreign_id and e.date = d.docdate ) where d.id = ? and pid = ? and d.deleted = 0";
         $docEnc   = $appTable->zQuery($query, array($doc_id,$pid));
 
         if ($docEnc->count() == 0) {
