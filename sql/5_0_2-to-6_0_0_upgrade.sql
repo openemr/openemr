@@ -2258,3 +2258,6 @@ ALTER TABLE `form_prior_auth` ADD `date_from` date DEFAULT NULL;
 ALTER TABLE `form_prior_auth` ADD `date_to` date DEFAULT NULL;
 #EndIf
 
+#IfMissingColumn documents deleted
+ALTER TABLE `documents` ADD `deleted` tinyint(1) NOT NULL DEFAULT '0',
+#EndIf

@@ -3707,7 +3707,7 @@ function document_engine($pid)
                 from
                 categories, documents,categories_to_documents
                 where documents.foreign_id=? and documents.id=categories_to_documents.document_id and
-                categories_to_documents.category_id=categories.id ORDER BY categories.name";
+                categories_to_documents.category_id=categories.id and documents.deleted = 0 ORDER BY categories.name";
     $sql2 =  sqlStatement($query, array($pid));
     while ($row2 = sqlFetchArray($sql2)) {
         //the document may not be created on the same day as the encounter, use encounter date first

@@ -323,6 +323,11 @@ if (!empty($_GET)) {
                             $cryptoGen = new CryptoGen();
 
                             while ($iter = sqlFetchArray($ret)) {
+                                if (empty($iter['id'])) {
+                                    //skip empty log items (this means they were deleted and will show up as deleted in the audit log tamper script)
+                                    continue;
+                                }
+
                                 //translate comments
                                 $patterns = array ('/^success/','/^failure/','/ encounter/');
                                 $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));
