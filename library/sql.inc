@@ -455,7 +455,7 @@ function getSqlLastErrorNo()
 function sqlListFields($table)
 {
     $sql = "SHOW COLUMNS FROM " . add_escape_custom($table);
-    $resource = sqlQ($sql);
+    $resource = sqlStatementNoLog($sql);
     $field_list = array();
     while ($row = sqlFetchArray($resource)) {
         $field_list[] = $row['Field'];

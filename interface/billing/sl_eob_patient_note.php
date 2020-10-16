@@ -67,18 +67,17 @@ $info_msg = "";
             <form method='post' action='sl_eob_patient_note.php?patient_id=<?php echo attr_url($patient_id); ?>'>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="row">
-                    <div class="col-12" style="padding-bottom:5px">
+                    <div class="col-12 pb-1">
                         <div class="form-group">
-                            <i class="fa fa-pencil-alt prefix"></i>
                             <textarea type='text' name='form_note' class='textarea form-control' rows="3" maxlength="255" placeholder='<?php echo xla('Max 255 characters') ?>'><?php echo attr($row['billing_note']) ?></textarea>
                             <label><?php echo xlt('Max 255 characters') ?></label>
                         </div>
                     </div>
-                    <div class="form-group clearfix">
+                    <div class="form-group">
                         <div class="col-sm-12 text-left position-override" id="search-btn">
                             <div class="btn-group" role="group">
-                                <button type='submit' class="btn btn-secondary btn-save" name='form_save' id="btn-save"><?php echo xlt("Save"); ?></button>
-                                <button type='submit' class="btn btn-link btn-cancel" name='form_cancel' id="btn-cancel" onclick='dlgclose();'><?php echo xlt("Cancel"); ?></button>
+                                <button type='submit' class="btn btn-primary btn-save" name='form_save' id="btn-save"><?php echo xlt("Save"); ?></button>
+                                <button type='submit' class="btn btn-secondary btn-cancel" name='form_cancel' id="btn-cancel" onclick='dlgclose();'><?php echo xlt("Cancel"); ?></button>
                             </div>
                         </div>
                     </div>

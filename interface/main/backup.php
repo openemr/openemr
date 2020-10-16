@@ -199,7 +199,7 @@ if ($form_step == 0) {
     echo "  <td>" . xlt('Create Eventlog Backup') . "</td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
-    echo "  <td></td><td class='text'><strong>" . xlt('Note') . "</strong>&nbsp;" . xlt('Please refer to') . '&nbsp;README-Log-Backup.txt&nbsp;' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . "</td>\n";
+    echo "  <td></td><td class='text'>" . xlt('Note that the Eventlog Backup is currently set to save in the following folder:') . " " . text($GLOBALS['backup_log_dir']) . " . " . xlt('Recommend setting the Path for Event Log Backup in Globals settings in the Miscellaneous section to something other than your tmp/temp directory.') . " " . xlt('Please refer to') . ' README-Log-Backup.txt ' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . ".</td>\n";
     echo " </tr>\n";
     echo "</table>\n";
 }
@@ -558,7 +558,7 @@ if ($form_step == 301) {
 # Get the Current Timestamp, to attach with the log backup file
     $backuptime = date("Ymd_His");
 # Eventlog backup directory
-    $BACKUP_EVENTLOG_DIR = $GLOBALS['backup_log_dir'] . "/emr_eventlog_backup";
+    $BACKUP_EVENTLOG_DIR = $GLOBALS['backup_log_dir'];
 
 # Check if Eventlog Backup directory exists, if not create it with Write permission
     if (!file_exists($BACKUP_EVENTLOG_DIR)) {

@@ -172,7 +172,8 @@ define_external_table($code_external_tables, 6, 'icd10_pcs_order_code', 'pcs_cod
  * 'external' attribute  for explanation of the option listings.
  * @var array
  */
-$cd_external_options = array(
+global $ct_external_options;
+$ct_external_options = array(
   '0' => xl('No'),
   '4' => xl('ICD9 Diagnosis'),
   '5' => xl('ICD9 Procedure/Service'),

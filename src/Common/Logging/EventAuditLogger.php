@@ -183,7 +183,7 @@ MSG;
     {
         // parse the parameters
         $cols = "DISTINCT l.`date`, l.`event`, l.`category`, l.`user`, l.`groupname`, l.`patient_id`, l.`success`, l.`comments`, l.`user_notes`, l.`crt_user`, l.`log_from`, l.`menu_item_id`, l.`ccda_doc_id`, l.`id`,
-                 el.`encrypt`, el.`checksum`, el.`checksum_api`, el.`version`,
+                 el.`encrypt`, el.`checksum`, el.`checksum_api`, el.`version`, el.`log_id` as `log_id_hash`,
                  al.`log_id` as log_id_api, al.`user_id`, al.`patient_id` as patient_id_api, al.`ip_address`, al.`method`, al.`request`, al.`request_url`, al.`request_body`, al.`response`, al.`created_time` ";
         if (isset($params['cols']) && $params['cols'] != "") {
             $cols = $params['cols'];
@@ -280,7 +280,7 @@ MSG;
         } else {
             // do the query
             $sqlBindArray = array();
-            $sql = "SELECT $cols FROM `log` as l LEFT OUTER JOIN `log_comment_encrypt` as el ON l.`id` = el.`log_id` LEFT OUTER JOIN `api_log` as al ON l.`id` = al.`log_id` WHERE l.`date` >= ? AND l.`date` <= ?";
+            $sql = "SELECT $cols FROM `log_comment_encrypt` as el LEFT OUTER JOIN `log` as l ON el.`log_id` = l.`id` LEFT OUTER JOIN `api_log` as al ON el.`log_id` = al.`log_id` WHERE (l.`date` >= ? AND l.`date` <= ?) OR (l.`date` IS NULL OR l.`date` = '')";
             array_push($sqlBindArray, $date1, $date2);
 
             if ($user != "") {
@@ -306,7 +306,7 @@ MSG;
             if ($sortby != "") {
                 $sql .= " ORDER BY `" . escape_sql_column_name($sortby, array('log')) . "`  " . escape_sort_order($direction); // descending order
             } else {
-                $sql .= " ORDER BY l.`date` DESC";
+                $sql .= " ORDER BY el.`log_id` DESC";
             }
 
             $sql .= " LIMIT 5000";

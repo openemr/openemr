@@ -28,6 +28,10 @@ function prior_auth_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
+            if ($key == "from_date" || "to_date") {
+                $value = oeFormatShortDate($value);
+            }
+
             $key = ucwords(str_replace("_", " ", $key));
             print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
             $count++;
