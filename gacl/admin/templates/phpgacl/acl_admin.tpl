@@ -19,14 +19,14 @@
           </tr>
           <tr valign="top" align="center">
             <td>
-              [ <a href="edit_object_sections.php?object_type=aco&return_page={$return_page}">Edit</a> ]
+              [ <a href="edit_object_sections.php?object_type=aco&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
               <br />
               <select name="aco_section" tabindex="0" size="10" onclick="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}')">
                 {html_options options=$options_aco_sections selected=$aco_section_value}
               </select>
             </td>
             <td>
-              [ <a href="javascript: location.href = 'edit_objects.php?object_type=aco&section_value=' + document.acl_admin.aco_section.options[document.acl_admin.aco_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]
+              [ <a href="javascript: location.href = 'edit_objects.php?object_type=aco&section_value=' + document.acl_admin.aco_section.options[document.acl_admin.aco_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page}{/if}';">Edit</a> ]
               <br />
               <select name="aco[]" tabindex="0" size="10" width="200" multiple>
               </select>
@@ -38,7 +38,9 @@
             <td>
               <br />
               <select name="selected_aco[]" tabindex="0" size="10" multiple>
-				{html_options options=$options_selected_aco selected=$selected_aco}
+                {if isset($options_selected_aco)}
+				  {html_options options=$options_selected_aco selected=$selected_aco}
+                {/if}
               </select>
             </td>
             <td valign="middle">
@@ -60,15 +62,15 @@
           </tr>
           <tr valign="top" align="center">
             <td>
-              [ <a href="edit_object_sections.php?object_type=aro&return_page={$return_page}">Edit</a> ]
+              [ <a href="edit_object_sections.php?object_type=aro&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
               <br />
               <select name="aro_section" tabindex="0" size="10" onclick="populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'],'{$js_aro_array_name}')">
                 {html_options options=$options_aro_sections selected=$aro_section_value}
               </select>
             </td>
             <td>
-              [ <a href="javascript: location.href = 'edit_objects.php?object_type=aro&section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]
-              [ <a href="#" onClick="window.open('object_search.php?src_form=acl_admin&object_type=aro&section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={$return_page}','','status=yes,width=400,height=400');return false;">Search</a> ]
+              [ <a href="javascript: location.href = 'edit_objects.php?object_type=aro&section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page}{/if}';">Edit</a> ]
+              [ <a href="#" onClick="window.open('object_search.php?src_form=acl_admin&object_type=aro&section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page}{/if}','','status=yes,width=400,height=400');return false;">Search</a> ]
               <br />
               <select name="aro[]" tabindex="0" size="10" width="200" multiple>
               </select>
@@ -80,11 +82,13 @@
             <td>
              <br />
              <select name="selected_aro[]" tabindex="0" size="10" multiple>
-			   {html_options options=$options_selected_aro selected=$selected_aro}
+               {if isset($options_selected_aro)}
+			       {html_options options=$options_selected_aro selected=$selected_aro}
+               {/if}
              </select>
             </td>
             <td>
-              [ <a href="group_admin.php?group_type=aro&return_page={$SCRIPT_NAME}?action={$action}&acl_id={$acl_id}">Edit</a> ]
+              [ <a href="group_admin.php?group_type=aro&return_page={$SCRIPT_NAME}?action={$action}&acl_id={if isset($acl_id)}{$acl_id}{/if}">Edit</a> ]
               <br />
 			  <select name="aro_groups[]" tabindex="0" size="8" multiple>
 			    {html_options options=$options_aro_groups selected=$selected_aro_groups}
@@ -108,15 +112,15 @@
           </tr>
           <tr valign="top" align="center" id="axo_row2" {if !$show_axo}class="hide"{/if}>
             <td>
-              [ <a href="edit_object_sections.php?object_type=axo&return_page={$return_page}">Edit</a> ]
+              [ <a href="edit_object_sections.php?object_type=axo&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
               <br />
               <select name="axo_section" tabindex="0" size="10" onclick="populate(document.acl_admin.axo_section,document.acl_admin.elements['axo[]'],'{$js_axo_array_name}')">
                 {html_options options=$options_axo_sections selected=$axo_section_value}
               </select>
             </td>
             <td>
-              [ <a href="javascript: location.href = 'edit_objects.php?object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={$return_page}';">Edit</a> ]
-              [ <a href="#" onClick="window.open('object_search.php?src_form=acl_admin&object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={$return_page}','','status=yes,width=400,height=400');return false;">Search</a> ]
+              [ <a href="javascript: location.href = 'edit_objects.php?object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page}{/if}';">Edit</a> ]
+              [ <a href="#" onClick="window.open('object_search.php?src_form=acl_admin&object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page}{/if}','','status=yes,width=400,height=400');return false;">Search</a> ]
               <br />
               <select name="axo[]" tabindex="0" size="10" width="200" multiple>
               </select>
@@ -128,11 +132,13 @@
             <td>
               <br />
               <select name="selected_axo[]" tabindex="0" size="10" multiple>
-                {html_options options=$options_selected_axo selected=$selected_axo}
+                {if isset($options_selected_axo)}
+                    {html_options options=$options_selected_axo selected=$selected_axo}
+                {/if}
               </select>
             </td>
             <td>
-              [ <a href="group_admin.php?group_type=axo&return_page={$SCRIPT_NAME}?action={$action}&acl_id={$acl_id}">Edit</a> ]
+              [ <a href="group_admin.php?group_type=axo&return_page={$SCRIPT_NAME}?action={$action}&acl_id={if isset($acl_id)}{$acl_id}{/if}">Edit</a> ]
               <br />
               <select name="axo_groups[]" tabindex="0" size="8" multiple>
                 {html_options options=$options_axo_groups selected=$selected_axo_groups}
@@ -157,7 +163,7 @@
 		</tr>
 		<tr valign="top" align="left">
 			<td align="center">
-			[ <a href="edit_object_sections.php?object_type=acl&return_page={$return_page}">Edit</a> ]
+			[ <a href="edit_object_sections.php?object_type=acl&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
 			<br />
 			<select name="acl_section" tabindex="0" size="3">
 			  {html_options options=$options_acl_sections selected=$acl_section_value}
@@ -173,8 +179,8 @@
         </tr>
       </tbody>
     </table>
-	<input type="hidden" name="acl_id" value="{$acl_id}">
-	<input type="hidden" name="return_page" value="{$return_page}">
+	<input type="hidden" name="acl_id" value="{if isset($acl_id)}{$acl_id}{/if}">
+	<input type="hidden" name="return_page" value="{if isset($return_page)}{$return_page}{/if}">
   </div>
 </form>
 {include file="phpgacl/footer.tpl"}

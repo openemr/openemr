@@ -58,7 +58,7 @@ switch ($_POST['action']) {
         $gacl_api->debug_text("Submit!!");
 
         //Update objects
-        while (list(,$row) = @each($_POST['objects'])) {
+        foreach ($_POST['objects'] as $row) {
             list($id, $value, $order, $name) = $row;
             $gacl_api->edit_object($id, $_POST['section_value'], $name, $value, $order, 0, $object_type);
         }
@@ -69,7 +69,7 @@ switch ($_POST['action']) {
         unset($name);
 
         //Insert new sections
-        while (list(,$row) = @each($_POST['new_objects'])) {
+        foreach ($_POST['new_objects'] as $row) {
             list($value, $order, $name) = $row;
 
             if (!empty($value) AND !empty($name)) {
@@ -94,10 +94,10 @@ switch ($_POST['action']) {
                         from    $object_table
                         where   section_value='". $_GET['section_value'] ."'
                         order by order_value";
-        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
+        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
         $rows = $rs->GetRows();
 
-        while (list(,$row) = @each($rows)) {
+        foreach ($rows as $row) {
             list($id, $section_value, $value, $order_value, $name) = $row;
 
                 $objects[] = array(

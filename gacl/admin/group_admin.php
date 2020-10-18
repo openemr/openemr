@@ -34,7 +34,8 @@ switch(strtolower(trim($group_type))) {
 		break;
 }
 
-switch ($_POST['action']) {
+$postAction = $_POST['action'] ?? null;
+switch ($postAction) {
 	case 'Delete':
 		//See edit_group.php
 		break;

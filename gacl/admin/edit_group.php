@@ -36,8 +36,8 @@ switch(strtolower(trim($group_type))) {
 		break;
 }
 
-
-switch ($_POST['action']) {
+$postAction = $_POST['action'] ?? null;
+switch ($postAction) {
 	case 'Delete':
 		$gacl_api->debug_text('Delete');
 
@@ -107,7 +107,7 @@ switch ($_POST['action']) {
 			$name = '';
 		}
 
-		$smarty->assign('id', $id);
+		$smarty->assign('id', ($id ?? null));
 		$smarty->assign('parent_id', $parent_id);
 		$smarty->assign('value', $value);
 		$smarty->assign('name', $name);

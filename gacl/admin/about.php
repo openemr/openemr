@@ -16,7 +16,7 @@ function get_system_info() {
 	global $gacl_api;
 
 	//Grab system info
-	$system_info .= 'PHP Version: '.phpversion()."\n";
+	$system_info = 'PHP Version: '.phpversion()."\n";
 	$system_info .= 'Zend Version: '.zend_version()."\n";
 	$system_info .= 'Web Server: '.$_SERVER['SERVER_SOFTWARE']."\n\n";
 	$system_info .= 'phpGACL Settings: '."\n";
@@ -68,7 +68,8 @@ function submit_system_info($system_information, $system_info_md5) {
 	return $tainted;
 }
 
-switch ($_POST['action']) {
+$postAction = $_POST['action'] ?? null;
+switch ($postAction) {
     case 'Submit':
         $gacl_api->debug_text("Submit!!");
 
@@ -88,11 +89,11 @@ switch ($_POST['action']) {
         break;
 }
 
-$smarty->assign("first_run", $_GET['first_run'] );
+$smarty->assign("first_run", ($_GET['first_run'] ?? null));
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
 $smarty->assign('current','about');
-if ($_GET['first_run']) {
+if (!empty($_GET['first_run'])) {
 	$smarty->assign('page_title', 'Installation Report');
 	$smarty->assign('hidemenu', 1);
 } else {

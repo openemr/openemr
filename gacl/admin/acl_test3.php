@@ -54,7 +54,7 @@ $query = '
 
 
 //$rs = $db->Execute($query);
-$rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
+$rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
 $rows = $rs->GetRows();
 
 /*
@@ -65,7 +65,7 @@ echo("</pre>");
 
 $total_rows = count($rows);
 
-while (list(,$row) = @each($rows)) {
+foreach ($rows as $row) {
     list(	$aco_section_value,
 			$aco_section_name,
 			$aco_value,
@@ -127,15 +127,15 @@ while (list(,$row) = @each($rows)) {
 
 //echo "<br /><br />$x ACL_CHECK()'s<br />\n";
 
-$smarty->assign("acls", $acls);
+$smarty->assign("acls", ($acls ?? null));
 
 $smarty->assign("total_acl_checks", $total_rows);
-$smarty->assign("total_acl_check_time", $total_acl_check_time);
+$smarty->assign("total_acl_check_time", ($total_acl_check_time ?? null));
 
 if ($total_rows > 0) {
 	$avg_acl_check_time = $total_acl_check_time / $total_rows;
 }
-$smarty->assign("avg_acl_check_time", number_format( ($avg_acl_check_time + 0) ,2));
+$smarty->assign("avg_acl_check_time", number_format((($avg_acl_check_time ?? 0) + 0) ,2));
 
 $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
 
