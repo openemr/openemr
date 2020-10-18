@@ -22,7 +22,7 @@ https://ucum.nlm.nih.gov/example-UCUM-Codes-v1.4.pdf
 
 
 
-function calculateBodySurfaceAreaMosteller(height, height2, heightUnit, weight, weightUnit, returnUnit) {
+function calculateBodySurfaceAreaMosteller(height, height2, heightUnit, weight, weightUnit) {
 
 /*
 height2 should not be used unless you're entering in feet and inches separately.
@@ -97,7 +97,9 @@ I always set it to 0 so I don't forget about it shift everything to the left acc
 
 
     //return an object containing the calculated value, ucum units, and LOINC code for derived body surface area.
-    return results={BodySurfaceArea: BSA_Mosteller, units: returnUnit, LOINCcode: "3140-1"};
+    
+    //Got rid of the return unit field and hard coded to meters squared.  Might add different return unit options, like cm^2 later if requested.
+    return results={BodySurfaceArea: BSA_Mosteller, units: m2, LOINCcode: "3140-1"};
 
 
     
