@@ -77,7 +77,7 @@ I always set it to 0 so I don't forget about it shift everything to the left acc
       }//end weight switch
     
     
-    BSA_Mosteller=Math.sqrt(height*weight/3600);
+    var BSA_Mosteller=Math.sqrt(height*weight/3600);
     
 
     //This will make the calculated value pop up in an alert before the html page even loads.  Comment this out unless you're troubleshooting
