@@ -1,4 +1,3 @@
-function calculateBodySurfaceAreaMosteller(height, height2, heightUnit, weight, weightUnit, returnUnit) {
 /*
 @package       OpenEMR
 @author        Rachel Ellison <ellison.rachel.e@gmail.com>
@@ -20,6 +19,7 @@ https://loinc.org/usage/units/
 This link is pretty dated but I believe the codes are still accurate.
 https://ucum.nlm.nih.gov/example-UCUM-Codes-v1.4.pdf
 
+function calculateBodySurfaceAreaMosteller(height, height2, heightUnit, weight, weightUnit, returnUnit) {
 
 height 2 should not be used unless you're entering in feet and inches separately.
 I always set it to 0 so I don't forget about it shift everything to the left accidentally.
@@ -54,7 +54,7 @@ I always set it to 0 so I don't forget about it shift everything to the left acc
     
     
     //Determine units of measure provided for weight and convert to kilograms.
-      switch(weight){
+      switch(weightUnit){
       	case "kg":
         	//This is the unit we want, do nothing
         break;
@@ -93,9 +93,9 @@ I always set it to 0 so I don't forget about it shift everything to the left acc
 
 
     //return an object containing the calculated value, ucum units, and LOINC code for derived body surface area.
-    var results={BodySurfaceArea: BSA_Mosteller, units: "m2", LOINCcode: "3140-1"};
+    return results={BodySurfaceArea: BSA_Mosteller, units: returnUnit, LOINCcode: "3140-1"};
 
-    return results;
+
     
     //end function
 }
