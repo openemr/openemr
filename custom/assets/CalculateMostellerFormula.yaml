@@ -1,0 +1,17 @@
+---
+# In the case that custom.yaml file is found it's parsed by \OpenEMR\Core\Header::includeAsset
+# after config/config.yaml. the structure of custom.yaml is equal to config.yaml.
+#
+# Use %KEY-NAME% in this file and it will be replaced with the value of
+# $GLOBALS['KEY-NAME'] if it exists. If the key name does not exist, this script
+# won't work (Need to build in proper error handling @TODO RD 2017-05-16
+#
+
+#
+
+#Inject custom assets
+assets:
+     calculate-mosteller-formula:
+         basePath: %webroot%/custom/assets/
+         script: js/calculateBodySurfaceAreaMosteller.js
+         autoload: false
