@@ -18,10 +18,14 @@ https://loinc.org/usage/units/
 
 This link is pretty dated but I believe the codes are still accurate.
 https://ucum.nlm.nih.gov/example-UCUM-Codes-v1.4.pdf
+*/
+
+
 
 function calculateBodySurfaceAreaMosteller(height, height2, heightUnit, weight, weightUnit, returnUnit) {
 
-height 2 should not be used unless you're entering in feet and inches separately.
+/*
+height2 should not be used unless you're entering in feet and inches separately.
 I always set it to 0 so I don't forget about it shift everything to the left accidentally.
 */
 
