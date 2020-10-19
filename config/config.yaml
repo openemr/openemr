@@ -251,6 +251,5 @@ assets:
             - decoders/rii-mango/lossless-min.js
             - dist/dwv.min.js
     calculate-mosteller-formula:
-         basePath: '%webroot%/library/'
-         script: js/calculateBodySurfaceAreaMosteller.js
-         autoload: false
+         basePath: '%webroot%/library/js/'
+         script: calculateBodySurfaceAreaMosteller.js
