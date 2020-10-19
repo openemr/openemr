@@ -1,0 +1,18 @@
+server {
+   listen  8080  default_server;
+   
+   location  /orthanc/  {
+      proxy_pass http://${ORTHANC_HOST}:${ORTHANC_PORT};
+      proxy_set_header HOST $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header Authorization "Basic ${ORTHANC_CREDS}";
+      rewrite /orthanc(.*) $1 break;
+      add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
+      add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+      add_header 'Access-Control-Allow-Origin' 'ORTHANC_ALLOWED_HOSTS';
+
+      limit_except GET POST OPTIONS {
+         deny all;
+      }
+   }
+}

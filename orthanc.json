@@ -1,0 +1,8 @@
+{
+  "Name" : "Orthanc in OpenEMR",
+  "RemoteAccessAllowed" : true,
+  "AuthenticationEnabled": true,
+  "RegisteredUsers" : {
+    "openemr" : "openemr"
+  }
+}

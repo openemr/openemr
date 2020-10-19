@@ -70,6 +70,7 @@ services:
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
     depends_on:
     - mysql
+    - orthanc-proxy
   phpmyadmin:
     restart: always
     image: phpmyadmin/phpmyadmin
@@ -100,6 +101,22 @@ services:
       LDAP_TLS_CA_CRT_FILENAME: ca.pem
       LDAP_TLS_CRT_FILENAME: server-cert.pem
       LDAP_TLS_KEY_FILENAME: server-key.pem
+  orthanc:
+    image: jodogne/orthanc-plugins:1.8.0
+    command: /run/secrets/
+    secrets:
+      - orthanc.json
+  orthanc-proxy:
+    image: openemr/dev-orthanc-proxy
+    links:
+      - orthanc
+    depends_on:
+      - orthanc
+    environment:
+      ORTHANC_HOST: orthanc
+      ORTHANC_PORT: 8042
+      ORTHANC_CREDS: b3BlbmVtcjpvcGVuZW1y #openemr:openemr
+      ORTHANC_ALLOWED_HOSTS: '*'
 volumes:
   databasevolume: {}
   publicvolume: {}
@@ -109,3 +126,6 @@ volumes:
   ccdamodule: {}
   logvolume: {}
   couchdbvolume: {}
+secrets:
+  orthanc.json:
+    file: orthanc.json
