@@ -47,7 +47,8 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['patient.uuid']
+            'patient' => ['lists.pid'],
+            '_id' => ['lists.id']
         ];
     }
 
