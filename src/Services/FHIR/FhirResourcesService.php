@@ -29,7 +29,7 @@ class FhirResourcesService
         // set bundle type default to collection so may include different
         // resource types. at least I hope thats how it works....
         $bundleInit = array(
-            'identifier' => $resource . "bundle",
+            // 'identifier' => $resource . "bundle",
             'type' => 'collection',
             'total' => count($resource_array),
             'meta' => $meta);
