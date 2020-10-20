@@ -76,18 +76,18 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
         } elseif (!isset($dataRecord['enddate'])) {
             $clinicalStatus = "active";
         }
-        $allergyIntoleranceResource->setClinicalStatus(array(
+        $clinical_Status = new FHIRCodeableConcept();
+        $clinical_Status->addCoding(
+            array(
             'system' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
             'code' => $clinicalStatus,
-            'display' => strtoupper($clinicalStatus),
-        ));
+            'display' => ucwords($clinicalStatus),
+            )
+        );
+        $allergyIntoleranceResource->setClinicalStatus($clinical_Status);
 
         $allergyIntoleranceCategory = new FHIRAllergyIntoleranceCategory();
-        $allergyIntoleranceCategory->setValue(array(
-            'system' => "http://hl7.org/fhir/allergy-intolerance-category",
-            'code' => "medication",
-            'display' => strtoupper("Medication"),
-        ));
+        $allergyIntoleranceCategory->setValue("medication");
         $allergyIntoleranceResource->addCategory($allergyIntoleranceCategory);
 
         if (isset($dataRecord['severity_al'])) {
@@ -102,11 +102,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
                 "unassigned" => ["code" => "unable-to-assess", "display" => "Unable to Assess Risk"],
             );
             $criticality = new FHIRAllergyIntoleranceCriticality();
-            $criticality->setValue(array(
-                'system' => "http://hl7.org/fhir/allergy-intolerance-criticality",
-                'code' => $criticalityCode[$dataRecord['severity_al']]['code'],
-                'display' => $criticalityCode[$dataRecord['severity_al']]['display'],
-            ));
+            $criticality->setValue($criticalityCode[$dataRecord['severity_al']]['code']);
             $allergyIntoleranceResource->setCriticality($criticality);
         }
 
@@ -133,6 +129,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
             $allergyIntoleranceResource->setCode($diagnosisCode);
         }
 
+        $verificationStatus = new FHIRCodeableConcept();
         $verificationCoding = array(
             'system' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
             'code' => 'unconfirmed',
@@ -145,7 +142,8 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
                 'display' => $dataRecord['verification_title']
             );
         }
-        $allergyIntoleranceResource->setVerificationStatus($verificationCoding);
+        $verificationStatus->addCoding($verificationCoding);
+        $allergyIntoleranceResource->setVerificationStatus($verificationStatus);
 
         if ($encode) {
             return json_encode($allergyIntoleranceResource);
