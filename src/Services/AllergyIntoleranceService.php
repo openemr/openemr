@@ -49,6 +49,8 @@ class AllergyIntoleranceService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true)
     {
+        
+
         // Validating and Converting Patient UUID to PID
         if (isset($search['lists.pid'])) {
             $isValidPatient = $this->allergyIntoleranceValidator->validateId(
@@ -81,16 +83,16 @@ class AllergyIntoleranceService extends BaseService
 
         $sqlBindArray = array();
         $sql = "SELECT lists.*,
-                        us.uuid as practitioner,
-                        patient.uuid as puuid,
-                        reaction.title as reaction_title,
-                        verification.title as verification_title
-                        FROM lists
-                        LEFT JOIN list_options as reaction ON reaction.option_id = lists.reaction
-                        LEFT JOIN list_options as verification ON verification.option_id = lists.verification
-                        LEFT JOIN users as us ON us.id = lists.referredby
-                        RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
-                        WHERE type = 'allergy'";
+        us.uuid as practitioner,
+        patient.uuid as puuid,
+        reaction.title as reaction_title,
+        verification.title as verification_title
+    FROM lists
+        LEFT JOIN list_options as reaction ON (reaction.option_id = lists.reaction and reaction.list_id = 'reaction')
+        LEFT JOIN list_options as verification ON verification.option_id = lists.verification and verification.list_id = 'allergyintolerance-verification'
+        LEFT JOIN users as us ON us.id = lists.referredby
+        RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
+    WHERE type = 'allergy'";
 
         if (!empty($search)) {
             $sql .= ' AND ';
@@ -102,7 +104,6 @@ class AllergyIntoleranceService extends BaseService
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
             $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
         }
-
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
@@ -141,16 +142,16 @@ class AllergyIntoleranceService extends BaseService
         }
 
         $sql = "SELECT lists.*,
-                        us.uuid as practitioner,
-                        patient.uuid as puuid,
-                        reaction.title as reaction_title,
-                        verification.title as verification_title
-                        FROM lists
-                        LEFT JOIN list_options as reaction ON reaction.option_id = lists.reaction
-                        LEFT JOIN list_options as verification ON verification.option_id = lists.verification
-                        LEFT JOIN users as us ON us.id = lists.referredby
-                        RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
-                        WHERE type = 'allergy' AND lists.uuid = ?";
+        us.uuid as practitioner,
+        patient.uuid as puuid,
+        reaction.title as reaction_title,
+        verification.title as verification_title
+    FROM lists
+        LEFT JOIN list_options as reaction ON (reaction.option_id = lists.reaction and reaction.list_id = 'reaction')
+        LEFT JOIN list_options as verification ON verification.option_id = lists.verification and verification.list_id = 'allergyintolerance-verification'
+        LEFT JOIN users as us ON us.id = lists.referredby
+        RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
+    WHERE type = 'allergy' AND lists.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
