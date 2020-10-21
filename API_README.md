@@ -68,22 +68,26 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 -   [Portal API Endpoints](API_README.md#portal-Endpoints)
     -   [Patient API](API_README.md#get-portalpatient)
 -   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
-    -   [FHIR Patient API](FHIR_README.md#get-fhirpatient)
-    -   [FHIR Encounter API](FHIR_README.md#get-fhirencounter)
-    -   [FHIR Practitioner API](API_README.md#get-apipractitioner)
-    -   [FHIR AllergyIntolerance API](FHIR_README.md#get-fhirallergyintolerance)
-    -   [FHIR Procedure API](FHIR_README.md#get-fhirprocedure)
-    -   [FHIR Organization API](FHIR_README.md#get-fhirorganization)
-    -   [FHIR Observation API](FHIR_README.md#get-fhirobservation)
-    -   [FHIR QuestionnaireResponse API](FHIR_README.md#get-fhirquestionnaireresponse)
-    -   [FHIR Immunization API](FHIR_README.md#get-fhirimmunization)
-    -   [FHIR Condition API](FHIR_README.md#get-fhircondition)
-    -   [FHIR MedicationRequest API](FHIR_README.md#get-fhirmedicationrequest)
-    -   [FHIR Medication API](FHIR_README.md#get-fhirmedication)
-    -   [FHIR Location API](FHIR_README.md#get-fhirlocation)
-    -   [FHIR CareTeam API](FHIR_README.md#get-fhircareteam)
--   [Portal FHIR API Endpoints](FHIR_README.md#portalfhir-endpoints)
-    -   [Patient API](FHIR_README.md#get-portalfhirpatient)
+    -   [FHIR Capability Statement](FHIR_README.md#capability-statement)
+    -   [FHIR Authorization](FHIR_README.md#authorization)
+    -   [FHIR Patient](FHIR_README.md#patient-resource)
+    -   [FHIR Encounter](FHIR_README.md#encounter-resource)
+    -   [FHIR Practitioner](FHIR_README.md#practitioner-resource)
+    -   [FHIR PractitionerRole](FHIR_README.md#practitionerrole-resource)
+    -   [FHIR Immunization](FHIR_README.md#immunization-resource)
+    -   [FHIR AllergyIntolerance](FHIR_README.md#allergyintolerance-resource)
+    -   [FHIR Organization](FHIR_README.md#organization-resource)
+    -   [FHIR Observation](FHIR_README.md#observation-resource)
+    -   [FHIR QuestionnaireResponse](FHIR_README.md#questionnaireresponse-resource)
+    -   [FHIR Condition](FHIR_README.md#condition-resource)
+    -   [FHIR Procedure](FHIR_README.md#procedure-resource)
+    -   [FHIR MedicationRequest](FHIR_README.md#medicationrequest-resource)
+    -   [FHIR Medication](FHIR_README.md#medication-resource)
+    -   [FHIR Location](FHIR_README.md#location-resource)
+    -   [FHIR CareTeam](FHIR_README.md#careTeam-resource)
+-   [Patient Portal FHIR API Endpoints](FHIR_README.md#patient-portal-fhir-endpoints)
+    -   [Patient Portal FHIR Authorization](FHIR_README.md#patient-portal-authorization)
+    -   [Patient Portal FHIR Patient](FHIR_README.md#patient-portal-patient-resource)
 -   [Dev notes](API_README.md#dev-notes)
 -   [Todos](API_README.md#project-management)
 
@@ -799,13 +803,13 @@ Request:
 curl -X GET 'http://localhost:8300/apis/api/medical_problem/9109890a-6756-44c1-a82d-bdfac91c7424'
 ```
 
-#### GET /api/patient/:puuid/medical_problem	
+#### GET /api/patient/:puuid/medical_problem
 
-Request:	
+Request:
 
-```sh	
-curl -X GET 'http://localhost:8300/apis/api/patient/9101a093-da04-457f-a6a1-46ce93f0d629/medical_problem'	
-```	
+```sh
+curl -X GET 'http://localhost:8300/apis/api/patient/9101a093-da04-457f-a6a1-46ce93f0d629/medical_problem'
+```
 
 #### GET /api/patient/:puuid/medical_problem/:muuid
 
