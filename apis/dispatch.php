@@ -42,7 +42,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     $isLocalApi = true;
     $gbl::setLocalCall();
     $ignoreAuth = false;
-} elseif ($gbl::is_authentication($resource)) {
+} elseif ($gbl::is_skip_auth($resource)) {
     // Get a site id from initial login authentication.
     $isLocalApi = false;
     $data = (array) $gbl::getPostData((file_get_contents("php://input")));
