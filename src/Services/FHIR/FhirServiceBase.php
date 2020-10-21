@@ -122,6 +122,7 @@ abstract class FhirServiceBase
     public function getAll($fhirSearchParameters)
     {
         $oeSearchParameters = array();
+        $provenanceRequest = false;
         //Checking for provenance reqest
         if (isset($fhirSearchParameters['_revinclude'])) {
             if ($fhirSearchParameters['_revinclude'] == 'Provenance:target') {
