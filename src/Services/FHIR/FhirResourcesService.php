@@ -28,6 +28,9 @@ class FhirResourcesService
         $bundleLink = new FHIRBundleLink(array('relation' => 'self', 'url' => $bundleUrl));
         // set bundle type default to collection so may include different
         // resource types. at least I hope thats how it works....
+        // For now commenting Identifier assignment to pass the resource validation
+        // In future once the identifier system is in place. This needs to be fixed
+        // https://www.hl7.org/fhir/bundle-definitions.html#Bundle.identifier -Vishnu
         $bundleInit = array(
             // 'identifier' => $resource . "bundle",
             'type' => 'collection',
