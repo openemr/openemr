@@ -56,4 +56,8 @@ class FhirResourcesService
         }
         return $class_object; // feed to resource class or use as is object
     }
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    {
+        // TODO: If Required in Future
+    }
 }

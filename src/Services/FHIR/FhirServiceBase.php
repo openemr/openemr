@@ -147,9 +147,10 @@ abstract class FhirServiceBase
                 $fhirResource = $this->parseOpenEMRRecord($oeRecord);
                 $fhirSearchResult->addData($fhirResource);
                 if ($provenanceRequest) {
-                    error_log("creating provenance record");
                     $provenanceResource = $this->createProvenanceResource($oeRecord);
-                    $fhirSearchResult->addData($provenanceResource);
+                    if ($provenanceResource) {
+                        $fhirSearchResult->addData($provenanceResource);
+                    }
                 }
             }
         }
@@ -171,4 +172,12 @@ abstract class FhirServiceBase
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
     abstract public function createProvenanceResource($dataRecord = array(), $encode = false);
+
+    /*
+    * public function to return search params
+    */
+    public function getSearchParams()
+    {
+        return $this->loadSearchParameters();
+    }
 }

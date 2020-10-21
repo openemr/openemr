@@ -149,4 +149,8 @@ class FhirLocationService extends FhirServiceBase
     {
         // TODO: If Required in Future
     }
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    {
+        // TODO: If Required in Future
+    }
 }

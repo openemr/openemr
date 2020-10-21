@@ -104,8 +104,11 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
             $agentBehalf->setReference('Organization/' . $dataRecord['organization']);
             $agent->setOnBehalfOf($agentBehalf);
         }
-        
-        return $allergyProvenance;
+        if ($encode) {
+            return json_encode($allergyProvenance);
+        } else {
+            return $allergyProvenance;
+        }
     }
 
     /**
