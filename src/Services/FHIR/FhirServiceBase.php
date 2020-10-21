@@ -39,6 +39,7 @@ abstract class FhirServiceBase
      */
     abstract protected function loadSearchParameters();
 
+    
     /**
      * Parses an OpenEMR data record, returning the equivalent FHIR Resource
      *
@@ -152,4 +153,13 @@ abstract class FhirServiceBase
      * @return OpenEMR records
      */
     abstract protected function searchForOpenEMRRecords($openEMRSearchParameters);
+
+
+    /*
+    * public function to return search params
+    */
+    public function getSearchParams()
+    {
+        return $this->loadSearchParameters();
+    }
 }

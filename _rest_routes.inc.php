@@ -595,6 +595,7 @@ use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseController;
+use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 
 RestConfig::$FHIR_ROUTE_MAP = array(
     "POST /fhir/auth" => function () {
@@ -602,6 +603,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $return = (new AuthRestController())->authenticate($data);
         // sensitive data, so will not log the $data or $return for this endpoint
         RestConfig::apiLog();
+        return $return;
+    },
+    "GET /fhir/metadata" => function () {
+        $return = (new FhirMetaDataRestController())->getMetaData();
+        RestConfig::apiLog($return);
         return $return;
     },
     "POST /fhir/Patient" => function () {
