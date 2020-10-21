@@ -121,7 +121,12 @@ abstract class FhirServiceBase
     public function getAll($fhirSearchParameters)
     {
         $oeSearchParameters = array();
-
+        //Checking for provenance reqest
+        if (isset($fhirSearchParameters['_revinclude'])) {
+            if ($fhirSearchParameters['_revinclude'] == 'Provenance:target') {
+                $provenanceRequest = true;
+            }
+        }
         foreach ($fhirSearchParameters as $fhirSearchField => $searchValue) {
             if (isset($this->resourceSearchParameters[$fhirSearchField])) {
                 $oeSearchFields = $this->resourceSearchParameters[$fhirSearchField];
@@ -141,6 +146,11 @@ abstract class FhirServiceBase
             foreach ($oeSearchResult->getData() as $index => $oeRecord) {
                 $fhirResource = $this->parseOpenEMRRecord($oeRecord);
                 $fhirSearchResult->addData($fhirResource);
+                if ($provenanceRequest) {
+                    error_log("creating provenance record");
+                    $provenanceResource = $this->createProvenanceResource($oeRecord);
+                    $fhirSearchResult->addData($provenanceResource);
+                }
             }
         }
         return $fhirSearchResult;
@@ -152,4 +162,13 @@ abstract class FhirServiceBase
      * @return OpenEMR records
      */
     abstract protected function searchForOpenEMRRecords($openEMRSearchParameters);
+
+    /**
+     * Creates the Provenance resource  for the equivalent FHIR Resource
+     *
+     * @param $dataRecord The source OpenEMR data record
+     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     */
+    abstract public function createProvenanceResource($dataRecord = array(), $encode = false);
 }
