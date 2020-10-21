@@ -416,17 +416,17 @@ class Prescription extends ORDataObject
 
             if (!isset($dataRow['id'])) {
                 //add the record to the medication list
-                sqlStatement("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1,'" . add_escape_custom($this->patient->id) . "','" . add_escape_custom($$_SESSION['authUser']) . "','" . add_escape_custom($$_SESSION['authProvider']) . "','" . add_escape_custom($this->drug) . "')");
+                sqlStatement("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1,'" . add_escape_custom($this->patient->id) . "','" . add_escape_custom($_SESSION['authUser']) . "','" . add_escape_custom($_SESSION['authProvider']) . "','" . add_escape_custom($this->drug) . "')");
             } else {
                 $dataRow = sqlQuery('update lists set activity = 1'
-                            . " ,user = '" . add_escape_custom($$_SESSION['authUser'])
-                            . "', groupname = '" . add_escape_custom($$_SESSION['authProvider']) . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
+                            . " ,user = '" . add_escape_custom($_SESSION['authUser'])
+                            . "', groupname = '" . add_escape_custom($_SESSION['authProvider']) . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
             }
         } elseif (!$med && isset($dataRow['id'])) {
             //remove the drug from the medication list if it exists
             $dataRow = sqlQuery('update lists set activity = 0'
-                            . " ,user = '" . add_escape_custom($$_SESSION['authUser'])
-                            . "', groupname = '" . add_escape_custom($$_SESSION['authProvider']) . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
+                            . " ,user = '" . add_escape_custom($_SESSION['authUser'])
+                            . "', groupname = '" . add_escape_custom($_SESSION['authProvider']) . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
         }
     }
 
