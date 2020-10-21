@@ -21,6 +21,7 @@ class AllergyIntoleranceService extends BaseService
     private const ALLERGY_TABLE = "lists";
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
+    private const FACILITY_TABLE = "facility";
     private $uuidRegistry;
     private $allergyIntoleranceValidator;
 
@@ -34,6 +35,7 @@ class AllergyIntoleranceService extends BaseService
         $this->uuidRegistry->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
         $this->allergyIntoleranceValidator = new AllergyIntoleranceValidator();
     }
 
