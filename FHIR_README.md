@@ -49,6 +49,7 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [Medication](FHIR_README.md#medication-resource)
     -   [Location](FHIR_README.md#location-resource)
     -   [CareTeam](FHIR_README.md#careTeam-resource)
+    -   [Provenance](FHIR_README.md#Provenance-resources)
 -   [Patient Portal FHIR API Endpoints](FHIR_README.md#patient-portal-fhir-endpoints)
     -   [Authorization](FHIR_README.md#patient-portal-authorization)
     -   [Patient](FHIR_README.md#patient-portal-patient-resource)
@@ -383,7 +384,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance//90feaaa2-4097-4437-966e-c425d1958dd6'
+curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance/90feaaa2-4097-4437-966e-c425d1958dd6'
 ```
 
 ---
@@ -582,6 +583,16 @@ Request:
 ```sh
 curl -X GET 'http://localhost:8300/apis/fhir/CareTeam/915e8fb4-86b2-4365-a420-d46fc07d5aed'
 ```
+
+---
+
+### Provenance Resources
+
+Provenance resources are requested by including `_revinclude=Provenance:target` in the search of a resource. Is currently supported for the following resources:
+  - AllergyIntolerance
+      ```sh
+      curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance?_revinclude=Provenance:target'
+      ```
 
 ## Patient Portal FHIR Endpoints
 
