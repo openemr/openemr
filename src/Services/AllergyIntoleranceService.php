@@ -21,6 +21,7 @@ class AllergyIntoleranceService extends BaseService
     private const ALLERGY_TABLE = "lists";
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
+    private const FACILITY_TABLE = "facility";
     private $uuidRegistry;
     private $allergyIntoleranceValidator;
 
@@ -34,6 +35,7 @@ class AllergyIntoleranceService extends BaseService
         $this->uuidRegistry->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
         $this->allergyIntoleranceValidator = new AllergyIntoleranceValidator();
     }
 
@@ -50,7 +52,6 @@ class AllergyIntoleranceService extends BaseService
     public function getAll($search = array(), $isAndCondition = true)
     {
         
-
         // Validating and Converting Patient UUID to PID
         if (isset($search['lists.pid'])) {
             $isValidPatient = $this->allergyIntoleranceValidator->validateId(
@@ -83,15 +84,17 @@ class AllergyIntoleranceService extends BaseService
 
         $sqlBindArray = array();
         $sql = "SELECT lists.*,
-        us.uuid as practitioner,
+        users.uuid as practitioner,
+        facility.uuid as organization,
         patient.uuid as puuid,
         reaction.title as reaction_title,
         verification.title as verification_title
     FROM lists
         LEFT JOIN list_options as reaction ON (reaction.option_id = lists.reaction and reaction.list_id = 'reaction')
         LEFT JOIN list_options as verification ON verification.option_id = lists.verification and verification.list_id = 'allergyintolerance-verification'
-        LEFT JOIN users as us ON us.id = lists.referredby
         RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
+        LEFT JOIN users as users ON users.username = lists.user
+        LEFT JOIN facility as facility ON facility.name = users.facility
     WHERE type = 'allergy'";
 
         if (!empty($search)) {
@@ -113,6 +116,9 @@ class AllergyIntoleranceService extends BaseService
             $row['practitioner'] = $row['practitioner'] ?
                 UuidRegistry::uuidToString($row['practitioner']) :
                 $row['practitioner'];
+            $row['organization'] = $row['organization'] ?
+                UuidRegistry::uuidToString($row['organization']) :
+            $row['organization'];
             if ($row['diagnosis'] != "") {
                 $row['diagnosis'] = $this->addCoding($row['diagnosis']);
             }
@@ -142,15 +148,17 @@ class AllergyIntoleranceService extends BaseService
         }
 
         $sql = "SELECT lists.*,
-        us.uuid as practitioner,
+        users.uuid as practitioner,
+        facility.uuid as organization,
         patient.uuid as puuid,
         reaction.title as reaction_title,
         verification.title as verification_title
     FROM lists
         LEFT JOIN list_options as reaction ON (reaction.option_id = lists.reaction and reaction.list_id = 'reaction')
         LEFT JOIN list_options as verification ON verification.option_id = lists.verification and verification.list_id = 'allergyintolerance-verification'
-        LEFT JOIN users as us ON us.id = lists.referredby
         RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
+        LEFT JOIN users as users ON users.username = lists.user
+        LEFT JOIN facility as facility ON facility.name = users.facility
     WHERE type = 'allergy' AND lists.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
@@ -160,6 +168,9 @@ class AllergyIntoleranceService extends BaseService
         $sqlResult['practitioner'] = $sqlResult['practitioner'] ?
             UuidRegistry::uuidToString($sqlResult['practitioner']) :
             $sqlResult['practitioner'];
+        $sqlResult['organization'] = $sqlResult['organization'] ?
+            UuidRegistry::uuidToString($sqlResult['organization']) :
+        $sqlResult['organization'];
         if ($sqlResult['diagnosis'] != "") {
             $row['diagnosis'] = $this->addCoding($sqlResult['diagnosis']);
         }

@@ -316,4 +316,8 @@ class FhirPractitionerService extends FhirServiceBase
     {
         return $this->practitionerService->getAll($openEMRSearchParameters, false);
     }
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    {
+        // TODO: If Required in Future
+    }
 }

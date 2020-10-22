@@ -279,4 +279,8 @@ class FhirOrganizationService extends FhirServiceBase
     {
         return $this->organizationService->getAll($openEMRSearchParameters, false);
     }
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    {
+        // TODO: If Required in Future
+    }
 }

@@ -5,6 +5,8 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
@@ -15,6 +17,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Common\Uuid;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
  * FHIR AllergyIntolerance Service
@@ -50,6 +54,59 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
             'patient' => ['lists.pid'],
             '_id' => ['lists.id']
         ];
+    }
+
+
+    /**
+     * Parses an OpenEMR allergyIntolerance record, returning the equivalent FHIR AllergyIntolerance Resource
+     *
+     * @param array $dataRecord The source OpenEMR data record
+     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @return FHIRAllergyIntolerance
+     */
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    {
+        
+        $allergyProvenance = new FHIRProvenance();
+        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $allergyProvenance->setMeta($meta);
+        
+        $id = new FHIRId();
+        $uuidString = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
+        $id->setValue($uuidString);
+        $allergyProvenance->setId($id);
+
+        if (isset($dataRecord['uuid'])) {
+            $allergyReference = new FHIRReference();
+            $allergyReference->setReference('AllergyIntolerance/' . $dataRecord['uuid']);
+            $allergyProvenance->addTarget($allergyReference);
+        }
+        if (isset($dataRecord['date'])) {
+            $allergyProvenance->setRecorded($dataRecord['date']);
+        }
+        if ((isset($dataRecord['practitioner'])) && isset($dataRecord['organization'])) {
+            $agent = new FHIRProvenanceAgent();
+            $agentType = new FHIRCodeableConcept();
+            $agentTypeCoding = array(
+                'system' => "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                'code' => 'author',
+                'display' => 'Author',
+            );
+            $agentType->addCoding($agentTypeCoding);
+            $agent->setType($agentType);
+            $allergyProvenance->addAgent($agent);
+            $agentWho = new FHIRReference();
+            $agentWho->setReference('Practitioner/' . $dataRecord['practitioner']);
+            $agent->setWho($agentWho);
+            $agentBehalf = new FHIRReference();
+            $agentBehalf->setReference('Organization/' . $dataRecord['organization']);
+            $agent->setOnBehalfOf($agentBehalf);
+        }
+        if ($encode) {
+            return json_encode($allergyProvenance);
+        } else {
+            return $allergyProvenance;
+        }
     }
 
     /**
