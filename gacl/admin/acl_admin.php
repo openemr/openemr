@@ -105,7 +105,7 @@ switch ($_POST['action']) {
 				if (is_object($rs)) {
 					while ($row = $rs->FetchRow()) {
 						list($section_value, $value, $section, $obj) = $row;
-						$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ACO: $aco");
+						$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ACO: " . ($aco ?? ''));
 						${$type_array}[$section_value.'^'.$value] = $section.' > '.$obj;
 					}
 				}

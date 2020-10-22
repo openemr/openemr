@@ -42,7 +42,8 @@ switch(strtolower(trim($object_type))) {
         break;
 }
 
-switch ($_POST['action']) {
+$postAction = $_POST['action'] ?? null;
+switch ($postAction) {
     case 'Delete':
 
         if (count($_POST['delete_sections']) > 0) {

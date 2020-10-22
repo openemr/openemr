@@ -13,13 +13,13 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 require_once('gacl_admin.inc.php');
 
 // GET takes precedence.
-if ($_GET['group_type'] == '') {
+if (empty($_GET['group_type'])) {
 	$group_type = $_POST['group_type'];
 } else {
 	$group_type = $_GET['group_type'];
 }
 
-if ($_GET['return_page'] == '') {
+if (empty($_GET['return_page'])) {
 	$return_page = $_POST['return_page'];
 } else {
 	$return_page = $_GET['return_page'];
@@ -102,7 +102,7 @@ switch ($postAction) {
 			list($id, $parent_id, $value, $name) = $db->GetRow($query);
 			//showarray($row);
 		} else {
-			$parent_id = $_GET['parent_id'];
+			$parent_id = $_GET['parent_id'] ?? null;
 			$value = '';
 			$name = '';
 		}
