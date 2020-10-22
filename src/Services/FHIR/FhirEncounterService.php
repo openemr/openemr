@@ -68,7 +68,19 @@ class FhirEncounterService extends FhirServiceBase
                 'individual' => $parctitioner,
                 'period' => ['start' => gmdate('c', strtotime($dataRecord['date']))]
             ));
+            $participantType = new FHIRCodeableConcept();
+            $participantType->addCoding(array(
+                "system" => "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                "code" => "PPRF"
+            ));
+            $participantType->setText("Primary Performer");
+            $participant->addType($participantType);
             $encounterResource->addParticipant($participant);
+        }
+
+        if (!empty($dataRecord['facility_id'])) {
+            $serviceOrg = new FHIRReference(['reference' => 'Organization/' . $dataRecord['facility_id']]);
+            $encounterResource->setServiceProvider($serviceOrg);
         }
 
         if (!empty($dataRecord['reason'])) {

@@ -33,6 +33,7 @@ class EncounterService extends BaseService
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PATIENT_TABLE = "patient_data";
     private const PROVIDER_TABLE = "users";
+    private const FACILITY_TABLE = "facility";
 
     /**
      * Default constructor.
@@ -44,6 +45,7 @@ class EncounterService extends BaseService
         $this->uuidRegistry->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PROVIDER_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
         $this->encounterValidator = new EncounterValidator();
     }
 
@@ -232,8 +234,12 @@ class EncounterService extends BaseService
 
         if ($sqlResult) {
             $puuidBytes = $this->getUuidById($sqlResult['pid'], self::PATIENT_TABLE, "pid");
+            $provideruuidBytes = $this->getUuidById($sqlResult['provider_id'], self::PROVIDER_TABLE, "id");
+            $facilityuuidBytes = $this->getUuidById($sqlResult['facility_id'], self::FACILITY_TABLE, "id");
             $sqlResult['puuid'] = UuidRegistry::uuidToString($puuidBytes);
             $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
+            $sqlResult['provider_id'] = UuidRegistry::uuidToString($provideruuidBytes);
+            $sqlResult['facility_id'] = UuidRegistry::uuidToString($facilityuuidBytes);
             $processingResult->addData($sqlResult);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
@@ -329,7 +335,12 @@ class EncounterService extends BaseService
                     array_push($sqlBindArray, $date['value']);
                 } else {
                     // equality match
-                    array_push($whereClauses, $fieldName . ' = ?');
+                    if ($search['uuid']) {
+                        //Adding fe to fieldname as SQL is failing
+                        array_push($whereClauses, 'fe.' . $fieldName . ' = ?');
+                    } else {
+                        array_push($whereClauses, $fieldName . ' = ?');
+                    }
                     array_push($sqlBindArray, $fieldValue);
                 }
             }
@@ -343,10 +354,12 @@ class EncounterService extends BaseService
         if ($statementResults) {
             while ($row = sqlFetchArray($statementResults)) {
                 $puuidBytes = $this->getUuidById($row['pid'], self::PATIENT_TABLE, "pid");
-                $provideruuidBytes = $this->getUuidById($row['pid'], self::PROVIDER_TABLE, "id");
+                $provideruuidBytes = $this->getUuidById($row['provider_id'], self::PROVIDER_TABLE, "id");
+                $facilityuuidBytes = $this->getUuidById($row['facility_id'], self::FACILITY_TABLE, "id");
                 $row['puuid'] = UuidRegistry::uuidToString($puuidBytes);
                 $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
                 $row['provider_id'] = UuidRegistry::uuidToString($provideruuidBytes);
+                $row['facility_id'] = UuidRegistry::uuidToString($facilityuuidBytes);
                 $processingResult->addData($row);
             }
         } else {
