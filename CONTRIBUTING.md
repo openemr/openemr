@@ -15,8 +15,8 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 	- If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
     - If you want to monitor and easily manage the docker environment, please also [install openemr-monitor](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-monitor) and [install portainer](https://github.com/openemr/openemr-devops/tree/master/utilities/portainer) for your system
 	- If you want to migrate the running docker environment, please try [openemr-env-migrator](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-migrator)
-3. Run `docker-compose up` from your command line
 	- If you want to set up with orchestration tool, please try [OpenEMR Kubernetes Orchestrations](https://github.com/openemr/openemr-devops/tree/master/kubernetes/minikube)
+3. Run `docker-compose up` from your command line
     - When the build is done, you'll see the following message:
     ```sh
     openemr_1  | Love OpenEMR? You can now support the project via the open collective:
