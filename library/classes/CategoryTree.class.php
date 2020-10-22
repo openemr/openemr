@@ -24,7 +24,7 @@ class CategoryTree extends Tree
         $sql = "SELECT c.id, c.name, c.aco_spec, d.id AS document_id, d.name AS document_name, d.type, d.url, d.docdate"
             . " FROM categories AS c, documents AS d, categories_to_documents AS c2d"
             . " WHERE c.id = c2d.category_id"
-            . " AND c2d.document_id = d.id";
+            . " AND c2d.document_id = d.id AND d.deleted = 0";
 
         if (is_numeric($patient_id)) {
             if ($patient_id == "00") {

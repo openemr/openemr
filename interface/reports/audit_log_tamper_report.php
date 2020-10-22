@@ -216,6 +216,12 @@ $check_sum = isset($_GET['check_sum']);
         $cryptoGen = new CryptoGen();
 
         while ($iter = sqlFetchArray($ret)) {
+            if (empty($iter["id"])) {
+                // Log item is missing; it has been deleted.
+                echo "<tr><td colspan='6' class='text tamperColor''>" . xlt("The log entry with following id has been deleted") . ": " . $iter['log_id_hash'] . "</td></tr>";
+                continue;
+            }
+
             //translate comments
             $patterns = array ('/^success/','/^failure/','/ encounter/');
             $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));

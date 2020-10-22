@@ -65,7 +65,7 @@ function submitme(new_validate,e,form_id, constraints) {
             //Variables used for the validation library and validation mechanism
             /*Get the constraint from the DB-> LBF forms accordinf the form_id*/
             if(constraints==undefined || constraints=='') {
-                <?php  $constraints = LBF_Validation::generate_validate_constraints($form_id);?>
+                <?php  $constraints = LBF_Validation::generate_validate_constraints($form_id ?? '');?>
                  constraints = <?php echo $constraints;?>;
             }
             var valid = true ;

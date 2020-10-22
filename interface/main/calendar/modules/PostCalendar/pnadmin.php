@@ -847,7 +847,7 @@ function postcalendar_admin_testSystem()
 
     if (AclMain::aclCheckCore('admin', 'super')) {
         $header = "<head><title>" . xlt("Diagnostics") . "</title></head><body>";
-        $output .= $header;
+        $output = $header;
         $output .= '<div class="container mt-3"><div class="row"><div class="col-sm-12"><div class="clearfix">';
         $output .= '<h2>' . xlt('Diagnostics') . '</h2>';
         $output .= '</div></div></div>';

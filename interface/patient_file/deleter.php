@@ -174,32 +174,15 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id)
     }
 }
 
-// Delete a specified document including its associated relations and file.
+// Delete a specified document including its associated relations.
+//  Note the specific file is not deleted (instead flagged as deleted), since required to keep file for
+//   ONC 2015 certification purposes.
 //
 function delete_document($document)
 {
-    $trow = sqlQuery("SELECT url, thumb_url, storagemethod, couch_docid, couch_revid FROM documents WHERE id = ?", array($document));
-    $url = $trow['url'];
-    $thumb_url = $trow['thumb_url'];
+    sqlStatement("UPDATE `documents` SET `deleted` = 1 WHERE id = ?", [$document]);
     row_delete("categories_to_documents", "document_id = '" . add_escape_custom($document) . "'");
-    row_delete("documents", "id = '" . add_escape_custom($document) . "'");
     row_delete("gprelations", "type1 = 1 AND id1 = '" . add_escape_custom($document) . "'");
-
-    switch ((int)$trow['storagemethod']) {
-        //for hard disk store
-        case 0:
-            @unlink(substr($url, 7));
-
-            if (!is_null($thumb_url)) {
-                @unlink(substr($thumb_url, 7));
-            }
-            break;
-        //for CouchDB store
-        case 1:
-            $couchDB = new CouchDB();
-            $couchDB->DeleteDoc($trow['couch_docid'], $trow['couch_revid']);
-            break;
-    }
 }
 ?>
 <html>
@@ -259,7 +242,7 @@ function popup_close() {
                 row_delete("forms", "pid = '" . add_escape_custom($patient) . "'");
 
                 // Delete all documents for the patient.
-                $res = sqlStatement("SELECT id FROM documents WHERE foreign_id = ?", array($patient));
+                $res = sqlStatement("SELECT id FROM documents WHERE foreign_id = ? AND deleted = 0", array($patient));
                 while ($row = sqlFetchArray($res)) {
                     delete_document($row['id']);
                 }

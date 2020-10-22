@@ -106,7 +106,7 @@ function pic_array($pid, $picture_directory)
     $sql_query = "select documents.id from documents join categories_to_documents " .
     "on documents.id = categories_to_documents.document_id " .
     "join categories on categories.id = categories_to_documents.category_id " .
-    "where categories.name like ? and documents.foreign_id = ?";
+    "where categories.name like ? and documents.foreign_id = ? and documents.deleted = 0";
     if ($query = sqlStatement($sql_query, array($picture_directory, $pid))) {
         while ($results = sqlFetchArray($query)) {
             array_push($pics, $results['id']);
@@ -1453,7 +1453,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                                 "INNER JOIN categories_to_documents " .
                                 "ON categories_to_documents.document_id=documents.id " .
                                 "WHERE categories_to_documents.category_id=? " .
-                                "AND documents.foreign_id=? " .
+                                "AND documents.foreign_id=? AND documents.deleted = 0" .
                                 "ORDER BY documents.date DESC";
                                 $resNew2 = sqlStatement($query, array($categoryId, $pid));
                                 $limitCounter = 0; // limit to one entry per category

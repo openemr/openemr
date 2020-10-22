@@ -291,8 +291,8 @@ if ($_POST['form_save']) {
             "'" . add_escape_custom($_POST['form_occur'])       . "', " .
             "'" . add_escape_custom($_POST['form_classification']) . "', " .
             "'" . add_escape_custom($_POST['form_referredby'])  . "', " .
-            "'" . add_escape_custom($$_SESSION['authUser'])     . "', " .
-            "'" . add_escape_custom($$_SESSION['authProvider']) . "', " .
+            "'" . add_escape_custom($_SESSION['authUser'])     . "', " .
+            "'" . add_escape_custom($_SESSION['authProvider']) . "', " .
             "'" . add_escape_custom($_POST['form_outcome'])     . "', " .
             "'" . add_escape_custom($_POST['form_destination']) . "', " .
             "'" . add_escape_custom($_POST['form_reinjury_id']) . "', " .

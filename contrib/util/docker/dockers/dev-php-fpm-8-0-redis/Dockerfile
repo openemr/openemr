@@ -35,8 +35,8 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
                            sockets \
                            tokenizer \
                            xmlreader \
-                           calendar
-                           # redis IS NOT YET WORKING I BUILD. KEEP TRYING TO GET THIS TO WORK INTERMITTENTLY
+                           calendar \
+                           redis
 
 # Copy over the php.ini conf
 COPY php.ini /usr/local/etc/php/php.ini

@@ -21,6 +21,7 @@ require_once("$srcdir/calendar.inc");
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 header("Content-type: text/xml");
 header("Cache-Control: no-cache");
@@ -71,8 +72,9 @@ if ($_POST["control"] == "membership") {
             exit;
         }
 
-        //add the group, then return updated membership data
+        //add the group, then log it, then return updated membership data
         AclExtended::addUserAros($_POST["name"], $_POST["selection"]);
+        EventAuditLogger::instance()->newEvent("security-administration-update", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Added " . $_POST["name"] . " to following access group(s): " . implode(', ', $_POST["selection"]));
         echo user_group_listings_xml($_POST["name"], $error);
     }
 
@@ -101,8 +103,9 @@ if ($_POST["control"] == "membership") {
             exit;
         }
 
-        //remove the group(s), then return updated membership data
+        //remove the group(s), then log it, then return updated membership data
         AclExtended::removeUserAros($_POST["name"], $_POST["selection"]);
+        EventAuditLogger::instance()->newEvent("security-administration-update", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Removed " . $_POST["name"] . " from following access group(s): " . implode(', ', $_POST["selection"]));
         echo user_group_listings_xml($_POST["name"], $error);
     }
 }
