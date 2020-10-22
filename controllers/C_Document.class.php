@@ -184,8 +184,8 @@ class C_Document extends Controller
         }
 
         $doDecryption = false;
-        $encrypted = $_POST['encrypted'];
-        $passphrase = $_POST['passphrase'];
+        $encrypted = $_POST['encrypted'] ?? false;
+        $passphrase = $_POST['passphrase'] ?? '';
         if (
             !$GLOBALS['hide_document_encryption'] &&
             $encrypted && $passphrase
@@ -557,8 +557,8 @@ class C_Document extends Controller
      * */
     function retrieve_action(string $patient_id = null, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
     {
-        $encrypted = $_POST['encrypted'];
-        $passphrase = $_POST['passphrase'];
+        $encrypted = $_POST['encrypted'] ?? false;
+        $passphrase = $_POST['passphrase'] ?? '';
         $doEncryption = false;
         if (
             !$GLOBALS['hide_document_encryption'] &&
@@ -959,9 +959,14 @@ class C_Document extends Controller
             }
         }
 
-        $current_hash = sha1($content);
-        $messages = xl('Current Hash') . ": " . $current_hash . "<br />";
-        $messages .= xl('Stored Hash') . ": " . $d->get_hash() . "<br />";
+        if (!empty($d->get_hash()) && (strlen($d->get_hash()) < 50)) {
+            // backward compatibility for documents that were hashed prior to OpenEMR 6.0.0
+            $current_hash = sha1($content);
+        } else {
+            $current_hash = hash('sha3-512', $content);
+        }
+        $messages = xl('Current Hash') . ": " . $current_hash . " | ";
+        $messages .= xl('Stored Hash') . ": " . $d->get_hash();
         if ($d->get_hash() == '') {
             $d->hash = $current_hash;
             $d->persist();
@@ -970,7 +975,7 @@ class C_Document extends Controller
         } elseif ($current_hash != $d->get_hash()) {
             $messages .= xl('Hash does not match. Data integrity has been compromised.');
         } else {
-            $messages .= xl('Document passed integrity check.');
+            $messages = xl('Document passed integrity check. | ') . $messages;
         }
         $this->_state = false;
         $this->assign("messages", $messages);

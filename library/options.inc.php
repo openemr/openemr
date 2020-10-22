@@ -72,10 +72,12 @@ function optionalAge($frow, $date, &$asof, $description = '')
         return '';
     }
 
+    $edit_options = $frow['edit_options'] ?? null;
+
     $date = substr($date, 0, 10);
-    if (isOption($frow['edit_options'], 'A') !== false) {
+    if (isOption($edit_options, 'A') !== false) {
         $format = 0;
-    } elseif (isOption($frow['edit_options'], 'B') !== false) {
+    } elseif (isOption($edit_options, 'B') !== false) {
         $format = 3;
     } else {
         return '';
@@ -843,7 +845,7 @@ function generate_form_field($frow, $currvalue)
                 }
                 echo "<td width='" . attr($tdpct) . "%' nowrap>";
                 echo "<input type='checkbox' name='form_{$field_id_esc}[$option_id_esc]'" .
-                "id='form_{$field_id_esc}[$option_id_esc]' class='form-control$smallform' value='1' $lbfonchange";
+                "id='form_{$field_id_esc}[$option_id_esc]' class='form-check-inline' value='1' $lbfonchange";
                 if (in_array($option_id, $avalue)) {
                     echo " checked";
                 }
@@ -930,8 +932,8 @@ function generate_form_field($frow, $currvalue)
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
             $option_id_esc = htmlspecialchars($option_id, ENT_QUOTES);
-            $restype = substr($avalue[$option_id], 0, 1);
-            $resnote = substr($avalue[$option_id], 2);
+            $restype = substr(($avalue[$option_id] ?? ''), 0, 1);
+            $resnote = substr(($avalue[$option_id] ?? ''), 2);
 
             // Added 5-09 by BM - Translate label if applicable
             echo "<tr><td>" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES) . "&nbsp;</td>";
@@ -1011,7 +1013,7 @@ function generate_form_field($frow, $currvalue)
 
             $option_id = htmlspecialchars($option_id, ENT_QUOTES);
             echo "<td><input type='checkbox' name='check_{$field_id_esc}[$option_id_esc]'" .
-            " id='check_{$field_id_esc}[$option_id_esc]' class='form-control$smallform' value='1' $lbfonchange";
+            " id='check_{$field_id_esc}[$option_id_esc]' class='form-check-inline' value='1' $lbfonchange";
             if ($restype) {
                 echo " checked";
             }
@@ -1047,10 +1049,7 @@ function generate_form_field($frow, $currvalue)
         );
         // show the add button if user has access to correct list
         $inputValue = htmlspecialchars(xl('Add'), ENT_QUOTES);
-        if ($small_btn) {
-            $btnsm = " btn-sm";
-        }
-        $outputAddButton = "<div class='input-group-append'><input type='button' class='btn btn-primary" . $btnsm . " addtolist' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
+        $outputAddButton = "<div class='input-group-append'><input type='button' class='btn btn-primary addtolist' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
         $field_id_esc . "' value='$inputValue' $disabled /></div>";
         if (AclExtended::acoExist('lists', $list_id)) {
             // a specific aco exist for this list, so ensure access
@@ -1091,12 +1090,12 @@ function generate_form_field($frow, $currvalue)
             " value='$option_id_esc' $lbfonchange";
             // Support for edit options M and m.
             if (isOption($edit_options, 'M')) {
-                echo " class='form-control$smallform'";
+                echo " class='form-check-inline'";
                 echo " onclick='checkGroupMembers(this, $membership_group_number);'";
             } elseif (isOption($edit_options, 'm')) {
-                echo " class='form-control$smallform lbf_memgroup_$membership_group_number'";
+                echo " class='form-check-inline lbf_memgroup_$membership_group_number'";
             } else {
-                echo " class='form-control$smallform'";
+                echo " class='form-check-inline'";
             }
             //
             if (
@@ -1140,18 +1139,22 @@ function generate_form_field($frow, $currvalue)
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = oeFormatShortDate($tmp[2]);
+                $reslist = '';
                 break;
             case "2":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = "";
+                $reslist = '';
                 break;
             case "1":
                 $resnote = $tmp[0];
                 $resdate = $restype = "";
+                $reslist = '';
                 break;
             default:
                 $restype = $resdate = $resnote = "";
+                $reslist = '';
                 break;
         }
 
@@ -1212,7 +1215,7 @@ function generate_form_field($frow, $currvalue)
         echo "<td class='text'><input type='radio'" .
         " name='radio_{$field_id_esc}'" .
         " id='radio_{$field_id_esc}[current]'" .
-        " class='form-control$smallform'" .
+        " class='form-check-inline'" .
         " value='current" . $field_id_esc . "' $lbfonchange";
         if ($restype == "current" . $field_id) {
             echo " checked";
@@ -1227,7 +1230,7 @@ function generate_form_field($frow, $currvalue)
         echo "<td class='text'><input type='radio'" .
         " name='radio_{$field_id_esc}'" .
         " id='radio_{$field_id_esc}[quit]'" .
-        " class='form-control$smallform'" .
+        " class='form-check-inline'" .
         " value='quit" . $field_id_esc . "' $lbfonchange";
         if ($restype == "quit" . $field_id) {
             echo " checked";
@@ -1247,7 +1250,7 @@ function generate_form_field($frow, $currvalue)
         // never
         echo "<td class='text'><input type='radio'" .
         " name='radio_{$field_id_esc}'" .
-        " class='form-control$smallform'" .
+        " class='form-check-inline'" .
         " id='radio_{$field_id_esc}[never]'" .
         " value='never" . $field_id_esc . "' $lbfonchange";
         if ($restype == "never" . $field_id) {
@@ -1261,7 +1264,7 @@ function generate_form_field($frow, $currvalue)
         echo " />" . xlt('Never') . "&nbsp;</td>";
         // Not Applicable
         echo "<td class='text'><input type='radio'" .
-        " class='form-control$smallform' " .
+        " class='form-check-inline' " .
         " name='radio_{$field_id}'" .
         " id='radio_{$field_id}[not_applicable]'" .
         " value='not_applicable" . $field_id . "' $lbfonchange";
@@ -1902,18 +1905,22 @@ function generate_print_field($frow, $currvalue)
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = oeFormatShortDate($tmp[2]);
+                $reslist = '';
                 break;
             case "2":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = "";
+                $reslist = '';
                 break;
             case "1":
                 $resnote = $tmp[0];
                 $resdate = $restype = "";
+                $reslist = '';
                 break;
             default:
                 $restype = $resdate = $resnote = "";
+                $reslist = '';
                 break;
         }
 
@@ -1945,14 +1952,14 @@ function generate_print_field($frow, $currvalue)
             echo "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":&nbsp;&nbsp;</td>";
         }
 
-        echo "<td><input type='radio' class='form-control'";
+        echo "<td><input type='radio' class='form-check-inline'";
         if ($restype == "current" . $field_id) {
             echo " checked";
         }
 
         echo "/>" . htmlspecialchars(xl('Current'), ENT_NOQUOTES) . "&nbsp;</td>";
 
-        echo "<td><input type='radio' class='form-control'";
+        echo "<td><input type='radio' class='form-check-inline'";
         if ($restype == "current" . $field_id) {
             echo " checked";
         }
@@ -1964,14 +1971,14 @@ function generate_print_field($frow, $currvalue)
         " class='under form-control'" .
         " /></td>";
 
-        echo "<td><input type='radio' class='form-control'";
+        echo "<td><input type='radio' class='form-check-inline'";
         if ($restype == "current" . $field_id) {
             echo " checked";
         }
 
         echo " />" . htmlspecialchars(xl('Never'), ENT_NOQUOTES) . "</td>";
 
-        echo "<td><input type='radio' class='form-control'";
+        echo "<td><input type='radio' class='form-check-inline'";
         if ($restype == "not_applicable" . $field_id) {
             echo " checked";
         }
@@ -2185,7 +2192,7 @@ function generate_display_field($frow, $currvalue)
     } elseif ($data_type == 10 || $data_type == 11) { // provider
         $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
         "WHERE id = ?", array($currvalue));
-        $s = htmlspecialchars(ucwords($urow['fname'] . " " . $urow['lname']), ENT_NOQUOTES);
+        $s = text(ucwords(($urow['fname'] ?? '') . " " . ($urow['lname'] ?? '')));
     } elseif ($data_type == 12) { // pharmacy list
         $pres = get_pharmacies();
         while ($prow = sqlFetchArray($pres)) {
@@ -2327,8 +2334,8 @@ function generate_display_field($frow, $currvalue)
         $s .= "<table class='table'>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
-            $restype = substr($avalue[$option_id], 0, 1);
-            $resnote = substr($avalue[$option_id], 2);
+            $restype = substr(($avalue[$option_id] ?? ''), 0, 1);
+            $resnote = substr(($avalue[$option_id] ?? ''), 2);
             if (empty($restype) && empty($resnote)) {
                 continue;
             }
@@ -2433,18 +2440,22 @@ function generate_display_field($frow, $currvalue)
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = oeFormatShortDate($tmp[2]);
+                $reslist = '';
                 break;
             case "2":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = "";
+                $reslist = '';
                 break;
             case "1":
                 $resnote = $tmp[0];
                 $resdate = $restype = "";
+                $reslist = '';
                 break;
             default:
                 $restype = $resdate = $resnote = "";
+                $reslist = '';
                 break;
         }
 
@@ -2552,7 +2563,7 @@ function generate_display_field($frow, $currvalue)
             if ($i > 0) {
                   $s = $s . ", " . htmlspecialchars($lrow['name'], ENT_NOQUOTES);
             } else {
-                $s = htmlspecialchars($lrow['name'], ENT_NOQUOTES);
+                $s = text($lrow['name'] ?? '');
             }
             $i++;
         }
@@ -2572,7 +2583,8 @@ function generate_plaintext_field($frow, $currvalue)
     $data_type = $frow['data_type'];
     $field_id  = isset($frow['field_id']) ? $frow['field_id'] : null;
     $list_id   = $frow['list_id'];
-    $backup_list = $frow['backup_list'];
+    $backup_list = $frow['backup_list'] ?? null;
+    $edit_options = $frow['edit_options'] ?? null;
     $s = '';
 
     // generic selection list or the generic selection list with add on the fly
@@ -2595,7 +2607,7 @@ function generate_plaintext_field($frow, $currvalue)
     } elseif ($data_type == 2 || $data_type == 3 || $data_type == 15) { // simple or long text field
         $s = $currvalue;
     } elseif ($data_type == 4) { // date
-        $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
+        $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
         if (!$modtmp) {
             $s = text(oeFormatShortDate($currvalue));
         } else {
@@ -3609,7 +3621,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
         } elseif ($data_type == 28 || $data_type == 32) {
             // $_POST["$prefix$field_id"] is an date text fields with companion
             // radio buttons to be imploded into "notes|type|date".
-            $restype = $_POST["radio_{$field_id}"];
+            $restype = $_POST["radio_{$field_id}"] ?? '';
             if (empty($restype)) {
                 $restype = '0';
             }

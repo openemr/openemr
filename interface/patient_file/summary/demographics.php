@@ -106,7 +106,7 @@ function pic_array($pid, $picture_directory)
     $sql_query = "select documents.id from documents join categories_to_documents " .
     "on documents.id = categories_to_documents.document_id " .
     "join categories on categories.id = categories_to_documents.category_id " .
-    "where categories.name like ? and documents.foreign_id = ?";
+    "where categories.name like ? and documents.foreign_id = ? and documents.deleted = 0";
     if ($query = sqlStatement($sql_query, array($picture_directory, $pid))) {
         while ($results = sqlFetchArray($query)) {
             array_push($pics, $results['id']);
@@ -132,7 +132,7 @@ function get_document_by_catg($pid, $doc_catg)
         "ORDER BY d.date DESC LIMIT 1", array($pid, $doc_catg));
     }
 
-    return ($result['id']);
+    return ($result['id'] ?? false);
 }
 
 // Display image in 'widget style'
@@ -608,7 +608,11 @@ require_once("$srcdir/options.js.php");
     function setMyPatient() {
         <?php
         if (isset($_GET['set_pid'])) {
-            $date_of_death = is_patient_deceased($pid)['date_deceased']; ?>
+            $date_of_death = is_patient_deceased($pid);
+            if (!empty($date_of_death)) {
+                $date_of_death = $date_of_death['date_deceased'];
+            }
+            ?>
         parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) .
                 "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",'',";
         if (empty($date_of_death)) {
@@ -1449,7 +1453,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                                 "INNER JOIN categories_to_documents " .
                                 "ON categories_to_documents.document_id=documents.id " .
                                 "WHERE categories_to_documents.category_id=? " .
-                                "AND documents.foreign_id=? " .
+                                "AND documents.foreign_id=? AND documents.deleted = 0" .
                                 "ORDER BY documents.date DESC";
                                 $resNew2 = sqlStatement($query, array($categoryId, $pid));
                                 $limitCounter = 0; // limit to one entry per category
@@ -1703,7 +1707,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
                                 $count2++;
                             }
                             //if there is no appt and no recall
-                            if (($count < 1) && ($count2 < 1)) {
+                            if (($count < 1) && empty($count2)) {
                                 echo "<br /><br />&nbsp;&nbsp;<a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">" . xlt('No Recall') . "</a>";
                             }
                             $count = 0;
@@ -1897,11 +1901,11 @@ if ($track_is_registered) {
 <script>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
-        <?php echo $condition_str; ?>
+        <?php echo ($condition_str ?? ''); ?>
     ];
     checkSkipConditions();
 
-    var isPost = <?php echo js_escape($showEligibility); ?>;
+    var isPost = <?php echo js_escape($showEligibility ?? false); ?>;
     var listId = '#' + <?php echo js_escape($list_id); ?>;
     $(function () {
         $(listId).addClass("active");

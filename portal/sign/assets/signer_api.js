@@ -2,7 +2,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -152,7 +152,7 @@ function getSignature(othis, isInit = false, returnSignature = false) {
                 cpid = $(othis).data('pid');
                 cuser = $(othis).data('user');
             }
-            let otype = $(othis).attr('type');
+            let otype = $(othis).attr('data-type');
             if (typeof otype === 'undefined' || typeof otype === null) {
                 otype = $(othis).data('type');
             }
@@ -184,43 +184,42 @@ function getSignature(othis, isInit = false, returnSignature = false) {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
                 }
-            }).then(signature => signature.json())
-                .then(signature => {
-                    if (returnSignature === true) {
-                        return signature;
-                    }
-                    placeSignature(signature, othis).then(function (r) {
-                        resolve(r)
-                    })
+            }).then(signature => signature.json()).then(signature => {
+                if (returnSignature === true) {
+                    return signature;
+                }
+                placeSignature(signature, othis).then(function (r) {
+                    resolve(r)
+                })
 
-                }).catch(error => signerAlertMsg(error));
+            }).catch(error => signerAlertMsg(error));
         }
     )
 }
 
 function placeSignature(responseData, el) {
     return new Promise(resolve => {
-        if (responseData.message == "error") {
+        if (responseData.message === "error") {
             $(el).attr('src', "");
             $(el).attr('alt', "No Signature on File");
             signerAlertMsg('Error Patient and or User Id missing');
             return;
-        } else if (responseData.message == "insert error") {
+        } else if (responseData.message === "insert error") {
             $(el).attr('src', "");
             $(el).attr('alt', "No Signature on File");
             signerAlertMsg('Error adding signature');
             return;
-        } else if (responseData.message == "waiting" && $(el).attr('type') == 'patient-signature') {
+        } else if (responseData.message === "waiting" && $(el).attr('data-type') === 'patient-signature') {
             $(el).attr('src', "");
             $(el).attr('alt', "No Signature on File");
             $("#isAdmin").attr('checked', false);
             return;
-        } else if (responseData.message == "waiting" && $(el).attr('type') == 'admin-signature') {
+        } else if (responseData.message === "waiting" && $(el).attr('data-type') === 'admin-signature') {
             $(el).attr('src', "");
             $(el).attr('alt', "No Signature on File");
             $("#isAdmin").attr('checked', true);
             return;
-        } else if (responseData.message == "waiting") {
+        } else if (responseData.message === "waiting") {
             $(el).attr('src', "");
             $(el).attr('alt', "No Signature on File");
             return;
@@ -282,11 +281,10 @@ function archiveSignature(signImage = '', edata = '') {
             'Content-Type': 'application/json',
             'Connection': 'close'
         }
-    }).then(response => response.json())
-        .then(function (response) {
-                $("#openSignModal").modal("hide");
-            }
-        ).catch(error => signerAlertMsg(error));
+    }).then(response => response.json()).then(function (response) {
+            $("#openSignModal").modal("hide");
+        }
+    ).catch(error => signerAlertMsg(error));
 
     return true;
 }
@@ -294,6 +292,7 @@ function archiveSignature(signImage = '', edata = '') {
 function isDataURL(dataUrl) {
     return !!dataUrl.match(isDataURL.regex);
 }
+
 isDataURL.regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
 
 let responseChannel = '';
@@ -311,15 +310,11 @@ $(function () {
     url += "/portal/sign/assets/signer_modal.php?isPortal=" + encodeURIComponent(isPortal);
     fetch(url, {
         credentials: 'include'
-    })
-        .then(jsonTemplate => jsonTemplate.json())
-        .then(jsonTemplate => {
-            $("body").append(jsonTemplate);
-        })
-        .then(function () {
-            initSignerApi();
-        })
-        .catch((error) => alert("Modal Template Fetch:" + error));
+    }).then(jsonTemplate => jsonTemplate.json()).then(jsonTemplate => {
+        $("body").append(jsonTemplate);
+    }).then(function () {
+        initSignerApi();
+    }).catch((error) => alert("Modal Template Fetch:" + error));
 });
 
 function initSignerApi() {
@@ -433,6 +428,7 @@ function initSignerApi() {
                 break;
         }
     };
+
     // ya think there'd be more!
     function callModal(e) {
         cpid = e.data.cpid;
@@ -469,7 +465,8 @@ function initSignerApi() {
     // existing portal workflow is legacy and will deprecate here soon.
     bindFetch = function () {
         $("img[data-action=fetch_signature]").on("click", function (e) {
-            e.stopPropagation();e.preventDefault();
+            e.stopPropagation();
+            e.preventDefault();
             $lastEl = $(this);
             let pid = $lastEl.data('pid');
             let user = $lastEl.data('user');
@@ -480,7 +477,7 @@ function initSignerApi() {
             if (type === "admin-signature" && isPortal) {
                 // don't allow patient to change user signature.
                 return false;
-            } else if(isPortal) {
+            } else if (isPortal) {
                 getSignature(this);
                 return false;
             }
@@ -500,39 +497,38 @@ function initSignerApi() {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
                 }
-            }).then(response => response.json())
-                .then(function (response) {
-                    let signerName = '';
-                    if (type === "admin-signature") {
-                        signerName = response.userName;
-                        adminName = signerName;
-                    } else {
-                        signerName = response.ptName;
-                        ptName = signerName;
-                    } // response.signature is available if needed in future.
-                    if (!isRemoteAvail) {
-                        let e = [];
-                        e.data = {
-                            cpid: pid,
-                            cuser: user,
-                            type: type,
-                            signerName: signerName
-                        };
-                        callModal(e);
-                        return;
-                    }
-                    if (useRemote) {
-                        actionChannel.postMessage({
-                            cmd: 'fetch_signature',
-                            auth: apiToken,
-                            cpid: pid,
-                            cuser: user,
-                            signerName: signerName,
-                            type: type
-                        });
-                        ack();
-                    }
-                }).catch(error => signerAlertMsg(error));
+            }).then(response => response.json()).then(function (response) {
+                let signerName = '';
+                if (type === "admin-signature") {
+                    signerName = response.userName;
+                    adminName = signerName;
+                } else {
+                    signerName = response.ptName;
+                    ptName = signerName;
+                } // response.signature is available if needed in future.
+                if (!isRemoteAvail) {
+                    let e = [];
+                    e.data = {
+                        cpid: pid,
+                        cuser: user,
+                        type: type,
+                        signerName: signerName
+                    };
+                    callModal(e);
+                    return;
+                }
+                if (useRemote) {
+                    actionChannel.postMessage({
+                        cmd: 'fetch_signature',
+                        auth: apiToken,
+                        cpid: pid,
+                        cuser: user,
+                        signerName: signerName,
+                        type: type
+                    });
+                    ack();
+                }
+            }).catch(error => signerAlertMsg(error));
         });
 
         $(function () {
@@ -580,9 +576,11 @@ function initSignerApi() {
         });
 
         $(openPatientButton).on("click", function (e) {
+            placeSignatureButton.setAttribute('data-type', 'patient-signature');
             $(wrapper).modal({backdrop: "static"});
         });
         $(openAdminButton).on("click", function (e) {
+            placeSignatureButton.setAttribute('data-type', 'admin-signature');
             $(wrapper).modal({backdrop: "static"});
         });
 
@@ -590,24 +588,13 @@ function initSignerApi() {
             signaturePad.clear();
         });
 
-        if(typeof placeSignatureButton === 'undefined' || !placeSignatureButton) {
+        if (typeof placeSignatureButton === 'undefined' || !placeSignatureButton) {
             placeSignatureButton = wrapper.querySelector("[data-action=place]");
         }
 
         // for our dynamically added modal
         $("#openSignModal").on('show.bs.modal', function (e) {
-            let type = '';
-            if (typeof e.relatedTarget !== 'undefined') {
-                type = e.relatedTarget.getAttribute('data-type');
-                if (!type) { // rarely should this be seen but in case. Won't translate.
-                    let torf = confirm("Click Okay if Signatory is Patient.\nClick Cancel if Signatory is User");
-                    if (torf) {
-                        type = "patient-signature";
-                    } else {
-                        type = "admin-signature";
-                    }
-                }
-            }
+            let type = $('#openSignModal #signatureModal').data('type');
             if (type) {
                 if (type === "admin-signature") {
                     $("#isAdmin").prop('checked', true);
@@ -727,10 +714,10 @@ function initSignerApi() {
         });
 
         if (showSignature !== null)
-        showSignature.addEventListener("click", function (event) { // for modal view
-            let showElement = document.getElementById('signatureModal');
-            getSignature(showElement);
-        });
+            showSignature.addEventListener("click", function (event) { // for modal view
+                let showElement = document.getElementById('signatureModal');
+                getSignature(showElement);
+            });
 
         function resizeCanvas() {
             let ratio = Math.max(window.devicePixelRatio || 1, 1);

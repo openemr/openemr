@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($type == 'admin-signature') {
         $req_pid = 0;
     }
-    $sig_hash = sha1($output);
+    $sig_hash = hash('sha3-512', $output);
     $created = time();
     $ip = $_SERVER['REMOTE_ADDR'];
     $status = 'filed';

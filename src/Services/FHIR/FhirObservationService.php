@@ -9,6 +9,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\ObservationLabService;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 
 /**
  * FHIR Observation Service
@@ -63,26 +64,24 @@ class FhirObservationService extends FhirServiceBase
 
         $categoryCoding = new FHIRCoding();
         $categoryCode = new FHIRCodeableConcept();
-        $categoryCoding->setCode('complex');
-        $categoryCoding->setSystem('http://terminology.hl7.org/CodeSystem/observation-category');
-        $categoryCoding->setDisplay('laboratory');
-        $categoryCode->addCoding($categoryCoding);
-        $observationResource->setCode($categoryCode);
-
+        if (!empty($dataRecord['procedure_code'])) {
+            $categoryCoding->setCode($dataRecord['procedure_code']);
+            $categoryCoding->setSystem('http://loinc.org');
+            $categoryCoding->setDisplay($dataRecord['procedure_name']);
+            $categoryCode->addCoding($categoryCoding);
+            $observationResource->setCode($categoryCode);
+        }
+       
         $subject = new FHIRReference();
         $subject->setReference('Patient/' . $dataRecord['puuid']);
         $observationResource->setSubject($subject);
 
-        $observationCode = new FHIRCoding();
-        $observationCode->setCode($dataRecord['result_code']);
-        $observationResource->setCode($observationCode);
-
-        if (!empty($dataRecord['date'])) {
-            $observationResource->setEffectiveDateTime($dataRecord['date']);
+        if (!empty($dataRecord['date_report'])) {
+            $observationResource->setEffectiveDateTime(gmdate('c', strtotime($dataRecord['date_report'])));
         }
 
         if (!empty($dataRecord['result_status'])) {
-            $observationResource->setStatus(strtoupper($dataRecord['result_status']));
+            $observationResource->setStatus(($dataRecord['result_status']));
         } else {
             $observationResource->setStatus("unknown");
         }
@@ -96,8 +95,14 @@ class FhirObservationService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['result'])) {
-            $observationResource->setValueRange($dataRecord['result']);
+            $quantity = new FHIRQuantity();
+            $quantity->setValue($dataRecord['result']);
+            if (!empty($dataRecord['units'])) {
+                $quantity->setUnit($dataRecord['units']);
+            }
+            $observationResource->setValueQuantity($quantity);
         }
+        
 
         if (!empty($dataRecord['comments'])) {
             $observationResource->addNote(['text' => $dataRecord['comments']]);
@@ -151,6 +156,10 @@ class FhirObservationService extends FhirServiceBase
     }
 
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        // TODO: If Required in Future
+    }
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
     }

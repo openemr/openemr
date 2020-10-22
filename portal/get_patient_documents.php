@@ -25,7 +25,7 @@
     // get the temporary folder
     $tmp = $GLOBALS['temporary_files_dir'];
     // get all the documents of the patient
-    $sql = "SELECT url, id, mimetype, `name` FROM `documents` WHERE `foreign_id` = ?";
+    $sql = "SELECT url, id, mimetype, `name` FROM `documents` WHERE `foreign_id` = ? AND `deleted` = 0";
     $fres = sqlStatement($sql, array($pid));
 
     // for every document

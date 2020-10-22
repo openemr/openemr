@@ -86,18 +86,27 @@ class FhirProcedureService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['diagnoses'])) {
-            $diagnosisCoding = new FHIRCoding();
-            $diagnosisCode = new FHIRCodeableConcept();
-            foreach ($dataRecord['diagnoses'] as $code => $display) {
-                $diagnosisCoding->setCode($code);
-                $diagnosisCoding->setDisplay($display);
-                $diagnosisCode->addCoding($diagnosisCoding);
+            foreach ($dataRecord['diagnoses'] as $code) {
+                $diagnosisCoding = new FHIRCoding();
+                $diagnosisCode = new FHIRCodeableConcept();
+                if ($code[0] == "ICD10") {
+                    $diagnosisCoding->setSystem("http://hl7.org/fhir/sid/icd-10");
+                    $diagnosisCoding->setCode($code[1]);
+                    $diagnosisCode->addCoding($diagnosisCoding);
+                    $procedureResource->addReasonCode($diagnosisCode);
+                }
             }
-            $procedureResource->setCode($diagnosisCode);
+        }
+        if (!empty($dataRecord['procedure_code'])) {
+            $procedureCoding = new FHIRCoding();
+            $procedureCode = new FHIRCodeableConcept();
+            $procedureCoding->setCode($dataRecord['procedure_code']);
+            $procedureCode->addCoding($procedureCoding);
+            $procedureResource->setCode($procedureCode);
         }
 
         if (!empty($dataRecord['date_collected'])) {
-            $procedureResource->setPerformedDateTime($dataRecord['date_collected']);
+            $procedureResource->setPerformedDateTime(gmdate('c', strtotime($dataRecord['date_collected'])));
         }
 
         if (!empty($dataRecord['notes'])) {
@@ -152,6 +161,10 @@ class FhirProcedureService extends FhirServiceBase
     }
 
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        // TODO: If Required in Future
+    }
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
     }

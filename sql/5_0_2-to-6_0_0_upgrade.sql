@@ -337,7 +337,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #EndIf
 
 #IfMissingColumn patient_access_onsite portal_login_username
-ALTER TABLE `patient_access_onsite`  ADD `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username', ADD `portal_onetime` VARCHAR(255) DEFAULT NULL;
+ALTER TABLE `patient_access_onsite` ADD `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username', ADD `portal_onetime` VARCHAR(255) DEFAULT NULL;
 UPDATE `patient_access_onsite` SET `portal_pwd_status` = '0', `portal_login_username` = `portal_username`;
 #EndIf
 
@@ -1944,7 +1944,7 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergyintoleranc
 #EndIf
 
 #IfMissingColumn ar_activity deleted
-ALTER TABLE `ar_activity` ADD COLUMN `deleted` datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided';
+ALTER TABLE `ar_activity` ADD `deleted` datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided';
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id condition-verification
@@ -2171,12 +2171,20 @@ CREATE TABLE `api_log` (
 ) ENGINE = InnoDB;
 #EndIf
 
+#IfMissingColumn api_log log_id
+ALTER TABLE `api_log` ADD `log_id` int(11) NOT NULL;
+#EndIf
+
+#IfColumn api_log encrypted
+ALTER TABLE `api_log` DROP COLUMN `encrypted`;
+#EndIf
+
 #IfColumn patient_data care_team
 ALTER TABLE `patient_data` CHANGE `care_team` `care_team_provider` text;
 #EndIf
 
 #IfMissingColumn patient_data care_team_facility
-ALTER TABLE `patient_data` ADD COLUMN `care_team_facility` text;
+ALTER TABLE `patient_data` ADD `care_team_facility` text;
 #EndIf
 
 #IfRow2D layout_options form_id DEM field_id care_team
@@ -2201,4 +2209,55 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2020-10-01 load_filename Zip File 5 2021 ICD-10-PCS Order File (Long and Abbreviated Titles).zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2020-10-01', 'Zip File 5 2021 ICD-10-PCS Order File (Long and Abbreviated Titles).zip', '6a61cee7a8f774e23412ca1330980bbb');
+#EndIf
+
+#IfNotColumnType documents hash varchar(255)
+ALTER TABLE `documents` MODIFY `hash` varchar(255) DEFAULT NULL;
+#EndIf
+
+#IfTable log_validator
+DROP TABLE `log_validator`;
+#EndIf
+
+#IfMissingColumn log_comment_encrypt checksum_api
+ALTER TABLE `log_comment_encrypt` ADD `checksum_api` longtext;
+#EndIf
+
+#IfNotColumnType onsite_signatures sig_hash varchar(255)
+ALTER TABLE `onsite_signatures` MODIFY `sig_hash` varchar(255) NOT NULL;
+#EndIf
+
+#IfMissingColumn ccda hash
+ALTER TABLE `ccda` ADD `hash` varchar(255) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn ccda uuid
+ALTER TABLE `ccda` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfUuidNeedUpdate ccda
+#EndIf
+
+#IfNotIndex ccda uuid
+CREATE UNIQUE INDEX `uuid` ON `ccda` (`uuid`);
+#EndIf
+
+#IfNotColumnTypeDefault form_prior_auth date datetime NULL
+ALTER TABLE `form_prior_auth` MODIFY `date` datetime NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `form_prior_auth` SET `date` = NULL WHERE `date` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfMissingColumn form_prior_auth date_from
+ALTER TABLE `form_prior_auth` ADD `date_from` date DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_prior_auth date_to
+ALTER TABLE `form_prior_auth` ADD `date_to` date DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn documents deleted
+ALTER TABLE `documents` ADD `deleted` tinyint(1) NOT NULL DEFAULT '0';
 #EndIf

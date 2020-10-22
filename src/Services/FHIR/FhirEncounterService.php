@@ -103,6 +103,7 @@ class FhirEncounterService extends FhirServiceBase
             "code" => "185349003"
         ));
         $type->setText("Encounter for check up (procedure)");
+        $encounterResource->addType($type);
 
         if ($encode) {
             return json_encode($encounterResource);
@@ -151,6 +152,11 @@ class FhirEncounterService extends FhirServiceBase
     }
 
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        // TODO: If Required in Future
+    }
+
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
     }

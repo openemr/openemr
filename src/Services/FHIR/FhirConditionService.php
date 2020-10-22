@@ -67,38 +67,42 @@ class FhirConditionService extends FhirServiceBase
         $clinicalStatus = "inactive";
         $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/condition-clinical";
         if (
-            (!isset($data['enddate']) && isset($data['begdate']))
-            || isset($data['enddate']) && strtotime($data['enddate']) >= strtotime("now")
+            (!isset($dataRecord['enddate']) && isset($dataRecord['begdate']))
+            || isset($dataRecord['enddate']) && strtotime($dataRecord['enddate']) >= strtotime("now")
         ) {
             // Active if Only Begin Date isset OR End Date isnot expired
             $clinicalStatus = "active";
-            if ($data['occurrence'] == 1 || $data['outcome'] == 1) {
+            if ($dataRecord['occurrence'] == 1 || $dataRecord['outcome'] == 1) {
                 $clinicalStatus = "resolved";
-            } elseif ($data['occurrence'] > 1) {
+            } elseif ($dataRecord['occurrence'] > 1) {
                 $clinicalStatus = "recurrence";
             }
-        } elseif (isset($data['enddate']) && strtotime($data['enddate']) < strtotime("now")) {
+        } elseif (isset($dataRecord['enddate']) && strtotime($dataRecord['enddate']) < strtotime("now")) {
             //Inactive if End Date is expired
             $clinicalStatus = "inactive";
         } else {
             $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/data-absent-reason";
             $clinicalStatus = "unknown";
         }
-        $conditionResource->setClinicalStatus(
+        $clinical_Status = new FHIRCodeableConcept();
+        $clinical_Status->addCoding(
             array(
-                'sysytem' => $clinicalSysytem,
-                'code' => $clinicalStatus,
-                'display' => strtoupper($clinicalStatus),
+            'system' => $clinicalSysytem,
+            'code' => $clinicalStatus,
+            'display' => ucwords($clinicalStatus),
             )
         );
-
-        $conditionResource->addCategory(
+        $conditionResource->setClinicalStatus($clinical_Status);
+        
+        $conditionCategory = new FHIRCodeableConcept();
+        $conditionCategory->addCoding(
             array(
-                'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-category",
+                'system' => "http://terminology.hl7.org/CodeSystem/condition-category",
                 'code' => 'problem-list-item',
                 'display' => 'Problem List Item'
             )
         );
+        $conditionResource->addCategory($conditionCategory);
 
         if (isset($dataRecord['puuid'])) {
             $patient = new FHIRReference();
@@ -117,19 +121,21 @@ class FhirConditionService extends FhirServiceBase
             $conditionResource->setCode($diagnosisCode);
         }
 
+        $verificationStatus = new FHIRCodeableConcept();
         $verificationCoding = array(
-            'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+            'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
             'code' => 'unconfirmed',
             'display' => 'Unconfirmed',
         );
         if (!empty($dataRecord['verification'])) {
             $verificationCoding = array(
-                'sysytem' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
                 'code' => $dataRecord['verification'],
                 'display' => $dataRecord['verification_title']
             );
         }
-        $conditionResource->setVerificationStatus($verificationCoding);
+        $verificationStatus->addCoding($verificationCoding);
+        $conditionResource->setVerificationStatus($verificationStatus);
 
         if ($encode) {
             return json_encode($conditionResource);
@@ -180,6 +186,11 @@ class FhirConditionService extends FhirServiceBase
     }
 
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        // TODO: If Required in Future
+    }
+
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
     }

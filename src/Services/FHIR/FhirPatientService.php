@@ -43,6 +43,7 @@ class FhirPatientService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
+            '_id' => ['uuid'],
             'address' => ['street', 'postal_code', 'city', 'state'],
             'address-city' => ['city'],
             'address-postalcode' => ['postal_code'],
@@ -372,5 +373,9 @@ class FhirPatientService extends FhirServiceBase
     public function searchForOpenEMRRecords($openEMRSearchParameters)
     {
         return $this->patientService->getAll($openEMRSearchParameters, false);
+    }
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    {
+        // TODO: If Required in Future
     }
 }

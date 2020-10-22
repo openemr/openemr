@@ -12,9 +12,9 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\InsuranceCompanyService;
-use OpenEMR\Services\AddressService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\AddressService;
+use OpenEMR\Services\InsuranceCompanyService;
 
 class InsuranceCompanyRestController
 {
@@ -30,6 +30,12 @@ class InsuranceCompanyRestController
     public function getAll()
     {
         $serviceResult = $this->insuranceCompanyService->getAll();
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
+
+    public function getOne($iid)
+    {
+        $serviceResult = $this->insuranceCompanyService->getOne($iid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 

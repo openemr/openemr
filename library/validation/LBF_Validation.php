@@ -37,10 +37,10 @@ class LBF_Validation
         }
 
         $fres = sqlStatement(
-            "SELECT layout_options.*,list_options.notes as validation_json 
-              FROM layout_options  
+            "SELECT layout_options.*,list_options.notes as validation_json
+              FROM layout_options
               LEFT JOIN list_options ON layout_options.validation = list_options.option_id AND list_options.list_id = 'LBF_Validations' AND list_options.activity = 1
-              WHERE layout_options.form_id = ? AND layout_options.uor > 0 AND layout_options.field_id != '' 
+              WHERE layout_options.form_id = ? AND layout_options.uor > 0 AND layout_options.field_id != ''
               ORDER BY layout_options.group_id, layout_options.seq ",
             array($form_id)
         );

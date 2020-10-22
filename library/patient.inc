@@ -466,7 +466,7 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
         // Do not search first name or middle name
         $where = "lname LIKE ? ";
         array_push($sqlBindArray, $names['last']);
-    } elseif ($names['first'] == '' && $names['last'] != '') {
+    } elseif (empty($names['first']) && !empty($names['last'])) {
         // Search both first name and last name with same term
         $names['first'] = $names['last'];
         $where = "lname LIKE ? OR fname LIKE ? ";
@@ -1130,7 +1130,7 @@ function updateEmployerData($pid, $new, $create = false)
     $colnames = array('name','street','city','state','postal_code','country');
 
     if ($create) {
-        $set .= "pid = '" . add_escape_custom($pid) . "', date = NOW()";
+        $set = "pid = '" . add_escape_custom($pid) . "', date = NOW()";
         foreach ($colnames as $key) {
             $value = isset($new[$key]) ? $new[$key] : '';
             $set .= ", `$key` = '" . add_escape_custom($value) . "'";
@@ -1666,13 +1666,13 @@ function getEffectiveInsurances($patient_id, $encdate)
 function getAllinsurances($pid)
 {
     $insarr = array();
-    $sql = "SELECT a.type, a.provider, a.plan_name, a.policy_number, a.group_number, 
-           a.subscriber_lname, a.subscriber_fname, a.subscriber_relationship, a.subscriber_employer, 
-		   b.name, c.line1, c.line2, c.city, c.state, c.zip 
+    $sql = "SELECT a.type, a.provider, a.plan_name, a.policy_number, a.group_number,
+           a.subscriber_lname, a.subscriber_fname, a.subscriber_relationship, a.subscriber_employer,
+		   b.name, c.line1, c.line2, c.city, c.state, c.zip
            FROM `insurance_data` AS a
            RIGHT JOIN insurance_companies AS b
            ON a.provider = b.id
-           RIGHT JOIN addresses AS c 
+           RIGHT JOIN addresses AS c
            ON a.provider = c.foreign_id
            WHERE a.pid = ? ";
     $inco = sqlStatement($sql, array($pid));

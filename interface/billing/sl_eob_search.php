@@ -722,9 +722,9 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 </head>
 
 <body>
-<div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
+<div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?> mt-3">
     <div class="row">
-        <div class="mt-3 col-12">
+        <div class="col-12">
             <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
         </div>
     </div>
@@ -736,7 +736,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                     <legend>
                         &nbsp;<?php echo xlt('Post Item'); ?><i id="payment-info-do-not-remove"> </i>
                     </legend>
-                    <div class="form-row">
+                    <div class="form-row p-2">
                         <div class="form-group col-lg">
                             <label class="control-label" for="form_payer_id"> <?php echo xlt('Payer'); ?>:</label>
                             <?php
@@ -773,8 +773,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         <div class="form-group col-lg">
                             <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
                             <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
-
-                                <input <?php echo $_REQUEST['only_with_debt'] ? 'checked=checked' : ''; ?> type="checkbox" name="only_with_debt" id="only_with_debt" />
+                            <input <?php echo $_REQUEST['only_with_debt'] ? 'checked=checked' : ''; ?> type="checkbox" name="only_with_debt" id="only_with_debt" />
                         </div>
                     </div>
                 </fieldset>
@@ -798,7 +797,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         <input type="hidden" id="hid3" value="<?php echo xla('Select Method'); ?>" />
                     </legend>
                     <div class="oe-show-hide" id='inv-search'>
-                        <div class="form-row">
+                        <div class="form-row p-2">
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
                                 <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($_REQUEST['form_name']); ?>' title='<?php echo xla("Any part of the patient name, or \"last,first\", or \"X-Y\""); ?>' placeholder='<?php echo xla('Last name, First name'); ?>' />
@@ -849,11 +848,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </fieldset>
 
                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
-                <div class="form-row clearfix">
+                <div class="form-row p-2">
                     <div class="form-group position-override oe-show-hide" id="search-btn">
                         <div class="btn-group" role="group">
-                            <button type='submit' class="btn btn-secondary btn-search oe-show-hide" name='form_search' id="btn-inv-search" value='Search'><?php echo xlt("Search"); ?></button>
-                            <button type='submit' class="btn btn-secondary btn-save oe-show-hide" name='form_search' id="btn-era-upld" value='Upload'><?php echo xlt("Upload"); ?></button>
+                            <button type='submit' class="btn btn-primary btn-search oe-show-hide" name='form_search' id="btn-inv-search" value='Search'><?php echo xlt("Search"); ?></button>
+                            <button type='submit' class="btn btn-primary btn-save oe-show-hide" name='form_search' id="btn-era-upld" value='Upload'><?php echo xlt("Upload"); ?></button>
                         </div>
                     </div>
                 </div>
@@ -1006,15 +1005,15 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 <th class="dehead">&nbsp;<?php echo xlt('Invoice'); ?></th>
                                 <th class="dehead">&nbsp;<?php echo xlt('Svc Date'); ?></th>
                                 <th class="dehead">&nbsp;<?php echo xlt('Last Stmt'); ?></th>
-                                <th align="right" class="dehead"><?php echo xlt('Charge'); ?>&nbsp;</th>
-                                <th align="right" class="dehead"><?php echo xlt('Adjust'); ?>&nbsp;</th>
-                                <th align="right" class="dehead"><?php echo xlt('Paid'); ?>&nbsp;</th>
-                                <th align="right" class="dehead"><?php echo xlt('Balance'); ?>&nbsp;</th>
-                                <th align="center" class="dehead"><?php echo xlt('Prv'); ?></th>
+                                <th class="dehead text-right"><?php echo xlt('Charge'); ?>&nbsp;</th>
+                                <th class="dehead text-right"><?php echo xlt('Adjust'); ?>&nbsp;</th>
+                                <th class="dehead text-right"><?php echo xlt('Paid'); ?>&nbsp;</th>
+                                <th class="dehead text-right"><?php echo xlt('Balance'); ?>&nbsp;</th>
+                                <th class="dehead text-center"><?php echo xlt('Prv'); ?></th>
                                 <?php
                                 if (!$eracount) { ?>
-                                    <th align="left" class="dehead"><?php echo xlt('Sel'); ?></th>
-                                    <th align="center" class="dehead"><?php echo xlt('Email'); ?></th>
+                                    <th class="dehead text-left"><?php echo xlt('Sel'); ?></th>
+                                    <th class="dehead text-center"><?php echo xlt('Email'); ?></th>
                                     <?php
                                 } ?>
                             </tr>
@@ -1081,30 +1080,29 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 ?>
                                 <tr>
                                     <td class="detail">
-                                        <a href="" class="btn btn-secondary btn-sm" onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['pid']); ?></a>
+                                        <a href="#" class="btn btn-secondary btn-sm" onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['pid']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
-                                        <a href="" class="btn btn-secondary btn-sm" onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
+                                        <a href="#" class="btn btn-secondary btn-sm" onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
-                                        <a href="" class="btn btn-secondary btn-sm" onclick="editInvoice(event,<?php echo attr_js($row['id']); ?>)"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
+                                        <a href="#" class="btn btn-secondary btn-sm" onclick="editInvoice(event,<?php echo attr_js($row['id']); ?>)"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
                                     <td class="detail">
                                         &nbsp;<?php echo text(oeFormatShortDate($last_stmt_date)); ?></td>
-                                    <td align="right" class="detail"><?php echo text(bucks($row['charges'])); ?>&nbsp;
+                                    <td class="detail text-right"><?php echo text(bucks($row['charges'])); ?>&nbsp;
                                     </td>
-                                    <td align="right" class="detail"><?php echo text(bucks($row['adjustments'])); ?>
+                                    <td class="detail text-right"><?php echo text(bucks($row['adjustments'])); ?>
                                         &nbsp;
                                     </td>
-                                    <td align="right"
-                                        class="detail"><?php echo text(bucks($row['payments'] - $row['copays'])); ?>
+                                    <td class="detail text-right"><?php echo text(bucks($row['payments'] - $row['copays'])); ?>
                                         &nbsp;
                                     </td>
-                                    <td align="right" class="detail"><?php echo text(bucks($balance)); ?>&nbsp;</td>
-                                    <td align="center" class="detail"><?php echo $duncount ? text($duncount) : "&nbsp;" ?></td>
+                                    <td class="detail text-right"><?php echo text(bucks($balance)); ?>&nbsp;</td>
+                                    <td class="detail text-center"><?php echo $duncount ? text($duncount) : "&nbsp;" ?></td>
                                     <?php if (!$eracount) { ?>
-                                        <td class="detail" align="left">
+                                        <td class="detail text-left">
                                             <input type='checkbox'
                                                    name='form_cb[<?php echo attr($row['id']) ?>]'<?php echo text($isduept); ?> />
                                             <?php
@@ -1119,7 +1117,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                             } ?>
                                         </td>
                                     <?php } ?>
-                                    <td align="left" class="detail">
+                                    <td class="detail text-left">
                                         <?php
                                         $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($row['pid']));
                                         if ($patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {

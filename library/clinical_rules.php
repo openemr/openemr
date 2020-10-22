@@ -555,12 +555,16 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
         }
 
         //Update database to track results
-        updateReportDatabase($report_id, $total_patients);
+        updateReportDatabase($report_id, ($total_patients ?? null));
     }
 
   // Record results in database and send to screen, if applicable.
-    finishReportDatabase($report_id, json_encode($dataSheet));
-    return $dataSheet;
+    if (!empty($dataSheet)) {
+        finishReportDatabase($report_id, json_encode($dataSheet));
+        return $dataSheet;
+    } else {
+        return [];
+    }
 }
 
 /**
@@ -814,7 +818,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         // increment pass filter counter
                         $pass_filter++;
                         // If report itemization is turned on, trigger flag.
-                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                             $temp_track_pass = 0;
                         }
                     } else {
@@ -828,7 +832,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         // increment pass target counter
                         $pass_target++;
                         // If report itemization is turned on, then record the "passed" item and set the flag
-                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                             insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
                             $temp_track_pass = 1;
                         }
@@ -890,7 +894,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         if (count($targetGroups) > 1) {
             foreach ($targetGroups as $i) {
                 // If report itemization is turned on, then iterate the rule id iterator
-                if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                     $GLOBALS['report_itemized_test_id_iterator']++;
                 }
 
@@ -909,7 +913,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
                     $dateCounter = 1; // for reminder mode to keep track of which date checking
                     // If report itemization is turned on, reset flag.
-                    if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                    if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                         $temp_track_pass = 1;
                     }
 
@@ -940,7 +944,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                             continue;
                         } else {
                             // If report itemization is turned on, trigger flag.
-                            if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                            if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                                 $temp_track_pass = 0;
                             }
                         }
@@ -989,7 +993,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     }
 
                     // If report itemization is turned on, then record the "failed" item if it did not pass
-                    if ($GLOBALS['report_itemizing_temp_flag_and_id'] && !($temp_track_pass)) {
+                    if (!empty($GLOBALS['report_itemizing_temp_flag_and_id']) && !($temp_track_pass)) {
                         insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
                     }
                 }
@@ -2125,13 +2129,13 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
     $history = getHistoryData($patient_id, $lifestyle, '', $dateTarget);
 
   // See if match
-    $stringFlag = strstr($history[$lifestyle], "|" . $status);
+    $stringFlag = strstr(($history[$lifestyle] ?? ''), "|" . $status);
     if (empty($status)) {
         // Only ensuring any data has been entered into the field
         $stringFlag = true;
     }
 
-    return $history[$lifestyle] &&
+    return !empty($history[$lifestyle]) &&
         $history[$lifestyle] != '|0|' &&
         $stringFlag;
 }

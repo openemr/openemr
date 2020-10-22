@@ -620,6 +620,10 @@ if ($fs && isset($LBF_DIAGS_SECTION)) {
 <?php
 if ($PDF_OUTPUT) {
     $content = getContent();
+    if (isset($_GET['return_content'])) {
+        echo js_escape($content);
+        exit();
+    }
     $pdf->writeHTML($content);
     $pdf->Output('form.pdf', 'I'); // D = Download, I = Inline
 } else {

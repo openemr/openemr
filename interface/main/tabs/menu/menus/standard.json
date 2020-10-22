@@ -1087,6 +1087,18 @@
             ]
           },
           {
+            "label": "Audit Log Tamper",
+            "menu_id": "adm0",
+            "target": "adm",
+            "url": "/interface/reports/audit_log_tamper_report.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
+          },
+          {
             "label": "Diagnostics",
             "menu_id": "adm0",
             "target": "adm",
@@ -1221,19 +1233,6 @@
               "admin",
               "super"
             ]
-          },
-          {
-            "label": "Audit Log Tamper",
-            "menu_id": "adm0",
-            "target": "adm",
-            "url": "/interface/reports/audit_log_tamper_report.php",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "admin",
-              "super"
-            ],
-            "global_req": "enable_auditlog_encryption"
           }
         ],
         "requirement": 0,

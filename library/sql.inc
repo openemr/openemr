@@ -408,10 +408,14 @@ function sqlQueryCdrEngine($statement, $binds = false)
 *
 * @param  string  $statement  query
 */
-function sqlInsertClean_audit($statement)
+function sqlInsertClean_audit($statement, $binds = false)
 {
+    // Below line is to avoid a nasty bug in windows.
+    if (empty($binds)) {
+        $binds = false;
+    }
 
-    $ret = $GLOBALS['adodb']['db']->ExecuteNoLog($statement);
+    $ret = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
     if ($ret === false) {
         HelpfulDie("insert failed: $statement", getSqlLastError());
     }
@@ -451,7 +455,7 @@ function getSqlLastErrorNo()
 function sqlListFields($table)
 {
     $sql = "SHOW COLUMNS FROM " . add_escape_custom($table);
-    $resource = sqlQ($sql);
+    $resource = sqlStatementNoLog($sql);
     $field_list = array();
     while ($row = sqlFetchArray($resource)) {
         $field_list[] = $row['Field'];

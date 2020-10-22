@@ -144,7 +144,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                      </a>
-                        <?php if ($_POST['form_refresh']) { ?>
+                        <?php if (!empty($_POST['form_refresh'])) { ?>
                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                             <?php echo xlt('Print'); ?>
                        </a>
@@ -160,7 +160,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 </div> <!-- end of parameters -->
 
 <?php
-if ($_POST['form_refresh']) {
+if (!empty($_POST['form_refresh'])) {
     ?>
 <div id="report_results">
 <table class='table' width='98%' id='mymaintable'>

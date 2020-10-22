@@ -199,7 +199,7 @@ if ($form_step == 0) {
     echo "  <td>" . xlt('Create Eventlog Backup') . "</td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
-    echo "  <td></td><td class='text'><strong>" . xlt('Note') . "</strong>&nbsp;" . xlt('Please refer to') . '&nbsp;README-Log-Backup.txt&nbsp;' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . "</td>\n";
+    echo "  <td></td><td class='text'>" . xlt('Note that the Eventlog Backup is currently set to save in the following folder:') . " " . text($GLOBALS['backup_log_dir']) . " . " . xlt('Recommend setting the Path for Event Log Backup in Globals settings in the Miscellaneous section to something other than your tmp/temp directory.') . " " . xlt('Please refer to') . ' README-Log-Backup.txt ' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . ".</td>\n";
     echo " </tr>\n";
     echo "</table>\n";
 }
@@ -558,7 +558,7 @@ if ($form_step == 301) {
 # Get the Current Timestamp, to attach with the log backup file
     $backuptime = date("Ymd_His");
 # Eventlog backup directory
-    $BACKUP_EVENTLOG_DIR = $GLOBALS['backup_log_dir'] . "/emr_eventlog_backup";
+    $BACKUP_EVENTLOG_DIR = $GLOBALS['backup_log_dir'];
 
 # Check if Eventlog Backup directory exists, if not create it with Write permission
     if (!file_exists($BACKUP_EVENTLOG_DIR)) {
@@ -573,15 +573,15 @@ if ($form_step == 301) {
     $res = sqlStatement("rename table log_comment_encrypt to log_comment_encrypt_backup,log_comment_encrypt_new to log_comment_encrypt");
     $res = sqlStatement("create table if not exists log_new like log");
     $res = sqlStatement("rename table log to log_backup,log_new to log");
-    $res = sqlStatement("create table if not exists log_validator_new like log_validator");
-    $res = sqlStatement("rename table log_validator to log_validator_backup, log_validator_new to log_validator");
+    $res = sqlStatement("create table if not exists api_log_new like api_log");
+    $res = sqlStatement("rename table api_log to api_log_backup, api_log_new to api_log");
     echo "<br />";
     $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h " . escapeshellarg($sqlconf["host"]) .
     " --port=" . escapeshellarg($sqlconf["port"]) .
     " --hex-blob --opt --quote-names -r " . escapeshellarg($BACKUP_EVENTLOG_FILE) . " $mysql_ssl " .
-    escapeshellarg($sqlconf["dbase"]) . " --tables log_comment_encrypt_backup log_backup log_validator_backup";
+    escapeshellarg($sqlconf["dbase"]) . " --tables log_comment_encrypt_backup log_backup api_log_backup";
 # Set Eventlog Flag when it is done
     $eventlog = 1;
 // 301 If ends here.
@@ -612,8 +612,8 @@ if ($cmd) {
              $res = sqlStatement("rename table log_comment_encrypt_backup to log_comment_encrypt");
              $res = sqlStatement("drop table if exists log");
              $res = sqlStatement("rename table log_backup to log");
-             $res = sqlStatement("drop table if exists log_validator");
-             $res = sqlStatement("rename table log_validator_backup to log_validator");
+             $res = sqlStatement("drop table if exists api_log");
+             $res = sqlStatement("rename table api_log_backup to api_log");
         }
         //Removed the connection details as it exposes all the database credentials
 
@@ -624,7 +624,7 @@ if ($cmd) {
     if ($eventlog == 1) {
         $res = sqlStatement("drop table if exists log_backup");
         $res = sqlStatement("drop table if exists log_comment_encrypt_backup");
-        $res = sqlStatement("drop table if exists log_validator_backup");
+        $res = sqlStatement("drop table if exists api_log_backup");
         echo "<br /><b>";
         echo xlt('Backup Successfully taken in') . " ";
         echo text($BACKUP_EVENTLOG_DIR);

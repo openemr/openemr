@@ -2739,7 +2739,7 @@ $GLOBALS_METADATA = array(
         'audit_events_query' => array(
             xl('Audit Logging SELECT Query'),
             'bool',                           // data type
-            '0',                              // default
+            '1',                              // default
             xl('Enable logging of all SQL SELECT queries.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
         ),
 
@@ -2827,7 +2827,7 @@ $GLOBALS_METADATA = array(
                 '1' => xl('Hide print feature'),
                 '2' => xl('Log entire document'),
             ),
-            '0',                               // default
+            '2',                               // default
             xl('Individual pages can override 2nd and 3rd options by implementing a log message.')
         ),
 
@@ -3934,7 +3934,7 @@ $GLOBALS_METADATA = array(
     ),
 );
 
-if (!$skipGlobalEvent) {
+if (empty($skipGlobalEvent)) {
     $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
     $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(GlobalsInitializedEvent::EVENT_HANDLE, $globalsInitEvent, 10);
     $globalsService = $globalsInitEvent->getGlobalsService()->save();
