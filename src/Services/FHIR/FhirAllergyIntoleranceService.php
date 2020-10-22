@@ -74,7 +74,6 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
         $id = new FHIRId();
         $uuidString = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
         $id->setValue($uuidString);
-        error_log("uuid is " . $uuidString);
         $allergyProvenance->setId($id);
 
         if (isset($dataRecord['uuid'])) {
