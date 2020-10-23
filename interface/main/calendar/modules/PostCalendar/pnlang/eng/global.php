@@ -42,7 +42,7 @@ define('_PC_FILTER_CATEGORY', xl('All Categories'));
 define('_PC_FILTER_TOPIC', xl('All Topics'));
 define('_USER_BUSY_TITLE', xl('Busy'));
 define('_USER_BUSY_MESSAGE', xl('I am busy during this time.'));
-define('_PC_JUMP_MENU_SUBMIT', xl('go'));
+define('_PC_JUMP_MENU_SUBMIT', xl('Save'));
 define('_PC_TPL_VIEW_SUBMIT', xl('change'));
 define('_CALJAN', xl('January'));
 define('_CALFEB', xl('February'));
