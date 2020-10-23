@@ -13,7 +13,7 @@ class DiabetesDenominator implements CqmFilterIF
     {
         return "Denominator";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         // TODO how to check for these medication types?
@@ -28,7 +28,7 @@ class DiabetesDenominator implements CqmFilterIF
         ) {
                       return true;
         }
-        
+
         return false;
     }
 }

@@ -22,10 +22,10 @@ class Codes
         } elseif (isset(self::$_codes[$clinicalType])) {
             return self::$_codes[$clinicalType];
         }
-         
+
         return array();
     }
-    
+
     protected static $_codes = array(
         Allergy::EGGS => array(
             'ICD9' => array( 'V15.03' )
@@ -218,6 +218,6 @@ class Codes
         Procedure::PNEUMOCOCCAL_VACCINE => array(
             'SNOMED' => array(12866006, 394678003)
         ),
-        
+
     );
 }

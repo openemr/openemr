@@ -28,7 +28,7 @@ class NQF_0038_2014_Numerator implements CqmFilterIF
     {
         return "Numerator";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         if (

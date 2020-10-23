@@ -34,7 +34,7 @@
  */
 class Savant3_Filter_trimwhitespace extends Savant3_Filter
 {
-    
+
     /**
      *
      * Removes extra white space within the text.
@@ -58,33 +58,33 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter
         preg_match_all("!<script[^>]+>.*?</script>!is", $buffer, $match);
         $script_blocks = $match [0];
         $buffer = preg_replace("!<script[^>]+>.*?</script>!is", '@@@SAVANT:TRIM:SCRIPT@@@', $buffer);
-        
+
         // Pull out the pre blocks
         preg_match_all("!<pre[^>]*>.*?</pre>!is", $buffer, $match);
         $pre_blocks = $match [0];
         $buffer = preg_replace("!<pre[^>]*>.*?</pre>!is", '@@@SAVANT:TRIM:PRE@@@', $buffer);
-        
+
         // Pull out the textarea blocks
         preg_match_all("!<textarea[^>]+>.*?</textarea>!is", $buffer, $match);
         $textarea_blocks = $match [0];
         $buffer = preg_replace("!<textarea[^>]+>.*?</textarea>!is", '@@@SAVANT:TRIM:TEXTAREA@@@', $buffer);
-        
+
         // remove all leading spaces, tabs and carriage returns NOT
         // preceeded by a php close tag.
         $buffer = trim(preg_replace('/((?<!\?>)\n)[\s]+/m', '\1', $buffer));
-        
+
         // replace script blocks
         Savant3_Filter_trimwhitespace::replace("@@@SAVANT:TRIM:SCRIPT@@@", $script_blocks, $buffer);
-        
+
         // replace pre blocks
         Savant3_Filter_trimwhitespace::replace("@@@SAVANT:TRIM:PRE@@@", $pre_blocks, $buffer);
-        
+
         // replace textarea blocks
         Savant3_Filter_trimwhitespace::replace("@@@SAVANT:TRIM:TEXTAREA@@@", $textarea_blocks, $buffer);
-        
+
         return $buffer;
     }
-    
+
     /**
      *
      * Does a simple search-and-replace on the source text.
@@ -108,7 +108,7 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter
         $len = strlen($search);
         $pos = 0;
         $count = count($replace);
-        
+
         for ($i = 0; $i < $count; $i++) {
             // does the search-string exist in the buffer?
             $pos = strpos($buffer, $search, $pos);

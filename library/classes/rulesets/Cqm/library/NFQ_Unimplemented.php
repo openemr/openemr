@@ -15,7 +15,7 @@ class NQF_Unimplemented extends AbstractCqmReport implements RsUnimplementedIF
     {
         parent::__construct(array(), array(), null);
     }
-    
+
     public function createPopulationCriteria()
     {
          return null;

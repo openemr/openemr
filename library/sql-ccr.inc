@@ -237,7 +237,7 @@ function getProcedureData()
         AND pt.units = lo.option_id AND lo.activity = 1
     WHERE po.patient_id = ?
     AND prs.date BETWEEN ? AND ?";
-  
+
         $result = sqlStatement($sql, array($pid,$start,$end,$pid,$start,$end));
     } else {
         $sql = " 
@@ -295,7 +295,7 @@ function getProcedureData()
         ON lo.list_id = 'proc_unit' 
         AND pt.units = lo.option_id AND lo.activity = 1
     WHERE po.patient_id = ? ";
-  
+
         $result = sqlStatement($sql, array($pid,$pid));
     }
 
@@ -372,7 +372,7 @@ function getAlertData()
     on cd.code = SUBSTRING(l.diagnosis, LOCATE(':',l.diagnosis)+1)
     where l.type = 'allergy' and l.pid=?
     AND l.date BETWEEN ? AND ?";
-    
+
         $result = sqlStatement($sql, array($pid,$start,$end));
     } else {
         $sql = " 
@@ -393,7 +393,7 @@ function getAlertData()
     left join codes as cd
     on cd.code = SUBSTRING(l.diagnosis, LOCATE(':',l.diagnosis)+1)
     where l.type = 'allergy' and l.pid=?";
-      
+
         $result = sqlStatement($sql, array($pid));
     }
 
@@ -437,7 +437,7 @@ function getResultData()
           ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id AND lo.activity = 1
       WHERE po.patient_id=?
       AND prs.date BETWEEN ? AND ?";
-        
+
         $result = sqlStatement($sql, array($pid,$start,$end));
     } else {
         $sql = "
@@ -470,7 +470,7 @@ function getResultData()
         LEFT JOIN list_options AS lo
           ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id AND lo.activity = 1
       WHERE po.patient_id=?";
-        
+
         $result = sqlStatement($sql, array($pid));
     }
 
@@ -486,14 +486,14 @@ function getActorData()
 	select fname, lname, DOB, sex, pid, street, city, state, postal_code, phone_contact
 	from patient_data
 	where pid=?";
-        
+
     $result[0] = sqlStatement($sql, array($pid));
-  
+
     $sql2 = " 
 	SELECT * FROM users AS u LEFT JOIN facility AS f ON u.facility_id = f.id WHERE u.id=?";
-        
+
     $result[1] = sqlStatement($sql2, array($_SESSION['authUserID']));
-  
+
     $sql3 = "
   SELECT 
     u.ppid AS id, u.name AS lname, '' AS fname, '' AS city, '' AS state, '' AS zip, '' AS phone
@@ -510,9 +510,9 @@ function getActorData()
     AND lo.list_id = 'proc_type' 
     AND lo.option_id = 'ord'
     GROUP BY u.ppid";
-        
+
     $result[2] = sqlStatement($sql3, array($pid));
-  
+
     return $result;
 }
 

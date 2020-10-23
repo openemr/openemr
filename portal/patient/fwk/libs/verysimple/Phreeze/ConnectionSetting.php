@@ -15,37 +15,37 @@ class ConnectionSetting
 {
     /** @var string database type, for example mysql, mysqli, sqlite */
     var $Type = "mysql";
-    
+
     /** @var string connection string used to connect to the database, for example  localhost:3306 */
     var $ConnectionString;
-    
+
     /** @var string name of the database/schema */
     var $DBName;
-    
+
     /** @var string database username used to connect */
     var $Username;
-    
+
     /** @var string database password used to connect */
     var $Password;
-    
+
     /** @var string if all tables share a common prefix, this can be used so object names do not include the prefix */
     var $TablePrefix;
-    
+
     /** @var string any arbitrary SQL that should be run upon first opening the connection, for example SET SQL_BIG_SELECTS=1 */
     var $BootstrapSQL;
-    
+
     /** @var string characterset used for the database, for example 'utf8' */
     var $Charset;
-    
+
     /** @var boolean set to true and multi-byte functions will be used when evaluating strings */
     var $Multibyte = false;
-    
+
     /** @var boolean set to true and write operations will not be allowed */
     var $IsReadOnlySlave = false;
-    
+
     /** @var ConnectionSetting if this is a slave connection, this is key of the master server */
     var $MasterConnectionDelegate = '';
-    
+
     /**
      * Constructor
      */
@@ -55,7 +55,7 @@ class ConnectionSetting
             $this->Unserialize($connection_code);
         }
     }
-    
+
     /**
      * Returns an DSN array compatible with PEAR::DB
      */
@@ -69,7 +69,7 @@ class ConnectionSetting
                 'database' => $this->DBName
         );
     }
-    
+
     /**
      * Returns an options array compatible with PEAR::DB
      */
@@ -81,7 +81,7 @@ class ConnectionSetting
         // 'portability' => DB_PORTABILITY_NONE,
         ;
     }
-    
+
     /**
      * Serialize to string
      */
@@ -89,7 +89,7 @@ class ConnectionSetting
     {
         return base64_encode(serialize($this));
     }
-    
+
     /**
      * Populate info from serialized string
      */

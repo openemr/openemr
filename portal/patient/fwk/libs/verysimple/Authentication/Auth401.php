@@ -14,7 +14,7 @@
  */
 class Auth401
 {
-    
+
     /**
      * Send 401 headers to the browser
      *
@@ -32,7 +32,7 @@ class Auth401
             die();
         }
     }
-    
+
     /**
      * Returns the server AUTH_USERNAME if provided or returns empty string
      *
@@ -42,7 +42,7 @@ class Auth401
     {
         return isset($_SERVER ["PHP_AUTH_USER"]) ? $_SERVER ["PHP_AUTH_USER"] : "";
     }
-    
+
     /**
      * Returns the server AUTH_PASSWORD if provided or returns empty string
      *

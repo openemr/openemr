@@ -94,15 +94,15 @@ if (! function_exists('password_hash')) {
         }
 
         $salt = substr($salt, 0, $required_salt_len);
-        
+
         $hash = $hash_format . $salt;
-        
+
         $ret = crypt($password, $hash);
-        
+
         if (! is_string($ret) || strlen($ret) < 13) {
             return false;
         }
-        
+
         return $ret;
     }
 }
@@ -201,12 +201,12 @@ if (! function_exists('password_verify')) {
         if (! is_string($ret) || strlen($ret) != strlen($hash)) {
             return false;
         }
-        
+
         $status = 0;
         for ($i = 0; $i < strlen($ret); $i++) {
             $status |= (ord($ret [$i]) ^ ord($hash [$i]));
         }
-        
+
         return $status === 0;
     }
 }

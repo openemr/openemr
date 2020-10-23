@@ -23,7 +23,7 @@ class CacheMemCache implements ICache
     private $_prefix = "";
     private $_suppressServerErrors = false;
     private $_lockFilePath = "";
-    
+
     /**
      * Constructor requires a reference to a MemCache object
      *
@@ -41,7 +41,7 @@ class CacheMemCache implements ICache
         $this->_suppressServerErrors = $suppressServerErrors;
         $this->LastServerError;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -59,10 +59,10 @@ class CacheMemCache implements ICache
                 throw $ex;
             }
         }
-        
+
         return $obj;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -80,10 +80,10 @@ class CacheMemCache implements ICache
                 throw $ex;
             }
         }
-        
+
         return $result;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -101,7 +101,7 @@ class CacheMemCache implements ICache
                 throw $ex;
             }
         }
-        
+
         return $result;
     }
 }

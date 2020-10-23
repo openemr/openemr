@@ -15,10 +15,10 @@ require_once("util/html2text.php");
  */
 class SimpleTemplate
 {
-    
+
     /** @var used internally for merging. */
     static $_MERGE_TEMPLATE_VALUES = null;
-    
+
     /**
      * Transforms HTML into formatted plain text.
      *
@@ -30,7 +30,7 @@ class SimpleTemplate
     {
         return convert_html_to_text($html);
     }
-    
+
     /**
      * Transforms plain text into formatted HTML.
      *
@@ -47,27 +47,27 @@ class SimpleTemplate
 
         $txt = str_replace(' >', '>', $txt);
         $txt = str_replace('< ', '<', $txt);
-        
+
         // Transforms accents in html entities.
         $txt = htmlentities($txt);
-        
+
         // We need some HTML entities back!
         $txt = str_replace('&quot;', '"', $txt);
         $txt = str_replace('&lt;', '<', $txt);
         $txt = str_replace('&gt;', '>', $txt);
         $txt = str_replace('&amp;', '&', $txt);
-        
+
         // Ajdusts links - anything starting with HTTP opens in a new window
         // $txt = str_ireplace("<a href=\"http://","<a rel=\"noopener\" target=\"_blank\" href=\"http://",$txt);
         // $txt = str_ireplace("<a href=http://","<a rel=\"noopener\" target=\"_blank\" href=http://",$txt);
-        
+
         // Basic formatting
         $eol = (strpos($txt, "\r") === false) ? "\n" : "\r\n";
         $html = '<p>' . str_replace("$eol$eol", "</p><p>", $txt) . '</p>';
         $html = str_replace("$eol", "<br />\n", $html);
         $html = str_replace("</p>", "</p>\n\n", $html);
         $html = str_replace("<p></p>", "<p>&nbsp;</p>", $html);
-        
+
         // Wipes <br /> after block tags (for when the user includes some html in the text).
         $wipebr = array (
                 "table",
@@ -78,16 +78,16 @@ class SimpleTemplate
                 "ol",
                 "li"
         );
-        
+
         for ($x = 0; $x < count($wipebr); $x++) {
             $tag = $wipebr [$x];
             $html = str_ireplace("<$tag><br />", "<$tag>", $html);
             $html = str_ireplace("</$tag><br />", "</$tag>", $html);
         }
-        
+
         return $html;
     }
-    
+
     /**
      * Merges data into a template with placeholder variables
      * (for example "Hello {{NAME}}").
@@ -116,7 +116,7 @@ class SimpleTemplate
     {
         return $stripMissingValues ? self::MergeRegEx($template, $values, $ldelim, $rdelim) : self::MergeSimple($template, $values, $ldelim, $rdelim);
     }
-    
+
     /**
      * Used internally by Merge, or may be called directly.
      * If a placeholder is in the template but there is no matching value,
@@ -135,14 +135,14 @@ class SimpleTemplate
     static function MergeSimple($template, $values, $ldelim = "{{", $rdelim = "}}")
     {
         $replacements = array ();
-        
+
         foreach ($values as $key => $val) {
             $replacements [$ldelim . $key . $rdelim] = $val;
         }
-        
+
         return strtr($template, $replacements);
     }
-    
+
     /**
      * Used internally by Merge, or may be called directly.
      * If a placeholder is in the template but there is no matching value,
@@ -161,18 +161,18 @@ class SimpleTemplate
     static function MergeRegEx($template, $values, $ldelim = "{{", $rdelim = "}}")
     {
         self::$_MERGE_TEMPLATE_VALUES = $values;
-        
+
         if ($ldelim != "{{" || $rdelim != "}}") {
             throw new Exception("Custom delimiters are not yet implemented. Sorry!");
         }
-        
+
         $results = preg_replace_callback('!\{\{(\w+)\}\}!', 'SimpleTemplate::_MergeRegExCallback', $template);
-        
+
         self::$_MERGE_TEMPLATE_VALUES = null;
-        
+
         return $results;
     }
-    
+
     /**
      * called internally by preg_replace_callback
      *

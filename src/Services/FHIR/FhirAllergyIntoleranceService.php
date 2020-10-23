@@ -66,11 +66,11 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
      */
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
-        
+
         $allergyProvenance = new FHIRProvenance();
         $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
         $allergyProvenance->setMeta($meta);
-        
+
         $id = new FHIRId();
         $uuidString = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
         $id->setValue($uuidString);

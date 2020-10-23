@@ -15,7 +15,7 @@ class AMC_302e extends AbstractAmcReport
     {
         return "AMC_302e";
     }
-    
+
     public function getObjectToCount()
     {
         return "patients";
@@ -25,7 +25,7 @@ class AMC_302e extends AbstractAmcReport
     {
         return new AMC_302e_Denominator();
     }
-    
+
     public function createNumerator()
     {
         return new AMC_302e_Numerator();

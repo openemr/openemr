@@ -38,25 +38,25 @@ class Controller_alerts extends BaseController
         $this->set_view("list_actmgr.php");
     }
 
-    
+
     function _action_submitactmgr()
     {
 
-        
+
         $ids = $_POST["id"];
         $actives = $_POST["active"];
         $passives =  $_POST["passive"];
         $reminders =  $_POST["reminder"];
                 $access_controls = $_POST["access_control"];
-        
-            
+
+
         // The array of check-boxes we get from the POST are only those of the checked ones with value 'on'.
         // So, we have to manually create the entitre arrays with right values.
         $actives_final = array();
         $passives_final = array();
         $reminders_final = array();
 
-            
+
         $numrows = count($ids);
         for ($i = 0; $i < $numrows; ++$i) {
             if ($actives[$i] == "on") {
@@ -65,14 +65,14 @@ class Controller_alerts extends BaseController
                 $actives_final[] = "0";
                 ;
             }
-                
+
             if ($passives[$i] == "on") {
                 $passives_final[] = "1";
             } else {
                 $passives_final[] = "0";
                 ;
             }
-                
+
             if ($reminders[$i] == "on") {
                 $reminders_final[] = "1";
             } else {

@@ -28,7 +28,7 @@ class AMC_302f_STG2_Denominator implements AmcFilterIF
     {
         return "AMC_302f_STG2 Denominator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // If height/length, weight, and blood pressure (all) within scope of practice:

@@ -42,27 +42,27 @@ class PaymentRequest
     public $CCExpYear = "";
     public $CCSecurityCode = "";
     public $TransactionCurrency = "USD";
-    
+
     // authorize.net specific
     public $TransactionType = "AUTH_CAPTURE";
-    
+
     // skipjack specific
     public $OrderString = "1~None~0.00~0~N~||";
     public $CustomerName = "";
     public $OrderDescription; // 22 chars (xxx*xxxxxxxxxxxxxxxxxx || xxxxxxx*xxxxxxxxxxxxxx || xxxxxxxxxxxx*xxxxxxxxx)
-    
+
     /**
      *
      * @deprecated
      */
     public $SerialNumber = "";
-    
+
     /**
      *
      * @deprecated
      */
     public $DeveloperSerialNumber = "";
-    
+
     /**
      * Constructor
      */
@@ -70,7 +70,7 @@ class PaymentRequest
     {
         $this->Init();
     }
-    
+
     /**
      * Called by base object on construction.
      * override this
@@ -80,7 +80,7 @@ class PaymentRequest
     {
         $this->CustomerIP = array_key_exists('REMOTE_ADDR', $_SERVER) ? $_SERVER ['REMOTE_ADDR'] : '0.0.0.0';
     }
-    
+
     /**
      * This will populate all properties from the provided array argument
      * Example: $req->Read($_REQUEST)

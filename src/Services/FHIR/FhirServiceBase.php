@@ -39,7 +39,7 @@ abstract class FhirServiceBase
      */
     abstract protected function loadSearchParameters();
 
-    
+
     /**
      * Parses an OpenEMR data record, returning the equivalent FHIR Resource
      *

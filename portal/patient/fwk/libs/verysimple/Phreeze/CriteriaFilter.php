@@ -21,7 +21,7 @@ class CriteriaFilter
     public $propertyNames;
     public $Value;
     public $Type;
-    
+
     /**
      *
      * @param variant $propertyNames
@@ -37,7 +37,7 @@ class CriteriaFilter
         $this->Value = $value;
         $this->Type = ($type == null) ? self::$TYPE_SEARCH : $type;
     }
-    
+
     /**
      * Return the "where" portion of the SQL statement (without the where prefix)
      *
@@ -49,10 +49,10 @@ class CriteriaFilter
         if ($this->Type != self::$TYPE_SEARCH) {
             throw new Exception('Unsupported Filter Type');
         }
-            
+
             // normalize property names as an array
         $propertyNames = (is_array($this->PropertyNames)) ? $this->PropertyNames : explode(',', $this->PropertyNames);
-        
+
         $where = ' (';
         $orDelim = '';
         foreach ($propertyNames as $propName) {
@@ -62,10 +62,10 @@ class CriteriaFilter
         }
 
         $where .= ') ';
-        
+
         return $where;
     }
-    
+
     /**
      * Return the "order by" portion of the SQL statement (without the order by prefix)
      *

@@ -13,7 +13,7 @@ class NQF_0038_Numerator8 implements CqmFilterIF
     {
         return "Numerator 8";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         if (Immunizations::checkHepA($patient, $beginDate, $endDate)) {

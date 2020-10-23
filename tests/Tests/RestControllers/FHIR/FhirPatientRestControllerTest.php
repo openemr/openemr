@@ -82,7 +82,7 @@ class FhirPatientRestControllerTest extends TestCase
     public function testInvalidPut()
     {
         $this->fhirPatientController->post($this->fhirFixture);
-     
+
         $this->fhirFixture['name'][0]['family'] = 'Smithers';
         $actualResult = $this->fhirPatientController->put('bad-uuid', $this->fhirFixture);
 

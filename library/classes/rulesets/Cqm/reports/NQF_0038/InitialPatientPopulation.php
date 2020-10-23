@@ -24,7 +24,7 @@ class NQF_0038_InitialPatientPopulation implements CqmFilterIF
         ) {
             return true;
         }
-        
+
         return false;
     }
 }

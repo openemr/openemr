@@ -51,7 +51,7 @@ class AllergyIntoleranceService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true)
     {
-        
+
         // Validating and Converting Patient UUID to PID
         if (isset($search['lists.pid'])) {
             $isValidPatient = $this->allergyIntoleranceValidator->validateId(

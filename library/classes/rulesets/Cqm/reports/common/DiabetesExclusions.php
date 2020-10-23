@@ -13,7 +13,7 @@ class DiabetesExclusions implements CqmFilterIF
     {
         return "Exclusions";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         $beginMinus2Years = strtotime('-2 year', strtotime($beginDate));
@@ -33,7 +33,7 @@ class DiabetesExclusions implements CqmFilterIF
         ) {
             return true;
         }
-        
+
         return false;
     }
 }

@@ -21,7 +21,7 @@ class DBServer
 {
     public $Connection;
     public $SchemaName;
-    
+
     /**
      * Instantiate new DBServer
      *
@@ -32,7 +32,7 @@ class DBServer
     {
         $this->Connection = & $connection;
     }
-    
+
     /**
      * Return the schema with the given name from this server
      *
@@ -43,11 +43,11 @@ class DBServer
     function GetSchema()
     {
         $this->Connection->Connect();
-        
+
         $schema = new DBSchema($this);
-        
+
         $this->Connection->Disconnect();
-        
+
         return $schema;
     }
 }

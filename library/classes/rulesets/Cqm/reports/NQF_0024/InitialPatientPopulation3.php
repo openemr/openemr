@@ -21,7 +21,7 @@ class NQF_0024_InitialPatientPopulation3 implements CqmFilterIF
         if ($age >= 12 && $age < 17  && Helper::check(ClinicalType::ENCOUNTER, Encounter::ENC_OUTPATIENT, $patient, $beginDate, $endDate, 1)) {
             return true;
         }
-        
+
         return false;
     }
 }

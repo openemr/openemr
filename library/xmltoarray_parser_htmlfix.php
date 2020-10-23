@@ -42,7 +42,7 @@ class xmltoarray_parser_htmlfix
     var $index;
     var $thearray;
     var $parser;
-    
+
     /**
      * Default constructor for xmltoarray_parser_htmlfix.
      */
@@ -53,7 +53,7 @@ class xmltoarray_parser_htmlfix
         $this->thearray  = array();
         $this->parser = xml_parser_create();
     }
-    
+
     /**
      * xmlparser_setoption sets XML options based on xml_parser_set_option options.
      * @param $optionName - The name of the option from the xml_parser_set_option list.
@@ -63,7 +63,7 @@ class xmltoarray_parser_htmlfix
     {
         xml_parser_set_option($this->parser, $optionName, $value);
     }
-    
+
     /**
      * xmlparser_fix_into_struct fixes the XML and passes the XML into the struct parser.
      * @param $xml - A string XML value.
@@ -83,11 +83,11 @@ class xmltoarray_parser_htmlfix
         }
 
         $xml =  str_replace("&", "%and%", $xml);
-        
+
         xml_parse_into_struct($this->parser, $xml, $this->values, $this->index);
         xml_parser_free($this->parser);
     }
-    
+
     /**
      * createArray creates and returns the array.
      * @return The associative XML array.
@@ -113,14 +113,14 @@ class xmltoarray_parser_htmlfix
         if (isset($values[$i]['value'])) {
             array_push($child, $values[$i]['value']);
         }
-        
+
         while ($i++ < count($values)) {
             if (isset($values[$i])) {
                 switch ($values[$i]['type']) {
                     case 'cdata':
                         array_push($child, $values[$i]['value']);
                         break;
-                    
+
                     case 'complete':
                         $name = $values[$i]['tag'];
                         if (!empty($name)) {
@@ -130,13 +130,13 @@ class xmltoarray_parser_htmlfix
                             }
                         }
                         break;
-                    
+
                     case 'open':
                         $name = $values[$i]['tag'];
                         $size = isset($child[$name]) ? sizeof($child[$name]) : 0;
                         $child[$name][$size] = $this->_struct_to_array($values, $i);
                         break;
-                    
+
                     case 'close':
                         return $child;
                     break;

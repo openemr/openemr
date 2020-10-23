@@ -24,7 +24,7 @@
  * this is from the barcode-coder website
  *
  */
- 
+
 
 class Barcode
 {

@@ -24,7 +24,7 @@ class CreditCardUtil
     static function FormatWithDashes($cc_num)
     {
         $dashSeparatedNumber = "";
-        
+
         if (strlen($cc_num) == 15) {
             $firstFour = substr($cc_num, 0, 4);
             $secondSix = substr($cc_num, 4, 6);
@@ -37,10 +37,10 @@ class CreditCardUtil
             $fourthFour = substr($cc_num, 12, 4);
             $dashSeparatedNumber = $firstFour . "-" . $secondFour . "-" . $thirdFour . "-" . $fourthFour;
         }
-        
+
         return $dashSeparatedNumber;
     }
-    
+
     /**
      * Returns a number with all non-numeric characters removed
      *
@@ -50,7 +50,7 @@ class CreditCardUtil
     {
         return preg_replace('{\D}', '', $num);
     }
-    
+
     /**
      * Returns true if the card meets a valid mod10 (Luhn Algorithm) check
      *
@@ -62,7 +62,7 @@ class CreditCardUtil
         if (strspn($str, "0123456789") != strlen($str)) {
             return false;
         }
-        
+
         $map = array (
                 0,
                 1,
@@ -87,14 +87,14 @@ class CreditCardUtil
         ); // for odd indices
         $sum = 0;
         $last = strlen($str) - 1;
-        
+
         for ($i = 0; $i <= $last; $i++) {
             $sum += $map [$str [$last - $i] + ($i & 1) * 10];
         }
-        
+
         return $sum % 10 == 0;
     }
-    
+
     /**
      * Returns the Credit Card type based on the card number using the info
      * at http://en.wikipedia.org/wiki/Credit_card_numbers as a reference
@@ -104,7 +104,7 @@ class CreditCardUtil
     static function GetType($num)
     {
         $firstOne = substr($num, 0, 1);
-        
+
         if (strlen($num) < 4) {
             return "";
         }
@@ -112,7 +112,7 @@ class CreditCardUtil
         if ($firstOne == 4) {
             return "Visa";
         }
-        
+
         $firstTwo = substr($num, 0, 2);
         if ($firstTwo == 34 || $firstTwo == 37) {
             return "AmEx";
@@ -125,7 +125,7 @@ class CreditCardUtil
         if ($firstTwo == 36 || $firstTwo == 38 || $firstTwo == 54 || $firstTwo == 55) {
             return "Diners Club";
         }
-        
+
         $firstThree = substr($num, 0, 3);
         if ($firstThree >= 300 && $firstThree <= 305) {
             return "Carte Blanche";
@@ -134,7 +134,7 @@ class CreditCardUtil
         if ($firstThree >= 644 && $firstThree <= 649) {
             return "Discover";
         }
-        
+
         $firstFour = substr($num, 0, 4);
         if ($firstFour == 6011) {
             return "Discover";
@@ -147,12 +147,12 @@ class CreditCardUtil
         if ($firstFour == 6011) {
             return "Discover";
         }
-        
+
         $firstSix = substr($num, 0, 6);
         if ($firstSix >= 622126 && $firstSix <= 622925) {
             return "Discover";
         }
-        
+
         if ($firstOne == 3) {
             return "JCB";
         }

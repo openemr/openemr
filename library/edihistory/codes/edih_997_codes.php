@@ -24,9 +24,9 @@
  * @link: http://www.open-emr.org
  * @package ediHistory
  */
- 
- 
- 
+
+
+
 /**
  * error code values in AK or IK segments
  *
@@ -40,7 +40,7 @@ function edih_997_code_text($ak_seg_field, $ak_code)
     // which correspond to the messages in these arrays
     //
     $ret_str = '';
-    
+
     $aktext['ak304'] = array(
             '1' => 'Unrecognized segment ID',
             '2' => 'Unexpected segment',
@@ -56,7 +56,7 @@ function edih_997_code_text($ak_seg_field, $ak_code)
             'I8' => 'Implementation segment below minimum use',
             'I9' => 'Implementation dependent not used segment present'
             );
-    
+
     $aktext['ak403'] = array(
            '1' => 'Mandatory data element missing',
            '2' => 'Conditional required data element missing',
@@ -87,7 +87,7 @@ function edih_997_code_text($ak_seg_field, $ak_code)
            'W' => 'Rejected, assurance failed validity tests',
            'X' => 'Rejected, content after decryption could not be analyzed'
            );
-                   
+
      $aktext['ak502'] = array(
          '1' => 'Functional Group not supported',
          '2' => 'Functional Group Version not supported',

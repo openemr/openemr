@@ -41,7 +41,7 @@ class NQF_0028b_Numerator implements CqmFilterIF
 
         return false;
     }
-    
+
     private function getApplicableEncounters()
     {
         return array(

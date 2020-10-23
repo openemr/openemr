@@ -12,7 +12,7 @@ require_once('ClinicalType.php');
 class Encounter extends ClinicalType
 {
     const OPTION_ENCOUNTER_COUNT = 'count';
-    
+
     const ENC_OUTPATIENT = 'enc_outpatient';
     const ENC_NURS_FAC = 'enc_nurs_fac';
     const ENC_OFF_VIS = 'enc_off_vis';
@@ -31,7 +31,7 @@ class Encounter extends ClinicalType
     const ENC_NONAC_INP_OUT_OR_OPTH = 'enc_nonac_inp_out_or_opth'; // encounter non-acute inpt, outpatient, or ophthalmology
     const ENC_INFLUENZA = 'enc_influenza';
     const ENC_OPHTHAL = 'enc_ophthal_serv';
-    
+
     public static function getEncounterTypes()
     {
         $oClass = new ReflectionClass('Encounter');
@@ -45,12 +45,12 @@ class Encounter extends ClinicalType
 
         return $encounters;
     }
-    
+
     public function getListId()
     {
         return "rule_enc_types";
     }
-    
+
     /*
      *  Fetch an array of all dates on which this encounter took place for a patient.
      *
@@ -69,7 +69,7 @@ class Encounter extends ClinicalType
 
         return $dates;
     }
-    
+
     public function doPatientCheck(RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null)
     {
         $encounters = getEncounters($patient->id, $beginMeasurement, $endMeasurement, $this->getOptionId());

@@ -28,20 +28,20 @@
 function convert_html_to_text($html)
 {
     $html = fix_newlines($html);
-    
+
     $doc = new DOMDocument();
     if (! $doc->loadHTML($html)) {
         throw new Html2TextException("Could not load HTML - badly formed?", $html);
     }
-    
+
     $output = iterate_over_node($doc);
-    
+
     // remove leading and trailing spaces on each line
     $output = preg_replace("/[ \t]*\n[ \t]*/im", "\n", $output);
-    
+
     // remove leading and trailing whitespace
     $output = trim($output);
-    
+
     return $output;
 }
 
@@ -61,7 +61,7 @@ function fix_newlines($text)
     $text = str_replace("\r\n", "\n", $text);
     // remove \rs
     $text = str_replace("\r", "\n", $text);
-    
+
     return $text;
 }
 function next_child_name($node)
@@ -80,7 +80,7 @@ function next_child_name($node)
     if ($nextNode instanceof DOMElement && $nextNode != null) {
         $nextName = strtolower($nextNode->nodeName);
     }
-    
+
     return $nextName;
 }
 function prev_child_name($node)
@@ -99,7 +99,7 @@ function prev_child_name($node)
     if ($nextNode instanceof DOMElement && $nextNode != null) {
         $nextName = strtolower($nextNode->nodeName);
     }
-    
+
     return $nextName;
 }
 function iterate_over_node($node)
@@ -112,17 +112,17 @@ function iterate_over_node($node)
         // ignore
         return "";
     }
-    
+
     $nextName = next_child_name($node);
     $prevName = prev_child_name($node);
-    
+
     $name = strtolower($node->nodeName);
-    
+
     // start whitespace
     switch ($name) {
         case "hr":
             return "------\n";
-        
+
         case "style":
         case "head":
         case "title":
@@ -130,7 +130,7 @@ function iterate_over_node($node)
         case "script":
             // ignore these tags
             return "";
-        
+
         case "h1":
         case "h2":
         case "h3":
@@ -140,30 +140,30 @@ function iterate_over_node($node)
             // add two newlines
             $output = "\n";
             break;
-        
+
         case "p":
         case "div":
             // add one line
             $output = "\n";
             break;
-        
+
         default:
             // print out contents of unknown tags
             $output = "";
             break;
     }
-    
+
     // debug
     // $output .= "[$name,$nextName]";
-    
+
     for ($i = 0; $i < $node->childNodes->length; $i++) {
         $n = $node->childNodes->item($i);
-        
+
         $text = iterate_over_node($n);
-        
+
         $output .= $text;
     }
-    
+
     // end whitespace
     switch ($name) {
         case "style":
@@ -173,7 +173,7 @@ function iterate_over_node($node)
         case "script":
             // ignore these tags
             return "";
-        
+
         case "h1":
         case "h2":
         case "h3":
@@ -182,7 +182,7 @@ function iterate_over_node($node)
         case "h6":
             $output .= "\n";
             break;
-        
+
         case "p":
         case "br":
             // add one line
@@ -190,14 +190,14 @@ function iterate_over_node($node)
                 $output .= "\n";
             }
             break;
-        
+
         case "div":
             // add one line only if the next child isn't a div
             if ($nextName != "div" && $nextName != null) {
                 $output .= "\n";
             }
             break;
-        
+
         case "a":
             // links are returned in [text](link) format
             $href = $node->getAttribute("href");
@@ -215,7 +215,7 @@ function iterate_over_node($node)
                     $output = "[$output]($href)";
                 }
             }
-            
+
             // does the next node require additional whitespace?
             switch ($nextName) {
                 case "h1":
@@ -231,7 +231,7 @@ function iterate_over_node($node)
         default:
         // do nothing
     }
-    
+
     return $output;
 }
 class Html2TextException extends Exception

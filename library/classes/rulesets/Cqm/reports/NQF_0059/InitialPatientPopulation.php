@@ -25,7 +25,7 @@ class NQF_0059_InitialPatientPopulation implements CqmFilterIF
     {
         return "Initial Patient Population";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         $age = $patient->calculateAgeOnDate($beginDate);
@@ -36,20 +36,20 @@ class NQF_0059_InitialPatientPopulation implements CqmFilterIF
             }
 
             $diabetes_codes = "'" . implode("','", $diabetes_codes) . "'";
-            
+
             $query = "select count(*) cnt from form_encounter fe " .
                      "inner join lists l on ( l.type='medical_problem' and l.pid = fe.pid )" .
                      "where fe.pid = ? and fe.date between ? and ? " .
                      "and l.diagnosis in ($diabetes_codes) and (l.begdate < ? or (l.begdate between ? and ? )) and (l.enddate is null or l.enddate > ? )";
-            
+
             $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$beginDate,$beginDate,$endDate,$endDate));
             if ($sql['cnt'] > 0) {
                 return true;
             }
-            
+
             return false;
         }
-        
+
         return false;
     }
 }

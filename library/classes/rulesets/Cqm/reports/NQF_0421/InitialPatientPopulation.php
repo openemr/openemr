@@ -13,7 +13,7 @@ class NQF_0421_InitialPatientPopulation implements CqmFilterIF
     {
         return "Initial Patient Population";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         $age = intval($patient->calculateAgeOnDate($beginDate));
@@ -23,7 +23,7 @@ class NQF_0421_InitialPatientPopulation implements CqmFilterIF
                 return true;
             }
         }
-        
+
         return false;
     }
 }

@@ -20,12 +20,12 @@ class AMC_304b extends AbstractAmcReport
     {
         return "prescriptions";
     }
- 
+
     public function createDenominator()
     {
         return new AMC_304b_Denominator();
     }
-    
+
     public function createNumerator()
     {
         return new AMC_304b_Numerator();

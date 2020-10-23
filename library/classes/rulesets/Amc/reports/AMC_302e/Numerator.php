@@ -15,7 +15,7 @@ class AMC_302e_Numerator implements AmcFilterIF
     {
         return "AMC_302e Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Have at least one entry or an indication that no problems are known for the

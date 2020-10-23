@@ -30,7 +30,7 @@ class KeyMap
     public $ForeignKeyProperty;
     public $KeyType;
     public $LoadType;
-    
+
     /**
      * Initializes the KeyMap
      *

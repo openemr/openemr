@@ -56,7 +56,7 @@ class VerySimpleXmlUtil
             "~lt;",
             "~gt;"
     );
-    
+
     /**
      * Parses the given XML using SimpleXMLElement, however traps PHP errors and
      * warnings and converts them to an Exception that you can catch.
@@ -81,13 +81,13 @@ class VerySimpleXmlUtil
                 throw new Exception('Empty string could not be parsed as XML');
             }
         }
-        
+
         // re-route error handling temporarily so we can convert PHP errors to an exception
         set_error_handler(array (
                 "VerySimpleXmlUtil",
                 "HandleParseException"
         ), E_ALL);
-        
+
         try {
             $element = new SimpleXMLElement($xml);
         } catch (Exception $ex1) {
@@ -106,13 +106,13 @@ class VerySimpleXmlUtil
                 throw $ex1;
             }
         }
-        
+
         // reset error handling back to whatever it was
         restore_error_handler();
-        
+
         return $element;
     }
-    
+
     /**
      * Escapes special characters that will corrupt XML
      *
@@ -135,7 +135,7 @@ class VerySimpleXmlUtil
 
         return $str;
     }
-    
+
     /**
      * UnEscapes special characters from XML that were Escaped
      *
@@ -147,7 +147,7 @@ class VerySimpleXmlUtil
     {
         return str_replace(VerySimpleXmlUtil::$replacements, VerySimpleXmlUtil::$reserved, $str);
     }
-    
+
     /**
      * converts a string containing xml into an array.
      * Note that if $recurse is false
@@ -164,23 +164,23 @@ class VerySimpleXmlUtil
     static function ToArray($xmlstring, $recurse = false, $emptyVal = null)
     {
         $xmlstring = trim($xmlstring);
-        
+
         if (! $xmlstring) {
             $xmlstring = $emptyVal;
             if (! $xmlstring) {
                 throw new Exception('Empty string could not be parsed as XML');
             }
         }
-        
+
         $xml = VerySimpleXmlUtil::SafeParse($xmlstring);
         $array = array ();
-        
+
         if ($recurse) {
             VerySimpleXmlUtil::RecurseXmlObjToArr($xml, $array);
         } else {
             foreach ($xml as $key => $val) {
                 $children = $val->children();
-                
+
                 if ($children) {
                     $grandchildren = $children->children();
                     if ($grandchildren) {
@@ -196,7 +196,7 @@ class VerySimpleXmlUtil
 
         return $array;
     }
-    
+
     /**
      * This is method RecurseXmlObjToArr
      *
@@ -234,7 +234,7 @@ class VerySimpleXmlUtil
 
         return;
     }
-    
+
     /**
      * Recurses value and serializes it as an XML string
      *
@@ -247,35 +247,35 @@ class VerySimpleXmlUtil
     static function ToXML($var, $root = "")
     {
         $xml = "";
-        
+
         if (is_object($var)) {
             // object have properties that we recurse
             $name = strlen($root) > 0 && is_numeric($root) == false ? $root : get_class($var);
             $xml .= "<" . $name . ">\n";
-            
+
             $props = get_object_vars($var);
             foreach (array_keys($props) as $key) {
                 $xml .= VerySimpleXmlUtil::ToXML($props [$key], $key);
             }
-            
+
             $xml .= "</" . $name . ">\n";
         } elseif (is_array($var)) {
             $name = strlen($root) > 0 ? (is_numeric($root) ? "Array_" . $root : $root) : "Array";
             $xml .= "<" . $name . ">\n";
-            
+
             foreach (array_keys($var) as $key) {
                 $xml .= VerySimpleXmlUtil::ToXML($var [$key], $key);
             }
-            
+
             $xml .= "</" . $name . ">\n";
         } else {
             $name = strlen($root) > 0 ? (is_numeric($root) ? "Value_" . $root : $root) : "Value";
             $xml .= "<" . $name . ">" . VerySimpleXmlUtil::Escape($var) . "</" . $name . ">\n";
         }
-        
+
         return $xml;
     }
-    
+
     /**
      * For a node that is known to have inner text and no other child nodes,
      * this returns the inner text and advances the reader curser to the next
@@ -296,7 +296,7 @@ class VerySimpleXmlUtil
             return $default;
         }
     }
-    
+
     /**
      * Given an XMLReader, returns an object that can be inspected using print_r
      *
@@ -326,7 +326,7 @@ class VerySimpleXmlUtil
                 16 => "XMLReader::END_ENTITY",
                 17 => "XMLReader::XML_DECLARATION"
         );
-        
+
         $obj;
         $obj->attributeCount = $xml->attributeCount;
         $obj->baseURI = $xml->baseURI;
@@ -343,10 +343,10 @@ class VerySimpleXmlUtil
         $obj->prefix = $xml->prefix;
         $obj->value = $xml->value;
         $obj->xmlLang = $xml->xmlLang;
-        
+
         return $obj;
     }
-    
+
     /**
      * Handler for catching ParseException errors
      */

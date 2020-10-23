@@ -53,7 +53,7 @@ class AmcResult implements RsResultIF
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
             $rowFormat = array_merge($rowFormat, $this->itemized_test_id);
         }
-        
+
         return $rowFormat;
     }
 }

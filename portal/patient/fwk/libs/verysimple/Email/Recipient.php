@@ -24,7 +24,7 @@ class Recipient
             $this->Parse($email);
         }
     }
-    
+
     /**
      * Returns true if the provided email address appears to be valid.
      * This does not determine if the address is actually legit, only
@@ -38,7 +38,7 @@ class Recipient
     {
         return preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,25})$/i", $email);
     }
-    
+
     /**
      * Parses an address in the either format:
      * "Real Name <email@address.com>" or "email@address.com"
@@ -49,7 +49,7 @@ class Recipient
     function Parse($val)
     {
         $pair = explode("<", $val);
-        
+
         if (isset($pair [1])) {
             $this->RealName = trim($pair [0]);
             $this->Email = trim(str_replace(">", "", $pair [1]));
@@ -57,13 +57,13 @@ class Recipient
             $this->Email = $val;
             $this->RealName = $val;
         }
-        
+
         // just in case there was no realname
         if ($this->RealName == "") {
             $this->RealName = $this->Email;
         }
     }
-    
+
     /**
      * Returns true if $this->Email appears to be a valid email
      *

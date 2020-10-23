@@ -26,7 +26,7 @@ class FhirOrganizationRestController
     private $fhirOrganizationService;
     private $fhirService;
     private $fhirValidationService;
-    
+
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();

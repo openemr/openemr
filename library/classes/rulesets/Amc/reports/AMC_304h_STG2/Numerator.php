@@ -28,7 +28,7 @@ class AMC_304h_STG2_Numerator implements AmcFilterIF
     {
         return "AMC_304h_STG2 Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         //The number of office visits in the denominator where the patient or a patient authorized Representative is provided a clinical summary of their visit within 1 Business day.

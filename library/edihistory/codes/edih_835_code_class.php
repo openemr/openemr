@@ -22,7 +22,7 @@
  *
  *
  */
- 
+
 /**
  * Codes that are unique to the 835 edi x12 type
  *
@@ -78,8 +78,8 @@ class edih_835_codes
         "PI" => "Payor Initiated Reductions",
         "PR" => "Patient Responsibility"
         );
-            
-            
+
+
         // Claim Status
         // loop 2100", Claim Payment Information
         $this->code835['CLAIM_STATUS'] = array (
@@ -216,7 +216,7 @@ class edih_835_codes
         "ZZ" => "Unknown"
         );
 
-    
+
         // Claim Adjustment Reason Codes
         // ASC X12 External Code Source 139 LAST UPDATED 3/1/2016
         // CAS01 CAS05 CAS08 ...

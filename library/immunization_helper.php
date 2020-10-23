@@ -46,7 +46,7 @@ function getImmunizationList($pid, $sortby, $showError)
     }
 
         $sql .= " order by ";
-        
+
     if ($sortby == "vacc") {
         $sql .= " c.code_text_short, i1.immunization_id, i1.administered_date DESC";
     } else {

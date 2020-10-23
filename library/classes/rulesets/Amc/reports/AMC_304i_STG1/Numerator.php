@@ -28,7 +28,7 @@ class AMC_304i_STG1_Numerator implements AmcFilterIF
     {
         return "AMC_304i_STG1 Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         //The number of transitions of care and referrals in the denominator where a summary of care record was provided.

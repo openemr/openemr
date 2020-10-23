@@ -26,7 +26,7 @@ class DBSet
     public $SetPrimaryKey;
     public $SetPrimaryKeyNoPrefix;
     public $GetterName;
-    
+
     /**
      * Instantiate new DBSet
      *
@@ -39,24 +39,24 @@ class DBSet
     function __construct($table, $row)
     {
         $this->Table = & $table->Schema->Tables [$row [2]];
-        
+
         $this->Name = $row [0];
         $this->KeyColumn = $row [3];
         $this->KeyComment = $this->Table->Columns [$this->KeyColumn]->Comment;
         $this->SetTableName = $table->Name;
         $this->SetKeyColumn = $row [1];
         $this->SetKeyComment = $table->Columns [$this->SetKeyColumn]->Comment;
-        
+
         $reftable = $this->Table->Schema->Tables [$this->SetTableName];
         // print "<p><b>" . $this->Table->Name . " set references " . $reftable->Name . "</b></p>";
-        
+
         $this->SetPrimaryKey = $reftable->GetPrimaryKeyName(false);
-        
+
         $this->NameNoPrefix = $this->Table->RemovePrefix($this->Name);
         $this->KeyColumnNoPrefix = $this->Table->RemovePrefix($this->KeyColumn);
         $this->SetKeyColumnNoPrefix = $reftable->RemovePrefix($this->SetKeyColumn);
         $this->SetPrimaryKeyNoPrefix = $reftable->RemovePrefix($this->SetPrimaryKey);
-        
+
         // intelligently decide what a good name for this set would be
         $tmp1 = str_replace("__", "_", str_replace($this->Table->Name, "", str_replace("_id", "", $this->SetKeyColumnNoPrefix)) . "_");
         $tmp2 = $this->SetTableName . "s";

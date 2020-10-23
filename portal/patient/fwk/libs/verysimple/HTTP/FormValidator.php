@@ -20,7 +20,7 @@
  */
 class FormValidator
 {
-    
+
     /**
      * Returns true if the provided email is valid
      *
@@ -32,7 +32,7 @@ class FormValidator
     {
         return (eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $email));
     }
-    
+
     /**
      * Returns true if the provided credit card appears to be valid.
      * If type is
@@ -58,44 +58,44 @@ class FormValidator
         } elseif ($type == "Visa") {
             $denum = "Visa";
         }
-        
+
         $verified = false;
-        
+
         if ($type == "American" || $type == "") {
             $pattern = "/^([34|37]{2})([0-9]{13})$/"; // American Express
             if (preg_match($pattern, $cc_num)) {
                 $verified = true;
             }
         }
-        
+
         if ($type == "Dinners" || $type == "") {
             $pattern = "/^([30|36|38]{2})([0-9]{12})$/"; // Diner's Club
             if (preg_match($pattern, $cc_num)) {
                 $verified = true;
             }
         }
-        
+
         if ($type == "Discover" || $type == "") {
             $pattern = "/^([6011]{4})([0-9]{12})$/"; // Discover Card
             if (preg_match($pattern, $cc_num)) {
                 $verified = true;
             }
         }
-        
+
         if ($type == "Master" || $type == "") {
             $pattern = "/^([51|52|53|54|55]{2})([0-9]{14})$/"; // Mastercard
             if (preg_match($pattern, $cc_num)) {
                 $verified = true;
             }
         }
-        
+
         if ($type == "Visa" || $type == "") {
             $pattern = "/^([4]{1})([0-9]{12,15})$/"; // Visa
             if (preg_match($pattern, $cc_num)) {
                 $verified = true;
             }
         }
-        
+
         return $verified;
     }
 }

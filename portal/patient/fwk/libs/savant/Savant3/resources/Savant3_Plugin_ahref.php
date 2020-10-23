@@ -26,7 +26,7 @@
  */
 class Savant3_Plugin_ahref extends Savant3_Plugin
 {
-    
+
     /**
      *
      * Generate an HTML <a href="">...</a> tag.
@@ -51,42 +51,42 @@ class Savant3_Plugin_ahref extends Savant3_Plugin
     public function ahref($href, $text, $attr = null)
     {
         $html = '<a href="';
-        
+
         if (is_array($href)) {
             // add the HREF from an array
             $tmp = '';
-            
+
             if (isset($href ['scheme'])) {
                 $tmp .= $href ['scheme'] . ':';
                 if (strtolower($href ['scheme']) != 'mailto') {
                     $tmp .= '//';
                 }
             }
-            
+
             if (isset($href ['host'])) {
                 $tmp .= $href ['host'];
             }
-            
+
             if (isset($href ['path'])) {
                 $tmp .= $href ['path'];
             }
-            
+
             if (isset($href ['query'])) {
                 $tmp .= '?' . $href ['query'];
             }
-            
+
             if (isset($href ['fragment'])) {
                 $tmp .= '#' . $href ['fragment'];
             }
-            
+
             $html .= htmlspecialchars($tmp);
         } else {
             // add the HREF from a scalar
             $html .= htmlspecialchars($href);
         }
-        
+
         $html .= '"';
-        
+
         // add attributes
         if (is_array($attr)) {
             // from array
@@ -99,7 +99,7 @@ class Savant3_Plugin_ahref extends Savant3_Plugin
             // from scalar
             $html .= htmlspecialchars(" $attr");
         }
-        
+
         // set the link text, close the tag, and return
         $html .= '>' . $text . '</a>';
         return $html;

@@ -22,7 +22,7 @@ use OpenEMR\Services\FacilityService;
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
-    
+
 $facilityService = new FacilityService();
 $facility = $facilityService->getPrimaryBillingLocation();
 

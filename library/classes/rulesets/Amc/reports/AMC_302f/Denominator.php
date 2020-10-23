@@ -14,7 +14,7 @@ class AMC_302f_Denominator implements AmcFilterIF
     {
         return "AMC_302f Denominator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // All unique patients seen by the EP or admitted to the eligible

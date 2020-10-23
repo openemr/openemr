@@ -35,25 +35,25 @@ class PHPFHIRHelper
 
         self::doImport($sxe, $new);
     }
-    
+
     private static function doImport(\SimpleXMLElement $sxe, \SimpleXMLElement $new)
     {
         $namespaces = $new->getNamespaces(true);
-        
+
         foreach ($namespaces as $prefix => $uri) {
             $sxe->registerXPathNamespace($prefix, $uri);
         }
-                
+
         if (isset($namespaces[''])) {
             $node = $sxe->addChild($new->getName(), (string)$new, $namespaces['']);
         } else {
             $node = $sxe->addChild($new->getName(), (string)$new);
         }
-                
+
         foreach ($new->attributes() as $attr => $value) {
             $node->addAttribute($attr, $value);
         }
-                
+
         foreach ($namespaces as $space) {
             foreach ($new->children($space) as $child) {
                 self::doImport($node, $child);

@@ -79,7 +79,7 @@ class RuleCriteriaLifestyle extends RuleCriteria
     function updateFromRequest()
     {
         parent::updateFromRequest();
-        
+
         $lifestyle = _post("fld_lifestyle");
         $value = _post("fld_value");
         $matchType = _post("fld_value_type");

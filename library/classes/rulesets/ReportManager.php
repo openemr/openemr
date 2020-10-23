@@ -16,11 +16,11 @@ class ReportManager
         foreach (glob(dirname(__FILE__) . "/library/*.php") as $filename) {
             require_once($filename);
         }
-        
+
         foreach (glob(dirname(__FILE__) . "/Cqm/*.php") as $filename) {
             require_once($filename);
         }
-        
+
         foreach (glob(dirname(__FILE__) . "/Amc/*.php") as $filename) {
             require_once($filename);
         }
@@ -33,7 +33,7 @@ class ReportManager
         foreach ($patients as $patient) {
             $patientData [] = $patient['pid'];
         }
-        
+
         $reportFactory = null;
         if (ReportTypes::getType($ruleId) == ReportTypes::CQM) {
             $reportFactory = new CqmReportFactory();
@@ -42,12 +42,12 @@ class ReportManager
         } else {
             throw new Exception("Unknown rule: " . $ruleId);
         }
-        
+
         $report = null;
         if ($reportFactory instanceof  RsReportFactoryAbstract) {
             $report = $reportFactory->createReport(ReportTypes::getClassName($ruleId), $rowRule, $patientData, $dateTarget, $options);
         }
-        
+
         $results = array();
         if (
             $report instanceof RsReportIF &&
@@ -56,7 +56,7 @@ class ReportManager
             $report->execute();
             $results = $report->getResults();
         }
-        
+
         return RsHelper::formatClinicalRules($results);
     }
 }

@@ -13,13 +13,13 @@
  */
 class TextImageWriter
 {
-    
+
     /**
      *
      * @param
      *          $message
      */
-    
+
     /**
      * Output a png image to the browser, including headers
      *
@@ -50,13 +50,13 @@ class TextImageWriter
                     0
             );
         }
-        
+
         $im = self::GetErrorImage($message, $width, $height, $backgroundColor, $fontColor, $fontId);
         header('Content-type: image/png');
         imagepng($im);
         imagedestroy($im);
     }
-    
+
     /**
      * Given text, returns an image reference with the text included in the image
      *
@@ -88,7 +88,7 @@ class TextImageWriter
                     0
             );
         }
-        
+
         $msg = str_replace("\n", "", $message);
         $im = imagecreate($width, $height);
         $bgColor = imagecolorallocate($im, $backgroundColor [0], $backgroundColor [1], $backgroundColor [2]);

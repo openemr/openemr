@@ -13,27 +13,27 @@ class NQF_0028a_PopulationCriteria implements CqmPopulationCrtiteriaFactory
     {
         return "Population Criteria";
     }
-    
+
     public function createInitialPatientPopulation()
     {
         return new NQF_0028a_InitialPatientPopulation();
     }
-    
+
     public function createNumerators()
     {
         return new NQF_0028a_Numerator();
     }
-    
+
     public function createDenominator()
     {
         return new DenominatorAllPatients();
     }
-    
+
     public function createExclusion()
     {
         return new ExclusionsNone();
     }
-    
+
     public function createDenominatorException()
     {
         return new ExceptionsNone();
