@@ -27,7 +27,7 @@ abstract class PaymentProcessor
     public $Password;
     public $Signature;
     protected $_testMode;
-    
+
     /**
      * Constructor
      *
@@ -42,14 +42,14 @@ abstract class PaymentProcessor
         $this->_testMode = $testmode;
         $this->Init($testmode);
     }
-    
+
     /**
      * Init is called by the base object on construction
      *
      * @param bool $testmode
      */
     abstract function Init($testmode);
-    
+
     /**
      * Process a PaymentRequest
      *
@@ -58,7 +58,7 @@ abstract class PaymentProcessor
      * @return PaymentResponse
      */
     abstract function Process(PaymentRequest $req);
-    
+
     /**
      * Refund a Payment
      *
@@ -67,7 +67,7 @@ abstract class PaymentProcessor
      * @return PaymentResponse
      */
     abstract function Refund(RefundRequest $req);
-    
+
     /**
      * Given a 2-digit year, return the full 4-digit year
      *
@@ -80,10 +80,10 @@ abstract class PaymentProcessor
             $century = substr(date("Y"), 0, 2);
             $year = $century . $year;
         }
-        
+
         return $year;
     }
-    
+
     /**
      *
      * @param string $url
@@ -104,36 +104,36 @@ abstract class PaymentProcessor
             $post_data .= $delim . $key . "=" . $data [$key];
             $delim = "&";
         }
-        
+
         $agent = "curl_post.1";
         // $header[] = "Accept: text/vnd.wap.wml,*.*";
         $ch = curl_init($url);
-        
+
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_VERBOSE, 0); // ########## debug
         curl_setopt($ch, CURLOPT_USERAGENT, $agent);
         // curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        
+
         if ($use_cookies) {
             curl_setopt($ch, CURLOPT_COOKIEJAR, "cook");
             curl_setopt($ch, CURLOPT_COOKIEFILE, "cook");
         }
-        
+
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verify_cert);
         curl_setopt($ch, CURLOPT_NOPROGRESS, 1);
-        
+
         $tmp = curl_exec($ch);
         $error = curl_error($ch);
-        
+
         if ($error != "") {
             $tmp .= $error;
         }
 
         curl_close($ch);
-        
+
         return $tmp;
     }
 }

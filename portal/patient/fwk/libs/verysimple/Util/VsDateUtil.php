@@ -15,16 +15,16 @@ class VsDateUtil
 {
     /** @var int one day in milliseconds */
     static $ONE_DAY = 86400000;
-    
+
     /** @var int one hour in milliseconds */
     static $ONE_HOUR = 3600000;
-    
+
     /** @var int one minute in milliseconds */
     static $ONE_MINUTE = 6000;
-    
+
     /** @var int one second in milliseconds */
     static $ONE_SECOND = 1000;
-    
+
     /**
      * Return current date as string in the specified format
      *
@@ -34,7 +34,7 @@ class VsDateUtil
     {
         return self::Now($format);
     }
-    
+
     /**
      * Returns the timestamp for the beginning of DST for specified year
      *
@@ -49,7 +49,7 @@ class VsDateUtil
 
         return strtotime('03/01/' . $year . ' second sunday');
     }
-    
+
     /**
      * Returns the timestamp for the end of DST for the specified year
      *
@@ -64,7 +64,7 @@ class VsDateUtil
 
         return strtotime('11/01/' . $year . ' first sunday');
     }
-    
+
     /**
      * Return true if the date is within the DST observation range for North America
      *
@@ -79,7 +79,7 @@ class VsDateUtil
 
         return $timestamp > self::DstStartNorthAmerica() && $timestamp < self::DstEndNorthAmerica();
     }
-    
+
     /**
      * Return current date/time as string in the specified format
      *
@@ -89,7 +89,7 @@ class VsDateUtil
     {
         return date($format);
     }
-    
+
     /**
      * Return yesterday's date as string in the specified format
      *
@@ -99,7 +99,7 @@ class VsDateUtil
     {
         return self::DaysAgo(1, $format);
     }
-    
+
     /**
      * Return tomorrow's date as string in the specified format
      *
@@ -109,7 +109,7 @@ class VsDateUtil
     {
         return self::DaysFromNow(1, $format);
     }
-    
+
     /**
      * Return the date/time 24 hours ago as string in the specified format
      *
@@ -119,7 +119,7 @@ class VsDateUtil
     {
         return self::HoursAgo(24, $format);
     }
-    
+
     /**
      * Return the date/time 24 hours from now as string in the specified format
      *
@@ -129,7 +129,7 @@ class VsDateUtil
     {
         return self::HoursFromNow(24, $format);
     }
-    
+
     /**
      * Return date as a string the specified number of days ago
      *
@@ -140,7 +140,7 @@ class VsDateUtil
     {
         return date($format, strtotime(self::Now() . " - $days days"));
     }
-    
+
     /**
      * Return date as a string the specified number of days from now
      *
@@ -151,7 +151,7 @@ class VsDateUtil
     {
         return date($format, strtotime(self::Now() . " + $days days"));
     }
-    
+
     /**
      * Return date/time as a string the specified number of hours ago
      *
@@ -162,7 +162,7 @@ class VsDateUtil
     {
         return date($format, strtotime(self::Now() . " - $hours hours"));
     }
-    
+
     /**
      * Return date/time as a string the specified number of hours from now
      *

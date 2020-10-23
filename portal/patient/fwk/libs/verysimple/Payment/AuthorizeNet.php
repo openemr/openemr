@@ -53,17 +53,17 @@ class AuthorizeNet extends PaymentProcessor
         $params ['x_first_name'] = $req->CustomerFirstName;
         $params ['x_last_name'] = $req->CustomerLastName;
         $params ['x_zip'] = $req->CustomerZipCode;
-        
+
         // set the global settings
         $params ['x_version'] = $this->api_version;
         $params ['x_delim_data'] = $this->delim_data;
         $params ['x_login'] = $this->Username;
         $params ['x_password'] = $this->Password;
-        
+
         // do the http post
         $resp = new PaymentResponse();
         $resp->RawResponse = $this->CurlPost($this->post_url, $params);
-        
+
         // parse the results
         $resp->OrderNumber = $req->OrderNumber;
         $resp->ParsedResponse = explode(",", $resp->RawResponse);
@@ -71,7 +71,7 @@ class AuthorizeNet extends PaymentProcessor
         $resp->ResponseMessage = $resp->ParsedResponse [3];
         $resp->TransactionId = $resp->ParsedResponse [37];
         $resp->IsSuccess = $resp->ResponseCode == AuthorizeNet::$AN_RESPONSE_SUCCESS;
-        
+
         return $resp;
     }
 }

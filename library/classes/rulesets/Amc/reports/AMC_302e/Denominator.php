@@ -14,7 +14,7 @@ class AMC_302e_Denominator implements AmcFilterIF
     {
         return "AMC_302e Denominator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Seen by the EP or admitted to the eligible hospitals or CAHs inpatient or emergency department (POS 21 or 23)

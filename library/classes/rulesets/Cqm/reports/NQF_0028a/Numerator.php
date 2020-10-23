@@ -36,7 +36,7 @@ class NQF_0028a_Numerator implements CqmFilterIF
 
         return false;
     }
-    
+
     private function getApplicableEncounters()
     {
         return array(

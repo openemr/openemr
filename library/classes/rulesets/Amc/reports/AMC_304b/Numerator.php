@@ -15,7 +15,7 @@ class AMC_304b_Numerator implements AmcFilterIF
     {
         return "AMC_304b Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Need a prescription escribed.

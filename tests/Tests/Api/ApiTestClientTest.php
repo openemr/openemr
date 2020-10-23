@@ -109,10 +109,10 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken($baseUrl);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        
+
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayHasKey("Authorization", $actualHeaders);
-        
+
         $authHeaderValue = substr($actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
 

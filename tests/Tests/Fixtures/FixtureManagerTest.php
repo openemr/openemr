@@ -76,7 +76,7 @@ class FixtureManagerTest extends TestCase
 
         $actualNames = $fhirPatientFixture['name'];
         $this->assertEquals(1, count($actualNames));
-        
+
         $actualName = $actualNames[0];
         $this->assertEquals('official', $actualName['use']);
         $this->assertNotNull($actualName['family']);
@@ -110,7 +110,7 @@ class FixtureManagerTest extends TestCase
         $patientFixtures = $this->fixtureManager->getPatientFixtures();
         $this->assertIsArray($patientFixtures);
         $this->assertGreaterThan(0, count($patientFixtures));
-        
+
         foreach ($patientFixtures as $index => $patientFixture) {
             $this->assertPatientFields($patientFixture);
         }

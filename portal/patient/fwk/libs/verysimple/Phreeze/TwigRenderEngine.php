@@ -21,14 +21,14 @@ Twig_Autoloader::register();
  */
 class TwigRenderEngine implements IRenderEngine
 {
-    
+
     /** @var Twig_Environment */
     public $twig;
-    
+
     /** @var Twig_Loader_Filesystem */
     private $loader;
     private $assignments = array ();
-    
+
     /**
      *
      * @param string $templatePath
@@ -41,7 +41,7 @@ class TwigRenderEngine implements IRenderEngine
                 'cache' => $compilePath
         ));
     }
-    
+
     /**
      *
      * @see IRenderEngine::assign()
@@ -50,7 +50,7 @@ class TwigRenderEngine implements IRenderEngine
     {
         return $this->assignments [$key] = $value;
     }
-    
+
     /**
      *
      * @see IRenderEngine::display()
@@ -63,7 +63,7 @@ class TwigRenderEngine implements IRenderEngine
 
         return $this->twig->display($template, $this->assignments);
     }
-    
+
     /**
      *
      * @see IRenderEngine::fetch()
@@ -76,7 +76,7 @@ class TwigRenderEngine implements IRenderEngine
 
         return $this->twig->render($template, $this->assignments);
     }
-    
+
     /**
      *
      * @see IRenderEngine::clear()
@@ -85,7 +85,7 @@ class TwigRenderEngine implements IRenderEngine
     {
         unset($this->assignments [$key]);
     }
-    
+
     /**
      *
      * @see IRenderEngine::clearAll()
@@ -94,7 +94,7 @@ class TwigRenderEngine implements IRenderEngine
     {
         $this->assignments = array ();
     }
-    
+
     /**
      *
      * @see IRenderEngine::getAll()

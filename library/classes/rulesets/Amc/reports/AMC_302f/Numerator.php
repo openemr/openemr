@@ -15,7 +15,7 @@ class AMC_302f_Numerator implements AmcFilterIF
     {
         return "AMC_302f Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Record and chart changes in vital signs

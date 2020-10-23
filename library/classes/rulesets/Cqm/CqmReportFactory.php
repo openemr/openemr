@@ -19,7 +19,7 @@ class CqmReportFactory extends RsReportFactoryAbstract
             require_once($filename);
         }
     }
-    
+
     public function createReport($className, $rowRule, $patientData, $dateTarget, $options)
     {
         $reportObject = null;
@@ -28,7 +28,7 @@ class CqmReportFactory extends RsReportFactoryAbstract
         } else {
             $reportObject = new NQF_Unimplemented();
         }
-        
+
         return $reportObject;
     }
 }

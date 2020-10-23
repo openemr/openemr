@@ -129,7 +129,7 @@ function smarty_function_pc_filter($args, &$smarty)
     } else {
         $topoptions = '';
     }
-    
+
     //================================================================
     //  build it in the correct order
     //================================================================
@@ -139,7 +139,7 @@ function smarty_function_pc_filter($args, &$smarty)
 
     $submit = "<input type=\"submit\" valign=\"middle\" name=\"submit\" value=\"$label\" class=\"$class\" />";
     $orderArray = array('user' => $useroptions, 'category' => $catoptions, 'topic' => $topoptions, 'jump' => $submit);
-    
+
     if (isset($order)) {
         $newOrder = array();
         $order = explode(',', $order);
@@ -157,7 +157,7 @@ function smarty_function_pc_filter($args, &$smarty)
     } else {
         $order = $orderArray;
     }
-    
+
     foreach ($order as $element) {
         echo $element;
     }

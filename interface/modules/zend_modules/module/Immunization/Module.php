@@ -15,7 +15,7 @@ class Module
             'Laminas\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-                    
+
                 ),
             ),
         );
@@ -25,7 +25,7 @@ class Module
     {
         return include __DIR__ . '/config/module.config.php';
     }
-    
+
     public function init(ModuleManager $moduleManager)
     {
         // TODO: it needs to be documented why we want to inject the current_controller and current_action here..

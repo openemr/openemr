@@ -13,7 +13,7 @@ class NQF_0038_Numerator12 implements CqmFilterIF
     {
         return "Numerator 12";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         if (
@@ -27,7 +27,7 @@ class NQF_0038_Numerator12 implements CqmFilterIF
         ) {
             return true;
         }
-        
+
         return false;
     }
 }

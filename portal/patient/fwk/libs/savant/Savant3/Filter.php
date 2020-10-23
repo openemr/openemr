@@ -29,7 +29,7 @@
  */
 abstract class Savant3_Filter
 {
-    
+
     /**
      *
      * Optional reference to the calling Savant object.
@@ -40,7 +40,7 @@ abstract class Savant3_Filter
      *
      */
     protected $Savant = null;
-    
+
     /**
      *
      * Constructor.
@@ -61,7 +61,7 @@ abstract class Savant3_Filter
             $this->$key = $val;
         }
     }
-    
+
     /**
      *
      * Stub method for extended behaviors.

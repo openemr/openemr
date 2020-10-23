@@ -43,7 +43,7 @@ class thumbnail
                 return false;
         }
     }
-    
+
     /**
      * Generates a thumbnail image using the file at $sourceFilename and either writing it
      * out to a new file or directly to the browser.
@@ -65,12 +65,12 @@ class thumbnail
     public function generate($sourceFilename, $maxWidth, $maxHeight, $targetFormatOrFilename = 'jpg', $useExactSize = false)
     {
         $size = getimagesize($sourceFilename); // 0 = width, 1 = height, 2 = type
-                                               
+
         // check to make sure source image is in allowable format
         if (! in_array($size [2], $this->allowableTypes)) {
             return false;
         }
-        
+
         // work out the extension, what target filename should be and output function to call
         $pathinfo = pathinfo($targetFormatOrFilename);
         if ($pathinfo ['basename'] == $pathinfo ['filename']) {
@@ -80,7 +80,7 @@ class thumbnail
         } else {
             $extension = strtolower($pathinfo ['extension']);
         }
-        
+
         switch ($extension) {
             case 'gif':
                 $function = 'imagegif';
@@ -92,13 +92,13 @@ class thumbnail
                 $function = 'imagejpeg';
                 break;
         }
-        
+
         // load the image and return false if didn't work
         $source = $this->imageCreateFromFile($sourceFilename, $size [2]);
         if (! $source) {
             return false;
         }
-        
+
         // write out the appropriate HTTP headers if going to browser
         if ($targetFormatOrFilename == null) {
             if ($extension == 'jpg') {
@@ -107,21 +107,21 @@ class thumbnail
                 header("Content-Type: image/$extension");
             }
         }
-        
+
         // if the source fits within the maximum then no need to resize
         if ($useExactSize == false && $size [0] <= $maxWidth && $size [1] <= $maxHeight) {
             $function($source, $targetFormatOrFilename);
         } else {
             $newWidth = 0;
             $newHeight = 0;
-            
+
             if ($useExactSize) {
                 $newWidth = $maxWidth;
                 $newHeight = $maxHeight;
             } else {
                 $ratioWidth = $maxWidth / $size [0];
                 $ratioHeight = $maxHeight / $size [1];
-                
+
                 // use smallest ratio
                 if ($ratioWidth < $ratioHeight) {
                     $newWidth = $maxWidth;
@@ -131,12 +131,12 @@ class thumbnail
                     $newHeight = $maxHeight;
                 }
             }
-            
+
             $target = imagecreatetruecolor($newWidth, $newHeight);
             imagecopyresampled($target, $source, 0, 0, 0, 0, $newWidth, $newHeight, $size [0], $size [1]);
             $function($target, $targetFormatOrFilename);
         }
-        
+
         return true;
     }
 }

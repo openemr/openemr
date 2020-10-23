@@ -30,17 +30,17 @@ class Allergy extends ClinicalType
     const INFLUENZA_VAC = 'med_allergy_flu_vac';
     const INFLUENZA_IMMUN = 'med_allergy_flu_immun';
     const EGGS = 'subst_allergy_eggs';
-    
+
     public function getListType()
     {
         return 'allergy';
     }
-    
+
     public function getListId()
     {
         return 'Clinical_Rules_Allergy_Types';
     }
-    
+
     /*
      *  Check to see if a patient had an allergy to THIS thing between $beginDate and $endDate
      *  $beginDate and $endDate can be the same, indicating a check for allergy on particular date

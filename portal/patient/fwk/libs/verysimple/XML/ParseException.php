@@ -25,7 +25,7 @@ class ParseException extends Exception
     {
         parent::__construct($message, $code);
     }
-    
+
     /**
      * String representation of exception
      */

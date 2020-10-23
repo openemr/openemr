@@ -19,7 +19,7 @@ class AmcReportFactory extends RsReportFactoryAbstract
             require_once($filename);
         }
     }
-    
+
     public function createReport($className, $rowRule, $patientData, $dateTarget, $options)
     {
         $reportObject = null;
@@ -28,7 +28,7 @@ class AmcReportFactory extends RsReportFactoryAbstract
         } else {
             $reportObject = new AMC_Unimplemented();
         }
-        
+
         return $reportObject;
     }
 }

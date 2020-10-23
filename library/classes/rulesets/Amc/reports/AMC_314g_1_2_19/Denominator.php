@@ -30,7 +30,7 @@ class AMC_314g_1_2_19_Denominator implements AmcFilterIF
     {
         return "AMC_314g_1_2_19 Denominator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Seen by the EP

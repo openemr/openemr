@@ -25,7 +25,7 @@ interface IObservable
      * @param IObserver $observer
      */
     public function AttachObserver($observer);
-    
+
     /**
      * Fires the Observe event on all registered observers
      *

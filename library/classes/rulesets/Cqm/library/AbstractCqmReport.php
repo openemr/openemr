@@ -59,7 +59,7 @@ abstract class AbstractCqmReport implements RsReportIF
     {
         return $this->_endMeasurement;
     }
-    
+
     public function getResults()
     {
         return $this->_resultsArray;
@@ -121,18 +121,18 @@ abstract class AbstractCqmReport implements RsReportIF
                     if (!$initialPatientPopulationFilter->test($patient, $this->_beginMeasurement, $this->_endMeasurement)) {
                         continue;
                     }
-                        
+
                     $initialPatientPopulation++;
 
                     // If itemization is turned on, then record the "Initial Patient population" item
                     if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
                         insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 3, $patient->id);
                     }
-                    
+
                     if (!$denominator->test($patient, $this->_beginMeasurement, $this->_endMeasurement)) {
                         continue;
                     }
-                            
+
                     $denominatorPatientPopulation++;
 
                     if ($exclusion->test($patient, $this->_beginMeasurement, $this->_endMeasurement)) {
@@ -148,12 +148,12 @@ abstract class AbstractCqmReport implements RsReportIF
                             $patExceptArr[] = $patient->id;
                         }
                     }
-                     
+
                     foreach ($numerators as $numerator) {
                         $this->testNumerator($patient, $numerator, $numeratorPatientPopulations);
                     }
                 }
-                
+
                 // tally results, run exclusion on each numerator
                 $pass_filt = $denominatorPatientPopulation;
                 $exclude_filt = $exclusionsPatientPopulation;
@@ -195,7 +195,7 @@ abstract class AbstractCqmReport implements RsReportIF
 
         return $this->_resultsArray;
     }
-    
+
     private function initNumeratorPopulations(array $numerators)
     {
         $numeratorPatientPopulations = array();

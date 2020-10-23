@@ -31,7 +31,7 @@ class DBEventHandler
     {
         $this->LogLevel = $level;
     }
-    
+
     /**
      * Called by DB objects to report logging information
      *
@@ -71,7 +71,7 @@ class DBEventHandler
                 break;
         }
     }
-    
+
     /**
      * Called by DB objects when a critical error occurs
      *

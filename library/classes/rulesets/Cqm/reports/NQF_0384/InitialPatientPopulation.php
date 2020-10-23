@@ -28,7 +28,7 @@ class NQF_0384_InitialPatientPopulation implements CqmFilterIF
     {
         return "Initial Patient Population";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         $cancerCheckQry = "SELECT count(*) as cnt FROM form_encounter fe " .

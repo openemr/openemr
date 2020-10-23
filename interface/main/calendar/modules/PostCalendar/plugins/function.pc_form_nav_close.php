@@ -29,7 +29,7 @@ function smarty_function_pc_form_nav_close($args = array())
 {
     extract($args);
     unset($args);
-    
+
     if (_SETTING_OPEN_NEW_WINDOW || isset($print)) {
         $target = 'target="csCalendar"';
     } else {

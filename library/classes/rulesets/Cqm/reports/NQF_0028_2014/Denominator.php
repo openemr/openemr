@@ -21,7 +21,7 @@
  * @author  Ensoftek
  * @link    http://www.open-emr.org
  */
- 
+
 class NQF_0028_2014_Denominator implements CqmFilterIF
 {
     public function getTitle()

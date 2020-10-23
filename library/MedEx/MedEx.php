@@ -34,7 +34,7 @@
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
     require_once(dirname(__FILE__) . "/../patient.inc");
     require_once(dirname(__FILE__) . "/API.php");
-    
+
 if (!empty($_POST['callback_key'])) {
     $MedEx = new MedExApi\MedEx('MedExBank.com');
     $response = $MedEx->login('1');

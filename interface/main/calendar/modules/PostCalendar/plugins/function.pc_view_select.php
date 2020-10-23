@@ -40,13 +40,13 @@ function smarty_function_pc_view_select($args)
     if (!isset($d)) {
         $d = substr($Date, 6, 2);
     }
-    
+
     $tplview = pnVarCleanFromInput('tplview');
     $viewtype = pnVarCleanFromInput('viewtype');
     if (!isset($viewtype)) {
         $viewtype = _SETTING_DEFAULT_VIEW;
     }
-    
+
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $mdir = pnVarPrepForOS($modinfo['directory']);
     unset($modinfo);
@@ -57,7 +57,7 @@ function smarty_function_pc_view_select($args)
 
     $viewlist = array();
     $handle = opendir("modules/$mdir/pntemplates/$pcTemplate/views/$viewtype");
-    
+
     $hide_list = array('.','..','CVS','index.html');
     while ($f = readdir($handle)) {
         if (!in_array($f, $hide_list)) {
@@ -79,7 +79,7 @@ function smarty_function_pc_view_select($args)
     }
 
     $options .= '</select>';
-    
+
     if (!isset($args['label'])) {
         $args['label'] = _PC_TPL_VIEW_SUBMIT;
     }

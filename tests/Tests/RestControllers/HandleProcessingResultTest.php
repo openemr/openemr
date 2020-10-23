@@ -53,7 +53,7 @@ class HandleProcessingResultTest extends TestCase
     {
         $expectedData = array("pid" => 1);
         $this->processingResult->addData($expectedData);
-        
+
         $actualValue = RestControllerHelper::handleProcessingResult($this->processingResult, 201, false);
 
         $this->assertEquals(201, http_response_code());
@@ -72,7 +72,7 @@ class HandleProcessingResultTest extends TestCase
         $this->processingResult->addData(array("fname" => "John"));
         $this->processingResult->addData(array("fname" => "Jane"));
         $expectedData = $this->processingResult->getData();
-        
+
         $actualValue = RestControllerHelper::handleProcessingResult($this->processingResult, 200, true);
 
         $this->assertEquals(200, http_response_code());
@@ -89,7 +89,7 @@ class HandleProcessingResultTest extends TestCase
     public function testWithEmptyMultiItemResponse()
     {
         $expectedData = array();
-        
+
         $actualValue = RestControllerHelper::handleProcessingResult($this->processingResult, 200, true);
 
         $this->assertEquals(200, http_response_code());

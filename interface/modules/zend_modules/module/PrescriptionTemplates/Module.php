@@ -30,7 +30,7 @@ use Laminas\ModuleManager\ModuleManager;
  */
 class Module
 {
-    
+
     /**
      * the implementation of the autoloader provider,
      * returns an array for the AutoloaderFactory
@@ -49,7 +49,7 @@ class Module
             ),
         );
     }
-    
+
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';

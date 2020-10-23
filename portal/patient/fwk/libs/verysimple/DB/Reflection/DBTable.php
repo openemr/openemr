@@ -35,7 +35,7 @@ class DBTable
     public $IsView = false;
     static $NUMERIC_TABLE_PREFIX = 'TBL_';
     static $NUMERIC_COLUMN_PREFIX = 'COL_';
-    
+
     /**
      * Instantiate new DBTable
      *
@@ -52,11 +52,11 @@ class DBTable
         $this->ForeignKeys = array ();
         $this->Constraints = array ();
         $this->Sets = array ();
-        
+
         $this->LoadColumns();
         $this->DiscoverColumnPrefix();
     }
-    
+
     /**
      * Returns the number of columns involved in the primary key
      *
@@ -66,7 +66,7 @@ class DBTable
     {
         return count($this->PrimaryKeys);
     }
-    
+
     /**
      * Returns name of the primary key
      * TODO: If there are multiple keys, this is no accurate.
@@ -81,13 +81,13 @@ class DBTable
         foreach ($this->PrimaryKeys as $key) {
             return ($remove_prefix) ? $this->RemovePrefix($key->KeyColumn) : $key->KeyColumn;
         }
-        
+
         // views don't technically have a primary key but we will return the first column if anybody asks
         if ($this->IsView) {
             return $this->GetColumnNameByIndex(0, $remove_prefix);
         }
     }
-    
+
     /**
      * Returns the name of the column at the given index
      *
@@ -105,10 +105,10 @@ class DBTable
                 return ($remove_prefix) ? $column->NameWithoutPrefix : $column->Name;
             }
         }
-        
+
         throw new Exception('Index out of bounds');
     }
-    
+
     /**
      * Returns true if the primary key for this table is an auto_increment
      * TODO: Only checks the first key if there are multiple primary keys
@@ -121,7 +121,7 @@ class DBTable
         $pk = $this->GetPrimaryKeyName(false);
         return $pk && $this->Columns [$pk]->Extra == "auto_increment";
     }
-    
+
     /**
      * Returns name of the first varchar field which could be used as a "label"
      *
@@ -135,11 +135,11 @@ class DBTable
                 return ($remove_prefix) ? $this->RemovePrefix($column->Name) : $column->Name;
             }
         }
-        
+
         // give up because there are no varchars in this table
         return $this->GetPrimaryKeyName($remove_prefix);
     }
-    
+
     /**
      * Inspects all columns to see if there is a common prefix in the format: XXX_
      *
@@ -151,7 +151,7 @@ class DBTable
         $has_prefix = true;
         foreach ($this->Columns as $column) {
             $curr_prefix = substr($column->Name, 0, strpos($column->Name, "_") + 1);
-            
+
             if ($prev_prefix == "") {
                 // first time through the loop
                 $prev_prefix = $curr_prefix ? $curr_prefix : "#NONE#";
@@ -159,17 +159,17 @@ class DBTable
                 $has_prefix = false;
             }
         }
-        
+
         if ($has_prefix) {
             // set the table column prefix property
             $this->ColumnPrefix = $curr_prefix;
-            
+
             // update the columns to reflect the prefix as well
             foreach ($this->Columns as $column) {
                 $column->NameWithoutPrefix = substr($column->Name, strlen($curr_prefix));
             }
         }
-        
+
         // if a column begins with a numeric character then prepend a string to prevent generated code errors
         if (self::$NUMERIC_COLUMN_PREFIX) {
             foreach ($this->Columns as $column) {
@@ -179,7 +179,7 @@ class DBTable
             }
         }
     }
-    
+
     /**
      * Returns a name that is acceptable to be used as the "object" name in generated code
      */
@@ -188,10 +188,10 @@ class DBTable
         if (is_numeric(substr($this->Name, 0, 1))) {
             return self::$NUMERIC_TABLE_PREFIX . $this->Name;
         }
-        
+
         return $this->Name;
     }
-    
+
     /**
      * Given a column name, removes the prefix
      *
@@ -202,7 +202,7 @@ class DBTable
         // print "remove prefix $name: " . $this->ColumnPrefix . "<br />";
         return substr($name, strlen($this->ColumnPrefix));
     }
-    
+
     /**
      * Inspects the current table and loads all Columns
      *
@@ -212,16 +212,16 @@ class DBTable
     {
         // get the colums
         $sql = "describe `" . $this->Name . "`";
-        
+
         $rs = $this->Schema->Server->Connection->Select($sql);
-        
+
         while ($row = $this->Schema->Server->Connection->Next($rs)) {
             $this->Columns [$row ["Field"]] = new DBColumn($this, $row);
         }
-        
+
         $this->Schema->Server->Connection->Release($rs);
     }
-    
+
     /**
      * Load the keys and constraints for this table and populate the sets for
      * all tables on which this table is dependents
@@ -230,32 +230,32 @@ class DBTable
      */
     public function LoadKeys()
     {
-        
+
         // get the keys and constraints
         $sql = "show create table `" . $this->Name . "`";
-        
+
         $create_table = "";
-        
+
         $rs = $this->Schema->Server->Connection->Select($sql);
-        
+
         if ($row = $this->Schema->Server->Connection->Next($rs)) {
             if (isset($row ["Create Table"])) {
                 $create_table = $row ["Create Table"];
             } elseif (isset($row ["Create View"])) {
                 $this->IsView = true;
                 $create_table = $row ["Create View"];
-                
+
                 // treat the 1st column in a view as the primary key
                 $this->Columns [$this->GetColumnNameByIndex(0, false)]->Key = 'PRI';
             } else {
                 throw new Exception("Unknown Table Type");
             }
         }
-        
+
         $this->Schema->Server->Connection->Release($rs);
-        
+
         $lines = explode("\n", $create_table);
-        
+
         foreach ($lines as $line) {
             $line = trim($line);
             if (substr($line, 0, 11) == "PRIMARY KEY") {
@@ -266,20 +266,20 @@ class DBTable
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
                 // print "<pre>"; print_r($matches); die(); // DEBUG
                 $this->ForeignKeys [$matches [1] [0]] = new DBKey($this, $matches [1] [0], $matches [1] [1]);
-                
+
                 // Add keys to the column for convenience
                 $this->Columns [$matches [1] [1]]->Keys [] = $matches [1] [0];
             } elseif (substr($line, 0, 10) == "CONSTRAINT") {
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
                 // print "<pre>"; print_r($matches); die(); // DEBUG
                 $this->Constraints [$matches [1] [0]] = new DBConstraint($this, $matches [1]);
-                
+
                 // the set is basically the reverse of the constraint, but we want to add it to the
                 // constraining table so we don't have to do reverse-lookup looking for child relationships
                 $this->Schema->Tables [$matches [1] [2]]->Sets [$matches [1] [0]] = new DBSet($this, $matches [1]);
-                
+
                 // print "<pre>##########################\r\n" . print_r($matches,1) . "\r\n##########################\r\n";
-                
+
                 // Add constraints to the column for convenience
                 $this->Columns [$matches [1] [1]]->Constraints [] = $matches [1] [0];
             } elseif (strstr($line, "COMMENT ")) {
@@ -291,11 +291,11 @@ class DBTable
                 $comment = substr($comment, 9, strlen($comment) - 11);
                 $comment = str_replace("''", "'", $comment);
                 $this->Columns [$column]->Comment = $comment;
-                
+
                 if ($this->Columns [$column]->Default == "" && substr($comment, 0, 8) == "default=") {
                     $this->Columns [$column]->Default = substr($comment, 9, strlen($comment) - 10);
                 }
-                
+
                 // print "<pre>" . $column . "=" . htmlspecialchars( $this->Columns[$column]->Default );
             }
 

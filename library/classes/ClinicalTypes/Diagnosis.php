@@ -15,7 +15,7 @@ class Diagnosis extends ClinicalType
     const STATE_ACTIVE = 'active';
     const STATE_INACTIVE = 'inactive';
     const STATE_RESOLVED = 'resolved';
-    
+
     const HYPERTENSION = 'diag_hypertension';
     const PREGNANCY = 'diag_pregnancy';
     const ENCEPHALOPATHY = 'diag_encephalopathy';
@@ -41,22 +41,22 @@ class Diagnosis extends ClinicalType
     const ACUTE_PHARYNGITIS = 'diag_acute_pharyngitis';
     const ACUTE_TONSILLITIS = 'diag_acute_tonsillitis';
     const LIMITED_LIFE = 'diag_limited_life_expectancy';
-    
+
     public function getListType()
     {
         return 'medical_problem';
     }
-    
+
     public function getListColumn()
     {
         return 'diagnosis';
     }
-    
+
     public function getListId()
     {
         return 'Clinical_Rules_Diagnosis_Types';
     }
-    
+
     /*
      * Check if the patient has this diagnosis
      *

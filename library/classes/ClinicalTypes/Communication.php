@@ -19,7 +19,7 @@ class Communication extends ClinicalType
     {
         return 'Clinical_Rules_Comm_Types';
     }
-    
+
     public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
         // TODO Read from referrals to check for ditary consult?

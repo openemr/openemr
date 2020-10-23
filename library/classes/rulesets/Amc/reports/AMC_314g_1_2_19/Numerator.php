@@ -28,7 +28,7 @@ class AMC_314g_1_2_19_Numerator implements AmcFilterIF
     {
         return "AMC_314g_1_2_19 Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         //Secure electronic message received by EP using secure electronic messaging function of CEHRT

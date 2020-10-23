@@ -15,7 +15,7 @@ class AMC_302j_Numerator implements AmcFilterIF
     {
         return "AMC_302j Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Need a medication reconciliation completed.

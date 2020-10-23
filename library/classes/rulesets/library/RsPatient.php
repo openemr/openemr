@@ -31,7 +31,7 @@ class RsPatient
         $date = ($dob . ' 00:00:00'); // MYSQL Date Format
         return $date;
     }
-    
+
     public function calculateAgeOnDate($date)
     {
         $ageInfo = parseAgeInfo($this->dob, $date);

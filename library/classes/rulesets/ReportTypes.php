@@ -11,22 +11,22 @@ class ReportTypes
 {
     const TYPE_INDEX = 0;
     const CLASS_INDEX = 1;
-    
+
     const AMC = 'amc';
     const CQM = 'cqm';
-    
+
     public static function getType($ruleId)
     {
         $type = self::$_types[$ruleId][self::TYPE_INDEX];
         return $type;
     }
-    
+
     public static function getClassName($ruleId)
     {
         $class = self::$_types[$ruleId][self::CLASS_INDEX];
         return $class;
     }
-    
+
     protected static $_types = array(
         "rule_htn_bp_measure_cqm" => array( ReportTypes::CQM, "NQF_0013" ),
         "rule_tob_use_assess_cqm" => array( ReportTypes::CQM, "NQF_0028a" ),

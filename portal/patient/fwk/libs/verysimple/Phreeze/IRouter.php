@@ -24,7 +24,7 @@ interface IRouter
      * @return string URL
      */
     public function GetUrl($controller, $method, $params = '', $requestMethod = '');
-    
+
     /**
      * Returns the controller and method for the given URI
      *
@@ -33,7 +33,7 @@ interface IRouter
      * @return array($controller,$method)
      */
     public function GetRoute($uri = "");
-    
+
     /**
      * In the case of a rewrite url, the url itself contains the parameter
      * for example http://server/param1/param2/param3.
@@ -45,7 +45,7 @@ interface IRouter
      *          string default value to return if parameter is empty
      */
     public function GetUrlParam($key, $default = '');
-    
+
     /**
      * In the case of a rewrite url, the url itself contains the parameter
      * for example http://server/param1/param2/param3.
@@ -55,7 +55,7 @@ interface IRouter
      * @return array
      */
     public function GetUrlParams();
-    
+
     /**
      * Returns the RESTful part of the url
      * For example, localhost/users/5 will return users/5

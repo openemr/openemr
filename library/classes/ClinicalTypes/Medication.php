@@ -13,7 +13,7 @@ class Medication extends ClinicalType
 {
     const OPTION_COUNT = 'count';
     const OPTION_UNIQUE_DATES = 'unique';
-    
+
     const DTAP_VAC = 'med_admin_dtap';
     const HEP_A_VAC = 'med_admin_hep_a_vac';
     const HEP_B_VAC = 'med_admin_hep_b_vac';
@@ -27,31 +27,31 @@ class Medication extends ClinicalType
     const RUBELLA_VAC = 'med_admin_rubella_vac';
     const VZV = 'med_admin_vzv';
     const INFLUENZA_VAC = 'med_admin_influenza_vac';
-    
+
     const NO_INFLUENZA_CONTRADICTION = 'med_not_done_flu_immun_contradiction';
     const NO_INFLUENZA_DECLINED = 'med_not_done_flu_immun_declined';
     const NO_INFLUENZA_PATIENT = 'med_not_done_flu_vac_pat_reas';
     const NO_INFLUENZA_MEDICAL = 'med_not_done_flu_vac_med_reas';
     const NO_INFLUENZA_SYSTEM = 'med_not_done_flu_vac_sys_reas';
-    
+
     const ADVERSE_EVT_FLU_IMMUN = 'med_adverse_evt_flu_immun';
     const INTOLERANCE_FLU_IMMUN = 'med_intolerance_flu_immun';
-    
+
     const DISP_DIABETES = 'med_disp_diabetes';
     const ORDER_DIABETES = 'med_order_diabetes';
     const ACTIVE_DIABETES = 'med_active_diabetes';
 
     const SMOKING_CESSATION = 'med_active_smoking_cessation';
     const SMOKING_CESSATION_ORDER = 'med_order_smoking_cessation';
-    
+
     const ANTIBIOTIC_FOR_PHARYNGITIS = 'med_antibiotic_pharyngitis';
     const INFLUENZA_VACCINE = 'med_influenza_vaccination';
-    
+
     public function getListId()
     {
         return "Clinical_Rules_Med_Types";
     }
-    
+
     public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
         $return = false;
@@ -83,7 +83,7 @@ class Medication extends ClinicalType
             for ($iter = 0; $row = sqlFetchArray($result); $iter++) {
                     $rows[$iter] = $row;
             }
-            
+
             if (
                 isset($options[self::OPTION_COUNT]) &&
                 count($rows) >= $options[self::OPTION_COUNT]
@@ -96,7 +96,7 @@ class Medication extends ClinicalType
                 $return = true;
             }
         }
-        
+
         return $return;
     }
 }

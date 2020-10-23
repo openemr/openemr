@@ -15,7 +15,7 @@ class AMC_304d_Numerator implements AmcFilterIF
     {
         return "AMC_304d Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Were sent an appropriate reminder during the EHR reporting period

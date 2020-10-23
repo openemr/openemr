@@ -13,7 +13,7 @@
  */
 class DatabaseException extends Exception
 {
-    
+
     /**
      * codes used to determine error sub-type
      */
@@ -21,13 +21,13 @@ class DatabaseException extends Exception
     static $CONNECTION_ERROR = 1;
     static $ERROR_IN_QUERY = 2;
     public $data;
-    
+
     // Redefine the constructor so message isn't optional
     public function __construct($message, $code = 0, $data = "")
     {
         // make sure everything is assigned properly
         parent::__construct($message, $code);
-        
+
         $this->data = $data;
     }
 }

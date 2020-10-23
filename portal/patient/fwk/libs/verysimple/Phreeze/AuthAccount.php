@@ -46,7 +46,7 @@ class AuthAccount extends AccountDAO implements IAuthenticatable
 {
     /** @var string this is public for serialization */
     public $_original_password = "";
-    
+
     /**
      * Checks if the current user is "anonymous" meaning they have not authenticated
      *
@@ -60,7 +60,7 @@ class AuthAccount extends AccountDAO implements IAuthenticatable
     {
         return ($this->Password != $this->_original_password && $this->Password != "");
     }
-    
+
     /**
      * Returns true if the current account has the specified permission
      *
@@ -73,10 +73,10 @@ class AuthAccount extends AccountDAO implements IAuthenticatable
         if ($this->IsAnonymous()) {
             return false;
         }
-        
+
         return (($this->GetRole()->Permission & $permission) > 0);
     }
-    
+
     /**
      * Attempts to authenticate based on the provided username/password.
      * if
@@ -100,13 +100,13 @@ class AuthAccount extends AccountDAO implements IAuthenticatable
         if (! class_exists("AccountCriteria")) {
             throw new Exception("Unable to locate AccountCriteria class.");
         }
-        
+
         if ($username == "" || $password == "") {
             return false;
         }
-        
+
         $this->_phreezer->Observe("AuthAccount.Login Searching For Matching Account...");
-        
+
         $criteria = new AccountCriteria();
         // set both the name and the _Equals properties for backwards compatibility
         if (property_exists($criteria, 'Username')) {
@@ -119,29 +119,29 @@ class AuthAccount extends AccountDAO implements IAuthenticatable
         }
 
         $criteria->Password_Equals = base64_encode(crypt($password, $username));
-        
+
         $ds = $this->_phreezer->Query("Account", $criteria);
-        
+
         // we have to clear the cache, this resolves an issue where logging in repeatedly
         // will retain the same cached child objects
         $this->ClearCache();
-        
+
         if ($account = $ds->Next()) {
             // we can't do $this = $account, so instead just clone all the properties:
             $this->LoadFromObject($account);
             $this->GetRole(); // this triggers the role to load so it will be cached
-                              
+
             // we need to update the login date and count
                               // $this->LastLogin = date('Y-m-d H:i:s');
                               // $this->LoginCount++;
                               // $this->Save();
-            
+
             return true;
         } else {
             return false;
         }
     }
-    
+
     /**
      * if the password has changed since load, then we want to crypt it
      * otherwise we don't want to touch it because it is already crypted
@@ -160,12 +160,12 @@ class AuthAccount extends AccountDAO implements IAuthenticatable
             $this->Password = $this->_original_password;
             $this->_phreezer->Observe("Account->OnSave: The password was not changed");
         }
-        
+
         // update the modified date
         $this->Modified = date('Y-m-d H:i:s');
         return true;
     }
-    
+
     /**
      * stores the original password so we can detect if it has been changed
      */
@@ -173,7 +173,7 @@ class AuthAccount extends AccountDAO implements IAuthenticatable
     {
         $this->_original_password = $this->Password;
     }
-    
+
     /**
      * Updates the password for this account
      *

@@ -13,12 +13,12 @@ class NQF_0024_PopulationCriteria3 implements CqmPopulationCrtiteriaFactory
     {
         return "Population Criteria 3";
     }
-    
+
     public function createInitialPatientPopulation()
     {
         return new NQF_0024_InitialPatientPopulation3();
     }
-    
+
     public function createNumerators()
     {
         $nums = array();
@@ -27,17 +27,17 @@ class NQF_0024_PopulationCriteria3 implements CqmPopulationCrtiteriaFactory
         $nums[] = new NQF_0024_Numerator3();
         return $nums;
     }
-    
+
     public function createDenominator()
     {
         return new NQF_0024_Denominator();
     }
-    
+
     public function createExclusion()
     {
         return new ExclusionsNone();
     }
-    
+
     public function createDenominatorException()
     {
         return new ExceptionsNone();

@@ -14,7 +14,7 @@ class AMC_304d_Denominator implements AmcFilterIF
     {
         return "AMC_304d Denominator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // All unique patients with age greater than or equal to 65

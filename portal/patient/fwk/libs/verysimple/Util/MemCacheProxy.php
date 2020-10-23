@@ -21,7 +21,7 @@ class MemCacheProxy extends CacheMemCache
 {
     public $ServerOffline = false;
     public $LastServerError = '';
-    
+
     /**
      * Acts as a proxy for a MemCache server and fails gracefull if the pool cannot be contacted
      *
@@ -38,14 +38,14 @@ class MemCacheProxy extends CacheMemCache
                 // print "adding server $host " . $server_array[$host];
                 $memcache->addServer($host, $server_array [$host]);
             }
-            
+
             parent::__construct($memcache, $uniquePrefix, true);
         } else {
             $this->LastServerError = 'Memcache client module not installed';
             $this->ServerOffline = true;
         }
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -55,10 +55,10 @@ class MemCacheProxy extends CacheMemCache
         if ($this->ServerOffline) {
             return null;
         }
-        
+
         return parent::Get($key, $flags);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -68,10 +68,10 @@ class MemCacheProxy extends CacheMemCache
         if ($this->ServerOffline) {
             return null;
         }
-        
+
         return parent::Set($key, $val, $flags, $timeout);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -81,7 +81,7 @@ class MemCacheProxy extends CacheMemCache
         if ($this->ServerOffline) {
             return null;
         }
-        
+
         return parent::Delete($key);
     }
 }

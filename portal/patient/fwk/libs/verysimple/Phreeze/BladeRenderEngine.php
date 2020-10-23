@@ -38,12 +38,12 @@ class BladeRenderEngine implements IRenderEngine
      */
     static $TEMPLATE_PATH;
     static $COMPILE_PATH;
-    
+
     /**
      * stores the assigned vars
      */
     public $model = array ();
-    
+
     /**
      *
      * @param string $templatePath
@@ -54,16 +54,16 @@ class BladeRenderEngine implements IRenderEngine
     {
         self::$TEMPLATE_PATH = $templatePath;
         self::$COMPILE_PATH = $compilePath;
-        
+
         // blade will look for this path to store compiled templates
         $GLOBALS ['laravel_paths'] ['storage'] = self::$COMPILE_PATH;
-        
+
         // attach a handler to the 'View::loader' event so we can tweak the file paths to fit with Phreeze
         Laravel\Event::listen(Laravel\View::loader, function ($bundle, $view) {
             return BladeRenderEngine::$TEMPLATE_PATH . $view . '.blade.php';
         });
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -71,7 +71,7 @@ class BladeRenderEngine implements IRenderEngine
     {
         $this->model [$key] = $value;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -81,7 +81,7 @@ class BladeRenderEngine implements IRenderEngine
         $template = str_replace('.tpl', '', $template); // normalize any old smarty template paths
         echo $this->fetch($template);
     }
-    
+
     /**
      * Returns the specified model value
      */
@@ -89,23 +89,23 @@ class BladeRenderEngine implements IRenderEngine
     {
         return $this->model [$key];
     }
-    
+
     /**
      * @inheritdoc
      */
     public function fetch($template)
     {
         $view = Laravel\View::make($template, $this->model);
-        
+
         Laravel\Blade::sharpen();
-        
+
         $responses = Laravel\Event::fire(Laravel\View::engine, array (
                 $view
         ));
-        
+
         return $responses [0];
     }
-    
+
     /**
      *
      * @see IRenderEngine::clear()
@@ -116,7 +116,7 @@ class BladeRenderEngine implements IRenderEngine
             unset($this->model [$key]);
         }
     }
-    
+
     /**
      *
      * @see IRenderEngine::clearAll()
@@ -125,7 +125,7 @@ class BladeRenderEngine implements IRenderEngine
     {
         $this->model == array ();
     }
-    
+
     /**
      *
      * @see IRenderEngine::getAll()

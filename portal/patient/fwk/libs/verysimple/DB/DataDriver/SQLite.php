@@ -32,7 +32,7 @@ class DataDriverSQLite implements IDataDriver
     {
         throw new DatabaseException("Not Implemented");
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -41,13 +41,13 @@ class DataDriverSQLite implements IDataDriver
         if (! class_exists("SQLite3")) {
             throw new DatabaseException('SQLite3 extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
         }
-        
+
         if (! $connection = new SQLite3($connectionstring, SQLITE3_OPEN_READWRITE, $password)) {
             throw new DatabaseException("Error connecting to database: Unable to open the database file.", DatabaseException::$CONNECTION_ERROR);
         }
-        
+
         // charset is ignored with sqlite
-        
+
         if ($bootstrap) {
             $statements = explode(';', $bootstrap);
             foreach ($statements as $sql) {
@@ -58,10 +58,10 @@ class DataDriverSQLite implements IDataDriver
                 }
             }
         }
-        
+
         return $connection;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -69,7 +69,7 @@ class DataDriverSQLite implements IDataDriver
     {
         @$connection->close(); // ignore warnings
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -78,10 +78,10 @@ class DataDriverSQLite implements IDataDriver
         if (! $rs = $connection->query($sql)) {
             throw new DatabaseException($connection->lastErrorMsg(), DatabaseException::$ERROR_IN_QUERY);
         }
-        
+
         return $rs;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -89,7 +89,7 @@ class DataDriverSQLite implements IDataDriver
     {
         return $connection->exec($sql);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -97,7 +97,7 @@ class DataDriverSQLite implements IDataDriver
     {
         return $rs->fetchArray(SQLITE3_ASSOC);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -105,7 +105,7 @@ class DataDriverSQLite implements IDataDriver
     {
         return $connection->lastInsertRowID();
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -113,7 +113,7 @@ class DataDriverSQLite implements IDataDriver
     {
         return $connection->lastErrorMsg();
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -121,7 +121,7 @@ class DataDriverSQLite implements IDataDriver
     {
         $rs->finalize();
     }
-    
+
     /**
      * @inheritdocs
      * @TODO: use SQLite
@@ -130,7 +130,7 @@ class DataDriverSQLite implements IDataDriver
     {
         return str_replace("'", "''", $val);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -139,14 +139,14 @@ class DataDriverSQLite implements IDataDriver
         if ($val === null) {
             return DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING ? "''" : 'NULL';
         }
-        
+
         if ($val instanceof ISqlFunction) {
             return $val->GetQuotedSql($this);
         }
-        
+
         return "'" . $this->Escape($val) . "'";
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -155,18 +155,18 @@ class DataDriverSQLite implements IDataDriver
         if ($ommitEmptyTables) {
             throw new DatabaseException("SQLite DataDriver doesn't support returning only non-empty tables.  Set ommitEmptyTables arg to false to use this method.");
         }
-        
+
         $rs = $this->Query($connection, "SELECT name FROM sqlite_master WHERE type='table' and name != 'sqlite_sequence' ORDER BY name");
-        
+
         $tables = array ();
-        
+
         while ($row = $this->Fetch($connection, $rs)) {
             $tables [] = $row ['name'];
         }
-        
+
         return $tables;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -178,7 +178,7 @@ class DataDriverSQLite implements IDataDriver
 
         $this->Execute($connection, "VACUUM");
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -186,7 +186,7 @@ class DataDriverSQLite implements IDataDriver
     {
         throw new Exception('Transaction support is not implemented for this DataDriver');
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -194,7 +194,7 @@ class DataDriverSQLite implements IDataDriver
     {
         throw new Exception('Transaction support is not implemented for this DataDriver');
     }
-    
+
     /**
      * @inheritdocs
      */

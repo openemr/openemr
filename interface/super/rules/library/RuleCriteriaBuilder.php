@@ -20,7 +20,7 @@ abstract class RuleCriteriaBuilder
      * @return RuleCriteriaType
      */
     abstract function resolveRuleCriteriaType($method, $methodDetail, $value);
-    
+
     /**
      * @param RuleCriteriaType $ruleCriteriaType
      * @return RuleCriteria

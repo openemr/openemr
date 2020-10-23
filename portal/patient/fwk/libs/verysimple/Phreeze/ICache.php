@@ -20,7 +20,7 @@ interface ICache
      * @param string $key
      */
     public function Get($key, $flags = null);
-    
+
     /**
      * Stores a value in the cache
      *
@@ -33,7 +33,7 @@ interface ICache
      * @return variant
      */
     public function Set($key, $val, $flags = null, $timeout = 0);
-    
+
     /**
      * Removes a value from the cache
      *

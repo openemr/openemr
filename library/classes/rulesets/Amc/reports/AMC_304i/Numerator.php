@@ -15,7 +15,7 @@ class AMC_304i_Numerator implements AmcFilterIF
     {
         return "AMC_304i Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Needs a summary send to place of referral.

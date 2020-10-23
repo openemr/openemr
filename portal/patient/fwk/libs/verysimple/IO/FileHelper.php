@@ -19,7 +19,7 @@ class FileHelper
     public $Extention;
     public $Prefix;
     public $MiddleBit;
-    
+
     /**
      * Creates a new instance of a FileHelper object
      *
@@ -31,7 +31,7 @@ class FileHelper
     {
         // TODO: user build-in php functions to extract these properties
         $this->Path = str_replace("\\", "/", $path); // normalize any directory paths
-        
+
         $this->Name = substr($this->Path, strrpos($this->Path, "/") + 1);
         $this->Extention = substr($this->Path, strrpos($this->Path, ".") + 1);
         $this->Prefix = substr($this->Name, 0, strpos($this->Name, "."));
