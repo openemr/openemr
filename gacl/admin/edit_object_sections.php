@@ -42,7 +42,8 @@ switch(strtolower(trim($object_type))) {
         break;
 }
 
-switch ($_POST['action']) {
+$postAction = $_POST['action'] ?? null;
+switch ($postAction) {
     case 'Delete':
 
         if (count($_POST['delete_sections']) > 0) {
@@ -59,7 +60,7 @@ switch ($_POST['action']) {
         $gacl_api->debug_text("Submit!!");
 
         //Update sections
-        while (list(,$row) = @each($_POST['sections'])) {
+        foreach ($_POST['sections'] as $row) {
             list($id, $value, $order, $name) = $row;
             $gacl_api->edit_object_section($id, $name, $value, $order,0,$object_type );
         }
@@ -69,7 +70,7 @@ switch ($_POST['action']) {
         unset($name);
 
         //Insert new sections
-        while (list(,$row) = @each($_POST['new_sections'])) {
+        foreach ($_POST['new_sections'] as $row) {
             list($value, $order, $name) = $row;
 
             if (!empty($value) AND !empty($order) AND !empty($name)) {
@@ -85,12 +86,12 @@ switch ($_POST['action']) {
     default:
         $query = "select id,value,order_value,name from $object_sections_table order by order_value";
 
-        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
+        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
         $rows = $rs->GetRows();
 
         $sections = array();
 
-        while (list(,$row) = @each($rows)) {
+        foreach ($rows as $row) {
             list($id, $value, $order_value, $name) = $row;
 
                 $sections[] = array(

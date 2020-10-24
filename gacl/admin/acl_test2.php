@@ -34,7 +34,7 @@ $query = '
 	ORDER BY	a.value, b.value, c.value, d.value';
 
 //$rs = $db->Execute($query);
-$rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
+$rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
 $rows = $rs->GetRows();
 
 /*
@@ -45,7 +45,9 @@ echo("</pre>");
 
 $total_rows = count($rows);
 
-while (list(,$row) = @each($rows)) {
+$total_acl_check_time = 0;
+
+foreach ($rows as $row) {
     list(	$aco_section_value,
 			$aco_section_name,
 			$aco_value,
@@ -67,7 +69,7 @@ while (list(,$row) = @each($rows)) {
 	$acl_check_time = ($acl_check_end_time - $acl_check_begin_time) * 1000;
 	$total_acl_check_time += $acl_check_time;
 
-	if ($aco_section_name != $tmp_aco_section_name OR $aco_name != $tmp_aco_name) {
+	if (empty($tmp_aco_section_name) OR $aco_section_name != $tmp_aco_section_name OR $aco_name != $tmp_aco_name) {
 		$display_aco_name = "$aco_section_name > $aco_name";
 	} else {
 		$display_aco_name = "<br />";

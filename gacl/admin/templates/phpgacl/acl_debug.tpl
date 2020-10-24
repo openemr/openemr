@@ -39,7 +39,7 @@
     </td>
   </tr>
 </table>
-{if count($acls) gt 0}
+{if is_array($acls) && count($acls) gt 0}
 <br />
 <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr>

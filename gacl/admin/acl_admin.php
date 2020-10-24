@@ -33,7 +33,7 @@ switch ($_POST['action']) {
 		foreach (array('aco','aro','axo') as $type) {
 			$type_array = 'selected_'. $type .'_array';
 			$$type_array = array();
-			if (is_array($_POST['selected_'. $type])) {
+			if (!empty($_POST['selected_'. $type]) && is_array($_POST['selected_'. $type])) {
 				foreach ($_POST['selected_'. $type] as $value) {
 					$split_value = explode('^', $value);
 					${$type_array}[$split_value[0]][] = $split_value[1];
@@ -62,13 +62,13 @@ switch ($_POST['action']) {
 		if (!empty($_POST['acl_id'])) {
 			//Update existing ACL
 			$acl_id = $_POST['acl_id'];
-			if ($gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note'], $_POST['acl_section']) == FALSE) {
+			if ($gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, ($_POST['axo_groups'] ?? null), $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note'], $_POST['acl_section']) == FALSE) {
 				echo 'ERROR editing ACL, possible conflict or error found...<br />' . "\n";
 				exit;
 			}
 		} else {
 			//Insert new ACL.
-			if ($gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note'], $_POST['acl_section']) == FALSE) {
+			if ($gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, ($_POST['axo_groups'] ?? null), $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note'], $_POST['acl_section']) == FALSE) {
 				echo 'ERROR adding ACL, possible conflict or error found...<br />' . "\n";
 				exit;
 			}
@@ -105,7 +105,7 @@ switch ($_POST['action']) {
 				if (is_object($rs)) {
 					while ($row = $rs->FetchRow()) {
 						list($section_value, $value, $section, $obj) = $row;
-						$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ACO: $aco");
+						$gacl_api->debug_text("Section Value: $section_value Value: $value Section: $section ACO: " . ($aco ?? ''));
 						${$type_array}[$section_value.'^'.$value] = $section.' > '.$obj;
 					}
 				}
@@ -200,13 +200,13 @@ switch ($_POST['action']) {
 		$smarty->assign('acl_section_value', $acl_section_value);
 
 		$smarty->assign('options_axo_sections', $options_axo_sections);
-		$smarty->assign('axo_section_value', $axo_section_value);
+		$smarty->assign('axo_section_value', ($axo_section_value ?? null));
 
 		$smarty->assign('options_aro_sections', $options_aro_sections);
-		$smarty->assign('aro_section_value', $aro_section_value);
+		$smarty->assign('aro_section_value', ($aro_section_value ?? null));
 
 		$smarty->assign('options_aco_sections', $options_aco_sections);
-		$smarty->assign('aco_section_value', $aco_section_value);
+		$smarty->assign('aco_section_value', ($aco_section_value ?? null));
 
 		$smarty->assign('js_array', $js_array);
 
@@ -216,31 +216,31 @@ switch ($_POST['action']) {
 
 		//Grab formatted ARO Groups for select box
 		$smarty->assign('options_aro_groups', $gacl_api->format_groups($gacl_api->sort_groups('ARO')) );
-		$smarty->assign('selected_aro_groups', $selected_aro_groups);
+		$smarty->assign('selected_aro_groups', ($selected_aro_groups ?? null));
 
 		//Grab formatted AXO Groups for select box
 		$smarty->assign('options_axo_groups', $gacl_api->format_groups($gacl_api->sort_groups('AXO')) );
-		$smarty->assign('selected_axo_groups', $selected_axo_groups);
+		$smarty->assign('selected_axo_groups', ($selected_axo_groups ?? null));
 
 		$smarty->assign('allow', $allow);
 		$smarty->assign('enabled', $enabled);
-		$smarty->assign('return_value', $return_value);
-		$smarty->assign('note', $note);
+		$smarty->assign('return_value', ($return_value ?? null));
+		$smarty->assign('note', ($note ?? null));
 
 		if (isset($options_selected_aco)) {
 			$smarty->assign('options_selected_aco', $options_selected_aco);
 		}
-		$smarty->assign('selected_aco', @array_keys($options_selected_aco));
+		$smarty->assign('selected_aco', array_keys($options_selected_aco ?? []));
 
 		if (isset($options_selected_aro)) {
 			$smarty->assign('options_selected_aro', $options_selected_aro);
 		}
-		$smarty->assign('selected_aro', @array_keys($options_selected_aro));
+		$smarty->assign('selected_aro', array_keys($options_selected_aro ?? []));
 
 		if (isset($options_selected_axo)) {
 			$smarty->assign('options_selected_axo', $options_selected_axo);
 		}
-		$selected_axo = @array_keys($options_selected_axo);
+		$selected_axo = array_keys($options_selected_axo ?? []);
 
 		$smarty->assign('selected_axo', $selected_axo);
 
