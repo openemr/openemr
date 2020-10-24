@@ -8,7 +8,11 @@
         <tbody>
           <tr class="pager">
             <td colspan="11">
-                {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?object_type=$object_type_escaped&"}
+                {if isset($paging_data)}
+                    {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?object_type=$object_type_escaped&"}
+                {else}
+                    {include file="phpgacl/pager.tpl" link="?object_type=$object_type_escaped&"}
+                {/if}
             </td>
           </tr>
           <tr>
@@ -19,7 +23,8 @@
             <th width="4%">Functions</th>
             <th width="2%"><input type="checkbox" class="checkbox" name="select_all" onClick="checkAll(this)"/></th>
           </tr>
-{section name=x loop=$sections}
+{if isset($sections)}
+    {section name=x loop=$sections}
           <tr valign="top" align="center">
             <td>
               {$sections[x].id|escape:'html'}
@@ -31,10 +36,15 @@
             <td>&nbsp;</td>
             <td><input type="checkbox" class="checkbox" name="delete_sections[]" value="{$sections[x].id|escape:'html'}"></td>
           </tr>
-{/section}
+    {/section}
+{/if}
           <tr class="pager">
             <td colspan="6">
-                {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?object_type=$object_type_escaped&"}
+                {if isset($paging_data)}
+                    {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?object_type=$object_type_escaped&"}
+                {else}
+                    {include file="phpgacl/pager.tpl" link="?object_type=$object_type_escaped&"}
+                {/if}
             </td>
           </tr>
           <tr class="spacer">
@@ -51,7 +61,8 @@
             <th>Functions</th>
             <th>&nbsp;</td>
           </tr>
-{section name=y loop=$new_sections}
+{if isset($new_sections)}
+    {section name=y loop=$new_sections}
           <tr valign="top" align="center">
             <td>N/A</td>
             <td><input type="text" size="10" name="new_sections[{$new_sections[y].id|escape:'html'}][]" value=""></td>
@@ -60,7 +71,8 @@
             <td>&nbsp;</td>
             <td>&nbsp;</td>
           </tr>
-{/section}
+    {/section}
+{/if}
           <tr class="controls" align="center">
             <td colspan="4">
               <input type="submit" class="button" name="action" value="Submit"> <input type="reset" class="button" value="Reset">

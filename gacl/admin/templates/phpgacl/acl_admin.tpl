@@ -1,10 +1,10 @@
 {include file="phpgacl/header.tpl"}
-<script>
-{$js_array}
-</script>
+{if isset($js_array)}
+    <script>{$js_array}</script>
+{/if}
 {include file="phpgacl/acl_admin_js.tpl"}
   </head>
-<body onload="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}');populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'], '{$js_aro_array_name}')">
+<body onload="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{if isset($js_aco_array_name)}{$js_aco_array_name}{/if}');populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'], '{if isset($js_aro_array_name)}{$js_aro_array_name}{/if}')">
 {include file="phpgacl/navigation.tpl"}
   <form method="post" name="acl_admin" action="acl_admin.php" onsubmit="select_all(document.acl_admin.elements['selected_aco[]']);select_all(document.acl_admin.elements['selected_aro[]']);select_all(document.acl_admin.elements['selected_aro[]']);return true;">
     <div align="center">
@@ -21,8 +21,14 @@
             <td>
               [ <a href="edit_object_sections.php?object_type=aco&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
               <br />
-              <select name="aco_section" tabindex="0" size="10" onclick="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{$js_aco_array_name}')">
-                {html_options options=$options_aco_sections selected=$aco_section_value}
+              <select name="aco_section" tabindex="0" size="10" onclick="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{if isset($js_aco_array_name)}{$js_aco_array_name}{/if}')">
+                  {if isset($options_aco_sections)}
+                      {if isset($aco_section_value)}
+                          {html_options options=$options_aco_sections selected=$aco_section_value}
+                      {else}
+                          {html_options options=$options_aco_sections}
+                      {/if}
+                  {/if}
               </select>
             </td>
             <td>
@@ -45,10 +51,10 @@
             </td>
             <td valign="middle">
               <table class="invisible">
-                <tr align="left"><td><input type="radio" class="radio" name="allow" value="1" {if $allow==1}checked{/if} /></td><td>Allow</td></tr>
-                <tr align="left"><td><input type="radio" class="radio" name="allow" value="0" {if $allow==0}checked{/if} /></td><td>Deny</td></tr>
+                <tr align="left"><td><input type="radio" class="radio" name="allow" value="1" {if isset($allow) && $allow==1}checked{/if} /></td><td>Allow</td></tr>
+                <tr align="left"><td><input type="radio" class="radio" name="allow" value="0" {if isset($allow) && $allow==0}checked{/if} /></td><td>Deny</td></tr>
               	<tr class="spacer"><td colspan="2"></td></tr>
-              	<tr align="left"><td><input type="checkbox" class="checkbox" name="enabled" value="1" {if $enabled==1}checked{/if} /></td><td>Enabled</td></tr>
+              	<tr align="left"><td><input type="checkbox" class="checkbox" name="enabled" value="1" {if isset($enabled) && $enabled==1}checked{/if} /></td><td>Enabled</td></tr>
              </table>
            </td>
           </tr>
@@ -64,8 +70,10 @@
             <td>
               [ <a href="edit_object_sections.php?object_type=aro&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
               <br />
-              <select name="aro_section" tabindex="0" size="10" onclick="populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'],'{$js_aro_array_name}')">
-                {html_options options=$options_aro_sections selected=$aro_section_value}
+              <select name="aro_section" tabindex="0" size="10" onclick="populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'],'{if isset($js_aro_array_name)}{$js_aro_array_name}{/if}')">
+                  {if isset($options_aro_sections)}
+                      {html_options options=$options_aro_sections selected=$aro_section_value}
+                  {/if}
               </select>
             </td>
             <td>
@@ -91,7 +99,9 @@
               [ <a href="group_admin.php?group_type=aro&return_page={$SCRIPT_NAME}?action={$action}&acl_id={if isset($acl_id)}{$acl_id}{/if}">Edit</a> ]
               <br />
 			  <select name="aro_groups[]" tabindex="0" size="8" multiple>
-			    {html_options options=$options_aro_groups selected=$selected_aro_groups}
+                  {if isset($options_aro_groups)}
+			          {html_options options=$options_aro_groups selected=$selected_aro_groups}
+                  {/if}
 			  </select>
 			  <br /><input type="button" class="un-select" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['aro_groups[]'])">
             </td>
@@ -103,19 +113,21 @@
             </th>
           </tr>
 
-          <tr id="axo_row1" {if !$show_axo}class="hide"{/if}>
+          <tr id="axo_row1" {if !isset($show_axo) || !$show_axo}class="hide"{/if}>
             <th>Sections</th>
             <th>Access eXtension Objects</th>
             <th>&nbsp;</th>
             <th>Selected</th>
             <th>Groups</th>
           </tr>
-          <tr valign="top" align="center" id="axo_row2" {if !$show_axo}class="hide"{/if}>
+          <tr valign="top" align="center" id="axo_row2" {if !isset($show_axo) || !$show_axo}class="hide"{/if}>
             <td>
               [ <a href="edit_object_sections.php?object_type=axo&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
               <br />
-              <select name="axo_section" tabindex="0" size="10" onclick="populate(document.acl_admin.axo_section,document.acl_admin.elements['axo[]'],'{$js_axo_array_name}')">
-                {html_options options=$options_axo_sections selected=$axo_section_value}
+              <select name="axo_section" tabindex="0" size="10" onclick="populate(document.acl_admin.axo_section,document.acl_admin.elements['axo[]'],'{if isset($js_axo_array_name)}{$js_axo_array_name}{/if}')">
+                  {if isset($options_axo_sections)}
+                      {html_options options=$options_axo_sections selected=$axo_section_value}
+                  {/if}
               </select>
             </td>
             <td>
@@ -141,7 +153,9 @@
               [ <a href="group_admin.php?group_type=axo&return_page={$SCRIPT_NAME}?action={$action}&acl_id={if isset($acl_id)}{$acl_id}{/if}">Edit</a> ]
               <br />
               <select name="axo_groups[]" tabindex="0" size="8" multiple>
-                {html_options options=$options_axo_groups selected=$selected_axo_groups}
+                  {if isset($options_axo_groups)}
+                      {html_options options=$options_axo_groups selected=$selected_axo_groups}
+                  {/if}
               </select>
               <br /><input type="button" class="un-select" name="Un-Select" value="Un-Select" onClick="unselect_all(document.acl_admin.elements['axo_groups[]'])">
             </td>
@@ -158,7 +172,7 @@
                 <b>Extended Return Value:</b>
             </td>
             <td colspan="4">
-                <input type="text" name="return_value" size="50" value="{$return_value}" id="return_value">
+                <input type="text" name="return_value" size="50" value="{if isset($return_value)}{$return_value}{/if}" id="return_value">
             </td>
 		</tr>
 		<tr valign="top" align="left">
@@ -166,11 +180,17 @@
 			[ <a href="edit_object_sections.php?object_type=acl&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
 			<br />
 			<select name="acl_section" tabindex="0" size="3">
-			  {html_options options=$options_acl_sections selected=$acl_section_value}
+                {if isset($options_acl_sections)}
+                    {if isset($acl_section_value)}
+			            {html_options options=$options_acl_sections selected=$acl_section_value}
+                    {else}
+                        {html_options options=$options_acl_sections}
+                    {/if}
+                {/if}
 			</select>
 		  </td>
           <td><b>Note:</b></td>
-          <td colspan="4"><textarea name="note" rows="4" cols="40">{$note}</textarea></td>
+          <td colspan="4"><textarea name="note" rows="4" cols="40">{if isset($note)}{$note}{/if}</textarea></td>
 		</tr>
         <tr class="controls" align="center">
           <td colspan="5">

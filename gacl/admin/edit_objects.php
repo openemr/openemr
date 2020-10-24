@@ -13,7 +13,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 require_once("gacl_admin.inc.php");
 
 //GET takes precedence.
-if ($_GET['object_type'] != '') {
+if (!empty($_GET['object_type'])) {
 	$object_type = $_GET['object_type'];
 } else {
 	$object_type = $_POST['object_type'];
@@ -41,7 +41,8 @@ switch(strtolower(trim($object_type))) {
         break;
 }
 
-switch ($_POST['action']) {
+$postAction = $_POST['action'] ?? null;
+switch ($postAction) {
     case 'Delete':
 
         if (count($_POST['delete_object']) > 0) {
@@ -58,9 +59,11 @@ switch ($_POST['action']) {
         $gacl_api->debug_text("Submit!!");
 
         //Update objects
-        foreach ($_POST['objects'] as $row) {
-            list($id, $value, $order, $name) = $row;
-            $gacl_api->edit_object($id, $_POST['section_value'], $name, $value, $order, 0, $object_type);
+        if (!empty($_POST['objects'])) {
+            foreach ($_POST['objects'] as $row) {
+                list($id, $value, $order, $name) = $row;
+                $gacl_api->edit_object($id, $_POST['section_value'], $name, $value, $order, 0, $object_type);
+            }
         }
         unset($id);
         unset($section_value);
@@ -119,7 +122,7 @@ switch ($_POST['action']) {
                                             );
         }
 
-        $smarty->assign('objects', $objects);
+        $smarty->assign('objects', ($objects ?? null));
         $smarty->assign('new_objects', $new_objects);
 
         $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
@@ -127,10 +130,10 @@ switch ($_POST['action']) {
         break;
 }
 
-$smarty->assign('section_value', $_GET['section_value']);
-$smarty->assign('section_value_escaped', attr($_GET['section_value']));
+$smarty->assign('section_value', ($_GET['section_value'] ?? null));
+$smarty->assign('section_value_escaped', attr($_GET['section_value'] ?? null));
 
-$smarty->assign('section_name', $section_name);
+$smarty->assign('section_name', ($section_name ?? null));
 
 $smarty->assign('object_type', $object_type);
 $smarty->assign('object_type_escaped', attr($object_type));

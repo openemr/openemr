@@ -33,7 +33,7 @@ switch ($_POST['action']) {
 		foreach (array('aco','aro','axo') as $type) {
 			$type_array = 'selected_'. $type .'_array';
 			$$type_array = array();
-			if (is_array($_POST['selected_'. $type])) {
+			if (!empty($_POST['selected_'. $type]) && is_array($_POST['selected_'. $type])) {
 				foreach ($_POST['selected_'. $type] as $value) {
 					$split_value = explode('^', $value);
 					${$type_array}[$split_value[0]][] = $split_value[1];
@@ -62,13 +62,13 @@ switch ($_POST['action']) {
 		if (!empty($_POST['acl_id'])) {
 			//Update existing ACL
 			$acl_id = $_POST['acl_id'];
-			if ($gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note'], $_POST['acl_section']) == FALSE) {
+			if ($gacl_api->edit_acl($acl_id, $selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, ($_POST['axo_groups'] ?? null), $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note'], $_POST['acl_section']) == FALSE) {
 				echo 'ERROR editing ACL, possible conflict or error found...<br />' . "\n";
 				exit;
 			}
 		} else {
 			//Insert new ACL.
-			if ($gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, $_POST['axo_groups'], $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note'], $_POST['acl_section']) == FALSE) {
+			if ($gacl_api->add_acl($selected_aco_array, $selected_aro_array, $_POST['aro_groups'], $selected_axo_array, ($_POST['axo_groups'] ?? null), $_POST['allow'], $enabled, $_POST['return_value'], $_POST['note'], $_POST['acl_section']) == FALSE) {
 				echo 'ERROR adding ACL, possible conflict or error found...<br />' . "\n";
 				exit;
 			}

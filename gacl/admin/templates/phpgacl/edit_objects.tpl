@@ -8,7 +8,11 @@
         <tbody>
           <tr class="pager">
             <td colspan="7">
-                {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?section_value=$section_value_escaped&object_type=$object_type_escaped&"}
+                {if isset($paging_data)}
+                    {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?section_value=$section_value_escaped&object_type=$object_type_escaped&"}
+                {else}
+                    {include file="phpgacl/pager.tpl" link="?section_value=$section_value_escaped&object_type=$object_type_escaped&"}
+                {/if}
             </td>
           </tr>
           <tr>
@@ -20,7 +24,8 @@
             <th width="4%">Functions</th>
             <th width="2%"><input type="checkbox" class="checkbox" name="select_all" onClick="checkAll(this)"/></th>
           </tr>
-{section name=x loop=$objects}
+{if isset($objects)}
+    {section name=x loop=$objects}
           <tr valign="top" align="center">
             <td>
               {$objects[x].id|escape:'html'}
@@ -33,10 +38,15 @@
             <td>&nbsp;</td>
             <td><input type="checkbox" class="checkbox" name="delete_object[]" value="{$objects[x].id|escape:'html'}"></td>
           </tr>
-{/section}
+    {/section}
+{/if}
           <tr class="pager">
             <td colspan="7">
-                {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?section_value=$section_value_escaped&object_type=$object_type_escaped&"}
+                {if isset($paging_data)}
+                    {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?section_value=$section_value_escaped&object_type=$object_type_escaped&"}
+                {else}
+                    {include file="phpgacl/pager.tpl" link="?section_value=$section_value_escaped&object_type=$object_type_escaped&"}
+                {/if}
             </td>
           </tr>
           <tr class="spacer">
@@ -54,7 +64,8 @@
             <th>Functions</th>
             <th>&nbsp;</th>
           </tr>
-{section name=y loop=$new_objects}
+{if isset($new_objects)}
+    {section name=y loop=$new_objects}
           <tr valign="top" align="center">
             <td>N/A</td>
             <td>{$section_name|escape:'html'}</td>
@@ -64,7 +75,8 @@
             <td>&nbsp;</td>
             <td>&nbsp;</td>
           </tr>
-{/section}
+    {/section}
+{/if}
           <tr class="controls" align="center">
             <td colspan="5">
               <input type="submit" class="button" name="action" value="Submit"> <input type="reset" class="button" value="Reset"><br />
