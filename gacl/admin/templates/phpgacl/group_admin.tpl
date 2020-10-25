@@ -4,6 +4,7 @@
   <body>
     {include file="phpgacl/navigation.tpl"}
     <form method="post" name="edit_group" action="edit_group.php">
+      <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr>
