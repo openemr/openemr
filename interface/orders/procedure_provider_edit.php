@@ -15,7 +15,19 @@
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+
+if (!empty($_GET)) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
+    }
+}
+
+if (!AclMain::aclCheckCore('admin', 'users')) {
+    die(xlt('Access denied'));
+}
 
 // Collect user id if editing entry
 $ppid = $_REQUEST['ppid'];
@@ -28,7 +40,7 @@ function invalue($name)
     return "'$fld'";
 }
 
-$form_inactive = empty($_POST['form_inactive']) ? false : true;
+//$form_active = ($_POST['form_active']) ? true : false;
 
 ?>
 <html>
@@ -158,6 +170,7 @@ $form_inactive = empty($_POST['form_inactive']) ? false : true;
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr_url($ppid) ?>'>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="card">
                         <div class="card-header" name="form_legend" id="form_legend">
                             <?php echo xlt('Enter Provider Details'); ?>  <i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript" aria-hidden="true"></i>
@@ -165,6 +178,19 @@ $form_inactive = empty($_POST['form_inactive']) ? false : true;
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-12">
+                                    <div class="col-sm-6">
+                                        <div class="clearfix">
+                                            <div class="label-div">
+                                                <label for="form_active"><?php echo xlt('Active'); ?>:</label>
+                                            </div>
+                                            <input type='checkbox' name='form_active' id='form_active' class='form-control'
+                                                <?php if ($ppid) {
+                                                          echo ($form_active) ?  " checked" : "";
+                                                      } else {
+                                                          echo " checked";
+                                                      } ?>>
+                                        </div>
+                                    </div>
                                     <div class="col-sm-6">
                                         <div class="clearfix">
                                             <div class="label-div">
@@ -449,7 +475,7 @@ $form_inactive = empty($_POST['form_inactive']) ? false : true;
                         <div class="form-group clearfix" id="button-container">
                             <div class="col-sm-12 text-left position-override">
                                 <div class="btn-group" role="group">
-                                    <button type='submit' name='form_save'  class="btn btn-primary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
+                                    <button type='submit' name='form_save' class="btn btn-primary btn-save" value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                     <button type="button" class="btn btn-secondary btn-cancel" onclick='window.close()';><?php echo xlt('Cancel');?></button>
                                     <?php if ($ppid) { ?>
                                         <button type='submit' name='form_delete' class="btn btn-danger btn-cancel btn-delete" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>

@@ -16,6 +16,7 @@ require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
@@ -55,14 +56,16 @@ function refreshme() {
 function doedclick_add() {
     top.restoreSession();
     var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
-    dlgopen('procedure_provider_edit.php?ppid=0', '_blank', 800, 750, false, addTitle);
+    let scriptTitle = 'procedure_provider_edit.php?ppid=0&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
 }
 
 // Process click to pop up the edit window.
 function doedclick_edit(ppid) {
     top.restoreSession();
     var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
-    dlgopen('procedure_provider_edit.php?ppid=' + ppid, '_blank', 800, 750, false, editTitle);
+    let scriptTitle = 'procedure_provider_edit.php?ppid=' + ppid + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    dlgopen(scriptTitle , '_blank', 800, 750, false, editTitle);
 }
 </script>
 

@@ -2261,3 +2261,7 @@ ALTER TABLE `form_prior_auth` ADD `date_to` date DEFAULT NULL;
 #IfMissingColumn documents deleted
 ALTER TABLE `documents` ADD `deleted` tinyint(1) NOT NULL DEFAULT '0',
 #EndIf
+
+#IfMissingColumn procedure_providers active
+ALTER TABLE `procedure_providers` ADD `active` tinyint(1) NOT NULL DEFAULT '1';
+#EndIf
