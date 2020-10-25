@@ -65,7 +65,7 @@ function doedclick_edit(ppid) {
     top.restoreSession();
     var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
     let scriptTitle = 'procedure_provider_edit.php?ppid=' + ppid + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-    dlgopen(scriptTitle , '_blank', 800, 750, false, editTitle);
+    dlgopen(scriptTitle, '_blank', 800, 750, false, editTitle);
 }
 </script>
 

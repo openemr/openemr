@@ -19,8 +19,14 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-if (!empty($_GET)) {
+if (empty($_GET)) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
+    }
+}
+
+if (!empty($_POST)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -40,7 +46,11 @@ function invalue($name)
     return "'$fld'";
 }
 
-//$form_active = ($_POST['form_active']) ? true : false;
+function onvalue($name)
+{
+    $fld = ($_POST[$name] == 'on') ? '1' : '0';
+    return "'$fld'";
+}
 
 ?>
 <html>
@@ -88,13 +98,14 @@ function invalue($name)
     <div class="container mt-3">
         <?php
         // If we are saving, then save and close the window.
+        // lab_director is the id of the organization in the users table
         //
         if ($_POST['form_save']) {
-            $org_qry = "SELECT organization FROM users WHERE id = ?";
-            $org_res = sqlQuery($org_qry, array($_POST['form_name']));
+            $org_qry  = "SELECT organization FROM users WHERE id = ?";
+            $org_res  = sqlQuery($org_qry, array($_POST['form_name']));
             $org_name = $org_res['organization'];
             $sets =
-            "name = '"  . add_escape_custom($org_name) . "', " .
+            "name = '"        . add_escape_custom($org_name) . "', " .
             "lab_director = " . invalue('form_name')         . ", " .
             "npi = "          . invalue('form_npi')          . ", " .
             "send_app_id = "  . invalue('form_send_app_id')  . ", " .
@@ -109,25 +120,15 @@ function invalue($name)
             "password = "     . invalue('form_password')     . ", " .
             "orders_path = "  . invalue('form_orders_path')  . ", " .
             "results_path = " . invalue('form_results_path') . ", " .
-            "notes = "        . invalue('form_notes') . ", " .
-            "active = "       . invalue('form_active');
+            "notes = "        . invalue('form_notes')        . ", " .
+            "active = "       . onvalue('form_active');
+
             if ($ppid) {
                 $query = "UPDATE procedure_providers SET $sets " .
                 "WHERE ppid = '"  . add_escape_custom($ppid) . "'";
                 sqlStatement($query);
             } else {
-                $res = sqlStatement("select distinct name from procedure_providers");
-                $doit = true;
-                while ($row = sqlFetchArray($res)) {
-                    if ($doit == true && $row['name'] == trim($org_name)) {
-                    $doit = false;
-                    }
-                }
-                if ($doit) {
-                    $ppid = sqlInsert("INSERT INTO procedure_providers SET $sets");
-                } else {
-                    $info_msg = "Procedure provider name is not unique";
-                }
+                $ppid = sqlInsert("INSERT INTO `procedure_providers` SET $sets");
             }
         } elseif ($_POST['form_delete']) {
             if ($ppid) {
@@ -152,43 +153,49 @@ function invalue($name)
             $row = sqlQuery("SELECT * FROM procedure_providers WHERE ppid = ?", array($ppid));
         }
 
-        $lab_org_query = "SELECT id, organization FROM users WHERE abook_type = 'ord_lab'";
-        $org_res = sqlStatement($lab_org_query);
+        $ppid_active = $row['active'];
+
+        $org_query = "SELECT id, organization FROM users WHERE abook_type LIKE 'ord_%'";
+        $org_res = sqlStatement($org_query);
         while ($org_row = sqlFetchArray($org_res)) {
-            $lab_org_name = $org_row['organization'];
+            $org_name = $org_row['organization'];
             $selected = '';
             if ($ppid) {
                 if ($row['lab_director'] == $org_row['id']) {
-                    $selected = "SELECTED";
+                    $selected = "selected";
+                    $optionsStr = "<option value='" . attr($org_row['id']) . "' $selected>" .  text($org_name) . "</option>";
+                }
+            } else {
+                $checkName = sqlQuery("SELECT `name` FROM `procedure_providers` WHERE `name` = ?", [$org_name]);
+                if (empty($checkName['name'])) {
+                    $optionsStr .= "<option value='" . attr($org_row['id']) . "' $selected>" .  text($org_name) . "</option>";
                 }
             }
-
-            $optionsStr .= "<option value='" . attr($org_row['id']) . "' $selected>" .  text($lab_org_name) . "</option>";
         }
         ?>
 
         <div class="row">
             <div class="col-sm-12">
-                <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr_url($ppid) ?>'>
+                <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr_url($ppid) ?>&csrf_token_form=<?php echo js_url(CsrfUtils::collectCsrfToken()); ?>'>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="card">
                         <div class="card-header" name="form_legend" id="form_legend">
                             <?php echo xlt('Enter Provider Details'); ?>  <i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript" aria-hidden="true"></i>
                         </div>
                         <div class="card-body">
-                            <div class="row">
+                            <div class="row mt-3">
                                 <div class="col-12">
                                     <div class="col-sm-6">
                                         <div class="clearfix">
                                             <div class="label-div">
-                                                <label for="form_active"><?php echo xlt('Active'); ?>:</label>
+                                                <label for="form_active"><?php echo xlt('Active'); ?>: </label>
                                             </div>
-                                            <input type='checkbox' name='form_active' id='form_active' class='form-control'
+                                            <input type='checkbox' class='form-control' name='form_active' id='form_active'
                                                 <?php if ($ppid) {
-                                                          echo ($form_active) ?  " checked" : "";
+                                                          echo ($ppid_active) ? " checked" : "";
                                                       } else {
                                                           echo " checked";
-                                                      } ?>>
+                                                      } ?> />
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
@@ -196,7 +203,7 @@ function invalue($name)
                                             <div class="label-div">
                                                 <label for="form_name"><?php echo xlt('Name'); ?>:</label><a href="#name_info" class="info-anchor icon-tooltip"  data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                             </div>
-                                            <select name='form_name' id='form_name' class='form-control' <?php echo ($ppid) ?  " disabled" : ""; ?>>
+                                            <select name='form_name' id='form_name' class='form-control'>
                                                 <?php echo $optionsStr; ?>
                                             </select>
                                         </div>
