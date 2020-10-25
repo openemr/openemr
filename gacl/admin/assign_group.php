@@ -67,7 +67,7 @@ switch ($postAction) {
 		}
 
 		//Return page.
-		$gacl_api->return_page($_SERVER['PHP_SELF'] .'?group_type='. $_POST['group_type'] .'&group_id='. $_POST['group_id']);
+		$gacl_api->return_page($_SERVER['PHP_SELF'] .'?group_type='. urlencode($_POST['group_type']) .'&group_id='. urlencode($_POST['group_id']));
 
 		break;
 	case 'Submit':
@@ -90,7 +90,7 @@ switch ($postAction) {
 			}
 		}
 
-		$gacl_api->return_page($_SERVER['PHP_SELF'] .'?group_type='. $_POST['group_type'] .'&group_id='. $_POST['group_id']);
+		$gacl_api->return_page($_SERVER['PHP_SELF'] .'?group_type='. urlencode($_POST['group_type']) .'&group_id='. urlencode($_POST['group_id']));
 
 		break;
 	default:
@@ -189,11 +189,13 @@ switch ($postAction) {
 	$smarty->assign('group_name', $group_data[2]);
 
 	$smarty->assign('group_id', $_GET['group_id']);
+    $smarty->assign('group_id_escaped', attr($_GET['group_id']));
 
 	break;
 }
 
 $smarty->assign('group_type', $group_type);
+$smarty->assign('group_type_escaped', attr($group_type));
 $smarty->assign('object_type', $object_type);
 $smarty->assign('return_page', $_SERVER['REQUEST_URI'] );
 

@@ -56,7 +56,7 @@
         </tr>
         <tr class="pager">
           <td colspan="5">
-        {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?group_type=$group_type&group_id=$group_id&"}
+        {include file="phpgacl/pager.tpl" pager_data=$paging_data link="?group_type=$group_type_escaped&group_id=$group_id_escaped&"}
           </td>
         </tr>
         <tr>
