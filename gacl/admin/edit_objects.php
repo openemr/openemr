@@ -3,6 +3,13 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!empty($_POST)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
+    }
+}
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
@@ -85,7 +92,7 @@ switch ($postAction) {
         break;
     default:
         //Grab section name
-        $query = "select name from $object_sections_table where value = '". $_GET['section_value'] ."'";
+        $query = "select name from $object_sections_table where value = ". $db->qstr($_GET['section_value']);
         $section_name = $db->GetOne($query);
 
         $query = "select
@@ -95,7 +102,7 @@ switch ($postAction) {
                                     order_value,
                                     name
                         from    $object_table
-                        where   section_value='". $_GET['section_value'] ."'
+                        where   section_value=". $db->qstr($_GET['section_value']) ."
                         order by order_value";
         $rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
         $rows = $rs->GetRows();
@@ -145,6 +152,8 @@ $smarty->assign('page_title', 'Edit '. strtoupper($object_type) .' Objects');
 
 $smarty->assign("phpgacl_version", $gacl_api->get_version() );
 $smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
+
+$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
 
 $smarty->display('phpgacl/edit_objects.tpl');
 ?>

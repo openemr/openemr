@@ -3,6 +3,7 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
@@ -15,6 +16,12 @@ require_once('gacl_admin.inc.php');
 $getAction = $_GET['action'] ?? null;
 switch ($getAction) {
 	case 'Delete':
+
+	    //CSRF prevent
+        if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+            CsrfUtils::csrfNotVerified();
+        }
+
 		$gacl_api->debug_text('Delete!');
 
 		if (is_array ($_GET['delete_acl']) AND !empty($_GET['delete_acl'])) {
@@ -295,6 +302,8 @@ $smarty->assign('page_title', 'ACL List');
 
 $smarty->assign('phpgacl_version', $gacl_api->get_version());
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
+
+$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
 
 $smarty->display('phpgacl/acl_list.tpl');
 ?>
