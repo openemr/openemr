@@ -191,11 +191,12 @@ function onvalue($name)
                                                 <label for="form_active"><?php echo xlt('Active'); ?>: </label>
                                             </div>
                                             <input type='checkbox' class='form-control' name='form_active' id='form_active'
-                                                <?php if ($ppid) {
-                                                          echo ($ppid_active) ? " checked" : "";
-                                                      } else {
-                                                          echo " checked";
-                                                      } ?> />
+                                                <?php
+                                                if ($ppid) {
+                                                    echo ($ppid_active) ? " checked" : "";
+                                                } else {
+                                                    echo " checked";
+                                                } ?> />
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
