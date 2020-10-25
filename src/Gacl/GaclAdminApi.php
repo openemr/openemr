@@ -42,23 +42,13 @@ class GaclAdminApi extends GaclApi {
 	/**
 	 * return_page()
 	 *
-	 * Sends the user back to a passed URL, unless debug is enabled, then we don't redirect.
-	 * 				If no URL is passed, try the REFERER
+	 * Sends the user back to a passed URL
 	 * @param string URL to return to.
 	 */
 	function return_page($url="") {
-		global $_SERVER, $debug;
-
-		if (empty($url) AND !empty($_SERVER[HTTP_REFERER])) {
-			$this->debug_text("return_page(): URL not set, using referer!");
-			$url = $_SERVER[HTTP_REFERER];
-		}
-
-		if (!$debug OR $debug==0) {
-			header("Location: $url\n\n");
-		} else {
-			$this->debug_text("return_page(): URL: $url -- Referer: $_SERVER[HTTP_REFERRER]");
-		}
+        $return_page = basename($url);
+        header('Location: ' . $GLOBALS['web_root'] . "/gacl/admin/" . $return_page);
+        exit;
 	}
 
 	/**
