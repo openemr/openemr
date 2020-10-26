@@ -176,7 +176,7 @@ function onvalue($name)
 
         <div class="row">
             <div class="col-sm-12">
-                <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr_url($ppid) ?>&csrf_token_form=<?php echo js_url(CsrfUtils::collectCsrfToken()); ?>'>
+                <form method='post' name='theform' action="procedure_provider_edit.php?ppid=<?php echo attr_url($ppid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="card">
                         <div class="card-header" name="form_legend" id="form_legend">
