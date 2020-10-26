@@ -85,6 +85,7 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [FHIR Medication](FHIR_README.md#medication-resource)
     -   [FHIR Location](FHIR_README.md#location-resource)
     -   [FHIR CareTeam](FHIR_README.md#careTeam-resource)
+    -   [FHIR Provenance](FHIR_README.md#Provenance-resources)
 -   [Patient Portal FHIR API Endpoints](FHIR_README.md#patient-portal-fhir-endpoints)
     -   [Patient Portal FHIR Authorization](FHIR_README.md#patient-portal-authorization)
     -   [Patient Portal FHIR Patient](FHIR_README.md#patient-portal-patient-resource)
