@@ -4,6 +4,7 @@
   <body>
     {include file="phpgacl/navigation.tpl"}
     <form method="post" name="edit_objects" action="edit_objects.php">
+      <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr class="pager">
@@ -29,14 +30,14 @@
           <tr valign="top" align="center">
             <td>
               {$objects[x].id|escape:'html'}
-              <input type="hidden" name="objects[{$objects[x].id|escape:'html'}][]" value="{$objects[x].id|escape:'html'}">
+              <input type="hidden" name="objects[{$objects[x].id|attr}][]" value="{$objects[x].id|attr}">
             </td>
-            <td>{$section_name|escape:'html'}</td>
-            <td><input type="text" size="10" name="objects[{$objects[x].id}][]" value="{$objects[x].value|escape:'html'}"></td>
-            <td><input type="text" size="10" name="objects[{$objects[x].id}][]" value="{$objects[x].order|escape:'html'}"></td>
-            <td><input type="text" size="40" name="objects[{$objects[x].id}][]" value="{$objects[x].name|escape:'html'}"></td>
+            <td>{$section_name|text}</td>
+            <td><input type="text" size="10" name="objects[{$objects[x].id|attr}][]" value="{$objects[x].value|attr}"></td>
+            <td><input type="text" size="10" name="objects[{$objects[x].id|attr}][]" value="{$objects[x].order|attr}"></td>
+            <td><input type="text" size="40" name="objects[{$objects[x].id|attr}][]" value="{$objects[x].name|attr}"></td>
             <td>&nbsp;</td>
-            <td><input type="checkbox" class="checkbox" name="delete_object[]" value="{$objects[x].id|escape:'html'}"></td>
+            <td><input type="checkbox" class="checkbox" name="delete_object[]" value="{$objects[x].id|attr}"></td>
           </tr>
     {/section}
 {/if}
@@ -53,7 +54,7 @@
             <td colspan="7"></td>
           </tr>
           <tr align="center">
-            <td colspan="7"><b>Add {$object_type|upper|escape:'html'}s</b></td>
+            <td colspan="7"><b>Add {$object_type|upper|text}s</b></td>
           </tr>
           <tr>
             <th>ID</th>
@@ -68,10 +69,10 @@
     {section name=y loop=$new_objects}
           <tr valign="top" align="center">
             <td>N/A</td>
-            <td>{$section_name|escape:'html'}</td>
-            <td><input type="text" size="10" name="new_objects[{$new_objects[y].id|escape:'html'}][]" value=""></td>
-            <td><input type="text" size="10" name="new_objects[{$new_objects[y].id|escape:'html'}][]" value=""></td>
-            <td><input type="text" size="40" name="new_objects[{$new_objects[y].id|escape:'html'}][]" value=""></td>
+            <td>{$section_name|text}</td>
+            <td><input type="text" size="10" name="new_objects[{$new_objects[y].id|attr}][]" value=""></td>
+            <td><input type="text" size="10" name="new_objects[{$new_objects[y].id|attr}][]" value=""></td>
+            <td><input type="text" size="40" name="new_objects[{$new_objects[y].id|attr}][]" value=""></td>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
           </tr>
@@ -87,8 +88,8 @@
           </tr>
         </tbody>
       </table>
-    <input type="hidden" name="section_value" value="{$section_value|escape:'html'}">
-    <input type="hidden" name="object_type" value="{$object_type|escape:'html'}">
-    <input type="hidden" name="return_page" value="{$return_page|escape:'html'}">
+    <input type="hidden" name="section_value" value="{$section_value|attr}">
+    <input type="hidden" name="object_type" value="{$object_type|attr}">
+    <input type="hidden" name="return_page" value="{$return_page|attr}">
   </form>
 {include file="phpgacl/footer.tpl"}

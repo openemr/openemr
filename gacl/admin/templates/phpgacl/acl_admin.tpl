@@ -7,6 +7,7 @@
 <body onload="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{if isset($js_aco_array_name)}{$js_aco_array_name}{/if}');populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'], '{if isset($js_aro_array_name)}{$js_aro_array_name}{/if}')">
 {include file="phpgacl/navigation.tpl"}
   <form method="post" name="acl_admin" action="acl_admin.php" onsubmit="select_all(document.acl_admin.elements['selected_aco[]']);select_all(document.acl_admin.elements['selected_aro[]']);select_all(document.acl_admin.elements['selected_aro[]']);return true;">
+    <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
     <div align="center">
       <table cellpadding="2" cellspacing="2" border="2" align="center">
         <tbody>
@@ -19,7 +20,7 @@
           </tr>
           <tr valign="top" align="center">
             <td>
-              [ <a href="edit_object_sections.php?object_type=aco&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
+              [ <a href="edit_object_sections.php?object_type=aco&return_page={if isset($return_page)}{$return_page|attr_url}{/if}">Edit</a> ]
               <br />
               <select name="aco_section" tabindex="0" size="10" onclick="populate(document.acl_admin.aco_section,document.acl_admin.elements['aco[]'], '{if isset($js_aco_array_name)}{$js_aco_array_name}{/if}')">
                   {if isset($options_aco_sections)}
@@ -32,7 +33,7 @@
               </select>
             </td>
             <td>
-              [ <a href="javascript: location.href = 'edit_objects.php?object_type=aco&section_value=' + document.acl_admin.aco_section.options[document.acl_admin.aco_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page}{/if}';">Edit</a> ]
+              [ <a href="javascript: location.href = 'edit_objects.php?object_type=aco&section_value=' + document.acl_admin.aco_section.options[document.acl_admin.aco_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page|attr_url}{/if}';">Edit</a> ]
               <br />
               <select name="aco[]" tabindex="0" size="10" width="200" multiple>
               </select>
@@ -68,7 +69,7 @@
           </tr>
           <tr valign="top" align="center">
             <td>
-              [ <a href="edit_object_sections.php?object_type=aro&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
+              [ <a href="edit_object_sections.php?object_type=aro&return_page={if isset($return_page)}{$return_page|attr_url}{/if}">Edit</a> ]
               <br />
               <select name="aro_section" tabindex="0" size="10" onclick="populate(document.acl_admin.aro_section,document.acl_admin.elements['aro[]'],'{if isset($js_aro_array_name)}{$js_aro_array_name}{/if}')">
                   {if isset($options_aro_sections)}
@@ -77,8 +78,8 @@
               </select>
             </td>
             <td>
-              [ <a href="javascript: location.href = 'edit_objects.php?object_type=aro&section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page}{/if}';">Edit</a> ]
-              [ <a href="#" onClick="window.open('object_search.php?src_form=acl_admin&object_type=aro&section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page}{/if}','','status=yes,width=400,height=400');return false;">Search</a> ]
+              [ <a href="javascript: location.href = 'edit_objects.php?object_type=aro&section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page|attr_url}{/if}';">Edit</a> ]
+              [ <a href="#" onClick="window.open('object_search.php?src_form=acl_admin&object_type=aro&section_value=' + document.acl_admin.aro_section.options[document.acl_admin.aro_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page|attr}{/if}','','status=yes,width=400,height=400');return false;">Search</a> ]
               <br />
               <select name="aro[]" tabindex="0" size="10" width="200" multiple>
               </select>
@@ -96,7 +97,7 @@
              </select>
             </td>
             <td>
-              [ <a href="group_admin.php?group_type=aro&return_page={$SCRIPT_NAME}?action={$action}&acl_id={if isset($acl_id)}{$acl_id}{/if}">Edit</a> ]
+              [ <a href="group_admin.php?group_type=aro&return_page={$SCRIPT_NAME|attr_url}?action={$action|attr_url}&acl_id={if isset($acl_id)}{$acl_id|attr_url}{/if}">Edit</a> ]
               <br />
 			  <select name="aro_groups[]" tabindex="0" size="8" multiple>
                   {if isset($options_aro_groups)}
@@ -122,7 +123,7 @@
           </tr>
           <tr valign="top" align="center" id="axo_row2" {if !isset($show_axo) || !$show_axo}class="hide"{/if}>
             <td>
-              [ <a href="edit_object_sections.php?object_type=axo&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
+              [ <a href="edit_object_sections.php?object_type=axo&return_page={if isset($return_page)}{$return_page|attr_url}{/if}">Edit</a> ]
               <br />
               <select name="axo_section" tabindex="0" size="10" onclick="populate(document.acl_admin.axo_section,document.acl_admin.elements['axo[]'],'{if isset($js_axo_array_name)}{$js_axo_array_name}{/if}')">
                   {if isset($options_axo_sections)}
@@ -131,8 +132,8 @@
               </select>
             </td>
             <td>
-              [ <a href="javascript: location.href = 'edit_objects.php?object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page}{/if}';">Edit</a> ]
-              [ <a href="#" onClick="window.open('object_search.php?src_form=acl_admin&object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page}{/if}','','status=yes,width=400,height=400');return false;">Search</a> ]
+              [ <a href="javascript: location.href = 'edit_objects.php?object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page|attr_url}{/if}';">Edit</a> ]
+              [ <a href="#" onClick="window.open('object_search.php?src_form=acl_admin&object_type=axo&section_value=' + document.acl_admin.axo_section.options[document.acl_admin.axo_section.selectedIndex].value + '&return_page={if isset($return_page)}{$return_page|attr}{/if}','','status=yes,width=400,height=400');return false;">Search</a> ]
               <br />
               <select name="axo[]" tabindex="0" size="10" width="200" multiple>
               </select>
@@ -150,7 +151,7 @@
               </select>
             </td>
             <td>
-              [ <a href="group_admin.php?group_type=axo&return_page={$SCRIPT_NAME}?action={$action}&acl_id={if isset($acl_id)}{$acl_id}{/if}">Edit</a> ]
+              [ <a href="group_admin.php?group_type=axo&return_page={$SCRIPT_NAME|attr_url}?action={$action|attr_url}&acl_id={if isset($acl_id)}{$acl_id|attr_url}{/if}">Edit</a> ]
               <br />
               <select name="axo_groups[]" tabindex="0" size="8" multiple>
                   {if isset($options_axo_groups)}
@@ -172,12 +173,12 @@
                 <b>Extended Return Value:</b>
             </td>
             <td colspan="4">
-                <input type="text" name="return_value" size="50" value="{if isset($return_value)}{$return_value}{/if}" id="return_value">
+                <input type="text" name="return_value" size="50" value="{if isset($return_value)}{$return_value|attr}{/if}" id="return_value">
             </td>
 		</tr>
 		<tr valign="top" align="left">
 			<td align="center">
-			[ <a href="edit_object_sections.php?object_type=acl&return_page={if isset($return_page)}{$return_page}{/if}">Edit</a> ]
+			[ <a href="edit_object_sections.php?object_type=acl&return_page={if isset($return_page)}{$return_page|attr_url}{/if}">Edit</a> ]
 			<br />
 			<select name="acl_section" tabindex="0" size="3">
                 {if isset($options_acl_sections)}
@@ -190,7 +191,7 @@
 			</select>
 		  </td>
           <td><b>Note:</b></td>
-          <td colspan="4"><textarea name="note" rows="4" cols="40">{if isset($note)}{$note}{/if}</textarea></td>
+          <td colspan="4"><textarea name="note" rows="4" cols="40">{if isset($note)}{$note|text}{/if}</textarea></td>
 		</tr>
         <tr class="controls" align="center">
           <td colspan="5">
@@ -199,8 +200,8 @@
         </tr>
       </tbody>
     </table>
-	<input type="hidden" name="acl_id" value="{if isset($acl_id)}{$acl_id}{/if}">
-	<input type="hidden" name="return_page" value="{if isset($return_page)}{$return_page}{/if}">
+	<input type="hidden" name="acl_id" value="{if isset($acl_id)}{$acl_id|attr}{/if}">
+	<input type="hidden" name="return_page" value="{if isset($return_page)}{$return_page|attr}{/if}">
   </div>
 </form>
 {include file="phpgacl/footer.tpl"}

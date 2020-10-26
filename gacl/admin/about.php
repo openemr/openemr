@@ -54,51 +54,18 @@ function get_system_info() {
 	return trim($system_info);
 }
 
-function submit_system_info($system_information, $system_info_md5) {
+$system_info = get_system_info();
 
-	$md5sum = md5(trim($system_information));
-	if (trim($system_info_md5) == $md5sum) {
-		$tainted = 'FALSE';
-	} else {
-		$tainted = 'TRUE';
-	}
+//Read credits.
+$smarty->assign("credits", implode('',file('../CREDITS')) );
 
-	mail('phpgacl@snappymail.ca', 'phpGACL Report... ', "". $system_information ."\n\nTainted: $tainted");
+$smarty->assign("system_info", $system_info);
+$smarty->assign("system_info_md5", md5($system_info) );
 
-	return $tainted;
-}
-
-$postAction = $_POST['action'] ?? null;
-switch ($postAction) {
-    case 'Submit':
-        $gacl_api->debug_text("Submit!!");
-
-		submit_system_info($_POST['system_information'], $_POST['system_info_md5']);
-
-		echo "<div align=center>Thanks for contributing to phpGACL. <br /> Click <a href=\"acl_list.php\">here</a> to proceed to the Administration Interface.</div><br />\n";
-		exit;
-        break;
-    default:
-		$system_info = get_system_info();
-
-		//Read credits.
-		$smarty->assign("credits", implode('',file('../CREDITS')) );
-
-		$smarty->assign("system_info", $system_info);
-		$smarty->assign("system_info_md5", md5($system_info) );
-        break;
-}
-
-$smarty->assign("first_run", ($_GET['first_run'] ?? null));
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
 $smarty->assign('current','about');
-if (!empty($_GET['first_run'])) {
-	$smarty->assign('page_title', 'Installation Report');
-	$smarty->assign('hidemenu', 1);
-} else {
-	$smarty->assign('page_title', 'About phpGACL');
-}
+$smarty->assign('page_title', 'About phpGACL');
 
 $smarty->assign("phpgacl_version", $gacl_api->get_version() );
 $smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );

@@ -1,4 +1,4 @@
-{include file="phpgacl/header.tpl"} 
+{include file="phpgacl/header.tpl"}
   </head>
 <body>
 {include file="phpgacl/navigation.tpl"}
@@ -22,25 +22,25 @@
   {section name=x loop=$acls}
   <tr>
     <td valign="middle" align="center">
-		{$smarty.section.x.iteration}
+		{$smarty.section.x.iteration|text}
     </td>
     <td valign="middle" align="center">
-		{$acls[x].display_aco_name}
+		{$acls[x].display_aco_name|text}
     </td>
     <td valign="top" align="left">
-        {$acls[x].aro_section_name} > {$acls[x].aro_name}
+        {$acls[x].aro_section_name|text} > {$acls[x].aro_name|text}
     </td>
     <td valign="top" align="center">
-        {$acls[x].return_value}<br />
+        {$acls[x].return_value|text}<br />
      </td>
     <td valign="top" align="left">
-		acl_check('{$acls[x].aco_section_value}', '{$acls[x].aco_value}', '{$acls[x].aro_section_value}', '{$acls[x].aro_value}')
-    </td>  
+		acl_check('{$acls[x].aco_section_value|text}', '{$acls[x].aco_value|text}', '{$acls[x].aro_section_value|text}', '{$acls[x].aro_value|text}')
+    </td>
     <td valign="top" align="center" nowrap>
-		 [ <a href="acl_debug.php?aco_section_value={$acls[x].aco_section_value}&aco_value={$acls[x].aco_value}&aro_section_value={$acls[x].aro_section_value}&aro_value={$acls[x].aro_value}&action=Submit">debug</a> ]
-    </td>  
+		 [ <a href="acl_debug.php?aco_section_value={$acls[x].aco_section_value|attr_url}&aco_value={$acls[x].aco_value|attr_url}&aro_section_value={$acls[x].aro_section_value|attr_url}&aro_value={$acls[x].aro_value|attr_url}&action=Submit">debug</a> ]
+    </td>
     <td valign="top" align="center">
-		{$acls[x].acl_check_time}
+		{$acls[x].acl_check_time|text}
     </td>
     <td valign="middle" class="{if $acls[x].access}green{else}red{/if}" align="center">
 		{if $acls[x].access}
@@ -71,7 +71,7 @@
 		<b>Total ACL Check(s)</b>
 	</td>
 	<td>
-		{$total_acl_checks}
+		{$total_acl_checks|text}
 	</td>
   </tr>
   <tr align="center">
@@ -79,7 +79,7 @@
 		<b>Average Time / Check</b>
 	</td>
 	<td>
-		{$avg_acl_check_time}ms
+		{$avg_acl_check_time|text}ms
 	</td>
   </tr>
 </table>

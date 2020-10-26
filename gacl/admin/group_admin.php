@@ -3,6 +3,7 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
@@ -87,6 +88,8 @@ $smarty->assign('page_title', strtoupper($group_type) .' Group Admin');
 
 $smarty->assign('phpgacl_version', $gacl_api->get_version());
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
+
+$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
 
 $smarty->display('phpgacl/group_admin.tpl');
 ?>

@@ -95,7 +95,7 @@ foreach ($rows as $row) {
 	if ($aco_section_name != $tmp_aco_section_name OR $aco_name != $tmp_aco_name) {
 		$display_aco_name = "$aco_section_name > $aco_name";
 	} else {
-		$display_aco_name = "<br />";
+		$display_aco_name = "";
 	}
 
 	$acls[] = array(
