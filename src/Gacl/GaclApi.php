@@ -2352,14 +2352,14 @@ class GaclApi extends Gacl {
 				}
 
 				// move all groups right of deleted group left by width of deleted group
-				$query = 'UPDATE '. $table .' SET lft=' . $this->db->quote('lft-' . ($right-$left+1)) .' WHERE lft>'. $this->db->quote($right);
+				$query = 'UPDATE '. $table .' SET lft=lft-' . ($right-$left+1) . ' WHERE lft>'. $this->db->quote($right);
 				$rs = $this->db->Execute($query);
 
 				if (!is_object($rs)) {
 					break;
 				}
 
-				$query = 'UPDATE '. $table .' SET rgt=' . $this->db->quote('rgt-'. ($right-$left+1)) .' WHERE rgt>'. $this->db->quote($right);
+				$query = 'UPDATE '. $table .' SET rgt=rgt-' . ($right-$left+1) . ' WHERE rgt>'. $this->db->quote($right);
 				$rs = $this->db->Execute($query);
 
 				if (!is_object($rs)) {
@@ -2456,14 +2456,14 @@ class GaclApi extends Gacl {
 				}
 
 				// move all groups right of deleted group left by width of deleted group
-				$query = 'UPDATE '. $table .' SET lft=' . $this->db->quote('lft-'. ($right - $left + 1)) . ' WHERE lft>' . $this->db->quote($right);
+				$query = 'UPDATE '. $table .' SET lft=lft-'. ($right - $left + 1) . ' WHERE lft>' . $this->db->quote($right);
 				$rs = $this->db->Execute($query);
 
 				if (!is_object($rs)) {
 					break;
 				}
 
-				$query = 'UPDATE '. $table .' SET rgt=' . $this->db->quote('rgt-'. ($right - $left + 1)) . ' WHERE rgt>' . $this->db->quote($right);
+				$query = 'UPDATE '. $table .' SET rgt=rgt-'. ($right - $left + 1) . ' WHERE rgt>' . $this->db->quote($right);
 				$rs = $this->db->Execute($query);
 
 				if (!is_object($rs)) {

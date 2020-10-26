@@ -204,7 +204,7 @@
 		{/if}
     </td>
     <td valign="middle" rowspan="3" align="center">
-        [ <a href="acl_admin.php?action=edit&acl_id={$acl.id|attr_url}&csrf_token_form={$CSRF_TOKEN_FORM|attr}&return_page={$return_page|attr_url}">Edit</a> ]
+        [ <a href="acl_admin.php?action=edit&acl_id={$acl.id|attr_url}&csrf_token_form={$CSRF_TOKEN_FORM|attr_url}&return_page={$return_page|attr_url}">Edit</a> ]
     </td>
     <td valign="middle" rowspan="3" align="center">
         <input type="checkbox" class="checkbox" name="delete_acl[]" value="{$acl.id|attr}">
