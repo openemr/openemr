@@ -485,6 +485,13 @@ if (!empty($glrow)) {
     $GLOBALS['ippf_specific'] = false;
 }
 
+// Need to utilize a session since library/sql.inc is established before there are any globals established yet.
+//  This means that the first time, it will be skipped even if the global is turned on. However,
+//  after that it will then be turned on via the session.
+// Also important to note that this setting will not take effect during the same session (ie. user needs to logout)
+//  since not worth it to use resources to open session and write to it for every call to interface/globals.php .
+$_SESSION["enable_database_connection_pooling"] = $GLOBALS["enable_database_connection_pooling"];
+
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not
 // thoroughly tested yet and some browsers might have trouble with it,
