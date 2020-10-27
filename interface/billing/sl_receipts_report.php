@@ -63,25 +63,25 @@ if (! AclMain::aclCheckCore('acct', 'rep')) {
 }
 
 
-$form_use_edate  = $_POST['form_use_edate'];
+$form_use_edate  = $_POST['form_use_edate'] ?? null;
 
-$form_proc_codefull = trim($_POST['form_proc_codefull']);
+$form_proc_codefull = trim($_POST['form_proc_codefull'] ?? '');
 // Parse the code type and the code from <code_type>:<code>
 $tmp_code_array = explode(':', $form_proc_codefull);
 $form_proc_codetype = $tmp_code_array[0];
-$form_proc_code = $tmp_code_array[1];
+$form_proc_code = $tmp_code_array[1] ?? null;
 
-$form_dx_codefull  = trim($_POST['form_dx_codefull']);
+$form_dx_codefull  = trim($_POST['form_dx_codefull'] ?? '');
 // Parse the code type and the code from <code_type>:<code>
 $tmp_code_array = explode(':', $form_dx_codefull);
 $form_dx_codetype = $tmp_code_array[0];
-$form_dx_code = $tmp_code_array[1];
+$form_dx_code = $tmp_code_array[1] ?? null;
 
 $form_procedures = empty($_POST['form_procedures']) ? 0 : 1;
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-01');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 
-$form_facility   = $_POST['form_facility'];
+$form_facility   = $_POST['form_facility'] ?? null;
 ?>
 <html>
 <head>
@@ -207,7 +207,7 @@ $form_facility   = $_POST['form_facility'];
                                     while ($row = sqlFetchArray($res)) {
                                         $provid = $row['id'];
                                         echo "    <option value='" . attr($provid) . "'";
-                                        if ($provid == $_POST['form_doctor']) {
+                                        if (!empty($_POST['form_doctor']) && ($provid == $_POST['form_doctor'])) {
                                             echo " selected";
                                         }
 
@@ -277,7 +277,7 @@ $form_facility   = $_POST['form_facility'];
 
                             <td>
                         <div class='checkbox'>
-                                <label><input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : ""; ?>><?php echo xlt('Details')?></label>
+                                <label><input type='checkbox' name='form_details' value='1'<?php echo (!empty($_POST['form_details'])) ? " checked" : ""; ?>><?php echo xlt('Details')?></label>
                         </div>
                         <div class='checkbox'>
                                 <label><input type='checkbox' name='form_procedures' value='1'<?php echo ($form_procedures) ? " checked" : ""; ?>><?php echo xlt('Procedures')?></label>
@@ -301,7 +301,7 @@ $form_facility   = $_POST['form_facility'];
                                     <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                                             <?php echo xlt('Submit'); ?>
                                     </a>
-                                        <?php if ($_POST['form_refresh']) { ?>
+                                        <?php if (!empty($_POST['form_refresh'])) { ?>
                                         <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                                 <?php echo xlt('Print'); ?>
                                         </a>
@@ -317,7 +317,7 @@ $form_facility   = $_POST['form_facility'];
                 </div>
 
                 <?php
-                if ($_POST['form_refresh']) {
+                if (!empty($_POST['form_refresh'])) {
                     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
                         CsrfUtils::csrfNotVerified();
                     }
@@ -703,10 +703,10 @@ $form_facility   = $_POST['form_facility'];
                 <!-- TODO: Replace bgcolor with BS4 !-->
                 <tr bgcolor="#ddddff">
                 <td class="detail" colspan="<?php echo ($form_proc_codefull ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
-                        <?php echo xlt('Totals for ') . text($docname) ?>
+                        <?php echo xlt('Totals for ') . text($docname ?? '') ?>
                 </td>
                 <td align="right">
-                        <?php bucks($doctotal1) ?>
+                        <?php bucks($doctotal1 ?? '') ?>
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td align="right">
@@ -721,7 +721,7 @@ $form_facility   = $_POST['form_facility'];
                         <?php echo xlt('Grand Totals') ?>
                 </td>
                 <td align="right">
-                        <?php bucks($grandtotal1) ?>
+                        <?php bucks($grandtotal1 ?? '') ?>
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td align="right">

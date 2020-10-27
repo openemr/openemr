@@ -24,13 +24,13 @@ var editLabel={xlj t="Edit"};
 	</tr>
 	<tr>
 		<td valign="top">{$tree_html}</td>
-		{if $message}
+		{if isset($message)}
 		<td valign="top">{$message}</td>
 		{/if}
-		{if $add_node eq true or $edit_node eq true}
+		{if (isset($add_node) and $add_node eq true) or (isset($edit_node) and $edit_node eq true)}
 		<td width="25"></td>
 		<td valign="top">
-    {if $add_node eq true}
+    {if isset($add_node) and $add_node eq true}
 		{xlt t="This new category will be a sub-category of "} {$parent_name|text}<br />
 		{/if}
 		<form method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
@@ -38,7 +38,7 @@ var editLabel={xlj t="Edit"};
     <table>
       <tr>
         <td>{xlt t="Category Name"}&nbsp;</td>
-        <td><input type="text" name="name" value="{$NAME|attr}" onKeyDown="PreventIt(event)" /></td>
+        <td><input type="text" name="name" value="{if isset($NAME)}{$NAME|attr}{/if}" onKeyDown="PreventIt(event)" /></td>
       </tr>
       <tr>
         <td>{xlt t="Value"}&nbsp;</td>

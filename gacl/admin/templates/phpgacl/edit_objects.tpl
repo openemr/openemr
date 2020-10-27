@@ -29,7 +29,7 @@
     {section name=x loop=$objects}
           <tr valign="top" align="center">
             <td>
-              {$objects[x].id|escape:'html'}
+              {$objects[x].id|text}
               <input type="hidden" name="objects[{$objects[x].id|attr}][]" value="{$objects[x].id|attr}">
             </td>
             <td>{$section_name|text}</td>

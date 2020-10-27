@@ -26,5 +26,5 @@ if (
      !(empty($_POST['mode'])) &&
      !(empty($_POST['patient_id']))
 ) {
-    processAmcCall($_POST['amc_id'], $_POST['complete'], $_POST['mode'], $_POST['patient_id'], $_POST['object_category'], $_POST['object_id'], $_POST['date_created']);
+    processAmcCall($_POST['amc_id'], $_POST['complete'], $_POST['mode'], $_POST['patient_id'], ($_POST['object_category'] ?? null), ($_POST['object_id'] ?? null), ($_POST['date_created'] ?? null));
 }

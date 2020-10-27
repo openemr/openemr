@@ -28,9 +28,9 @@ if (!empty($_POST)) {
     }
 }
 
-$form_provider  = $_POST['form_provider'];
-if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-    $form_details  = $_POST['form_details']      ? true : false;
+$form_provider  = $_POST['form_provider'] ?? null;
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
+    $form_details = (!empty($_POST['form_details'])) ? true : false;
 } else {
     $form_details = false;
 }
@@ -254,9 +254,9 @@ if (! AclMain::aclCheckCore('acct', 'rep')) {
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_facility  = $_POST['form_facility'];
+$form_facility  = $_POST['form_facility'] ?? null;
 
-if ($_POST['form_csvexport']) {
+if (!empty($_POST['form_csvexport'])) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -401,7 +401,7 @@ if ($_POST['form_csvexport']) {
             while ($row = sqlFetchArray($res)) {
                 $provid = $row['id'];
                 echo "    <option value='" . attr($provid) . "'";
-                if ($provid == $_REQUEST['form_provider']) {
+                if (!empty($_REQUEST['form_provider']) && ($provid == $_REQUEST['form_provider'])) {
                     echo " selected";
                 }
 
@@ -435,7 +435,7 @@ if ($_POST['form_csvexport']) {
                       <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").attr("value",""); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                       </a>
-                    <?php if ($_POST['form_refresh'] || $_POST['form_csvexport']) { ?>
+                    <?php if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) { ?>
                             <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                             </a>
@@ -455,7 +455,7 @@ if ($_POST['form_csvexport']) {
 </div> <!-- end of parameters -->
 
     <?php
-    if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
+    if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         ?>
 
 <div id="report_results">
@@ -526,7 +526,7 @@ if ($_POST['form_csvexport']) {
     } // end not export
 }
 
-if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $from_date = $form_from_date . ' 00:00:00';
     $to_date = $form_to_date . ' 23:59:59';
     $category = "";
@@ -633,7 +633,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   </td>
   <td class="detail" colspan="3">
         <?php
-        if ($_POST['form_details']) {
+        if (!empty($_POST['form_details'])) {
             echo xlt('Total for') . ' ';
         }
 
@@ -706,8 +706,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     } // End not csv export
 }
 
-if (! $_POST['form_csvexport']) {
-    if ($_POST['form_refresh']) {
+if (empty($_POST['form_csvexport'])) {
+    if (!empty($_POST['form_refresh'])) {
         ?>
 
 </tbody>

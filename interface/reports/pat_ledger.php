@@ -42,7 +42,7 @@ $enc_bal = $total_bal = 0;
 $bgcolor = "#FFFFDD";
 $orow = 0;
 
-$pat_pid = $_GET['patient_id'];
+$pat_pid = $_GET['patient_id'] ?? null;
 $type_form = $_GET['form'];
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
@@ -348,7 +348,7 @@ if (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'Y') {
 }
 
 $form_from_date = date('Y-m-d', $last_year);
-if ($_REQUEST['form_from_date']) {
+if (!empty($_REQUEST['form_from_date'])) {
     $form_from_date = DateToYYYYMMDD($_POST['form_from_date']);
 }
 
@@ -357,7 +357,7 @@ $form_facility  = $_REQUEST['form_facility'];
 $form_provider  = $_REQUEST['form_provider'];
 $form_patient   = $_REQUEST['form_patient'];
 $form_pid       = $_REQUEST['form_pid'];
-$form_dob       = $_REQUEST['form_dob'];
+$form_dob       = $_REQUEST['form_dob'] ?? null;
 
 if ($_REQUEST['form_csvexport']) {
     header("Pragma: public");
@@ -671,8 +671,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
 
         $facility = $facilityService->getById($form_facility);
         $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
-        $pat_dob = $patient['DOB'];
-        $pat_name = $patient['fname'] . ' ' . $patient['lname'];
+        $pat_dob = $patient['DOB'] ?? null;
+        $pat_name = ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '');
         ?>
         <div id="report_header">
             <div class="table-responsive">
@@ -940,7 +940,7 @@ if (! $_REQUEST['form_csvexport']) {
     </div><!--end of container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
-        var listId = '#' + <?php echo js_escape($list_id); ?>;
+        var listId = '#' + <?php echo js_escape($list_id ?? null); ?>;
         $(function () {
             $(listId).addClass("active");
         });

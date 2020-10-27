@@ -26,7 +26,7 @@ if (!empty($_POST)) {
     }
 }
 
-$form_patient_id = trim($_POST['form_patient_id']);
+$form_patient_id = trim($_POST['form_patient_id'] ?? '');
 ?>
 <html>
 <head>
@@ -137,7 +137,7 @@ if (!empty($ptrow)) {
                       <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
-                        <?php if ($_POST['form_refresh'] || !empty($ptrow)) { ?>
+                        <?php if (!empty($_POST['form_refresh']) || !empty($ptrow)) { ?>
               <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
@@ -154,7 +154,7 @@ if (!empty($ptrow)) {
 </div> <!-- end of parameters -->
 
 <?php
-if ($_POST['form_refresh'] || !empty($ptrow)) {
+if (!empty($_POST['form_refresh']) || !empty($ptrow)) {
     ?>
 <div id="report_results">
 <table class='table'>

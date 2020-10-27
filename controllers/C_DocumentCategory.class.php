@@ -99,7 +99,7 @@ class C_DocumentCategory extends Controller
 
         $parent_is = $_POST['parent_is'];
         $this->tree->edit_node($parent_is, $_POST['name'], $_POST['value'], $_POST['aco_spec']);
-        $trans_message = xl('Category changed.');
+        $trans_message = xlt('Category changed.');
         $this->assign("message", $trans_message);
         $this->_state = false;
         return $this->list_action();
@@ -117,7 +117,7 @@ class C_DocumentCategory extends Controller
 
         if ($parent_name != false && $parent_name != '') {
             $this->tree->delete_node($id);
-                $trans_message = xl('Category', '', '', ' ') . "'" . $category_name . "'" . xl('had been successfully deleted. Any sub-categories if present were moved below', '', ' ', ' ') . "'" . $parent_name . "'" . xl('.') . "<br />";
+                $trans_message = xlt('Category') . " '" . text($category_name) . "' " . xlt('had been successfully deleted. Any sub-categories if present were moved below') . " '" . text($parent_name) . "'<br />";
             $this->assign("message", $trans_message);
 
             if (is_numeric($id)) {
@@ -125,7 +125,7 @@ class C_DocumentCategory extends Controller
                 $this->tree->_db->Execute($sql);
             }
         } else {
-                $trans_message = xl('Category', '', '', ' ') . "'" . $category_name . "'" . xl('is a root node and can not be deleted.', '', ' ') . "<br />";
+                $trans_message = xlt('Category') . " '" . text($category_name) . "' " . xlt('is a root node and can not be deleted.') . "<br />";
             $this->assign("message", $trans_message);
         }
 

@@ -163,7 +163,7 @@ if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
         </tr>
     </table>
 </div>
-<input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby); ?>" />
+<input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby ?? ''); ?>" />
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 </form>
 </body>

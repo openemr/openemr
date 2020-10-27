@@ -33,7 +33,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
 
 <body>
     <?php
-    if ($_POST['form_submit'] || $_POST['form_cancel']) {
+    if (!empty($_POST['form_submit']) || !empty($_POST['form_cancel'])) {
         if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
             CsrfUtils::csrfNotVerified();
         }

@@ -45,7 +45,7 @@ unset($_SESSION['pidList']);
 unset($_SESSION['apptdateList']);
 
 $alertmsg = ''; // not used yet but maybe later
-$patient = $_REQUEST['patient'];
+$patient = $_REQUEST['patient'] ?? null;
 
 if ($patient && !isset($_POST['form_from_date'])) {
     // If a specific patient, default to 2 years ago.
@@ -58,23 +58,23 @@ if ($patient && !isset($_POST['form_from_date'])) {
 }
 
 $show_available_times = false;
-if ($_POST['form_show_available']) {
+if (!empty($_POST['form_show_available'])) {
     $show_available_times = true;
 }
 
 $chk_with_out_provider = false;
-if ($_POST['with_out_provider']) {
+if (!empty($_POST['with_out_provider'])) {
     $chk_with_out_provider = true;
 }
 
 $chk_with_out_facility = false;
-if ($_POST['with_out_facility']) {
+if (!empty($_POST['with_out_facility'])) {
     $chk_with_out_facility = true;
 }
 
-$provider  = $_POST['form_provider'];
-$facility  = $_POST['form_facility'];  //(CHEMED) facility filter
-$form_orderby = getComparisonOrder($_REQUEST['form_orderby']) ?  $_REQUEST['form_orderby'] : 'date';
+$provider  = $_POST['form_provider'] ?? null;
+$facility  = $_POST['form_facility'] ?? null;  //(CHEMED) facility filter
+$form_orderby = (!empty($_REQUEST['form_orderby']) && getComparisonOrder($_REQUEST['form_orderby'])) ?  $_REQUEST['form_orderby'] : 'date';
 
 // Reminders related stuff
 $incl_reminders = isset($_POST['incl_reminders']) ? 1 : 0;
@@ -226,7 +226,7 @@ function fetch_reminders($pid, $appt_date)
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
-                    if ($provid == $_POST['form_provider']) {
+                    if (!empty($_POST['form_provider']) && ($provid == $_POST['form_provider'])) {
                         echo " selected";
                     }
 
@@ -248,7 +248,7 @@ function fetch_reminders($pid, $appt_date)
 
             <tr>
                 <td class='col-form-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'), $_POST['form_apptstatus']);?></td>
+                <td><?php generate_form_field(array('data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'), ($_POST['form_apptstatus'] ?? ''));?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
                                     <select id="form_apptcat" name="form_apptcat" class="form-control">
@@ -257,7 +257,7 @@ function fetch_reminders($pid, $appt_date)
                                             echo "<option value='ALL'>" . xlt("All") . "</option>";
                                         while ($cat = sqlFetchArray($categories)) {
                                             echo "<option value='" . attr($cat['id']) . "'";
-                                            if ($cat['id'] == $_POST['form_apptcat']) {
+                                            if (!empty($_POST['form_apptcat']) && ($cat['id'] == $_POST['form_apptcat'])) {
                                                 echo " selected='true' ";
                                             }
 
@@ -318,7 +318,7 @@ function fetch_reminders($pid, $appt_date)
                             <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                                 <?php echo xlt('Submit'); ?>
                             </a>
-                            <?php if ($_POST['form_refresh'] || $_POST['form_orderby']) { ?>
+                            <?php if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) { ?>
                                 <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                     <?php echo xlt('Print'); ?>
                                 </a>
@@ -341,7 +341,7 @@ function fetch_reminders($pid, $appt_date)
 
 </div>
 <!-- end of search parameters --> <?php
-if ($_POST['form_refresh'] || $_POST['form_orderby']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     $showDate = ($from_date != $to_date) || (!$to_date);
     ?>
 <div id="report_results">

@@ -48,10 +48,10 @@ $compEleSep     = ":";
 
 $from_date      = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $to_date        = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_facility  = $_POST['form_facility'] ? $_POST['form_facility'] : '';
-$form_provider  = $_POST['form_users'] ? $_POST['form_users'] : '';
-$exclude_policy = $_POST['removedrows'] ? $_POST['removedrows'] : '';
-$x12_partner    = $_POST['form_x12'] ? $_POST['form_x12'] : '';
+$form_facility  = (!empty($_POST['form_facility'])) ? $_POST['form_facility'] : '';
+$form_provider  = (!empty($_POST['form_users'])) ? $_POST['form_users'] : '';
+$exclude_policy = (!empty($_POST['removedrows'])) ? $_POST['removedrows'] : '';
+$x12_partner    = (!empty($_POST['form_x12'])) ? $_POST['form_x12'] : '';
 $X12info        = EDI270::getX12Partner($x12_partner);
 
 // grab appointments, sort by date and make unique to first upcoming appt by pid.
@@ -331,7 +331,7 @@ if ($exclude_policy != "") {
         <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Eligibility 270 Inquiry Batch'); ?></span>
 
         <div id="report_parameters_daterange">
-            <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to{{Range}}') . "&nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
+            <?php echo text(oeFormatShortDate($from_date)) . " &nbsp; " . xlt('to{{Range}}') . "&nbsp; " . text(oeFormatShortDate($to_date)); ?>
         </div>
 
         <form method='post' name='theform' id='theform' action='edi_270.php' onsubmit="return top.restoreSession()">
@@ -393,13 +393,15 @@ if ($exclude_policy != "") {
                                                 <?php
                                                 if (isset($clearinghouses) && !empty($clearinghouses)) {
                                                     foreach ($clearinghouses as $clearinghouse) {
-                                                        echo "<option value='" . attr($clearinghouse['id']) . "'" .
-                                                            ($clearinghouse['id'] == $X12info['id'] ? " selected " : '') . ">" . text($clearinghouse['name']) . "</option>";
+                                                        if (!empty($clearinghouse['id'])) {
+                                                            echo "<option value='" . attr($clearinghouse['id']) . "'" .
+                                                                (!empty($X12info['id']) && ($clearinghouse['id'] == $X12info['id']) ? " selected " : '') . ">" . text($clearinghouse['name']) . "</option>";
+                                                        }
                                                     }
                                                 }
                                                 ?>
                                             </select>
-                                                <span id='emptyVald' class='text-danger' style='font-size:12px;visibility: <?php echo $X12info['id'] ? "hidden" : ""; ?>'> *
+                                                <span id='emptyVald' class='text-danger' style='font-size:12px;visibility: <?php echo (!empty($X12info['id'])) ? "hidden" : ""; ?>'> *
                                                     <?php echo xlt('Clearing house info required for EDI 270 batch creation.'); ?></span>
                                         </td>
                                     </tr>
@@ -449,7 +451,7 @@ if ($exclude_policy != "") {
 
     <script>
         <?php
-        if ($alertmsg) {
+        if (!empty($alertmsg)) {
             echo " alert(" . js_escape($alertmsg) . ");\n";
         } ?>
     </script>

@@ -40,12 +40,12 @@ if (empty($_POST['start']) || empty($_POST['end'])) {
 }
 
 //Patient related stuff
-if ($_POST["form_patient"]) {
+if (!empty($_POST["form_patient"])) {
     $form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
 }
 
 $form_pid = isset($_POST['form_pid']) ? $_POST['form_pid'] : '';
-if ($form_patient == '') {
+if (empty($form_patient)) {
     $form_pid = '';
 }
 ?>
@@ -208,7 +208,7 @@ if ($form_patient == '') {
             &nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
             </td>
             <td>
-            <input type='text' class='form-control' size='20' name='form_patient' style='width:100%;cursor:pointer;' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+            <input type='text' class='form-control' size='20' name='form_patient' style='width:100%;cursor:pointer;' value='<?php echo (!empty($form_patient)) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
             <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
             </td>
             </tr>
@@ -230,7 +230,7 @@ if ($form_patient == '') {
                     </span>
                     </a>
 
-                    <?php if ($_POST['form_refresh']) { ?>
+                    <?php if (!empty($_POST['form_refresh'])) { ?>
                     <a href='#' class='btn btn-primary' id='printbutton'>
                         <span>
                             <?php echo xlt('Print'); ?>
@@ -323,7 +323,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
 
         print "<div id='superbill_billingdata'>";
         print "<h1>" . xlt('Billing Information') . ":</h1>";
-        if (count($patient) > 0) {
+        if (!empty($patient) && is_array($patient) && count($patient) > 0) {
             $billings = array();
             echo "<table class='table w-100'>";
             echo "<tr>";
