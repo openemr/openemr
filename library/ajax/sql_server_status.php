@@ -17,7 +17,7 @@
  * */
 
 $ignoreAuth = true;
-
+$GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
 require_once(__DIR__ . '/../../interface/globals.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
