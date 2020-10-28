@@ -28,7 +28,7 @@ class C_InsuranceCompany extends Controller
     {
         if ($p_obj != null && get_class($p_obj) == "insurancecompany") {
             $this->icompanies[0] = $p_obj;
-        } elseif ($this->icompanies[0] == null || get_class($this->icompanies[0]) != "insurancecompany") {
+        } elseif (empty($this->icompanies[0]) || $this->icompanies[0] == null || get_class($this->icompanies[0]) != "insurancecompany") {
             $this->icompanies[0] = new InsuranceCompany($id);
         }
 

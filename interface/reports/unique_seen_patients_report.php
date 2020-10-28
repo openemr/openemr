@@ -28,7 +28,7 @@ if (!empty($_POST)) {
 $form_from_date = (!empty($_POST['form_from_date'])) ?  DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
 $form_to_date   = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-12-31');
 
-if ($_POST['form_labels']) {
+if (!empty($_POST['form_labels'])) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -162,7 +162,7 @@ $(function () {
                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_labels").val(""); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                      </a>
-                    <?php if ($_POST['form_refresh']) { ?>
+                    <?php if (!empty($_POST['form_refresh'])) { ?>
                         <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
@@ -197,7 +197,7 @@ $(function () {
     <?php
 } // end not generating labels
 
-if ($_POST['form_refresh'] || $_POST['form_labels']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_labels'])) {
     $totalpts = 0;
 
     $query = "SELECT " .
@@ -298,7 +298,7 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
     } // end not labels
 } // end refresh or labels
 
-if (!$_POST['form_labels']) {
+if (empty($_POST['form_labels'])) {
     ?>
 </tbody>
 </table>

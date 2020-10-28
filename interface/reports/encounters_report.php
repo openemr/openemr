@@ -56,16 +56,15 @@ function show_doc_total($lastdocname, $doc_encounters)
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_provider  = $_POST['form_provider'];
-$form_facility  = $_POST['form_facility'];
-$form_details   = $_POST['form_details'] ? true : false;
-$form_new_patients = $_POST['form_new_patients'] ? true : false;
-$form_esigned = $_POST['form_esigned'] ? true : false;
-$form_not_esigned = $_POST['form_not_esigned'] ? true : false;
-$form_encounter_esigned = $_POST['form_encounter_esigned'] ? true : false;
+$form_provider  = $_POST['form_provider'] ?? null;
+$form_facility  = $_POST['form_facility'] ?? null;
+$form_details   = (!empty($_POST['form_details'])) ? true : false;
+$form_new_patients = (!empty($_POST['form_new_patients'])) ? true : false;
+$form_esigned = (!empty($_POST['form_esigned'])) ? true : false;
+$form_not_esigned = (!empty($_POST['form_not_esigned'])) ? true : false;
+$form_encounter_esigned = (!empty($_POST['form_encounter_esigned'])) ? true : false;
 
-$form_orderby = $ORDERHASH[$_REQUEST['form_orderby']] ?
-$_REQUEST['form_orderby'] : 'doctor';
+$form_orderby = (!empty($_REQUEST['form_orderby']) && $ORDERHASH[$_REQUEST['form_orderby']]) ? $_REQUEST['form_orderby'] : 'doctor';
 $orderby = $ORDERHASH[$form_orderby];
 
 // Get the info.
@@ -243,7 +242,7 @@ $res = sqlStatement($query, $sqlBindArray);
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
-                    if ($provid == $_POST['form_provider']) {
+                    if (!empty($_POST['form_provider']) && ($provid == $_POST['form_provider'])) {
                         echo " selected";
                     }
 
@@ -311,7 +310,7 @@ $res = sqlStatement($query, $sqlBindArray);
                       <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
-                        <?php if ($_POST['form_refresh'] || $_POST['form_orderby']) { ?>
+                        <?php if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) { ?>
               <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
@@ -328,7 +327,7 @@ $res = sqlStatement($query, $sqlBindArray);
 </div> <!-- end report_parameters -->
 
 <?php
-if ($_POST['form_refresh'] || $_POST['form_orderby']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     ?>
 <div id="report_results">
 <table class='table' id='mymaintable'>

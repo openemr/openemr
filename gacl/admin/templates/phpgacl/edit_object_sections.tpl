@@ -28,7 +28,7 @@
     {section name=x loop=$sections}
           <tr valign="top" align="center">
             <td>
-              {$sections[x].id|escape:'html'}
+              {$sections[x].id|text}
               <input type="hidden" name="sections[{$sections[x].id|attr}][]" value="{$sections[x].id|attr}">
             </td>
             <td><input type="text" size="10" name="sections[{$sections[x].id|attr}][]" value="{$sections[x].value|attr}"></td>

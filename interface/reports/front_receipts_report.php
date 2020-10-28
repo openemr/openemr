@@ -121,7 +121,7 @@ function bucks($amt)
             </td>
             <td>
                 <?php
-                $form_facility = $_POST['form_facility'];
+                $form_facility = $_POST['form_facility'] ?? null;
                 dropdown_facility($form_facility, 'form_facility', false);
                 ?>
             </td>
@@ -143,12 +143,12 @@ function bucks($amt)
             while ($urow = sqlFetchArray($ures)) {
                 $provid = $urow['id'];
                 echo "    <option value='" . attr($provid) . "'";
-                if ($provid == $_POST['form_provider']) {
+                if (!empty($_POST['form_provider']) && ($provid == $_POST['form_provider'])) {
                     echo " selected";
                 }
 
                 echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
-                if ($provid == $_POST['form_provider']) {
+                if (!empty($_POST['form_provider']) && ($provid == $_POST['form_provider'])) {
                     $provider_name = $urow['lname'] . ", " . $urow['fname'];
                 }
             }
@@ -185,7 +185,7 @@ function bucks($amt)
                       <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
-                        <?php if ($_POST['form_refresh']) { ?>
+                        <?php if (!empty($_POST['form_refresh'])) { ?>
                         <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
@@ -201,7 +201,7 @@ function bucks($amt)
 </div> <!-- end of parameters -->
 
 <?php
-if ($_POST['form_refresh'] || $_POST['form_orderby']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     ?>
 <div id="report_results">
 <table class='table'>

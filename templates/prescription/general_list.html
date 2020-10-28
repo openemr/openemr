@@ -270,7 +270,7 @@ $(function () {
                                 {$prescription->get_size()|text} {$prescription->get_unit_display()|text}&nbsp;
                                 </td>
                                 <td id="{$prescription->id|attr}">
-                                {$prescription->refills|escape:'html'} &nbsp;
+                                {$prescription->refills|text} &nbsp;
                                 </td>
                                 <td id="{$prescription->id|attr}">
                                 {$prescription->provider->get_name_display()|text}&nbsp;

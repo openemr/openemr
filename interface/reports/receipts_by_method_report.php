@@ -234,14 +234,14 @@ if (! AclMain::aclCheckCore('acct', 'rep')) {
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_use_edate = $_POST['form_use_edate'];
-$form_facility  = $_POST['form_facility'];
-$form_report_by = $_POST['form_report_by'];
-$form_proc_codefull = trim($_POST['form_proc_codefull']);
+$form_use_edate = $_POST['form_use_edate'] ?? null;
+$form_facility  = $_POST['form_facility'] ?? null;
+$form_report_by = $_POST['form_report_by'] ?? null;
+$form_proc_codefull = trim($_POST['form_proc_codefull'] ?? '');
 // Parse the code type and the code from <code_type>:<code>
 $tmp_code_array = explode(':', $form_proc_codefull);
 $form_proc_codetype = $tmp_code_array[0];
-$form_proc_code = $tmp_code_array[1];
+$form_proc_code = $tmp_code_array[1] ?? null;
 
 ?>
 <html>
@@ -373,7 +373,7 @@ $form_proc_code = $tmp_code_array[1];
                 } ?> />
                                 <br />
           <div class="checkbox">
-                  <label><input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : ""; ?> /><?php echo xlt('Details')?></label>
+                  <label><input type='checkbox' name='form_details' value='1'<?php echo (!empty($_POST['form_details'])) ? " checked" : ""; ?> /><?php echo xlt('Details')?></label>
           </div>
             </td>
         </tr>
@@ -409,7 +409,7 @@ $form_proc_code = $tmp_code_array[1];
                       <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
-                        <?php if ($_POST['form_refresh']) { ?>
+                        <?php if (!empty($_POST['form_refresh'])) { ?>
                         <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
@@ -426,7 +426,7 @@ $form_proc_code = $tmp_code_array[1];
 </div> <!-- end of parameters -->
 
 <?php
-if ($_POST['form_refresh']) {
+if (!empty($_POST['form_refresh'])) {
     ?>
 <div id="report_results">
 
@@ -615,7 +615,7 @@ if ($_POST['form_refresh']) {
         }
 
       // Not payer summary.
-        if ($form_report_by != '1' || $_POST['form_details']) {
+        if ($form_report_by != '1' || !empty($_POST['form_details'])) {
             if ($form_report_by == '1') { // by payer with details
                 // Sort and dump saved info, and consolidate items with all key
                 // fields being the same.

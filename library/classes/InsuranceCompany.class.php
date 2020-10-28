@@ -56,6 +56,7 @@ class InsuranceCompany extends ORDataObject
     var $x12_receiver_id;
     var $x12_default_partner_id;
     var $x12_default_eligibility_id;
+    var $inactive;
     /*
     *   OpenEMR used this value to determine special formatting for the specified type of payer.
     *   This value is a mutually exclusive choice answering the FB.Payer.isX API calls
@@ -319,7 +320,7 @@ class InsuranceCompany extends ORDataObject
     function get_x12_default_partner_name()
     {
         $xa = $this->_utility_array($this->X12Partner->x12_partner_factory());
-        return $xa[$this->get_x12_default_partner_id()];
+        return ($xa[$this->get_x12_default_partner_id()] ?? null);
     }
 
     function set_x12_default_eligibility_id($id)

@@ -27,7 +27,7 @@ if (!empty($_POST)) {
 $form_from_date = (!empty($_POST['form_from_date'])) ?  DateToYYYYMMDD($_POST['form_from_date']) : '';
 $form_to_date   = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 
-if ($_POST['form_csvexport']) {
+if (!empty($_POST['form_csvexport'])) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -146,7 +146,7 @@ if ($_POST['form_csvexport']) {
                       <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").val(""); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
-                        <?php if ($_POST['form_refresh']) { ?>
+                        <?php if (!empty($_POST['form_refresh'])) { ?>
                         <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
@@ -179,7 +179,7 @@ if ($_POST['form_csvexport']) {
  <tbody>
     <?php
 } // end not export
-if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $query = "SELECT b.pid, b.encounter, SUM(b.fee) AS charges, " .
     "MAX(fe.date) AS date " .
     "FROM form_encounter AS fe, billing AS b " .
@@ -246,7 +246,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     } // end while
 } // end if
 
-if (! $_POST['form_csvexport']) {
+if (empty($_POST['form_csvexport'])) {
     ?>
 
 </tbody>

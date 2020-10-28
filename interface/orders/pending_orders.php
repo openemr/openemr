@@ -59,9 +59,9 @@ if (!AclMain::aclCheckCore('acct', 'rep')) {
 
 $form_from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_facility  = $_POST['form_facility'];
+$form_facility  = $_POST['form_facility'] ?? null;
 
-if ($_POST['form_csvexport']) {
+if (!empty($_POST['form_csvexport'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -167,7 +167,7 @@ if ($_POST['form_csvexport']) {
 
 // If generating a report.
 //
-if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -210,7 +210,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     }
 } // end report generation
 
-if (! $_POST['form_csvexport']) {
+if (empty($_POST['form_csvexport'])) {
     ?>
 
 </table>

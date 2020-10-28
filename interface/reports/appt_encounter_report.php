@@ -110,7 +110,7 @@ function endDoctor(&$docrow)
 $form_facility  = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-if ($_POST['form_refresh']) {
+if (!empty($_POST['form_refresh'])) {
     // MySQL doesn't grok full outer joins so we do it the hard way.
     //
     $sqlBindArray = array();
@@ -294,7 +294,7 @@ if ($_POST['form_refresh']) {
             <td>
         <div class="checkbox">
                 <label><input type='checkbox' name='form_details'
-                  value='1'<?php echo ($_POST['form_details']) ? " checked" : ""; ?>><?php echo xlt('Details') ?></label>
+                  value='1'<?php echo (!empty($_POST['form_details'])) ? " checked" : ""; ?>><?php echo xlt('Details') ?></label>
         </div>
             </td>
         </tr>
@@ -312,7 +312,7 @@ if ($_POST['form_refresh']) {
                     <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                     </a>
-                    <?php if ($_POST['form_refresh']) { ?>
+                    <?php if (!empty($_POST['form_refresh'])) { ?>
                       <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                             <?php echo xlt('Print'); ?>
                       </a>
@@ -329,7 +329,7 @@ if ($_POST['form_refresh']) {
 </div> <!-- end apptenc_report_parameters -->
 
 <?php
-if ($_POST['form_refresh']) {
+if (!empty($_POST['form_refresh'])) {
     ?>
 <div id="report_results">
 <table class='table' id='mymaintable'>

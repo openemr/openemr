@@ -314,7 +314,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             <fieldset>
                 <legend><?php echo xlt('Visit Details') ?>
                     <small>
-                        <?php echo $encounter_followup ? (xlt("Follow up for") . ": " . $encounter_followup . " Dated: " . $followup_date) : ''; ?>
+                        <?php echo (!empty($encounter_followup)) ? (xlt("Follow up for") . ": " . text($encounter_followup) . " " . xlt("Dated") . ": " . text($followup_date)) : ''; ?>
                     </small>
                 </legend>
                 <div id="visit-details" class="px-5">
@@ -419,7 +419,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             <label for='form_date' class="text-right"><?php echo xlt('Date of Service:'); ?></label>
                         </div>
                         <div class="col-sm">
-                            <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo $disabled ?> value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>' title='<?php echo xla('Date of service'); ?>' />
+                            <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo ($disabled ?? '') ?> value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>' title='<?php echo xla('Date of service'); ?>' />
                         </div>
                         <div class="col-sm-2" <?php if ($GLOBALS['ippf_specific']) {
                             echo " style='visibility:hidden;'";
@@ -503,7 +503,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 <?php
                                 if ($viewmode) {
                                     $def_facility = $result['facility_id'];
-                                } elseif ($default_fac_override) {
+                                } elseif (!empty($default_fac_override)) {
                                     $def_facility = $default_fac_override;
                                 } else {
                                     $def_facility = $facilityService->getFacilityForUser($_SESSION['authUserID'])['id'];
@@ -530,11 +530,12 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         </div>
                         <div id="ajaxdiv" class="col-sm">
                             <?php
-                            if ($default_bill_fac_override) {
+                            if (!empty($default_bill_fac_override)) {
                                 $default_bill_fac = $default_bill_fac_override;
                             } elseif (!$viewmode && $mode !== "followup") {
                                 $tmp_be = $facilityService->getPrimaryBusinessEntity();
-                                $tmp = $tmp_be['id'] ? $tmp_be['id'] : $facilityService->getPrimaryBillingLocation()['id'];
+                                $tmp_bl = $facilityService->getPrimaryBillingLocation();
+                                $tmp = !empty($tmp_be['id']) ? $tmp_be['id'] : (!empty($tmp_bl['id']) ? $tmp_bl['id'] : null);
                                 $default_bill_fac = !empty($tmp) ? $tmp : $def_facility;
                             } else {
                                 $default_bill_fac = isset($result['billing_facility']) ? $result['billing_facility'] : $def_facility;

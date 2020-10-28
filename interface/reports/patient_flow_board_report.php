@@ -30,7 +30,7 @@ if (!empty($_POST)) {
     }
 }
 
-$patient = $_POST['patient'];
+$patient = $_POST['patient'] ?? null;
 
 if ($patient && !isset($_POST['form_from_date'])) {
     // If a specific patient, default to 2 years ago.
@@ -44,31 +44,31 @@ if ($patient && !isset($_POST['form_from_date'])) {
 
 # check box information
 $chk_show_details = false;
-if ($_POST['show_details']) {
+if (!empty($_POST['show_details'])) {
     $chk_show_details = true;
 }
 
 $chk_show_drug_screens = false;
-if ($_POST['show_drug_screens']) {
+if (!empty($_POST['show_drug_screens'])) {
     $chk_show_drug_screens = true;
 }
 
 $chk_show_completed_drug_screens = false;
-if ($_POST['show_completed_drug_screens']) {
+if (!empty($_POST['show_completed_drug_screens'])) {
     $chk_show_completed_drug_screens = true;
 }
 
 # end check box information
 
-$provider  = $_POST['form_provider'];
-$facility  = $_POST['form_facility'];  #(CHEMED) facility filter
-$form_orderby = getComparisonOrder($_POST['form_orderby']) ?  $_POST['form_orderby'] : 'date';
-if ($_POST["form_patient"]) {
+$provider  = $_POST['form_provider'] ?? null;
+$facility  = $_POST['form_facility'] ?? null;  #(CHEMED) facility filter
+$form_orderby = (!empty($_POST['form_orderby']) && getComparisonOrder($_POST['form_orderby'])) ?  $_POST['form_orderby'] : 'date';
+if (!empty($_POST["form_patient"])) {
     $form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
 }
 
 $form_pid = isset($_POST['form_pid']) ? $_POST['form_pid'] : '';
-if ($form_patient == '') {
+if (empty($form_patient)) {
     $form_pid = '';
 }
 ?>
@@ -187,7 +187,7 @@ if ($form_patient == '') {
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
-                    if ($provid == $_POST['form_provider']) {
+                    if (!empty($_POST['form_provider']) && ($provid == $_POST['form_provider'])) {
                         echo " selected";
                     }
 
@@ -211,7 +211,7 @@ if ($form_patient == '') {
 
             <tr>
                 <td class='col-form-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'), $_POST['form_apptstatus']);?></td>
+                <td><?php generate_form_field(array('data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'), ($_POST['form_apptstatus'] ?? ''));?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
                                     <select id="form_apptcat" name="form_apptcat" class="form-control">
@@ -220,7 +220,7 @@ if ($form_patient == '') {
                                             echo "<option value='ALL'>" . xlt("All") . "</option>";
                                         while ($cat = sqlFetchArray($categories)) {
                                             echo "<option value='" . attr($cat['id']) . "'";
-                                            if ($cat['id'] == $_POST['form_apptcat']) {
+                                            if (!empty($_POST['form_apptcat']) && ($cat['id'] == $_POST['form_apptcat'])) {
                                                 echo " selected='true' ";
                                             }
 
@@ -235,7 +235,7 @@ if ($form_patient == '') {
             &nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
             </td>
             <td>
-            <input type='text' size='20' name='form_patient' class='form-control' style='cursor:pointer' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+            <input type='text' size='20' name='form_patient' class='form-control' style='cursor:pointer' value='<?php echo (!empty($form_patient)) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
             <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
             </td>
 
@@ -280,7 +280,7 @@ if ($form_patient == '') {
                             <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                                 <?php echo xlt('Submit'); ?>
                             </a>
-                            <?php if ($_POST['form_refresh'] || $_POST['form_orderby']) { ?>
+                            <?php if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) { ?>
                                 <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                     <?php echo xlt('Print'); ?>
                                 </a>
@@ -297,7 +297,7 @@ if ($form_patient == '') {
 
 </div>
 <!-- end of search parameters --> <?php
-if ($_POST['form_refresh'] || $_POST['form_orderby']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     ?>
 <div id="report_results">
 <table class='table'>
