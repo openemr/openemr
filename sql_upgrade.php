@@ -106,7 +106,7 @@ header('Content-type: text/html; charset=utf-8');
     let serverPaused = 0;
     // recursive long polling where ending is based
     // on global doPoll true or false.
-    // added a forcePollOff parameter to avoid polling erroneously on indefinitely when updating from patch.sql
+    // added a forcePollOff parameter to avoid polling from staying on indefinitely when updating from patch.sql
     async function serverStatus(version = '', start = 0, forcePollOff = 0) {
         let updateMsg = "";
         let endMsg = "<li class='text-success bg-light'>" +
