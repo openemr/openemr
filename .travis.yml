@@ -507,7 +507,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_73
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 snapd; snap install core; snap install chromium"
       script:
         - failJob=false
         - *dockers_env_start
@@ -531,7 +531,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_74
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 snapd; snap install core; snap install chromium"
       script:
         - failJob=false
         - *dockers_env_start
@@ -555,7 +555,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_80
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 snapd; snap install core; snap install chromium"
       script:
         - failJob=false
         - *dockers_env_start
