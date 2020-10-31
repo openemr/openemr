@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7ca41b933bad9a53906e4b1b386e24f8",
+    "content-hash": "ff37f9aeb9675388ca67c275b227b511",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -588,37 +588,43 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "6.5.5",
+            "version": "7.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "9d4290de1cfd701f38099ef7e183b64b4b7b0c5e"
+                "reference": "0aa74dfb41ae110835923ef10a9d803a22d50e79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/9d4290de1cfd701f38099ef7e183b64b4b7b0c5e",
-                "reference": "9d4290de1cfd701f38099ef7e183b64b4b7b0c5e",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/0aa74dfb41ae110835923ef10a9d803a22d50e79",
+                "reference": "0aa74dfb41ae110835923ef10a9d803a22d50e79",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp/promises": "^1.0",
-                "guzzlehttp/psr7": "^1.6.1",
-                "php": ">=5.5",
-                "symfony/polyfill-intl-idn": "^1.17.0"
+                "guzzlehttp/promises": "^1.4",
+                "guzzlehttp/psr7": "^1.7",
+                "php": "^7.2.5 || ^8.0",
+                "psr/http-client": "^1.0"
+            },
+            "provide": {
+                "psr/http-client-implementation": "1.0"
             },
             "require-dev": {
                 "ext-curl": "*",
-                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.4 || ^7.0",
+                "php-http/client-integration-tests": "^3.0",
+                "phpunit/phpunit": "^8.5.5 || ^9.3.5",
                 "psr/log": "^1.1"
             },
             "suggest": {
+                "ext-curl": "Required for CURL handler support",
+                "ext-intl": "Required for Internationalized Domain Name (IDN) support",
                 "psr/log": "Required for using the Log middleware"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "6.5-dev"
+                    "dev-master": "7.1-dev"
                 }
             },
             "autoload": {
@@ -638,6 +644,11 @@
                     "name": "Michael Dowling",
                     "email": "mtdowling@gmail.com",
                     "homepage": "https://github.com/mtdowling"
+                },
+                {
+                    "name": "Márk Sági-Kazár",
+                    "email": "mark.sagikazar@gmail.com",
+                    "homepage": "https://sagikazarmark.hu"
                 }
             ],
             "description": "Guzzle is a PHP HTTP client library",
@@ -648,10 +659,30 @@
                 "framework",
                 "http",
                 "http client",
+                "psr-18",
+                "psr-7",
                 "rest",
                 "web service"
             ],
-            "time": "2020-06-16T21:01:06+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/GrahamCampbell",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/Nyholm",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/alexeyshockov",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/gmponos",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-10-10T11:47:56+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -2896,22 +2927,23 @@
         },
         {
             "name": "league/omnipay",
-            "version": "v3.0.2",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay.git",
-                "reference": "9e10d91cbf84744207e13d4483e79de39b133368"
+                "reference": "1ba7c8a3312cf2342458b99c9e5b86eaae44aed2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay/zipball/9e10d91cbf84744207e13d4483e79de39b133368",
-                "reference": "9e10d91cbf84744207e13d4483e79de39b133368",
+                "url": "https://api.github.com/repos/thephpleague/omnipay/zipball/1ba7c8a3312cf2342458b99c9e5b86eaae44aed2",
+                "reference": "1ba7c8a3312cf2342458b99c9e5b86eaae44aed2",
                 "shasum": ""
             },
             "require": {
                 "omnipay/common": "^3",
-                "php": "^5.6|^7",
-                "php-http/guzzle6-adapter": "^1.1|^2"
+                "php": "^7.2",
+                "php-http/discovery": "^1.12",
+                "php-http/guzzle7-adapter": "^0.1"
             },
             "require-dev": {
                 "omnipay/tests": "^3"
@@ -2919,7 +2951,7 @@
             "type": "metapackage",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.0.x-dev"
+                    "dev-master": "3.1.x-dev"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -2944,7 +2976,7 @@
                 "omnipay",
                 "payment"
             ],
-            "time": "2019-03-20T14:28:28+00:00"
+            "time": "2020-09-22T14:02:17+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
@@ -4260,22 +4292,22 @@
             "time": "2020-09-22T13:31:04+00:00"
         },
         {
-            "name": "php-http/guzzle6-adapter",
-            "version": "v2.0.1",
+            "name": "php-http/guzzle7-adapter",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/php-http/guzzle6-adapter.git",
-                "reference": "6074a4b1f4d5c21061b70bab3b8ad484282fe31f"
+                "url": "https://github.com/php-http/guzzle7-adapter.git",
+                "reference": "1967de656b9679a2a6a66d0e4e16fa99bbed1ad1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-http/guzzle6-adapter/zipball/6074a4b1f4d5c21061b70bab3b8ad484282fe31f",
-                "reference": "6074a4b1f4d5c21061b70bab3b8ad484282fe31f",
+                "url": "https://api.github.com/repos/php-http/guzzle7-adapter/zipball/1967de656b9679a2a6a66d0e4e16fa99bbed1ad1",
+                "reference": "1967de656b9679a2a6a66d0e4e16fa99bbed1ad1",
                 "shasum": ""
             },
             "require": {
-                "guzzlehttp/guzzle": "^6.0",
-                "php": "^7.1",
+                "guzzlehttp/guzzle": "^7.0",
+                "php": "^7.2 | ^8.0",
                 "php-http/httplug": "^2.0",
                 "psr/http-client": "^1.0"
             },
@@ -4285,19 +4317,18 @@
                 "psr/http-client-implementation": "1.0"
             },
             "require-dev": {
-                "ext-curl": "*",
-                "php-http/client-integration-tests": "^2.0",
-                "phpunit/phpunit": "^7.4"
+                "php-http/client-integration-tests": "^3.0",
+                "phpunit/phpunit": "^8.0|^9.3"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.x-dev"
+                    "dev-master": "0.2.x-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Http\\Adapter\\Guzzle6\\": "src/"
+                    "Http\\Adapter\\Guzzle7\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -4306,21 +4337,17 @@
             ],
             "authors": [
                 {
-                    "name": "Márk Sági-Kazár",
-                    "email": "mark.sagikazar@gmail.com"
-                },
-                {
-                    "name": "David de Boer",
-                    "email": "david@ddeboer.nl"
+                    "name": "Tobias Nyholm",
+                    "email": "tobias.nyholm@gmail.com"
                 }
             ],
-            "description": "Guzzle 6 HTTP Adapter",
+            "description": "Guzzle 7 HTTP Adapter",
             "homepage": "http://httplug.io",
             "keywords": [
                 "Guzzle",
                 "http"
             ],
-            "time": "2018-12-16T14:44:03+00:00"
+            "time": "2020-10-21T17:30:51+00:00"
         },
         {
             "name": "php-http/httplug",
@@ -7920,23 +7947,23 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.2",
+            "version": "9.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "229099d7d69fe5044f6e464f669b1fd34f252e8d"
+                "reference": "6b20e2055f7c29b56cb3870b3de7cc463d7add41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/229099d7d69fe5044f6e464f669b1fd34f252e8d",
-                "reference": "229099d7d69fe5044f6e464f669b1fd34f252e8d",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/6b20e2055f7c29b56cb3870b3de7cc463d7add41",
+                "reference": "6b20e2055f7c29b56cb3870b3de7cc463d7add41",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
                 "ext-xmlwriter": "*",
-                "nikic/php-parser": "^4.8",
+                "nikic/php-parser": "^4.10.2",
                 "php": ">=7.3",
                 "phpunit/php-file-iterator": "^3.0.3",
                 "phpunit/php-text-template": "^2.0.2",
@@ -7989,7 +8016,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-28T06:24:13+00:00"
+            "time": "2020-10-30T10:46:41+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
