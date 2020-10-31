@@ -507,7 +507,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_73
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -516,6 +516,7 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
+        - *build_test_e2e
         - *build_test_api
         - *build_test_fixtures
         - *build_test_services
@@ -530,7 +531,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_74
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -539,6 +540,7 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
+        - *build_test_e2e
         - *build_test_api
         - *build_test_fixtures
         - *build_test_services
@@ -553,7 +555,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_80
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
