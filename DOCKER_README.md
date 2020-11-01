@@ -23,3 +23,9 @@ environment, which is documented at [CONTRIBUTING.md](CONTRIBUTING.md#code-contr
 and [contrib/util/docker/README.md](contrib/util/docker/README.md#easy-development-docker-environment). The other
 development environment, which is much more complex, is the Insane Development Docker environment, which is
 documented at [contrib/util/docker/README.md](contrib/util/docker/README.md#insane-development-docker-environment).
+
+### Raspberry Pi Development Docker
+
+```docker-compose -f docker-compose.armv7.yml up -d```
+
+Allow around half-an-hour for build.
