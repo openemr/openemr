@@ -16,13 +16,15 @@ discussed below.
 An example docker-compose.yml script can be found at
 [docker/production/docker-compose.yml](docker/production/docker-compose.yml). After modifying the
 script for your purposes, it can then be started with `docker-compose up`, which will then take about 5-10
-minutes to complete.
+minutes to complete. Note that this example is based on OpenEMR 6.0.0, which is considered development
+until official release of version 6.0.0.
 
 ### Production example for Raspberry Pi
 An example docker-compose.yml script for Raspberry Pi can be found at
 [docker/production-arm/docker-compose.yml](docker/production-arm/docker-compose.yml). After modifying the
 script for your purposes, it can then be started with `docker-compose up`, which will then take about 5-10
-minutes to complete.
+minutes to complete. Note that this example is based on OpenEMR 6.0.0, which is considered development
+until official release of version 6.0.0.
 
 ## Development Dockers
 Development dockers are meant for development and include the `flex` series and can be found on
