@@ -1,14 +1,3 @@
-# OpenEMR Development Docker Environments
-
-## There are 2 different development docker environments
-
-### Easy Development Docker Environment ###
-The Easy Development Docker Environment is what we highly recommend. It makes testing, development, and use
-of a git repository very easy. The instructions for The Easy Development Docker environment can be found here:
-https://github.com/openemr/openemr/blob/master/CONTRIBUTING.md#code-contributions-local-development
-
----
-
 ### Insane Development Docker Environment ###
 The Insane Development Docker Environment will load up about 37 separate dockers and allow you to
 test almost any version of mysql/mariadb/php, however it is not nearly as easy to use as the above Easy Development

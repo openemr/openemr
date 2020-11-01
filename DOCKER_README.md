@@ -29,8 +29,7 @@ Development dockers are meant for development and include the `flex` series and 
 [dockerhub](https://hub.docker.com/r/openemr/openemr/). It is strongly recommended to not use these dockers
 for production purposes unless you know what you are doing. There are 2 OpenEMR development environments,
 which are based on these development dockers. The main development environment is the Easy Development Docker
-environment, which is documented at [CONTRIBUTING.md](CONTRIBUTING.md#code-contributions-local-development)
-and [README.md](docker/development-insane/README.md#easy-development-docker-environment); note this
-environment can also be run on Raspberry Pi. The other development environment, which is much more complex,
-is the Insane Development Docker environment, which is documented at
+environment, which is documented at [CONTRIBUTING.md](CONTRIBUTING.md#code-contributions-local-development);
+note this environment can also be run on Raspberry Pi. The other development environment, which is much more
+complex, is the Insane Development Docker environment, which is documented at
 [docker/development-insane/README.md](docker/development-insane/README.md#insane-development-docker-environment).
