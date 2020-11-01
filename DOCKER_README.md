@@ -13,14 +13,14 @@ on [dockerhub](https://hub.docker.com/r/openemr/openemr/). Several example docke
 discussed below.
 
 ### Production example
-An example docker-compose.yml script can be found in the `docker` directory at
+An example docker-compose.yml script can be found at
 [docker/production/docker-compose.yml](docker/production/docker-compose.yml). After modifying the
 script for your purposes, it can then be started with `docker-compose up`, which will then take about 5-10
 minutes to complete.
 
 ### Production example for Raspberry Pi
-An example docker-compose.yml script for Raspberry Pi can be found in the `docker` directory at
-[docker/production-arm/docker-compose.yml](docker/production/docker-compose.yml). After modifying the
+An example docker-compose.yml script for Raspberry Pi can be found at
+[docker/production-arm/docker-compose.yml](docker/production-arm/docker-compose.yml). After modifying the
 script for your purposes, it can then be started with `docker-compose up`, which will then take about 5-10
 minutes to complete.
 
