@@ -42,10 +42,10 @@ class NQF_0028b_Denominator implements CqmFilterIF
                 // nothing reported during this date period, so move on to next encounter
             }
         }
- 
+
         return false;
     }
-    
+
     private function getApplicableEncounters()
     {
         return array(

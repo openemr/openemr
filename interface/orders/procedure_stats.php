@@ -32,8 +32,8 @@ if (! AclMain::aclCheckCore('acct', 'rep')) {
 
 $from_date     = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : '0000-00-00';
 $to_date       = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_by       = $_POST['form_by'];     // this is a scalar
-$form_show     = $_POST['form_show'];   // this is an array
+$form_by       = $_POST['form_by'] ?? null;     // this is a scalar
+$form_show     = $_POST['form_show'] ?? null;   // this is an array
 $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 $form_sexes    = isset($_POST['form_sexes']) ? $_POST['form_sexes'] : '3';
 $form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
@@ -441,7 +441,7 @@ $(function () {
     <?php
 } // end not export
 
-if ($_POST['form_submit']) {
+if (!empty($_POST['form_submit'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -550,7 +550,7 @@ if ($_POST['form_submit']) {
             genHeadCell(xl('35-39'), true);
             genHeadCell(xl('40-44'), true);
             genHeadCell(xl('45+'), true);
-        } elseif ($arr_show[$value]['list_id']) {
+        } elseif (!empty($arr_show[$value]['list_id'])) {
             foreach ($arr_titles[$value] as $key => $dummy) {
                 genHeadCell(getListTitle($arr_show[$value]['list_id'], $key), true);
             }

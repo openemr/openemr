@@ -27,7 +27,7 @@ class RefundRequest
     public $RefundAmount = "";
     public $TransactionCurrency = "USD";
     public $CustomerIP = "";
-    
+
     /**
      * Constructor
      */
@@ -35,7 +35,7 @@ class RefundRequest
     {
         $this->Init();
     }
-    
+
     /**
      * Called by base object on construction.
      * override this

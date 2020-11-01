@@ -8735,6 +8735,7 @@ CREATE TABLE `procedure_providers` (
   `results_path` varchar(255) NOT NULL DEFAULT '',
   `notes`        text,
   `lab_director` bigint(20) NOT NULL DEFAULT '0',
+  `active`       tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`ppid`)
 ) ENGINE=InnoDB;
 

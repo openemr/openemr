@@ -21,34 +21,34 @@
  * @author  Ensoftek
  * @link    http://www.open-emr.org
  */
- 
+
 class NQF_0013_PopulationCriteria implements CqmPopulationCrtiteriaFactory
 {
     public function getTitle()
     {
         return "Population Criteria";
     }
-    
+
     public function createInitialPatientPopulation()
     {
         return new NQF_0013_InitialPatientPopulation();
     }
-    
+
     public function createNumerators()
     {
         return new NQF_0013_Numerator();
     }
-    
+
     public function createDenominator()
     {
         return new DenominatorAllPatients();
     }
-    
+
     public function createExclusion()
     {
         return new NQF_0013_Exclusion();
     }
-    
+
     public function createDenominatorException()
     {
         return new ExceptionsNone();

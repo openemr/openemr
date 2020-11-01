@@ -51,7 +51,7 @@ class ImportPharmacies
             'skip' => '',
             'version' => '2.1',
         ];
-        
+
         /**
          * The function call was changed in PR#3172 from oeHttp::get() to oeHttpRequest::getCurlOptions()
          * with the 'ECDHE-RSA-AES256-GCM-SHA384' cipher passed to curl in order to handle an issue in

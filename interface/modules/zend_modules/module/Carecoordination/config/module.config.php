@@ -87,7 +87,7 @@ return array(
                     ),
                 ),
             ),
-            
+
             'encountermanager' => array(
                 'type'    => Segment::class,
                 'options' => array(

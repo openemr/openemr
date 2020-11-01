@@ -66,11 +66,11 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->_endMeasurement = $dateTarget['dateTarget'];
         $this->_manualLabNumber = $options['labs_manual'];
     }
-    
+
     abstract public function createNumerator();
     abstract public function createDenominator();
     abstract public function getObjectToCount();
-        
+
     public function getResults()
     {
         return $this->_resultsArray;
@@ -92,7 +92,7 @@ abstract class AbstractAmcReport implements RsReportIF
         if (!$numerator instanceof AmcFilterIF) {
             throw new Exception("Numerator must be an instance of AmcFilterIF");
         }
-        
+
         $denominator = $this->createDenominator();
         if (!$denominator instanceof AmcFilterIF) {
             throw new Exception("Denominator must be an instance of AmcFilterIF");
@@ -106,7 +106,7 @@ abstract class AbstractAmcReport implements RsReportIF
         if (empty($object_to_count)) {
             $object_to_count = "patients";
         }
-        
+
         $numeratorObjects = 0;
         $denominatorObjects = 0;
         foreach ($this->_amcPopulation as $patient) {
@@ -186,7 +186,7 @@ abstract class AbstractAmcReport implements RsReportIF
         if ($object_to_count == "labs") {
             $denominatorObjects = $denominatorObjects + $this->_manualLabNumber;
         }
-        
+
         $percentage = calculate_percentage($denominatorObjects, 0, $numeratorObjects);
         $result = new AmcResult($this->_rowRule, $totalPatients, $denominatorObjects, 0, $numeratorObjects, $percentage);
         $this->_resultsArray[] = $result;
@@ -270,8 +270,8 @@ abstract class AbstractAmcReport implements RsReportIF
                 "AND (pr.date_ordered BETWEEN ? AND ?)";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
-            
-            
+
+
             case "lab_radiology":
                 $sql = "SELECT pr.* FROM procedure_order pr " .
                       "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id " .
@@ -282,7 +282,7 @@ abstract class AbstractAmcReport implements RsReportIF
                       "AND (pr.date_ordered BETWEEN ? AND ?)";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
-            
+
             case "cpoe_lab_orders":
                 $sql = "SELECT pr.* FROM procedure_order pr " .
                       "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id " .
@@ -293,7 +293,7 @@ abstract class AbstractAmcReport implements RsReportIF
                       "AND (pr.date_ordered BETWEEN ? AND ?)";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
-            
+
             case "med_orders":
                         // Still TODO
                         // AMC MU2 TODO :
@@ -305,7 +305,7 @@ abstract class AbstractAmcReport implements RsReportIF
                        "AND `date_added` BETWEEN ? AND ? ";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
-                
+
             case "lab_orders":
                 $sql = "SELECT prc.* FROM procedure_order pr " .
                       "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id " .

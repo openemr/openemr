@@ -21,14 +21,14 @@
  * @author  Ensoftek
  * @link    http://www.open-emr.org
  */
- 
+
 class NQF_0101_InitialPatientPopulation implements CqmFilterIF
 {
     public function getTitle()
     {
         return "Initial Patient Population";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         $oneEncounter = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
@@ -38,7 +38,7 @@ class NQF_0101_InitialPatientPopulation implements CqmFilterIF
         ) {
             return true;
         }
-        
+
         return false;
     }
 }

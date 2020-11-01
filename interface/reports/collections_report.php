@@ -43,16 +43,17 @@ $export_dollars = 0;
 
 $form_date      = (isset($_POST['form_date'])) ? DateToYYYYMMDD($_POST['form_date']) : "";
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : "";
-$is_ins_summary = $_POST['form_category'] == 'Ins Summary';
-$is_due_ins     = ($_POST['form_category'] == 'Due Ins') || $is_ins_summary;
-$is_due_pt      = $_POST['form_category'] == 'Due Pt';
-$is_all         = $_POST['form_category'] == 'All';
-$is_ageby_lad   = strpos($_POST['form_ageby'], 'Last') !== false;
-$form_facility  = $_POST['form_facility'];
-$form_provider  = $_POST['form_provider'];
-$form_payer_id  = $_POST['form_payer_id'];
+$form_category  = $_POST['form_category'] ?? null;
+$is_ins_summary = $form_category == 'Ins Summary';
+$is_due_ins     = ($form_category == 'Due Ins') || $is_ins_summary;
+$is_due_pt      = $form_category == 'Due Pt';
+$is_all         = $form_category == 'All';
+$is_ageby_lad   = strpos(($_POST['form_ageby'] ?? ''), 'Last') !== false;
+$form_facility  = $_POST['form_facility'] ?? null;
+$form_provider  = $_POST['form_provider'] ?? null;
+$form_payer_id  = $_POST['form_payer_id'] ?? null;
 
-if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_POST['form_csvexport'])) {
     if ($is_ins_summary) {
         $form_cb_ssn      = false;
         $form_cb_dob      = false;
@@ -66,17 +67,17 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         $form_cb_idays    = false;
         $form_cb_err      = false;
     } else {
-        $form_cb_ssn      = $_POST['form_cb_ssn']      ? true : false;
-        $form_cb_dob      = $_POST['form_cb_dob']      ? true : false;
-        $form_cb_pubpid   = $_POST['form_cb_pubpid']   ? true : false;
-        $form_cb_adate    = $_POST['form_cb_adate']    ? true : false;
-        $form_cb_policy   = $_POST['form_cb_policy']   ? true : false;
-        $form_cb_phone    = $_POST['form_cb_phone']    ? true : false;
-        $form_cb_city     = $_POST['form_cb_city']     ? true : false;
-        $form_cb_ins1     = $_POST['form_cb_ins1']     ? true : false;
-        $form_cb_referrer = $_POST['form_cb_referrer'] ? true : false;
-        $form_cb_idays    = $_POST['form_cb_idays']    ? true : false;
-        $form_cb_err      = $_POST['form_cb_err']      ? true : false;
+        $form_cb_ssn      = (!empty($_POST['form_cb_ssn']))      ? true : false;
+        $form_cb_dob      = (!empty($_POST['form_cb_dob']))      ? true : false;
+        $form_cb_pubpid   = (!empty($_POST['form_cb_pubpid']))   ? true : false;
+        $form_cb_adate    = (!empty($_POST['form_cb_adate']))    ? true : false;
+        $form_cb_policy   = (!empty($_POST['form_cb_policy']))   ? true : false;
+        $form_cb_phone    = (!empty($_POST['form_cb_phone']))    ? true : false;
+        $form_cb_city     = (!empty($_POST['form_cb_city']))     ? true : false;
+        $form_cb_ins1     = (!empty($_POST['form_cb_ins1']))     ? true : false;
+        $form_cb_referrer = (!empty($_POST['form_cb_referrer'])) ? true : false;
+        $form_cb_idays    = (!empty($_POST['form_cb_idays']))    ? true : false;
+        $form_cb_err      = (!empty($_POST['form_cb_err']))      ? true : false;
     }
 } else {
     $form_cb_ssn      = true;
@@ -92,8 +93,8 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
     $form_cb_err      = false;
 }
 
-$form_age_cols = (int) $_POST['form_age_cols'];
-$form_age_inc  = (int) $_POST['form_age_inc'];
+$form_age_cols = (int) ($_POST['form_age_cols'] ?? null);
+$form_age_inc  = (int) ($_POST['form_age_inc'] ?? null);
 if ($form_age_cols > 0 && $form_age_cols < 50) {
     if ($form_age_inc <= 0) {
         $form_age_inc = 30;
@@ -149,7 +150,7 @@ if ($form_payer_id) {
 }
 
 $final_colspan = $form_cb_adate ? 6 : 5;
-$form_cb_with_debt = $_POST['form_cb_with_debt']    ? true : false;
+$form_cb_with_debt = (!empty($_POST['form_cb_with_debt'])) ? true : false;
 $grand_total_charges     = 0;
 $grand_total_adjustments = 0;
 $grand_total_paid        = 0;
@@ -304,7 +305,7 @@ function getInsName($payerid)
 }
 
 // In the case of CSV export only, a download will be forced.
-if ($_POST['form_csvexport']) {
+if (!empty($_POST['form_csvexport'])) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -483,7 +484,7 @@ if ($_POST['form_csvexport']) {
                         <?php
                         foreach (array('Open' => xl('Open'),'Due Pt' => xl('Due Pt'),'Due Ins' => xl('Due Ins'),'Ins Summary' => xl('Ins Summary'),'Credits' => xl('Credits'),'All' => xl('All')) as $key => $value) {
                             echo "    <option value='" . attr($key) . "'";
-                            if ($_POST['form_category'] == $key) {
+                            if ($form_category == $key) {
                                 echo " selected";
                             }
 
@@ -514,12 +515,12 @@ if ($_POST['form_csvexport']) {
                                echo "    <option value='0'>-- " . xlt('All') . " --</option>\n";
                         foreach ($insurancei as $iid => $iname) {
                             echo "<option value='" . attr($iid) . "'";
-                            if ($iid == $_POST['form_payer_id']) {
+                            if (!empty($_POST['form_payer_id']) && ($iid == $_POST['form_payer_id'])) {
                                 echo " selected";
                             }
 
                             echo ">" . text($iname) . "</option>\n";
-                            if ($iid == $_POST['form_payer_id']) {
+                            if (!empty($_POST['form_payer_id']) && ($iid == $_POST['form_payer_id'])) {
                                 $ins_co_name = $iname;
                             }
                         }
@@ -538,7 +539,7 @@ if ($_POST['form_csvexport']) {
                         <?php
                         foreach (array( 'Service Date' => xl('Service Date'), 'Last Activity Date' => xl('Last Activity Date')) as $key => $value) {
                             echo "    <option value='" . attr($key) . "'";
-                            if ($_POST['form_ageby'] == $value) {
+                            if (!empty($_POST['form_ageby']) && ($_POST['form_ageby'] == $value)) {
                                 echo " selected";
                             }
 
@@ -566,12 +567,12 @@ if ($_POST['form_csvexport']) {
                         while ($urow = sqlFetchArray($ures)) {
                             $provid = $urow['id'];
                             echo "    <option value='" . attr($provid) . "'";
-                            if ($provid == $_POST['form_provider']) {
+                            if (!empty($_POST['form_provider']) && ($provid == $_POST['form_provider'])) {
                                 echo " selected";
                             }
 
                             echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
-                            if ($provid == $_POST['form_provider']) {
+                            if (!empty($_POST['form_provider']) && ($provid == $_POST['form_provider'])) {
                                 $provider_name = $urow['lname'] . ", " . $urow['fname'];
                             }
                         }
@@ -619,7 +620,7 @@ if ($_POST['form_csvexport']) {
                       <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").val(""); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
-                        <?php if ($_POST['form_refresh']) { ?>
+                        <?php if (!empty($_POST['form_refresh'])) { ?>
                         <a href='#' class='btn btn-secondary btn-print' onclick='window.print()'>
                                 <?php echo xlt('Print'); ?>
                         </a>
@@ -638,7 +639,7 @@ if ($_POST['form_csvexport']) {
     <?php
 } // end not form_csvexport
 
-if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_POST['form_csvexport'])) {
     $rows = array();
     $where = "";
     $sqlArray = array();
@@ -746,7 +747,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             }
         }
 
-        if ($_POST['form_category'] == 'Credits') {
+        if ($form_category == 'Credits') {
             if ($pt_balance > 0) {
                 continue;
             }
@@ -1346,8 +1347,8 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
 } // end if form_refresh
 
 
-if (!$_POST['form_csvexport']) {
-    if (!$_POST['form_export']) {
+if (empty($_POST['form_csvexport'])) {
+    if (empty($_POST['form_export'])) {
         ?>
 
   <div style='margin-top:5px'>

@@ -16,7 +16,7 @@ class McryptUtil
     static $IV;
     static $CIPHER = MCRYPT_RIJNDAEL_256;
     static $MODE = MCRYPT_MODE_ECB;
-    
+
     /**
      * Creates the initialization vector.
      * This method is called automatically
@@ -33,7 +33,7 @@ class McryptUtil
             McryptUtil::$IV = mcrypt_create_iv($iv_size, MCRYPT_RAND);
         }
     }
-    
+
     /**
      * Encrypts data
      *
@@ -48,12 +48,12 @@ class McryptUtil
     static function Encrypt($data, $key, $encode = true)
     {
         McryptUtil::Init();
-        
+
         $encrypted = mcrypt_encrypt(McryptUtil::$CIPHER, $key, $data, McryptUtil::$MODE, McryptUtil::$IV);
-        
+
         return ($encode) ? base64_encode($encrypted) : $encrypted;
     }
-    
+
     /**
      * Decrypts data that was previously encrypted
      *
@@ -70,13 +70,13 @@ class McryptUtil
     static function Decrypt($data, $key, $decode = true, $strip_nulls = true)
     {
         McryptUtil::Init();
-        
+
         if ($decode) {
             $data = base64_decode($data);
         }
-        
+
         $decrypted = mcrypt_decrypt(McryptUtil::$CIPHER, $key, $data, McryptUtil::$MODE, McryptUtil::$IV);
-        
+
         // mcrypt pads the end of the block with null chars, so we need to strip them
         return $strip_nulls ? rtrim($decrypted, "\0") : $decrypted;
     }

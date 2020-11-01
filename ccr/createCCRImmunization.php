@@ -33,9 +33,9 @@ do {
 
     $e_DateTime = $ccr->createElement('DateTime');
     $e_Immunization->appendChild($e_DateTime);
-        
+
     $date = date_create($row['administered_date']);
-        
+
     $e_ExactDateTime = $ccr->createElement('ExactDateTime', $date->format('Y-m-d\TH:i:s\Z'));
     $e_DateTime->appendChild($e_ExactDateTime);
 
@@ -50,7 +50,7 @@ do {
 
     $e_Text = $ccr->createElement('Text', 'ACTIVE');
     $e_Status->appendChild($e_Text);
-        
+
     $e_Immunization->appendChild(sourceType($ccr, $sourceID));
 
     $e_Product = $ccr->createElement('Product');
@@ -73,10 +73,10 @@ do {
 
     $e_Text = $ccr->createElement('Text', $row['note']);
     $e_Description->appendChild($e_Text);
-        
+
     $e_Code = $ccr->createElement('Code');
     $e_Description->appendChild($e_Code);
-        
+
     $e_Value = $ccr->createElement('Value', 'None');
     $e_Code->appendChild($e_Value);
 } while ($row = sqlFetchArray($result));

@@ -676,7 +676,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
         $tpl->assign('FormHidden', $form_hidden);
     }
     $form_submit = '<input type=hidden name="form_action" value="commit"/>
-				   ' . text($authkey) . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('go') . '">';
+				   ' . text($authkey) . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('Save') . '">';
     $tpl->assign('FormSubmit', $form_submit);
 
     $output->Text($tpl->fetch($template_name . '/admin/submit_category.html'));

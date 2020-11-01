@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *}
-<form name="prescribe" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
+<form name="prescribe" method="post" onsubmit="return top.restoreSession()">
 <!--Example HL7 data<td></tr>
 MSH|^~\&|ADT1|CUH|LABADT|CUH|198808181127|SECURITY|ADT^A01|MSG00001|P|2.3|
 EVN|A01|198808181122||
@@ -27,10 +27,10 @@ PV1|1|I|2000^2053^01||||004777^FISHER^BEN^J.|||SUR||||ADM|A0|-->
             <i class="fa fa-times"></i>&nbsp;&nbsp;{xlt t='Clear HL7 Data'}
         </a>
     </div>
-    {if $hl7_message_err}
+    {if isset($hl7_message_err)}
         <div class="alert alert-danger">{$hl7_message_err|text}</div>
     {/if}
-    {if $hl7_array}
+    {if isset($hl7_array)}
       <div class="table-responsive">
           <table class="table">
           {foreach from=$hl7_array item=hl7item key=hl7key}
@@ -42,5 +42,5 @@ PV1|1|I|2000^2053^01||||004777^FISHER^BEN^J.|||SUR||||ADM|A0|-->
           </table>
       </div>
     {/if}
-    <input type="hidden" name="process" value="{$PROCESS|escape:'html'}" />
+    <input type="hidden" name="process" value="{$PROCESS|attr}" />
 </form>

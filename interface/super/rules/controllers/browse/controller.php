@@ -20,7 +20,7 @@ class Controller_browse extends BaseController
     {
         $this->set_view("list.php");
     }
-    
+
     function _action_plans_config()
     {
         $this->set_view("plans_config.php");

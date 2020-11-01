@@ -33,13 +33,13 @@ class EmailMessage
     public $Attachments;
     public $Sender;
     public $Headers = array ();
-    
+
     /** @var bool set to true to decode html entities from the sender, recipients and subject.  you must still decode the body manually if necessary, though */
     public $DecodeEntities;
     static $RECIPIENT_TYPE_TO = "";
     static $RECIPIENT_TYPE_BCC = "BCC";
     static $RECIPIENT_TYPE_CC = "CC";
-    
+
     /** @var bool this controls the default value for DecodeEntities */
     static $DECODE_HTML_ENTITIES = true;
     function __construct()
@@ -51,7 +51,7 @@ class EmailMessage
         $this->Format = MESSAGE_FORMAT_TEXT;
         $this->DecodeEntities = self::$DECODE_HTML_ENTITIES;
     }
-    
+
     /**
      * Set the sender of the message.
      * This will appear in some email clients
@@ -64,7 +64,7 @@ class EmailMessage
     {
         $this->Sender = $email;
     }
-    
+
     /**
      * Set the from address of the message
      *
@@ -77,10 +77,10 @@ class EmailMessage
             $email = $this->DecodeEntities($email);
             $name = $this->DecodeEntities($name);
         }
-        
+
         $this->From = new Recipient($email, $name);
     }
-    
+
     /**
      * Set the from address of the message
      *
@@ -93,10 +93,10 @@ class EmailMessage
             $email = $this->DecodeEntities($email);
             $name = $this->DecodeEntities($name);
         }
-        
+
         $this->ReplyTo = new Recipient($email, $name);
     }
-    
+
     /**
      * Strips any HTML entities from the value using VerySimpleStringUtil
      *
@@ -108,7 +108,7 @@ class EmailMessage
         return VerySimpleStringUtil::DecodeFromHTML($val, 'ISO-8859-1');
         // return utf8_decode( VerySimpleStringUtil::DecodeFromHTML($val,) );
     }
-    
+
     /**
      * This is used by mailer to obtain the subject line, giving
      * EmailMessage a chance to do any necessary encoding
@@ -117,7 +117,7 @@ class EmailMessage
     {
         return ($this->DecodeEntities) ? $this->DecodeEntities($this->Subject) : $this->Subject;
     }
-    
+
     /**
      * This is used by mailer to obtain the body line, giving
      * EmailMessage a chance to do any necessary encoding
@@ -126,7 +126,7 @@ class EmailMessage
     {
         return $this->Body;
     }
-    
+
     /**
      * Adds a custom MIME header that will be included in the outgoing email
      *
@@ -137,7 +137,7 @@ class EmailMessage
     {
         $this->Headers [$key] = $value;
     }
-    
+
     /**
      * Adds a recipient to the email message
      *
@@ -154,17 +154,17 @@ class EmailMessage
             $email = $this->DecodeEntities($email);
             $name = $this->DecodeEntities($name);
         }
-        
+
         $email = str_replace(",", ";", $email);
         $emails = explode(";", $email);
-        
+
         $name = str_replace(",", ";", $name);
         $names = explode(";", $name);
-        
+
         for ($i = 0; $i < count($emails); $i++) {
             $addr = trim($emails [$i]);
             $realname = isset($names [$i]) ? $names [$i] : $addr;
-            
+
             if ($recipientType == self::$RECIPIENT_TYPE_CC) {
                 $this->CCRecipients [] = new Recipient($addr, $realname);
             } elseif ($recipientType == self::$RECIPIENT_TYPE_BCC) {
@@ -174,7 +174,7 @@ class EmailMessage
             }
         }
     }
-    
+
     /**
      * Attach a message to the email.
      *

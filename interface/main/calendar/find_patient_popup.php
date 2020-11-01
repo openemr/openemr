@@ -24,7 +24,7 @@ $info_msg = "";
 
  // If we are searching, search.
  //
-if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
+if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
     $searchby = $_REQUEST['searchby'];
     $searchparm = trim($_REQUEST['searchparm']);
 
@@ -128,21 +128,21 @@ if (isset($_GET["res"])) {
    <select name='searchby' id='searchby' class="form-control form-control-sm col">
     <option value="Last"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></option>
     <!-- (CHEMED) Search by phone number -->
-    <option value="Phone"<?php if ($searchby == 'Phone') {
+    <option value="Phone"<?php if (!empty($searchby) && ($searchby == 'Phone')) {
         echo ' selected';
                          } ?>><?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?></option>
-    <option value="ID"<?php if ($searchby == 'ID') {
+    <option value="ID"<?php if (!empty($searchby) && ($searchby == 'ID')) {
         echo ' selected';
                       } ?>><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></option>
-    <option value="SSN"<?php if ($searchby == 'SSN') {
+    <option value="SSN"<?php if (!empty($searchby) && ($searchby == 'SSN')) {
         echo ' selected';
                        } ?>><?php echo htmlspecialchars(xl('SSN'), ENT_NOQUOTES); ?></option>
-    <option value="DOB"<?php if ($searchby == 'DOB') {
+    <option value="DOB"<?php if (!empty($searchby) && ($searchby == 'DOB')) {
         echo ' selected';
                        } ?>><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></option>
     </select>
     <label for="searchparm" class="col-form-label col-form-label-sm col"><?php echo htmlspecialchars(xl('for:'), ENT_NOQUOTES); ?></label>
-   <input type='text' class="form-control form-control-sm col" id='searchparm' name='searchparm' size='12' value='<?php echo htmlspecialchars($_REQUEST['searchparm'], ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>' />
+   <input type='text' class="form-control form-control-sm col" id='searchparm' name='searchparm' size='12' value='<?php echo attr($_REQUEST['searchparm'] ?? ''); ?>' title='<?php echo htmlspecialchars(xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>' />
     <div class="col">
     <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>' />
         <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif" /></div>

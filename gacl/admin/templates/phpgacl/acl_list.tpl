@@ -39,6 +39,7 @@
 <body>
 {include file="phpgacl/navigation.tpl"}
 <form method="get" name="acl_list" action="acl_list.php">
+<input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
 <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr align="center">
     <td colspan="6"><b>Filter</b></td>
@@ -75,9 +76,9 @@
   </tr>
   <tr valign="middle" align="center">
     <td align="left"><b>Object:</b> </td>
-    <td><input type="text" name="filter_aco" size="20" value="{$filter_aco|escape:'html'}" class="filter"></td>
-    <td><input type="text" name="filter_aro" size="20" value="{$filter_aro|escape:'html'}" class="filter"></td>
-    <td><input type="text" name="filter_axo" size="20" value="{$filter_axo|escape:'html'}" class="filter"></td>
+    <td><input type="text" name="filter_aco" size="20" value="{$filter_aco|attr}" class="filter"></td>
+    <td><input type="text" name="filter_aro" size="20" value="{$filter_aro|attr}" class="filter"></td>
+    <td><input type="text" name="filter_axo" size="20" value="{$filter_axo|attr}" class="filter"></td>
     <td align="left" width="11%"><b>Allow:</b> </td>
     <td align="left" width="11%">
 		 <select name="filter_allow" tabindex="0" class="filter">
@@ -88,8 +89,8 @@
   <tr valign="middle" align="center">
     <td align="left"><b>Group:</b> </td>
     <td>&nbsp;</td>
-    <td><input type="text" name="filter_aro_group" size="20" value="{$filter_aro_group|escape:'html'}" class="filter"></td>
-    <td><input type="text" name="filter_axo_group" size="20" value="{$filter_axo_group|escape:'html'}" class="filter"></td>
+    <td><input type="text" name="filter_aro_group" size="20" value="{$filter_aro_group|attr}" class="filter"></td>
+    <td><input type="text" name="filter_axo_group" size="20" value="{$filter_axo_group|attr}" class="filter"></td>
     <td align="left"><b>Enabled:</b> </td>
     <td align="left">
 		<select name="filter_enabled" tabindex="0" class="filter">
@@ -99,7 +100,7 @@
   </tr>
   <tr valign="middle" align="left">
 	<td><b>Return&nbsp;Value:</b> </td>
-	<td colspan="5"><input type="text" name="filter_return_value" size="50" value="{$filter_return_value|escape:'html'}" class="filter"></td>
+	<td colspan="5"><input type="text" name="filter_return_value" size="50" value="{$filter_return_value|attr}" class="filter"></td>
   </tr>
   <tr class="controls" align="center">
     <td colspan="6"><input type="submit" class="button" name="action" value="Filter"></td>
@@ -126,14 +127,14 @@
 {foreach from=$acls item=acl}
   {cycle assign=class values="odd,even"}
   <tr class="{$class}">
-    <td valign="middle" rowspan="3" align="center">{$acl.id|escape:'html'}</td>
+    <td valign="middle" rowspan="3" align="center">{$acl.id|text}</td>
     <td valign="top" align="left">
 	{if count($acl.aco) gt 0}
 		<ul>
 		{foreach from=$acl.aco key=section item=objects}
-			<li>{$section|escape:'html'}<ol>
+			<li>{$section|text}<ol>
 			{foreach from=$objects item=obj}
-				<li>{$obj|escape:'html'}</li>
+				<li>{$obj|text}</li>
 			{/foreach}
 			</ol></li>
 		{/foreach}
@@ -146,9 +147,9 @@
 	  {if count($acl.aro) gt 0}
 		<ul>
 		  {foreach from=$acl.aro key=section item=objects}
-			<li>{$section|escape:'html'}<ol>
+			<li>{$section|text}<ol>
 			{foreach from=$objects item=obj}
-				<li>{$obj|escape:'html'}</li>
+				<li>{$obj|text}</li>
 			{/foreach}
 			</ol></li>
 		  {/foreach}
@@ -160,7 +161,7 @@
 	  {if count($acl.aro_groups) gt 0}
 		<b>Groups</b><ol>
 		  {foreach from=$acl.aro_groups item=group}
-			<li>{$group|escape:'html'}</li>
+			<li>{$group|text}</li>
 		  {/foreach}
 		</ol>
 	  {/if}
@@ -169,9 +170,9 @@
 	  {if count($acl.axo) gt 0}
 		<ul>
 		  {foreach from=$acl.axo key=section item=objects}
-			<li>{$section|escape:'html'}<ol>
+			<li>{$section|text}<ol>
 			{foreach from=$objects item=obj}
-				<li>{$obj|escape:'html'}</li>
+				<li>{$obj|text}</li>
 			{/foreach}
 			</ol></li>
 		  {/foreach}
@@ -183,7 +184,7 @@
 	  {if count($acl.axo_groups) gt 0}
 		<b>Groups</b><ol>
 		  {foreach from=$acl.axo_groups item=group}
-			<li>{$group|escape:'html'}</li>
+			<li>{$group|text}</li>
 		  {/foreach}
 		</ol>
 	  {/if}
@@ -203,27 +204,27 @@
 		{/if}
     </td>
     <td valign="middle" rowspan="3" align="center">
-        [ <a href="acl_admin.php?action=edit&acl_id={$acl.id|escape:'html'}&return_page={$return_page|escape:'html'}">Edit</a> ]
+        [ <a href="acl_admin.php?action=edit&acl_id={$acl.id|attr_url}&csrf_token_form={$CSRF_TOKEN_FORM|attr_url}&return_page={$return_page|attr_url}">Edit</a> ]
     </td>
     <td valign="middle" rowspan="3" align="center">
-        <input type="checkbox" class="checkbox" name="delete_acl[]" value="{$acl.id|escape:'html'}">
+        <input type="checkbox" class="checkbox" name="delete_acl[]" value="{$acl.id|attr}">
     </td>
   </tr>
 
   <tr class="{$class}">
     <td valign="top" colspan="3" align="left">
-        <b>Return Value:</b> {$acl.return_value|escape:'html'}
+        <b>Return Value:</b> {$acl.return_value|text}
     </td>
     <td valign="middle" colspan="2" align="center">
-        {$acl.section_name|escape:'html'}
+        {$acl.section_name|text}
     </td>
   </tr>
   <tr class="{$class}">
     <td valign="top" colspan="3" align="left">
-        <b>Note:</b> {$acl.note|escape:'html'}
+        <b>Note:</b> {$acl.note|text}
     </td>
     <td valign="middle" colspan="2" align="center">
-        {$acl.updated_date|date_format:"%d-%b-%Y&nbsp;%H:%M:%S"|escape:'html'}
+        {$acl.updated_date|date_format:"%d-%b-%Y %H:%M:%S"|text}
     </td>
   </tr>
 {/foreach}
@@ -239,6 +240,6 @@
     </td>
   </tr>
 </table>
-<input type="hidden" name="return_page" value="{$return_page|escape:'html'}">
+<input type="hidden" name="return_page" value="{$return_page|attr}">
 </form>
 {include file="phpgacl/footer.tpl"}

@@ -22,13 +22,13 @@ class ObserveToBrowser implements IObserver
     public function Observe($obj, $ltype = OBSERVE_INFO)
     {
         $msg = '<strong>' . number_format(microtime(true), 2, '.', '') . '</strong>: ';
-        
+
         if (is_object($obj) || is_array($obj)) {
             $msg .= "<pre>" . print_r($obj, 1) . "</pre>";
         } else {
             $msg .= $obj;
         }
-        
+
         switch ($ltype) {
             case OBSERVE_DEBUG:
                 print "<div class='debug'>$msg</div>\n";

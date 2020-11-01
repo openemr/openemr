@@ -28,7 +28,7 @@ class AMC_302f_3_STG1_Denominator implements AmcFilterIF
     {
         return "AMC_302f_3_STG1 Denominator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         //Number of unique patients 3 years of age or older seen by the EP during the EHR reporting period (Effective through 2013 only)

@@ -18,7 +18,7 @@ class QueryBuilder
     public $Columns;
     public $Tables;
     public $Joins;
-    
+
     /**
      * Constructor
      *
@@ -32,7 +32,7 @@ class QueryBuilder
         $this->Tables = array ();
         $this->Joins = array ();
     }
-    
+
     /**
      * Adds a field map to the queue, which will be used later when the SQL is generated
      *
@@ -44,15 +44,15 @@ class QueryBuilder
         if (! array_key_exists($tablealias, $this->Tables)) {
             $this->Tables [$tablealias] = $fm->TableName;
         }
-            
+
             // debugging sequence of loading tables
             // print "<div>QueryBuilder->AddFieldMap:" . $tablealias . "-&gt;" . $fm->ColumnName . "</div>";
-        
+
         $this->Columns [$tablealias . "-" . $fm->ColumnName] = $fm->FieldType == FM_CALCULATION ? $fm->ColumnName : "`" . $tablealias . "`.`" . $fm->ColumnName . "` as `" . $fm->ColumnName . "___" . $fm->TableName . "___" . $this->_counter ++ . "`";
     }
     private $_keymapcache = array (); // used to check for recursive eager fetching
     private $_prevkeymap; // used to check for recursive eager fetching
-    
+
     /**
      * Each Model that is to be included in this query is recursed, where all fields are added
      * to the queue and then looks for eager joins to recurse through
@@ -63,23 +63,23 @@ class QueryBuilder
      */
     public function RecurseFieldMaps($typename, $fms)
     {
-        
+
         // if we see the same table again, we have an infinite loop
         if (isset($this->_keymapcache [$typename])) {
             // return; // TODO: why doesn't this work..?
             throw new Exception("A circular EAGER join was detected while parsing `$typename`.  This is possibly due to an EAGER join with `" . $this->_prevkeymap . "`  Please edit your Map so that at least one side of the join is LAZY.");
         }
-        
+
         // first we just add the basic columns of this object
         foreach ($fms as $fm) {
             $this->AddFieldMap($fm);
         }
-        
+
         // get the keymaps for the requested object
         $kms = $this->_phreezer->GetKeyMaps($typename);
         $this->_keymapcache [$typename] = $kms; // save this to prevent infinite loop
         $this->_prevkeymap = $typename;
-        
+
         // each keymap in this object that is eagerly loaded, we want to join into the query.
         // each of these tables, then might have eagerly loaded keymaps as well, so we'll use
         // recursion to eagerly load as much of the graph as is desired
@@ -91,26 +91,26 @@ class QueryBuilder
                     // print_r($typename);
                     throw new Exception($typename . "Map has multiple EAGER joins to `" . $km->ForeignObject . "` which is not yet supported by Phreeze.");
                 }
-                
+
                 $ffms = $this->_phreezer->GetFieldMaps($km->ForeignObject);
-                
+
                 $this->RecurseFieldMaps($km->ForeignObject, $ffms);
-                
+
                 // lastly we need to add the join information for this foreign field map
                 $jointype = $km->LoadType == KM_LOAD_INNER ? "inner" : "left";
-                
+
                 foreach ($ffms as $ffm) {
                     if (! isset($this->Joins [$ffm->TableName])) {
                         $this->Joins [$ffm->TableName] = " " . $jointype . " join `" . $ffm->TableName . "` on `" . $fms [$km->KeyProperty]->TableName . "`.`" . $fms [$km->KeyProperty]->ColumnName . "` = `" . $ffms [$km->ForeignKeyProperty]->TableName . "`.`" . $ffms [$km->ForeignKeyProperty]->ColumnName . "`";
                     }
                 }
-                
+
                 // keep track of what we have eagerly joined already
                 $this->Joins [$km->ForeignObject . "_is_joined"] = 1;
             }
         }
     }
-    
+
     /**
      * Returns an array of column names that will be included in this query
      *
@@ -120,7 +120,7 @@ class QueryBuilder
     {
         return implode(", ", array_values($this->Columns));
     }
-    
+
     /**
      * Determines what tables need to be included in the query
      * based on the mapping
@@ -131,13 +131,13 @@ class QueryBuilder
     private function GetTableJoinSQL($criteria)
     {
         $sql = "";
-        
+
         $tablenames = array_keys($this->Tables);
-        
+
         if (count($tablenames) > 1) {
             // we're selecting from multiple tables so we have to do an outer join
             $sql .= " from `" . $tablenames [0] . "`";
-            
+
             // WARNING: if tables are being joined in the incorrect order, it is likely
             // caused by a query that goes across more than one foreign relationship.
             // you can force tables to be joined in a specific order by adding a field
@@ -159,10 +159,10 @@ class QueryBuilder
             // (LL) added backticks here
             $sql .= " from `" . $tablenames [0] . "` ";
         }
-        
+
         return $sql;
     }
-    
+
     /**
      * Removes the "where" from the beginning of a statement
      *
@@ -173,19 +173,19 @@ class QueryBuilder
     private function RemoveWherePrefix($sql)
     {
         $sql = trim($sql);
-        
+
         // remove if the query is surrounded by parenths
         while (substr($sql, 0, 1) == "(" && substr($sql, 0, - 1) == ")") {
             $sql = trim(substr($sql, 1, - 1));
         }
-        
+
         while (strtolower(substr($sql, 0, 5)) == "where") {
             $sql = trim(substr($sql, 5));
         }
-        
+
         return $sql;
     }
-    
+
     /**
      * Returns the "where" part of the query based on the criteria parameters
      *
@@ -196,10 +196,10 @@ class QueryBuilder
     {
         $ands = $criteria->GetAnds();
         $ors = $criteria->GetOrs();
-        
+
         // TODO: this all needs to move to the criteria object so it will recurse properly ....
         $where = $this->RemoveWherePrefix($criteria->GetWhere());
-        
+
         if (count($ands)) {
             $wdelim = ($where) ? " and " : "";
             foreach ($ands as $c) {
@@ -211,11 +211,11 @@ class QueryBuilder
                 }
             }
         }
-        
+
         if (count($ors)) {
             $where = trim($where) ? "(" . $where . ")" : ""; // no primary criteria. kinda strange
             $wdelim = $where ? " or " : "";
-            
+
             foreach ($ors as $c) {
                 $tmp = $c->GetWhere();
                 $buff = $this->RemoveWherePrefix($tmp);
@@ -225,17 +225,17 @@ class QueryBuilder
                 }
             }
         }
-        
+
         // .. end of stuff that should be in criteria
-        
+
         // prepend the "where" onto the statement
         if ($where) {
             $where = " where (" . trim($where) . ") ";
         }
-        
+
         return $where;
     }
-    
+
     /**
      * Builds a SQL statement from the given criteria object and resets the Criteria
      *
@@ -246,20 +246,20 @@ class QueryBuilder
     {
         // start building the sql statement
         $sql = "select " . $this->GetColumnNames() . "";
-        
+
         $sql .= $this->GetTableJoinSQL($criteria);
-        
+
         $sql .= $criteria->GetJoin();
-        
+
         $sql .= $this->GetWhereSQL($criteria);
-        
+
         $sql .= $criteria->GetOrder();
-        
+
         $criteria->Reset();
-        
+
         return $sql;
     }
-    
+
     /**
      * Builds a SQL statement from the given criteria object to count the results and resets the Criteria
      *
@@ -269,15 +269,15 @@ class QueryBuilder
     public function GetCountSQL($criteria)
     {
         $sql = "select count(1) as counter ";
-        
+
         $sql .= $this->GetTableJoinSQL($criteria);
-        
+
         $sql .= $criteria->GetJoin();
-        
+
         $sql .= $this->GetWhereSQL($criteria);
-        
+
         $criteria->Reset();
-        
+
         return $sql;
     }
 }

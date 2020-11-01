@@ -28,7 +28,7 @@ class AMC_304b_STG1_Numerator implements AmcFilterIF
     {
         return "AMC_304b_STG1 Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // The number of prescriptions in the denominator transmitted electronically.

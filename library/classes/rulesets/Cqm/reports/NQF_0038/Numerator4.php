@@ -13,7 +13,7 @@ class NQF_0038_Numerator4 implements CqmFilterIF
     {
         return "Numerator 4";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         if (Immunizations::checkHib($patient, $beginDate, $endDate)) {

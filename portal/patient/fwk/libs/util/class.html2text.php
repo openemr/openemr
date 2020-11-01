@@ -12,7 +12,7 @@ class html2text
     {
         $this->html = $html;
     }
-    
+
     /**
      *
      * @deprecated use html2text.php convert_html_to_text function instead

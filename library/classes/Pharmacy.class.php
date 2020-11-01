@@ -29,6 +29,8 @@ class Pharmacy extends ORDataObject
     var $transmit_method;
     var $email;
     var $transmit_method_array; //set in constructor
+    var $npi;
+    var $ncpdp;
 
     /**
      * Constructor sets all Prescription attributes to their default value

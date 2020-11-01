@@ -245,7 +245,7 @@ class X12Partner extends ORDataObject
         //this is enum so it can be string or int
         if (!is_numeric($this->processing_format)) {
             $ta = $this->processing_format_array;
-            return $ta[$this->processing_format];
+            return ($ta[$this->processing_format] ?? null);
         }
 
         return $this->processing_format;

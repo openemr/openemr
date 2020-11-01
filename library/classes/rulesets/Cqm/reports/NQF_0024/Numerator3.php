@@ -13,7 +13,7 @@ class NQF_0024_Numerator3 implements CqmFilterIF
     {
         return "Numerator 3";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         //if ( Helper::check( ClinicalType::COMMUNICATION, Communication::COUNS_PHYS_ACTIVITY, $patient, $beginDate, $endDate ) ) {
@@ -26,7 +26,7 @@ class NQF_0024_Numerator3 implements CqmFilterIF
         if (!empty($exercise)) {
             return true;
         }
-        
+
         return false;
     }
 }

@@ -17,10 +17,10 @@ require_once('savant/Savant3.php');
 class SavantRenderEngine implements IRenderEngine
 {
     static $TEMPLATE_EXTENSION = ".tpl.php";
-    
+
     /** @var Savant3 */
     public $savant;
-    
+
     /**
      *
      * @param string $templatePath
@@ -32,17 +32,17 @@ class SavantRenderEngine implements IRenderEngine
         $this->savant = new Savant3(array (
                 'exceptions' => true
         ));
-        
+
         // normalize the path
         if (substr($templatePath, - 1) != '/' && substr($templatePath, - 1) != '\\') {
             $templatePath .= "/";
         }
-        
+
         if ($templatePath) {
             $this->savant->setPath('template', $templatePath);
         }
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -50,7 +50,7 @@ class SavantRenderEngine implements IRenderEngine
     {
         $this->savant->$key = $value;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -60,7 +60,7 @@ class SavantRenderEngine implements IRenderEngine
         if (substr($template, - 4) == '.tpl') {
             $template = substr($template, 0, - 4);
         }
-            
+
             // these two are special templates used by the Phreeze controller and dispatcher
         if ($template == "_redirect") {
             header("Location: " . $this->savant->url);
@@ -71,7 +71,7 @@ class SavantRenderEngine implements IRenderEngine
             $this->savant->display($template . self::$TEMPLATE_EXTENSION);
         }
     }
-    
+
     /**
      * Returns the specified model value
      */
@@ -79,7 +79,7 @@ class SavantRenderEngine implements IRenderEngine
     {
         return $this->savant->$key;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -87,7 +87,7 @@ class SavantRenderEngine implements IRenderEngine
     {
         return $this->savant->fetch($template . self::$TEMPLATE_EXTENSION);
     }
-    
+
     /**
      *
      * @see IRenderEngine::clear()
@@ -98,7 +98,7 @@ class SavantRenderEngine implements IRenderEngine
             unset($this->savant [$key]);
         }
     }
-    
+
     /**
      *
      * @see IRenderEngine::clearAll()
@@ -107,7 +107,7 @@ class SavantRenderEngine implements IRenderEngine
     {
         throw new Exception('clearAll not implemented for SavantRenderEngine');
     }
-    
+
     /**
      *
      * @see IRenderEngine::getAll()

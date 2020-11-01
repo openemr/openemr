@@ -19,7 +19,7 @@ class HttpRequest
     static $METHOD_DELETE = "DELETE";
     static $USER_AGENT = "verysimple::HttpRequest";
     static $VERIFY_CERT = false;
-    
+
     /**
      *
      * @param
@@ -31,7 +31,7 @@ class HttpRequest
     {
         $qs = HttpRequest::ArrayToQueryString($params);
         $ch = null;
-        
+
         switch ($method) {
             case HttpRequest::$METHOD_GET:
                 $ch = curl_init($endpoint . ($qs ? "?" . $qs : ""));
@@ -53,32 +53,32 @@ class HttpRequest
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $qs);
                 break;
         }
-        
+
         curl_setopt($ch, CURLOPT_HTTPHEADER, array (
                 "Expect:  "
         )); // Fixes the HTTP/1.1 417 Expectation Failed Bug
-        
+
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_VERBOSE, 0); // <- ENABLE DEBUGGING
         curl_setopt($ch, CURLOPT_USERAGENT, HttpRequest::$USER_AGENT);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, HttpRequest::$VERIFY_CERT);
         curl_setopt($ch, CURLOPT_NOPROGRESS, 1);
-        
+
         // make the request
         $response = curl_exec($ch);
-        
+
         // if error is not empty, then a network error occured
         $error = curl_error($ch);
         if ($error) {
             $response .= $error;
         }
-        
+
         curl_close($ch);
-        
+
         return $response;
     }
-    
+
     /**
      * Make an HTTP POST request using the best method available on the server
      *
@@ -97,7 +97,7 @@ class HttpRequest
             return HttpRequest::FilePost($url, $data, $verify_cert, $timeout);
         }
     }
-    
+
     /**
      * Make an HTTP GET request using the best method available on the server
      *
@@ -116,7 +116,7 @@ class HttpRequest
             return HttpRequest::FilePost($url, $data, $verify_cert, $timeout);
         }
     }
-    
+
     /**
      * Make an HTTP PUT reequest using the best method available on the server
      *
@@ -137,7 +137,7 @@ class HttpRequest
             throw new Exception('PUT request is not supported on systems without curl installed');
         }
     }
-    
+
     /**
      * Make an HTTP GET request using file_get_contents
      *
@@ -154,7 +154,7 @@ class HttpRequest
         $full_url = $url . ($qs ? "?" . $qs : "");
         return file_get_contents($full_url);
     }
-    
+
     /**
      * Make an HTTP POST request using file_get_contents
      *
@@ -169,10 +169,10 @@ class HttpRequest
     {
         $qs = HttpRequest::ArrayToQueryString($data);
         $url = $url . ($qs ? "?" . $qs : "");
-        
+
         $show_headers = false;
         $url = parse_url($url);
-        
+
         if (! isset($url ['port'])) {
             if ($url ['scheme'] == 'http') {
                 $url ['port'] = 80;
@@ -182,10 +182,10 @@ class HttpRequest
         }
 
         $url ['query'] = isset($url ['query']) ? $url ['query'] : '';
-        
+
         $url ['protocol'] = $url ['scheme'] . '://';
         $eol = "\r\n";
-        
+
         $headers = "POST " . $url ['protocol'] . $url ['host'] . $url ['path'] . " HTTP/1.0" . $eol . "Host: " . $url ['host'] . $eol . "Referer: " . $url ['protocol'] . $url ['host'] . $url ['path'] . $eol . "Content-Type: application/x-www-form-urlencoded" . $eol . "Content-Length: " . strlen($url ['query']) . $eol . $eol . $url ['query'];
         $fp = fsockopen($url ['host'], $url ['port'], $errno, $errstr, 30);
         if ($fp) {
@@ -201,11 +201,11 @@ class HttpRequest
                 $match = preg_split("/\r\n\r\n/s", $result, 2);
                 $result = $match [1];
             }
-            
+
             return $result;
         }
     }
-    
+
     /**
      * Make an HTTP GET request using CURL
      *
@@ -220,7 +220,7 @@ class HttpRequest
     {
         return HttpRequest::CurlRequest("GET", $url, $data, $verify_cert, $timeout);
     }
-    
+
     /**
      * Make an HTTP POST request using CURL
      *
@@ -235,7 +235,7 @@ class HttpRequest
     {
         return HttpRequest::CurlRequest("POST", $url, $data, $verify_cert, $timeout);
     }
-    
+
     /**
      * Make an HTTP PUT request using CURL
      *
@@ -250,7 +250,7 @@ class HttpRequest
     {
         return HttpRequest::CurlRequest("PUT", $url, $data, $verify_cert, $timeout);
     }
-    
+
     /**
      * Make an HTTP request using CURL
      *
@@ -267,13 +267,13 @@ class HttpRequest
     {
         // if the data provided is in array format, convert it to a querystring
         $qs = HttpRequest::ArrayToQueryString($data);
-        
+
         $agent = "verysimple::HttpRequest";
-        
+
         // $header[] = "Accept: text/vnd.wap.wml,*.*";
-        
+
         $fp = null;
-        
+
         if ($method == "POST") {
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_POST, 1);
@@ -281,7 +281,7 @@ class HttpRequest
         } elseif ($method == 'PUT') {
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_PUT, true);
-            
+
             if ($data) {
                 // with a PUT request the body must be written to a file stream
                 $fp = fopen('php://temp/maxmemory:256000', 'w');
@@ -291,14 +291,14 @@ class HttpRequest
 
                 fwrite($fp, $data);
                 fseek($fp, 0);
-                
+
                 // if the PUT request contains JSON data then add the content type header
                 if (json_encode($data)) {
                     curl_setopt($ch, CURLOPT_HTTPHEADER, array (
                             "Content-Type: application/json"
                     ));
                 }
-                
+
                 curl_setopt($ch, CURLOPT_INFILE, $fp);
                 curl_setopt($ch, CURLOPT_INFILESIZE, strlen($data));
                 curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
@@ -307,11 +307,11 @@ class HttpRequest
             $full_url = $url . ($qs ? "?" . $qs : "");
             $ch = curl_init($full_url);
         }
-        
+
         curl_setopt($ch, CURLOPT_HTTPHEADER, array (
                 "Expect:  "
         )); // Fixes the HTTP/1.1 417 Expectation Failed Bug
-        
+
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_VERBOSE, 0); // ########## debug
@@ -322,23 +322,23 @@ class HttpRequest
         // curl_setopt($ch, CURLOPT_COOKIEJAR, "curl_cookie");
         // curl_setopt($ch, CURLOPT_COOKIEFILE, "curl_cookie");
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-        
+
         $tmp = curl_exec($ch);
         $error = curl_error($ch);
-        
+
         if ($fp) {
             @fclose($fp); // if a PUT request had body data, close the file stream
         }
-        
+
         if ($error != "") {
             $tmp .= $error;
         }
 
         curl_close($ch);
-        
+
         return $tmp;
     }
-    
+
     /**
      * Converts an array into a URL querystring
      *
@@ -349,7 +349,7 @@ class HttpRequest
     static function ArrayToQueryString($arr)
     {
         $qs = $arr;
-        
+
         if (is_array($arr)) {
             // convert the data array into a url querystring
             $qs = "";
@@ -359,7 +359,7 @@ class HttpRequest
                 $delim = "&";
             }
         }
-        
+
         return $qs;
     }
 }

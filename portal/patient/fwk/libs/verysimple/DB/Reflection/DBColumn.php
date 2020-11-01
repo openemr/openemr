@@ -29,7 +29,7 @@ class DBColumn
     public $MaxSize;
     public $Keys = array ();
     public $Constraints = array ();
-    
+
     /**
      * Instantiate new DBColumn
      *
@@ -42,10 +42,10 @@ class DBColumn
     {
         // typical type is something like varchar(40)
         $typesize = explode("(", $row ["Type"]);
-        
+
         $tmp = isset($typesize [1]) ? str_replace(")", "", $typesize [1]) : "";
         $sizesign = explode(" ", $tmp);
-        
+
         $this->Table = & $table;
         $this->Name = $row ["Field"];
         $this->NameWithoutPrefix = $row ["Field"];
@@ -55,7 +55,7 @@ class DBColumn
         $this->Key = $row ["Key"];
         $this->Default = $row ["Default"];
         $this->Extra = $row ["Extra"];
-        
+
         // enums are a little different because they contain a list of legal values instead of a size limit
         if ($this->IsEnum()) {
             // enum size is in the format 'val1','val2',...
@@ -67,10 +67,10 @@ class DBColumn
             $tmp = explode(",", $this->Size);
             $this->MaxSize = count($tmp) > 1 ? ($tmp [0] + $tmp [1]) : $this->Size;
         }
-        
+
         // if ($this->Key == "MUL") print " ########################## " . print_r($row,1) . " ########################## ";
     }
-    
+
     /**
      * Return true if this column is an enum type
      *
@@ -80,7 +80,7 @@ class DBColumn
     {
         return $this->Type == 'enum';
     }
-    
+
     /**
      * Return the enum values if this column type is an enum
      *
@@ -90,7 +90,7 @@ class DBColumn
     {
         return $this->IsEnum() ? $this->Size : array ();
     }
-    
+
     /**
      * Return the Phreeze column constant that most closely matches this column type
      *
@@ -100,7 +100,7 @@ class DBColumn
     {
         return FieldMap::GetConstantFromType($this->Type);
     }
-    
+
     /**
      * Return the PHP variable type that most closely matches this column type
      *
@@ -132,10 +132,10 @@ class DBColumn
             default:
                 break;
         }
-        
+
         return $rt;
     }
-    
+
     /**
      * Get the SQLite type that most closely matches this column type
      *
@@ -184,10 +184,10 @@ class DBColumn
             default:
                 break;
         }
-        
+
         return $rt;
     }
-    
+
     /**
      * Return the AS3/Flex type that most closely matches this column type
      *
@@ -233,7 +233,7 @@ class DBColumn
             default:
                 break;
         }
-        
+
         return $rt;
     }
 }

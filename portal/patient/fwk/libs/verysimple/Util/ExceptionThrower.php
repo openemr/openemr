@@ -27,7 +27,7 @@
 class ExceptionThrower
 {
     static $IGNORE_DEPRECATED = true;
-    
+
     /**
      * Start redirecting PHP errors
      *
@@ -51,7 +51,7 @@ class ExceptionThrower
                 "HandleError"
         ), $level);
     }
-    
+
     /**
      * Stop redirecting PHP errors
      */
@@ -59,7 +59,7 @@ class ExceptionThrower
     {
         restore_error_handler();
     }
-    
+
     /**
      * Fired by the PHP error handler function.
      * Calling this function will
@@ -83,7 +83,7 @@ class ExceptionThrower
         if (self::$IGNORE_DEPRECATED && strpos($string, "deprecated") === true) {
             return true;
         }
-        
+
         throw new Exception($string . " in " . basename($file) . " at line $line", $code);
     }
 }

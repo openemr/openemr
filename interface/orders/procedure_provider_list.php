@@ -16,31 +16,35 @@ require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-$popup = empty($_GET['popup']) ? 0 : 1;
+if (!AclMain::aclCheckCore('admin', 'users')) {
+    die(xlt('Access denied'));
+}
 
 $form_name = trim($_POST['form_name']);
 
+$form_inactive = empty($_POST['form_inactive']) ? false : true;
+
 $query = "SELECT pp.* FROM procedure_providers AS pp";
+
+if (!$form_inactive) {
+    $query .= " WHERE active = '1'";
+}
+
 $query .= " ORDER BY pp.name";
 $res = sqlStatement($query);
+
 ?>
 <html>
-
 <head>
+
 <?php Header::setupHeader(); ?>
+
 <title><?php echo xlt('Procedure Providers'); ?></title>
 
-<?php if ($popup) { ?>
-    <?php Header::setupAssets('topdialog'); ?>
-<?php } ?>
-
 <script>
-
-<?php if ($popup) {
-    require($GLOBALS['srcdir'] . "/restoreSession.php");
-} ?>
 
 // Callback from popups to refresh this display.
 function refreshme() {
@@ -52,14 +56,16 @@ function refreshme() {
 function doedclick_add() {
     top.restoreSession();
     var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
-    dlgopen('procedure_provider_edit.php?ppid=0', '_blank', 800, 750, false, addTitle);
+    let scriptTitle = 'procedure_provider_edit.php?ppid=0&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
 }
 
 // Process click to pop up the edit window.
 function doedclick_edit(ppid) {
     top.restoreSession();
     var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
-    dlgopen('procedure_provider_edit.php?ppid=' + ppid, '_blank', 800, 750, false, editTitle);
+    let scriptTitle = 'procedure_provider_edit.php?ppid=' + ppid + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    dlgopen(scriptTitle, '_blank', 800, 750, false, editTitle);
 }
 </script>
 
@@ -78,17 +84,27 @@ function doedclick_edit(ppid) {
     <div class="container mt-3">
         <div class="row">
             <div class="col-sm-12">
-                    <h2 id="header_title">
-                        <span id='header_text'><?php echo xlt('Procedure Providers');?></span><?php echo $help_icon; ?>
-                    </h2>
+                    <div class="page-title">
+                        <h2><?php echo xlt('Procedure Providers');?><?php echo $help_icon; ?></h2>
+                    </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-12">
-               <form method='post' action='procedure_provider_list.php'>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary btn-add" onclick="doedclick_add()"><?php echo xlt('Add New{{Provider}}');?></button>
-                        <button type="button" name="form_search" class="btn btn-primary btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
+            <div class="col-sm">  
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary btn-add" onclick="doedclick_add()"><?php echo xlt('Add New{{Provider}}');?></button>
+                </div>
+            </div>   
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">                    
+                    <form method='post' action='procedure_provider_list.php'>                   
+                    <div class="checkbox mt-3">
+                        <label for="form_inactive">
+                            <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php echo ($form_inactive) ? 'checked ' : ''; ?>>
+                            <?php echo xlt('Include inactive'); ?>
+                        </label>
                     </div>
                     <div class="table-responsive mt-3">
                         <table class="table table-striped table-hover">

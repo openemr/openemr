@@ -20,12 +20,12 @@ class AMC_Unimplemented extends AbstractAmcReport implements RsUnimplementedIF
     {
         return null;
     }
-    
+
     public function createDenominator()
     {
         return null;
     }
-    
+
     public function createNumerator()
     {
         return null;

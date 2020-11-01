@@ -33,9 +33,9 @@ class ObserveToSmarty implements IObserver
         } else {
             $msg = $obj;
         }
-        
+
         $desc = "";
-        
+
         switch ($ltype) {
             case OBSERVE_DEBUG:
                 $desc = "DEBUG";
@@ -54,7 +54,7 @@ class ObserveToSmarty implements IObserver
                 $desc = "WARN";
                 break;
         }
-        
+
         $this->_smarty->assign(str_pad($this->_counter ++, 3, "0", STR_PAD_LEFT) . "_" . $desc, $msg);
     }
 }

@@ -38,16 +38,16 @@ function smarty_function_pc_sort_events($params, &$smarty)
         $smarty->trigger_error("sort_array: missing 'value' parameter");
         return;
     }
-    
+
     if (!in_array('sort', array_keys($params))) {
         $smarty->trigger_error("sort_array: missing 'sort' parameter");
         return;
     }
-    
+
     if (!in_array('order', array_keys($params))) {
         $order = 'asc';
     }
-    
+
     switch ($sort) {
         case 'category':
             if (strtolower($order) == 'asc') {
@@ -58,7 +58,7 @@ function smarty_function_pc_sort_events($params, &$smarty)
                 $function = 'sort_byCategoryD';
             }
             break;
-            
+
         case 'title':
             if (strtolower($order) == 'asc') {
                 $function = 'sort_byTitleA';
@@ -68,7 +68,7 @@ function smarty_function_pc_sort_events($params, &$smarty)
                 $function = 'sort_byTitleD';
             }
             break;
-            
+
         case 'time':
             if (strtolower($order) == 'asc') {
                 $function = 'sort_byTimeA';
@@ -86,6 +86,6 @@ function smarty_function_pc_sort_events($params, &$smarty)
         $newArray[$date] = array();
         $newArray[$date] = $events;
     }
-    
+
     $smarty->assign_by_ref($var, $newArray);
 }

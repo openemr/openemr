@@ -23,7 +23,7 @@ class SearchEngine
     protected $Key;
     protected $Pass;
     public $FailedRequests = 0;
-    
+
     /**
      * Constructor for SearchEngine instantiation
      *
@@ -36,10 +36,10 @@ class SearchEngine
     {
         $this->Key = $key;
         $this->Pass = $pass;
-        
+
         $this->Init();
     }
-    
+
     /**
      * Init is called by the constructor and can be overridden by inherited classes
      */

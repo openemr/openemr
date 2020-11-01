@@ -12,7 +12,7 @@ class CqmResult implements RsResultIF
     public $rule;
     public $numeratorLabel;
     public $populationLabel;
-     
+
     public $totalPatients; // Total number of patients considered
     public $ipp; // Number of patients that pass filter (Initial patient populaton)
     public $denominator; // Number of patients passes after denominator condition
@@ -54,7 +54,7 @@ class CqmResult implements RsResultIF
                 $concatenated_label = $this->populationLabel;
             }
         }
-        
+
         $rowFormat = array(
             'is_main' => true, // TO DO: figure out way to do this when multiple groups.
             'population_label' => $this->populationLabel,
@@ -73,7 +73,7 @@ class CqmResult implements RsResultIF
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
             $rowFormat = array_merge($rowFormat, $this->itemized_test_id);
         }
-        
+
         return $rowFormat;
     }
 }

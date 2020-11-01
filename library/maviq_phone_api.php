@@ -10,24 +10,24 @@
 if (!extension_loaded("curl")) {
     die("Curl extension is required");
 }
-            
+
 class MaviqClient
 {
-    
+
     protected $Endpoint;
     protected $SiteId;
     protected $Token;
-        
+
     public function __construct($siteId, $token, $endpoint)
     {
         $this->SiteId = $siteId;
         $this->Token = $token;
         $this->Endpoint = $endpoint;
     }
-        
+
     public function sendRequest($path, $method = "POST", $vars = array())
     {
-        
+
         echo "Path: {$path}\n";
 
         $encoded = "";
@@ -38,10 +38,10 @@ class MaviqClient
         $encoded = substr($encoded, 0, -1);
         $tmpfile = "";
         $fp = null;
-            
+
         // construct full url
         $url = "{$this->Endpoint}/$path";
-            
+
         echo "Url: {$url}\n";
 
         // if GET and vars, append them
@@ -87,24 +87,24 @@ class MaviqClient
                 throw(new Exception("Unknown method $method"));
                 break;
         }
-            
+
         // send credentials
         curl_setopt(
             $curl,
             CURLOPT_USERPWD,
             $pwd = "{$this->SiteId}:{$this->Token}"
         );
-            
+
         // do the request. If FALSE, then an exception occurred
         if (false === ($result = curl_exec($curl))) {
             throw(new Exception(
                 "Curl failed with error " . curl_error($curl)
             ));
         }
-            
+
         // get result code
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            
+
         // unlink tmpfiles
         if ($fp) {
             fclose($fp);
@@ -113,14 +113,14 @@ class MaviqClient
         if (strlen($tmpfile)) {
             unlink($tmpfile);
         }
-                
+
         return new RestResponse($url, $result, $responseCode);
     }
 }
-    
+
 class RestResponse
 {
-        
+
     public $ResponseText;
     public $ResponseXml;
     public $HttpStatus;
@@ -128,7 +128,7 @@ class RestResponse
     public $QueryString;
     public $IsError;
     public $ErrorMessage;
-        
+
     public function __construct($url, $text, $status)
     {
         preg_match('/([^?]+)\??(.*)/', $url, $matches);
@@ -139,7 +139,7 @@ class RestResponse
         if ($this->HttpStatus != 204) {
             $this->ResponseXml = @simplexml_load_string($text);
         }
-            
+
         if ($this->IsError = ($status >= 400)) {
             $this->ErrorMessage =
                 (string)$this->ResponseXml->RestException->Message;

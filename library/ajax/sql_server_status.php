@@ -13,19 +13,17 @@
 /*
  * I wrote this mainly to show server activity for transaction intensive upgrades
  * where the user can know we are still working though no activity from upgrade sequence.
- * Not sure I can do csrf here!
- * */
+ */
 
 $ignoreAuth = true;
-
+$GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
 require_once(__DIR__ . '/../../interface/globals.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+// this will ensure that the only script that can use this ajax call is the sql_upgrade.php script
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'sqlupgrade')) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $trans_query = <<< strQuery
@@ -41,9 +39,12 @@ if (isset($_POST['poll'])) {
     $stat_result = sqlStatementNoLog($trans_query, array($db_in_question));
     $q_msg = '';
     while ($stat_row = sqlFetchArray($stat_result)) {
-        $stat_row['INFO'] = preg_replace('![a-z]+!', '*', $stat_row['INFO']);
+        // Convert binary characters to a ? character
+        $stat_row['INFO'] = mb_convert_encoding($stat_row['INFO'], 'UTF-8', 'UTF-8');
+        // Several preg replaces to ensure no data is passed
+        $stat_row['INFO'] = preg_replace(['!`.*?`!', '!\'.*?\'!', '!".*?"!', '![^A-Z]+!'], ['', '', '', ' * '], $stat_row['INFO']);
         $q_msg .= "<li class='text-primary'>";
-        $q_msg .= $cur_date . "  " . $_GET['poll'] . " " . $stat_row['INFO'];
+        $q_msg .= text($cur_date) . "  " . text($_GET['poll']) . " " . text($stat_row['INFO']);
         $q_msg .= "</li>";
     }
 

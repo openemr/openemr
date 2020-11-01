@@ -31,7 +31,7 @@ class DataDriverMySQL implements IDataDriver
             "'",
             '"'
     );
-    
+
     /** @var characters that will be used to replace bad chars */
     static $GOOD_CHARS = array (
             "\\\\",
@@ -42,7 +42,7 @@ class DataDriverMySQL implements IDataDriver
             "\'",
             '\"'
     );
-    
+
     /**
      * @inheritdocs
      */
@@ -54,7 +54,7 @@ class DataDriverMySQL implements IDataDriver
     {
         return mysql_ping($connection);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -63,19 +63,19 @@ class DataDriverMySQL implements IDataDriver
         if (! function_exists("mysql_connect")) {
             throw new DatabaseException('mysql extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
         }
-        
+
         if (! $connection = @mysql_connect($connectionstring, $username, $password)) {
             throw new DatabaseException("Error connecting to database: " . mysql_error(), DatabaseException::$CONNECTION_ERROR);
         }
-        
+
         if (! @mysql_select_db($database, $connection)) {
             throw new DatabaseException("Unable to select database " . $database, DatabaseException::$CONNECTION_ERROR);
         }
-        
+
         if ($charset && ! @mysql_set_charset($charset, $connection)) {
             throw new DatabaseException("Unable to set charset " . $charset, DatabaseException::$CONNECTION_ERROR);
         }
-        
+
         if ($bootstrap) {
             $statements = explode(';', $bootstrap);
             foreach ($statements as $sql) {
@@ -86,10 +86,10 @@ class DataDriverMySQL implements IDataDriver
                 }
             }
         }
-        
+
         return $connection;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -97,7 +97,7 @@ class DataDriverMySQL implements IDataDriver
     {
         @mysql_close($connection); // ignore warnings
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -106,10 +106,10 @@ class DataDriverMySQL implements IDataDriver
         if (! $rs = @mysql_query($sql, $connection)) {
             throw new DatabaseException(mysql_error(), DatabaseException::$ERROR_IN_QUERY);
         }
-        
+
         return $rs;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -118,10 +118,10 @@ class DataDriverMySQL implements IDataDriver
         if (! $result = @mysql_query($sql, $connection)) {
             throw new DatabaseException(mysql_error(), DatabaseException::$ERROR_IN_QUERY);
         }
-        
+
         return mysql_affected_rows($connection);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -130,14 +130,14 @@ class DataDriverMySQL implements IDataDriver
         if ($val === null) {
             return DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING ? "''" : 'NULL';
         }
-        
+
         if ($val instanceof ISqlFunction) {
             return $val->GetQuotedSql($this);
         }
-        
+
         return "'" . $this->Escape($val) . "'";
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -145,7 +145,7 @@ class DataDriverMySQL implements IDataDriver
     {
         return mysql_fetch_assoc($rs);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -153,7 +153,7 @@ class DataDriverMySQL implements IDataDriver
     {
         return (mysql_insert_id($connection));
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -161,7 +161,7 @@ class DataDriverMySQL implements IDataDriver
     {
         return mysql_error($connection);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -169,7 +169,7 @@ class DataDriverMySQL implements IDataDriver
     {
         mysql_free_result($rs);
     }
-    
+
     /**
      * @inheritdocs
      * this method currently uses replacement and not mysql_real_escape_string
@@ -181,7 +181,7 @@ class DataDriverMySQL implements IDataDriver
         return str_replace(self::$BAD_CHARS, self::$GOOD_CHARS, $val);
         // return mysql_real_escape_string($val);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -189,18 +189,18 @@ class DataDriverMySQL implements IDataDriver
     {
         $sql = "SHOW TABLE STATUS FROM `" . $this->Escape($dbname) . "`";
         $rs = $this->Query($connection, $sql);
-        
+
         $tables = array ();
-        
+
         while ($row = $this->Fetch($connection, $rs)) {
             if ($ommitEmptyTables == false || $rs ['Data_free'] > 0) {
                 $tables [] = $row ['Name'];
             }
         }
-        
+
         return $tables;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -208,7 +208,7 @@ class DataDriverMySQL implements IDataDriver
     {
         $result = "";
         $rs = $this->Query($connection, "optimize table `" . $this->Escape($table) . "`");
-        
+
         while ($row = $this->Fetch($connection, $rs)) {
             $tbl = $row ['Table'];
             if (! isset($results [$tbl])) {
@@ -217,10 +217,10 @@ class DataDriverMySQL implements IDataDriver
 
             $result .= trim($results [$tbl] . " " . $row ['Msg_type'] . "=\"" . $row ['Msg_text'] . "\"");
         }
-        
+
         return $result;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -229,7 +229,7 @@ class DataDriverMySQL implements IDataDriver
         $this->Execute($connection, "SET AUTOCOMMIT=0");
         $this->Execute($connection, "START TRANSACTION");
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -238,7 +238,7 @@ class DataDriverMySQL implements IDataDriver
         $this->Execute($connection, "COMMIT");
         $this->Execute($connection, "SET AUTOCOMMIT=1");
     }
-    
+
     /**
      * @inheritdocs
      */

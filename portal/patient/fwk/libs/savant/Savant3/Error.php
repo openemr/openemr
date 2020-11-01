@@ -26,7 +26,7 @@
  */
 class Savant3_Error
 {
-    
+
     /**
      *
      * The error code, typically a Savant 'ERR_*' string.
@@ -37,7 +37,7 @@ class Savant3_Error
      *
      */
     public $code = null;
-    
+
     /**
      *
      * An array of error-specific information.
@@ -48,7 +48,7 @@ class Savant3_Error
      *
      */
     public $info = array ();
-    
+
     /**
      *
      * The error severity level.
@@ -59,7 +59,7 @@ class Savant3_Error
      *
      */
     public $level = E_USER_ERROR;
-    
+
     /**
      *
      * A debug backtrace for the error, if any.
@@ -70,7 +70,7 @@ class Savant3_Error
      *
      */
     public $trace = null;
-    
+
     /**
      *
      * Constructor.
@@ -89,13 +89,13 @@ class Savant3_Error
         foreach ($conf as $key => $val) {
             $this->$key = $val;
         }
-        
+
         // add a backtrace
         if ($conf ['trace'] === true) {
             $this->trace = debug_backtrace();
         }
     }
-    
+
     /**
      *
      * Magic method for output dump.

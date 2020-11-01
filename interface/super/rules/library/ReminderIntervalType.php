@@ -16,7 +16,7 @@ class ReminderIntervalType
 
     var $code;
     var $lbl;
-    
+
     function __construct($code, $lbl)
     {
         $this->lbl = $lbl;

@@ -109,7 +109,7 @@ function bucks($amount)
             <?php
             foreach ($code_types as $key => $value) {
                 echo "<option value='" . attr($value['id']) . "'";
-                if ($value['id'] == $filter) {
+                if (!empty($filter) && ($value['id'] == $filter)) {
                     echo " selected";
                 }
 
@@ -139,7 +139,7 @@ function bucks($amount)
                       <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
-                        <?php if ($_POST['form_refresh']) { ?>
+                        <?php if (!empty($_POST['form_refresh'])) { ?>
                         <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
@@ -155,7 +155,7 @@ function bucks($amount)
 </div> <!-- end of parameters -->
 
 <?php
-if ($_POST['form_refresh']) {
+if (!empty($_POST['form_refresh'])) {
     ?>
 
 <div id="report_results">

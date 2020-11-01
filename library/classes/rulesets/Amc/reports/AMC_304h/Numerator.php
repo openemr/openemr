@@ -27,7 +27,7 @@ class AMC_304h_Numerator implements AmcFilterIF
     {
         return "AMC_304h Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Need patient summary given/sent to patient within 3 business days of each encounter.

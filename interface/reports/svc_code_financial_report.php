@@ -47,10 +47,10 @@ if (!AclMain::aclCheckCore('acct', 'rep')) {
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_facility  = $_POST['form_facility'];
-$form_provider  = $_POST['form_provider'];
+$form_facility  = $_POST['form_facility'] ?? null;
+$form_provider  = $_POST['form_provider'] ?? null;
 
-if ($_POST['form_csvexport']) {
+if (!empty($_POST['form_csvexport'])) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -139,7 +139,7 @@ if ($_POST['form_csvexport']) {
             while ($urow = sqlFetchArray($ures)) {
                 $provid = $urow['id'];
                 echo "    <option value='" . attr($provid) . "'";
-                if ($provid == $_POST['form_provider']) {
+                if (!empty($_POST['form_provider']) && ($provid == $_POST['form_provider'])) {
                     echo " selected";
                 }
 
@@ -165,7 +165,7 @@ if ($_POST['form_csvexport']) {
                         <td>
                           <div class="checkbox">
                            <label><input type='checkbox' name='form_details'<?php
-                            if ($_POST['form_details']) {
+                            if (!empty($_POST['form_details'])) {
                                     echo ' checked';
                             } ?>>
                             <?php echo xlt('Important Codes'); ?></label>
@@ -184,7 +184,7 @@ if ($_POST['form_csvexport']) {
                       <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").attr("value",""); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
-                        <?php if ($_POST['form_refresh'] || $_POST['form_csvexport']) { ?>
+                        <?php if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) { ?>
                         <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
@@ -207,7 +207,7 @@ if ($_POST['form_csvexport']) {
 
    // end not export
 
-if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $rows = array();
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
@@ -238,7 +238,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     }
 
     // If selected important codes
-    if ($_POST['form_details']) {
+    if (!empty($_POST['form_details'])) {
         $query .= " AND c.financial_reporting = '1'";
     }
 
@@ -350,15 +350,15 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     }
 }
 
-if (! $_POST['form_csvexport']) {
-    if ($_POST['form_refresh'] && empty($print)) {
+if (empty($_POST['form_csvexport'])) {
+    if (!empty($_POST['form_refresh']) && empty($print)) {
         echo "<span style='font-size:10pt;'>";
            echo xlt('No matches found. Try search again.');
            echo "</span>";
         echo '<script>document.getElementById("report_results").style.display="none";</script>';
     }
 
-    if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) { ?>
+    if (empty($_POST['form_refresh']) && empty($_POST['form_csvexport'])) { ?>
         <div class='text'>
         <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
         </div><?php

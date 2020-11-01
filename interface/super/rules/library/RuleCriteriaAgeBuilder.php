@@ -44,7 +44,7 @@ class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
             $value,
             TimeUnit::from($methodDetail)
         );
-        
+
         $criteria->value = $value;
         return $criteria;
     }

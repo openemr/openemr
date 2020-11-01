@@ -30,7 +30,7 @@ class SimpleRouter implements IRouter
     private $routes = array ();
     private $defaultAction = 'Default.Home';
     private $appRootUrl = '';
-    
+
     /**
      *
      * @param string $appRootUrl
@@ -46,7 +46,7 @@ class SimpleRouter implements IRouter
 
         $this->routes = $mapping;
     }
-    
+
     /**
      * Given a controller, method and params, returns a url that points
      * to the correct location
@@ -61,7 +61,7 @@ class SimpleRouter implements IRouter
     {
         throw new Exception('Not yet implemented');
     }
-    
+
     /**
      * Returns the controller and method for the given URI
      *
@@ -72,11 +72,11 @@ class SimpleRouter implements IRouter
     public function GetRoute($uri = "")
     {
         $match = '';
-        
+
         $qs = $uri ? $uri : (array_key_exists('QUERY_STRING', $_SERVER) ? $_SERVER ['QUERY_STRING'] : '');
         $parsed = explode('&', $qs, 2);
         $action = $parsed [0];
-        
+
         if (strpos($action, '=') > - 1 || ! $action) {
             // the querystring is empty or the first param is a named param, which we ignore
             $match = $this->defaultAction;
@@ -86,10 +86,10 @@ class SimpleRouter implements IRouter
             $route = $method . ':' . $action;
             $match = array_key_exists($route, $this->routes) ? $this->routes [$route] ['route'] : self::$ROUTE_NOT_FOUND;
         }
-        
+
         return explode('.', $match, 2);
     }
-    
+
     /**
      * In the case of a rewrite url, the url itself contains the parameter
      * for example http://server/param1/param2/param3.
@@ -104,7 +104,7 @@ class SimpleRouter implements IRouter
     {
         return array_key_exists($key, $_REQUEST) ? $_REQUEST [$key] : $default;
     }
-    
+
     /**
      * In the case of a rewrite url, the url itself contains the parameter
      * for example http://server/param1/param2/param3.
@@ -117,7 +117,7 @@ class SimpleRouter implements IRouter
     {
         return $_REQUEST;
     }
-    
+
     /**
      * Returns the RESTful part of the url
      * For example, localhost/users/5 will return users/5

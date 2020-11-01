@@ -81,12 +81,12 @@ class FhirPatientServiceCrudTest extends TestCase
         $dataResult = $processingResult->getData()[0];
         $fhirId = $dataResult['uuid'];
         $this->assertIsString($fhirId);
-        
+
         $this->fhirPatientFixture['name'][0]['family'] = 'Smith';
         $this->fhirPatientFixture['id'] = $fhirId;
         $actualResult = $this->fhirPatientService->update($fhirId, $this->fhirPatientFixture);
         $this->assertTrue($actualResult->isValid());
-        
+
         $actualFhirRecord = $actualResult->getData()[0];
         $actualName = $actualFhirRecord->getName();
         $this->assertEquals('Smith', $actualName[0]->getFamily());

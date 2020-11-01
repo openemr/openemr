@@ -1028,7 +1028,7 @@ function edih_997_csv_data($obj997)
         //
         $ret_ar[$icn]['claim'] = array();
         $ret_ar[$icn]['file'] = array();
-        
+
         foreach ($env_ar['GS'] as $gs) {
             if ($gs['icn'] == $icn) {
                 $ret_ar[$icn]['type'] = csv_file_type($gs['type']);
@@ -1074,7 +1074,7 @@ function edih_997_csv_data($obj997)
                 //
                 if (strncmp($seg, 'AK1' . $de, 4) === 0) {
                     $sar = explode($de, $seg);
-                    
+
                     $loopid = '2000';
                     $rsptype = csv_file_type($sar[1]);
                     // AK102 could be the 'trace' value if it were unique

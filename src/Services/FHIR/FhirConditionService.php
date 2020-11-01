@@ -42,7 +42,8 @@ class FhirConditionService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['patient.uuid']
+            'patient' => ['lists.pid'],
+            '_id' => ['lists.id']
         ];
     }
 
@@ -93,7 +94,7 @@ class FhirConditionService extends FhirServiceBase
             )
         );
         $conditionResource->setClinicalStatus($clinical_Status);
-        
+
         $conditionCategory = new FHIRCodeableConcept();
         $conditionCategory->addCoding(
             array(
@@ -108,6 +109,12 @@ class FhirConditionService extends FhirServiceBase
             $patient = new FHIRReference();
             $patient->setReference('Patient/' . $dataRecord['puuid']);
             $conditionResource->setSubject($patient);
+        }
+
+        if (isset($dataRecord['encounter_uuid'])) {
+            $encounter = new FHIRReference();
+            $encounter->setReference('Encounter/' . $dataRecord['encounter_uuid']);
+            $conditionResource->setEncounter($encounter);
         }
 
         if (!empty($dataRecord['diagnosis'])) {

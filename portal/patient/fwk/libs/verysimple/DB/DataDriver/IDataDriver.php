@@ -24,7 +24,7 @@ interface IDataDriver
      * @return string
      */
     function GetServerType();
-    
+
     /**
      * Return true if the given connection is live
      *
@@ -33,7 +33,7 @@ interface IDataDriver
      * @return bool;
      */
     function Ping($connection);
-    
+
     /**
      * Open the database with the given parameters.
      * the implementation
@@ -50,7 +50,7 @@ interface IDataDriver
      * @return connection
      */
     function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = '');
-    
+
     /**
      * Close the given connection reference
      *
@@ -58,7 +58,7 @@ interface IDataDriver
      *          connection
      */
     function Close($connection);
-    
+
     /**
      * Execute a SQL query that is expected to return a resultset
      *
@@ -69,7 +69,7 @@ interface IDataDriver
      * @return resultset
      */
     function Query($connection, $sql);
-    
+
     /**
      * Executes a SQL query that does not return a resultset, such as an insert or update
      *
@@ -80,7 +80,7 @@ interface IDataDriver
      * @return int number of affected records
      */
     function Execute($connection, $sql);
-    
+
     /**
      * Moves the database curser forward and returns the current row as an associative array
      * When no more data is available, null is returned
@@ -92,7 +92,7 @@ interface IDataDriver
      * @return array (or null)
      */
     function Fetch($connection, $rs);
-    
+
     /**
      * Returns the last auto-insert id that was inserted for the
      * given connection reference
@@ -101,7 +101,7 @@ interface IDataDriver
      *          connection
      */
     function GetLastInsertId($connection);
-    
+
     /**
      * Returns the last error message that the server encountered
      * for the given connection reference
@@ -110,7 +110,7 @@ interface IDataDriver
      *          connection
      */
     function GetLastError($connection);
-    
+
     /**
      * Releases the resources for the given resultset.
      *
@@ -120,7 +120,7 @@ interface IDataDriver
      *          resultset
      */
     function Release($connection, $rs);
-    
+
     /**
      * Remove or escape any characters that will cause a SQL statment
      * to crash or cause an injection exploit
@@ -130,7 +130,7 @@ interface IDataDriver
      * @return string value after escaping
      */
     function Escape($val);
-    
+
     /**
      * Return a stringified version of $val ready to insert with appropriate quoting and escaping
      * This method must handle at a minimum: strings, numbers, NULL and ISqlFunction objects
@@ -140,7 +140,7 @@ interface IDataDriver
      * @return string value ready to use in a SQL statement quoted and escaped if necessary
      */
     function GetQuotedSql($val);
-    
+
     /**
      * Returns an array of tablenames for the given database
      *
@@ -152,7 +152,7 @@ interface IDataDriver
      *          false) set to true and tables with no data will be ommitted
      */
     function GetTableNames($connection, $dbname, $ommitEmptyTables = false);
-    
+
     /**
      * Optimize, clean, defrag or whatever action is relevant for the database server
      *
@@ -162,7 +162,7 @@ interface IDataDriver
      *          string name of table to optimize
      */
     function Optimize($connection, $table);
-    
+
     /**
      * Start a database transaction and disable auto-commit if necessary
      *
@@ -170,7 +170,7 @@ interface IDataDriver
      *          mixed connection reference
      */
     function StartTransaction($connection);
-    
+
     /**
      * Commit the current database transaction and re-enable auto-commit
      *
@@ -178,7 +178,7 @@ interface IDataDriver
      *          mixed connection reference
      */
     function CommitTransaction($connection);
-    
+
     /**
      * Rollback the current database transaction and re-enable auto-commit
      *

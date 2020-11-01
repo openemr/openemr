@@ -12,7 +12,8 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once('gacl_admin.inc.php');
 
-switch ($_GET['action']) {
+$getAction = $_GET['action'] ?? null;
+switch ($getAction) {
     case 'Submit':
         $gacl_api->debug_text('Submit!!');
 		//$result = $gacl_api->acl_query('system', 'email_pw', 'users', '1', NULL, NULL, NULL, NULL, TRUE);
@@ -79,8 +80,7 @@ switch ($_GET['action']) {
 
 		//echo "<br /><br />$x ACL_CHECK()'s<br />\n";
 
-		$smarty->assign('acls', $acls);
-
+		$smarty->assign('acls', ($acls ?? null));
 		$smarty->assign('aco_section_value', $_GET['aco_section_value']);
 		$smarty->assign('aco_value', $_GET['aco_value']);
 		$smarty->assign('aro_section_value', $_GET['aro_section_value']);
@@ -91,6 +91,15 @@ switch ($_GET['action']) {
 		$smarty->assign('root_axo_group_id', $_GET['root_axo_group_id']);
         break;
     default:
+        $smarty->assign('acls', null);
+        $smarty->assign('aco_section_value', null);
+        $smarty->assign('aco_value', null);
+        $smarty->assign('aro_section_value', null);
+        $smarty->assign('aro_value', null);
+        $smarty->assign('axo_section_value', null);
+        $smarty->assign('axo_value', null);
+        $smarty->assign('root_aro_group_id', null);
+        $smarty->assign('root_axo_group_id', null);
 		break;
 }
 

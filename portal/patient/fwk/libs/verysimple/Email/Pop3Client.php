@@ -27,7 +27,7 @@ class Pop3Client
             }
         }
     }
-    
+
     /**
      * Opens a connection to the mail server
      *
@@ -53,7 +53,7 @@ class Pop3Client
     {
         $this->mbox = imap_open("{" . $host . ":" . $port . "/" . $mbtype . "/notls}" . $mbfolder . "", $user, $pass, $options, $retries);
     }
-    
+
     /**
      * Delete a message from the mailbox
      *
@@ -66,7 +66,7 @@ class Pop3Client
         imap_delete($this->mbox, $msgnum);
         $this->do_delete = true;
     }
-    
+
     /**
      * Close the connection to the mail server
      *
@@ -79,10 +79,10 @@ class Pop3Client
         if ($this->do_delete && $empty_trash) {
             imap_expunge($this->mbox);
         }
-        
+
         imap_close($this->mbox);
     }
-    
+
     /**
      * Returns the number of messages in the mail account folder
      *
@@ -94,7 +94,7 @@ class Pop3Client
         $summary = $this->GetSummary();
         return $summary->Nmsgs;
     }
-    
+
     /**
      * Returns an object with the following properties:
      * Date, Driver, Mailbox, Nmsgs, Recent
@@ -105,7 +105,7 @@ class Pop3Client
     {
         return imap_check($this->mbox);
     }
-    
+
     /**
      * Returns an array containing summary information about the messages.
      * Use this function to list messages without downloading the entire
@@ -117,7 +117,7 @@ class Pop3Client
     {
         return imap_headers($this->mbox);
     }
-    
+
     /**
      * Returns an object containing message header information
      *
@@ -130,7 +130,7 @@ class Pop3Client
     {
         return imap_headerinfo($this->mbox, $msgno);
     }
-    
+
     /**
      * Returns an array containing all files attached to message
      *
@@ -146,7 +146,7 @@ class Pop3Client
         $struct = imap_fetchstructure($this->mbox, $msgno);
         $contentParts = count($struct->parts);
         $attachments = array ();
-        
+
         if ($contentParts >= 2) {
             for ($i = 2; $i <= $contentParts; $i++) {
                 $att [$i - 2] = imap_bodystruct($this->mbox, $msgno, $i);
@@ -154,7 +154,7 @@ class Pop3Client
                 $att [$i - 2]->x_msg_id = $msgno;
                 $att [$i - 2]->x_part_id = $i;
             }
-            
+
             for ($k = 0; $k < sizeof($att); $k++) {
                 if (strtolower($att [$k]->parameters [0]->value) == "us-ascii" && $att [$k]->parameters [1]->value != "") {
                     $attachments [$k] = $this->_getPartFromStruct($att [$k], $include_raw_data);
@@ -163,7 +163,7 @@ class Pop3Client
                 }
             }
         }
-        
+
         return $attachments;
     }
     private function _getPartFromStruct($struct, $include_raw_data)
@@ -179,7 +179,7 @@ class Pop3Client
         $part->rawdata = (! $include_raw_data) ? null : $this->GetAttachmentRawData($struct->x_msg_id, $struct->x_part_id, $struct->encoding);
         return $part;
     }
-    
+
     /**
      * Returns the raw data for an attachment.
      * The raw data is the actual file contents of an attachment.
@@ -196,16 +196,16 @@ class Pop3Client
     function GetAttachmentRawData($msgno, $partnum, $encoding_id = 0)
     {
         $content = imap_fetchbody($this->mbox, $msgno, $partnum);
-        
+
         if ($encoding_id == 3) {
             return imap_base64($content);
         } elseif ($encoding_id == 4) {
             return imap_qprint($content);
         }
-        
+
         return $content;
     }
-    
+
     /**
      * Returns a text representation of the MIME type of the primary part of a message
      *
@@ -228,7 +228,7 @@ class Pop3Client
         );
         return $primary_mime_type [(int) $structure->type];
     }
-    
+
     /**
      * Returns the MimeType of the primary part of the given message
      *
@@ -245,7 +245,7 @@ class Pop3Client
 
         return "TEXT/PLAIN";
     }
-    
+
     /**
      * Returns what is best determined to be the body text of the messages
      *
@@ -265,10 +265,10 @@ class Pop3Client
             $body = $this->GetPart($msgnum, "TEXT/PLAIN");
             $body = $body ? $body : $this->GetPart($msgnum, "TEXT/HTML");
         }
-        
+
         return $body;
     }
-    
+
     /**
      * Returns a single part of a message
      *
@@ -287,14 +287,14 @@ class Pop3Client
     {
         $stream = $this->mbox;
         $prefix = "";
-        
+
         $structure = $structure ? $structure : imap_fetchstructure($stream, $msg_number);
-        
+
         if ($structure) {
             if ($mime_type == $this->GetMimeType($structure)) {
                 $part_number = $part_number ? $part_number : "1";
                 $text = imap_fetchbody($stream, $msg_number, $part_number);
-                
+
                 if ($structure->encoding == 3) {
                     return imap_base64($text);
                 } elseif ($structure->encoding == 4) {
@@ -303,7 +303,7 @@ class Pop3Client
                     return $text;
                 }
             }
-            
+
             if ($structure->type == 1) { /* multipart */
                 while (list ( $index, $sub_structure ) = each($structure->parts)) {
                     if ($part_number) {
@@ -311,14 +311,14 @@ class Pop3Client
                     }
 
                     $data = $this->GetPart($msg_number, $mime_type, $sub_structure, $prefix . ($index + 1));
-                    
+
                     if ($data) {
                         return $data;
                     }
                 }
             }
         }
-        
+
         // no structure returned
         return false;
     }

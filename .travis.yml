@@ -97,12 +97,7 @@ language: php
       echo "------------------"
       echo "Main OpenEMR Build"
       echo "------------------"
-      if [ "$SKIP_COMPOSER_PLATFORM_REQS" = true ]; then
-        echo "(For PHP8 build to work, using --ignore-platform-reqs parameter for composer install; this is temporary)"
-        composer install --ignore-platform-reqs || failTest=true
-      else
-        composer install || failTest=true
-      fi
+      composer install || failTest=true
       npm install || failTest=true
       npm run build || failTest=true
       composer global require phing/phing || failTest=true
@@ -512,7 +507,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_73
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -521,6 +516,8 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
+        - *build_test_e2e
+        - *build_test_api
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
@@ -534,7 +531,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_74
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -543,6 +540,8 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
+        - *build_test_e2e
+        - *build_test_api
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
@@ -556,8 +555,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_80
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
-        - SKIP_COMPOSER_PLATFORM_REQS=true
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -566,6 +564,7 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
+        - *build_test_api
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators

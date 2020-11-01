@@ -26,7 +26,7 @@
  */
 class Savant3_Plugin_date extends Savant3_Plugin
 {
-    
+
     /**
      *
      * The default strftime() format string.
@@ -37,7 +37,7 @@ class Savant3_Plugin_date extends Savant3_Plugin
      *
      */
     public $default = '%c';
-    
+
     /**
      *
      * Custom strftime() format strings to use for dates.
@@ -70,7 +70,7 @@ class Savant3_Plugin_date extends Savant3_Plugin
             'date' => '%Y-%m-%d',
             'time' => '%H:%M:%S'
     );
-    
+
     /**
      *
      * Outputs a formatted date using strftime() conventions.
@@ -91,11 +91,11 @@ class Savant3_Plugin_date extends Savant3_Plugin
     function date($datestring, $format = null)
     {
         settype($format, 'string');
-        
+
         if (is_null($format)) {
             $format = $this->default;
         }
-        
+
         // does the format string have a % sign in it?
         if (strpos($format, '%') === false) {
             // no, look for a custom format string
@@ -107,7 +107,7 @@ class Savant3_Plugin_date extends Savant3_Plugin
                 $format = $this->default;
             }
         }
-        
+
         // convert the date string to the specified format
         if (trim($datestring != '')) {
             return strftime($format, strtotime($datestring));

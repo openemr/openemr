@@ -13,7 +13,7 @@ class NQF_0421_Exclusion implements CqmFilterIF
     {
         return "Exclusion";
     }
-    
+
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         // Check for terminal illness within 6 months of encounter
@@ -25,7 +25,7 @@ class NQF_0421_Exclusion implements CqmFilterIF
                 return true;
             }
         }
-        
+
         if (
             Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::PREGNANCY, $patient, $beginDate, $endDate) ||
             Helper::check(ClinicalType::PHYSICAL_EXAM, PhysicalExam::NOT_DONE_PATIENT, $patient, $beginDate, $endDate) ||
@@ -34,7 +34,7 @@ class NQF_0421_Exclusion implements CqmFilterIF
         ) {
             return true;
         }
-        
+
         return false;
     }
 }

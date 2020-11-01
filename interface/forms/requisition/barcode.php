@@ -8,7 +8,7 @@
  *  Usage:
  *	  <img src="/barcode.php?text=testing" alt="testing" />
  */
-    
+
     // Get pararameters that are passed in through $_GET or set to the default value
     $text = (isset($_GET["text"]) ? $_GET["text"] : "0");
     $size = (isset($_GET["size"]) ? $_GET["size"] : "20");

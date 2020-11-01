@@ -152,7 +152,7 @@ if ($mode == 'new') {
 setencounter($encounter);
 
 // Update the list of issues associated with this encounter.
-if (is_array($_POST['issues'])) {
+if (!empty($_POST['issues']) && is_array($_POST['issues'])) {
     sqlStatement("DELETE FROM issue_encounter WHERE " .
         "pid = ? AND encounter = ?", array($pid, $encounter));
     foreach ($_POST['issues'] as $issue) {

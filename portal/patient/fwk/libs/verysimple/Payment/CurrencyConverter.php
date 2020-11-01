@@ -18,7 +18,7 @@ require_once("verysimple/HTTP/HttpRequest.php");
  */
 class CurrencyConverter
 {
-    
+
     /**
      * Converts currency using google.
      * throws an exception if something went wrong
@@ -36,12 +36,12 @@ class CurrencyConverter
     public static function Convert($amount, $from, $to)
     {
         $converted_amount = 0;
-        
+
         $qs = $amount . ' ' . $from . ' in ' . $to;
         $url = "http://www.google.com/search?q=" . urlEncode($qs);
-        
+
         $g_response = strip_tags(HttpRequest::Get($url));
-        
+
         if (preg_match("/Rates provided for information only - see disclaimer./i", $g_response)) {
             $matches = array ();
             preg_match('/= ([0-9\s\.,]+)/', $g_response, $matches);
@@ -54,7 +54,7 @@ class CurrencyConverter
         } else {
             throw new Exception("The google search result does not appear to contain currency information");
         }
-        
+
         return $converted_amount;
     }
 }

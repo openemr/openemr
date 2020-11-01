@@ -34,12 +34,12 @@ class AMC_304i_STG2 extends AbstractAmcReport
     {
         return "transitions-out";
     }
- 
+
     public function createDenominator()
     {
         return new AMC_304i_STG2_Denominator();
     }
-    
+
     public function createNumerator()
     {
         return new AMC_304i_STG2_Numerator();

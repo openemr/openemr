@@ -13,6 +13,7 @@
   <body>
 {include file="phpgacl/navigation.tpl"}
     <form method="post" name="edit_group" action="edit_group.php">
+      <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
       <table cellpadding="2" cellspacing="2" border="2" width="100%">
         <tbody>
           <tr>
@@ -25,14 +26,16 @@
             <td align="center">{$id|default:"N/A"}</td>
             <td>
                 <select name="parent_id" tabindex="0" multiple>
-                    {html_options options=$options_groups selected=$parent_id}
+                    {if isset($options_groups)}
+                        {html_options options=$options_groups selected=$parent_id}
+                    {/if}
                 </select>
             </td>
             <td>
-                <input type="text" class="group-name" size="50" name="name" value="{$name|escape:'html'}">
+                <input type="text" class="group-name" size="50" name="name" value="{if isset($name)}{$name|attr}{/if}">
             </td>
             <td>
-                <input type="text" class="group-value" size="50" name="value" value="{$value|escape:'html'}">
+                <input type="text" class="group-value" size="50" name="value" value="{if isset($value)}{$value|attr}{/if}">
             </td>
           </tr>
           <tr class="controls" align="center">
@@ -42,8 +45,8 @@
           </tr>
         </tbody>
       </table>
-    <input type="hidden" name="group_id" value="{$id|escape:'html'}">
-    <input type="hidden" name="group_type" value="{$group_type|escape:'html'}">
-    <input type="hidden" name="return_page" value="{$return_page}">
+    <input type="hidden" name="group_id" value="{if isset($id)}{$id|attr}{/if}">
+    <input type="hidden" name="group_type" value="{$group_type|attr}">
+    <input type="hidden" name="return_page" value="{$return_page|attr}">
   </form>
 {include file="phpgacl/footer.tpl"}

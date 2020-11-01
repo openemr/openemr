@@ -51,10 +51,10 @@ class FieldMap
     public $IsPrimaryKey;
     public $DefaultValue;
     public $IsAutoInsert;
-    
+
     /** @variant either an int or an array to indicate max size or acceptable values */
     public $FieldSize;
-    
+
     /**
      * Given a MySQL column type, return the Phreeze constant name
      *
@@ -65,7 +65,7 @@ class FieldMap
         $const = 'FM_TYPE_' . strtoupper($type);
         return (defined($const)) ? $const : 'FM_TYPE_UNKNOWN';
     }
-    
+
     /**
      * Initializes the FieldMap
      *
@@ -97,7 +97,7 @@ class FieldMap
         $this->DefaultValue = $dv;
         $this->IsAutoInsert = $iai;
     }
-    
+
     /**
      * Return true if this column is an enum type
      *
@@ -107,7 +107,7 @@ class FieldMap
     {
         return $this->FieldType == FM_TYPE_ENUM;
     }
-    
+
     /**
      * Return the enum values if this column type is an enum
      *
@@ -117,7 +117,7 @@ class FieldMap
     {
         return $this->IsEnum() ? $this->FieldSize : array ();
     }
-    
+
     /**
      * Return true if this column is a numeric type
      */

@@ -37,7 +37,7 @@ class Rule
      * @var RuleFilters
      */
     var $filters;
-    
+
     /**
      * @var RuleTargetActionGroups
      */
@@ -59,7 +59,7 @@ class Rule
     {
         $this->developer = $s;
     }
-    
+
     function setFunding($s)
     {
         $this->funding_source = $s;
@@ -142,7 +142,7 @@ class Rule
     {
         $this->filters = $ruleFilters;
     }
-    
+
     function setGroups(array $groups)
     {
         $this->groups = $groups;

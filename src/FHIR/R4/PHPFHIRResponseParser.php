@@ -121,7 +121,7 @@ class PHPFHIRResponseParser
             ($error ? $error->message : 'Unknown Error')
         ));
     }
-    
+
     /**
      * @param array $jsonEntry
      * @param string $fhirElementName
@@ -200,7 +200,7 @@ class PHPFHIRResponseParser
 
         return $object;
     }
-    
+
     /**
      * @param \SimpleXMLElement $element
      * @param string $fhirElementName

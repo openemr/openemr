@@ -21,7 +21,7 @@ class DBSchema
     public $Server;
     public $Name;
     public $Tables;
-    
+
     /**
      * Instantiate new DBSchema
      *
@@ -35,12 +35,12 @@ class DBSchema
         $this->Server = & $server;
         $this->Name = $server->Connection->DBName;
         $this->Tables = array ();
-        
+
         $this->Load();
-        
+
         // print "<pre>"; print_r($this->Tables["ticket"]); die();
     }
-    
+
     /**
      * Inspects the current schema and loads all tables, keys, etc.
      *
@@ -50,23 +50,23 @@ class DBSchema
     {
         $sql = "show tables";
         $rs = $this->Server->Connection->Select($sql);
-        
+
         // first pass load all the tables. this will initialize each object. we have to
         // do this first so that we can correctly determine and store "Set" information
         while ($row = $this->Server->Connection->Next($rs)) {
             $this->Tables [$row ["Tables_in_" . $this->Name]] = new DBTable($this, $row);
         }
-        
+
         // now load all the keys and constraints for each table
         foreach ($this->Tables as $table) {
             $table->LoadKeys();
         }
-        
+
         $this->Server->Connection->Release($rs);
-        
+
         $sql = "show table status from `" . $this->Name . "`";
         $rs2 = $this->Server->Connection->Select($sql);
-        
+
         // load the extra data
         while ($row = $this->Server->Connection->Next($rs2)) {
             $this->Tables [$row ["Name"]]->Engine = $row ["Engine"];

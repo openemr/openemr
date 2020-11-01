@@ -70,7 +70,7 @@ class NQF_0028_2014_Numerator implements CqmFilterIF
 
         return false;
     }
-    
+
     private function getApplicableEncounters()
     {
         return array(

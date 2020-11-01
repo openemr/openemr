@@ -34,7 +34,7 @@ class AMC_314g_1_2_20_Numerator implements AmcFilterIF
     {
         return "AMC_314g_1_2_20 Numerator";
     }
-    
+
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         if (!in_array($patient->id, $this->patArr)) {

@@ -46,7 +46,7 @@ class FhirPatientServiceMappingTest extends TestCase
 
         $this->assertEquals('generated', $fhirPatientResource->getText()['status']);
         $this->assertNotEmpty($fhirPatientResource->getText()['div']);
-        
+
         $this->assertTrue($fhirPatientResource->getActive());
 
         $this->assertNotEmpty($fhirPatientResource->getId());
@@ -57,7 +57,7 @@ class FhirPatientServiceMappingTest extends TestCase
 
         $this->assertEquals(1, count($actualName->getPrefix()));
         $this->assertEquals($sourcePatientRecord['title'], $actualName->getPrefix()[0]);
-        
+
         $this->assertEquals($sourcePatientRecord['lname'], $actualName->getFamily());
         $this->assertEquals(array(
             $sourcePatientRecord['fname'],

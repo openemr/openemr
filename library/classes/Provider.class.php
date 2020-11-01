@@ -121,7 +121,7 @@ class Provider extends ORDataObject
 
     function get_insurance_numbers_default()
     {
-        return $this->insurance_numbers[0];
+        return ($this->insurance_numbers[0] ?? null);
     }
 
     function get_group_number_default()

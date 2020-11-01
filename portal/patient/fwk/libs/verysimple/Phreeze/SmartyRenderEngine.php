@@ -20,10 +20,10 @@ require_once("verysimple/Phreeze/IRenderEngine.php");
  */
 class SmartyRenderEngine implements IRenderEngine
 {
-    
+
     /** @var Smarty */
     public $smarty;
-    
+
     /**
      *
      * @param string $templatePath
@@ -32,18 +32,18 @@ class SmartyRenderEngine implements IRenderEngine
     function __construct($templatePath = '', $compilePath = '')
     {
         $this->smarty = new Smarty();
-        
+
         if ($templatePath) {
             $this->smarty->template_dir = $templatePath;
         }
-        
+
         if ($compilePath) {
             $this->smarty->compile_dir = $compilePath;
             $this->smarty->config_dir = $compilePath;
             $this->smarty->cache_dir = $compilePath;
         }
     }
-    
+
     /**
      *
      * @see IRenderEngine::assign()
@@ -52,7 +52,7 @@ class SmartyRenderEngine implements IRenderEngine
     {
         return $this->smarty->assign($key, $value);
     }
-    
+
     /**
      *
      * @see IRenderEngine::display()
@@ -61,7 +61,7 @@ class SmartyRenderEngine implements IRenderEngine
     {
         return $this->smarty->display($template);
     }
-    
+
     /**
      *
      * @see IRenderEngine::fetch()
@@ -70,7 +70,7 @@ class SmartyRenderEngine implements IRenderEngine
     {
         return $this->smarty->fetch($template);
     }
-    
+
     /**
      *
      * @see IRenderEngine::clear()
@@ -79,7 +79,7 @@ class SmartyRenderEngine implements IRenderEngine
     {
         $this->smarty->clearAssign($key);
     }
-    
+
     /**
      *
      * @see IRenderEngine::clearAll()
@@ -88,7 +88,7 @@ class SmartyRenderEngine implements IRenderEngine
     {
         $this->smarty->clearAllAssign();
     }
-    
+
     /**
      *
      * @see IRenderEngine::getAll()

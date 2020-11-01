@@ -3,6 +3,13 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!empty($_POST)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
+    }
+}
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
@@ -13,13 +20,13 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 require_once('gacl_admin.inc.php');
 
 // GET takes precedence.
-if ($_GET['group_type'] == '') {
+if (empty($_GET['group_type'])) {
 	$group_type = $_POST['group_type'];
 } else {
 	$group_type = $_GET['group_type'];
 }
 
-if ($_GET['return_page'] == '') {
+if (empty($_GET['return_page'])) {
 	$return_page = $_POST['return_page'];
 } else {
 	$return_page = $_GET['return_page'];
@@ -36,8 +43,8 @@ switch(strtolower(trim($group_type))) {
 		break;
 }
 
-
-switch ($_POST['action']) {
+$postAction = $_POST['action'] ?? null;
+switch ($postAction) {
 	case 'Delete':
 		$gacl_api->debug_text('Delete');
 
@@ -102,12 +109,12 @@ switch ($_POST['action']) {
 			list($id, $parent_id, $value, $name) = $db->GetRow($query);
 			//showarray($row);
 		} else {
-			$parent_id = $_GET['parent_id'];
+			$parent_id = $_GET['parent_id'] ?? null;
 			$value = '';
 			$name = '';
 		}
 
-		$smarty->assign('id', $id);
+		$smarty->assign('id', ($id ?? null));
 		$smarty->assign('parent_id', $parent_id);
 		$smarty->assign('value', $value);
 		$smarty->assign('name', $name);
@@ -124,6 +131,8 @@ $smarty->assign('page_title', 'Edit '. strtoupper($group_type) .' Group');
 
 $smarty->assign('phpgacl_version', $gacl_api->get_version());
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
+
+$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
 
 $smarty->display('phpgacl/edit_group.tpl');
 ?>
