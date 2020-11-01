@@ -33,13 +33,13 @@ There are 2 different schools of thought on where to run the docker from.
 - Option 1. Run the docker from within your git repository.(this is also where you edit
 scripts in your editor)
 ```bash
-$ cd openemr/contrib/util/docker
+$ cd openemr/docker/development-insane
 $ docker-compose up -d
 ```
 - Option 2. Run the docker from a separate directory that is synchronized with your git
 repository. For example, if used /var/www/openemr.
 ```bash
- $ cd /var/www/openemr/contrib/util/docker
+ $ cd /var/www/openemr/docker/development-insane
  $ docker-compose up -d
 ```
 - At this time, I highly recommend option 2 since running OpenEMR will change

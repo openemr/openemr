@@ -48,7 +48,8 @@ services:
       OE_PASS: pass
       EASY_DEV_MODE: "yes"
       EASY_DEV_MODE_NEW: "yes"
-      DEVELOPER_TOOLS: "yes"
+      # e2e requires chromium, which alpine isn't giving us in arm
+      DEVELOPER_TOOLS: "no"
       XDEBUG_IDE_KEY: PHPSTORM
       XDEBUG_PROFILER_ON: 1
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
@@ -92,14 +93,15 @@ services:
     environment:
       COUCHDB_USER: admin
       COUCHDB_PASSWORD: password
-  openldap:
-    restart: always
-    image: openemr/dev-ldap:easy
-    environment:
-      LDAP_TLS_VERIFY_CLIENT: try
-      LDAP_TLS_CA_CRT_FILENAME: ca.pem
-      LDAP_TLS_CRT_FILENAME: server-cert.pem
-      LDAP_TLS_KEY_FILENAME: server-key.pem
+  #maybe later
+  #openldap:
+  #  restart: always
+  #  image: openemr/dev-ldap:easy
+  #  environment:
+  #    LDAP_TLS_VERIFY_CLIENT: try
+  #    LDAP_TLS_CA_CRT_FILENAME: ca.pem
+  #    LDAP_TLS_CRT_FILENAME: server-cert.pem
+  #    LDAP_TLS_KEY_FILENAME: server-key.pem
 volumes:
   databasevolume: {}
   publicvolume: {}

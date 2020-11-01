@@ -6,15 +6,15 @@ version: '3.1'
 services:
   mysql:
     restart: always
-    image: mariadb:10.4
-    command: ['mysqld','--character-set-server=utf8']
+    image: jsurf/rpi-mariadb
+    command: ['mysqld','--character-set-server=utf8mb4']
     volumes:
     - databasevolume:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
   openemr:
     restart: always
-    image: openemr/openemr:latest
+    image: openemr/openemr
     ports:
     - 80:80
     - 443:443

@@ -77,7 +77,7 @@ services:
     - 8080:80
     - 9080:443
     volumes:
-    - ../../..:/var/www/localhost/htdocs/openemr
+    - ../..:/var/www/localhost/htdocs/openemr
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
@@ -89,7 +89,7 @@ services:
     - 8081:80
     - 9081:443
     volumes:
-    - ../../..:/var/www/localhost/htdocs/openemr
+    - ../..:/var/www/localhost/htdocs/openemr
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
@@ -101,7 +101,7 @@ services:
     - 8082:80
     - 9082:443
     volumes:
-    - ../../..:/var/www/localhost/htdocs/openemr
+    - ../..:/var/www/localhost/htdocs/openemr
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
@@ -113,7 +113,7 @@ services:
     - 8083:80
     - 9083:443
     volumes:
-    - ../../..:/var/www/localhost/htdocs/openemr
+    - ../..:/var/www/localhost/htdocs/openemr
     - couchdbvolume:/couchdb/data
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -147,7 +147,7 @@ services:
     - 8084:80
     - 9084:443
     volumes:
-    - ../../..:/var/www/localhost/htdocs/openemr
+    - ../..:/var/www/localhost/htdocs/openemr
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
@@ -159,7 +159,7 @@ services:
     - 8085:80
     - 9085:443
     volumes:
-    - ../../..:/var/www/localhost/htdocs/openemr
+    - ../..:/var/www/localhost/htdocs/openemr
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
@@ -172,7 +172,7 @@ services:
     - 8086:80
     - 9086:443
     volumes:
-    - ../../..:/var/www/localhost/htdocs/openemr
+    - ../..:/var/www/localhost/htdocs/openemr
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
@@ -185,7 +185,7 @@ services:
     - 8087:80
     - 9087:443
     volumes:
-    - ../../..:/var/www/localhost/htdocs/openemr
+    - ../..:/var/www/localhost/htdocs/openemr
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
@@ -198,7 +198,7 @@ services:
     - 8088:80
     - 9088:443
     volumes:
-    - ../../..:/var/www/localhost/htdocs/openemr
+    - ../..:/var/www/localhost/htdocs/openemr
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
@@ -211,7 +211,7 @@ services:
     - 8089:80
     - 9089:443
     volumes:
-    - ../../..:/var/www/localhost/htdocs/openemr
+    - ../..:/var/www/localhost/htdocs/openemr
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
@@ -328,7 +328,7 @@ services:
     - 8156:96
     - 9156:456
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     - ./dockers/dev-nginx/dummy-cert:/etc/nginx/dummy-cert:ro
     - ./dockers/dev-nginx/dummy-key:/etc/nginx/dummy-key:ro
@@ -349,7 +349,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:5.6
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-5-6/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -357,7 +357,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:7.0
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-0/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -365,7 +365,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:7.1
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-1/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -373,7 +373,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:7.2
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-2/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -381,7 +381,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:7.3
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-3/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -389,7 +389,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:7.4
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-4/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -397,7 +397,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:8.0
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-8-0/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -405,7 +405,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:5.6-redis
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-5-6-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -413,7 +413,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:7.0-redis
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -421,7 +421,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:7.1-redis
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-1-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -429,7 +429,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:7.2-redis
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-2-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -437,7 +437,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:7.3-redis
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-3-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -445,7 +445,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:7.4-redis
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-4-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
@@ -453,7 +453,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:8.0-redis
     volumes:
-    - ../../..:/usr/share/nginx/html/openemr
+    - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-8-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
