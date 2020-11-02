@@ -369,10 +369,10 @@ class FeeSheet
         }
 
         $result = sqlQuery($query, $sqlArray);
-        $codes_id = $result['id'];
-        $revenue_code = $revenue_code ? $revenue_code : $result['revenue_code'];
+        $codes_id = $result['id'] ?? '';
+        $revenue_code = $revenue_code ? $revenue_code : ($result['revenue_code'] ?? '');
         if (!$code_text) {
-            $code_text = $result['code_text'];
+            $code_text = $result['code_text'] ?? '';
             if (empty($units)) {
                 $units = max(1, intval($result['units']));
             }
@@ -807,7 +807,7 @@ class FeeSheet
                     continue;
                 }
 
-                $id        = $iter['id'];
+                $id        = $iter['id'] ?? '';
                 $code_type = $iter['code_type'];
                 $code      = $iter['code'];
                 $del       = !empty($iter['del']);

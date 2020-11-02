@@ -216,7 +216,7 @@ function echoServiceLines()
             }
 
             if (fees_are_used()) {
-                if ($codetype == 'COPAY' || $code_types[$codetype]['fee'] || $fee != 0) {
+                if ($codetype == 'COPAY' || $code_types[$codetype]['fee'] || (!empty($fee) && ($fee != 0))) {
                     if ($price_levels_are_used) {
                         echo "  <td class='billcell text-center'>";
                         echo $fs->genPriceLevelSelect("bill[$lino][pricelevel]", ' ', $li['hidden']['codes_id'], '', $pricelevel);
@@ -277,7 +277,7 @@ function echoServiceLines()
             echo "  <td class='billcell text-center' $usbillstyle><input type='checkbox' name='bill[" . attr($lino) . "][auth]' " .
             "value='1'" . ($li['auth'] ? " checked" : "") . " /></td>\n";
 
-            if ($GLOBALS['gbl_auto_create_rx']) {
+            if (!empty($GLOBALS['gbl_auto_create_rx'])) {
                 echo "  <td class='billcell text-center'>&nbsp;</td>\n";   // KHY: May need to confirm proper location of this cell
             }
 
@@ -455,7 +455,7 @@ $current_checksum = $fs->visitChecksum();
 
 // this is for a save before we open justify dialog.
 // otherwise current form state is over written in justify process.
-if ($_POST['running_as_ajax'] && $_POST['dx_update']) {
+if (!empty($_POST['running_as_ajax']) && !empty($_POST['dx_update'])) {
     $main_provid = 0 + $_POST['ProviderID'];
     $main_supid = 0 + (int)$_POST['SupervisorID'];
     $fs->save(
@@ -482,14 +482,14 @@ if (isset($_POST['form_checksum'])) {
     }
 }
 
-if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
+if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']))) {
     $alertmsg = $fs->checkInventory($_POST['prod']);
 }
 
 // If Save or Save-and-Close was clicked, save the new and modified billing
 // lines; then if no error, redirect to $GLOBALS['form_exit_url'].
 //
-if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_save_stay'])) {
+if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) || !empty($_POST['bn_save_stay']))) {
     $main_provid = 0 + $_POST['ProviderID'];
     $main_supid  = 0 + (int)$_POST['SupervisorID'];
 
@@ -498,11 +498,11 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
         $_POST['prod'],
         $main_provid,
         $main_supid,
-        $_POST['default_warehouse'],
-        $_POST['bn_save_close']
+        ($_POST['default_warehouse'] ?? ''),
+        ($_POST['bn_save_close'] ?? '')
     );
 
-    if ($_POST['bn_save_stay']) {
+    if (!empty($_POST['bn_save_stay'])) {
         $current_checksum = $fs->visitChecksum();
     }
 
@@ -510,7 +510,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
     // also posts to SL).  Currently taxes with insurance claims make no sense,
     // so for now we'll ignore tax computation in the insurance billing logic.
 
-    if ($_POST['running_as_ajax']) {
+    if (!empty($_POST['running_as_ajax'])) {
         // In the case of running as an AJAX handler, we need to return this same
         // form with an updated checksum to properly support the invoking logic.
         // See review/js/fee_sheet_core.js for that logic.
@@ -537,7 +537,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
             }
         }
 
-        if ($rapid_data_entry || ($_POST['bn_save_close'] && $_POST['form_has_charges'])) {
+        if ($rapid_data_entry || (!empty($_POST['bn_save_close']) && !empty($_POST['form_has_charges']))) {
             // In rapid data entry mode or if "Save and Checkout" was clicked,
             // we go directly to the Checkout page.
             formJump("{$GLOBALS['rootdir']}/patient_file/pos_checkout.php?framed=1" .
@@ -556,7 +556,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
 
 // Handle reopen request.  In that case no other changes will be saved.
 // If there was a checkout this will undo it.
-if (!$alertmsg && $_POST['bn_reopen']) {
+if (!$alertmsg && !empty($_POST['bn_reopen'])) {
     BillingUtilities::doVoid($fs->pid, $fs->encounter, true);
     $current_checksum = $fs->visitChecksum();
     // Remove the line items so they are refreshed from the database on redisplay.
@@ -580,9 +580,9 @@ if ($billresult) {
     }
 }
 
-if ($_POST['bill']) {
+if (!empty($_POST['bill'])) {
     foreach ($_POST['bill'] as $iter) {
-        if ($iter["del"]) {
+        if (!empty($iter["del"])) {
             continue; // skip if Delete was checked
         }
 
@@ -594,7 +594,7 @@ if ($_POST['bill']) {
     }
 }
 
-if ($_POST['newcodes']) {
+if (!empty($_POST['newcodes'])) {
     $arrcodes = explode('~', $_POST['newcodes']);
     foreach ($arrcodes as $codestring) {
         if ($codestring === '') {
@@ -967,8 +967,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                                $search_type = $default_search_type;
-                            if ($_POST['search_type']) {
+                            $search_type = $default_search_type ?? '';
+                            if (!empty($_POST['search_type'])) {
                                 $search_type = $_POST['search_type'];
                             }
 
@@ -1027,7 +1027,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     // There's no limit on the number of results!
                                     //
                                     $numrows = 0;
-                                    if ($_POST['bn_search'] && $_POST['search_term']) {
+                                    if (!empty($_POST['bn_search']) && !empty($_POST['search_term'])) {
                                         $res = main_code_set_search($search_type, $_POST['search_term']);
                                         if (!empty($res)) {
                                             $numrows = sqlNumRows($res);
@@ -1102,7 +1102,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <td class='billcell text-center font-weight-bold' <?php echo $liprovstyle; ?>><?php echo xlt('Provider/Warehouse');?></td>
                                     <td class='billcell text-center font-weight-bold'<?php echo $usbillstyle; ?>><?php echo xlt('Note Codes');?></td>
                                     <td class='billcell text-center font-weight-bold'<?php echo $usbillstyle; ?>><?php echo xlt('Auth');?></td>
-                                    <?php if ($GLOBALS['gbl_auto_create_rx']) { ?>
+                                    <?php if (!empty($GLOBALS['gbl_auto_create_rx'])) { ?>
                                         <td class='billcell text-center font-weight-bold'><?php echo xlt('Rx'); ?></td>
                                     <?php } ?>
                                     <td class='billcell text-center font-weight-bold'><?php echo xlt('Delete');?></td>
@@ -1117,7 +1117,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     // $bill_lino = 0;
                                 if ($billresult) {
                                     foreach ($billresult as $iter) {
-                                        if (!$ALLOW_COPAYS && $iter["code_type"] == 'COPAY') {
+                                        if (empty($ALLOW_COPAYS) && ($iter["code_type"] == 'COPAY')) {
                                             continue;
                                         }
                                         if ($iter["code_type"] == 'TAX') {
@@ -1125,8 +1125,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
                                         // ++$bill_lino;
                                         $bill_lino = count($fs->serviceitems);
-                                        $bline = $_POST['bill']["$bill_lino"];
-                                        $del = $bline['del']; // preserve Delete if checked
+                                        $bline = $_POST['bill']["$bill_lino"] ?? '';
+                                        $del = $bline['del'] ?? ''; // preserve Delete if checked
                                         if ($institutional) {
                                             $revenue_code   = trim($iter["revenue_code"]);
                                         }
@@ -1143,21 +1143,21 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $provider_id = $iter['provider_id'];
 
                                         // Also preserve other items from the form, if present.
-                                        if ($bline['id'] && !$iter["billed"]) {
+                                        if (!empty($bline['id']) && empty($iter["billed"])) {
                                             if ($institutional) {
                                                 //$revenue_code   = trim($bline['revenue_code']);
                                             }
-                                            $modifier   = trim($bline['mod']);
-                                            $units      = max(1, intval(trim($bline['units'])));
-                                            $fee        = formatMoneyNumber((0 + trim($bline['price'])) * $units);
+                                            $modifier   = trim($bline['mod'] ?? '');
+                                            $units      = max(1, intval(trim($bline['units'] ?? '')));
+                                            $fee        = formatMoneyNumber((0 + trim($bline['price'] ?? 0)) * $units);
                                             $authorized = $bline['auth'];
                                             $ndc_info   = '';
-                                            if ($bline['ndcnum']) {
+                                            if (!empty($bline['ndcnum'])) {
                                                 $ndc_info = 'N4' . trim($bline['ndcnum']) . '   ' . $bline['ndcuom'] .
                                                 trim($bline['ndcqty']);
                                             }
-                                            $justify    = $bline['justify'];
-                                            $notecodes  = trim($bline['notecodes']);
+                                            $justify    = $bline['justify'] ?? '';
+                                            $notecodes  = trim($bline['notecodes'] ?? '');
                                              $provider_id = 0 + (int)$bline['provid'];
                                         }
 
@@ -1168,7 +1168,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $fs->addServiceLineItem(array(
                                         'codetype'    => $iter['code_type'],
                                         'code'        => trim($iter['code']),
-                                        'revenue_code'    => $revenue_code,
+                                        'revenue_code'    => ($revenue_code ?? ''),
                                         'modifier'    => $modifier,
                                         'ndc_info'    => $ndc_info,
                                         'auth'        => $authorized,
@@ -1211,7 +1211,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     // Echo new billing items from this form here, but omit any line
                                     // whose Delete checkbox is checked.
                                     //
-                                    if ($_POST['bill']) {
+                                    if (!empty($_POST['bill'])) {
                                         foreach ($_POST['bill'] as $key => $iter) {
                                             if ($iter["id"]) {
                                                 continue; // skip if it came from the database
@@ -1225,7 +1225,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 trim($iter['ndcqty']);
                                             }
                                             $units = max(1, intval(trim($iter['units'])));
-                                            $fee = formatMoneyNumber((0 + trim($iter['price'])) * $units);
+                                            $fee = formatMoneyNumber((0 + trim($iter['price'] ?? 0)) * $units);
                                             //the date is passed as $ndc_info, since this variable is not applicable in the case of copay.
                                             $ndc_info = '';
                                             if ($iter['code_type'] == 'COPAY') {
@@ -1296,7 +1296,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     // Echo new product items from this form here, but omit any line
                                     // whose Delete checkbox is checked.
                                     //
-                                    if ($_POST['prod']) {
+                                    if (!empty($_POST['prod'])) {
                                         foreach ($_POST['prod'] as $key => $iter) {
                                             if ($iter["sale_id"]) {
                                                 continue; // skip if it came from the database
@@ -1322,7 +1322,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                     // If new billing code(s) were <select>ed, add their line(s) here.
                                     //
-                                    if ($_POST['newcodes'] && !$alertmsg) {
+                                    if (!empty($_POST['newcodes']) && !$alertmsg) {
                                         $arrcodes = explode('~', $_POST['newcodes']);
 
                                         // A first pass here checks for any sex restriction errors.
@@ -1542,7 +1542,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
     });
     $("[name=search_term]").focus();
-    <?php if ($_POST['bn_search']) { ?>
+    <?php if (!empty($_POST['bn_search'])) { ?>
         document.querySelector("[name='search_term']") . scrollIntoView();
     <?php } ?>
 </script>

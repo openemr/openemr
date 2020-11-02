@@ -85,7 +85,7 @@ $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
 
 // If Save or Transmit was clicked, save the info.
 //
-if ($_POST['bn_save'] || $_POST['bn_xmit']) {
+if (!empty($_POST['bn_save']) || !empty($_POST['bn_xmit'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -613,8 +613,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </div>
                             <div class="col-sm-3">
                                 <?php
-                                generate_form_field(array('data_type' => 1, 'field_id' => 'order_priority',
-                                    'list_id' => 'ord_priority'), $row['order_priority']);
+                                generate_form_field(array('data_type' => 1, 'field_id' => 'order_priority', 'list_id' => 'ord_priority'), ($row['order_priority'] ?? ''));
                                 ?>
                             </div>
                             <div class="col-sm-3">
@@ -622,8 +621,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </div>
                             <div class="col-sm-3">
                                 <?php
-                                generate_form_field(array('data_type' => 1, 'field_id' => 'order_status',
-                                    'list_id' => 'ord_status'), $row['order_status']);
+                                generate_form_field(array('data_type' => 1, 'field_id' => 'order_status', 'list_id' => 'ord_status'), ($row['order_status'] ?? ''));
                                 ?>
                             </div>
                         </div>
@@ -638,7 +636,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     'field_id' => 'history_order',
                                     'list_id' => 'boolean'
                                 );
-                                generate_form_field($historyOrderOpts, $row['history_order']); ?>
+                                generate_form_field($historyOrderOpts, ($row['history_order'] ?? '')); ?>
                             </div>
                         </div>
                         <div class="form-row mt-3 p-2">
@@ -646,7 +644,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <label for="form_clinical_hx" class="col-form-label"><?php echo xlt('Clinical History'); ?></label>
                             </div>
                             <div class="col-sm-9">
-                                <textarea name="form_clinical_hx" id="form_clinical_hx" class="form-control" rows="2"><?php echo attr($row['clinical_hx']); ?></textarea>
+                                <textarea name="form_clinical_hx" id="form_clinical_hx" class="form-control" rows="2"><?php echo attr($row['clinical_hx'] ?? ''); ?></textarea>
                             </div>
                         </div>
                         <?php // Hide this for now with a hidden class as it does not yet do anything ?>
@@ -655,7 +653,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <label for="form_data_ordered" class="col-form-label"><?php echo xlt('Patient Instructions'); ?></label>
                             </div>
                             <div class="col-sm-9">
-                                <textarea rows='3' cols='35' name='form_patient_instructions' class='form-control inputtext'><?php echo text($row['patient_instructions']); ?></textarea>
+                                <textarea rows='3' cols='35' name='form_patient_instructions' class='form-control inputtext'><?php echo text($row['patient_instructions'] ?? ''); ?></textarea>
                             </div>
                         </div>
                     </fieldset>
@@ -756,14 +754,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     <div class="input-group-prepend">
                                                         <span class="btn btn-secondary input-group-text"><i onclick='current_diagnoses(this)' class='fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i></span>
                                                     </div>
-                                                    <input class='form-control' type='text' name='form_proc_type_diag[<?php echo attr($i); ?>]' value='<?php echo attr($oprow['diagnoses']) ?>' onclick='sel_related(this.name)' title='<?php echo xla('Click to add a diagnosis'); ?>' onfocus='this.blur()' style='cursor:pointer;' readonly/>
+                                                    <input class='form-control' type='text' name='form_proc_type_diag[<?php echo attr($i); ?>]' value='<?php echo attr($oprow['diagnoses'] ?? ''); ?>' onclick='sel_related(this.name)' title='<?php echo xla('Click to add a diagnosis'); ?>' onfocus='this.blur()' style='cursor:pointer;' readonly/>
                                                 </td>
                                                 <td class="qoe-div">
                                                     <!-- MSIE innerHTML property for a TABLE element is read-only, so using a DIV here. -->
                                                     <div class="table-responsive" id='qoetable[<?php echo attr($i); ?>]'>
                                                         <?php
                                                         $qoe_init_javascript = '';
-                                                        echo generate_qoe_html($ptid, $formid, $oprow['procedure_order_seq'], $i);
+                                                        echo generate_qoe_html($ptid, $formid, ($oprow['procedure_order_seq'] ?? ''), $i);
                                                         if ($qoe_init_javascript) {
                                                             echo "<script>$qoe_init_javascript</script>";
                                                         }

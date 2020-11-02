@@ -22,7 +22,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 //If 'mode' is either a 1 or 0 and 'target' ends with _expand
 //  Then will update the appropriate user _expand flag
-if (( $_POST['mode'] == 1 || $_POST['mode'] == 0 ) && ( substr($_POST['target'], -7, 7) == "_expand" )) {
+if ((isset($_POST['mode']) && ( $_POST['mode'] == 1 || $_POST['mode'] == 0 )) && ( substr($_POST['target'], -7, 7) == "_expand" )) {
   //set the user setting
     setUserSetting($_POST['target'], $_POST['mode']);
 }

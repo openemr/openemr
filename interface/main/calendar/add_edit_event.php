@@ -59,7 +59,7 @@ if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
 }
 
 /* Things that might be passed by our opener. */
-$eid           = $_GET['eid'] ?? ''; // only for existing events
+$eid           = $_GET['eid'] ?? null; // only for existing events
 $date          = $_GET['date'] ?? '';        // this and below only for new events
 $userid        = $_GET['userid'] ?? '';
 $default_catid = !empty($_GET['catid']) ? $_GET['catid'] : '5';
@@ -1349,13 +1349,13 @@ function find_available(extra) {
     ?>
     <ul class="nav nav-tabs nav-fill text-body">
         <?php
-            $eid = $_REQUEST["eid"] ?? '';
-            $startm = $_REQUEST["startampm"];
-            $starth = $_REQUEST["starttimeh"];
-            $uid = $_REQUEST["userid"];
-            $starttm = $_REQUEST["starttimem"];
+            $eid = $_REQUEST["eid"] ?? null;
+            $startm = $_REQUEST["startampm"] ?? '';
+            $starth = $_REQUEST["starttimeh"] ?? '';
+            $uid = $_REQUEST["userid"] ?? '';
+            $starttm = $_REQUEST["starttimem"] ?? '';
             $dt = $_REQUEST["date"];
-            $cid = $_REQUEST["catid"];
+            $cid = $_REQUEST["catid"] ?? '';
         ?>
         <li class="nav-item">
             <a class="nav-link<?php echo $normal;?>" href='add_edit_event.php?startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Patient');?></a>
