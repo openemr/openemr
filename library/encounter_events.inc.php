@@ -356,7 +356,7 @@ function check_event_exist($eid)
 function InsertEvent($args, $from = 'general')
 {
     $pc_recurrtype = '0';
-    if ($args['form_repeat'] || $args['days_every_week']) {
+    if (!empty($args['form_repeat']) || !empty($args['days_every_week'])) {
         if ($args['recurrspec']['event_repeat_freq_type'] == "6") {
             $pc_recurrtype = 3;
         } else {

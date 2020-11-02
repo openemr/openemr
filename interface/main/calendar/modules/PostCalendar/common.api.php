@@ -743,9 +743,9 @@ function sort_byTitleD($a, $b)
 }
 function sort_byTimeA($a, $b)
 {
-    if ($a['startTime'] < $b['startTime']) {
+    if ($a['startTime'] < ($b['startTime'] ?? '')) {
         return -1;
-    } elseif ($a['startTime'] > $b['startTime']) {
+    } elseif ($a['startTime'] > ($b['startTime'] ?? '')) {
         return 1;
     }
 }

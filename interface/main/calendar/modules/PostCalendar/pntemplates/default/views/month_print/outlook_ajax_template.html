@@ -156,7 +156,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     font-size: 10pt;
 }
 .timeslot {
-    height: [-php-]echo attr($timeslotHeightVal.$timeslotHeightUnit);[-/php-];
+    height: [-php-]echo attr(($timeslotHeightVal ?? "").($timeslotHeightUnit ?? ""));[-/php-];
     margin: 0px;
     padding: 0px;
 }
@@ -312,12 +312,12 @@ foreach ($providers as $provider) {
         $eventdate = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
 
         $gotoURL = pnModURL(__POSTCALENDAR__,'user','view',
-                        array('tplview'=>$template_view,
+                        array('tplview'=>($template_view ?? ''),
                         'viewtype'=>'day',
                         'Date'=> date("Ymd", strtotime($date)),
-                        'pc_username'=>$pc_username,
-                        'pc_category'=>$category,
-                        'pc_topic'=>$topic));
+                        'pc_username'=>($pc_username ?? ''),
+                        'pc_category'=>($category ?? ''),
+                        'pc_topic'=>($topic ?? '')));
 
         if (date("w", strtotime($date)) == $DOWlist[0]) { echo "<tr>"; }
         echo "<td class='schedule'>";
@@ -485,7 +485,7 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
             $tdClass = "tdWeekend-small";
         }
 
-        if (date('Ymd',$currdate) == $Date) {
+        if (!empty($Date) && (date('Ymd',$currdate) == $Date)) {
             // $Date is defined near the top of this file
             // and is equal to whatever date the user has clicked
             $tdClass .= " currentDate";

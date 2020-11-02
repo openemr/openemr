@@ -1422,6 +1422,9 @@ function updateHistoryData($pid, $new)
 // (optional) nowYMD is a date in YYYYMMDD format
 function getPatientAge($dobYMD, $nowYMD = null)
 {
+    if (empty($dobYMD)) {
+        return '';
+    }
     // strip any dashes from the DOB
     $dobYMD = preg_replace("/-/", "", $dobYMD);
     $dobDay = substr($dobYMD, 6, 2);
