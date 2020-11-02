@@ -1208,7 +1208,7 @@ function &postcalendar_userapi_pcGetEvents($args)
 
         $providerID = $providerID ?? '';
 
-        $a = array('start' => $start_date,'end' => $end_date,'s_keywords' => $s_keywords,'s_category' => $s_category,'s_topic' => $s_topic,'viewtype' => ($viewtype ?? null), "sort" => "pc_startTime ASC, a.pc_duration ASC ",'providerID' => $providerID, 'provider_id' => $provider_id);
+        $a = array('start' => $start_date,'end' => $end_date,'s_keywords' => $s_keywords,'s_category' => $s_category,'s_topic' => $s_topic,'viewtype' => ($viewtype ?? ''), "sort" => "pc_startTime ASC, a.pc_duration ASC ",'providerID' => $providerID, 'provider_id' => $provider_id);
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEvents', $a);
     }
 
@@ -1228,7 +1228,7 @@ function &postcalendar_userapi_pcGetEvents($args)
         $days[$store_date] = array();
     }
 
-    $days = calculateEvents($days, $events, ($viewtype ?? null));
+    $days = calculateEvents($days, $events, ($viewtype ?? ''));
     return $days;
 }
 

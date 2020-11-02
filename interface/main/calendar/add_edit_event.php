@@ -59,9 +59,9 @@ if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
 }
 
 /* Things that might be passed by our opener. */
-$eid           = $_GET['eid'] ?? null; // only for existing events
-$date          = $_GET['date'] ?? null;        // this and below only for new events
-$userid        = $_GET['userid'] ?? null;
+$eid           = $_GET['eid'] ?? ''; // only for existing events
+$date          = $_GET['date'] ?? '';        // this and below only for new events
+$userid        = $_GET['userid'] ?? '';
 $default_catid = !empty($_GET['catid']) ? $_GET['catid'] : '5';
 
 // form logic fails if not set to boolean
@@ -1349,7 +1349,7 @@ function find_available(extra) {
     ?>
     <ul class="nav nav-tabs nav-fill text-body">
         <?php
-            $eid = $_REQUEST["eid"] ?? null;
+            $eid = $_REQUEST["eid"] ?? '';
             $startm = $_REQUEST["startampm"];
             $starth = $_REQUEST["starttimeh"];
             $uid = $_REQUEST["userid"];
