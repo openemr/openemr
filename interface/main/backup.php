@@ -442,17 +442,28 @@ if ($form_step == 102) {
         // Individual lists.
         if (is_array($_POST['form_sel_lists'])) {
             foreach ($_POST['form_sel_lists'] as $listid) {
+                // skip if have backtic(s)
+                if (strpos($listid, '`') !== false) {
+                    echo xlt("Skipping illegal list name") . ": " . text($listid) . "<br>";
+                    continue;
+                }
+                // whitelist the $listid
+                $listid_check = sqlQuery("SELECT `list_id` FROM `list_options` WHERE `list_id` = ? OR `option_id` = ?", [$listid, $listid]);
+                if (empty($listid_check['list_id'])) {
+                    echo xlt("Skipping missing list name") . ": " . text($listid) . "<br>";
+                    continue;
+                }
                 if (IS_WINDOWS) {
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= " echo DELETE FROM list_options WHERE list_id = " . escapeshellarg(add_escape_custom($listid)) . "; >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                    $cmd .= " echo DELETE FROM list_options WHERE list_id = 'lists' AND option_id = " . escapeshellarg(add_escape_custom($listid)) . "; >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = 'lists' AND option_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
-                    $cmd .= "echo \"DELETE FROM list_options WHERE list_id = " . escapeshellarg(add_escape_custom($listid)) . ";\" >> " . escapeshellarg($EXPORT_FILE) . ";";
-                    $cmd .= "echo \"DELETE FROM list_options WHERE list_id = 'lists' AND option_id = " . escapeshellarg(add_escape_custom($listid)) . ";\" >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo 'DELETE FROM list_options WHERE list_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo 'DELETE FROM list_options WHERE list_id = \"lists\" AND option_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 $cmd .= $dumppfx .
-                " --where=\"list_id = 'lists' AND option_id = " . escapeshellarg(add_escape_custom($listid)) . " OR list_id = " . escapeshellarg(add_escape_custom($listid)) . " " .
-                "ORDER BY list_id != 'lists', seq, title\" " .
+                " --where='list_id = \"lists\" AND option_id = \"" . add_escape_custom($listid) . "\" OR list_id = \"" . add_escape_custom($listid) . "\" " .
+                "ORDER BY list_id != \"lists\", seq, title' " .
                 escapeshellarg($sqlconf["dbase"]) . " list_options";
                 if (IS_WINDOWS) {
                   # windows uses the & to join statements.
@@ -466,20 +477,32 @@ if ($form_step == 102) {
         // Individual layouts.
         if (is_array($_POST['form_sel_layouts'])) {
             foreach ($_POST['form_sel_layouts'] as $layoutid) {
-                if (IS_WINDOWS) {
-                    # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= " echo DELETE FROM layout_options WHERE form_id = " . escapeshellarg(add_escape_custom($layoutid)) . "; >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                } else {
-                    $cmd .= "echo \"DELETE FROM layout_options WHERE form_id = " . escapeshellarg(add_escape_custom($layoutid)) . ";\" >> " . escapeshellarg($EXPORT_FILE) . ";";
+                // skip if have backtic(s)
+                if (strpos($layoutid, '`') !== false) {
+                    echo xlt("Skipping illegal layout name") . ": " . text($layoutid) . "<br>";
+                    continue;
+                }
+                // whitelist the $layoutid
+                $layoutid_check_one = sqlQuery("SELECT `form_id` FROM `layout_options` WHERE `form_id` = ?", [$layoutid]);
+                $layoutid_check_two = sqlQuery("SELECT `grp_form_id` FROM `layout_group_properties` WHERE `grp_form_id` = ?", [$layoutid]);
+                if (empty($layoutid_check_one['list_id']) && empty($layoutid_check_two['grp_form_id'])) {
+                    echo xlt("Skipping missing layout name") . ": " . text($layoutid) . "<br>";
+                    continue;
                 }
                 if (IS_WINDOWS) {
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= "echo \"DELETE FROM layout_group_properties WHERE grp_form_id = " . escapeshellarg(add_escape_custom($layoutid)) . ";\" >> " . escapeshellarg($EXPORT_FILE) . " &;";
+                    $cmd .= " echo 'DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
-                    $cmd .= "echo \"DELETE FROM layout_group_properties WHERE grp_form_id = " . escapeshellarg(add_escape_custom($layoutid)) . ";\" >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo 'DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
+                }
+                if (IS_WINDOWS) {
+                    # windows will place the quotes in the outputted code if they are there. we removed them here.
+                    $cmd .= "echo 'DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " &;";
+                } else {
+                    $cmd .= "echo 'DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 $cmd .= $dumppfx .
-                    " --where=\"grp_form_id = " . escapeshellarg(add_escape_custom($layoutid)) . "\" " .
+                    " --where='grp_form_id = \"" . add_escape_custom($layoutid) . "\"' " .
                     escapeshellarg($sqlconf["dbase"]) . " layout_group_properties";
                 if (IS_WINDOWS) {
                     # windows uses the & to join statements.
@@ -488,7 +511,7 @@ if ($form_step == 102) {
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 $cmd .= $dumppfx .
-                " --where=\"form_id = " . escapeshellarg(add_escape_custom($layoutid)) . " ORDER BY group_id, seq, title\" " .
+                " --where='form_id = \"" . add_escape_custom($layoutid) . "\" ORDER BY group_id, seq, title' " .
                 escapeshellarg($sqlconf["dbase"]) . " layout_options" ;
                 if (IS_WINDOWS) {
                     # windows uses the & to join statements.
