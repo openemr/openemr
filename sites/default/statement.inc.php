@@ -273,8 +273,12 @@ function create_HTML_statement($stmt)
                 $desc = xl('Paid') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
                     substr(oeFormatShortDate($ddate), 8, 2) .
                     ': ' . $ddata['src'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
-                if ($ddata['src'] == 'Pt Paid') {
+                // $ddata['plv'] is the 'payer_type' field in `ar_activity`, passed in via InvoiceSummary
+                if ($ddata['src'] == 'Pt Paid' || $ddata['plv'] == '0') {
                     $pt_paid_flag = true;
+                    $desc = xl('Pt paid') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
+                    substr(oeFormatShortDate($ddate), 8, 2) .
+                    ': ' . $ddata['src'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
                 }
             } elseif ($ddata['rsn']) {
                 if ($ddata['chg']) {
