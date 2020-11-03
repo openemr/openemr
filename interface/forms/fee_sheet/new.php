@@ -216,7 +216,7 @@ function echoServiceLines()
             }
 
             if (fees_are_used()) {
-                if ($codetype == 'COPAY' || $code_types[$codetype]['fee'] || (!empty($fee) && ($fee != 0))) {
+                if ($codetype == 'COPAY' || $code_types[$codetype]['fee'] || !empty($fee)) {
                     if ($price_levels_are_used) {
                         echo "  <td class='billcell text-center'>";
                         echo $fs->genPriceLevelSelect("bill[$lino][pricelevel]", ' ', $li['hidden']['codes_id'], '', $pricelevel);
@@ -498,8 +498,8 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
         $_POST['prod'],
         $main_provid,
         $main_supid,
-        ($_POST['default_warehouse'] ?? ''),
-        ($_POST['bn_save_close'] ?? '')
+        ($_POST['default_warehouse'] ?? null),
+        ($_POST['bn_save_close'] ?? null)
     );
 
     if (!empty($_POST['bn_save_stay'])) {
@@ -967,7 +967,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                            $search_type = $default_search_type ?? '';
+                            $search_type = $default_search_type ?? null;
                             if (!empty($_POST['search_type'])) {
                                 $search_type = $_POST['search_type'];
                             }
@@ -1125,8 +1125,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
                                         // ++$bill_lino;
                                         $bill_lino = count($fs->serviceitems);
-                                        $bline = $_POST['bill']["$bill_lino"] ?? '';
-                                        $del = $bline['del'] ?? ''; // preserve Delete if checked
+                                        $bline = $_POST['bill']["$bill_lino"] ?? null;
+                                        $del = $bline['del'] ?? null; // preserve Delete if checked
                                         if ($institutional) {
                                             $revenue_code   = trim($iter["revenue_code"]);
                                         }
@@ -1147,17 +1147,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             if ($institutional) {
                                                 //$revenue_code   = trim($bline['revenue_code']);
                                             }
-                                            $modifier   = trim($bline['mod'] ?? '');
-                                            $units      = max(1, intval(trim($bline['units'] ?? '')));
-                                            $fee        = formatMoneyNumber((0 + trim($bline['price'] ?? 0)) * $units);
+                                            $modifier   = trim($bline['mod'] ?? null);
+                                            $units      = max(1, intval(trim($bline['units'] ?? null)));
+                                            $fee        = formatMoneyNumber((0 + trim($bline['price'] ?? null)) * $units);
                                             $authorized = $bline['auth'];
                                             $ndc_info   = '';
                                             if (!empty($bline['ndcnum'])) {
                                                 $ndc_info = 'N4' . trim($bline['ndcnum']) . '   ' . $bline['ndcuom'] .
                                                 trim($bline['ndcqty']);
                                             }
-                                            $justify    = $bline['justify'] ?? '';
-                                            $notecodes  = trim($bline['notecodes'] ?? '');
+                                            $justify    = $bline['justify'] ?? null;
+                                            $notecodes  = trim($bline['notecodes'] ?? null);
                                              $provider_id = 0 + (int)$bline['provid'];
                                         }
 
@@ -1168,7 +1168,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $fs->addServiceLineItem(array(
                                         'codetype'    => $iter['code_type'],
                                         'code'        => trim($iter['code']),
-                                        'revenue_code'    => ($revenue_code ?? ''),
+                                        'revenue_code'    => ($revenue_code ?? null),
                                         'modifier'    => $modifier,
                                         'ndc_info'    => $ndc_info,
                                         'auth'        => $authorized,
@@ -1225,7 +1225,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 trim($iter['ndcqty']);
                                             }
                                             $units = max(1, intval(trim($iter['units'])));
-                                            $fee = formatMoneyNumber((0 + trim($iter['price'] ?? 0)) * $units);
+                                            $fee = formatMoneyNumber((0 + trim($iter['price'] ?? null)) * $units);
                                             //the date is passed as $ndc_info, since this variable is not applicable in the case of copay.
                                             $ndc_info = '';
                                             if ($iter['code_type'] == 'COPAY') {

@@ -18,7 +18,7 @@ require_once("../globals.php");
 use OpenEMR\Core\Header;
 
 $order = 0 + $_GET['order'];
-$labid = 0 + ($_GET['labid'] ?? 0);
+$labid = 0 + ($_GET['labid'] ?? null);
 
 //////////////////////////////////////////////////////////////////////
 // The form was submitted with the selected code type.

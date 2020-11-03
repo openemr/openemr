@@ -436,12 +436,12 @@ foreach ($providers as $provider) {
     foreach ($A_EVENTS as $date => $events) {
         $dateFmt = date("Ymd", strtotime($date));
         $gotoURL = pnModURL(__POSTCALENDAR__,'user','view',
-                        array('tplview'=>($template_view ?? ''),
+                        array('tplview'=>($template_view ?? null),
                         'viewtype'=>'day',
                         'Date'=> $dateFmt,
-                        'pc_username'=>($pc_username ?? ''),
-                        'pc_category'=>($category ?? ''),
-                        'pc_topic'=>($topic ?? '')));
+                        'pc_username'=>($pc_username ?? null),
+                        'pc_category'=>($category ?? null),
+                        'pc_topic'=>($topic ?? null)));
         if ($defaultDate == "") $defaultDate = $dateFmt;
         $currclass = "";
         if ($Date == $dateFmt) { $currclass= "week_currday"; }
@@ -571,7 +571,7 @@ foreach ($providers as $provider) {
             // yeah, we've got that sort of overhead here... it ain't perfect
             // $event['aid']!=0 :With the holidays we included clinic events, they have provider id =0
             // we dont want to exclude those events from being displayed
-            if ($providerid != ($event['aid'] ?? '')) { continue; }
+            if (!empty($event['aid']) && ($providerid != $event['aid'])) { continue; }
 
             // skip events without an ID (why they are in the loop, I have no idea)
             if (empty($event['eid'])) { continue; }
@@ -640,7 +640,7 @@ foreach ($providers as $provider) {
                 $outMins = 0;
                 foreach ($events as $outevent) {
                     // skip events for other providers
-                    if ($providerid != ($outevent['aid'] ?? '')) { continue; }
+                    if (!empty($outevent['aid']) && ($providerid != $outevent['aid'])) { continue; }
                     // skip events with blank IDs
                     if ($outevent['eid'] == "") { continue; }
 
@@ -692,7 +692,7 @@ foreach ($providers as $provider) {
                 $divLeft = "left: ".$eventPositions[$event['eid']]->leftpos."%";
             }
 
-            $eventid = $event['eid'] ?? '';
+            $eventid = $event['eid'] ?? null;
 	        $eventtype = sqlQuery("SELECT pc_cattype FROM openemr_postcalendar_categories as oc LEFT OUTER JOIN openemr_postcalendar_events as oe ON oe.pc_catid=oc.pc_catid WHERE oe.pc_eid='".$eventid."'");
 	        $pccattype = '';
 	        if($eventtype['pc_cattype']==1)

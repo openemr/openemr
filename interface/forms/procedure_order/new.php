@@ -613,7 +613,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </div>
                             <div class="col-sm-3">
                                 <?php
-                                generate_form_field(array('data_type' => 1, 'field_id' => 'order_priority', 'list_id' => 'ord_priority'), ($row['order_priority'] ?? ''));
+                                generate_form_field(array('data_type' => 1, 'field_id' => 'order_priority', 'list_id' => 'ord_priority'), ($row['order_priority'] ?? null));
                                 ?>
                             </div>
                             <div class="col-sm-3">
@@ -621,7 +621,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </div>
                             <div class="col-sm-3">
                                 <?php
-                                generate_form_field(array('data_type' => 1, 'field_id' => 'order_status', 'list_id' => 'ord_status'), ($row['order_status'] ?? ''));
+                                generate_form_field(array('data_type' => 1, 'field_id' => 'order_status', 'list_id' => 'ord_status'), ($row['order_status'] ?? null));
                                 ?>
                             </div>
                         </div>
@@ -636,7 +636,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     'field_id' => 'history_order',
                                     'list_id' => 'boolean'
                                 );
-                                generate_form_field($historyOrderOpts, ($row['history_order'] ?? '')); ?>
+                                generate_form_field($historyOrderOpts, ($row['history_order'] ?? null)); ?>
                             </div>
                         </div>
                         <div class="form-row mt-3 p-2">
@@ -761,7 +761,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     <div class="table-responsive" id='qoetable[<?php echo attr($i); ?>]'>
                                                         <?php
                                                         $qoe_init_javascript = '';
-                                                        echo generate_qoe_html($ptid, $formid, ($oprow['procedure_order_seq'] ?? ''), $i);
+                                                        echo generate_qoe_html($ptid, $formid, ($oprow['procedure_order_seq'] ?? null), $i);
                                                         if ($qoe_init_javascript) {
                                                             echo "<script>$qoe_init_javascript</script>";
                                                         }

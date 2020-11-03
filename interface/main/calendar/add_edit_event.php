@@ -60,8 +60,8 @@ if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
 
 /* Things that might be passed by our opener. */
 $eid           = $_GET['eid'] ?? null; // only for existing events
-$date          = $_GET['date'] ?? '';        // this and below only for new events
-$userid        = $_GET['userid'] ?? '';
+$date          = $_GET['date'] ?? null;        // this and below only for new events
+$userid        = $_GET['userid'] ?? null;
 $default_catid = !empty($_GET['catid']) ? $_GET['catid'] : '5';
 
 // form logic fails if not set to boolean
@@ -71,8 +71,8 @@ if (isset($_GET['group'])) {
 if (isset($_GET['prov'])) {
     $_GET['prov'] = $_GET['prov'] == "true" ? true : false;
 }
-$_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? '');
-$_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? '');
+$_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? null);
+$_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null);
 
 if ($date) {
     $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
@@ -197,7 +197,7 @@ function DOBandEncounter($pc_eid)
 {
      global $event_date,$info_msg;
      // Save new DOB if it's there.
-     $patient_dob = trim($_POST['form_dob'] ?? '');
+     $patient_dob = trim($_POST['form_dob'] ?? null);
      $tmph = $_POST['form_hour'] + 0;
      $tmpm = $_POST['form_minute'] + 0;
     if (!empty($_POST['form_ampm']) && ($_POST['form_ampm'] == '2' && $tmph < 12)) {
@@ -347,8 +347,8 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
 
         // Set up working variables related to repeated events.
         $my_recurrtype = 0;
-        $my_repeat_freq = 0 + ($_POST['form_repeat_freq'] ?? 0);
-        $my_repeat_type = 0 + ($_POST['form_repeat_type'] ?? 0);
+        $my_repeat_freq = 0 + ($_POST['form_repeat_freq'] ?? null);
+        $my_repeat_type = 0 + ($_POST['form_repeat_type'] ?? null);
         $my_repeat_on_num  = 1;
         $my_repeat_on_day  = 0;
         $my_repeat_on_freq = 0;
@@ -1350,12 +1350,12 @@ function find_available(extra) {
     <ul class="nav nav-tabs nav-fill text-body">
         <?php
             $eid = $_REQUEST["eid"] ?? null;
-            $startm = $_REQUEST["startampm"] ?? '';
-            $starth = $_REQUEST["starttimeh"] ?? '';
-            $uid = $_REQUEST["userid"] ?? '';
-            $starttm = $_REQUEST["starttimem"] ?? '';
+            $startm = $_REQUEST["startampm"] ?? null;
+            $starth = $_REQUEST["starttimeh"] ?? null;
+            $uid = $_REQUEST["userid"] ?? null;
+            $starttm = $_REQUEST["starttimem"] ?? null;
             $dt = $_REQUEST["date"];
-            $cid = $_REQUEST["catid"] ?? '';
+            $cid = $_REQUEST["catid"] ?? null;
         ?>
         <li class="nav-item">
             <a class="nav-link<?php echo $normal;?>" href='add_edit_event.php?startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Patient');?></a>
@@ -1419,7 +1419,7 @@ $classpati = '';
             $facils = getUserFacilities($_SESSION['authUserID']);
             $qsql = sqlStatement("SELECT id, name FROM facility WHERE service_location != 0");
             while ($facrow = sqlFetchArray($qsql)) {
-                if (!empty($_SESSION['authorizedUser']) && ($_SESSION['authorizedUser'] || in_array($facrow, $facils))) {
+                if (!empty($_SESSION['authorizedUser']) || in_array($facrow, $facils)) {
                     $selected = ($facrow['id'] == $e2f) ? 'selected="selected"' : '';
                     echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
                 } else {
@@ -1433,7 +1433,7 @@ $classpati = '';
     <div class="col-sm form-group">
     <label for="billing_facility"><?php echo xlt('Billing Facility'); ?>:</label>
         <?php
-        billing_facility('billing_facility', ($row['pc_billing_location'] ?? ''));
+        billing_facility('billing_facility', ($row['pc_billing_location'] ?? null));
         ?>
     </div>
 </div>
@@ -1466,7 +1466,7 @@ if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
     // DOB is important for the clinic, so if it's missing give them a chance
     // to enter it right here.  We must display or hide this row dynamically
     // in case the patient-select popup is used.
-    $patient_dob = trim($prow['DOB'] ?? '');
+    $patient_dob = trim($prow['DOB'] ?? null);
     $is_group = $groupname;
     $dobstyle = (!empty($prow) && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
         '' : 'none';
@@ -1724,9 +1724,9 @@ function isRegularRepeat($repeat)
         <label id='title_prefcat' class='font-weight-bold' style='display:none'><?php echo xlt('Pref Cat'); ?>:</label>
         <?php
         if ($_GET['group'] != true) {
-            generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), ($row['pc_apptstatus'] ?? ''));
+            generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), ($row['pc_apptstatus'] ?? null));
         } else {
-            generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'groupstat', 'empty_title' => 'SKIP'), ($row['pc_apptstatus'] ?? ''));
+            generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'groupstat', 'empty_title' => 'SKIP'), ($row['pc_apptstatus'] ?? null));
         }
         ?>
         <!-- The following list will be invisible unless this is an In Office

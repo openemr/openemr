@@ -314,7 +314,7 @@ foreach ($providers as $provider) {
         echo "<td><div id='dowheader'>". xlt(date("D",strtotime($eventdate))) . " " . text(date("m/d", strtotime($eventdate))) . "</div>";
 
         // output the events for this date
-        PrintEvents($events, $providerid, ($TPL_IMAGE_PATH ?? ''));
+        PrintEvents($events, $providerid, ($TPL_IMAGE_PATH ?? null));
 
         // now output the events for this date+4, if they exist
         echo "</td><td>";
@@ -322,7 +322,7 @@ foreach ($providers as $provider) {
         if (isset($A_EVENTS[date("Y-m-d", $dateplusfour)])) {
             echo "<div id='dowheader'>". xlt(date("D",$dateplusfour)) . " " . text(date("m/d", $dateplusfour)) . "</div>";
             $tmpEvents = $A_EVENTS[date("Y-m-d", $dateplusfour)];
-            PrintEvents($tmpEvents, $providerid, ($TPL_IMAGE_PATH ?? ''));
+            PrintEvents($tmpEvents, $providerid, ($TPL_IMAGE_PATH ?? null));
         }
         echo "</tr>";
 
@@ -344,7 +344,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
         foreach ($events as $event) {
             // skip events for other providers
             // yeah, we've got that sort of overhead here... it ain't perfect
-            if ($providerid != ($event['aid'] ?? '')) { continue; }
+            if (!empty($event['aid']) && ($providerid != $event['aid'])) { continue; }
 
             // skip events without an ID (why they are in the loop, I have no idea)
             if ($event['eid'] == "") { continue; }
@@ -478,7 +478,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             if ($comment && $GLOBALS['calendar_appt_style'] < 4) $title .= " " . $comment;
 
             // the divTitle is what appears when the user hovers the mouse over the DIV
-            $divTitle = date("D, d M Y", strtotime($date ?? ''));
+            $divTitle = date("D, d M Y", strtotime($date ?? null));
 
             $eventdatetime = strtotime(($date ?? '')." ".$starth.":".$startm);
 

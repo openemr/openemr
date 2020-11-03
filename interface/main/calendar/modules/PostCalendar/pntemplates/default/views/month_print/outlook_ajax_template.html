@@ -312,12 +312,12 @@ foreach ($providers as $provider) {
         $eventdate = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
 
         $gotoURL = pnModURL(__POSTCALENDAR__,'user','view',
-                        array('tplview'=>($template_view ?? ''),
+                        array('tplview'=>($template_view ?? null),
                         'viewtype'=>'day',
                         'Date'=> date("Ymd", strtotime($date)),
-                        'pc_username'=>($pc_username ?? ''),
-                        'pc_category'=>($category ?? ''),
-                        'pc_topic'=>($topic ?? '')));
+                        'pc_username'=>($pc_username ?? null),
+                        'pc_category'=>($category ?? null),
+                        'pc_topic'=>($topic ?? null)));
 
         if (date("w", strtotime($date)) == $DOWlist[0]) { echo "<tr>"; }
         echo "<td class='schedule'>";

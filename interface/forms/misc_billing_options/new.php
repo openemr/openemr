@@ -136,7 +136,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 <label><?php echo xlt('Box 14. Onset Date:'); ?></label>
                             </div>
                             <div class="col-md">
-                                <?php $onset_date = $obj["onset_date"] ?? ''; ?>
+                                <?php $onset_date = $obj["onset_date"] ?? null; ?>
                                 <input type="text" size="10" class='datepicker form-control' name='onset_date' id='onset_date'
                                     value='<?php echo attr($onset_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </div>
@@ -149,7 +149,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 <label><?php echo xlt('Box 15. Other Date:'); ?></label>
                             </div>
                             <div class="col-md">
-                                <?php $date_initial_treatment = $obj["date_initial_treatment"] ?? ''; ?>
+                                <?php $date_initial_treatment = $obj["date_initial_treatment"] ?? null; ?>
                                 <input type="text" size="10" class='datepicker form-control' name='date_initial_treatment'
                                     id='date_initial_treatment' value='<?php echo attr($date_initial_treatment); ?>'
                                     title='<?php echo xla('yyyy-mm-dd'); ?>' />
@@ -165,7 +165,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 </label>
                             </div>
                             <div class="col-md">
-                                <?php $off_work_from = $obj["off_work_from"] ?? ''; ?>
+                                <?php $off_work_from = $obj["off_work_from"] ?? null; ?>
                                 <input type="text" class='datepicker form-control' name='off_work_from'
                                 id='off_work_from' value='<?php echo attr($off_work_from); ?>'
                                 title='<?php echo xla('yyyy-mm-dd'); ?>' />
@@ -176,7 +176,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 </label>
                             </div>
                             <div class="col-md">
-                                <?php $off_work_to = $obj["off_work_to"] ?? ''; ?>
+                                <?php $off_work_to = $obj["off_work_to"] ?? null; ?>
                                 <input type="text" class='datepicker form-control' name='off_work_to' id='off_work_to'
                                     value='<?php echo attr($off_work_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </div>
@@ -192,7 +192,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-group">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:</label>
-                            <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', ($obj["provider_qualifier_code"] ?? ''), 'Provider Qualifier Code'); ?>
+                            <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', ($obj["provider_qualifier_code"] ?? null), 'Provider Qualifier Code'); ?>
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
@@ -201,7 +201,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 </label>
                             </div>
                             <div class="col-md">
-                                <?php $hospitalization_date_from = $obj["hospitalization_date_from"] ?? ''; ?>
+                                <?php $hospitalization_date_from = $obj["hospitalization_date_from"] ?? null; ?>
                                 <input type="text" class='datepicker form-control' name='hospitalization_date_from'
                                     id='hospitalization_date_from' value='<?php echo attr($hospitalization_date_from); ?>'
                                     title='<?php echo xla('yyyy-mm-dd'); ?>' />
@@ -212,7 +212,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 </label>
                             </div>
                             <div class="col-md">
-                                <?php $hospitalization_date_to = $obj["hospitalization_date_to"] ?? ''; ?>
+                                <?php $hospitalization_date_to = $obj["hospitalization_date_to"] ?? null; ?>
                                 <input type="text" class='datepicker form-control' name='hospitalization_date_to'
                                     id='hospitalization_date_to' value='<?php echo attr($hospitalization_date_to); ?>'
                                     title='<?php echo xla('yyyy-mm-dd'); ?>' />

@@ -47,8 +47,8 @@ if ($task == 'retrieve') {
 
         $issues = array();
         $procedures = array();
-        fee_sheet_items($req_pid, ($prev_enc ?? ''), $issues, $procedures);
-        $retval['prev_encounter'] = $prev_enc ?? '';
+        fee_sheet_items($req_pid, ($prev_enc ?? null), $issues, $procedures);
+        $retval['prev_encounter'] = $prev_enc ?? null;
         $retval['encounters'] = $encounters;
         $retval['procedures'] = $procedures;
     }
