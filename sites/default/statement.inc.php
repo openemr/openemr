@@ -277,8 +277,7 @@ function create_HTML_statement($stmt)
                 if ($ddata['src'] == 'Pt Paid' || $ddata['plv'] == '0') {
                     $pt_paid_flag = true;
                     $desc = xl('Pt paid') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
-                    substr(oeFormatShortDate($ddate), 8, 2) .
-                    ': ' . $ddata['src'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
+                    substr(oeFormatShortDate($ddate), 8, 2);
                 }
             } elseif ($ddata['rsn']) {
                 if ($ddata['chg']) {
