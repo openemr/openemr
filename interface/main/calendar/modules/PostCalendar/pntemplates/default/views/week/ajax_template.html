@@ -642,7 +642,7 @@ foreach ($providers as $provider) {
                     // skip events for other providers
                     if (!empty($outevent['aid']) && ($providerid != $outevent['aid'])) { continue; }
                     // skip events with blank IDs
-                    if ($outevent['eid'] == "") { continue; }
+                    if (empty($outevent['eid'])) { continue; }
 
                     if ($outevent['eid'] == $event['eid']) { $found = true; continue; }
                     if (($found == true) && ($outevent['catid'] == 3)) {

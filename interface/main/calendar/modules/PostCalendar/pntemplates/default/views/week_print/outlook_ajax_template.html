@@ -347,7 +347,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             if (!empty($event['aid']) && ($providerid != $event['aid'])) { continue; }
 
             // skip events without an ID (why they are in the loop, I have no idea)
-            if ($event['eid'] == "") { continue; }
+            if (empty($event['eid'])) { continue; }
 
             // specially handle all-day events
             if ($event['alldayevent'] == 1) {
@@ -403,9 +403,9 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
                 $outMins = 0;
                 foreach ($events as $outevent) {
                     // skip events for other providers
-                    if ($providerid != $outevent['aid']) { continue; }
+                    if (!empty($outevent['aid']) && ($providerid != $outevent['aid'])) { continue; }
                     // skip events with blank IDs
-                    if ($outevent['eid'] == "") { continue; }
+                    if (empty($outevent['eid'])) { continue; }
 
                     if ($outevent['eid'] == $event['eid']) { $found = true; continue; }
                     if (($found == true) && ($outevent['catid'] == 3)) {

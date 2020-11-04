@@ -22,7 +22,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
 
-if ($_GET['set_pid']) {
+if (!empty($_GET['set_pid'])) {
     require_once($GLOBALS['srcdir'] . '/pid.inc');
     setpid($_GET['set_pid']);
 }
@@ -59,14 +59,14 @@ if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
 $N = 15;
 $M = 15;
 
-$mode   = $_REQUEST['mode'];
-$offset = $_REQUEST['offset'];
-$offset_sent = $_REQUEST['offset_sent'];
-$form_active = $_REQUEST['form_active'];
-$form_inactive = $_REQUEST['form_inactive'];
-$noteid = $_REQUEST['noteid'];
+$mode   = $_REQUEST['mode'] ?? null;
+$offset = $_REQUEST['offset'] ?? null;
+$offset_sent = $_REQUEST['offset_sent'] ?? null;
+$form_active = $_REQUEST['form_active'] ?? null;
+$form_inactive = $_REQUEST['form_inactive'] ?? null;
+$noteid = $_REQUEST['noteid'] ?? null;
 $form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1) : 1;
-if ($_REQUEST['s'] == '1') {
+if (!empty($_REQUEST['s']) && ($_REQUEST['s'] == '1')) {
     $inbox = "";
     $outbox = "current";
     $inbox_style = "style='display:none;border:5px solid var(--white);'";
@@ -473,7 +473,7 @@ function restoreSession() {
                                 }
 
                                 // highlight the row if it's been selected for updating
-                                if ($_REQUEST['noteid'] == $row_note_id) {
+                                if (!empty($_REQUEST['noteid']) && ($_REQUEST['noteid'] == $row_note_id)) {
                                     echo " <tr class='noterow highlightcolor' id='" . attr($row_note_id) . "'>\n";
                                 } else {
                                     echo " <tr class='noterow' id='" . attr($row_note_id) . "'>\n";
@@ -526,8 +526,6 @@ function restoreSession() {
                                 echo !is_null($updateBy) ? text($updateBy['fname']) . ' ' . text($updateBy['lname']) : '';
                                 echo "  </td>\n";
                                 echo " </tr>\n";
-
-                                $notes_count++;
                             }
                         } else {
                             //no results
@@ -732,7 +730,7 @@ function restoreSession() {
 </body>
 <script>
 <?php
-if ($_GET['set_pid']) {
+if (!empty($_GET['set_pid'])) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
     ?>
  parent.left_nav.setPatient(<?php echo js_escape($ndata['fname'] . " " . $ndata['lname']) . "," .

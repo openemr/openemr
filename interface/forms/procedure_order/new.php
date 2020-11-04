@@ -233,7 +233,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_xmit'])) {
     }
 
     $alertmsg = '';
-    if ($_POST['bn_xmit']) {
+    if (!empty($_POST['bn_xmit'])) {
         $hl7 = '';
         $alertmsg = gen_hl7_order($formid, $hl7);
         if (empty($alertmsg)) {
@@ -584,7 +584,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         "ORDER BY name, ppid");
                                     while ($pprow = sqlFetchArray($ppres)) {
                                         echo "<option value='" . attr($pprow['ppid']) . "'";
-                                        if ($pprow['ppid'] == $row['lab_id']) {
+                                        if (!empty($row['lab_id']) && ($pprow['ppid'] == $row['lab_id'])) {
                                             echo " selected";
                                         }
                                         echo ">" . text($pprow['name']) . "</option>";

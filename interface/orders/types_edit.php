@@ -21,7 +21,7 @@ $typeid = (isset($_REQUEST['typeid']) ? $_REQUEST['typeid'] : '') + 0;
 $parent = (isset($_REQUEST['parent']) ? $_REQUEST['parent'] : '') + 0;
 $ordtype = isset($_REQUEST['addfav']) ? $_REQUEST['addfav'] : '';
 $disabled = $ordtype ? "disabled" : '';
-$labid = isset($_GET['labid']) ? $_GET['labid'] + 0 : 0;
+$labid = isset($_GET['labid']) ? $_GET['labid'] : 0;
 $info_msg = "";
 
 function QuotedOrNull($fld)
@@ -264,7 +264,7 @@ $(function () {
             <?php
             // If we are saving, then save and close the window.
             //
-            if ($_POST['form_save']) {
+            if (!empty($_POST['form_save'])) {
                 $p_procedure_code = invalue('form_procedure_code');
 
                 if ($_POST['form_procedure_type'] == 'grp') {
@@ -297,7 +297,7 @@ $(function () {
                     $newid = sqlInsert("INSERT INTO procedure_type SET parent = '" . add_escape_custom($parent) . "', $sets");
                     // $newid is not really used in this script
                 }
-            } elseif ($_POST['form_delete']) {
+            } elseif (!empty($_POST['form_delete'])) {
                 if ($typeid) {
                     // Get parent ID so we can refresh the tree view after deleting.
                     $row = sqlQuery("SELECT parent FROM procedure_type WHERE " .
@@ -307,7 +307,7 @@ $(function () {
                 }
             }
 
-            if ($_POST['form_save'] || $_POST['form_delete']) {
+            if (!empty($_POST['form_save']) || !empty($_POST['form_delete'])) {
                 // Find out if this parent still has any children.
                 $trow = sqlQuery("SELECT procedure_type_id FROM procedure_type WHERE parent = ? LIMIT 1", [$parent]);
                 // Close this window and redisplay the updated list.
@@ -342,7 +342,7 @@ $(function () {
                                         </div>
                                         <div class="col-sm-12">
                                             <?php
-                                            $ordd = $ordtype ? $ordtype : $row['procedure_type'];
+                                            $ordd = (!empty($ordtype)) ? $ordtype : ($row['procedure_type'] ?? null);
                                             echo generate_select_list(
                                                 'form_procedure_type',
                                                 'proc_type',
@@ -386,7 +386,7 @@ $(function () {
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_name' id='form_name 'maxlength='63'
-                                                value='<?php echo attr($row['name']); ?>'
+                                                value='<?php echo attr($row['name'] ?? ''); ?>'
                                                 title='<?php echo xla('Your name for this category, procedure or result'); ?>'
                                                  class='form-control'>
                                         </div>
@@ -406,7 +406,7 @@ $(function () {
                                         <div class="col-sm-12">
                                             <input type='text' name='form_description' id='form_description'
                                                 maxlength='255'
-                                                value='<?php echo attr($row['description']); ?>'
+                                                value='<?php echo attr($row['description'] ?? ''); ?>'
                                                 title='<?php echo xla('Description of this procedure or result code'); ?>'
                                                 class='form-control'>
                                         </div>
@@ -425,7 +425,7 @@ $(function () {
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_seq' id=='form_seq' maxlength='11'
-                                                value='<?php echo attr($row['seq'] + 0); ?>'
+                                                value='<?php echo attr($row['seq'] ?? 0); ?>'
                                                 title='<?php echo xla('Relative ordering of this entity'); ?>'
                                                 class='form-control'>
                                         </div>
@@ -468,7 +468,7 @@ $(function () {
 
                                                 while ($pprow = sqlFetchArray($ppres)) {
                                                     echo "<option value='" . attr($pprow['ppid']) . "'";
-                                                    if ($pprow['ppid'] == $row['lab_id']) {
+                                                    if (!empty($row['lab_id']) && ($pprow['ppid'] == $row['lab_id'])) {
                                                         echo " selected";
                                                     }
 
@@ -495,7 +495,7 @@ $(function () {
                                         <div class="col-sm-12">
                                             <input type='text' name='form_procedure_code' id='form_procedure_code'
                                                 maxlength='31'
-                                                value='<?php echo attr($row['procedure_code']); ?>'
+                                                value='<?php echo attr($row['procedure_code'] ?? ''); ?>'
                                                 title='<?php echo xla('The vendor-specific code identifying this procedure or result'); ?>'
                                                 class='form-control'>
                                         </div>
@@ -516,7 +516,7 @@ $(function () {
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_standard_code' id='form_standard_code'
-                                                value='<?php echo attr($row['standard_code']); ?>'
+                                                value='<?php echo attr($row['standard_code'] ?? ''); ?>'
                                                 title='<?php echo xla('Enter the LOINC code for this procedure'); ?>'
                                                 class='form-control'>
                                         </div>
@@ -537,7 +537,7 @@ $(function () {
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text'  name='form_diagnosis_code' id='form_diagnosis_code'
-                                                   value='<?php echo attr($row['related_code']) //data stored in related_code field?>'
+                                                   value='<?php echo attr($row['related_code'] ?? '') //data stored in related_code field?>'
                                                    onclick='sel_related("form_diagnosis_code")'
                                                    title='<?php echo xla('Click to select diagnosis or procedure code to default to order'); ?>'
                                                    class='form-control' readonly />
@@ -563,7 +563,7 @@ $(function () {
                                                     'field_id' => 'body_site',
                                                     'list_id' => 'proc_body_site',
                                                     'description' => xl('Body site, if applicable')
-                                                ), $row['body_site']);
+                                                ), ($row['body_site'] ?? null));
                                                 ?>
                                         </div>
                                     </div>
@@ -586,7 +586,7 @@ $(function () {
                                                     'field_id' => 'specimen',
                                                     'list_id' => 'proc_specimen',
                                                     'description' => xl('Specimen Type')
-                                                ), $row['specimen']);
+                                                ), ($row['specimen'] ?? null));
                                                 ?>
                                         </div>
                                     </div>
@@ -610,7 +610,7 @@ $(function () {
                                                     'field_id' => 'route_admin',
                                                     'list_id' => 'proc_route',
                                                     'description' => xl('Route of administration, if applicable')
-                                                ), $row['route_admin']);
+                                                ), ($row['route_admin'] ?? null));
                                                 ?>
                                         </div>
                                     </div>
@@ -634,7 +634,7 @@ $(function () {
                                                     'field_id' => 'laterality',
                                                     'list_id' => 'proc_lat',
                                                     'description' => xl('Laterality of this procedure, if applicable')
-                                                ), $row['laterality']);
+                                                ), ($row['laterality'] ?? null));
                                                 ?>
                                         </div>
                                     </div>
@@ -658,7 +658,7 @@ $(function () {
                                                     'field_id' => 'units',
                                                     'list_id' => 'proc_unit',
                                                     'description' => xl('Optional default units for manual entry of results')
-                                                ), $row['units']);
+                                                ), ($row['units'] ?? null));
                                                 ?>
                                         </div>
                                     </div>
@@ -677,7 +677,7 @@ $(function () {
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_range' id='form_range' maxlength='255'
-                                                value='<?php echo attr($row['range']); ?>'
+                                                value='<?php echo attr($row['range'] ?? ''); ?>'
                                                 title='<?php echo xla('Optional default range for manual entry of results'); ?>'
                                                 class='form-control' >
                                         </div>
@@ -697,7 +697,7 @@ $(function () {
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_related_code' id='form_related_code'
-                                                value='<?php echo attr($row['related_code']) ?>'
+                                                value='<?php echo attr($row['related_code'] ?? '') ?>'
                                                 onclick='sel_related("form_related_code")'
                                                 title='<?php echo xla('Click to select services to perform if this result is abnormal'); ?>'
                                                 class='form-control' readonly />

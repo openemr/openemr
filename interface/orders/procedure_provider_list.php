@@ -23,7 +23,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
     die(xlt('Access denied'));
 }
 
-$form_name = trim($_POST['form_name']);
+$form_name = trim($_POST['form_name'] ?? '');
 
 $form_inactive = empty($_POST['form_inactive']) ? false : true;
 
@@ -90,16 +90,16 @@ function doedclick_edit(ppid) {
             </div>
         </div>
         <div class="row">
-            <div class="col-sm">  
+            <div class="col-sm">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary btn-add" onclick="doedclick_add()"><?php echo xlt('Add New{{Provider}}');?></button>
                 </div>
-            </div>   
+            </div>
         </div>
 
         <div class="row">
-            <div class="col-sm-12">                    
-                    <form method='post' action='procedure_provider_list.php'>                   
+            <div class="col-sm-12">
+                    <form method='post' action='procedure_provider_list.php'>
                     <div class="checkbox mt-3">
                         <label for="form_inactive">
                             <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php echo ($form_inactive) ? 'checked ' : ''; ?>>

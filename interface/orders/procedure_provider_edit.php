@@ -100,7 +100,7 @@ function onvalue($name)
         // If we are saving, then save and close the window.
         // lab_director is the id of the organization in the users table
         //
-        if ($_POST['form_save']) {
+        if (!empty($_POST['form_save'])) {
             $org_qry  = "SELECT organization FROM users WHERE id = ?";
             $org_res  = sqlQuery($org_qry, array($_POST['form_name']));
             $org_name = $org_res['organization'];
@@ -130,13 +130,13 @@ function onvalue($name)
             } else {
                 $ppid = sqlInsert("INSERT INTO `procedure_providers` SET $sets");
             }
-        } elseif ($_POST['form_delete']) {
+        } elseif (!empty($_POST['form_delete'])) {
             if ($ppid) {
                 sqlStatement("DELETE FROM procedure_providers WHERE ppid = ?", array($ppid));
             }
         }
 
-        if ($_POST['form_save'] || $_POST['form_delete']) {
+        if (!empty($_POST['form_save']) || !empty($_POST['form_delete'])) {
           // Close this window and redisplay the updated list.
             echo "<script>\n";
             if ($info_msg) {
@@ -153,17 +153,18 @@ function onvalue($name)
             $row = sqlQuery("SELECT * FROM procedure_providers WHERE ppid = ?", array($ppid));
         }
 
-        $ppid_active = $row['active'];
+        $ppid_active = $row['active'] ?? null;
 
         $org_query = "SELECT id, organization FROM users WHERE abook_type LIKE 'ord_%'";
         $org_res = sqlStatement($org_query);
+        $optionsStr = '';
         while ($org_row = sqlFetchArray($org_res)) {
             $org_name = $org_row['organization'];
             $selected = '';
             if ($ppid) {
                 if ($row['lab_director'] == $org_row['id']) {
                     $selected = "selected";
-                    $optionsStr = "<option value='" . attr($org_row['id']) . "' $selected>" .  text($org_name) . "</option>";
+                    $optionsStr .= "<option value='" . attr($org_row['id']) . "' $selected>" .  text($org_name) . "</option>";
                 }
             } else {
                 $checkName = sqlQuery("SELECT `name` FROM `procedure_providers` WHERE `name` = ?", [$org_name]);
@@ -205,7 +206,7 @@ function onvalue($name)
                                                 <label for="form_name"><?php echo xlt('Name'); ?>:</label><a href="#name_info" class="info-anchor icon-tooltip"  data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                             </div>
                                             <select name='form_name' id='form_name' class='form-control'>
-                                                <?php echo $optionsStr; ?>
+                                                <?php echo $optionsStr ?? ''; ?>
                                             </select>
                                         </div>
                                         <div id="name_info" class="collapse">
@@ -221,7 +222,7 @@ function onvalue($name)
                                             <div class="label-div">
                                                 <label class="col-form-label" for="form_npi"><?php echo xlt('NPI'); ?>:</label> <a href="#npi_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                             </div>
-                                            <input type='text' name='form_npi' id='form_npi' maxlength='10' value='<?php echo attr($row['npi']); ?>' class='form-control' />
+                                            <input type='text' name='form_npi' id='form_npi' maxlength='10' value='<?php echo attr($row['npi'] ?? ''); ?>' class='form-control' />
                                         </div>
                                         <div id="npi_info" class="collapse">
                                             <a href="#npi_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
@@ -249,7 +250,7 @@ function onvalue($name)
                                                 ) as $key => $value
                                             ) {
                                                 echo "    <option value='" . attr($key) . "'";
-                                                if ($key == $row['DorP']) {
+                                                if (!empty($row['DorP']) && ($key == $row['DorP'])) {
                                                     echo " selected";
                                                 }
                                                 echo ">" . text($value) . "</option>\n";
@@ -277,14 +278,14 @@ function onvalue($name)
                                         <div class="row col-12">
                                             <div class="col-sm-6">
                                                 <input type='text' name='form_send_app_id' id='form_send_app_id' maxlength='100'
-                                                value='<?php echo attr($row['send_app_id']); ?>'
+                                                value='<?php echo attr($row['send_app_id'] ?? ''); ?>'
                                                 title='<?php echo xla('HL7 - MSH-3.1 - Sending application'); ?>'
                                                 placeholder='<?php echo xla('Enter Application Name'); ?>'
                                                 class='form-control' />
                                             </div>
                                             <div class="col-sm-6">
                                                 <input type='text' name='form_send_fac_id' id='form_send_fac_id' maxlength='100'
-                                                value='<?php echo attr($row['send_fac_id']); ?>'
+                                                value='<?php echo attr($row['send_fac_id'] ?? ''); ?>'
                                                 title='<?php echo xla('HL7 - MSH-4.1 - Sending facility'); ?>'
                                                 placeholder='<?php echo xla('Enter Facility Name'); ?>'
                                                 class='form-control' />
@@ -309,10 +310,10 @@ function onvalue($name)
                                         </div>
                                         <div class="row col-12">
                                             <div class="col-sm-6">
-                                                <input type='text' name='form_recv_app_id' id='form_recv_app_id' maxlength='100' value='<?php echo attr($row['recv_app_id']); ?>' title='<?php echo xla('HL7 - MSH-5.1 - Receiving application'); ?>' placeholder='<?php echo xla('Enter Application Name'); ?>' class='form-control' />
+                                                <input type='text' name='form_recv_app_id' id='form_recv_app_id' maxlength='100' value='<?php echo attr($row['recv_app_id'] ?? ''); ?>' title='<?php echo xla('HL7 - MSH-5.1 - Receiving application'); ?>' placeholder='<?php echo xla('Enter Application Name'); ?>' class='form-control' />
                                             </div>
                                             <div class="col-sm-6">
-                                                <input type='text' name='form_recv_fac_id' id='form_recv_fac_id' maxlength='100' value='<?php echo attr($row['recv_fac_id']); ?>' title='<?php echo xla('HL7 - MSH-6.1 - Receiving facility'); ?>' placeholder='<?php echo xla('Enter Facility Name'); ?>' class='form-control' />
+                                                <input type='text' name='form_recv_fac_id' id='form_recv_fac_id' maxlength='100' value='<?php echo attr($row['recv_fac_id'] ?? ''); ?>' title='<?php echo xla('HL7 - MSH-6.1 - Receiving facility'); ?>' placeholder='<?php echo xla('Enter Facility Name'); ?>' class='form-control' />
                                             </div>
                                         </div>
                                     </div>
@@ -344,7 +345,7 @@ function onvalue($name)
                                                     ) as $key => $value
                                                 ) {
                                                     echo "    <option value='" . attr($key) . "'";
-                                                    if ($key == $row['protocol']) {
+                                                    if (!empty($row['protocol']) && ($key == $row['protocol'])) {
                                                         echo " selected";
                                                     }
                                                     echo ">" . text($value) . "</option>\n";
@@ -362,7 +363,7 @@ function onvalue($name)
                                                     ) as $key => $value
                                                 ) {
                                                     echo "    <option value='" . attr($key) . "'";
-                                                    if ($key == $row['direction']) {
+                                                    if (!empty($row['direction']) && ($key == $row['direction'])) {
                                                         echo " selected";
                                                     }
 
@@ -393,10 +394,10 @@ function onvalue($name)
                                         </div>
                                         <div class="row col-12">
                                             <div class="col-sm-6">
-                                                <input type='text' name='form_login' id='form_login' maxlength='255' value='<?php echo attr($row['login']); ?>' placeholder='<?php echo xla('Enter User Login ID'); ?>' class='form-control' />
+                                                <input type='text' name='form_login' id='form_login' maxlength='255' value='<?php echo attr($row['login'] ?? ''); ?>' placeholder='<?php echo xla('Enter User Login ID'); ?>' class='form-control' />
                                             </div>
                                             <div class="col-sm-6">
-                                                <input type='text' name='form_password' id='form_password' maxlength='255' value='<?php echo attr($row['password']); ?>' placeholder='<?php echo xla('Enter Password'); ?>' class='form-control' />
+                                                <input type='text' name='form_password' id='form_password' maxlength='255' value='<?php echo attr($row['password'] ?? ''); ?>' placeholder='<?php echo xla('Enter Password'); ?>' class='form-control' />
                                             </div>
                                         </div>
                                     </div>
@@ -414,7 +415,7 @@ function onvalue($name)
                                             <label class="col-form-label" for="form_remote_host"><?php echo xlt('Remote Host'); ?>:</label> <a href="#remote_host_info"  class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
-                                            <input type='text' name='form_remote_host' id='form_remote_host' maxlength='255' value='<?php echo attr($row['remote_host']); ?>' class='form-control' />
+                                            <input type='text' name='form_remote_host' id='form_remote_host' maxlength='255' value='<?php echo attr($row['remote_host'] ?? ''); ?>' class='form-control' />
                                         </div>
                                     </div>
                                     <div id="remote_host_info" class="collapse">
@@ -432,7 +433,7 @@ function onvalue($name)
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_orders_path' id='form_orders_path' maxlength='255'
-                                            value='<?php echo attr($row['orders_path']); ?>' class='form-control' />
+                                            value='<?php echo attr($row['orders_path'] ?? ''); ?>' class='form-control' />
                                         </div>
                                     </div>
                                     <div id="orders_path_info" class="collapse">
@@ -450,7 +451,7 @@ function onvalue($name)
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_results_path' id='form_results_path' maxlength='255'
-                                            value='<?php echo attr($row['results_path']); ?>' class='form-control' />
+                                            value='<?php echo attr($row['results_path'] ?? ''); ?>' class='form-control' />
                                         </div>
                                     </div>
                                     <div id="results_path_info" class="collapse">
@@ -467,7 +468,7 @@ function onvalue($name)
                                             <label class="col-form-label" for="form_notes"><?php echo xlt('Notes'); ?>:</label> <a href="#notes_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
-                                            <textarea rows='3' name='form_notes' id='form_notes' wrap='virtual' class='form-control'><?php echo text($row['notes']); ?></textarea>
+                                            <textarea rows='3' name='form_notes' id='form_notes' wrap='virtual' class='form-control'><?php echo text($row['notes'] ?? ''); ?></textarea>
                                         </div>
                                     </div>
                                     <div id="notes_info" class="collapse">

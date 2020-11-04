@@ -360,7 +360,7 @@ class FeeSheet
         $sqlArray = array();
         $query = "SELECT id, units, code_text, revenue_code FROM codes WHERE " .
         "code_type = ? AND code = ?";
-        array_push($sqlArray, $code_types[$codetype]['id'], $code);
+        array_push($sqlArray, ($code_types[$codetype]['id'] ?? ''), $code);
         if ($modifier) {
             $query .= " AND modifier = ?";
             array_push($sqlArray, $modifier);

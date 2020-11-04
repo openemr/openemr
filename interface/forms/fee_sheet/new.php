@@ -80,7 +80,7 @@ function endFSCategory()
 function genDiagJS($code_type, $code)
 {
     global $code_types;
-    if ($code_types[$code_type]['diag']) {
+    if (!empty($code_types[$code_type]['diag'])) {
         echo "diags.push(" . js_escape($code_type . "|" . $code) . ");\n";
     }
 }
@@ -242,7 +242,7 @@ function echoServiceLines()
 
                     echo "</td>\n";
 
-                    if ($code_types[$codetype]['just'] || $li['justify']) {
+                    if (!empty($code_types[$codetype]['just']) || !empty($li['justify'])) {
                         echo "  <td class='billcell' align='center'$justifystyle>";
                         echo "<select class='form-control' name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
                         echo "<option value='" . attr($li['justify']) . "'>" . text($li['justify']) . "</option></select>";
@@ -267,7 +267,7 @@ function echoServiceLines()
             echo $fs->genProviderSelect("bill[$lino][provid]", '-- ' . xl("Default") . ' --', $li['provid']);
             echo "</td>\n";
 
-            if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
+            if (!empty($code_types[$codetype]['claim']) && empty($code_types[$codetype]['diag'])) {
                 echo "  <td class='billcell text-center' $usbillstyle><input type='text' class='form-control' name='bill[" . attr($lino) . "][notecodes]' " .
                 "value='" . text($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
             } else {
@@ -586,7 +586,7 @@ if (!empty($_POST['bill'])) {
             continue; // skip if Delete was checked
         }
 
-        if ($iter["id"]) {
+        if (!empty($iter["id"])) {
             continue; // skip if it came from the database
         }
 
@@ -602,7 +602,12 @@ if (!empty($_POST['newcodes'])) {
         }
 
         $arrcode = explode('|', $codestring);
-        list($code, $modifier) = explode(":", $arrcode[1]);
+        if (strpos($arrcode[1], ':') !== false) {
+            list($code, $modifier) = explode(":", $arrcode[1]);
+        } else {
+            $code = $arrcode[1];
+            $modifier = '';
+        }
         genDiagJS($arrcode[0], $code);
     }
 }
@@ -1149,7 +1154,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
                                             $modifier   = trim($bline['mod'] ?? null);
                                             $units      = max(1, intval(trim($bline['units'] ?? null)));
-                                            $fee        = formatMoneyNumber((0 + trim($bline['price'] ?? null)) * $units);
+                                            $fee        = formatMoneyNumber((trim($bline['price'] ?? 0)) * $units);
                                             $authorized = $bline['auth'];
                                             $ndc_info   = '';
                                             if (!empty($bline['ndcnum'])) {
@@ -1213,14 +1218,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     //
                                     if (!empty($_POST['bill'])) {
                                         foreach ($_POST['bill'] as $key => $iter) {
-                                            if ($iter["id"]) {
+                                            if (!empty($iter["id"])) {
                                                 continue; // skip if it came from the database
                                             }
-                                            if ($iter["del"]) {
+                                            if (!empty($iter["del"])) {
                                                 continue; // skip if Delete was checked
                                             }
                                             $ndc_info = '';
-                                            if ($iter['ndcnum']) {
+                                            if (!empty($iter['ndcnum'])) {
                                                 $ndc_info = 'N4' . trim($iter['ndcnum']) . '   ' . $iter['ndcuom'] .
                                                 trim($iter['ndcqty']);
                                             }
@@ -1237,17 +1242,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             $fs->addServiceLineItem(array(
                                             'codetype'    => $iter['code_type'],
                                             'code'        => trim($iter['code']),
-                                            'revenue_code'    => $revenue_code,
-                                            'modifier'    => trim($iter["mod"]),
+                                            'revenue_code'    => $revenue_code ?? null,
+                                            'modifier'    => trim($iter["mod"] ?? ''),
                                             'ndc_info'    => $ndc_info,
                                             'auth'        => $iter['auth'],
-                                            'del'         => $iter['del'],
+                                            'del'         => $iter['del'] ?? null,
                                             'units'       => $units,
                                             'fee'         => $fee,
-                                            'justify'     => $iter['justify'],
+                                            'justify'     => $iter['justify'] ?? null,
                                             'provider_id' => $iter['provid'],
-                                            'notecodes'   => $iter['notecodes'],
-                                            'pricelevel'  => $iter['pricelevel'],
+                                            'notecodes'   => $iter['notecodes'] ?? null,
+                                            'pricelevel'  => $iter['pricelevel'] ?? null,
                                             ));
                                         }
                                     }
@@ -1355,7 +1360,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 if ($newtype == 'COPAY') {
                                                     $tmp = sqlQuery("SELECT copay FROM insurance_data WHERE pid = ? " .
                                                     "AND type = 'primary' ORDER BY date DESC LIMIT 1", array($fs->pid));
-                                                    $code = formatMoneyNumber(0 + $tmp['copay']);
+                                                    $code = formatMoneyNumber($tmp['copay'] ?? 0);
                                                     $fs->addServiceLineItem(array(
                                                     'codetype'    => $newtype,
                                                     'code'        => $code,
@@ -1379,7 +1384,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     'units'        => $units,
                                                     ));
                                                 } else {
-                                                    list($code, $modifier) = explode(":", $newcode);
+                                                    if (strpos($newcode, ':') !== false) {
+                                                        list($code, $modifier) = explode(":", $newcode);
+                                                    } else {
+                                                        $code = $newcode;
+                                                        $modifier = '';
+                                                    }
                                                     $ndc_info = '';
                                                     // If HCPCS, find last NDC string used for this code.
                                                     if ($newtype == 'HCPCS' && $ndc_applies) {
