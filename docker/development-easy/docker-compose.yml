@@ -12,9 +12,6 @@ services:
     - ../development-insane/sql-ssl-certs-keys/easy/server-key.pem:/etc/ssl/server-key.pem:ro
     - databasevolume:/var/lib/mysql
     environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
       MYSQL_ROOT_PASSWORD: root
   openemr:
     restart: always
@@ -72,9 +69,6 @@ services:
     ports:
     - 8310:80
     environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
       PMA_HOSTS: mysql
   couchdb:
     restart: always
@@ -89,18 +83,12 @@ services:
     - ../development-insane/couchdb-config-ssl-cert-keys/easy/server-key.pem:/etc/ssl/server-key.pem:ro
     - couchdbvolume:/opt/couchdb/data
     environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
       COUCHDB_USER: admin
       COUCHDB_PASSWORD: password
   openldap:
     restart: always
     image: openemr/dev-ldap:easy
     environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
       LDAP_TLS_VERIFY_CLIENT: try
       LDAP_TLS_CA_CRT_FILENAME: ca.pem
       LDAP_TLS_CRT_FILENAME: server-cert.pem

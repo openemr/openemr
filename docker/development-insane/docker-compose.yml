@@ -79,6 +79,9 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
@@ -91,6 +94,9 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
@@ -103,6 +109,9 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
@@ -116,6 +125,9 @@ services:
     - ../..:/var/www/localhost/htdocs/openemr
     - couchdbvolume:/couchdb/data
     environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       EMPTY: "yes"
       MYSQL_HOST: mariadb
@@ -149,6 +161,9 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
@@ -161,6 +176,9 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
@@ -174,6 +192,9 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
@@ -187,6 +208,9 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
@@ -200,6 +224,9 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
@@ -213,6 +240,9 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"

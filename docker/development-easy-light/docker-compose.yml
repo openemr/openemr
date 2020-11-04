@@ -29,6 +29,9 @@ services:
     - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
     - logvolume:/var/log
     environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
       MYSQL_USER: openemr
