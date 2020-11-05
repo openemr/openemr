@@ -94,6 +94,8 @@ $displays: none, inline, inline-block, block, table, table-row, table-cell, flex
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 
+$compact-theme: false;
+
 // Enables responsive text for Bootstrap
 $enable-responsive-font-sizes: true;
 // Import Bootstrap 4 SCSS Files before doing anything

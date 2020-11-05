@@ -292,24 +292,18 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 
 <style>
 #oe-nav-ul.tabNav {
-    display: flex !important;
-    flex-flow: column !important;
+    display: flex;
+    flex-flow: column;
+    max-width: 15%;
 }
-
-#oe-nav-ul.tabNav.tabWidthFull {
-    width: 10%;
-}
-
-#oe-nav-ul.tabNav.tabWidthUser {
-    width: 12%;
-}
-
-#oe-nav-ul.tabNav.tabWidthWide {
-    width: 15%;
-}
-
-#oe-nav-ul.tabNav.tabWidthVertical {
-    width: 25%;
+@media (max-width: 576px) {
+  #oe-nav-ul.tabNav {
+    max-width: inherit;
+    width: 100%;
+  }
+  #globals-div .tabContainer {
+    width: 100%;
+  }
 }
 </style>
 <?php

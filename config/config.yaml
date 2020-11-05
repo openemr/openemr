@@ -50,6 +50,13 @@ assets:
         link: '%css_header%'
         autoload: true
         allowNoLoad: true
+    # The compact theme asset follows the allowNoLoad setting of the main-theme asset
+    # ie. no-main-theme token will also skip the compact-theme
+    compact-theme:
+        alreadyBuilt: true
+        link: '%compact_header%'
+        autoload: true
+        allowNoLoad: true
     tabs-theme:
         basePath: '%webroot%/public/themes/'
         link: '%theme_tabs_layout%'

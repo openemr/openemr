@@ -3,6 +3,8 @@
 *	Used on all themes to make them more compact
 */
 
+// Compact theme flag to show we are using it
+$compact-theme: true;
 // Changes the spacer used in multiple BS4 variables to a smaller number
 $spacer: 0.73rem;
 // Changes the <p> element margin bottom to be more compact
@@ -28,6 +30,27 @@ $input-height: calc(1.5em + 0.4rem + 2px);
   padding: 0.5rem !important;
 }
 
-.menuEntries li .menuLabel {
-  padding: 5px 10px !important;
+// Bootstrap required tags to override
+
+//
+// _reboot.scss overrides
+//
+p {
+  margin-bottom: $paragraph-margin-bottom !important;
+}
+
+caption {
+  padding-bottom: $table-cell-padding !important;
+  padding-top: $table-cell-padding !important;
+}
+
+label {
+  margin-bottom: $label-margin-bottom !important;
+}
+
+//
+// _images.scss overrides
+//
+.figure-img {
+  margin-bottom: $spacer / 2 !important;
 }

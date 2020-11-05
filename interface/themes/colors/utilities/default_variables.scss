@@ -30,6 +30,8 @@ $light: $gray-100;
 $bs-dark: $gray-800;
 $gray: $gray-600;
 
+$navbar-text-color: $pale !default;
+
 /* Array of theme colors that can be added to */
 $theme-colors: (
   primary: $blue,
@@ -71,6 +73,7 @@ $colors: (
   "gray": $gray-600,
   "gray-dark": $gray-800,
   "black": $black,
+  "navbar-text-color": $navbar-text-color,
   "gray100": $gray-100,
   "gray200": $gray-200,
   "gray300": $gray-300,

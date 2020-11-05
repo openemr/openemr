@@ -3,27 +3,28 @@
  * using the OEMR tool in the Admin section. For example, the
  * Patient Demographics are a custom layout.
  *============================================================*/
+@if $compact-theme == false {
+  #DEM {
+    .groupname {
+      @include font-size("0.8rem");
+      color: $success;
+      font-weight: bold;
+      padding-right: 5px;
+      vertical-align: top;
+    }
 
-#DEM {
-  .groupname {
-    @include font-size("0.8rem");
-    color: $success;
-    font-weight: bold;
-    padding-right: 5px;
-    vertical-align: top;
-  }
+    .label_custom {
+      @include font-size("0.8rem");
+      font-weight: bold;
+      text-align: $right;
+      vertical-align: top;
+    }
 
-  .label_custom {
-    @include font-size("0.8rem");
-    font-weight: bold;
-    text-align: $right;
-    vertical-align: top;
-  }
-
-  .data {
-    @include font-size("0.8rem");
-    padding-right: 6px;
-    text-align: $left;
-    vertical-align: top;
+    .data {
+      @include font-size("0.8rem");
+      padding-right: 6px;
+      text-align: $left;
+      vertical-align: top;
+    }
   }
 }
