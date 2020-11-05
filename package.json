@@ -32,6 +32,7 @@
   ],
   "devDependencies": {
     "autoprefixer": "^9.8.6",
+    "colors": "^1.4.0",
     "del": "^5.1.0",
     "glob": "^7.1.6",
     "gulp": "^4.0.2",

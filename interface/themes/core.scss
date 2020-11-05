@@ -40,3 +40,10 @@
 @import "core/edit_globals";
 @import "login_page"; // Added to theme the login page
 @import "ajax_calendar_sass";
+
+@import "oe-common/acl-common";
+@import "oe-common/help-files-common";
+@import "oe-common/main-common";
+@import "oe-common/messages-common";
+@import "oe-common/oe-sidebar";
+@import "oe-common/procedures-common";

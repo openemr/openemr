@@ -1,16 +1,16 @@
-@import "core.css";
+@import "core";
 
 a {
   color: #00c;
   text-decoration: none;
-}
 
-a:visited {
-  color: #00c;
-}
+  &:visited {
+    color: #00c;
+  }
 
-a:hover {
-  color: #f55;
+  &:hover {
+    color: #f55;
+  }
 }
 
 .menu {

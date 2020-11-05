@@ -4,6 +4,7 @@
 require_once(dirname(__FILE__) . "/../interface/globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Core\Header;
 
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
@@ -12,7 +13,7 @@ function formHeader($title = "My Form")
     ?>
     <html>
     <head>
-    <link rel=stylesheet href="<?php echo $GLOBALS['css_header']?>">
+    <?php Header::setupHeader(); ?>
     <title><?php echo text($title); ?></title>
     </head>
     <body background="<?php echo $GLOBALS['backpic']?>" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
