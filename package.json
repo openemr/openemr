@@ -47,6 +47,7 @@
     "minimist": "^1.2.5",
     "napa": "^3.0.0",
     "popper.js": "^1.16.1",
+    "postcss": "^8.1.4",
     "replace-in-file": "^6.1.0",
     "stylelint": "^13.7.2",
     "stylelint-config-sass-guidelines": "^7.1.0",
@@ -62,7 +63,7 @@
     "angular-summernote": "0.8.1",
     "backbone": "1.4.0",
     "bootstrap": "4.5.3",
-    "bootswatch": "4.5.2",
+    "bootswatch": "^4.5.3",
     "chart.js": "2.9.3",
     "checklist-model": "1.0.0",
     "ckeditor4": "4.15.0",
@@ -100,7 +101,7 @@
     "validate.js": "0.13.1"
   },
   "napa": {
-    "bootstrap-rtl": "https://github.com/PerseusTheGreat/bootstrap-4-rtl/archive/7c58abff4e7e6383b34f983d1a92f0342075337b.zip",
+    "bootstrap-rtl": "https://github.com/PerseusTheGreat/bootstrap-4-rtl/archive/24455eb4e0e675e82c40f30a911a5508ae09d846.zip",
     "jquery-creditcardvalidator": "https://github.com/PawelDecowski/jquery-creditcardvalidator/archive/v1.1.0.tar.gz",
     "jquery-panelslider": "https://github.com/eduardomb/jquery-panelslider/archive/1.0.0.tar.gz",
     "jquery-ui": "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip",
