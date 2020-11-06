@@ -20,7 +20,7 @@ use OpenIDConnectServer\Entities\ClaimSetInterface;
 class UserEntity implements ClaimSetInterface, UserEntityInterface
 {
 
-    public string $userRole;
+    public $userRole;
     public $identifier;
 
     public function getClaims()
