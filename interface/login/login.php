@@ -97,7 +97,7 @@ if ($GLOBALS['login_page_layout'] == 'left') {
 } else {
     $logoarea = "col-12 login-bg-center py-3 px-5 order-1";
     $formarea = "col-12 p-5 login-area-center order-2";
-    $loginrow = "row login-row login-row-center align-items-center m-5";
+    $loginrow = "row login-row login-row-center align-items-center";
 }
 
 ?>

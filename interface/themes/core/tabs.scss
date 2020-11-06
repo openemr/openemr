@@ -1,98 +1,101 @@
 /*
  * TABS
 */
-
-ul.tabNav {
-  float: $left;
-  list-style: none;
-  width: 100%;
-
-  li {
+@if $compact-theme == false {
+  ul.tabNav {
     float: $left;
-    text-align: $left;
-    vertical-align: bottom;
+    list-style: none;
+    width: 100%;
+
+    li {
+      float: $left;
+      text-align: $left;
+      vertical-align: bottom;
+    }
+
+    a {
+      display: block;
+    }
   }
 
-  a {
-    display: block;
-  }
-}
+  div.tabContainer {
+    clear: both;
+    float: $left;
+    width: 100%;
 
-div.tabContainer {
-  clear: both;
-  float: $left;
-  width: 100%;
+    div.tab {
+      border: 1px solid $white;
+      color: $body-color;
+      display: none;
+      padding: 10px;
+    }
+
+    div.current {
+      display: block;
+    }
+  }
 
   div.tab {
-    border: 1px solid $white;
-    color: $body-color;
-    display: none;
-    padding: 10px;
-  }
-
-  div.current {
-    display: block;
-  }
-}
-
-div.tab {
-  background: $white none repeat scroll 0 0;
-  margin-bottom: 10px;
-  min-height: 180px;
-  width: 665px;
-
-  p:last-child {
-    margin-bottom: 0;
-  }
-
-  table td {
-    padding-bottom: 0;
-    padding-#{$right}: 1px;
-
-    &.label_custom {
-      min-width: 80px;
-    }
-
-    &.data {
-      min-width: 120px;
-    }
-  }
-
-  &_long {
     background: $white none repeat scroll 0 0;
     margin-bottom: 10px;
     min-height: 180px;
-    width: 100%;
+    width: 665px;
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    table td {
+      padding-bottom: 0;
+
+      &.label_custom {
+        min-width: 80px;
+      }
+
+      &.data {
+        min-width: 120px;
+      }
+      padding-#{$right}: 1px;
+    }
+
+    &_long {
+      background: $white none repeat scroll 0 0;
+      margin-bottom: 10px;
+      min-height: 180px;
+      width: 100%;
+    }
   }
-}
 
-div.notab {
-  margin-bottom: 10px;
-  width: 100%;
-
-  &-right {
+  div.notab {
     margin-bottom: 10px;
     width: 100%;
+
+    &-right {
+      margin-bottom: 10px;
+      width: 100%;
+    }
   }
-}
 
-.section-header {
-  border-bottom: 1px solid;
-  margin-bottom: 5px;
-  width: 685px;
-
-  &-dynamic {
+  .section-header {
     border-bottom: 1px solid;
     margin-bottom: 5px;
-  }
-}
+    width: 685px;
 
-.summary_item {
-  padding: 8px;
+    &-dynamic {
+      border-bottom: 1px solid;
+      margin-bottom: 5px;
+    }
+  }
+
+  .summary_item {
+    padding: 8px;
+  }
 }
 
 @include if-rtl {
-  #sddm li a {
-    padding: 4px 10px;
+  @if $compact-theme == false {
+    #sddm li a {
+      padding: 4px 10px;
+    }
   }
 }
