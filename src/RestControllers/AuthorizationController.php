@@ -49,7 +49,7 @@ class AuthorizationController
     private $privateKey;
     private $encryptionKey;
     private $grantType;
-    private bool $providerForm;
+    private $providerForm;
     private $authRequestSerial;
 
     public function __construct($providerForm = true)
