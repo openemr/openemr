@@ -35,7 +35,7 @@ $info_msg = "";
 
 function invalue($name)
 {
-    if (!$_POST[$name]) {
+    if (empty($_POST[$name])) {
         return "''";
     }
 
@@ -257,7 +257,7 @@ if ($type) { // note this only happens when its new
 <script>
  $(function () {
   // customize the form via the type options
-  typeSelect(<?php echo js_escape($row['abook_type']); ?>);
+  typeSelect(<?php echo js_escape($row['abook_type'] ?? null); ?>);
   if(typeof abook_type != 'undefined' && abook_type == 'ord_lab') {
     $('#cpoe_span').css('display','inline');
    }
@@ -272,7 +272,7 @@ if ($type) { // note this only happens when its new
         <label class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Type'); ?>:</label>
     </div>
     <div class="col">
-        <?php echo generate_select_list('form_abook_type', 'abook_type', $row['abook_type'], '', 'Unassigned', 'form-control-sm', 'typeSelect(this.value)'); ?>
+        <?php echo generate_select_list('form_abook_type', 'abook_type', ($row['abook_type'] ?? null), '', 'Unassigned', 'form-control-sm', 'typeSelect(this.value)'); ?>
     </div>
 </div>
 <?php } // end of if has admin access ?>

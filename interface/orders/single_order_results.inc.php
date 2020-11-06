@@ -33,7 +33,7 @@ function getListItem($listid, $value)
         "WHERE list_id = ? AND option_id = ? AND activity = 1",
         array($listid, $value)
     );
-    $tmp = xl_list_label($lrow['title']);
+    $tmp = xl_list_label($lrow['title'] ?? '');
     if (empty($tmp)) {
         $tmp = (($value === '') ? '' : "($value)");
     }
@@ -114,6 +114,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     }
 
     // allow for 0 to be displayed as a result value
+    $rrow['result'] = $rrow['result'] ?? '';
     if ($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
         $result_result = '';
     } else {

@@ -26,7 +26,7 @@
                     <!-- Keywords -->
                     <div class="form-group">
                         <label for="pc_keywords">[-xlt t='Keywords'-]:</label>
-                        <input type="text" class="form-control" name="pc_keywords" id="pc_keywords" value="[-php-]echo attr($_POST['pc_keywords']);[-/php-]" />
+                        <input type="text" class="form-control" name="pc_keywords" id="pc_keywords" value="[-php-]echo attr($_POST['pc_keywords'] ?? '');[-/php-]" />
                     </div>
                     <!-- Condition -->
                     <div class="form-row">
@@ -91,7 +91,7 @@
                 </form>
             <!-- end of search parameters -->
 
-            [-if $SEARCH_PERFORMED-]
+            [-if isset($SEARCH_PERFORMED)-]
             <div class="mt-3">
                 <!-- Table Header -->
                 <div class="table-responsive" class="head">

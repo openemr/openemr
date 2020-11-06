@@ -436,12 +436,12 @@ foreach ($providers as $provider) {
     foreach ($A_EVENTS as $date => $events) {
         $dateFmt = date("Ymd", strtotime($date));
         $gotoURL = pnModURL(__POSTCALENDAR__,'user','view',
-                        array('tplview'=>$template_view,
+                        array('tplview'=>($template_view ?? null),
                         'viewtype'=>'day',
                         'Date'=> $dateFmt,
-                        'pc_username'=>$pc_username,
-                        'pc_category'=>$category,
-                        'pc_topic'=>$topic));
+                        'pc_username'=>($pc_username ?? null),
+                        'pc_category'=>($category ?? null),
+                        'pc_topic'=>($topic ?? null)));
         if ($defaultDate == "") $defaultDate = $dateFmt;
         $currclass = "";
         if ($Date == $dateFmt) { $currclass= "week_currday"; }
@@ -508,9 +508,9 @@ foreach ($providers as $provider) {
             $events_in_timeslot = array();
             foreach ($events as $e1) {
                 // ignore IN and OUT events
-                if (($e1['catid'] == 2) || ($e1['catid'] == 3)) { continue; }
+                if (!empty($e1['catid']) && (($e1['catid'] == 2) || ($e1['catid'] == 3))) { continue; }
                 // skip events without an ID (why they are in the loop, I have no idea)
-                if ($e1['eid'] == "") { continue; }
+                if (empty($e1['eid'])) { continue; }
                 // skip events for other providers
                 if ($providerid != $e1['aid']) { continue; }
 
@@ -571,10 +571,10 @@ foreach ($providers as $provider) {
             // yeah, we've got that sort of overhead here... it ain't perfect
             // $event['aid']!=0 :With the holidays we included clinic events, they have provider id =0
             // we dont want to exclude those events from being displayed
-            if ($providerid != $event['aid'] && $event['aid']!=0) { continue; }
+            if (!empty($event['aid']) && ($providerid != $event['aid'])) { continue; }
 
             // skip events without an ID (why they are in the loop, I have no idea)
-            if ($event['eid'] == "") { continue; }
+            if (empty($event['eid'])) { continue; }
 
             // specially handle all-day events
             if ($event['alldayevent'] == 1) {
@@ -640,9 +640,9 @@ foreach ($providers as $provider) {
                 $outMins = 0;
                 foreach ($events as $outevent) {
                     // skip events for other providers
-                    if ($providerid != $outevent['aid']) { continue; }
+                    if (!empty($outevent['aid']) && ($providerid != $outevent['aid'])) { continue; }
                     // skip events with blank IDs
-                    if ($outevent['eid'] == "") { continue; }
+                    if (empty($outevent['eid'])) { continue; }
 
                     if ($outevent['eid'] == $event['eid']) { $found = true; continue; }
                     if (($found == true) && ($outevent['catid'] == 3)) {
@@ -692,7 +692,7 @@ foreach ($providers as $provider) {
                 $divLeft = "left: ".$eventPositions[$event['eid']]->leftpos."%";
             }
 
-            $eventid = $event['eid'];
+            $eventid = $event['eid'] ?? null;
 	        $eventtype = sqlQuery("SELECT pc_cattype FROM openemr_postcalendar_categories as oc LEFT OUTER JOIN openemr_postcalendar_events as oe ON oe.pc_catid=oc.pc_catid WHERE oe.pc_eid='".$eventid."'");
 	        $pccattype = '';
 	        if($eventtype['pc_cattype']==1)
@@ -703,7 +703,7 @@ foreach ($providers as $provider) {
 	        $fname = substr($event['patient_name'], $commapos + 2);
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
-            $catid = $event['catid'];
+            $catid = $event['catid'] ?? '';
             $comment = $event['hometext'];
             $catname = $event['catname'];
             $title = "Age $patient_age ($patient_dob)";
@@ -757,7 +757,7 @@ foreach ($providers as $provider) {
                 else
                     $divTitle .= "\r\n[" . $catname . ' ' . $comment . "]" .$fname . " " . $lname;
 
-                $content .= "<span class='appointment" . attr($apptToggle) . "'>";
+                $content .= "<span class='appointment" . attr($apptToggle ?? "") . "'>";
                 $content .= create_event_time_anchor($dispstarth . ':' . $startm);
                 if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' class='border-0' style='margin:0 2px 0 2px;' title='Repeating event' alt='Repeating event' />";
                 $content .= text($event['apptstatus']);

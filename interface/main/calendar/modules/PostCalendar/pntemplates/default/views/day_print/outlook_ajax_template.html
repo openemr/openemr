@@ -289,9 +289,9 @@ echo "<td id='times' style='width:2em;'><div><table>\n";
 echo "<td class='timeslot' style='text-align: center; background-color:#ddd;'>&nbsp;</td>";
 
 if ($GLOBALS['time_display_format'] == 1) {
-    timeformat = 12;
+    $timeformat = 12;
 } else {
-    timeformat = 0;
+    $timeformat = 0;
 }
 
 
@@ -552,7 +552,7 @@ foreach ($providers as $provider) {
             }
             else {
                 // some sort of patient appointment
-                $content .= "<span class='appointment" . attr($apptToggle) . "'>";
+                $content .= "<span class='appointment" . attr($apptToggle ?? "") . "'>";
                 $content .= text($dispstarth.':'.$startm);
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 $content .= text($event['apptstatus']);
@@ -578,7 +578,7 @@ foreach ($providers as $provider) {
                 $content .= "</span>";
             }
 
-            $divTitle .= "\n(double click to edit)";
+            $divTitle = (!empty($divTitle)) ? $divTitle . "\n(double click to edit)" : "\n(double click to edit)";
 
             // a special case for the 'IN' event so it doesn't overlap another
             // event DIV and include the time
@@ -669,7 +669,7 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
             $tdClass = "tdWeekend-small";
         }
 
-        if (date('Ymd',$currdate) == $Date) {
+        if (!empty($Date) && (date('Ymd',$currdate) == $Date)) {
             // $Date is defined near the top of this file
             // and is equal to whatever date the user has clicked
             $tdClass .= " currentDate";

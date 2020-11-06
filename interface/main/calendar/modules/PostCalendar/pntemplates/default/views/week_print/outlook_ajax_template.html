@@ -314,7 +314,7 @@ foreach ($providers as $provider) {
         echo "<td><div id='dowheader'>". xlt(date("D",strtotime($eventdate))) . " " . text(date("m/d", strtotime($eventdate))) . "</div>";
 
         // output the events for this date
-        PrintEvents($events, $providerid, $TPL_IMAGE_PATH);
+        PrintEvents($events, $providerid, ($TPL_IMAGE_PATH ?? null));
 
         // now output the events for this date+4, if they exist
         echo "</td><td>";
@@ -322,7 +322,7 @@ foreach ($providers as $provider) {
         if (isset($A_EVENTS[date("Y-m-d", $dateplusfour)])) {
             echo "<div id='dowheader'>". xlt(date("D",$dateplusfour)) . " " . text(date("m/d", $dateplusfour)) . "</div>";
             $tmpEvents = $A_EVENTS[date("Y-m-d", $dateplusfour)];
-            PrintEvents($tmpEvents, $providerid, $TPL_IMAGE_PATH);
+            PrintEvents($tmpEvents, $providerid, ($TPL_IMAGE_PATH ?? null));
         }
         echo "</tr>";
 
@@ -338,16 +338,16 @@ foreach ($providers as $provider) {
 
 /* print out the array of events */
 function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
-    global $times, $calStartMin, $calEndMin;
+    global $times, $calStartMin, $calEndMin, $timeslotHeightVal, $timeslotHeightUnit;
 
         // now loop over the events for the day and output their DIVs
         foreach ($events as $event) {
             // skip events for other providers
             // yeah, we've got that sort of overhead here... it ain't perfect
-            if ($providerid != $event['aid']) { continue; }
+            if (!empty($event['aid']) && ($providerid != $event['aid'])) { continue; }
 
             // skip events without an ID (why they are in the loop, I have no idea)
-            if ($event['eid'] == "") { continue; }
+            if (empty($event['eid'])) { continue; }
 
             // specially handle all-day events
             if ($event['alldayevent'] == 1) {
@@ -403,9 +403,9 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
                 $outMins = 0;
                 foreach ($events as $outevent) {
                     // skip events for other providers
-                    if ($providerid != $outevent['aid']) { continue; }
+                    if (!empty($outevent['aid']) && ($providerid != $outevent['aid'])) { continue; }
                     // skip events with blank IDs
-                    if ($outevent['eid'] == "") { continue; }
+                    if (empty($outevent['eid'])) { continue; }
 
                     if ($outevent['eid'] == $event['eid']) { $found = true; continue; }
                     if (($found == true) && ($outevent['catid'] == 3)) {
@@ -478,9 +478,9 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             if ($comment && $GLOBALS['calendar_appt_style'] < 4) $title .= " " . $comment;
 
             // the divTitle is what appears when the user hovers the mouse over the DIV
-            $divTitle = date("D, d M Y", strtotime($date));
+            $divTitle = date("D, d M Y", strtotime($date ?? null));
 
-            $eventdatetime = strtotime($date." ".$starth.":".$startm);
+            $eventdatetime = strtotime(($date ?? '')." ".$starth.":".$startm);
 
             if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
                 if      ($catid ==  2) $catname = xl("IN");
@@ -496,7 +496,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             }
             else {
                 // some sort of patient appointment
-                $content .= "<span class='appointment" . attr($apptToggle) . "'>";
+                $content .= "<span class='appointment" . attr($apptToggle ?? "") . "'>";
                 $content .= text(date("h:i", $eventdatetime)) . " ";
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 if ($patientid) {
@@ -526,7 +526,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             // output the DIV and content
             echo "<div class='" . attr($evtClass) . " event' style='background-color:".$event["catcolor"].
                     "' ".
-                    " id='" . attr($eventdate) . "-" . attr($eventid) . "'".
+                    " id='" . attr($eventdate ?? '') . "-" . attr($eventid) . "'".
                     ">";
             echo $content;
             echo "</div>";
@@ -582,7 +582,7 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
             $tdClass = "tdWeekend-small";
         }
 
-        if (date('Ymd',$currdate) == $Date) {
+        if (!empty($Date) && (date('Ymd',$currdate) == $Date)) {
             // $Date is defined near the top of this file
             // and is equal to whatever date the user has clicked
             $tdClass .= " currentDate";

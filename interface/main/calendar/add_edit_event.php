@@ -59,10 +59,10 @@ if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
 }
 
 /* Things that might be passed by our opener. */
-$eid           = $_GET['eid'];         // only for existing events
-$date          = $_GET['date'];        // this and below only for new events
-$userid        = $_GET['userid'];
-$default_catid = $_GET['catid'] ? $_GET['catid'] : '5';
+$eid           = $_GET['eid'] ?? null; // only for existing events
+$date          = $_GET['date'] ?? null;        // this and below only for new events
+$userid        = $_GET['userid'] ?? null;
+$default_catid = !empty($_GET['catid']) ? $_GET['catid'] : '5';
 
 // form logic fails if not set to boolean
 if (isset($_GET['group'])) {
@@ -71,8 +71,8 @@ if (isset($_GET['group'])) {
 if (isset($_GET['prov'])) {
     $_GET['prov'] = $_GET['prov'] == "true" ? true : false;
 }
-$_POST['form_date'] = DateToYYYYMMDD($_POST['form_date']);
-$_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate']);
+$_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? null);
+$_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null);
 
 if ($date) {
     $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
@@ -124,7 +124,7 @@ if ((!$g_edit && !$g_view) || (!$GLOBALS['enable_group_therapy'])) {
 if ($_GET['group'] == true) {
     //groups tab
     $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php?group=true");
-} elseif ($_GET['prov']) {
+} elseif (!empty($_GET['prov'])) {
     //providers tab
     $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php?prov=true");
 } else { //patient tab
@@ -197,10 +197,10 @@ function DOBandEncounter($pc_eid)
 {
      global $event_date,$info_msg;
      // Save new DOB if it's there.
-     $patient_dob = trim($_POST['form_dob']);
+     $patient_dob = trim($_POST['form_dob'] ?? null);
      $tmph = $_POST['form_hour'] + 0;
      $tmpm = $_POST['form_minute'] + 0;
-    if ($_POST['form_ampm'] == '2' && $tmph < 12) {
+    if (!empty($_POST['form_ampm']) && ($_POST['form_ampm'] == '2' && $tmph < 12)) {
         $tmph += 12;
     }
 
@@ -319,7 +319,7 @@ if ($eid) {
 
 // EOS E2F
 //=============================================================================================================================
-if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save") {
+if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")) {
     // Compute start and end time strings to be saved.
     if ($_POST['form_allday']) {
         $tmph = 0;
@@ -328,7 +328,7 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save") {
     } else {
         $tmph = $_POST['form_hour'] + 0;
         $tmpm = $_POST['form_minute'] + 0;
-        if ($_POST['form_ampm'] == '2' && $tmph < 12) {
+        if (!empty($_POST['form_ampm']) && ($_POST['form_ampm'] == '2' && $tmph < 12)) {
             $tmph += 12;
         }
 
@@ -347,8 +347,8 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save") {
 
         // Set up working variables related to repeated events.
         $my_recurrtype = 0;
-        $my_repeat_freq = 0 + $_POST['form_repeat_freq'];
-        $my_repeat_type = 0 + $_POST['form_repeat_type'];
+        $my_repeat_freq = 0 + ($_POST['form_repeat_freq'] ?? null);
+        $my_repeat_type = 0 + ($_POST['form_repeat_type'] ?? null);
         $my_repeat_on_num  = 1;
         $my_repeat_on_day  = 0;
         $my_repeat_on_freq = 0;
@@ -435,14 +435,14 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save") {
         );
 }
 
-if ($_POST['form_action'] == "duplicate") {
+if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate")) {
     $eid = InsertEventFull();
     DOBandEncounter($eid);
 }
 
 // If we are saving, then save and close the window.
 //
-if ($_POST['form_action'] == "save") {
+if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
     /* =======================================================
      *                    UPDATE EVENTS
      * =====================================================*/
@@ -738,7 +738,7 @@ if ($_POST['form_action'] == "save") {
         // done with EVENT insert/update statements
 
         DOBandEncounter(isset($eid) ? $eid : null);
-} elseif ($_POST['form_action'] == "delete") { //    DELETE EVENT(s)
+} elseif (!empty($_POST['form_action']) && ($_POST['form_action'] == "delete")) { //    DELETE EVENT(s)
     // =======================================
     //  multi providers event
     // =======================================
@@ -827,7 +827,7 @@ if ($_POST['form_action'] == "save") {
     }
 }
 
-if ($_POST['form_action'] != "") {
+if (!empty($_POST['form_action'])) {
     // Close this window and refresh the calendar (or the patient_tracker) display.
     echo "<html>\n<body>\n<script>\n";
     if ($info_msg) {
@@ -848,7 +848,7 @@ if ($_POST['form_action'] != "") {
     $repeattype = '0';
     $repeatfreq = '0';
     $patientid = '';
-if ($_REQUEST['patientid']) {
+if (!empty($_REQUEST['patientid'])) {
     $patientid = $_REQUEST['patientid'];
 } elseif (!empty($_SESSION['pid'])) {
     $patientid = ($_SESSION['pid']);
@@ -860,7 +860,7 @@ if ($_REQUEST['patientid']) {
     $row = array();
     $informant = "";
     $groupid = '';
-if ($_REQUEST['groupid']) {
+if (!empty($_REQUEST['groupid'])) {
     $groupid = $_REQUEST['groupid'];
 }
     $groupname = null;
@@ -997,7 +997,7 @@ if ($groupid) {
  // Read the event categories, generate their options list, and get
  // the default event duration from them if this is a new event.
  $cattype = 0;
-if ($_GET['prov'] == true) {
+if (!empty($_GET['prov']) && ($_GET['prov'] == true)) {
     $cattype = 1;
 }
 
@@ -1339,7 +1339,7 @@ function find_available(extra) {
         $provider_class = '';
         $group_class = '';
         $normal = '';
-    if ($_GET['prov'] == true) {
+    if (!empty($_GET['prov']) && ($_GET['prov'] == true)) {
         $provider_class = " active ";
     } elseif ($_GET['group'] == true) {
         $group_class = " active";
@@ -1349,13 +1349,13 @@ function find_available(extra) {
     ?>
     <ul class="nav nav-tabs nav-fill text-body">
         <?php
-            $eid = $_REQUEST["eid"];
-            $startm = $_REQUEST["startampm"];
-            $starth = $_REQUEST["starttimeh"];
-            $uid = $_REQUEST["userid"];
-            $starttm = $_REQUEST["starttimem"];
+            $eid = $_REQUEST["eid"] ?? null;
+            $startm = $_REQUEST["startampm"] ?? null;
+            $starth = $_REQUEST["starttimeh"] ?? null;
+            $uid = $_REQUEST["userid"] ?? null;
+            $starttm = $_REQUEST["starttimem"] ?? null;
             $dt = $_REQUEST["date"];
-            $cid = $_REQUEST["catid"];
+            $cid = $_REQUEST["catid"] ?? null;
         ?>
         <li class="nav-item">
             <a class="nav-link<?php echo $normal;?>" href='add_edit_event.php?startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Patient');?></a>
@@ -1375,7 +1375,7 @@ function find_available(extra) {
 <!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
 <input type='hidden' size='2' name='resname' value='empty' />
 <?php
-if ($_POST["resname"] == "noresult") {
+if (!empty($_POST["resname"]) && ($_POST["resname"] == "noresult")) {
     echo '
 <script>
     // refresh and redirect the parent window
@@ -1408,7 +1408,7 @@ $classpati = '';
     </div>
     <div class="col-sm form-group">
         <label for='form_title'><?php echo xlt('Title'); ?>:</label>
-        <input class="form-control" type='text' size='10' name='form_title' id='form_title' value='<?php echo attr($row['pc_title']); ?>' title='<?php echo xla('Event title'); ?>' />
+        <input class="form-control" type='text' size='10' name='form_title' id='form_title' value='<?php echo attr($row['pc_title'] ?? ''); ?>' title='<?php echo xla('Event title'); ?>' />
     </div>
 </div>
 <div class="form-row mx-2">
@@ -1419,11 +1419,11 @@ $classpati = '';
             $facils = getUserFacilities($_SESSION['authUserID']);
             $qsql = sqlStatement("SELECT id, name FROM facility WHERE service_location != 0");
             while ($facrow = sqlFetchArray($qsql)) {
-                if ($_SESSION['authorizedUser'] || in_array($facrow, $facils)) {
+                if (!empty($_SESSION['authorizedUser']) || in_array($facrow, $facils)) {
                     $selected = ($facrow['id'] == $e2f) ? 'selected="selected"' : '';
                     echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
                 } else {
-                    $selected = ($facrow['id'] == $e2f) ? 'selected="selected"' : '';
+                    $selected = (!empty($e2f) && ($facrow['id'] == $e2f)) ? 'selected="selected"' : '';
                     echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
                 }
             }
@@ -1433,12 +1433,12 @@ $classpati = '';
     <div class="col-sm form-group">
     <label for="billing_facility"><?php echo xlt('Billing Facility'); ?>:</label>
         <?php
-        billing_facility('billing_facility', $row['pc_billing_location']);
+        billing_facility('billing_facility', ($row['pc_billing_location'] ?? null));
         ?>
     </div>
 </div>
 <?php
-if ($_GET['prov'] != true && $_GET['group'] != true) { ?>
+if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
     <div class="jumbotron jumbotron-fluid px-2 py-2 my-2" id="patient_details">
         <div class="form-group">
             <label for="form_patient"><?php echo xlt('Patient'); ?>:</label>
@@ -1466,9 +1466,9 @@ if ($_GET['prov'] != true && $_GET['group'] != true) { ?>
     // DOB is important for the clinic, so if it's missing give them a chance
     // to enter it right here.  We must display or hide this row dynamically
     // in case the patient-select popup is used.
-    $patient_dob = trim($prow['DOB']);
+    $patient_dob = trim($prow['DOB'] ?? null);
     $is_group = $groupname;
-    $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
+    $dobstyle = (!empty($prow) && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
         '' : 'none';
     ?>
     <div class="form-row mx-2" id='dob_row' style='display: <?php echo $dobstyle ?>'>
@@ -1647,7 +1647,7 @@ function isRegularRepeat($repeat)
             <input class='form-check-input' type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php echo (isRegularRepeat($repeats)) ? " checked" : ""; ?>/>
             <label class='form-check-label' id='tdrepeat1'><?php echo xlt('Repeats'); ?></label>
         </div>
-        <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate); ?>' />
+        <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate ?? ''); ?>' />
         <!-- dates excluded from the repeat -->
         <select class='col-sm form-control form-control-sm' name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
             <?php
@@ -1674,9 +1674,9 @@ function isRegularRepeat($repeat)
             ?>
         </select>
         <label class='col-sm col-form-label' id='tdrepeat2'><?php echo xlt('until date'); ?></label>
-        <input class="col-sm form-control form-control-sm datepicker" type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo attr(oeFormatShortDate($recurrence_end_date)) ?>' title='<?php echo xla('last date of this event'); ?>' />
+        <input class="col-sm form-control form-control-sm datepicker" type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo attr(oeFormatShortDate($recurrence_end_date ?? '')) ?>' title='<?php echo xla('last date of this event'); ?>' />
         <?php
-        if ($repeatexdate != "") {
+        if (!empty($repeatexdate)) {
             $tmptitle = "The following dates are excluded from the repeating series";
             if ($multiple_value) {
                 $tmptitle .= " for one or more providers:\n";
@@ -1724,9 +1724,9 @@ function isRegularRepeat($repeat)
         <label id='title_prefcat' class='font-weight-bold' style='display:none'><?php echo xlt('Pref Cat'); ?>:</label>
         <?php
         if ($_GET['group'] != true) {
-            generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
+            generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), ($row['pc_apptstatus'] ?? null));
         } else {
-            generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'groupstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
+            generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'groupstat', 'empty_title' => 'SKIP'), ($row['pc_apptstatus'] ?? null));
         }
         ?>
         <!-- The following list will be invisible unless this is an In Office
@@ -1737,7 +1737,7 @@ function isRegularRepeat($repeat)
     </div>
 
 <?php
-if ($_GET['prov'] != true) { ?>
+if (empty($_GET['prov'])) { ?>
     <div class="col-sm form-group">
         <label><?php echo xlt('Room Number'); ?>:</label>
         <?php
@@ -1969,7 +1969,7 @@ function deleteEvent() {
 
 function SubmitForm() {
     var f = document.forms[0];
-    <?php if (!($GLOBALS['select_multi_providers']) && !$_GET['prov']) { // multi providers appt is not supported by check slot avail window, so skip. && is not provider tab. ?>
+    <?php if (!($GLOBALS['select_multi_providers']) && empty($_GET['prov'])) { // multi providers appt is not supported by check slot avail window, so skip. && is not provider tab. ?>
     if (f.form_action.value != 'delete') {
         // Check slot availability.
         var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);

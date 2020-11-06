@@ -279,7 +279,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                 "JOIN forms AS f ON f.form_id = fe.id AND f.encounter = fe.encounter " .
                 "WHERE fe.pid=? AND fe.date=? AND fe.provider_id=? AND f.deleted=0";
             $q_enc = sqlQuery($q, array($pid, $encnow, $override['pc_aid']));
-            if (is_array($override) && !$q_enc['encounter']) {
+            if (!empty($override) && is_array($override) && empty($q_enc['encounter'])) {
                 $provider_id = $override['pc_aid'];
                 $default_bill_fac_override = $override['pc_billing_location'];
                 $default_fac_override = $override['pc_facility'];

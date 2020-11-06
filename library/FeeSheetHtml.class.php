@@ -44,7 +44,7 @@ class FeeSheetHtml extends FeeSheet
         "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' " .
         "AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' )";
         // If restricting to providers matching user facility...
-        if ($GLOBALS['gbl_restrict_provider_facility']) {
+        if (!empty($GLOBALS['gbl_restrict_provider_facility'])) {
             $query .= " AND ( facility_id = 0 OR facility_id = ? )";
             $query .= " ORDER BY lname, fname";
         } else { // If not restricting then sort the matching providers first.
@@ -61,7 +61,7 @@ class FeeSheetHtml extends FeeSheet
             }
 
             $s .= ">";
-            if (!$GLOBALS['gbl_restrict_provider_facility'] && $def_facility && $row['facility_id'] == $def_facility) {
+            if (empty($GLOBALS['gbl_restrict_provider_facility']) && $def_facility && ($row['facility_id'] == $def_facility)) {
                 // Mark providers in the matching facility with an asterisk.
                 $s .= "* ";
             }

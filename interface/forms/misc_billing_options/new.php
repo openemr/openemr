@@ -88,7 +88,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                             <label><?php echo xlt('Box 10 A. Employment related'); ?>:
                                 <input type="checkbox" name="employment_related" id="box10a" value="1"
                                     <?php
-                                    if ($obj['employment_related'] == "1") {
+                                    if (!empty($obj['employment_related']) && ($obj['employment_related'] == "1")) {
                                         echo "checked";
                                     } ?> />
                             </label>
@@ -98,21 +98,21 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 <label><?php echo xlt('Box 10 B. Auto Accident'); ?>:</label>
                                 <input type="checkbox" name="auto_accident" id="box10b" value="1"
                                     <?php
-                                    if ($obj['auto_accident'] == "1") {
+                                    if (!empty($obj['auto_accident']) && ($obj['auto_accident'] == "1")) {
                                         echo "checked";
                                     } ?> />
                             </div>
                             <div class="col-md">
                                 <label><?php echo xlt('State'); ?>:</label>
                                 <input type="text" class="form-control" name="accident_state" id="box10bstate" size="1"
-                                    value="<?php echo attr($obj["accident_state"]); ?>" />
+                                    value="<?php echo attr($obj["accident_state"] ?? ''); ?>" />
                             </div>
                         </div>
                         <div class="form-group">
                             <label><?php echo xlt('Box 10 C. Other Accident'); ?>:</label>
                             <input type="checkbox" name="other_accident" id="box10c" value="1"
                                 <?php
-                                if ($obj['other_accident'] == "1") {
+                                if (!empty($obj['other_accident']) && ($obj['other_accident'] == "1")) {
                                     echo "checked";
                                 } ?> />
                         </div>
@@ -120,13 +120,13 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                             <div class="col-md">
                                 <label><?php echo xlt('Box 10 D. EPSDT Referral Code'); ?></label>
                                 <input type="text" class="form-control" name="medicaid_referral_code" id="box10d"
-                                    value="<?php echo attr($obj["medicaid_referral_code"]); ?>" />
+                                    value="<?php echo attr($obj["medicaid_referral_code"] ?? ''); ?>" />
                             </div>
                             <div class="col-md">
                                 <label><?php echo xlt('EPSDT'); ?> :</label>
                                 <input type="checkbox" name="epsdt_flag" id="box10depsdt" value="1"
                                     <?php
-                                    if ($obj['epsdt_flag'] == "1") {
+                                    if (!empty($obj['epsdt_flag']) && ($obj['epsdt_flag'] == "1")) {
                                         echo "checked";
                                     } ?> />
                             </div>
@@ -136,8 +136,8 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 <label><?php echo xlt('Box 14. Onset Date:'); ?></label>
                             </div>
                             <div class="col-md">
-                                <?php $onset_date = $obj["onset_date"]; ?>
-                                <input type="text" class="form-control" size="10" class='datepicker' name='onset_date' id='onset_date'
+                                <?php $onset_date = $obj["onset_date"] ?? null; ?>
+                                <input type="text" size="10" class='datepicker form-control' name='onset_date' id='onset_date'
                                     value='<?php echo attr($onset_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </div>
                             <div class="col-md">
@@ -149,7 +149,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 <label><?php echo xlt('Box 15. Other Date:'); ?></label>
                             </div>
                             <div class="col-md">
-                                <?php $date_initial_treatment = $obj["date_initial_treatment"]; ?>
+                                <?php $date_initial_treatment = $obj["date_initial_treatment"] ?? null; ?>
                                 <input type="text" size="10" class='datepicker form-control' name='date_initial_treatment'
                                     id='date_initial_treatment' value='<?php echo attr($date_initial_treatment); ?>'
                                     title='<?php echo xla('yyyy-mm-dd'); ?>' />
@@ -165,7 +165,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 </label>
                             </div>
                             <div class="col-md">
-                                <?php $off_work_from = $obj["off_work_from"]; ?>
+                                <?php $off_work_from = $obj["off_work_from"] ?? null; ?>
                                 <input type="text" class='datepicker form-control' name='off_work_from'
                                 id='off_work_from' value='<?php echo attr($off_work_from); ?>'
                                 title='<?php echo xla('yyyy-mm-dd'); ?>' />
@@ -176,7 +176,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 </label>
                             </div>
                             <div class="col-md">
-                                <?php $off_work_to = $obj["off_work_to"]; ?>
+                                <?php $off_work_to = $obj["off_work_to"] ?? null; ?>
                                 <input type="text" class='datepicker form-control' name='off_work_to' id='off_work_to'
                                     value='<?php echo attr($off_work_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </div>
@@ -184,7 +184,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         <div class="form-group">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider') ?>:</label>
                             <?php
-                            if ($obj["provider_id"]) {
+                            if (!empty($obj["provider_id"])) {
                                 genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj["provider_id"]);
                             } else { // defalut to the patient's ref_prov
                                 genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
@@ -192,7 +192,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-group">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:</label>
-                            <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', $obj["provider_qualifier_code"], 'Provider Qualifier Code'); ?>
+                            <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', ($obj["provider_qualifier_code"] ?? null), 'Provider Qualifier Code'); ?>
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
@@ -201,7 +201,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 </label>
                             </div>
                             <div class="col-md">
-                                <?php $hospitalization_date_from = $obj["hospitalization_date_from"]; ?>
+                                <?php $hospitalization_date_from = $obj["hospitalization_date_from"] ?? null; ?>
                                 <input type="text" class='datepicker form-control' name='hospitalization_date_from'
                                     id='hospitalization_date_from' value='<?php echo attr($hospitalization_date_from); ?>'
                                     title='<?php echo xla('yyyy-mm-dd'); ?>' />
@@ -212,7 +212,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 </label>
                             </div>
                             <div class="col-md">
-                                <?php $hospitalization_date_to = $obj["hospitalization_date_to"]; ?>
+                                <?php $hospitalization_date_to = $obj["hospitalization_date_to"] ?? null; ?>
                                 <input type="text" class='datepicker form-control' name='hospitalization_date_to'
                                     id='hospitalization_date_to' value='<?php echo attr($hospitalization_date_to); ?>'
                                     title='<?php echo xla('yyyy-mm-dd'); ?>' />
@@ -223,46 +223,46 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 <label><?php echo xlt('Box 20. Is Outside Lab used?'); ?>:</label>
                                 <input type="checkbox" name="outside_lab" id="outside_lab" value="1"
                                     <?php
-                                    if ($obj['outside_lab'] == "1") {
+                                    if (!empty($obj['outside_lab']) && ($obj['outside_lab'] == "1")) {
                                         echo "checked";
                                     } ?> />
                             </div>
                             <div class="col-md">
                                 <label><?php echo xlt('Amount Charged'); ?>:</label>
                                 <input type="text" size="7" class="form-control" name="lab_amount" id="lab_amount"
-                                    value="<?php echo attr($obj["lab_amount"]); ?>" />
+                                    value="<?php echo attr($obj["lab_amount"] ?? ''); ?>" />
                             </div>
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
                                 <label><?php echo xlt('Box 22. Medicaid Resubmission Code (ICD-10)'); ?>:</label>
                                 <input type="text" class="form-control" name="medicaid_resubmission_code" id="medicaid_resubmission_code"
-                                    value="<?php echo attr($obj["medicaid_resubmission_code"]); ?>" />
+                                    value="<?php echo attr($obj["medicaid_resubmission_code"] ?? ''); ?>" />
                             </div>
                             <div class="col-md">
                                 <label><?php echo xlt('Medicaid Original Reference No.'); ?>:</label>
                                 <input type="text" class="form-control" name="medicaid_original_reference" id="medicaid_original_reference"
-                                    value="<?php echo attr($obj["medicaid_original_reference"]); ?>" />
+                                    value="<?php echo attr($obj["medicaid_original_reference"] ?? ''); ?>" />
                             </div>
                         </div>
                         <div class="form-group mt-3">
                             <label><?php echo xlt('Box 23. Prior Authorization No.'); ?>:</label>
                             <input type="text" class="form-control" name="prior_auth_number" id="prior_auth_number"
-                                value="<?php echo attr($obj["prior_auth_number"]); ?>" />
+                                value="<?php echo attr($obj["prior_auth_number"] ?? ''); ?>" />
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
                                 <label><?php echo xlt('X12 only: Replacement Claim'); ?>:</label>
                                 <input type="checkbox" name="replacement_claim" id="replacement_claim" value="1"
                                     <?php
-                                    if ($obj['replacement_claim'] == "1") {
+                                    if (!empty($obj['replacement_claim']) && ($obj['replacement_claim'] == "1")) {
                                         echo "checked";
                                     } ?> />
                             </div>
                             <div class="col-md">
                                 <label><?php echo xlt('X12 only ICN resubmission No.'); ?>:</label>
                                 <input type="text" class="form-control" name="icn_resubmission_number" id="icn_resubmission_number"
-                                    value="<?php echo attr($obj["icn_resubmission_number"]); ?>" />
+                                    value="<?php echo attr($obj["icn_resubmission_number"] ?? ''); ?>" />
                             </div>
                         </div>
                     </div>
@@ -272,7 +272,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                     <div class="container">
                         <div class="form-group">
                             <textarea name="comments" id="comments" class="form-control" cols="80"
-                                rows="3"><?php echo text($obj["comments"]); ?></textarea>
+                                rows="3"><?php echo text($obj["comments"] ?? ''); ?></textarea>
                         </div>
                     </div>
                 </fieldset>

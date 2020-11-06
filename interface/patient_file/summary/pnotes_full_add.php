@@ -21,7 +21,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
-if ($_GET['set_pid']) {
+if (!empty($_GET['set_pid'])) {
     require_once("$srcdir/pid.inc");
     setpid($_GET['set_pid']);
 }
@@ -54,11 +54,11 @@ if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
 //the number of records to display per screen
 $N = 25;
 
-$mode   = $_REQUEST['mode'];
-$offset = $_REQUEST['offset'];
-$form_active = $_REQUEST['form_active'];
-$form_inactive = $_REQUEST['form_inactive'];
-$noteid = $_REQUEST['noteid'];
+$mode   = $_REQUEST['mode'] ?? null;
+$offset = $_REQUEST['offset'] ?? null;
+$form_active = $_REQUEST['form_active'] ?? null;
+$form_inactive = $_REQUEST['form_inactive'] ?? null;
+$noteid = $_REQUEST['noteid'] ?? null;
 $form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1) : 1;
 
 if (!isset($offset)) {
@@ -335,7 +335,7 @@ function submitform(attr) {
                     </td>
                     <td class="text-right">
                         <?php
-                        if ($result_count == $N) {
+                        if (!empty($result_count) && ($result_count == $N)) {
                             echo "   <a class='link' href='pnotes_full.php" .
                             "?$urlparms" .
                             "&form_active=" . attr_url($form_active) .
@@ -354,7 +354,7 @@ function submitform(attr) {
 <script>
 
 <?php
-if ($_GET['set_pid']) {
+if (!empty($_GET['set_pid'])) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
     ?>
  parent.left_nav.setPatient(<?php echo js_escape($ndata['fname'] . " " . $ndata['lname']) . "," . js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name"; ?>);
