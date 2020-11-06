@@ -33,36 +33,36 @@ use Psr\Http\Message\ServerRequestInterface;
 class RestConfig
 {
     /** @var routemap is an array of patterns and routes */
-    public static array $ROUTE_MAP;
+    public static $ROUTE_MAP;
 
     /** @var fhir routemap is an  of patterns and routes */
-    public static array $FHIR_ROUTE_MAP;
+    public static $FHIR_ROUTE_MAP;
 
     /** @var portal routemap is an  of patterns and routes */
-    public static array $PORTAL_ROUTE_MAP;
+    public static $PORTAL_ROUTE_MAP;
 
     /** @var portal fhir routemap is an  of patterns and routes */
-    public static array $PORTAL_FHIR_ROUTE_MAP;
+    public static $PORTAL_FHIR_ROUTE_MAP;
 
     /** @var app root is the root directory of the application */
-    public static string $APP_ROOT;
+    public static $APP_ROOT;
 
     /** @var root url of the application */
-    public static string $ROOT_URL;
+    public static $ROOT_URL;
     // you can guess what the rest are!
-    public static string $REST_BASE_URL;
-    public static string $REST_FULL_URL;
-    public static string $REST_FULLAUTH_URL;
-    public static string $VENDOR_DIR;
-    public static string $SITE;
+    public static $REST_BASE_URL;
+    public static $REST_FULL_URL;
+    public static $REST_FULLAUTH_URL;
+    public static $VENDOR_DIR;
+    public static $SITE;
 
-    public static string $webserver_root;
-    public static string $web_root;
-    public static string $server_document_root;
-    public static string $privateKey;
-    public static string $publicKey;
+    public static $webserver_root;
+    public static $web_root;
+    public static $server_document_root;
+    public static $privateKey;
+    public static $publicKey;
     private static $INSTANCE;
-    private static bool $IS_INITIALIZED = false;
+    private static $IS_INITIALIZED = false;
     /**  @var set to true if local api call */
     private static $localCall = false;
     /**  @var set to true if not rest call */

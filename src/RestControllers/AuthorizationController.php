@@ -43,15 +43,14 @@ use RuntimeException;
 
 class AuthorizationController
 {
-    public string $siteId;
-    public string $serverBaseUrl;
-    public string $authBaseUrl;
-    private string $privateKey;
-    private string $publicKey;
-    private string $encryptionKey;
-    private string $grantType;
+    public $siteId;
+    public $serverBaseUrl;
+    public $authBaseUrl;
+    private $privateKey;
+    private $encryptionKey;
+    private $grantType;
     private bool $providerForm;
-    private string $authRequestSerial;
+    private $authRequestSerial;
 
     public function __construct($providerForm = true)
     {
