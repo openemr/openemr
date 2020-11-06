@@ -13,7 +13,7 @@ const gulpif = require('gulp-if');
 const prefix = require('autoprefixer');
 const postcss = require('gulp-postcss');
 const rename = require('gulp-rename');
-const sass = require('gulp-sass');
+const sass = require('gulp-dart-sass');
 const sourcemaps = require('gulp-sourcemaps');
 const gulp_watch = require('gulp-watch');
 const injector = require('gulp-inject-string');
@@ -116,7 +116,7 @@ function styles_style_portal() {
         .pipe(gulp.dest(config.dest.themes))
         .on('end', () => {
             if (isSuccess) {
-                console.log(logprefix + "Finished compiling OpenEMR portal styles.");
+                console.log(logprefix + "Finished compiling OpenEMR portal styles");
             }
         });
 }
