@@ -11,7 +11,6 @@ $discovery = <<<TEMPLATE
 "jwks_uri": "$base_url/jwk",
 "userinfo_endpoint": "$base_url/userinfo",
 "registration_endpoint": "$base_url/registration",
-"revocation_endpoint": "$base_url/revoke",
 "scopes_supported": [
     "openid",
     "profile",
@@ -26,7 +25,7 @@ $discovery = <<<TEMPLATE
     "api:oemr",
     "api:fhir",
     "api:port",
-    "identities"
+    "api:pofh"
 ],
 "response_types_supported": [
     "code",
@@ -43,6 +42,7 @@ $discovery = <<<TEMPLATE
 ],
 "grant_types_supported": [
     "authorization_code",
+    "password",
     "refresh_token"
 ],
 "response_modes_supported": [
