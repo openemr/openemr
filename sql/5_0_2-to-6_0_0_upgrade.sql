@@ -2265,3 +2265,33 @@ ALTER TABLE `documents` ADD `deleted` tinyint(1) NOT NULL DEFAULT '0';
 #IfMissingColumn procedure_providers active
 ALTER TABLE `procedure_providers` ADD `active` tinyint(1) NOT NULL DEFAULT '1';
 #EndIf
+
+#IfMissingColumn api_token client_id
+ALTER TABLE `api_token` CHANGE `token` `token` VARCHAR(128) DEFAULT NULL;
+ALTER TABLE `api_token` CHANGE `token_auth` `token_auth` TEXT DEFAULT NULL;
+ALTER TABLE `api_token` CHANGE `user_id` `user_id` VARCHAR(40) DEFAULT NULL;
+ALTER TABLE `api_token` ADD `client_id` VARCHAR(80) DEFAULT NULL;
+ALTER TABLE `api_token` ADD `auth_user_id` VARCHAR(80) DEFAULT NULL;
+ALTER TABLE `api_token` ADD `scope` TEXT DEFAULT NULL COMMENT 'json encoded';
+#EndIf
+
+#IfNotTable oauth_clients
+CREATE TABLE `oauth_clients` (
+`client_id` varchar(40) NOT NULL,
+`client_role` varchar(20) DEFAULT NULL,
+`client_name` varchar(80) NOT NULL,
+`client_secret` varchar(80) DEFAULT NULL,
+`registration_token` varchar(40) DEFAULT NULL,
+`registration_uri_path` varchar(40) DEFAULT NULL,
+`register_date` datetime DEFAULT NULL,
+`revoke_date` datetime DEFAULT NULL,
+`contacts` text,
+`redirect_uri` text,
+`grant_types` varchar(80) DEFAULT NULL,
+`scope` text,
+`user_id` varchar(40) DEFAULT NULL,
+`site_id` varchar(64) DEFAULT NULL,
+`is_confidential` tinyint(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE `oauth_clients` ADD PRIMARY KEY (`client_id`);
+#EndIf
