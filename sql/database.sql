@@ -107,7 +107,7 @@ CREATE TABLE `api_log` (
 
 DROP TABLE IF EXISTS `api_token`;
 CREATE TABLE `api_token` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` varchar(40) DEFAULT NULL,
   `token` varchar(128) DEFAULT NULL,
   `expiry` datetime DEFAULT NULL,
@@ -116,7 +116,7 @@ CREATE TABLE `api_token` (
   `patient_id` bigint(20) NOT NULL,
   `client_id` varchar(80) DEFAULT NULL,
   `auth_user_id` varchar(80) DEFAULT NULL,
-  `scope` text COMMENT 'json encoded'
+  `scope` text COMMENT 'json encoded',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
 ) ENGINE = InnoDB;
