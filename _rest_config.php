@@ -395,22 +395,18 @@ class RestConfig
         if (headers_sent()) {
             throw new RuntimeException('Headers already sent.');
         }
-        if ($build) {
-            $statusLine = sprintf(
-                'HTTP/%s %s %s',
-                $response->getProtocolVersion(),
-                $response->getStatusCode(),
-                $response->getReasonPhrase()
-            );
-            header($statusLine, true);
-            foreach ($response->getHeaders() as $name => $values) {
-                $responseHeader = sprintf('%s: %s', $name, $response->getHeaderLine($name));
-                header($responseHeader, false);
-            }
-            echo $response->getBody();
-        } else {
-            (new SapiEmitter())->emit($response);
+        $statusLine = sprintf(
+            'HTTP/%s %s %s',
+            $response->getProtocolVersion(),
+            $response->getStatusCode(),
+            $response->getReasonPhrase()
+        );
+        header($statusLine, true);
+        foreach ($response->getHeaders() as $name => $values) {
+            $responseHeader = sprintf('%s: %s', $name, $response->getHeaderLine($name));
+            header($responseHeader, false);
         }
+        echo $response->getBody();
     }
 
     public function getUserAccount($userId, $userRole = 'users')

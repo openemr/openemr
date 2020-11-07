@@ -214,9 +214,9 @@ class AuthorizationController
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
         try {
-            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', 'openid email api:oemr api:fhir', ?, ?, ?)";
+            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', 'openid email phone address api:oemr api:fhir api:port api:pofh', ?, ?, ?)";
             $i_vals = array(
-                $clientId, 'users', $info['client_name'], $info['client_secret'], $info['registration_access_token'], $info['registration_client_uri_path'], $redirects, $contacts, $user, $site, $private
+                $clientId, 'users', $info['client_name'], $info['client_secret'], $info['registration_access_token'], $info['registration_client_uri_path'], $contacts, $redirects, $user, $site, $private
             );
 
             return sqlQuery($sql, $i_vals);
@@ -332,13 +332,6 @@ class AuthorizationController
                 header("Location: " . $this->authBaseUrl . "/provider/login", true, 301);
                 exit;
             }
-            // automatic auth assuming it is allowed.
-            // todo: add flag in profile or role or debug.
-            /* // this for persist good token
-            $authRequest->setAuthorizationApproved(true);
-            // HTTP redirect back to client. Token request next from client/user.
-            $result = $server->completeAuthorizationRequest($authRequest, $response);
-            $this->emitResponse($result);*/
         } catch (OAuthServerException $exception) {
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
@@ -372,12 +365,12 @@ class AuthorizationController
             $grant = new AuthCodeGrant(
                 new AuthCodeRepository(),
                 new RefreshTokenRepository(),
-                new \DateInterval('PT500M') // auth token. should be short turn around.
+                new \DateInterval('PT1M') // auth token. should be short turn around.
             );
             $grant->setRefreshTokenTTL(new \DateInterval('P3M')); // minimum per ONC
             $authServer->enableGrantType(
                 $grant,
-                new \DateInterval('PT8H') // access token
+                new \DateInterval('PT1H') // access token
             );
         }
         if ($this->grantType === 'refresh_token') {
@@ -527,7 +520,7 @@ class AuthorizationController
         $authRequest = new AuthorizationRequest();
         try {
             $requestData = $_SESSION['authRequestSerial'] ?? $this->authRequestSerial;
-            $restore = json_decode($requestData, true, 512, JSON_THROW_ON_ERROR);
+            $restore = json_decode($requestData, true, 512);
             $outer = $restore['outer'];
             $client = $restore['client'];
             $scoped = $restore['scopes'];
