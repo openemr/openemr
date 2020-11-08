@@ -2266,12 +2266,12 @@ ALTER TABLE `documents` ADD `deleted` tinyint(1) NOT NULL DEFAULT '0';
 ALTER TABLE `procedure_providers` ADD `active` tinyint(1) NOT NULL DEFAULT '1';
 #EndIf
 
-#IfNotColumnType api_token api_token varchar(128)
-ALTER TABLE `api_token` CHANGE `api_token` `token` VARCHAR(128) DEFAULT NULL;
+#IfNotColumnType api_token token varchar(128)
+ALTER TABLE `api_token` CHANGE `token` `token` VARCHAR(128) DEFAULT NULL;
 #EndIf
 
 #IfNotColumnType api_token token_auth text
-ALTER TABLE `api_token` CHANGE `token_auth` `token_auth` TEXT DEFAULT NULL;
+ALTER TABLE `api_token` CHANGE `token_auth` `token_auth` TEXT;
 #EndIf
 
 #IfNotColumnType api_token user_id varchar(40)
@@ -2279,9 +2279,15 @@ ALTER TABLE `api_token` CHANGE `user_id` `user_id` VARCHAR(40) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn api_token client_id
-ALTER TABLE `api_token` ADD `client_id` VARCHAR(40) DEFAULT NULL;
-ALTER TABLE `api_token` ADD `auth_user_id` VARCHAR(40) DEFAULT NULL;
-ALTER TABLE `api_token` ADD `scope` TEXT DEFAULT NULL COMMENT 'json encoded';
+ALTER TABLE `api_token` ADD `client_id` VARCHAR(80) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn api_token auth_user_id
+ALTER TABLE `api_token` ADD `auth_user_id` VARCHAR(80) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn api_token scope
+ALTER TABLE `api_token` ADD `scope` TEXT COMMENT 'json encoded';
 #EndIf
 
 #IfNotTable oauth_clients
