@@ -18,7 +18,7 @@ require_once("../globals.php");
 use OpenEMR\Core\Header;
 
 $order = 0 + $_GET['order'];
-$labid = 0 + $_GET['labid'];
+$labid = 0 + ($_GET['labid'] ?? null);
 
 //////////////////////////////////////////////////////////////////////
 // The form was submitted with the selected code type.
@@ -129,8 +129,8 @@ if (isset($_GET['typeid'])) {
         ?>'>
         <div class="col-sm-12">
             <div class="input-group">
-                <input type="hidden" name='isfav' value='<?php echo attr($_REQUEST['ordLookup']); ?>' />
-                <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term']); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;"/>
+                <input type="hidden" name='isfav' value='<?php echo attr($_REQUEST['ordLookup'] ?? ''); ?>' />
+                <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term'] ?? ''); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;"/>
                 <span class="input-group-append">
                     <button type="submit" class="btn btn-primary btn-search" name='bn_search' value="true"><?php echo xlt('Search'); ?></button>
                     <?php if (!isset($_REQUEST['addfav'])) { ?>
@@ -140,7 +140,7 @@ if (isset($_GET['typeid'])) {
                 </span>
             </div>
         </div>
-        <?php if ($_REQUEST['bn_search'] || $_REQUEST['bn_grpsearch']) { ?>
+        <?php if (!empty($_REQUEST['bn_search']) || !empty($_REQUEST['bn_grpsearch'])) { ?>
             <div class="table-responsive mt-3">
                 <table class="table table-striped table-sm">
                     <thead>

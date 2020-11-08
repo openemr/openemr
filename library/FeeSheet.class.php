@@ -360,7 +360,7 @@ class FeeSheet
         $sqlArray = array();
         $query = "SELECT id, units, code_text, revenue_code FROM codes WHERE " .
         "code_type = ? AND code = ?";
-        array_push($sqlArray, $code_types[$codetype]['id'], $code);
+        array_push($sqlArray, ($code_types[$codetype]['id'] ?? ''), $code);
         if ($modifier) {
             $query .= " AND modifier = ?";
             array_push($sqlArray, $modifier);
@@ -369,10 +369,10 @@ class FeeSheet
         }
 
         $result = sqlQuery($query, $sqlArray);
-        $codes_id = $result['id'];
-        $revenue_code = $revenue_code ? $revenue_code : $result['revenue_code'];
+        $codes_id = $result['id'] ?? null;
+        $revenue_code = $revenue_code ? $revenue_code : ($result['revenue_code'] ?? null);
         if (!$code_text) {
-            $code_text = $result['code_text'];
+            $code_text = $result['code_text'] ?? null;
             if (empty($units)) {
                 $units = max(1, intval($result['units']));
             }
@@ -807,7 +807,7 @@ class FeeSheet
                     continue;
                 }
 
-                $id        = $iter['id'];
+                $id        = $iter['id'] ?? null;
                 $code_type = $iter['code_type'];
                 $code      = $iter['code'];
                 $del       = !empty($iter['del']);

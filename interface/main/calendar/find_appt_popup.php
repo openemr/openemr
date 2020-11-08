@@ -98,7 +98,7 @@ if ($input_catid) {
 $info_msg = "";
 
 $searchdays = 7; // default to a 1-week lookahead
-if ($_REQUEST['searchdays']) {
+if (!empty($_REQUEST['searchdays'])) {
     $searchdays = $_REQUEST['searchdays'];
 }
 

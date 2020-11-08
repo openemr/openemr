@@ -108,12 +108,15 @@ CREATE TABLE `api_log` (
 DROP TABLE IF EXISTS `api_token`;
 CREATE TABLE `api_token` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `token_api` varchar(4),
-  `user_id` bigint(20) NOT NULL,
+  `user_id` varchar(40) DEFAULT NULL,
+  `token` varchar(128) DEFAULT NULL,
+  `expiry` datetime DEFAULT NULL,
+  `token_auth` text,
+  `token_api` varchar(4) DEFAULT NULL,
   `patient_id` bigint(20) NOT NULL,
-  `token` varchar(40) DEFAULT NULL,
-  `token_auth` varchar(255),
-  `expiry` datetime NULL,
+  `client_id` varchar(80) DEFAULT NULL,
+  `auth_user_id` varchar(80) DEFAULT NULL,
+  `scope` text COMMENT 'json encoded',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
 ) ENGINE = InnoDB;
@@ -12241,4 +12244,39 @@ CREATE TABLE `benefit_eligibility` (
     `response_status` enum('A','D') DEFAULT 'A',
     `response_create_date` date DEFAULT NULL,
     `response_modify_date` date DEFAULT NULL
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `oauth_clients`;
+CREATE TABLE `oauth_clients` (
+`client_id` varchar(40) NOT NULL,
+`client_role` varchar(20) DEFAULT NULL,
+`client_name` varchar(80) NOT NULL,
+`client_secret` varchar(80) DEFAULT NULL,
+`registration_token` varchar(40) DEFAULT NULL,
+`registration_uri_path` varchar(40) DEFAULT NULL,
+`register_date` datetime DEFAULT NULL,
+`revoke_date` datetime DEFAULT NULL,
+`contacts` text,
+`redirect_uri` text,
+`grant_types` varchar(80) DEFAULT NULL,
+`scope` text,
+`user_id` varchar(40) DEFAULT NULL,
+`site_id` varchar(64) DEFAULT NULL,
+`is_confidential` tinyint(1) NOT NULL DEFAULT '1',
+PRIMARY KEY (`client_id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `oauth_trusted_user`;
+CREATE TABLE `oauth_trusted_user` (
+`id` bigint(20) NOT NULL AUTO_INCREMENT,
+`user_id` varchar(80) DEFAULT NULL,
+`user_role` varchar(16) DEFAULT NULL,
+`client_id` varchar(80) DEFAULT NULL,
+`scope` text,
+`persist_login` tinyint(1) DEFAULT '0',
+`time` timestamp NULL DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `accounts_id` (`user_id`),
+KEY `clients_id` (`client_id`),
+KEY `user_role` (`user_role`)
 ) ENGINE=InnoDB;

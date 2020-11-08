@@ -15,7 +15,7 @@
 exit;
 
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
+require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -29,7 +29,7 @@ use OpenEMR\Core\Header;
         function testAjaxApi() {
             $.ajax({
                 type: 'GET',
-                url: '../../apis/api/facility',
+                url: '../../apis/default/api/facility',
                 dataType: 'json',
                 headers: {
                     'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
@@ -44,7 +44,7 @@ use OpenEMR\Core\Header;
         }
 
         function testFetchApi() {
-            fetch('../../apis/api/facility', {
+            fetch('../../apis/default/api/facility', {
                 credentials: 'same-origin',
                 method: 'GET',
                 headers: new Headers({
@@ -89,7 +89,7 @@ echo "<br /><br />";
 //  is limited to get requests at this time.
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 
-require_once(dirname(__FILE__) . "/../../_rest_config.php");
+require_once(__DIR__ . "/../../_rest_config.php");
 $gbl = RestConfig::GetInstance();
 $gbl::setNotRestCall();
 // below will return as json
