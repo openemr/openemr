@@ -169,7 +169,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                             </div>
                             <hr>
                             <div id="<?php echo attr($db); ?>_install_details">
-                                <div id='<?php echo attr($db); ?>_inst_loading' class='m-2 d-none'>
+                                <div id='<?php echo attr($db); ?>_inst_loading' class='m-2'>
                                     <img src='../pic/ajax-loader.gif'/>
                                 </div>
                             </div>
@@ -184,7 +184,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                             <hr>
                             <div id="<?php echo attr($db); ?>_stage_details">
                             </div>
-                            <div id='<?php echo attr($db); ?>_stg_loading' class='m-2 d-none'>
+                            <div id='<?php echo attr($db); ?>_stg_loading' class='m-2'>
                                 <img src='../pic/ajax-loader.gif'/>
                             </div>
                         </div>
