@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,6 +17,7 @@ namespace OpenEMR\RestControllers;
 use DateInterval;
 use Exception;
 use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\PasswordGrant;
@@ -33,6 +36,8 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\IdentityRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
@@ -47,6 +52,8 @@ class AuthorizationController
     public $serverBaseUrl;
     public $authBaseUrl;
     private $privateKey;
+    private $passphrase;
+    private $publicKey;
     private $encryptionKey;
     private $grantType;
     private $providerForm;
@@ -59,8 +66,101 @@ class AuthorizationController
         $this->serverBaseUrl = $gbl::$REST_BASE_URL;
         $this->authBaseUrl = $gbl::$REST_FULLAUTH_URL;
         $this->authRequestSerial = $_SESSION['authRequestSerial'] ?? '';
-        $this->encryptionKey = 'lxZFUEsBCJ2Yb14IF2ygAHI5N4+ZAUXXaSeeJm6+twsUmIen';
-        $this->privateKey = $gbl::$privateKey;
+
+        // Create a crypto object that will be used for for encryption/decryption
+        $this->cryptoGen = new CryptoGen();
+
+        // encryption key
+        $eKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2key'");
+        if (!empty($eKey['name']) && ($eKey['name'] == 'oauth2key')) {
+            // collect the encryption key from database
+            $this->encryptionKey = $this->cryptoGen->decryptStandard($eKey['value']);
+            if (empty($this->encryptionKey)) {
+                // if decrypted key is empty, then critical error and must exit
+                error_log("OpenEMR error - oauth2 key was blank after it was decrypted, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+        } else {
+            // create a encryption key and store it in database
+            $this->encryptionKey = RandomGenUtils::produceRandomBytes(32);
+            if (empty($this->encryptionKey)) {
+                // if empty, then force exit
+                error_log("OpenEMR error - random generator broken during oauth2 encryption key generation, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+            $this->encryptionKey = base64_encode($this->encryptionKey);
+            if (empty($this->encryptionKey)) {
+                // if empty, then force exit
+                error_log("OpenEMR error - base64 encoding broken during oauth2 encryption key generation, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+            sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2key', ?)", [$this->cryptoGen->encryptStandard($this->encryptionKey)]);
+        }
+
+        // private key
+        $this->privateKey = $GLOBALS['OE_SITE_DIR'] . '/documents/certificates/oaprivate.key';
+        $this->publicKey = $GLOBALS['OE_SITE_DIR'] . '/documents/certificates/oapublic.key';
+        if (!file_exists($this->privateKey)) {
+            // create the private/public key pair (store in filesystem) with a random passphrase (store in database)
+            // first, create the passphrase (removing any prior passphrases)
+            sqlStatementNoLog("DELETE FROM `keys` WHERE `name` = 'oauth2passphrase'");
+            $this->passphrase = RandomGenUtils::produceRandomString(60, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+            if (empty($this->passphrase)) {
+                // if empty, then force exit
+                error_log("OpenEMR error - random generator broken during oauth2 key passphrase generation, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+            // second, create and store the private/public key pain
+            $keys = openssl_pkey_new(["private_key_bits" => 2048, "private_key_type" => OPENSSL_KEYTYPE_RSA]);
+            if ($keys === false) {
+                // if unable to create keys, then force exit
+                error_log("OpenEMR error - key generation broken during oauth2, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+            openssl_pkey_export($keys, $privkey, $this->passphrase);
+            $pubkey = openssl_pkey_get_details($keys);
+            $pubkey = $pubkey["key"];
+            if (empty($privkey) || empty($pubkey)) {
+                // if unable to construct keys, then force exit
+                error_log("OpenEMR error - key construction broken during oauth2, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+            // third, store the keys on drive and store the passphrase in the database
+            file_put_contents($this->privateKey, $privkey);
+            chmod($this->privateKey, 0640);
+            file_put_contents($this->publicKey, $pubkey);
+            sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2passphrase', ?)", [$this->cryptoGen->encryptStandard($this->passphrase)]);
+        }
+        // confirm existence of passphrase
+        $pkey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2passphrase'");
+        if (!empty($pkey['name']) && ($pkey['name'] == 'oauth2passphrase')) {
+            $this->passphrase = $this->cryptoGen->decryptStandard($pkey['value']);
+            if (empty($this->passphrase)) {
+                // if decrypted pssphrase is empty, then critical error and must exit
+                error_log("OpenEMR error - oauth2 passphrase was blank after it was decrypted, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+        } else {
+            // oauth2passphrase is missing so must exit
+            error_log("OpenEMR error - oauth2 passphrase is missing, so forced exit");
+            http_response_code(500);
+            exit;
+        }
+        // confirm existence of key pair
+        if (!file_exists($this->privateKey) || !file_exists($this->publicKey)) {
+            // key pair is missing so must exit
+            error_log("OpenEMR error - oauth2 keypair is missing, so forced exit");
+            http_response_code(500);
+            exit;
+        }
+
         $this->providerForm = $providerForm;
     }
 
@@ -354,7 +454,7 @@ class AuthorizationController
             new ClientRepository(),
             new AccessTokenRepository(),
             new ScopeRepository(),
-            $this->privateKey,
+            new CryptKey($this->privateKey, $this->passphrase),
             $this->encryptionKey,
             $responseType
         );
