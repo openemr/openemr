@@ -148,7 +148,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                     <div class="row px-5">
                     <div class="left_wrpr col-md-2 col-sm-4">
                         <div class="inst_dets">
-                            <div class="inst_hdr"><?php echo xlt("Installed Release"); ?>
+                            <div class="card-text"><?php echo xlt("Installed Release"); ?>
                             </div>
                             <hr>
                             <div id="<?php echo attr($db); ?>_install_details">
