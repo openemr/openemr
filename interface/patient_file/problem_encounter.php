@@ -43,7 +43,7 @@ $alertmsg = ""; // anything here pops up in an alert box
 $endjs = "";    // holds javascript to write at the end
 
 // If the Save button was clicked...
-if ($_POST['form_save']) {
+if (!empty($_POST['form_save'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -360,7 +360,7 @@ function doclick(pfx, id) {
 <script>
 <?php
  echo $endjs;
-if ($_REQUEST['issue']) {
+if (!empty($_REQUEST['issue'])) {
     echo "doclick('p', " . js_escape($_REQUEST['issue']) . ");\n";
 }
 

@@ -373,7 +373,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     echo "</td>\n";
                                 }
                                 if ($focustype == "allergy" || $focustype == "medical_problem") {
-                                    $codeListName = ($thistype == 'medical_problem') ? 'condition-verification' : 'allergyintolerance-verification';
+                                    $codeListName = (!empty($thistype) && ($thistype == 'medical_problem')) ? 'condition-verification' : 'allergyintolerance-verification';
                                     echo "  <td>";
                                         echo generate_display_field(array('data_type' => '1','list_id' => $codeListName), $row['verification']);
                                     echo "</td>\n";

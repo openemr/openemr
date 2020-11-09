@@ -15,6 +15,9 @@ function getTransByPid($pid, $cols = "*")
 {
     $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), array('transactions')) . " from transactions where pid = ? " .
     "order by date DESC", array($pid));
+
+    $all = [];
+
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $fres = sqlStatement(
             "SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
