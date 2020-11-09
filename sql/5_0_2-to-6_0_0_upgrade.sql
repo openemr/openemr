@@ -2326,3 +2326,14 @@ KEY `clients_id` (`client_id`),
 KEY `user_role` (`user_role`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfNotRow2D icd10_dx_order_code dx_code U072 active 1
+INSERT INTO `icd10_dx_order_code`
+(`dx_code`, `formatted_dx_code`, `valid_for_coding`, `short_desc`, `long_desc`, `active`, `revision`)
+VALUES ('U072', 'U07.2', '1', 'COVID-19, virus not identified', 'COVID-19, virus not identified', '1', '1');
+#EndIf
+
+#IfRow2D icd10_dx_order_code dx_code U072 active 1
+set @newMax = (SELECT MAX(revision) from icd10_dx_order_code);
+UPDATE `icd10_dx_order_code` SET `revision` = @newMax WHERE `dx_code` = 'U072';
+#EndIf
