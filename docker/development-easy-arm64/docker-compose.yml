@@ -67,7 +67,7 @@ services:
     - mysql
   phpmyadmin:
     restart: always
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin
     ports:
     - 8310:80
     environment:
@@ -87,15 +87,14 @@ services:
     environment:
       COUCHDB_USER: admin
       COUCHDB_PASSWORD: password
-  #maybe later
-  #openldap:
-  #  restart: always
-  #  image: openemr/dev-ldap:easy
-  #  environment:
-  #    LDAP_TLS_VERIFY_CLIENT: try
-  #    LDAP_TLS_CA_CRT_FILENAME: ca.pem
-  #    LDAP_TLS_CRT_FILENAME: server-cert.pem
-  #    LDAP_TLS_KEY_FILENAME: server-key.pem
+  openldap:
+    restart: always
+    image: openemr/dev-ldap:easy
+    environment:
+      LDAP_TLS_VERIFY_CLIENT: try
+      LDAP_TLS_CA_CRT_FILENAME: ca.pem
+      LDAP_TLS_CRT_FILENAME: server-cert.pem
+      LDAP_TLS_KEY_FILENAME: server-key.pem
 volumes:
   databasevolume: {}
   publicvolume: {}

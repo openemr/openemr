@@ -299,7 +299,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
   phpmyadmin:
     restart: always
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin
     ports:
     - 8200:80
     environment:
