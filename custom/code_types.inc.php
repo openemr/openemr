@@ -698,7 +698,7 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
             }
 
             list($codetype, $code) = explode(':', $codestring);
-            $table_id = $code_types[$codetype]['external'];
+            $table_id = $code_types[$codetype]['external'] ?? '';
             if (isset($code_external_tables[$table_id])) {
                 $table_info = $code_external_tables[$table_id];
                 $table_name = $table_info[EXT_TABLE_NAME];
