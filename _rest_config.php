@@ -107,8 +107,8 @@ class RestConfig
         self::$ROOT_URL = self::$web_root . "/apis";
         self::$VENDOR_DIR = self::$webserver_root . "/vendor";
         self::$REST_FULLAUTH_URL = self::$REST_BASE_URL . '/oauth2/' . self::$SITE;
-        self::$privateKey = self::$webserver_root . "/sites/" . self::$SITE . "/documents/certificates/private.key";
-        self::$publicKey = self::$webserver_root . "/sites/" . self::$SITE . "/documents/certificates/public.key";
+        self::$privateKey = self::$webserver_root . "/sites/" . self::$SITE . "/documents/certificates/oaprivate.key";
+        self::$publicKey = self::$webserver_root . "/sites/" . self::$SITE . "/documents/certificates/oapublic.key";
         self::$IS_INITIALIZED = true;
     }
 
