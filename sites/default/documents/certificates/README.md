@@ -31,3 +31,6 @@ For ldap tls support:
 - `Common Name` of CA certificate: This can be anything, but needs to be different than what is used for Server and Client
 - `Common Name` of Server certificate: This has to be the host name(or ip address) that the client uses to log into the mysql server.
 - `Common Name` of Client certificate: Set this to the host name of the client.
+
+For oauth key pair support:
+1. This is done automatically by OpenEMR. When oauth is used, the a oaprivate.key and oaprublic.key will be created in this directory.

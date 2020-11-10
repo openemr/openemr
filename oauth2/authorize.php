@@ -30,6 +30,12 @@ require_once __DIR__ . '/../interface/globals.php';
 
 use OpenEMR\RestControllers\AuthorizationController;
 
+// exit if api is not turned on
+if (empty($GLOBALS['rest_api']) && empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_api']) && empty($GLOBALS['rest_portal_fhir_api'])) {
+    http_response_code(404);
+    exit;
+}
+
 $end_point = $gbl::getRequestEndPoint();
 
 $authServer = new AuthorizationController();
