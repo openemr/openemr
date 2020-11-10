@@ -36,6 +36,7 @@ if ($tokenRaw instanceof ResponseInterface) {
     exit;
 }
 $attributes = $tokenRaw->getAttributes();
+
 // this confirms the access token has same scope to site from url.
 $site = '';
 $scopes = $attributes['oauth_scopes'];

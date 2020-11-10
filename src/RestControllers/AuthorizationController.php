@@ -14,6 +14,8 @@
 
 namespace OpenEMR\RestControllers;
 
+require_once(__DIR__ . "/../Common/Session/SessionUtil.php");
+
 use DateInterval;
 use Exception;
 use League\OAuth2\Server\AuthorizationServer;
@@ -37,6 +39,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenIDConnectServer\ClaimExtractor;
@@ -49,8 +52,9 @@ use RuntimeException;
 class AuthorizationController
 {
     public $siteId;
-    public $serverBaseUrl;
     public $authBaseUrl;
+    public $authBaseFullUrl;
+    public $authIssueFullUrl;
     private $privateKey;
     private $passphrase;
     private $publicKey;
@@ -62,9 +66,14 @@ class AuthorizationController
     public function __construct($providerForm = true)
     {
         global $gbl;
+
         $this->siteId = $gbl::$SITE;
-        $this->serverBaseUrl = $gbl::$REST_BASE_URL;
-        $this->authBaseUrl = $gbl::$REST_FULLAUTH_URL;
+
+        $this->authBaseUrl = $GLOBALS['webroot'] . '/oauth2/' . $_SESSION['site_id'];
+        // collect full url and issuing url by using 'site_addr_oath' global
+        $this->authBaseFullUrl = $GLOBALS['site_addr_oath'] . $this->authBaseUrl;
+        $this->authIssueFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'];
+
         $this->authRequestSerial = $_SESSION['authRequestSerial'] ?? '';
 
         // Create a crypto object that will be used for for encryption/decryption
@@ -136,6 +145,7 @@ class AuthorizationController
             file_put_contents($this->privateKey, $privkey);
             chmod($this->privateKey, 0640);
             file_put_contents($this->publicKey, $pubkey);
+            chmod($this->publicKey, 0660);
             sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2passphrase', ?)", [$this->cryptoGen->encryptStandard($this->passphrase)]);
         }
         // confirm existence of passphrase
@@ -250,7 +260,7 @@ class AuthorizationController
             if ($badSave) {
                 throw OAuthServerException::serverError("Try again. Unable to create account");
             }
-            $reg_uri = $this->authBaseUrl . '/client/' . $reg_client_uri_path;
+            $reg_uri = $this->authBaseFullUrl . '/client/' . $reg_client_uri_path;
             unset($params['registration_client_uri_path']);
             $client_json = array(
                 'client_id' => $client_id,
@@ -531,11 +541,11 @@ class AuthorizationController
         $response = $this->createServerResponse();
 
         if (empty($_POST['username']) && empty($_POST['password'])) {
-            $_SESSION['get_credentials'] = 1;
+            $oauthLogin = true;
+            $redirect = $this->authBaseUrl . "/login";
             require_once(__DIR__ . "/../../oauth2/provider/login.php");
             exit();
         }
-        unset($_SESSION['get_credentials']);
         $continueLogin = false;
         if (isset($_POST['user_role'])) {
             $continueLogin = $this->verifyLogin($_POST['username'], $_POST['password'], $_POST['email'], $_POST['user_role']);
@@ -543,7 +553,8 @@ class AuthorizationController
         unset($_POST['username'], $_POST['password']);
         if (!$continueLogin) {
             $invalid = "Sorry, Invalid!"; // todo: display error
-            $_SESSION['get_credentials'] = 1;
+            $oauthLogin = true;
+            $redirect = $this->authBaseUrl . "/login";
             require_once(__DIR__ . "/../../oauth2/provider/login.php");
             exit();
         }
@@ -552,7 +563,9 @@ class AuthorizationController
         $user->setIdentifier($_SESSION['user_id']);
         $user->setUserRole($_SESSION['user_role']);
         $_SESSION['claims'] = $user->getClaims();
-        $_SESSION['get_authorization'] = 1;
+        $oauthLogin = true;
+        $redirect = $this->authBaseUrl . "/device/code";
+        $authorize = 'authorize';
         require_once(__DIR__ . "/../../oauth2/provider/login.php");
     }
 
@@ -661,15 +674,12 @@ class AuthorizationController
         try {
             $result = $server->respondToAccessTokenRequest($request, $response);
             $this->emitResponse($result);
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
         } catch (OAuthServerException $exception) {
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
             $body = $response->getBody();
             $body->write($exception->getMessage());
             $this->emitResponse($response->withStatus(500)->withBody($body));
@@ -688,15 +698,12 @@ class AuthorizationController
             // Respond to the access token request
             $result = $server->respondToAccessTokenRequest($request, $response);
             $this->emitResponse($result);
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
         } catch (OAuthServerException $exception) {
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
             $body = $response->getBody();
             $body->write($exception->getMessage());
             $this->emitResponse($response->withStatus(500)->withBody($body));

@@ -143,6 +143,26 @@ class SessionUtil
         self::standardSessionCookieDestroy();
     }
 
+    public static function oauthSessionStart(): void
+    {
+        session_start([
+            'cookie_samesite' => "Strict",
+            'name' => 'authserverOpenEMR',
+            'cookie_httponly' => true,
+            'gc_maxlifetime' => self::$gc_maxlifetime,
+            'sid_bits_per_character' => self::$sid_bits_per_character,
+            'sid_length' => self::$sid_length,
+            'use_strict_mode' => self::$use_strict_mode,
+            'use_cookies' => self::$use_cookies,
+            'use_only_cookies' => self::$use_only_cookies
+        ]);
+    }
+
+    public static function oauthSessionCookieDestroy(): void
+    {
+        self::standardSessionCookieDestroy();
+    }
+
     private static function standardSessionCookieDestroy(): void
     {
         // Destroy the cookie

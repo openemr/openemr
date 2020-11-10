@@ -3079,6 +3079,13 @@ $GLOBALS_METADATA = array(
     //
     'Connectors' => array(
 
+        'site_addr_oath' => array(
+            xl('Site Address (required for oauth2 and fhir)'),
+            'text',
+            '',
+            xl('Site Address (required for oauth2 and fhir). Example is') . ' https://localhost:8300 .'
+        ),
+
         'rest_api' => array(
             xl('Enable OpenEMR Standard REST API'),
             'bool',
