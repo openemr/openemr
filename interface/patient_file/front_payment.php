@@ -27,7 +27,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
 
-$pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
+$pid = (!empty($_REQUEST['hidden_patient_code']) && ($_REQUEST['hidden_patient_code'] > 0)) ? $_REQUEST['hidden_patient_code'] : $pid;
 
 $facilityService = new FacilityService();
 
@@ -154,7 +154,7 @@ $patdata = sqlQuery("SELECT " .
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
-if ($_POST['form_save']) {
+if (!empty($_POST['form_save'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -376,8 +376,8 @@ if ($_POST['form_save']) {
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
 
-if ($_POST['form_save'] || $_REQUEST['receipt']) {
-    if ($_REQUEST['receipt']) {
+if (!empty($_POST['form_save']) || !empty($_REQUEST['receipt'])) {
+    if (!empty($_REQUEST['receipt'])) {
         $form_pid = $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
     }
@@ -948,7 +948,7 @@ function make_insurance() {
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <form method='post' action='front_payment.php<?php echo ($payid) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
+                <form method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
@@ -971,7 +971,7 @@ function make_insurance() {
                         <div class="col-12 oe-custom-line">
                             <label class="control-label" for="check_number"><?php echo xlt('Check/Ref Number'); ?>:</label>
                             <div id="ajax_div_patient" style="display:none;"></div>
-                            <input type='text' id="check_number" name='form_source' class='form-control' value='<?php echo attr($payrow['source']); ?>' />
+                            <input type='text' id="check_number" name='form_source' class='form-control' value='<?php echo attr($payrow['source'] ?? ''); ?>' />
                         </div>
                         <div class="col-12 oe-custom-line">
                             <label class="control-label" for="form_discount"><?php echo xla('Patient Coverage'); ?>:</label>
@@ -1065,7 +1065,7 @@ function make_insurance() {
                                         $query = "SELECT taxrates FROM codes WHERE " .
                                         "code_type = ? AND " .
                                         "code = ? AND ";
-                                        array_push($sql_array, $code_types[$brow['code_type']]['id'], $brow['code']);
+                                        array_push($sql_array, ($code_types[$brow['code_type']]['id'] ?? null), $brow['code']);
                                         if ($brow['modifier']) {
                                             $query .= "modifier = ?";
                                             array_push($sql_array, $brow['modifier']);
