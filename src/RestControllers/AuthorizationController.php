@@ -123,7 +123,7 @@ class AuthorizationController
                 exit;
             }
             $privkey = '';
-            openssl_pkey_export($keys, $privkey);
+            openssl_pkey_export($keys, $privkey, $this->passphrase);
             $pubkey = openssl_pkey_get_details($keys);
             $pubkey = $pubkey["key"];
             if (empty($privkey) || empty($pubkey)) {
