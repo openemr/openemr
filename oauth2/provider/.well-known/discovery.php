@@ -5,7 +5,7 @@ $base_url = $authServer->authBaseUrl;
 
 $discovery = <<<TEMPLATE
 {
-"issuer": "$base_url",
+"issuer": "$authServer->serverBaseUrl",
 "authorization_endpoint": "$base_url/authorize",
 "token_endpoint": "$base_url/token",
 "jwks_uri": "$base_url/jwk",
