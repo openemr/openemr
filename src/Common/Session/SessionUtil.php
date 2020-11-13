@@ -39,6 +39,11 @@
  *     is to use the standard php session locking on code that works on critical session variables during
  *     authorization related scripts and in cases of single process use (such as with command line scripts
  *     and non-local api calls) since there is no performance benefit in single process use.
+ *  10. For OpenEMR 6.0.0 added a oauth session, which at this time requires following settings:
+ *      cookie_samesite = None
+ *      cookie_secure = true
+ *      use_strict_mode = false
+ *
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -139,6 +144,27 @@ class SessionUtil
     }
 
     public static function portalSessionCookieDestroy(): void
+    {
+        self::standardSessionCookieDestroy();
+    }
+
+    public static function oauthSessionStart(): void
+    {
+        session_start([
+            'cookie_samesite' => "None",
+            'cookie_secure' => true,
+            'name' => 'authserverOpenEMR',
+            'cookie_httponly' => true,
+            'gc_maxlifetime' => self::$gc_maxlifetime,
+            'sid_bits_per_character' => self::$sid_bits_per_character,
+            'sid_length' => self::$sid_length,
+            'use_strict_mode' => false,
+            'use_cookies' => self::$use_cookies,
+            'use_only_cookies' => self::$use_only_cookies
+        ]);
+    }
+
+    public static function oauthSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
     }

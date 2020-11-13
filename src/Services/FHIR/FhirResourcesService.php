@@ -22,7 +22,7 @@ class FhirResourcesService
 {
     public function createBundle($resource = '', $resource_array = [], $encode = true)
     {
-        $bundleUrl = \RestConfig::$REST_FULL_URL;
+        $bundleUrl = $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '');
         $nowDate = date("Y-m-d\TH:i:s");
         $meta = array('lastUpdated' => $nowDate);
         $bundleLink = new FHIRBundleLink(array('relation' => 'self', 'url' => $bundleUrl));

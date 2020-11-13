@@ -1,11 +1,11 @@
 <?php
 
 global $authServer;
-$base_url = $authServer->authBaseUrl;
+$base_url = $authServer->authBaseFullUrl;
 
 $discovery = <<<TEMPLATE
 {
-"issuer": "$authServer->serverBaseUrl",
+"issuer": "$authServer->authIssueFullUrl",
 "authorization_endpoint": "$base_url/authorize",
 "token_endpoint": "$base_url/token",
 "jwks_uri": "$base_url/jwk",

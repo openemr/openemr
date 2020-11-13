@@ -1,5 +1,10 @@
 <?php
 
+if ($oauthjwk !== true) {
+    echo xlt("Error. Not authorized");
+    exit();
+}
+
 $public = file_get_contents($gbl::$publicKey);
 $keyPublic = openssl_pkey_get_details(openssl_pkey_get_public($public));
 $key_info = [

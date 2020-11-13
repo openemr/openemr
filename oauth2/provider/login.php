@@ -10,27 +10,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../_rest_config.php");
-$gbl = RestConfig::GetInstance();
-
-$_GET['site'] = $gbl::$SITE;
-$ignoreAuth = true;
-require_once __DIR__ . '/../../interface/globals.php';
-
-use OpenEMR\Core\Header;
-
-$redirect = '';
-if ($_SESSION['get_credentials']) {
-    $redirect = $gbl::$REST_FULLAUTH_URL . "/login";
-    unset($_SESSION['get_credentials']);
-    $mode = 'credentials';
-} elseif ($_SESSION['get_authorization']) {
-    $redirect = $gbl::$REST_FULLAUTH_URL . "/device/code";
-    $authorize = 'authorize';
-} else {
+if ($oauthLogin !== true) {
     echo xlt("Error. Not authorized");
     exit();
 }
+
+use OpenEMR\Core\Header;
+
 ?>
 <html>
 <head>
@@ -42,9 +28,6 @@ if ($_SESSION['get_credentials']) {
         <div class="col-sm-5">
             <div class="card">
                 <div class="card-body">
-                    <?php if (!$authorize) { ?>
-                        <a href="" class="float-right btn btn-outline-primary"><?php echo xlt("Register"); ?></a>
-                    <?php } ?>
                     <?php if (!$authorize) { ?>
                         <h4 class="card-title mb-4 mt-1"><?php echo xlt("Sign In"); ?></h4>
                     <?php } else { ?>
@@ -61,7 +44,7 @@ if ($_SESSION['get_credentials']) {
                                 $value = 'True';
                             }
                             $key = ucwords(str_replace("_", " ", $key));
-                            echo "<label class='col-form-label'><b>" . $key . ":</b>  " . $value . "</label><br />\n";
+                            echo "<label class='col-form-label'><b>" . text($key) . ":</b>  " . text($value) . "</label><br />\n";
                         }
                     } ?>
                     </p>

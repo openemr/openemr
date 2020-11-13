@@ -50,16 +50,12 @@ class RestConfig
     /** @var root url of the application */
     public static $ROOT_URL;
     // you can guess what the rest are!
-    public static $REST_BASE_URL;
-    public static $REST_FULL_URL;
-    public static $REST_FULLAUTH_URL;
     public static $VENDOR_DIR;
     public static $SITE;
 
     public static $webserver_root;
     public static $web_root;
     public static $server_document_root;
-    public static $privateKey;
     public static $publicKey;
     private static $INSTANCE;
     private static $IS_INITIALIZED = false;
@@ -102,12 +98,8 @@ class RestConfig
         // The busy stuff.
         self::setPaths();
         self::setSiteFromEndpoint();
-        self::$REST_BASE_URL = $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['SERVER_NAME'] . self::$web_root;
-        self::$REST_FULL_URL = $_SERVER['REQUEST_SCHEME'] . "//" . $_SERVER['SERVER_NAME'] . $_SERVER['REDIRECT_URL'];
         self::$ROOT_URL = self::$web_root . "/apis";
         self::$VENDOR_DIR = self::$webserver_root . "/vendor";
-        self::$REST_FULLAUTH_URL = self::$REST_BASE_URL . '/oauth2/' . self::$SITE;
-        self::$privateKey = self::$webserver_root . "/sites/" . self::$SITE . "/documents/certificates/oaprivate.key";
         self::$publicKey = self::$webserver_root . "/sites/" . self::$SITE . "/documents/certificates/oapublic.key";
         self::$IS_INITIALIZED = true;
     }
