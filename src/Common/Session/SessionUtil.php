@@ -150,6 +150,7 @@ class SessionUtil
 
     public static function oauthSessionStart(): void
     {
+        session_id('authserverOpenEMR');
         session_start([
             'cookie_samesite' => "None",
             'cookie_secure' => true,
