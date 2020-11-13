@@ -330,7 +330,7 @@ class AuthorizationController
                 $clientId, 'users', $info['client_name'], $info['client_secret'], $info['registration_access_token'], $info['registration_client_uri_path'], $contacts, $redirects, $user, $site, $private
             );
 
-            return sqlQuery($sql, $i_vals);
+            return sqlQueryNoLog($sql, $i_vals);
         } catch (\RuntimeException $e) {
             die($e);
         }
@@ -459,6 +459,7 @@ class AuthorizationController
             // nonce scope added later. this is for id token nonce claim.
             $customClaim = new ClaimSetEntity('nonce', ['nonce']);
         }
+
         // OpenID Connect Response Type
         $responseType = new IdTokenResponse(new IdentityRepository(), new ClaimExtractor([$customClaim]));
         $authServer = new AuthorizationServer(
@@ -670,6 +671,11 @@ class AuthorizationController
         $request = $this->createServerRequest();
         $this->grantType = $request->getParsedBody()['grant_type'];
 
+        // temporary code until have Jerry's hook in to populate the $_SESSION['user_role']
+        if (empty($_SESSION['user_role'])) {
+            $_SESSION['user_role'] = "users";
+        }
+
         $server = $this->getAuthorizationServer();
         try {
             $result = $server->respondToAccessTokenRequest($request, $response);
@@ -720,6 +726,6 @@ class AuthorizationController
         $id = $this->trustedUser($clientId, $userId, $userRole)['id'];
         $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `user_role`, `client_id`, `scope`, `persist_login`, `time`) VALUES (?, ?, ?, ?, ?, ?, Now())";
 
-        return sqlQuery($sql, array($id, $userId, $userRole, $clientId, $scope, $persist));
+        return sqlQueryNoLog($sql, array($id, $userId, $userRole, $clientId, $scope, $persist));
     }
 }

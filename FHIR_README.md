@@ -67,9 +67,9 @@ There are several ways to make API calls from an authorized session and maintain
 
 ## FHIR Endpoints
 
-Standard FHIR endpoints Use `http://localhost:8300/apis/fhir as base URI.`
+Standard FHIR endpoints Use `http://localhost:8300/apis/default/fhir as base URI.`
 
-_Example:_ `http://localhost:8300/apis/fhir/Patient` returns a Patient's bundle resource, etc
+_Example:_ `http://localhost:8300/apis/default/fhir/Patient` returns a Patient's bundle resource, etc
 
 ---
 
@@ -80,7 +80,7 @@ _Example:_ `http://localhost:8300/apis/fhir/Patient` returns a Patient's bundle 
 This will return the Capability Statement.
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/metadata'
+curl -X GET 'http://localhost:8300/apis/default/fhir/metadata'
 ```
 
 ---
@@ -134,7 +134,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Patient' \
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Patient'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Patient'
 ```
 
 #### GET fhir/Patient[id]
@@ -142,7 +142,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Patient'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7'
 ```
 
 -   Supported Search Parameters
@@ -164,7 +164,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Patient/90a8923c-0b1c-4d0a-9981-994
 Request:
 
 ```sh
-curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Patient' -d \
+curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/default/fhir/Patient' -d \
 '{
   "resourceType": "Patient",
   "identifier": [ { "system": "urn:oid:1.2.36.146.595.217.0.1", "value": "12345" } ],
@@ -182,7 +182,7 @@ curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/api
 Request:
 
 ```sh
-curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
+curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/default/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
 '{
   "resourceType": "Patient",
   "id": "1",
@@ -207,7 +207,7 @@ curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis
 Request:
 
 ```sh
-curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
+curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/default/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
 '[
  {
    "op": "replace",
@@ -231,7 +231,7 @@ curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/ap
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Encounter'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Encounter'
 ```
 
 #### GET fhir/Encounter[id]
@@ -239,7 +239,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Encounter'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Encounter/90c196f2-51cc-4655-8858-3a80aebff3ef'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Encounter/90c196f2-51cc-4655-8858-3a80aebff3ef'
 ```
 
 -   Supported Search Parameters
@@ -256,7 +256,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Encounter/90c196f2-51cc-4655-8858-3
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Practitioner'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Practitioner'
 ```
 
 #### GET fhir/Practitioner[id]
@@ -264,7 +264,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Practitioner'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Practitioner/90a8923c-0b1c-4d0a-9981-994b143381a7'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Practitioner/90a8923c-0b1c-4d0a-9981-994b143381a7'
 ```
 
 -   Supported Search Parameters
@@ -285,7 +285,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Practitioner/90a8923c-0b1c-4d0a-998
 Request:
 
 ```sh
-curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Practitioner' -d \
+curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/default/fhir/Practitioner' -d \
 '{
   "resourceType": "Practitioner",
   "identifier": [ { "system": "http://hl7.org/fhir/sid/us-npi", "value": "1122334499" } ],
@@ -302,7 +302,7 @@ curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/api
 Request:
 
 ```sh
-curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Practitioner/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
+curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/default/fhir/Practitioner/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
 '{
   "resourceType": "Practitioner",
   "identifier": [ { "system": "http://hl7.org/fhir/sid/us-npi", "value": "1155667799" } ],
@@ -329,7 +329,7 @@ curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/ap
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/PractitionerRole'
+curl -X GET 'http://localhost:8300/apis/default/fhir/PractitionerRole'
 ```
 
 #### GET fhir/PractitionerRole/[id]
@@ -337,7 +337,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/PractitionerRole'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/PractitionerRole/90de091a-91e9-4bbe-9a81-75ed623f65bf'
+curl -X GET 'http://localhost:8300/apis/default/fhir/PractitionerRole/90de091a-91e9-4bbe-9a81-75ed623f65bf'
 ```
 
 -   Supported Search Parameters
@@ -353,7 +353,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/PractitionerRole/90de091a-91e9-4bbe
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Immunization'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Immunization'
 ```
 
 #### GET fhir/Immunization/[id]
@@ -361,7 +361,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Immunization'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Immunization/90feaaa2-4097-4437-966e-c425d1958dd6'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Immunization/90feaaa2-4097-4437-966e-c425d1958dd6'
 ```
 
 -   Supported Search Parameters
@@ -376,7 +376,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Immunization/90feaaa2-4097-4437-966
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance'
+curl -X GET 'http://localhost:8300/apis/default/fhir/AllergyIntolerance'
 ```
 
 #### GET fhir/AllergyIntolerance/[id]
@@ -384,7 +384,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance/90feaaa2-4097-4437-966e-c425d1958dd6'
+curl -X GET 'http://localhost:8300/apis/default/fhir/AllergyIntolerance/90feaaa2-4097-4437-966e-c425d1958dd6'
 ```
 
 ---
@@ -396,7 +396,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance/90feaaa2-4097-44
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Organization'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Organization'
 ```
 
 #### GET /fhir/Organization/:id
@@ -404,7 +404,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Organization'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Organization/1'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Organization/1'
 ```
 
 ---
@@ -416,7 +416,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Organization/1'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Observation'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Observation'
 ```
 
 #### GET /fhir/Observation/:uuid
@@ -424,7 +424,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Observation'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Observation/9150635b-0705-4a27-8820-df8b56cf07eb'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Observation/9150635b-0705-4a27-8820-df8b56cf07eb'
 ```
 
 ---
@@ -436,7 +436,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Observation/9150635b-0705-4a27-8820
 Request:
 
 ```sh
-curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/QuestionnaireResponse' -d \
+curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/default/fhir/QuestionnaireResponse' -d \
 '{
   "resourceType": "QuestionnaireResponse",
   "id": "697485",
@@ -473,7 +473,7 @@ curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/api
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Condition'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Condition'
 ```
 
 #### GET fhir/Condition/[id]
@@ -481,7 +481,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Condition'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Condition/9109890a-6756-44c1-a82d-bdfac91c7424'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Condition/9109890a-6756-44c1-a82d-bdfac91c7424'
 ```
 
 ---
@@ -493,7 +493,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Condition/9109890a-6756-44c1-a82d-b
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Procedure'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Procedure'
 ```
 
 #### GET /fhir/Procedure/:uuid
@@ -501,7 +501,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Procedure'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Procedure/9109890a-6756-44c1-a82d-bdfac91c7424'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Procedure/9109890a-6756-44c1-a82d-bdfac91c7424'
 ```
 
 ---
@@ -513,7 +513,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Procedure/9109890a-6756-44c1-a82d-b
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/MedicationRequest'
+curl -X GET 'http://localhost:8300/apis/default/fhir/MedicationRequest'
 ```
 
 #### GET /fhir/MedicationRequest/:uuid
@@ -521,7 +521,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/MedicationRequest'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/MedicationRequest/9128a1ec-95be-4649-8a66-d3686b7ab0ca'
+curl -X GET 'http://localhost:8300/apis/default/fhir/MedicationRequest/9128a1ec-95be-4649-8a66-d3686b7ab0ca'
 ```
 
 ---
@@ -533,7 +533,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/MedicationRequest/9128a1ec-95be-464
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Medication'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Medication'
 ```
 
 #### GET /fhir/Medication/:uuid
@@ -541,7 +541,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Medication'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Medication/9109890a-6756-44c1-a82d-bdfac91c7424'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Medication/9109890a-6756-44c1-a82d-bdfac91c7424'
 ```
 
 ---
@@ -553,7 +553,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Medication/9109890a-6756-44c1-a82d-
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Location'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Location'
 ```
 
 #### GET /fhir/Location/:uuid
@@ -561,7 +561,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Location'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Location/90f3d0e9-2a19-453b-84bd-1fa2b533f96c'
+curl -X GET 'http://localhost:8300/apis/default/fhir/Location/90f3d0e9-2a19-453b-84bd-1fa2b533f96c'
 ```
 
 ---
@@ -573,7 +573,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/Location/90f3d0e9-2a19-453b-84bd-1f
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/CareTeam'
+curl -X GET 'http://localhost:8300/apis/default/fhir/CareTeam'
 ```
 
 #### GET /fhir/CareTeam/:uuid
@@ -581,7 +581,7 @@ curl -X GET 'http://localhost:8300/apis/fhir/CareTeam'
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/CareTeam/915e8fb4-86b2-4365-a420-d46fc07d5aed'
+curl -X GET 'http://localhost:8300/apis/default/fhir/CareTeam/915e8fb4-86b2-4365-a420-d46fc07d5aed'
 ```
 
 ---
@@ -591,14 +591,14 @@ curl -X GET 'http://localhost:8300/apis/fhir/CareTeam/915e8fb4-86b2-4365-a420-d4
 Provenance resources are requested by including `_revinclude=Provenance:target` in the search of a resource. Is currently supported for the following resources:
   - AllergyIntolerance
       ```sh
-      curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance?_revinclude=Provenance:target'
+      curl -X GET 'http://localhost:8300/apis/default/fhir/AllergyIntolerance?_revinclude=Provenance:target'
       ```
 
 ## Patient Portal FHIR Endpoints
 
-OpenEMR patient portal fhir endpoints Use `http://localhost:8300/apis/portalfhir as base URI.`
+OpenEMR patient portal fhir endpoints Use `http://localhost:8300/apis/default/portalfhir as base URI.`
 
-_Example:_ `http://localhost:8300/apis/portalfhir/Patient` returns a resource of the patient.
+_Example:_ `http://localhost:8300/apis/default/portalfhir/Patient` returns a resource of the patient.
 
 ---
 
@@ -639,7 +639,7 @@ The Bearer token is required for each OpenEMR Patient Portal FHIR service reques
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/portalfhir/Patient' \
+curl -X GET 'http://localhost:8300/apis/default/portalfhir/Patient' \
   -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ=='
 ```
 
@@ -652,5 +652,5 @@ curl -X GET 'http://localhost:8300/apis/portalfhir/Patient' \
 Request:
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/portalfhir/Patient'
+curl -X GET 'http://localhost:8300/apis/default/portalfhir/Patient'
 ```

@@ -277,46 +277,6 @@ class RestConfig
         self::$notRestCall = true;
     }
 
-    public static function get_bearer_token(): string
-    {
-        $parse = preg_split("/[\s,]+/", $_SERVER["HTTP_AUTHORIZATION"]);
-        if (strtoupper(trim($parse[0])) !== 'BEARER') {
-            return '';
-        }
-
-        return trim($parse[1]);
-    }
-
-    public static function verify_api_request($resource, $api): void
-    {
-        $api = strtolower(trim($api));
-        if (self::is_fhir_request($resource)) {
-            if ($api !== 'fhir') {
-                http_response_code(401);
-                exit();
-            }
-        } elseif (self::is_portal_request($resource)) {
-            if ($api !== 'port') {
-                http_response_code(401);
-                exit();
-            }
-        } elseif (self::is_portal_fhir_request($resource)) {
-            if ($api !== 'pofh') {
-                http_response_code(401);
-                exit();
-            }
-        } elseif (self::is_api_request($resource)) {
-            if ($api !== 'oemr') {
-                http_response_code(401);
-                exit();
-            }
-        } else {
-            // somebody is up to no good
-            http_response_code(401);
-            exit();
-        }
-    }
-
     public static function is_fhir_request($resource): bool
     {
         return stripos(strtolower($resource), "/fhir/") !== false;
@@ -337,18 +297,11 @@ class RestConfig
         return stripos(strtolower($resource), "/api/") !== false;
     }
 
-    public static function authentication_check($resource): void
-    {
-        if (!self::is_authentication($resource)) {
-            $token = $_SERVER["HTTP_X_API_TOKEN"];
-        }
-    }
-
     public static function apiLog($response = '', $requestBody = ''): void
     {
         // only log when using standard api calls (skip when using local api calls from within OpenEMR)
         //  and when api log option is set
-        if (!$GLOBALS['is_local_api'] && $GLOBALS['api_log_option']) {
+        if (!$GLOBALS['is_local_api'] && !self::$notRestCall && $GLOBALS['api_log_option']) {
             if ($GLOBALS['api_log_option'] == 1) {
                 // Do not log the response and requestBody
                 $response = '';
@@ -401,29 +354,39 @@ class RestConfig
         echo $response->getBody();
     }
 
-    public function getUserAccount($userId, $userRole = 'users')
-    {
-        if (!is_numeric($userId)) {
-            $uuidreg = new UuidRegistry();
-            $userId = $uuidreg::uuidToBytes($userId);
+    public function authenticateUserToken($tokenId, $userId, $userRole) {
+        $ip = collectIpAddresses();
+
+        // check for token
+        $authToken = sqlQueryNoLog("SELECT `expiry` FROM `api_token` WHERE `token` = ? AND `user_id` = ? AND `user_role` = ?", [$tokenId, $userId, $userRole]);
+        if (empty($authToken) || empty($authToken['expiry'])) {
+            EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token not found for " . $userId . " with role " . $userRole . ".");
+            return false;
         }
+
+        // Ensure token not expired (note an expired token should have already been caught by oauth2, however will also check here)
+        $currentDateTime = date("Y-m-d H:i:s");
+        $expiryDateTime = date("Y-m-d H:i:s", strtotime($authToken['expiry']));
+        if ($expiryDateTime <= $currentDateTime) {
+            EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token expired for " . $userId . " with role " . $userRole . ".");
+            return false;
+        }
+
+        // Token authentication passed
+        EventAuditLogger::instance()->newEvent('api', '', '', 1, "API success: " . $ip['ip_string'] . ". Token successfully used for " . $userId . " with role " . $userRole . ".");
+        return true;
+    }
+
+    public function getUserAccount($userId, $userRole)
+    {
+        $userId = UuidRegistry::uuidToBytes($userId);
 
         switch ($userRole) {
             case 'users':
-                $account_sql = "SELECT `id`, `username`, `authorized`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone`, `email`, `street`, `city`, `state`, `zip`, CONCAT(fname, ' ', lname) AS fullname FROM `users`";
-                if (is_numeric($userId)) {
-                    $account_sql .= " WHERE `id` = ?";
-                } else {
-                    $account_sql .= " WHERE `uuid` = ?";
-                }
+                $account_sql = "SELECT `id`, `username`, `authorized`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone`, `email`, `street`, `city`, `state`, `zip`, CONCAT(fname, ' ', lname) AS fullname FROM `users` WHERE `uuid` = ?";
                 break;
             case 'patient':
-                $account_sql = "SELECT `pid`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone_contact` AS phone, `sex` AS gender, `email`, `DOB` AS birthdate, `street`, `postal_code` AS zip, `city`, `state`, CONCAT(fname, ' ', lname) AS fullname FROM `patient_data`";
-                if (is_numeric($userId)) {
-                    $account_sql .= " WHERE `pid` = ?";
-                } else {
-                    $account_sql .= " WHERE `uuid` = ?";
-                }
+                $account_sql = "SELECT `pid`, `uuid`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone_contact` AS phone, `sex` AS gender, `email`, `DOB` AS birthdate, `street`, `postal_code` AS zip, `city`, `state`, CONCAT(fname, ' ', lname) AS fullname FROM `patient_data` WHERE `uuid` = ?";
                 break;
             default:
                 return null;

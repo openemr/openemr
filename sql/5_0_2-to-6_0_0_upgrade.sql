@@ -2349,3 +2349,23 @@ ALTER TABLE `oauth_clients` CHANGE `client_secret` `client_secret` varchar(120) 
 #IfNotColumnType oauth_clients registration_token varchar(80)
 ALTER TABLE `oauth_clients` CHANGE `registration_token` `registration_token` varchar(80) DEFAULT NULL;
 #EndIf
+
+#IfMissingColumn api_token user_role
+ALTER TABLE `api_token` ADD `user_role` varchar(40) DEFAULT NULL;
+#EndIf
+
+#IfColumn api_token token_auth
+ALTER TABLE `api_token` DROP COLUMN `token_auth`;
+#EndIf
+
+#IfColumn api_token token_api
+ALTER TABLE `api_token` DROP COLUMN `token_api`;
+#EndIf
+
+#IfColumn api_token patient_id
+ALTER TABLE `api_token` DROP COLUMN `patient_id`;
+#EndIf
+
+#IfColumn api_token auth_user_id
+ALTER TABLE `api_token` DROP COLUMN `auth_user_id`;
+#EndIf

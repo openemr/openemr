@@ -29,15 +29,20 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $unique_id = $accessTokenEntity->getIdentifier();
         $client_id = $accessTokenEntity->getClient()->getIdentifier();
         $scope = \json_encode($accessTokenEntity->getScopes());
+        // collect the user_role from scope to populate it in the api_token entry
+        preg_match('/"user_role:([A-Za-z].*)"/', $scope, $matches);
+        if (!empty($matches[1])) {
+            $user_role = $matches[1];
+        } else {
+            $user_role = '';
+        }
 
         $sql = " INSERT INTO api_token SET";
-        $sql .= " `token_api` = ?,";
         $sql .= " `user_id` = ?,";
+        $sql .= " `user_role` = ?,";
         $sql .= " `token` = ?,";
-        $sql .= " `token_auth` = ?,";
-        $sql .= " `auth_user_id` = ?,";
         $sql .= " `expiry` = ?, `client_id` = ?, `scope` = ?";
-        sqlStatement($sql, ['', $user_id, $unique_id, $access_token, '', $exp_date, $client_id, $scope]);
+        sqlStatementNoLog($sql, [$user_id, $user_role, $unique_id, $exp_date, $client_id, $scope]);
     }
 
     public function revokeAccessToken($tokenId)
