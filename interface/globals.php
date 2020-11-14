@@ -583,9 +583,10 @@ $GLOBALS['layout_search_color'] = '#ff9919';
 $SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
 
 // module configurations
-// first check if this is an older version with no modules directory
+// upgrade fails for versions prior to 4.2.0 since no modules table
+// so perform this check to avoid sql error
 if (!file_exists($webserver_root . "/interface/modules/")) {
-    error_log("The modules directory does not exist.");
+    error_log("The modules directory does not exist thus not loading modules.");
 } else {
     $GLOBALS['baseModDir'] = "interface/modules/"; //default path of modules
     $GLOBALS['customModDir'] = "custom_modules"; //non zend modules
