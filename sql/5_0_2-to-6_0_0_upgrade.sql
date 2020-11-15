@@ -2292,11 +2292,11 @@ ALTER TABLE `api_token` ADD `scope` TEXT COMMENT 'json encoded';
 
 #IfNotTable oauth_clients
 CREATE TABLE `oauth_clients` (
-`client_id` varchar(40) NOT NULL,
+`client_id` varchar(80) NOT NULL,
 `client_role` varchar(20) DEFAULT NULL,
 `client_name` varchar(80) NOT NULL,
-`client_secret` varchar(80) DEFAULT NULL,
-`registration_token` varchar(40) DEFAULT NULL,
+`client_secret` varchar(120) DEFAULT NULL,
+`registration_token` varchar(80) DEFAULT NULL,
 `registration_uri_path` varchar(40) DEFAULT NULL,
 `register_date` datetime DEFAULT NULL,
 `revoke_date` datetime DEFAULT NULL,
@@ -2325,4 +2325,27 @@ KEY `accounts_id` (`user_id`),
 KEY `clients_id` (`client_id`),
 KEY `user_role` (`user_role`)
 ) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow2D icd10_dx_order_code dx_code U072 active 1
+INSERT INTO `icd10_dx_order_code`
+(`dx_code`, `formatted_dx_code`, `valid_for_coding`, `short_desc`, `long_desc`, `active`, `revision`)
+VALUES ('U072', 'U07.2', '1', 'COVID-19, virus not identified', 'COVID-19, virus not identified', '1', '1');
+#EndIf
+
+#IfRow2D icd10_dx_order_code dx_code U072 active 1
+set @newMax = (SELECT MAX(revision) from icd10_dx_order_code);
+UPDATE `icd10_dx_order_code` SET `revision` = @newMax WHERE `dx_code` = 'U072';
+#EndIf
+
+#IfNotColumnType oauth_clients client_id varchar(80)
+ALTER TABLE `oauth_clients` CHANGE `client_id` `client_id` varchar(80) NOT NULL;
+#EndIf
+
+#IfNotColumnType oauth_clients client_secret varchar(120)
+ALTER TABLE `oauth_clients` CHANGE `client_secret` `client_secret` varchar(120) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType oauth_clients registration_token varchar(80)
+ALTER TABLE `oauth_clients` CHANGE `registration_token` `registration_token` varchar(80) DEFAULT NULL;
 #EndIf

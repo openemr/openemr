@@ -12248,11 +12248,11 @@ CREATE TABLE `benefit_eligibility` (
 
 DROP TABLE IF EXISTS `oauth_clients`;
 CREATE TABLE `oauth_clients` (
-`client_id` varchar(40) NOT NULL,
+`client_id` varchar(80) NOT NULL,
 `client_role` varchar(20) DEFAULT NULL,
 `client_name` varchar(80) NOT NULL,
-`client_secret` varchar(80) DEFAULT NULL,
-`registration_token` varchar(40) DEFAULT NULL,
+`client_secret` varchar(120) DEFAULT NULL,
+`registration_token` varchar(80) DEFAULT NULL,
 `registration_uri_path` varchar(40) DEFAULT NULL,
 `register_date` datetime DEFAULT NULL,
 `revoke_date` datetime DEFAULT NULL,

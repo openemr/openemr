@@ -137,6 +137,7 @@ services:
       XDEBUG_IDE_KEY: PHPSTORM
       XDEBUG_PROFILER_ON: 1
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
+      OPENEMR_SETTING_site_addr_oath: 'http://localhost:8083'
       OPENEMR_SETTING_rest_api: 1
       OPENEMR_SETTING_rest_fhir_api: 1
       OPENEMR_SETTING_rest_portal_api: 1
@@ -299,7 +300,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
   phpmyadmin:
     restart: always
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin
     ports:
     - 8200:80
     environment:

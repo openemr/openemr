@@ -6,15 +6,20 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\RestControllers;
 
+require_once(__DIR__ . "/../Common/Session/SessionUtil.php");
+
 use DateInterval;
 use Exception;
 use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\PasswordGrant;
@@ -33,6 +38,9 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\IdentityRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
@@ -44,9 +52,12 @@ use RuntimeException;
 class AuthorizationController
 {
     public $siteId;
-    public $serverBaseUrl;
     public $authBaseUrl;
+    public $authBaseFullUrl;
+    public $authIssueFullUrl;
     private $privateKey;
+    private $passphrase;
+    private $publicKey;
     private $encryptionKey;
     private $grantType;
     private $providerForm;
@@ -55,12 +66,112 @@ class AuthorizationController
     public function __construct($providerForm = true)
     {
         global $gbl;
+
         $this->siteId = $gbl::$SITE;
-        $this->serverBaseUrl = $gbl::$REST_BASE_URL;
-        $this->authBaseUrl = $gbl::$REST_FULLAUTH_URL;
+
+        $this->authBaseUrl = $GLOBALS['webroot'] . '/oauth2/' . $_SESSION['site_id'];
+        // collect full url and issuing url by using 'site_addr_oath' global
+        $this->authBaseFullUrl = $GLOBALS['site_addr_oath'] . $this->authBaseUrl;
+        $this->authIssueFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'];
+
         $this->authRequestSerial = $_SESSION['authRequestSerial'] ?? '';
-        $this->encryptionKey = 'lxZFUEsBCJ2Yb14IF2ygAHI5N4+ZAUXXaSeeJm6+twsUmIen';
-        $this->privateKey = $gbl::$privateKey;
+
+        // Create a crypto object that will be used for for encryption/decryption
+        $this->cryptoGen = new CryptoGen();
+
+        // encryption key
+        $eKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2key'");
+        if (!empty($eKey['name']) && ($eKey['name'] == 'oauth2key')) {
+            // collect the encryption key from database
+            $this->encryptionKey = $this->cryptoGen->decryptStandard($eKey['value']);
+            if (empty($this->encryptionKey)) {
+                // if decrypted key is empty, then critical error and must exit
+                error_log("OpenEMR error - oauth2 key was blank after it was decrypted, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+        } else {
+            // create a encryption key and store it in database
+            $this->encryptionKey = RandomGenUtils::produceRandomBytes(32);
+            if (empty($this->encryptionKey)) {
+                // if empty, then force exit
+                error_log("OpenEMR error - random generator broken during oauth2 encryption key generation, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+            $this->encryptionKey = base64_encode($this->encryptionKey);
+            if (empty($this->encryptionKey)) {
+                // if empty, then force exit
+                error_log("OpenEMR error - base64 encoding broken during oauth2 encryption key generation, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+            sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2key', ?)", [$this->cryptoGen->encryptStandard($this->encryptionKey)]);
+        }
+
+        // private key
+        $this->privateKey = $GLOBALS['OE_SITE_DIR'] . '/documents/certificates/oaprivate.key';
+        $this->publicKey = $GLOBALS['OE_SITE_DIR'] . '/documents/certificates/oapublic.key';
+        if (!file_exists($this->privateKey)) {
+            // create the private/public key pair (store in filesystem) with a random passphrase (store in database)
+            // first, create the passphrase (removing any prior passphrases)
+            sqlStatementNoLog("DELETE FROM `keys` WHERE `name` = 'oauth2passphrase'");
+            $this->passphrase = RandomGenUtils::produceRandomString(60, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+            if (empty($this->passphrase)) {
+                // if empty, then force exit
+                error_log("OpenEMR error - random generator broken during oauth2 key passphrase generation, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+            // second, create and store the private/public key pair
+            $keys = \openssl_pkey_new(["default_md" => "sha256", "private_key_bits" => 2048, "private_key_type" => OPENSSL_KEYTYPE_RSA]);
+            if ($keys === false) {
+                // if unable to create keys, then force exit
+                error_log("OpenEMR error - key generation broken during oauth2, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+            $privkey = '';
+            openssl_pkey_export($keys, $privkey, $this->passphrase);
+            $pubkey = openssl_pkey_get_details($keys);
+            $pubkey = $pubkey["key"];
+            if (empty($privkey) || empty($pubkey)) {
+                // if unable to construct keys, then force exit
+                error_log("OpenEMR error - key construction broken during oauth2, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+            // third, store the keys on drive and store the passphrase in the database
+            file_put_contents($this->privateKey, $privkey);
+            chmod($this->privateKey, 0640);
+            file_put_contents($this->publicKey, $pubkey);
+            chmod($this->publicKey, 0660);
+            sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2passphrase', ?)", [$this->cryptoGen->encryptStandard($this->passphrase)]);
+        }
+        // confirm existence of passphrase
+        $pkey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2passphrase'");
+        if (!empty($pkey['name']) && ($pkey['name'] == 'oauth2passphrase')) {
+            $this->passphrase = $this->cryptoGen->decryptStandard($pkey['value']);
+            if (empty($this->passphrase)) {
+                // if decrypted pssphrase is empty, then critical error and must exit
+                error_log("OpenEMR error - oauth2 passphrase was blank after it was decrypted, so forced exit");
+                http_response_code(500);
+                exit;
+            }
+        } else {
+            // oauth2passphrase is missing so must exit
+            error_log("OpenEMR error - oauth2 passphrase is missing, so forced exit");
+            http_response_code(500);
+            exit;
+        }
+        // confirm existence of key pair
+        if (!file_exists($this->privateKey) || !file_exists($this->publicKey)) {
+            // key pair is missing so must exit
+            error_log("OpenEMR error - oauth2 keypair is missing, so forced exit");
+            http_response_code(500);
+            exit;
+        }
+
         $this->providerForm = $providerForm;
     }
 
@@ -149,7 +260,7 @@ class AuthorizationController
             if ($badSave) {
                 throw OAuthServerException::serverError("Try again. Unable to create account");
             }
-            $reg_uri = $this->authBaseUrl . '/client/' . $reg_client_uri_path;
+            $reg_uri = $this->authBaseFullUrl . '/client/' . $reg_client_uri_path;
             unset($params['registration_client_uri_path']);
             $client_json = array(
                 'client_id' => $client_id,
@@ -354,7 +465,7 @@ class AuthorizationController
             new ClientRepository(),
             new AccessTokenRepository(),
             new ScopeRepository(),
-            $this->privateKey,
+            new CryptKey($this->privateKey, $this->passphrase),
             $this->encryptionKey,
             $responseType
         );
@@ -430,11 +541,11 @@ class AuthorizationController
         $response = $this->createServerResponse();
 
         if (empty($_POST['username']) && empty($_POST['password'])) {
-            $_SESSION['get_credentials'] = 1;
+            $oauthLogin = true;
+            $redirect = $this->authBaseUrl . "/login";
             require_once(__DIR__ . "/../../oauth2/provider/login.php");
             exit();
         }
-        unset($_SESSION['get_credentials']);
         $continueLogin = false;
         if (isset($_POST['user_role'])) {
             $continueLogin = $this->verifyLogin($_POST['username'], $_POST['password'], $_POST['email'], $_POST['user_role']);
@@ -442,7 +553,8 @@ class AuthorizationController
         unset($_POST['username'], $_POST['password']);
         if (!$continueLogin) {
             $invalid = "Sorry, Invalid!"; // todo: display error
-            $_SESSION['get_credentials'] = 1;
+            $oauthLogin = true;
+            $redirect = $this->authBaseUrl . "/login";
             require_once(__DIR__ . "/../../oauth2/provider/login.php");
             exit();
         }
@@ -451,7 +563,9 @@ class AuthorizationController
         $user->setIdentifier($_SESSION['user_id']);
         $user->setUserRole($_SESSION['user_role']);
         $_SESSION['claims'] = $user->getClaims();
-        $_SESSION['get_authorization'] = 1;
+        $oauthLogin = true;
+        $redirect = $this->authBaseUrl . "/device/code";
+        $authorize = 'authorize';
         require_once(__DIR__ . "/../../oauth2/provider/login.php");
     }
 
@@ -560,15 +674,12 @@ class AuthorizationController
         try {
             $result = $server->respondToAccessTokenRequest($request, $response);
             $this->emitResponse($result);
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
         } catch (OAuthServerException $exception) {
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
             $body = $response->getBody();
             $body->write($exception->getMessage());
             $this->emitResponse($response->withStatus(500)->withBody($body));
@@ -587,15 +698,12 @@ class AuthorizationController
             // Respond to the access token request
             $result = $server->respondToAccessTokenRequest($request, $response);
             $this->emitResponse($result);
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
         } catch (OAuthServerException $exception) {
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
-            \session_id('authserver');
-            \session_destroy();
+            SessionUtil::oauthSessionCookieDestroy();
             $body = $response->getBody();
             $body->write($exception->getMessage());
             $this->emitResponse($response->withStatus(500)->withBody($body));

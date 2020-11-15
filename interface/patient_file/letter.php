@@ -89,7 +89,7 @@ $patdata = sqlQuery("SELECT " .
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Generate button was clicked...
-if ($_POST['formaction'] == "generate") {
+if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     $form_pid      = $_POST['form_pid'];
     $form_from     = $_POST['form_from'];
     $form_to       = $_POST['form_to'];
@@ -247,7 +247,7 @@ if ($_POST['formaction'] == "generate") {
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{" . $key . "}", "{" . $value . "}", $bodytext);
     }
-} elseif ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
+} elseif (!empty($_POST['formaction']) && (($_POST['formaction'] == "loadtemplate") && !empty($_POST['form_template']))) {
     $bodytext = "";
     $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['form_template']), 'r');
 
@@ -269,7 +269,7 @@ if ($_POST['formaction'] == "generate") {
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{" . $key . "}", "{" . $value . "}", $bodytext);
     }
-} elseif ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "") {
+} elseif (!empty($_POST['formaction']) && (($_POST['formaction'] == "newtemplate") && !empty($_POST['newtemplatename']))) {
     // attempt to save the template
     $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['newtemplatename']), 'w');
     // translate from definition to the constant
@@ -298,7 +298,7 @@ if ($_POST['formaction'] == "generate") {
     }
 
     while (!feof($fh)) {
-        $bodytext .= fread($fh, 8192);
+        $bodytext = fread($fh, 8192);
     }
 
     fclose($fh);
@@ -311,7 +311,7 @@ if ($_POST['formaction'] == "generate") {
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{" . $key . "}", "{" . $value . "}", $bodytext);
     }
-} elseif ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != "") {
+} elseif (!empty($_POST['formaction']) && (($_POST['formaction'] == "savetemplate") && !empty($_POST['form_template']))) {
     // attempt to save the template
     $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['form_template']), 'w');
     // translate from definition to the constant
@@ -339,7 +339,7 @@ if ($_POST['formaction'] == "generate") {
     }
 
     while (!feof($fh)) {
-        $bodytext .= fread($fh, 8192);
+        $bodytext = fread($fh, 8192);
     }
 
     fclose($fh);
@@ -564,7 +564,7 @@ while (false !== ($tfname = readdir($dh))) {
     }
 
     echo "<option value='" . attr($tfname) . "'";
-    if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) {
+    if ((!empty($_POST['form_template']) && ($tfname == $_POST['form_template'])) || (!empty($_GET['template']) && ($tfname == $_GET['template']))) {
         echo " SELECTED";
     }
 
@@ -658,7 +658,7 @@ closedir($dh);
     </select>
     </div>
    <textarea name='form_body' id="form_body" class='form-control' rows='20' cols='30' style='width:100%'
-    title='<?php echo xla('Enter body of letter here'); ?>' /><?php echo text($bodytext); ?></textarea>
+    title='<?php echo xla('Enter body of letter here'); ?>' /><?php echo text($bodytext ?? ''); ?></textarea>
   </td>
  </tr>
 

@@ -99,7 +99,7 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 
 /*
 * If a session does not yet exist, then will start the core OpenEMR session.
-* If a session already exists, then this means portal is being used, which
+* If a session already exists, then this means portal (or oauth2) is being used, which
 *   has already created a portal session/cookie, so will bypass setting of
 *   the core OpenEMR session/cookie.
 * $sessionAllowWrite = 1 | true | string then normal operation
@@ -579,29 +579,35 @@ if (!$ignoreAuth) {
 // Currently it is applicable only to the "Search or Add Patient" form.
 $GLOBALS['layout_search_color'] = '#ff9919';
 
-//EMAIL SETTINGS
+// EMAIL SETTINGS
 $SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
 
-//module configurations
-$GLOBALS['baseModDir'] = "interface/modules/"; //default path of modules
-$GLOBALS['customModDir'] = "custom_modules"; //non zend modules
-$GLOBALS['zendModDir'] = "zend_modules"; //zend modules
+// module configurations
+// upgrade fails for versions prior to 4.2.0 since no modules table
+// so perform this check to avoid sql error
+if (!file_exists($webserver_root . "/interface/modules/")) {
+    error_log("The modules directory does not exist thus not loading modules.");
+} else {
+    $GLOBALS['baseModDir'] = "interface/modules/"; //default path of modules
+    $GLOBALS['customModDir'] = "custom_modules"; //non zend modules
+    $GLOBALS['zendModDir'] = "zend_modules"; //zend modules
 
-try {
-    // load up the modules system and bootstrap them.
-    // This has to be fast, so any modules that tie into the bootstrap must be kept lightweight
-    // registering event listeners, etc.
-    // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
-    /** @var ModulesApplication */
-    $GLOBALS['modules_application'] = new ModulesApplication(
-        $GLOBALS["kernel"],
-        $GLOBALS['fileroot'],
-        $GLOBALS['baseModDir'],
-        $GLOBALS['zendModDir']
-    );
-} catch (\Exception $ex) {
-    error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
-    die();
+    try {
+        // load up the modules system and bootstrap them.
+        // This has to be fast, so any modules that tie into the bootstrap must be kept lightweight
+        // registering event listeners, etc.
+        // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
+        /** @var ModulesApplication */
+        $GLOBALS['modules_application'] = new ModulesApplication(
+            $GLOBALS["kernel"],
+            $GLOBALS['fileroot'],
+            $GLOBALS['baseModDir'],
+            $GLOBALS['zendModDir']
+        );
+    } catch (\Exception $ex) {
+        error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
+        die();
+    }
 }
 
 // Don't change anything below this line. ////////////////////////////

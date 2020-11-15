@@ -313,7 +313,7 @@ height: " . attr($page_height) . "pt;
 }
 </style>";
 
-$html .= "<title>" . text($frow['name']) . "</title>" .
+$html .= "<title>" . text($frow['name'] ?? '') . "</title>" .
     Header::setupHeader(['opener', 'topdialog'], false) .
     "<script>";
 
@@ -366,7 +366,7 @@ $saved_pages = $pages; //Save calculated page count of a single fee sheet
 $loop_idx = 0; // counter for appt list
 
 foreach ($pid_list as $pid) {
-    $apptdate = $apptdate_list[$loop_idx]; // parallel array to pid_list
+    $apptdate = $apptdate_list[$loop_idx] ?? null; // parallel array to pid_list
     $appointment = fetchAppointments($apptdate, $apptdate, $pid);  // Only expecting one row for pid
     // Set Pagebreak for multi forms
     if ($form_fill == 2) {
@@ -390,8 +390,8 @@ foreach ($pid_list as $pid) {
         $html .= '<table style="width: 100%"><tr>' .
             '<td>' . xlt('Patient') . ': <span style="font-weight: bold;">' . text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) . '</span></td>' .
             '<td>' . xlt('DOB') . ': <span style="font-weight: bold;">' . text(oeFormatShortDate($patdata['DOB'])) . '</span></td>' .
-            '<td>' . xlt('Date of Service') . ': <span style="font-weight: bold;">' . text(oeFormatShortDate($appointment[0]['pc_eventDate'])) . ' ' . text(oeFormatTime($appointment[0]['pc_startTime'])) . '</span></td>' .
-            '<td>' . xlt('Ref Prov') . ': <span style="font-weight: bold;">' . text($referDoc['fname']) . ' ' . text($referDoc['lname']) . '</span></td>' .
+            '<td>' . xlt('Date of Service') . ': <span style="font-weight: bold;">' . text(oeFormatShortDate($appointment[0]['pc_eventDate'] ?? '')) . ' ' . text(oeFormatTime($appointment[0]['pc_startTime'] ?? '')) . '</span></td>' .
+            '<td>' . xlt('Ref Prov') . ': <span style="font-weight: bold;">' . text($referDoc['fname'] ?? '') . ' ' . text($referDoc['lname'] ?? '') . '</span></td>' .
             '</tr></table>';
         $html .= "
 <table class='bordertbl' cellspacing='0' cellpadding='0' width='100%'>
@@ -467,7 +467,7 @@ foreach ($pid_list as $pid) {
 
             // Note: You would think that pc_comments would have the Appt. comments,
             // but it is actually stored in pc_hometext in DB table (openemr_postcalendar_events).
-            $html .= $appointment['pc_hometext'];
+            $html .= $appointment['pc_hometext'] ?? '';
 
             $html .= "</td>
 </tr>

@@ -17,18 +17,33 @@ if (empty($gbl::$SITE)) {
     http_response_code(401);
     exit;
 }
+
 // strange and frustrating that globals session isn't maintained from cross origin
-// to our endpoint thus, below.
-if (PHP_SESSION_ACTIVE !== \session_status()) {
-    \session_id('authserver');
-    \session_start();
-}
+//  to our endpoint thus, below.
+// Will start the oauth OpenEMR session/cookie.
+require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::oauthSessionStart();
+
 $_GET['site'] = $gbl::$SITE;
-//  No need for sessionAllowWrite.
+//  No need for sessionAllowWrite since using oauth session
 $ignoreAuth = true;
 require_once __DIR__ . '/../interface/globals.php';
 
 use OpenEMR\RestControllers\AuthorizationController;
+
+// exit if api is not turned on
+if (empty($GLOBALS['rest_api']) && empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_api']) && empty($GLOBALS['rest_portal_fhir_api'])) {
+    http_response_code(404);
+    exit;
+}
+
+// ensure 1) site from gbl and globals are the same and 2) ensure the site exists on filesystem
+if (empty($gbl::$SITE) || empty($_SESSION['site_id']) || ($gbl::$SITE != $_SESSION['site_id']) || !file_exists($GLOBALS['OE_SITES_BASE'] . '/' . $_SESSION['site_id'])) {
+    // error collecting site
+    error_log("OpenEMR error - oauth2 error since unable to properly collect site, so forced exit");
+    http_response_code(400);
+    exit;
+}
 
 $end_point = $gbl::getRequestEndPoint();
 
@@ -55,7 +70,8 @@ if (false !== stripos($end_point, '/device/code')) {
 }
 
 if (false !== stripos($end_point, '/jwk')) {
-    require_once("./provider/jwk.php");
+    $oauthjwk = true;
+    require_once(__DIR__ . "/provider/jwk.php");
 }
 
 if (false !== stripos($end_point, '/login')) {
