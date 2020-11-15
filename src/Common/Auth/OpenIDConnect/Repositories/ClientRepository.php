@@ -41,8 +41,6 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setName($clients['client_name']);
         $client->setRedirectUri($clients['redirect_uri']);
         $client->setIsConfidential($clients['is_confidential']);
-        $client->setUserId($clients['user_id']);
-        $client->setClientRole($clients['client_role']);
 
         return $client;
     }

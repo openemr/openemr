@@ -2369,3 +2369,11 @@ ALTER TABLE `api_token` DROP COLUMN `patient_id`;
 #IfColumn api_token auth_user_id
 ALTER TABLE `api_token` DROP COLUMN `auth_user_id`;
 #EndIf
+
+#IfMissingColumn oauth_trusted_user code
+ALTER TABLE `oauth_trusted_user` ADD `code` text;
+#EndIf
+
+#IfMissingColumn oauth_trusted_user session_cache
+ALTER TABLE `oauth_trusted_user` ADD `session_cache` text;
+#EndIf

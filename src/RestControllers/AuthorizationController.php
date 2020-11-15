@@ -615,19 +615,39 @@ class AuthorizationController
     {
         $response = $this->createServerResponse();
         $authRequest = $this->deserializeUserSession();
-
-        if (isset($_POST['proceed'])) {
-            $this->saveTrustedUser($_SESSION['client_id'], $_SESSION['user_id'], $_SESSION['user_role'], $_SESSION['scopes'], $_SESSION['persist_login']);
+        try {
+            $server = $this->getAuthorizationServer();
+            $user = new UserEntity();
+            $user->setIdentifier($_SESSION['user_id']);
+            $user->setUserRole($_SESSION['user_role']);
+            $authRequest->setUser($user);
+            $authRequest->setAuthorizationApproved(true);
+            $result = $server->completeAuthorizationRequest($authRequest, $response);
+            $redirect = $result->getHeader('Location')[0];
+            $authorization = parse_url($redirect, PHP_URL_QUERY);
+            // stash appropriate session for token endpoint.
+            unset($_SESSION['authRequestSerial']);
+            unset($_SESSION['claims']);
+            $session_cache = json_encode($_SESSION, JSON_THROW_ON_ERROR);
+            $code = [];
+            parse_str($authorization, $code);
+            $code = $code["code"];
+            if (isset($_POST['proceed']) && !empty($code) && !empty($session_cache)) {
+                $this->saveTrustedUser($_SESSION['client_id'], $_SESSION['user_id'], $_SESSION['user_role'], $_SESSION['scopes'], $_SESSION['persist_login'], $code, $session_cache);
+            } else {
+                if (empty($_SESSION['csrf'])) {
+                    throw OAuthServerException::serverError("Failed authorization due to missing data.");
+                }
+            }
+            // Return the HTTP redirect response
+            $this->emitResponse($result);
+            exit;
+        } catch (Exception $exception) {
+            SessionUtil::oauthSessionCookieDestroy();
+            $body = $response->getBody();
+            $body->write($exception->getMessage());
+            $this->emitResponse($response->withStatus(500)->withBody($body));
         }
-        $server = $this->getAuthorizationServer();
-        $user = new UserEntity();
-        $user->setIdentifier($_SESSION['user_id']);
-        $user->setUserRole($_SESSION['user_role']);
-        $authRequest->setUser($user);
-        $authRequest->setAuthorizationApproved(true);
-        // Return the HTTP redirect response
-        $result = $server->completeAuthorizationRequest($authRequest, $response);
-        $this->emitResponse($result);
     }
 
     private function deserializeUserSession(): AuthorizationRequest
@@ -670,14 +690,15 @@ class AuthorizationController
         $response = $this->createServerResponse();
         $request = $this->createServerRequest();
         $this->grantType = $request->getParsedBody()['grant_type'];
-
-        // temporary code until have Jerry's hook in to populate the $_SESSION['user_role']
-        if (empty($_SESSION['user_role'])) {
-            $_SESSION['user_role'] = "users";
-        }
+        $code = $request->getParsedBody()['code'];
+        $ssbc = $this->sessionUserByCode($code);
+        $_SESSION = json_decode($ssbc['session_cache'], true);
 
         $server = $this->getAuthorizationServer();
         try {
+            if (empty($_SESSION['csrf'])) {
+                throw OAuthServerException::serverError("User session corrupt");
+            }
             $result = $server->respondToAccessTokenRequest($request, $response);
             $this->emitResponse($result);
             SessionUtil::oauthSessionCookieDestroy();
@@ -718,14 +739,19 @@ class AuthorizationController
 
     public function trustedUser($clientId, $userId, $userRole)
     {
-        return sqlQueryNoLog("SELECT `id` FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ? AND `user_role`= ?", array($clientId, $userId, $userRole));
+        return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ? AND `user_role`= ?", array($clientId, $userId, $userRole));
     }
 
-    public function saveTrustedUser($clientId, $userId, $userRole, $scope, $persist)
+    public function sessionUserByCode($code)
+    {
+        return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `code`= ?", array($code));
+    }
+
+    public function saveTrustedUser($clientId, $userId, $userRole, $scope, $persist, $code = '', $session = '')
     {
         $id = $this->trustedUser($clientId, $userId, $userRole)['id'];
-        $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `user_role`, `client_id`, `scope`, `persist_login`, `time`) VALUES (?, ?, ?, ?, ?, ?, Now())";
+        $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `user_role`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache) VALUES (?, ?, ?, ?, ?, ?, Now(), ?, ?)";
 
-        return sqlQueryNoLog($sql, array($id, $userId, $userRole, $clientId, $scope, $persist));
+        return sqlQueryNoLog($sql, array($id, $userId, $userRole, $clientId, $scope, $persist, $code, $session));
     }
 }

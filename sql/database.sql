@@ -12272,6 +12272,8 @@ CREATE TABLE `oauth_trusted_user` (
 `scope` text,
 `persist_login` tinyint(1) DEFAULT '0',
 `time` timestamp NULL DEFAULT NULL,
+`code` text,
+`session_cache` text,
 PRIMARY KEY (`id`),
 KEY `accounts_id` (`user_id`),
 KEY `clients_id` (`client_id`),
