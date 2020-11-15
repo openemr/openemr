@@ -18,6 +18,7 @@ ccdaservice/node_modules
 
 # dev editor configs
 /.idea/*
+/.vscode/*
 /nbproject/*
 .DS_Store
 .buildpath
