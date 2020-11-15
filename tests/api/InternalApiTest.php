@@ -29,7 +29,7 @@ use OpenEMR\Core\Header;
         function testAjaxApi() {
             $.ajax({
                 type: 'GET',
-                url: '../../apis/default/api/facility',
+                url: '../../apis/api/facility',
                 dataType: 'json',
                 headers: {
                     'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
@@ -44,7 +44,7 @@ use OpenEMR\Core\Header;
         }
 
         function testFetchApi() {
-            fetch('../../apis/default/api/facility', {
+            fetch('../../apis/api/facility', {
                 credentials: 'same-origin',
                 method: 'GET',
                 headers: new Headers({
@@ -106,7 +106,7 @@ echo "<br /><br />";
 use OpenEMR\Services\FacilityService;
 
 echo "<b>service call:</b><br />";
-echo json_encode((new FacilityService())->getAll());
+echo json_encode((new FacilityService())->getAllFacility());
 echo "<br /><br />";
 
 

@@ -22,7 +22,7 @@ if (empty($gbl::$SITE)) {
 //  to our endpoint thus, below.
 // Will start the oauth OpenEMR session/cookie.
 require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::oauthSessionStart();
+OpenEMR\Common\Session\SessionUtil::oauthSessionStart($gbl::$web_root);
 
 $_GET['site'] = $gbl::$SITE;
 //  No need for sessionAllowWrite since using oauth session
@@ -37,8 +37,8 @@ if (empty($GLOBALS['rest_api']) && empty($GLOBALS['rest_fhir_api']) && empty($GL
     exit;
 }
 
-// ensure 1) site from gbl and globals are the same and 2) ensure the site exists on filesystem
-if (empty($gbl::$SITE) || empty($_SESSION['site_id']) || ($gbl::$SITE != $_SESSION['site_id']) || !file_exists($GLOBALS['OE_SITES_BASE'] . '/' . $_SESSION['site_id'])) {
+// ensure 1) sane site 2) site from gbl and globals are the same and 3) ensure the site exists on filesystem
+if (empty($gbl::$SITE) || empty($_SESSION['site_id']) || preg_match('/[^A-Za-z0-9\\-.]/', $gbl::$SITE) || ($gbl::$SITE != $_SESSION['site_id']) || !file_exists($GLOBALS['OE_SITES_BASE'] . '/' . $_SESSION['site_id'])) {
     // error collecting site
     error_log("OpenEMR error - oauth2 error since unable to properly collect site, so forced exit");
     http_response_code(400);

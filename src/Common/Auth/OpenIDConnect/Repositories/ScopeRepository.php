@@ -94,6 +94,13 @@ class ScopeRepository implements ScopeRepositoryInterface
         $scope = new ScopeEntity();
         $scope->setIdentifier($siteScope);
         $scopes[] = $scope;
+        // Add the user role (if set)
+        if ($_SESSION['user_role']) {
+            $userRoleScope = "user_role:" . $_SESSION['user_role'];
+            $scope = new ScopeEntity();
+            $scope->setIdentifier($userRoleScope);
+            $scopes[] = $scope;
+        }
 
         return $scopes;
     }

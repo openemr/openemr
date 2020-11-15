@@ -27,52 +27,70 @@ $routes = array();
 
 // Parse needed information from Redirect or REQUEST_URI
 $resource = $gbl::getRequestEndPoint();
-// token is valid
-$tokenRaw = $gbl::verifyAccessToken();
-if ($tokenRaw instanceof ResponseInterface) {
-    // failed token verify
-    // not a request object so send the error as response obj
-    $gbl::emitResponse($tokenRaw);
-    exit;
-}
-$attributes = $tokenRaw->getAttributes();
-
-// this confirms the access token has same scope to site from url.
-$site = '';
-$scopes = $attributes['oauth_scopes'];
-foreach ($scopes as $attr) {
-    if (stripos($attr, 'site:') !== false) {
-        $site = str_replace('site:', '', $attr);
-        // while here parse site from endpoint
-        $resource = str_replace('/' . $site, '', $resource);
-    }
-}
-// needs to match approved site from token
-if ($site !== $gbl::$SITE) {
-    http_response_code(400);
-    exit();
-}
-// openemr user uuid
-$userId = $attributes['oauth_user_id'];
-// will be empty for PKCE
-$clientId = $attributes['oauth_client_id'] ?? null;
-// use this to lookup in api_token if want the id or refresh token.
-$tokenId = $attributes['oauth_access_token_id'];
 
 if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     // Calling api from within the same session (ie. isLocalApi) since a apicsrftoken header was passed
     $isLocalApi = true;
     $gbl::setLocalCall();
     $ignoreAuth = false;
-} elseif (!empty($userId)) {
+} else {
+    // Calling api via rest
+    // ensure token is valid
+    $tokenRaw = $gbl::verifyAccessToken();
+    if ($tokenRaw instanceof ResponseInterface) {
+        // failed token verify
+        // not a request object so send the error as response obj
+        $gbl::emitResponse($tokenRaw);
+        exit;
+    }
+
+    // collect token attributes
+    $attributes = $tokenRaw->getAttributes();
+
+    // collect site and user role
+    $site = '';
+    $userRole = '';
+    $scopes = $attributes['oauth_scopes'];
+    foreach ($scopes as $attr) {
+        if (stripos($attr, 'site:') !== false) {
+            $site = str_replace('site:', '', $attr);
+            // while here parse site from endpoint
+            $resource = str_replace('/' . $site, '', $resource);
+        } else if (stripos($attr, 'user_role:') !== false) {
+            $userRole = str_replace('user_role:', '', $attr);
+        }
+    }
+    // ensure user_role in access token
+    if (empty($userRole)) {
+        error_log("OpenEMR Error - api user role not available, so forced exit");
+        http_response_code(400);
+        exit();
+    }
+    // ensure 1) sane site 2) site from gbl and access token are the same and 3) ensure the site exists on filesystem
+    if (empty($site) || empty($gbl::$SITE) || preg_match('/[^A-Za-z0-9\\-.]/', $gbl::$SITE) || ($site !== $gbl::$SITE) || !file_exists(__DIR__ . '/../sites/' . $gbl::$SITE)) {
+        error_log("OpenEMR Error - api site error, so forced exit");
+        http_response_code(400);
+        exit();
+    }
+    // set the site
+    $_GET['site'] = $site;
+
+    // collect openemr user uuid
+    $userId = $attributes['oauth_user_id'];
+    // collect client id (will be empty for PKCE)
+    $clientId = $attributes['oauth_client_id'] ?? null;
+    // collect token id
+    $tokenId = $attributes['oauth_access_token_id'];
+    // ensure user uuid and token id are populated
+    if (empty($userId) || empty($tokenId)) {
+        error_log("OpenEMR Error - userid or tokenid not available, so forced exit");
+        http_response_code(400);
+        exit();
+    }
+
     // Get a site id from initial login authentication.
     $isLocalApi = false;
     $ignoreAuth = true;
-    $_GET['site'] = $site;
-} else {
-    // something not right, so exit
-    http_response_code(401);
-    exit();
 }
 
 $GLOBALS['is_local_api'] = $isLocalApi;
@@ -82,20 +100,6 @@ $GLOBALS['is_local_api'] = $isLocalApi;
 //  2. $isLocalApi - in this case, basically setting this to true downstream after some session sets via session_write_close() call
 $sessionAllowWrite = true;
 require_once("./../interface/globals.php");
-// user roles for now. Patient role once we figure out how.
-$user = $gbl->getUserAccount($userId, 'users');
-// let acl catch in route if not valid.
-$_SESSION['authUser'] = $user["username"] ?? null;
-$_SESSION['authUserID'] = $user["id"] ?? null;
-$_SESSION['authProvider'] = 'default';
-
-//Extend API using RestApiCreateEvent
-$restApiCreateEvent = new RestApiCreateEvent($gbl::$ROUTE_MAP, $gbl::$FHIR_ROUTE_MAP, $gbl::$PORTAL_ROUTE_MAP, $gbl::$PORTAL_FHIR_ROUTE_MAP);
-$restApiCreateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiCreateEvent::EVENT_HANDLE, $restApiCreateEvent, 10);
-$gbl::$ROUTE_MAP = $restApiCreateEvent->getRouteMap();
-$gbl::$FHIR_ROUTE_MAP = $restApiCreateEvent->getFHIRRouteMap();
-$gbl::$PORTAL_ROUTE_MAP = $restApiCreateEvent->getPortalRouteMap();
-$gbl::$PORTAL_FHIR_ROUTE_MAP = $restApiCreateEvent->getPortalFHIRRouteMap();
 
 if ($isLocalApi) {
     // need to check for csrf match when using api locally
@@ -115,7 +119,66 @@ if ($isLocalApi) {
         http_response_code(401);
         exit();
     }
+} else {
+    // ensure user role has access to the resource
+    //  for now assuming:
+    //   users has access to oemr and fhir
+    //   patient has access to port and pofh
+    if ($userRole == 'users' && ($gbl::is_api_request($resource) || $gbl::is_fhir_request($resource))) {
+        // good to go
+    } elseif ($userRole == 'patient' && ($gbl::is_portal_request($resource) || $gbl::is_portal_fhir_request($resource))) {
+        // good to go
+    } else {
+        error_log("OpenEMR Error: api failed because user role does not have access to the resource");
+        $gbl::destroySession();
+        http_response_code(401);
+        exit();
+    }
+    // authenticate the token
+    if (!$gbl->authenticateUserToken($tokenId, $userId, $userRole)) {
+        $gbl::destroySession();
+        http_response_code(401);
+        exit();
+    }
+    // collect user information and then set pertinent session variables
+    $user = $gbl->getUserAccount($userId, $userRole);
+    if ($userRole == 'users') {
+        $_SESSION['authUser'] = $user["username"] ?? null;
+        $_SESSION['authUserID'] = $user["id"] ?? null;
+        $_SESSION['authProvider'] =  sqlQueryNoLog("SELECT `name` FROM `groups` WHERE `user` = ?", [$_SESSION['authUser']])['name'] ?? null;
+        if (empty($_SESSION['authUser']) || empty($_SESSION['authUserID']) || empty($_SESSION['authProvider'])) {
+            // this should never happen
+            error_log("OpenEMR Error: api failed because unable to set critical users session variables");
+            $gbl::destroySession();
+            http_response_code(401);
+            exit();
+        }
+    } elseif ($userRole == 'patient') {
+        $_SESSION['pid'] = $user['pid'] ?? null;
+        $_SESSION['puuid'] = $user['uuid'] ?? null;
+        if (empty($_SESSION['pid']) || empty($_SESSION['puuid'])) {
+            // this should never happen
+            error_log("OpenEMR Error: api failed because unable to set critical patient session variables");
+            $gbl::destroySession();
+            http_response_code(401);
+            exit();
+        }
+    } else {
+        // this user role is not supported
+        error_log("OpenEMR Error - api user role that was provided is not supported, so forced exit");
+        $gbl::destroySession();
+        http_response_code(400);
+        exit();
+    }
 }
+
+//Extend API using RestApiCreateEvent
+$restApiCreateEvent = new RestApiCreateEvent($gbl::$ROUTE_MAP, $gbl::$FHIR_ROUTE_MAP, $gbl::$PORTAL_ROUTE_MAP, $gbl::$PORTAL_FHIR_ROUTE_MAP);
+$restApiCreateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiCreateEvent::EVENT_HANDLE, $restApiCreateEvent, 10);
+$gbl::$ROUTE_MAP = $restApiCreateEvent->getRouteMap();
+$gbl::$FHIR_ROUTE_MAP = $restApiCreateEvent->getFHIRRouteMap();
+$gbl::$PORTAL_ROUTE_MAP = $restApiCreateEvent->getPortalRouteMap();
+$gbl::$PORTAL_FHIR_ROUTE_MAP = $restApiCreateEvent->getPortalFHIRRouteMap();
 
 // api flag must be four chars
 // Pass only routes for current api.
@@ -123,6 +186,7 @@ if ($isLocalApi) {
 if ($gbl::is_fhir_request($resource)) {
     if (!$GLOBALS['rest_fhir_api'] && !$isLocalApi) {
         // if the external fhir api is turned off and this is not a local api call, then exit
+        $gbl::destroySession();
         http_response_code(501);
         exit();
     }
@@ -131,6 +195,7 @@ if ($gbl::is_fhir_request($resource)) {
 } elseif ($gbl::is_portal_request($resource)) {
     if (!$GLOBALS['rest_portal_api'] && !$isLocalApi) {
         // if the external portal api is turned off and this is not a local api call, then exit
+        $gbl::destroySession();
         http_response_code(501);
         exit();
     }
@@ -139,6 +204,7 @@ if ($gbl::is_fhir_request($resource)) {
 } elseif ($gbl::is_portal_fhir_request($resource)) {
     if (!$GLOBALS['rest_portal_fhir_api'] && !$isLocalApi) {
         // if the external portal fhir api is turned off and this is not a local api call, then exit
+        $gbl::destroySession();
         http_response_code(501);
         exit();
     }
@@ -147,6 +213,7 @@ if ($gbl::is_fhir_request($resource)) {
 } elseif ($gbl::is_api_request($resource)) {
     if (!$GLOBALS['rest_api'] && !$isLocalApi) {
         // if the external api is turned off and this is not a local api call, then exit
+        $gbl::destroySession();
         http_response_code(501);
         exit();
     }
@@ -154,6 +221,9 @@ if ($gbl::is_fhir_request($resource)) {
     $routes = $gbl::$ROUTE_MAP;
 } else {
     // somebody is up to no good
+    if (!$isLocalApi) {
+        $gbl::destroySession();
+    }
     http_response_code(501);
     exit();
 }

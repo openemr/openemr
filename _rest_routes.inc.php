@@ -30,7 +30,6 @@ use OpenEMR\RestControllers\PractitionerRestController;
 use OpenEMR\RestControllers\ListRestController;
 use OpenEMR\RestControllers\InsuranceCompanyRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
-use OpenEMR\RestControllers\AuthRestController;
 use OpenEMR\RestControllers\ConditionRestController;
 use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
@@ -45,13 +44,6 @@ use OpenEMR\RestControllers\ProcedureRestController;
 // is implemented to determine and parse encoding on auth route's.
 //
 RestConfig::$ROUTE_MAP = array(
-    "POST /api/auth" => function () {
-        $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
-        $return = (new AuthRestController())->authenticate($data);
-        // sensitive data, so will not log the $data or $return for this endpoint
-        RestConfig::apiLog();
-        return $return;
-    },
     "GET /api/facility" => function () {
         RestConfig::authorization_check("admin", "users");
         $return = (new FacilityRestController())->getAll($_GET);
@@ -598,13 +590,6 @@ use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 
 RestConfig::$FHIR_ROUTE_MAP = array(
-    "POST /fhir/auth" => function () {
-        $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
-        $return = (new AuthRestController())->authenticate($data);
-        // sensitive data, so will not log the $data or $return for this endpoint
-        RestConfig::apiLog();
-        return $return;
-    },
     "GET /fhir/metadata" => function () {
         $return = (new FhirMetaDataRestController())->getMetaData();
         RestConfig::apiLog($return);
@@ -838,13 +823,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
 
 // Patient portal api routes
 RestConfig::$PORTAL_ROUTE_MAP = array(
-    "POST /portal/auth" => function () {
-        $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
-        $return = (new AuthRestController())->authenticate($data);
-        // sensitive data, so will not log the $data or $return for this endpoint
-        RestConfig::apiLog();
-        return $return;
-    },
     "GET /portal/patient" => function () {
         $return = (new PatientRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']));
         RestConfig::apiLog($return);
@@ -864,13 +842,6 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
 
 // Patient portal fhir api routes
 RestConfig::$PORTAL_FHIR_ROUTE_MAP = array(
-    "POST /portalfhir/auth" => function () {
-        $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
-        $return = (new AuthRestController())->authenticate($data);
-        // sensitive data, so will not log the $data or $return for this endpoint
-        RestConfig::apiLog();
-        return $return;
-    },
     "GET /portalfhir/Patient" => function () {
         $return = (new FhirPatientRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']));
         RestConfig::apiLog($return);
