@@ -218,9 +218,9 @@ class AuthorizationController
                 'response_types' => null,
                 'grant_types' => null,
             );
-            $client_id = $this->base64url_encode(\random_bytes(32));
-            $reg_token = $this->base64url_encode(\random_bytes(32));
-            $reg_client_uri_path = $this->base64url_encode(\random_bytes(16));
+            $client_id = $this->base64url_encode(RandomGenUtils::produceRandomBytes(32));
+            $reg_token = $this->base64url_encode(RandomGenUtils::produceRandomBytes(32));
+            $reg_client_uri_path = $this->base64url_encode(RandomGenUtils::produceRandomBytes(16));
             $params = array(
                 'client_id' => $client_id,
                 'client_id_issued_at' => time(),
@@ -230,7 +230,7 @@ class AuthorizationController
             // only include secret if a confidential app else force PKCE for native and web apps.
             $client_secret = '';
             if ($data['application_type'] === 'private') {
-                $client_secret = $this->base64url_encode(\random_bytes(64));
+                $client_secret = $this->base64url_encode(RandomGenUtils::produceRandomBytes(64));
                 $params['client_secret'] = $client_secret;
             }
             foreach ($keys as $key => $supported_values) {
@@ -324,6 +324,12 @@ class AuthorizationController
         $private = empty($info['client_secret']) ? 0 : 1;
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
+
+        // encrypt the client secret
+        if (!empty($info['client_secret'])) {
+            $info['client_secret'] = $this->cryptoGen->encryptStandard($info['client_secret']);
+        }
+
         try {
             $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', 'openid email phone address api:oemr api:fhir api:port api:pofh', ?, ?, ?)";
             $i_vals = array(
@@ -370,7 +376,7 @@ class AuthorizationController
             }
             $pos = strpos($_SERVER['PATH_INFO'], '/client/');
             if ($pos === false) {
-                throw new OAuthServerException('invailid_request', 0, 'Invalid path', 403);
+                throw new OAuthServerException('invalid_request', 0, 'Invalid path', 403);
             }
             $uri_path = substr($_SERVER['PATH_INFO'], $pos + 8);
             $client = sqlQuery("SELECT * FROM `oauth_clients` WHERE `registration_uri_path` = ?", array($uri_path));
@@ -381,7 +387,7 @@ class AuthorizationController
                 throw new OAuthServerException('invalid _request', 0, 'Invalid registration token', 403);
             }
             $params['client_id'] = $client['client_id'];
-            $params['client_secret'] = $client['client_secret'];
+            $params['client_secret'] = $this->cryptoGen->decryptStandard($client['client_secret']);
             $params['contacts'] = explode('|', $client['contacts']);
             $params['application_type'] = $client['client_role'];
             $params['client_name'] = $client['client_name'];

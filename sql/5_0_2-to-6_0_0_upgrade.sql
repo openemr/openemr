@@ -2295,7 +2295,7 @@ CREATE TABLE `oauth_clients` (
 `client_id` varchar(80) NOT NULL,
 `client_role` varchar(20) DEFAULT NULL,
 `client_name` varchar(80) NOT NULL,
-`client_secret` varchar(120) DEFAULT NULL,
+`client_secret` text,
 `registration_token` varchar(80) DEFAULT NULL,
 `registration_uri_path` varchar(40) DEFAULT NULL,
 `register_date` datetime DEFAULT NULL,
@@ -2342,8 +2342,8 @@ UPDATE `icd10_dx_order_code` SET `revision` = @newMax WHERE `dx_code` = 'U072';
 ALTER TABLE `oauth_clients` CHANGE `client_id` `client_id` varchar(80) NOT NULL;
 #EndIf
 
-#IfNotColumnType oauth_clients client_secret varchar(120)
-ALTER TABLE `oauth_clients` CHANGE `client_secret` `client_secret` varchar(120) DEFAULT NULL;
+#IfNotColumnType oauth_clients client_secret text
+ALTER TABLE `oauth_clients` CHANGE `client_secret` `client_secret` text;
 #EndIf
 
 #IfNotColumnType oauth_clients registration_token varchar(80)

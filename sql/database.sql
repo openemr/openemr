@@ -12248,7 +12248,7 @@ CREATE TABLE `oauth_clients` (
 `client_id` varchar(80) NOT NULL,
 `client_role` varchar(20) DEFAULT NULL,
 `client_name` varchar(80) NOT NULL,
-`client_secret` varchar(120) DEFAULT NULL,
+`client_secret` text,
 `registration_token` varchar(80) DEFAULT NULL,
 `registration_uri_path` varchar(40) DEFAULT NULL,
 `register_date` datetime DEFAULT NULL,
