@@ -354,7 +354,8 @@ class RestConfig
         echo $response->getBody();
     }
 
-    public function authenticateUserToken($tokenId, $userId, $userRole) {
+    public function authenticateUserToken($tokenId, $userId, $userRole)
+    {
         $ip = collectIpAddresses();
 
         // check for token

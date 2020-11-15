@@ -82,7 +82,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     // collect token id
     $tokenId = $attributes['oauth_access_token_id'];
     // ensure user uuid and token id are populated
-    if (empty($userId) || empty ($tokenId)) {
+    if (empty($userId) || empty($tokenId)) {
         error_log("OpenEMR Error - userid or tokenid not available, so forced exit");
         http_response_code(400);
         exit();
@@ -146,7 +146,6 @@ if ($isLocalApi) {
         $_SESSION['authUser'] = $user["username"] ?? null;
         $_SESSION['authUserID'] = $user["id"] ?? null;
         $_SESSION['authProvider'] =  sqlQueryNoLog("SELECT `name` FROM `groups` WHERE `user` = ?", [$_SESSION['authUser']])['name'] ?? null;
-
         if (empty($_SESSION['authUser']) || empty($_SESSION['authUserID']) || empty($_SESSION['authProvider'])) {
             // this should never happen
             error_log("OpenEMR Error: api failed because unable to set critical users session variables");
