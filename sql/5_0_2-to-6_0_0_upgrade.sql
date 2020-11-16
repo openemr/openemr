@@ -2381,3 +2381,11 @@ ALTER TABLE `oauth_trusted_user` ADD `session_cache` text;
 #IfNotColumnType codes code_text text
 ALTER TABLE `codes` MODIFY `code_text` text;
 #EndIf
+
+#IfNotColumnType codes_history code_text text
+ALTER TABLE `codes_history` MODIFY `code_text` text;
+#EndIf
+
+#IfNotColumnType codes_history code_text_short text
+ALTER TABLE `codes_history` MODIFY `code_text_short` text;
+#EndIf
