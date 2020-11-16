@@ -2389,3 +2389,11 @@ ALTER TABLE `codes_history` MODIFY `code_text` text;
 #IfNotColumnType codes_history code_text_short text
 ALTER TABLE `codes_history` MODIFY `code_text_short` text;
 #EndIf
+
+#IfNotColumnType icd10_dx_order_code long_desc text
+ALTER TABLE `icd10_dx_order_code` MODIFY `long_desc` text;
+#EndIf
+
+#IfNotColumnType icd10_pcs_order_code long_desc text
+ALTER TABLE `icd10_pcs_order_code` MODIFY `long_desc` text;
+#EndIf
