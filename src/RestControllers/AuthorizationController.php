@@ -697,12 +697,16 @@ class AuthorizationController
         $request = $this->createServerRequest();
         $this->grantType = $request->getParsedBody()['grant_type'];
         $code = $request->getParsedBody()['code'];
-        $ssbc = $this->sessionUserByCode($code);
-        $_SESSION = json_decode($ssbc['session_cache'], true);
+        if ($this->grantType === 'authorization_code') {
+            // populate saved session for this scenario
+            $ssbc = $this->sessionUserByCode($code);
+            $_SESSION = json_decode($ssbc['session_cache'], true);
+        }
 
         $server = $this->getAuthorizationServer();
         try {
-            if (empty($_SESSION['csrf'])) {
+            if (($this->grantType === 'authorization_code') && empty($_SESSION['csrf'])) {
+                // the saved session was not populated as expected
                 throw OAuthServerException::serverError("User session corrupt");
             }
             $result = $server->respondToAccessTokenRequest($request, $response);
