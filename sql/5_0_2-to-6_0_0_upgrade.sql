@@ -462,7 +462,7 @@ ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) DEFAULT NULL;
 #EndIf
 
 #IfNotColumnType codes code_text_short text
-ALTER TABLE `codes` MODIFY `code_text_short` text NOT NULL default '';
+ALTER TABLE `codes` MODIFY `code_text_short` text;
 #EndIf
 
 #IfNotColumnTypeDefault amendments created_time timestamp NULL
@@ -2379,5 +2379,5 @@ ALTER TABLE `oauth_trusted_user` ADD `session_cache` text;
 #EndIf
 
 #IfNotColumnType codes code_text text
-ALTER TABLE `codes` MODIFY `code_text` text NOT NULL default '';
+ALTER TABLE `codes` MODIFY `code_text` text;
 #EndIf
