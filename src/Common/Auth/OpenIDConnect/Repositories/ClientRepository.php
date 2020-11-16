@@ -48,7 +48,7 @@ class ClientRepository implements ClientRepositoryInterface
 
             // Validate client if is_confidential
             if (!empty($clientSecret) && !empty($client['is_confidential'])) {
-                $secret = (new CryptoGen)->decryptStandard($client['client_secret']);
+                $secret = (new CryptoGen())->decryptStandard($client['client_secret']);
                 if (empty($secret)) {
                     return false;
                 }
