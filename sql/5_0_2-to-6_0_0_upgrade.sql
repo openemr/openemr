@@ -461,8 +461,8 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) DEFAULT NULL;
 #EndIf
 
-#IfNotColumnType codes code_text_short varchar(255)
-ALTER TABLE `codes` MODIFY `code_text_short` varchar(255) NOT NULL default '';
+#IfNotColumnType codes code_text_short text
+ALTER TABLE `codes` MODIFY `code_text_short` text NOT NULL default '';
 #EndIf
 
 #IfNotColumnTypeDefault amendments created_time timestamp NULL
@@ -2376,4 +2376,8 @@ ALTER TABLE `oauth_trusted_user` ADD `code` text;
 
 #IfMissingColumn oauth_trusted_user session_cache
 ALTER TABLE `oauth_trusted_user` ADD `session_cache` text;
+#EndIf
+
+#IfNotColumnType codes code_text text
+ALTER TABLE `codes` MODIFY `code_text` text NOT NULL default '';
 #EndIf

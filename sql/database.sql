@@ -1066,8 +1066,8 @@ CREATE TABLE `clinical_rules_log` (
 DROP TABLE IF EXISTS `codes`;
 CREATE TABLE `codes` (
   `id` int(11) NOT NULL auto_increment,
-  `code_text` varchar(255) NOT NULL default '',
-  `code_text_short` varchar(255) NOT NULL default '',
+  `code_text` text NOT NULL default '',
+  `code_text_short` text NOT NULL default '',
   `code` varchar(25) NOT NULL default '',
   `code_type` smallint(6) default NULL,
   `modifier` varchar(12) NOT NULL default '',
