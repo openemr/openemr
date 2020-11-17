@@ -31,6 +31,7 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomPasswordGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AuthCodeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
@@ -499,8 +500,8 @@ class AuthorizationController
                 new \DateInterval('PT1H') // The new access token will expire after 1 hour
             );
         }
-        if ($this->grantType === 'password') {
-            $grant = new PasswordGrant(
+        if (!empty($GLOBALS['oauth_password_grant']) && ($this->grantType === 'password')) {
+            $grant = new CustomPasswordGrant(
                 new UserRepository(),
                 new RefreshTokenRepository()
             );

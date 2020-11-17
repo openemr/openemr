@@ -61,7 +61,7 @@ if (false !== stripos($end_point, '/authorize')) {
     $authServer->oauthAuthorizationFlow();
 }
 
-if (false !== stripos($end_point, '/password')) {
+if (!empty($GLOBALS['oauth_password_grant']) && (false !== stripos($end_point, '/password'))) {
     $authServer->oauthPasswordFlow();
 }
 

@@ -117,38 +117,38 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
         return sqlQueryNoLog($account_sql, array($userId));
     }
 
-    protected function getAccountByPassword($username, $password, $email = ''): ?bool
+    protected function getAccountByPassword($userrole, $username, $password, $email = ''): bool
     {
-        // first check core openemr authentication
-        $auth = new AuthUtils('api');
-        if ($auth->confirmPassword($username, $password)) {
-            $this->setUserRole('users');
-            $_SESSION['user_role'] = 'users';
-            $id = $auth->getUserId();
-            (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
-            $uuid = sqlQueryNoLog("SELECT `uuid` FROM `users` WHERE `id` = ?", [$id])['uuid'];
-            if (empty($uuid)) {
-                error_log("OpenEMR Error: unable to map uuid for user when creating oauth password grant token");
-                return false;
+        if ($userrole == "users") {
+            $auth = new AuthUtils('api');
+            if ($auth->confirmPassword($username, $password)) {
+                $this->setUserRole('users');
+                $_SESSION['user_role'] = 'users';
+                $id = $auth->getUserId();
+                (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+                $uuid = sqlQueryNoLog("SELECT `uuid` FROM `users` WHERE `id` = ?", [$id])['uuid'];
+                if (empty($uuid)) {
+                    error_log("OpenEMR Error: unable to map uuid for user when creating oauth password grant token");
+                    return false;
+                }
+                $this->setIdentifier(UuidRegistry::uuidToString($uuid));
+                return true;
             }
-            $this->setIdentifier(UuidRegistry::uuidToString($uuid));
-            return true;
-        }
-
-        // second, check portal authentication
-        $auth = new AuthUtils('portal-api');
-        if ($auth->confirmPassword($username, $password, $email)) {
-            $this->setUserRole('patient');
-            $_SESSION['user_role'] = 'patient';
-            $id = $auth->getPatientId();
-            (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
-            $uuid = sqlQueryNoLog("SELECT `uuid` FROM `patient_data` WHERE `pid` = ?", [$id])['uuid'];
-            if (empty($uuid)) {
-                error_log("OpenEMR Error: unable to map uuid for patient when creating oauth password grant token");
-                return false;
+        } elseif ($userrole == "patient") {
+            $auth = new AuthUtils('portal-api');
+            if ($auth->confirmPassword($username, $password, $email)) {
+                $this->setUserRole('patient');
+                $_SESSION['user_role'] = 'patient';
+                $id = $auth->getPatientId();
+                (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
+                $uuid = sqlQueryNoLog("SELECT `uuid` FROM `patient_data` WHERE `pid` = ?", [$id])['uuid'];
+                if (empty($uuid)) {
+                    error_log("OpenEMR Error: unable to map uuid for patient when creating oauth password grant token");
+                    return false;
+                }
+                $this->setIdentifier(UuidRegistry::uuidToString($uuid));
+                return true;
             }
-            $this->setIdentifier(UuidRegistry::uuidToString($uuid));
-            return true;
         }
 
         return false;
