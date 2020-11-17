@@ -109,7 +109,6 @@ DROP TABLE IF EXISTS `api_token`;
 CREATE TABLE `api_token` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` varchar(40) DEFAULT NULL,
-  `user_role` varchar(40) DEFAULT NULL,
   `token` varchar(128) DEFAULT NULL,
   `expiry` datetime DEFAULT NULL,
   `client_id` varchar(80) DEFAULT NULL,
@@ -12267,7 +12266,6 @@ DROP TABLE IF EXISTS `oauth_trusted_user`;
 CREATE TABLE `oauth_trusted_user` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
 `user_id` varchar(80) DEFAULT NULL,
-`user_role` varchar(16) DEFAULT NULL,
 `client_id` varchar(80) DEFAULT NULL,
 `scope` text,
 `persist_login` tinyint(1) DEFAULT '0',
@@ -12276,6 +12274,5 @@ CREATE TABLE `oauth_trusted_user` (
 `session_cache` text,
 PRIMARY KEY (`id`),
 KEY `accounts_id` (`user_id`),
-KEY `clients_id` (`client_id`),
-KEY `user_role` (`user_role`)
+KEY `clients_id` (`client_id`)
 ) ENGINE=InnoDB;

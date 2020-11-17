@@ -569,7 +569,6 @@ class AuthorizationController
         $_SESSION['persist_login'] = isset($_POST['persist_login']) ? 1 : 0;
         $user = new UserEntity();
         $user->setIdentifier($_SESSION['user_id']);
-        $user->setUserRole($_SESSION['user_role']);
         $_SESSION['claims'] = $user->getClaims();
         $oauthLogin = true;
         $redirect = $this->authBaseUrl . "/device/code";
@@ -586,12 +585,10 @@ class AuthorizationController
         }
         if ($id = $auth->getUserId()) {
             $_SESSION['user_id'] = $this->getUserUuid($id, 'users');
-            $_SESSION['user_role'] = 'users';
             return true;
         }
         if ($id = $auth->getPatientId()) {
             $_SESSION['user_id'] = $this->getUserUuid($id, 'patient');
-            $_SESSION['user_role'] = 'patient';
             return true;
         }
 
@@ -626,7 +623,6 @@ class AuthorizationController
             $server = $this->getAuthorizationServer();
             $user = new UserEntity();
             $user->setIdentifier($_SESSION['user_id']);
-            $user->setUserRole($_SESSION['user_role']);
             $authRequest->setUser($user);
             $authRequest->setAuthorizationApproved(true);
             $result = $server->completeAuthorizationRequest($authRequest, $response);
@@ -640,7 +636,7 @@ class AuthorizationController
             parse_str($authorization, $code);
             $code = $code["code"];
             if (isset($_POST['proceed']) && !empty($code) && !empty($session_cache)) {
-                $this->saveTrustedUser($_SESSION['client_id'], $_SESSION['user_id'], $_SESSION['user_role'], $_SESSION['scopes'], $_SESSION['persist_login'], $code, $session_cache);
+                $this->saveTrustedUser($_SESSION['client_id'], $_SESSION['user_id'], $_SESSION['scopes'], $_SESSION['persist_login'], $code, $session_cache);
             } else {
                 if (empty($_SESSION['csrf'])) {
                     throw OAuthServerException::serverError("Failed authorization due to missing data.");
@@ -748,9 +744,9 @@ class AuthorizationController
         }
     }
 
-    public function trustedUser($clientId, $userId, $userRole)
+    public function trustedUser($clientId, $userId)
     {
-        return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ? AND `user_role`= ?", array($clientId, $userId, $userRole));
+        return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ?", array($clientId, $userId));
     }
 
     public function sessionUserByCode($code)
@@ -758,11 +754,11 @@ class AuthorizationController
         return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `code`= ?", array($code));
     }
 
-    public function saveTrustedUser($clientId, $userId, $userRole, $scope, $persist, $code = '', $session = '')
+    public function saveTrustedUser($clientId, $userId, $scope, $persist, $code = '', $session = '')
     {
-        $id = $this->trustedUser($clientId, $userId, $userRole)['id'];
-        $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `user_role`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache) VALUES (?, ?, ?, ?, ?, ?, Now(), ?, ?)";
+        $id = $this->trustedUser($clientId, $userId)['id'];
+        $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache) VALUES (?, ?, ?, ?, ?, Now(), ?, ?)";
 
-        return sqlQueryNoLog($sql, array($id, $userId, $userRole, $clientId, $scope, $persist, $code, $session));
+        return sqlQueryNoLog($sql, array($id, $userId, $clientId, $scope, $persist, $code, $session));
     }
 }

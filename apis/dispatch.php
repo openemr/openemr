@@ -16,6 +16,7 @@
 
 require_once("./../_rest_config.php");
 
+use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
@@ -46,24 +47,15 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     // collect token attributes
     $attributes = $tokenRaw->getAttributes();
 
-    // collect site and user role
+    // collect site
     $site = '';
-    $userRole = '';
     $scopes = $attributes['oauth_scopes'];
     foreach ($scopes as $attr) {
         if (stripos($attr, 'site:') !== false) {
             $site = str_replace('site:', '', $attr);
             // while here parse site from endpoint
             $resource = str_replace('/' . $site, '', $resource);
-        } else if (stripos($attr, 'user_role:') !== false) {
-            $userRole = str_replace('user_role:', '', $attr);
         }
-    }
-    // ensure user_role in access token
-    if (empty($userRole)) {
-        error_log("OpenEMR Error - api user role not available, so forced exit");
-        http_response_code(400);
-        exit();
     }
     // ensure 1) sane site 2) site from gbl and access token are the same and 3) ensure the site exists on filesystem
     if (empty($site) || empty($gbl::$SITE) || preg_match('/[^A-Za-z0-9\\-.]/', $gbl::$SITE) || ($site !== $gbl::$SITE) || !file_exists(__DIR__ . '/../sites/' . $gbl::$SITE)) {
@@ -119,6 +111,30 @@ if ($isLocalApi) {
         exit();
     }
 } else {
+    // authenticate the token
+    if (!$gbl->authenticateUserToken($tokenId, $userId)) {
+        $gbl::destroySession();
+        http_response_code(401);
+        exit();
+    }
+    // collect user information and user role
+    $uuidToUser = new UuidUserAccount($userId);
+    $user = $uuidToUser->getUserAccount();
+    $userRole = $uuidToUser->getUserRole();
+    if (empty($user)) {
+        // unable to identify the users user role
+        error_log("OpenEMR Error - api user account could not be identified, so forced exit");
+        $gbl::destroySession();
+        http_response_code(400);
+        exit();
+    }
+    if (empty($userRole)) {
+        // unable to identify the users user role
+        error_log("OpenEMR Error - api user role for user could not be identified, so forced exit");
+        $gbl::destroySession();
+        http_response_code(400);
+        exit();
+    }
     // ensure user role has access to the resource
     //  for now assuming:
     //   users has access to oemr and fhir
@@ -133,14 +149,7 @@ if ($isLocalApi) {
         http_response_code(401);
         exit();
     }
-    // authenticate the token
-    if (!$gbl->authenticateUserToken($tokenId, $userId, $userRole)) {
-        $gbl::destroySession();
-        http_response_code(401);
-        exit();
-    }
-    // collect user information and then set pertinent session variables
-    $user = $gbl->getUserAccount($userId, $userRole);
+    // set pertinent session variables
     if ($userRole == 'users') {
         $_SESSION['authUser'] = $user["username"] ?? null;
         $_SESSION['authUserID'] = $user["id"] ?? null;

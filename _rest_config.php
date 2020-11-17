@@ -354,14 +354,14 @@ class RestConfig
         echo $response->getBody();
     }
 
-    public function authenticateUserToken($tokenId, $userId, $userRole)
+    public function authenticateUserToken($tokenId, $userId)
     {
         $ip = collectIpAddresses();
 
         // check for token
-        $authToken = sqlQueryNoLog("SELECT `expiry` FROM `api_token` WHERE `token` = ? AND `user_id` = ? AND `user_role` = ?", [$tokenId, $userId, $userRole]);
+        $authToken = sqlQueryNoLog("SELECT `expiry` FROM `api_token` WHERE `token` = ? AND `user_id` = ?", [$tokenId, $userId]);
         if (empty($authToken) || empty($authToken['expiry'])) {
-            EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token not found for " . $userId . " with role " . $userRole . ".");
+            EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token not found for " . $userId . ".");
             return false;
         }
 
@@ -369,31 +369,13 @@ class RestConfig
         $currentDateTime = date("Y-m-d H:i:s");
         $expiryDateTime = date("Y-m-d H:i:s", strtotime($authToken['expiry']));
         if ($expiryDateTime <= $currentDateTime) {
-            EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token expired for " . $userId . " with role " . $userRole . ".");
+            EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token expired for " . $userId . ".");
             return false;
         }
 
         // Token authentication passed
-        EventAuditLogger::instance()->newEvent('api', '', '', 1, "API success: " . $ip['ip_string'] . ". Token successfully used for " . $userId . " with role " . $userRole . ".");
+        EventAuditLogger::instance()->newEvent('api', '', '', 1, "API success: " . $ip['ip_string'] . ". Token successfully used for " . $userId . ".");
         return true;
-    }
-
-    public function getUserAccount($userId, $userRole)
-    {
-        $userId = UuidRegistry::uuidToBytes($userId);
-
-        switch ($userRole) {
-            case 'users':
-                $account_sql = "SELECT `id`, `username`, `authorized`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone`, `email`, `street`, `city`, `state`, `zip`, CONCAT(fname, ' ', lname) AS fullname FROM `users` WHERE `uuid` = ?";
-                break;
-            case 'patient':
-                $account_sql = "SELECT `pid`, `uuid`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone_contact` AS phone, `sex` AS gender, `email`, `DOB` AS birthdate, `street`, `postal_code` AS zip, `city`, `state`, CONCAT(fname, ' ', lname) AS fullname FROM `patient_data` WHERE `uuid` = ?";
-                break;
-            default:
-                return null;
-        }
-
-        return sqlQueryNoLog($account_sql, array($userId));
     }
 
     /** prevents external cloning */
