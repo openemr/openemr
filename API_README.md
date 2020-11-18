@@ -94,6 +94,7 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 ### Prerequisite
 
 Enable the Standard API service (/api/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Standard REST API"
+
 Enable the Patient Portal API service (/portal/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal REST API"
 
 ### Using API Internally
@@ -104,7 +105,7 @@ There are several ways to make API calls from an authorized session and maintain
 
 ### Multisite Support
 
-Multisite is supported by including the site in the endpoint. When not using multisite or using the `default` multisite site, then a typical path would look like `apis/default/api/patient`. If you were using multisite and using a site called `alternate`, then the path would look like `apis/alternate/api/patient`.
+Multisite is supported by including the site in the endpoint. When not using multisite or using the `default` multisite site, then a typical path would look like `apis/default/api/patient`. If you are using multisite and using a site called `alternate`, then the path would look like `apis/alternate/api/patient`.
 
 ### Authorization
 
@@ -147,7 +148,7 @@ Response:
 
 This is the recommended standard mechanism to obtain access/refresh tokens. This is done by using an OAuth2 client with provider url of `oauth2/<site>`; an example full path would be `https://localhost:9300/oauth2/default`.
 
-#### Refresh Grant
+#### Refresh Token Grant
 
 Example:
 
@@ -173,7 +174,7 @@ Response:
 
 #### Password Grant
 
-Recommend not using this mechanism unless you know what you are doing. It is considered far less secure than the standard authorization code method. Because of security implications, it is not turned on by default. It can be turned on at Administration->Globals->Connectors->'Enable OAuth2 Password Grant (Not considered secure).
+Recommend not using this mechanism unless you know what you are doing. It is considered far less secure than the standard authorization code method. Because of security implications, it is not turned on by default. It can be turned on at Administration->Globals->Connectors->'Enable OAuth2 Password Grant (Not considered secure)'.
 
 Example for `users` role:
 ```sh
@@ -1543,6 +1544,8 @@ curl -X DELETE 'http://localhost:8300/apis/default/api/patient/1/message/1'
 ### /portal/ Endpoints
 
 OpenEMR patient portal endpoints Use `http://localhost:8300/apis/default/portal as base URI.`
+
+Note that the `default` component can be changed to the name of the site when using OpenEMR's multisite feature.
 
 _Example:_ `http://localhost:8300/apis/default/portal/patient` returns a resource of the patient.
 

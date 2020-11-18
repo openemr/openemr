@@ -55,6 +55,7 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
 ### Prerequisite
 
 Enable the Standard FHIR service (/fhir/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Standard FHIR REST API"
+
 Enable the Patient Portal FHIR service (/portalfhir/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal FHIR REST API"
 
 ### Using FHIR API Internally
