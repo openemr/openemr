@@ -3,6 +3,11 @@
 global $authServer;
 $base_url = $authServer->authBaseFullUrl;
 
+$passwordGrantString = '';
+if (!empty($GLOBALS['oauth_password_grant'])) {
+    $passwordGrantString = '"password",';
+}
+
 $discovery = <<<TEMPLATE
 {
 "issuer": "$authServer->authIssueFullUrl",
@@ -42,7 +47,7 @@ $discovery = <<<TEMPLATE
 ],
 "grant_types_supported": [
     "authorization_code",
-    "password",
+    $passwordGrantString
     "refresh_token"
 ],
 "response_modes_supported": [

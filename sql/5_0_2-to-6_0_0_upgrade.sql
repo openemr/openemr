@@ -2295,7 +2295,7 @@ CREATE TABLE `oauth_clients` (
 `client_id` varchar(80) NOT NULL,
 `client_role` varchar(20) DEFAULT NULL,
 `client_name` varchar(80) NOT NULL,
-`client_secret` varchar(120) DEFAULT NULL,
+`client_secret` text,
 `registration_token` varchar(80) DEFAULT NULL,
 `registration_uri_path` varchar(40) DEFAULT NULL,
 `register_date` datetime DEFAULT NULL,
@@ -2315,15 +2315,13 @@ PRIMARY KEY (`client_id`)
 CREATE TABLE `oauth_trusted_user` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
 `user_id` varchar(80) DEFAULT NULL,
-`user_role` varchar(16) DEFAULT NULL,
 `client_id` varchar(80) DEFAULT NULL,
 `scope` text,
 `persist_login` tinyint(1) DEFAULT '0',
 `time` timestamp NULL DEFAULT NULL,
 PRIMARY KEY (`id`),
 KEY `accounts_id` (`user_id`),
-KEY `clients_id` (`client_id`),
-KEY `user_role` (`user_role`)
+KEY `clients_id` (`client_id`)
 ) ENGINE=InnoDB;
 #EndIf
 
@@ -2342,16 +2340,12 @@ UPDATE `icd10_dx_order_code` SET `revision` = @newMax WHERE `dx_code` = 'U072';
 ALTER TABLE `oauth_clients` CHANGE `client_id` `client_id` varchar(80) NOT NULL;
 #EndIf
 
-#IfNotColumnType oauth_clients client_secret varchar(120)
-ALTER TABLE `oauth_clients` CHANGE `client_secret` `client_secret` varchar(120) DEFAULT NULL;
+#IfNotColumnType oauth_clients client_secret text
+ALTER TABLE `oauth_clients` CHANGE `client_secret` `client_secret` text;
 #EndIf
 
 #IfNotColumnType oauth_clients registration_token varchar(80)
 ALTER TABLE `oauth_clients` CHANGE `registration_token` `registration_token` varchar(80) DEFAULT NULL;
-#EndIf
-
-#IfMissingColumn api_token user_role
-ALTER TABLE `api_token` ADD `user_role` varchar(40) DEFAULT NULL;
 #EndIf
 
 #IfColumn api_token token_auth
@@ -2396,4 +2390,12 @@ ALTER TABLE `icd10_dx_order_code` MODIFY `long_desc` text;
 
 #IfNotColumnType icd10_pcs_order_code long_desc text
 ALTER TABLE `icd10_pcs_order_code` MODIFY `long_desc` text;
+#EndIf
+
+#IfColumn api_token user_role
+ALTER TABLE `api_token` DROP COLUMN `user_role`;
+#EndIf
+
+#IfColumn oauth_trusted_user user_role
+ALTER TABLE `oauth_trusted_user` DROP COLUMN `user_role`;
 #EndIf

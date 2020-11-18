@@ -14,26 +14,17 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Crypto\CryptoGen;
 
 class ClientRepository implements ClientRepositoryInterface
 {
-    public function getClientEntity($clientIdentifier, $grantType = null, $clientSecret = null, $mustValidateSecret = true)
+    public function getClientEntity($clientIdentifier)
     {
-        $clients = sqlQuery("Select * From oauth_clients Where client_id=?", array($clientIdentifier));
+        $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", array($clientIdentifier));
 
         // Check if client is registered
         if ($clients === false) {
             return false;
-        }
-
-        if ($clientSecret) {
-            if (
-                $mustValidateSecret === true
-                && $clients['is_confidential'] === true
-                && password_verify($clientSecret, $clients['secret']) === false
-            ) {
-                return false;
-            }
         }
 
         $client = new ClientEntity();
@@ -47,7 +38,27 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
     {
-        // password and refresh grant
-        return true;
+        if ($grantType == 'authorization_code') {
+            $client = sqlQueryNoLog("SELECT `client_secret`, `is_confidential` FROM `oauth_clients` WHERE `client_id` = ?", [$clientIdentifier]);
+
+            // Check if client is registered
+            if ($client === false) {
+                return false;
+            }
+
+            // Validate client if is_confidential
+            if (!empty($clientSecret) && !empty($client['is_confidential'])) {
+                $secret = (new CryptoGen())->decryptStandard($client['client_secret']);
+                if (empty($secret)) {
+                    return false;
+                }
+                return hash_equals($clientSecret, $secret);
+            }
+
+            return true;
+        } else {
+            // password and refresh grant
+            return true;
+        }
     }
 }

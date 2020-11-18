@@ -31,6 +31,7 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomPasswordGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AuthCodeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
@@ -218,9 +219,9 @@ class AuthorizationController
                 'response_types' => null,
                 'grant_types' => null,
             );
-            $client_id = $this->base64url_encode(\random_bytes(32));
-            $reg_token = $this->base64url_encode(\random_bytes(32));
-            $reg_client_uri_path = $this->base64url_encode(\random_bytes(16));
+            $client_id = $this->base64url_encode(RandomGenUtils::produceRandomBytes(32));
+            $reg_token = $this->base64url_encode(RandomGenUtils::produceRandomBytes(32));
+            $reg_client_uri_path = $this->base64url_encode(RandomGenUtils::produceRandomBytes(16));
             $params = array(
                 'client_id' => $client_id,
                 'client_id_issued_at' => time(),
@@ -230,7 +231,7 @@ class AuthorizationController
             // only include secret if a confidential app else force PKCE for native and web apps.
             $client_secret = '';
             if ($data['application_type'] === 'private') {
-                $client_secret = $this->base64url_encode(\random_bytes(64));
+                $client_secret = $this->base64url_encode(RandomGenUtils::produceRandomBytes(64));
                 $params['client_secret'] = $client_secret;
             }
             foreach ($keys as $key => $supported_values) {
@@ -324,6 +325,12 @@ class AuthorizationController
         $private = empty($info['client_secret']) ? 0 : 1;
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
+
+        // encrypt the client secret
+        if (!empty($info['client_secret'])) {
+            $info['client_secret'] = $this->cryptoGen->encryptStandard($info['client_secret']);
+        }
+
         try {
             $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', 'openid email phone address api:oemr api:fhir api:port api:pofh', ?, ?, ?)";
             $i_vals = array(
@@ -370,7 +377,7 @@ class AuthorizationController
             }
             $pos = strpos($_SERVER['PATH_INFO'], '/client/');
             if ($pos === false) {
-                throw new OAuthServerException('invailid_request', 0, 'Invalid path', 403);
+                throw new OAuthServerException('invalid_request', 0, 'Invalid path', 403);
             }
             $uri_path = substr($_SERVER['PATH_INFO'], $pos + 8);
             $client = sqlQuery("SELECT * FROM `oauth_clients` WHERE `registration_uri_path` = ?", array($uri_path));
@@ -381,7 +388,7 @@ class AuthorizationController
                 throw new OAuthServerException('invalid _request', 0, 'Invalid registration token', 403);
             }
             $params['client_id'] = $client['client_id'];
-            $params['client_secret'] = $client['client_secret'];
+            $params['client_secret'] = $this->cryptoGen->decryptStandard($client['client_secret']);
             $params['contacts'] = explode('|', $client['contacts']);
             $params['application_type'] = $client['client_role'];
             $params['client_name'] = $client['client_name'];
@@ -493,8 +500,8 @@ class AuthorizationController
                 new \DateInterval('PT1H') // The new access token will expire after 1 hour
             );
         }
-        if ($this->grantType === 'password') {
-            $grant = new PasswordGrant(
+        if (!empty($GLOBALS['oauth_password_grant']) && ($this->grantType === 'password')) {
+            $grant = new CustomPasswordGrant(
                 new UserRepository(),
                 new RefreshTokenRepository()
             );
@@ -562,7 +569,6 @@ class AuthorizationController
         $_SESSION['persist_login'] = isset($_POST['persist_login']) ? 1 : 0;
         $user = new UserEntity();
         $user->setIdentifier($_SESSION['user_id']);
-        $user->setUserRole($_SESSION['user_role']);
         $_SESSION['claims'] = $user->getClaims();
         $oauthLogin = true;
         $redirect = $this->authBaseUrl . "/device/code";
@@ -579,12 +585,10 @@ class AuthorizationController
         }
         if ($id = $auth->getUserId()) {
             $_SESSION['user_id'] = $this->getUserUuid($id, 'users');
-            $_SESSION['user_role'] = 'users';
             return true;
         }
         if ($id = $auth->getPatientId()) {
             $_SESSION['user_id'] = $this->getUserUuid($id, 'patient');
-            $_SESSION['user_role'] = 'patient';
             return true;
         }
 
@@ -619,7 +623,6 @@ class AuthorizationController
             $server = $this->getAuthorizationServer();
             $user = new UserEntity();
             $user->setIdentifier($_SESSION['user_id']);
-            $user->setUserRole($_SESSION['user_role']);
             $authRequest->setUser($user);
             $authRequest->setAuthorizationApproved(true);
             $result = $server->completeAuthorizationRequest($authRequest, $response);
@@ -633,7 +636,7 @@ class AuthorizationController
             parse_str($authorization, $code);
             $code = $code["code"];
             if (isset($_POST['proceed']) && !empty($code) && !empty($session_cache)) {
-                $this->saveTrustedUser($_SESSION['client_id'], $_SESSION['user_id'], $_SESSION['user_role'], $_SESSION['scopes'], $_SESSION['persist_login'], $code, $session_cache);
+                $this->saveTrustedUser($_SESSION['client_id'], $_SESSION['user_id'], $_SESSION['scopes'], $_SESSION['persist_login'], $code, $session_cache);
             } else {
                 if (empty($_SESSION['csrf'])) {
                     throw OAuthServerException::serverError("Failed authorization due to missing data.");
@@ -691,12 +694,16 @@ class AuthorizationController
         $request = $this->createServerRequest();
         $this->grantType = $request->getParsedBody()['grant_type'];
         $code = $request->getParsedBody()['code'];
-        $ssbc = $this->sessionUserByCode($code);
-        $_SESSION = json_decode($ssbc['session_cache'], true);
+        if ($this->grantType === 'authorization_code') {
+            // populate saved session for this scenario
+            $ssbc = $this->sessionUserByCode($code);
+            $_SESSION = json_decode($ssbc['session_cache'], true);
+        }
 
         $server = $this->getAuthorizationServer();
         try {
-            if (empty($_SESSION['csrf'])) {
+            if (($this->grantType === 'authorization_code') && empty($_SESSION['csrf'])) {
+                // the saved session was not populated as expected
                 throw OAuthServerException::serverError("User session corrupt");
             }
             $result = $server->respondToAccessTokenRequest($request, $response);
@@ -713,33 +720,9 @@ class AuthorizationController
         }
     }
 
-    public function oauthPasswordFlow(): void
+    public function trustedUser($clientId, $userId)
     {
-        $response = $this->createServerResponse();
-        $request = $this->createServerRequest();
-
-        $this->grantType = 'password';
-        $server = $this->getAuthorizationServer();
-
-        try {
-            // Respond to the access token request
-            $result = $server->respondToAccessTokenRequest($request, $response);
-            $this->emitResponse($result);
-            SessionUtil::oauthSessionCookieDestroy();
-        } catch (OAuthServerException $exception) {
-            SessionUtil::oauthSessionCookieDestroy();
-            $this->emitResponse($exception->generateHttpResponse($response));
-        } catch (Exception $exception) {
-            SessionUtil::oauthSessionCookieDestroy();
-            $body = $response->getBody();
-            $body->write($exception->getMessage());
-            $this->emitResponse($response->withStatus(500)->withBody($body));
-        }
-    }
-
-    public function trustedUser($clientId, $userId, $userRole)
-    {
-        return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ? AND `user_role`= ?", array($clientId, $userId, $userRole));
+        return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ?", array($clientId, $userId));
     }
 
     public function sessionUserByCode($code)
@@ -747,11 +730,11 @@ class AuthorizationController
         return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `code`= ?", array($code));
     }
 
-    public function saveTrustedUser($clientId, $userId, $userRole, $scope, $persist, $code = '', $session = '')
+    public function saveTrustedUser($clientId, $userId, $scope, $persist, $code = '', $session = '')
     {
-        $id = $this->trustedUser($clientId, $userId, $userRole)['id'];
-        $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `user_role`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache) VALUES (?, ?, ?, ?, ?, ?, Now(), ?, ?)";
+        $id = $this->trustedUser($clientId, $userId)['id'];
+        $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache) VALUES (?, ?, ?, ?, ?, Now(), ?, ?)";
 
-        return sqlQueryNoLog($sql, array($id, $userId, $userRole, $clientId, $scope, $persist, $code, $session));
+        return sqlQueryNoLog($sql, array($id, $userId, $clientId, $scope, $persist, $code, $session));
     }
 }

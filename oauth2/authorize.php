@@ -61,10 +61,6 @@ if (false !== stripos($end_point, '/authorize')) {
     $authServer->oauthAuthorizationFlow();
 }
 
-if (false !== stripos($end_point, '/password')) {
-    $authServer->oauthPasswordFlow();
-}
-
 if (false !== stripos($end_point, '/device/code')) {
     $authServer->authorizeUser();
 }

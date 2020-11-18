@@ -14,6 +14,7 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenIDConnectServer\Entities\ClaimSetInterface;
 
@@ -25,7 +26,11 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
     public function getClaims()
     {
-        $user = $this->getUserAccount($this->identifier);
+        $uuidToUser = new UuidUserAccount($this->identifier);
+        $user = $uuidToUser->getUserAccount();
+        if (empty($user)) {
+            $user = false;
+        }
         $claims = [
             'name' => $user['fullname'],
             'family_name' => $user['lastname'],
@@ -72,76 +77,36 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
         $this->identifier = $id;
     }
 
-    public function getUserRole(): string
+    protected function getAccountByPassword($userrole, $username, $password, $email = ''): bool
     {
-        return $this->userRole;
-    }
-
-    public function setUserRole($role): void
-    {
-        $this->userRole = $role;
-    }
-
-    public function getUserAccount($userId)
-    {
-        // We really don't need user roles here especially since not passed along in token but,
-        // future is unknown so leaving for now. Could simply use only uuids for all users and
-        // set roles in resource server.
-        if (!is_numeric($userId)) {
-            $uuidreg = new UuidRegistry();
-            $userId = $uuidreg::uuidToBytes($userId);
-        }
-
-        $userRole = (!empty($this->userRole)) ? $this->userRole : $_SESSION['user_role'];
-        switch ($userRole) {
-            case 'users':
-                $account_sql = "SELECT `username`, `authorized`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone`, `email`, `street`, `city`, `state`, `zip`, CONCAT(fname, ' ', lname) AS fullname FROM `users`";
-                if (is_numeric($userId)) {
-                    $account_sql .= " WHERE `id` = ?";
-                } else {
-                    $account_sql .= " WHERE `uuid` = ?";
+        if (($userrole == "users") && (($GLOBALS['oauth_password_grant'] == 1) || ($GLOBALS['oauth_password_grant'] == 3))) {
+            $auth = new AuthUtils('api');
+            if ($auth->confirmPassword($username, $password)) {
+                $id = $auth->getUserId();
+                (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+                $uuid = sqlQueryNoLog("SELECT `uuid` FROM `users` WHERE `id` = ?", [$id])['uuid'];
+                if (empty($uuid)) {
+                    error_log("OpenEMR Error: unable to map uuid for user when creating oauth password grant token");
+                    return false;
                 }
-                break;
-            case 'patient':
-                $account_sql = "SELECT `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone_contact` AS phone, `sex` AS gender, `email`, `DOB` AS birthdate, `street`, `postal_code` AS zip, `city`, `state`, CONCAT(fname, ' ', lname) AS fullname FROM `patient_data`";
-                if (is_numeric($userId)) {
-                    $account_sql .= " WHERE `pid` = ?";
-                } else {
-                    $account_sql .= " WHERE `uuid` = ?";
+                $this->setIdentifier(UuidRegistry::uuidToString($uuid));
+                return true;
+            }
+        } elseif (($userrole == "patient") && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
+            $auth = new AuthUtils('portal-api');
+            if ($auth->confirmPassword($username, $password, $email)) {
+                $id = $auth->getPatientId();
+                (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
+                $uuid = sqlQueryNoLog("SELECT `uuid` FROM `patient_data` WHERE `pid` = ?", [$id])['uuid'];
+                if (empty($uuid)) {
+                    error_log("OpenEMR Error: unable to map uuid for patient when creating oauth password grant token");
+                    return false;
                 }
-                break;
-            default:
-                return null;
+                $this->setIdentifier(UuidRegistry::uuidToString($uuid));
+                return true;
+            }
         }
 
-        return sqlQueryNoLog($account_sql, array($userId));
-    }
-
-    protected function getAccountByPassword($username, $password, $email = ''): ?bool
-    {
-        $auth = new AuthUtils('api');
-        $is_true = $auth->confirmPassword($username, $password, $email);
-        if (!$is_true) {
-            return false;
-        }
-        $account_sql = '';
-        if ($id = $auth->getUserId()) {
-            (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
-            $this->setUserRole('users');
-            $account_sql = "SELECT `uuid` FROM `users` WHERE `id` = ?";
-        }
-        if (!$id && $id = $auth->getPatientId()) {
-            (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
-            $this->setUserRole('patient');
-            $account_sql = "SELECT `uuid` FROM `users` WHERE `pid` = ?";
-        }
-        $id = sqlQueryNoLog($account_sql, array($id))['uuid'];
-        if (!$id) {
-            return false;
-        }
-        $uuidRegistry = new UuidRegistry();
-        $this->setIdentifier($uuidRegistry::uuidToString($id));
-
-        return true;
+        return false;
     }
 }

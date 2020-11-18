@@ -3114,6 +3114,18 @@ $GLOBALS_METADATA = array(
             xl('Enable OpenEMR Patient Portal FHIR RESTful API.')
         ),
 
+        'oauth_password_grant' => array(
+            xl('Enable Oauth2 Password Grant (Not considered secure)'),
+            array(
+                0 => xl('Off (Recommended setting)'),
+                1 => xl('On for Users Role'),
+                2 => xl('On for Patient Role'),
+                3 => xl('On for Both Roles')
+            ),
+            '0',
+            xl('Enable Oauth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
+        ),
+
         'fhir_enable' => array(
             xl('Enable FHIR Provider Client Service'),
             array(
