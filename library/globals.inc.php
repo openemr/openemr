@@ -3118,7 +3118,7 @@ $GLOBALS_METADATA = array(
             xl('Enable Oauth2 Password Grant (Not considered secure)'),
             array(
                 0 => xl('Off (Recommended setting)'),
-                1 => xl('On for User Role'),
+                1 => xl('On for Users Role'),
                 2 => xl('On for Patient Role'),
                 3 => xl('On for Both Roles')
             ),
