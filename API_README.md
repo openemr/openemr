@@ -52,6 +52,7 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 
 ### Sections
 
+-   [Authorization](API_README.md#authorization)
 -   [Standard API Endpoints](API_README.md#api-endpoints)
     -   [Facility API](API_README.md#post-apifacility)
     -   [Practitioner API](API_README.md#get-apipractitioner)
@@ -69,7 +70,6 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [Patient API](API_README.md#get-portalpatient)
 -   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
     -   [FHIR Capability Statement](FHIR_README.md#capability-statement)
-    -   [FHIR Authorization](FHIR_README.md#authorization)
     -   [FHIR Patient](FHIR_README.md#patient-resource)
     -   [FHIR Encounter](FHIR_README.md#encounter-resource)
     -   [FHIR Practitioner](FHIR_README.md#practitioner-resource)
@@ -87,7 +87,6 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [FHIR CareTeam](FHIR_README.md#careTeam-resource)
     -   [FHIR Provenance](FHIR_README.md#Provenance-resources)
 -   [Patient Portal FHIR API Endpoints](FHIR_README.md#patient-portal-fhir-endpoints)
-    -   [Patient Portal FHIR Authorization](FHIR_README.md#patient-portal-authorization)
     -   [Patient Portal FHIR Patient](FHIR_README.md#patient-portal-patient-resource)
 -   [Dev notes](API_README.md#dev-notes)
 -   [Todos](API_README.md#project-management)
@@ -103,43 +102,123 @@ There are several ways to make API calls from an authorized session and maintain
 
 -   See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
 
-### /api/ Endpoints
+### Multisite Support
 
-OpenEMR standard endpoints Use `http://localhost:8300/apis/default/api as base URI.`
+Multisite is supported by including the site in the endpoint. When not using multisite or using the `default` multisite site, then a typical path would look like `apis/default/api/patient`. If you were using multisite and using a site called `alternate`, then the path would look like `apis/alternate/api/patient`.
 
-_Example:_ `http://localhost:8300/apis/default/api/patient` returns a resource of all Patients.
+### Authorization
 
-#### POST /api/auth
+OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Globals->Connectors->'Site Address (required for OAuth2 and FHIR)' is required.
 
-The OpenEMR API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory. If additional sites have not been created, set the scope
-to 'default'.
+#### Registration
 
-Request:
+Here is an example for registering a client. A client needs to be registered before applying for grant to obtain access/refresh tokens.
 
 ```sh
-curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/api/auth' \
--d '{
-    "grant_type":"password",
-    "username": "ServiceUser",
-    "password": "password",
-    "scope":"site id"
-}'
+curl -X POST -k -H 'Content-Type: application/json' -i https://localhost:9300/oauth2/default/registration --data '{
+   "application_type": "private",
+   "redirect_uris":
+     ["https://client.example.org/callback"],
+   "client_name": "A Private App",
+   "token_endpoint_auth_method": "client_secret_post",
+   "contacts": ["me@example.org", "them@example.org"]
+  }'
 ```
 
 Response:
 
 ```json
 {
-    "token_type": "Bearer",
-    "access_token": "eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ==",
-    "expires_in": "3600",
-    "user_data": {
-        "user_id": "1"
-    }
+    "client_id": "LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA",
+    "client_secret": "j21ecvLmFi9HPc_Hv0t7Ptmf1pVcZQLtHjIdU7U9tkS9WAjFJwVMav0G8ogTJ62q4BATovC7BQ19Qagc4x9BBg",
+    "registration_access_token": "uiDSXx2GNSvYy5n8eW50aGrJz0HjaGpUdrGf07Agv_Q",
+    "registration_client_uri": "https:\/\/localhost:9300\/oauth2\/default\/client\/6eUVG0-qK2dYiwfYdECKIw",
+    "client_id_issued_at": 1604767861,
+    "client_secret_expires_at": 0,
+    "contacts": ["me@example.org", "them@example.org"],
+    "application_type": "private",
+    "client_name": "A Private App",
+    "redirect_uris": ["https:\/\/client.example.org\/callback"],
+    "token_endpoint_auth_method": "client_secret_post"
 }
 ```
 
-The Bearer token is required for each OpenEMR API request, and is conveyed using an Authorization header.
+#### Authorization Code Grant
+
+This is the recommended standard mechanism to obtain access/refresh tokens. This is done by using an OAuth2 client with provider url of `oauth2/<site>`; an example full path would be `https://localhost:9300/oauth2/default`.
+
+#### Refresh Grant
+
+Example:
+
+```sh
+curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
+-i 'https://localhost:9300/oauth2/default/token'
+--data 'grant_type=refresh_token
+&client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
+&refresh_token=def5020089a766d16...'
+```
+
+Response:
+
+```json
+{
+  "id_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJrYn...",
+  "token_type": "Bearer",
+  "expires_in": 3599,
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJrYnl1RkRp...",
+  "refresh_token": "def5020017b484b0add020bf3491a8a537fa04eda12..."
+}
+```
+
+#### Password Grant
+
+Recommend not using this mechanism unless you know what you are doing. It is considered far less secure than the standard authorization code method. Because of security implications, it is not turned on by default. It can be turned on at Administration->Globals->Connectors->'Enable OAuth2 Password Grant (Not considered secure).
+
+Example for `users` role:
+```sh
+curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
+-i 'https://localhost:9300/oauth2/default/token'
+--data 'grant_type=password
+&client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
+&user_role=users
+&username=admin
+&password=pass'
+```
+
+Example for `patient` role:
+```sh
+curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
+-i 'https://localhost:9300/oauth2/default/token'
+--data 'grant_type=password
+&client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
+&user_role=patient
+&username=Phil1
+&password=phil
+&email=heya@invalid.email.com'
+```
+
+Response:
+
+```json
+{
+  "id_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJrYn...",
+  "token_type": "Bearer",
+  "expires_in": 3599,
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJrYnl1RkRp...",
+  "refresh_token": "def5020017b484b0add020bf3491a8a537fa04eda12..."
+}
+```
+
+### /api/ Endpoints
+
+OpenEMR standard endpoints Use `http://localhost:8300/apis/default/api as base URI.`
+
+Note that the `default` component can be changed to the name of the site when using OpenEMR's multisite feature.
+
+_Example:_ `http://localhost:8300/apis/default/api/patient` returns a resource of all Patients.
+
+The Bearer token is required for each OpenEMR API request, and is conveyed using an Authorization header. Note that the Bearer token is the access_token that is obtained in the above [Authorization](API_README.md#authorization) section.
 
 Request:
 
@@ -1467,37 +1546,7 @@ OpenEMR patient portal endpoints Use `http://localhost:8300/apis/default/portal 
 
 _Example:_ `http://localhost:8300/apis/default/portal/patient` returns a resource of the patient.
 
-#### POST /portal/auth
-
-The OpenEMR Patient Portal API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory. If additional sites have not been created, set the scope
-to 'default'. If the patient portal is set to require email address on authenticate, then need to also include an `email` field in the request.
-
-Request:
-
-```sh
-curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/default/portal/auth' \
--d '{
-    "grant_type":"password",
-    "username": "ServiceUser",
-    "password": "password",
-    "scope":"site id"
-}'
-```
-
-Response:
-
-```json
-{
-    "token_type": "Bearer",
-    "access_token": "eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ==",
-    "expires_in": "3600",
-    "user_data": {
-        "user_id": "1"
-    }
-}
-```
-
-The Bearer token is required for each OpenEMR Patient Portal API request, and is conveyed using an Authorization header.
+The Bearer token is required for each OpenEMR API request, and is conveyed using an Authorization header. Note that the Bearer token is the access_token that is obtained in the above [Authorization](API_README.md#authorization) section.
 
 Request:
 
