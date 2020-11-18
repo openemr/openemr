@@ -79,7 +79,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
     protected function getAccountByPassword($userrole, $username, $password, $email = ''): bool
     {
-        if ($userrole == "users") {
+        if (($userrole == "user") && (($GLOBALS['oauth_password_grant'] == 1) || ($GLOBALS['oauth_password_grant'] == 3))) {
             $auth = new AuthUtils('api');
             if ($auth->confirmPassword($username, $password)) {
                 $id = $auth->getUserId();
@@ -92,7 +92,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 $this->setIdentifier(UuidRegistry::uuidToString($uuid));
                 return true;
             }
-        } elseif ($userrole == "patient") {
+        } elseif (($userrole == "patient") && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
             $auth = new AuthUtils('portal-api');
             if ($auth->confirmPassword($username, $password, $email)) {
                 $id = $auth->getPatientId();

@@ -3115,10 +3115,15 @@ $GLOBALS_METADATA = array(
         ),
 
         'oauth_password_grant' => array(
-            xl('Enable Oauth2 Password Grant (Not considered secure!)'),
-            'bool',
+            xl('Enable Oauth2 Password Grant (Not considered secure)'),
+            array(
+                0 => xl('Off (Recommended setting)'),
+                1 => xl('On for User Role'),
+                2 => xl('On for Patient Role'),
+                3 => xl('On for Both Roles')
+            ),
             '0',
-            xl('Enable Oauth2 Password Grant. Recommend not using this setting for production server. Recommend only using for testing.')
+            xl('Enable Oauth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
         ),
 
         'fhir_enable' => array(

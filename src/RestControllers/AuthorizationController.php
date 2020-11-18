@@ -720,30 +720,6 @@ class AuthorizationController
         }
     }
 
-    public function oauthPasswordFlow(): void
-    {
-        $response = $this->createServerResponse();
-        $request = $this->createServerRequest();
-
-        $this->grantType = 'password';
-        $server = $this->getAuthorizationServer();
-
-        try {
-            // Respond to the access token request
-            $result = $server->respondToAccessTokenRequest($request, $response);
-            $this->emitResponse($result);
-            SessionUtil::oauthSessionCookieDestroy();
-        } catch (OAuthServerException $exception) {
-            SessionUtil::oauthSessionCookieDestroy();
-            $this->emitResponse($exception->generateHttpResponse($response));
-        } catch (Exception $exception) {
-            SessionUtil::oauthSessionCookieDestroy();
-            $body = $response->getBody();
-            $body->write($exception->getMessage());
-            $this->emitResponse($response->withStatus(500)->withBody($body));
-        }
-    }
-
     public function trustedUser($clientId, $userId)
     {
         return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ?", array($clientId, $userId));
