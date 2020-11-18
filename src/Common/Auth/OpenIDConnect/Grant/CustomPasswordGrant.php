@@ -71,7 +71,7 @@ class CustomPasswordGrant extends PasswordGrant
         if ($user instanceof UserEntityInterface === false) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
 
-            throw OAuthServerException::invalidGrant('failed authentication');
+            throw OAuthServerException::invalidGrant('Failed Authentication');
         }
 
         return $user;

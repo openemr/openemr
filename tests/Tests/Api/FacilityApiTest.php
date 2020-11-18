@@ -18,15 +18,15 @@ use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
  */
 class FacilityApiTest extends TestCase
 {
-    const FACILITY_API_ENDPOINT = "/apis/api/facility";
+    const FACILITY_API_ENDPOINT = "/apis/default/api/facility";
     private $testClient;
     private $fixtureManager;
 
     protected function setUp(): void
     {
-        $baseUrl = getenv("OPENEMR_BASE_URL", true) ?: "http://localhost";
+        $baseUrl = getenv("OPENEMR_BASE_URL", true) ?: "https://localhost";
         $this->testClient = new ApiTestClient($baseUrl, false);
-        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_API_AUTH_ENDPOINT);
+        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
         $this->fixtureManager = new FacilityFixtureManager();
         $this->facilityRecord = (array) $this->fixtureManager->getSingleFacilityFixture();

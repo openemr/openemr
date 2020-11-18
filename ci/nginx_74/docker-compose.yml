@@ -11,7 +11,7 @@ services:
     restart: always
     image: openemr/dev-php-fpm:7.4
     environment:
-      OPENEMR_BASE_URL: "http://nginx"
+      OPENEMR_BASE_URL: "https://nginx"
     volumes:
     - ../../:/usr/share/nginx/html/openemr
     - ./php.ini:/usr/local/etc/php/php.ini:ro
