@@ -206,7 +206,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
 <?php if (!$PDF_OUTPUT) { ?>
     <?php // if the track_anything form exists, then include the styling
-    if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
+    if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
         <?php Header::setupAssets('track-anything'); ?>
     <?php  } ?>
 

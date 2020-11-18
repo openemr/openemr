@@ -141,8 +141,9 @@ function image_widget($doc_id, $doc_catg)
     global $pid, $web_root;
     $docobj = new Document($doc_id);
     $image_file = $docobj->get_url_file();
+    $image_file_name = $docobj->get_name();
     $image_width = $GLOBALS['generate_doc_thumb'] == 1 ? '' : 'width=100';
-    $extension = substr($image_file, strrpos($image_file, "."));
+    $extension = substr($image_file_name, strrpos($image_file_name, "."));
     $viewable_types = array('.png', '.jpg', '.jpeg', '.png', '.bmp', '.PNG', '.JPG', '.JPEG', '.PNG', '.BMP');
     if (in_array($extension, $viewable_types)) { // extension matches list
         $to_url = "<td> <a href = '$web_root" .
