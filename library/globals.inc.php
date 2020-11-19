@@ -2078,7 +2078,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'gbl_auth_bcrypt_hash_cost' => array(
-            xl('Authentication Token Bcrypt Hash Cost'),
+            xl('Authentication Bcrypt Hash Cost'),
             array(
                 'DEFAULT' => xl('PHP Default'),
                 '5' => '5',

@@ -81,7 +81,7 @@ class ApiTestClientTest extends TestCase
     {
         $actualValue = $this->client->setAuthToken(
             ApiTestClient::OPENEMR_AUTH_ENDPOINT,
-            ["client_id" => "123456789"]
+            ["client_id" => "ugk_IdaC2szz-k0vIqhE6DYIjevkYo41neRGGpZvYfsgg"]
         );
         $this->assertEquals(401, $actualValue->getStatusCode());
         $this->assertEquals('invalid_client', json_decode($actualValue->getBody())->error);
