@@ -105,7 +105,8 @@ class ApiTestClient
         return $authResponse;
     }
 
-    private function getClient($authURL) {
+    private function getClient($authURL)
+    {
         $clientBody = [
             "application_type" => "private",
             "redirect_uris" => ["https://client.example.org/callback"],

@@ -25,7 +25,7 @@ class ApiTestClientTest extends TestCase
      */
     protected function setUp(): void
     {
-        $baseUrl = getenv("OPENEMR_BASE_URL", true) ?: "https://localhost";
+        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $this->client = new ApiTestClient($baseUrl, false);
         $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
     }

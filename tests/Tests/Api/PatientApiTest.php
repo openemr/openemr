@@ -25,7 +25,7 @@ class PatientApiTest extends TestCase
 
     protected function setUp(): void
     {
-        $baseUrl = getenv("OPENEMR_BASE_URL", true) ?: "https://localhost";
+        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $this->testClient = new ApiTestClient($baseUrl, false);
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
