@@ -4,22 +4,8 @@
  * AuthHash class.
  *
  *   Hashing:
- *     1. This class can be run in 1 of 2 modes:
- *         -auth:  Hashing of passwords used for user authentication. The algorithm used for this mode can be chosen at
- *                  Administration->Globals->Security->'Hash Algorithm for Authentication'. This chosen algorithm will be used
- *                  for the following:
- *                    - Main login
- *                    - Patient Portal login
- *                    - API authentication (when user is requesting a API token)
- *                  These use cases are only for when users login, so are relatively infrequent, and the passwords
- *                  are under the users control (ie. good chance are not strong password); thus an expensive, time
- *                  consuming hash mechanism makes sense in this mode.
- *         -token: Hashing of part of user token that is used for verifying the token. The algorithm used for this mode
- *                  can be chosen at Administration->Globals->Security->'Hash Algorithm for Token'. This use case is for anytime
- *                  a API token is sent to OpenEMR which can be very frequent. Also,the token that is hashed is 32
- *                  random characters (very strong) and has a limited lifespan; thus an expensive, time consuming hash mechanism
- *                  can be avoided in this mode.
- *         -other: If no mode is chosen, then will default to auth mode.
+ *     1. Hashing of passwords used for user authentication. The algorithm used for this mode can be chosen at
+ *         Administration->Globals->Security->'Hash Algorithm for Authentication'.
  *     2. The passwordVerify function is static and is a wrapper for the php password_verify() function that will allow a
  *         debugging mode (Administration->Globals->Security->Debug Hash Verification Time) to measure the time it takes
  *         to verify the hash to allow fine tuning of chosen algorithm and algorithm options.
@@ -38,26 +24,14 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 
 class AuthHash
 {
-    private $mode;          // Supports 2 modes, 'auth' and 'token'
-                            //  Note this is used to collect the mode specific algorithm options from globals
-
     private $algo;          // Algorithm setting from globals
     private $algo_constant; // Standard algorithm constant, if exists
 
     private $options;       // Standardized array of options
 
-    public function __construct($mode)
+    public function __construct()
     {
-        // Set the mode and collect the pertinent algorithm setting from globals
-        if ($mode == 'auth') {
-            $this->mode = 'auth';
-        } elseif ($mode == 'token') {
-            $this->mode = 'token';
-        } else {
-            // if no mode or other mode is given, then will default to 'auth' mode
-            $this->mode = 'auth';
-        }
-        $this->algo = $GLOBALS['gbl_' . $this->mode . '_hash_algo'];
+        $this->algo = $GLOBALS['gbl_auth_hash_algo'];
 
         // If SHA512HASH is selected, then ensure CRYPT_SHA512 is supported
         if ($this->algo == "SHA512HASH") {
@@ -112,14 +86,14 @@ class AuthHash
             }
             // Set up Argon2 options
             $temp_array = [];
-            if (($GLOBALS['gbl_' . $this->mode . '_argon_hash_memory_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_' . $this->mode . '_argon_hash_memory_cost']))) {
-                $temp_array['memory_cost'] = $GLOBALS['gbl_' . $this->mode . '_argon_hash_memory_cost'];
+            if (($GLOBALS['gbl_auth_argon_hash_memory_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_argon_hash_memory_cost']))) {
+                $temp_array['memory_cost'] = $GLOBALS['gbl_auth_argon_hash_memory_cost'];
             }
-            if (($GLOBALS['gbl_' . $this->mode . '_argon_hash_time_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_' . $this->mode . '_argon_hash_time_cost']))) {
-                $temp_array['time_cost'] = $GLOBALS['gbl_' . $this->mode . '_argon_hash_time_cost'];
+            if (($GLOBALS['gbl_auth_argon_hash_time_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_argon_hash_time_cost']))) {
+                $temp_array['time_cost'] = $GLOBALS['gbl_auth_argon_hash_time_cost'];
             }
-            if (($GLOBALS['gbl_' . $this->mode . '_argon_hash_thread_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_' . $this->mode . '_argon_hash_thread_cost']))) {
-                $temp_array['threads'] = $GLOBALS['gbl_' . $this->mode . '_argon_hash_thread_cost'];
+            if (($GLOBALS['gbl_auth_argon_hash_thread_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_argon_hash_thread_cost']))) {
+                $temp_array['threads'] = $GLOBALS['gbl_auth_argon_hash_thread_cost'];
             }
             if (!empty($temp_array)) {
                 $this->options = $temp_array;
@@ -127,14 +101,14 @@ class AuthHash
         } elseif ($this->algo == "BCRYPT") {
             // Bcrypt - Using bcrypt and set up bcrypt options
             $this->algo_constant = PASSWORD_BCRYPT;
-            if (($GLOBALS['gbl_' . $this->mode . '_bcrypt_hash_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_' . $this->mode . '_bcrypt_hash_cost']))) {
-                $this->options = ['cost' => $GLOBALS['gbl_' . $this->mode . '_bcrypt_hash_cost']];
+            if (($GLOBALS['gbl_auth_bcrypt_hash_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_bcrypt_hash_cost']))) {
+                $this->options = ['cost' => $GLOBALS['gbl_auth_bcrypt_hash_cost']];
             }
         } elseif ($this->algo == "SHA512HASH") {
             // SHA512HASH - Using crypt and set up crypt option for this algo
             $this->algo_constant = $this->algo;
-            if (check_integer($GLOBALS['gbl_' . $this->mode . '_sha512_rounds'])) {
-                $this->options = ['rounds' => $GLOBALS['gbl_' . $this->mode . '_sha512_rounds']];
+            if (check_integer($GLOBALS['gbl_auth_sha512_rounds'])) {
+                $this->options = ['rounds' => $GLOBALS['gbl_auth_sha512_rounds']];
             } else {
                 $this->options = ['rounds' => 100000];
             }

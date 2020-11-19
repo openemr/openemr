@@ -21,11 +21,11 @@ use GuzzleHttp\Client;
 class ApiTestClient
 {
     const AUTHORIZATION_HEADER = "Authorization";
-    const OPENEMR_API_AUTH_ENDPOINT = "/apis/api/auth";
-    const OPENEMR_FHIR_API_AUTH_ENDPOINT = "/apis/fhir/auth";
+    const OPENEMR_AUTH_ENDPOINT = "/oauth2/default";
 
     protected $headers;
     protected $client;
+    protected $client_id;
 
     /**
      * Returns a configuration settings from the GuzzleHTTP client instance.
@@ -64,30 +64,59 @@ class ApiTestClient
      */
     public function setAuthToken($authURL, $credentials = array())
     {
-        if (!empty($credentials)) {
+        if (!empty($credentials) && !array_key_exists("client_id", $credentials)) {
             if (!array_key_exists("username", $credentials) || !array_key_exists("password", $credentials)) {
                 throw new \InvalidArgumentException("username and password credentials are required");
             }
         } else {
+            if (!empty($credentials['client_id'])) {
+                $this->client_id = $credentials['client_id'];
+            }
             $credentials["username"] = getenv("OE_USER", true) ?: "admin";
             $credentials["password"] = getenv("OE_PASS", true) ?: "pass";
         }
 
+        if (empty($this->client_id)) {
+            $this->getClient($authURL);
+        }
+
         $authBody = [
             "grant_type" => "password",
+            "client_id" => $this->client_id,
+            "user_role" => "users",
             "username" => $credentials["username"],
-            "password" => $credentials["password"],
-            "scope" => "default"
+            "password" => $credentials["password"]
         ];
-
-        $authResponse = $this->post($authURL, $authBody);
-
+        $this->headers = [
+            "Accept" => "application/json",
+            "Content-Type" => "application/x-www-form-urlencoded"
+        ];
+        $authResponse = $this->post($authURL . '/token', $authBody, false);
+        // set headers back to default
+        $this->headers = [
+            "Accept" => "application/json",
+            "Content-Type" => "application/json"
+        ];
         if ($authResponse->getStatusCode() == 200) {
             $responseBody = json_decode($authResponse->getBody());
             $this->headers[self::AUTHORIZATION_HEADER] = "Bearer " . $responseBody->access_token;
         }
 
         return $authResponse;
+    }
+
+    private function getClient($authURL)
+    {
+        $clientBody = [
+            "application_type" => "private",
+            "redirect_uris" => ["https://client.example.org/callback"],
+            "client_name" => "A Private App",
+            "token_endpoint_auth_method" => "client_secret_post",
+            "contacts" => ["me@example.org", "them@example.org"]
+        ];
+        $clientResponse = $this->post($authURL . '/registration', $clientBody);
+        $clientResponseBody = json_decode($clientResponse->getBody());
+        $this->client_id = $clientResponseBody->client_id;
     }
 
     /**
@@ -110,17 +139,16 @@ class ApiTestClient
     public function __construct($baseUrl, $isHttpErrorEnabled = true, $timeOut = 10)
     {
         $clientOptions = [
+            "verify" => false,
             "base_uri" => $baseUrl,
             "timeout" => $timeOut,
-            "http_errors" => $isHttpErrorEnabled,
-            "headers" => [
-                "Accept" => "application/json",
-                "Content-Type" => "application/json"
-            ]
+            "http_errors" => $isHttpErrorEnabled
         ];
-
         $this->client = new Client($clientOptions);
-        $this->headers = [];
+        $this->headers = [
+            "Accept" => "application/json",
+            "Content-Type" => "application/json"
+        ];
     }
 
     /**
@@ -129,12 +157,19 @@ class ApiTestClient
      * @param $body - The POST request body (array)
      * @return $postResponse - HTTP response
      */
-    public function post($url, $body)
+    public function post($url, $body, $json = true)
     {
-        $postResponse = $this->client->post($url, [
-            "headers" => $this->headers,
-            "body" => json_encode($body)
-        ]);
+        if ($json) {
+            $postResponse = $this->client->post($url, [
+                "headers" => $this->headers,
+                "body" => json_encode($body)
+            ]);
+        } else {
+            $postResponse = $this->client->post($url, [
+                "headers" => $this->headers,
+                "form_params" => $body
+            ]);
+        }
         return $postResponse;
     }
 

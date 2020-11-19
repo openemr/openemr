@@ -25,19 +25,9 @@ class ApiTestClientTest extends TestCase
      */
     protected function setUp(): void
     {
-        $baseUrl = getenv("OPENEMR_BASE_URL", true) ?: "http://localhost";
+        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $this->client = new ApiTestClient($baseUrl, false);
-    }
-
-    /**
-     * @return "array of arrays" of URLs used as a PHPUnit "DataProvider" for parametrized testing
-     */
-    public function baseUrlDataProvider()
-    {
-        return array(
-            array("OpenEMRBaseApiUrl" => ApiTestClient::OPENEMR_API_AUTH_ENDPOINT),
-            array("OpenEMRBaseFhirApiUrl" => ApiTestClient::OPENEMR_FHIR_API_AUTH_ENDPOINT)
-        );
+        $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
     }
 
     /**
@@ -64,50 +54,61 @@ class ApiTestClientTest extends TestCase
     }
 
     /**
-     * Tests OpenEMR REST and FHIR APIs when invalid credentials arguments are provided
+     * Tests the automated testing when invalid credentials arguments are provided
      * @covers ::setAuthToken with invalid credential argument
-     * @dataProvider baseUrlDataProvider
      */
-    public function testApiAuthInvalidArgs($baseUrl)
+    public function testApiAuthInvalidArgs()
     {
         try {
-            $this->client->setAuthToken($baseUrl, array("foo" => "bar"));
+            $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, array("foo" => "bar"));
             $this->assertFalse(true, "expected InvalidArgumentException");
         } catch (\InvalidArgumentException $e) {
             $this->assertTrue(true);
         }
 
         try {
-            $this->client->setAuthToken($baseUrl, array("username" => "bar"));
+            $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, array("username" => "bar"));
             $this->assertFalse(true, "expected InvalidArgumentException");
         } catch (\InvalidArgumentException $e) {
             $this->assertTrue(true);
         }
     }
-
     /**
-     * Tests OpenEMR REST and FHIR APIs when invalid credentials are provided
+     * Tests OpenEMR OAuth when invalid client id is provided
      * @covers ::setAuthToken with invalid credentials
-     * @dataProvider baseUrlDataProvider
      */
-    public function testApiAuthInvalidCredentials($baseUrl)
+    public function testApiAuthInvalidClientId()
     {
         $actualValue = $this->client->setAuthToken(
-            $baseUrl,
-            array("username" => "bar", "password" => "boo")
+            ApiTestClient::OPENEMR_AUTH_ENDPOINT,
+            ["client_id" => "ugk_IdaC2szz-k0vIqhE6DYIjevkYo41neRGGpZvYfsgg"]
         );
         $this->assertEquals(401, $actualValue->getStatusCode());
+        $this->assertEquals('invalid_client', json_decode($actualValue->getBody())->error);
+    }
+
+    /**
+     * Tests OpenEMR OAuth when invalid user credentials are provided
+     * @covers ::setAuthToken with invalid credentials
+     */
+    public function testApiAuthInvalidUserCredentials()
+    {
+        $actualValue = $this->client->setAuthToken(
+            ApiTestClient::OPENEMR_AUTH_ENDPOINT,
+            array("username" => "bar", "password" => "boo")
+        );
+        $this->assertEquals(400, $actualValue->getStatusCode());
+        $this->assertEquals('Failed Authentication', json_decode($actualValue->getBody())->hint);
     }
 
     /**
      * Tests OpenEMR API Auth for the REST and FHIR APIs
      * @cover ::setAuthToken
      * @cover ::removeAuthToken
-     * @dataProvider baseUrlDataProvider
      */
-    public function testApiAuth($baseUrl)
+    public function testApiAuth()
     {
-        $actualValue = $this->client->setAuthToken($baseUrl);
+        $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
 
         $actualHeaders = $this->client->getConfig("headers");

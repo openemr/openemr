@@ -18,15 +18,15 @@ use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
  */
 class PractitionerApiTest extends TestCase
 {
-    const PRACTITIONER_API_ENDPOINT = "/apis/api/practitioner";
+    const PRACTITIONER_API_ENDPOINT = "/apis/default/api/practitioner";
     private $testClient;
     private $fixtureManager;
 
     protected function setUp(): void
     {
-        $baseUrl = getenv("OPENEMR_BASE_URL", true) ?: "http://localhost";
+        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $this->testClient = new ApiTestClient($baseUrl, false);
-        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_API_AUTH_ENDPOINT);
+        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
         $this->fixtureManager = new PractitionerFixtureManager();
         $this->practitionerRecord = (array) $this->fixtureManager->getSinglePractitionerFixture();

@@ -2078,7 +2078,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'gbl_auth_bcrypt_hash_cost' => array(
-            xl('Authentication Token Bcrypt Hash Cost'),
+            xl('Authentication Bcrypt Hash Cost'),
             array(
                 'DEFAULT' => xl('PHP Default'),
                 '5' => '5',
@@ -2214,155 +2214,6 @@ $GLOBALS_METADATA = array(
             xl('Authentication SHA512 hash rounds number.')
         ),
 
-        'gbl_token_hash_algo' => array(
-            xl('Hash Algorithm for Token'),
-            array(
-                'DEFAULT' => xl('PHP Default'),
-                'BCRYPT' => 'Bcrypt',
-                'ARGON2I' => 'Argon2I',
-                'ARGON2ID' => 'Argon2ID',
-                'SHA512HASH' => 'SHA512 (ONC 2015)',
-            ),
-            'DEFAULT',                // default
-            xl('Hashing algorithm for token. Suggest PHP Default unless you know what you are doing.')
-        ),
-
-        'gbl_token_bcrypt_hash_cost' => array(
-            xl('Token Bcrypt Hash Cost'),
-            array(
-                'DEFAULT' => xl('PHP Default'),
-                '5' => '5',
-                '6' => '6',
-                '7' => '7',
-                '8' => '8',
-                '9' => '9',
-                '10' => '10',
-                '11' => '11',
-                '12' => '12',
-                '13' => '13',
-                '14' => '14',
-                '15' => '15',
-                '16' => '16',
-                '17' => '17',
-                '18' => '18',
-                '19' => '19',
-                '20' => '20',
-            ),
-            'DEFAULT',                // default
-            xl('Token bcrypt hash cost. Suggest PHP Default unless you know what you are doing.')
-        ),
-
-        'gbl_token_argon_hash_memory_cost' => array(
-            xl('Token Argon Hash Memory Cost'),
-            array(
-                'DEFAULT' => xl('PHP Default'),
-                '512' => '512',
-                '1024' => '1024',
-                '2048' => '2048',
-                '4096' => '4096',
-                '8192' => '8192',
-                '16384' => '16384',
-                '32768' => '32768',
-                '65536' => '65536',
-                '131072' => '131072',
-                '262144' => '262144',
-                '524288' => '524288',
-                '1048576' => '1048576',
-                '2097152' => '2097152',
-            ),
-            'DEFAULT',                // default
-            xl('Token argon hash memory cost. Suggest PHP Default unless you know what you are doing.')
-        ),
-
-        'gbl_token_argon_hash_time_cost' => array(
-            xl('Token Argon Hash Time Cost'),
-            array(
-                'DEFAULT' => xl('PHP Default'),
-                '1' => '1',
-                '2' => '2',
-                '3' => '3',
-                '4' => '4',
-                '5' => '5',
-                '6' => '6',
-                '7' => '7',
-                '8' => '8',
-                '9' => '9',
-                '10' => '10',
-                '11' => '11',
-                '12' => '12',
-                '13' => '13',
-                '14' => '14',
-                '15' => '15',
-                '16' => '16',
-                '17' => '17',
-                '18' => '18',
-                '19' => '19',
-                '20' => '20',
-            ),
-            'DEFAULT',                // default
-            xl('Token argon hash time cost. Suggest PHP Default unless you know what you are doing.')
-        ),
-
-        'gbl_token_argon_hash_thread_cost' => array(
-            xl('Token Argon Hash Thread Number'),
-            array(
-                'DEFAULT' => xl('PHP Default'),
-                '1' => '1',
-                '2' => '2',
-                '3' => '3',
-                '4' => '4',
-                '5' => '5',
-                '6' => '6',
-                '7' => '7',
-                '8' => '8',
-                '9' => '9',
-                '10' => '10',
-                '11' => '11',
-                '12' => '12',
-                '13' => '13',
-                '14' => '14',
-                '15' => '15',
-                '16' => '16',
-                '17' => '17',
-                '18' => '18',
-                '19' => '19',
-                '20' => '20',
-            ),
-            'DEFAULT',                // default
-            xl('Token argon hash thread number. Suggest PHP Default unless you know what you are doing.')
-        ),
-
-        'gbl_token_sha512_rounds' => array(
-            xl('Token SHA512 Hash Rounds Number'),
-            array(
-                '1000' => '1000',
-                '5000' => '5000',
-                '10000' => '10000',
-                '15000' => '15000',
-                '20000' => '20000',
-                '30000' => '30000',
-                '40000' => '40000',
-                '50000' => '50000',
-                '75000' => '75000',
-                '100000' => '100000',
-                '200000' => '200000',
-                '300000' => '300000',
-                '400000' => '400000',
-                '500000' => '500000',
-                '750000' => '750000',
-                '1000000' => '1000000',
-                '2000000' => '2000000',
-                '3000000' => '3000000',
-                '4000000' => '4000000',
-                '5000000' => '5000000',
-                '6000000' => '6000000',
-                '7000000' => '7000000',
-                '8000000' => '8000000',
-                '9000000' => '9000000',
-            ),
-            '100000',                // default
-            xl('Token SHA512 hash rounds number.')
-        ),
     ),
 
     // Notifications Tab
@@ -3080,10 +2931,10 @@ $GLOBALS_METADATA = array(
     'Connectors' => array(
 
         'site_addr_oath' => array(
-            xl('Site Address (required for oauth2 and fhir)'),
+            xl('Site Address (required for OAuth2 and FHIR)'),
             'text',
             '',
-            xl('Site Address (required for oauth2 and fhir). Example is') . ' https://localhost:8300 .'
+            xl('Site Address (required for OAuth2 and FHIR). Example is') . ' https://localhost:8300 .'
         ),
 
         'rest_api' => array(
@@ -3115,7 +2966,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'oauth_password_grant' => array(
-            xl('Enable Oauth2 Password Grant (Not considered secure)'),
+            xl('Enable OAuth2 Password Grant (Not considered secure)'),
             array(
                 0 => xl('Off (Recommended setting)'),
                 1 => xl('On for Users Role'),
@@ -3123,7 +2974,7 @@ $GLOBALS_METADATA = array(
                 3 => xl('On for Both Roles')
             ),
             '0',
-            xl('Enable Oauth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
+            xl('Enable OAuth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
         ),
 
         'fhir_enable' => array(
