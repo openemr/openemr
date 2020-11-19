@@ -565,7 +565,8 @@ jobs:
         - *ccda_build
         - *install_configure
         - *build_test_unit
-        - *build_test_api
+        #- *build_test_e2e
+        #- *build_test_api
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
