@@ -54,6 +54,14 @@ class AuthHash
                 $this->algo = "ARGON2I";
             } elseif (PASSWORD_DEFAULT == PASSWORD_ARGON2ID) {
                 $this->algo = "ARGON2ID";
+            } elseif (PASSWORD_DEFAULT == "") {
+                // In theory, should never get here, however:
+                //  php 7.4 changed to using strings rather than integers for these constants
+                //   and notably appears to have left PASSWORD_DEFAULT blank in several php 7.4
+                //   releases rather than setting it to a default (this was fixed in php8).
+                //   So, in this situation, best to default to php 7.4 default protocol
+                //   (since will only get here in php 7.4), which is BCRYPT.
+                $this->algo = "BCRYPT";
             } else {
                 // $this->algo will stay "DEFAULT", which should never happen.
                 // But if this does happen, will then not support any custom
