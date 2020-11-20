@@ -615,9 +615,9 @@ if (!file_exists($webserver_root . "/interface/modules/")) {
 $encounter = empty($_SESSION['encounter']) ? 0 : $_SESSION['encounter'];
 
 if (!empty($_GET['pid']) && empty($_SESSION['pid'])) {
-    $_SESSION['pid'] = $_GET['pid'];
+    OpenEMR\Common\Session\SessionUtil::setSession('pid', $_GET['pid']);
 } elseif (!empty($_POST['pid']) && empty($_SESSION['pid'])) {
-    $_SESSION['pid'] = $_POST['pid'];
+    OpenEMR\Common\Session\SessionUtil::setSession('pid', $_POST['pid']);
 }
 
 $pid = empty($_SESSION['pid']) ? 0 : $_SESSION['pid'];
