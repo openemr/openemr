@@ -125,7 +125,14 @@ class AuthorizationController
                 exit;
             }
             // second, create and store the private/public key pair
-            $keys = \openssl_pkey_new(["default_md" => "sha256", "private_key_bits" => 2048, "private_key_type" => OPENSSL_KEYTYPE_RSA]);
+            $keysConfig = [
+                "default_md" => "sha256",
+                "private_key_type" => OPENSSL_KEYTYPE_RSA,
+                "private_key_bits" => 2048,
+                "encrypt_key" => true,
+                "encrypt_key_cipher" => OPENSSL_CIPHER_AES_256_CBC
+            ];
+            $keys = \openssl_pkey_new($keysConfig);
             if ($keys === false) {
                 // if unable to create keys, then force exit
                 error_log("OpenEMR error - key generation broken during oauth2, so forced exit");
@@ -133,7 +140,7 @@ class AuthorizationController
                 exit;
             }
             $privkey = '';
-            openssl_pkey_export($keys, $privkey, $this->passphrase);
+            openssl_pkey_export($keys, $privkey, $this->passphrase, $keysConfig);
             $pubkey = openssl_pkey_get_details($keys);
             $pubkey = $pubkey["key"];
             if (empty($privkey) || empty($pubkey)) {
