@@ -35,6 +35,8 @@ class PractitionerApiTest extends TestCase
     protected function tearDown(): void
     {
         $this->fixtureManager->removePractitionerFixtures();
+        $this->testClient->cleanupRevokeAuth();
+        $this->testClient->cleanupClient();
     }
 
     /**

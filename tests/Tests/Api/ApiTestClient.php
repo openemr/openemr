@@ -22,10 +22,13 @@ class ApiTestClient
 {
     const AUTHORIZATION_HEADER = "Authorization";
     const OPENEMR_AUTH_ENDPOINT = "/oauth2/default";
+    const OAUTH_LOGOUT = "/oauth2/default/logout";
 
     protected $headers;
     protected $client;
     protected $client_id;
+    protected $access_token;
+    protected $id_token;
 
     /**
      * Returns a configuration settings from the GuzzleHTTP client instance.
@@ -83,6 +86,7 @@ class ApiTestClient
         $authBody = [
             "grant_type" => "password",
             "client_id" => $this->client_id,
+            "scope" => "openid",
             "user_role" => "users",
             "username" => $credentials["username"],
             "password" => $credentials["password"]
@@ -100,6 +104,7 @@ class ApiTestClient
         if ($authResponse->getStatusCode() == 200) {
             $responseBody = json_decode($authResponse->getBody());
             $this->headers[self::AUTHORIZATION_HEADER] = "Bearer " . $responseBody->access_token;
+            $this->id_token = $responseBody->id_token;
         }
 
         return $authResponse;
@@ -127,6 +132,17 @@ class ApiTestClient
         if (array_key_exists(self::AUTHORIZATION_HEADER, $this->headers)) {
             unset($this->headers[self::AUTHORIZATION_HEADER]);
         }
+    }
+
+    public function cleanupClient()
+    {
+        sqlStatementNoLog("DELETE FROM `oauth_clients` WHERE `client_id` = ?", [$this->client_id]);
+        sqlStatementNoLog("DELETE FROM `api_token` WHERE `client_id` = ?", [$this->client_id]);
+    }
+
+    public function cleanupRevokeAuth()
+    {
+        return $this->get(self::OAUTH_LOGOUT, ['id_token_hint' => $this->id_token]);
     }
 
     /**

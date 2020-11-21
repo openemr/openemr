@@ -24,12 +24,14 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Crypto\CryptoGen;
+
 // The location/name of a temporary file to hold printable statements.
 // May want to alter these names to allow multi-site installs out-of-the-box
 
 $STMT_TEMP_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_statements.txt";
 $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/openemr_statements.pdf";
-$STMT_PRINT_CMD = $GLOBALS['print_command'];
+$STMT_PRINT_CMD = (new CryptoGen())->decryptStandard($GLOBALS['more_secure']['print_command']);
 
 /** There are two options to print a batch of PDF statements:
  *  1.  The original statement, a text based statement, using CezPDF

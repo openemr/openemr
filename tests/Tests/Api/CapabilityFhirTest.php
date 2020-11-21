@@ -28,6 +28,12 @@ class CapabilityFhirTest extends TestCase
         $this->testClient = new ApiTestClient($baseUrl, false);
     }
 
+    public function tearDown() : void
+    {
+        $this->testClient->cleanupRevokeAuth();
+        $this->testClient->cleanupClient();
+    }
+
     /**
      * @covers ::get with an invalid path
      */

@@ -39,6 +39,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -297,7 +298,9 @@ class AuthorizationController
             $body->write(json_encode(array_merge($client_json, $params)));
 
             $this->emitResponse($response->withStatus(200)->withBody($body));
+            SessionUtil::oauthSessionCookieDestroy();
         } catch (OAuthServerException $exception) {
+            SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         }
     }
@@ -413,7 +416,9 @@ class AuthorizationController
             $body->write(json_encode($params));
 
             $this->emitResponse($response->withStatus(200)->withBody($body));
+            SessionUtil::oauthSessionCookieDestroy();
         } catch (OAuthServerException $exception) {
+            SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         }
     }
@@ -463,8 +468,10 @@ class AuthorizationController
                 exit;
             }
         } catch (OAuthServerException $exception) {
+            SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
+            SessionUtil::oauthSessionCookieDestroy();
             $body = $response->getBody();
             $body->write($exception->getMessage());
             $this->emitResponse($response->withStatus(500)->withBody($body));
@@ -568,7 +575,17 @@ class AuthorizationController
         }
         $continueLogin = false;
         if (isset($_POST['user_role'])) {
-            $continueLogin = $this->verifyLogin($_POST['username'], $_POST['password'], $_POST['email'], $_POST['user_role']);
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'oauth2')) {
+                CsrfUtils::csrfNotVerified(false, true, false);
+                unset($_POST['username'], $_POST['password']);
+                $invalid = "Sorry, Invalid CSRF!"; // todo: display error
+                $oauthLogin = true;
+                $redirect = $this->authBaseUrl . "/login";
+                require_once(__DIR__ . "/../../oauth2/provider/login.php");
+                exit();
+            } else {
+                $continueLogin = $this->verifyLogin($_POST['username'], $_POST['password'], $_POST['email'], $_POST['user_role']);
+            }
         }
         unset($_POST['username'], $_POST['password']);
         if (!$continueLogin) {
@@ -643,13 +660,22 @@ class AuthorizationController
             // stash appropriate session for token endpoint.
             unset($_SESSION['authRequestSerial']);
             unset($_SESSION['claims']);
+            $csrf_private_key = $_SESSION['csrf_private_key']; // switcheroo so this does not end up in the session cache
+            unset($_SESSION['csrf_private_key']);
             $session_cache = json_encode($_SESSION, JSON_THROW_ON_ERROR);
+            $_SESSION['csrf_private_key'] = $csrf_private_key;
+            unset($csrf_private_key);
             $code = [];
             // parse scope as also a query param if needed
             parse_str($authorization, $code);
             $code = $code["code"];
             if (isset($_POST['proceed']) && !empty($code) && !empty($session_cache)) {
-                $this->saveTrustedUser($_SESSION['client_id'], $_SESSION['user_id'], $_SESSION['scopes'], $_SESSION['persist_login'], $code, $session_cache);
+                if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'oauth2')) {
+                    CsrfUtils::csrfNotVerified(false, true, false);
+                    throw OAuthServerException::serverError("Failed authorization due to failed CSRF check.");
+                } else {
+                    $this->saveTrustedUser($_SESSION['client_id'], $_SESSION['user_id'], $_SESSION['scopes'], $_SESSION['persist_login'], $code, $session_cache);
+                }
             } else {
                 if (empty($_SESSION['csrf'])) {
                     throw OAuthServerException::serverError("Failed authorization due to missing data.");
@@ -657,6 +683,7 @@ class AuthorizationController
             }
             // Return the HTTP redirect response. Redirect is to client callback.
             $this->emitResponse($result);
+            SessionUtil::oauthSessionCookieDestroy();
             exit;
         } catch (Exception $exception) {
             SessionUtil::oauthSessionCookieDestroy();
@@ -738,7 +765,8 @@ class AuthorizationController
                 $body->rewind();
                 // yep, even password grant gets one. could be useful.
                 $code = json_decode($body->getContents(), true, 512, JSON_THROW_ON_ERROR)['id_token'];
-                $session_cache = json_encode($_SESSION);
+                unset($_SESSION['csrf_private_key']); // gotta remove since binary and will break json_encode (not used for password granttype, so ok to remove)
+                $session_cache = json_encode($_SESSION, JSON_THROW_ON_ERROR);
                 $this->saveTrustedUser($_REQUEST['client_id'], $_SESSION['pass_user_id'], $_REQUEST['scope'], 0, $code, $session_cache, 'password');
             }
             SessionUtil::oauthSessionCookieDestroy();
@@ -798,8 +826,10 @@ class AuthorizationController
                 // not logged in so just continue as if were.
                 $message = xlt("You are currently not signed in.");
                 if (!empty($post_logout_url)) {
+                    SessionUtil::oauthSessionCookieDestroy();
                     header('Location:' . $post_logout_url . "?state=$state");
                 } else {
+                    SessionUtil::oauthSessionCookieDestroy();
                     die($message);
                 }
                 exit;
@@ -813,12 +843,15 @@ class AuthorizationController
             $rtn = sqlQueryNoLog("DELETE FROM `oauth_trusted_user` WHERE `oauth_trusted_user`.`id` = ?", array($trustedUser['id']));
             $client = sqlQueryNoLog("SELECT logout_redirect_uris as valid FROM `oauth_clients` WHERE `client_id` = ? AND `logout_redirect_uris` = ?", array($client_id, $post_logout_url));
             if (!empty($post_logout_url) && !empty($client['valid'])) {
+                SessionUtil::oauthSessionCookieDestroy();
                 header('Location:' . $post_logout_url . "?state=$state");
             } else {
                 $message = xlt("You have been signed out. Thank you.");
+                SessionUtil::oauthSessionCookieDestroy();
                 die($message);
             }
         } catch (OAuthServerException $exception) {
+            SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         }
     }

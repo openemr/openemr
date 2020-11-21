@@ -133,6 +133,7 @@ if ($isLocalApi) {
         // user is not logged on to server with an active session.
         // too me this is easier than revoking tokens or using phantom tokens.
         // give a 400(unsure here, could be a 401) so client can redirect to server.
+        $gbl::destroySession();
         $gbl::emitResponse($isTrusted);
         exit;
     }

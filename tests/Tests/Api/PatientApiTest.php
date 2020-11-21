@@ -36,6 +36,8 @@ class PatientApiTest extends TestCase
     protected function tearDown(): void
     {
         $this->fixtureManager->removePatientFixtures();
+        $this->testClient->cleanupRevokeAuth();
+        $this->testClient->cleanupClient();
     }
 
     /**

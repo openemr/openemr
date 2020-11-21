@@ -1,5 +1,10 @@
 <?php
 
+if ($oauthdisc !== true) {
+    echo xlt("Error. Not authorized");
+    exit();
+}
+
 global $authServer;
 $base_url = $authServer->authBaseFullUrl;
 

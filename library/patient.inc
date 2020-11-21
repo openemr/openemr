@@ -642,10 +642,10 @@ function getByPatientDemographicsFilter(
         }
 
         if ($val == 'pid') {
-            $where .= " " . add_escape_custom($val) . " = ? ";
+            $where .= " " . escape_sql_column_name($val, ['patient_data']) . " = ? ";
                 array_push($sqlBindArray, $searchTerm);
         } else {
-            $where .= " " . add_escape_custom($val) . " like ? ";
+            $where .= " " . escape_sql_column_name($val, ['patient_data']) . " like ? ";
                 array_push($sqlBindArray, $searchTerm . "%");
         }
 

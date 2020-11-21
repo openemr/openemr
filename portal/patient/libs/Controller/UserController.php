@@ -76,14 +76,37 @@ class UserController extends AppBaseController
 
             $page = RequestUtil::Get('page');
 
-                // return all results
-                $users = $this->Phreezer->Query('User', $criteria);
-                $output->rows = $users->ToObjectArray(true, $this->SimpleObjectParams());
-                $output->totalResults = count($output->rows);
-                $output->totalPages = 1;
-                $output->pageSize = $output->totalResults;
-                $output->currentPage = 1;
+            // return all results
+            $users = $this->Phreezer->Query('User', $criteria);
 
+            $output->rows = $users->ToObjectArray(true, $this->SimpleObjectParams());
+            $output->totalResults = count($output->rows);
+            $output->totalPages = 1;
+            $output->pageSize = $output->totalResults;
+            $output->currentPage = 1;
+
+            if (!empty($GLOBALS['bootstrap_register']) || !empty($GLOBALS['bootstrap_pid'])) {
+                // in this case, only provide id, fname, lname, speciality, active, authorized
+                $outputToJson = json_encode($output);
+                $jsonToArr = json_decode($outputToJson, true);
+                $newArr = [];
+                foreach ($jsonToArr as $akey => $avalue) {
+                    if ($akey == "rows") {
+                        foreach ($avalue as $bkey => $bvalue) {
+                                foreach ($bvalue as $ckey => $cvalue) {
+                                    if (($ckey == 'id') || ($ckey == 'fname') || ($ckey == 'lname') || ($ckey == 'specialty') || ($ckey == 'active') || ($ckey == 'authorized')) {
+                                        $newArr[$akey][$bkey][$ckey] = $cvalue;
+                                    }
+                                }
+                        }
+                    } else {
+                        $newArr[$akey] = $avalue;
+                    }
+                }
+                $arrToJson = json_encode($newArr);
+                $jsonToObject = json_decode($arrToJson);
+                $output = $jsonToObject;
+            }
             $this->RenderJSON($output, $this->JSONPCallback());
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);

@@ -29,10 +29,13 @@ $_GET['site'] = $gbl::$SITE;
 $ignoreAuth = true;
 require_once __DIR__ . '/../interface/globals.php';
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\RestControllers\AuthorizationController;
 
 // exit if api is not turned on
 if (empty($GLOBALS['rest_api']) && empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_api']) && empty($GLOBALS['rest_portal_fhir_api'])) {
+    SessionUtil::oauthSessionCookieDestroy();
     http_response_code(404);
     exit;
 }
@@ -41,8 +44,15 @@ if (empty($GLOBALS['rest_api']) && empty($GLOBALS['rest_fhir_api']) && empty($GL
 if (empty($gbl::$SITE) || empty($_SESSION['site_id']) || preg_match('/[^A-Za-z0-9\\-.]/', $gbl::$SITE) || ($gbl::$SITE != $_SESSION['site_id']) || !file_exists($GLOBALS['OE_SITES_BASE'] . '/' . $_SESSION['site_id'])) {
     // error collecting site
     error_log("OpenEMR error - oauth2 error since unable to properly collect site, so forced exit");
+    SessionUtil::oauthSessionCookieDestroy();
     http_response_code(400);
     exit;
+}
+
+// set up csrf
+//  used to prevent csrf in the 2 different types of submissions by oauth2/provider/login.php
+if (empty($_SESSION['csrf_private_key'])) {
+    CsrfUtils::setupCsrfKey();
 }
 
 $end_point = $gbl::getRequestEndPoint();
@@ -50,38 +60,57 @@ $end_point = $gbl::getRequestEndPoint();
 $authServer = new AuthorizationController();
 
 if (false !== stripos($end_point, '/token')) {
+    // session is destroyed within below function
     $authServer->oauthAuthorizeToken();
+    exit;
 }
 
 if (false !== stripos($end_point, '/openid-configuration')) {
+    $oauthdisc = true;
     require_once("provider/.well-known/discovery.php");
+    SessionUtil::oauthSessionCookieDestroy();
+    exit;
 }
 
 if (false !== stripos($end_point, '/authorize')) {
+    // session is destroyed (when throws exception) within below function
     $authServer->oauthAuthorizationFlow();
+    exit;
 }
 
 if (false !== stripos($end_point, '/device/code')) {
+    // session is destroyed within below function
     $authServer->authorizeUser();
+    exit;
 }
 
 if (false !== stripos($end_point, '/jwk')) {
     $oauthjwk = true;
     require_once(__DIR__ . "/provider/jwk.php");
+    SessionUtil::oauthSessionCookieDestroy();
+    exit;
 }
 
 if (false !== stripos($end_point, '/login')) {
+    // session is maintained
     $authServer->userLogin();
+    exit;
 }
 
 if (false !== stripos($end_point, '/registration')) {
+    // session is destroyed within below function
     $authServer->clientRegistration();
+    exit;
 }
 
 if (false !== stripos($end_point, '/client')) {
+    // session is destroyed within below function
     $authServer->clientRegisteredDetails();
+    exit;
 }
 
 if (false !== stripos($end_point, '/logout')) {
+    // session is destroyed within below function
     $authServer->userSessionLogout();
+    exit;
 }

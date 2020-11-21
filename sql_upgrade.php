@@ -13,6 +13,8 @@
 
 /* @TODO add language selection. needs RTL testing */
 
+$GLOBALS['ongoing_sql_upgrade'] = true;
+
 if (php_sapi_name() === 'cli') {
     // setting for when running as command line script
     // need this for output to be readable when running as command line

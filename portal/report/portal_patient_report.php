@@ -30,8 +30,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     exit;
 }
 
-$ignoreAuth = true;
-global $ignoreAuth;
+$ignoreAuth_onsite_portal = true;
+global $ignoreAuth_onsite_portal;
 
 require_once('../../interface/globals.php');
 require_once("$srcdir/lists.inc");
@@ -49,7 +49,7 @@ $auth_relaxed  = true; //AclMain::aclCheckCore('encounters', 'relaxed');
 $auth_med      = true; //AclMain::aclCheckCore('patients'  , 'med');
 $auth_demo     = true; //AclMain::aclCheckCore('patients'  , 'demo');
 
-$ignoreAuth = 1;
+$ignoreAuth_onsite_portal = true;
 ?>
 
 <?php Header::setupAssets('textformat'); ?>

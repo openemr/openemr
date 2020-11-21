@@ -1,5 +1,29 @@
 <?php
 
+use OpenEMR\Common\Crypto\CryptoGen;
+
+// globals that require more security
+//  The set of globals below can only be modified directly in this script (ie. can not be set while using OpenEMR) and
+//  they will be encrypted while stored in globals object in memory (to not allow overriding of the global if bad actor
+//  somehow gets access to globals).
+// note that need to skip this block of code during upgrading (or else will have database issues since no keys table)
+if (empty($GLOBALS['ongoing_sql_upgrade'])) {
+    $cryptoGen = new CryptoGen();
+    // Print command for spooling to printers, used by statements.inc.php
+    //   This is the command to be used for printing (without the filename).
+    //   The word following "-P" should be the name of your printer.  This
+    //   example is designed for 8.5x11-inch paper with 1-inch margins,
+    //   10 CPI, 6 LPI, 65 columns, 54 lines per page.
+    // If lpr services are installed on Windows this setting will be similar
+    //   Otherwise configure it as needed (print /d:PRN) might be an option for Windows parallel printers
+    $GLOBALS['more_secure']['print_command'] = 'lpr -P HPLaserjet6P -o cpi=10 -o lpi=6 -o page-left=72 -o page-top=72';
+    //Enscript command used by Hylafax.
+    $GLOBALS['more_secure']['hylafax_enscript'] = 'enscript -M Letter -B -e^ --margins=36:36:36:36';
+    foreach ($GLOBALS['more_secure'] as $key => $value) {
+        $GLOBALS['more_secure'][$key] = $cryptoGen->encryptStandard($value);
+    }
+}
+
 //used differently by different applications, intuit programs only like numbers
 $GLOBALS['oer_config']['ofx']['bankid']     = "123456789";
 

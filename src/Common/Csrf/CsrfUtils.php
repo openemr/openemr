@@ -68,7 +68,7 @@ class CsrfUtils
     }
 
     // Function to manage when a csrf token is not verified
-    public static function csrfNotVerified($toScreen = true, $toLog = true)
+    public static function csrfNotVerified($toScreen = true, $toLog = true, $die = true)
     {
         if ($toScreen) {
             echo xlt('Authentication Error');
@@ -76,6 +76,8 @@ class CsrfUtils
         if ($toLog) {
             error_log("OpenEMR CSRF token authentication error");
         }
-        die;
+        if ($die) {
+            die;
+        }
     }
 }

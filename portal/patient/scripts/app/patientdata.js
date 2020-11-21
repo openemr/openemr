@@ -483,7 +483,7 @@ var page = {
             wait: true,
             success: function () {
                 if (live !== 1) {
-                    setTimeout("app.appendAlert('Patient was sucessfully " + (isNew ? "inserted" : "updated") + "','alert-success',2000,'collectionAlert')", 200);
+                    setTimeout("app.appendAlert('Patient was successfully " + (isNew ? "inserted" : "updated") + "','alert-success',2000,'collectionAlert')", 200);
                     setTimeout("window.location.href ='" + webRoot + "/portal/home.php'", 2500);
                 } else if (live === 1 && register !== '0') { // for testing
                     //alert('Save Success');
