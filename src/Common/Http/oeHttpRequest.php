@@ -19,7 +19,7 @@ namespace OpenEMR\Common\Http;
  *
  * @package OpenEMR\Common\Http
  */
-class oeHttpRequest extends oeOAuth
+class oeHttpRequest extends oeHttp
 {
     public function __construct($client)
     {
