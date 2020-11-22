@@ -302,21 +302,6 @@ require_once("$srcdir/options.js.php");
         });
     }
 
-    function doPublish() {
-        let title = <?php echo xlj('Publish Patient to FHIR Server'); ?>;
-        let url = top.webroot_url + '/phpfhir/providerPublishUI.php?patient_id=' + <?php echo js_url($pid); ?>;
-
-        dlgopen(url, 'publish', 'modal-mlg', 750, '', '', {
-            buttons: [
-                {text: <?php echo xlj('Done'); ?>, close: true, style: 'secondary btn-sm'}
-            ],
-            allowResize: true,
-            allowDrag: true,
-            dialogId: '',
-            type: 'iframe'
-        });
-    }
-
     /**
      * async function fetchHtml(...)
      *

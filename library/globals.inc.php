@@ -2977,24 +2977,6 @@ $GLOBALS_METADATA = array(
             xl('Enable OAuth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
         ),
 
-        'fhir_enable' => array(
-            xl('Enable FHIR Provider Client Service'),
-            array(
-                0 => xl('Disabled'),
-                1 => xl('HAPI FHIR'),
-                2 => xl('Smart on FHIR'),
-            ),
-            '0',
-            xl('Enable FHIR Provider Client Service')
-        ),
-
-        'fhir_base_url' => array(
-            xl('FHIR Server Base Address'),
-            'text',
-            'https://hapi.fhir.org/baseDstu3/',
-            xl('Base URL for FHIR Server.')
-        ),
-
         'payment_gateway' => array(
             xl('Select Credit Card Payment Gateway'),
             array(
