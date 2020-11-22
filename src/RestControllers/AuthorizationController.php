@@ -22,7 +22,6 @@ use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
-use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -491,7 +490,7 @@ class AuthorizationController
             $grant = new AuthCodeGrant(
                 new AuthCodeRepository(),
                 new RefreshTokenRepository(),
-                new \DateInterval('PT1M') // auth token. should be short turn around.
+                new \DateInterval('PT1M') // auth code. should be short turn around.
             );
             $grant->setRefreshTokenTTL(new \DateInterval('P3M')); // minimum per ONC
             $authServer->enableGrantType(
@@ -640,6 +639,7 @@ class AuthorizationController
             unset($_SESSION['claims']);
             $session_cache = json_encode($_SESSION, JSON_THROW_ON_ERROR);
             $code = [];
+            // parse scope as also a query param if needed
             parse_str($authorization, $code);
             $code = $code["code"];
             if (isset($_POST['proceed']) && !empty($code) && !empty($session_cache)) {
@@ -649,7 +649,7 @@ class AuthorizationController
                     throw OAuthServerException::serverError("Failed authorization due to missing data.");
                 }
             }
-            // Return the HTTP redirect response
+            // Return the HTTP redirect response. Redirect is to client callback.
             $this->emitResponse($result);
             exit;
         } catch (Exception $exception) {
@@ -699,19 +699,30 @@ class AuthorizationController
     {
         $response = $this->createServerResponse();
         $request = $this->createServerRequest();
+
+        // authorization code which is normally only sent for new tokens
+        // by the authorization grant flow.
+        $code = $request->getParsedBody()['code'] ?? null;
+        // grantType could be authorization_code, password or refresh_token.
         $this->grantType = $request->getParsedBody()['grant_type'];
-        $code = $request->getParsedBody()['code'];
         if ($this->grantType === 'authorization_code') {
-            // populate saved session for this scenario
+            // re-populate from saved session cache populated in authorizeUser().
             $ssbc = $this->sessionUserByCode($code);
             $_SESSION = json_decode($ssbc['session_cache'], true);
         }
-
+        if ($this->grantType === 'refresh_token') {
+            // Adding site to POSTs scope then re-init PSR request to include.
+            // This is usually done in ScopeRepository finalizeScopes() method!
+            // which is not called for a refresh/access token swap.
+            $_POST['scope'] .= (" site:" . $_SESSION['site_id']);
+            $request = $this->createServerRequest();
+        }
+        // Finally time to init the server.
         $server = $this->getAuthorizationServer();
         try {
             if (($this->grantType === 'authorization_code') && empty($_SESSION['csrf'])) {
                 // the saved session was not populated as expected
-                throw OAuthServerException::serverError("User session corrupt");
+                throw OAuthServerException::serverError("This session doesn't pass security");
             }
             $result = $server->respondToAccessTokenRequest($request, $response);
             $this->emitResponse($result);
