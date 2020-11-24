@@ -19,6 +19,7 @@ use OpenEMR\Tests\Api\ApiTestClient;
 class ApiTestClientTest extends TestCase
 {
     const EXAMPLE_API_ENDPOINT = "/apis/default/api/facility";
+    const EXAMPLE_API_ENDPOINT_INVALID_SITE = "/apis/baddefault/api/facility";
 
     /**
      * Configures the test client using environment variables and reasonable defaults
@@ -131,6 +132,20 @@ class ApiTestClientTest extends TestCase
         $this->assertEquals(200, $actualValue->getStatusCode());
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
+        $this->client->removeAuthToken();
+        $actualHeaders = $this->client->getConfig("headers");
+        $this->assertArrayNotHasKey("Authorization", $actualHeaders);
+    }
+
+    /**
+     * Tests OpenEMR API Example Endpoint with Invalid Site After Getting Auth for the REST and FHIR APIs
+     */
+    public function testApiAuthExampleUseBadSite()
+    {
+        $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->assertEquals(200, $actualValue->getStatusCode());
+        $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT_INVALID_SITE);
+        $this->assertEquals(400, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);

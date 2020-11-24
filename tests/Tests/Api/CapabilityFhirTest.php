@@ -18,6 +18,8 @@ use OpenEMR\Tests\Api\ApiTestClient;
 class CapabilityFhirTest extends TestCase
 {
     const CAPABILITY_FHIR_ENDPOINT = "/apis/default/fhir/metadata";
+    const CAPABILITY_FHIR_ENDPOINT_INVALID_SITE = "/apis/baddefault/fhir/metadata";
+
     private $testClient;
 
     protected function setUp(): void
@@ -29,10 +31,19 @@ class CapabilityFhirTest extends TestCase
     /**
      * @covers ::get with an invalid path
      */
-    public function testInvalidGet()
+    public function testInvalidPathGet()
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT . "ss");
         $this->assertEquals(401, $actualResponse->getStatusCode());
+    }
+
+    /**
+     * @covers ::get with an invalid site
+     */
+    public function testInvalidSiteGet()
+    {
+        $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT_INVALID_SITE);
+        $this->assertEquals(400, $actualResponse->getStatusCode());
     }
 
     /**
