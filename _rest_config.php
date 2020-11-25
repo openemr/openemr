@@ -212,6 +212,24 @@ class RestConfig
         return $raw;
     }
 
+    public static function isTrustedUser($clientId, $userId)
+    {
+        $response = self::createServerResponse();
+        try {
+            $trusted = sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ?", array($clientId, $userId));
+            if (empty($trusted['session_cache'])) {
+                throw new OAuthServerException('Refresh Token revoked or logged out', 0, 'invalid _request', 400);
+            }
+        } catch (OAuthServerException $exception) {
+            return $exception->generateHttpResponse($response);
+        } catch (\Exception $exception) {
+            return (new OAuthServerException($exception->getMessage(), 0, 'unknown_error', 500))
+                ->generateHttpResponse($response);
+        }
+
+        return $trusted;
+    }
+
     public static function createServerResponse(): ResponseInterface
     {
         $psr17Factory = new Psr17Factory();
