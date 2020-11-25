@@ -297,6 +297,17 @@ class RestConfig
         return stripos(strtolower($resource), "/api/") !== false;
     }
 
+    public static function skipApiAuth($resource): bool
+    {
+        // ensure 1) sane site and 2) ensure the site exists on filesystem before even considering for skip api auth
+        if (empty(self::$SITE) || preg_match('/[^A-Za-z0-9\\-.]/', self::$SITE) || !file_exists(__DIR__ . '/sites/' . self::$SITE)) {
+            error_log("OpenEMR Error - api site error, so forced exit");
+            http_response_code(400);
+            exit();
+        }
+        return ($resource === ("/" . self::$SITE . "/fhir/metadata"));
+    }
+
     public static function apiLog($response = '', $requestBody = ''): void
     {
         // only log when using standard api calls (skip when using local api calls from within OpenEMR)
