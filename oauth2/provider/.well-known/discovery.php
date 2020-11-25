@@ -16,6 +16,7 @@ $discovery = <<<TEMPLATE
 "jwks_uri": "$base_url/jwk",
 "userinfo_endpoint": "$base_url/userinfo",
 "registration_endpoint": "$base_url/registration",
+"end_session_endpoint": "$base_url/logout",
 "scopes_supported": [
     "openid",
     "profile",
@@ -24,6 +25,7 @@ $discovery = <<<TEMPLATE
     "family_name",
     "nickname",
     "phone",
+    "phone_verified",
     "address",
     "email",
     "email_verified",

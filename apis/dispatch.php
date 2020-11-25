@@ -126,6 +126,19 @@ if ($isLocalApi) {
 } elseif ($skipApiAuth) {
     // For endpoints that do not require auth, such as the capability statement
 } else {
+    // verify that user tokens haven't been revoked.
+    // this is done by verifying the user is trusted with active auth session.
+    $isTrusted = $gbl::isTrustedUser($attributes["oauth_client_id"], $attributes["oauth_user_id"]);
+    if ($isTrusted instanceof ResponseInterface) {
+        // user is not logged on to server with an active session.
+        // too me this is easier than revoking tokens or using phantom tokens.
+        // give a 400(unsure here, could be a 401) so client can redirect to server.
+        $gbl::emitResponse($isTrusted);
+        exit;
+    }
+    // $isTrusted can be used for further validations using session_cache
+    // which is a json. json_decode($isTrusted['session_cache'])
+
     // authenticate the token
     if (!$gbl->authenticateUserToken($tokenId, $userId)) {
         $gbl::destroySession();
