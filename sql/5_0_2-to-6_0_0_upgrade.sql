@@ -2400,6 +2400,6 @@ ALTER TABLE `api_token` DROP COLUMN `user_role`;
 ALTER TABLE `oauth_trusted_user` DROP COLUMN `user_role`;
 #EndIf
 
-#IfNotColumnType oauth_clients logout_redirect_uris
+#IfMissingColumn oauth_clients logout_redirect_uris
 ALTER TABLE `oauth_clients` ADD `logout_redirect_uris` text;
 #EndIf
