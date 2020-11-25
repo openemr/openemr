@@ -113,13 +113,15 @@ OpenEMR uses OIDC compliant authorization for API. SSL is required and setting b
 
 #### Registration
 
-Here is an example for registering a client. A client needs to be registered before applying for grant to obtain access/refresh tokens.
+Here is an example for registering a client. A client needs to be registered before applying for grant to obtain access/refresh tokens. Note: "post_logout_redirect_uris" is optional and only used if client wants a redirect to its own confirmation workflow.
 
 ```sh
 curl -X POST -k -H 'Content-Type: application/json' -i https://localhost:9300/oauth2/default/registration --data '{
    "application_type": "private",
    "redirect_uris":
      ["https://client.example.org/callback"],
+   "post_logout_redirect_uris":
+     ["https://client.example.org/logout/callback"],
    "client_name": "A Private App",
    "token_endpoint_auth_method": "client_secret_post",
    "contacts": ["me@example.org", "them@example.org"]

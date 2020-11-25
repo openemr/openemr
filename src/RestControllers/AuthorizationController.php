@@ -324,23 +324,29 @@ class AuthorizationController
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 
+    public function base64url_decode($token)
+    {
+        $b64 = strtr($token, '-_', '+/');
+        return base64_decode($b64);
+    }
+
     public function newClientSave($clientId, $info): bool
     {
-        $user = 0;
+        $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
         $site = $this->siteId;
         $private = empty($info['client_secret']) ? 0 : 1;
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
-
+        $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
         // encrypt the client secret
         if (!empty($info['client_secret'])) {
             $info['client_secret'] = $this->cryptoGen->encryptStandard($info['client_secret']);
         }
 
         try {
-            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', 'openid email phone address api:oemr api:fhir api:port api:pofh', ?, ?, ?)";
+            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', 'openid email phone address api:oemr api:fhir api:port api:pofh', ?, ?, ?, ?)";
             $i_vals = array(
-                $clientId, 'users', $info['client_name'], $info['client_secret'], $info['registration_access_token'], $info['registration_client_uri_path'], $contacts, $redirects, $user, $site, $private
+                $clientId, 'users', $info['client_name'], $info['client_secret'], $info['registration_access_token'], $info['registration_client_uri_path'], $contacts, $redirects, $user, $site, $private, $logout_redirect_uris
             );
 
             return sqlQueryNoLog($sql, $i_vals);
@@ -754,5 +760,57 @@ class AuthorizationController
         $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache) VALUES (?, ?, ?, ?, ?, Now(), ?, ?)";
 
         return sqlQueryNoLog($sql, array($id, $userId, $clientId, $scope, $persist, $code, $session));
+    }
+
+    public function decodeToken($token)
+    {
+        return json_decode($this->base64url_decode($token), true);
+    }
+
+    public function userSessionLogout(): void
+    {
+        $message = '';
+        $response = $this->createServerResponse();
+        try {
+            $id_token = $_REQUEST['id_token_hint'] ?? '';
+            if (empty($id_token)) {
+                throw new OAuthServerException('Id token missing from request', 0, 'invalid _request', 400);
+            }
+            $post_logout_url = $_REQUEST['post_logout_redirect_uri'] ?? '';
+            $state = $_REQUEST['state'] ?? '';
+            $token_parts = explode('.', $id_token);
+            $id_payload = $this->decodeToken($token_parts[1]);
+
+            $client_id = $id_payload['aud'];
+            $user = $id_payload['sub'];
+            $id_nonce = $id_payload['nonce'];
+            $trustedUser = $this->trustedUser($client_id, $user);
+            if (empty($trustedUser['id'])) {
+                // not logged in so just continue as if were.
+                $message = xlt("You are currently not signed in.");
+                if (!empty($post_logout_url)) {
+                    header('Location:' . $post_logout_url . "?state=$state");
+                } else {
+                    die($message);
+                }
+                exit;
+            }
+            $session_nonce = json_decode($trustedUser['session_cache'], true)['nonce'];
+            // this should be enough to confirm valid id
+            if ($session_nonce !== $id_nonce) {
+                throw new OAuthServerException('Id token not issued from this server', 0, 'invalid _request', 400);
+            }
+            // clear the users session
+            $rtn = sqlQueryNoLog("DELETE FROM `oauth_trusted_user` WHERE `oauth_trusted_user`.`id` = ?", array($trustedUser['id']));
+            $client = sqlQueryNoLog("SELECT logout_redirect_uris as valid FROM `oauth_clients` WHERE `client_id` = ? AND `logout_redirect_uris` = ?", array($client_id, $post_logout_url));
+            if (!empty($post_logout_url) && !empty($client['valid'])) {
+                header('Location:' . $post_logout_url . "?state=$state");
+            } else {
+                $message = xlt("You have been signed out. Thank you.");
+                die($message);
+            }
+        } catch (OAuthServerException $exception) {
+            $this->emitResponse($exception->generateHttpResponse($response));
+        }
     }
 }

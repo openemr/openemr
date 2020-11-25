@@ -81,3 +81,7 @@ if (false !== stripos($end_point, '/registration')) {
 if (false !== stripos($end_point, '/client')) {
     $authServer->clientRegisteredDetails();
 }
+
+if (false !== stripos($end_point, '/logout')) {
+    $authServer->userSessionLogout();
+}
