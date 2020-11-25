@@ -2106,7 +2106,7 @@ class Display extends base
                 $show['status'] = 'whitish';
             }
             ob_start();
-            echo '<div class="divTableRow ALL ' . attr($show['status']) . '"
+            echo '<tr class="divTableRow ALL ' . attr($show['status']) . '"
                  data-status="' . attr($show['status']) . '"
                  data-plan="' . attr($show['plan']) . '"
                  data-facility="' . attr($recall['r_facility']) . '"
@@ -2120,15 +2120,15 @@ class Display extends base
             $last_visit = $result2['pc_eventDate'];
             $DOB = oeFormatShortDate($result2['DOB']);
             $age = $MedEx->events->getAge($result2['DOB']);
-            echo '<div class="divTableCell text-center"><a href="#" onclick="show_patient(\'' . attr($recall['pid']) . '\');"> ' . text($recall['fname']) . ' ' . text($recall['lname']) . '</a>';
+            echo '<td class="divTableCell text-center"><a href="#" onclick="show_patient(\'' . attr($recall['pid']) . '\');"> ' . text($recall['fname']) . ' ' . text($recall['lname']) . '</a>';
             if ($GLOBALS['ptkr_show_pid']) {
                 echo '<br /><span data-toggle="tooltip" data-placement="auto" title="' . xla("Patient ID") . '" class="small">' . xlt('PID') . ': ' . text($recall['pid']) . '</span>';
             }
             echo '<br /><span data-toggle="tooltip" data-placement="auto" title="' . xla("Most recent visit") . '" class="small">' . xlt("Last Visit") . ': ' . text(oeFormatShortDate($last_visit)) . '</span>';
             echo '<br /><span class="small" data-toggle="tooltip" data-placement="auto" title="' . xla("Date of Birth and Age") . '">' . xlt('DOB') . ': ' . text($DOB) . ' (' . $age . ')</span>';
-            echo '</div>';
+            echo '</td>';
 
-            echo '<div class="divTableCell appt_date">' . text(oeFormatShortDate($recall['r_eventDate']));
+            echo '<td class="divTableCell appt_date">' . text(oeFormatShortDate($recall['r_eventDate']));
             if ($recall['r_reason'] > '') {
                 echo '<br />' . text($recall['r_reason']);
             }
@@ -2146,8 +2146,8 @@ class Display extends base
                 echo "<br /><span data-toggle='tooltip' data-placement='auto'  title='" . xla('Facility') . "'>" . text($facility[$recall['r_facility']]) . "</span><br />";
             }
 
-            echo '</div>';
-            echo '<div class="divTableCell phones">';
+            echo '</td>';
+            echo '<td class="divTableCell phones">';
             if ($recall['phone_cell'] > '') {
                 echo 'C: ' . text($recall['phone_cell']) . "<br />";
                 //    echo 'C:'.substr($recall['phone_cell'], 0, 2).'-XXX-XXXX<br />';
@@ -2167,39 +2167,39 @@ class Display extends base
                 $pat = $this->possibleModalities($recall);
                 echo $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'];//escape/translation done in possibleModalities.
             }
-            echo '</div>';
+            echo '</td>';
 
             if ($show['postcard'] > '') {
-                echo '<div class="divTableCell text-center postcards">' . text($show['postcard']) . '</div>';
+                echo '<td class="divTableCell text-center postcards">' . text($show['postcard']) . '</td>';
             } else {
-                echo '<div class="divTableCell text-center postcards"><input type="checkbox" name="postcards" id="postcards[]" value="' . attr($recall['pid']) . '" /></div>';
+                echo '<td class="divTableCell text-center postcards"><input type="checkbox" name="postcards" id="postcards[]" value="' . attr($recall['pid']) . '" /></td>';
             }
 
             if ($show['label'] > '') {
-                echo '<div class="divTableCell text-center labels">' . text($show['label']) . '</div>';
+                echo '<td class="divTableCell text-center labels">' . text($show['label']) . '</td>';
             } else {
-                echo '<div class="divTableCell text-center labels"><input type="checkbox" name="labels" id="labels[]" value="' . attr($recall['pid']) . '" /></div>';
+                echo '<td class="divTableCell text-center labels"><input type="checkbox" name="labels" id="labels[]" value="' . attr($recall['pid']) . '" /></td>';
             }
-            echo '  <div class="divTableCell text-center msg_manual"><span class="fa fa-fw spaced_icon" >
+            echo '  <td class="divTableCell text-center msg_manual"><span class="fa fa-fw spaced_icon" >
                         <input type="checkbox" name="msg_phone" id="msg_phone_' . attr($recall['pid']) . '" onclick="process_this(\'phone\',\'' . attr($recall['pid']) . '\',\'' . attr($recall['r_ID']) . '\')" />
                 </span>';
             echo '    <span data-toggle="tooltip" data-placement="auto" title="' . xla('Scheduling') . '" class="fa fa-calendar-check-o fa-fw" onclick="newEvt(\'' . attr($recall['pid']) . '\',\'\');">
                 </span>';
-            echo '</div>';
+            echo '</td>';
 
-            echo '  <div class="divTableCell text-left msg_resp">';
+            echo '  <td class="divTableCell text-left msg_resp">';
             //    if phone call made show each in progress
             echo '<textarea onblur="process_this(\'notes\',\'' . attr($recall['pid']) . '\',\'' . attr($recall['r_ID']) . '\');" name="msg_notes" id="msg_notes_' . attr($recall['pid']) . '" style="width:90%;height:30px;">' . nl2br(text($recall['NOTES'])) . '</textarea>';
-            echo '</div>';
-            echo '  <div class="divTableCell text-left msg_resp">
+            echo '</td>';
+            echo '  <td class="divTableCell text-left msg_resp">
             <i class="top_right_corner fa fa-times" onclick="delete_Recall(\'' . attr($recall['pid']) . '\',\'' . attr($recall['r_ID']) . '\')"></i> ';
             echo $show['progression'];
 
             if ($show['appt']) {
                 echo "<span onclick=\"newEvt('" . attr($prog['pid']) . "','" . attr($show['pc_eid']) . "');\" class='btn btn-danger text-center' data-toggle='tooltip' data-placement='auto'  title='" . xla('Appointment made by') . " " . attr($prog['who']) . " " . xla('on') . " " . attr($prog['when']) . "'><b>" . xlt('Appt{{Abbreviation for appointment}}') . ":</b> " . text($show['appt']) . "<br />";
             }
-            echo '</div>';
-            echo '</div>';
+            echo '</td>';
+            echo '</tr>';
             $content = ob_get_clean();
             $process['ALL'] .= $content;
         }
