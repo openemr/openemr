@@ -12273,6 +12273,7 @@ CREATE TABLE `oauth_trusted_user` (
 `time` timestamp NULL DEFAULT NULL,
 `code` text,
 `session_cache` text,
+`grant_type` varchar(32) DEFAULT NULL,
 PRIMARY KEY (`id`),
 KEY `accounts_id` (`user_id`),
 KEY `clients_id` (`client_id`)

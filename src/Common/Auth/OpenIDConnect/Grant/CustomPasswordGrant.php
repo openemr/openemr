@@ -73,6 +73,10 @@ class CustomPasswordGrant extends PasswordGrant
 
             throw OAuthServerException::invalidGrant('Failed Authentication');
         }
+        $_SESSION['pass_user_id'] = $user->getIdentifier();
+        $_SESSION['pass_username'] = $username;
+        $_SESSION['pass_user_role'] = $userrole;
+        $_SESSION['pass_user_email'] = $email;
 
         return $user;
     }

@@ -2403,3 +2403,7 @@ ALTER TABLE `oauth_trusted_user` DROP COLUMN `user_role`;
 #IfMissingColumn oauth_clients logout_redirect_uris
 ALTER TABLE `oauth_clients` ADD `logout_redirect_uris` text;
 #EndIf
+
+#IfMissingColumn oauth_trusted_user grant_type
+ALTER TABLE `oauth_trusted_user` ADD COLUMN `grant_type` varchar(32) DEFAULT NULL;
+#EndIf
