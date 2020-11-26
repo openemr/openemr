@@ -1,18 +1,18 @@
 name: PHP Syntax
 on: [push, pull_request]
 jobs:
-    build:
-        runs-on: ubuntu-20.04
-        strategy:
-            fail-fast: false
-            matrix:
-                php: ['7.3', '7.4', '8.0', '8.1']
-        name: PHP Syntax ${{ matrix.php }}
-        steps:
-            - uses: actions/checkout@v2
-            - name: Install PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: ${{ matrix.php }}
-            - name: Report PHP version
-              run: php -v
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [‘7.3’, ‘7.4’, ‘8.0’]
+    name: PHP Syntax ${{ matrix.php }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+      - name: Report PHP version
+        run: php -v
