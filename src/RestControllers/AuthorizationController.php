@@ -732,6 +732,15 @@ class AuthorizationController
             }
             $result = $server->respondToAccessTokenRequest($request, $response);
             $this->emitResponse($result);
+            // save a password trusted user
+            if ($this->grantType === 'password') {
+                $body = $result->getBody();
+                $body->rewind();
+                // yep, even password grant gets one. could be useful.
+                $code = json_decode($body->getContents(), true, 512, JSON_THROW_ON_ERROR)['id_token'];
+                $session_cache = json_encode($_SESSION);
+                $this->saveTrustedUser($_REQUEST['client_id'], $_SESSION['pass_user_id'], $_REQUEST['scope'], 0, $code, $session_cache, 'password');
+            }
             SessionUtil::oauthSessionCookieDestroy();
         } catch (OAuthServerException $exception) {
             SessionUtil::oauthSessionCookieDestroy();
@@ -754,12 +763,12 @@ class AuthorizationController
         return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `code`= ?", array($code));
     }
 
-    public function saveTrustedUser($clientId, $userId, $scope, $persist, $code = '', $session = '')
+    public function saveTrustedUser($clientId, $userId, $scope, $persist, $code = '', $session = '', $grant = 'authorization_code')
     {
         $id = $this->trustedUser($clientId, $userId)['id'];
-        $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache) VALUES (?, ?, ?, ?, ?, Now(), ?, ?)";
+        $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache, `grant_type`) VALUES (?, ?, ?, ?, ?, Now(), ?, ?, ?)";
 
-        return sqlQueryNoLog($sql, array($id, $userId, $clientId, $scope, $persist, $code, $session));
+        return sqlQueryNoLog($sql, array($id, $userId, $clientId, $scope, $persist, $code, $session, $grant));
     }
 
     public function decodeToken($token)
