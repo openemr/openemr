@@ -164,7 +164,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     }
 
     if (!isset($_SESSION['site_id']) || $_SESSION['site_id'] != $tmp) {
-        $_SESSION['site_id'] = $tmp
+        $_SESSION['site_id'] = $tmp;
         // error_log("Session site ID has been set to '$tmp'"); // debugging
     }
 }
