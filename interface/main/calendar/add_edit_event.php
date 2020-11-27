@@ -52,11 +52,14 @@ require_once($GLOBALS['srcdir'] . '/group.inc');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Billing\AutoBilling;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
     die(xl('Access not allowed'));
 }
+/* instantiate auto billing protocols */
+$doBilling = new AutoBilling();
 
 /* Things that might be passed by our opener. */
 $eid           = $_GET['eid'];         // only for existing events
@@ -111,6 +114,16 @@ $g_view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php
+
+//Check that a diagnosis has been set for the patient before entering calendar entry Sherwin 2020/11/21
+$doBillingPid = $_POST['form_pid'];
+if (!empty($doBillingPid && $GLOBALS['enable_autobilling'] == 1)) {
+    $isDiagnosed = $doBilling->getDiagnosis($doBillingPid);
+    if (empty($isDiagnosed['title'])) {
+        die("<h4>Please enter a diagnosis for the patient before calendar event record</h4>");
+    }
+}
+
 $use_validate_js = 1;
 require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
 //Gets validation rules from Page Validation list.
@@ -447,6 +460,22 @@ if ($_POST['form_action'] == "save") {
      *                    UPDATE EVENTS
      * =====================================================*/
     if ($eid) {
+
+        /**
+         * @todo make this an event that is dispatched with these variables
+         */
+        if ($_POST['form_apptstatus'] === '>') {
+            $bInfo = add_escape_custom($_POST['form_title']);  //calendar appointment type billing information
+            $pid = add_escape_custom($_POST['form_pid']);      //patient id
+            $userid = add_escape_custom($_SESSION['authUserID']);   //user who entered the information
+            try {
+                $doBilling->generateBilling($event_date, $bInfo, $pid, $userid);
+            } catch (Exception $e) {
+                error_log("Auto Billing failed to insert line 472 add_edit_event" . $e);
+            } // pass this information to be processed
+
+        }
+
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
 
