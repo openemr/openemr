@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.0', '8.1']
+        php: ['7.3', '7.4', '8.0', '8.1']
     name: ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v2
@@ -28,8 +28,8 @@ jobs:
       - name: Check PHP Syntax
         run: |
           failSyntax=false
-          if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi
-          if find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi
+          if find . -type f -name *.php -exec php -l {} \; 1>/dev/null | grep "^"; then failSyntax=true; fi
+          if find . -type f -name *.inc -exec php -l {} \; 1>/dev/null | grep "^"; then failSyntax=true; fi
           if $failSyntax; then
             exit 1
           fi
