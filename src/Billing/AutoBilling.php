@@ -51,7 +51,7 @@ class AutoBilling
          * Grab the encounter to post charges using the event date
          * @returns int
         */
-       $enc = self::getEventEncounter($pid, $event_date);
+        $enc = self::getEventEncounter($pid, $event_date);
 
         /**
          * Grab the provider for the encounter from the event table
@@ -107,10 +107,10 @@ class AutoBilling
      * @param $codetype
      * @param $modifer
      */
-    private function insertCPTBilling($event_date,$code,$pid,$provider,$userid,$enc,$text,$fees,$icd10,$codetype,$modifer)
+    private function insertCPTBilling($event_date, $code, $pid, $provider, $userid, $enc, $text, $fees, $icd10, $codetype, $modifer)
     {
         $sql = "REPLACE INTO billing SET " .
-            "date = ? , " .
+            "date = ?, " .
             "code_type = ? , " .
             "code = ? , " .
             "pid = ? , " .
@@ -143,7 +143,7 @@ class AutoBilling
      * @param $enc
      * @param $desc
      */
-    private function insertICDBilling($enDate,$icd10,$pid,$provider,$userid,$enc,$desc)
+    private function insertICDBilling($enDate, $icd10, $pid, $provider, $userid, $enc, $desc)
     {
         $sql = "REPLACE INTO billing SET "
             . "date = ? ,"
@@ -204,12 +204,11 @@ class AutoBilling
      */
     private function getEventEncounter($pid,$enDate)
     {
-        $d = substr($enDate, 0,-8);
-        $de = $d." 00:00:00";
+        $d = substr($enDate, 0, -8);
+        $de = $d . " 00:00:00";
         $sql = "SELECT encounter FROM form_encounter WHERE pid = ? AND date = ?";
         $query_e = sqlQuery($sql, [$pid, $de]);
         return $query_e['encounter'];
-
     }
 
     /**
@@ -224,7 +223,6 @@ class AutoBilling
         $sql = "select encounter from billing where pid = ? and date like ? ORDER by id limit 1";
         $findbilling = sqlQuery($sql, [$pid, $setdate . "%"]);
         return $findbilling;
-
     }
 
     //find modifier for code if one
@@ -237,7 +235,6 @@ class AutoBilling
         $sql = "select modifier from codes where code = ?";
         $isModified = sqlQuery($sql, [$code]);
         return $isModified['modifier'];
-
     }
 
     //get the provider for the encounter
@@ -248,7 +245,7 @@ class AutoBilling
      */
     private function getEventProvider($pid, $event_date)
     {
-        $ev = substr($event_date, 0,-8);
+        $ev = substr($event_date, 0, -8);
         $sql = "select pc_aid from openemr_postcalendar_events where pc_eventDate = ? AND pc_pid = ? ";
         $provider = sqlQuery($sql, [$ev, $pid]);
         return $provider['pc_aid'];

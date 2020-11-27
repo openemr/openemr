@@ -167,7 +167,7 @@ function send_batch()
         }
 
             header("Location: billing_report.php?response=" . $response);
-        }
+    }
 }
 
 function validate_payer_reset(&$payer_id_held, $patient_id, $encounter)
