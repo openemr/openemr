@@ -15,8 +15,8 @@ jobs:
 
       - name: Install npm
         uses: actions/setup-node@v1
-          with:
-            node-version: '12'
+        with:
+          node-version: '12'
         run: |
           failTest=false
           npm install || failTest=true
