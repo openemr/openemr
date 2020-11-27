@@ -17,13 +17,15 @@ jobs:
         steps:
             - uses: actions/checkout@v2
 
+            - name: Install PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                php-version: '7.4'
+
             - name: Install npm package
               uses: actions/setup-node@v1
               with:
                 node-version: '12'
-
-            - name: Include ci bash library
-              run: source ci/ciLibrary.source
 
             - name: Dockers environment start
               run: |
