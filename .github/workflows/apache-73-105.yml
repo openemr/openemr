@@ -35,14 +35,10 @@ jobs:
                 source ci/ciLibrary.source
                 dockers_env_start
 
-            - name: Composer github authentication
-              run: |
-                source ci/ciLibrary.source
-                composer_github_auth
-
             - name: Main build
               run: |
                 source ci/ciLibrary.source
+                composer_github_auth
                 main_build
 
             - name: CCDA build
