@@ -13,10 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install npm
+      - name: Install npm package
         uses: actions/setup-node@v1
         with:
           node-version: '12'
+
+      - name: npm install
         run: |
           failTest=false
           npm install || failTest=true
