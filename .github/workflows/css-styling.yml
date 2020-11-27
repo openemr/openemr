@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
-    name: Check CSS Styling
+    name: Check
     steps:
       - uses: actions/checkout@v2
 

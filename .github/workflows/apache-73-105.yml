@@ -1,4 +1,4 @@
-name: Build and test - PHP 7.3 - Apache - MariaDB 10.5
+name: PHP 7.3 - Apache - MariaDB 10.5
 
 on:
     push:
@@ -9,7 +9,7 @@ on:
 jobs:
     build:
         runs-on: ubuntu-20.04
-        name: Run build and test - PHP 7.3 - Apache - MariaDB 10.5
+        name: Build and test
         env:
           DOCKER_DIR: apache_73_105
           OPENEMR_DIR: /var/www/localhost/htdocs/openemr
