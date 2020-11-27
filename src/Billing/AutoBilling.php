@@ -21,9 +21,13 @@ class AutoBilling
          */
         $event_date = $event_date . " " . date("H:i:s"); // append current time to event date
         $billingData = explode("-", $bInfo);  //separate up billing information into code and text
-        $code = trim($billingData[0]);  // code that is in the calendar description
-        $text = trim($billingData[1]);  // text that is after the code in the calendar description
-
+        if (!empty($billingData[0])) {
+            $code = trim($billingData[0]);  // code that is in the calendar description
+            $text = trim($billingData[1]);  // text that is after the code in the calendar description
+        } else {
+            echo xlt("Calendar entry not properly formated");
+            die;
+        }
         //see if there is a diagnosis in the patient chart
         //returns an array
         $icd10 = self::getDiagnosis($pid);
@@ -37,7 +41,7 @@ class AutoBilling
             $icd10 = $icd10['diagnosis'];
             $icd10 = substr($icd10, 6);
         } else {
-            error_log('No diagnosis code found in chart');
+            echo xlt('No diagnosis code found in chart');
             die;  //stop processing if no Diagnosis is found.
         }
 
@@ -75,7 +79,7 @@ class AutoBilling
          */
         $docs = self::checkDocumenation($pid, $enc);
         if ($docs == 1) {
-            echo "<br><br><h4 style='color: red'>" . text("Please add documentation to complete this visit. Your pay depends on it") . "</h4>";
+            echo "<br><br><h4 style='color: red'>" . xlt("Please add documentation to complete this visit Your pay depends on it") . "</h4>";
             die;
         }
         //insert billing if there is none
@@ -89,7 +93,8 @@ class AutoBilling
                     self::insertICDBilling($event_date, $icd10, $pid, $provider, $userid, $enc, $desc);
                 }
             } catch (Exception $e) {
-                error_log('Autobilling failed ' . $e);
+                echo xlt('Autobilling failed ' . $e);
+                die;
             }
         }
     }// End of billing entries
