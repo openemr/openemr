@@ -144,7 +144,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     // since this is user provided content we need to escape the value but we use htmlspecialchars instead
     // of text() as our helper functions are loaded in later on in this file.
     if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp)) {
-        echo "Invalid URL";
+        echo "Invalid URL"
         error_log("Request with site id '" . htmlspecialchars($tmp, ENT_QUOTES) . "' contains invalid characters.");
         die();
     }
