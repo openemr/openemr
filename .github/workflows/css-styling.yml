@@ -1,0 +1,27 @@
+name: PHP Styling
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    name: Check PHP Styling
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install npm
+        uses: actions/setup-node@v1
+        run: npm install
+
+      - name: Check CSS Styling
+        run: |
+          failTest=false
+          npx stylelint "**/*.css" || failTest=true
+          npx stylelint "**/*.scss" || failTest=true
+          if $failTest; then
+            exit 1
+          fi
