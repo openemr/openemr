@@ -1,4 +1,4 @@
-name: PHP Styling
+name: CSS Styling
 
 on:
   push:
@@ -9,13 +9,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
-    name: Check PHP Styling
+    name: Check CSS Styling
     steps:
       - uses: actions/checkout@v2
 
       - name: Install npm
         uses: actions/setup-node@v1
-        run: npm install
+          with:
+            node-version: '12'
+        run: |
+          failTest=false
+          npm install || failTest=true
+          if $failTest; then
+            exit 1
+          fi
 
       - name: Check CSS Styling
         run: |
