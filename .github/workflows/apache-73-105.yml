@@ -31,37 +31,61 @@ jobs:
                 dockers_env_start
 
             - name: Composer github authentication
-              run: composer_github_auth
+              run: |
+                source ci/ciLibrary.source
+                composer_github_auth
 
             - name: Main build
-              run: main_build
+              run: |
+                source ci/ciLibrary.source
+                main_build
 
             - name: CCDA build
-              run: ccda_build
+              run: |
+                source ci/ciLibrary.source
+                ccda_build
 
             - name: Install and configure
-              run: install_configure
+              run: |
+                source ci/ciLibrary.source
+                install_configure
 
             - name: Unit testing
-              run: build_test_unit
+              run: |
+                source ci/ciLibrary.source
+                build_test_unit
 
             - name: E2e testing
-              run: build_test_e2e
+              run: |
+                source ci/ciLibrary.source
+                build_test_e2e
 
             - name: Api testing
-              run: build_test_api
+              run: |
+                source ci/ciLibrary.source
+                build_test_api
 
             - name: Fixtures testing
-              run: build_test_fixtures
+              run: |
+                source ci/ciLibrary.source
+                build_test_fixtures
 
             - name: Services testing
-              run: build_test_services
+              run: |
+                source ci/ciLibrary.source
+                build_test_services
 
             - name: Validators testing
-              run: build_test_validators
+              run: |
+                source ci/ciLibrary.source
+                build_test_validators
 
             - name: Controllers testing
-              run: build_test_controllers
+              run: |
+                source ci/ciLibrary.source
+                build_test_controllers
 
             - name: Common testing
-              run: build_test_common
+              run: |
+                source ci/ciLibrary.source
+                build_test_common
