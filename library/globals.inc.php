@@ -1377,6 +1377,48 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default
             xl('Enable percent-based price levels')
+        ),
+
+        'enable_autobilling' => array(
+            xl('Enable Auto Billing'),
+            'bool',                            // data type
+            '0',                               // default
+            xl('Generate Fee Sheet entries from calendar visits')
+        ),
+
+        'enable_clearinghouse' => array(
+            xl('Enable Transmit to a clearinghouse'),
+            'bool',                            // data type
+            '0',                               // default
+            xl('Enable to send 837 files to a clearninghouse via sFTP')
+        ),
+
+        'ch_sftp' => array(
+            xl('Clearinghouse sFTP site address or IP address'),
+            'text',                      // data type
+            'ftp.officeally.com',        // default
+            xl('Address to the sftp site')
+        ),
+
+        'ch_sftp_username' => array(
+            xl('Clearinghouse account username'),
+            'text',                      // data type
+            '',                               // default
+            xl('sftp account username')
+        ),
+
+        'ch_sftp_pwd' => array(
+            xl('Clearinghouse account password'),
+            'encrypted',                      // data type
+            '',                               // default
+            xl('sftp account password')
+        ),
+
+        'ch_sftp_dir' => array(
+            xl('Clearinghouse inbound remote director'),
+            'text',                      // data type
+            '/some_remote_dir',          // default
+            xl('sftp directory to send data to clearninghouse. must have leading slash')
         )
     ),
 

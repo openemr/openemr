@@ -149,6 +149,7 @@ function send_batch()
         fwrite($fh, $bat_content);
         fclose($fh);
     }
+if (!$GLOBALS['enable_clearinghouse']) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -157,6 +158,17 @@ function send_batch()
     header("Content-Description: File Transfer");
     header("Content-Length: " . strlen($bat_content));
     echo $bat_content;
+    } else {
+
+    $clearinghouse = new ClearingHouse();
+    $response = $clearinghouse->sendBilling($bat_filename);
+    if ($response == 'Sucesss') {
+        $logstring = date("Y-m-d H:m:i") ." : Billing Transmitted";
+        EventAuditLogger::instance()->newEvent("transmit-billing", $_SESSION['authUser'], '', 1, "$logstring");
+    }
+
+        header("Location: billing_report.php?response=".$response);
+    }
 }
 
 function validate_payer_reset(&$payer_id_held, $patient_id, $encounter)
