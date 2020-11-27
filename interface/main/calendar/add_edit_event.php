@@ -473,7 +473,6 @@ if ($_POST['form_action'] == "save") {
             } catch (Exception $e) {
                 error_log("Auto Billing failed to insert line 472 add_edit_event" . $e);
             } // pass this information to be processed
-
         }
 
         // what is multiple key around this $eid?

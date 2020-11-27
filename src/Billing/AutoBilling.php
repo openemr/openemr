@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  package   OpenEMR
  *  link      http://www.open-emr.org
@@ -49,7 +50,7 @@ class AutoBilling
         /**
          * Grab the encounter to post charges using the event date
          * @returns int
-         */
+        */
        $enc = self::getEventEncounter($pid, $event_date);
 
         /**
@@ -79,9 +80,7 @@ class AutoBilling
         }
         //insert billing if there is none
         if (empty($res['encounter'])) {
-
             try {
-
                 $codetype = "CPT4";
                 self::insertCPTBilling($event_date, $code, $pid, $provider, $userid, $enc, $text, $fees, $icd10, $codetype, $modifier);
 
@@ -90,10 +89,9 @@ class AutoBilling
                     self::insertICDBilling($event_date, $icd10, $pid, $provider, $userid, $enc, $desc);
                 }
             } catch (Exception $e) {
-                error_log( 'Autobilling failed ' . $e);
+                error_log('Autobilling failed ' . $e);
             }
         }
-
     }// End of billing entries
 
     /**
@@ -111,23 +109,22 @@ class AutoBilling
      */
     private function insertCPTBilling($event_date,$code,$pid,$provider,$userid,$enc,$text,$fees,$icd10,$codetype,$modifer)
     {
-
         $sql = "REPLACE INTO billing SET " .
             "date = ? , " .
-            "code_type = ?, " .
-            "code = ?, " .
-            "pid = ?, " .
-            "provider_id = ?, " .
-            "user = ?, " .
+            "code_type = ? , " .
+            "code = ? , " .
+            "pid = ? , " .
+            "provider_id = ? , " .
+            "user = ? , " .
             "groupname = 'default', " .
             "authorized = '1', " .
-            "encounter = ?, " .
-            "code_text = ?, " .
+            "encounter = ? , " .
+            "code_text = ? , " .
             "activity = '1', " .
-            "modifier = ?, " .
+            "modifier = ? , " .
             "units = '1', " .
-            "fee = ?, " .
-            "justify = ?, " .
+            "fee = ? , " .
+            "justify = ? , " .
             "pricelevel = 'standard'";
 
         try {
@@ -135,7 +132,6 @@ class AutoBilling
         } catch (Exception $e) {
             return $e;
         }
-
     }
 
     /**
@@ -150,18 +146,18 @@ class AutoBilling
     private function insertICDBilling($enDate,$icd10,$pid,$provider,$userid,$enc,$desc)
     {
         $sql = "REPLACE INTO billing SET "
-            . "date = ?,"
-            . "code_type = ?,"
-            . "code = ?,"
-            . "pid = ?,"
-            . "provider_id = ?,"
-            . "user = ?,"
+            . "date = ? ,"
+            . "code_type = ? ,"
+            . "code = ? ,"
+            . "pid = ? ,"
+            . "provider_id = ? ,"
+            . "user = ? ,"
             . "groupname = 'default',"
-            . "authorized = '1',"
-            . "encounter = ?,"
-            . "code_text = ?,"
+            . "authorized = '1' ,"
+            . "encounter = ? ,"
+            . "code_text = ? ,"
             . "activity = '1',"
-            . "units = '1', "
+            . "units = '1' , "
             . "fee = '0.00' ";
 
         try {
@@ -192,15 +188,13 @@ class AutoBilling
     private function getCodeFee($code)
     {
         $getFee = "SELECT b.pr_price FROM `codes` AS a, prices AS b WHERE a.code = ? AND a.id = b.pr_id ";
-        $fee = sqlQuery($getFee,array($code));
+        $fee = sqlQuery($getFee, array($code));
         if (empty($fee['pr_price'])) {
             $fees = '0.00';
         } else {
             $fees = $fee['pr_price'];
         }
-
         return $fees;
-
     }
 
     /**
@@ -228,7 +222,7 @@ class AutoBilling
     {
         $setdate = substr($enDate, 0, -8);
         $sql = "select encounter from billing where pid = ? and date like ? ORDER by id limit 1";
-        $findbilling = sqlQuery($sql, [$pid, $setdate."%"]);
+        $findbilling = sqlQuery($sql, [$pid, $setdate . "%"]);
         return $findbilling;
 
     }
@@ -247,7 +241,6 @@ class AutoBilling
     }
 
     //get the provider for the encounter
-
     /**
      * @param $pid
      * @param $event_date
@@ -259,11 +252,10 @@ class AutoBilling
         $sql = "select pc_aid from openemr_postcalendar_events where pc_eventDate = ? AND pc_pid = ? ";
         $provider = sqlQuery($sql, [$ev, $pid]);
         return $provider['pc_aid'];
-
     }
 
     /**
-     * @param $pid
+     * @param $pid,
      * @param $enc
      * @return mixed
      *  check that any documentation has been started/saved
@@ -273,7 +265,5 @@ class AutoBilling
         $sql = "select count(formdir) as c from forms where pid = ? and encounter = ?";
         $formcount = sqlQuery($sql, [$pid, $enc]);
         return $formcount['c'];
-
     }
-
 } // end of class
