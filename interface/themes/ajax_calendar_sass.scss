@@ -49,8 +49,8 @@ $side-calendar-date-padding: 0.3rem !default;
   #topToolbarRight {
     @extend .row;
     border-bottom: 1px solid $gray-300;
-    padding: 0.3125rem 0 0.1875rem;
     z-index: 3;
+    padding: 0.3125rem 0 0.1875rem;
   }
 
   #dateNAV {
