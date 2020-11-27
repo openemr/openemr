@@ -10,6 +10,10 @@ jobs:
     build:
         runs-on: ubuntu-20.04
         name: Run build and test - PHP 7.3 - Apache - MariaDB 10.5
+        env:
+          DOCKER_DIR=apache_73_105
+          OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+          CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
         steps:
             - uses: actions/checkout@v2
 
