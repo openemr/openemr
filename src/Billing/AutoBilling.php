@@ -202,7 +202,7 @@ class AutoBilling
      * @param $enDate
      * @return mixed
      */
-    private function getEventEncounter($pid,$enDate)
+    private function getEventEncounter($pid, $enDate)
     {
         $d = substr($enDate, 0, -8);
         $de = $d . " 00:00:00";
@@ -231,7 +231,8 @@ class AutoBilling
      * @param $code
      * @return mixed
      */
-    private function getModifier($code) {
+    private function getModifier($code)
+    {
         $sql = "select modifier from codes where code = ?";
         $isModified = sqlQuery($sql, [$code]);
         return $isModified['modifier'];
