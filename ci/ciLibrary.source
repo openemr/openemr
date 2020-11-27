@@ -34,7 +34,7 @@ dockers_env_start() {
 
 main_build() {
       failTest=false
-      composer install || failTest=true
+      sudo composer install || failTest=true
       npm install || failTest=true
       npm run build || failTest=true
       composer global require phing/phing || failTest=true
