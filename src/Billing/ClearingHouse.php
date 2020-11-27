@@ -29,7 +29,7 @@ class ClearingHouse
     public function sendBilling($bat_filename)
     {
         $cryptoGen = new Crypto\CryptoGen();
-        $fileLocal = dirname(__DIR__, 2) . '/sites/default/documents/edi/'.$bat_filename;
+        $fileLocal = dirname(__DIR__, 2) . '/sites/default/documents/edi/' . $bat_filename;
         $sftpServer = $GLOBALS['ch_sftp']; //this can be IP address or URL
         $sftpUsername = $GLOBALS['ch_sftp_username'];
         $sftpPassword = $cryptoGen->decryptStandard($GLOBALS['ch_sftp_pwd']);
@@ -43,7 +43,7 @@ class ClearingHouse
 
         try {
             if (file_exists($fileLocal)) {
-                $ch->put($inboundremotedir .'/' . $bat_filename, $fileLocal, SFTP::SOURCE_LOCAL_FILE);
+                $ch->put($inboundremotedir . '/' . $bat_filename, $fileLocal, SFTP::SOURCE_LOCAL_FILE);
             } else {
                 die('file does not exist!');//I was thinking do this to stop the billing with a hard error. This should never happen
             }
@@ -53,7 +53,5 @@ class ClearingHouse
         }
 
         return "Success";
-
     }
-
 }
