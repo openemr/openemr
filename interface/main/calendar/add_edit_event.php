@@ -229,14 +229,16 @@ function DOBandEncounter($pc_eid)
     if (!empty($_POST['form_pid'])) {
         $is_tracker = is_tracker_encounter_exist($event_date, $appttime, $_POST['form_pid'], $_GET['eid']);
         $is_checkin = is_checkin($_POST['form_apptstatus']);
-        if ($GLOBALS['enable_autobilling']) {
-            $event_date;  //The encounter should be created irrespective of the event date
+        if ($event_date == date('Y-m-d') && !$GLOBALS['enable_autobilling']) {
+            $evd = true; //The encounter should be created irrespective of the event date
+        } elseif ($GLOBALS['enable_autobilling']) {
+            $evd = true;
         } else {
-            $event_date == date('Y-m-d');
+            $evd = false;
         }
         if (
             (int)$GLOBALS['auto_create_new_encounters']
-            && $event_date
+            && $evd
             && $is_checkin == '1'
             && !$is_tracker
         ) {
