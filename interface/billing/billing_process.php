@@ -11,10 +11,12 @@
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2014-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
