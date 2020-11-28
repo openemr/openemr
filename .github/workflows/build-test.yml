@@ -733,40 +733,40 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
-        if: succeeded() || failed()
+        if: s${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
           build_test_api
-        if: succeeded() || failed()
+        if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
-        if: succeeded() || failed()
+        if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
           build_test_services
-        if: succeeded() || failed()
+        if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
           build_test_validators
-        if: succeeded() || failed()
+        if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
           build_test_controllers
-        if: succeeded() || failed()
+        if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
           build_test_common
-        if: succeeded() || failed()
+        if: ${{ success() || failure() }}
