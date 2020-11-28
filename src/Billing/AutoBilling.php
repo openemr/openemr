@@ -75,7 +75,8 @@ class AutoBilling
         $modifier = self::getModifier($code);
 
         /**
-         * Is documentation done
+         * Is documentation done:
+         * This is not a form completion test. Just a check that a document has been started
          */
         $docs = self::checkDocumenation($pid, $enc);
         if ($docs == 1) {
