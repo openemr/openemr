@@ -725,49 +725,48 @@ jobs:
           install_configure
 
       - name: Unit testing
-        continue-on-error: true
         run: |
           source ci/ciLibrary.source
           build_test_unit
 
       - name: E2e testing
-        continue-on-error: true
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+        if: always()
 
       - name: Api testing
-        continue-on-error: true
         run: |
           source ci/ciLibrary.source
           build_test_api
+        if: always()
 
       - name: Fixtures testing
-        continue-on-error: true
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
+        if: always()
 
       - name: Services testing
-        continue-on-error: true
         run: |
           source ci/ciLibrary.source
           build_test_services
+        if: always()
 
       - name: Validators testing
-        continue-on-error: true
         run: |
           source ci/ciLibrary.source
           build_test_validators
+        if: always()
 
       - name: Controllers testing
-        continue-on-error: true
         run: |
           source ci/ciLibrary.source
           build_test_controllers
+        if: always()
 
       - name: Common testing
-        continue-on-error: true
         run: |
           source ci/ciLibrary.source
           build_test_common
+        if: always()
