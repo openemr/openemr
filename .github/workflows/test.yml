@@ -1,4 +1,4 @@
-name: Build and test
+name: Test
 
 on:
   push:
@@ -733,13 +733,13 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
-        if: s${{ success() || failure() }}
+        if: ${{ ((success() || failure()) && !cancelled()) }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
           build_test_api
-        if: ${{ success() || failure() }}
+        if: ${{ ((success() || failure()) && !cancelled()) }}
 
       - name: Fixtures testing
         run: |
@@ -750,22 +750,22 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_services
-        if: ${{ success() || failure() }}
+        if: ${{ ((success() || failure()) && !cancelled()) }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
           build_test_validators
-        if: ${{ success() || failure() }}
+        if: ${{ ((success() || failure()) && !cancelled()) }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
           build_test_controllers
-        if: ${{ success() || failure() }}
+        if: ${{ ((success() || failure()) && !cancelled()) }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
           build_test_common
-        if: ${{ success() || failure() }}
+        if: ${{ ((success() || failure()) && !cancelled()) }}
