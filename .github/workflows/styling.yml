@@ -1,4 +1,4 @@
-name: PHP Styling
+name: Styling
 
 on:
   push:
@@ -7,9 +7,10 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+
+  php_styling:
     runs-on: ubuntu-20.04
-    name: Check PHP Styling
+    name: PHP
     steps:
       - uses: actions/checkout@v2
 
@@ -33,6 +34,34 @@ jobs:
         run: |
           failTest=false
           $HOME/.composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full . || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+  css_styling:
+    runs-on: ubuntu-20.04
+    name: CSS
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install npm package
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - name: npm install
+        run: |
+          failTest=false
+          npm install || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+      - name: Check CSS Styling
+        run: |
+          failTest=false
+          npx stylelint "**/*.css" || failTest=true
+          npx stylelint "**/*.scss" || failTest=true
           if $failTest; then
             exit 1
           fi

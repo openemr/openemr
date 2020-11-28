@@ -1,4 +1,4 @@
-name: PHP Syntax
+name: Syntax
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         php: ['7.3', '7.4', '8.0', '8.1']
-    name: ${{ matrix.php }}
+    name: PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v2
 

@@ -49,7 +49,7 @@ class MainPage
     {
         $startTime = (int) (microtime(true) * 1000);
         while ("Loading..." == $this->crawler->filterXPath(MainPage::ACTIVE_TAB)->text()) {
-            if (($startTime + 5000) < ((int) (microtime(true) * 1000))) {
+            if (($startTime + 20000) < ((int) (microtime(true) * 1000))) {
                 $this->test->fail("Timeout waiting for tab [$text]");
             }
             usleep(100);
