@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Billing;
 
-use OpenEMR\Common\Logging\EventAuditLogger;
 use phpseclib\Net\SFTP;
 use OpenEMR\Common\Crypto;
 
@@ -44,8 +43,6 @@ class ClearingHouse
         try {
             if (file_exists($fileLocal)) {
                 $ch->put($inboundremotedir . '/' . $bat_filename, $fileLocal, SFTP::SOURCE_LOCAL_FILE);
-            } else {
-                die('file does not exist!');//I was thinking do this to stop the billing with a hard error. This should never happen
             }
         } catch (Exception $e) {
             $response = 'Caught exception: ' . $e->getMessage();
