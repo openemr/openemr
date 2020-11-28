@@ -1,177 +1,178 @@
 name: Build and test
 
 on:
-    push:
-        branches: [ master ]
-    pull_request:
-        branches: [ master ]
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
-    build_apache_73_105:
-        name: PHP 7.3 - Apache - MariaDB 10.5
-        runs-on: ubuntu-20.04
-        env:
-          DOCKER_DIR: apache_73_105
-          OPENEMR_DIR: /var/www/localhost/htdocs/openemr
-          CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
-        steps:
-            - uses: actions/checkout@v2
 
-            - name: Install PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                php-version: '7.4'
+  build_apache_73_105:
+    name: PHP 7.3 - Apache - MariaDB 10.5
+    runs-on: ubuntu-20.04
+    env:
+      DOCKER_DIR: apache_73_105
+      OPENEMR_DIR: /var/www/localhost/htdocs/openemr
+      CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+    steps:
+      - uses: actions/checkout@v2
 
-            - name: Report PHP Version
-              run: php -v
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
 
-            - name: Install npm package
-              uses: actions/setup-node@v1
-              with:
-                node-version: '12'
+      - name: Report PHP Version
+        run: php -v
 
-            - name: Dockers environment start
-              run: |
-                source ci/ciLibrary.source
-                dockers_env_start
+      - name: Install npm package
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
 
-            - name: Main build
-              run: |
-                source ci/ciLibrary.source
-                composer_github_auth
-                main_build
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
 
-            - name: CCDA build
-              run: |
-                source ci/ciLibrary.source
-                ccda_build
+      - name: Main build
+        run: |
+          source ci/ciLibrary.source
+          composer_github_auth
+          main_build
 
-            - name: Install and configure
-              run: |
-                source ci/ciLibrary.source
-                install_configure
+      - name: CCDA build
+        run: |
+          source ci/ciLibrary.source
+          ccda_build
 
-            - name: Unit testing
-              run: |
-                source ci/ciLibrary.source
-                build_test_unit
+      - name: Install and configure
+        run: |
+          source ci/ciLibrary.source
+          install_configure
 
-            - name: E2e testing
-              run: |
-                source ci/ciLibrary.source
-                build_test_e2e
+      - name: Unit testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_unit
 
-            - name: Api testing
-              run: |
-                source ci/ciLibrary.source
-                build_test_api
+      - name: E2e testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_e2e
 
-            - name: Fixtures testing
-              run: |
-                source ci/ciLibrary.source
-                build_test_fixtures
+      - name: Api testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_api
 
-            - name: Services testing
-              run: |
-                source ci/ciLibrary.source
-                build_test_services
+      - name: Fixtures testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_fixtures
 
-            - name: Validators testing
-              run: |
-                source ci/ciLibrary.source
-                build_test_validators
+      - name: Services testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_services
 
-            - name: Controllers testing
-              run: |
-                source ci/ciLibrary.source
-                build_test_controllers
+      - name: Validators testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_validators
 
-            - name: Common testing
-              run: |
-                source ci/ciLibrary.source
-                build_test_common
+      - name: Controllers testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_controllers
 
+      - name: Common testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_common
 
-    build_apache_73_104:
-        name: PHP 7.3 - Apache - MariaDB 10.4
-        runs-on: ubuntu-20.04
-        env:
-            DOCKER_DIR: apache_73_104
-            OPENEMR_DIR: /var/www/localhost/htdocs/openemr
-            CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
-        steps:
-            - uses: actions/checkout@v2
+  build_apache_73_104:
+    name: PHP 7.3 - Apache - MariaDB 10.4
+    runs-on: ubuntu-20.04
+    env:
+      DOCKER_DIR: apache_73_104
+      OPENEMR_DIR: /var/www/localhost/htdocs/openemr
+      CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+    steps:
+      - uses: actions/checkout@v2
 
-            - name: Install PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: '7.4'
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
 
-            - name: Report PHP Version
-              run: php -v
+      - name: Report PHP Version
+        run: php -v
 
-            - name: Install npm package
-              uses: actions/setup-node@v1
-              with:
-                  node-version: '12'
+      - name: Install npm package
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
 
-            - name: Dockers environment start
-              run: |
-                  source ci/ciLibrary.source
-                  dockers_env_start
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
 
-            - name: Main build
-              run: |
-                  source ci/ciLibrary.source
-                  composer_github_auth
-                  main_build
+      - name: Main build
+        run: |
+          source ci/ciLibrary.source
+          composer_github_auth
+          main_build
 
-            - name: CCDA build
-              run: |
-                  source ci/ciLibrary.source
-                  ccda_build
+      - name: CCDA build
+        run: |
+          source ci/ciLibrary.source
+          ccda_build
 
-            - name: Install and configure
-              run: |
-                  source ci/ciLibrary.source
-                  install_configure
+      - name: Install and configure
+        run: |
+          source ci/ciLibrary.source
+          install_configure
 
-            - name: Unit testing
-              run: |
-                  source ci/ciLibrary.source
-                  build_test_unit
+      - name: Unit testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_unit
 
-            - name: E2e testing
-              run: |
-                  source ci/ciLibrary.source
-                  build_test_e2e
+      - name: E2e testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_e2e
 
-            - name: Api testing
-              run: |
-                  source ci/ciLibrary.source
-                  build_test_api
+      - name: Api testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_api
 
-            - name: Fixtures testing
-              run: |
-                  source ci/ciLibrary.source
-                  build_test_fixtures
+      - name: Fixtures testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_fixtures
 
-            - name: Services testing
-              run: |
-                  source ci/ciLibrary.source
-                  build_test_services
+      - name: Services testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_services
 
-            - name: Validators testing
-              run: |
-                  source ci/ciLibrary.source
-                  build_test_validators
+      - name: Validators testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_validators
 
-            - name: Controllers testing
-              run: |
-                  source ci/ciLibrary.source
-                  build_test_controllers
+      - name: Controllers testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_controllers
 
-            - name: Common testing
-              run: |
-                  source ci/ciLibrary.source
-                  build_test_common
+      - name: Common testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_common
+
