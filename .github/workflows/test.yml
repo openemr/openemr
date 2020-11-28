@@ -56,41 +56,49 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
           build_test_api
+        if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
+        if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
           build_test_services
+        if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
           build_test_validators
+        if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
           build_test_controllers
+        if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
           build_test_common
+        if: ${{ success() || failure() }}
 
   build_apache_73_104:
     name: PHP 7.3 - Apache - MariaDB 10.4
@@ -140,41 +148,49 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
           build_test_api
+        if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
+        if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
           build_test_services
+        if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
           build_test_validators
+        if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
           build_test_controllers
+        if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
           build_test_common
+        if: ${{ success() || failure() }}
 
   build_apache_73_103:
     name: PHP 7.3 - Apache - MariaDB 10.3
@@ -224,41 +240,49 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
           build_test_api
+        if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
+        if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
           build_test_services
+        if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
           build_test_validators
+        if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
           build_test_controllers
+        if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
           build_test_common
+        if: ${{ success() || failure() }}
 
   build_apache_73_102:
     name: PHP 7.3 - Apache - MariaDB 10.2
@@ -308,41 +332,49 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
           build_test_api
+        if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
+        if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
           build_test_services
+        if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
           build_test_validators
+        if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
           build_test_controllers
+        if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
           build_test_common
+        if: ${{ success() || failure() }}
 
   build_apache_73_8:
     name: PHP 7.3 - Apache - MySQL 8
@@ -392,41 +424,49 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
           build_test_api
+        if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
+        if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
           build_test_services
+        if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
           build_test_validators
+        if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
           build_test_controllers
+        if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
           build_test_common
+        if: ${{ success() || failure() }}
 
   build_apache_73_57:
     name: PHP 7.3 - Apache - MySQL 5.7
@@ -476,41 +516,49 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
           build_test_api
+        if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
+        if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
           build_test_services
+        if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
           build_test_validators
+        if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
           build_test_controllers
+        if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
           build_test_common
+        if: ${{ success() || failure() }}
 
   build_nginx_73:
     name: PHP 7.3 - Nginx - MariaDB 10.5
@@ -560,41 +608,48 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
           build_test_api
+        if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
-
+        if: ${{ success() || failure() }}
       - name: Services testing
         run: |
           source ci/ciLibrary.source
           build_test_services
+        if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
           build_test_validators
+        if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
           build_test_controllers
+        if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
           build_test_common
+        if: ${{ success() || failure() }}
 
   build_nginx_74:
     name: PHP 7.4 - Nginx - MariaDB 10.5
@@ -644,41 +699,49 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
           build_test_api
+        if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
+        if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
           build_test_services
+        if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
           build_test_validators
+        if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
           build_test_controllers
+        if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
           build_test_common
+        if: ${{ success() || failure() }}
 
   build_nginx_8:
     name: PHP 8.0 - Nginx - MariaDB 10.5
@@ -728,44 +791,46 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
           build_test_e2e
-        if: ${{ ((success() || failure()) && !cancelled()) }}
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
           build_test_api
-        if: ${{ ((success() || failure()) && !cancelled()) }}
+        if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
+        if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
           build_test_services
-        if: ${{ ((success() || failure()) && !cancelled()) }}
+        if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
           build_test_validators
-        if: ${{ ((success() || failure()) && !cancelled()) }}
+        if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
           build_test_controllers
-        if: ${{ ((success() || failure()) && !cancelled()) }}
+        if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
           build_test_common
-        if: ${{ ((success() || failure()) && !cancelled()) }}
+        if: ${{ success() || failure() }}
