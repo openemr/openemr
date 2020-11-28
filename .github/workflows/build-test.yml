@@ -745,7 +745,6 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_fixtures
-        if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
