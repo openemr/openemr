@@ -56,7 +56,6 @@ services:
       OPENEMR_SETTING_rest_portal_fhir_api: 1
       OPENEMR_SETTING_portal_onsite_two_enable: 1
       OPENEMR_SETTING_ccda_alt_service_enable: 3
-      OPENEMR_SETTING_user_debug: 3
       OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
     depends_on:
