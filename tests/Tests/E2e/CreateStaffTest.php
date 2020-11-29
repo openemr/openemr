@@ -47,9 +47,6 @@ class CreateStaffTest extends PantherTestCase
         echo "debug: " . ($hey['username'] ?? '');
 
         // check that the user was added
-        $mp->openUsers();
-        $mp->assertActiveTab("Users / Group");
-        $ut = $mp->selectUsersTab();
         $ut->assertUserPresent('foobar');
     }
 }
