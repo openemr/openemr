@@ -18,9 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # set up path to collect testing artifacts
-      - run: mkdir -p artifacts
-
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -102,12 +99,6 @@ jobs:
           source ci/ciLibrary.source
           build_test_common
         if: ${{ success() || failure() }}
-
-      # upload the testing artifacts (if there are any)
-      - uses: actions/upload-artifact@v2
-        with:
-          name: testing-artifacts
-          path: artifacts/
 
   build_apache_73_104:
     name: PHP 7.3 - Apache - MariaDB 10.4
