@@ -33,10 +33,12 @@ class UsersTab
     {
         // need to switch to the iframe
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
+        $this->client->waitFor(UsersTab::ADD_USER_BUTTON);
         $crawler->filterXPath(UsersTab::ADD_USER_BUTTON)->click();
 
         $this->client->switchTo()->defaultContent();
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::NEW_USER_IFRAME));
+        $this->client->waitFor(UsersTab::NEW_USER_BUTTON);
         $newUser = $crawler->filterXPath(UsersTab::NEW_USER_BUTTON)->form();
 
         $newUser['rumple'] = $username;
@@ -45,10 +47,11 @@ class UsersTab
         $newUser['lname'] = 'Bar';
         $newUser['adminPass'] = 'pass';
 
+        $this->client->waitFor(UsersTab::CREATE_USER_BUTTON);
         $crawler->filterXPath(UsersTab::CREATE_USER_BUTTON)->click();
 
         // need to give it time for the process to take place
-        sleep(5);
+        sleep(10);
 
         $this->client->switchTo()->defaultContent();
     }
