@@ -59,7 +59,13 @@ class UsersTab
                 // a bit of a hack here - exception will be thrown if we can't find the user, catch it and emit assertion fail
                 $crawler->filterXPath("//table//a[text()='$username']")->getSize();
             } catch (\InvalidArgumentException $e) {
-                $this->test->fail("User with name $username not found in users list");
+                // see if the issue is screen refresh too fast or if the new user really didn't get added to the databaase
+                $clarify = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
+                if (!empty($clarify['username'])) {
+                    $this->test->fail("User with name $username not found in displayed users list, however the new user was found in database.");
+                } else {
+                    $this->test->fail("User with name $username not found in displayed users list and not found in the database.");
+                }
             }
         } finally {
             $this->client->switchTo()->defaultContent();
