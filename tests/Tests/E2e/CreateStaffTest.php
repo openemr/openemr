@@ -41,6 +41,11 @@ class CreateStaffTest extends PantherTestCase
         $ut = $mp->selectUsersTab();
         $ut->addUser('foobar');
 
+        sleep(5);
+
+        $hey = sqlQuery("SELECT `username` FROM `users` WHERE `username` = 'foobar'");
+        echo "debug: " . $hey['username'];
+
         // check that the user was added
         $mp->openUsers();
         $mp->assertActiveTab("Users / Group");
