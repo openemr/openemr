@@ -39,7 +39,7 @@ class CreateStaffTest extends PantherTestCase
         $mp->assertActiveTab("Users / Group");
 
         $ut = $mp->selectUsersTab();
-        //$ut->addUser('foobar');
-        //$ut->assertUserPresent('foobar');
+        $ut->addUser('foobar');
+        $ut->assertUserPresent('foobar');
     }
 }

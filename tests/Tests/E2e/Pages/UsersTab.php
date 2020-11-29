@@ -50,6 +50,8 @@ class UsersTab
         $this->client->switchTo()->defaultContent();
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
 
+        error_log(print_r($this->client, true));
+
         $this->client->waitFor("//table//a[text()='$username']");
 
         $this->client->switchTo()->defaultContent();
