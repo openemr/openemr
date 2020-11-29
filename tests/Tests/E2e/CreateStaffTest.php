@@ -44,7 +44,7 @@ class CreateStaffTest extends PantherTestCase
         sleep(5);
 
         $hey = sqlQuery("SELECT `username` FROM `users` WHERE `username` = 'foobar'");
-        echo "debug: " . $hey['username'];
+        echo "debug: " . ($hey['username'] ?? '');
 
         // check that the user was added
         $mp->openUsers();
