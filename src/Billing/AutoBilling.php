@@ -14,6 +14,11 @@ use Exception;
 
 class AutoBilling
 {
+    public function __construct()
+    {
+        //do epic stuff...
+    }
+
     public function generateBilling($event_date, $bInfo, $pid, $userid)
     {
         /**
@@ -30,7 +35,7 @@ class AutoBilling
         }
         //see if there is a diagnosis in the patient chart
         //returns an array
-        $icd10 = self::getDiagnosis($pid);
+        $icd10 = $this->getDiagnosis($pid);
 
         //if not empty get the description
         /**
@@ -49,36 +54,36 @@ class AutoBilling
          * Grab Fee
          * @returns int
         */
-        $fees = self::getCodeFee($code);
+        $fees = $this->getCodeFee($code);
 
         /**
          * Grab the encounter to post charges using the event date
          * @returns int
         */
-        $enc = self::getEventEncounter($pid, $event_date);
+        $enc = $this->getEventEncounter($pid, $event_date);
 
         /**
          * Grab the provider for the encounter from the event table
          */
-        $provider = self::getEventProvider($pid, $event_date);
+        $provider = $this->getEventProvider($pid, $event_date);
 
         /**
          * find out if there are any entries in the billing table for event date for this patient
          * moved to calendar inc
          *
          */
-        $res = self::findEventBilling($pid, $event_date);
+        $res = $this->findEventBilling($pid, $event_date);
 
         /**
          * Gets the modifier assigned to the
          */
-        $modifier = self::getModifier($code);
+        $modifier = $this->getModifier($code);
 
         /**
          * Is documentation done:
          * This is not a form completion test. Just a check that a document has been started
          */
-        $docs = self::checkDocumenation($pid, $enc);
+        $docs = $this->checkDocumenation($pid, $enc);
         if ($docs == 1) {
             echo "<br><br><h4 style='color: red'>" . xlt("Please add documentation to complete this visit Your pay depends on it") . "</h4>";
             die;
@@ -87,14 +92,14 @@ class AutoBilling
         if (empty($res['encounter'])) {
             try {
                 $codetype = "CPT4";
-                self::insertCPTBilling($event_date, $code, $pid, $provider, $userid, $enc, $text, $fees, $icd10, $codetype, $modifier);
+                $this->insertCPTBilling($event_date, $code, $pid, $provider, $userid, $enc, $text, $fees, $icd10, $codetype, $modifier);
 
                 //Enter ICD10 if it exist
                 if (!empty($icd10) && empty($res)) {
-                    self::insertICDBilling($event_date, $icd10, $pid, $provider, $userid, $enc, $desc);
+                    $this->insertICDBilling($event_date, $icd10, $pid, $provider, $userid, $enc, $desc);
                 }
             } catch (Exception $e) {
-                echo xlt('Autobilling failed ' . $e);
+                echo xlt('Autobilling failed ') . ' ' . text($e);
                 die;
             }
         }

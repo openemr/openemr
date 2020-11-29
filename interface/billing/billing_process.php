@@ -163,7 +163,7 @@ function send_batch()
     } else {
         $clearinghouse = new ClearingHouse();
         $response = $clearinghouse->sendBilling($bat_filename);
-        if ($response == 'Sucesss') {
+        if ($response == 'Sucess') {
             $logstring = date("Y-m-d H:m:i") . " : Billing Transmitted";
             EventAuditLogger::instance()->newEvent("transmit-billing", $_SESSION['authUser'], '', 1, "$logstring");
         }

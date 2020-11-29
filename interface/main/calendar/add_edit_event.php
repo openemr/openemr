@@ -51,8 +51,9 @@ require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'] . '/group.inc');
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Core\Header;
 use OpenEMR\Billing\AutoBilling;
+use OpenEMR\Core\Header;
+
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
@@ -117,10 +118,10 @@ $g_view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');
 
 //Check that a diagnosis has been set for the patient before entering calendar entry Sherwin 2020/11/21
 $doBillingPid = $_POST['form_pid'];
-if (!empty($doBillingPid && $GLOBALS['enable_autobilling'] == 1)) {
+if (!empty($doBillingPid) && $GLOBALS['enable_autobilling'] == 1) {
     $isDiagnosed = $doBilling->getDiagnosis($doBillingPid);
     if (empty($isDiagnosed['title'])) {
-        die("<h4>Please enter a diagnosis for the patient before calendar event record</h4>");
+        echo "<h4>" . xlt("Please enter a diagnosis for the patient before calendar event record") . "</h4>";
     }
 }
 
@@ -230,8 +231,8 @@ function DOBandEncounter($pc_eid)
         $is_tracker = is_tracker_encounter_exist($event_date, $appttime, $_POST['form_pid'], $_GET['eid']);
         $is_checkin = is_checkin($_POST['form_apptstatus']);
         if ($event_date == date('Y-m-d') && !$GLOBALS['enable_autobilling']) {
-            $evd = true; //The encounter should be created irrespective of the event date
-        } elseif ($GLOBALS['enable_autobilling']) {
+            $evd = true;
+        } elseif ($GLOBALS['enable_autobilling']) { //The encounter should be created irrespective of the event date
             $evd = true;
         } else {
             $evd = false;
@@ -472,13 +473,13 @@ if ($_POST['form_action'] == "save") {
          * @todo make this an event that is dispatched with these variables
          */
         if ($_POST['form_apptstatus'] === '>') {
-            $bInfo = add_escape_custom($_POST['form_title']);  //calendar appointment type billing information
-            $pid = add_escape_custom($_POST['form_pid']);      //patient id
-            $userid = add_escape_custom($_SESSION['authUserID']);   //user who entered the information
+            $bInfo = $_POST['form_title'];  //calendar appointment type billing information
+            $pid = $_POST['form_pid'];      //patient id
+            $userid = $_SESSION['authUserID'];   //user who entered the information
             try {
                 $doBilling->generateBilling($event_date, $bInfo, $pid, $userid);
             } catch (Exception $e) {
-                error_log("Auto Billing failed to insert line 472 add_edit_event" . $e);
+                error_log("Auto Billing failed to insert line 472 add_edit_event" . errorLogEscape($e));
             } // pass this information to be processed
         }
 
