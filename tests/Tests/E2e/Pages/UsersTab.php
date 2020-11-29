@@ -47,6 +47,9 @@ class UsersTab
 
         $crawler->filterXPath(UsersTab::CREATE_USER_BUTTON)->click();
 
+        // need to give it time for the process to take place
+        sleep(5);
+
         $this->client->switchTo()->defaultContent();
     }
 
