@@ -50,11 +50,11 @@ class UsersTab
         $this->client->switchTo()->defaultContent();
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
 
-        $this->client->takeScreenshot('../artifacts/screen.png');
+        $this->client->takeScreenshot('artifacts/screen.png');
 
         $this->client->waitFor("//table//a[text()='$username']");
 
-        $this->client->takeScreenshot('../artifacts/screen2.png');
+        $this->client->takeScreenshot('artifacts/screen2.png');
 
         $this->client->switchTo()->defaultContent();
     }

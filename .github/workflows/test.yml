@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v2
 
       # set up path to collect testing artifacts
-      - run: mkdir -p ../artifacts
+      - run: mkdir -p artifacts
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -107,7 +107,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: testing-artifacts
-          path: ../artifacts/
+          path: artifacts/
 
   build_apache_73_104:
     name: PHP 7.3 - Apache - MariaDB 10.4
