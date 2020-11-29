@@ -47,8 +47,8 @@ class UsersTab
 
         $crawler->filterXPath(UsersTab::CREATE_USER_BUTTON)->click();
 
-        // wait 5 seconds to avoid timeout in line 56
-        sleep(5);
+        // wait 10 seconds to avoid timeout in line 56
+        sleep(10);
 
         $this->client->switchTo()->defaultContent();
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
