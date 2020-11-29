@@ -48,9 +48,10 @@ class UsersTab
         $crawler->filterXPath(UsersTab::CREATE_USER_BUTTON)->click();
 
         $this->client->switchTo()->defaultContent();
+        $this->client->waitFor(UsersTab::ADMIN_IFRAME);
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
 
-        $this->client->waitFor("//table//a[text()='$username']", 120);
+        $this->client->waitFor("//table//a[text()='$username']");
 
         $this->client->switchTo()->defaultContent();
     }
