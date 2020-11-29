@@ -47,11 +47,14 @@ class UsersTab
 
         $crawler->filterXPath(UsersTab::CREATE_USER_BUTTON)->click();
 
+        $this->client->switchTo()->defaultContent();
+        $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
+
         // wait 10 seconds to avoid timeout in line 56
         sleep(10);
 
         $this->client->switchTo()->defaultContent();
-        $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
+        $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
 
         $this->client->waitFor("//table//a[text()='$username']");
 
