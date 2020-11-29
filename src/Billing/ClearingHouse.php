@@ -28,7 +28,7 @@ class ClearingHouse
     public function sendBilling($bat_filename)
     {
         $cryptoGen = new Crypto\CryptoGen();
-        $fileLocal = $GLOBALS['OE_SITE_DIR'] . '/sites/default/documents/edi/' . $bat_filename;
+        $fileLocal = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/' . $bat_filename;
         $sftpServer = $GLOBALS['ch_sftp']; //this can be IP address or URL
         $sftpUsername = $GLOBALS['ch_sftp_username'];
         $sftpPassword = $cryptoGen->decryptStandard($GLOBALS['ch_sftp_pwd']);
