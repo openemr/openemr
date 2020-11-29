@@ -47,10 +47,13 @@ class UsersTab
 
         $crawler->filterXPath(UsersTab::CREATE_USER_BUTTON)->click();
 
+        // this will wait for 5 seconds to avoid the intermittent timeout in line 56 below
+        $this->client->wait(5);
+
         $this->client->switchTo()->defaultContent();
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
 
-        $this->client->waitForVisibility("//table//a[text()='$username']");
+        $this->client->waitFor("//table//a[text()='$username']");
 
         $this->client->switchTo()->defaultContent();
     }
