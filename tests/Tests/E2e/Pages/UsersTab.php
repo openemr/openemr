@@ -45,13 +45,8 @@ class UsersTab
         $newUser['lname'] = 'Bar';
         $newUser['adminPass'] = 'pass';
 
+        $this->client->waitFor(UsersTab::CREATE_USER_BUTTON);
         $crawler->filterXPath(UsersTab::CREATE_USER_BUTTON)->click();
-
-        $this->client->switchTo()->defaultContent();
-        $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
-
-        // wait 10 seconds to avoid timeout in line 56
-        sleep(10);
 
         $this->client->switchTo()->defaultContent();
         $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
