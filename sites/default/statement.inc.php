@@ -1,4 +1,5 @@
 <?php
+
 /* This is a template for printing patient statements and collection
  * letters.  You must customize it to suit your practice.  If your
  * needs are simple then you do not need programming experience to do

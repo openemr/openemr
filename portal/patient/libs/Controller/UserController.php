@@ -93,11 +93,11 @@ class UserController extends AppBaseController
                 foreach ($jsonToArr as $akey => $avalue) {
                     if ($akey == "rows") {
                         foreach ($avalue as $bkey => $bvalue) {
-                                foreach ($bvalue as $ckey => $cvalue) {
-                                    if (($ckey == 'id') || ($ckey == 'fname') || ($ckey == 'lname') || ($ckey == 'specialty') || ($ckey == 'active') || ($ckey == 'authorized')) {
-                                        $newArr[$akey][$bkey][$ckey] = $cvalue;
-                                    }
+                            foreach ($bvalue as $ckey => $cvalue) {
+                                if (($ckey == 'id') || ($ckey == 'fname') || ($ckey == 'lname') || ($ckey == 'specialty') || ($ckey == 'active') || ($ckey == 'authorized')) {
+                                    $newArr[$akey][$bkey][$ckey] = $cvalue;
                                 }
+                            }
                         }
                     } else {
                         $newArr[$akey] = $avalue;
