@@ -52,7 +52,7 @@ class UsersTab
 
         $this->client->takeScreenshot('artifacts/screen.png');
 
-        $this->client->waitFor("//table//a[text()='$username']");
+        $this->client->waitFor("//table//a[text()='$username']", 120);
 
         $this->client->takeScreenshot('artifacts/screen2.png');
 
