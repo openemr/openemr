@@ -60,8 +60,7 @@ class UsersTab
             $this->client->waitFor("//table//a[text()='$username']");
             $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
         } catch (\Facebook\WebDriver\Exception\TimeoutException $e) {
-            // see if the issue is screen refresh too fast or if the new user really didn't get added to the databaase
-            $clarify = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
+            // see if the issue is screen refresh too fast or if the new user really didn't get added to the database
             if (!empty($usernameDatabase['username'])) {
                 echo "SILENT FAIL: User with name $username not found in displayed users list, however the new user was found in database. TODO: figure out why this is happening intermittently\n";
                 return;
