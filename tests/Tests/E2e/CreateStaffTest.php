@@ -35,9 +35,9 @@ class CreateStaffTest extends PantherTestCase
         $lp = new LoginPage($client, $this);
         $mp = $lp->login('admin', 'pass');
 
-        $mp->openUsers('foobar');
+        // add the user and then check that the user was added
+        $mp->openUsers();
         $mp->assertActiveTab("Users / Group");
-
         $ut = $mp->selectUsersTab();
         $ut->addUser('foobar');
         $ut->assertUserPresent('foobar');
