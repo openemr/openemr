@@ -50,39 +50,33 @@ class UsersTab
         $this->client->waitFor(UsersTab::CREATE_USER_BUTTON);
         $crawler->filterXPath(UsersTab::CREATE_USER_BUTTON)->click();
 
-        // need to give it time for the process to take place
-        //  TODO: will be able to remove this when figure out why this addUser is intermittently not working
-        sleep(5);
-
         $this->client->switchTo()->defaultContent();
     }
 
     public function assertUserPresent($username): void
     {
+        $username = "hey";
+        $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
         try {
-            $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
-
-            $username = "hey";
-
-            try {
-                // a bit of a hack here - exception will be thrown if we can't find the user, catch it and emit assertion fail
-                $crawler->filterXPath("//table//a[text()='$username']")->getSize();
-            } catch (\InvalidArgumentException $e) {
-                // see if the issue is screen refresh too fast or if the new user really didn't get added to the databaase
-                $clarify = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
-                if (!empty($clarify['username'])) {
-                    echo "SILENT FAIL: User with name $username not found in displayed users list, however the new user was found in database. TODO: figure out why this is happening intermittently\n";
-                    return;
-                    //$this->test->fail("User with name $username not found in displayed users list, however the new user was found in database. TODO: figure out why this is happening intermittently");
-                } else {
-                    echo "SILENT FAIL: User with name $username not found in displayed users list and not found in the database. TODO: figure out why this is happening intermittently\n";
-                    return;
-                    //$this->test->fail("User with name $username not found in displayed users list and not found in the database. TODO: figure out why this is happening intermittently");
-                }
+            $this->client->waitFor("//table//a[text()='$username']");
+            $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
+        } catch (\Facebook\WebDriver\Exception\TimeoutException $e) {
+            // see if the issue is screen refresh too fast or if the new user really didn't get added to the databaase
+            $clarify = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
+            if (!empty($usernameDatabase['username'])) {
+                echo "SILENT FAIL: User with name $username not found in displayed users list, however the new user was found in database. TODO: figure out why this is happening intermittently\n";
+                return;
+                //$this->test->fail("User with name $username not found in displayed users list, however the new user was found in database. TODO: figure out why this is happening intermittently");
+            } else {
+                echo "SILENT FAIL: User with name $username not found in displayed users list and not found in the database. TODO: figure out why this is happening intermittently\n";
+                return;
+                //$this->test->fail("User with name $username not found in displayed users list and not found in the database. TODO: figure out why this is happening intermittently");
             }
-        } finally {
-            $this->client->switchTo()->defaultContent();
         }
+        $this->client->switchTo()->defaultContent();
+
+        // assert that new user is in database
+        $this->test->assertSame(($usernameDatabase['username'] ?? ''), $username);
     }
 
     private function switchToIFrame($selector)
