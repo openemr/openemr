@@ -21,7 +21,7 @@ if (
     ($_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
     ($_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
 ) {
-    $ignoreAuth_onsite_portal_two = true;
+    $ignoreAuth_onsite_portal = true;
 }
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");

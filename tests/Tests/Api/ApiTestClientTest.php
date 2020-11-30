@@ -21,6 +21,8 @@ class ApiTestClientTest extends TestCase
     const EXAMPLE_API_ENDPOINT = "/apis/default/api/facility";
     const EXAMPLE_API_ENDPOINT_INVALID_SITE = "/apis/baddefault/api/facility";
 
+    private $client;
+
     /**
      * Configures the test client using environment variables and reasonable defaults
      */
@@ -28,7 +30,6 @@ class ApiTestClientTest extends TestCase
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $this->client = new ApiTestClient($baseUrl, false);
-        $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
     }
 
     /**
@@ -36,8 +37,12 @@ class ApiTestClientTest extends TestCase
      */
     public function testGetConfigWithNull()
     {
+        $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->expectException(\InvalidArgumentException::class);
         $this->client->getConfig(null);
+
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
@@ -45,6 +50,7 @@ class ApiTestClientTest extends TestCase
      */
     public function testGetConfig()
     {
+        $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertFalse($this->client->getConfig("http_errors"));
         $this->assertEquals(10, $this->client->getConfig("timeout"));
         $this->assertNotNull($this->client->getConfig("base_uri"));
@@ -52,6 +58,9 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertEquals("application/json", $actualHeaders["Accept"]);
         $this->assertArrayHasKey("User-Agent", $actualHeaders);
+
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
@@ -67,12 +76,16 @@ class ApiTestClientTest extends TestCase
             $this->assertTrue(true);
         }
 
+        $this->client->cleanupClient();
+
         try {
             $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, array("username" => "bar"));
             $this->assertFalse(true, "expected InvalidArgumentException");
         } catch (\InvalidArgumentException $e) {
             $this->assertTrue(true);
         }
+
+        $this->client->cleanupClient();
     }
     /**
      * Tests OpenEMR OAuth when invalid client id is provided
@@ -86,6 +99,8 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(401, $actualValue->getStatusCode());
         $this->assertEquals('invalid_client', json_decode($actualValue->getBody())->error);
+
+        $this->client->cleanupClient();
     }
 
     /**
@@ -100,6 +115,8 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(400, $actualValue->getStatusCode());
         $this->assertEquals('Failed Authentication', json_decode($actualValue->getBody())->hint);
+
+        $this->client->cleanupClient();
     }
 
     /**
@@ -121,6 +138,9 @@ class ApiTestClientTest extends TestCase
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
+
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
@@ -135,6 +155,40 @@ class ApiTestClientTest extends TestCase
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
+
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
+    }
+
+    /**
+     * Tests OpenEMR API Example Endpoint After Getting Auth for the REST and FHIR APIs
+     *  Then test revoking user
+     */
+    public function testApiAuthExampleUseThenRevoke()
+    {
+        $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->assertEquals(200, $actualValue->getStatusCode());
+        $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
+        $this->assertEquals(200, $actualResponse->getStatusCode());
+        $id_token = json_decode($actualValue->getBody())->id_token;
+        $this->assertGreaterThan(10, strlen($id_token));
+
+        $actualResponse = $this->client->cleanupRevokeAuth();
+        $this->assertEquals(200, $actualResponse->getStatusCode());
+        $this->assertEquals("You have been signed out. Thank you.", $actualResponse->getBody());
+
+        $actualResponse = $this->client->cleanupRevokeAuth();
+        $this->assertEquals(200, $actualResponse->getStatusCode());
+        $this->assertEquals("You are currently not signed in.", $actualResponse->getBody());
+
+        $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
+        $this->assertEquals(400, $actualResponse->getStatusCode());
+
+        $this->client->removeAuthToken();
+        $actualHeaders = $this->client->getConfig("headers");
+        $this->assertArrayNotHasKey("Authorization", $actualHeaders);
+
+        $this->client->cleanupClient();
     }
 
     /**
@@ -149,6 +203,9 @@ class ApiTestClientTest extends TestCase
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
+
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
@@ -165,6 +222,9 @@ class ApiTestClientTest extends TestCase
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(401, $actualResponse->getStatusCode());
+
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**

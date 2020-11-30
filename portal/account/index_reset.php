@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$ignoreAuth_onsite_portal_two = $ignoreAuth = 0;
+$ignoreAuth_onsite_portal = $ignoreAuth = false;
 // Will start the (patient) portal OpenEMR session/cookie.
 require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
@@ -20,7 +20,7 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 $landingpage = "./../index.php?site=" . urlencode($_SESSION['site_id']);
 // kick out if patient not authenticated
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $ignoreAuth_onsite_portal_two = true;
+    $ignoreAuth_onsite_portal = true;
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');

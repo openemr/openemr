@@ -72,6 +72,13 @@ class PatientController extends AppBaseController
         if (isset($_GET['register'])) {
             $register = $_GET['register'];
         }
+
+        // force register to pid of 0 and register of true
+        if (!empty($GLOBALS['bootstrap_register'])) {
+            $pid = 0;
+            $register = true;
+        }
+
         $this->Assign('recid', $rid);
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $user);
@@ -128,9 +135,13 @@ class PatientController extends AppBaseController
         try {
             $criteria = new PatientCriteria();
             $pid = RequestUtil::Get('patientId');
-// only allow patient to see themself
+            // only allow patient to see themself
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 $pid = $GLOBALS['bootstrap_pid'];
+            }
+            // force register to pid of 0
+            if (!empty($GLOBALS['bootstrap_register'])) {
+                $pid = 0;
             }
 
             $criteria->Pid_Equals = $pid;

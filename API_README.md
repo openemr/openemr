@@ -184,6 +184,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=password
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
+&scope=openid
 &user_role=users
 &username=admin
 &password=pass'
@@ -195,6 +196,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=password
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
+&scope=openid
 &user_role=patient
 &username=Phil1
 &password=phil
@@ -212,6 +214,10 @@ Response:
   "refresh_token": "def5020017b484b0add020bf3491a8a537fa04eda12..."
 }
 ```
+
+#### Logout
+
+A grant (both Authorization Code and Password grants) can be logged out (ie. removed) by url of `oauth2/<site>/logout?id_token_hint=<id_token>`; an example full path would be `https://localhost:9300/oauth2/default/logout?id_token_hint=<id_token>`. Optional: `post_logout_redirect_uri` and `state` parameters can also be sent; note that `post_logout_redirect_uris` also needs to be set during registration for it to work.
 
 ### /api/ Endpoints
 

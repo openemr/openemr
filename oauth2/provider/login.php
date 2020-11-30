@@ -15,6 +15,7 @@ if ($oauthLogin !== true) {
     exit();
 }
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 ?>
@@ -50,6 +51,7 @@ use OpenEMR\Core\Header;
                     </p>
                     <hr />
                     <form method="post" action="<?php echo $redirect ?>">
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('oauth2')); ?>" />
                         <?php if (!$authorize) { ?>
                         <div class="form-group">
                             <input class="form-control" placeholder="<?php echo xla("Email if required"); ?>" type="email" name="email">

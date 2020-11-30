@@ -27,10 +27,11 @@ $_SESSION['register'] = true;
 $_SESSION['site_id'] = isset($_SESSION['site_id']) ? $_SESSION['site_id'] : 'default';
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 
-$ignoreAuth_onsite_portal_two = true;
+$ignoreAuth_onsite_portal = true;
 
 require_once("../../interface/globals.php");
 if (!$GLOBALS['portal_onsite_two_register']) {
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     echo xlt("Not Authorized");
     @header('HTTP/1.1 401 Unauthorized');
     die();
@@ -223,7 +224,7 @@ if ($GLOBALS['language_menu_login']) {
                 var profile = $("#profileFrame").contents();
                 var pid = profile.find('input#pid').val();
 
-            if (pid < 1) {
+                if (pid < 1) {
                     callServer('get_newpid', '');
                 }
 
@@ -233,7 +234,7 @@ if ($GLOBALS['language_menu_login']) {
                     // rest update will determine if new or existing pid for save. In register step-1 we catch existing pid but,
                     // we can still use update here if we want to allow changing passwords.
 
-                // save the new patient.
+                    // save the new patient.
                     document.getElementById('profileFrame').contentWindow.page.updateModel(1);
                     $("#insuranceForm").submit();
                     //  cleanup is in callServer done promise. This starts end session.
@@ -334,8 +335,8 @@ if ($GLOBALS['language_menu_login']) {
                 'value': value,
                 'dob': value2,
                 'last': last,
-            'first': first,
-            'email': email
+                'first': first,
+                'email': email
             }
             if (action == 'do_signup') {
                 data = {

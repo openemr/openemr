@@ -35,6 +35,8 @@ class FacilityApiTest extends TestCase
     protected function tearDown(): void
     {
         $this->fixtureManager->removeFacilityFixtures();
+        $this->testClient->cleanupRevokeAuth();
+        $this->testClient->cleanupClient();
     }
 
     /**

@@ -15,8 +15,8 @@
  */
 
 require_once("./../verify_session.php");
-$ignoreAuth = true;
-global $ignoreAuth;
+$ignoreAuth_onsite_portal = true;
+global $ignoreAuth_onsite_portal;
 
 
 require_once('../../interface/globals.php');

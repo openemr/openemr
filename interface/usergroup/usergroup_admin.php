@@ -144,10 +144,21 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
 
         if ($GLOBALS['restrict_user_facility'] && $_POST["schedule_facility"]) {
+            $sqlBindArray = [];
+            $scheduledFacilityString = "";
+            foreach ($_POST["schedule_facility"] as $scheduledFacility) {
+                $scheduledFacilityString .= "?,";
+                array_push($sqlBindArray, $scheduledFacility);
+            }
+            if (!empty($scheduledFacilityString)) {
+                $scheduledFacilityString = substr($scheduledFacilityString, 0, -1);
+            }
+            array_unshift($sqlBindArray, $_POST["id"]);
             sqlStatement("delete from users_facility
             where tablename='users'
             and table_id= ?
-            and facility_id not in (" . add_escape_custom(implode(",", $_POST['schedule_facility'])) . ")", array($_POST["id"]));
+            and facility_id not in (" . $scheduledFacilityString . ")", $sqlBindArray);
+
             foreach ($_POST["schedule_facility"] as $tqvar) {
                 sqlStatement("replace into users_facility set
                 facility_id = ?,
