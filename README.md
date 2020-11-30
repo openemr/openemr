@@ -1,6 +1,7 @@
 ![Syntax Status](https://github.com/openemr/openemr/workflows/Syntax/badge.svg?branch=master)
-![Styling Status](https://github.com/openemr/openemr/workflows/Style/badge.svg?branch=master)
-![Test Status](https://github.com/openemr/openemr/workflows/Test/badge.svg?branch=master)
+![Styling Status](https://github.com/openemr/openemr/workflows/Styling/badge.svg?branch=master)
+![Testing Status](https://github.com/openemr/openemr/workflows/Test/badge.svg?branch=master)
+
 [![Backers on Open Collective](https://opencollective.com/openemr/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/openemr/sponsors/badge.svg)](#sponsors)
 
 # OpenEMR
