@@ -80,7 +80,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $userIdentifier = null
     ) {
         // If a nonce is passed in, add a nonce scope for id token nonce claim
-        if ($_SESSION['nonce']) {
+        if (!empty($_SESSION['nonce'])) {
             $scope = new ScopeEntity();
             $scope->setIdentifier('nonce');
             $scopes[] = $scope;

@@ -481,7 +481,7 @@ class AuthorizationController
     public function getAuthorizationServer(): AuthorizationServer
     {
         $customClaim = new ClaimSetEntity('', ['']);
-        if ($_SESSION['nonce']) {
+        if (!empty($_SESSION['nonce'])) {
             // nonce scope added later. this is for id token nonce claim.
             $customClaim = new ClaimSetEntity('nonce', ['nonce']);
         }
@@ -747,7 +747,11 @@ class AuthorizationController
             // Adding site to POSTs scope then re-init PSR request to include.
             // This is usually done in ScopeRepository finalizeScopes() method!
             // which is not called for a refresh/access token swap.
-            $_POST['scope'] .= (" site:" . $_SESSION['site_id']);
+            if (!empty($_POST['scope'])) {
+                $_POST['scope'] .= (" site:" . $_SESSION['site_id']);
+            } else {
+                $_POST['scope'] = (" site:" . $_SESSION['site_id']);
+            }
             $request = $this->createServerRequest();
         }
         // Finally time to init the server.
@@ -793,7 +797,7 @@ class AuthorizationController
 
     public function saveTrustedUser($clientId, $userId, $scope, $persist, $code = '', $session = '', $grant = 'authorization_code')
     {
-        $id = $this->trustedUser($clientId, $userId)['id'];
+        $id = $this->trustedUser($clientId, $userId)['id'] ?? '';
         $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache, `grant_type`) VALUES (?, ?, ?, ?, ?, Now(), ?, ?, ?)";
 
         return sqlQueryNoLog($sql, array($id, $userId, $clientId, $scope, $persist, $code, $session, $grant));
@@ -820,7 +824,7 @@ class AuthorizationController
 
             $client_id = $id_payload['aud'];
             $user = $id_payload['sub'];
-            $id_nonce = $id_payload['nonce'];
+            $id_nonce = $id_payload['nonce'] ?? '';
             $trustedUser = $this->trustedUser($client_id, $user);
             if (empty($trustedUser['id'])) {
                 // not logged in so just continue as if were.
@@ -834,7 +838,7 @@ class AuthorizationController
                 }
                 exit;
             }
-            $session_nonce = json_decode($trustedUser['session_cache'], true)['nonce'];
+            $session_nonce = json_decode($trustedUser['session_cache'], true)['nonce'] ?? '';
             // this should be enough to confirm valid id
             if ($session_nonce !== $id_nonce) {
                 throw new OAuthServerException('Id token not issued from this server', 0, 'invalid _request', 400);

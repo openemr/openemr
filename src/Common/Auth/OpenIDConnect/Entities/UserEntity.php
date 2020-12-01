@@ -57,7 +57,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             'api:port' => true,
             'api:pofh' => true,
         ];
-        if ($_SESSION['nonce']) {
+        if (!empty($_SESSION['nonce'])) {
             $claims['nonce'] = $_SESSION['nonce'];
         }
         if ($_SESSION['site_id']) {
