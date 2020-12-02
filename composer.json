@@ -60,7 +60,8 @@
         "yubico/u2flib-server": "1.0.2",
         "steverhoades/oauth2-openid-connect-server": "1.2",
         "nyholm/psr7": "1.3",
-        "nyholm/psr7-server": "1.0"
+        "nyholm/psr7-server": "1.0",
+        "lcobucci/jwt": "dev-3.4.99 as 3.4.99"
     },
     "config": {
         "platform": {
@@ -72,6 +73,10 @@
         "symfony/panther": "^0.8"
     },
     "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/openemr/jwt"
+        },
         {
             "type": "vcs",
             "url": "https://github.com/openemr/wkhtmltopdf-openemr"
