@@ -18,6 +18,7 @@ const sourcemaps = require('gulp-sourcemaps');
 const gulp_watch = require('gulp-watch');
 const injector = require('gulp-inject-string');
 const colors = require('colors');
+const diff = require('gulp-diff-4');
 
 // package.json
 const packages = require('./package.json');
@@ -54,7 +55,7 @@ let config = {
 };
 
 if (config.install) {
-    console.log("\nCopying OpenEMR dependencies using Gulp".bold.yellow + "\n");
+    console.log("\nCopying OpenEMR dependencies (in addition to post Composer processing) using Gulp".bold.yellow + "\n");
 } else if (config.build) {
     console.log("\nBuilding OpenEMR themes using Gulp".bold.yellow + "\n");
 } else if (config.dev) {
@@ -554,6 +555,23 @@ function install(done) {
     done();
 }
 
+function installPostComposerArtifacts() {
+    // jwt support php8 (temporary fix until PHP 7.3 EOL)
+    let isSuccess = true;
+    console.log(logprefix + "Running installation of post composer artifacts ...");
+
+    return gulp.src('post-build-artifacts/jwt/modified/OpenSSL.php')
+        .pipe(gulp.dest('vendor/lcobucci/jwt/src/Signer'))
+        .on('error', (err) => {
+            log_error(isSuccess, err);
+        })
+        .on('end', () => {
+            if (isSuccess) {
+                console.log(logprefix + "Finished installation of post composer artifacts");
+            }
+        });
+}
+
 function watch() {
     let isSuccess = true;
     console.log(logprefix + "Running gulp watch task...");
@@ -626,7 +644,7 @@ exports.watch = watch;
 //    which is generally how this script is always used (except in
 //    rare case where the user is running the watch task).
 if (config.install) {
-    exports.default = gulp.series(install);
+    exports.default = gulp.parallel(install, installPostComposerArtifacts);
 } else {
     exports.default = gulp.series(clean, ingest, styles, sync);
 }
