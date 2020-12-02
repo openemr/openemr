@@ -39,7 +39,6 @@
     "gulp-append-prepend": "^1.0.8",
     "gulp-csso": "^4.0.1",
     "gulp-dart-sass": "^1.0.2",
-    "gulp-diff-4": "^4.0.1",
     "gulp-if": "^3.0.0",
     "gulp-inject-string": "^1.1.2",
     "gulp-postcss": "^9.0.0",

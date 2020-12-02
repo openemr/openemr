@@ -18,7 +18,6 @@ const sourcemaps = require('gulp-sourcemaps');
 const gulp_watch = require('gulp-watch');
 const injector = require('gulp-inject-string');
 const colors = require('colors');
-const diff = require('gulp-diff-4');
 
 // package.json
 const packages = require('./package.json');
@@ -556,10 +555,10 @@ function install(done) {
 }
 
 function installPostComposerArtifacts() {
-    // jwt support php8 (temporary fix until PHP 7.3 EOL)
     let isSuccess = true;
     console.log(logprefix + "Running installation of post composer artifacts ...");
 
+    // jwt support php8 (temporary fix until PHP 7.3 EOL)
     return gulp.src('post-build-artifacts/jwt/modified/OpenSSL.php')
         .pipe(gulp.dest('vendor/lcobucci/jwt/src/Signer'))
         .on('error', (err) => {
