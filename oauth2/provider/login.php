@@ -29,13 +29,13 @@ use OpenEMR\Core\Header;
         <div class="col-sm-5">
             <div class="card">
                 <div class="card-body">
-                    <?php if (!$authorize) { ?>
+                    <?php if (empty($authorize)) { ?>
                         <h4 class="card-title mb-4 mt-1"><?php echo xlt("Sign In"); ?></h4>
                     <?php } else { ?>
                         <h4 class="card-title mb-4 mt-1"><?php echo xlt("Requested Information Shared"); ?></h4>
                     <?php } ?>
                     <p>
-                    <?php if ($authorize) {
+                    <?php if (!empty($authorize)) {
                         foreach ($_SESSION['claims'] as $key => $value) {
                             $key_n = explode('_', $key);
                             if (stripos($_SESSION['scopes'], $key_n[0]) === false) {
@@ -52,7 +52,7 @@ use OpenEMR\Core\Header;
                     <hr />
                     <form method="post" action="<?php echo $redirect ?>">
                         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('oauth2')); ?>" />
-                        <?php if (!$authorize) { ?>
+                        <?php if (empty($authorize)) { ?>
                         <div class="form-group">
                             <input class="form-control" placeholder="<?php echo xla("Email if required"); ?>" type="email" name="email">
                         </div>
@@ -65,7 +65,7 @@ use OpenEMR\Core\Header;
                         <?php } ?>
                         <div class="row">
                             <div class="col-md-12">
-                                <?php if ($authorize) { ?>
+                                <?php if (!empty($authorize)) { ?>
                                 <div class="btn-group">
                                     <button type="submit" name="proceed" value="1" class="btn btn-primary"><?php echo xlt("Authorize"); ?></button>
                                 </div>
