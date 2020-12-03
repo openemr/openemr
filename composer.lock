@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c475a84c70811d9e55f00015c7b301c3",
+    "content-hash": "a2ac25d1acbce3c9bdb6f51c64f9bdbb",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -2547,16 +2547,16 @@
         },
         {
             "name": "laminas/laminas-server",
-            "version": "2.9.0",
+            "version": "2.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-server.git",
-                "reference": "9cce0abbdff0d873add767e36389b9df348bc0b5"
+                "reference": "9b82e3e45f8f01ca6ac5d0003dba58f85043d7e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-server/zipball/9cce0abbdff0d873add767e36389b9df348bc0b5",
-                "reference": "9cce0abbdff0d873add767e36389b9df348bc0b5",
+                "url": "https://api.github.com/repos/laminas/laminas-server/zipball/9b82e3e45f8f01ca6ac5d0003dba58f85043d7e4",
+                "reference": "9b82e3e45f8f01ca6ac5d0003dba58f85043d7e4",
                 "shasum": ""
             },
             "require": {
@@ -2604,7 +2604,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2020-11-23T22:59:16+00:00"
+            "time": "2020-12-01T21:06:52+00:00"
         },
         {
             "name": "laminas/laminas-servicemanager",
@@ -3311,16 +3311,16 @@
         },
         {
             "name": "lcobucci/jwt",
-            "version": "3.4.1",
+            "version": "dev-34php8",
             "source": {
                 "type": "git",
-                "url": "https://github.com/lcobucci/jwt.git",
-                "reference": "958a9873a63b0244a72f6e354ccc86019ee674a5"
+                "url": "https://github.com/openemr/jwt.git",
+                "reference": "b05489c8ef2746f1653ccc41789c027a693b1fb9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/958a9873a63b0244a72f6e354ccc86019ee674a5",
-                "reference": "958a9873a63b0244a72f6e354ccc86019ee674a5",
+                "url": "https://api.github.com/repos/openemr/jwt/zipball/b05489c8ef2746f1653ccc41789c027a693b1fb9",
+                "reference": "b05489c8ef2746f1653ccc41789c027a693b1fb9",
                 "shasum": ""
             },
             "require": {
@@ -3354,7 +3354,14 @@
                     "compat/lcobucci-clock-polyfill.php"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Lcobucci\\JWT\\": [
+                        "test/unit",
+                        "test/functional"
+                    ]
+                }
+            },
             "license": [
                 "BSD-3-Clause"
             ],
@@ -3368,23 +3375,22 @@
             "description": "A simple library to work with JSON Web Token and JSON Web Signature",
             "keywords": [
                 "JWS",
-                "jwt"
+                "JWT"
             ],
             "support": {
-                "issues": "https://github.com/lcobucci/jwt/issues",
-                "source": "https://github.com/lcobucci/jwt/tree/3.4.1"
+                "source": "https://github.com/openemr/jwt/tree/34php8"
             },
             "funding": [
                 {
-                    "url": "https://github.com/lcobucci",
-                    "type": "github"
+                    "type": "github",
+                    "url": "https://github.com/lcobucci"
                 },
                 {
-                    "url": "https://www.patreon.com/lcobucci",
-                    "type": "patreon"
+                    "type": "patreon",
+                    "url": "https://www.patreon.com/lcobucci"
                 }
             ],
-            "time": "2020-11-27T01:17:14+00:00"
+            "time": "2020-12-01T20:26:41+00:00"
         },
         {
             "name": "league/event",
@@ -10996,9 +11002,18 @@
             "time": "2020-07-08T17:02:28+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "lcobucci/jwt",
+            "version": "dev-34php8",
+            "alias": "3.4.9",
+            "alias_normalized": "3.4.9.0"
+        }
+    ],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "lcobucci/jwt": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
