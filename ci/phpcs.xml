@@ -29,7 +29,6 @@
     </properties>
   </rule>
 
-  <exclude-pattern>*/post-build-artifacts/*</exclude-pattern>
   <exclude-pattern>*/sites/default/sqlconf.php</exclude-pattern>
   <exclude-pattern>*/sites/default/documents/*</exclude-pattern>
   <exclude-pattern>*/vendor/*</exclude-pattern>
