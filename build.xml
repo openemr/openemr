@@ -28,6 +28,15 @@
             <fileset dir="${dir.vendor}" includes="**/*.cvs*" defaultexcludes="false"/>
         </delete>
 
+        <delete dir="${dir.vendor}/lcobucci/jwt/.git" verbose="true"/>
+        <delete dir="${dir.vendor}/lcobucci/jwt/.github" verbose="true"/>
+        <delete file="${dir.vendor}/lcobucci/jwt/README.md" verbose="true"/>
+        <delete dir="${dir.vendor}/lcobucci/jwt/docs" verbose="true"/>
+        <delete file="${dir.vendor}/lcobucci/jwt/mkdocs.yml" verbose="true"/>
+        <delete file="${dir.vendor}/lcobucci/jwt/phpunit.xml.dist" verbose="true"/>
+        <delete file="${dir.vendor}/lcobucci/jwt/roave-bc-check.yaml" verbose="true"/>
+        <delete dir="${dir.vendor}/lcobucci/jwt/test" verbose="true"/>
+
         <delete dir="${dir.vendor}/adldap2/adldap2/docs" verbose="true"/>
         <delete dir="${dir.vendor}/adodb/adodb-php/tests" verbose="true"/>
         <delete dir="${dir.vendor}/adodb/adodb-php/docs" verbose="true"/>
