@@ -32,7 +32,7 @@ if (!empty($codetype)) {
     $allowed_codes = split_csv_line($codetype);
 }
 
-$form_code_type = $_POST['form_code_type'];
+$form_code_type = $_POST['form_code_type'] ?? '';
 
 // Determine which code type will be selected by default.
 $default = '';
@@ -47,7 +47,7 @@ if (!empty($form_code_type)) {
 // This variable is used to store the html element
 // of the target script where the selected code
 // will be stored in.
-$target_element = $_GET['target_element'];
+$target_element = $_GET['target_element'] ?? null;
 ?>
 <!DOCTYPE html>
 <html>
@@ -145,7 +145,7 @@ $focus = "document.theform.search_term.select();";
                 ?>
                 <div class="input-group mt-1">
                     <input type='text' class='form-control' name='search_term' id="searchTerm"
-                        value='<?php echo attr($_REQUEST['search_term']); ?>'
+                        value='<?php echo attr($_REQUEST['search_term'] ?? ''); ?>'
                         title='<?php echo xla('Any part of the desired code or its description'); ?>'
                         placeholder="<?php echo xla('Search for'); ?>" />
                     <div class="input-group-append">
@@ -160,7 +160,7 @@ $focus = "document.theform.search_term.select();";
                 </div>
             </div>
             <?php
-            if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
+            if (!empty($_REQUEST['bn_search']) || !empty($_REQUEST['search_term'])) {
                 if (!$form_code_type) {
                     $form_code_type = $codetype;
                 }

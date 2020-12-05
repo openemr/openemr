@@ -952,6 +952,7 @@ class AuthorizationController
                     // JWT couldn't be parsed
                     $body = $response->getBody();
                     $body->write($exception->getMessage());
+                    SessionUtil::oauthSessionCookieDestroy();
                     $this->emitResponse($response->withStatus(400)->withBody($body));
                     exit();
                 }
@@ -965,6 +966,7 @@ class AuthorizationController
                 } catch (Exception $exception) {
                     $body = $response->getBody();
                     $body->write($exception->getMessage());
+                    SessionUtil::oauthSessionCookieDestroy();
                     $this->emitResponse($response->withStatus(400)->withBody($body));
                     exit();
                 }
@@ -992,12 +994,14 @@ class AuthorizationController
             }
         } catch (OAuthServerException $exception) {
             // JWT couldn't be parsed
+            SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
             exit();
         }
         // we're here so emit results to interface thank you very much.
         $body = $response->getBody();
         $body->write(json_encode($result));
+        SessionUtil::oauthSessionCookieDestroy();
         $this->emitResponse($response->withStatus(200)->withBody($body));
         exit();
     }

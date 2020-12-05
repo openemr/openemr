@@ -3834,7 +3834,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
         $providerNAME .= ", " . $prov_data['suffix'];
     }
 
-    if ($_REQUEST['display'] == "fullscreen") {
+    if (!empty($_REQUEST['display']) && ($_REQUEST['display'] == "fullscreen")) {
         $fullscreen_disable = 'disabled';
     } else {
         $frame_disabled = 'disabled';
@@ -3855,7 +3855,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="tabHide <?php echo $fullscreen_disabled; ?>"><a id="BUTTON_PREFERENCES_menu" target="RTop" href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_globals.php">
+                            <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="tabHide <?php echo ($fullscreen_disable ?? ''); ?>"><a id="BUTTON_PREFERENCES_menu" target="RTop" href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_globals.php">
                             <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
                             <?php echo xlt("Preferences"); ?></a></li>
                             <li id="menu_PRINT_narrative" name="menu_PRINT_report"><a id="BUTTON_PRINT_report" target="_new" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?></a></li>
@@ -3863,7 +3863,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                 onclick="top.restoreSession(); create_task('<?php echo attr($provider_id); ?>','Report','menu'); return false;">
                                 <?php echo xlt("Save Report as PDF"); ?></a></li>
                             <li class="divider tabHide"></li>
-                            <li id="menu_QUIT" name="menu_QUIT" class="tabHide <?php echo $frame_disable; ?>"><a href="#" onclick='window.close();'><?php echo xlt("Quit"); ?></a></li>
+                            <li id="menu_QUIT" name="menu_QUIT" class="tabHide <?php echo ($frame_disable ?? ''); ?>"><a href="#" onclick='window.close();'><?php echo xlt("Quit"); ?></a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
@@ -3910,7 +3910,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             */
                             if ($display !== "fullscreen") { ?>
                                 <li class="divider"></li>
-                                <li id="menu_fullscreen" name="menu_fullscreen" <?php echo $fullscreen; ?>>
+                                <li id="menu_fullscreen" name="menu_fullscreen" <?php echo ($fullscreen ?? ''); ?>>
                                     <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup('<?php echo $_SERVER['REQUEST_URI'] . '&display=fullscreen&encounter=' . $encounter; ?>');" href="JavaScript:void(0);" class=""><?php echo xlt('Fullscreen'); ?></a>
                                 </li>
                                 <?php
