@@ -18,8 +18,12 @@ require_once(__DIR__ . "/../Common/Session/SessionUtil.php");
 
 use DateInterval;
 use Exception;
+use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\ValidationData;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
+use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
@@ -52,6 +56,8 @@ use RuntimeException;
 
 class AuthorizationController
 {
+    use CryptTrait;
+
     public $siteId;
     public $authBaseUrl;
     public $authBaseFullUrl;
@@ -59,33 +65,31 @@ class AuthorizationController
     private $privateKey;
     private $passphrase;
     private $publicKey;
-    private $encryptionKey;
+    private $oaEncryptionKey;
     private $grantType;
     private $providerForm;
     private $authRequestSerial;
+    private $cryptoGen;
 
     public function __construct($providerForm = true)
     {
         global $gbl;
 
         $this->siteId = $gbl::$SITE;
-
         $this->authBaseUrl = $GLOBALS['webroot'] . '/oauth2/' . $_SESSION['site_id'];
         // collect full url and issuing url by using 'site_addr_oath' global
         $this->authBaseFullUrl = $GLOBALS['site_addr_oath'] . $this->authBaseUrl;
         $this->authIssueFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'];
-
         $this->authRequestSerial = $_SESSION['authRequestSerial'] ?? '';
-
         // Create a crypto object that will be used for for encryption/decryption
         $this->cryptoGen = new CryptoGen();
 
         // encryption key
         $eKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2key'");
-        if (!empty($eKey['name']) && ($eKey['name'] == 'oauth2key')) {
+        if (!empty($eKey['name']) && ($eKey['name'] === 'oauth2key')) {
             // collect the encryption key from database
-            $this->encryptionKey = $this->cryptoGen->decryptStandard($eKey['value']);
-            if (empty($this->encryptionKey)) {
+            $this->oaEncryptionKey = $this->cryptoGen->decryptStandard($eKey['value']);
+            if (empty($this->oaEncryptionKey)) {
                 // if decrypted key is empty, then critical error and must exit
                 error_log("OpenEMR error - oauth2 key was blank after it was decrypted, so forced exit");
                 http_response_code(500);
@@ -93,21 +97,21 @@ class AuthorizationController
             }
         } else {
             // create a encryption key and store it in database
-            $this->encryptionKey = RandomGenUtils::produceRandomBytes(32);
-            if (empty($this->encryptionKey)) {
+            $this->oaEncryptionKey = RandomGenUtils::produceRandomBytes(32);
+            if (empty($this->oaEncryptionKey)) {
                 // if empty, then force exit
                 error_log("OpenEMR error - random generator broken during oauth2 encryption key generation, so forced exit");
                 http_response_code(500);
                 exit;
             }
-            $this->encryptionKey = base64_encode($this->encryptionKey);
-            if (empty($this->encryptionKey)) {
+            $this->oaEncryptionKey = base64_encode($this->oaEncryptionKey);
+            if (empty($this->oaEncryptionKey)) {
                 // if empty, then force exit
                 error_log("OpenEMR error - base64 encoding broken during oauth2 encryption key generation, so forced exit");
                 http_response_code(500);
                 exit;
             }
-            sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2key', ?)", [$this->cryptoGen->encryptStandard($this->encryptionKey)]);
+            sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2key', ?)", [$this->cryptoGen->encryptStandard($this->oaEncryptionKey)]);
         }
 
         // private key
@@ -341,6 +345,7 @@ class AuthorizationController
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
         $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
+        $info['client_secret'] = $info['client_secret'] ?? null; // just to be sure empty is null;
         // encrypt the client secret
         if (!empty($info['client_secret'])) {
             $info['client_secret'] = $this->cryptoGen->encryptStandard($info['client_secret']);
@@ -387,20 +392,20 @@ class AuthorizationController
             if (!$token) {
                 $token = $this->getBearerToken();
                 if (!$token) {
-                    throw new OAuthServerException('invalid_request', 0, 'No Access Code', 403);
+                    throw new OAuthServerException('No Access Code', 0, 'invalid_request', 403);
                 }
             }
             $pos = strpos($_SERVER['PATH_INFO'], '/client/');
             if ($pos === false) {
-                throw new OAuthServerException('invalid_request', 0, 'Invalid path', 403);
+                throw new OAuthServerException('Invalid path', 0, 'invalid_request', 403);
             }
             $uri_path = substr($_SERVER['PATH_INFO'], $pos + 8);
             $client = sqlQuery("SELECT * FROM `oauth_clients` WHERE `registration_uri_path` = ?", array($uri_path));
             if (!$client) {
-                throw new OAuthServerException('invalid_request', 0, 'Invalid client', 403);
+                throw new OAuthServerException('Invalid client', 0, 'invalid_request', 403);
             }
             if ($client['registration_access_token'] !== $token) {
-                throw new OAuthServerException('invalid _request', 0, 'Invalid registration token', 403);
+                throw new OAuthServerException('Invalid registration token', 0, 'invalid _request', 403);
             }
             $params['client_id'] = $client['client_id'];
             $params['client_secret'] = $this->cryptoGen->decryptStandard($client['client_secret']);
@@ -493,7 +498,7 @@ class AuthorizationController
             new AccessTokenRepository(),
             new ScopeRepository(),
             new CryptKey($this->privateKey, $this->passphrase),
-            $this->encryptionKey,
+            $this->oaEncryptionKey,
             $responseType
         );
         if (empty($this->grantType)) {
@@ -854,5 +859,142 @@ class AuthorizationController
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         }
+    }
+
+    public function tokenIntrospection(): void
+    {
+        $response = $this->createServerResponse();
+        $response->withHeader("Cache-Control", "no-store");
+        $response->withHeader("Pragma", "no-cache");
+        $response->withHeader('Content-Type', 'application/json');
+
+        $rawToken = $_REQUEST['token'] ?? null;
+        $token_hint = $_REQUEST['token_type_hint'] ?? null;
+        $clientId = $_REQUEST['client_id'] ?? null;
+        // not required for public apps but mandatory for confidential
+        $clientSecret = $_REQUEST['client_secret'] ?? null;
+
+        // the ride starts. had to use a try because PHP doesn't support tryhard yet!
+        try {
+            // so regardless of client type(private/public) we need client for client app type and secret.
+            $client = sqlQueryNoLog("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", array($clientId));
+            if (empty($client)) {
+                throw new OAuthServerException('Not a registered client', 0, 'invalid_request', 401);
+            }
+            // a no no. if private we need a secret.
+            if (empty($clientSecret) && !empty($client['is_confidential'])) {
+                throw new OAuthServerException('Invalid client app type', 0, 'invalid_request', 400);
+            }
+            // lets verify secret to prevent bad guys.
+            if (!empty($client['client_secret'])) {
+                $decryptedSecret = $this->cryptoGen->decryptStandard($client['client_secret']);
+                if ($decryptedSecret !== $clientSecret) {
+                    throw new OAuthServerException('Client failed security', 0, 'invalid_request', 401);
+                }
+            }
+            // will try hard to go on if missing token hint. this is to help with universal conformance.
+            if (empty($token_hint)) {
+                // determine if access or refresh.
+                $access_parts = explode(".", $rawToken);
+                if (count($access_parts) === 3) {
+                    $token_hint = 'access_token';
+                } else {
+                    $token_hint = 'refresh_token';
+                }
+            } elseif (($token_hint !== 'access_token' && $token_hint !== 'refresh_token') || empty($rawToken)) {
+                throw new OAuthServerException('Missing token or unsupported hint.', 0, 'invalid_request', 400);
+            }
+
+            // are we there yet! client's okay but, is token?
+            if ($token_hint === 'access_token') {
+                try {
+                    // Attempt to parse and validate the JWT
+                    $token = (new Parser())->parse($rawToken);
+                    // defaults
+                    $result = array(
+                        'active' => true,
+                        'status' => 'active',
+                        'scope' => implode(" ", $token->getClaim('scopes')),
+                        'client_id' => $clientId,
+                        'exp' => $token->getClaim('exp'),
+                        'sub' => $token->getClaim('sub'), // user_id
+                    );
+                    try {
+                        if ($token->verify(new Sha256(), 'file://' . $this->publicKey) === false) {
+                            $result['active'] = 'false';
+                            $result['status'] = 'failed_verification';
+                        }
+                    } catch (Exception $exception) {
+                        $result['active'] = 'false';
+                        $result['status'] = 'invalid_signature';
+                    }
+                    // Ensure access token hasn't expired
+                    $data = new ValidationData();
+                    $data->setCurrentTime(\time());
+                    if ($token->validate($data) === false) {
+                        $result['active'] = 'false';
+                        $result['status'] = 'expired';
+                    }
+                    $trusted = $this->trustedUser($result['client_id'], $result['sub']);
+                    if (empty($trusted['id'])) {
+                        $result['active'] = 'false';
+                        $result['status'] = 'revoked';
+                    }
+                    if ($token->getClaim('aud') !== $clientId) {
+                        // return no info in this case. possible Phishing
+                        $result = array('active' => false);
+                    }
+                } catch (Exception $exception) {
+                    // JWT couldn't be parsed
+                    $body = $response->getBody();
+                    $body->write($exception->getMessage());
+                    $this->emitResponse($response->withStatus(400)->withBody($body));
+                    exit();
+                }
+            }
+            if ($token_hint === 'refresh_token') {
+                try {
+                    // Validate refresh token
+                    $this->setEncryptionKey($this->oaEncryptionKey);
+                    $refreshToken = $this->decrypt($rawToken);
+                    $refreshTokenData = \json_decode($refreshToken, true);
+                } catch (Exception $exception) {
+                    $body = $response->getBody();
+                    $body->write($exception->getMessage());
+                    $this->emitResponse($response->withStatus(400)->withBody($body));
+                    exit();
+                }
+                $result = array(
+                    'active' => true,
+                    'status' => 'active',
+                    'scope' => implode(" ", $refreshTokenData['scopes']),
+                    'client_id' => $clientId,
+                    'exp' => $refreshTokenData['expire_time'],
+                    'sub' => $refreshTokenData['user_id'],
+                );
+                if ($refreshTokenData['expire_time'] < \time()) {
+                    $result['active'] = 'false';
+                    $result['status'] = 'expired';
+                }
+                $trusted = $this->trustedUser($refreshTokenData['client_id'], $result['sub']);
+                if (empty($trusted['id'])) {
+                    $result['active'] = 'false';
+                    $result['status'] = 'revoked';
+                }
+                if ($refreshTokenData['client_id'] !== $clientId) {
+                    // return no info in this case. possible Phishing
+                    $result = array('active' => false);
+                }
+            }
+        } catch (OAuthServerException $exception) {
+            // JWT couldn't be parsed
+            $this->emitResponse($exception->generateHttpResponse($response));
+            exit();
+        }
+        // we're here so emit results to interface thank you very much.
+        $body = $response->getBody();
+        $body->write(json_encode($result));
+        $this->emitResponse($response->withStatus(200)->withBody($body));
+        exit();
     }
 }
