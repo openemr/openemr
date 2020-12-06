@@ -24,14 +24,14 @@ $form_name   = "eye_mag";
 $form_folder = "eye_mag";
 $Form_Name   = "Eye Exam";
 $form_id     = $_REQUEST['id'];
-$action      = $_REQUEST['action'];
-$finalize    = $_REQUEST['finalize'];
+$action      = $_REQUEST['action'] ?? null;
+$finalize    = $_REQUEST['finalize'] ?? null;
 $id          = $_REQUEST['id'];
-$display     = $_REQUEST['display'];
+$display     = $_REQUEST['display'] ?? null;
 $pid         = $_REQUEST['pid'];
-$refresh     = $_REQUEST['refresh'];
+$refresh     = $_REQUEST['refresh'] ?? null;
 
-if ($_REQUEST['url']) {
+if (!empty($_REQUEST['url'])) {
     redirector($_REQUEST['url']);
     exit;
 }

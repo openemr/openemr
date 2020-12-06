@@ -116,7 +116,7 @@ if (false !== stripos($end_point, '/logout')) {
 }
 
 if (false !== stripos($end_point, '/introspect')) {
+    // session is destroyed within below function
     $authServer->tokenIntrospection();
-    SessionUtil::oauthSessionCookieDestroy();
     exit;
 }

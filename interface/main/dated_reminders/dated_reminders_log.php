@@ -56,7 +56,7 @@ if ($_GET) {
     $TempRemindersArray = logRemindersArray();
     foreach ($TempRemindersArray as $RA) {
         $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
-        $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'] . ', ' . $RA['ToName'] : $RA['ToName']);
+        $remindersArray[$RA['messageID']]['ToName'] = ((!empty($remindersArray[$RA['messageID']]['ToName'])) ? $remindersArray[$RA['messageID']]['ToName'] . ', ' . ($RA['ToName'] ?? '') : ($RA['ToName'] ?? ''));
         $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
         $remindersArray[$RA['messageID']]['message'] = $RA['message'];
         $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];

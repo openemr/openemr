@@ -66,7 +66,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 $vitals .= '<td><div class="bold" style="display:inline-block">' . xlt($key) . ': </div><div class="text" style="display:inline-block">' . xlt($value) . "</div></td>";
             } elseif ($key == "Bps") {
                 $bps = $value;
-                if ($bpd) {
+                if (!empty($bpd)) {
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . text($bps) . "/" . text($bpd)  . "</div></td>";
                 } else {
                     continue;

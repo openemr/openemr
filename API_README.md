@@ -159,6 +159,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=refresh_token
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
+&scope=openid
 &refresh_token=def5020089a766d16...'
 ```
 
@@ -218,6 +219,12 @@ Response:
 #### Logout
 
 A grant (both Authorization Code and Password grants) can be logged out (ie. removed) by url of `oauth2/<site>/logout?id_token_hint=<id_token>`; an example full path would be `https://localhost:9300/oauth2/default/logout?id_token_hint=<id_token>`. Optional: `post_logout_redirect_uri` and `state` parameters can also be sent; note that `post_logout_redirect_uris` also needs to be set during registration for it to work.
+
+#### More Details
+
+The forum thread that detailed development of Authorization and where questions and issues are addressed is here: https://community.open-emr.org/t/v6-authorization-and-api-changes-afoot/15450
+
+More specific development api topics are discussed and described on the above forum thread (such as introspection).
 
 ### /api/ Endpoints
 

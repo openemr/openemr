@@ -925,23 +925,23 @@ class AuthorizationController
                     );
                     try {
                         if ($token->verify(new Sha256(), 'file://' . $this->publicKey) === false) {
-                            $result['active'] = 'false';
+                            $result['active'] = false;
                             $result['status'] = 'failed_verification';
                         }
                     } catch (Exception $exception) {
-                        $result['active'] = 'false';
+                        $result['active'] = false;
                         $result['status'] = 'invalid_signature';
                     }
                     // Ensure access token hasn't expired
                     $data = new ValidationData();
                     $data->setCurrentTime(\time());
                     if ($token->validate($data) === false) {
-                        $result['active'] = 'false';
+                        $result['active'] = false;
                         $result['status'] = 'expired';
                     }
                     $trusted = $this->trustedUser($result['client_id'], $result['sub']);
                     if (empty($trusted['id'])) {
-                        $result['active'] = 'false';
+                        $result['active'] = false;
                         $result['status'] = 'revoked';
                     }
                     if ($token->getClaim('aud') !== $clientId) {
@@ -952,6 +952,7 @@ class AuthorizationController
                     // JWT couldn't be parsed
                     $body = $response->getBody();
                     $body->write($exception->getMessage());
+                    SessionUtil::oauthSessionCookieDestroy();
                     $this->emitResponse($response->withStatus(400)->withBody($body));
                     exit();
                 }
@@ -965,6 +966,7 @@ class AuthorizationController
                 } catch (Exception $exception) {
                     $body = $response->getBody();
                     $body->write($exception->getMessage());
+                    SessionUtil::oauthSessionCookieDestroy();
                     $this->emitResponse($response->withStatus(400)->withBody($body));
                     exit();
                 }
@@ -977,12 +979,12 @@ class AuthorizationController
                     'sub' => $refreshTokenData['user_id'],
                 );
                 if ($refreshTokenData['expire_time'] < \time()) {
-                    $result['active'] = 'false';
+                    $result['active'] = false;
                     $result['status'] = 'expired';
                 }
                 $trusted = $this->trustedUser($refreshTokenData['client_id'], $result['sub']);
                 if (empty($trusted['id'])) {
-                    $result['active'] = 'false';
+                    $result['active'] = false;
                     $result['status'] = 'revoked';
                 }
                 if ($refreshTokenData['client_id'] !== $clientId) {
@@ -992,12 +994,14 @@ class AuthorizationController
             }
         } catch (OAuthServerException $exception) {
             // JWT couldn't be parsed
+            SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
             exit();
         }
         // we're here so emit results to interface thank you very much.
         $body = $response->getBody();
         $body->write(json_encode($result));
+        SessionUtil::oauthSessionCookieDestroy();
         $this->emitResponse($response->withStatus(200)->withBody($body));
         exit();
     }

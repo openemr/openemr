@@ -3594,7 +3594,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
             // $_POST["$prefix$field_id"] is an array of text fields with companion
             // radio buttons to be imploded into "key:n:notes|key:n:notes|...".
             foreach ($_POST["$prefix$field_id"] as $key => $val) {
-                $restype = $_POST["radio_{$field_id}"][$key];
+                $restype = $_POST["radio_{$field_id}"][$key] ?? null;
                 if (empty($restype)) {
                     $restype = '0';
                 }
