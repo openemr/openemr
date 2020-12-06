@@ -625,7 +625,7 @@ if (
     } // end not form_download
 } // end statements requested
 
-// let biller know no why statement was notg generated
+// let biller know no why statement was not generated
 if (
     (
         (
