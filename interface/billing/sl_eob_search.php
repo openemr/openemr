@@ -625,7 +625,7 @@ if (
     } // end not form_download
 } // end statements requested
 
-// let biller know no why statement was not generated
+// let biller know no why statement was notg generated
 if (
     (
         (
@@ -1025,8 +1025,6 @@ if (
                             // will require MySQL 4.1 or greater.
 
                             $num_invoices = 0;
-                            // was previously disallowed but should allow biller to proceed with era posting
-                            // even with alerts
                             if (!$alertmsg) {
                                 $t_res = sqlStatement($query);
                                 $num_invoices = sqlNumRows($t_res);
