@@ -47,6 +47,7 @@ $eraname = '';
 $eracount = 0;
 $g_posting_adj_disable = $GLOBALS['posting_adj_disable'] ? 'checked' : '';
 $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
+$form_cb = false;
 
 /* Load dependencies only if we need them */
 if (!empty($GLOBALS['portal_onsite_two_enable'])) {
@@ -325,16 +326,25 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         $pdf->selectFont('Courier');
         $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
         $countline = 1;
-        $file = fopen($file_to_send, "r");//this file contains the text to be converted to pdf.
+        // this file contains the text to be converted to pdf.
+        $file = fopen($file_to_send, "r");
         while (!feof($file)) {
-            $OneLine = fgets($file);//one line is read
-            if (stristr($OneLine, "\014") == true && !feof($file)) {//form feed means we should start a new page.
+            // one line is read
+            $OneLine = fgets($file);
+            // form feed means we should start a new page.
+            if (stristr($OneLine, "\014") == true && !feof($file)) {
                 $pdf->ezNewPage();
                 $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
                 str_replace("\014", "", $OneLine);
             }
 
-            if (stristr($OneLine, 'REMIT TO') == true || stristr($OneLine, 'Visit Date') == true || stristr($OneLine, 'Future Appointments') == true || stristr($OneLine, 'Current') == true) { //lines are made bold when 'REMIT TO' or 'Visit Date' is there.
+            if (
+                stristr($OneLine, 'REMIT TO') == true ||
+                stristr($OneLine, 'Visit Date') == true ||
+                stristr($OneLine, 'Future Appointments') == true ||
+                stristr($OneLine, 'Current') == true
+            ) {
+                // lines are made bold when 'REMIT TO' or 'Visit Date' is there.
                 $pdf->ezText('<b>' . $OneLine . '</b>', 12, array('justification' => 'left', 'leading' => 6));
             } else {
                 $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6));
@@ -342,15 +352,15 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
 
             $countline++;
         }
-
-        $fh = @fopen($STMT_TEMP_FILE_PDF, 'w');//stored to a pdf file
+        // stored to a pdf file
+        $fh = @fopen($STMT_TEMP_FILE_PDF, 'w');
         if ($fh) {
             fwrite($fh, $pdf->ezOutput());
             fclose($fh);
         }
     }
-
-    header("Pragma: public");//this section outputs the pdf file to browser
+    // this section outputs the pdf file to browser
+    header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
@@ -361,16 +371,30 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     // flush the content to the browser. If you don't do this, the text from the subsequent
     // output from this script will be in the file instead of sent to the browser.
     flush();
-    exit(); //added to exit from process properly in order to stop bad html code -ehrlive
+    // added to exit from process properly in order to stop bad html code -ehrlive
+    exit();
     // sleep one second to ensure there's no follow-on.
     sleep(1);
 }
 
 
 $today = date("Y-m-d");
+
+// were any invoices selected?
+if (!empty($_REQUEST['form_cb'])) {
+    $form_cb = true;
+}
 // Print or download statements if requested.
-//
-if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_email'] || $_REQUEST['form_pdf']) || $_REQUEST['form_portalnotify'] && $_REQUEST['form_cb']) {
+if (
+    (
+        (
+            $_REQUEST['form_print'] ||
+            $_REQUEST['form_download'] ||
+            $_REQUEST['form_email'] ||
+            $_REQUEST['form_pdf']
+        ) || $_REQUEST['form_portalnotify']
+    ) && $form_cb
+) {
     if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -600,6 +624,20 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         } // end not debug
     } // end not form_download
 } // end statements requested
+
+// let biller know no why statement was not generated
+if (
+    (
+        (
+            $_REQUEST['form_print'] ||
+            $_REQUEST['form_download'] ||
+            $_REQUEST['form_email'] ||
+            $_REQUEST['form_pdf']
+        ) || $_REQUEST['form_portalnotify']
+    ) && !$form_cb
+) {
+    echo "<script> alert(" . xlj('No invoices were checked.') . ");\n</script>";
+}
 ?>
 <html>
 <head>
@@ -989,8 +1027,10 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             $num_invoices = 0;
                             // was previously disallowed but should allow biller to proceed with era posting
                             // even with alerts
-                            $t_res = sqlStatement($query);
-                            $num_invoices = sqlNumRows($t_res);
+                            if (!$alertmsg) {
+                                $t_res = sqlStatement($query);
+                                $num_invoices = sqlNumRows($t_res);
+                            }
 
                             if ($eracount && $num_invoices != $eracount) {
                                 $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
