@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenEMR\Common\Auth;
-
 
 use OpenEMR\Common\Crypto\CryptoGen;
 
@@ -37,11 +35,10 @@ class MfaUtils
                 $regobj = json_decode($row['var1']);
                 $this->regs[json_encode($regobj->keyHandle)] = $row['name'];
                 $this->registrations[] = $regobj;
-            } elseif($row['method'] == 'TOTP') {
+            } elseif ($row['method'] == 'TOTP') {
                 $this->type = 'TOTP';
             }
         }
-
     }
 
     /**
@@ -129,7 +126,6 @@ class MfaUtils
             $this->errorMsg = 'The MFA code you entered was not valid.';
             return false;
         }
-
     }
 
     /**
@@ -162,7 +158,6 @@ class MfaUtils
             } else {
                 error_log("Unexpected keyHandle returned from doAuthenticate(): '" . errorLogEscape($strhandle) . "'");
             }
-
         } catch (u2flib_server\Error $e) {
             // Authentication failed so we will build the U2F form again.
             $form_response = '';

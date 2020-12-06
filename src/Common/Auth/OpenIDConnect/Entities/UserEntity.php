@@ -115,9 +115,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                             401
                         );
                     }
-
                 }
-
                 return true;
             }
         } elseif (($userrole == "patient") && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
