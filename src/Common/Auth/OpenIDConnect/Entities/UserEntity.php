@@ -13,7 +13,9 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
 use League\OAuth2\Server\Entities\UserEntityInterface;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenIDConnectServer\Entities\ClaimSetInterface;
@@ -77,7 +79,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
         $this->identifier = $id;
     }
 
-    protected function getAccountByPassword($userrole, $username, $password, $email = ''): bool
+    protected function getAccountByPassword($userrole, $username, $password, $email = '', $mfaToken = null): bool
     {
         if (($userrole == "users") && (($GLOBALS['oauth_password_grant'] == 1) || ($GLOBALS['oauth_password_grant'] == 3))) {
             $auth = new AuthUtils('api');
@@ -90,6 +92,32 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                     return false;
                 }
                 $this->setIdentifier(UuidRegistry::uuidToString($uuid));
+
+                //check if MFA required
+                $mfa = new MfaUtils($id);
+                if ($mfa->isMfaRequired() && is_null($mfaToken)) {
+                    throw new OAuthServerException(
+                        'MFA required, The authorization server expects to `mfa_token` parameter in the request body.',
+                        11,
+                        'mfa_required',
+                        403
+                    );
+                }
+                //Check the validity of the authentication token
+                if ($mfa->isMfaRequired() && !is_null($mfaToken)) {
+                    if ($mfa->check($mfaToken)) {
+                        return true;
+                    } else {
+                        throw new OAuthServerException(
+                            $mfa->errorMessage(),
+                            12,
+                            'mfa_token_invalid',
+                            401
+                        );
+                    }
+
+                }
+
                 return true;
             }
         } elseif (($userrole == "patient") && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
