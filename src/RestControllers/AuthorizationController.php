@@ -925,23 +925,23 @@ class AuthorizationController
                     );
                     try {
                         if ($token->verify(new Sha256(), 'file://' . $this->publicKey) === false) {
-                            $result['active'] = 'false';
+                            $result['active'] = false;
                             $result['status'] = 'failed_verification';
                         }
                     } catch (Exception $exception) {
-                        $result['active'] = 'false';
+                        $result['active'] = false;
                         $result['status'] = 'invalid_signature';
                     }
                     // Ensure access token hasn't expired
                     $data = new ValidationData();
                     $data->setCurrentTime(\time());
                     if ($token->validate($data) === false) {
-                        $result['active'] = 'false';
+                        $result['active'] = false;
                         $result['status'] = 'expired';
                     }
                     $trusted = $this->trustedUser($result['client_id'], $result['sub']);
                     if (empty($trusted['id'])) {
-                        $result['active'] = 'false';
+                        $result['active'] = false;
                         $result['status'] = 'revoked';
                     }
                     if ($token->getClaim('aud') !== $clientId) {
@@ -979,12 +979,12 @@ class AuthorizationController
                     'sub' => $refreshTokenData['user_id'],
                 );
                 if ($refreshTokenData['expire_time'] < \time()) {
-                    $result['active'] = 'false';
+                    $result['active'] = false;
                     $result['status'] = 'expired';
                 }
                 $trusted = $this->trustedUser($refreshTokenData['client_id'], $result['sub']);
                 if (empty($trusted['id'])) {
-                    $result['active'] = 'false';
+                    $result['active'] = false;
                     $result['status'] = 'revoked';
                 }
                 if ($refreshTokenData['client_id'] !== $clientId) {
