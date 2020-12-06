@@ -114,3 +114,9 @@ if (false !== stripos($end_point, '/logout')) {
     $authServer->userSessionLogout();
     exit;
 }
+
+if (false !== stripos($end_point, '/introspect')) {
+    $authServer->tokenIntrospection();
+    SessionUtil::oauthSessionCookieDestroy();
+    exit;
+}
