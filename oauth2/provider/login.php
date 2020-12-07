@@ -72,7 +72,7 @@ use OpenEMR\Core\Header;
                                 <input class="form-control" autocomplete="false" placeholder="<?php echo xla("Enter the code"); ?>" type="text" name="mfa_token">
                             </div>
                             <div class="form-group">
-                                <input class="form-control"  type="hidden" value="<?php attr($_POST['email']); ?>" >
+                                <input class="form-control"  type="hidden" value="<?php echo attr($_POST['email']); ?>" >
                             </div>
                             <div class="form-group"><!-- TODO: remove test values -->
                                 <input class="form-control"  type="hidden" name="username" value="<?php echo attr($_POST['username']); ?>">

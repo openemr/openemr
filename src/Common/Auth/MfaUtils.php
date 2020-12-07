@@ -46,9 +46,10 @@ class MfaUtils
     public function tokenFromRequest()
     {
         $token = isset($_POST['mfa_token']) ? $_POST['mfa_token'] : null;
-        if (is_null($token))return null;
+        if (is_null($token)) {
+            return null;
+        }
         return $this->validateToken($token) ? $token : false;
-
     }
 
     /**

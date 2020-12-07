@@ -78,10 +78,12 @@ class AuthorizationController
         global $gbl;
 
         $this->siteId = $gbl::$SITE;
+
         $this->authBaseUrl = $GLOBALS['webroot'] . '/oauth2/' . $_SESSION['site_id'];
         // collect full url and issuing url by using 'site_addr_oath' global
         $this->authBaseFullUrl = $GLOBALS['site_addr_oath'] . $this->authBaseUrl;
         $this->authIssueFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'];
+
         $this->authRequestSerial = $_SESSION['authRequestSerial'] ?? '';
         // Create a crypto object that will be used for for encryption/decryption
         $this->cryptoGen = new CryptoGen();
@@ -611,8 +613,6 @@ class AuthorizationController
             $oauthLogin = true;
             $mfaRequired = true;
             $redirect = $this->authBaseUrl . "/login";
-            $user=$_POST['username'];
-            $pass=$_POST['password'];
             require_once(__DIR__ . "/../../oauth2/provider/login.php");
             exit();
         }
