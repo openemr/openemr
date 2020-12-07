@@ -619,53 +619,53 @@ tr.selected {
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_1" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
                                                 <?php foreach ($observation_criteria as $keyo => $valo) { ?>
-                                                    <option value="<?php echo attr($valo['option_id']);?>" <?php echo ($valo['option_id'] == $value['imo_criteria'] && $id != 0) ? 'selected = "selected"' : ''; ?> ><?php echo text($valo['title']);?></option>
+                                                    <option value="<?php echo attr($valo['option_id']);?>" <?php echo ($valo['option_id'] == $valo['imo_criteria'] && $id != 0) ? 'selected = "selected"' : ''; ?> ><?php echo text($valo['title']);?></option>
                                                 <?php } ?>
                                                 </select>
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'funding_program_eligibility') ? 'style="display: none;"' : ''; ?> class="form-group col observation_criteria_value_td" id="observation_criteria_value_td_1">
+                                            <div <?php echo ($valo['imo_criteria'] != 'funding_program_eligibility') ? 'style="display: none;"' : ''; ?> class="form-group col observation_criteria_value_td" id="observation_criteria_value_td_1">
                                                 <label><?php echo xlt('Observation Criteria Value'); ?></label>
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_value_1" name="observation_criteria_value[]">
                                                 <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
-                                                    <option value="<?php echo attr($valoc['option_id']);?>" <?php echo ($valoc['option_id'] == $value['imo_criteria_value'] && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
+                                                    <option value="<?php echo attr($valoc['option_id']);?>" <?php echo ($valoc['option_id'] == $valoc['imo_criteria_value'] && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
                                                 <?php } ?>
                                                 </select>
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_td" id="code_search_td_1">
+                                            <div <?php echo ($valo['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_td" id="code_search_td_1">
                                                 <label><?php echo xlt('SNOMED-CT Code');?></label>
                                                 <br />
-                                                <input type="text" id="sct_code_2" name="sct_code[]" class="code form-control" value="<?php echo ($id != 0 && $value['imo_criteria'] == 'disease_with_presumed_immunity') ? attr($value['imo_code']) : ''; ?>"  onclick='sel_code(this.id);' />
+                                                <input type="text" id="sct_code_2" name="sct_code[]" class="code form-control" value="<?php echo ($id != 0 && $valo['imo_criteria'] == 'disease_with_presumed_immunity') ? attr($valo['imo_code']) : ''; ?>"  onclick='sel_code(this.id);' />
                                                 <span id="displaytext_2" class="displaytext d-block text-primary">
-                                                    <?php echo text($value['imo_codetext']);?>
+                                                    <?php echo text($valo['imo_codetext']);?>
                                                 </span>
-                                                <input type="hidden" id="codetext_2" name="codetext[]" class="codetext" value="<?php echo attr($value['imo_codetext']); ?>" />
+                                                <input type="hidden" id="codetext_2" name="codetext[]" class="codetext" value="<?php echo attr($valo['imo_codetext']); ?>" />
                                                 <input type="hidden" value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden2" />
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_1">
+                                            <div <?php echo ($valo['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_1">
                                                 <label><?php echo xlt('CVX Code'); ?></label>
                                                 <br>
                                                 <input type="text" class="form-control" id="cvx_code3" name="cvx_vac_type_code[]" onclick="sel_cvxcode(this);"
-                                                    value="<?php echo ($id != 0 && $value['imo_criteria'] == 'vaccine_type') ? attr($value['imo_code']) : ''; ?>" />
+                                                    value="<?php echo ($id != 0 && $valo['imo_criteria'] == 'vaccine_type') ? attr($valo['imo_code']) : ''; ?>" />
                                                 <div class="imm-imm-add-12" id="imm-imm-add-123">
-                                                    <?php echo ($id != 0 && $value['imo_criteria'] == 'vaccine_type') ? text($value['imo_codetext']) : ''; ?>
+                                                    <?php echo ($id != 0 && $valo['imo_criteria'] == 'vaccine_type') ? text($valo['imo_codetext']) : ''; ?>
                                                 </div>
                                                 <input type="hidden" value="CVX" name="code_type_hidden[]" id="code_type_hidden3"/>
                                                 <input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden3" value="<?php echo ($id != 0 && $value['imo_criteria'] == 'vaccine_type') ? attr($value['imo_codetext']) : ''; ?>"/>
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col vis_published_date_td" id="vis_published_date_td_1">
+                                            <div <?php echo ($valo['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col vis_published_date_td" id="vis_published_date_td_1">
                                                 <label><?php echo xlt('Date VIS Published'); ?></label>
                                                 <br>
                                                 <?php
-                                                $vis_published_dateval = $value['imo_vis_date_published'] ? $value['imo_vis_date_published'] : '';
+                                                $vis_published_dateval = $valo['imo_vis_date_published'] ? $valo['imo_vis_date_published'] : '';
                                                 ?>
                                                 <input type="text" class='datepicker form-control' name="vis_published_date[]" value="<?php echo ($id != 0 && $vis_published_dateval != 0) ? attr($vis_published_dateval) : ''; ?>" id="vis_published_date_1" />
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col vis_presented_date_td" id="vis_presented_date_td_1">
+                                            <div <?php echo ($valo['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col vis_presented_date_td" id="vis_presented_date_td_1">
                                                 <label><?php echo xlt('Date VIS Presented'); ?></label>
                                                 <br>
                                                 <?php
-                                                $vis_presented_dateval = $value['imo_vis_date_presented'] ? $value['imo_vis_date_presented'] : '';
+                                                $vis_presented_dateval = $valo['imo_vis_date_presented'] ? $valo['imo_vis_date_presented'] : '';
                                                 ?>
                                                 <input type="text" class='datepicker form-control' name="vis_presented_date[]" value="<?php echo ($id != 0 && $vis_presented_dateval != 0) ? attr($vis_presented_dateval) : ''; ?>" id="vis_presented_date_1" />
                                             </div>
