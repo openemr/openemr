@@ -7,6 +7,8 @@ use OpenEMR\Common\Crypto\CryptoGen;
 class MfaUtils
 {
 
+    const TOTP_TOKEN_LENGTH = 6;
+
     private $type; //type of MFA
     private $regs;
     private $registrations;
@@ -41,6 +43,14 @@ class MfaUtils
         }
     }
 
+    public function tokenFromRequest()
+    {
+        $token = isset($_POST['mfa_token']) ? $_POST['mfa_token'] : null;
+        if (is_null($token))return null;
+        return $this->validateToken($token) ? $token : false;
+
+    }
+
     /**
      * Check if user registered to MFA
      * @return bool
@@ -48,6 +58,11 @@ class MfaUtils
     public function isMfaRequired()
     {
         return !is_null($this->type) ? true : false;
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     /**
@@ -163,6 +178,21 @@ class MfaUtils
             $form_response = '';
             $this->errorMsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
             return false;
+        }
+    }
+
+    private function validateToken($token)
+    {
+        switch ($this->type) {
+            case 'TOTP':
+                return strlen($token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false;
+                break;
+            case 'U2F':
+                // todo - USF string validation
+                return true;
+                break;
+            default:
+                throw new \Exception('MFA type do not supported');
         }
     }
 }

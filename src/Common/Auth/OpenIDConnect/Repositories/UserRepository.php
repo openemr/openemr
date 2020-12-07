@@ -24,12 +24,11 @@ class UserRepository extends UserEntity implements UserRepositoryInterface
         $password,
         $email,
         $grantType,
-        ClientEntityInterface $clientEntity,
-        $mfaToken
+        ClientEntityInterface $clientEntity
     ) {
         $user = new UserEntity();
         if ($userrole && $username && $password) {
-            if (!$user->getAccountByPassword($userrole, $username, $password, $email, $mfaToken)) {
+            if (!$user->getAccountByPassword($userrole, $username, $password, $email)) {
                 return false;
             } else {
                 return $user;

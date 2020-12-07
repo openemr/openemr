@@ -59,7 +59,6 @@ class CustomPasswordGrant extends PasswordGrant
             throw OAuthServerException::invalidRequest('email');
         }
 
-        $mfaToken = $this->getRequestParameter('mfa_token', $request);
 
         $user = $this->userRepository->getCustomUserEntityByUserCredentials(
             $userrole,
@@ -68,7 +67,6 @@ class CustomPasswordGrant extends PasswordGrant
             $email,
             $this->getIdentifier(),
             $client,
-            $mfaToken
         );
 
         if ($user instanceof UserEntityInterface === false) {

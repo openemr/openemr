@@ -79,7 +79,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
         $this->identifier = $id;
     }
 
-    protected function getAccountByPassword($userrole, $username, $password, $email = '', $mfaToken = null): bool
+    protected function getAccountByPassword($userrole, $username, $password, $email = ''): bool
     {
         if (($userrole == "users") && (($GLOBALS['oauth_password_grant'] == 1) || ($GLOBALS['oauth_password_grant'] == 3))) {
             $auth = new AuthUtils('api');
@@ -95,6 +95,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
                 //check if MFA required
                 $mfa = new MfaUtils($id);
+                $mfaToken = $mfa->tokenFromRequest();
                 if ($mfa->isMfaRequired() && is_null($mfaToken)) {
                     throw new OAuthServerException(
                         'MFA required, The authorization server expects to `mfa_token` parameter in the request body.',
@@ -105,7 +106,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 }
                 //Check the validity of the authentication token
                 if ($mfa->isMfaRequired() && !is_null($mfaToken)) {
-                    if ($mfa->check($mfaToken)) {
+                    if ($mfaToken && $mfa->check($mfaToken)) {
                         return true;
                     } else {
                         throw new OAuthServerException(
