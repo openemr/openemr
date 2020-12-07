@@ -22,13 +22,21 @@ class ApiTestClient
 {
     const AUTHORIZATION_HEADER = "Authorization";
     const OPENEMR_AUTH_ENDPOINT = "/oauth2/default";
-    const OAUTH_LOGOUT = "/oauth2/default/logout";
+    const OAUTH_LOGOUT_ENDPOINT = "/oauth2/default/logout";
+    const OAUTH_TOKEN_ENDPOINT = "/oauth2/default/token";
+    const OAUTH_INTROSPECTION_ENDPOINT = "/oauth2/default/introspect";
+    const BOGUS_CLIENTID = "ugk_IdaC2szz-k0vIqhE6DYIjevkYo41neRGGpZvYfsgg";
+    const BOGUS_CLIENTSECRET = "jJVKPZveRiyjAtfWFzxx_MF-3K2rGpDfzzrBjwq52L5_BvnqkCiKitcQDGgz_goJHiQt9yMTh3hu33vhp_UQOg";
+    const BOGUS_ACCESS_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJRRl80RlRkV2h4eGJlb1Y4SGU5c1ZRQUl3STlQZWdYM3IyVUdiTTVjaWtNIiwianRpIjoiYWZmYWEyOTk5NWY5MjRjZDlmMjc0YTdhZGM5NmM0YzJmZTYwNGE3MjA0ODFkMTdmMWZiYTg2ZDg4ZWIxOWI0YWVlM2RhZTM1Zjg3MjcwMDAiLCJpYXQiOjE2MDcyMTc5MTksIm5iZiI6MTYwNzIxNzkxOSwiZXhwIjoxNjA3MjIxNTE5LCJzdWIiOiI5MjJjYzYzNi01NTNiLTQ1MGQtYTJkZC1hNmRjYmM4ZDNiMDciLCJzY29wZXMiOlsib3BlbmlkIiwic2l0ZTpkZWZhdWx0Il19.u2Ujtln3vEKIR8E0rSd-xr6m-3huCxiFMaTm9_NQplVNsBkrc6Y3KLy9FRZVS3xSY1Qgav-UvOxikYT2zNNlK-LotEoEvZdtj87X6fh4wh-h5BU87lHh9aNjXFUemSO9DGKJLSZdLSeC_2w4YmbhQykGFISiltD2_PAJRKuKbpcBo3-Lafe2N83mF5i8mZXSCu_fbLrmTMYPCnsRaU_sWStzFp6p0SM3zGfLt1kjw-hcE82Ci1puqRS2nR5Z3kEOXz-hQOdXmQMq0s_gkeQZvLPOJwLGfEX5d4eIU4BfngksjGkKQhC7rUKT-_2F-U_z30P3izzZM6m4dZ10IiP80g";
+    const BOGUS_REFRESH_TOKEN = "def50200cd30606a46a09d2ba242e77528d247769112924ccff8e5d9ff9785ad032b6e91e22c9d716106efa0735b134f1bde452c9902ac75e1360ec2b8061b39c4b980ff0ffd18f9d66644c1bb3383feaa2594afd137475f60157ea6f5014cad0f5fa4e142fba5b414b7189e964ca154bbe9ffae90d0843dbf988f47485b41195eae073b5d1fa55c0b5c4a9ff5e876903d55ddd9ca1fbf7d70a0a6dcb70a76a91287b9cfd7e89ae91b4401142e46379ea7a573f9973a282fbd837a176051e25845300bf141033c2fcf28a7675106cc25e405852b13b4ab653eef2ac9f3c43db12f94a15b155c9533d2bad577e316194d179df281124280a993e438a806c5ba6a5b5c31c5a8893e3071ffb1df8507001f7b387c2882e8cd1e0ed50000dc2ad7954d243bdd4fac41e0bbced450a4f87e87317372cda3a6c22a5f9b6b6d8aab66e4d68739588bb4c5412a21d0e4f561fcb081eea24d7e79ba446630a53ebd05634735440181d73268f584ffa0b05e0708b0781ec5f8f3e2e92c0375d71d90f1f8e470d54cc4cb24b15545c4231edae046a9d9dd2fc78cc63768c66ffb19a9008fdd39952cd8e0e626747ac6f1dfdfc373f8064499533914d00452b70fe8a0353626a04ca57723e743";
 
     protected $headers;
     protected $client;
     protected $client_id;
-    protected $access_token;
+    protected $client_secret;
     protected $id_token;
+    protected $access_token;
+    protected $refresh_token;
 
     /**
      * Returns a configuration settings from the GuzzleHTTP client instance.
@@ -65,7 +73,7 @@ class ApiTestClient
      * @return the authorization response
      *
      */
-    public function setAuthToken($authURL, $credentials = array())
+    public function setAuthToken($authURL, $credentials = array(), $client = 'private')
     {
         if (!empty($credentials) && !array_key_exists("client_id", $credentials)) {
             if (!array_key_exists("username", $credentials) || !array_key_exists("password", $credentials)) {
@@ -80,7 +88,7 @@ class ApiTestClient
         }
 
         if (empty($this->client_id)) {
-            $this->getClient($authURL);
+            $this->getClient($authURL, $client);
         }
 
         $authBody = [
@@ -105,15 +113,17 @@ class ApiTestClient
             $responseBody = json_decode($authResponse->getBody());
             $this->headers[self::AUTHORIZATION_HEADER] = "Bearer " . $responseBody->access_token;
             $this->id_token = $responseBody->id_token;
+            $this->access_token = $responseBody->access_token;
+            $this->refresh_token = $responseBody->refresh_token;
         }
 
         return $authResponse;
     }
 
-    private function getClient($authURL)
+    private function getClient($authURL, $client = 'private')
     {
         $clientBody = [
-            "application_type" => "private",
+            "application_type" => $client,
             "redirect_uris" => ["https://client.example.org/callback"],
             "client_name" => "A Private App",
             "token_endpoint_auth_method" => "client_secret_post",
@@ -122,6 +132,7 @@ class ApiTestClient
         $clientResponse = $this->post($authURL . '/registration', $clientBody);
         $clientResponseBody = json_decode($clientResponse->getBody());
         $this->client_id = $clientResponseBody->client_id;
+        $this->client_secret = $clientResponseBody->client_secret;
     }
 
     /**
@@ -142,7 +153,42 @@ class ApiTestClient
 
     public function cleanupRevokeAuth()
     {
-        return $this->get(self::OAUTH_LOGOUT, ['id_token_hint' => $this->id_token]);
+        return $this->get(self::OAUTH_LOGOUT_ENDPOINT, ['id_token_hint' => $this->id_token]);
+    }
+
+    public function getClientId()
+    {
+        return $this->client_id;
+    }
+
+    public function getClientSecret()
+    {
+        return $this->client_secret;
+    }
+
+    public function getIdToken()
+    {
+        return $this->id_token;
+    }
+
+    public function getAccessToken()
+    {
+        return $this->access_token;
+    }
+
+    public function getRefreshToken()
+    {
+        return $this->refresh_token;
+    }
+
+    public function setHeaders(array $headers)
+    {
+        return $this->headers = $headers;
+    }
+
+    public function setBearer(string $bearer)
+    {
+        return $this->headers[self::AUTHORIZATION_HEADER] = $bearer;
     }
 
     /**

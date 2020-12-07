@@ -1549,7 +1549,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
 
                             //
                             $limitApptIndx = $apptNum2 - 1;
-                            $limitApptDate = $events[$limitApptIndx]['pc_eventDate'];
+                            $limitApptDate = $events[$limitApptIndx]['pc_eventDate'] ?? '';
                             //
                             switch ($selectNum) {
                                 //

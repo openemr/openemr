@@ -28,13 +28,13 @@ function observation_report($pid, $encounter, $cols, $id)
         $data[$iter] = $row;
     }
 
-    if ($data) {
+    if (!empty($data)) {
         print "<table style='border-collapse:collapse;border-spacing:0;width: 100%;'>
             <tr>
                 <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Code') . "</span></td>
                 <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Description') . "</span></td>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Code Type') . "</span></td> 
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Table Code') . "</span></td> 
+                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Code Type') . "</span></td>
+                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Table Code') . "</span></td>
                 <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Value') . "</span></td>
                 <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Unit') . "</span></td>
                 <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Date') . "</span></td>

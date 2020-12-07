@@ -22,6 +22,7 @@ $discovery = <<<TEMPLATE
 "userinfo_endpoint": "$base_url/userinfo",
 "registration_endpoint": "$base_url/registration",
 "end_session_endpoint": "$base_url/logout",
+"introspection_endpoint": "$base_url/introspect",
 "scopes_supported": [
     "openid",
     "profile",
