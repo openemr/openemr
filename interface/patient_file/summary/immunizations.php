@@ -62,10 +62,10 @@ if (isset($_GET['mode'])) {
             trim($_GET['id']),
             UuidRegistry::isValidStringUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
             trim($_GET['administered_date']), trim($_GET['administered_date']),
-            trim($_GET['form_immunization_id']),
+            trim($_GET['form_immunization_id'] ?? ''),
             trim($_GET['cvx_code']),
             trim($_GET['manufacturer']),
-            trim($_GET['lot_number']),
+            trim($_GET['lot_number'] ?? ''),
             trim($_GET['administered_by_id']), trim($_GET['administered_by_id']),
             trim($_GET['administered_by']), trim($_GET['administered_by']),
             trim($_GET['education_date']), trim($_GET['education_date']),
@@ -142,7 +142,7 @@ if (isset($_GET['mode'])) {
         $entered_by_id      = ($result['created_by'] ? $result['created_by'] : 0);
 
         $administered_by = "";
-        if (!$result['administered_by'] && !$row['administered_by_id']) {
+        if (empty($result['administered_by']) && empty($row['administered_by_id'])) {
             $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
                     "from users where " .
                     "id=?";
@@ -174,7 +174,7 @@ if ($GLOBALS['use_custom_immun_list']) {
     // user forces the use of the custom list
     $useCVX = false;
 } else {
-    if ($_GET['mode'] == "edit") {
+    if (!empty($_GET['mode']) && ($_GET['mode'] == "edit")) {
         //depends on if a cvx code is enterer already
         if (empty($cvx_code)) {
             $useCVX = false;
@@ -187,13 +187,13 @@ if ($GLOBALS['use_custom_immun_list']) {
 }
 
 // set the default sort method for the list of past immunizations
-$sortby = $_GET['sortby'];
+$sortby = $_GET['sortby'] ?? null;
 if (!$sortby) {
     $sortby = 'vacc';
 }
 
 // set the default value of 'administered_by'
-if (!$administered_by && !$administered_by_id) {
+if (empty($administered_by) && empty($administered_by_id)) {
     $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
             " from users where " .
             " id=?";
@@ -202,7 +202,7 @@ if (!$administered_by && !$administered_by_id) {
 }
 
 // get the entered username
-if ($entered_by_id) {
+if (!empty($entered_by_id)) {
     $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
             " from users where " .
             " id=?";
@@ -210,7 +210,7 @@ if ($entered_by_id) {
     $entered_by = $row['full_name'];
 }
 
-if ($_POST['type'] == 'duplicate_row') {
+if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row')) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -219,7 +219,7 @@ if ($_POST['type'] == 'duplicate_row') {
     exit;
 }
 
-if ($_POST['type'] == 'duplicate_row_2') {
+if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row_2')) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -260,6 +260,7 @@ function getImmunizationObservationResults()
                 WHERE imo_pid = ?
                   AND imo_im_id = ?";
     $res = sqlStatement($obs_res_q, array($_SESSION["pid"],$_GET['id']));
+    $imm_obs_data = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $imm_obs_data[$iter] = $row;
     }
@@ -364,12 +365,12 @@ tr.selected {
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                     <input type="hidden" name="mode" id="mode" value="add" />
-                    <input type="hidden" name="id" id="id" value="<?php echo attr($id); ?>" />
+                    <input type="hidden" name="id" id="id" value="<?php echo attr($id ?? ''); ?>" />
                     <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>" />
-                    <input type="hidden" name="uuid" id="uuid" value="<?php echo attr($uuid); ?>" />
+                    <input type="hidden" name="uuid" id="uuid" value="<?php echo attr($uuid ?? ''); ?>" />
 
                     <?php
-                    if ($isAddedError) {
+                    if (!empty($isAddedError)) {
                         echo "<p class='text-danger font-weight-bold'>" . xlt("Entered in Error") . "</p>";
                     }
                     ?>
@@ -386,10 +387,10 @@ tr.selected {
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Immunization'); ?> (<?php echo xlt('CVX Code'); ?>)</label>
                         <input type='text' class='form-control' size='10' name='cvx_code' id='cvx_code'
-                            value='<?php echo attr($cvx_code); ?>' onclick='sel_cvxcode(this)'
+                            value='<?php echo attr($cvx_code ?? ''); ?>' onclick='sel_cvxcode(this)'
                             title='<?php echo xla('Click to select or change CVX code'); ?>'/>
                         <div id='cvx_description' class='d-inline float-right p-1 ml-2'>
-                            <?php echo xlt($code_text); ?>
+                            <?php echo xlt($code_text ?? ''); ?>
                         </div>
                     </div>
                     <?php } ?>
@@ -397,28 +398,28 @@ tr.selected {
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Date & Time Administered'); ?></label>
                         <input type='text' size='14' class='datetimepicker form-control' name="administered_date" id="administered_date"
-                            value='<?php echo $administered_date ? attr($administered_date) : date('Y-m-d H:i'); ?>'
+                            value='<?php echo (!empty($administered_date)) ? attr($administered_date) : date('Y-m-d H:i'); ?>'
                             title='<?php echo xla('yyyy-mm-dd Hours(24):minutes'); ?>'/>
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Amount Administered'); ?></label>
-                        <input class='text form-control mb-2' type='text' name="immuniz_amt_adminstrd" size="25" value="<?php echo attr($immuniz_amt_adminstrd); ?>" />
-                        <?php echo generate_select_list("form_drug_units", "drug_units", $drugunitselecteditem, 'Select Drug Unit', ''); ?>
+                        <input class='text form-control mb-2' type='text' name="immuniz_amt_adminstrd" size="25" value="<?php echo attr($immuniz_amt_adminstrd ?? ''); ?>" />
+                        <?php echo generate_select_list("form_drug_units", "drug_units", ($drugunitselecteditem ?? ''), 'Select Drug Unit', ''); ?>
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Immunization Expiration Date'); ?></label>
                         <input type='text' size='10' class='datepicker form-control' name="immuniz_exp_date" id="immuniz_exp_date"
-                            value='<?php echo $immuniz_exp_date ? attr($immuniz_exp_date) : ''; ?>'
+                            value='<?php echo (!empty($immuniz_exp_date)) ? attr($immuniz_exp_date) : ''; ?>'
                             title='<?php echo xla('yyyy-mm-dd'); ?>' />
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Immunization Manufacturer'); ?></label>
-                        <?php echo generate_select_list('manufacturer', 'Immunization_Manufacturer', $manufacturer, 'Select Manufacturer', '');?>
+                        <?php echo generate_select_list('manufacturer', 'Immunization_Manufacturer', ($manufacturer ?? ''), 'Select Manufacturer', '');?>
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Immunization Lot Number'); ?></label>
                         <br>
-                        <select class='auto form-control' type='text' name="lot_number" size="25" value="<?php echo attr($lot_number); ?>"></select>
+                        <select class='auto form-control' type='text' name="lot_number" size="25" value="<?php echo attr($lot_number ?? ''); ?>"></select>
                     </div>
                     <div class="form-row mt-3">
                         <div class="col-12">
@@ -452,7 +453,7 @@ tr.selected {
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Date Immunization Information Statements Given'); ?></label>
                         <input type='text' size='10' class='datepicker form-control' name="education_date" id="education_date"
-                            value='<?php echo $education_date ? attr($education_date) : date('Y-m-d'); ?>'
+                            value='<?php echo (!empty($education_date)) ? attr($education_date) : date('Y-m-d'); ?>'
                             title='<?php echo xla('yyyy-mm-dd'); ?>' />
                     </div>
                     <div class="form-group mt-3">
@@ -461,32 +462,32 @@ tr.selected {
                             (<a href="https://www.cdc.gov/vaccines/pubs/vis/default.htm" title="<?php echo xla('Help'); ?>" rel="noopener" target="_blank">?</a>)
                         </label>
                         <input type='text' size='10' class='datepicker  form-control' name="vis_date" id="vis_date"
-                            value='<?php echo $vis_date ? attr($vis_date) : date('Y-m-d'); ?>'
+                            value='<?php echo (!empty($vis_date)) ? attr($vis_date) : date('Y-m-d'); ?>'
                             title='<?php echo xla('yyyy-mm-dd'); ?>' />
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Route'); ?></label>
-                        <?php echo generate_select_list('immuniz_route', 'drug_route', $immuniz_route, 'Select Route', '');?>
+                        <?php echo generate_select_list('immuniz_route', 'drug_route', ($immuniz_route ?? ''), 'Select Route', '');?>
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Administration Site'); ?></label>
-                        <?php echo generate_select_list('immuniz_admin_ste', 'immunization_administered_site', $immuniz_admin_ste, 'Select Administration Site', ' ', '', '', '', null, false, 'proc_body_site');?>
+                        <?php echo generate_select_list('immuniz_admin_ste', 'immunization_administered_site', ($immuniz_admin_ste ?? ''), 'Select Administration Site', ' ', '', '', '', null, false, 'proc_body_site');?>
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Notes'); ?></label>
-                        <textarea class="form-control" name="note" id="note" rows="5" cols="25"><?php echo text($note); ?></textarea>
+                        <textarea class="form-control" name="note" id="note" rows="5" cols="25"><?php echo text($note ?? ''); ?></textarea>
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Information Source'); ?></label>
-                        <?php echo generate_select_list('immunization_informationsource', 'immunization_informationsource', $immuniz_information_source, 'Select Information Source', ' ');?>
+                        <?php echo generate_select_list('immunization_informationsource', 'immunization_informationsource', ($immuniz_information_source ?? ''), 'Select Information Source', ' ');?>
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Completion Status'); ?></label>
-                        <?php echo generate_select_list('immuniz_completion_status', 'Immunization_Completion_Status', $immuniz_completion_status, 'Select Completion Status', ' ');?>
+                        <?php echo generate_select_list('immuniz_completion_status', 'Immunization_Completion_Status', ($immuniz_completion_status ?? ''), 'Select Completion Status', ' ');?>
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Substance Refusal Reason'); ?></label>
-                        <?php echo generate_select_list('immunization_refusal_reason', 'immunization_refusal_reason', $immuniz_refusal_reason, 'Select Refusal Reason', ' ');?>
+                        <?php echo generate_select_list('immunization_refusal_reason', 'immunization_refusal_reason', ($immuniz_refusal_reason ?? ''), 'Select Refusal Reason', ' ');?>
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Immunization Ordering Provider'); ?></label>
@@ -510,7 +511,7 @@ tr.selected {
                     <div class="row mt-3">
                         <div class="col-12 text-center">
                             <?php
-                            if ($entered_by) { ?>
+                            if (!empty($entered_by)) { ?>
                                 <p><?php echo xlt('Entered By'); ?> <?php echo text($entered_by); ?></p>
                             <?php } ?>
 
@@ -619,55 +620,55 @@ tr.selected {
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_1" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
                                                 <?php foreach ($observation_criteria as $keyo => $valo) { ?>
-                                                    <option value="<?php echo attr($valo['option_id']);?>" <?php echo ($valo['option_id'] == $value['imo_criteria'] && $id != 0) ? 'selected = "selected"' : ''; ?> ><?php echo text($valo['title']);?></option>
+                                                    <option value="<?php echo attr($valo['option_id']);?>" <?php echo (!empty($value['imo_criteria']) && ($valo['option_id'] == $value['imo_criteria']) && $id != 0) ? 'selected = "selected"' : ''; ?> ><?php echo text($valo['title']);?></option>
                                                 <?php } ?>
                                                 </select>
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'funding_program_eligibility') ? 'style="display: none;"' : ''; ?> class="form-group col observation_criteria_value_td" id="observation_criteria_value_td_1">
+                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'funding_program_eligibility'))) ? 'style="display: none;"' : ''; ?> class="form-group col observation_criteria_value_td" id="observation_criteria_value_td_1">
                                                 <label><?php echo xlt('Observation Criteria Value'); ?></label>
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_value_1" name="observation_criteria_value[]">
                                                 <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
-                                                    <option value="<?php echo attr($valoc['option_id']);?>" <?php echo ($valoc['option_id'] == $value['imo_criteria_value'] && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
+                                                    <option value="<?php echo attr($valoc['option_id']);?>" <?php echo (!empty($value['imo_criteria_value']) && ($valoc['option_id'] == $value['imo_criteria_value']) && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
                                                 <?php } ?>
                                                 </select>
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_td" id="code_search_td_1">
+                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'disease_with_presumed_immunity')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_td" id="code_search_td_1">
                                                 <label><?php echo xlt('SNOMED-CT Code');?></label>
                                                 <br />
-                                                <input type="text" id="sct_code_2" name="sct_code[]" class="code form-control" value="<?php echo ($id != 0 && $value['imo_criteria'] == 'disease_with_presumed_immunity') ? attr($value['imo_code']) : ''; ?>"  onclick='sel_code(this.id);' />
+                                                <input type="text" id="sct_code_2" name="sct_code[]" class="code form-control" value="<?php echo (!empty($id) && !empty($value['imo_criteria']) && ($value['imo_criteria'] == 'disease_with_presumed_immunity')) ? attr($value['imo_code']) : ''; ?>"  onclick='sel_code(this.id);' />
                                                 <span id="displaytext_2" class="displaytext d-block text-primary">
-                                                    <?php echo text($value['imo_codetext']);?>
+                                                    <?php echo text($value['imo_codetext'] ?? '');?>
                                                 </span>
-                                                <input type="hidden" id="codetext_2" name="codetext[]" class="codetext" value="<?php echo attr($value['imo_codetext']); ?>" />
+                                                <input type="hidden" id="codetext_2" name="codetext[]" class="codetext" value="<?php echo attr($value['imo_codetext'] ?? ''); ?>" />
                                                 <input type="hidden" value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden2" />
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_1">
+                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'vaccine_type')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_1">
                                                 <label><?php echo xlt('CVX Code'); ?></label>
                                                 <br>
                                                 <input type="text" class="form-control" id="cvx_code3" name="cvx_vac_type_code[]" onclick="sel_cvxcode(this);"
-                                                    value="<?php echo ($id != 0 && $value['imo_criteria'] == 'vaccine_type') ? attr($value['imo_code']) : ''; ?>" />
+                                                    value="<?php echo (!empty($id) && (!empty($value['imo_criteria']) && ($value['imo_criteria'] == 'vaccine_type'))) ? attr($value['imo_code']) : ''; ?>" />
                                                 <div class="imm-imm-add-12" id="imm-imm-add-123">
-                                                    <?php echo ($id != 0 && $value['imo_criteria'] == 'vaccine_type') ? text($value['imo_codetext']) : ''; ?>
+                                                    <?php echo (!empty($id) && (!empty($value['imo_criteria']) && ($value['imo_criteria'] == 'vaccine_type'))) ? text($value['imo_codetext']) : ''; ?>
                                                 </div>
                                                 <input type="hidden" value="CVX" name="code_type_hidden[]" id="code_type_hidden3"/>
-                                                <input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden3" value="<?php echo ($id != 0 && $value['imo_criteria'] == 'vaccine_type') ? attr($value['imo_codetext']) : ''; ?>"/>
+                                                <input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden3" value="<?php echo (!empty($id) && (!empty($value['imo_criteria']) && ($value['imo_criteria'] == 'vaccine_type'))) ? attr($value['imo_codetext']) : ''; ?>"/>
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col vis_published_date_td" id="vis_published_date_td_1">
+                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'vaccine_type')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="form-group col vis_published_date_td" id="vis_published_date_td_1">
                                                 <label><?php echo xlt('Date VIS Published'); ?></label>
                                                 <br>
                                                 <?php
-                                                $vis_published_dateval = $value['imo_vis_date_published'] ? $value['imo_vis_date_published'] : '';
+                                                $vis_published_dateval = (!empty($value['imo_vis_date_published'])) ? $value['imo_vis_date_published'] : '';
                                                 ?>
-                                                <input type="text" class='datepicker form-control' name="vis_published_date[]" value="<?php echo ($id != 0 && $vis_published_dateval != 0) ? attr($vis_published_dateval) : ''; ?>" id="vis_published_date_1" />
+                                                <input type="text" class='datepicker form-control' name="vis_published_date[]" value="<?php echo (!empty($id) && $vis_published_dateval != 0) ? attr($vis_published_dateval) : ''; ?>" id="vis_published_date_1" />
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col vis_presented_date_td" id="vis_presented_date_td_1">
+                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'vaccine_type')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="form-group col vis_presented_date_td" id="vis_presented_date_td_1">
                                                 <label><?php echo xlt('Date VIS Presented'); ?></label>
                                                 <br>
                                                 <?php
-                                                $vis_presented_dateval = $value['imo_vis_date_presented'] ? $value['imo_vis_date_presented'] : '';
+                                                $vis_presented_dateval = (!empty($value['imo_vis_date_presented'])) ? $value['imo_vis_date_presented'] : '';
                                                 ?>
-                                                <input type="text" class='datepicker form-control' name="vis_presented_date[]" value="<?php echo ($id != 0 && $vis_presented_dateval != 0) ? attr($vis_presented_dateval) : ''; ?>" id="vis_presented_date_1" />
+                                                <input type="text" class='datepicker form-control' name="vis_presented_date[]" value="<?php echo (!empty($id) && $vis_presented_dateval != 0) ? attr($vis_presented_dateval) : ''; ?>" id="vis_presented_date_1" />
                                             </div>
                                         </div>
                                 <?php } ?>
@@ -736,7 +737,7 @@ tr.selected {
                         </tr>
 
                         <?php
-                        $result = getImmunizationList($pid, $_GET['sortby'], true);
+                        $result = getImmunizationList($pid, ($_GET['sortby'] ?? null), true);
 
                         while ($row = sqlFetchArray($result)) {
                             $isError = $row['added_erroneously'];
@@ -747,7 +748,7 @@ tr.selected {
                                 $tr_title = "";
                             }
 
-                            if ($row["id"] == $id) {
+                            if (!empty($id) && ($row["id"] == $id)) {
                                 echo "<tr " . $tr_title . " class='immrow text selected' id='" . attr($row["id"]) . "'>";
                             } else {
                                 echo "<tr " . $tr_title . " class='immrow text' id='" . attr($row["id"]) . "'>";

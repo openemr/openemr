@@ -27,7 +27,7 @@ if (!empty($_POST)) {
 }
 
 $info_msg = "";
-$codetype = $_REQUEST['codetype'];
+$codetype = $_REQUEST['codetype'] ?? '';
 if (!empty($codetype)) {
     $allowed_codes = split_csv_line($codetype);
 }
