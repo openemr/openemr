@@ -39,7 +39,7 @@ border-radius: 4px 0 0 4px!important;
 		top.restoreSession();
 		let tele  = document.getElementById("template_filename");
 		let tname = encodeURIComponent(tele.options[tele.selectedIndex].value);
-        let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?pid=' + {$patient_id|js_url} + '&catid=' + {$category_id|js_url} + '&is_module=true&new=' + tname;
+        let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?pid=' + {if isset($patient_id)}{$patient_id|js_url}{/if} + '&catid=' + {if isset($category_id)}{$category_id|js_url}{/if} + '&is_module=true&new=' + tname;
 		location.assign(callUrl);
 	{literal}}{/literal}
 	// dropzone javascript asset translation(s)
@@ -84,13 +84,13 @@ border-radius: 4px 0 0 4px!important;
 				<fieldset>
 					<legend>{xlt t='Document Uploader/Viewer'}</legend>
                     <div style="padding: 0 10px">
-						{if $message}
+						{if isset($message)}
 							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$message|text}</i></div><br />
 						{/if}
-						{if $messages}
+						{if isset($messages)}
 							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$messages|text}</i></div><br />
 						{/if}
-						{$activity}
+                        {if isset($activity)}{$activity}{/if}
 					</div>
 				</fieldset>
 			</div>
