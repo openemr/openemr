@@ -32,7 +32,7 @@
  // This holds all the default drug attributes.
  // This was html escaped previously
 {/literal}
- var drugopts = [{if isset($DRUG_ATTRIBUTES)}{$DRUG_ATTRIBUTES}{/if}];
+ var drugopts = [{if !empty($DRUG_ATTRIBUTES)}{$DRUG_ATTRIBUTES}{/if}];
 {literal}
 
  // Helper to choose an option from its value.
@@ -96,7 +96,7 @@
                 <td class="title font-weight-bold">{xlt t='Add'}/{xlt t='Edit'}&nbsp;</td>
                 <td>
                     <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save">{xlt t='Save'}</a>
-                    {if isset($DRUG_ARRAY_VALUES)}
+                    {if !empty($DRUG_ARRAY_VALUES)}
                     &nbsp; &nbsp; &nbsp; &nbsp;
                     {if $prescription->get_refills() >= $prescription->get_dispensation_count()}
                         <input type="submit" name="disp_button"class='btn btn-primary btn-sm my-0 mr-1 ml-1' value="{xla t='Save and Dispense'}" />
@@ -163,7 +163,7 @@
             </a>
             <div class="jumbotron jumbotron-fluid" id="hiddendiv" style="display: none">&nbsp;</div>
         </div>
-        {if isset($DRUG_ARRAY_VALUES)}
+        {if !empty($DRUG_ARRAY_VALUES)}
         <div class="form-group mt-3">
             <label>&nbsp; {xlt t='in-house'}</label>
             <select class="input-sm form-control" name="drug_id" onchange="drugselected(this)">
@@ -262,7 +262,7 @@
         <input type="hidden" name="process" value="{$PROCESS|attr}" />
 
         <script>
-            {if isset($ENDING_JAVASCRIPT)}{$ENDING_JAVASCRIPT}{/if}
+            {if !empty($ENDING_JAVASCRIPT)}{$ENDING_JAVASCRIPT}{/if}
         </script>
     </form>
 </div>

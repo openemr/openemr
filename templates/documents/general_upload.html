@@ -12,7 +12,7 @@
 
 <form method="post" enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
     <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
-    <h3>{if isset($error)}{$error}{/if}</h3>
+    <h3>{if !empty($error)}{$error}{/if}</h3>
     {if (!($patient_id > 0)) }
     <div class="text text-danger">
         {xlt t="IMPORTANT: This upload tool is only for uploading documents on patients that are not yet entered into the system. To upload files for patients whom already have been entered into the system, please use the upload tool linked within the Patient Summary screen."}

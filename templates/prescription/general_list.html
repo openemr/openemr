@@ -171,18 +171,18 @@ $(function () {
             <div class="col-12 d-flex justify-content-between">
                 <div class="btn-group">
                     {if $GLOBALS.rx_zend_pdf_template}
-                        <a target="_blank" id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-pdf-template/{$GLOBALS.rx_zend_pdf_action}?id={if isset($printm)}{$printm|attr_url}{/if}" onclick="top.restoreSession()" class="btn btn-primary btn-sm">{xlt t='Download'} ({xlt t='PDF'})</a>
+                        <a target="_blank" id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-pdf-template/{$GLOBALS.rx_zend_pdf_action}?id={if !empty($printm)}{$printm|attr_url}{/if}" onclick="top.restoreSession()" class="btn btn-primary btn-sm">{xlt t='Download'} ({xlt t='PDF'})</a>
                     {else}
-                        <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={if isset($printm)}{$printm|attr_url}{/if}" onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-download">{xlt t='Download'} ({xl t='PDF'})</a>
+                        <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={if !empty($printm)}{$printm|attr_url}{/if}" onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-download">{xlt t='Download'} ({xl t='PDF'})</a>
                     {/if}
                     {if $GLOBALS.rx_zend_html_template}
-                        <a target="_blank" id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-html-template/{$GLOBALS.rx_zend_html_action}?id={if isset($printm)}{$printm|attr_url}{/if}" onclick="top.restoreSession()" class="btn btn-primary btn-sm">{xl t='View Printable Version'|text} ({xlt t='HTML'})</a>
+                        <a target="_blank" id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-html-template/{$GLOBALS.rx_zend_html_action}?id={if !empty($printm)}{$printm|attr_url}{/if}" onclick="top.restoreSession()" class="btn btn-primary btn-sm">{xl t='View Printable Version'|text} ({xlt t='HTML'})</a>
                     {else}
                     <!-- TajEmo work by CB 2012/06/14 02:16:32 PM target="_script" opens better -->
-                        <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={if isset($printm)}{$printm|attr_url}{/if}" onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-print">{xlt t='View Printable Version'} ({xlt t='HTML'})</a>
+                        <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={if !empty($printm)}{$printm|attr_url}{/if}" onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-print">{xlt t='View Printable Version'} ({xlt t='HTML'})</a>
                     {/if}
                     {if $GLOBALS.rx_use_fax_template}
-                        <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={if isset($printm)}{$printm|attr_url}{/if}" onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-download">{xlt t='Download'} ({xlt t='Fax'})</a>
+                        <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={if !empty($printm)}{$printm|attr_url}{/if}" onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-download">{xlt t='Download'} ({xlt t='Fax'})</a>
                     {/if}
                     {if $GLOBALS.weno_rx_enable}
                         <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-transmit">{xlt t='Transmit'} {xlt t='Rx'}</a>
@@ -227,9 +227,9 @@ $(function () {
                             <!-- TajEmo Changes 2012/06/14 02:03:17 PM by CB added cursor:pointer for easier user understanding -->
                             <tr id="{$prescription->id|attr}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}">
                                 <td class="text-center">
-                                <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id|attr}" {if isset($prescription->encounter) && $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xla t='Select for printing'}">
+                                <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id|attr}" {if !empty($prescription->encounter) && $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xla t='Select for printing'}">
                                 </td>
-                                {if !isset($prescription->erx_source) || $prescription->erx_source==0}
+                                {if empty($prescription->erx_source) || $prescription->erx_source==0}
                                 <td class="editscript"  id="{$prescription->id|attr}">
                                     <a class='editscript btn btn-primary btn-sm btn-edit' id='{$prescription->id|attr}' href="controller.php?prescription&edit&id={$prescription->id|attr_url}">{xlt t='Edit'}</a>
                                 <!-- TajEmo Changes 2012/06/14 02:02:22 PM by CB commented out, to avoid duplicate display of drug name
@@ -257,7 +257,7 @@ $(function () {
                                 <td id="{$prescription->id|attr}">
                                 {$prescription->get_dosage_display()|text} &nbsp;
                                 </td>
-                                {if !isset($prescription->erx_source) || $prescription->erx_source==0}
+                                {if empty($prescription->erx_source) || $prescription->erx_source==0}
                                 <td class="editscript" id="{$prescription->id|attr}">
                                 {$prescription->quantity|text} &nbsp;
                                 </td>
