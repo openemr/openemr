@@ -69,8 +69,7 @@ use OpenEMR\Core\Header;
                         </div>
                         <?php } ?>
 
-                        <?php if (empty($authorize) && $mfaRequired ) { ?>
-
+                        <?php if (empty($authorize) && $mfaRequired) { ?>
                             <?php if ($mfaType === MfaUtils::TOTP) { ?>
                             <h5><?php echo xlt('Provide TOTP code') ?></h5>
                             <div class="form-group">
