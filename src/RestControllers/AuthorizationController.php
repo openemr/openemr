@@ -609,15 +609,19 @@ class AuthorizationController
         $mfa = new MfaUtils($this->userId);
         $mfaToken = $mfa->tokenFromRequest();
         $mfaType = $mfa->getType();
-        if ($_POST['user_role'] === 'api' && $mfaType === 'TOTP' && $mfa->isMfaRequired() && is_null($mfaToken)) {
+        if ($_POST['user_role'] === 'api' && $mfa->isMfaRequired() && is_null($mfaToken)) {
             $oauthLogin = true;
             $mfaRequired = true;
             $redirect = $this->authBaseUrl . "/login";
+            if ($mfaType === MfaUtils::U2F) {
+                $appId = $mfa->getAppId();
+                $requests = $mfa->getU2fRequests();
+            }
             require_once(__DIR__ . "/../../oauth2/provider/login.php");
             exit();
         }
         //Check the validity of the authentication token
-        if ($_POST['user_role'] === 'api'  && $mfaType === 'TOTP' && $mfa->isMfaRequired() && !is_null($mfaToken)) {
+        if ($_POST['user_role'] === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
             if (!$mfaToken || !$mfa->check($mfaToken)) {
                 $invalid = "Sorry, Invalid code!";
                 $oauthLogin = true;

@@ -3,11 +3,14 @@
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use u2flib_server\U2F;
 
 class MfaUtils
 {
 
     const TOTP_TOKEN_LENGTH = 6;
+    const TOTP = 'TOTP';
+    const U2F = 'U2F';
 
     private $type; //type of MFA
     private $regs;
@@ -15,7 +18,7 @@ class MfaUtils
     private $var1;
     private $uid; // User Id who try connect
     private $errorMsg = '';
-
+    private $appId;
 
     /**
      * MfaUtils constructor.
@@ -41,6 +44,8 @@ class MfaUtils
                 $this->type = 'TOTP';
             }
         }
+        $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
+        $this->appId = $scheme . $_SERVER['HTTP_HOST'];
     }
 
     public function tokenFromRequest()
@@ -93,6 +98,28 @@ class MfaUtils
     public function errorMessage()
     {
         return $this->errorMsg;
+    }
+
+    public function getAppId()
+    {
+        return $this->appId;
+    }
+
+
+    /**
+     * Initial U2F settings
+     * @return false|string
+     * @throws \u2flib_server\Error
+     */
+    public function getU2fRequests()
+    {
+        $u2f = new U2F($this->appId);
+        $requests =  json_encode($u2f->getAuthenticateData($this->registrations));
+        sqlStatement(
+            "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
+            array($requests, $this->uid)
+        );
+        return $requests;
     }
 
     /**
@@ -151,9 +178,8 @@ class MfaUtils
      */
     private function checkU2F($token)
     {
-        $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
-        $appId = $scheme . $_SERVER['HTTP_HOST'];
-        $u2f = new u2flib_server\U2F($appId);
+
+        $u2f = new u2flib_server\U2F($this->appId);
         $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", array($this->uid));
         try {
             $registration = $u2f->doAuthenticate(
@@ -182,6 +208,12 @@ class MfaUtils
         }
     }
 
+    /**
+     * @param $token
+     * check if token valid
+     * @return bool
+     * @throws \Exception
+     */
     private function validateToken($token)
     {
         switch ($this->type) {

@@ -15,6 +15,7 @@ if ($oauthLogin !== true) {
     exit();
 }
 
+use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -31,8 +32,10 @@ use OpenEMR\Core\Header;
                 <div class="card-body">
                     <?php if (empty($authorize) && !$mfaRequired) { ?>
                         <h4 class="card-title mb-4 mt-1"><?php echo xlt("Sign In"); ?></h4>
-                    <?php } elseif (empty($mfaRequired) && $mfaRequired) { ?>
+                    <?php } elseif (empty($mfaRequired) && $mfaRequired && $mfaType === MfaUtils::TOTP) { ?>
                         <h4 class="card-title mb-4 mt-1"><?php echo xlt('TOTP Verification'); ?></h4>
+                    <?php } elseif (empty($mfaRequired) && $mfaRequired && $mfaType === MfaUtils::U2F) { ?>
+                        <h4 class="card-title mb-4 mt-1"><?php echo xlt('U2F Key Verification'); ?></h4>
                     <?php } else { ?>
                         <h4 class="card-title mb-4 mt-1"><?php echo xlt("Requested Information Shared"); ?></h4>
                     <?php } ?>
@@ -52,7 +55,7 @@ use OpenEMR\Core\Header;
                     } ?>
                     </p>
                     <hr />
-                    <form method="post" action="<?php echo $redirect ?>">
+                    <form method="post" name="userLogin" id="userLogin"  action="<?php echo $redirect ?>">
                         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('oauth2')); ?>" />
                         <?php if (empty($authorize) && !$mfaRequired) { ?>
                         <div class="form-group">
@@ -66,11 +69,32 @@ use OpenEMR\Core\Header;
                         </div>
                         <?php } ?>
 
-                        <?php if (empty($authorize) && $mfaRequired && $mfaType === 'TOTP') { ?>
+                        <?php if (empty($authorize) && $mfaRequired ) { ?>
+
+                            <?php if ($mfaType === MfaUtils::TOTP) { ?>
                             <h5><?php echo xlt('Provide TOTP code') ?></h5>
                             <div class="form-group">
-                                <input class="form-control" autocomplete="false" placeholder="<?php echo xla("Enter the code"); ?>" type="text" name="mfa_token">
+                                <input class="form-control" autocomplete="false" placeholder="<?php echo xlt("Enter the code"); ?>" type="text" name="mfa_token">
                             </div>
+                            <?php } ?>
+
+                            <?php if ($mfaType === MfaUtils::U2F) { ?>
+                                <fieldset>
+                                    <legend><?php echo xlt('Insert U2F Key') ?></legend>
+                                    <div class="form-group">
+                                    <div>
+                                    <ul>
+                                        <li><?php echo xlt('Insert your key into a USB port and click the Authenticate button below.')?></li>
+                                        <li><?php echo xlt('Then press the flashing button on your key within 1 minute.')?></li>
+                                        </ul>
+                                    </div>
+                                 </fieldset>
+                                <button type="button"  id="authutf" class="btn btn-secondary btn-save" onclick="doAuth()"><?php echo xlt('Authenticate U2F') ?></button>
+                                <input type="hidden" name="form_requests" value="<?php echo attr($requests) ?>" />
+                                <input class="form-control" type="hidden" name="mfa_token">
+
+                            <?php } ?>
+
                             <div class="form-group">
                                 <input class="form-control"  type="hidden" value="<?php echo attr($_POST['email']); ?>" >
                             </div>
@@ -94,7 +118,7 @@ use OpenEMR\Core\Header;
                                     <button type="submit" name="user_role" class="btn btn-outline-primary" value="api"><i class="fa fa-sign-in-alt"></i><?php echo xlt("Login via OpenEMR"); ?></button>
                                     <button type="submit" name="user_role" class="btn btn-outline-info" value="portal-api"><i class="fa fa-sign-in-alt"></i><?php echo xlt("Login as Patient"); ?></button>
                                     <?php } else { ?>
-                                        <button type="submit" name="user_role" class="btn btn-outline-primary" value="api"><i class="fa fa-sign-in-alt"></i><?php echo xlt("Authenticate TOTP"); ?></button>
+                                        <button type="submit" name="user_role" class="btn btn-outline-primary" value="api"><i class="fa fa-sign-in-alt"></i><?php echo xlt("Authenticate"); ?></button>
                                     <?php } ?>
                                 </div>
                                 <div class="form-check-inline float-right">
@@ -114,7 +138,7 @@ use OpenEMR\Core\Header;
 <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/u2f-api.js"></script>
 <script>
   function doAuth() {
-    var f = document.getElementById("u2fform");
+    var f = document.getElementById("userLogin");
     var requests = JSON.parse(f.form_requests.value);
     // The server's getAuthenticateData() repeats the same challenge in all requests.
     var challenge = requests[0].challenge;
@@ -131,7 +155,7 @@ use OpenEMR\Core\Header;
           alert(<?php echo xlj("Key access failed with error"); ?> +' ' + data.errorCode);
           return;
         }
-        f.form_response.value = JSON.stringify(data);
+        f.mfa_token.value = JSON.stringify(data);
         f.submit();
       },
       60
