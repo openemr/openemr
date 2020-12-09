@@ -1084,4 +1084,86 @@ class AuthorizationController
         $this->emitResponse($response->withStatus(200)->withBody($body));
         exit();
     }
+
+    /**
+     * Returns the authentication server token Url endpoint
+     * @return string
+     */
+    public function getTokenUrl() {
+        return $this->authBaseUrl . self::getTokenPath();
+    }
+
+    /**
+     * Returns the path prefix that the token authorization endpoint is on.
+     * @return string
+     */
+    public static function getTokenPath() {
+        return "/token";
+    }
+
+    /**
+     * Returns the authentication server manage url
+     * @return string
+     */
+    public function getManageUrl() {
+        return $this->authBaseUrl . self::getManagePath();
+    }
+
+    /**
+     * Returns the path prefix that the manage token authorization endpoint is on.
+     * @return string
+     */
+    public static function getManagePath() {
+        return "/manage";
+    }
+
+    /**
+     * Returns the authentication server authorization url to use for oauth authentication
+     * @return string
+     */
+    public function getAuthorizeUrl() {
+        return $this->authBaseUrl . self::getAuthorizePath();
+    }
+
+    /**
+     * Returns the path prefix that the authorization endpoint is on.
+     * @return string
+     */
+    public static function getAuthorizePath() {
+        return "/authorize";
+    }
+
+    /**
+     * Returns the authentication server registration url to use for client app / api registration
+     * @return string
+     */
+    public function getRegistrationUrl() {
+        return $this->authBaseUrl . self::getRegistrationPath();
+    }
+
+    /**
+     * Returns the path prefix that the registration endpoint is on.
+     * @return string
+     */
+    public static function getRegistrationPath() {
+        return "/registration";
+    }
+
+    /**
+     * Returns the authentication server introspection url to use for checking tokens
+     * @return string
+     */
+    public function getIntrospectionUrl() {
+        return $this->authBaseUrl . self::getIntrospectionPath();
+    }
+
+    /**
+     * Returns the path prefix that the introspection endpoint is on.
+     * @return string
+     */
+    public static function getIntrospectionPath() {
+        return "/introspect";
+    }
+
+
 }
