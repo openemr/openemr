@@ -195,6 +195,7 @@ class FhirMetaDataRestController
         $restJSON = $this->getCapabilityRESTJSON($routes);
         $restObj = new FHIRCapabilityStatementRest($restJSON);
         $restObj->setSecurity($this->getRestSecurity());
+        $this->addRestExtensions($restObj);
         $capabilityStatement->addRest($restObj);
         $composerStr = file_get_contents($serverRoot . "/composer.json");
         $composerObj = json_decode($composerStr, true);
@@ -210,10 +211,9 @@ class FhirMetaDataRestController
      * Creates the Security Capability Statement and returns it.
      * @return FHIRCapabilityStatementSecurity
      */
-    private function getRestSecurity()
-    {
+    private function getRestSecurity() {
         $service = new FHIRCodeableConcept();
-        $service->text = xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)");
+        $service->text = xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)" );
 
         $coding = new FHIRCoding();
         $coding->setSystem(new FHIRUrl("http://hl7.org/fhir/restful-security-service"));
@@ -267,8 +267,6 @@ class FhirMetaDataRestController
     }
 
     /**
-     *
-     *
      * Returns Metadata in CapabilityStatement FHIR resource format
      *
      */

@@ -1,5 +1,8 @@
 <?php
+<<<<<<< HEAD
 
+=======
+>>>>>>> SMART-FHIR Capability & .well-known statement
 namespace OpenEMR\RestControllers\SMART;
 
 /**
@@ -13,8 +16,12 @@ namespace OpenEMR\RestControllers\SMART;
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+<<<<<<< HEAD
 class SMARTConfigurationController
 {
+=======
+class SMARTConfigurationController {
+>>>>>>> SMART-FHIR Capability & .well-known statement
     /**
      * @var \OpenEMR\RestControllers\AuthorizationController
      */
@@ -25,14 +32,19 @@ class SMARTConfigurationController
         $this->authServer = $authServer;
     }
 
+<<<<<<< HEAD
     public function getConfig()
     {
+=======
+    public function getConfig() {
+>>>>>>> SMART-FHIR Capability & .well-known statement
         $authServer = $this->authServer;
         // TODO: should we abstract the innards of the REST controller into its own class
         // so we don't violate single responsibility principle?
         $metadataController = new \OpenEMR\RestControllers\FHIR\FhirMetaDataRestController();
         $statement = $metadataController->getMetaData();
 
+<<<<<<< HEAD
         // TODO: merge these with the OAUTH scopes
         $scopesSupported = [
             "openid"
@@ -42,6 +54,10 @@ class SMARTConfigurationController
             , "patient/*.*"
 //            , "user/*.*"
 //            , "offline_access"
+=======
+        $scopesSupported = [
+            "openid", "profile", "launch", "launch/patient", "patient/*.*", "user/*.*", "offline_access"
+>>>>>>> SMART-FHIR Capability & .well-known statement
         ];
         // create hash dictionary
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
@@ -49,20 +65,33 @@ class SMARTConfigurationController
         foreach ($restAPIs as $api) {
             $resources = $api->getResource();
             foreach ($resources as $resource) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> SMART-FHIR Capability & .well-known statement
                 // annoying that we switch into JSON instead of objects here
                 // violates the least surprise principle...
                 $interactions = $resource['interaction'];
                 $resourceType = $resource['type'];
+<<<<<<< HEAD
                 foreach ($interactions as $interaction) {
                     $scopeRead = $resourceType . ".read";
                     $scopeWrite = $resourceType . ".write";
                     switch ($interaction['code']) {
                         case 'read':
                         {
+=======
+                foreach($interactions as $interaction) {
+                    $scopeRead = $resourceType . ".read";
+                    $scopeWrite = $resourceType . ".write";
+                    switch ($interaction['code']) {
+                        case 'read': {
+>>>>>>> SMART-FHIR Capability & .well-known statement
                             if (empty($scopes_dict[$scopeRead])) {
                                 $scopes_dict[$scopeRead] = $scopeRead;
                             }
                         }
+<<<<<<< HEAD
                         break;
                         case 'insert': // checkstyle doesn't like fallthrough statements apparently
                         {
@@ -73,11 +102,20 @@ class SMARTConfigurationController
                         break;
                         case 'update':
                         {
+=======
+                            break;
+                        case 'insert':
+                        case 'update': {
+>>>>>>> SMART-FHIR Capability & .well-known statement
                             if (empty($scopes_dict[$scopeWrite])) {
                                 $scopes_dict[$scopeWrite] = $scopeWrite;
                             }
                         }
+<<<<<<< HEAD
                         break;
+=======
+                            break;
+>>>>>>> SMART-FHIR Capability & .well-known statement
                     }
                 }
             }
@@ -124,4 +162,8 @@ class SMARTConfigurationController
         ];
         return $config;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> SMART-FHIR Capability & .well-known statement

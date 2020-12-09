@@ -337,6 +337,7 @@ class RestConfig
             $resource === ("/" . self::$SITE . "/fhir/metadata") ||
             $resource === ("/" . self::$SITE . "/fhir/.well-known/smart-configuration")
         ) {
+
             return true;
         } else {
             return false;
