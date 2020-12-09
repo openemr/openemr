@@ -273,7 +273,7 @@ class Claim
             $this->supervisor = array();
         }
 
-        $billing_options_id = $this->billing_options['provider_id'];
+        $billing_options_id = $this->billing_options['provider_id'] ?? null;
         $sql = "SELECT * FROM users WHERE id = ?";
         $this->billing_prov_id = sqlQuery($sql, array($billing_options_id));
         if (!$this->billing_prov_id) {
@@ -531,7 +531,9 @@ class Claim
         foreach ($this->invoice as $codekey => $codeval) {
             foreach ($codeval['dtl'] as $key => $value) {
                 // plv exists to indicate the payer level.
-                if ($value['plv'] == 0) { // 0 indicates patient
+
+                if (empty($value['plv'])) { // 0 indicates patient
+                    $value['pmt'] = $value['pmt'] ?? null;
                     $amount += $value['pmt'];
                 }
             }
@@ -719,7 +721,7 @@ class Claim
   # The billing facility and the patient must both accept for this to return true.
     public function billingFacilityAssignment($ins = 0)
     {
-        $tmp = strtoupper($this->payers[$ins]['data']['accept_assignment']);
+        $tmp = strtoupper($this->payers[$ins]['data']['accept_assignment'] ?? '');
         if (strcmp($tmp, 'FALSE') == 0) {
             return '0';
         }
@@ -822,28 +824,28 @@ class Claim
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->insurance_numbers : $this->procs[$prockey]['insurance_numbers'];
-        return $this->x12Clean(trim(str_replace('-', '', $tmp['provider_number'])));
+        return $this->x12Clean(trim(str_replace('-', '', ($tmp['provider_number'] ?? ''))));
     }
 
     public function providerGroupNumber($prockey = -1)
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->insurance_numbers : $this->procs[$prockey]['insurance_numbers'];
-        return $this->x12Clean(trim(str_replace('-', '', $tmp['group_number'])));
+        return $this->x12Clean(trim(str_replace('-', '', ($tmp['group_number'] ?? ''))));
     }
 
   // Returns 'P', 'S' or 'T'.
   //
     public function payerSequence($ins = 0)
     {
-        return strtoupper(substr($this->payers[$ins]['data']['type'], 0, 1));
+        return strtoupper(substr(($this->payers[$ins]['data']['type'] ?? ''), 0, 1));
     }
 
   // Returns the HIPAA code of the patient-to-subscriber relationship.
   //
     public function insuredRelationship($ins = 0)
     {
-        $tmp = strtolower($this->payers[$ins]['data']['subscriber_relationship']);
+        $tmp = strtolower(($this->payers[$ins]['data']['subscriber_relationship'] ?? ''));
         if (strcmp($tmp, 'self') == 0) {
             return '18';
         }
@@ -882,23 +884,23 @@ class Claim
 
     public function planName($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['data']['plan_name']));
+        return $this->x12Clean(trim($this->payers[$ins]['data']['plan_name'] ?? ''));
     }
 
     public function policyNumber($ins = 0)
     {
  // "ID"
-        return $this->x12Clean(trim($this->payers[$ins]['data']['policy_number']));
+        return $this->x12Clean(trim($this->payers[$ins]['data']['policy_number'] ?? ''));
     }
 
     public function groupNumber($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['data']['group_number']));
+        return $this->x12Clean(trim($this->payers[$ins]['data']['group_number'] ?? ''));
     }
 
     public function groupName($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_employer']));
+        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_employer'] ?? ''));
     }
 
   // Claim types are:
@@ -949,37 +951,37 @@ class Claim
 
     public function insuredLastName($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_lname']));
+        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_lname'] ?? ''));
     }
 
     public function insuredFirstName($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_fname']));
+        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_fname'] ?? ''));
     }
 
     public function insuredMiddleName($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_mname']));
+        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_mname'] ?? ''));
     }
 
     public function insuredStreet($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_street']));
+        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_street'] ?? ''));
     }
 
     public function insuredCity($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_city']));
+        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_city'] ?? ''));
     }
 
     public function insuredState($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_state']));
+        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_state'] ?? ''));
     }
 
     public function insuredZip($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_postal_code']));
+        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_postal_code'] ?? ''));
     }
 
     public function insuredPhone($ins = 0)
@@ -987,7 +989,7 @@ class Claim
         if (
             preg_match(
                 "/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
-                $this->payers[$ins]['data']['subscriber_phone'],
+                ($this->payers[$ins]['data']['subscriber_phone'] ?? ''),
                 $tmp
             )
         ) {
@@ -999,22 +1001,22 @@ class Claim
 
     public function insuredDOB($ins = 0)
     {
-        return str_replace('-', '', $this->payers[$ins]['data']['subscriber_DOB']);
+        return str_replace('-', '', ($this->payers[$ins]['data']['subscriber_DOB'] ?? ''));
     }
 
     public function insuredSex($ins = 0)
     {
-        return strtoupper(substr($this->payers[$ins]['data']['subscriber_sex'], 0, 1));
+        return strtoupper(substr(($this->payers[$ins]['data']['subscriber_sex'] ?? ''), 0, 1));
     }
 
     public function payerName($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['company']['name']));
+        return $this->x12Clean(trim($this->payers[$ins]['company']['name'] ?? ''));
     }
 
     public function payerAttn($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['company']['attn']));
+        return $this->x12Clean(trim($this->payers[$ins]['company']['attn'] ?? ''));
     }
 
     public function payerStreet($ins = 0)
@@ -1246,7 +1248,7 @@ class Claim
 
     public function priorAuth()
     {
-        return $this->x12Clean(trim($this->billing_options['prior_auth_number']));
+        return $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
     }
 
     public function isRelatedEmployment()
@@ -1325,17 +1327,17 @@ class Claim
 
     public function epsdtFlag()
     {
-        return $this->x12Clean(trim($this->billing_options['epsdt_flag']));
+        return $this->x12Clean(trim($this->billing_options['epsdt_flag'] ?? ''));
     }
 
     public function medicaidResubmissionCode()
     {
-        return $this->x12Clean(trim($this->billing_options['medicaid_resubmission_code']));
+        return $this->x12Clean(trim($this->billing_options['medicaid_resubmission_code'] ?? ''));
     }
 
     public function medicaidOriginalReference()
     {
-        return $this->x12Clean(trim($this->billing_options['medicaid_original_reference']));
+        return $this->x12Clean(trim($this->billing_options['medicaid_original_reference'] ?? ''));
     }
 
     public function frequencyTypeCode()
@@ -1350,12 +1352,12 @@ class Claim
 
     public function additionalNotes()
     {
-        return $this->x12Clean(trim($this->billing_options['comments']));
+        return $this->x12Clean(trim($this->billing_options['comments'] ?? ''));
     }
 
     public function miscOnsetDate()
     {
-        return $this->cleanDate($this->billing_options['onset_date']);
+        return $this->cleanDate($this->billing_options['onset_date'] ?? '');
     }
 
     public function miscOnsetDateValid()
@@ -1365,7 +1367,7 @@ class Claim
 
     public function dateInitialTreatment()
     {
-        return $this->cleanDate($this->billing_options['date_initial_treatment']);
+        return $this->cleanDate($this->billing_options['date_initial_treatment'] ?? '');
     }
 
     public function dateInitialTreatmentValid()
@@ -1584,7 +1586,7 @@ class Claim
 
     public function referrerLastName()
     {
-        return $this->x12Clean(trim($this->referrer['lname']));
+        return $this->x12Clean(trim($this->referrer['lname'] ?? ''));
     }
 
     public function referrerFirstName()
@@ -1667,12 +1669,12 @@ class Claim
 
     public function supervisorNumber()
     {
-        return $this->x12Clean(trim(str_replace('-', '', $this->supervisor_numbers['provider_number'])));
+        return $this->x12Clean(trim(str_replace('-', '', ($this->supervisor_numbers['provider_number'] ?? ''))));
     }
 
     public function billingProviderLastName()
     {
-        return $this->x12Clean(trim($this->billing_prov_id['lname']));
+        return $this->x12Clean(trim($this->billing_prov_id['lname'] ?? ''));
     }
 
     public function billingProviderFirstName()
