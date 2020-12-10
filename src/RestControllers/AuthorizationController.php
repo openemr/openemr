@@ -1089,7 +1089,8 @@ class AuthorizationController
      * Returns the authentication server token Url endpoint
      * @return string
      */
-    public function getTokenUrl() {
+    public function getTokenUrl()
+    {
         return $this->authBaseUrl . self::getTokenPath();
     }
 
@@ -1097,7 +1098,8 @@ class AuthorizationController
      * Returns the path prefix that the token authorization endpoint is on.
      * @return string
      */
-    public static function getTokenPath() {
+    public static function getTokenPath()
+    {
         return "/token";
     }
 
@@ -1105,7 +1107,8 @@ class AuthorizationController
      * Returns the authentication server manage url
      * @return string
      */
-    public function getManageUrl() {
+    public function getManageUrl()
+    {
         return $this->authBaseUrl . self::getManagePath();
     }
 
@@ -1113,7 +1116,8 @@ class AuthorizationController
      * Returns the path prefix that the manage token authorization endpoint is on.
      * @return string
      */
-    public static function getManagePath() {
+    public static function getManagePath()
+    {
         return "/manage";
     }
 
@@ -1121,7 +1125,8 @@ class AuthorizationController
      * Returns the authentication server authorization url to use for oauth authentication
      * @return string
      */
-    public function getAuthorizeUrl() {
+    public function getAuthorizeUrl()
+    {
         return $this->authBaseUrl . self::getAuthorizePath();
     }
 
@@ -1129,7 +1134,8 @@ class AuthorizationController
      * Returns the path prefix that the authorization endpoint is on.
      * @return string
      */
-    public static function getAuthorizePath() {
+    public static function getAuthorizePath()
+    {
         return "/authorize";
     }
 
@@ -1137,7 +1143,8 @@ class AuthorizationController
      * Returns the authentication server registration url to use for client app / api registration
      * @return string
      */
-    public function getRegistrationUrl() {
+    public function getRegistrationUrl()
+    {
         return $this->authBaseUrl . self::getRegistrationPath();
     }
 
@@ -1145,7 +1152,8 @@ class AuthorizationController
      * Returns the path prefix that the registration endpoint is on.
      * @return string
      */
-    public static function getRegistrationPath() {
+    public static function getRegistrationPath()
+    {
         return "/registration";
     }
 
@@ -1153,7 +1161,8 @@ class AuthorizationController
      * Returns the authentication server introspection url to use for checking tokens
      * @return string
      */
-    public function getIntrospectionUrl() {
+    public function getIntrospectionUrl()
+    {
         return $this->authBaseUrl . self::getIntrospectionPath();
     }
 
@@ -1161,9 +1170,8 @@ class AuthorizationController
      * Returns the path prefix that the introspection endpoint is on.
      * @return string
      */
-    public static function getIntrospectionPath() {
+    public static function getIntrospectionPath()
+    {
         return "/introspect";
     }
-
-
 }

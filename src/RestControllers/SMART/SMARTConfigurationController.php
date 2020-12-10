@@ -1,4 +1,5 @@
 <?php
+
 namespace OpenEMR\RestControllers\SMART;
 
 /**
@@ -12,7 +13,8 @@ namespace OpenEMR\RestControllers\SMART;
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class SMARTConfigurationController {
+class SMARTConfigurationController
+{
     /**
      * @var \OpenEMR\RestControllers\AuthorizationController
      */
@@ -23,7 +25,8 @@ class SMARTConfigurationController {
         $this->authServer = $authServer;
     }
 
-    public function getConfig() {
+    public function getConfig()
+    {
         $authServer = $this->authServer;
         // TODO: should we abstract the innards of the REST controller into its own class
         // so we don't violate single responsibility principle?
@@ -36,31 +39,44 @@ class SMARTConfigurationController {
         // create hash dictionary
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
         $restAPIs = $statement->getRest();
-        foreach ($restAPIs as $api) {
+        foreach ($restAPIs as $api)
+        {
             $resources = $api->getResource();
-            foreach ($resources as $resource) {
-
+            foreach ($resources as $resource)
+            {
                 // annoying that we switch into JSON instead of objects here
                 // violates the least surprise principle...
                 $interactions = $resource['interaction'];
                 $resourceType = $resource['type'];
-                foreach($interactions as $interaction) {
+                foreach($interactions as $interaction)
+                {
                     $scopeRead = $resourceType . ".read";
                     $scopeWrite = $resourceType . ".write";
                     switch ($interaction['code']) {
-                        case 'read': {
-                            if (empty($scopes_dict[$scopeRead])) {
+                        case 'read':
+                        {
+                            if (empty($scopes_dict[$scopeRead]))
+                            {
                                 $scopes_dict[$scopeRead] = $scopeRead;
                             }
                         }
-                            break;
-                        case 'insert':
-                        case 'update': {
-                            if (empty($scopes_dict[$scopeWrite])) {
+                        break;
+                        case 'insert': // checkstyle doesn't like fallthrough statements apparently
+                        {
+                            if (empty($scopes_dict[$scopeWrite]))
+                            {
                                 $scopes_dict[$scopeWrite] = $scopeWrite;
                             }
                         }
-                            break;
+                        break;
+                        case 'update':
+                        {
+                            if (empty($scopes_dict[$scopeWrite]))
+                            {
+                                $scopes_dict[$scopeWrite] = $scopeWrite;
+                            }
+                        }
+                        break;
                     }
                 }
             }

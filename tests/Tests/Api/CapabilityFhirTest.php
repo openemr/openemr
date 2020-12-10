@@ -86,7 +86,8 @@ class CapabilityFhirTest extends TestCase
         $this->assertCapabilityHasSMARTRequirements($statement);
     }
 
-    private function assertCapabilityHasSMARTRequirements($statement) {
+    private function assertCapabilityHasSMARTRequirements($statement)
+    {
 
         $this->assertArrayHasKey('rest', $statement, "Rest capability must be defined");
         $restDef = $statement['rest'][0];
@@ -133,7 +134,8 @@ class CapabilityFhirTest extends TestCase
         $this->assertEquals([], $missing_capabilities, "Capabilities statement is missing expected SMART extensions of " . implode($missing_capabilities, ", "));
     }
 
-    public function getExtension($capabilityStatementRestDefinition, $extensionUri) {
+    public function getExtension($capabilityStatementRestDefinition, $extensionUri)
+    {
         $result = null;
         $list = $this->getExtensionList($capabilityStatementRestDefinition, $extensionUri);
         if (!empty($list)) {
@@ -141,7 +143,8 @@ class CapabilityFhirTest extends TestCase
         }
         return $result;
     }
-    public function getExtensionList($capabilityStatementRestDefinition, $extensionUri) {
+    public function getExtensionList($capabilityStatementRestDefinition, $extensionUri)
+    {
         $list = [];
         if (!empty($capabilityStatementRestDefinition['extension'])) {
             foreach ($capabilityStatementRestDefinition['extension'] as $index => $extension) {
@@ -152,5 +155,4 @@ class CapabilityFhirTest extends TestCase
         }
         return $list;
     }
-
 }

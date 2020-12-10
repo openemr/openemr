@@ -329,8 +329,11 @@ class RestConfig
             exit();
         }
         // let the capability statement for FHIR or the SMART-on-FHIR through
-        if ($resource === ("/" . self::$SITE . "/fhir/metadata")
-            || $resource === ("/" . self::$SITE . "/fhir/.well-known/smart-configuration")) {
+        if (
+            $resource === ("/" . self::$SITE . "/fhir/metadata") ||
+            $resource === ("/" . self::$SITE . "/fhir/.well-known/smart-configuration")
+        )
+        {
             return true;
         } else {
             return false;
