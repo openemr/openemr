@@ -249,7 +249,8 @@ class FhirMetaDataRestController
 //            ,'manage' => $authServer->getManageUrl()
 //            ,'revoke' => ''
         ];
-        foreach ($oauthUrls as $url => $valueUri) {
+        foreach ($oauthUrls as $url => $valueUri)
+        {
             $oauthEndpointExtension = new FHIRExtension();
             $oauthEndpointExtension->setUrl($url);
             $oauthEndpointExtension->setValueUri($valueUri);
@@ -258,7 +259,8 @@ class FhirMetaDataRestController
         $statement->addExtension($oauthExtension);
 
         // now add our SMART capabilities
-        foreach (self::SMART_CAPABILITIES as $smartCapability) {
+        foreach (self::SMART_CAPABILITIES as $smartCapability)
+        {
             $extension = new FHIRExtension();
             $extension->setUrl("http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities");
             $extension->setValueCode($smartCapability);

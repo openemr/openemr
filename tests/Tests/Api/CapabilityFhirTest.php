@@ -157,5 +157,4 @@ class CapabilityFhirTest extends TestCase
         }
         return $list;
     }
-
 }
