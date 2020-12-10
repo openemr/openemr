@@ -13,7 +13,9 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
 use League\OAuth2\Server\Entities\UserEntityInterface;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenIDConnectServer\Entities\ClaimSetInterface;
@@ -90,6 +92,31 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                     return false;
                 }
                 $this->setIdentifier(UuidRegistry::uuidToString($uuid));
+
+                //check if TOTP MFA required (U2F impossible to support via password grant)
+                $mfa = new MfaUtils($id);
+                $mfaToken = $mfa->tokenFromRequest(MfaUtils::TOTP);
+                if ($mfa->isMfaRequired() && in_array(MfaUtils::TOTP, $mfa->getType()) && is_null($mfaToken)) {
+                    throw new OAuthServerException(
+                        'MFA required, The authorization server expects to `mfa_token` parameter in the request body.',
+                        11,
+                        'mfa_required',
+                        403
+                    );
+                }
+                //Check the validity of the authentication token
+                if ($mfa->isMfaRequired() && in_array(MfaUtils::TOTP, $mfa->getType()) && !is_null($mfaToken)) {
+                    if ($mfaToken && $mfa->check($mfaToken, MfaUtils::TOTP)) {
+                        return true;
+                    } else {
+                        throw new OAuthServerException(
+                            $mfa->errorMessage(),
+                            12,
+                            'mfa_token_invalid',
+                            401
+                        );
+                    }
+                }
                 return true;
             }
         } elseif (($userrole == "patient") && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {

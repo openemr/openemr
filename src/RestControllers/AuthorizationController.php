@@ -31,6 +31,7 @@ use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
@@ -70,16 +71,19 @@ class AuthorizationController
     private $providerForm;
     private $authRequestSerial;
     private $cryptoGen;
+    private $userId;
 
     public function __construct($providerForm = true)
     {
         global $gbl;
 
         $this->siteId = $gbl::$SITE;
+
         $this->authBaseUrl = $GLOBALS['webroot'] . '/oauth2/' . $_SESSION['site_id'];
         // collect full url and issuing url by using 'site_addr_oath' global
         $this->authBaseFullUrl = $GLOBALS['site_addr_oath'] . $this->authBaseUrl;
         $this->authIssueFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'];
+
         $this->authRequestSerial = $_SESSION['authRequestSerial'] ?? '';
         // Create a crypto object that will be used for for encryption/decryption
         $this->cryptoGen = new CryptoGen();
@@ -580,7 +584,7 @@ class AuthorizationController
         }
         $continueLogin = false;
         if (isset($_POST['user_role'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'oauth2')) {
+                if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'oauth2')) {
                 CsrfUtils::csrfNotVerified(false, true, false);
                 unset($_POST['username'], $_POST['password']);
                 $invalid = "Sorry, Invalid CSRF!"; // todo: display error
@@ -592,7 +596,7 @@ class AuthorizationController
                 $continueLogin = $this->verifyLogin($_POST['username'], $_POST['password'], $_POST['email'], $_POST['user_role']);
             }
         }
-        unset($_POST['username'], $_POST['password']);
+
         if (!$continueLogin) {
             $invalid = "Sorry, Invalid!"; // todo: display error
             $oauthLogin = true;
@@ -600,6 +604,38 @@ class AuthorizationController
             require_once(__DIR__ . "/../../oauth2/provider/login.php");
             exit();
         }
+
+        //Require MFA if turn on, currently support only TOTP method
+        $mfa = new MfaUtils($this->userId);
+        $mfaToken = $mfa->tokenFromRequest($_POST['mfa_type']);
+        $mfaType = $mfa->getType();
+        $TOTP = MfaUtils::TOTP;
+        $U2F = MfaUtils::U2F;
+        if ($_POST['user_role'] === 'api' && $mfa->isMfaRequired() && is_null($mfaToken)) {
+            $oauthLogin = true;
+            $mfaRequired = true;
+            $redirect = $this->authBaseUrl . "/login";
+            if (in_array(MfaUtils::U2F, $mfaType)) {
+                $appId = $mfa->getAppId();
+                $requests = $mfa->getU2fRequests();
+            }
+            require_once(__DIR__ . "/../../oauth2/provider/login.php");
+            exit();
+        }
+        //Check the validity of the authentication token
+        if ($_POST['user_role'] === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
+            if (!$mfaToken || !$mfa->check($mfaToken, $_POST['mfa_type'])) {
+                $invalid = "Sorry, Invalid code!";
+                $oauthLogin = true;
+                $mfaRequired = true;
+                $mfaType = $mfa->getType();
+                $redirect = $this->authBaseUrl . "/login";
+                require_once(__DIR__ . "/../../oauth2/provider/login.php");
+                exit();
+            }
+        }
+
+        unset($_POST['username'], $_POST['password']);
         $_SESSION['persist_login'] = isset($_POST['persist_login']) ? 1 : 0;
         $user = new UserEntity();
         $user->setIdentifier($_SESSION['user_id']);
@@ -617,8 +653,8 @@ class AuthorizationController
         if (!$is_true) {
             return false;
         }
-        if ($id = $auth->getUserId()) {
-            $_SESSION['user_id'] = $this->getUserUuid($id, 'users');
+        if ($this->userId = $auth->getUserId()) {
+            $_SESSION['user_id'] = $this->getUserUuid($this->userId, 'users');
             return true;
         }
         if ($id = $auth->getPatientId()) {
