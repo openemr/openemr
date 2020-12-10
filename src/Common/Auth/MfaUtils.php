@@ -12,10 +12,11 @@ class MfaUtils
     const TOTP = 'TOTP';
     const U2F = 'U2F';
 
-    private $type; //type of MFA
+    private $types = array(); //type of MFA
     private $regs;
     private $registrations;
-    private $var1;
+    private $var1U2F;
+    private $var1TOTP;
     private $uid; // User Id who try connect
     private $errorMsg = '';
     private $appId;
@@ -34,27 +35,28 @@ class MfaUtils
             array($uid)
         );
         while ($row = sqlFetchArray($res)) {
-            $this->var1 = $row['var1'];
             if ($row['method'] == 'U2F') {
-                $this->type = 'U2F';
+                $this->types[] = 'U2F';
+                $this->var1U2F = $row['var1'];
                 $regobj = json_decode($row['var1']);
                 $this->regs[json_encode($regobj->keyHandle)] = $row['name'];
                 $this->registrations[] = $regobj;
             } elseif ($row['method'] == 'TOTP') {
-                $this->type = 'TOTP';
+                $this->types[] = 'TOTP';
+                $this->var1TOTP = $row['var1'];
             }
         }
         $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
         $this->appId = $scheme . $_SERVER['HTTP_HOST'];
     }
 
-    public function tokenFromRequest()
+    public function tokenFromRequest($type)
     {
         $token = isset($_POST['mfa_token']) ? $_POST['mfa_token'] : null;
         if (is_null($token)) {
             return null;
         }
-        return $this->validateToken($token) ? $token : false;
+        return $this->validateToken($token, $type) ? $token : false;
     }
 
     /**
@@ -63,12 +65,12 @@ class MfaUtils
      */
     public function isMfaRequired()
     {
-        return !is_null($this->type) ? true : false;
+        return !empty($this->types) ? true : false;
     }
 
     public function getType()
     {
-        return $this->type;
+        return $this->types;
     }
 
     /**
@@ -77,9 +79,9 @@ class MfaUtils
      * @return bool
      * @throws \Exception
      */
-    public function check($token)
+    public function check($token, $type)
     {
-        switch ($this->type) {
+        switch ($type) {
             case 'TOTP':
                 return $this->checkTOTP($token);
                 break;
@@ -113,12 +115,13 @@ class MfaUtils
      */
     public function getU2fRequests()
     {
-        $u2f = new U2F($this->appId);
+       /* $u2f = new U2F($this->appId);
         $requests =  json_encode($u2f->getAuthenticateData($this->registrations));
         sqlStatement(
             "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
             array($requests, $this->uid)
-        );
+        );*/
+       return '55';
         return $requests;
     }
 
@@ -130,8 +133,8 @@ class MfaUtils
     private function checkTOTP($token)
     {
         $registrationSecret = false;
-        if (!empty($this->var1)) {
-            $registrationSecret = $this->var1;
+        if (!empty($this->var1TOTP)) {
+            $registrationSecret = $this->var1TOTP;
         }
 
         // Decrypt the secret
@@ -214,9 +217,9 @@ class MfaUtils
      * @return bool
      * @throws \Exception
      */
-    private function validateToken($token)
+    private function validateToken($token, $type)
     {
-        switch ($this->type) {
+        switch ($type) {
             case 'TOTP':
                 return strlen($token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false;
                 break;

@@ -584,7 +584,7 @@ class AuthorizationController
         }
         $continueLogin = false;
         if (isset($_POST['user_role'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'oauth2')) {
+           if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'oauth2')) {
                 CsrfUtils::csrfNotVerified(false, true, false);
                 unset($_POST['username'], $_POST['password']);
                 $invalid = "Sorry, Invalid CSRF!"; // todo: display error
@@ -607,13 +607,15 @@ class AuthorizationController
 
         //Require MFA if turn on, currently support only TOTP method
         $mfa = new MfaUtils($this->userId);
-        $mfaToken = $mfa->tokenFromRequest();
+        $mfaToken = $mfa->tokenFromRequest($_POST['mfa_type']);
         $mfaType = $mfa->getType();
+        $TOTP = MfaUtils::TOTP;
+        $U2F = MfaUtils::U2F;
         if ($_POST['user_role'] === 'api' && $mfa->isMfaRequired() && is_null($mfaToken)) {
             $oauthLogin = true;
             $mfaRequired = true;
             $redirect = $this->authBaseUrl . "/login";
-            if ($mfaType === MfaUtils::U2F) {
+            if (in_array(MfaUtils::U2F, $mfaType)) {
                 $appId = $mfa->getAppId();
                 $requests = $mfa->getU2fRequests();
             }
@@ -622,7 +624,7 @@ class AuthorizationController
         }
         //Check the validity of the authentication token
         if ($_POST['user_role'] === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
-            if (!$mfaToken || !$mfa->check($mfaToken)) {
+            if (!$mfaToken || !$mfa->check($mfaToken, $_POST['mfa_type'])) {
                 $invalid = "Sorry, Invalid code!";
                 $oauthLogin = true;
                 $mfaRequired = true;

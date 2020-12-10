@@ -95,8 +95,8 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
                 //check if TOTP MFA required (U2F impossible to support via password grant)
                 $mfa = new MfaUtils($id);
-                $mfaToken = $mfa->tokenFromRequest();
-                if ($mfa->isMfaRequired() && $mfa->getType() === MfaUtils::TOTP && is_null($mfaToken)) {
+                $mfaToken = $mfa->tokenFromRequest(MfaUtils::TOTP);
+                if ($mfa->isMfaRequired() && in_array(MfaUtils::TOTP, $mfa->getType())&& is_null($mfaToken)) {
                     throw new OAuthServerException(
                         'MFA required, The authorization server expects to `mfa_token` parameter in the request body.',
                         11,
@@ -105,8 +105,8 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                     );
                 }
                 //Check the validity of the authentication token
-                if ($mfa->isMfaRequired()  && $mfa->getType() === MfaUtils::TOTP && !is_null($mfaToken)) {
-                    if ($mfaToken && $mfa->check($mfaToken)) {
+                if ($mfa->isMfaRequired()  && in_array(MfaUtils::TOTP, $mfa->getType())&& !is_null($mfaToken)) {
+                    if ($mfaToken && $mfa->check($mfaToken, MfaUtils::TOTP)) {
                         return true;
                     } else {
                         throw new OAuthServerException(
