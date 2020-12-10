@@ -36,6 +36,7 @@ class ClearingHouse
         $sftpPort = 22;
 
         $ch = new SFTP($sftpServer, $sftpPort);
+        $ch->setTimeout(20);
         if (!$ch->login($sftpUsername, $sftpPassword)) {
             return sftp_status('Login error', $sftpServer . ":" . $sftpPort);
         }

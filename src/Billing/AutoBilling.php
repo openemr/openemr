@@ -14,6 +14,11 @@ use Exception;
 
 class AutoBilling
 {
+    public $pid;
+    public $bInfo;
+    public $userid;
+    public $event_date;
+
     public function __construct()
     {
         //do epic stuff...
@@ -24,8 +29,8 @@ class AutoBilling
         /**
          *  Aggregate information to fill billing table
          */
-        $event_date = $event_date . " " . date("H:i:s"); // append current time to event date
-        $billingData = explode("-", $bInfo);  //separate up billing information into code and text
+        $event_date = $this->event_date . " " . date("H:i:s"); // append current time to event date
+        $billingData = explode("-", $this->bInfo);  //separate up billing information into code and text
         if (!empty($billingData[0])) {
             $code = trim($billingData[0]);  // code that is in the calendar description
             $text = trim($billingData[1]);  // text that is after the code in the calendar description
@@ -182,13 +187,13 @@ class AutoBilling
      * @param $pid
      * @return mixed
      */
-    public function getDiagnosis($pid)
+    public function getDiagnosis()
     {
         /**
          * get the most recent diagnosis
          */
         $sql = "select title, diagnosis, type from lists where pid = ? ORDER BY id DESC LIMIT 1";
-        $res = sqlQuery($sql, [$pid]);
+        $res = sqlQuery($sql, [$this->pid]);
         return $res;
     }
 
