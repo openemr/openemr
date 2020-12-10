@@ -115,13 +115,12 @@ class MfaUtils
      */
     public function getU2fRequests()
     {
-       /* $u2f = new U2F($this->appId);
+        $u2f = new U2F($this->appId);
         $requests =  json_encode($u2f->getAuthenticateData($this->registrations));
         sqlStatement(
             "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
             array($requests, $this->uid)
-        );*/
-       return '55';
+        );
         return $requests;
     }
 

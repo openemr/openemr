@@ -584,7 +584,7 @@ class AuthorizationController
         }
         $continueLogin = false;
         if (isset($_POST['user_role'])) {
-           if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'oauth2')) {
+                if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'oauth2')) {
                 CsrfUtils::csrfNotVerified(false, true, false);
                 unset($_POST['username'], $_POST['password']);
                 $invalid = "Sorry, Invalid CSRF!"; // todo: display error
