@@ -132,7 +132,7 @@ class CapabilityFhirTest extends TestCase
         // the capabilities the server currently has
         $expectedCapabilities = FhirMetaDataRestController::SMART_CAPABILITIES;
         $missing_capabilities = array_diff($expectedCapabilities, $enabledCapabilities);
-        $this->assertEquals([], $missing_capabilities, "Capabilities statement is missing expected SMART extensions of " . implode($missing_capabilities, ", "));
+        $this->assertEquals([], $missing_capabilities, "Capabilities statement is missing expected SMART extensions of " . implode(",", $missing_capabilities));
     }
 
     public function getExtension($capabilityStatementRestDefinition, $extensionUri)
