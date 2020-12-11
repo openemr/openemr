@@ -1013,3 +1013,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('Eye_QP_RETINA_defaults', 'OUVITREOUS_vh', 'vit: hemorrhage', 1020, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OU');
 #EndIf
+
+#IfColumn layout_options title
+ALTER TABLE `layout_options` CHANGE `title` `title` VARCHAR(255) NOT NULL DEFAULT '';
+#EndIf

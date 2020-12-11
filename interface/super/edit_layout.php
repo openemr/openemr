@@ -682,7 +682,7 @@ function writeFieldLine($linedata)
 
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' id='fld[" . attr($fld_line_no) . "][title]' name='fld[" . attr($fld_line_no) . "][title]' value='" .
-        attr($linedata['title']) . "' size='15' maxlength='63' class='optin' style='width:100%' />";
+        attr($linedata['title']) . "' size='15' maxlength='255' class='optin' style='width:100%' />";
     echo "</td>\n";
 
     // if not english and set to translate layout labels, then show the translation
