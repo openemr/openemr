@@ -9,7 +9,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018-2020 Brady Miller <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -357,7 +357,9 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
     <?php } ?>
     <style>
-
+        td[id^="label_id_"] {
+            white-space: normal !important;
+        }
         td, input, select, textarea {
             font-family: Arial, Helvetica, sans-serif;
             font-size: 10pt;
@@ -1033,11 +1035,11 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         }
 
                         echo " /><b>" . text(xl_layout_label($group_name)) . "</b></span>\n";
-                        echo "<div id='div_" . attr($group_seq) . "' class='section table-responsive' style='display:" . attr($display_style) . ";'>\n";
+                        echo "<div id='div_" . attr($group_seq) . "' class='table-responsive section' style='display:" . attr($display_style) . ";'>\n";
                     }
 
                     $group_table_active = true;
-                    echo " <table border='0' cellspacing='0' cellpadding='0' class='lbfdata'>\n";
+                    echo " <table border='0' cellspacing='0' cellpadding='0' class='table table-condensed lbfdata'>\n";
 
                     if ($subtitle) {
                         // There is a group subtitle so show it.

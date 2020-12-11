@@ -2774,7 +2774,7 @@ CREATE TABLE `layout_options` (
   `form_id` varchar(31) NOT NULL default '',
   `field_id` varchar(31) NOT NULL default '',
   `group_id` varchar(31) NOT NULL default '',
-  `title` varchar(63) NOT NULL default '',
+  `title` text NOT NULL default '',
   `seq` int(11) NOT NULL default '0',
   `data_type` tinyint(3) NOT NULL default '0',
   `uor` tinyint(1) NOT NULL default '1',
