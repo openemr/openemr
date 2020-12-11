@@ -30,7 +30,7 @@ class LoginPage
         $crawler = $this->client->submit($form);
         $this->test::assertTrue($this->client->isFollowingRedirects());
         $title = $this->client->getTitle();
-        $this->test->assertSame('OpenEMR', $title);
+        $this->test->assertSame('OpenEMR Login', $title);
 
         return new MainPage($crawler, $this->client, $this->test);
     }
