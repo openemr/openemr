@@ -84,6 +84,11 @@ class AuthorizationController
      */
     private $logger;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct($providerForm = true)
     {
         global $gbl;

@@ -195,7 +195,6 @@ class FhirMetaDataRestController
         $restJSON = $this->getCapabilityRESTJSON($routes);
         $restObj = new FHIRCapabilityStatementRest($restJSON);
         $restObj->setSecurity($this->getRestSecurity());
-        $this->addRestExtensions($restObj);
         $capabilityStatement->addRest($restObj);
         $composerStr = file_get_contents($serverRoot . "/composer.json");
         $composerObj = json_decode($composerStr, true);
@@ -220,11 +219,12 @@ class FhirMetaDataRestController
         $coding->setCode("SMART-on-FHIR");
 
         $service->addCoding($coding)
-                ->setText(xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)"));
+                ->setText(xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)") );
 
         $security = new FHIRCapabilityStatementSecurity();
         $security->addService($service);
         $this->addOauthSecurityExtensions($security);
+
         return $security;
     }
 
@@ -249,8 +249,7 @@ class FhirMetaDataRestController
 //            ,'manage' => $authServer->getManageUrl()
 //            ,'revoke' => ''
         ];
-        foreach ($oauthUrls as $url => $valueUri)
-        {
+        foreach ($oauthUrls as $url => $valueUri) {
             $oauthEndpointExtension = new FHIRExtension();
             $oauthEndpointExtension->setUrl($url);
             $oauthEndpointExtension->setValueUri($valueUri);
@@ -259,8 +258,7 @@ class FhirMetaDataRestController
         $statement->addExtension($oauthExtension);
 
         // now add our SMART capabilities
-        foreach (self::SMART_CAPABILITIES as $smartCapability)
-        {
+        foreach (self::SMART_CAPABILITIES as $smartCapability) {
             $extension = new FHIRExtension();
             $extension->setUrl("http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities");
             $extension->setValueCode($smartCapability);

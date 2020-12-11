@@ -59,25 +59,18 @@ class SMARTConfigurationController
                     $scopeWrite = $resourceType . ".write";
                     switch ($interaction['code']) {
                         case 'read':
-                            {
-                                if (empty($scopes_dict[$scopeRead])) {
-                                    $scopes_dict[$scopeRead] = $scopeRead;
-                                }
+                            if (empty($scopes_dict[$scopeRead])) {
+                                $scopes_dict[$scopeRead] = $scopeRead;
                             }
                             break;
                         case 'insert': // checkstyle doesn't like fallthrough statements apparently
-                            {
-                                if (empty($scopes_dict[$scopeWrite])) {
-                                    $scopes_dict[$scopeWrite] = $scopeWrite;
-                                }
+                            if (empty($scopes_dict[$scopeWrite])) {
+                                $scopes_dict[$scopeWrite] = $scopeWrite;
                             }
                             break;
                         case 'update':
-                            {
-
-                                if (empty($scopes_dict[$scopeWrite])) {
-                                    $scopes_dict[$scopeWrite] = $scopeWrite;
-                                }
+                            if (empty($scopes_dict[$scopeWrite])) {
+                                $scopes_dict[$scopeWrite] = $scopeWrite;
                             }
                             break;
                     }
