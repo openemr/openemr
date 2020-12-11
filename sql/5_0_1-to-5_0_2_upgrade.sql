@@ -1014,6 +1014,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_QP_RETINA_defaults', 'OUVITREOUS_vh', 'vit: hemorrhage', 1020, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OU');
 #EndIf
 
-#IfColumn layout_options title
-ALTER TABLE `layout_options` CHANGE `title` `title` VARCHAR(255) NOT NULL DEFAULT '';
+#IfNotColumnType layout_options title text
+ALTER TABLE `layout_options` CHANGE `title` `title` TEXT NOT NULL DEFAULT '';
 #EndIf
