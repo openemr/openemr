@@ -33,46 +33,47 @@ class SMARTConfigurationController
         $metadataController = new \OpenEMR\RestControllers\FHIR\FhirMetaDataRestController();
         $statement = $metadataController->getMetaData();
 
+        // TODO: merge these with the OAUTH scopes
         $scopesSupported = [
-            "openid", "profile", "launch", "launch/patient", "patient/*.*", "user/*.*", "offline_access"
+            "openid"
+            , "profile"
+//            , "launch"
+            , "launch/patient"
+            , "patient/*.*"
+//            , "user/*.*"
+//            , "offline_access"
         ];
         // create hash dictionary
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
         $restAPIs = $statement->getRest();
-        foreach ($restAPIs as $api)
-        {
+        foreach ($restAPIs as $api) {
             $resources = $api->getResource();
-            foreach ($resources as $resource)
-            {
+            foreach ($resources as $resource) {
                 // annoying that we switch into JSON instead of objects here
                 // violates the least surprise principle...
                 $interactions = $resource['interaction'];
                 $resourceType = $resource['type'];
-                foreach($interactions as $interaction)
-                {
+                foreach ($interactions as $interaction) {
                     $scopeRead = $resourceType . ".read";
                     $scopeWrite = $resourceType . ".write";
                     switch ($interaction['code']) {
                         case 'read':
                         {
-                            if (empty($scopes_dict[$scopeRead]))
-                            {
+                            if (empty($scopes_dict[$scopeRead])) {
                                 $scopes_dict[$scopeRead] = $scopeRead;
                             }
                         }
                         break;
                         case 'insert': // checkstyle doesn't like fallthrough statements apparently
                         {
-                            if (empty($scopes_dict[$scopeWrite]))
-                            {
+                            if (empty($scopes_dict[$scopeWrite])) {
                                 $scopes_dict[$scopeWrite] = $scopeWrite;
                             }
                         }
                         break;
                         case 'update':
                         {
-                            if (empty($scopes_dict[$scopeWrite]))
-                            {
+                            if (empty($scopes_dict[$scopeWrite])) {
                                 $scopes_dict[$scopeWrite] = $scopeWrite;
                             }
                         }

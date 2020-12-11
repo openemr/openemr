@@ -32,9 +32,12 @@ require_once __DIR__ . '/../interface/globals.php';
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\RestControllers\AuthorizationController;
+use OpenEMR\Common\Logging\SystemLogger;
+$logger = SystemLogger::instance();
 
 // exit if api is not turned on
 if (empty($GLOBALS['rest_api']) && empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_api']) && empty($GLOBALS['rest_portal_fhir_api'])) {
+    $logger->debug("api disabled exiting call");
     SessionUtil::oauthSessionCookieDestroy();
     http_response_code(404);
     exit;
@@ -43,7 +46,7 @@ if (empty($GLOBALS['rest_api']) && empty($GLOBALS['rest_fhir_api']) && empty($GL
 // ensure 1) sane site 2) site from gbl and globals are the same and 3) ensure the site exists on filesystem
 if (empty($gbl::$SITE) || empty($_SESSION['site_id']) || preg_match('/[^A-Za-z0-9\\-.]/', $gbl::$SITE) || ($gbl::$SITE != $_SESSION['site_id']) || !file_exists($GLOBALS['OE_SITES_BASE'] . '/' . $_SESSION['site_id'])) {
     // error collecting site
-    error_log("OpenEMR error - oauth2 error since unable to properly collect site, so forced exit");
+    $logger->error("OpenEMR error - oauth2 error since unable to properly collect site, so forced exit");
     SessionUtil::oauthSessionCookieDestroy();
     http_response_code(400);
     exit;
@@ -56,6 +59,13 @@ if (empty($_SESSION['csrf_private_key'])) {
 }
 
 $end_point = $gbl::getRequestEndPoint();
+$logger->debug("oauth2 endpoint is " . $end_point);
+
+// let's quickly be able to enable our CORS at the PHP level.
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Headers: origin, authorization, accept, content-type, x-requested-with");
+header("Access-Control-Allow-Methods: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS");
+header("Access-Control-Allow-Origin: *");
 
 $authServer = new AuthorizationController();
 

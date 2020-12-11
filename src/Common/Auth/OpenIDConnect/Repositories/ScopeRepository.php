@@ -15,12 +15,25 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
+use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 
 class ScopeRepository implements ScopeRepositoryInterface
 {
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct()
+    {
+        $this->logger = SystemLogger::instance();
+    }
+
     public function getScopeEntityByIdentifier($scopeIdentifier)
     {
         // I think we'll hardcode these. Not that many.
+        // TODO: stephen we need to merge these with what's in SmartConfigurationController and the oauth .well-known
         $scopes = [
             'openid' => [
                 'description' => 'OpenId Connect',
@@ -73,6 +86,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         ];
 
         if (array_key_exists($scopeIdentifier, $scopes) === false && stripos($scopeIdentifier, 'site:') === false) {
+            $this->logger->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", ["scope" => $scopeIdentifier]);
             return null;
         }
 

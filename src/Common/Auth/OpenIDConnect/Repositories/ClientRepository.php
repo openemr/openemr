@@ -15,18 +15,44 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 
 class ClientRepository implements ClientRepositoryInterface
 {
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct()
+    {
+        $this->logger = SystemLogger::instance();
+    }
+
     public function getClientEntity($clientIdentifier)
     {
         $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", array($clientIdentifier));
 
         // Check if client is registered
         if ($clients === false) {
+            $this->logger->error(
+                "ClientRepository->getClientEntity() no client found for identifier ",
+                ["client" => $clientIdentifier]
+            );
             return false;
         }
 
+        $this->logger->debug(
+            "ClientRepository->getClientEntity() client found",
+            [
+                "client" => [
+                    "client_name" => $clients['client_name'],
+                    "redirect_uri" => $clients['redirect_uri'],
+                    "is_confidential" => $clients['is_confidential']
+                ]
+            ]
+        );
         $client = new ClientEntity();
         $client->setIdentifier($clientIdentifier);
         $client->setName($clients['client_name']);
@@ -43,6 +69,10 @@ class ClientRepository implements ClientRepositoryInterface
 
             // Check if client is registered
             if ($client === false) {
+                $this->logger->error(
+                    "ClientRepository->validateClient() no client found for identifier ",
+                    ["client" => $clientIdentifier]
+                );
                 return false;
             }
 

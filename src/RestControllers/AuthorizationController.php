@@ -37,6 +37,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomPasswordGrant;
+use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AuthCodeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
@@ -46,6 +47,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -54,6 +56,7 @@ use OpenIDConnectServer\Entities\ClaimSetEntity;
 use OpenIDConnectServer\IdTokenResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class AuthorizationController
@@ -76,6 +79,11 @@ class AuthorizationController
     private $cryptoGen;
     private $userId;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct($providerForm = true)
     {
         global $gbl;
@@ -92,6 +100,8 @@ class AuthorizationController
         $this->authRequestSerial = $_SESSION['authRequestSerial'] ?? '';
         // Create a crypto object that will be used for for encryption/decryption
         $this->cryptoGen = new CryptoGen();
+        $this->logger = SystemLogger::instance();
+
         // encryption key
         $eKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2key'");
         if (!empty($eKey['name']) && ($eKey['name'] === 'oauth2key')) {
@@ -475,6 +485,7 @@ class AuthorizationController
 
     public function oauthAuthorizationFlow(): void
     {
+        $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() starting authorization flow");
         $response = $this->createServerResponse();
         $request = $this->createServerRequest();
 
@@ -482,25 +493,33 @@ class AuthorizationController
             $_SESSION['nonce'] = $request->getQueryParams()['nonce'];
         }
 
+        $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() request query params ", ["queryParams" => $request->getQueryParams()]);
+
         $this->grantType = 'authorization_code';
         $server = $this->getAuthorizationServer();
         try {
             // Validate the HTTP request and return an AuthorizationRequest object.
+            $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() attempting to validate auth request");
             $authRequest = $server->validateAuthorizationRequest($request);
             $_SESSION['csrf'] = $authRequest->getState();
             $_SESSION['scopes'] = $request->getQueryParams()['scope'];
             $_SESSION['client_id'] = $request->getQueryParams()['client_id'];
+
+            $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() auth request validated, csrf,scopes,client_id setup");
             // If needed, serialize into a users session
             if ($this->providerForm) {
                 $this->serializeUserSession($authRequest);
+                $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() redirecting to provider form");
                 // call our login then login calls authorize if approved by user
                 header("Location: " . $this->authBaseUrl . "/provider/login", true, 301);
                 exit;
             }
         } catch (OAuthServerException $exception) {
+            $this->logger->error("AuthorizationController->oauthAuthorizationFlow() OAuthServerException", ["message" => $exception->getMessage()]);
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
+            $this->logger->error("AuthorizationController->oauthAuthorizationFlow() Exception message: " . $exception->getMessage());
             SessionUtil::oauthSessionCookieDestroy();
             $body = $response->getBody();
             $body->write($exception->getMessage());
@@ -531,7 +550,9 @@ class AuthorizationController
         }
 
         // OpenID Connect Response Type
-        $responseType = new IdTokenResponse(new IdentityRepository(), new ClaimExtractor($customClaim));
+        $this->logger->debug("AuthorizationController->getAuthorizationServer() creating server");
+        $responseType = new IdTokenSMARTResponse(new IdentityRepository(), new ClaimExtractor($customClaim));
+
         $authServer = new AuthorizationServer(
             new ClientRepository(),
             new AccessTokenRepository(),
@@ -543,6 +564,7 @@ class AuthorizationController
         if (empty($this->grantType)) {
             $this->grantType = 'authorization_code';
         }
+        $this->logger->debug("AuthorizationController->getAuthorizationServer() grantType is " . $this->grantType);
         if ($this->grantType === 'authorization_code') {
             $grant = new AuthCodeGrant(
                 new AuthCodeRepository(),
@@ -583,6 +605,7 @@ class AuthorizationController
             );
         }
 
+        $this->logger->debug("AuthorizationController->getAuthorizationServer() authServer created");
         return $authServer;
     }
 
@@ -620,6 +643,7 @@ class AuthorizationController
         $response = $this->createServerResponse();
 
         if (empty($_POST['username']) && empty($_POST['password'])) {
+            $this->logger->debug("AuthorizationController->userLogin() presenting blank login form");
             $oauthLogin = true;
             $redirect = $this->authBaseUrl . "/login";
             require_once(__DIR__ . "/../../oauth2/provider/login.php");
@@ -628,6 +652,7 @@ class AuthorizationController
         $continueLogin = false;
         if (isset($_POST['user_role'])) {
             if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'oauth2')) {
+                $this->logger->error("AuthorizationController->userLogin() Invalid CSRF token");
                 CsrfUtils::csrfNotVerified(false, true, false);
                 unset($_POST['username'], $_POST['password']);
                 $invalid = "Sorry. Invalid CSRF!"; // todo: display error
@@ -636,16 +661,21 @@ class AuthorizationController
                 require_once(__DIR__ . "/../../oauth2/provider/login.php");
                 exit();
             } else {
+                $this->logger->debug("AuthorizationController->userLogin() verifying login information");
                 $continueLogin = $this->verifyLogin($_POST['username'], $_POST['password'], $_POST['email'], $_POST['user_role']);
+                $this->logger->debug("AuthorizationController->userLogin() verifyLogin result", ["continueLogin" => $continueLogin]);
             }
         }
 
         if (!$continueLogin) {
+            $this->logger->debug("AuthorizationController->userLogin() login invalid, presenting login form");
             $invalid = "Sorry, Invalid!"; // todo: display error
             $oauthLogin = true;
             $redirect = $this->authBaseUrl . "/login";
             require_once(__DIR__ . "/../../oauth2/provider/login.php");
             exit();
+        } else {
+            $this->logger->debug("AuthorizationController->userLogin() login valid, continuing oauth process");
         }
 
         //Require MFA if turn on, currently support only TOTP method
@@ -730,6 +760,7 @@ class AuthorizationController
 
     public function authorizeUser(): void
     {
+        $this->logger->debug("AuthorizationController->authorizeUser() starting authorization");
         $response = $this->createServerResponse();
         $authRequest = $this->deserializeUserSession();
         try {
@@ -766,10 +797,12 @@ class AuthorizationController
                 }
             }
             // Return the HTTP redirect response. Redirect is to client callback.
+            $this->logger->debug("AuthorizationController->authorizeUser() sending server response");
             $this->emitResponse($result);
             SessionUtil::oauthSessionCookieDestroy();
             exit;
         } catch (Exception $exception) {
+            $this->logger->error("AuthorizationController->authorizeUser() Exception thrown", ["message" => $exception->getMessage()]);
             SessionUtil::oauthSessionCookieDestroy();
             $body = $response->getBody();
             $body->write($exception->getMessage());
@@ -814,6 +847,7 @@ class AuthorizationController
 
     public function oauthAuthorizeToken(): void
     {
+        $this->logger->debug("AuthorizationController->oauthAuthorizeToken() starting request");
         $response = $this->createServerResponse();
         $request = $this->createServerRequest();
 
@@ -859,9 +893,17 @@ class AuthorizationController
             }
             SessionUtil::oauthSessionCookieDestroy();
         } catch (OAuthServerException $exception) {
+            $this->logger->error(
+                "AuthorizationController->oauthAuthorizeToken() OAuthServerException occurred",
+                ["message" => $exception->getMessage()]
+            );
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
+            $this->logger->error(
+                "AuthorizationController->oauthAuthorizeToken() Exception occurred",
+                ["message" => $exception->getMessage()]
+            );
             SessionUtil::oauthSessionCookieDestroy();
             $body = $response->getBody();
             $body->write($exception->getMessage());
@@ -1091,7 +1133,7 @@ class AuthorizationController
      */
     public function getTokenUrl()
     {
-        return $this->authBaseUrl . self::getTokenPath();
+        return $this->authBaseFullUrl . self::getTokenPath();
     }
 
     /**
@@ -1109,7 +1151,7 @@ class AuthorizationController
      */
     public function getManageUrl()
     {
-        return $this->authBaseUrl . self::getManagePath();
+        return $this->authBaseFullUrl . self::getManagePath();
     }
 
     /**
@@ -1127,7 +1169,7 @@ class AuthorizationController
      */
     public function getAuthorizeUrl()
     {
-        return $this->authBaseUrl . self::getAuthorizePath();
+        return $this->authBaseFullUrl . self::getAuthorizePath();
     }
 
     /**
@@ -1145,7 +1187,7 @@ class AuthorizationController
      */
     public function getRegistrationUrl()
     {
-        return $this->authBaseUrl . self::getRegistrationPath();
+        return $this->authBaseFullUrl . self::getRegistrationPath();
     }
 
     /**
@@ -1163,7 +1205,7 @@ class AuthorizationController
      */
     public function getIntrospectionUrl()
     {
-        return $this->authBaseUrl . self::getIntrospectionPath();
+        return $this->authBaseFullUrl . self::getIntrospectionPath();
     }
 
     /**
