@@ -101,8 +101,6 @@ function DistributionInsert($CountRow, $created_time, $user_id)
     }
 
     if (!empty($_POST["AdjAmount$CountRow"]) && (($_POST["AdjAmount$CountRow"] ?? null) * 1 != 0)) {
-        error_log("DEBUG2: " . $_POST["AdjAmount$CountRow"]);
-
         if (trim(formData('type_name')) == 'insurance') {
             $AdjustString = "Ins adjust Ins" . trim(formData("HiddenIns$CountRow"));
             $AccountCode = "IA";
