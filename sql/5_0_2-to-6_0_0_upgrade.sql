@@ -2407,3 +2407,7 @@ ALTER TABLE `oauth_clients` ADD `logout_redirect_uris` text;
 #IfMissingColumn oauth_trusted_user grant_type
 ALTER TABLE `oauth_trusted_user` ADD COLUMN `grant_type` varchar(32) DEFAULT NULL;
 #EndIf
+
+#IfNotColumnType layout_options title text
+ALTER TABLE `layout_options` CHANGE `title` `title` TEXT NOT NULL DEFAULT '';
+#EndIf
