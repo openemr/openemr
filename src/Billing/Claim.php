@@ -573,7 +573,7 @@ class Claim
 
     public function x12gssenderid()
     {
-        $tmp = $this->x12_partner['x12_sender_id'];
+        $tmp = ($this->x12_partner['x12_sender_id'] ?? '');
         while (strlen($tmp) < 15) {
             $tmp .= " ";
         }
@@ -596,16 +596,16 @@ class Claim
       * Therefore if the x12_gs03 segement is explicitly specified we use that value,
       * otherwise we simply use the same receiver ID as specified for ISA03
         */
-        if ($this->x12_partner['x12_gs03'] !== '') {
+        if (!empty($this->x12_partner['x12_gs03'])) {
             return $this->x12_partner['x12_gs03'];
         } else {
-            return $this->x12_partner['x12_receiver_id'];
+            return ($this->x12_partner['x12_receiver_id'] ?? '');
         }
     }
 
     public function x12gsreceiverid()
     {
-        $tmp = $this->x12_partner['x12_receiver_id'];
+        $tmp = ($this->x12_partner['x12_receiver_id'] ?? '');
         while (strlen($tmp) < 15) {
             $tmp .= " ";
         }
@@ -615,50 +615,50 @@ class Claim
 
     public function x12gsisa05()
     {
-        return $this->x12_partner['x12_isa05'];
+        return ($this->x12_partner['x12_isa05'] ?? '');
     }
 //adding in public functions for isa 01 - isa 04
 
     public function x12gsisa01()
     {
-        return $this->x12_partner['x12_isa01'];
+        return ($this->x12_partner['x12_isa01'] ?? '');
     }
 
     public function x12gsisa02()
     {
-        return $this->x12_partner['x12_isa02'];
+        return ($this->x12_partner['x12_isa02'] ?? '');
     }
 
     public function x12gsisa03()
     {
-        return $this->x12_partner['x12_isa03'];
+        return ($this->x12_partner['x12_isa03'] ?? '');
     }
     public function x12gsisa04()
     {
-        return $this->x12_partner['x12_isa04'];
+        return ($this->x12_partner['x12_isa04'] ?? '');
     }
 
 /////////
     public function x12gsisa07()
     {
-        return $this->x12_partner['x12_isa07'];
+        return ($this->x12_partner['x12_isa07'] ?? '');
     }
 
     public function x12gsisa14()
     {
-        return $this->x12_partner['x12_isa14'];
+        return ($this->x12_partner['x12_isa14'] ?? '');
     }
 
     public function x12gsisa15()
     {
-        return $this->x12_partner['x12_isa15'];
+        return ($this->x12_partner['x12_isa15'] ?? '');
     }
 
     public function x12gsgs02()
     {
-        $tmp = $this->x12_partner['x12_gs02'];
+        $tmp = ($this->x12_partner['x12_gs02'] ?? '');
         if ($tmp === '') {
-            $tmp = $this->x12_partner['x12_sender_id'];
+            $tmp = ($this->x12_partner['x12_sender_id'] ?? '');
         }
 
         return $tmp;
@@ -805,19 +805,19 @@ class Claim
 
     public function clearingHouseName()
     {
-        return $this->x12Clean(trim($this->x12_partner['name']));
+        return $this->x12Clean(trim($this->x12_partner['name'] ?? ''));
     }
 
     public function clearingHouseETIN()
     {
-        return $this->x12Clean(trim(str_replace('-', '', $this->x12_partner['id_number'])));
+        return $this->x12Clean(trim(str_replace('-', '', ($this->x12_partner['id_number'] ?? ''))));
     }
 
     public function providerNumberType($prockey = -1)
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->insurance_numbers : $this->procs[$prockey]['insurance_numbers'];
-        return $tmp['provider_number_type'];
+        return ($tmp['provider_number_type'] ?? '');
     }
 
     public function providerNumber($prockey = -1)
@@ -878,7 +878,7 @@ class Claim
   //
     public function isSelfOfInsured($ins = 0)
     {
-        $tmp = strtolower($this->payers[$ins]['data']['subscriber_relationship']);
+        $tmp = strtolower($this->payers[$ins]['data']['subscriber_relationship'] ?? '');
         return (strcmp($tmp, 'self') == 0);
     }
 
@@ -1065,7 +1065,7 @@ class Claim
 
     public function payerID($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['company']['cms_id']));
+        return $this->x12Clean(trim($this->payers[$ins]['company']['cms_id'] ?? ''));
     }
 
     public function payerAltID($ins = 0)
@@ -1342,7 +1342,7 @@ class Claim
 
     public function frequencyTypeCode()
     {
-        return ($this->billing_options['replacement_claim'] == 1) ? '7' : '1';
+        return (!empty($this->billing_options['replacement_claim']) && ($this->billing_options['replacement_claim'] == 1)) ? '7' : '1';
     }
 
     public function icnResubmissionNumber()
@@ -1625,7 +1625,7 @@ class Claim
 
     public function supervisorLastName()
     {
-        return $this->x12Clean(trim($this->supervisor['lname']));
+        return $this->x12Clean(trim($this->supervisor['lname'] ?? ''));
     }
 
     public function supervisorFirstName()

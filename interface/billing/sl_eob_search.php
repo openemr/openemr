@@ -388,11 +388,11 @@ if (!empty($_REQUEST['form_cb'])) {
 if (
     (
         (
-            $_REQUEST['form_print'] ||
-            $_REQUEST['form_download'] ||
-            $_REQUEST['form_email'] ||
-            $_REQUEST['form_pdf']
-        ) || $_REQUEST['form_portalnotify']
+            !empty($_REQUEST['form_print']) ||
+            !empty($_REQUEST['form_download']) ||
+            !empty($_REQUEST['form_email']) ||
+            !empty($_REQUEST['form_pdf'])
+        ) || !empty($_REQUEST['form_portalnotify'])
     ) && $form_cb
 ) {
     if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
@@ -629,11 +629,11 @@ if (
 if (
     (
         (
-            $_REQUEST['form_print'] ||
-            $_REQUEST['form_download'] ||
-            $_REQUEST['form_email'] ||
-            $_REQUEST['form_pdf']
-        ) || $_REQUEST['form_portalnotify']
+            !empty($_REQUEST['form_print']) ||
+            !empty($_REQUEST['form_download']) ||
+            !empty($_REQUEST['form_email']) ||
+            !empty($_REQUEST['form_pdf'])
+        ) || !empty($_REQUEST['form_portalnotify'])
     ) && !$form_cb
 ) {
     echo "<script> alert(" . xlj('No invoices were checked.') . ");\n</script>";
@@ -783,7 +783,7 @@ if (
                             echo "    <option value='0'>-- " . xlt('Patient') . " --</option>\n";
                             foreach ($insurancei as $iid => $iname) {
                                 echo "<option value='" . attr($iid) . "'";
-                                if ($iid == $_REQUEST['form_payer_id']) {
+                                if (!empty($_REQUEST['form_payer_id']) && ($iid == $_REQUEST['form_payer_id'])) {
                                     echo " selected";
                                 }
                                 echo ">" . text($iname) . "</option>\n";
@@ -793,25 +793,25 @@ if (
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label" for="form_source"><?php echo xlt('Source'); ?>:</label>
-                            <input type='text' name='form_source' id='form_source' class='form-control' value='<?php echo attr($_REQUEST['form_source']); ?>' title='<?php echo xla("A check number or claim number to identify the payment"); ?>' />
+                            <input type='text' name='form_source' id='form_source' class='form-control' value='<?php echo attr($_REQUEST['form_source'] ?? ''); ?>' title='<?php echo xla("A check number or claim number to identify the payment"); ?>' />
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label" for="form_paydate"><?php echo xlt('Pay Date'); ?>:</label>
-                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_paydate']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of payment yyyy-mm-dd"); ?>' />
+                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_paydate'] ?? ''); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of payment yyyy-mm-dd"); ?>' />
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label oe-large" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                             <label class="control-label oe-small" for="form_deposit_date"><?php echo xlt('Dep Date'); ?>:</label>
-                            <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_deposit_date']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of bank deposit yyyy-mm-dd"); ?>' />
+                            <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_deposit_date'] ?? ''); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of bank deposit yyyy-mm-dd"); ?>' />
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label" for="form_amount"><?php echo xlt('Amount'); ?>:</label>
-                            <input type='text' name='form_amount' id='form_amount' class='form-control' value='<?php echo attr($_REQUEST['form_amount']); ?>' title='<?php echo xla("Paid amount that you will allocate"); ?>' />
+                            <input type='text' name='form_amount' id='form_amount' class='form-control' value='<?php echo attr($_REQUEST['form_amount'] ?? ''); ?>' title='<?php echo xla("Paid amount that you will allocate"); ?>' />
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
                             <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
-                            <input <?php echo $_REQUEST['only_with_debt'] ? 'checked=checked' : ''; ?> type="checkbox" name="only_with_debt" id="only_with_debt" />
+                            <input <?php echo (!empty($_REQUEST['only_with_debt'])) ? 'checked=checked' : ''; ?> type="checkbox" name="only_with_debt" id="only_with_debt" />
                         </div>
                     </div>
                 </fieldset>
@@ -838,24 +838,24 @@ if (
                         <div class="form-row p-2">
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
-                                <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($_REQUEST['form_name']); ?>' title='<?php echo xla("Any part of the patient name, or \"last,first\", or \"X-Y\""); ?>' placeholder='<?php echo xla('Last name, First name'); ?>' />
+                                <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($_REQUEST['form_name'] ?? ''); ?>' title='<?php echo xla("Any part of the patient name, or \"last,first\", or \"X-Y\""); ?>' placeholder='<?php echo xla('Last name, First name'); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_pid"><?php echo xlt('Chart ID'); ?>:</label>
-                                <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo attr($_REQUEST['form_pid']); ?>' title='<?php echo xla("Patient chart ID"); ?>' />
+                                <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo attr($_REQUEST['form_pid'] ?? ''); ?>' title='<?php echo xla("Patient chart ID"); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_encounter"><?php echo xlt('Encounter'); ?>:</label>
-                                <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo attr($_REQUEST['form_encounter']); ?>' title='<?php echo xla("Encounter number"); ?>' />
+                                <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo attr($_REQUEST['form_encounter'] ?? ''); ?>' title='<?php echo xla("Encounter number"); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label oe-large" for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
                                 <label class="control-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>:</label>
-                                <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_date']); ?>' title='<?php echo xla("Date of service mm/dd/yyyy"); ?>' />
+                                <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_date'] ?? ''); ?>' title='<?php echo xla("Date of service mm/dd/yyyy"); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
-                                <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_to_date']); ?>' title='<?php echo xla("Ending DOS mm/dd/yyyy if you wish to enter a range"); ?>' />
+                                <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_to_date'] ?? ''); ?>' title='<?php echo xla("Ending DOS mm/dd/yyyy if you wish to enter a range"); ?>' />
                             </div>
                             <div class="form-group col-lg" style="padding-right:0px">
                                 <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
@@ -863,7 +863,7 @@ if (
                                     <?php
                                     foreach (array(xl('Open'), xl('All'), xl('Due Pt'), xl('Due Ins')) as $value) {
                                         echo "    <option value='" . attr($value) . "'";
-                                        if ($_REQUEST['form_category'] == $value) {
+                                        if (!empty($_REQUEST['form_category']) && ($_REQUEST['form_category'] == $value)) {
                                             echo " selected";
                                         }
                                         echo ">" . text($value) . "</option>\n";
@@ -904,7 +904,7 @@ if (
                     </legend>
                     <div class="table-responsive">
                         <?php
-                        if ($_REQUEST['form_search'] || $_REQUEST['form_print']) {
+                        if (!empty($_REQUEST['form_search']) || !empty($_REQUEST['form_print'])) {
                             if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
                                 CsrfUtils::csrfNotVerified();
                             }
@@ -1062,7 +1062,7 @@ if (
                             while ($row = sqlFetchArray($t_res)) {
                                 $balance = sprintf("%.2f", $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
                                 //new filter only patients with debt.
-                                if ($_REQUEST['only_with_debt'] && $balance <= 0) {
+                                if (!empty($_REQUEST['only_with_debt']) && $balance <= 0) {
                                     continue;
                                 }
 
@@ -1192,7 +1192,7 @@ if (
                                 <button type="submit" class="btn btn-secondary btn-download" name='form_pdf' value="<?php echo xla('PDF Download Selected Statements'); ?>"><?php echo xlt('PDF Download Selected'); ?></button>
                                 <button type="submit" class="btn btn-secondary btn-mail" name='form_download' value="<?php echo xla('Email Selected Statements'); ?>"><?php echo xlt('Email Selected'); ?></button>
                                 <?php
-                                if ($is_portal) { ?>
+                                if (!empty($is_portal)) { ?>
                                     <button type="submit" class="btn btn-secondary btn-save" name='form_portalnotify' value="<?php echo xla('Notify via Patient Portal'); ?>"><?php echo xlt('Notify Patients Portal'); ?></button>
                                     <?php
                                 }
@@ -1292,7 +1292,7 @@ if (
 </script>
 <?php
 // not a good idea to do translate. it's a constant so pulling sjp.
-if ($_REQUEST['form_search'] == "Search") { ?>
+if (!empty($_REQUEST['form_search']) && ($_REQUEST['form_search'] == "Search")) { ?>
     <script>
         $("#payment-allocate").insertAfter("#search-upload");
         $('#payment-allocate').show();
@@ -1301,7 +1301,7 @@ if ($_REQUEST['form_search'] == "Search") { ?>
     </script>
     <?php
 }
-if ($_REQUEST['form_search'] == "Upload") { ?>
+if (!empty($_REQUEST['form_search']) && ($_REQUEST['form_search'] == "Upload")) { ?>
     <script>
         $('#era-upld').show();
         $('#search-results').show();
