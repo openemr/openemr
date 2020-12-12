@@ -2409,5 +2409,5 @@ ALTER TABLE `oauth_trusted_user` ADD COLUMN `grant_type` varchar(32) DEFAULT NUL
 #EndIf
 
 #IfNotColumnType layout_options title text
-ALTER TABLE `layout_options` CHANGE `title` `title` TEXT NOT NULL DEFAULT '';
+ALTER TABLE `layout_options` CHANGE `title` `title` TEXT;
 #EndIf
