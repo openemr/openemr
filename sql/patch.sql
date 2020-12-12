@@ -328,3 +328,7 @@ ALTER TABLE `users` ADD `supervisor_id` INT(11) NOT NULL DEFAULT '0';
 #IfMissingColumn documents document_data
 ALTER TABLE `documents` ADD `document_data` MEDIUMTEXT;
 #EndIf
+
+#IfNotColumnType layout_options title text
+ALTER TABLE `layout_options` CHANGE `title` `title` TEXT;
+#EndIf
