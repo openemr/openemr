@@ -333,7 +333,7 @@ if ($printable) {
     }
 
     //echo json_encode(json_encode($array_key_id));
-    if (sizeof($form_id_arr)>0) {
+    if (count($form_id_arr) > 0) {
         $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '".implode("','", $form_id_arr)."') AND formdir IN ( '".implode("','", $form_dir_arr)."')";
         $arr = sqlStatement($query);
         echo "<select multiple size='4' style='width:300px;' id='forms_to_search' onchange='clear_last_visit();remove_mark_all();find_all();' >";
@@ -868,7 +868,7 @@ foreach ($ar as $key => $val) {
     } // end if('include_')... else...
 } // end $ar loop
 
-if ($printable && ! $PDF_OUTPUT) {// Patched out of pdf 04/20/2017 sjpadgett
+if ($printable && !$PDF_OUTPUT) {// Patched out of pdf 04/20/2017 sjpadgett
     echo "<br /><br />" . xlt('Signature') . ": _______________________________<br />";
 }
 ?>
