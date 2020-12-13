@@ -432,7 +432,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                         }
                                                     }
                                                 }
-                                                if (!is_array($html_strings[$form_name])) {
+                                                if (empty($html_strings[$form_name]) || !is_array($html_strings[$form_name])) {
                                                     $html_strings[$form_name] = array();
                                                 }
                                                 array_push($html_strings[$form_name], "<input type='checkbox' " .

@@ -684,9 +684,6 @@ MSG;
     public function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
     {
         $adodb = $GLOBALS['adodb']['db'];
-        $crt_user = $_SERVER['SSL_CLIENT_S_DN_CN'];
-        $groupname = $_SESSION['authProvider'];
-        $success = 1;
         $sql = "insert into extended_log ( date, event, user, recipient, patient_id, description) " .
             "values (" . $adodb->qstr($dates) . "," . $adodb->qstr($event) . "," . $adodb->qstr($user) .
             "," . $adodb->qstr($recipient) . "," .

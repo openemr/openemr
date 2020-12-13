@@ -83,7 +83,7 @@ function append_claim(&$segs)
             if (!$bat_content) {
                 $bat_sendid = trim($elems[6]);
                 $bat_recvid = trim($elems[8]);
-                $bat_sender = $GS02 ? $GS02 : $bat_sendid;
+                $bat_sender = (!empty($GS02)) ? $GS02 : $bat_sendid;
                 $bat_content = substr($seg, 0, 70) . "$bat_yymmdd*$bat_hhmm*" . $elems[11] . "*" . $elems[12] . "*$bat_icn*" . $elems[14] . "*" . $elems[15] . "*:~";
             }
             continue;

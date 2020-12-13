@@ -91,7 +91,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                         <?php echo generate_select_list(
                             "date_master_criteria_$DateNamePart",
                             "date_master_criteria",
-                            $_REQUEST["date_master_criteria_$DateNamePart"],
+                            ($_REQUEST["date_master_criteria_$DateNamePart"] ?? ''),
                             "Date Criteria",
                             "",
                             "form-control",
@@ -103,11 +103,11 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                         );
                         ?>
                         <label class="control-label" for="master_from_date_<?php echo attr($DateNamePart); ?>'"><?php echo xlt('From'); ?>:</label>
-                        <input type='text' name='master_from_date_<?php echo attr($DateNamePart); ?>' id='master_from_date_<?php echo attr($DateNamePart); ?>' class="text form-control datepicker" value="<?php echo attr($_REQUEST["master_from_date_$DateNamePart"]) ?>"
+                        <input type='text' name='master_from_date_<?php echo attr($DateNamePart); ?>' id='master_from_date_<?php echo attr($DateNamePart); ?>' class="text form-control datepicker" value="<?php echo attr($_REQUEST["master_from_date_$DateNamePart"] ?? '') ?>"
                             onChange="SetDateCriteriaCustom(<?php echo attr_js('date_master_criteria_' . $DateNamePart); ?>); appendOptionDateCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]);?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]);?>, <?php echo attr(xlj('Custom')); ?>, <?php echo attr(xlj('Custom')); ?>, ' = ', <?php echo attr_js('master_from_date_' . $DateNamePart); ?>, <?php echo attr_js('master_to_date_' . $DateNamePart); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" />
 
                         <label class="control-label" for="check_date"><?php echo xlt('To{{Range}}'); ?>:</label>
-                        <input type='text' name='master_to_date_<?php echo attr($DateNamePart); ?>' id='master_to_date_<?php echo attr($DateNamePart); ?>' class="text form-control datepicker" value="<?php echo attr($_REQUEST["master_to_date_$DateNamePart"]) ?>"
+                        <input type='text' name='master_to_date_<?php echo attr($DateNamePart); ?>' id='master_to_date_<?php echo attr($DateNamePart); ?>' class="text form-control datepicker" value="<?php echo attr($_REQUEST["master_to_date_$DateNamePart"] ?? '') ?>"
                             onChange="SetDateCriteriaCustom(<?php echo attr_js('date_master_criteria_' . $DateNamePart); ?>); appendOptionDateCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]);?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>, <?php echo attr(xlj('Custom')); ?>, <?php echo attr(xlj('Custom')); ?>, ' = ', <?php echo attr_js('master_from_date_' . $DateNamePart); ?>, <?php echo attr_js('master_to_date_' . $DateNamePart); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" />
                     </div>
                     <?php
@@ -166,7 +166,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                     ?>
                     <div class="form-group px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
                         <label class="control-label" for="text_master_<?php echo attr($TextNamePart);?>"><?php echo text($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>:</label>
-                        <input type="text" name="text_master_<?php echo attr($TextNamePart);?>" id="text_master_<?php echo attr($TextNamePart);?>" value="<?php echo attr($_REQUEST["text_master_$TextNamePart"]) ?>" onkeyup="appendOptionTextCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>, this.value, this.value, <?php echo attr_js($TextSeperator); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" onchange="appendOptionTextCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>,this.value,this.value,<?php echo attr_js($TextSeperator); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" class="form-control" autocomplete="off" />
+                        <input type="text" name="text_master_<?php echo attr($TextNamePart);?>" id="text_master_<?php echo attr($TextNamePart);?>" value="<?php echo attr($_REQUEST["text_master_$TextNamePart"] ?? '') ?>" onkeyup="appendOptionTextCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>, this.value, this.value, <?php echo attr_js($TextSeperator); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" onchange="appendOptionTextCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>,this.value,this.value,<?php echo attr_js($TextSeperator); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" class="form-control" autocomplete="off" />
                     </div>
                     <?php
                 } //end of if
@@ -175,7 +175,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                 if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio' || $TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio_like') {
                     ?>
                     <div class="form-group px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
-                        <label class="control-label" for="radio_<?php echo attr($RadioNamePart) ?>"><?php echo text($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>:</label>
+                        <label class="control-label" for="radio_<?php echo attr($RadioNamePart ?? ''); ?>"><?php echo text($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>:</label>
                         <?php
                         if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio') {
                             $RadioSeperator = ' = ';
@@ -185,7 +185,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                         }
                         for ($TPSCriteriaRadioIndex = 0; $TPSCriteriaRadioIndex < sizeof($TPSCriteriaDisplayRadio[$TPSCriteriaIndex]); $TPSCriteriaRadioIndex++) {
                             $RadioNamePart = str_replace('.', '_', $TPSCriteriaKey[$TPSCriteriaIndex]);
-                            if ($_REQUEST["radio_" . $RadioNamePart] == $TPSCriteriaRadioKey[$TPSCriteriaIndex][$TPSCriteriaRadioIndex]) {
+                            if (!empty($_REQUEST["radio_" . $RadioNamePart]) && ($_REQUEST["radio_" . $RadioNamePart] == $TPSCriteriaRadioKey[$TPSCriteriaIndex][$TPSCriteriaRadioIndex])) {
                                 $Checked = ' checked ';
                             } else {
                                 $Checked = '';
@@ -218,7 +218,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                     </span>
                     <select name='final_this_page_criteria[]' id='final_this_page_criteria' class='form-control' size="8" title='Criteria' multiple="multiple">
                         <?php
-                        if ($_REQUEST['final_this_page_criteria']) {
+                        if (!empty($_REQUEST['final_this_page_criteria'])) {
                             for ($final_this_page_criteria_index = 0; $final_this_page_criteria_index < sizeof($_REQUEST['final_this_page_criteria']); $final_this_page_criteria_index++) {
                                 ?>
                                 <option value="<?php echo attr($_REQUEST['final_this_page_criteria'][$final_this_page_criteria_index]) ?>">
@@ -230,7 +230,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                     </select>
                     <select name='final_this_page_criteria_text[]' id='final_this_page_criteria_text' style="display: none" multiple="multiple">
                         <?php
-                        if ($_REQUEST['final_this_page_criteria']) {
+                        if (!empty($_REQUEST['final_this_page_criteria'])) {
                             for ($final_this_page_criteria_index = 0; $final_this_page_criteria_index < sizeof($_REQUEST['final_this_page_criteria']); $final_this_page_criteria_index++) {
                                 ?>
                                 <option value="<?php echo attr($_REQUEST['final_this_page_criteria_text'][$final_this_page_criteria_index]) ?>">

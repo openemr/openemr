@@ -100,7 +100,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
           $Affected = 'yes';
     }
 
-    if (isset($_POST["AdjAmount$CountRow"]) && $_POST["AdjAmount$CountRow"] * 1 != 0) {
+    if (!empty($_POST["AdjAmount$CountRow"]) && (($_POST["AdjAmount$CountRow"] ?? null) * 1 != 0)) {
         if (trim(formData('type_name')) == 'insurance') {
             $AdjustString = "Ins adjust Ins" . trim(formData("HiddenIns$CountRow"));
             $AccountCode = "IA";
@@ -132,7 +132,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
           $Affected = 'yes';
     }
 
-    if (isset($_POST["Deductible$CountRow"]) && $_POST["Deductible$CountRow"] * 1 > 0) {
+    if (!empty($_POST["Deductible$CountRow"]) && (($_POST["Deductible$CountRow"] ?? null) * 1 > 0)) {
          sqlBeginTrans();
          $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))));
         sqlStatement("insert into ar_activity set "    .
@@ -156,7 +156,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
           $Affected = 'yes';
     }
 
-    if (isset($_POST["Takeback$CountRow"]) && $_POST["Takeback$CountRow"] * 1 > 0) {
+    if (!empty($_POST["Takeback$CountRow"]) && (($_POST["Takeback$CountRow"] ?? null) * 1 > 0)) {
          sqlBeginTrans();
          $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))));
         sqlStatement("insert into ar_activity set "    .
@@ -212,8 +212,8 @@ function DistributionInsert($CountRow, $created_time, $user_id)
                 //last_level_closed gets increased. unless a follow up is required.
                 // in which case we'll allow secondary to be re setup to current setup.
                 // just not advancing last closed.
-                $tmp = $_POST["Payment$CountRow"] * 1 + $_POST["AdjAmount$CountRow"] * 1;
-                if ($_POST["FollowUp$CountRow"] != 'y' && $tmp !== 0) {
+                $tmp = (((!empty($_POST["Payment$CountRow"]) ? $_POST["Payment$CountRow"] : null) * 1) + ((!empty($_POST["AdjAmount$CountRow"]) ? $_POST["AdjAmount$CountRow"] : null) * 1));
+                if ((empty($_POST["FollowUp$CountRow"]) || ($_POST["FollowUp$CountRow"] != 'y')) && $tmp !== 0) {
                     sqlStatement("update form_encounter set last_level_closed='" .
                         trim(formData("HiddenIns$CountRow")) .
                         "' where pid ='" . trim(formData('hidden_patient_code')) .

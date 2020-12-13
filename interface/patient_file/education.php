@@ -27,7 +27,7 @@ $source    = empty($_REQUEST['source'  ]) ? '' : $_REQUEST['source'  ];
 
 $errmsg = '';
 
-if ($_POST['bn_submit']) {
+if (!empty($_POST['bn_submit'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
