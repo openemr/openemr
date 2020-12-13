@@ -168,7 +168,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
         $catleft = $category;
     }
 
-    if ($_POST['form_details']) {
+    if (!empty($_POST['form_details'])) {
         if ($_POST['form_csvexport']) {
             echo csvEscape(display_desc($category)) . ',';
             echo csvEscape(display_desc($product)) . ',';

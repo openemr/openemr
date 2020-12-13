@@ -86,7 +86,7 @@ function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_
         }
     } else {
         $minutes = round($tracker_time_calc / 60);
-        if (strlen($hours != 0)) {
+        if (!empty($hours) && strlen($hours != 0)) {
             if ($minutes >= 2) {
                 $tracker_time .=  ", $minutes " . xl('minutes');
             } else {

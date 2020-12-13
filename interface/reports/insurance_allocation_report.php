@@ -203,13 +203,16 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         "(insurance_data.date <= ? OR insurance_data.date IS NULL) AND " .
         "insurance_companies.id = insurance_data.provider " .
         "ORDER BY insurance_data.date DESC LIMIT 1", array($patient_id, $encounter_date));
-        $plan = $irow['name'] ? $irow['name'] : '-- No Insurance --';
+        $plan = (!empty($irow['name'])) ? $irow['name'] : '-- No Insurance --';
+        $insarr[$plan]['visits'] = $insarr[$plan]['visits'] ?? null;
         $insarr[$plan]['visits'] += 1;
+        $insarr[$plan]['charges'] = $insarr[$plan]['charges'] ?? null;
         $insarr[$plan]['charges'] += sprintf('%0.2f', $row['charges']);
         if ($patient_id != $prev_pid) {
-              ++$patcount;
-              $insarr[$plan]['patients'] += 1;
-              $prev_pid = $patient_id;
+            ++$patcount;
+            $insarr[$plan]['patients'] =  $insarr[$plan]['patients'] ?? null;
+            $insarr[$plan]['patients'] += 1;
+            $prev_pid = $patient_id;
         }
     }
 
