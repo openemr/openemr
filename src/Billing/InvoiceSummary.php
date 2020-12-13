@@ -179,9 +179,9 @@ class InvoiceSummary
                     $tmp['chg'] = 0 - $row['adj_amount'];
                     $row['memo'] = (!empty($row['follow_up_note']) && empty($row['memo'])) ? (xlt("Payment note") . ": " . trim($row['follow_up_note'])) : $row['memo'];
                     $tmp['rsn'] = empty($row['memo']) ? 'Unknown adjustment' : $row['memo'];
-                    $tmp['rsn'] = str_replace("Ins1", $ins_data['primary'], $tmp['rsn']);
-                    $tmp['rsn'] = str_replace("Ins2", $ins_data['secondary'], $tmp['rsn']);
-                    $tmp['rsn'] = str_replace("Ins3", $ins_data['tertiary'], $tmp['rsn']);
+                    $tmp['rsn'] = str_replace("Ins1", ($ins_data['primary'] ?? ''), $tmp['rsn']);
+                    $tmp['rsn'] = str_replace("Ins2", ($ins_data['secondary'] ?? ''), $tmp['rsn']);
+                    $tmp['rsn'] = str_replace("Ins3", ($ins_data['tertiary'] ?? ''), $tmp['rsn']);
                     $tmpkey = $paydate . $keysuff1++;
                 } else {
                     $tmpkey = $paydate . $keysuff2++;

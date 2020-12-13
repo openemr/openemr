@@ -639,7 +639,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                 }
                                 $tmpchg = "";
                                 $tmpadj = "";
-                                if ($ddata['chg'] != 0) {
+                                if (!empty($ddata['chg']) && ($ddata['chg'] != 0)) {
                                     if (isset($ddata['rsn'])) {
                                         $tmpadj = 0 - $ddata['chg'];
                                     } else {

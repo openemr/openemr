@@ -434,7 +434,7 @@ if (
     // need to only use summary invoice for multi visits
     $inv_pid = array();
     $inv_count = -1;
-    if ($_REQUEST['form_portalnotify']) {
+    if (!empty($_REQUEST['form_portalnotify'])) {
         foreach ($_REQUEST['form_invpids'] as $key => $v) {
             if ($_REQUEST['form_cb'][$key]) {
                 array_push($inv_pid, key($v));
@@ -444,7 +444,7 @@ if (
     $rcnt = 0;
     while ($row = sqlFetchArray($res)) {
         $rows[] = $row;
-        if (!$inv_pid[$rcnt]) {
+        if (empty($inv_pid[$rcnt])) {
             array_push($inv_pid, $row['pid']);
         }
         $rcnt++;
@@ -491,7 +491,7 @@ if (
         //    notice  = 1 for first notice, 2 for second, etc.
         //    detail  = array of details, see InvoiceSummary.php
         //
-        if ($stmt['cid'] != $row['pid']) {
+        if (empty($stmt['cid']) || ($stmt['cid'] != $row['pid'])) {
             if (!empty($stmt)) {
                 ++$stmt_count;
             }
@@ -509,7 +509,7 @@ if (
             #If you use the field in demographics layout called
             #guardiansname this will allow you to send statements to the parent
             #of a child or a guardian etc
-            if (strlen($row['guardiansname']) == 0) {
+            if (empty($row['guardiansname'])) {
                 $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
             } else {
                 $stmt['to'] = array($row['guardiansname']);
@@ -546,23 +546,23 @@ if (
             }
 
             $line['amount'] = sprintf("%.2f", $value['chg']);
-            $line['adjust'] = sprintf("%.2f", $value['adj']);
+            $line['adjust'] = sprintf("%.2f", ($value['adj'] ?? null));
             $line['paid'] = sprintf("%.2f", $value['chg'] - $value['bal']);
             $line['notice'] = $duncount + 1;
             $line['detail'] = $value['dtl'];
             $stmt['lines'][] = $line;
             $stmt['amount'] = sprintf("%.2f", $stmt['amount'] + $value['bal']);
-            $stmt['ins_paid'] = $stmt['ins_paid'] + $value['ins'];
+            $stmt['ins_paid'] = $stmt['ins_paid'] + ($value['ins'] ?? null);
         }
 
         // Record that this statement was run.
-        if (!$DEBUG && !$_REQUEST['form_without']) {
+        if (!$DEBUG && empty($_REQUEST['form_without'])) {
             sqlStatement("UPDATE form_encounter SET " .
                 "last_stmt_date = ?, stmt_count = stmt_count + 1 " .
                 "WHERE id = ?", array($today, $row['id']));
         }
         $inv_count += 1;
-        if ($_REQUEST['form_portalnotify']) {
+        if (!empty($_REQUEST['form_portalnotify'])) {
             if (!is_auth_portal($stmt['pid'])) {
                 $alertmsg = xlt('Notification FAILED: Not Portal Authorized');
                 break;
@@ -583,7 +583,7 @@ if (
                 continue;
             }
         } else {
-            if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
+            if ($inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
                 $tmp = make_statement($stmt);
                 if (empty($tmp)) {
                     $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt[encounter]) . "\n";
@@ -601,7 +601,7 @@ if (
     fclose($fhprint);
     sleep(1);
     // Download or print the file, as selected
-    if ($_REQUEST['form_download']) {
+    if (!empty($_REQUEST['form_download'])) {
         upload_file_to_client($STMT_TEMP_FILE);
     } elseif ($_REQUEST['form_pdf']) {
         upload_file_to_client_pdf($STMT_TEMP_FILE, $aPatientFirstName, $aPatientID, $usePatientNamePdf);
