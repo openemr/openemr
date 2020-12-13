@@ -855,11 +855,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     $my_authorized = $_POST["authorized"];
                 }
             } else {
-                $from_date = $_POST["from_date"];
-                $to_date = $_POST["to_date"];
-                $code_type = $_POST["code_type"];
-                $unbilled = $_POST["unbilled"];
-                $my_authorized = $_POST["authorized"];
+                $from_date = $_POST["from_date"] ?? null;
+                $to_date = $_POST["to_date"] ?? null;
+                $code_type = $_POST["code_type"] ?? null;
+                $unbilled = $_POST["unbilled"] ?? null;
+                $my_authorized = $_POST["authorized"] ?? null;
             }
 
             if ($my_authorized == "on") {
@@ -956,6 +956,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         }
                                         echo "<tr>\n<td class='align-top' rowspan='" . attr($rcount) . "'>\n$lhtml</td>$rhtml\n";
                                         echo "<tr><td colspan='9' height='5'></td></tr>\n\n";
+                                        $encount = $encount ?? null;
                                         ++$encount;
                                     }
                                 }
@@ -1007,7 +1008,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 );
                                 $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
-                                $bgcolor = "#" . (($encount & 1) ? "FFFAEF" : "F8F8FF");
+                                $bgcolor = "#" . ((($encount ?? null) & 1) ? "FFFAEF" : "F8F8FF");
                                 echo "<tr><td colspan='9' height='5'></td></tr>\n";
                                 $lcount = 1;
                                 $rcount = 0;
@@ -1107,7 +1108,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         )
                                     );
                                     $count = 0;
-                                    $default_x12_partner = $iter['ic_x12id'];
+                                    $default_x12_partner = $iter['ic_x12id'] ?? null;
                                     $prevtype = '';
 
                                     while ($row = sqlFetchArray($result)) {
@@ -1183,7 +1184,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         );
 
                                         if ($crow['bill_process']) {
-                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Queued for") . " " . text($irow['type']) . " " . text($crow['target']) . " " . xlt("billing to ") . text($irow['name']);
+                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Queued for") . " " . text($irow['type'] ?? '') . " " . text($crow['target'] ?? '') . " " . xlt("billing to ") . text($irow['name'] ?? '');
                                                 ++$lcount;
                                         } elseif ($crow['status'] < 6) {
                                             if ($crow['status'] > 1) {
@@ -1316,8 +1317,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 if ($tmpbpr == '0' && $iter['billed']) {
                                     $tmpbpr = '2';
                                 }
-                                $rhtml .= "<td><input type='checkbox' value='" . attr($tmpbpr) . "' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . attr($CheckBoxBilling * 1) . "'>&nbsp;</td>\n";
-                                $CheckBoxBilling++;
+                                $rhtml .= "<td><input type='checkbox' value='" . attr($tmpbpr) . "' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . attr(($CheckBoxBilling ?? null) * 1) . "'>&nbsp;</td>\n";
+                                $CheckBoxBilling = ($CheckBoxBilling ?? null) + 1;
                             } else {
                                 $rhtml .= "<td></td>\n";
                             }

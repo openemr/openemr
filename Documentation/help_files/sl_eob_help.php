@@ -158,7 +158,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("The X12 files as well as the resulting HTML output reports are archived in the 'era' subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time."); ?>
                     <span><strong>
                     <?php
-                    $url = ($_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
+                    $url = (!empty($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on')) ? 'https' : 'http';
                     $url .= "://" . $_SERVER['HTTP_HOST'] . "$web_root/sites/" . $_SESSION['site_id'] . "/documents/era/";
                     echo "$url";
                     ?>

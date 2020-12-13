@@ -40,7 +40,7 @@ function AjaxDropDownCode()
         //ProcessKeyForColoring(event,$CountIndex)==>Shows the navigation in the listing by change of colors and focus.Happens when down or up arrow is pressed.
         //PlaceValues(event,'&nbsp;','')==>Used while -->KEY PRESS<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         //PutTheValuesClick('&nbsp;','')==>Used while -->CLICK<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
-        "<tr class='text' height='20'  bgcolor='" . attr($bgcolor) . "' id=\"tr_insurance_" . attr($CountIndex) . "\"
+        "<tr class='text' height='20'  bgcolor='" . attr($bgcolor ?? '') . "' id=\"tr_insurance_" . attr($CountIndex) . "\"
 	  onkeydown=\"ProcessKeyForColoring(event," . attr_js($CountIndex) . ");PlaceValues(event,'&nbsp;','')\"   onclick=\"PutTheValuesClick('&nbsp;','')\">
 			<td colspan='3' align='center'><a id='anchor_insurance_code_" . attr($CountIndex) . "' href='#'></a></td>
 	  </tr>";
@@ -110,7 +110,7 @@ function AjaxDropDownCode()
 	    <td width='100'>" . xlt('Date of Birth') . "</td>
 	  </tr>" .
         //ProcessKeyForColoring(event,$CountIndex)==>Shows the navigation in the listing by change of colors and focus.Happens when down or up arrow is pressed.
-        "<tr class='text' height='20'  bgcolor='" . attr($bgcolor) . "' id=\"tr_insurance_" . attr($CountIndex) . "\"
+        "<tr class='text' height='20'  bgcolor='" . attr($bgcolor ?? '') . "' id=\"tr_insurance_" . attr($CountIndex) . "\"
 	  onkeydown=\"ProcessKeyForColoring(event," . attr_js($CountIndex) . ");$StringToAppend2(event,'&nbsp;','')\"   onclick=\"$StringToAppend('&nbsp;','')\">
 			<td colspan='5' align='center'><a id='anchor_insurance_code_" . attr($CountIndex) . "' href='#'></a></td>
 	  </tr>

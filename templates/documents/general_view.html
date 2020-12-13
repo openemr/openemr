@@ -11,7 +11,7 @@
  *}
 
 <script>
- {if $GLOBALS.oefax_enable}
+ {if !empty($GLOBALS.oefax_enable)}
  {dispatchPatientDocumentEvent event="javascript_ready_fax_dialog"}
  {/if}
  function popoutcontent(othis) {literal}{{/literal}
@@ -132,7 +132,7 @@ function ImgProcedure() {literal}{{/literal}
               </div>
             <span class="float-right">
             <script>var file = {$file->get_url()|js_escape};</script>
-            {if $GLOBALS.oefax_enable}
+            {if !empty($GLOBALS.oefax_enable)}
             {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
             {/if}
             <a class="btn btn-primary" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>

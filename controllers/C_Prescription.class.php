@@ -104,7 +104,7 @@ class C_Prescription extends Controller
 
         if ($p_obj != null && get_class($p_obj) == "prescription") {
             $this->prescriptions[0] = $p_obj;
-        } elseif (!is_object($this->prescriptions[0]) || get_class($this->prescriptions[0]) != "prescription") {
+        } elseif (empty($this->prescriptions[0]) || !is_object($this->prescriptions[0]) || (get_class($this->prescriptions[0]) != "prescription")) {
             $this->prescriptions[0] = new Prescription($id);
         }
 
@@ -256,7 +256,7 @@ class C_Prescription extends Controller
         // redisplay as in edit_action() but also replicate the fee and
         // include a piece of javascript to call dispense().
         //
-        if ($_POST['disp_button']) {
+        if (!empty($_POST['disp_button'])) {
             $this->assign("DISP_QUANTITY", $_POST['disp_quantity']);
             $this->assign("DISP_FEE", $_POST['disp_fee']);
             $this->assign("ENDING_JAVASCRIPT", "dispense();");

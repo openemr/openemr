@@ -253,14 +253,14 @@ class BillingReport
             '<tr>' .
             '<td colspan="2">' .
             '<iframe id="frame_to_hide" class="position-absolute" style="display:none; width:240px; height:100px" frameborder="0" scrolling="no" marginwidth="0" src="" marginheight="0">hello</iframe>' .
-            '<input type="hidden" id="hidden_ajax_close_value" value="' . attr($_POST['type_code']) . '" />' .
+            '<input type="hidden" id="hidden_ajax_close_value" value="' . attr($_POST['type_code'] ?? '') . '" />' .
             '<input name="type_code" id="type_code" class="form-control"' .
             'title="' . xla("Type Id or Name.3 characters minimum (including spaces).") . '"' .
             'onfocus="hide_frame_to_hide();appendOptionTextCriteria(' . attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]) . ',' .
             '' . attr_js($TPSCriteriaKey[$TPSCriteriaIndex]) . ',' .
             'document.getElementById(\'type_code\').value,document.getElementById(\'div_insurance_or_patient\').innerHTML,' .
             '\' = \',' .
-            '\'text\')" onblur="show_frame_to_hide()" onKeyDown="PreventIt(event)" value="' . attr($_POST['type_code']) . '"  autocomplete="off" /><br />' .
+            '\'text\')" onblur="show_frame_to_hide()" onKeyDown="PreventIt(event)" value="' . attr($_POST['type_code'] ?? '') . '"  autocomplete="off" /><br />' .
             '<div id="ajax_div_insurance_section">' .
             '<div id="ajax_div_insurance_error"></div>' .
             '<div id="ajax_div_insurance" style="display:none;"></div>' .
@@ -269,11 +269,11 @@ class BillingReport
             '</tr>' .
             '<tr height="5"><td colspan="2"></td></tr>' .
             '<tr>' .
-            '<td><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text" style="border:1px solid black; padding-left:5px; width:50px; height:17px;">' . attr($_POST['hidden_type_code']) . '</div><input type="hidden" name="description"  id="description" /></td>' .
+            '<td><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text" style="border:1px solid black; padding-left:5px; width:50px; height:17px;">' . text($_POST['hidden_type_code'] ?? '') . '</div><input type="hidden" name="description"  id="description" /></td>' .
             '<td><a href="#" onClick="CleanUpAjax(' . attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]) . ',' .
             attr_js($TPSCriteriaKey[$TPSCriteriaIndex]) . ',\' = \')"><img src="' . $web_root . '/interface/pic/Clear.gif" border="0" /></a></td>' .
             '</tr>' .
             '</table>' .
-            '<input type="hidden" name="hidden_type_code" id="hidden_type_code" value="' . attr($_POST['hidden_type_code']) . '"/>';
+            '<input type="hidden" name="hidden_type_code" id="hidden_type_code" value="' . attr($_POST['hidden_type_code'] ?? '') . '"/>';
     }
 }

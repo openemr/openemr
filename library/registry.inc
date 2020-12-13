@@ -119,7 +119,7 @@ function isRegistered($directory, $state = 1)
 {
     $sql = "select id from registry where directory=? and state=?";
     $result = sqlQuery($sql, array($directory, $state));
-    if ($result['id'] != '') {
+    if (!empty($result['id'])) {
         return true;
     }
 
