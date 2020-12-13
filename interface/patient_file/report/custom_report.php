@@ -601,7 +601,7 @@ foreach ($ar as $key => $val) {
                 // -There is an exception. Need to manually see if it a pdf since
                 //  the image_type_to_extension() is not working to identify pdf.
                 $extension = strtolower(substr($fname, strrpos($fname, ".")));
-                if ($extension != '.pdf') { // Will print pdf header within pdf import
+                if ($extension != '.pdf' && $extension != '.zip') { // Will print pdf header within pdf import
                     echo "<h3>" . xlt('Document') . " '" . text($fname) ."'</h3>";
                 }
 
@@ -721,7 +721,14 @@ foreach ($ar as $key => $val) {
                             echo "<img src='$from_file_tmp_web_name'><br><br>";
                             $tmp_files_remove[] = $from_file_tmp_web_name;
                         } else {
-                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br><br>";
+                            // I have no idea what possiby is left in this last catch.
+                            // Still we don't want pdf or zips to render to report.
+                            // and we can at least let user know these docs are available.
+                            if ($extension === '.pdf' || $extension === '.zip') {
+                                echo "<strong>" . xlt('Available Document') . ":</strong><em> " . text($fname) ."</em><br />";
+                            } else {
+                                echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br><br>";
+                            }
                         }
                     }
                 } // end if-else
