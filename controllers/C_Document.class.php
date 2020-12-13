@@ -74,7 +74,7 @@ class C_Document extends Controller
         if (file_exists($templatedir)) {
               $dh = opendir($templatedir);
         }
-        if ($dh) {
+        if (!empty($dh)) {
               $templateslist = array();
             while (false !== ($sfname = readdir($dh))) {
                 if (substr($sfname, 0, 1) == '.') {
@@ -1108,7 +1108,7 @@ class C_Document extends Controller
             // If there are documents in this document category, then add their
             // attributes to the current node.
             $icon = "file3.png";
-            if (is_array($categories[$id])) {
+            if (!empty($categories[$id]) && is_array($categories[$id])) {
                 foreach ($categories[$id] as $doc) {
                     $link = $this->_link("view") . "doc_id=" . urlencode($doc['document_id']) . "&";
           // If user has no access then there will be no link.

@@ -1140,7 +1140,7 @@
         ]
       },
       {
-        "label": "Addr Book",
+        "label": "Address Book",
         "menu_id": "adb0",
         "target": "adm",
         "url": "/interface/usergroup/addrbook_list.php",
@@ -2010,7 +2010,7 @@
         "global_req": "!disable_chart_tracker"
       },
       {
-        "label": "Ofc Notes",
+        "label": "Office Notes",
         "menu_id": "ono0",
         "target": "msc",
         "url": "/interface/main/onotes/office_comments.php",
@@ -2022,7 +2022,7 @@
         ]
       },
       {
-        "label": "BatchCom",
+        "label": "Batch Communication Tool",
         "menu_id": "adm0",
         "target": "msc",
         "url": "/interface/batchcom/batchcom.php",
@@ -2138,7 +2138,7 @@
         "global_req": "!ippf_specific"
       },
       {
-        "label": "Appts",
+        "label": "Appointments",
         "menu_id": "Popup:Appts",
         "url": "/interface/reports/appointments_report.php?patient=",
         "target": "pop",

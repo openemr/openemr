@@ -902,12 +902,12 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         # add one day to date so it will not get todays appointment
             $current_date2 = date('Y-m-d', $next_day);
             $events = fetchNextXAppts($current_date2, $form_pid);
-            $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
-            $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
-            if (strlen($events[0]['umname']) != 0) {
+            $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate'] ?? null);
+            $next_appoint_time = substr(($events[0]['pc_startTime'] ?? ''), 0, 5);
+            if (strlen($events[0]['umname'] ?? '') != 0) {
                 $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
             } else {
-                $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
+                $next_appoint_provider = ($events[0]['ufname'] ?? '') . ' ' .  ($events[0]['ulname'] ?? '');
             }
 
             if (strlen($next_appoint_time) != 0) { ?>

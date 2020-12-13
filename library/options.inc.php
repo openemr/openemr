@@ -1404,12 +1404,12 @@ function generate_print_field($frow, $currvalue)
     $currescaped = htmlspecialchars($currvalue, ENT_QUOTES);
 
     $data_type   = $frow['data_type'];
-    $field_id    = $frow['field_id'];
+    $field_id    = $frow['field_id'] ?? null;
     $list_id     = $frow['list_id'];
-    $fld_length  = $frow['fld_length'];
-    $backup_list = $frow['list_backup_id'];
+    $fld_length  = $frow['fld_length'] ?? null;
+    $backup_list = $frow['list_backup_id'] ?? null;
 
-    $description = htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES);
+    $description = attr(xl_layout_label($frow['description'] ?? ''));
 
     // Can pass $frow['empty_title'] with this variable, otherwise
     //  will default to 'Unassigned'.
@@ -1857,7 +1857,7 @@ function generate_print_field($frow, $currvalue)
     } elseif ($data_type == 27 || $data_type == 1 || $data_type == 26 || $data_type == 33) {
         // a set of labeled radio buttons
         // In this special case, fld_length is the number of columns generated.
-        $cols = max(1, $frow['fld_length']);
+        $cols = max(1, ($frow['fld_length'] ?? null));
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         echo "<table class='w-100' cellpadding='0' cellspacing='0'>";

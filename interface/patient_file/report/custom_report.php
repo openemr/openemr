@@ -301,8 +301,8 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                                     if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
                                                 preg_match('/^(.*)_(\d+)$/', $key_search, $res_search);
-                                                $form_id_arr[] = add_escape_custom($res_search[2]);
-                                                $form_dir_arr[] = add_escape_custom($res_search[1]);
+                                                $form_id_arr[] = add_escape_custom($res_search[2] ?? '');
+                                                $form_dir_arr[] = add_escape_custom($res_search[1] ?? '');
                                     }
                                 }
 

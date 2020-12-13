@@ -484,7 +484,7 @@ function generate_receipt($patient_id, $encounter = 0)
 
     // If the Save button was clicked...
     //
-    if ($_POST['form_save']) {
+    if (!empty($_POST['form_save'])) {
         if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
             CsrfUtils::csrfNotVerified();
         }
@@ -919,8 +919,8 @@ function generate_receipt($patient_id, $encounter = 0)
                                             }
                                             $query .= " LIMIT 1";
                                             $tmp = sqlQuery($query, $sqlBindArray);
-                                            $taxrates = $tmp['taxrates'];
-                                            $related_code = $tmp['related_code'];
+                                            $taxrates = $tmp['taxrates'] ?? '';
+                                            $related_code = $tmp['related_code'] ?? '';
                                             markTaxes($taxrates);
                                         }
 

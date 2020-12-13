@@ -1590,7 +1590,7 @@ class BillingUtilities
             $sqlBindArray = array();
             array_push($sqlBindArray, $patient_id, $encounter_id);
             if ($crossover <> 1) {
-                $sql .= "INSERT INTO claims SET " .
+                $sql = "INSERT INTO claims SET " .
                     "patient_id = ?, " .
                     "encounter_id = ?, " .
                     "bill_time = NOW() $claimset ," .

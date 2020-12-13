@@ -49,7 +49,7 @@ $STMT_PRINT_CMD = (new CryptoGen())->decryptStandard($GLOBALS['more_secure']['pr
 function make_statement($stmt)
 {
     if ($GLOBALS['statement_appearance'] == "1") {
-        if ($_POST['form_portalnotify'] && is_auth_portal($stmt['pid'])) {
+        if (!empty($_POST['form_portalnotify']) && is_auth_portal($stmt['pid'])) {
             return osp_create_HTML_statement($stmt);
         } else {
             return create_HTML_statement($stmt);
@@ -271,18 +271,18 @@ function create_HTML_statement($stmt)
 
             $amount = '';
 
-            if ($ddata['pmt']) {
+            if (!empty($ddata['pmt'])) {
                 $amount = sprintf("%.2f", 0 - $ddata['pmt']);
                 $desc = xl('Paid') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
                     substr(oeFormatShortDate($ddate), 8, 2) .
-                    ': ' . $ddata['src'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
+                    ': ' . $ddata['src'] . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . $ddata['insurance_company'];
                 // $ddata['plv'] is the 'payer_type' field in `ar_activity`, passed in via InvoiceSummary
                 if ($ddata['src'] == 'Pt Paid' || $ddata['plv'] == '0') {
                     $pt_paid_flag = true;
                     $desc = xl('Pt paid') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
                     substr(oeFormatShortDate($ddate), 8, 2);
                 }
-            } elseif ($ddata['rsn']) {
+            } elseif (!empty($ddata['rsn'])) {
                 if ($ddata['chg']) {
                     // this is where the adjustments used to be printed individually
                     $adj_flag = true;
@@ -463,7 +463,7 @@ function create_HTML_statement($stmt)
 
     $out .= '</div><br />
    <pre>';
-    if ($stmt['to'][3] != '') { //to avoid double blank lines the if condition is put.
+    if (!empty($stmt['to'][3])) { //to avoid double blank lines the if condition is put.
         $out .= sprintf("   %-32s\n", $stmt['to'][3]);
     }
 
@@ -474,7 +474,7 @@ function create_HTML_statement($stmt)
         . $label_addressee . '</b><br />'
         . $stmt['to'][0] . '<br />'
         . $stmt['to'][1] . '<br />'
-        . $stmt['to'][2] . '
+        . ($stmt['to'][2] ?? '') . '
       </td><td style="width:0.5in;"></td>
       <td style="margin:auto;"><b>' . $label_remitto . '</b><br />'
         . $remit_name . '<br />'
