@@ -68,7 +68,7 @@ if (isset($_POST["mode"])) {
                             <label class="control-label" for="type_code"><?php echo xlt('Select'); ?>:</label>
                             <div>
                                 <label class="radio-inline">
-                                  <input type="radio" id="Non_Paid" name="RadioPaid" onclick="SearchOnceMore()" <?php echo (!empty($_REQUEST['RadioPaid']) && ($_REQUEST['RadioPaid'] == 'Non_Paid' || $_REQUEST['RadioPaid'] == '')) ? 'checked' : '' ; ?> value="Non_Paid" /><?php echo xlt('Non Paid'); ?>
+                                  <input type="radio" id="Non_Paid" name="RadioPaid" onclick="SearchOnceMore()" <?php echo (empty($_REQUEST['RadioPaid']) || ($_REQUEST['RadioPaid'] == 'Non_Paid')) ? 'checked' : '' ; ?> value="Non_Paid" /><?php echo xlt('Non Paid'); ?>
                                 </label>
                                 <label class="radio-inline">
                                   <input type="radio" id="Show_Primary_Complete" name="RadioPaid" onclick="SearchOnceMore()" <?php echo (!empty($_REQUEST['RadioPaid']) && ($_REQUEST['RadioPaid'] == 'Show_Primary_Complete')) ? 'checked' : '' ; ?> value="Show_Primary_Complete" /><?php echo xlt('Show Primary Complete'); ?>
