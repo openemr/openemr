@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenEMR\Common\Logging;
 
 use Psr\Log\LoggerInterface;

@@ -24,7 +24,7 @@ class HttpRestRouteHandler
         // let's quickly be able to enable our CORS at the PHP level.
         header("Access-Control-Allow-Credentials: true");
         header("Access-Control-Allow-Headers: origin, authorization, accept, content-type, x-requested-with");
-        header("Access-Control-Allow-Methods: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, PATCH");
+        header("Access-Control-Allow-Methods: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS");
         header("Access-Control-Allow-Origin: *");
         if ($request_method === 'OPTIONS') {
             return true; // for now we just return true if we have the route.

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles extra claims required for SMART on FHIR requests
  * @see http://hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
@@ -75,5 +76,4 @@ class IdTokenSMARTResponse extends IdTokenResponse
 
         return $valid;
     }
-
 }

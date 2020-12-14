@@ -254,8 +254,8 @@ if ($gbl::is_fhir_request($resource)) {
 } elseif ($gbl::is_portal_fhir_request($resource)) {
     if (!$GLOBALS['rest_portal_fhir_api'] && !$isLocalApi) {
         $logger->error(
-            "dispatch.php attempted to access resource with portal FHIR api turned off "
-            , ['resource' => $resource]
+            "dispatch.php attempted to access resource with portal FHIR api turned off ",
+            ['resource' => $resource]
         );
         // if the external portal fhir api is turned off and this is not a local api call, then exit
         $gbl::destroySession();
@@ -267,8 +267,8 @@ if ($gbl::is_fhir_request($resource)) {
 } elseif ($gbl::is_api_request($resource)) {
     if (!$GLOBALS['rest_api'] && !$isLocalApi) {
         $logger->error(
-            "dispatch.php attempted to access resource with REST api turned off "
-            , ['resource' => $resource]
+            "dispatch.php attempted to access resource with REST api turned off ",
+            ['resource' => $resource]
         );
         // if the external api is turned off and this is not a local api call, then exit
         $gbl::destroySession();
