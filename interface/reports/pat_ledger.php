@@ -262,7 +262,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
         }
 
         $print_adj = '';
-        if ($adj_amt != 0) {
+        if (!empty($adj_amt)) {
             $print_adj = oeFormatMoney($adj_amt);
         }
 
@@ -275,7 +275,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
         $print .= "<td class='detail text-right'>" . text($print_bal) . "&nbsp;</td>";
         $print .= "</tr>\n";
         echo $print;
-        if ($pmt['follow_up_note'] != '') {
+        if (!empty($pmt['follow_up_note'])) {
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
             $print = "<tr style='background-color:" . attr($bgcolor) . ";'>";
             $print .= "<td class='detail' colspan='2'>&nbsp;</td>";

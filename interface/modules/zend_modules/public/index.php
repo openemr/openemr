@@ -25,8 +25,8 @@ $actionName = isset($matches[1]) ? $matches[1] : '';
 $controllerName = isset($urlArray[$countUrlArray - 2]) ? $urlArray[$countUrlArray - 2] : '';
 
 //skipping OpenEMR authentication if the controller is SOAP and action is INDEX
-//SOAP authentication is done in the contoller EncounterccdadispatchController
-if ($_REQUEST['recipient'] === 'patient' && $_REQUEST['site'] && $controllerName) {
+//SOAP authentication is done in the controller EncounterccdadispatchController
+if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && $_REQUEST['site'] && $controllerName) {
     session_id($_REQUEST['me']);
     session_start();
     $ignoreAuth_onsite_portal = false; // eval'ed in globals but why not...

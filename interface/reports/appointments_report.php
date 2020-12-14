@@ -429,7 +429,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
         ?>
 
-        <tr valign='top' id='p1.<?php echo attr($patient_id) ?>' bgcolor='<?php echo attr($bgcolor); ?>'>
+        <tr valign='top' id='p1.<?php echo attr($patient_id) ?>' bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>
         <td class="detail">&nbsp;<?php echo ($docname == $lastdocname) ? "" : text($docname) ?>
         </td>
 

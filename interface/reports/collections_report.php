@@ -249,7 +249,7 @@ function endPatient($ptrow)
     $grand_total_adjustments += $ptrow['adjustments'];
     $grand_total_paid        += $ptrow['paid'];
     for ($c = 0; $c < $form_age_cols; ++$c) {
-        $grand_total_agedbal[$c] += $ptrow['agedbal'][$c];
+        $grand_total_agedbal[$c] += ($ptrow['agedbal'][$c] ?? null);
     }
 }
 
@@ -1114,6 +1114,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             );
             $days = floor((time() - $agetime) / (60 * 60 * 24));
             $agecolno = min($form_age_cols - 1, max(0, floor($days / $form_age_inc)));
+
+            $ptrow['agedbal'][$agecolno] = $ptrow['agedbal'][$agecolno] ?? null;
             $ptrow['agedbal'][$agecolno] += $balance;
         }
 

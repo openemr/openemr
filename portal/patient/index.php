@@ -24,7 +24,7 @@ require_once("verysimple/Phreeze/Dispatcher.php");
 $gc = GlobalConfig::GetInstance();
 
 try {
-    if ($_SESSION['register']) {
+    if (!empty($_SESSION['register'])) {
         // Need to bootstrap for registration
         $GLOBALS['bootstrap_register'] = true;
     } else {

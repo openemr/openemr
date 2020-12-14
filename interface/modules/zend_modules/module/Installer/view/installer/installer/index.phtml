@@ -13,7 +13,7 @@
  */
 
 echo $this->headScript()->appendFile(
-    $this->basePath() . '/js/installer/action.js?v=' . $v_js_includes,
+    $this->basePath() . '/js/installer/action.js?v=' . $GLOBALS['v_js_includes'],
     'text/javascript'
 );
 $listener = $this->listenerObject;
@@ -24,7 +24,7 @@ $zendModDir = $GLOBALS['zendModDir'];
 $depObj = $this->dependencyObject;
 
 ?>
-<h1><img src="<?php echo $this->basePath() ?>/images/module.png" class="nav-menu-img"><?php echo $this->escapeHtml($title); ?></h1>
+<h1><img src="<?php echo $this->basePath() ?>/images/module.png" class="nav-menu-img"><?php echo $this->escapeHtml($title ?? ''); ?></h1>
 
 <ul class="tabNav">
     <li class="current divMenu" onclick="$('.registered').show();$('.unregistered').hide();$('.divMenu').removeClass('current');$(this).addClass('current');">
