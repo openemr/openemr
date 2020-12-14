@@ -187,7 +187,7 @@ class SystemLogger implements LoggerInterface
             } else if (is_object($value)) {
                 try {
                     $object = json_encode($value);
-                    $escapedDict[$escapedKey] = $this->escapeValue($value);
+                    $escapedDict[$escapedKey] = $this->escapeValue($object);
                 } catch (\Exception $error) {
                     error_log($error->getMessage());
                 }
@@ -195,6 +195,7 @@ class SystemLogger implements LoggerInterface
                 $escapedDict[$escapedKey] = $this->escapeValue($value);
             }
         }
+        return $escapedDict;
     }
 
     /**
@@ -206,5 +207,4 @@ class SystemLogger implements LoggerInterface
     {
         return errorLogEscape($var);
     }
-}
 }
