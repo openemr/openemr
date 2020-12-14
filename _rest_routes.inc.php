@@ -63,7 +63,7 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
-    "PATCH /api/facility/:fuuid" => function ($fuuid) {
+    "PUT /api/facility/:fuuid" => function ($fuuid) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return =  (new FacilityRestController())->patch($fuuid, $data);
@@ -193,7 +193,7 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
-    "PATCH /api/practitioner/:prid" => function ($prid) {
+    "PUT /api/practitioner/:prid" => function ($prid) {
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new PractitionerRestController())->patch($prid, $data);
@@ -609,13 +609,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
-    "PATCH /fhir/Patient/:id" => function ($id) {
-        RestConfig::authorization_check("patients", "demo");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirPatientRestController())->put($id, $data);
-        RestConfig::apiLog($return, $data);
-        return $return;
-    },
     "GET /fhir/Patient" => function () {
         RestConfig::authorization_check("patients", "demo");
         $return = (new FhirPatientRestController())->getAll($_GET);
@@ -659,7 +652,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
-    "PATCH /fhir/Practitioner/:id" => function ($id) {
+    "PUT /fhir/Practitioner/:id" => function ($id) {
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirPractitionerRestController())->patch($id, $data);
@@ -685,7 +678,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
-    "PATCH /fhir/Organization/:id" => function ($id) {
+    "PUT /fhir/Organization/:id" => function ($id) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirOrganizationRestController())->patch($id, $data);
