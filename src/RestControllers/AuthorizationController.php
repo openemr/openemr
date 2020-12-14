@@ -26,6 +26,7 @@ use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
+use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -489,14 +490,14 @@ class AuthorizationController
 
     public function getAuthorizationServer(): AuthorizationServer
     {
-        $customClaim = new ClaimSetEntity('', ['']);
+        $customClaim = [new ClaimSetEntity('fhirUser', ['fhirUser'])];
         if (!empty($_SESSION['nonce'])) {
             // nonce scope added later. this is for id token nonce claim.
-            $customClaim = new ClaimSetEntity('nonce', ['nonce']);
+            $customClaim[] = new ClaimSetEntity('nonce', ['nonce']);
         }
 
         // OpenID Connect Response Type
-        $responseType = new IdTokenResponse(new IdentityRepository(), new ClaimExtractor([$customClaim]));
+        $responseType = new IdTokenResponse(new IdentityRepository(), new ClaimExtractor($customClaim));
         $authServer = new AuthorizationServer(
             new ClientRepository(),
             new AccessTokenRepository(),
@@ -528,6 +529,7 @@ class AuthorizationController
                 new \DateInterval('PT1H') // The new access token will expire after 1 hour
             );
         }
+        // TODO: break this up - throw exception for not turned on.
         if (!empty($GLOBALS['oauth_password_grant']) && ($this->grantType === 'password')) {
             $grant = new CustomPasswordGrant(
                 new UserRepository(),
@@ -537,6 +539,13 @@ class AuthorizationController
             $authServer->enableGrantType(
                 $grant,
                 new \DateInterval('PT1H') // access token
+            );
+        }
+        if ($this->grantType === 'client_credentials') {
+            // Enable the client credentials grant on the server
+            $authServer->enableGrantType(
+                new ClientCredentialsGrant(),
+                new \DateInterval('PT300S')
             );
         }
 

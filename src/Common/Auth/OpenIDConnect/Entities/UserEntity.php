@@ -28,37 +28,50 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
     public function getClaims()
     {
-        $uuidToUser = new UuidUserAccount($this->identifier);
-        $user = $uuidToUser->getUserAccount();
-        if (empty($user)) {
-            $user = false;
+        $claimsType = ($_REQUEST['grant_type'] === 'client_credentials') ? 'client' : 'oidc';
+        if ($claimsType === 'oidc') {
+            $uuidToUser = new UuidUserAccount($this->identifier);
+            $user = $uuidToUser->getUserAccount();
+            if (empty($user)) {
+                $user = false;
+            }
+            $claims = [
+                'name' => $user['fullname'],
+                'family_name' => $user['lastname'],
+                'given_name' => $user['firstname'],
+                'middle_name' => $user['middlename'],
+                'nickname' => '',
+                'preferred_username' => $user['username'],
+                'profile' => '',
+                'picture' => '',
+                'website' => '',
+                'gender' => '',
+                'birthdate' => '',
+                'zoneinfo' => '',
+                'locale' => 'US',
+                'updated_at' => '',
+                'email' => $user['email'],
+                'email_verified' => true,
+                'phone_number' => $user['phone'],
+                'phone_number_verified' => true,
+                'address' => $user['street'] . ' ' . $user['city'] . ' ' . $user['state'],
+                'zip' => $user['zip'],
+                'fhirUser' => true,
+                'api:fhir' => true,
+                'api:oemr' => true,
+                'api:port' => true,
+                'api:pofh' => true,
+            ];
         }
-        $claims = [
-            'name' => $user['fullname'],
-            'family_name' => $user['lastname'],
-            'given_name' => $user['firstname'],
-            'middle_name' => $user['middlename'],
-            'nickname' => '',
-            'preferred_username' => $user['username'],
-            'profile' => '',
-            'picture' => '',
-            'website' => '',
-            'gender' => '',
-            'birthdate' => '',
-            'zoneinfo' => '',
-            'locale' => 'US',
-            'updated_at' => '',
-            'email' => $user['email'],
-            'email_verified' => true,
-            'phone_number' => $user['phone'],
-            'phone_number_verified' => true,
-            'address' => $user['street'] . ' ' . $user['city'] . ' ' . $user['state'],
-            'zip' => $user['zip'],
-            'api:fhir' => true,
-            'api:oemr' => true,
-            'api:port' => true,
-            'api:pofh' => true,
-        ];
+        if ($claimsType === 'client') {
+            $claims = [
+                'fhirUser' => true,
+                'api:fhir' => true,
+                'api:oemr' => true,
+                'api:port' => true,
+                'api:pofh' => true,
+            ];
+        }
         if (!empty($_SESSION['nonce'])) {
             $claims['nonce'] = $_SESSION['nonce'];
         }
@@ -81,7 +94,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
     protected function getAccountByPassword($userrole, $username, $password, $email = ''): bool
     {
-        if (($userrole == "users") && (($GLOBALS['oauth_password_grant'] == 1) || ($GLOBALS['oauth_password_grant'] == 3))) {
+        if (($userrole === "users") && (($GLOBALS['oauth_password_grant'] === 1) || ($GLOBALS['oauth_password_grant'] === 3))) {
             $auth = new AuthUtils('api');
             if ($auth->confirmPassword($username, $password)) {
                 $id = $auth->getUserId();
@@ -119,7 +132,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 }
                 return true;
             }
-        } elseif (($userrole == "patient") && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
+        } elseif (($userrole === "patient") && (($GLOBALS['oauth_password_grant'] === 2) || ($GLOBALS['oauth_password_grant'] === 3))) {
             $auth = new AuthUtils('portal-api');
             if ($auth->confirmPassword($username, $password, $email)) {
                 $id = $auth->getPatientId();
