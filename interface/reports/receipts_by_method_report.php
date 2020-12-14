@@ -579,16 +579,16 @@ if (!empty($_POST['form_refresh'])) {
                 if (empty($row['payer_id'])) {
                     // 'ar_session' is not capturing payer_id when entering payments through invoice or era posting
                     if ($row['payer_type'] == '1') {
-                        $insurance_id = (new InsuranceService)->getOne($row['pid'], "primary");
+                        $insurance_id = (new InsuranceService())->getOne($row['pid'], "primary");
                     } elseif ($row['payer_type'] == '2') {
-                        $insurance_id = (new InsuranceService)->getOne($row['pid'], "secondary");
+                        $insurance_id = (new InsuranceService())->getOne($row['pid'], "secondary");
                     } elseif ($row['payer_type'] == '3') {
-                        $insurance_id = (new InsuranceService)->getOne($row['pid'], "tertiary");
+                        $insurance_id = (new InsuranceService())->getOne($row['pid'], "tertiary");
                     } else {
                         $rowmethod = xl('Unnamed insurance company');
                     }
                     if (!empty($insurance_id['provider'])) {
-                        $insurance_company = (new InsuranceCompanyService)->getOne($insurance_id['provider']) ?? '';
+                        $insurance_company = (new InsuranceCompanyService())->getOne($insurance_id['provider']) ?? '';
                         $rowmethod = xl($insurance_company['name']);
                     }
                 } else {
