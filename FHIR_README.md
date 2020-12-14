@@ -180,12 +180,12 @@ curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis
 }'
 ```
 
-#### PATCH fhir/Patient/[id]
+#### PUT fhir/Patient/[id]
 
 Request:
 
 ```sh
-curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/default/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
+curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/default/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
 '[
  {
    "op": "replace",
@@ -275,12 +275,12 @@ curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/api
 }'
 ```
 
-#### PATCH fhir/Practitioner/[id]
+#### PUT fhir/Practitioner/[id]
 
 Request:
 
 ```sh
-curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/default/fhir/Practitioner/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
+curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/default/fhir/Practitioner/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
 '{
   "resourceType": "Practitioner",
   "identifier": [ { "system": "http://hl7.org/fhir/sid/us-npi", "value": "1155667799" } ],

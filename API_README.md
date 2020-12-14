@@ -368,12 +368,12 @@ Response:
 }
 ```
 
-#### PATCH /api/practitioner/:uuid
+#### PUT /api/practitioner/:uuid
 
 Request:
 
 ```sh
-curl -X PATCH 'http://localhost:8300/apis/default/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
+curl -X PUT 'http://localhost:8300/apis/default/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
 '{
     "title": "Mr",
     "fname": "Baz",
