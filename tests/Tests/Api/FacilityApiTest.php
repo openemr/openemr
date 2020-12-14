@@ -75,15 +75,15 @@ class FacilityApiTest extends TestCase
     }
 
     /**
-     * @covers ::patch with an invalid uuid
+     * @covers ::put with an invalid uuid
      */
-    public function testInvalidPatch()
+    public function testInvalidPut()
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
 
         $this->facilityRecord["email"] = "help@pennfirm.com";
-        $actualResponse = $this->testClient->patch(
+        $actualResponse = $this->testClient->put(
             self::FACILITY_API_ENDPOINT,
             "not-a-uuid",
             $this->facilityRecord
@@ -97,9 +97,9 @@ class FacilityApiTest extends TestCase
     }
 
     /**
-     * @covers ::patch with a valid resource uuid and payload
+     * @covers ::put with a valid resource uuid and payload
      */
-    public function testPatch()
+    public function testPut()
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -108,7 +108,7 @@ class FacilityApiTest extends TestCase
         $facilityUuid = $responseBody["data"]["uuid"];
 
         $this->facilityRecord["email"] = "help@pennfirm.com";
-        $actualResponse = $this->testClient->patch(self::FACILITY_API_ENDPOINT, $facilityUuid, $this->facilityRecord);
+        $actualResponse = $this->testClient->put(self::FACILITY_API_ENDPOINT, $facilityUuid, $this->facilityRecord);
 
         $this->assertEquals(200, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);

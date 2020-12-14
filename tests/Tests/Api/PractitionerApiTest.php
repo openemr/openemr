@@ -75,15 +75,15 @@ class PractitionerApiTest extends TestCase
     }
 
     /**
-     * @covers ::patch with an invalid pid and uuid
+     * @covers ::put with an invalid pid and uuid
      */
-    public function testInvalidPatch()
+    public function testInvalidPut()
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
 
         $this->practitionerRecord["email"] = "help@pennfirm.com";
-        $actualResponse = $this->testClient->patch(
+        $actualResponse = $this->testClient->put(
             self::PRACTITIONER_API_ENDPOINT,
             "not-a-uuid",
             $this->practitionerRecord
@@ -97,9 +97,9 @@ class PractitionerApiTest extends TestCase
     }
 
     /**
-     * @covers ::patch with a valid resource id and payload
+     * @covers ::put with a valid resource id and payload
      */
-    public function testPatch()
+    public function testPut()
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -108,7 +108,7 @@ class PractitionerApiTest extends TestCase
         $practitionerUuid = $responseBody["data"]["uuid"];
 
         $this->practitionerRecord["email"] = "help@pennfirm.com";
-        $actualResponse = $this->testClient->patch(self::PRACTITIONER_API_ENDPOINT, $practitionerUuid, $this->practitionerRecord);
+        $actualResponse = $this->testClient->put(self::PRACTITIONER_API_ENDPOINT, $practitionerUuid, $this->practitionerRecord);
 
         $this->assertEquals(200, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);
