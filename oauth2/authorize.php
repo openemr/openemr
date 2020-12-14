@@ -30,9 +30,9 @@ $ignoreAuth = true;
 require_once __DIR__ . '/../interface/globals.php';
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\RestControllers\AuthorizationController;
-use OpenEMR\Common\Logging\SystemLogger;
 $logger = SystemLogger::instance();
 
 // exit if api is not turned on
@@ -59,7 +59,7 @@ if (empty($_SESSION['csrf_private_key'])) {
 }
 
 $end_point = $gbl::getRequestEndPoint();
-$logger->debug("oauth2 endpoint is " . $end_point);
+$logger->debug("oauth2 request received", ["endpoint" => $end_point]);
 
 // let's quickly be able to enable our CORS at the PHP level.
 header("Access-Control-Allow-Credentials: true");

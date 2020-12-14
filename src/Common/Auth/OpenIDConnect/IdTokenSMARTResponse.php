@@ -13,13 +13,13 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
+use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\PatientService;
+use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\IdTokenResponse;
 use OpenIDConnectServer\Repositories\IdentityProviderInterface;
-use OpenIDConnectServer\ClaimExtractor;
 use Psr\Log\LoggerInterface;
-use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 
 class IdTokenSMARTResponse extends IdTokenResponse
 {
