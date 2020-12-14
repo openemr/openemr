@@ -44,7 +44,7 @@ class InstallerController extends AbstractActionController
     {
         $this->listenerObject = new Listener();
         $this->InstallerTable = $installerTable;
-        $this->dbAdapter = $adapter;
+        $this->dbAdapter = $adapter ?? null;
     }
 
     public function nolayout()
@@ -169,7 +169,7 @@ class InstallerController extends AbstractActionController
             }
         }
         $output = "";
-        if (is_array($div)) {
+        if (!empty($div) && is_array($div)) {
             $output = implode("<br />\n", $div);
         }
         echo json_encode(["status" => $status, "output" => $output]);

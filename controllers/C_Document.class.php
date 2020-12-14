@@ -866,6 +866,8 @@ class C_Document extends Controller
             return;
         }
 
+        $messages = '';
+
         $new_category_id = $_POST['new_category_id'];
         $new_patient_id = $_POST['new_patient_id'];
 
@@ -1061,7 +1063,7 @@ class C_Document extends Controller
         $this->assign('place_hld', $place_hld);
         $this->assign('cur_pid', $cur_pid);
         $this->assign('used_msg', $used_msg);
-        $this->assign('demo_pid', $_SESSION['pid']);
+        $this->assign('demo_pid', ($_SESSION['pid'] ?? null));
 
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }

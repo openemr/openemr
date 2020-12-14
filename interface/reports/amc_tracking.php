@@ -357,7 +357,7 @@ if (!empty($_POST['form_refresh'])) {
 
     <?php
     foreach ($resultsArray as $result) {
-        echo "<tr bgcolor='" . $bgcolor . "'>";
+        echo "<tr bgcolor='" . attr($bgcolor ?? '') . "'>";
         echo "<td>" . text($result['lname'] . "," . $result['fname']) . "</td>";
         echo "<td>" . text($result['pid']) . "</td>";
         echo "<td>" . text(oeFormatDateTime($result['date'], "global", true)) . "</td>";

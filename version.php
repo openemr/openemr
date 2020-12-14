@@ -50,5 +50,5 @@ if (!empty($_ENV['OPENEMR__ENVIRONMENT']) && ($_ENV['OPENEMR__ENVIRONMENT'] === 
     $v_js_includes = 60;
 }
 
-// Do note modify below
+// Do not modify below
 $GLOBALS['v_js_includes'] = $v_js_includes;

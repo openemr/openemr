@@ -252,8 +252,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
 
     while ($erow = sqlFetchArray($res)) {
         $row = array();
-        $row['pid'] = $erow['pid'];
-        $row['provider_id'] = $erow['provider_id'];
+        $row['pid'] = $erow['pid'] ?? null;
+        $row['provider_id'] = $erow['provider_id'] ?? null;
         $row['Procedure codes'] = $erow['code'];
         $row['Units'] = $erow['units'];
         $row['Amt Billed'] = $erow['billed'];
@@ -261,7 +261,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $row['Adjustment Amt'] = $erow['AdjustAmount'];
         $row['Balance Amt'] = $erow['Balance'];
         $row['financial_reporting'] = $erow['financial_reporting'];
-        $rows[$erow['pid'] . '|' . $erow['code'] . '|' . $erow['units']] = $row;
+        $rows[($erow['pid'] ?? null) . '|' . $erow['code'] . '|' . $erow['units']] = $row;
     }
 
     if ($_POST['form_csvexport']) {

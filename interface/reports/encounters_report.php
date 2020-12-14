@@ -457,7 +457,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     $status = xl('Empty');
                 }
                 ?>
-       <tr bgcolor='<?php echo attr($bgcolor); ?>'>
+       <tr bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>
   <td>
                 <?php echo ($docname == $lastdocname) ? "" : text($docname) ?>&nbsp;
   </td>
