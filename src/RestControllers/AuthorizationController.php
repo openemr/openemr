@@ -60,10 +60,12 @@ class AuthorizationController
 {
     use CryptTrait;
 
-    public $siteId;
+    public $supportedClaims;
+    public $supportedScopes;
     public $authBaseUrl;
     public $authBaseFullUrl;
     public $authIssueFullUrl;
+    public $siteId;
     private $privateKey;
     private $passphrase;
     private $publicKey;
@@ -77,18 +79,19 @@ class AuthorizationController
     public function __construct($providerForm = true)
     {
         global $gbl;
-
+        // some static bring forwards
         $this->siteId = $gbl::$SITE;
-
+        $this->supportedClaims = $gbl::supportedClaims();
+        $this->supportedScopes = $gbl::supportedScopes();
+        // what would we be if we didn't have Globals...
         $this->authBaseUrl = $GLOBALS['webroot'] . '/oauth2/' . $_SESSION['site_id'];
         // collect full url and issuing url by using 'site_addr_oath' global
         $this->authBaseFullUrl = $GLOBALS['site_addr_oath'] . $this->authBaseUrl;
         $this->authIssueFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'];
-
+        // used for session stash
         $this->authRequestSerial = $_SESSION['authRequestSerial'] ?? '';
         // Create a crypto object that will be used for for encryption/decryption
         $this->cryptoGen = new CryptoGen();
-
         // encryption key
         $eKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2key'");
         if (!empty($eKey['name']) && ($eKey['name'] === 'oauth2key')) {
@@ -490,7 +493,21 @@ class AuthorizationController
 
     public function getAuthorizationServer(): AuthorizationServer
     {
-        $customClaim = [new ClaimSetEntity('fhirUser', ['fhirUser'])];
+        // This seems clumsy to me still, gets job done for now...
+        // It is possible to receive a scope where the claim would need a value.
+        // Can be turned off in discovery with claims_parameter_supported but unsure if smart needs.
+        // TODO: Needs further verification.
+        $protectedClaims = ['profile', 'email', 'address', 'phone'];
+        $customClaim = [];
+        foreach ($this->supportedScopes as $scope) {
+            if (!in_array($scope, $this->supportedClaims, true)) {
+                continue;
+            }
+            if (in_array($scope, $protectedClaims, true)) {
+                continue;
+            }
+            $customClaim[] = new ClaimSetEntity((string)$scope, [(string)$scope]);
+        }
         if (!empty($_SESSION['nonce'])) {
             // nonce scope added later. this is for id token nonce claim.
             $customClaim[] = new ClaimSetEntity('nonce', ['nonce']);

@@ -317,6 +317,11 @@ class RestConfig
 
     public static function skipApiAuth($resource): bool
     {
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            // we don't authenticate OPTIONS requests
+            return true;
+        }
+
         // ensure 1) sane site and 2) ensure the site exists on filesystem before even considering for skip api auth
         if (empty(self::$SITE) || preg_match('/[^A-Za-z0-9\\-.]/', self::$SITE) || !file_exists(__DIR__ . '/sites/' . self::$SITE)) {
             error_log("OpenEMR Error - api site error, so forced exit");
@@ -383,7 +388,7 @@ class RestConfig
         echo $response->getBody();
     }
 
-    public function authenticateUserToken($tokenId, $userId)
+    public function authenticateUserToken($tokenId, $userId): bool
     {
         $ip = collectIpAddresses();
 
@@ -410,6 +415,54 @@ class RestConfig
     /** prevents external cloning */
     private function __clone()
     {
+    }
+
+    // nonce claim and nonce scope is handled by server logic.
+    // I'm still unsure how'd support id_tokens unless we persist them in DB.
+    public static function supportedClaims(): array
+    {
+        return array(
+            "name",
+            "email",
+            "email_verified",
+            "family_name",
+            "given_name",
+            "fhirUser",
+            "locale", //
+            "aud", //client_id
+            "iat", // token create time
+            "iss", // token issuer(https://domain)
+            "exp", // token expiry time.
+            "sub" // the subject of token. usually patient UUID.
+        );
+    }
+    // change these as appropriate or where needed.
+    // smart scopes are provided here for sake of example.
+    public static function supportedScopes(): array
+    {
+        return array(
+            "openid",
+            "profile",
+            "name",
+            "given_name",
+            "family_name",
+            "nickname",
+            "phone",
+            "phone_verified",
+            "address",
+            "email",
+            "email_verified",
+            "offline_access", // long lived refresh token issued. we do anyway wanted or not.
+            "fhirUser",
+            "api:oemr",
+            "api:fhir",
+            "api:port",
+            "api:pofh",
+            "patient/Patient.read", // Permission to read a resource for the current server signed in patient. i.e patient is from pid(UUID)  claims user_id/subject(sub).
+            "user/*.*", // Permission to read and write all resources that the current user can access. Ditto
+            "launch", // Permission to retrieve information about the current logged-in user i.e logged into auth server.
+            "launch/patient" // Permission to obtain launch context when app is launched from an EHR
+        );
     }
 }
 
