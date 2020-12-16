@@ -272,7 +272,7 @@ class AuthorizationController
             if (!isset($data['redirect_uris'])) {
                 throw new OAuthServerException('redirect_uris is invalid', 0, 'invalid_redirect_uri');
             }
-            if (isset($data['post_logout_redirect_uris']) && !isset($data['post_logout_redirect_uris'])) {
+            if (isset($data['post_logout_redirect_uris']) && empty($data['post_logout_redirect_uris'])) {
                 throw new OAuthServerException('post_logout_redirect_uris is invalid', 0, 'invalid_client_metadata');
             }
             // save to oauth client table
@@ -360,9 +360,26 @@ class AuthorizationController
         }
 
         try {
-            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', 'openid email phone address api:oemr api:fhir api:port api:pofh', ?, ?, ?, ?)";
+            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', 'openid email phone address api:oemr api:fhir api:port api:pofh', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $i_vals = array(
-                $clientId, 'users', $info['client_name'], $info['client_secret'], $info['registration_access_token'], $info['registration_client_uri_path'], $contacts, $redirects, $user, $site, $private, $logout_redirect_uris
+                $clientId,
+                'users',
+                $info['client_name'],
+                $info['client_secret'],
+                $info['registration_access_token'],
+                $info['registration_client_uri_path'],
+                $contacts,
+                $redirects,
+                $user,
+                $site,
+                $private,
+                $logout_redirect_uris,
+                $info['jwks_uri'],
+                $info['jwks'],
+                $info['initiate_login_uri'],
+                $info['endorsements'],
+                $info['policy_uri'],
+                $info['tos_uri']
             );
 
             return sqlQueryNoLog($sql, $i_vals);
