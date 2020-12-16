@@ -12260,6 +12260,12 @@ CREATE TABLE `oauth_clients` (
 `site_id` varchar(64) DEFAULT NULL,
 `is_confidential` tinyint(1) NOT NULL DEFAULT '1',
 `logout_redirect_uris` text,
+`jwks_uri` text,
+`jwks` text,
+`initiate_login_uri` text,
+`endorsements` text,
+`policy_uri` text,
+`tos_uri` text,
 PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB;
 
