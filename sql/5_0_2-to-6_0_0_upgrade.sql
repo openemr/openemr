@@ -2407,3 +2407,19 @@ ALTER TABLE `oauth_clients` ADD `logout_redirect_uris` text;
 #IfMissingColumn oauth_trusted_user grant_type
 ALTER TABLE `oauth_trusted_user` ADD COLUMN `grant_type` varchar(32) DEFAULT NULL;
 #EndIf
+
+#IfNotColumnType layout_options title text
+ALTER TABLE `layout_options` CHANGE `title` `title` TEXT;
+#EndIf
+
+#IfMissingColumn oauth_clients jwks_uri
+ALTER TABLE `oauth_clients` ADD `jwks_uri` TEXT;
+ALTER TABLE `oauth_clients` ADD `jwks` TEXT;
+ALTER TABLE `oauth_clients` ADD `initiate_login_uri` TEXT;
+#EndIf
+
+#IfMissingColumn oauth_clients endorsements
+ALTER TABLE `oauth_clients` ADD `endorsements` TEXT;
+ALTER TABLE `oauth_clients` ADD `policy_uri` TEXT;
+ALTER TABLE `oauth_clients` ADD `tos_uri` TEXT;
+#EndIf
