@@ -724,14 +724,18 @@ class AuthorizationController
         $auth = new AuthUtils($type);
         $is_true = $auth->confirmPassword($username, $password, $email);
         if (!$is_true) {
+            $this->logger->debug("AuthorizationController->verifyLogin() login attempt failed", ['username' => $username]);
             return false;
         }
         if ($this->userId = $auth->getUserId()) {
             $_SESSION['user_id'] = $this->getUserUuid($this->userId, 'users');
+            $this->logger->debug("AuthorizationController->verifyLogin() user login", ['pid' => $_SESSION['pid']]);
             return true;
         }
         if ($id = $auth->getPatientId()) {
             $_SESSION['user_id'] = $this->getUserUuid($id, 'patient');
+            $this->logger->debug("AuthorizationController->verifyLogin() patient login", ['pid' => $_SESSION['user_id']]);
+            $_SESSION['pid'] = $_SESSION['user_id'];
             return true;
         }
 

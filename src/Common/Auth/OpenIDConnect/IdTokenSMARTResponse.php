@@ -14,6 +14,7 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\PatientService;
 use OpenIDConnectServer\ClaimExtractor;
@@ -46,11 +47,11 @@ class IdTokenSMARTResponse extends IdTokenResponse
             // what we need to do is have a patient selector and return the selected patient as part of the OAUTH
             // sequence.
             $patientService = new PatientService();
-            $patients = $patientService->getAll();
-            $patientsList = $patients->getData();
-            if (!empty($patientsList)) {
-                $this->logger->debug("patients found", ['patients' => $patientsList]);
-                $extraParams['patient'] = $patientsList[0]['uuid'];
+            // patient id that is currently selected in the session.
+            if (!empty($_SESSION['pid'])) {
+                $extraParams['patient'] = $_SESSION['pid'];
+            } else {
+                throw new OAuthServerException("launch/patient scope requested but patient 'pid' was not present in session", 0, 'invalid_patient_context');
             }
         }
 
