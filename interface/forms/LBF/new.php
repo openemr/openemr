@@ -1128,7 +1128,9 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         $titlecols = $CPR;
                         echo "<td class='border-top-0 align-top' colspan='" . attr($titlecols) . "'";
                     } else {
-                        echo "<td class='border-top-0 align-top text-nowrap' colspan='" . attr($titlecols) . "'";
+                        // unsure why this was set to always text-nowrap. will monitor and perhaps this should be
+                        // an option in line options.
+                        echo "<td class='border-top-0 align-top text-wrap' colspan='" . attr($titlecols) . "'";
                     }
                     echo " class='";
                     echo ($frow['uor'] == 2) ? "required" : "font-weight-bold";

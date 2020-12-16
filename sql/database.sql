@@ -3245,7 +3245,7 @@ CREATE TABLE `layout_options` (
   `form_id` varchar(31) NOT NULL default '',
   `field_id` varchar(31) NOT NULL default '',
   `group_id` varchar(31) NOT NULL default '',
-  `title` varchar(63) NOT NULL default '',
+  `title` text,
   `seq` int(11) NOT NULL default '0',
   `data_type` tinyint(3) NOT NULL default '0',
   `uor` tinyint(1) NOT NULL default '1',
@@ -12260,6 +12260,12 @@ CREATE TABLE `oauth_clients` (
 `site_id` varchar(64) DEFAULT NULL,
 `is_confidential` tinyint(1) NOT NULL DEFAULT '1',
 `logout_redirect_uris` text,
+`jwks_uri` text,
+`jwks` text,
+`initiate_login_uri` text,
+`endorsements` text,
+`policy_uri` text,
+`tos_uri` text,
 PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB;
 

@@ -26,6 +26,7 @@ use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
+use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -59,10 +60,12 @@ class AuthorizationController
 {
     use CryptTrait;
 
-    public $siteId;
+    public $supportedClaims;
+    public $supportedScopes;
     public $authBaseUrl;
     public $authBaseFullUrl;
     public $authIssueFullUrl;
+    public $siteId;
     private $privateKey;
     private $passphrase;
     private $publicKey;
@@ -76,18 +79,19 @@ class AuthorizationController
     public function __construct($providerForm = true)
     {
         global $gbl;
-
+        // some static bring forwards
         $this->siteId = $gbl::$SITE;
-
+        $this->supportedClaims = $gbl::supportedClaims();
+        $this->supportedScopes = $gbl::supportedScopes();
+        // what would we be if we didn't have Globals...
         $this->authBaseUrl = $GLOBALS['webroot'] . '/oauth2/' . $_SESSION['site_id'];
         // collect full url and issuing url by using 'site_addr_oath' global
         $this->authBaseFullUrl = $GLOBALS['site_addr_oath'] . $this->authBaseUrl;
         $this->authIssueFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'];
-
+        // used for session stash
         $this->authRequestSerial = $_SESSION['authRequestSerial'] ?? '';
         // Create a crypto object that will be used for for encryption/decryption
         $this->cryptoGen = new CryptoGen();
-
         // encryption key
         $eKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2key'");
         if (!empty($eKey['name']) && ($eKey['name'] === 'oauth2key')) {
@@ -268,7 +272,7 @@ class AuthorizationController
             if (!isset($data['redirect_uris'])) {
                 throw new OAuthServerException('redirect_uris is invalid', 0, 'invalid_redirect_uri');
             }
-            if (isset($data['post_logout_redirect_uris']) && !isset($data['post_logout_redirect_uris'])) {
+            if (isset($data['post_logout_redirect_uris']) && empty($data['post_logout_redirect_uris'])) {
                 throw new OAuthServerException('post_logout_redirect_uris is invalid', 0, 'invalid_client_metadata');
             }
             // save to oauth client table
@@ -356,9 +360,26 @@ class AuthorizationController
         }
 
         try {
-            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', 'openid email phone address api:oemr api:fhir api:port api:pofh', ?, ?, ?, ?)";
+            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', 'openid email phone address api:oemr api:fhir api:port api:pofh', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $i_vals = array(
-                $clientId, 'users', $info['client_name'], $info['client_secret'], $info['registration_access_token'], $info['registration_client_uri_path'], $contacts, $redirects, $user, $site, $private, $logout_redirect_uris
+                $clientId,
+                'users',
+                $info['client_name'],
+                $info['client_secret'],
+                $info['registration_access_token'],
+                $info['registration_client_uri_path'],
+                $contacts,
+                $redirects,
+                $user,
+                $site,
+                $private,
+                $logout_redirect_uris,
+                $info['jwks_uri'],
+                $info['jwks'],
+                $info['initiate_login_uri'],
+                $info['endorsements'],
+                $info['policy_uri'],
+                $info['tos_uri']
             );
 
             return sqlQueryNoLog($sql, $i_vals);
@@ -489,14 +510,28 @@ class AuthorizationController
 
     public function getAuthorizationServer(): AuthorizationServer
     {
-        $customClaim = new ClaimSetEntity('', ['']);
+        // This seems clumsy to me still, gets job done for now...
+        // It is possible to receive a scope where the claim would need a value.
+        // Can be turned off in discovery with claims_parameter_supported but unsure if smart needs.
+        // TODO: Needs further verification.
+        $protectedClaims = ['profile', 'email', 'address', 'phone'];
+        $customClaim = [];
+        foreach ($this->supportedScopes as $scope) {
+            if (!in_array($scope, $this->supportedClaims, true)) {
+                continue;
+            }
+            if (in_array($scope, $protectedClaims, true)) {
+                continue;
+            }
+            $customClaim[] = new ClaimSetEntity((string)$scope, [(string)$scope]);
+        }
         if (!empty($_SESSION['nonce'])) {
             // nonce scope added later. this is for id token nonce claim.
-            $customClaim = new ClaimSetEntity('nonce', ['nonce']);
+            $customClaim[] = new ClaimSetEntity('nonce', ['nonce']);
         }
 
         // OpenID Connect Response Type
-        $responseType = new IdTokenResponse(new IdentityRepository(), new ClaimExtractor([$customClaim]));
+        $responseType = new IdTokenResponse(new IdentityRepository(), new ClaimExtractor($customClaim));
         $authServer = new AuthorizationServer(
             new ClientRepository(),
             new AccessTokenRepository(),
@@ -528,6 +563,7 @@ class AuthorizationController
                 new \DateInterval('PT1H') // The new access token will expire after 1 hour
             );
         }
+        // TODO: break this up - throw exception for not turned on.
         if (!empty($GLOBALS['oauth_password_grant']) && ($this->grantType === 'password')) {
             $grant = new CustomPasswordGrant(
                 new UserRepository(),
@@ -537,6 +573,13 @@ class AuthorizationController
             $authServer->enableGrantType(
                 $grant,
                 new \DateInterval('PT1H') // access token
+            );
+        }
+        if ($this->grantType === 'client_credentials') {
+            // Enable the client credentials grant on the server
+            $authServer->enableGrantType(
+                new ClientCredentialsGrant(),
+                new \DateInterval('PT300S')
             );
         }
 

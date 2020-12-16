@@ -685,7 +685,11 @@ function zip_content($source, $destination, $content = '', $create = true)
                                         echo "<img src='$from_file_tmp_web_name'><br /><br />";
                                         $tmp_files_remove[] = $from_file_tmp_web_name;
                                     } else {
-                                        echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
+                                        if ($extension === '.pdf' || $extension === '.zip') {
+                                            echo "<strong>" . xlt('Available Document') . ":</strong><em> " . text($fname) . "</em><br />";
+                                        } else {
+                                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
+                                        }
                                     }
                                 }
                             } // end if-else
