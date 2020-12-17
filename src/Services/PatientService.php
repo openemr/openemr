@@ -327,4 +327,15 @@ class PatientService extends BaseService
 
         return $result['id'];
     }
+
+    /**
+     * Fetch UUID for the patient id
+     *
+     * @param string $id                - ID of Patient
+     * @return false if nothing found otherwise return UUID
+     */
+    public function getUuid($pid)
+    {
+        return self::getUuidById($pid, self::TABLE_NAME, 'pid');
+    }
 }

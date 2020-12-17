@@ -93,8 +93,7 @@ class AuthorizationController
         $this->supportedScopes = $gbl::supportedScopes();
         // what would we be if we didn't have Globals...
         $this->authBaseUrl = $GLOBALS['webroot'] . '/oauth2/' . $_SESSION['site_id'];
-        // collect full url and issuing url by using 'site_addr_oath' global
-        $this->authBaseFullUrl = $GLOBALS['site_addr_oath'] . $this->authBaseUrl;
+        $this->authBaseFullUrl = self::getAuthBaseFullURL();
         $this->authIssueFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'];
         // used for session stash
         $this->authRequestSerial = $_SESSION['authRequestSerial'] ?? '';
@@ -247,6 +246,10 @@ class AuthorizationController
                 'request_uris' => null,
                 'response_types' => null,
                 'grant_types' => null,
+                // info on scope can be seen at
+                // OAUTH2 Dynamic Client Registration RFC 7591 Section 2 Page 9
+                // @see https://tools.ietf.org/html/rfc7591#section-2
+                'scope' => null
             );
             $client_id = $this->base64url_encode(RandomGenUtils::produceRandomBytes(32));
             $reg_token = $this->base64url_encode(RandomGenUtils::produceRandomBytes(32));
@@ -364,13 +367,21 @@ class AuthorizationController
         $redirects = $info['redirect_uris'];
         $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
         $info['client_secret'] = $info['client_secret'] ?? null; // just to be sure empty is null;
+        // set our list of default scopes for the registration if our scope is empty
+        // This is how a client can set if they support SMART apps and other stuff by passing in the 'launch'
+        // scope to the dynamic client registration.
+        // per RFC 7591 @see https://tools.ietf.org/html/rfc7591#section-2
+        // TODO: adunsulag do we need to reject the registration if there are certain scopes here we do not support
+        // TODO: adunsulag should we check these scopes against our '$this->supportedScopes'?
+        $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port api:pofh';
         // encrypt the client secret
         if (!empty($info['client_secret'])) {
             $info['client_secret'] = $this->cryptoGen->encryptStandard($info['client_secret']);
         }
 
+
         try {
-            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', 'openid email phone address api:oemr api:fhir api:port api:pofh', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $i_vals = array(
                 $clientId,
                 'users',
@@ -380,6 +391,7 @@ class AuthorizationController
                 $info['registration_client_uri_path'],
                 $contacts,
                 $redirects,
+                $info['scope'],
                 $user,
                 $site,
                 $private,
@@ -504,11 +516,13 @@ class AuthorizationController
             $_SESSION['csrf'] = $authRequest->getState();
             $_SESSION['scopes'] = $request->getQueryParams()['scope'];
             $_SESSION['client_id'] = $request->getQueryParams()['client_id'];
+            $_SESSION['launch'] = $request->getQueryParams()['launch'];
+            $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() session updated", ['session' => $_SESSION]);
 
             $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() auth request validated, csrf,scopes,client_id setup");
             // If needed, serialize into a users session
             if ($this->providerForm) {
-                $this->serializeUserSession($authRequest);
+                $this->serializeUserSession($authRequest, $request);
                 $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() redirecting to provider form");
                 // call our login then login calls authorize if approved by user
                 header("Location: " . $this->authBaseUrl . "/provider/login", true, 301);
@@ -609,8 +623,9 @@ class AuthorizationController
         return $authServer;
     }
 
-    private function serializeUserSession($authRequest): void
+    private function serializeUserSession($authRequest, ServerRequestInterface $httpRequest): void
     {
+        $launchParam = isset($httpRequest->getQueryParams()['launch']) ? $httpRequest->getQueryParams()['launch'] : null;
         // keeping somewhat granular
         try {
             $scopes = $authRequest->getScopes();
@@ -1219,5 +1234,14 @@ class AuthorizationController
     public static function getIntrospectionPath()
     {
         return "/introspect";
+    }
+
+
+    public static function getAuthBaseFullURL()
+    {
+        $baseUrl = $GLOBALS['webroot'] . '/oauth2/' . $_SESSION['site_id'];
+        // collect full url and issuing url by using 'site_addr_oath' global
+        $authBaseFullURL = $GLOBALS['site_addr_oath'] . $baseUrl;
+        return $authBaseFullURL;
     }
 }

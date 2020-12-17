@@ -108,7 +108,6 @@ class CapabilityFhirTest extends TestCase
         $this->assertArrayHasKey('extension', $oauthExtension, "Oauth extension should have embedded extensions");
         $this->assertEquals(4, count($oauthExtension['extension']), "Extension should have token, authorize, manage extensions");
 
-        // TODO: stephen need to figure out the port number for the unit tests here...
         $tokenUri = $this->oauthBaseUrl . AuthorizationController::getTokenPath();
         $authorizeUri = $this->oauthBaseUrl . AuthorizationController::getAuthorizePath();
         $manageUri = $this->oauthBaseUrl . AuthorizationController::getManagePath();

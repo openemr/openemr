@@ -30,6 +30,21 @@ class ClientRepository implements ClientRepositoryInterface
         $this->logger = SystemLogger::instance();
     }
 
+    /**
+     * @return ClientEntity[]
+     */
+    public function listClientEntities()
+    {
+        $clients = sqlStatementNoLog("Select * From oauth_clients");
+        $list = [];
+        if (!empty($clients)) {
+            while ($client = $clients->FetchRow()) {
+                $list[] = $this->hydrateClientEntityFromArray($client);
+            }
+        }
+        return $list;
+    }
+
     public function getClientEntity($clientIdentifier)
     {
         $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", array($clientIdentifier));
@@ -53,12 +68,7 @@ class ClientRepository implements ClientRepositoryInterface
                 ]
             ]
         );
-        $client = new ClientEntity();
-        $client->setIdentifier($clientIdentifier);
-        $client->setName($clients['client_name']);
-        $client->setRedirectUri($clients['redirect_uri']);
-        $client->setIsConfidential($clients['is_confidential']);
-
+        $client = $this->hydrateClientEntityFromArray($clients);
         return $client;
     }
 
@@ -90,5 +100,20 @@ class ClientRepository implements ClientRepositoryInterface
             // password and refresh grant
             return true;
         }
+    }
+
+    /**
+     * @param $clients
+     * @return ClientEntity
+     */
+    private function hydrateClientEntityFromArray($client_record)
+    {
+        $client = new ClientEntity();
+        $client->setIdentifier($client_record['client_id']);
+        $client->setName($client_record['client_name']);
+        $client->setRedirectUri($client_record['redirect_uri']);
+        $client->setIsConfidential($client_record['is_confidential']);
+        $client->setScopes($client_record['scope']);
+        return $client;
     }
 }

@@ -210,16 +210,17 @@ class FhirMetaDataRestController
      * Creates the Security Capability Statement and returns it.
      * @return FHIRCapabilityStatementSecurity
      */
-    private function getRestSecurity() {
+    private function getRestSecurity()
+    {
         $service = new FHIRCodeableConcept();
-        $service->text = xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)" );
+        $service->text = xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)");
 
         $coding = new FHIRCoding();
         $coding->setSystem(new FHIRUrl("http://hl7.org/fhir/restful-security-service"));
         $coding->setCode("SMART-on-FHIR");
 
         $service->addCoding($coding)
-                ->setText(xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)") );
+                ->setText(xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)"));
 
         $security = new FHIRCapabilityStatementSecurity();
         $security->addService($service);

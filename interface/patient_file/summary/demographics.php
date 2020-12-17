@@ -831,8 +831,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
         <?php  }
         // if anyone wants to render anything before the patient demographic list
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, new RenderEvent($pid), 10);
-        ?>
+                            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, new RenderEvent($pid), 10);
+                            ?>
         <?php if (AclMain::aclCheckCore('patients', 'demo')) { ?>
           <section>
               <?php

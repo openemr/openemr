@@ -42,16 +42,36 @@ class IdTokenSMARTResponse extends IdTokenResponse
         $extraParams = parent::getExtraParams($accessToken);
         $this->logger->debug("IdTokenSMARTResponse->getExtraParams() params from parent ", ["params" => $extraParams]);
 
-        if ($this->isLaunchPatientRequest($accessToken->getScopes())) {
-            // for testing purposes we are going to return just the first patient we find for our launch context...
-            // what we need to do is have a patient selector and return the selected patient as part of the OAUTH
-            // sequence.
-            $patientService = new PatientService();
+        if ($this->isStandaloneLaunchPatientRequest($accessToken->getScopes())) {
             // patient id that is currently selected in the session.
             if (!empty($_SESSION['pid'])) {
                 $extraParams['patient'] = $_SESSION['pid'];
             } else {
                 throw new OAuthServerException("launch/patient scope requested but patient 'pid' was not present in session", 0, 'invalid_patient_context');
+            }
+        } else if ($this->isLaunchRequest($accessToken->getScopes())) {
+            $this->logger->debug("launch scope requested");
+            if (!empty($_SESSION['launch'])) {
+                $this->logger->debug("IdTokenSMARTResponse->getExtraParams() launch set in session", ['launch' => $_SESSION['launch']]);
+                // this is where the launch context is deserialized and we extract any SMART context state we wanted to
+                // pass on as part of the EHR request, we only have encounter and patient at this point
+                try {
+                    // TODO: adunsulag do we want any kind of hmac signature to verify the request hasn't been
+                    // tampered with?  Not sure that it matters as the ACL's will verify that the app only has access
+                    // to the data the currently authorized oauth2 user can access.
+                    $decoded = base64_decode($_SESSION['launch']);
+                    $context = json_decode($decoded, true);
+                    $this->logger->debug("IdTokenSMARTResponse->getExtraParams() decoded launch context is", ['context' => $context]);
+                    if (!empty($context['p'])) {
+                        $extraParams['patient'] = $context['p'];
+                    }
+                    if (!empty($context['e'])) {
+                        $extraParams['encounter'] = $context['e'];
+                    }
+                } catch (\Exception $ex) {
+                    $this->logger->error("IdTokenSMARTResponse->getExtraParams() Failed to decode launch context parameter", ['error' => $ex->getMessage()]);
+                    throw new OAuthServerException("Invalid launch parameter", 0, 'invalid_launch_context');
+                }
             }
         }
 
@@ -63,13 +83,27 @@ class IdTokenSMARTResponse extends IdTokenResponse
      * @param ScopeEntityInterface[] $scopes
      * @return bool
      */
-    private function isLaunchPatientRequest($scopes)
+    private function isLaunchRequest($scopes)
+    {
+        return $this->hasScope($scopes, 'launch');
+    }
+
+    /**
+     * @param ScopeEntityInterface[] $scopes
+     * @return bool
+     */
+    private function isStandaloneLaunchPatientRequest($scopes)
+    {
+        return $this->hasScope($scopes, 'launch/patient');
+    }
+
+    private function hasScope($scopes, $searchScope)
     {
         // Verify scope and make sure openid exists.
         $valid  = false;
 
         foreach ($scopes as $scope) {
-            if ($scope->getIdentifier() === 'launch/patient') {
+            if ($scope->getIdentifier() == $searchScope) {
                 $valid = true;
                 break;
             }
