@@ -33,7 +33,7 @@ class CreateStaffTest extends PantherTestCase
         $openEmrPage = $this->e2eBaseUrl;
         $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
         $lp = new LoginPage($client, $this);
-        $mp = $lp->login('admin', 'pass');
+        $mp = $lp->login('admin', 'passt');
 
         // add the user and then check that the user was added
         $mp->openUsers();
