@@ -12,7 +12,7 @@
 
 namespace OpenEMR\RestControllers;
 
-class RestControllerHelper
+class RestControllerHelper extends \RestConfig
 {
     /**
      * Configures the HTTP status code and payload returned within a response.
@@ -65,28 +65,50 @@ class RestControllerHelper
      */
     public static function handleProcessingResult($processingResult, $successStatusCode, $isMultipleResultResponse = false)
     {
+        $fhirApi = self::is_fhir_request(self::getRequestEndPoint());
         $httpResponseBody = [
             "validationErrors" => [],
             "internalErrors" => [],
             "data" => []
         ];
 
-        if (!$processingResult->isValid()) {
-            http_response_code(400);
-            $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
-        } else if ($processingResult->hasInternalErrors()) {
-            http_response_code(500);
-            $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
-        } else {
-            http_response_code($successStatusCode);
-            $dataResult = $processingResult->getData();
+        if ($fhirApi === true) {
+            $httpResponseBody = [];
+            if (!$processingResult->isValid()) {
+                http_response_code(400);
+                $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+            } elseif ($processingResult->hasInternalErrors()) {
+                http_response_code(500);
+                $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
+            } else {
+                http_response_code($successStatusCode);
+                $dataResult = $processingResult->getData();
 
-            if (!$isMultipleResultResponse) {
-                $dataResult = (count($dataResult) == 0) ? [] : $dataResult[0];
+                if (!$isMultipleResultResponse) {
+                    $dataResult = (count($dataResult) === 0) ? [] : $dataResult[0];
+                }
+
+                $httpResponseBody = $dataResult;
             }
+        } else {
+            if (!$processingResult->isValid()) {
+                http_response_code(400);
+                $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+            } elseif ($processingResult->hasInternalErrors()) {
+                http_response_code(500);
+                $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
+            } else {
+                http_response_code($successStatusCode);
+                $dataResult = $processingResult->getData();
 
-            $httpResponseBody["data"] = $dataResult;
+                if (!$isMultipleResultResponse) {
+                    $dataResult = (count($dataResult) === 0) ? [] : $dataResult[0];
+                }
+
+                $httpResponseBody["data"] = $dataResult;
+            }
         }
+
         return $httpResponseBody;
     }
 }
