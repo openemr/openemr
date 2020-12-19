@@ -349,7 +349,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
                     continue;
                 }
                 echo "<option value='" . attr($p_id) . "'";
-                if ((int)$iter["supervisor_id"] === $p_id) {
+                if ((int)($iter["supervisor_id"] ?? null) === $p_id) {
                     echo "selected";
                 }
                 echo ">" . text($activeUser['lname']) . ' ' .
@@ -367,7 +367,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 </td>
 </tr>
 <tr>
-<td><span class="text"><?php echo xlt('Weno Provider ID'); ?>: </span></td><td><input type="text" name="erxprid" style="width:120px;" class="form-control" value="<?php echo attr($iter["weno_prov_id"]); ?>"></td>
+<td><span class="text"><?php echo xlt('Weno Provider ID'); ?>: </span></td><td><input type="text" name="erxprid" style="width:120px;" class="form-control" value="<?php echo attr($iter["weno_prov_id"] ?? ''); ?>"></td>
 </tr>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
 <tr>

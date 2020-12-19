@@ -56,7 +56,7 @@ function bucks($amount)
 
 $alertmsg = '';
 $pagesize = 100;
-$mode = $_POST['mode'];
+$mode = $_POST['mode'] ?? null;
 $code_id = 0;
 $related_code = '';
 $active = 1;
@@ -80,7 +80,7 @@ if (isset($mode) && $thisauthwrite) {
     $active     = empty($_POST['active']) ? 0 : 1;
     $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
     $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
-    $revenue_code = $_POST['revenue_code'];
+    $revenue_code = $_POST['revenue_code'] ?? null;
 
     $taxrates = "";
     if (!empty($_POST['taxrate'])) {
@@ -125,7 +125,7 @@ if (isset($mode) && $thisauthwrite) {
 
             if (!$alertmsg) {
                 foreach ($_POST['fee'] as $key => $value) {
-                    $value = $value + 0;
+                    $value = $value ?? 0;
                     if ($value) {
                         sqlStatement("INSERT INTO prices ( " .
                             "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
@@ -198,8 +198,8 @@ if (isset($mode) && $thisauthwrite) {
         $modifier   = $_POST['modifier'];
         $superbill  = $_POST['form_superbill'];
         $related_code = $_POST['related_code'];
-        $revenue_code = $_POST['revenue_code'];
-        $cyp_factor = $_POST['cyp_factor'] + 0;
+        $revenue_code = $_POST['revenue_code'] ?? null;
+        $cyp_factor = $_POST['cyp_factor'] ?? 0;
         $active     = empty($_POST['active']) ? 0 : 1;
         $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
         $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
@@ -238,7 +238,7 @@ if (!empty($related_code)) {
     $related_desc = $related_code;
 }
 
-$fstart = $_REQUEST['fstart'] + 0;
+$fstart = ($_REQUEST['fstart'] ?? null) + 0;
 if (isset($_REQUEST['filter'])) {
     $filter = array();
     $filter_key = array();
@@ -250,9 +250,9 @@ if (isset($_REQUEST['filter'])) {
     }
 }
 
-$search = $_REQUEST['search'];
-$search_reportable = $_REQUEST['search_reportable'];
-$search_financial_reporting = $_REQUEST['search_financial_reporting'];
+$search = $_REQUEST['search'] ?? null;
+$search_reportable = $_REQUEST['search_reportable'] ?? null;
+$search_financial_reporting = $_REQUEST['search_financial_reporting'] ?? null;
 
 //Build the filter_elements array
 $filter_elements = array();
@@ -268,7 +268,7 @@ if (isset($_REQUEST['filter'])) {
     $count = main_code_set_search($filter_key, $search, null, null, false, null, true, null, null, $filter_elements);
 }
 
-if ($fstart >= $count) {
+if ($fstart >= ($count ?? null)) {
     $fstart -= $pagesize;
 }
 
@@ -277,8 +277,8 @@ if ($fstart < 0) {
 }
 
 $fend = $fstart + $pagesize;
-if ($fend > $count) {
-    $fend = $count;
+if ($fend > ($count ?? null)) {
+    $fend = $count ?? null;
 }
 ?>
 
@@ -491,7 +491,7 @@ if ($fend > $count) {
               <?php foreach ($code_types as $key => $value) { ?>
                     <?php if (!($value['external'])) { ?>
                         <?php if ($mode != "modify") { ?>
-                          <option value="<?php  echo attr($value['id']) ?>"<?php if ($code_type == $value['id']) {
+                          <option value="<?php  echo attr($value['id']) ?>"<?php if (!empty($code_type) && ($code_type == $value['id'])) {
                                 echo " selected"; } ?>><?php echo xlt($value['label']) ?></option>
                       <?php } ?>
                   <?php } ?>
@@ -513,7 +513,7 @@ if ($fend > $count) {
           <?php if ($mode == "modify") { ?>
               <input type='text' class='form-control form-control-sm' size='6' name='code' readonly='readonly' value='<?php echo attr($code) ?>' />
           <?php } else { ?>
-              <input type='text' class='form-control form-control-sm' size='6' name='code' value='<?php echo attr($code) ?>' onkeyup='maskkeyup(this,getCTMask())' onblur='maskblur(this,getCTMask())' />
+              <input type='text' class='form-control form-control-sm' size='6' name='code' value='<?php echo attr($code ?? '') ?>' onkeyup='maskkeyup(this,getCTMask())' onblur='maskblur(this,getCTMask())' />
           <?php } ?>
         </div>
         <?php if (modifiers_are_used()) { ?>
@@ -522,7 +522,7 @@ if ($fend > $count) {
             <?php if ($mode == "modify") { ?>
               <input type='text' size='6' class='form-control form-control-sm' name='modifier' readonly='readonly' value='<?php echo attr($modifier) ?>' />
           <?php } else { ?>
-              <input type='text' size='6' class='form-control form-control-sm' name='modifier' value='<?php echo attr($modifier) ?>' />
+              <input type='text' size='6' class='form-control form-control-sm' name='modifier' value='<?php echo attr($modifier ?? '') ?>' />
             <?php } ?>
           <?php } else { ?>
               <input type='hidden' name='modifier' value='' />
@@ -538,9 +538,9 @@ if ($fend > $count) {
         <label for="code_text" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Description'); ?>:</label>
         <div class="col-md">
           <?php if ($mode == "modify") { ?>
-              <input type='text' size='50' class='form-control form-control-sm' name="code_text" readonly="readonly" value='<?php echo attr($code_text) ?>' />
+              <input type='text' size='50' class='form-control form-control-sm' name="code_text" readonly="readonly" value='<?php echo attr($code_text ?? '') ?>' />
           <?php } else { ?>
-              <input type='text' size='50' class='form-control form-control-sm' name="code_text" value='<?php echo attr($code_text) ?>' />
+              <input type='text' size='50' class='form-control form-control-sm' name="code_text" value='<?php echo attr($code_text ?? '') ?>' />
           <?php } ?>
         </div>
         <?php if ($institutional) { ?>
@@ -557,7 +557,7 @@ if ($fend > $count) {
       <div class="form-group row">
         <label for="superbill" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Category'); ?>:</label>
         <div class="col-md">
-          <?php generate_form_field(array('data_type' => 1,'field_id' => 'superbill','list_id' => 'superbill', 'smallform' => 'true'), $superbill); ?>
+          <?php generate_form_field(array('data_type' => 1,'field_id' => 'superbill','list_id' => 'superbill', 'smallform' => 'true'), ($superbill ?? '')); ?>
         </div>
         <div class="col-md">
           <input type='checkbox' title='<?php echo xla("Syndromic Surveillance Report") ?>' name='reportable' value='1'<?php if (!empty($reportable)) {
@@ -575,7 +575,7 @@ if ($fend > $count) {
                 echo 'd-none'; } ?>"><?php echo xlt('CYP Factor'); ?>:</label>
           <div class="col-md <?php if (empty($GLOBALS['ippf_specific'])) {
                 echo 'd-none'; } ?>">
-            <input type='text' class='form-control form-control-sm' size='10' maxlength='20' name="cyp_factor" value='<?php echo attr($cyp_factor) ?>' />
+            <input type='text' class='form-control form-control-sm' size='10' maxlength='20' name="cyp_factor" value='<?php echo attr($cyp_factor ?? '') ?>' />
           </div>
           <label class="col-form-label col-form-label-sm col-md-1 <?php if (!related_codes_are_used()) {
                 echo "d-none"; } ?>"><?php echo xlt('Relate To'); ?>:</label>
@@ -617,8 +617,8 @@ if ($fend > $count) {
               <?php } ?>
       </div>
       <input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>" />
-      <input type="hidden" name="code_type_name_external" value="<?php echo attr($code_type_name_external) ?>" />
-      <input type="hidden" name="code_external" value="<?php echo attr($code_external) ?>" />
+      <input type="hidden" name="code_type_name_external" value="<?php echo attr($code_type_name_external ?? '') ?>" />
+      <input type="hidden" name="code_external" value="<?php echo attr($code_external ?? '') ?>" />
       <?php if ($thisauthwrite) { ?>
         <p class="text-center">
             <?php if ($mode == "modify") { ?>
@@ -669,7 +669,7 @@ if ($fend > $count) {
               </a>
               &nbsp;&nbsp;
           <?php } ?>
-          <?php echo text(($fstart + 1)) . " - " . text($fend) . " of  " . text($count); ?>
+          <?php echo text(($fstart + 1)) . " - " . text($fend) . " of  " . text($count ?? ''); ?>
           <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
               &gt;&gt;
           </a>

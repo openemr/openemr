@@ -824,8 +824,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     <?php echo text($formtitle);
                     if ($is_core) {
                         echo  " " . xlt('for') . ' ';
-                        echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
-                        echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'], 0, 10)));
+                        echo text($enrow['fname'] ?? '') . ' ' . text($enrow['mname'] ?? '') . ' ' . text($enrow['lname'] ?? '');
+                        echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'] ?? '', 0, 10)));
                     } ?>
                 </h3>
                 <?php
@@ -842,7 +842,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     echo "&nbsp;&nbsp;";
                     echo xlt('Provider') . ": ";
                 // TBD: Refactor this function out of the FeeSheetHTML class as that is not the best place for it.
-                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $form_provider_id);
+                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', ($form_provider_id ?? ''));
                 }
                 // If appropriate build a drop-down selector of issues of this type for this patient.
                 // We skip this if in an issue form tab because removing and adding visit form tabs is
@@ -868,7 +868,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 ?>
             </div>
 
-            <?php $cmsportal_login = $enrow['cmsportal_login'];
+            <?php $cmsportal_login = $enrow['cmsportal_login'] ?? '';
     } // end not from trend form
     ?>
 
@@ -948,7 +948,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     }
 
                     if ($currvalue === '') {
-                        $currvalue = lbf_current_value($frow, $formid, $is_lbf ? 0 : $encounter);
+                        $currvalue = lbf_current_value($frow, $formid, (!empty($is_lbf)) ? 0 : $encounter);
                     }
 
                     if ($currvalue === false) {

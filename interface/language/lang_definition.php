@@ -45,7 +45,7 @@ if (!$thisauth) {
     <div class="form-group">
         <label for="filterForConstants"><?php echo xlt('Filter for Constants'); ?>:</label>
         <input type='text' class="form-control" id="filterForConstants" name='filter_cons'
-               size='8' value='<?php echo attr($_POST['filter_cons']); ?>' />
+               size='8' value='<?php echo attr($_POST['filter_cons'] ?? ''); ?>' />
         <small class="form-text text-muted">
             <?php echo xlt('(% matches any string, _ matches any character)'); ?>
         </small>
@@ -54,7 +54,7 @@ if (!$thisauth) {
     <div class="form-group">
         <label for="filterForDefinitions"><?php echo xlt('Filter for Definitions'); ?>:</label>
         <input type='text' class="form-control" id="filterForDefinitions" name='filter_def'
-               size='8' value='<?php echo attr($_POST['filter_def']); ?>' />
+               size='8' value='<?php echo attr($_POST['filter_def'] ?? ''); ?>' />
         <small class="form-text text-muted">
             <?php echo xlt('(% matches any string, _ matches any character)'); ?>
         </small>
@@ -112,7 +112,7 @@ if (!$disable_utf8_flag) {
     $case_insensitive_collation = "COLLATE latin1_swedish_ci";
 }
 
-if ($_POST['load']) {
+if (!empty($_POST['load'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -177,7 +177,7 @@ if ($_POST['load']) {
     }
 }
 
-if ($_POST['edit']) {
+if (!empty($_POST['edit'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
