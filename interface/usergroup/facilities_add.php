@@ -239,12 +239,12 @@ function displayAlert() {
                         <div class="col">
                         <?php
                         $disabled = '';
-                        $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
+                        $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => ($my_fid ?? null)));
                         if (!empty($resPBE) && sizeof($resPBE) > 0) {
                             $disabled = 'disabled';
                         }
                         ?>
-                        <input type='checkbox' class='custom-control-input' name='primary_business_entity' id='primary_business_entity' value='1' <?php echo ($facility['primary_business_entity'] == 1) ? 'checked' : ''; ?>
+                        <input type='checkbox' class='custom-control-input' name='primary_business_entity' id='primary_business_entity' value='1' <?php echo (!empty($facility['primary_business_entity']) && ($facility['primary_business_entity'] == 1)) ? 'checked' : ''; ?>
                                         <?php if ($GLOBALS['erx_enable']) { ?>
                                             onchange='return displayAlert()'
                                         <?php } ?> <?php echo $disabled;?>>
@@ -322,7 +322,7 @@ function displayAlert() {
                     </div>
                     <div class="form-group">
                         <label for="oid"><?php echo xlt('OID'); ?>: </label>
-                        <input class="form-control" type="text" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>" />
+                        <input class="form-control" type="text" size="20" name="oid" value="<?php echo attr($facility["oid"] ?? '') ?>" />
                     </div>
 
                 </div>
@@ -330,27 +330,27 @@ function displayAlert() {
             <hr />
             <div class="form-group">
                 <label for="mail_stret"><?php echo xlt('Mailing Address'); ?>: </label>
-                <input class="form-control" type="text" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>" />
+                <input class="form-control" type="text" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"] ?? '') ?>" />
             </div>
             <div class="form-group">
                 <label for="mail_street2"><?php echo xlt('Dept'); ?>: </label>
-                <input class="form-control" type="text" size="20" name="mail_street2" value="<?php echo attr($facility["mail_street2"]) ?>" />
+                <input class="form-control" type="text" size="20" name="mail_street2" value="<?php echo attr($facility["mail_street2"] ?? '') ?>" />
             </div>
             <div class="form-group">
                 <label for="mail_city"><?php echo xlt('City'); ?>: </label>
-                <input class="form-control" type="text" size="20" name="mail_city" value="<?php echo attr($facility["mail_city"]) ?>" />
+                <input class="form-control" type="text" size="20" name="mail_city" value="<?php echo attr($facility["mail_city"] ?? '') ?>" />
             </div>
             <div class="form-group">
                 <label for="mail_state"><?php echo xlt('State'); ?>: </label>
-                <input class="form-control" type="text" size="20" name="mail_state" value="<?php echo attr($facility["mail_state"]) ?>" />
+                <input class="form-control" type="text" size="20" name="mail_state" value="<?php echo attr($facility["mail_state"] ?? '') ?>" />
             </div>
             <div class="form-group">
                 <label for="mail_zip"><?php echo xlt('Zip'); ?>: </label>
-                <input class="form-control" type="text" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>" />
+                <input class="form-control" type="text" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"] ?? '') ?>" />
             </div>
             <div class="form-group">
                 <label for="info"><?php echo xlt('Info'); ?>: </label>
-                <textarea class="form-control" size="20" name="info" ><?php echo attr($facility["info"]) ?></textarea>
+                <textarea class="form-control" size="20" name="info" ><?php echo attr($facility["info"] ?? '') ?></textarea>
             </div>
             <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
         </form>

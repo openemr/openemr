@@ -108,16 +108,16 @@ if ($start_date > $end_date) {
     $err_message = 1;
 }
 
-if ($_GET["form_patient"]) {
+if (!empty($_GET["form_patient"])) {
     $form_patient = $_GET['form_patient'];
 }
 
 ?>
 <?php
-$form_user = $_GET['form_user'];
-$form_pid = $_GET['form_pid'];
-if ($form_patient == '') {
-    $form_pid = '';
+$form_user = $_GET['form_user'] ?? null;
+$form_pid = $_GET['form_pid'] ?? null;
+if (empty($form_patient)) {
+    $form_pid = null;
 }
 
 ?>
@@ -126,7 +126,7 @@ if ($form_patient == '') {
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php
 
-$sortby = $_GET['sortby'];
+$sortby = $_GET['sortby'] ?? null;
 ?>
 <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>">
 <input type=hidden name=csum value="">
@@ -146,7 +146,7 @@ $sortby = $_GET['sortby'];
 &nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
 </td>
 <td>
-<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo ($form_patient) ? attr($form_patient) : '' ?>' placeholder= '<?php echo xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo (!empty($form_patient)) ? attr($form_patient) : '' ?>' placeholder= '<?php echo xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
 <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
 </td>
 </tr>
@@ -161,7 +161,7 @@ $check_sum = isset($_GET['check_sum']);
 <input type="checkbox" name="check_sum" <?php echo ($check_sum) ? "checked" : ""; ?>>
 </td>
 <td>
-<input type=hidden name="event" value=<?php echo attr($event) ; ?>>
+<input type=hidden name="event" value="<?php echo attr($event ?? '') ; ?>">
 <a href="javascript:document.theform.submit();" class='link_submit'>[<?php echo xlt('Refresh'); ?>]</a>
 </td>
 </tr>
@@ -187,8 +187,8 @@ $check_sum = isset($_GET['check_sum']);
  </tr>
     <?php
 
-    $eventname = $_GET['eventname'];
-    $type_event = $_GET['type_event'];
+    $eventname = $_GET['eventname'] ?? null;
+    $type_event = $_GET['type_event'] ?? null;
     ?>
 <input type="hidden" name="event" value="<?php echo attr($eventname) . "-" . attr($type_event) ?>">
     <?php
@@ -211,7 +211,7 @@ $check_sum = isset($_GET['check_sum']);
 
     $dispArr = array();
     $icnt = 1;
-    if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent))) {
+    if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => ($_GET['sortby'] ?? null), 'levent' => $gev, 'tevent' => $tevent))) {
         // Set up crypto object (object will increase performance since caches used keys)
         $cryptoGen = new CryptoGen();
 

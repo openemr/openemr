@@ -27,7 +27,7 @@ if (!$thisauth) {
     exit();
 }
 
-if ($_POST['add']) {
+if (!empty($_POST['add'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -46,7 +46,7 @@ if ($_POST['add']) {
         $err = 'y';
     }
 
-    if ($err == 'y') {
+    if (!empty($err) && ($err == 'y')) {
         $val_lang_code = $_POST['lang_code'];
         $val_lang_name = $_POST['lang_name'];
     } else {
@@ -68,12 +68,12 @@ if ($_POST['add']) {
     <!-- Language Code -->
     <div class="form-group">
         <label for="languageCode"><?php  echo xlt('Language Code'); ?>:</label>
-        <input type="text" class="form-control" id="languageCode" name="lang_code" size="2" maxlength="2" value="<?php echo attr($val_lang_code); ?>">
+        <input type="text" class="form-control" id="languageCode" name="lang_code" size="2" maxlength="2" value="<?php echo attr($val_lang_code ?? ''); ?>">
     </div>
     <!-- Language Name -->
     <div class="form-group">
         <label for="languageName"><?php  echo xlt('Language Name'); ?>:</label>
-        <input type="text" class="form-control" id="languageName" name="lang_name" size="24" value="<?php echo attr($val_lang_name); ?>">
+        <input type="text" class="form-control" id="languageName" name="lang_name" size="24" value="<?php echo attr($val_lang_name ?? ''); ?>">
     </div>
     <!-- Submit Button -->
     <div class="form-group">

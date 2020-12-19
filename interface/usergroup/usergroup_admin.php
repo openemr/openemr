@@ -67,7 +67,7 @@ $set_active_msg = 0;
 $show_message = 0;
 
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
-if (is_array($_POST['access_group'])) {
+if (!empty($_POST['access_group']) && is_array($_POST['access_group'])) {
     $bg_count = count($_POST['access_group']);
     $mail_id = explode(".", $SMTP_HOST);
     for ($i = 0; $i < $bg_count; $i++) {
@@ -192,10 +192,10 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             }
         }
 
-        $tqvar  = $_POST["authorized"] ? 1 : 0;
-        $actvar = $_POST["active"]     ? 1 : 0;
-        $calvar = $_POST["calendar"]   ? 1 : 0;
-        $portalvar = $_POST["portal_user"] ? 1 : 0;
+        $tqvar  = (!empty($_POST["authorized"])) ? 1 : 0;
+        $actvar = (!empty($_POST["active"]))     ? 1 : 0;
+        $calvar = (!empty($_POST["calendar"]))   ? 1 : 0;
+        $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
         sqlStatement("UPDATE users SET authorized = ?, active = ?, " .
         "calendar = ?, portal_user = ?, see_auth = ? WHERE " .
@@ -263,12 +263,12 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
 /* To refresh and save variables in mail frame  - Arb*/
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "new_user") {
-        if ($_POST["authorized"] != "1") {
+        if (empty($_POST["authorized"]) || $_POST["authorized"] != "1") {
             $_POST["authorized"] = 0;
         }
 
-        $calvar = $_POST["calendar"] ? 1 : 0;
-        $portalvar = $_POST["portal_user"] ? 1 : 0;
+        $calvar = (!empty($_POST["calendar"])) ? 1 : 0;
+        $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
         $res = sqlStatement("select distinct username from users where username != ''");
         $doit = true;
@@ -319,8 +319,9 @@ if (isset($_POST["mode"])) {
                 $insertUserSQL,
                 trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
             );
-            error_log(errorLogEscape($authUtilsNewPassword->getErrorMessage()));
-            $alertmsg .= $authUtilsNewPassword->getErrorMessage();
+            if (!empty($authUtilsNewPassword->getErrorMessage())) {
+                $alertmsg .= $authUtilsNewPassword->getErrorMessage();
+            }
             if ($success) {
                 //set the facility name from the selected facility_id
                 sqlStatement(
@@ -565,7 +566,7 @@ function authorized_clicked() {
                                 $isMfa = xl('no');
                             }
 
-                            if ($checkPassExp) {
+                            if ($checkPassExp && !empty($iter["active"])) {
                                 $current_date = date("Y-m-d");
                                 $userSecure = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE `id` = ?", [$iter['id']]);
                                 $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . $GLOBALS['password_expiration_days'] . " days"));
@@ -581,7 +582,7 @@ function authorized_clicked() {
                                 <td align='left'><span>" . text($isMfa) . "</td>";
                             if ($checkPassExp) {
                                 echo '<td>';
-                                if (AuthUtils::useActiveDirectory($iter["username"])) {
+                                if (AuthUtils::useActiveDirectory($iter["username"]) || empty($iter["active"])) {
                                     // LDAP bypasses expired password mechanism
                                     echo '<div class="alert alert-success" role="alert">' . xlt('Not Applicable') . '</div>';
                                 } elseif (strtotime($current_date) > strtotime($grace_time)) {

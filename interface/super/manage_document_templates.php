@@ -28,7 +28,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 // Set up crypto object
 $cryptoGen = new CryptoGen();
 
-$form_filename = convert_safe_file_dir_name($_REQUEST['form_filename']);
+$form_filename = convert_safe_file_dir_name($_REQUEST['form_filename'] ?? '');
 
 $templatedir = "$OE_SITE_DIR/documents/doctemplates";
 
