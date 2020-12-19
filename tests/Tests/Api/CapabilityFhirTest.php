@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\Api;
 
+use OpenEMR\FHIR\SMART\Capability;
 use OpenEMR\RestControllers\AuthorizationController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 use PHPUnit\Framework\TestCase;
@@ -129,7 +130,7 @@ class CapabilityFhirTest extends TestCase
         }
 
         // the capabilities the server currently has
-        $expectedCapabilities = FhirMetaDataRestController::SMART_CAPABILITIES;
+        $expectedCapabilities = Capability::SUPPORTED_CAPABILITIES;
         $missing_capabilities = array_diff($expectedCapabilities, $enabledCapabilities);
         $this->assertEquals([], $missing_capabilities, "Capabilities statement is missing expected SMART extensions of " . implode(",", $missing_capabilities));
     }

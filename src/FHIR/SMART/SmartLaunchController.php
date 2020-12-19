@@ -19,7 +19,6 @@ require_once(__DIR__ . '/../../../_rest_config.php');
  */
 class SmartLaunchController
 {
-
     /**
      * @var EventDispatcher
      */
@@ -41,7 +40,8 @@ class SmartLaunchController
         // TODO: adunsulag we would filter the clients based on their smart capability & scopes they could send...
         $pid = $event->getPid();
         $patientService = new PatientService();
-        $puuid = $patientService->getUuid($pid);
+        // going to work with string uuids
+        $puuid = UuidRegistry::uuidToString($patientService->getUuid($pid));
         ?>
         <section>
             <?php
@@ -85,21 +85,46 @@ class SmartLaunchController
             ?>
             <div>
                 <ul>
-                    <li>
                         <?php if (empty($smartClients)) : ?>
-                        <p><?php echo xlt("No registered SMART apps in the system"); ?></p>
+                            <li><p><?php echo xlt("No registered SMART apps in the system"); ?></p></li>
                         <?php endif; ?>
                         <?php foreach ($smartClients as $client) : ?>
-                            <?php echo $client->getName(); ?>
-                            <a href="<?php echo $client->getRedirectUri() . $launchParams; ?>">Launch</a>
+                            <li class="summary_item">
+                                <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="<?php echo $client->getName(); ?>"
+                                        data-smart-redirect-url="<?php echo $client->getRedirectUri() . $launchParams; ?>">
+                                    Launch
+                                </button>
+                                <?php echo $client->getName(); ?>
+                            </li>
                         <?php endforeach; ?>
-                    </li>
                 </ul>
             </div>
         </section>
         <?php
-    }
+        // it's too bad we don't have a centralized page renderer we could tie this into and render javascript at the
+        // end of our footer pages on everything...
+        ?>
+        <script>
+            (function(window) {
+                let smartLaunchers = document.querySelectorAll('.smart-launch-btn');
+                for (let launch of smartLaunchers) {
+                    let url =
+                        launch.addEventListener('click', function(evt) {
+                            let node = evt.target;
+                            let url = node.dataset.smartRedirectUrl;
+                            if (!url) {
+                                return;
+                            }
+                            let title = node.dataset.smartTitle || "<?php echo xlt("Smart App"); ?>";
+                            // we allow external dialog's  here because that is what a SMART app is
+                            dlgopen(url, '_blank', 950, 650, '', title, {allowExternal: true});
+                        });
+                }
+            })(window);
 
+        </script>
+        <?php
+    }
     /**
      * Retrieves the registered ClientEntities that are SMART only clients.
      * @return \OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity[]
@@ -121,17 +146,10 @@ class SmartLaunchController
         return $smartList;
     }
 
-    // TODO: adunsulag look at moving this to AuthorizationController or a better spot where we can serialize /
-    // deserialize the launch code
     private function getLaunchCodeContext($patientUUID, $encounterId = null)
     {
-        // no security is really needed here... just need to be able to wrap
-        // the current context into some kind of opaque id that the app will pass to the server and we can then
-        // return to system
-        // TODO: adunsulag do we want a nonce here? don't think it will matter as user has to pass through oauth2 grant
-        // in order to get back the launch code.
-        $launchCode = ['p' => UuidRegistry::uuidToString($patientUUID), 'e' => $encounterId];
-        $launchCode = base64_encode(json_encode($launchCode));
-        return $launchCode;
+        $token = new SMARTLaunchToken($patientUUID, $encounterId);
+        $token->setIntent(SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG);
+        return $token->serialize();
     }
 }

@@ -91,7 +91,10 @@ class RestControllerHelper
                 $dataResult = (count($dataResult) === 0) ? [] : $dataResult[0];
             }
 
-            $httpResponseBody["data"] = $dataResult;
+            // TODO: adunsulag this is a temporary fix to get the FHIR api working, remove this once sjpadgett/others
+            // have provided the correct approach.
+            $httpResponseBody = $dataResult;
+//            $httpResponseBody["data"] = $dataResult;
         }
 
         return $httpResponseBody;

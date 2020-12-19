@@ -14,6 +14,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSecurity;
+use OpenEMR\FHIR\SMART\Capability;
 use OpenEMR\RestControllers\AuthorizationController;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirPatientService;
@@ -259,7 +260,7 @@ class FhirMetaDataRestController
         $statement->addExtension($oauthExtension);
 
         // now add our SMART capabilities
-        foreach (self::SMART_CAPABILITIES as $smartCapability) {
+        foreach (Capability::SUPPORTED_CAPABILITIES as $smartCapability) {
             $extension = new FHIRExtension();
             $extension->setUrl("http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities");
             $extension->setValueCode($smartCapability);
