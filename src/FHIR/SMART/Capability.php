@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenEMR\FHIR\SMART;
-
 
 class Capability
 {

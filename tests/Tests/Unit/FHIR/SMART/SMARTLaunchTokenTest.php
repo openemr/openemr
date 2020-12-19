@@ -1,21 +1,20 @@
 <?php
 
-
 namespace OpenEMR\Tests\Unit\FHIR\SMART;
-
 
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
 use PHPUnit\Framework\TestCase;
 
 class SMARTLaunchTokenTest extends TestCase
 {
-    public function testConstructor() {
+    public function testConstructor()
+    {
         $patientUUID = "555-555-5555";
         $encounterID = "777-777-7777";
         $token = new SMARTLaunchToken($patientUUID, $encounterID);
 
-        $this->assertEquals( $patientUUID, $token->getPatient(), "Patient id should have been set in constructor");
-        $this->assertEquals( $encounterID, $token->getEncounter(),"Encounter id should have been set in constructor");
+        $this->assertEquals($patientUUID, $token->getPatient(), "Patient id should have been set in constructor");
+        $this->assertEquals($encounterID, $token->getEncounter(), "Encounter id should have been set in constructor");
         $this->assertEquals(null, $token->getIntent(), "Other parameters should not be initialized in constructor");
 
         $token = new SMARTLaunchToken();
@@ -23,7 +22,7 @@ class SMARTLaunchTokenTest extends TestCase
         $this->assertEquals(null, $token->getEncounter(), "Encounter id on empty constructor should be null");
 
         $token = new SMARTLaunchToken($patientUUID);
-        $this->assertEquals($patientUUID, $token->getPatient(),"Patient id should be set");
+        $this->assertEquals($patientUUID, $token->getPatient(), "Patient id should be set");
         $this->assertEquals(null, $token->getEncounter(), "Encounter id on empty initialization should be null");
 
         $token = new SMARTLaunchToken(null, $encounterID);

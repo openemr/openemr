@@ -68,16 +68,14 @@ class IdTokenSMARTResponse extends IdTokenResponse
 
                     // we assume that if a patient is provided we are already displaying the patient
                     // we may in the future need to adjust the need_patient_banner depending on the 'intent' chosen.
-                    if (!empty($launchToken->getPatient()))
-                    {
+                    if (!empty($launchToken->getPatient())) {
                         $extraParams['patient'] = $launchToken->getPatient();
                         $extraParams['need_patient_banner'] = false;
                     }
                     if (!empty($launchToken->getEncounter())) {
                         $extraParams['encounter'] = $launchToken->getEncounter();
                     }
-                    if (!empty($launchToken->getIntent()))
-                    {
+                    if (!empty($launchToken->getIntent())) {
                         $extraParams['intent'] = $launchToken->getIntent();
                     }
                     $extraParams['smart_style_url'] = $this->getSmartStyleURL();
@@ -99,7 +97,8 @@ class IdTokenSMARTResponse extends IdTokenResponse
      * can just use defaults without getting trying to load up based upon which skin we have, or using node &
      * gulp to auto generate a skin.
      */
-    private function getSmartStyleURL() {
+    private function getSmartStyleURL()
+    {
         return $GLOBALS['site_addr_oath'] . "/public/smart-styles/smart-light.json";
     }
 

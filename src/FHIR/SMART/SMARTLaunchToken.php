@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenEMR\FHIR\SMART;
-
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 
@@ -15,7 +13,7 @@ class SMARTLaunchToken
     private $intent;
     private $encounter;
 
-    public function __construct($patientUUID=null, $encounterUUID=null)
+    public function __construct($patientUUID = null, $encounterUUID = null)
     {
         if (isset($patientUUID) && !is_string($patientUUID)) {
             throw new \InvalidArgumentException("patientUUID must be a string");
@@ -100,7 +98,8 @@ class SMARTLaunchToken
         return $serialized;
     }
 
-    public static function deserializeToken($serialized) {
+    public static function deserializeToken($serialized)
+    {
         $token = new self();
         $token->deserialize($serialized);
         return $token;
@@ -126,5 +125,4 @@ class SMARTLaunchToken
     {
         return array_search($intent, self::VALID_INTENTS) !== false;
     }
-
 }
