@@ -12,7 +12,7 @@
 
 namespace OpenEMR\RestControllers;
 
-class RestControllerHelper extends \RestConfig
+class RestControllerHelper
 {
     /**
      * Configures the HTTP status code and payload returned within a response.
@@ -65,7 +65,7 @@ class RestControllerHelper extends \RestConfig
      */
     public static function handleProcessingResult($processingResult, $successStatusCode, $isMultipleResultResponse = false)
     {
-        $fhirApi = self::is_fhir_request(self::getRequestEndPoint());
+        $fhirApi = $_SESSION['api'] === 'fhir';
         $httpResponseBody = [
             "validationErrors" => [],
             "internalErrors" => [],
