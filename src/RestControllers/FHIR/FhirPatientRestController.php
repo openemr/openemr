@@ -50,7 +50,7 @@ class FhirPatientRestController
         }
 
         $processingResult = $this->fhirPatientService->insert($fhirJson);
-        return RestControllerHelper::handleProcessingResult($processingResult, 201);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
     }
 
     /**
@@ -67,7 +67,7 @@ class FhirPatientRestController
         }
 
         $processingResult = $this->fhirPatientService->update($fhirId, $fhirJson);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**
@@ -78,7 +78,7 @@ class FhirPatientRestController
     public function getOne($fhirId)
     {
         $processingResult = $this->fhirPatientService->getOne($fhirId, true);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**

@@ -23,6 +23,7 @@ use OpenEMR\Core\Header;
 <head>
     <title><?php echo xlt("OpenEMR Authorization"); ?></title>
     <?php Header::setupHeader(); ?>
+    <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/u2f-api.js"></script>
 </head>
 <body class="container-fluid bg-dark">
     <div class="row h-100 w-100 justify-content-center align-items-center">
@@ -41,40 +42,43 @@ use OpenEMR\Core\Header;
                 <div class="row w-100">
                     <div class="col-sm-6">
                         <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title"><?php echo xlt("Scopes"); ?><hr /></h5>
-                                <?php if (!empty($authorize)) {
-                                    $scopes = explode(' ', $_SESSION['scopes']);
-                                    foreach ($scopes as $key) {
-                                        echo "<p class='col-text'><b>" . text($key) . "</b>  " . "</p>";
-                                    }
+                            <div class="card-body pt-1">
+                                <h5 class="card-title text-sm-center"><?php echo xlt("Scopes"); ?><hr /></h5>
+                                <ul class="pl-2 mt-1">
+                                <?php {
+                                $scopes = explode(' ', $_SESSION['scopes']);
+                                foreach ($scopes as $key) {
+                                    echo "<li class='col-text'><strong>" . text($key) . "</strong>  " . "</li>";
+                                }
                                 } ?>
+                                </ul>
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title"><?php echo xlt("Claims"); ?><hr /></h5>
-                                <?php if (!empty($authorize)) {
-                                    foreach ($_SESSION['claims'] as $key => $value) {
-                                        $key_n = explode('_', $key);
-                                        if (stripos($_SESSION['scopes'], $key_n[0]) === false) {
-                                            continue;
-                                        }
-                                        if ((int)$value === 1) {
-                                            $value = 'True';
-                                        }
-                                        $key = ucwords(str_replace("_", " ", $key));
-                                        echo "<p class='col-text'><b>" . text($key) . ":</b>  " . text($value) . "</p>";
+                            <div class="card-body pt-1">
+                                <h5 class="card-title text-sm-center"><?php echo xlt("Claims"); ?><hr /></h5>
+                                <ul class="pl-2 mt-1">
+                                <?php {
+                                foreach ($_SESSION['claims'] as $key => $value) {
+                                    $key_n = explode('_', $key);
+                                    if (stripos($_SESSION['scopes'], $key_n[0]) === false) {
+                                        continue;
                                     }
+                                    if ((int)$value === 1) {
+                                        $value = 'True';
+                                    }
+                                    $key = ucwords(str_replace("_", " ", $key));
+                                    echo "<li class='col-text'><strong>" . text($key) . ":</strong>  " . text($value) . "</li>";
+                                }
                                 } ?>
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
             <?php } ?>
-            <hr />
             <form method="post" name="userLogin" id="userLogin" action="<?php echo $redirect ?>">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('oauth2')); ?>" />
                 <?php if (empty($authorize) && !$mfaRequired) { ?>
@@ -126,7 +130,7 @@ use OpenEMR\Core\Header;
                     </div>
                     <input class="form-control" type="hidden" name="mfa_type" value="TOTP">
                 <?php } ?>
-
+                <hr />
                 <div class="row">
                     <div class="col-md-12">
                         <?php if (!empty($authorize)) { ?>
@@ -152,7 +156,6 @@ use OpenEMR\Core\Header;
     </div>
 </body>
 
-<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/u2f-api.js"></script>
 <script>
     function doAuth() {
         var f = document.getElementById("userLogin");
