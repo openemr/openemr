@@ -182,8 +182,13 @@ class AuthHash
     //  to provide the execution timing debugging feature to allow
     //  tuning of the hashing (can turn the debugging feature on
     //  at Administration->Globals->Security->Debug Hash Verification Time).
-    public static function passwordVerify(&$password, $hash)
+    public static function passwordVerify(&$password, $hash): bool
     {
+        if (empty($password) || empty($hash)) {
+            error_log("OpenEMR Error: call to passwordVerify is missing password or hash");
+            return false;
+        }
+
         if ($GLOBALS['gbl_debug_hash_verify_execution_time']) {
             // Reporting collection time to allow fine tuning of hashing algorithm
             $millisecondsStart = round(microtime(true) * 1000);
@@ -195,14 +200,21 @@ class AuthHash
         } else {
             // Process algos supported by standard password_verify
             $valid = password_verify($password, $hash);
+
             if (!$valid) {
                 // Ensure do not need to process legacy hash (pre 5.0.0), which will get converted to standard hash
-                //  after a successful auth. The legacy hash has a malformed salt/hash combination which needs to
-                //  be adjusted and then run via crypt.
+                //  after a successful auth. This legacy hash was created with a salt of 21 characters rather than the standard
+                //  22 characters. Because of this, it does not work with above password_verify. Need to derive the salt
+                //  from the hash (up to the period character 29 in the hash). Note that this will not work on some
+                //  operating systems (for example, alpine linux crypt will return an error * instead of the hash because the
+                //  salt is not the correct length).
+                //
+                //  TODO: Consider removing this at some time in the near future since it overcomplicates authorization.
+                //
                 if (!empty(preg_match('/^\$2a\$05\$/', $hash)) && (substr($hash, 28, 1) === '.')) {
                     $fixedSalt = substr($hash, 0, 28) . "$";
                     if (strlen($fixedSalt) !== 29) {
-                        $valid = false;
+                        return false;
                     } else {
                         $valid = hash_equals($hash, crypt($password, $fixedSalt));
                     }
