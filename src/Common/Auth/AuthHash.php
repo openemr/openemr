@@ -192,11 +192,7 @@ class AuthHash
         if (!empty(preg_match('/^\$6\$rounds=/', $hash))) {
             // Process SHA512HASH algo separately, since uses crypt
             $valid = hash_equals($hash, crypt($password, $hash));
-        } else if (preg_match('/^\$2a\$05\$/', $hash)) {
-            $salt = explode("$", $hash);
-
-            $valid = hash_equals($hash, crypt($password, $salt));
-        } else {
+        }  else {
             // Process algos supported by standard password_verify
             $valid = password_verify($password, $hash);
             if (!$valid) {
