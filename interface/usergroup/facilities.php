@@ -29,7 +29,7 @@ $facilityService = new FacilityService();
 $alertmsg = '';
 
 /*      Inserting New facility                  */
-if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] != "admin_facility") {
+if (isset($_POST["mode"]) && ($_POST["mode"] == "facility") && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
     $newFacility = array(
         "name" => trim(isset($_POST["facility"]) ? $_POST["facility"] : ''),
         "phone" => trim(isset($_POST["phone"]) ? $_POST["phone"] : ''),

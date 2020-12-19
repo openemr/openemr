@@ -97,7 +97,7 @@ function get_related() {
 <body class="body_top">
 
 <?php
-if ($_POST['form_submit'] && !$alertmsg) {
+if (!empty($_POST['form_submit']) && !$alertmsg) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }

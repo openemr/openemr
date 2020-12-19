@@ -16,17 +16,17 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-if ($_GET['method'] == "enable") {
+if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
     updateRegistered($_GET['id'], "state=1");
-} elseif ($_GET['method'] == "disable") {
+} elseif (!empty($_GET['method']) && ($_GET['method'] == "disable")) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
     updateRegistered($_GET['id'], "state=0");
-} elseif ($_GET['method'] == "install_db") {
+} elseif (!empty($_GET['method']) && ($_GET['method'] == "install_db")) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -36,7 +36,7 @@ if ($_GET['method'] == "enable") {
     } else {
         $err = xl('ERROR: could not open table.sql, broken form?');
     }
-} elseif ($_GET['method'] == "register") {
+} elseif (!empty($_GET['method']) && ($_GET['method'] == "register")) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -84,7 +84,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
             ?>
 
             <?php //ERROR REPORTING
-            if ($err) {
+            if (!empty($err)) {
                 echo "<span class='font-weight-bold text-danger'>" . text($err) . "</span>\n";
             }
             ?>

@@ -165,7 +165,7 @@ function genGroupId($parent)
         "SELECT grp_group_id " .
         "FROM layout_group_properties WHERE " .
         "grp_form_id = ? AND grp_group_id LIKE ?",
-        array($layout_id, "$parent_%")
+        array($layout_id, ($parent ?? '') . "_%")
     );
     $maxnum = '1';
     while ($result = sqlFetchArray($results)) {
@@ -345,7 +345,7 @@ $lbfonly = substr($layout_id, 0, 3) == 'LBF' ? "" : "style='display:none;'";
 
 // Handle the Form actions
 
-if ($_POST['formaction'] == "save" && $layout_id) {
+if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -400,7 +400,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "data_type= '" . add_escape_custom($data_type) . "', "                                .
                 "list_id= '"        . add_escape_custom($listval)   . "', " .
                 "list_backup_id= '"        . add_escape_custom(trim($iter['list_backup_id']))   . "', " .
-                "edit_options = '"  . add_escape_custom(encodeModifier($iter['edit_options'])) . "', " .
+                "edit_options = '"  . add_escape_custom(encodeModifier($iter['edit_options'] ?? null)) . "', " .
                 "default_value = '" . add_escape_custom(trim($iter['default']))   . "', " .
                 "description = '"   . add_escape_custom(trim($iter['desc']))      . "', " .
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
@@ -408,7 +408,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
         }
     }
-} elseif ($_POST['formaction'] == "addfield" && $layout_id) {
+} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addfield") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -434,7 +434,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . add_escape_custom(trim($_POST['newtitlecols'])) . "'" .
       ",'" . add_escape_custom(trim($_POST['newdatacols'])) . "'" .
       ",'" . add_escape_custom($data_type) . "'"                                  .
-        ",'" . add_escape_custom(encodeModifier($_POST['newedit_options'])) . "'" .
+        ",'" . add_escape_custom(encodeModifier($_POST['newedit_options'] ?? null)) . "'" .
       ",'" . add_escape_custom(trim($_POST['newdefault'])) . "'" .
       ",'" . add_escape_custom(trim($_POST['newdesc'])) . "'" .
       ",'"    . add_escape_custom(trim($_POST['newmaxSize']))    . "'"  .
@@ -442,7 +442,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . add_escape_custom(trim($_POST['newbackuplistid'])) . "'" .
       " )");
     addOrDeleteColumn($layout_id, trim($_POST['newid']), true);
-} elseif ($_POST['formaction'] == "movefields" && $layout_id) {
+} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movefields") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -462,7 +462,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     $sqlstmt .= ")";
     //echo $sqlstmt;
     sqlStatement($sqlstmt);
-} elseif ($_POST['formaction'] == "deletefields" && $layout_id) {
+} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "deletefields") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -482,7 +482,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
         addOrDeleteColumn($layout_id, $onefield, false);
     }
-} elseif ($_POST['formaction'] == "addgroup" && $layout_id) {
+} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addgroup") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -519,7 +519,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . add_escape_custom(trim($_POST['gnewtitlecols'])) . "'" .
       ",'" . add_escape_custom(trim($_POST['gnewdatacols'])) . "'" .
       ",'" . add_escape_custom($data_type) . "'"                                   .
-        ",'" . add_escape_custom(encodeModifier($_POST['gnewedit_options'])) . "'" .
+        ",'" . add_escape_custom(encodeModifier($_POST['gnewedit_options'] ?? null)) . "'" .
       ",'" . add_escape_custom(trim($_POST['gnewdefault'])) . "'" .
       ",'" . add_escape_custom(trim($_POST['gnewdesc'])) . "'" .
       ",'"    . add_escape_custom(trim($_POST['gnewmaxSize']))    . "'"                                  .
@@ -549,7 +549,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     );
     }
      **********************************************************************/
-} elseif ($_POST['formaction'] == "movegroup" && $layout_id) {
+} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movegroup") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -577,7 +577,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         }
         $id1 = $id2;
     }
-} elseif ($_POST['formaction'] == "renamegroup" && $layout_id) { // Renaming a group. This might include moving to a
+} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "renamegroup") && $layout_id) { // Renaming a group. This might include moving to a
     // different parent group.
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -1429,89 +1429,91 @@ while ($grow = sqlFetchArray($gres)) {
 $prevgroup = "!@#asdf1234"; // an unlikely group ID
 $firstgroup = true; // flag indicates it's the first group to be displayed
 
-while ($row = sqlFetchArray($res)) {
-    $group_id = $row['group_id'];
-    if ($group_id != $prevgroup) {
-        if ($firstgroup == false) {
-            echo "</tbody></table></div>\n";
-            echo "<div id='" . attr($group_id) . "' class='group'>";
-        } else { // making first group flag useful for maintaining top fixed nav bar.
-            echo "<div id='" . attr($group_id) . "' class='group' style='padding-top:40px'>";
-        }
-        echo "<div class='text font-weight-bold layouts_title p-2 bg-light' style='position:relative;'>";
-
-        // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
-        $gdispname = '';
-        for ($i = 1; $i <= strlen($group_id); ++$i) {
-            if ($gdispname) {
-                $gdispname .= ' / ';
+if (!empty($res)) {
+    while ($row = sqlFetchArray($res)) {
+        $group_id = $row['group_id'];
+        if ($group_id != $prevgroup) {
+            if ($firstgroup == false) {
+                echo "</tbody></table></div>\n";
+                echo "<div id='" . attr($group_id) . "' class='group'>";
+            } else { // making first group flag useful for maintaining top fixed nav bar.
+                echo "<div id='" . attr($group_id) . "' class='group' style='padding-top:40px'>";
             }
-            $gdispname .= $grparr[substr($group_id, 0, $i)]['grp_title'];
-        }
-        $gmyname = $grparr[$group_id]['grp_title'];
+            echo "<div class='text font-weight-bold layouts_title p-2 bg-light' style='position:relative;'>";
 
-        echo text($gdispname);
+            // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
+            $gdispname = '';
+            for ($i = 1; $i <= strlen($group_id); ++$i) {
+                if ($gdispname) {
+                    $gdispname .= ' / ';
+                }
+                $gdispname .= $grparr[substr($group_id, 0, $i)]['grp_title'];
+            }
+            $gmyname = $grparr[$group_id]['grp_title'];
 
-        // if not english and set to translate layout labels, then show the translation of group name
-        if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-            echo "<span class='translation'&gt;&gt;&gt;&nbsp; " . xlt($gdispname) . "</span>";
+            echo text($gdispname);
+
+            // if not english and set to translate layout labels, then show the translation of group name
+            if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+                echo "<span class='translation'&gt;&gt;&gt;&nbsp; " . xlt($gdispname) . "</span>";
+                echo "&nbsp; ";
+            }
+
             echo "&nbsp; ";
-        }
+            echo " <input type='button' class='btn btn-primary btn-sm addfield' id='addto~" . attr($group_id) . "' value='" . xla('Add Field') . "'/>";
+            echo "&nbsp; &nbsp; ";
+            echo " <input type='button' class='btn btn-secondary btn-sm renamegroup' id='" . attr($group_id) . "~" . attr($gmyname) . "' value='" . xla('Rename Group') . "'/>";
+            /******************************************************************
+            echo "&nbsp; &nbsp; ";
+            echo " <input type='button' class='deletegroup' id='" . attr($group_id) . "' value='" . xla('Delete Group') . "'/>";
+            ******************************************************************/
+            echo "&nbsp; &nbsp; ";
+            echo " <input type='button' class='btn btn-secondary btn-sm movegroup' id='" . attr($group_id) . "~up' value='" . xla('Move Up') . "'/>";
+            echo "&nbsp; &nbsp; ";
+            echo " <input type='button' class='btn btn-secondary btn-sm movegroup' id='" . attr($group_id) . "~down' value='" . xla('Move Down') . "'/>";
+            echo "&nbsp; &nbsp; ";
+            echo "<input type='button' class='btn btn-secondary btn-sm' value='" . xla('Group Properties') . "' onclick='edit_layout_props(" . attr_js($group_id) . ")' />";
+            echo "</div>";
+            $firstgroup = false;
+            ?>
+      <div class="table-responsive">
+      <table class='table table-sm table-striped'>
+      <thead>
+       <tr class='head'>
+        <th><?php echo xlt('Order{{Sequence}}'); ?></th>
+        <th <?php echo " $lbfonly"; ?>><?php echo xlt('Source'); ?></th>
+        <th><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
+        <th><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
+            <?php // if not english and showing layout label translations, then show translation header for title
+            if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+                echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
+            } ?>
+          <th><?php echo xlt('UOR'); ?></th>
+          <th><?php echo xlt('Data Type'); ?></th>
+          <th><?php echo xlt('Size'); ?></th>
+          <th><?php echo xlt('Max Size'); ?></th>
+          <th><?php echo xlt('List'); ?></th>
+          <th><?php echo xlt('Backup List'); ?></th>
+          <th ><?php echo xlt('Label Cols'); ?></th>
+          <th><?php echo xlt('Data Cols'); ?></th>
+          <th><?php echo xlt('Options'); ?></th>
+          <th><?php echo xlt('Description'); ?></th>
+            <?php // if not english and showing layout label translations, then show translation header for description
+            if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+                echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
+            } ?>
+          <th style='width:1%'><?php echo xlt('?'); ?></th>
+       </tr>
+      </thead>
+      <tbody>
 
-        echo "&nbsp; ";
-        echo " <input type='button' class='btn btn-primary btn-sm addfield' id='addto~" . attr($group_id) . "' value='" . xla('Add Field') . "'/>";
-        echo "&nbsp; &nbsp; ";
-        echo " <input type='button' class='btn btn-secondary btn-sm renamegroup' id='" . attr($group_id) . "~" . attr($gmyname) . "' value='" . xla('Rename Group') . "'/>";
-        /******************************************************************
-        echo "&nbsp; &nbsp; ";
-        echo " <input type='button' class='deletegroup' id='" . attr($group_id) . "' value='" . xla('Delete Group') . "'/>";
-        ******************************************************************/
-        echo "&nbsp; &nbsp; ";
-        echo " <input type='button' class='btn btn-secondary btn-sm movegroup' id='" . attr($group_id) . "~up' value='" . xla('Move Up') . "'/>";
-        echo "&nbsp; &nbsp; ";
-        echo " <input type='button' class='btn btn-secondary btn-sm movegroup' id='" . attr($group_id) . "~down' value='" . xla('Move Down') . "'/>";
-        echo "&nbsp; &nbsp; ";
-        echo "<input type='button' class='btn btn-secondary btn-sm' value='" . xla('Group Properties') . "' onclick='edit_layout_props(" . attr_js($group_id) . ")' />";
-        echo "</div>";
-        $firstgroup = false;
-        ?>
-  <div class="table-responsive">
-  <table class='table table-sm table-striped'>
-  <thead>
-   <tr class='head'>
-    <th><?php echo xlt('Order{{Sequence}}'); ?></th>
-    <th <?php echo " $lbfonly"; ?>><?php echo xlt('Source'); ?></th>
-    <th><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
-    <th><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
-        <?php // if not english and showing layout label translations, then show translation header for title
-        if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-            echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
-        } ?>
-      <th><?php echo xlt('UOR'); ?></th>
-      <th><?php echo xlt('Data Type'); ?></th>
-      <th><?php echo xlt('Size'); ?></th>
-      <th><?php echo xlt('Max Size'); ?></th>
-      <th><?php echo xlt('List'); ?></th>
-      <th><?php echo xlt('Backup List'); ?></th>
-      <th ><?php echo xlt('Label Cols'); ?></th>
-      <th><?php echo xlt('Data Cols'); ?></th>
-      <th><?php echo xlt('Options'); ?></th>
-      <th><?php echo xlt('Description'); ?></th>
-        <?php // if not english and showing layout label translations, then show translation header for description
-        if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-            echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
-        } ?>
-      <th style='width:1%'><?php echo xlt('?'); ?></th>
-   </tr>
-  </thead>
-  <tbody>
+            <?php
+        } // end if-group_name
 
-        <?php
-    } // end if-group_name
-
-    writeFieldLine($row);
-    $prevgroup = $group_id;
-} // end while loop
+        writeFieldLine($row);
+        $prevgroup = $group_id;
+    } // end while loop
+}
 
 ?>
 </tbody>
