@@ -82,10 +82,10 @@ use OpenEMR\Core\Header;
                         <input class="form-control" placeholder="<?php echo xla("Email if required"); ?>" type="email" name="email">
                     </div>
                     <div class="form-group"><!-- TODO: remove test values -->
-                        <input class="form-control" placeholder="<?php echo xla("Registered username"); ?>" type="text" name="username" value="admin">
+                        <input class="form-control" placeholder="<?php echo xla("Registered username"); ?>" type="text" name="username" value="">
                     </div>
                     <div class="form-group">
-                        <input class="form-control" placeholder="******" type="password" name="password" value="pass">
+                        <input class="form-control" placeholder="******" type="password" name="password" value="">
                     </div>
                 <?php } ?>
 
