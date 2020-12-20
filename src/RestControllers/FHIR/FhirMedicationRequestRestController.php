@@ -36,7 +36,7 @@ class FhirMedicationRequestRestController
     public function getOne($fhirId)
     {
         $processingResult = $this->fhirMedicationService->getOne($fhirId);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**
