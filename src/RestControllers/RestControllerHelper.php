@@ -118,7 +118,9 @@ class RestControllerHelper
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
         } else {
             http_response_code($successStatusCode);
-            $httpResponseBody = $processingResult->getData();
+            $dataResult = $processingResult->getData();
+
+            $httpResponseBody = $dataResult[0];
         }
 
         return $httpResponseBody;
