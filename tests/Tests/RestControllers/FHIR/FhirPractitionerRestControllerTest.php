@@ -44,9 +44,7 @@ class FhirPractitionerRestControllerTest extends TestCase
     {
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
         $this->assertEquals(201, http_response_code());
-        $this->assertEquals(0, count($actualResult['validationErrors']));
-        $this->assertEquals(0, count($actualResult['internalErrors']));
-        $this->assertEquals(2, count($actualResult['data']));
+        $this->assertNotEmpty($actualResult['uuid']);
     }
 
     /**
@@ -59,8 +57,6 @@ class FhirPractitionerRestControllerTest extends TestCase
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
         $this->assertEquals(400, http_response_code());
         $this->assertGreaterThan(0, count($actualResult['validationErrors']));
-        $this->assertEquals(0, count($actualResult['internalErrors']));
-        $this->assertEmpty($actualResult['data']);
     }
 
     /**
@@ -69,15 +65,13 @@ class FhirPractitionerRestControllerTest extends TestCase
     public function testPatch()
     {
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
-        $fhirId = $actualResult['data']['uuid'];
+        $fhirId = $actualResult['uuid'];
 
         $this->fhirFixture['name'][0]['family'] = 'Smithers';
         $actualResult = $this->fhirPractitionerController->patch($fhirId, $this->fhirFixture);
 
         $this->assertEquals(200, http_response_code());
-        $this->assertEquals(0, count($actualResult['validationErrors']));
-        $this->assertEquals(0, count($actualResult['internalErrors']));
-        $this->assertEquals($fhirId, $actualResult['data']->getId());
+        $this->assertEquals($fhirId, $actualResult->getId());
     }
 
     /**
@@ -92,17 +86,15 @@ class FhirPractitionerRestControllerTest extends TestCase
 
         $this->assertEquals(400, http_response_code());
         $this->assertGreaterThan(0, count($actualResult['validationErrors']));
-        $this->assertEquals(0, count($actualResult['internalErrors']));
-        $this->assertEmpty($actualResult['data']);
     }
 
     public function testGetOne()
     {
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
-        $fhirId = $actualResult['data']['uuid'];
+        $fhirId = $actualResult['uuid'];
 
         $actualResult = $this->fhirPractitionerController->getOne($fhirId);
-        $this->assertEquals($fhirId, $actualResult['data']->getId());
+        $this->assertEquals($fhirId, $actualResult->getId());
     }
 
     public function testGetOneNoMatch()
@@ -110,7 +102,7 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->fhirPractitionerController->post($this->fhirFixture);
 
         $actualResult = $this->fhirPractitionerController->getOne("not-a-matching-uuid");
-        $this->assertEmpty($actualResult['data']);
+        $this->assertGreaterThan(0, count($actualResult['validationErrors']));
     }
 
     public function testGetAll()
