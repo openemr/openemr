@@ -43,7 +43,7 @@ class FhirImmunizationRestController
     public function getOne($fhirId)
     {
         $processingResult = $this->fhirImmunizationService->getOne($fhirId, true);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**

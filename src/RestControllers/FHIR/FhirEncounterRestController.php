@@ -38,7 +38,7 @@ class FhirEncounterRestController
     public function getOne($fhirId)
     {
         $processingResult = $this->fhirEncounterService->getOne($fhirId);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**

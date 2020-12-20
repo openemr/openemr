@@ -36,7 +36,7 @@ class FhirObservationRestController
     public function getOne($fhirId)
     {
         $processingResult = $this->fhirObservationService->getOne($fhirId);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**
