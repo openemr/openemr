@@ -209,7 +209,7 @@ class AuthHash
                 //  operating systems (for example, alpine linux crypt will return an error * instead of the hash because the
                 //  salt is not the correct length).
                 //
-                //  TODO: Consider removing this at some time in the near future since it overcomplicates authorization.
+                //  TODO: Consider removing this at some time in the future (early 2022) since it overcomplicates authorization.
                 //
                 if (!empty(preg_match('/^\$2a\$05\$/', $hash)) && (substr($hash, 28, 1) === '.')) {
                     $fixedSalt = substr($hash, 0, 28) . "$";

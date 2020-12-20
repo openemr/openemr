@@ -5,11 +5,11 @@
  *
  * Test to ensure works with following hashes
  *   - pre OpenEMR 5.0.0 $2a$05 hashes
- *   - post OpenEMR 5.0.0 $2a$05 hashes
- *   - standard OpenEMR PASSWORD_BCRYPT hashes
- *   - standard OpenEMR PASSWORD_ARGON2I hashes
- *   - standard OpenEMR PASSWORD_ARGON2ID hashes
- *   - standard OpenEMR CRYPT_SHA512 hashes
+ *   - at and post OpenEMR 5.0.0 $2a$05 hashes
+ *   - standard OpenEMR PASSWORD_BCRYPT hashes (at and post OpenEMR 6.0.0)
+ *   - standard OpenEMR PASSWORD_ARGON2I hashes (at and post OpenEMR 6.0.0)
+ *   - standard OpenEMR PASSWORD_ARGON2ID hashes (at and post OpenEMR 6.0.0)
+ *   - standard OpenEMR CRYPT_SHA512 hashes (at and post OpenEMR 6.0.0)
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
