@@ -195,6 +195,19 @@ class AuthHash
         } else {
             // Process algos supported by standard password_verify
             $valid = password_verify($password, $hash);
+            if (!$valid) {
+                // Ensure do not need to process legacy hash (pre 5.0.0), which will get converted to standard hash
+                //  after a successful auth. The legacy hash has a malformed salt/hash combination which needs to
+                //  be adjusted and then run via crypt.
+                if (!empty(preg_match('/^\$2a\$05\$/', $hash)) && (substr($hash, 28, 1) === '.')) {
+                    $fixedSalt = substr($hash, 0, 28) . "$";
+                    if (strlen($fixedSalt) !== 29) {
+                        $valid = false;
+                    } else {
+                        $valid = hash_equals($hash, crypt($password, $fixedSalt));
+                    }
+                }
+            }
         }
 
         if ($GLOBALS['gbl_debug_hash_verify_execution_time']) {
