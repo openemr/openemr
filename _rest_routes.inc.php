@@ -586,7 +586,6 @@ use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
-use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 
 RestConfig::$FHIR_ROUTE_MAP = array(
@@ -719,13 +718,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirObservationRestController())->getOne($uuid);
         RestConfig::apiLog($return);
-        return $return;
-    },
-    "POST /fhir/QuestionnaireResponse" => function () {
-        RestConfig::authorization_check("patients", "demo");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirQuestionnaireResponseController(null))->post($data);
-        RestConfig::apiLog($return, $data);
         return $return;
     },
     "GET /fhir/Immunization" => function () {
