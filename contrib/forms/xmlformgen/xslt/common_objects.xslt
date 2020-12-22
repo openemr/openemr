@@ -18,7 +18,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:text disable-output-escaping="yes"><![CDATA[[']]></xsl:text>
 <xsl:value-of select="@name"/>
 <xsl:text disable-output-escaping="yes"><![CDATA['] != '') {
-    $dateparts = split(' ', $]]></xsl:text>
+    $dateparts = explode(' ', $]]></xsl:text>
 <xsl:value-of select="$fetchrow"/>
 <xsl:text disable-output-escaping="yes"><![CDATA[[']]></xsl:text>
 <xsl:value-of select="@name"/>
