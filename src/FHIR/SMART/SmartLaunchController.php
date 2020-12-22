@@ -79,7 +79,8 @@ class SmartLaunchController
             // seem to get these URLs right.  for some reason the $SITE is set to interface, we don't get 'apis' in there
             // ROOT_URL appears to be empty.. just strange
             // $issuer = $GLOBALS['site_addr_oath'] . $gbl::$SITE . $gbl::$ROOT_URL . "/fhir";
-            $issuer = $GLOBALS['site_addr_oath'] . "/apis/default/fhir";
+//            $issuer = $GLOBALS['site_addr_oath'] . "/apis/default/fhir";
+            $issuer = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir";
             $launchParams = "launch.html?launch=" . urlencode($launchCode) . "&iss=" . urlencode($issuer);
 
             expand_collapse_widget(
