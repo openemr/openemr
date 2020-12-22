@@ -17,11 +17,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatement
 use OpenEMR\FHIR\SMART\Capability;
 use OpenEMR\RestControllers\AuthorizationController;
 use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\FhirValidationService;
-use OpenEMR\RestControllers\RestControllerHelper;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
-use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCapabilityStatement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
@@ -39,39 +35,8 @@ require_once(__DIR__ . '/../../../_rest_config.php');
  */
 class FhirMetaDataRestController
 {
-    private $fhirPatientService;
     private $fhirService;
     private $fhirValidate;
-    /**
-     * The SMART extension capabilites that our system supports
-     * @see http://hl7.org/fhir/smart-app-launch/conformance/index.html
-     *
-     * All of these capabilities for MU3 are required to be implemented before HIT certification
-     * can be complete.
-     * @see ONC final rule commentary https://www.federalregister.gov/d/2020-07419/p-1184 Accessed on December 9th 2020
-     */
-    const SMART_CAPABILITIES = array (
-        "launch-ehr"    // support for SMART’s EHR Launch mode
-        , "launch-standalone" // support for SMART’s Standalone Launch mode
-        , "client-public" // support for SMART’s public client profile (no client authentication)
-        , "client-confidential-symmetric" // support for SMART’s confidential client profile (symmetric client secret authentication)
-        , "sso-openid-connect" // support for SMART’s OpenID Connect profile
-        , "context-banner" // support for “need patient banner” launch context (conveyed via need_patient_banner token parameter)
-        , "context-style" // support for “SMART style URL” launch context (conveyed via smart_style_url token parameter)
-
-        // These two capabilities apply just to Launching an app inside the EHR
-        , "context-ehr-patient" // support for patient-level launch context (requested by launch/patient scope, conveyed via patient token parameter)
-        , "context-ehr-encounter" // support for encounter-level launch context (requested by launch/encounter scope, conveyed via encounter token parameter)
-
-        // These two capabilities apply for launching a standalone app and providing additional context information
-        , "context-standalone-patient" // support for patient-level launch context (requested by launch/patient scope, conveyed via patient token parameter)
-        , "context-standalone-encounter" // support for encounter-level launch context (requested by launch/encounter scope, conveyed via encounter token
-
-
-        , "permission-offline"  // support for refresh tokens (requested by offline_access scope)
-        , "permission-patient"  // support for patient-level scopes (e.g. patient/Observation.read)
-        , "permission-user"     // support for user-level scopes (e.g. user/Appointment.read)
-    );
 
     public function __construct()
     {
