@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * SmartLaunchController handles the display and launching of SMART apps from the user interface.
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\FHIR\SMART;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
@@ -40,6 +50,8 @@ class SmartLaunchController
         // TODO: adunsulag we would filter the clients based on their smart capability & scopes they could send...
         $pid = $event->getPid();
         $patientService = new PatientService();
+        // make sure we've created all of our missing UUIDs
+        (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
         // going to work with string uuids
         $puuid = UuidRegistry::uuidToString($patientService->getUuid($pid));
         ?>
@@ -68,7 +80,7 @@ class SmartLaunchController
             // ROOT_URL appears to be empty.. just strange
             // $issuer = $GLOBALS['site_addr_oath'] . $gbl::$SITE . $gbl::$ROOT_URL . "/fhir";
             $issuer = $GLOBALS['site_addr_oath'] . "/apis/default/fhir";
-            $launchParams = "launch.html?launch=" . $launchCode . "&iss=" . $issuer;
+            $launchParams = "launch.html?launch=" . urlencode($launchCode) . "&iss=" . urlencode($issuer);
 
             expand_collapse_widget(
                 $widgetTitle,
@@ -90,11 +102,11 @@ class SmartLaunchController
                         <?php endif; ?>
                         <?php foreach ($smartClients as $client) : ?>
                             <li class="summary_item">
-                                <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="<?php echo $client->getName(); ?>"
-                                        data-smart-redirect-url="<?php echo $client->getRedirectUri() . $launchParams; ?>">
-                                    Launch
+                                <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="<?php echo attr($client->getName()); ?>"
+                                        data-smart-redirect-url="<?php echo attr($client->getRedirectUri() . $launchParams); ?>">
+                                    <?php echo xlt(Launch); ?>
                                 </button>
-                                <?php echo $client->getName(); ?>
+                                <?php echo text($client->getName()); ?>
                             </li>
                         <?php endforeach; ?>
                 </ul>
@@ -115,7 +127,7 @@ class SmartLaunchController
                             if (!url) {
                                 return;
                             }
-                            let title = node.dataset.smartTitle || "<?php echo xlt("Smart App"); ?>";
+                            let title = node.dataset.smartName || "<?php echo xlt("Smart App"); ?>";
                             // we allow external dialog's  here because that is what a SMART app is
                             dlgopen(url, '_blank', 950, 650, '', title, {allowExternal: true});
                         });

@@ -114,32 +114,32 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
             window.addEventListener('load', function() {
                 document.querySelector('#submit').addEventListener('click', registerApp);
             });
-        })(window, "<?php echo $fhirRegisterURL; ?>");
+        })(window, <?php echo js_escape($fhirRegisterURL); ?>);
     </script>
 </head>
 <body class="login">
-<form id="app_form" method="POST" autocomplete="off" action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>" target="_top">
+<form id="app_form" method="POST" autocomplete="off">
     <div class="<?php echo $loginrow; ?>">
         <div class="<?php echo $formarea; ?>">
-            <h3>App Registration Form</h3>
+            <h3><?php echo xlt("App Registration Form"); ?></h3>
             <div class="form-group">
-                <label for="appName" class="text-right"><?php echo xlt('App Name:'); ?></label>
+                <label for="appName" class="text-right"><?php echo xlt('App Name'); ?>:</label>
                 <input type="text" class="form-control" id="appName" name="appName" placeholder="<?php echo xla('App Name'); ?>" />
             </div>
             <div class="form-group">
-                <label for="contactEmail" class="text-right"><?php echo xlt('Contact Email:'); ?></label>
+                <label for="contactEmail" class="text-right"><?php echo xlt('Contact Email'); ?>:</label>
                 <input type="text" class="form-control" id="contactEmail" name="contactEmail" placeholder="<?php echo xla('Email'); ?>" />
             <div class="form-group">
-                <label for="redirectUri" class="text-right"><?php echo xlt('App Redirect URI:'); ?></label>
+                <label for="redirectUri" class="text-right"><?php echo xlt('App Redirect URI'); ?>:</label>
                 <input type="text" class="form-control" id="redirectUri" name="redirectUri" placeholder="<?php echo xla('URI'); ?>" />
             </div>
             <div class="form-group">
-                <label for="logoutURI" class="text-right"><?php echo xlt('App Logout URI:'); ?></label>
+                <label for="logoutURI" class="text-right"><?php echo xlt('App Logout URI'); ?>:</label>
                 <input type="text" class="form-control" id="logoutURI" name="logoutURI" placeholder="<?php echo xla('URI'); ?>" />
             </div>
             <!-- TODO: adunsulag display the list of scopes that can be requested here -->
             <div class="form-group">
-                <input type="button" class="form-control" id="submit" name="submit" value="Submit" (onClick)="registerApp();" />
+                <input type="button" class="form-control btn btn-primary" id="submit" name="submit" value="Submit" (onClick)="registerApp();" />
             </div>
             <div class="form-group apiResponse hidden">
                 <label for="clientID" class="text-right"><?php echo xlt('Client APP ID:'); ?></label>

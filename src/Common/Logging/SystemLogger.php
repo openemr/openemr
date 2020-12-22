@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
 use Waryway\PhpTraitsLibrary\Singleton;
 
 /**
- * Class SystemLogger logs information out to the syslog and is a compatabile PSR3 logger.
+ * Class SystemLogger logs information out to the syslog and is a compatible PSR3 logger.
  * Other loggers can be added  here as needed.  We essentially decorate around the Monolog library
  * but it allows us to remove Monolog if needed in the future, or add additional loggers as needed.
  * @package OpenEMR\Common\Logging
@@ -32,7 +32,7 @@ class SystemLogger implements LoggerInterface
          * We use mono
          */
         $this->logger = new Logger('OpenEMR');
-        $logLevel = Logger::DEBUG; // change this if you want to filter what logs you see.
+        $logLevel = Logger::WARNING; // change this if you want to filter what logs you see.
 
 //        $facility = LOG_SYSLOG; // @see syslog constants https://www.php.net/manual/en/network.constants.php
 //        // Change the logger level to see what logs you want to log

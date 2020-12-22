@@ -1,9 +1,5 @@
 <?php
 
-namespace OpenEMR\RestControllers\SMART;
-
-use OpenEMR\FHIR\SMART\Capability;
-
 /**
  * Handles the creation of the smart-configuration used for SMART apps and complies with
  * SMART on FHIR Core Capabilities 1.0.0
@@ -15,6 +11,11 @@ use OpenEMR\FHIR\SMART\Capability;
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+namespace OpenEMR\RestControllers\SMART;
+
+use OpenEMR\FHIR\SMART\Capability;
+
 class SMARTConfigurationController
 {
     /**

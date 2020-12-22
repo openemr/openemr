@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * SmartLaunchToken represents the opaque SMART 'launch' context values that are used to send the EHR session context
+ * to the app which the app then hands back to the oauth2 authorization server.
+ * @package OpenEMR\FHIR\SMART
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\FHIR\SMART;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
