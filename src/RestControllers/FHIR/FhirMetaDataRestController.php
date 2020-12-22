@@ -149,7 +149,7 @@ class FhirMetaDataRestController
         $capabilityStatement->setStatus("Not provided");
         $capabilityStatement->addFormat(new FHIRCode("application/json"));
         $resturl = new FHIRUrl();
-        $resturl->setValue("http://" . $_SERVER['SERVER_NAME'] . $gbl::$SITE . $gbl::$ROOT_URL . "/fhir");
+        $resturl->setValue($GLOBALS['site_addr_oath'] . $gbl::$ROOT_URL . "/" . $gbl::$SITE . "/fhir");
         $implementation = new FHIRCapabilityStatementImplementation();
         $implementation->setUrl($resturl);
         $implementation->setDescription("OpenEMR FHIR API");
