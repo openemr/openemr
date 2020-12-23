@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Common\Http;
 
+use OpenEMR\Common\Logging\SystemLogger;
+
 class HttpRestRouteHandler
 {
     public static function dispatch(&$routes, $route, $request_method, $return_method = 'standard')
@@ -38,6 +40,7 @@ class HttpRestRouteHandler
             $matches = array();
             if ($method === $request_method && preg_match($pattern, $route, $matches)) {
                 array_shift($matches);
+                SystemLogger::instance()->debug("HttpRestRouteHandler->dispatch() dispatching route", ["route" => $routePath]);
                 $hasRoute = true;
                 $result = call_user_func_array($routeCallback, $matches);
                 if ($return_method === 'standard') {

@@ -19,6 +19,7 @@ require_once("./../_rest_config.php");
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use Psr\Http\Message\ResponseInterface;
 
@@ -27,6 +28,8 @@ $routes = array();
 
 // Parse needed information from Redirect or REQUEST_URI
 $resource = $gbl::getRequestEndPoint();
+$logger = SystemLogger::instance();
+$logger->debug("dispatch.php requested", ["resource" => $resource, "method" => $_SERVER['REQUEST_METHOD']]);
 
 $skipApiAuth = false;
 if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
@@ -50,6 +53,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     // ensure token is valid
     $tokenRaw = $gbl::verifyAccessToken();
     if ($tokenRaw instanceof ResponseInterface) {
+        $logger->error("dispatch.php failed token verify for resource", ["resource" => $resource]);
         // failed token verify
         // not a request object so send the error as response obj
         $gbl::emitResponse($tokenRaw);
@@ -71,7 +75,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     }
     // ensure 1) sane site 2) site from gbl and access token are the same and 3) ensure the site exists on filesystem
     if (empty($site) || empty($gbl::$SITE) || preg_match('/[^A-Za-z0-9\\-.]/', $gbl::$SITE) || ($site !== $gbl::$SITE) || !file_exists(__DIR__ . '/../sites/' . $gbl::$SITE)) {
-        error_log("OpenEMR Error - api site error, so forced exit");
+        $logger->error("OpenEMR Error - api site error, so forced exit");
         http_response_code(400);
         exit();
     }
@@ -86,7 +90,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     $tokenId = $attributes['oauth_access_token_id'];
     // ensure user uuid and token id are populated
     if (empty($userId) || empty($tokenId)) {
-        error_log("OpenEMR Error - userid or tokenid not available, so forced exit");
+        $logger->error("OpenEMR Error - userid or tokenid not available, so forced exit");
         http_response_code(400);
         exit();
     }
@@ -110,26 +114,30 @@ if ($isLocalApi) {
     $csrfFail = false;
 
     if (empty($_SERVER['HTTP_APICSRFTOKEN'])) {
-        error_log("OpenEMR Error: internal api failed because csrf token not received");
+        $logger->error("OpenEMR Error: internal api failed because csrf token not received");
         $csrfFail = true;
     }
 
     if ((!$csrfFail) && (!CsrfUtils::verifyCsrfToken($_SERVER['HTTP_APICSRFTOKEN'], 'api'))) {
-        error_log("OpenEMR Error: internal api failed because csrf token did not match");
+        $logger->error("OpenEMR Error: internal api failed because csrf token did not match");
         $csrfFail = true;
     }
 
     if ($csrfFail) {
+        $logger->error("dispatch.php CSRF failed", ["resource" => $resource]);
         http_response_code(401);
         exit();
     }
 } elseif ($skipApiAuth) {
+    $logger->debug("dispatch.php skipping api auth");
     // For endpoints that do not require auth, such as the capability statement
 } else {
+    $logger->debug("dispatch.php authenticating user");
     // verify that user tokens haven't been revoked.
     // this is done by verifying the user is trusted with active auth session.
     $isTrusted = $gbl::isTrustedUser($attributes["oauth_client_id"], $attributes["oauth_user_id"]);
     if ($isTrusted instanceof ResponseInterface) {
+        $logger->debug("dispatch.php oauth2 inactive user api attempt");
         // user is not logged on to server with an active session.
         // too me this is easier than revoking tokens or using phantom tokens.
         // give a 400(unsure here, could be a 401) so client can redirect to server.
@@ -142,6 +150,7 @@ if ($isLocalApi) {
 
     // authenticate the token
     if (!$gbl->authenticateUserToken($tokenId, $userId)) {
+        $logger->error("dispatch.php api call with invalid token");
         $gbl::destroySession();
         http_response_code(401);
         exit();
@@ -152,14 +161,14 @@ if ($isLocalApi) {
     $userRole = $uuidToUser->getUserRole();
     if (empty($user)) {
         // unable to identify the users user role
-        error_log("OpenEMR Error - api user account could not be identified, so forced exit");
+        $logger->error("OpenEMR Error - api user account could not be identified, so forced exit");
         $gbl::destroySession();
         http_response_code(400);
         exit();
     }
     if (empty($userRole)) {
         // unable to identify the users user role
-        error_log("OpenEMR Error - api user role for user could not be identified, so forced exit");
+        $logger->error("OpenEMR Error - api user role for user could not be identified, so forced exit");
         $gbl::destroySession();
         http_response_code(400);
         exit();
@@ -169,11 +178,13 @@ if ($isLocalApi) {
     //   users has access to oemr and fhir
     //   patient has access to port and pofh
     if ($userRole == 'users' && ($gbl::is_api_request($resource) || $gbl::is_fhir_request($resource))) {
+        $logger->debug("dispatch.php valid role and user has access to api/fhir resource", ['resource' => $resource]);
         // good to go
     } elseif ($userRole == 'patient' && ($gbl::is_portal_request($resource) || $gbl::is_portal_fhir_request($resource))) {
+        $logger->debug("dispatch.php valid role and patient has access portal resource", ['resource' => $resource]);
         // good to go
     } else {
-        error_log("OpenEMR Error: api failed because user role does not have access to the resource");
+        $logger->error("OpenEMR Error: api failed because user role does not have access to the resource");
         $gbl::destroySession();
         http_response_code(401);
         exit();
@@ -185,7 +196,7 @@ if ($isLocalApi) {
         $_SESSION['authProvider'] =  sqlQueryNoLog("SELECT `name` FROM `groups` WHERE `user` = ?", [$_SESSION['authUser']])['name'] ?? null;
         if (empty($_SESSION['authUser']) || empty($_SESSION['authUserID']) || empty($_SESSION['authProvider'])) {
             // this should never happen
-            error_log("OpenEMR Error: api failed because unable to set critical users session variables");
+            $logger->error("OpenEMR Error: api failed because unable to set critical users session variables");
             $gbl::destroySession();
             http_response_code(401);
             exit();
@@ -195,14 +206,14 @@ if ($isLocalApi) {
         $_SESSION['puuid'] = $user['uuid'] ?? null;
         if (empty($_SESSION['pid']) || empty($_SESSION['puuid'])) {
             // this should never happen
-            error_log("OpenEMR Error: api failed because unable to set critical patient session variables");
+            $logger->error("OpenEMR Error: api failed because unable to set critical patient session variables");
             $gbl::destroySession();
             http_response_code(401);
             exit();
         }
     } else {
         // this user role is not supported
-        error_log("OpenEMR Error - api user role that was provided is not supported, so forced exit");
+        $logger->error("OpenEMR Error - api user role that was provided is not supported, so forced exit");
         $gbl::destroySession();
         http_response_code(400);
         exit();
@@ -223,6 +234,7 @@ $gbl::$PORTAL_FHIR_ROUTE_MAP = $restApiCreateEvent->getPortalFHIRRouteMap();
 if ($gbl::is_fhir_request($resource)) {
     if (!$GLOBALS['rest_fhir_api'] && !$isLocalApi) {
         // if the external fhir api is turned off and this is not a local api call, then exit
+        $logger->error("dispatch.php attempted to access resource with FHIR api turned off ", ['resource' => $resource]);
         $gbl::destroySession();
         http_response_code(501);
         exit();
@@ -231,6 +243,7 @@ if ($gbl::is_fhir_request($resource)) {
     $routes = $gbl::$FHIR_ROUTE_MAP;
 } elseif ($gbl::is_portal_request($resource)) {
     if (!$GLOBALS['rest_portal_api'] && !$isLocalApi) {
+        $logger->error("dispatch.php attempted to access resource with portal api turned off ", ['resource' => $resource]);
         // if the external portal api is turned off and this is not a local api call, then exit
         $gbl::destroySession();
         http_response_code(501);
@@ -240,6 +253,10 @@ if ($gbl::is_fhir_request($resource)) {
     $routes = $gbl::$PORTAL_ROUTE_MAP;
 } elseif ($gbl::is_portal_fhir_request($resource)) {
     if (!$GLOBALS['rest_portal_fhir_api'] && !$isLocalApi) {
+        $logger->error(
+            "dispatch.php attempted to access resource with portal FHIR api turned off ",
+            ['resource' => $resource]
+        );
         // if the external portal fhir api is turned off and this is not a local api call, then exit
         $gbl::destroySession();
         http_response_code(501);
@@ -249,6 +266,10 @@ if ($gbl::is_fhir_request($resource)) {
     $routes = $gbl::$PORTAL_FHIR_ROUTE_MAP;
 } elseif ($gbl::is_api_request($resource)) {
     if (!$GLOBALS['rest_api'] && !$isLocalApi) {
+        $logger->error(
+            "dispatch.php attempted to access resource with REST api turned off ",
+            ['resource' => $resource]
+        );
         // if the external api is turned off and this is not a local api call, then exit
         $gbl::destroySession();
         http_response_code(501);
@@ -257,6 +278,8 @@ if ($gbl::is_fhir_request($resource)) {
     $_SESSION['api'] = 'oemr';
     $routes = $gbl::$ROUTE_MAP;
 } else {
+    $logger->error("dispatch.php invalid access to resource", ['resource' => $resource]);
+
     // somebody is up to no good
     if (!$isLocalApi) {
         $gbl::destroySession();
@@ -280,5 +303,6 @@ if (!$isLocalApi) {
 }
 // prevent 200 if route doesn't exist
 if (!$hasRoute) {
+    $logger->debug("dispatch.php no route found for resource", ['resource' => $resource]);
     http_response_code(404);
 }

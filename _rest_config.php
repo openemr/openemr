@@ -23,6 +23,7 @@ use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -194,6 +195,7 @@ class RestConfig
 
     public static function verifyAccessToken()
     {
+        $logger = SystemLogger::instance();
         $response = self::createServerResponse();
         $request = self::createServerRequest();
         $server = new ResourceServer(
@@ -203,8 +205,10 @@ class RestConfig
         try {
             $raw = $server->validateAuthenticatedRequest($request);
         } catch (OAuthServerException $exception) {
+            $logger->error("RestConfig->verifyAccessToken() OAuthServerException", ["message" => $exception->getMessage()]);
             return $exception->generateHttpResponse($response);
         } catch (\Exception $exception) {
+            $logger->error("RestConfig->verifyAccessToken() Exception", ["message" => $exception->getMessage()]);
             return (new OAuthServerException($exception->getMessage(), 0, 'unknown_error', 500))
                 ->generateHttpResponse($response);
         }
@@ -328,7 +332,15 @@ class RestConfig
             http_response_code(400);
             exit();
         }
-        return ($resource === ("/" . self::$SITE . "/fhir/metadata"));
+        // let the capability statement for FHIR or the SMART-on-FHIR through
+        if (
+            $resource === ("/" . self::$SITE . "/fhir/metadata") ||
+            $resource === ("/" . self::$SITE . "/fhir/.well-known/smart-configuration")
+        ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public static function apiLog($response = '', $requestBody = ''): void
