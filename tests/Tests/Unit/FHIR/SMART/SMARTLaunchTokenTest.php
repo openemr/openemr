@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SMARTLaunchTokenTest Unit tests the SmartLaunchTokenTest for serialization & deserialization of the token.
  * @package openemr
