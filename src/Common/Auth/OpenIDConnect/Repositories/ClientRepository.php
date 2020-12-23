@@ -15,24 +15,60 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 
 class ClientRepository implements ClientRepositoryInterface
 {
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct()
+    {
+        $this->logger = SystemLogger::instance();
+    }
+
+    /**
+     * @return ClientEntity[]
+     */
+    public function listClientEntities()
+    {
+        $clients = sqlStatementNoLog("Select * From oauth_clients");
+        $list = [];
+        if (!empty($clients)) {
+            while ($client = $clients->FetchRow()) {
+                $list[] = $this->hydrateClientEntityFromArray($client);
+            }
+        }
+        return $list;
+    }
+
     public function getClientEntity($clientIdentifier)
     {
         $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", array($clientIdentifier));
 
         // Check if client is registered
         if ($clients === false) {
+            $this->logger->error(
+                "ClientRepository->getClientEntity() no client found for identifier ",
+                ["client" => $clientIdentifier]
+            );
             return false;
         }
 
-        $client = new ClientEntity();
-        $client->setIdentifier($clientIdentifier);
-        $client->setName($clients['client_name']);
-        $client->setRedirectUri($clients['redirect_uri']);
-        $client->setIsConfidential($clients['is_confidential']);
-
+        $this->logger->debug(
+            "ClientRepository->getClientEntity() client found",
+            [
+                "client" => [
+                    "client_name" => $clients['client_name'],
+                    "redirect_uri" => $clients['redirect_uri'],
+                    "is_confidential" => $clients['is_confidential']
+                ]
+            ]
+        );
+        $client = $this->hydrateClientEntityFromArray($clients);
         return $client;
     }
 
@@ -43,6 +79,10 @@ class ClientRepository implements ClientRepositoryInterface
 
             // Check if client is registered
             if ($client === false) {
+                $this->logger->error(
+                    "ClientRepository->validateClient() no client found for identifier ",
+                    ["client" => $clientIdentifier]
+                );
                 return false;
             }
 
@@ -60,5 +100,20 @@ class ClientRepository implements ClientRepositoryInterface
             // password and refresh grant
             return true;
         }
+    }
+
+    /**
+     * @param $clients
+     * @return ClientEntity
+     */
+    private function hydrateClientEntityFromArray($client_record)
+    {
+        $client = new ClientEntity();
+        $client->setIdentifier($client_record['client_id']);
+        $client->setName($client_record['client_name']);
+        $client->setRedirectUri($client_record['redirect_uri']);
+        $client->setIsConfidential($client_record['is_confidential']);
+        $client->setScopes($client_record['scope']);
+        return $client;
     }
 }

@@ -23,6 +23,12 @@ class ClientEntity implements ClientEntityInterface
 
     protected $userId;
     protected $clientRole;
+    protected $scopes;
+
+    public function __construct()
+    {
+        $this->scopes = [];
+    }
 
     public function setName($name): void
     {
@@ -57,5 +63,35 @@ class ClientEntity implements ClientEntityInterface
     public function getClientRole()
     {
         return $this->clientRole;
+    }
+
+    public function getScopes()
+    {
+        return $this->scopes;
+    }
+    public function setScopes($scopes)
+    {
+        // clear out the scopes if our scopes are empty
+        if (empty($scopes)) {
+            $this->scopes = [];
+            return;
+        }
+
+        if (is_string($scopes)) {
+            $scopes = explode(" ", $scopes);
+        } else if (!is_array($scopes)) {
+            throw new \InvalidArgumentException("scopes parameter must be a valid array or string");
+        }
+        $this->scopes = $scopes;
+    }
+
+    /**
+     * Checks if a given entity
+     * @param $scope
+     * @return bool
+     */
+    public function hasScope($scope)
+    {
+        return array_search($scope, $this->scopes) !== false;
     }
 }

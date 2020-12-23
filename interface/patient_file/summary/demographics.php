@@ -33,6 +33,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
+use OpenEMR\Events\PatientDemographics\RenderEvent;
+use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Reminder\BirthdayReminder;
@@ -46,6 +48,12 @@ if (isset($_GET['set_pid'])) {
         SessionUtil::setSession('encounter', $encounter);
     }
 }
+
+// Note: it would eventually be a good idea to move this into
+// it's own module that people can remove / add if they don't
+// want smart support in their system.
+$smartLaunchController = new SMARTLaunchController($GLOBALS["kernel"]->getEventDispatcher());
+$smartLaunchController->registerContextEvents();
 
 $active_reminders = false;
 $all_allergy_alerts = false;
@@ -821,7 +829,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                   </table>
         </div>
-        <?php } ?>
+        <?php  }
+        // if anyone wants to render anything before the patient demographic list
+                            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, new RenderEvent($pid), 10);
+                            ?>
         <?php if (AclMain::aclCheckCore('patients', 'demo')) { ?>
           <section>
               <?php
@@ -1312,6 +1323,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <?php } // end if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) ?>
 
 <?php
+// if anyone wants to render anything after the patient demographic list
+$GLOBALS["kernel"]->getEventDispatcher()->dispatch(RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, new RenderEvent($pid), 10);
 // This generates a section similar to Vitals for each LBF form that
 // supports charting.  The form ID is used as the "widget label".
 //

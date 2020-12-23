@@ -22,6 +22,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class PatientService extends BaseService
 {
+    const TABLE_NAME = 'patient_data';
+
     /**
      * In the case where a patient doesn't have a picture uploaded,
      * this value will be returned so that the document controller
@@ -36,7 +38,7 @@ class PatientService extends BaseService
      */
     public function __construct()
     {
-        parent::__construct('patient_data');
+        parent::__construct(self::TABLE_NAME);
         $this->patientValidator = new PatientValidator();
     }
 
@@ -324,5 +326,16 @@ class PatientService extends BaseService
         }
 
         return $result['id'];
+    }
+
+    /**
+     * Fetch UUID for the patient id
+     *
+     * @param string $id                - ID of Patient
+     * @return false if nothing found otherwise return UUID
+     */
+    public function getUuid($pid)
+    {
+        return self::getUuidById($pid, self::TABLE_NAME, 'pid');
     }
 }

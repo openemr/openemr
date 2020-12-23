@@ -10,12 +10,14 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSecurity;
+use OpenEMR\FHIR\SMART\Capability;
+use OpenEMR\RestControllers\AuthorizationController;
 use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\FhirValidationService;
-use OpenEMR\RestControllers\RestControllerHelper;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
-use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCapabilityStatement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
@@ -33,7 +35,6 @@ require_once(__DIR__ . '/../../../_rest_config.php');
  */
 class FhirMetaDataRestController
 {
-    private $fhirPatientService;
     private $fhirService;
     private $fhirValidate;
 
@@ -130,7 +131,7 @@ class FhirMetaDataRestController
         }
         $restItem = array(
             "resource" => $resources,
-            "mode" => "server"
+            "mode" => "server",
         );
         return $restItem;
     }
@@ -159,6 +160,7 @@ class FhirMetaDataRestController
         $capabilityStatement->setDate($dateTime);
         $restJSON = $this->getCapabilityRESTJSON($routes);
         $restObj = new FHIRCapabilityStatementRest($restJSON);
+        $restObj->setSecurity($this->getRestSecurity());
         $capabilityStatement->addRest($restObj);
         $composerStr = file_get_contents($serverRoot . "/composer.json");
         $composerObj = json_decode($composerStr, true);
@@ -169,9 +171,69 @@ class FhirMetaDataRestController
         return $capabilityStatement;
     }
 
+
     /**
-     *
-     *
+     * Creates the Security Capability Statement and returns it.
+     * @return FHIRCapabilityStatementSecurity
+     */
+    private function getRestSecurity()
+    {
+        $service = new FHIRCodeableConcept();
+        $service->text = xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)");
+
+        $coding = new FHIRCoding();
+        $coding->setSystem(new FHIRUrl("http://hl7.org/fhir/restful-security-service"));
+        $coding->setCode("SMART-on-FHIR");
+
+        $service->addCoding($coding)
+                ->setText(xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)"));
+
+        $security = new FHIRCapabilityStatementSecurity();
+        $security->addService($service);
+        $this->addOauthSecurityExtensions($security);
+
+        return $security;
+    }
+
+    /**
+     * Adds all of the FHIR REST Extensions needed for things such as SMART on FHIR
+     * @param FHIRCapabilityStatementSecurity $statement
+     */
+    private function addOauthSecurityExtensions(FHIRCapabilityStatementSecurity $statement)
+    {
+        $authServer = new AuthorizationController();
+        $oauthExtension = new FHIRExtension();
+        $oauthExtension->setUrl(new FHIRUrl("http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris"));
+        $oauthUrls = [
+            // @see http://www.hl7.org/fhir/smart-app-launch/StructureDefinition-oauth-uris.html
+            // and @see http://www.hl7.org/fhir/smart-app-launch/conformance/index.html#declaring-support-for-oauth2-endpoints
+            // token and authorize are required because we don't use implicit grant flow.
+            'token' => $authServer->getTokenUrl()
+            ,'authorize' => $authServer->getAuthorizeUrl()
+            ,'register' => $authServer->getRegistrationUrl()
+            ,'introspect' => $authServer->getIntrospectionUrl()
+            // TODO: if we have these URIs we can provide them
+//            ,'manage' => $authServer->getManageUrl()
+//            ,'revoke' => ''
+        ];
+        foreach ($oauthUrls as $url => $valueUri) {
+            $oauthEndpointExtension = new FHIRExtension();
+            $oauthEndpointExtension->setUrl($url);
+            $oauthEndpointExtension->setValueUri($valueUri);
+            $oauthExtension->addExtension($oauthEndpointExtension);
+        }
+        $statement->addExtension($oauthExtension);
+
+        // now add our SMART capabilities
+        foreach (Capability::SUPPORTED_CAPABILITIES as $smartCapability) {
+            $extension = new FHIRExtension();
+            $extension->setUrl("http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities");
+            $extension->setValueCode($smartCapability);
+            $statement->addExtension($extension);
+        }
+    }
+
+    /**
      * Returns Metadata in CapabilityStatement FHIR resource format
      *
      */
