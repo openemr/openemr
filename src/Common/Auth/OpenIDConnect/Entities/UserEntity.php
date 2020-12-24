@@ -28,7 +28,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
     public function getClaims()
     {
-        $claimsType = ($_REQUEST['grant_type'] === 'client_credentials') ? 'client' : 'oidc';
+        $claimsType = (!empty($_REQUEST['grant_type']) && ($_REQUEST['grant_type'] === 'client_credentials')) ? 'client' : 'oidc';
         if ($claimsType === 'oidc') {
             $uuidToUser = new UuidUserAccount($this->identifier);
             $user = $uuidToUser->getUserAccount();
@@ -106,19 +106,21 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 }
                 $this->setIdentifier(UuidRegistry::uuidToString($uuid));
 
-                //check if TOTP MFA required (U2F impossible to support via password grant)
+                // If an mfa_token was provided, then will force TOTP MFA (U2F impossible to support via password grant)
+                //  (note that this is only forced if mfa_token is provided)
                 $mfa = new MfaUtils($id);
                 $mfaToken = $mfa->tokenFromRequest(MfaUtils::TOTP);
-                if ($mfa->isMfaRequired() && in_array(MfaUtils::TOTP, $mfa->getType()) && is_null($mfaToken)) {
+                if (!is_null($mfaToken) && (!$mfa->isMfaRequired() || !in_array(MfaUtils::TOTP, $mfa->getType()))) {
+                    // A mfa_token was provided, however the user is not configured for totp
                     throw new OAuthServerException(
-                        'MFA required, The authorization server expects to `mfa_token` parameter in the request body.',
+                        'MFA not supported.',
                         11,
-                        'mfa_required',
+                        'mfa_not_supported',
                         403
                     );
                 }
-                //Check the validity of the authentication token
-                if ($mfa->isMfaRequired() && in_array(MfaUtils::TOTP, $mfa->getType()) && !is_null($mfaToken)) {
+                //Check the validity of the totp token, if applicable
+                if (!is_null($mfaToken) && $mfa->isMfaRequired() && in_array(MfaUtils::TOTP, $mfa->getType())) {
                     if ($mfaToken && $mfa->check($mfaToken, MfaUtils::TOTP)) {
                         return true;
                     } else {

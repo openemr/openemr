@@ -3,7 +3,7 @@
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\Common\Crypto\CryptoGen;
-use u2flib_server\U2F;
+use \u2flib_server\U2F;
 
 class MfaUtils
 {
@@ -181,7 +181,7 @@ class MfaUtils
     private function checkU2F($token)
     {
 
-        $u2f = new u2flib_server\U2F($this->appId);
+        $u2f = new \u2flib_server\U2F($this->appId);
         $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", array($this->uid));
         try {
             $registration = $u2f->doAuthenticate(
@@ -192,7 +192,7 @@ class MfaUtils
             // Stored registration data needs to be updated because the usage count has changed.
             // We have to use the matching registered key.
             $strhandle = json_encode($registration->keyHandle);
-            if (isset($regs[$strhandle])) {
+            if (isset($this->regs[$strhandle])) {
                 sqlStatement(
                     "UPDATE login_mfa_registrations SET `var1` = ? WHERE " .
                     "`user_id` = ? AND `method` = 'U2F' AND `name` = ?",
