@@ -3,7 +3,7 @@
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\Common\Crypto\CryptoGen;
-use \u2flib_server\U2F;
+use u2flib_server\U2F;
 
 class MfaUtils
 {
@@ -115,7 +115,7 @@ class MfaUtils
      */
     public function getU2fRequests()
     {
-        $u2f = new U2F($this->appId);
+        $u2f = new \u2flib_server\U2F($this->appId);
         $requests =  json_encode($u2f->getAuthenticateData($this->registrations));
         sqlStatement(
             "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
