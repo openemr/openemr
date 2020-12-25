@@ -912,7 +912,7 @@ class AuthorizationController
             }
             SessionUtil::oauthSessionCookieDestroy();
         } catch (OAuthServerException $exception) {
-            $this->logger->error(
+            $this->logger->debug(
                 "AuthorizationController->oauthAuthorizeToken() OAuthServerException occurred",
                 ["message" => $exception->getMessage()]
             );

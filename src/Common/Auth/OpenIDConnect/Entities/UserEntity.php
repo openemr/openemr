@@ -41,7 +41,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 'given_name' => $user['firstname'],
                 'middle_name' => $user['middlename'],
                 'nickname' => '',
-                'preferred_username' => $user['username'],
+                'preferred_username' => $user['username'] ?? '',
                 'profile' => '',
                 'picture' => '',
                 'website' => '',
