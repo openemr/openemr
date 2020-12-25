@@ -110,28 +110,30 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 //  (note that this is only forced if mfa_token is provided)
                 $mfa = new MfaUtils($id);
                 $mfaToken = $mfa->tokenFromRequest(MfaUtils::TOTP);
-                if (!is_null($mfaToken) && (!$mfa->isMfaRequired() || !in_array(MfaUtils::TOTP, $mfa->getType()))) {
-                    // A mfa_token was provided, however the user is not configured for totp
-                    throw new OAuthServerException(
-                        'MFA not supported.',
-                        11,
-                        'mfa_not_supported',
-                        403
-                    );
-                }
-                //Check the validity of the totp token, if applicable
-                if (!is_null($mfaToken) && $mfa->isMfaRequired() && in_array(MfaUtils::TOTP, $mfa->getType())) {
-                    if ($mfaToken && $mfa->check($mfaToken, MfaUtils::TOTP)) {
-                        return true;
-                    } else {
+                if (!is_null($mfaToken)) {
+                    if (!$mfa->isMfaRequired() || !in_array(MfaUtils::TOTP, $mfa->getType())) {
+                        // A mfa_token was provided, however the user is not configured for totp
                         throw new OAuthServerException(
-                            $mfa->errorMessage(),
-                            12,
-                            'mfa_token_invalid',
-                            401
+                            'MFA not supported.',
+                            11,
+                            'mfa_not_supported',
+                            403
                         );
+                    } else {
+                        //Check the validity of the totp token, if applicable
+                        if (!empty($mfaToken) && $mfa->check($mfaToken, MfaUtils::TOTP)) {
+                            return true;
+                        } else {
+                            throw new OAuthServerException(
+                                $mfa->errorMessage(),
+                                12,
+                                'mfa_token_invalid',
+                                401
+                            );
+                        }
                     }
                 }
+
                 return true;
             }
         } elseif (($userrole == "patient") && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
