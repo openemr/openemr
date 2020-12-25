@@ -31,7 +31,7 @@ use OpenEMR\Core\Header;
             <div class="text-md-center">
                 <?php if (empty($authorize) && empty($mfaRequired)) { ?>
                     <h4 class="mb-4 mt-1"><?php echo xlt("Sign In"); ?></h4>
-            <?php } elseif (empty($authorize) && !empty($mfaRequired)) { ?>
+                <?php } elseif (empty($authorize) && !empty($mfaRequired)) { ?>
                     <h4 class="mb-4 mt-1"><?php echo xlt('MFA Verification'); ?></h4>
                 <?php } else { ?>
                     <h4 class="mb-4 mt-1"><?php echo xlt("Authorizing"); ?></h4>
