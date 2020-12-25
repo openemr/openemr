@@ -112,6 +112,11 @@ function generate_html_middle()
     posted_to_hidden('languageChoice');
     posted_to_hidden('authUser');
     posted_to_hidden('clearPass');
+}
+
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+function generate_html_end()
+{
     // to be safe, remove clearPass from memory now (if it is not empty yet)
     if (!empty($_POST["clearPass"])) {
         if (function_exists('sodium_memzero')) {
@@ -120,11 +125,6 @@ function generate_html_middle()
             $_POST["clearPass"] = '';
         }
     }
-}
-
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
-function generate_html_end()
-{
     echo "</div></body></html>\n";
     OpenEMR\Common\Session\SessionUtil::coreSessionDestroy();
     return 0;
