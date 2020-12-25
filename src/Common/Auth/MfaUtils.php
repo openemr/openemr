@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * MfaUtils.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2020 Amiel Elboim <amielel@matrix.co.il>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\Common\Crypto\CryptoGen;
