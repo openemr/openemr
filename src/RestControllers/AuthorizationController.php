@@ -396,12 +396,12 @@ class AuthorizationController
                 $site,
                 $private,
                 $logout_redirect_uris,
-                $info['jwks_uri'],
-                $info['jwks'],
-                $info['initiate_login_uri'],
-                $info['endorsements'],
-                $info['policy_uri'],
-                $info['tos_uri']
+                ($info['jwks_uri'] ?? null),
+                ($info['jwks'] ?? null),
+                ($info['initiate_login_uri'] ?? null),
+                ($info['endorsements'] ?? null),
+                ($info['policy_uri'] ?? null),
+                ($info['tos_uri'] ?? null)
             );
 
             return sqlQueryNoLog($sql, $i_vals);
@@ -516,7 +516,7 @@ class AuthorizationController
             $_SESSION['csrf'] = $authRequest->getState();
             $_SESSION['scopes'] = $request->getQueryParams()['scope'];
             $_SESSION['client_id'] = $request->getQueryParams()['client_id'];
-            $_SESSION['launch'] = $request->getQueryParams()['launch'];
+            $_SESSION['launch'] = $request->getQueryParams()['launch'] ?? null;
             $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() session updated", ['session' => $_SESSION]);
 
             $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() auth request validated, csrf,scopes,client_id setup");
@@ -677,7 +677,7 @@ class AuthorizationController
                 exit();
             } else {
                 $this->logger->debug("AuthorizationController->userLogin() verifying login information");
-                $continueLogin = $this->verifyLogin($_POST['username'], $_POST['password'], $_POST['email'], $_POST['user_role']);
+                $continueLogin = $this->verifyLogin($_POST['username'], $_POST['password'], ($_POST['email'] ?? ''), $_POST['user_role']);
                 $this->logger->debug("AuthorizationController->userLogin() verifyLogin result", ["continueLogin" => $continueLogin]);
             }
         }
@@ -693,9 +693,9 @@ class AuthorizationController
             $this->logger->debug("AuthorizationController->userLogin() login valid, continuing oauth process");
         }
 
-        //Require MFA if turn on, currently support only TOTP method
+        //Require MFA if turned on
         $mfa = new MfaUtils($this->userId);
-        $mfaToken = $mfa->tokenFromRequest($_POST['mfa_type']);
+        $mfaToken = $mfa->tokenFromRequest($_POST['mfa_type'] ?? null);
         $mfaType = $mfa->getType();
         $TOTP = MfaUtils::TOTP;
         $U2F = MfaUtils::U2F;
@@ -744,7 +744,7 @@ class AuthorizationController
         }
         if ($this->userId = $auth->getUserId()) {
             $_SESSION['user_id'] = $this->getUserUuid($this->userId, 'users');
-            $this->logger->debug("AuthorizationController->verifyLogin() user login", ['pid' => $_SESSION['pid']]);
+            $this->logger->debug("AuthorizationController->verifyLogin() user login", ['pid' => $_SESSION['user_id']]);
             return true;
         }
         if ($id = $auth->getPatientId()) {
@@ -912,7 +912,7 @@ class AuthorizationController
             }
             SessionUtil::oauthSessionCookieDestroy();
         } catch (OAuthServerException $exception) {
-            $this->logger->error(
+            $this->logger->debug(
                 "AuthorizationController->oauthAuthorizeToken() OAuthServerException occurred",
                 ["message" => $exception->getMessage()]
             );
