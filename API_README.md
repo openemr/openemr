@@ -146,6 +146,40 @@ Response:
 }
 ```
 
+Here is another example for registering a client with specification of scopes.
+
+```sh
+curl -X POST -k -H 'Content-Type: application/json' -i https://localhost:9300/oauth2/default/registration --data '{
+   "application_type": "private",
+   "redirect_uris":
+     ["https://client.example.org/callback"],
+   "post_logout_redirect_uris":
+     ["https://client.example.org/logout/callback"],
+   "client_name": "A Private App",
+   "token_endpoint_auth_method": "client_secret_post",
+   "contacts": ["me@example.org", "them@example.org"],
+   "scope": "openid api:oemr api:fhir api:port api:pofh"
+  }'
+```
+
+Response:
+```sh
+{
+    "client_id": "LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA",
+    "client_secret": "j21ecvLmFi9HPc_Hv0t7Ptmf1pVcZQLtHjIdU7U9tkS9WAjFJwVMav0G8ogTJ62q4BATovC7BQ19Qagc4x9BBg",
+    "registration_access_token": "uiDSXx2GNSvYy5n8eW50aGrJz0HjaGpUdrGf07Agv_Q",
+    "registration_client_uri": "https:\/\/localhost:9300\/oauth2\/default\/client\/6eUVG0-qK2dYiwfYdECKIw",
+    "client_id_issued_at": 1604767861,
+    "client_secret_expires_at": 0,
+    "contacts": ["me@example.org", "them@example.org"],
+    "application_type": "private",
+    "client_name": "A Private App",
+    "redirect_uris": ["https:\/\/client.example.org\/callback"],
+    "token_endpoint_auth_method": "client_secret_post",
+    "scope": "openid api:oemr api:fhir api:port api:pofh"
+}
+```
+
 #### Authorization Code Grant
 
 This is the recommended standard mechanism to obtain access/refresh tokens. This is done by using an OAuth2 client with provider url of `oauth2/<site>`; an example full path would be `https://localhost:9300/oauth2/default`.

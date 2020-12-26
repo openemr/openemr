@@ -172,6 +172,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "patient/Immunization.read",
             "patient/Immunization.write",
             "patient/Location.read",
+            "patient/Medication.read",
             "patient/MedicationRequest.read",
             "patient/MedicationRequest.write",
             "patient/NutritionOrder.read",
@@ -182,6 +183,10 @@ class ScopeRepository implements ScopeRepositoryInterface
             "patient/Patient.read",
             "patient/Patient.write",
             "patient/Person.read",
+            "patient/Practitioner.read",
+            "patient/Practitioner.write",
+            "patient/PractitionerRole.read",
+            "patient/PractitionerRole.write",
             "patient/Procedure.read",
             "patient/Procedure.write",
             "patient/Provenance.read",
@@ -210,6 +215,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/Immunization.read",
             "user/Immunization.write",
             "user/Location.read",
+            "user/Medication.read",
             "user/MedicationRequest.read",
             "user/MedicationRequest.write",
             "user/NutritionOrder.read",
@@ -222,6 +228,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/Person.read",
             "user/Practitioner.read",
             "user/Practitioner.write",
+            "user/PractitionerRole.read",
+            "user/PractitionerRole.write",
             "user/Procedure.read",
             "user/Procedure.write",
             "user/Provenance.read",
@@ -258,6 +266,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/Immunization.read",
             "system/Immunization.write",
             "system/Location.read",
+            "system/Medication.read",
             "system/MedicationRequest.read",
             "system/MedicationRequest.write",
             "system/NutritionOrder.read",
@@ -270,6 +279,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/Person.read",
             "system/Practitioner.read",
             "system/Practitioner.write",
+            "system/PractitionerRole.read",
+            "system/PractitionerRole.write",
             "system/Procedure.read",
             "system/Procedure.write",
             "system/Provenance.read",
@@ -285,53 +296,119 @@ class ScopeRepository implements ScopeRepositoryInterface
     {
         return [
             "patient/allergy.read",
+            "patient/allergy.write",
             "patient/appointment.read",
+            "patient/appointment.write",
+            "patient/dental_issue.read",
+            "patient/dental_issue.write",
+            "patient/document.read",
+            "patient/document.write",
             "patient/drug.read",
+            "patient/encounter.read",
+            "patient/encounter.write",
             "patient/facility.read",
             "patient/facility.write",
             "patient/immunization.read",
+            "patient/insurance.read",
+            "patient/insurance.write",
             "patient/insurance_company.read",
             "patient/insurance_company.write",
+            "patient/insurance_type.read",
             "patient/list.read",
             "patient/medical_problem.read",
+            "patient/medical_problem.write",
+            "patient/medication.read",
+            "patient/medication.write",
+            "patient/message.read",
+            "patient/message.write",
             "patient/patient.read",
             "patient/patient.write",
             "patient/practitioner.read",
             "patient/practitioner.write",
             "patient/prescription.read",
             "patient/procedure.read",
+            "patient/soap_note.read",
+            "patient/soap_note.write",
+            "patient/surgery.read",
+            "patient/surgery.write",
+            "patient/vital.read",
+            "patient/vital.write",
             "system/allergy.read",
+            "system/allergy.write",
             "system/appointment.read",
+            "system/appointment.write",
+            "system/dental_issue.read",
+            "system/dental_issue.write",
+            "system/document.read",
+            "system/document.write",
             "system/drug.read",
+            "system/encounter.read",
+            "system/encounter.write",
             "system/facility.read",
             "system/facility.write",
             "system/immunization.read",
+            "system/insurance.read",
+            "system/insurance.write",
             "system/insurance_company.read",
             "system/insurance_company.write",
+            "system/insurance_type.read",
             "system/list.read",
             "system/medical_problem.read",
+            "system/medical_problem.write",
+            "system/medication.read",
+            "system/medication.write",
+            "system/message.read",
+            "system/message.write",
             "system/patient.read",
             "system/patient.write",
             "system/practitioner.read",
             "system/practitioner.write",
             "system/prescription.read",
             "system/procedure.read",
+            "system/soap_note.read",
+            "system/soap_note.write",
+            "system/surgery.read",
+            "system/surgery.write",
+            "system/vital.read",
+            "system/vital.write",
             "user/allergy.read",
+            "user/allergy.write",
             "user/appointment.read",
+            "user/appointment.write",
+            "user/dental_issue.read",
+            "user/dental_issue.write",
+            "user/document.read",
+            "user/document.write",
             "user/drug.read",
+            "user/encounter.read",
+            "user/encounter.write",
             "user/facility.read",
             "user/facility.write",
             "user/immunization.read",
+            "user/insurance.read",
+            "user/insurance.write",
             "user/insurance_company.read",
             "user/insurance_company.write",
+            "user/insurance_type.read",
             "user/list.read",
             "user/medical_problem.read",
+            "user/medical_problem.write",
+            "user/medication.read",
+            "user/medication.write",
+            "user/message.read",
+            "user/message.write",
             "user/patient.read",
             "user/patient.write",
             "user/practitioner.read",
             "user/practitioner.write",
             "user/prescription.read",
-            "user/procedure.read"
+            "user/procedure.read",
+            "user/soap_note.read",
+            "user/soap_note.write",
+            "user/surgery.read",
+            "user/surgery.write",
+            "user/vital.read",
+            "user/vital.write",
         ];
     }
 
@@ -381,11 +458,10 @@ class ScopeRepository implements ScopeRepositoryInterface
     {
         $gbl = \RestConfig::GetInstance();
         $restHelper = new RestControllerHelper();
-        $routes = $gbl::$FHIR_ROUTE_MAP;
-        $restAPIs = $restHelper->getCapabilityRESTJSON($routes, "http://hl7.org/fhir/StructureDefinition/");
         // Collect all currently enabled FHIR resources.
         // Then assign all permissions the resource is capable.
-        $scopes_api = null;
+        $scopes_api = [];
+        $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$FHIR_ROUTE_MAP);
         foreach ($restAPIs as $resources) {
             foreach ($resources as $resource) {
                 $interactions = $resource['interaction'];
@@ -395,13 +471,15 @@ class ScopeRepository implements ScopeRepositoryInterface
                     $scopeWrite = $resourceType . ".write";
                     switch ($interaction['code']) {
                         case 'read':
-                            $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                            $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
+                            $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
+                            break;
+                        case 'search-type':
                             $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
                             $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
                             break;
                         case 'insert':
                         case 'update':
-                            $scopes_api['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
                             $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
                             $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
                             break;
@@ -409,6 +487,32 @@ class ScopeRepository implements ScopeRepositoryInterface
                 }
             }
         }
+        $scopes_api_portal = [];
+        $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$PORTAL_FHIR_ROUTE_MAP);
+        foreach ($restAPIs as $resources) {
+            foreach ($resources as $resource) {
+                $interactions = $resource['interaction'];
+                $resourceType = $resource['type'];
+                foreach ($interactions as $interaction) {
+                    $scopeRead = $resourceType . ".read";
+                    $scopeWrite = $resourceType . ".write";
+                    switch ($interaction['code']) {
+                        case 'read':
+                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                            break;
+                        case 'search-type':
+                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                            break;
+                        case 'insert':
+                        case 'update':
+                            $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
+                            break;
+                    }
+                }
+            }
+        }
+        $scopes_api = array_merge($scopes_api, $scopes_api_portal);
+
         $scopesSupported = $this->fhirScopes();
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
         $fhir = array_combine($this->fhirRequiredSmartScopes(), $this->fhirRequiredSmartScopes());
@@ -431,11 +535,10 @@ class ScopeRepository implements ScopeRepositoryInterface
     {
         $gbl = \RestConfig::GetInstance();
         $restHelper = new RestControllerHelper();
-        $routes = $gbl::$ROUTE_MAP;
-        $restAPIs = $restHelper->getCapabilityRESTJSON($routes, "OpenEMR\\Services", "http://hl7.org/fhir/StructureDefinition/");
-        // Collect all currently enabled FHIR resources.
+        // Collect all currently enabled resources.
         // Then assign all permissions the resource is capable.
-        $scopes_api = null;
+        $scopes_api = [];
+        $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$ROUTE_MAP, "OpenEMR\\Services");
         foreach ($restAPIs as $resources) {
             foreach ($resources as $resource) {
                 $interactions = $resource['interaction'];
@@ -445,14 +548,16 @@ class ScopeRepository implements ScopeRepositoryInterface
                     $scopeWrite = $resourceType . ".write";
                     switch ($interaction['code']) {
                         case 'read':
-                            $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                            $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
+                            $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
+                            break;
+                        case 'search-type':
                             $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
                             $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
                             break;
                         case 'put':
                         case 'insert':
                         case 'update':
-                            $scopes_api['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
                             $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
                             $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
                             break;
@@ -460,6 +565,33 @@ class ScopeRepository implements ScopeRepositoryInterface
                 }
             }
         }
+        $scopes_api_portal = [];
+        $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$PORTAL_ROUTE_MAP, "OpenEMR\\Services");
+        foreach ($restAPIs as $resources) {
+            foreach ($resources as $resource) {
+                $interactions = $resource['interaction'];
+                $resourceType = $resource['type'];
+                foreach ($interactions as $interaction) {
+                    $scopeRead = $resourceType . ".read";
+                    $scopeWrite = $resourceType . ".write";
+                    switch ($interaction['code']) {
+                        case 'read':
+                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                            break;
+                        case 'search-type':
+                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                            break;
+                        case 'put':
+                        case 'insert':
+                        case 'update':
+                            $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
+                            break;
+                    }
+                }
+            }
+        }
+        $scopes_api = array_merge($scopes_api, $scopes_api_portal);
+
         $scopesSupported = $this->apiScopes();
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
         $scopesSupported = null;
