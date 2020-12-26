@@ -1,23 +1,24 @@
 <?php
 
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+
 if ($oauthdisc !== true) {
     echo xlt("Error. Not authorized");
     exit();
 }
 
-global $authServer;
-$base_url = $authServer->authBaseFullUrl;
-
 $passwordGrantString = '';
 if (!empty($GLOBALS['oauth_password_grant'])) {
     $passwordGrantString = '"password",';
 }
-$claims = json_encode($authServer->supportedClaims, JSON_PRETTY_PRINT);
-$scopes = json_encode($authServer->supportedScopes, JSON_PRETTY_PRINT);
+
+$scopeRepository = new ScopeRepository();
+$claims = json_encode($scopeRepository->getSupportedClaims(), JSON_PRETTY_PRINT);
+$scopes = json_encode($scopeRepository->getOidcSupportedScopes(), JSON_PRETTY_PRINT);
 
 $discovery = <<<TEMPLATE
 {
-"issuer": "$authServer->authIssueFullUrl",
+"issuer": "$base_url",
 "authorization_endpoint": "$base_url/authorize",
 "token_endpoint": "$base_url/token",
 "jwks_uri": "$base_url/jwk",

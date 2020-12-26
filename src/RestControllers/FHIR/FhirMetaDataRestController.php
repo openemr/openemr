@@ -61,7 +61,7 @@ class FhirMetaDataRestController
                         "name" => $searchParam,
                         "type" => "string"
                     );
-                    array_push($paramsList, $param);
+                    $paramsList[] = $param;
                 }
             }
         }
@@ -78,24 +78,24 @@ class FhirMetaDataRestController
                     $method = array(
                         "code" => "read"
                     );
-                    array_push($methods, $method);
+                    $methods[] = $method;
                 }
             } else {
                 $method = array(
                     "code" => "search-type"
                 );
-                array_push($methods, $method);
+                $methods[] = $method;
             }
         } elseif (strcmp($reqMethod, "POST") == 0) {
             $method = array(
                 "code" => "insert"
             );
-            array_push($methods, $method);
+            $methods[] = $method;
         } elseif (strcmp($reqMethod, "PUT") == 0) {
             $method = array(
                 "code" => "update"
             );
-            array_push($methods, $method);
+            $methods[] = $method;
         }
         return $methods;
     }
@@ -127,7 +127,7 @@ class FhirMetaDataRestController
                 "interaction" => $data["methods"],
                 "searchParam" => $data["params"]
             );
-            array_push($resources, $resArray);
+            $resources[] = $resArray;
         }
         $restItem = array(
             "resource" => $resources,
@@ -150,7 +150,7 @@ class FhirMetaDataRestController
         $capabilityStatement->setStatus("Not provided");
         $capabilityStatement->addFormat(new FHIRCode("application/json"));
         $resturl = new FHIRUrl();
-        $resturl->setValue($GLOBALS['site_addr_oath'] . $gbl::$ROOT_URL . "/" . $gbl::$SITE . "/fhir");
+        $resturl->setValue($gbl::$apisBaseFullUrl . "/fhir");
         $implementation = new FHIRCapabilityStatementImplementation();
         $implementation->setUrl($resturl);
         $implementation->setDescription("OpenEMR FHIR API");
@@ -176,7 +176,7 @@ class FhirMetaDataRestController
      * Creates the Security Capability Statement and returns it.
      * @return FHIRCapabilityStatementSecurity
      */
-    private function getRestSecurity()
+    private function getRestSecurity(): FHIRCapabilityStatementSecurity
     {
         $service = new FHIRCodeableConcept();
         $service->text = xlt("OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)");
@@ -199,7 +199,7 @@ class FhirMetaDataRestController
      * Adds all of the FHIR REST Extensions needed for things such as SMART on FHIR
      * @param FHIRCapabilityStatementSecurity $statement
      */
-    private function addOauthSecurityExtensions(FHIRCapabilityStatementSecurity $statement)
+    private function addOauthSecurityExtensions(FHIRCapabilityStatementSecurity $statement): void
     {
         $authServer = new AuthorizationController();
         $oauthExtension = new FHIRExtension();
@@ -227,8 +227,9 @@ class FhirMetaDataRestController
         // now add our SMART capabilities
         foreach (Capability::SUPPORTED_CAPABILITIES as $smartCapability) {
             $extension = new FHIRExtension();
+            $fhirCode = new FHIRCode($smartCapability);
             $extension->setUrl("http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities");
-            $extension->setValueCode($smartCapability);
+            $extension->setValueCode($fhirCode);
             $statement->addExtension($extension);
         }
     }
@@ -237,7 +238,7 @@ class FhirMetaDataRestController
      * Returns Metadata in CapabilityStatement FHIR resource format
      *
      */
-    public function getMetaData()
+    public function getMetaData(): FHIRCapabilityStatement
     {
         return $this->buildCapabilityStatement();
     }

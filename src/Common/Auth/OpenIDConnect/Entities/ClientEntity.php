@@ -92,6 +92,6 @@ class ClientEntity implements ClientEntityInterface
      */
     public function hasScope($scope)
     {
-        return array_search($scope, $this->scopes) !== false;
+        return in_array($scope, $this->scopes);
     }
 }

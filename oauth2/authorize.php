@@ -77,6 +77,7 @@ if (false !== stripos($end_point, '/token')) {
 
 if (false !== stripos($end_point, '/openid-configuration')) {
     $oauthdisc = true;
+    $base_url = $authServer->authBaseFullUrl;
     require_once("provider/.well-known/discovery.php");
     SessionUtil::oauthSessionCookieDestroy();
     exit;
