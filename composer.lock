@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9e0c0e726eff893992f611443a1f3127",
+    "content-hash": "eee84512470bd7902e4991bcc118e101",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -3314,16 +3314,16 @@
         },
         {
             "name": "lcobucci/jwt",
-            "version": "dev-342php8",
+            "version": "dev-34php8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/openemr/jwt.git",
-                "reference": "1b63d35e92f3101a43b340cd946d58d6d6a17ee7"
+                "reference": "b05489c8ef2746f1653ccc41789c027a693b1fb9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/openemr/jwt/zipball/1b63d35e92f3101a43b340cd946d58d6d6a17ee7",
-                "reference": "1b63d35e92f3101a43b340cd946d58d6d6a17ee7",
+                "url": "https://api.github.com/repos/openemr/jwt/zipball/b05489c8ef2746f1653ccc41789c027a693b1fb9",
+                "reference": "b05489c8ef2746f1653ccc41789c027a693b1fb9",
                 "shasum": ""
             },
             "require": {
@@ -3381,7 +3381,7 @@
                 "JWT"
             ],
             "support": {
-                "source": "https://github.com/openemr/jwt/tree/342php8"
+                "source": "https://github.com/openemr/jwt/tree/34php8"
             },
             "funding": [
                 {
@@ -3393,7 +3393,7 @@
                     "url": "https://www.patreon.com/lcobucci"
                 }
             ],
-            "time": "2020-12-23T02:02:24+00:00"
+            "time": "2020-12-01T20:26:41+00:00"
         },
         {
             "name": "league/event",
@@ -6685,19 +6685,20 @@
         },
         {
             "name": "steverhoades/oauth2-openid-connect-server",
-            "version": "v1.2.0",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/steverhoades/oauth2-openid-connect-server.git",
-                "reference": "11dc3f83dba4b516e42f8d69223d28f976a7838b"
+                "reference": "b38b082faa905d5feb2faf95add5f4a3b2cb7542"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/steverhoades/oauth2-openid-connect-server/zipball/11dc3f83dba4b516e42f8d69223d28f976a7838b",
-                "reference": "11dc3f83dba4b516e42f8d69223d28f976a7838b",
+                "url": "https://api.github.com/repos/steverhoades/oauth2-openid-connect-server/zipball/b38b082faa905d5feb2faf95add5f4a3b2cb7542",
+                "reference": "b38b082faa905d5feb2faf95add5f4a3b2cb7542",
                 "shasum": ""
             },
             "require": {
+                "lcobucci/jwt": "^3.3",
                 "league/oauth2-server": "^5.1|^6.0|^7.0|^8.0"
             },
             "require-dev": {
@@ -6721,11 +6722,7 @@
                 }
             ],
             "description": "An OpenID Connect Server that sites on The PHP League's OAuth2 Server",
-            "support": {
-                "issues": "https://github.com/steverhoades/oauth2-openid-connect-server/issues",
-                "source": "https://github.com/steverhoades/oauth2-openid-connect-server/tree/v1.2.0"
-            },
-            "time": "2019-09-16T18:16:02+00:00"
+            "time": "2020-12-05T21:09:11+00:00"
         },
         {
             "name": "symfony/config",
@@ -11080,10 +11077,10 @@
     ],
     "aliases": [
         {
-            "package": "lcobucci/jwt",
-            "version": "dev-342php8",
             "alias": "3.4.9",
-            "alias_normalized": "3.4.9.0"
+            "alias_normalized": "3.4.9.0",
+            "version": "dev-34php8",
+            "package": "lcobucci/jwt"
         }
     ],
     "minimum-stability": "stable",
@@ -11099,5 +11096,5 @@
     "platform-overrides": {
         "php": "7.3"
     },
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "1.1.0"
 }
