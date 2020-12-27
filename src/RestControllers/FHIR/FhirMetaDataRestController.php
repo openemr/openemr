@@ -16,6 +16,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSecurity;
 use OpenEMR\FHIR\SMART\Capability;
 use OpenEMR\RestControllers\AuthorizationController;
+use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCapabilityStatement;
@@ -37,106 +38,16 @@ class FhirMetaDataRestController
 {
     private $fhirService;
     private $fhirValidate;
+    private $restHelper;
 
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
         $this->fhirValidate = new FhirValidationService();
+        $this->restHelper = new RestControllerHelper();
     }
 
-    protected function setSearchParams($resource, $paramsList)
-    {
-        $serviceClass = "OpenEMR\\Services\\FHIR\\Fhir" . $resource . "Service";
-        if (class_exists($serviceClass)) {
-            $service = new $serviceClass();
-            foreach ($service->getSearchParams() as $searchParam => $searchFields) {
-                $paramExists = false;
-                foreach ($paramsList as $param) {
-                    if (strcmp($param["name"], $searchParam) == 0) {
-                        $paramExists = true;
-                    }
-                }
-                if (!$paramExists) {
-                    $param = array(
-                        "name" => $searchParam,
-                        "type" => "string"
-                    );
-                    $paramsList[] = $param;
-                }
-            }
-        }
-        return $paramsList;
-        // error_log(print_r($paramsList,TRUE));
-    }
-
-    protected function addRequestMethods($items, $methods)
-    {
-        $reqMethod = trim($items[0], " ");
-        if (strcmp($reqMethod, "GET") == 0) {
-            if (sizeof($items)  == 4) {
-                if (strcmp($items[3], ":id") == 0 || strcmp($items[3], ":uuid") == 0) {
-                    $method = array(
-                        "code" => "read"
-                    );
-                    $methods[] = $method;
-                }
-            } else {
-                $method = array(
-                    "code" => "search-type"
-                );
-                $methods[] = $method;
-            }
-        } elseif (strcmp($reqMethod, "POST") == 0) {
-            $method = array(
-                "code" => "insert"
-            );
-            $methods[] = $method;
-        } elseif (strcmp($reqMethod, "PUT") == 0) {
-            $method = array(
-                "code" => "update"
-            );
-            $methods[] = $method;
-        }
-        return $methods;
-    }
-
-
-    protected function getCapabilityRESTJSON($routes)
-    {
-        $ignore = ["metadata","auth"];
-        $resourcesHash = array();
-        foreach ($routes as $key => $function) {
-            $items  = explode("/", $key);
-            $resource = $items[2];
-            if (!in_array($resource, $ignore)) {
-                if (!array_key_exists($resource, $resourcesHash)) {
-                    $resourcesHash[$resource] = array(
-                        "methods" => [],
-                        "params" => []
-                    );
-                }
-                $resourcesHash[$resource]["params"] = $this->setSearchParams($resource, $resourcesHash[$resource]["params"]);
-                $resourcesHash[$resource]["methods"] = $this->addRequestMethods($items, $resourcesHash[$resource]["methods"]);
-            }
-        }
-        $resources = [];
-        foreach ($resourcesHash as $resource => $data) {
-            $resArray = array(
-                "type" => $resource,
-                "profile" => "http://hl7.org/fhir/StructureDefinition/" . $resource,
-                "interaction" => $data["methods"],
-                "searchParam" => $data["params"]
-            );
-            $resources[] = $resArray;
-        }
-        $restItem = array(
-            "resource" => $resources,
-            "mode" => "server",
-        );
-        return $restItem;
-    }
-
-    protected function buildCapabilityStatement()
+    protected function buildCapabilityStatement(): FHIRCapabilityStatement
     {
         $gbl = \RestConfig::GetInstance();
         $routes = $gbl::$FHIR_ROUTE_MAP;
@@ -158,7 +69,7 @@ class FhirMetaDataRestController
         $dateTime = new FHIRDateTime();
         $dateTime->setValue(date("Y-m-d", time()));
         $capabilityStatement->setDate($dateTime);
-        $restJSON = $this->getCapabilityRESTJSON($routes);
+        $restJSON = $this->restHelper->getCapabilityRESTJSON($routes);
         $restObj = new FHIRCapabilityStatementRest($restJSON);
         $restObj->setSecurity($this->getRestSecurity());
         $capabilityStatement->addRest($restObj);

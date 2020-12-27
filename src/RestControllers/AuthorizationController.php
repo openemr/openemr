@@ -287,7 +287,7 @@ class AuthorizationController
             }
             // save to oauth client table
             $badSave = $this->newClientSave($client_id, $params);
-            if ($badSave) {
+            if (!empty($badSave)) {
                 throw OAuthServerException::serverError("Try again. Unable to create account");
             }
             $reg_uri = $this->authBaseFullUrl . '/client/' . $reg_client_uri_path;

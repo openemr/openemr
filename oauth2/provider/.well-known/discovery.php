@@ -11,10 +11,16 @@ $passwordGrantString = '';
 if (!empty($GLOBALS['oauth_password_grant'])) {
     $passwordGrantString = '"password",';
 }
-
+// PHP is a fickle beast!
 $scopeRepository = new ScopeRepository();
-$claims = json_encode($scopeRepository->getSupportedClaims(), JSON_PRETTY_PRINT);
-$scopes = json_encode($scopeRepository->getOidcSupportedScopes(), JSON_PRETTY_PRINT);
+$claims_array = $scopeRepository->getSupportedClaims();
+$claims = json_encode($claims_array, JSON_PRETTY_PRINT);
+
+$scopes_array_smart = $scopeRepository->getCurrentSmartScopes();
+$scopes_array = $scopeRepository->getCurrentStandardScopes();
+$scopes_array = array_merge($scopes_array_smart, $scopes_array);
+
+$scopes = json_encode($scopes_array, JSON_PRETTY_PRINT);
 
 $discovery = <<<TEMPLATE
 {

@@ -16,6 +16,7 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\RestControllers\RestControllerHelper;
 use Psr\Log\LoggerInterface;
 
 class ScopeRepository implements ScopeRepositoryInterface
@@ -280,6 +281,60 @@ class ScopeRepository implements ScopeRepositoryInterface
         ];
     }
 
+    public function apiScopes(): array
+    {
+        return [
+            "patient/allergy.read",
+            "patient/appointment.read",
+            "patient/drug.read",
+            "patient/facility.read",
+            "patient/facility.write",
+            "patient/immunization.read",
+            "patient/insurance_company.read",
+            "patient/insurance_company.write",
+            "patient/list.read",
+            "patient/medical_problem.read",
+            "patient/patient.read",
+            "patient/patient.write",
+            "patient/practitioner.read",
+            "patient/practitioner.write",
+            "patient/prescription.read",
+            "patient/procedure.read",
+            "system/allergy.read",
+            "system/appointment.read",
+            "system/drug.read",
+            "system/facility.read",
+            "system/facility.write",
+            "system/immunization.read",
+            "system/insurance_company.read",
+            "system/insurance_company.write",
+            "system/list.read",
+            "system/medical_problem.read",
+            "system/patient.read",
+            "system/patient.write",
+            "system/practitioner.read",
+            "system/practitioner.write",
+            "system/prescription.read",
+            "system/procedure.read",
+            "user/allergy.read",
+            "user/appointment.read",
+            "user/drug.read",
+            "user/facility.read",
+            "user/facility.write",
+            "user/immunization.read",
+            "user/insurance_company.read",
+            "user/insurance_company.write",
+            "user/list.read",
+            "user/medical_problem.read",
+            "user/patient.read",
+            "user/patient.write",
+            "user/practitioner.read",
+            "user/practitioner.write",
+            "user/prescription.read",
+            "user/procedure.read"
+        ];
+    }
+
     public function getOidcSupportedScopes(): array
     {
         return $this->oidcScopes();
@@ -305,9 +360,14 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $standard;
     }
 
-    public function getSystemSupportedScopes(): array
+    public function getSystemFhirSupportedScopes(): array
     {
         return $this->systemScopes();
+    }
+
+    public function getStandardApiSupportedScopes(): array
+    {
+        return $this->apiScopes();
     }
 
     /**
@@ -319,20 +379,15 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getCurrentSmartScopes($role = 'user'): array
     {
-        // TODO: should we abstract the innards of the REST controller into its own class
-        // so we don't violate single responsibility principle?
-        $metadataController = new \OpenEMR\RestControllers\FHIR\FhirMetaDataRestController();
-        $statement = $metadataController->getMetaData();
-
+        $gbl = \RestConfig::GetInstance();
+        $restHelper = new RestControllerHelper();
+        $routes = $gbl::$FHIR_ROUTE_MAP;
+        $restAPIs = $restHelper->getCapabilityRESTJSON($routes, "http://hl7.org/fhir/StructureDefinition/");
         // Collect all currently enabled FHIR resources.
         // Then assign all permissions the resource is capable.
-        $restAPIs = $statement->getRest();
-        $scopes_api[] = null;
-        foreach ($restAPIs as $api) {
-            $resources = $api->getResource();
+        $scopes_api = null;
+        foreach ($restAPIs as $resources) {
             foreach ($resources as $resource) {
-                // annoying that we switch into JSON instead of objects here
-                // violates the least surprise principle...
                 $interactions = $resource['interaction'];
                 $resourceType = $resource['type'];
                 foreach ($interactions as $interaction) {
@@ -370,6 +425,54 @@ class ScopeRepository implements ScopeRepositoryInterface
         $scopesSupported = array_keys(array_merge($fhir, $oidc, $scopesSupported));
 
         return $scopesSupported;
+    }
+
+    public function getCurrentStandardScopes($role = 'user'): array
+    {
+        $gbl = \RestConfig::GetInstance();
+        $restHelper = new RestControllerHelper();
+        $routes = $gbl::$ROUTE_MAP;
+        $restAPIs = $restHelper->getCapabilityRESTJSON($routes, "OpenEMR\\Services", "http://hl7.org/fhir/StructureDefinition/");
+        // Collect all currently enabled FHIR resources.
+        // Then assign all permissions the resource is capable.
+        $scopes_api = null;
+        foreach ($restAPIs as $resources) {
+            foreach ($resources as $resource) {
+                $interactions = $resource['interaction'];
+                $resourceType = $resource['type'];
+                foreach ($interactions as $interaction) {
+                    $scopeRead = $resourceType . ".read";
+                    $scopeWrite = $resourceType . ".write";
+                    switch ($interaction['code']) {
+                        case 'read':
+                            $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                            $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
+                            $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
+                            break;
+                        case 'put':
+                        case 'insert':
+                        case 'update':
+                            $scopes_api['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
+                            $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
+                            $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
+                            break;
+                    }
+                }
+            }
+        }
+        $scopesSupported = $this->apiScopes();
+        $scopes_dict = array_combine($scopesSupported, $scopesSupported);
+        $scopesSupported = null;
+        // verify scope permissions are allowed for role being used.
+        foreach ($scopes_api as $key => $scope) {
+            if (empty($scopes_dict[$key])) {
+                continue;
+            }
+            $scopesSupported[$key] = $scope;
+        }
+        asort($scopesSupported);
+
+        return array_keys($scopesSupported);
     }
 
     // made public for now!
