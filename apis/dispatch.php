@@ -109,6 +109,8 @@ $GLOBALS['is_local_api'] = $isLocalApi;
 $sessionAllowWrite = true;
 require_once("./../interface/globals.php");
 
+$gbl::$apisBaseFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'] . "/apis/" . $gbl::$SITE;
+
 if ($isLocalApi) {
     // need to check for csrf match when using api locally
     $csrfFail = false;

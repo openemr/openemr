@@ -14,6 +14,7 @@
 
 namespace OpenEMR\RestControllers\SMART;
 
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\FHIR\SMART\Capability;
 
 class SMARTConfigurationController
@@ -55,60 +56,13 @@ class SMARTConfigurationController
         return $styles;
     }
 
-    public function getConfig()
+    public function getConfig(): array
     {
         $authServer = $this->authServer;
-        // TODO: should we abstract the innards of the REST controller into its own class
-        // so we don't violate single responsibility principle?
-        $metadataController = new \OpenEMR\RestControllers\FHIR\FhirMetaDataRestController();
-        $statement = $metadataController->getMetaData();
-
-        // TODO: adunsulag merge these with the OAUTH scopes
-        $scopesSupported = [
-            "openid"
-            , "profile"
-//            , "launch"
-            , "launch/patient"
-            , "patient/*.*"
-//            , "user/*.*"
-//            , "offline_access"
-        ];
-        // create hash dictionary
-        $scopes_dict = array_combine($scopesSupported, $scopesSupported);
-        $restAPIs = $statement->getRest();
-        foreach ($restAPIs as $api) {
-            $resources = $api->getResource();
-            foreach ($resources as $resource) {
-                // annoying that we switch into JSON instead of objects here
-                // violates the least surprise principle...
-                $interactions = $resource['interaction'];
-                $resourceType = $resource['type'];
-
-                foreach ($interactions as $interaction) {
-                    $scopeRead = $resourceType . ".read";
-                    $scopeWrite = $resourceType . ".write";
-                    switch ($interaction['code']) {
-                        case 'read':
-                            if (empty($scopes_dict[$scopeRead])) {
-                                $scopes_dict[$scopeRead] = $scopeRead;
-                            }
-                            break;
-                        case 'insert': // checkstyle doesn't like fallthrough statements apparently
-                            if (empty($scopes_dict[$scopeWrite])) {
-                                $scopes_dict[$scopeWrite] = $scopeWrite;
-                            }
-                            break;
-                        case 'update':
-                            if (empty($scopes_dict[$scopeWrite])) {
-                                $scopes_dict[$scopeWrite] = $scopeWrite;
-                            }
-                            break;
-                    }
-                }
-            }
-        }
-        $scopesSupported = array_keys($scopes_dict);
-        sort($scopesSupported);
+        // combine all possible supported scopes(OIDC & SMART on FHIR)
+        // and reduce to only scopes supported by existing FHIR api resources.
+        $scopeRepository = new ScopeRepository();
+        $scopesSupported = $scopeRepository->getCurrentSmartScopes();
 
         /**
          * @see http://www.hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known
@@ -147,6 +101,7 @@ class SMARTConfigurationController
             //    "revocation_endpoint" => "https://ehr.example.com/user/revoke",
             "capabilities" => Capability::SUPPORTED_CAPABILITIES
         ];
+
         return $config;
     }
 }
