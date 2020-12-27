@@ -103,8 +103,8 @@ class RestControllerHelper
      *
      * The response body has a normal Fhir Resource json:
      *
-     * @param        $processingResult         - The service processing result.
-     * @param        $successStatusCode        - The HTTP status code to return for a successful operation that completes without error.
+     * @param        $processingResult  - The service processing result.
+     * @param        $successStatusCode - The HTTP status code to return for a successful operation that completes without error.
      * @return array|mixed
      */
     public static function handleFhirProcessingResult($processingResult, $successStatusCode)
@@ -124,5 +124,97 @@ class RestControllerHelper
         }
 
         return $httpResponseBody;
+    }
+
+    public function setSearchParams($resource, $paramsList, $serviceClassNameSpace = "OpenEMR\\Services\\FHIR\\Fhir")
+    {
+        $serviceClass = $serviceClassNameSpace . $resource . "Service";
+        if (class_exists($serviceClass)) {
+            $service = new $serviceClass();
+            foreach ($service->getSearchParams() as $searchParam => $searchFields) {
+                $paramExists = false;
+                foreach ($paramsList as $param) {
+                    if (strcmp($param["name"], $searchParam) == 0) {
+                        $paramExists = true;
+                    }
+                }
+                if (!$paramExists) {
+                    $param = array(
+                        "name" => $searchParam,
+                        "type" => "string"
+                    );
+                    $paramsList[] = $param;
+                }
+            }
+        }
+        return $paramsList;
+        // error_log(print_r($paramsList,TRUE));
+    }
+
+    public function addRequestMethods($items, $methods)
+    {
+        $reqMethod = trim($items[0], " ");
+        if (strcmp($reqMethod, "GET") == 0) {
+            if (count($items) >= 4) {
+                if (!empty(preg_match('/:/', $items[3]))) {
+                    $method = array(
+                        "code" => "read"
+                    );
+                    $methods[] = $method;
+                }
+            } else {
+                $method = array(
+                    "code" => "search-type"
+                );
+                $methods[] = $method;
+            }
+        } elseif (strcmp($reqMethod, "POST") == 0) {
+            $method = array(
+                "code" => "insert"
+            );
+            $methods[] = $method;
+        } elseif (strcmp($reqMethod, "PUT") == 0) {
+            $method = array(
+                "code" => "update"
+            );
+            $methods[] = $method;
+        }
+        return $methods;
+    }
+
+
+    public function getCapabilityRESTJSON($routes, $serviceClassNameSpace = "OpenEMR\\Services\\FHIR\\Fhir", $structureDefinition = "http://hl7.org/fhir/StructureDefinition/"): array
+    {
+        $ignore = ["metadata", "auth"];
+        $resourcesHash = array();
+        foreach ($routes as $key => $function) {
+            $items = explode("/", $key);
+            $resource = $items[2];
+            if (!in_array($resource, $ignore)) {
+                if (!array_key_exists($resource, $resourcesHash)) {
+                    $resourcesHash[$resource] = array(
+                        "methods" => [],
+                        "params" => []
+                    );
+                }
+                $resourcesHash[$resource]["params"] = $this->setSearchParams($resource, $resourcesHash[$resource]["params"], $serviceClassNameSpace);
+                $resourcesHash[$resource]["methods"] = $this->addRequestMethods($items, $resourcesHash[$resource]["methods"]);
+            }
+        }
+        $resources = [];
+        foreach ($resourcesHash as $resource => $data) {
+            $resArray = array(
+                "type" => $resource,
+                "profile" => $structureDefinition . $resource,
+                "interaction" => $data["methods"],
+                "searchParam" => $data["params"]
+            );
+            $resources[] = $resArray;
+        }
+        $restItem = array(
+            "resource" => $resources,
+            "mode" => "server",
+        );
+        return $restItem;
     }
 }
