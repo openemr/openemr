@@ -172,7 +172,7 @@ class PractitionerService extends BaseService
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
 
-        $sqlResult['uuid'] = $uuid; // UuidRegistry::uuidToString($sqlResult['uuid']);
+        $sqlResult['uuid'] = $uuid;
         $processingResult->addData($sqlResult);
         return $processingResult;
     }
