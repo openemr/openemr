@@ -109,12 +109,12 @@ Multisite is supported by including the site in the endpoint. When not using mul
 
 ### Authorization
 
-OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Globals->Connectors->'Site Address (required for OAuth2 and FHIR)' is required. This listing of scopes can be found in below Scopes section.
+OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Globals->Connectors->'Site Address (required for OAuth2 and FHIR)' is required. The listing of scopes can be found in below Scopes section.
 
 #### Scopes
 
 This is a listing of scopes:
-- `api:oemr` (user api)
+- `api:oemr` (user api which are the /api/ endpoints)
   - user/allergy.read`
   - user/allergy.write`
   - user/appointment.read
@@ -152,7 +152,7 @@ This is a listing of scopes:
   - user/surgery.write
   - user/vital.read
   - user/vital.write
-- `api:fhir` (user fhir)
+- `api:fhir` (user fhir which are the /fhir/ endpoints)
   - user/AllergyIntolerance.read
   - user/CareTeam.read
   - user/Condition.read
@@ -170,10 +170,10 @@ This is a listing of scopes:
   - user/Practitioner.write
   - user/PractitionerRole.read
   - user/Procedure.read
-- `api:port` (patient api)
+- `api:port` (patient api which are the /portal/ endpoints)
   - patient/encounter.read
   - patient/patient.read
-- `api:pofh` (patient fhir)
+- `api:pofh` (patient fhir which are the /portalfhir/ endpoints)
   - patient/Encounter.read
   - patient/Patient.read
 
