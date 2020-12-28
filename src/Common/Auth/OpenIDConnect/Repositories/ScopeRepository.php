@@ -26,6 +26,8 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     private $logger;
 
+    private $validationScopes;
+
     public function __construct()
     {
         $this->logger = SystemLogger::instance();
@@ -37,9 +39,11 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getScopeEntityByIdentifier($identifier): ?ScopeEntity
     {
-        $validationScopes = $this->buildScopeValidatorArray();
+        if (empty($this->validationScopes)) {
+            $this->validationScopes = $this->buildScopeValidatorArray();
+        }
 
-        if (array_key_exists($identifier, $validationScopes) === false && stripos($identifier, 'site:') === false) {
+        if (array_key_exists($identifier, $this->validationScopes) === false && stripos($identifier, 'site:') === false) {
             $this->logger->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", ["scope" => $identifier]);
             return null;
         }
