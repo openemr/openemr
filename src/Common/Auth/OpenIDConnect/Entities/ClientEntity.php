@@ -24,6 +24,7 @@ class ClientEntity implements ClientEntityInterface
     protected $userId;
     protected $clientRole;
     protected $scopes;
+    protected $launchUri;
 
     public function __construct()
     {
@@ -93,5 +94,22 @@ class ClientEntity implements ClientEntityInterface
     public function hasScope($scope)
     {
         return in_array($scope, $this->scopes);
+    }
+
+    /**
+     * Returns the registered launch URI (as a string).
+     *
+     * @params $launchParams string A URL query string params to append to the launch uri.
+     * @return string
+     */
+    public function getLaunchUri($launchParams = '')
+    {
+        $launchParams = isset($launchParams) ? $launchParams : '';
+        return $this->launchUri . $launchParams;
+    }
+
+    public function setLaunchUri($uri): void
+    {
+        $this->launchUri = $uri;
     }
 }

@@ -2302,6 +2302,7 @@ CREATE TABLE `oauth_clients` (
 `revoke_date` datetime DEFAULT NULL,
 `contacts` text,
 `redirect_uri` text,
+`launch_uri` text,
 `grant_types` varchar(80) DEFAULT NULL,
 `scope` text,
 `user_id` varchar(40) DEFAULT NULL,

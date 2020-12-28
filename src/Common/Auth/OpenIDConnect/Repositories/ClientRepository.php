@@ -114,6 +114,7 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setIsConfidential($client_record['is_confidential']);
         $client->setScopes($client_record['scope']);
         $client->setClientRole($client_record['client_role']);
+        $client->setLaunchUri($client_record['launch_uri']);
         return $client;
     }
 }

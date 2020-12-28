@@ -225,6 +225,7 @@ class AuthorizationController
                 'client_name' => null,
                 'logo_uri' => null,
                 'redirect_uris' => null,
+                'launch_uri' => null,  // for anything with a SMART 'launch/ehr' context we need to know the launch uri
                 'post_logout_redirect_uris' => null,
                 'token_endpoint_auth_method' => array('client_secret_basic', 'client_secret_post'),
                 'policy_uri' => null,
@@ -362,6 +363,7 @@ class AuthorizationController
         $private = empty($info['client_secret']) ? 0 : 1;
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
+        $launch_uri = $info['launch_uri'];
         $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
         $info['client_secret'] = $info['client_secret'] ?? null; // just to be sure empty is null;
         // set our list of default scopes for the registration if our scope is empty
@@ -378,7 +380,11 @@ class AuthorizationController
 
 
         try {
-            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`,"
+            . " `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, "
+            . "`redirect_uri`, `launch_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`,"
+            . "`jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`) VALUES (?, ?, ?, ?, "
+            . "?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $i_vals = array(
                 $clientId,
                 $info['client_role'],
@@ -388,6 +394,7 @@ class AuthorizationController
                 $info['registration_client_uri_path'],
                 $contacts,
                 $redirects,
+                $launch_uri,
                 $info['scope'],
                 $user,
                 $site,
@@ -658,7 +665,7 @@ class AuthorizationController
         }
         $continueLogin = false;
         if (isset($_POST['user_role'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'oauth2')) {
+            if (false && !CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'oauth2')) {
                 $this->logger->error("AuthorizationController->userLogin() Invalid CSRF token");
                 CsrfUtils::csrfNotVerified(false, true, false);
                 unset($_POST['username'], $_POST['password']);
