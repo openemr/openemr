@@ -1,9 +1,11 @@
 <?php
 
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\Common\Session\SessionUtil;
 
 if ($oauthdisc !== true) {
     echo xlt("Error. Not authorized");
+    SessionUtil::oauthSessionCookieDestroy();
     exit();
 }
 
@@ -78,6 +80,8 @@ $discovery = <<<TEMPLATE
 ]
 }
 TEMPLATE;
+
+SessionUtil::oauthSessionCookieDestroy();
 
 header('Content-Type: application/json');
 echo($discovery);

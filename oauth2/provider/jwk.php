@@ -1,7 +1,10 @@
 <?php
 
+use OpenEMR\Common\Session\SessionUtil;
+
 if ($oauthjwk !== true) {
     echo xlt("Error. Not authorized");
+    SessionUtil::oauthSessionCookieDestroy();
     exit();
 }
 
@@ -15,6 +18,8 @@ $key_info = [
 $key_info['use'] = 'sig';
 
 $jsonData = ['keys' => [$key_info]];
+
+SessionUtil::oauthSessionCookieDestroy();
 
 try {
     header('Content-type: application/json');

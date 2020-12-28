@@ -32,7 +32,7 @@ class SystemLogger implements LoggerInterface
          * We use mono
          */
         $this->logger = new Logger('OpenEMR');
-        $logLevel = Logger::WARNING; // change this if you want to filter what logs you see.
+        $logLevel = Logger::DEBUG; // change this if you want to filter what logs you see.
 
 //        $facility = LOG_SYSLOG; // @see syslog constants https://www.php.net/manual/en/network.constants.php
 //        // Change the logger level to see what logs you want to log

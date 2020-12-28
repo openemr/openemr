@@ -79,7 +79,6 @@ if (false !== stripos($end_point, '/openid-configuration')) {
     $oauthdisc = true;
     $base_url = $authServer->authBaseFullUrl;
     require_once("provider/.well-known/discovery.php");
-    SessionUtil::oauthSessionCookieDestroy();
     exit;
 }
 
@@ -98,7 +97,6 @@ if (false !== stripos($end_point, '/device/code')) {
 if (false !== stripos($end_point, '/jwk')) {
     $oauthjwk = true;
     require_once(__DIR__ . "/provider/jwk.php");
-    SessionUtil::oauthSessionCookieDestroy();
     exit;
 }
 
