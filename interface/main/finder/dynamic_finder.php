@@ -428,5 +428,11 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
     <script>
         document.addEventListener('touchstart', {});
     </script>
+
+    <script>
+        $(function() {
+            $('div.dataTables_filter input').focus();
+        });
+    </script>
 </body>
 </html>
