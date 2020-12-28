@@ -179,10 +179,12 @@ if ($isLocalApi) {
         exit();
     }
     // verify that the scope covers the route
-    if (($gbl::is_api_request($resource) && !in_array('api:oemr', $GLOBALS['oauth_scopes'])) ||
+    if (
+        ($gbl::is_api_request($resource) && !in_array('api:oemr', $GLOBALS['oauth_scopes'])) ||
         ($gbl::is_fhir_request($resource) && !(in_array('api:fhir', $GLOBALS['oauth_scopes']) || in_array('fhirUser', $GLOBALS['oauth_scopes']))) ||
         ($gbl::is_portal_request($resource) && !in_array('api:port', $GLOBALS['oauth_scopes'])) ||
-        ($gbl::is_portal_fhir_request($resource) && !(in_array('api:pofh', $GLOBALS['oauth_scopes']) || in_array('fhirUser', $GLOBALS['oauth_scopes'])))) {
+        ($gbl::is_portal_fhir_request($resource) && !(in_array('api:pofh', $GLOBALS['oauth_scopes']) || in_array('fhirUser', $GLOBALS['oauth_scopes'])))
+    ) {
         $logger->error("dispatch.php api call with token that does not cover the requested route");
         $gbl::destroySession();
         http_response_code(401);

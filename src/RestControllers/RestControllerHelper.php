@@ -156,7 +156,7 @@ class RestControllerHelper
         $reqMethod = trim($items[0], " ");
         if (strcmp($reqMethod, "GET") == 0) {
             $numberItems = count($items);
-            if (!empty(preg_match('/:/', $items[$numberItems-1]))) {
+            if (!empty(preg_match('/:/', $items[$numberItems - 1]))) {
                 $method = array(
                     "code" => "read"
                 );
