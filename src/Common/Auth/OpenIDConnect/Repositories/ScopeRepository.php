@@ -454,7 +454,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @param string $role
      * @return array
      */
-    public function getCurrentSmartScopes($role = 'user'): array
+    public function getCurrentSmartScopes(): array
     {
         $gbl = \RestConfig::GetInstance();
         $restHelper = new RestControllerHelper();
@@ -531,7 +531,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scopesSupported;
     }
 
-    public function getCurrentStandardScopes($role = 'user'): array
+    public function getCurrentStandardScopes(): array
     {
         $gbl = \RestConfig::GetInstance();
         $restHelper = new RestControllerHelper();
@@ -610,16 +610,20 @@ class ScopeRepository implements ScopeRepositoryInterface
     // made public for now!
     public function buildScopeValidatorArray(): array
     {
-        $role = $_SESSION['client_role'] ?? 'user';
         $isFhir = preg_match('(fhirUser|api:fhir|api:pofh)', $_REQUEST['scope'])
             || preg_match('(fhirUser|api:fhir|api:pofh)', $_SESSION['scopes']);
+        $isApi = preg_match('(api:oemr|api:port)', $_REQUEST['scope'])
+            || preg_match('(api:oemr|api:port)', $_SESSION['scopes']);
 
-        $scopes = null;
+        $scopesFhir = [];
         if (!empty($isFhir)) {
-            $scopes = $this->getCurrentSmartScopes($role);
-        } else {
-            $scopes = $this->getOidcSupportedScopes();
+            $scopesFhir = $this->getCurrentSmartScopes();
         }
+        $scopesApi = [];
+        if (!empty($isApi)) {
+            $scopesApi = $this->getCurrentStandardScopes();
+        }
+        $scopes = array_merge($scopesFhir, $scopesApi);
 
         foreach ($scopes as $scope) {
             $scopes[$scope] = ['description' => 'OpenId Connect'];
