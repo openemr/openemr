@@ -17,6 +17,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\UuidUserAccount;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenIDConnectServer\Entities\ClaimSetInterface;
 
@@ -31,6 +32,22 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
         $claimsType = (!empty($_REQUEST['grant_type']) && ($_REQUEST['grant_type'] === 'client_credentials')) ? 'client' : 'oidc';
         if ($claimsType === 'oidc') {
             $uuidToUser = new UuidUserAccount($this->identifier);
+            $fhirUser = '';
+            $userRole = $uuidToUser->getUserRole() == 'users';
+            if ($userRole == 'users') {
+                // TODO: adunsulag check with brady/sjpadget on whether this should be Practioner or Person, it has to
+                // be one of those resource types and you have to be able to retrieve it via a FHIR endpoint but I'm not
+                // sure a site admin is classified as a 'practioner'.
+                // TODO: adunsulag we should see if there is a better way like FHIRRouteResolver for a given resource endpoint...
+                $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Practitioner/" . $this->identifier;
+            } else if ($userRole == 'patients') {
+                $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Patient/" . $this->identifier;
+            } else {
+                SystemLogger::instance()->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
+            }
+
+            SystemLogger::instance()->debug("fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
+
             $user = $uuidToUser->getUserAccount();
             if (empty($user)) {
                 $user = false;
@@ -56,7 +73,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 'phone_number_verified' => true,
                 'address' => $user['street'] . ' ' . $user['city'] . ' ' . $user['state'],
                 'zip' => $user['zip'],
-                'fhirUser' => true,
+                'fhirUser' => $fhirUser,
                 'api:fhir' => true,
                 'api:oemr' => true,
                 'api:port' => true,
@@ -65,7 +82,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
         }
         if ($claimsType === 'client') {
             $claims = [
-                'fhirUser' => true,
+                'fhirUser' => $fhirUser,
                 'api:fhir' => true,
                 'api:oemr' => true,
                 'api:port' => true,
