@@ -467,26 +467,28 @@ class ScopeRepository implements ScopeRepositoryInterface
         $scopes_api = [];
         $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$FHIR_ROUTE_MAP);
         foreach ($restAPIs as $resources) {
-            foreach ($resources as $resource) {
-                $interactions = $resource['interaction'];
-                $resourceType = $resource['type'];
-                foreach ($interactions as $interaction) {
-                    $scopeRead = $resourceType . ".read";
-                    $scopeWrite = $resourceType . ".write";
-                    switch ($interaction['code']) {
-                        case 'read':
-                            $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                            $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                            break;
-                        case 'search-type':
-                            $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                            $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                            break;
-                        case 'insert':
-                        case 'update':
-                            $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
-                            $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
-                            break;
+            if (!empty($resources) && is_array($resources)) {
+                foreach ($resources as $resource) {
+                    $interactions = $resource['interaction'];
+                    $resourceType = $resource['type'];
+                    foreach ($interactions as $interaction) {
+                        $scopeRead = $resourceType . ".read";
+                        $scopeWrite = $resourceType . ".write";
+                        switch ($interaction['code']) {
+                            case 'read':
+                                $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
+                                $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
+                                break;
+                            case 'search-type':
+                                $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
+                                $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
+                                break;
+                            case 'insert':
+                            case 'update':
+                                $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
+                                $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
+                                break;
+                        }
                     }
                 }
             }
@@ -494,23 +496,25 @@ class ScopeRepository implements ScopeRepositoryInterface
         $scopes_api_portal = [];
         $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$PORTAL_FHIR_ROUTE_MAP);
         foreach ($restAPIs as $resources) {
-            foreach ($resources as $resource) {
-                $interactions = $resource['interaction'];
-                $resourceType = $resource['type'];
-                foreach ($interactions as $interaction) {
-                    $scopeRead = $resourceType . ".read";
-                    $scopeWrite = $resourceType . ".write";
-                    switch ($interaction['code']) {
-                        case 'read':
-                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                            break;
-                        case 'search-type':
-                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                            break;
-                        case 'insert':
-                        case 'update':
-                            $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
-                            break;
+            if (!empty($resources) && is_array($resources)) {
+                foreach ($resources as $resource) {
+                    $interactions = $resource['interaction'];
+                    $resourceType = $resource['type'];
+                    foreach ($interactions as $interaction) {
+                        $scopeRead = $resourceType . ".read";
+                        $scopeWrite = $resourceType . ".write";
+                        switch ($interaction['code']) {
+                            case 'read':
+                                $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                                break;
+                            case 'search-type':
+                                $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                                break;
+                            case 'insert':
+                            case 'update':
+                                $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
+                                break;
+                        }
                     }
                 }
             }
@@ -544,27 +548,29 @@ class ScopeRepository implements ScopeRepositoryInterface
         $scopes_api = [];
         $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$ROUTE_MAP, "OpenEMR\\Services");
         foreach ($restAPIs as $resources) {
-            foreach ($resources as $resource) {
-                $interactions = $resource['interaction'];
-                $resourceType = $resource['type'];
-                foreach ($interactions as $interaction) {
-                    $scopeRead = $resourceType . ".read";
-                    $scopeWrite = $resourceType . ".write";
-                    switch ($interaction['code']) {
-                        case 'read':
-                            $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                            $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                            break;
-                        case 'search-type':
-                            $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                            $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                            break;
-                        case 'put':
-                        case 'insert':
-                        case 'update':
-                            $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
-                            $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
-                            break;
+            if (!empty($resources) && is_array($resources)) {
+                foreach ($resources as $resource) {
+                    $interactions = $resource['interaction'];
+                    $resourceType = $resource['type'];
+                    foreach ($interactions as $interaction) {
+                        $scopeRead = $resourceType . ".read";
+                        $scopeWrite = $resourceType . ".write";
+                        switch ($interaction['code']) {
+                            case 'read':
+                                $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
+                                $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
+                                break;
+                            case 'search-type':
+                                $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
+                                $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
+                                break;
+                            case 'put':
+                            case 'insert':
+                            case 'update':
+                                $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
+                                $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
+                                break;
+                        }
                     }
                 }
             }
@@ -572,24 +578,26 @@ class ScopeRepository implements ScopeRepositoryInterface
         $scopes_api_portal = [];
         $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$PORTAL_ROUTE_MAP, "OpenEMR\\Services");
         foreach ($restAPIs as $resources) {
-            foreach ($resources as $resource) {
-                $interactions = $resource['interaction'];
-                $resourceType = $resource['type'];
-                foreach ($interactions as $interaction) {
-                    $scopeRead = $resourceType . ".read";
-                    $scopeWrite = $resourceType . ".write";
-                    switch ($interaction['code']) {
-                        case 'read':
-                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                            break;
-                        case 'search-type':
-                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                            break;
-                        case 'put':
-                        case 'insert':
-                        case 'update':
-                            $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
-                            break;
+            if (!empty($resources) && is_array($resources)) {
+                foreach ($resources as $resource) {
+                    $interactions = $resource['interaction'];
+                    $resourceType = $resource['type'];
+                    foreach ($interactions as $interaction) {
+                        $scopeRead = $resourceType . ".read";
+                        $scopeWrite = $resourceType . ".write";
+                        switch ($interaction['code']) {
+                            case 'read':
+                                $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                                break;
+                            case 'search-type':
+                                $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                                break;
+                            case 'put':
+                            case 'insert':
+                            case 'update':
+                                $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
+                                break;
+                        }
                     }
                 }
             }
