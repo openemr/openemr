@@ -510,6 +510,7 @@ RestConfig::$ROUTE_MAP = array(
         return $return;
     },
     "GET /api/insurance_type" => function () {
+        RestConfig::scope_check("user", "insurance_type", "read");
         $return = (new InsuranceCompanyRestController())->getInsuranceTypes();
         RestConfig::apiLog($return);
         return $return;
