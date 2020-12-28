@@ -82,6 +82,9 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     // set the site
     $_GET['site'] = $site;
 
+    // set the scopes globals for endpoint permission checking
+    $GLOBALS['oauth_scopes'] = $scopes;
+
     // collect openemr user uuid
     $userId = $attributes['oauth_user_id'];
     // collect client id (will be empty for PKCE)
@@ -173,6 +176,18 @@ if ($isLocalApi) {
         $logger->error("OpenEMR Error - api user role for user could not be identified, so forced exit");
         $gbl::destroySession();
         http_response_code(400);
+        exit();
+    }
+    // verify that the scope covers the route
+    if (
+        ($gbl::is_api_request($resource) && !in_array('api:oemr', $GLOBALS['oauth_scopes'])) ||
+        ($gbl::is_fhir_request($resource) && !(in_array('api:fhir', $GLOBALS['oauth_scopes']) || in_array('fhirUser', $GLOBALS['oauth_scopes']))) ||
+        ($gbl::is_portal_request($resource) && !in_array('api:port', $GLOBALS['oauth_scopes'])) ||
+        ($gbl::is_portal_fhir_request($resource) && !(in_array('api:pofh', $GLOBALS['oauth_scopes']) || in_array('fhirUser', $GLOBALS['oauth_scopes'])))
+    ) {
+        $logger->error("dispatch.php api call with token that does not cover the requested route");
+        $gbl::destroySession();
+        http_response_code(401);
         exit();
     }
     // ensure user role has access to the resource

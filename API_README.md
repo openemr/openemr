@@ -109,11 +109,79 @@ Multisite is supported by including the site in the endpoint. When not using mul
 
 ### Authorization
 
-OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Globals->Connectors->'Site Address (required for OAuth2 and FHIR)' is required.
+OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Globals->Connectors->'Site Address (required for OAuth2 and FHIR)' is required. The listing of scopes can be found in below Scopes section.
+
+#### Scopes
+
+This is a listing of scopes:
+- `api:oemr` (user api which are the /api/ endpoints)
+  - `user/allergy.read`
+  - `user/allergy.write`
+  - `user/appointment.read`
+  - `user/appointment.write`
+  - `user/dental_issue.read`
+  - `user/dental_issue.write`
+  - `user/document.read`
+  - `user/document.write`
+  - `user/drug.read`
+  - `user/encounter.read`
+  - `user/encounter.write`
+  - `user/facility.read`
+  - `user/facility.write`
+  - `user/immunization.read`
+  - `user/insurance.read`
+  - `user/insurance.write`
+  - `user/insurance_company.read`
+  - `user/insurance_company.write`
+  - `user/insurance_type.read`
+  - `user/list.read`
+  - `user/medical_problem.read`
+  - `user/medical_problem.write`
+  - `user/medication.read`
+  - `user/medication.write`
+  - `user/message.write`
+  - `user/patient.read`
+  - `user/patient.write`
+  - `user/practitioner.read`
+  - `user/practitioner.write`
+  - `user/prescription.read`
+  - `user/procedure.read`
+  - `user/soap_note.read`
+  - `user/soap_note.write`
+  - `user/surgery.read`
+  - `user/surgery.write`
+  - `user/vital.read`
+  - `user/vital.write`
+- `api:fhir` (user fhir which are the /fhir/ endpoints)
+  - `user/AllergyIntolerance.read`
+  - `user/CareTeam.read`
+  - `user/Condition.read`
+  - `user/Encounter.read`
+  - `user/Immunization.read`
+  - `user/Location.read`
+  - `user/Medication.read`
+  - `user/MedicationRequest.read`
+  - `user/Observation.read`
+  - `user/Organization.read`
+  - `user/Organization.write`
+  - `user/Patient.read`
+  - `user/Patient.write`
+  - `user/Practitioner.read`
+  - `user/Practitioner.write`
+  - `user/PractitionerRole.read`
+  - `user/Procedure.read`
+- `api:port` (patient api which are the /portal/ endpoints)
+  - `patient/encounter.read`
+  - `patient/patient.read`
+- `api:pofh` (patient fhir which are the /portalfhir/ endpoints)
+  - `patient/Encounter.read`
+  - `patient/Patient.read`
 
 #### Registration
 
 Here is an example for registering a client. A client needs to be registered before applying for grant to obtain access/refresh tokens. Note: "post_logout_redirect_uris" is optional and only used if client wants a redirect to its own confirmation workflow.
+
+Note that all scopes are included in this example for demonstration purposes. For production purposes, should only include the necessary scopes.
 
 ```sh
 curl -X POST -k -H 'Content-Type: application/json' -i https://localhost:9300/oauth2/default/registration --data '{
@@ -124,13 +192,13 @@ curl -X POST -k -H 'Content-Type: application/json' -i https://localhost:9300/oa
      ["https://client.example.org/logout/callback"],
    "client_name": "A Private App",
    "token_endpoint_auth_method": "client_secret_post",
-   "contacts": ["me@example.org", "them@example.org"]
+   "contacts": ["me@example.org", "them@example.org"],
+   "scope": "openid api:oemr api:fhir api:port api:pofh user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/Encounter.read patient/Patient.read"
   }'
 ```
 
 Response:
-
-```json
+```sh
 {
     "client_id": "LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA",
     "client_secret": "j21ecvLmFi9HPc_Hv0t7Ptmf1pVcZQLtHjIdU7U9tkS9WAjFJwVMav0G8ogTJ62q4BATovC7BQ19Qagc4x9BBg",
@@ -142,7 +210,8 @@ Response:
     "application_type": "private",
     "client_name": "A Private App",
     "redirect_uris": ["https:\/\/client.example.org\/callback"],
-    "token_endpoint_auth_method": "client_secret_post"
+    "token_endpoint_auth_method": "client_secret_post",
+    "scope": "openid api:oemr api:fhir api:port api:pofh user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/Encounter.read patient/Patient.read"
 }
 ```
 
@@ -154,12 +223,14 @@ This is the recommended standard mechanism to obtain access/refresh tokens. This
 
 Example:
 
+Note that all scopes are included in this example for demonstration purposes. For production purposes, should only include the necessary scopes.
+
 ```sh
 curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=refresh_token
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
-&scope=openid
+&scope=openid%20api%3Aoemr%20api%3Afhir%20api%3Aport%20api%3Apofh%20user%2Fallergy.read%20user%2Fallergy.write%20user%2Fappointment.read%20user%2Fappointment.write%20user%2Fdental_issue.read%20user%2Fdental_issue.write%20user%2Fdocument.read%20user%2Fdocument.write%20user%2Fdrug.read%20user%2Fencounter.read%20user%2Fencounter.write%20user%2Ffacility.read%20user%2Ffacility.write%20user%2Fimmunization.read%20user%2Finsurance.read%20user%2Finsurance.write%20user%2Finsurance_company.read%20user%2Finsurance_company.write%20user%2Finsurance_type.read%20user%2Flist.read%20user%2Fmedical_problem.read%20user%2Fmedical_problem.write%20user%2Fmedication.read%20user%2Fmedication.write%20user%2Fmessage.write%20user%2Fpatient.read%20user%2Fpatient.write%20user%2Fpractitioner.read%20user%2Fpractitioner.write%20user%2Fprescription.read%20user%2Fprocedure.read%20user%2Fsoap_note.read%20user%2Fsoap_note.write%20user%2Fsurgery.read%20user%2Fsurgery.write%20user%2Fvital.read%20user%2Fvital.write%20user%2FAllergyIntolerance.read%20user%2FCareTeam.read%20user%2FCondition.read%20user%2FEncounter.read%20user%2FImmunization.read%20user%2FLocation.read%20user%2FMedication.read%20user%2FMedicationRequest.read%20user%2FObservation.read%20user%2FOrganization.read%20user%2FOrganization.write%20user%2FPatient.read%20user%2FPatient.write%20user%2FPractitioner.read%20user%2FPractitioner.write%20user%2FPractitionerRole.read%20user%2FProcedure.read%20patient%2Fencounter.read%20patient%2Fpatient.read%20patient%2FEncounter.read%20patient%2FPatient.read
 &refresh_token=def5020089a766d16...'
 ```
 
@@ -179,13 +250,15 @@ Response:
 
 Recommend not using this mechanism unless you know what you are doing. It is considered far less secure than the standard authorization code method. Because of security implications, it is not turned on by default. It can be turned on at Administration->Globals->Connectors->'Enable OAuth2 Password Grant (Not considered secure)'.
 
+Note that all scopes are included in these examples for demonstration purposes. For production purposes, should only include the necessary scopes.
+
 Example for `users` role:
 ```sh
 curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=password
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
-&scope=openid
+&scope=openid%20api%3Aoemr%20api%3Afhir%20user%2Fallergy.read%20user%2Fallergy.write%20user%2Fappointment.read%20user%2Fappointment.write%20user%2Fdental_issue.read%20user%2Fdental_issue.write%20user%2Fdocument.read%20user%2Fdocument.write%20user%2Fdrug.read%20user%2Fencounter.read%20user%2Fencounter.write%20user%2Ffacility.read%20user%2Ffacility.write%20user%2Fimmunization.read%20user%2Finsurance.read%20user%2Finsurance.write%20user%2Finsurance_company.read%20user%2Finsurance_company.write%20user%2Finsurance_type.read%20user%2Flist.read%20user%2Fmedical_problem.read%20user%2Fmedical_problem.write%20user%2Fmedication.read%20user%2Fmedication.write%20user%2Fmessage.write%20user%2Fpatient.read%20user%2Fpatient.write%20user%2Fpractitioner.read%20user%2Fpractitioner.write%20user%2Fprescription.read%20user%2Fprocedure.read%20user%2Fsoap_note.read%20user%2Fsoap_note.write%20user%2Fsurgery.read%20user%2Fsurgery.write%20user%2Fvital.read%20user%2Fvital.write%20user%2FAllergyIntolerance.read%20user%2FCareTeam.read%20user%2FCondition.read%20user%2FEncounter.read%20user%2FImmunization.read%20user%2FLocation.read%20user%2FMedication.read%20user%2FMedicationRequest.read%20user%2FObservation.read%20user%2FOrganization.read%20user%2FOrganization.write%20user%2FPatient.read%20user%2FPatient.write%20user%2FPractitioner.read%20user%2FPractitioner.write%20user%2FPractitionerRole.read%20user%2FProcedure.read
 &user_role=users
 &username=admin
 &password=pass'
@@ -197,7 +270,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=password
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
-&scope=openid
+&scope=openid%20api%3Aport%20api%3Apofh%20patient%2Fencounter.read%20patient%2Fpatient.read%20patient%2FEncounter.read%20patient%2FPatient.read
 &user_role=patient
 &username=Phil1
 &password=phil

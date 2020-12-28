@@ -155,19 +155,17 @@ class RestControllerHelper
     {
         $reqMethod = trim($items[0], " ");
         if (strcmp($reqMethod, "GET") == 0) {
-            if (count($items) >= 4) {
-                if (!empty(preg_match('/:/', $items[3]))) {
-                    $method = array(
-                        "code" => "read"
-                    );
-                    $methods[] = $method;
-                }
+            $numberItems = count($items);
+            if (!empty(preg_match('/:/', $items[$numberItems - 1]))) {
+                $method = array(
+                    "code" => "read"
+                );
             } else {
                 $method = array(
                     "code" => "search-type"
                 );
-                $methods[] = $method;
             }
+            $methods[] = $method;
         } elseif (strcmp($reqMethod, "POST") == 0) {
             $method = array(
                 "code" => "insert"
@@ -179,6 +177,7 @@ class RestControllerHelper
             );
             $methods[] = $method;
         }
+
         return $methods;
     }
 
@@ -189,7 +188,24 @@ class RestControllerHelper
         $resourcesHash = array();
         foreach ($routes as $key => $function) {
             $items = explode("/", $key);
-            $resource = $items[2];
+            if ($serviceClassNameSpace == "OpenEMR\\Services\\FHIR\\Fhir") {
+                // FHIR routes always have the resource at $items[2]
+                $resource = $items[2];
+            } else {
+                // API routes do not always have the resource at $items[2]
+                if (count($items) < 5) {
+                    $resource = $items[2];
+                } elseif (count($items) < 7) {
+                    $resource = $items[4];
+                    if (substr($resource, 0, 1) === ':') {
+                        // special behavior needed for the API portal route
+                        $resource = $items[3];
+                    }
+                } else { // count($items) < 9
+                    $resource = $items[6];
+                }
+            }
+
             if (!in_array($resource, $ignore)) {
                 if (!array_key_exists($resource, $resourcesHash)) {
                     $resourcesHash[$resource] = array(

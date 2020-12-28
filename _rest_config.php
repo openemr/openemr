@@ -289,6 +289,29 @@ class RestConfig
         }
     }
 
+    // Main function to check scope
+    //  Use cases:
+    //     Only sending $scopeType would be for something like 'openid'
+    //     For using all 3 parameters would be for something like 'user/Organization.write'
+    //       $scopeType = 'user', $resource = 'Organization', $permission = 'write'
+    public static function scope_check($scopeType, $resource = null, $permission = null): void
+    {
+        if (!empty($GLOBALS['oauth_scopes'])) {
+            // Need to ensure has scope
+            if (empty($resource)) {
+                // Simply check to see if $scopeType is an allowed scope
+                $scope = $scopeType;
+            } else {
+                // Resource scope check
+                $scope = $scopeType . '/' . $resource . '.' . $permission;
+            }
+            if (!in_array($scope, $GLOBALS['oauth_scopes'])) {
+                http_response_code(401);
+                exit;
+            }
+        }
+    }
+
     public static function setLocalCall(): void
     {
         self::$localCall = true;

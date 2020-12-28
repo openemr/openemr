@@ -10,8 +10,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+
 if ($oauthLogin !== true) {
     echo xlt("Error. Not authorized");
+    SessionUtil::oauthSessionCookieDestroy();
     exit();
 }
 
