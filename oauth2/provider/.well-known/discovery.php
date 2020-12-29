@@ -1,23 +1,32 @@
 <?php
 
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\Common\Session\SessionUtil;
+
 if ($oauthdisc !== true) {
     echo xlt("Error. Not authorized");
+    SessionUtil::oauthSessionCookieDestroy();
     exit();
 }
-
-global $authServer;
-$base_url = $authServer->authBaseFullUrl;
 
 $passwordGrantString = '';
 if (!empty($GLOBALS['oauth_password_grant'])) {
     $passwordGrantString = '"password",';
 }
-$claims = json_encode($authServer->supportedClaims, JSON_PRETTY_PRINT);
-$scopes = json_encode($authServer->supportedScopes, JSON_PRETTY_PRINT);
+// PHP is a fickle beast!
+$scopeRepository = new ScopeRepository();
+$claims_array = $scopeRepository->getSupportedClaims();
+$claims = json_encode($claims_array, JSON_PRETTY_PRINT);
+
+$scopes_array_smart = $scopeRepository->getCurrentSmartScopes();
+$scopes_array = $scopeRepository->getCurrentStandardScopes();
+$scopes_array = array_merge($scopes_array_smart, $scopes_array);
+
+$scopes = json_encode($scopes_array, JSON_PRETTY_PRINT);
 
 $discovery = <<<TEMPLATE
 {
-"issuer": "$authServer->authIssueFullUrl",
+"issuer": "$base_url",
 "authorization_endpoint": "$base_url/authorize",
 "token_endpoint": "$base_url/token",
 "jwks_uri": "$base_url/jwk",
@@ -71,6 +80,8 @@ $discovery = <<<TEMPLATE
 ]
 }
 TEMPLATE;
+
+SessionUtil::oauthSessionCookieDestroy();
 
 header('Content-Type: application/json');
 echo($discovery);

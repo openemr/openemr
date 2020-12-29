@@ -13,7 +13,9 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
+use Lcobucci\JWT\Builder;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
+use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
@@ -133,5 +135,16 @@ class IdTokenSMARTResponse extends IdTokenResponse
         }
 
         return $valid;
+    }
+
+    protected function getBuilder(AccessTokenEntityInterface $accessToken, UserEntityInterface $userEntity): Builder
+    {
+        // Add required id_token claims
+        return (new Builder())
+            ->permittedFor($accessToken->getClient()->getIdentifier())
+            ->issuedBy($GLOBALS['site_addr_oath'] . $GLOBALS['webroot'] . "/oauth2/" . $_SESSION['site_id'])
+            ->issuedAt(new \DateTimeImmutable('@' . time()))
+            ->expiresAt(new \DateTimeImmutable('@' . $accessToken->getExpiryDateTime()->getTimestamp()))
+            ->relatedTo($userEntity->getIdentifier());
     }
 }

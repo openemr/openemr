@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * MfaUtils.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2020 Amiel Elboim <amielel@matrix.co.il>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -115,7 +125,7 @@ class MfaUtils
      */
     public function getU2fRequests()
     {
-        $u2f = new U2F($this->appId);
+        $u2f = new \u2flib_server\U2F($this->appId);
         $requests =  json_encode($u2f->getAuthenticateData($this->registrations));
         sqlStatement(
             "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
@@ -181,7 +191,7 @@ class MfaUtils
     private function checkU2F($token)
     {
 
-        $u2f = new u2flib_server\U2F($this->appId);
+        $u2f = new \u2flib_server\U2F($this->appId);
         $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", array($this->uid));
         try {
             $registration = $u2f->doAuthenticate(
@@ -192,7 +202,7 @@ class MfaUtils
             // Stored registration data needs to be updated because the usage count has changed.
             // We have to use the matching registered key.
             $strhandle = json_encode($registration->keyHandle);
-            if (isset($regs[$strhandle])) {
+            if (isset($this->regs[$strhandle])) {
                 sqlStatement(
                     "UPDATE login_mfa_registrations SET `var1` = ? WHERE " .
                     "`user_id` = ? AND `method` = 'U2F' AND `name` = ?",

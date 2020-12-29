@@ -172,7 +172,7 @@ class ApiTestClientTest extends TestCase
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
-            "scope" => "openid",
+            "scope" => ApiTestClient::ALL_SCOPES,
             "refresh_token" => $this->client->getRefreshToken()
         ];
         $this->client->setHeaders(
@@ -225,7 +225,7 @@ class ApiTestClientTest extends TestCase
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
-            "scope" => "openid",
+            "scope" => ApiTestClient::ALL_SCOPES,
             "refresh_token" => ApiTestClient::BOGUS_REFRESH_TOKEN
         ];
         $this->client->setHeaders(
@@ -290,7 +290,7 @@ class ApiTestClientTest extends TestCase
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
-            "scope" => "openid",
+            "scope" => ApiTestClient::ALL_SCOPES,
             "refresh_token" => $this->client->getRefreshToken()
         ];
         $this->client->setHeaders(

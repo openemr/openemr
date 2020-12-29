@@ -53,7 +53,7 @@ class RestConfig
     // you can guess what the rest are!
     public static $VENDOR_DIR;
     public static $SITE;
-
+    public static $apisBaseFullUrl;
     public static $webserver_root;
     public static $web_root;
     public static $server_document_root;
@@ -289,6 +289,29 @@ class RestConfig
         }
     }
 
+    // Main function to check scope
+    //  Use cases:
+    //     Only sending $scopeType would be for something like 'openid'
+    //     For using all 3 parameters would be for something like 'user/Organization.write'
+    //       $scopeType = 'user', $resource = 'Organization', $permission = 'write'
+    public static function scope_check($scopeType, $resource = null, $permission = null): void
+    {
+        if (!empty($GLOBALS['oauth_scopes'])) {
+            // Need to ensure has scope
+            if (empty($resource)) {
+                // Simply check to see if $scopeType is an allowed scope
+                $scope = $scopeType;
+            } else {
+                // Resource scope check
+                $scope = $scopeType . '/' . $resource . '.' . $permission;
+            }
+            if (!in_array($scope, $GLOBALS['oauth_scopes'])) {
+                http_response_code(401);
+                exit;
+            }
+        }
+    }
+
     public static function setLocalCall(): void
     {
         self::$localCall = true;
@@ -427,54 +450,6 @@ class RestConfig
     /** prevents external cloning */
     private function __clone()
     {
-    }
-
-    // nonce claim and nonce scope is handled by server logic.
-    // I'm still unsure how'd support id_tokens unless we persist them in DB.
-    public static function supportedClaims(): array
-    {
-        return array(
-            "name",
-            "email",
-            "email_verified",
-            "family_name",
-            "given_name",
-            "fhirUser",
-            "locale", //
-            "aud", //client_id
-            "iat", // token create time
-            "iss", // token issuer(https://domain)
-            "exp", // token expiry time.
-            "sub" // the subject of token. usually patient UUID.
-        );
-    }
-    // change these as appropriate or where needed.
-    // smart scopes are provided here for sake of example.
-    public static function supportedScopes(): array
-    {
-        return array(
-            "openid",
-            "profile",
-            "name",
-            "given_name",
-            "family_name",
-            "nickname",
-            "phone",
-            "phone_verified",
-            "address",
-            "email",
-            "email_verified",
-            "offline_access", // long lived refresh token issued. we do anyway wanted or not.
-            "fhirUser",
-            "api:oemr",
-            "api:fhir",
-            "api:port",
-            "api:pofh",
-            "patient/Patient.read", // Permission to read a resource for the current server signed in patient. i.e patient is from pid(UUID)  claims user_id/subject(sub).
-            "user/*.*", // Permission to read and write all resources that the current user can access. Ditto
-            "launch", // Permission to retrieve information about the current logged-in user i.e logged into auth server.
-            "launch/patient" // Permission to obtain launch context when app is launched from an EHR
-        );
     }
 }
 

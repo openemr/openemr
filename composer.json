@@ -58,10 +58,10 @@
         "vlucas/phpdotenv": "5.2.0",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
-        "steverhoades/oauth2-openid-connect-server": "1.2",
+        "steverhoades/oauth2-openid-connect-server": "1.3",
         "nyholm/psr7": "1.3.2",
         "nyholm/psr7-server": "1.0.1",
-        "lcobucci/jwt": "dev-34php8 as 3.4.9",
+        "lcobucci/jwt": "dev-342php8 as 3.4.9",
         "psr/log": "1.1.3",
         "monolog/monolog": "2.1.1"
     },

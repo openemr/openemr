@@ -33,7 +33,7 @@ class ClientRepository implements ClientRepositoryInterface
     /**
      * @return ClientEntity[]
      */
-    public function listClientEntities()
+    public function listClientEntities(): array
     {
         $clients = sqlStatementNoLog("Select * From oauth_clients");
         $list = [];
@@ -68,8 +68,7 @@ class ClientRepository implements ClientRepositoryInterface
                 ]
             ]
         );
-        $client = $this->hydrateClientEntityFromArray($clients);
-        return $client;
+        return $this->hydrateClientEntityFromArray($clients);
     }
 
     public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
@@ -103,10 +102,10 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /**
-     * @param $clients
+     * @param $client_record
      * @return ClientEntity
      */
-    private function hydrateClientEntityFromArray($client_record)
+    private function hydrateClientEntityFromArray($client_record): ClientEntity
     {
         $client = new ClientEntity();
         $client->setIdentifier($client_record['client_id']);
@@ -114,6 +113,7 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setRedirectUri($client_record['redirect_uri']);
         $client->setIsConfidential($client_record['is_confidential']);
         $client->setScopes($client_record['scope']);
+        $client->setClientRole($client_record['client_role']);
         return $client;
     }
 }
