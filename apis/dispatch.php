@@ -66,6 +66,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     // collect site
     $site = '';
     $scopes = $attributes['oauth_scopes'];
+    $logger->debug("Parsed oauth_scopes in AccessToken", ["scopes" => $scopes]);
     foreach ($scopes as $attr) {
         if (stripos($attr, 'site:') !== false) {
             $site = str_replace('site:', '', $attr);

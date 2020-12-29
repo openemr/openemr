@@ -13,9 +13,11 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\System\System;
 use OpenEMR\RestControllers\RestControllerHelper;
 use Psr\Log\LoggerInterface;
 
@@ -28,9 +30,15 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     private $validationScopes;
 
+    /**
+     * @var
+     */
+    private $requestScopes;
+
     public function __construct()
     {
         $this->logger = SystemLogger::instance();
+        $this->requestScopes = isset($_REQUEST['scope']) ? $_REQUEST['scope'] : null;
     }
 
     /**
@@ -39,7 +47,9 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getScopeEntityByIdentifier($identifier): ?ScopeEntity
     {
+        $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to retrieve scope",["identifier" => $identifier]);
         if (empty($this->validationScopes)) {
+            $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to build validation scopes");
             $this->validationScopes = $this->buildScopeValidatorArray();
         }
 
@@ -67,6 +77,13 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopes[] = $scope;
         }
         // Need a site id for our apis
+        $scopes[] = $this->getSiteScope();
+        return $scopes;
+    }
+
+    public function getSiteScope() : ScopeEntity {
+        // TODO: adunsulag, sjpadget Won't refresh token validation fail on multi-site since we won't
+        // have the id in the session?
         if ($_SESSION['site_id']) {
             $siteScope = "site:" . $_SESSION['site_id'];
         } else {
@@ -74,9 +91,20 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         $scope = new ScopeEntity();
         $scope->setIdentifier($siteScope);
-        $scopes[] = $scope;
+        return $scope;
+    }
 
-        return $scopes;
+    public function setRequestScopes($scopes) {
+        if (!is_string($scopes)) {
+            SystemLogger::instance()->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
+            throw new \InvalidArgumentException("Invalid scope parameter set");
+        }
+
+        $this->requestScopes = $scopes;
+    }
+
+    public function getRequestScopes() {
+        return $this->requestScopes;
     }
 
     // nonce claim and nonce scope is handled by server logic.
@@ -451,6 +479,13 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $this->apiScopes();
     }
 
+    public function getServerScopes() : array {
+        $siteScope = $this->getSiteScope();
+        return [
+            $siteScope->getIdentifier() => $siteScope->getIdentifier()
+        ];
+    }
+
     /**
      * Method will qualify current scopes based on active FHIR resources.
      * Allowed permissions are validated from the default scopes and client role.
@@ -460,6 +495,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getCurrentSmartScopes(): array
     {
+        SystemLogger::instance()->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
         $gbl = \RestConfig::GetInstance();
         $restHelper = new RestControllerHelper();
         // Collect all currently enabled FHIR resources.
@@ -525,6 +561,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
         $fhir = array_combine($this->fhirRequiredSmartScopes(), $this->fhirRequiredSmartScopes());
         $oidc = array_combine($this->oidcScopes(), $this->oidcScopes());
+        // we need to make sure the 'site:' and any other server context vars are permitted
+        $serverScopes = $this->getServerScopes();
         $scopesSupported = null;
         // verify scope permissions are allowed for role being used.
         foreach ($scopes_api as $key => $scope) {
@@ -534,13 +572,15 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopesSupported[$key] = $scope;
         }
         asort($scopesSupported);
-        $scopesSupported = array_keys(array_merge($fhir, $oidc, $scopesSupported));
+        $scopesSupported = array_keys(array_merge($fhir, $oidc, $serverScopes, $scopesSupported));
+        SystemLogger::instance()->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
 
         return $scopesSupported;
     }
 
     public function getCurrentStandardScopes(): array
     {
+        SystemLogger::instance()->debug("ScopeRepository->getCurrentSmartScopes() setting up standard api scopes");
         $gbl = \RestConfig::GetInstance();
         $restHelper = new RestControllerHelper();
         // Collect all currently enabled resources.
@@ -622,9 +662,11 @@ class ScopeRepository implements ScopeRepositoryInterface
     // made public for now!
     public function buildScopeValidatorArray(): array
     {
-        $isFhir = preg_match('(fhirUser|api:fhir|api:pofh)', $_REQUEST['scope'])
+        $requestScopeString = $this->getRequestScopes();
+        SystemLogger::instance()->debug("ScopeRepository->buildScopeValidatorArray() ", ["requestScopeString" => $requestScopeString]);
+        $isFhir = preg_match('(fhirUser|api:fhir|api:pofh)', $requestScopeString)
             || preg_match('(fhirUser|api:fhir|api:pofh)', $_SESSION['scopes']);
-        $isApi = preg_match('(api:oemr|api:port)', $_REQUEST['scope'])
+        $isApi = preg_match('(api:oemr|api:port)', $requestScopeString)
             || preg_match('(api:oemr|api:port)', $_SESSION['scopes']);
 
         $scopesFhir = [];

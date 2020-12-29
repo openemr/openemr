@@ -37,6 +37,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomPasswordGrant;
+use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomRefreshTokenGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AuthCodeRepository;
@@ -591,7 +592,7 @@ class AuthorizationController
             );
         }
         if ($this->grantType === 'refresh_token') {
-            $grant = new RefreshTokenGrant(new refreshTokenRepository());
+            $grant = new CustomRefreshTokenGrant(new refreshTokenRepository());
             $grant->setRefreshTokenTTL(new \DateInterval('P3M'));
             $authServer->enableGrantType(
                 $grant,
@@ -880,14 +881,6 @@ class AuthorizationController
             $_SESSION = json_decode($ssbc['session_cache'], true);
         }
         if ($this->grantType === 'refresh_token') {
-            // Adding site to POSTs scope then re-init PSR request to include.
-            // This is usually done in ScopeRepository finalizeScopes() method!
-            // which is not called for a refresh/access token swap.
-            if (!empty($_POST['scope'])) {
-                $_POST['scope'] .= (" site:" . $_SESSION['site_id']);
-            } else {
-                $_POST['scope'] = (" site:" . $_SESSION['site_id']);
-            }
             $request = $this->createServerRequest();
         }
         // Finally time to init the server.
@@ -913,7 +906,7 @@ class AuthorizationController
         } catch (OAuthServerException $exception) {
             $this->logger->debug(
                 "AuthorizationController->oauthAuthorizeToken() OAuthServerException occurred",
-                ["message" => $exception->getMessage()]
+                ["message" => $exception->getMessage(), "stack" => $exception->getTraceAsString()]
             );
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
