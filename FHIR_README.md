@@ -56,8 +56,6 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
 
 Enable the Standard FHIR service (/fhir/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Standard FHIR REST API"
 
-Enable the Patient Portal FHIR service (/portalfhir/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal FHIR REST API"
-
 ### Using FHIR API Internally
 
 There are several ways to make API calls from an authorized session and maintain security:
@@ -573,6 +571,10 @@ Provenance resources are requested by including `_revinclude=Provenance:target` 
       ```
 
 ## Patient Portal FHIR Endpoints
+
+This is under development and is considered EXPERIMENTAL.
+
+Enable the Patient Portal FHIR service (/portalfhir/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal FHIR REST API (EXPERIMENTAL)"
 
 OpenEMR patient portal fhir endpoints Use `http://localhost:8300/apis/default/portalfhir as base URI.`
 
