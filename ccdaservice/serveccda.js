@@ -1,10 +1,9 @@
 /**
- * serveccda.js
+ * @package   OpenEMR CCDAServer
+ * @link      http://www.open-emr.org
  *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -149,9 +148,7 @@ function isOne(who) {
 }
 
 function headReplace(content) {
-    var r = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-        '<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"' +
-        ' xmlns="urn:hl7-org:v3" xmlns:mif="urn:hl7-org:v3/mif">\n';
+    var r = '<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3" xmlns:voc="urn:hl7-org:v3/voc" xmlns:sdtc="urn:hl7-org:sdtc">\n';
     r += content.substr(content.search(/<realmCode/i));
     return r;
 }
@@ -520,9 +517,10 @@ function populateMedication(pd) {
 function populateEncounter(pd) {
     return {
         "encounter": {
-            "name": pd.visit_category ? pd.visit_category : '',
-            "code": pd.encounter_procedures ? pd.encounter_procedures.procedures.code : '',
-            "code_system_name": "CPT4",
+            "name": pd.visit_category ? pd.visit_category : 'UNK',
+            "code": "185347001",
+            "code_system": "2.16.840.1.113883.6.96",
+            "code_system_name": "SNOMED CT",
             "translations": [{
                 "name": "Ambulatory",
                 "code": "AMB",
@@ -551,8 +549,8 @@ function populateEncounter(pd) {
             }],
             "name": [
                 {
-                    "last": pd.lname || "",
-                    "first": pd.fname || ""
+                    "last": pd.lname || "UNK",
+                    "first": pd.fname || "UNK"
                 }
             ],
             "phone": [
@@ -697,6 +695,7 @@ function populateProblem(pd) {
             "code": {
                 "name": trim(pd.title),
                 "code": cleanCode(pd.code),
+                "code_system": "2.16.840.1.113883.6.90",
                 "code_system_name": "ICD10"
             },
             "date_time": {
@@ -728,7 +727,7 @@ function populateProblem(pd) {
         "onset_age": pd.age,
         "onset_age_unit": "Year",
         "status": {
-            "name": pd.status,
+            "name": pd.status_table,
             "date_time": {
                 "low": {
                     "date": fDate(pd.start_date),
@@ -1860,13 +1859,13 @@ function genCcda(pd) {
     let xml = bbg.generateCCD(doc);
 
     // Debug
-    /*fs.writeFile("bbtest.json", JSON.stringify(doc, null, 4), function (err) {
+    /*fs.writeFile("ccda.json", JSON.stringify(all, null, 4), function (err) {
         if (err) {
             return console.log(err);
         }
         console.log("Json saved!");
     });
-    fs.writeFile("bbtest.xml", xml, function (err) {
+    fs.writeFile("ccda.xml", xml, function (err) {
         if (err) {
             return console.log(err);
         }
@@ -1881,44 +1880,6 @@ function processConnection(connection) {
     var remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
     //console.log(remoteAddress);
     conn.setEncoding('utf8');
-
-    // patched out re: buffer overrun fix. maintain for history.
-    /*function eventData(xml) {
-        xml = xml.replace(/(\u000b|\u001c)/gm, "").trim();
-        // Sanity check from service manager
-        if (xml === 'status' || xml.length < 80) {
-            conn.write("statusok" + String.fromCharCode(28) + "\r\r");
-            conn.end('');
-            return;
-        }
-
-        // ---------------------start--------------------------------
-        let doc = "";
-        xml = xml.toString().replace(/\t\s+/g, ' ').trim();
-
-        to_json(xml, function (error, data) {
-            // console.log(JSON.stringify(data, null, 4));
-            if (error) { // need try catch
-                console.log('toJson error: ' + error + 'Len: ' + xml.length);
-                return;
-            }
-            doc = genCcda(data.CCDA);
-        });
-
-        doc = headReplace(doc);
-        doc = doc.toString().replace(/(\u000b|\u001c|\r)/gm, "").trim();
-        //console.log(doc);
-        let chunk = "";
-        let numChunks = Math.ceil(doc.length / 1024);
-        for (let i = 0, o = 0; i < numChunks; ++i, o += 1024) {
-            chunk = doc.substr(o, 1024);
-            conn.write(chunk);
-        }
-
-        conn.write(String.fromCharCode(28) + "\r\r" + '');
-        conn.end();
-
-    }*/
 
     var xml_complete = "";
 
