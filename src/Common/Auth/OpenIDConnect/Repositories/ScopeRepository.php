@@ -47,7 +47,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getScopeEntityByIdentifier($identifier): ?ScopeEntity
     {
-        $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to retrieve scope",["identifier" => $identifier]);
+        $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to retrieve scope", ["identifier" => $identifier]);
         if (empty($this->validationScopes)) {
             $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to build validation scopes");
             $this->validationScopes = $this->buildScopeValidatorArray();
@@ -81,7 +81,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scopes;
     }
 
-    public function getSiteScope() : ScopeEntity {
+    public function getSiteScope(): ScopeEntity
+    {
         // TODO: adunsulag, sjpadget Won't refresh token validation fail on multi-site since we won't
         // have the id in the session?
         if ($_SESSION['site_id']) {
@@ -94,7 +95,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scope;
     }
 
-    public function setRequestScopes($scopes) {
+    public function setRequestScopes($scopes)
+    {
         if (!is_string($scopes)) {
             SystemLogger::instance()->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
             throw new \InvalidArgumentException("Invalid scope parameter set");
@@ -103,7 +105,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         $this->requestScopes = $scopes;
     }
 
-    public function getRequestScopes() {
+    public function getRequestScopes()
+    {
         return $this->requestScopes;
     }
 
@@ -479,7 +482,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $this->apiScopes();
     }
 
-    public function getServerScopes() : array {
+    public function getServerScopes(): array
+    {
         $siteScope = $this->getSiteScope();
         return [
             $siteScope->getIdentifier() => $siteScope->getIdentifier()

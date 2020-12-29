@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CustomRefreshTokenGrant Handles the custom nature of some of our scope api requests to differentiate between the
  * standard api and the regular api.  Since we don't have access to the old refresh token scopes when we are creating
@@ -11,7 +12,6 @@
  */
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Grant;
-
 
 use DateInterval;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
@@ -41,8 +41,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
             "oldRefreshToken['scopes']" => $oldRefreshToken['scopes'],
             "requestParameter['scopes']" => $this->getRequestParameter('scope', $request, null),
             "_REQUEST['scope']" => $_REQUEST['scope']
-            ]
-        );
+            ]);
         return parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
     }
 
