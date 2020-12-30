@@ -33,7 +33,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
         if ($claimsType === 'oidc') {
             $uuidToUser = new UuidUserAccount($this->identifier);
             $fhirUser = '';
-            $userRole = $uuidToUser->getUserRole() == 'users';
+            $userRole = $uuidToUser->getUserRole();
             if ($userRole == 'users') {
                 // TODO: adunsulag check with brady/sjpadget on whether this should be Practioner or Person, it has to
                 // be one of those resource types and you have to be able to retrieve it via a FHIR endpoint but I'm not
