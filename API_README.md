@@ -95,8 +95,6 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 
 Enable the Standard API service (/api/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Standard REST API"
 
-Enable the Patient Portal API service (/portal/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal REST API"
-
 ### Using API Internally
 
 There are several ways to make API calls from an authorized session and maintain security:
@@ -170,10 +168,10 @@ This is a listing of scopes:
   - `user/Practitioner.write`
   - `user/PractitionerRole.read`
   - `user/Procedure.read`
-- `api:port` (patient api which are the /portal/ endpoints)
+- `api:port` (patient api which are the /portal/ endpoints) (EXPERIMENTAL)
   - `patient/encounter.read`
   - `patient/patient.read`
-- `api:pofh` (patient fhir which are the /portalfhir/ endpoints)
+- `api:pofh` (patient fhir which are the /portalfhir/ endpoints) (EXPERIMENTAL)
   - `patient/Encounter.read`
   - `patient/Patient.read`
 
@@ -1630,6 +1628,10 @@ curl -X DELETE 'http://localhost:8300/apis/default/api/patient/1/message/1'
 ```
 
 ### /portal/ Endpoints
+
+This is under development and is considered EXPERIMENTAL.
+
+Enable the Patient Portal API service (/portal/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal REST API (EXPERIMENTAL)"
 
 OpenEMR patient portal endpoints Use `http://localhost:8300/apis/default/portal as base URI.`
 

@@ -3,8 +3,9 @@
 use OpenEMR\Common\Session\SessionUtil;
 
 if ($oauthjwk !== true) {
-    echo xlt("Error. Not authorized");
+    $message = xlt("Error. Not authorized");
     SessionUtil::oauthSessionCookieDestroy();
+    echo $message;
     exit();
 }
 

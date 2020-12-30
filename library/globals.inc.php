@@ -2928,14 +2928,14 @@ $GLOBALS_METADATA = array(
         ),
 
         'rest_portal_api' => array(
-            xl('Enable OpenEMR Patient Portal REST API'),
+            xl('Enable OpenEMR Patient Portal REST API (EXPERIMENTAL)'),
             'bool',
             '0',
             xl('Enable OpenEMR Patient Portal RESTful API.')
         ),
 
         'rest_portal_fhir_api' => array(
-            xl('Enable OpenEMR Patient Portal FHIR REST API'),
+            xl('Enable OpenEMR Patient Portal FHIR REST API (EXPERIMENTAL)'),
             'bool',
             '0',
             xl('Enable OpenEMR Patient Portal FHIR RESTful API.')

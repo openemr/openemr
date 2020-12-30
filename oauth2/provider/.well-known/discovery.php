@@ -4,8 +4,9 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Session\SessionUtil;
 
 if ($oauthdisc !== true) {
-    echo xlt("Error. Not authorized");
+    $message = xlt("Error. Not authorized");
     SessionUtil::oauthSessionCookieDestroy();
+    echo $message;
     exit();
 }
 
