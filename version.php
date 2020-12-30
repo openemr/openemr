@@ -47,7 +47,7 @@ if (!empty($_ENV['OPENEMR__ENVIRONMENT']) && ($_ENV['OPENEMR__ENVIRONMENT'] === 
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping
-    $v_js_includes = 60;
+    $v_js_includes = 61;
 }
 
 // Do not modify below
