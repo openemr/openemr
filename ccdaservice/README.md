@@ -11,16 +11,19 @@ Whenever there are new versions or updates, be sure to navigate into the ccdaser
 
 This will ensure the lastest libraries are installed.
 ## Ubuntu Setup
+* Latest version tested is node v14.0
+
 If node is not already installed then do the following:
 - cd ~
 - apt-get remove --purge nodejs npm // Ensures clean install and will allow chance to cleanup.
-- curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+- curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 - sudo apt-get install -y nodejs
 
 Navigate to: openemr/ccdaservice and run the following to install requires dependencies.
 - sudo npm install --production
 ## Windows Setup
-* Download and install nodejs v9.4 for your windows version.
+* Download and install nodejs for your windows version.
+  - Latest version tested is node v12.18.2
 * Ensure system variable NODE_PATH is set i.e %USERPROFILE%\AppData\Roaming\npm\node_modules.
 
 Navigate to: openemr/ccdaservice and run the following from an elevated PowerShell or CMD.exe (run as Administrator):

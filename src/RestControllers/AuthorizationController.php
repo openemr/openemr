@@ -320,8 +320,8 @@ class AuthorizationController
             $body = $response->getBody();
             $body->write(json_encode(array_merge($client_json, $params)));
 
-            $this->emitResponse($response->withStatus(200)->withBody($body));
             SessionUtil::oauthSessionCookieDestroy();
+            $this->emitResponse($response->withStatus(200)->withBody($body));
         } catch (OAuthServerException $exception) {
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
@@ -470,8 +470,8 @@ class AuthorizationController
             $body = $response->getBody();
             $body->write(json_encode($params));
 
-            $this->emitResponse($response->withStatus(200)->withBody($body));
             SessionUtil::oauthSessionCookieDestroy();
+            $this->emitResponse($response->withStatus(200)->withBody($body));
         } catch (OAuthServerException $exception) {
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
@@ -655,6 +655,8 @@ class AuthorizationController
     {
         $response = $this->createServerResponse();
 
+        $patientRoleSupport = (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_portal_fhir_api']));
+
         if (empty($_POST['username']) && empty($_POST['password'])) {
             $this->logger->debug("AuthorizationController->userLogin() presenting blank login form");
             $oauthLogin = true;
@@ -815,8 +817,8 @@ class AuthorizationController
             }
             // Return the HTTP redirect response. Redirect is to client callback.
             $this->logger->debug("AuthorizationController->authorizeUser() sending server response");
-            $this->emitResponse($result);
             SessionUtil::oauthSessionCookieDestroy();
+            $this->emitResponse($result);
             exit;
         } catch (Exception $exception) {
             $this->logger->error("AuthorizationController->authorizeUser() Exception thrown", ["message" => $exception->getMessage()]);
@@ -889,7 +891,6 @@ class AuthorizationController
                 throw new OAuthServerException('Bad request', 0, 'invalid_request', 400);
             }
             $result = $server->respondToAccessTokenRequest($request, $response);
-            $this->emitResponse($result);
             // save a password trusted user
             if ($this->grantType === 'password') {
                 $body = $result->getBody();
@@ -901,6 +902,7 @@ class AuthorizationController
                 $this->saveTrustedUser($_REQUEST['client_id'], $_SESSION['pass_user_id'], $_REQUEST['scope'], 0, $code, $session_cache, 'password');
             }
             SessionUtil::oauthSessionCookieDestroy();
+            $this->emitResponse($result);
         } catch (OAuthServerException $exception) {
             $this->logger->debug(
                 "AuthorizationController->oauthAuthorizeToken() OAuthServerException occurred",

@@ -287,7 +287,7 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
                       </li>
                     <?php } else { ?>
                       <li class="nav-item">
-                        <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
+                        <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                       </li>
                     <?php } ?>
                   </ul>
