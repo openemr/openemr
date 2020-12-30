@@ -25,7 +25,7 @@ class Capability
      * @see ONC final rule commentary https://www.federalregister.gov/d/2020-07419/p-1184 Accessed on December 9th 2020
      */
     const SUPPORTED_CAPABILITIES = [self::LAUNCH_EHR, self::CONTEXT_BANNER, self::CONTEXT_EHR_PATIENT
-        , self::CONTEXT_STYLE ];
+        , self::CONTEXT_STYLE, self::SSO_OPENID_CONNECTION, self::CLIENT_CONFIDENTIAL_SYMMETRIC, self::PERMISSION_USER ];
 
     // support for SMART’s EHR Launch mode
     const LAUNCH_EHR = 'launch-ehr';

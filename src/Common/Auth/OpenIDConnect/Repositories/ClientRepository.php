@@ -114,6 +114,9 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setIsConfidential($client_record['is_confidential']);
         $client->setScopes($client_record['scope']);
         $client->setClientRole($client_record['client_role']);
+        // launch uri is the same as the initiate_login_uri SMART uses launchUri
+        // so we will refer to it that way.
+        $client->setLaunchUri($client_record['initiate_login_uri']);
         return $client;
     }
 }

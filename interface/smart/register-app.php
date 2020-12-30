@@ -68,6 +68,7 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                 let appRegister = {
                     "application_type": "private"
                     ,"redirect_uris": []
+                    ,"launch_uri": ""
                     ,"post_logout_redirect_uris": []
                     ,"client_name": ""
                     ,"token_endpoint_auth_method": "client_secret_post"
@@ -79,6 +80,7 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                 appRegister.redirect_uris.push(redirect_uri);
                 // not sure we need logout redirect right now
                 appRegister.post_logout_redirect_uris.push(document.querySelector("#logoutURI").value);
+                appRegister.launch_uri = document.querySelector("#launchUri").value;
                 appRegister.contacts.push(document.querySelector("#contactEmail").value);
 
                 fetch(fhirRegistrationURL, {
@@ -97,6 +99,7 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                     document.querySelector(".apiResponse").classList.remove("hidden");
                     document.querySelector(".errorResponse").classList.add("hidden");
                     document.querySelector("#clientID").value = resultJSON.client_id;
+                    document.querySelector("#clientSecretID").value = resultJSON.client_secret;
                 })
                 .catch(error => {
                     console.error(error);
@@ -134,6 +137,10 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                 <input type="text" class="form-control" id="redirectUri" name="redirectUri" placeholder="<?php echo xla('URI'); ?>" />
             </div>
             <div class="form-group">
+                <label for="launchUri" class="text-right"><?php echo xlt('App Launch URI'); ?>:</label>
+                <input type="text" class="form-control" id="launchUri" name="launchUri" placeholder="<?php echo xla('URI'); ?>" />
+            </div>
+            <div class="form-group">
                 <label for="logoutURI" class="text-right"><?php echo xlt('App Logout URI'); ?>:</label>
                 <input type="text" class="form-control" id="logoutURI" name="logoutURI" placeholder="<?php echo xla('URI'); ?>" />
             </div>
@@ -141,9 +148,15 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
             <div class="form-group">
                 <input type="button" class="form-control btn btn-primary" id="submit" name="submit" value="Submit" (onClick)="registerApp();" />
             </div>
-            <div class="form-group apiResponse hidden">
-                <label for="clientID" class="text-right"><?php echo xlt('Client APP ID:'); ?></label>
-                <textarea class="form-control" id="clientID" name="clientID"></textarea>
+            <div class="apiResponse hidden">
+                <div class="form-group">
+                    <label for="clientID" class="text-right"><?php echo xlt('Client APP ID:'); ?></label>
+                    <textarea class="form-control" id="clientID" name="clientID"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="clientSecretID" class="text-right"><?php echo xlt('Client Secret APP ID:'); ?></label>
+                    <textarea class="form-control" id="clientSecretID" name="clientSecretID"></textarea>
+                </div>
             </div>
             <div class="form-group errorResponse hidden">
                 <div id="errorResponseContainer">
