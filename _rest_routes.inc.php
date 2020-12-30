@@ -453,7 +453,7 @@ RestConfig::$ROUTE_MAP = array(
         return $return;
     },
     "GET /api/appointment" => function () {
-        RestConfig::scope_check("user", "Appointment", "read");
+        RestConfig::scope_check("user", "appointment", "read");
         RestConfig::authorization_check("patients", "appt");
         $return = (new AppointmentRestController())->getAll();
         RestConfig::apiLog($return);

@@ -13,8 +13,9 @@
 use OpenEMR\Common\Session\SessionUtil;
 
 if ($oauthLogin !== true) {
-    echo xlt("Error. Not authorized");
+    $message = xlt("Error. Not authorized");
     SessionUtil::oauthSessionCookieDestroy();
+    echo $message;
     exit();
 }
 
@@ -148,7 +149,9 @@ use OpenEMR\Core\Header;
                             <div class="btn-group">
                                 <?php if (empty($mfaRequired)) { ?>
                                     <button type="submit" name="user_role" class="btn btn-outline-primary" value="api"><?php echo xlt("OpenEMR Login"); ?> <i class="fa fa-sign-in-alt"></i></button>
-                                    <button type="submit" name="user_role" class="btn btn-outline-info" value="portal-api"><?php echo xlt("Patient Login"); ?> <i class="fa fa-sign-in-alt"></i></button>
+                                    <?php if (!empty($patientRoleSupport)) { ?>
+                                        <button type="submit" name="user_role" class="btn btn-outline-info" value="portal-api"><?php echo xlt("Patient Login"); ?> <i class="fa fa-sign-in-alt"></i></button>
+                                    <?php } ?>
                                 <?php } ?>
                             </div>
                             <div class="form-check-inline float-right">
