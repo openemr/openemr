@@ -104,7 +104,7 @@ class SmartLaunchController
                             <li class="summary_item">
                                 <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="<?php echo attr($client->getName()); ?>"
                                         data-smart-redirect-url="<?php echo attr($client->getLaunchUri($launchParams)); ?>">
-                                    <?php echo xlt(Launch); ?>
+                                    <?php echo xlt("Launch"); ?>
                                 </button>
                                 <?php echo text($client->getName()); ?>
                             </li>
