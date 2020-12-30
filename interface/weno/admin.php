@@ -135,7 +135,7 @@ function importPharm(e) {
         url: 'pharmacyHelper.php?csrf_token_form=' + <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
         data: {"textData": [city, state] },
         success: function (response) {
-            let msg =  response.saved + <?php echo xlj(" Pharmacies Imported"); ?>;
+            let msg =  response.saved + " " + <?php echo xlj("Pharmacies Imported"); ?>;
             alert(msg);
             $('#loader').hide();
             $('#form_btn').show();

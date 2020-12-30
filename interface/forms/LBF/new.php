@@ -1636,7 +1636,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         $(function () {
             window.addEventListener("message", (e) => {
                 if (event.origin !== window.location.origin) {
-                    signerAlertMsg(<?php echo xlj("Request is not same origin!)") ?>, 15000);
+                    signerAlertMsg(<?php echo xlj("Request is not same origin!") ?>, 15000);
                     return false;
                 }
                 if (e.data.submitForm === true) {

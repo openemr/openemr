@@ -199,7 +199,7 @@ if ($form_step == 0) {
     echo "  <td>" . xlt('Create Eventlog Backup') . "</td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
-    echo "  <td></td><td class='text'>" . xlt('Note that the Eventlog Backup is currently set to save in the following folder:') . " " . text($GLOBALS['backup_log_dir']) . " . " . xlt('Recommend setting the Path for Event Log Backup in Globals settings in the Miscellaneous section to something other than your tmp/temp directory.') . " " . xlt('Please refer to') . ' README-Log-Backup.txt ' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . ".</td>\n";
+    echo "  <td></td><td class='text'>" . xlt('Note that the Eventlog Backup is currently set to save in the following folder') . ": " . text($GLOBALS['backup_log_dir']) . " . " . xlt('Recommend setting the Path for Event Log Backup in Globals settings in the Miscellaneous section to something other than your tmp/temp directory.') . " " . xlt('Please refer to') . ' README-Log-Backup.txt ' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . ".</td>\n";
     echo " </tr>\n";
     echo "</table>\n";
 }

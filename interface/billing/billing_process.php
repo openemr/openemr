@@ -276,10 +276,10 @@ function process_form($ar)
                 die(xlt("Claim ") . text($claimid) . xlt(" update failed, not in database?"));
             } else {
                 if ($validate_claim) {
-                    $hlog .= xl("Validating Claim ") . $claimid . xl(" existing claim status is not altered.") . "\n";
+                    $hlog .= xl("Validating Claim") . " " . $claimid . " " . xl("existing claim status is not altered.") . "\n";
                 }
                 if ($clear_claim) {
-                    $hlog .= xl("Validating Claim ") . $claimid . xl(" and resetting claim status.") . "\n";
+                    $hlog .= xl("Validating Claim") . " " . $claimid . " " . xl("and resetting claim status.") . "\n";
                 }
                 if (isset($ar['bn_mark'])) {
                     $bill_info[] = xl("Claim ") . $claimid . xl(" was marked as billed only.") . "\n";
