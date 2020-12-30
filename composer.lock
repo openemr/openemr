@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "20aa7ad13d3b51bf3535b5dfbfddfd86",
+    "content-hash": "109bebcbe7e21e6caee5214425af35c2",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -1636,16 +1636,16 @@
         },
         {
             "name": "laminas/laminas-http",
-            "version": "2.13.0",
+            "version": "2.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-http.git",
-                "reference": "33b7942f51ce905ce9bfc8bf28badc501d3904b5"
+                "reference": "a62756282ebbcd79ac58ba6110e8934faa55e4f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-http/zipball/33b7942f51ce905ce9bfc8bf28badc501d3904b5",
-                "reference": "33b7942f51ce905ce9bfc8bf28badc501d3904b5",
+                "url": "https://api.github.com/repos/laminas/laminas-http/zipball/a62756282ebbcd79ac58ba6110e8934faa55e4f7",
+                "reference": "a62756282ebbcd79ac58ba6110e8934faa55e4f7",
                 "shasum": ""
             },
             "require": {
@@ -1654,7 +1654,7 @@
                 "laminas/laminas-uri": "^2.5.2",
                 "laminas/laminas-validator": "^2.10.1",
                 "laminas/laminas-zendframework-bridge": "^1.0",
-                "php": "^5.6 || ^7.0"
+                "php": "^7.3 || ~8.0.0"
             },
             "replace": {
                 "zendframework/zend-http": "^2.11.2"
@@ -1662,7 +1662,7 @@
             "require-dev": {
                 "laminas/laminas-coding-standard": "~1.0.0",
                 "laminas/laminas-config": "^3.1 || ^2.6",
-                "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.3"
+                "phpunit/phpunit": "^9.3"
             },
             "suggest": {
                 "paragonie/certainty": "For automated management of cacert.pem"
@@ -1698,7 +1698,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2020-08-18T17:11:58+00:00"
+            "time": "2020-12-29T13:38:17+00:00"
         },
         {
             "name": "laminas/laminas-hydrator",
@@ -10817,16 +10817,16 @@
         },
         {
             "name": "symfony/panther",
-            "version": "v0.8.0",
+            "version": "v0.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/panther.git",
-                "reference": "04a6e5552e66080eb2549017e106b061090a6f56"
+                "reference": "dc23945f2aab40c67e45f50c1486a16dd03423f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/panther/zipball/04a6e5552e66080eb2549017e106b061090a6f56",
-                "reference": "04a6e5552e66080eb2549017e106b061090a6f56",
+                "url": "https://api.github.com/repos/symfony/panther/zipball/dc23945f2aab40c67e45f50c1486a16dd03423f2",
+                "reference": "dc23945f2aab40c67e45f50c1486a16dd03423f2",
                 "shasum": ""
             },
             "require": {
@@ -10834,12 +10834,9 @@
                 "php-webdriver/webdriver": "^1.8.2",
                 "symfony/browser-kit": "^4.4 || ^5.0",
                 "symfony/dom-crawler": "^4.4 || ^5.0",
-                "symfony/http-client": "^4.4 || ^5.0",
+                "symfony/http-client": "^4.4.11 || ^5.2",
                 "symfony/polyfill-php72": "^1.9",
                 "symfony/process": "^4.4 || ^5.0"
-            },
-            "conflict": {
-                "symfony/framework-bundle": ">=4.3 <4.3.4"
             },
             "require-dev": {
                 "fabpot/goutte": "^3.2.3",
@@ -10847,12 +10844,12 @@
                 "symfony/css-selector": "^4.4 || ^5.0",
                 "symfony/framework-bundle": "^4.4 || ^5.0",
                 "symfony/mime": "^4.4 || ^5.0",
-                "symfony/phpunit-bridge": "dev-master"
+                "symfony/phpunit-bridge": "^5.2"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -10887,7 +10884,7 @@
             ],
             "support": {
                 "issues": "https://github.com/symfony/panther/issues",
-                "source": "https://github.com/symfony/panther/tree/v0.8.0"
+                "source": "https://github.com/symfony/panther/tree/v0.9.0"
             },
             "funding": [
                 {
@@ -10895,7 +10892,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2020-10-03T09:22:56+00:00"
+            "time": "2020-12-29T07:51:42+00:00"
         },
         {
             "name": "symfony/polyfill-php73",
