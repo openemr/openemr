@@ -793,11 +793,11 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
-      # - name: E2e testing
-      #   run: |
-      #     source ci/ciLibrary.source
-      #     build_test_e2e
-      #   if: ${{ success() || failure() }}
+      - name: E2e testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_e2e
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
