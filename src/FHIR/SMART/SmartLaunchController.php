@@ -75,13 +75,12 @@ class SmartLaunchController
 
             $gbl = \RestConfig::GetInstance();
             // TODO: adunsulag surely we can centralize where this fhir API url is set?
-            // TODO: adunsulag what is wrong with these URL's?  I'm having to hard code the issuer as I can't
             // seem to get these URLs right.  for some reason the $SITE is set to interface, we don't get 'apis' in there
             // ROOT_URL appears to be empty.. just strange
             // $issuer = $GLOBALS['site_addr_oath'] . $gbl::$SITE . $gbl::$ROOT_URL . "/fhir";
 //            $issuer = $GLOBALS['site_addr_oath'] . "/apis/default/fhir";
             $issuer = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir";
-            $launchParams = "launch.html?launch=" . urlencode($launchCode) . "&iss=" . urlencode($issuer);
+            $launchParams = "?launch=" . urlencode($launchCode) . "&iss=" . urlencode($issuer);
 
             expand_collapse_widget(
                 $widgetTitle,
@@ -104,7 +103,7 @@ class SmartLaunchController
                         <?php foreach ($smartClients as $client) : ?>
                             <li class="summary_item">
                                 <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="<?php echo attr($client->getName()); ?>"
-                                        data-smart-redirect-url="<?php echo attr($client->getRedirectUri() . $launchParams); ?>">
+                                        data-smart-redirect-url="<?php echo attr($client->getLaunchUri($launchParams)); ?>">
                                     <?php echo xlt("Launch"); ?>
                                 </button>
                                 <?php echo text($client->getName()); ?>
