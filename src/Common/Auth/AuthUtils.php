@@ -584,7 +584,7 @@ class AuthUtils
                     " VALUES (?,?,?,NOW()) ";
                 privStatement($passwordSQL, [$user_id['id'], $new_username, $hash]);
             } else {
-                $this->errorMessage = xl("Missing user credentials:" . $targetUser);
+                $this->errorMessage = xl("Missing user credentials") . ":" . $targetUser;
                 $this->clearFromMemory($newPwd);
                 return false;
             }
@@ -858,7 +858,7 @@ class AuthUtils
     {
         if (($GLOBALS['gbl_minimum_password_length'] != 0) && (check_integer($GLOBALS['gbl_minimum_password_length']))) {
             if (strlen($pwd) < $GLOBALS['gbl_minimum_password_length']) {
-                $this->errorMessage = xl("Password too short. Minimum characters required" . ": " . $GLOBALS['gbl_minimum_password_length']);
+                $this->errorMessage = xl("Password too short. Minimum characters required") . ": " . $GLOBALS['gbl_minimum_password_length'];
                 return false;
             }
         }
