@@ -29,6 +29,8 @@ class Pharmacy extends ORDataObject
     var $transmit_method;
     var $email;
     var $transmit_method_array; //set in constructor
+    public $pageno;
+    public $state;
 
     /**
      * Constructor sets all Prescription attributes to their default value
@@ -36,10 +38,11 @@ class Pharmacy extends ORDataObject
     function __construct($id = "", $prefix = "")
     {
         $this->id = $id;
+        $this->state = $this->getState();
         $this->name = "";
         $this->email = "";
         $this->transmit_method = 1;
-        $this->transmit_method_array = array(xl("None Selected"), xl("Print"), xl("Email"), xl("Fax"));
+        $this->transmit_method_array = array(xl("None Selected"), xl("Print"), xl("Email"), xl("Fax"), xl("Transmit"));
         $this->_table = "pharmacies";
         $phone  = new PhoneNumber();
         $phone->set_type(TYPE_WORK);
@@ -241,7 +244,8 @@ class Pharmacy extends ORDataObject
         $pharmacies = array();
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
-            "INNER JOIN addresses AS a ON p.id = a.foreign_id " . $city . " " . add_escape_custom($sort);
+            "INNER JOIN addresses AS a ON p.id = a.foreign_id " . $city . " " . add_escape_custom($sort) .
+            " WHERE state = " . $this->state;
 
         //echo $sql . "<bR />";
         $results = sqlQ($sql);
@@ -252,6 +256,13 @@ class Pharmacy extends ORDataObject
         }
 
         return $pharmacies;
+    }
+
+    function getState()
+    {
+        $sql = "SELECT state FROM facility";
+        $res = sqlQuery($sql);
+        return $res['state'];
     }
 
     function toString($html = false)
@@ -269,6 +280,18 @@ class Pharmacy extends ORDataObject
         } else {
             return $string;
         }
+    }
+
+    function totalPages()
+    {
+        $sql = "select count(*) AS numberof from " . $this->_table;
+        $count = sqlQuery($sql);
+        return $count['numberof'];
+    }
+
+    function getPageno()
+    {
+        return $this->pageno = 1;
     }
 } // end of Pharmacy
 /*$p = new Pharmacy("1");

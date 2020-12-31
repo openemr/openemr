@@ -61,8 +61,9 @@ function get_pharmacies()
     "p.area_code, p.prefix, p.number FROM pharmacies AS d " .
     "LEFT OUTER JOIN addresses AS a ON a.foreign_id = d.id " .
     "LEFT OUTER JOIN phone_numbers AS p ON p.foreign_id = d.id " .
+        "CROSS JOIN patient_data AS pd ON pd.postal_code = a.zip ".
     "AND p.type = 2 " .
-    "ORDER BY state, city, name, area_code, prefix, number");
+    "ORDER BY a.state, a.city, d.name, p.area_code, p.prefix, p.number");
 }
 
 function optionalAge($frow, $date, &$asof, $description = '')

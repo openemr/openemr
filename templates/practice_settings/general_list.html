@@ -3,7 +3,7 @@
 <head>
     <title>{xlt t='Practice Settings'}</title>
 
-    {headerTemplate assets='common'}
+    {headerTemplate assets='common|datatables|datatables-colreorder|datatables-dt|datatables-bs'}
 
     <script>
         {literal}
@@ -37,14 +37,14 @@
                   <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}insurance_company&action=list">{xlt t='Insurance Companies'}</a></li>
                   <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}insurance_numbers&action=list">{xlt t='Insurance Numbers'}</a></li>
                   <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}x12_partner&action=list">{xlt t='X12 Partners'}</a></li>
-                  <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}document&action=queue">{xlt t='Documents'}</a></li>
+                  <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}document_category&action=list">{xlt t='Document Categories'}</a></li>
                   <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}hl7&action=default">{xlt t='HL7 Viewer'}</a></li>
               </ul>
           </div>
       </nav>
       <main class="main-full">
         <div class="pl-3 pt-5 pt-md-3">
-            <div class="page-header section-header">
+            <div class="section-header">
                 <h2>{$ACTION_NAME}</h2>
             </div>
             <div>
@@ -54,4 +54,13 @@
       </main>
   </div>
 </body>
+<script>
+    {literal}
+    $(document).ready(function(){
+        $('#pharmacies').dataTable({
+
+        });
+    });
+    {/literal}
+</script>
 </html>

@@ -229,6 +229,9 @@ require_once("$srcdir/options.js.php");
         return false;
     }
 
+    function getWeno() {
+        location.href = '../../../src/Rx/Weno/indexRx.php'
+    }
 </script>
 
 <script>

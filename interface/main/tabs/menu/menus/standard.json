@@ -1097,6 +1097,18 @@
               "admin",
               "super"
             ]
+          },
+          {
+            "label": "Pharmacy and Drug Import",
+            "menu_id": "adm0",
+            "target": "adm",
+            "url": "/src/Pharmacy/Services/import_pharmacy_drugs.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
           }
         ],
         "requirement": 0,
@@ -1214,7 +1226,7 @@
             "label":"Weno Management",
             "menu_id":"adm0",
             "target":"adm",
-            "url":"/interface/weno/admin.php",
+            "url":"/src/Rx/Weno/facilities.php",
             "children":[],
             "requirement":0,
             "acl_req": [

@@ -415,6 +415,9 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
         $widgetAuth = AclMain::aclCheckCore('patients', 'rx', '', array('write','addonly'));
         $fixedWidth = false;
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+        if ($GLOBALS['weno_rx_enable']) {
+            echo "<button onclick='getWeno()'>eRx</button>";
+        }
     } else { ?>
     <span class='text font-weight-bold'><?php echo xlt('Prescriptions'); ?></span>
     </td></tr>
