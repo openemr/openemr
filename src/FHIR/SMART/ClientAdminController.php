@@ -361,8 +361,10 @@ class ClientAdminController
                                         $this->renderTextInput($key, $setting);
                                         break;
                                     case 'textarea':
+                                        $this->renderTextarea($key, $setting);
                                         break;
                                     case 'checkbox':
+                                        $this->renderCheckbox($key, $setting);
                                         break;
                                 }
                             } ?>
