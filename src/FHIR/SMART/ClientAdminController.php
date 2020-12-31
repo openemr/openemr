@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ClientAdminController is both the controller and presentation class for the OAUTH2 clients in the OpenEMR system.
  * @package openemr
@@ -7,11 +8,13 @@
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace OpenEMR\FHIR\SMART;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -73,7 +76,8 @@ class ClientAdminController
      * @param $request
      * @throws AccessDeniedException
      */
-    public function dispatch($action, $request) {
+    public function dispatch($action, $request)
+    {
         $request = $this->normalizeRequest($request);
         $this->checkSecurity($request);
 
@@ -90,27 +94,20 @@ class ClientAdminController
             $clientId = $parts[1];
 
             // route /edit/:clientId
-            if (count($parts) < 3)
-            {
+            if (count($parts) < 3) {
                 return $this->editAction($clientId, $request);
             }
             // route /edit/:clientId/enable
-            else if ($parts[2] == 'enable')
-            {
+            else if ($parts[2] == 'enable') {
                 return $this->enableAction($clientId, $request);
             }
             // route /edit/:clientId/disable
-            else if ($parts[2] == 'disable')
-            {
+            else if ($parts[2] == 'disable') {
                 return $this->disableAction($clientId, $request);
-            }
-            else
-            {
+            } else {
                 return $this->notFoundAction($request);
             }
-        }
-        else
-        {
+        } else {
             return $this->notFoundAction($request);
         }
     }
@@ -119,7 +116,8 @@ class ClientAdminController
      * Renders the list of OAUTH2 clients to the screen.
      * @param $request
      */
-    public function listAction($request) {
+    public function listAction($request)
+    {
         $this->renderHeader();
         $this->renderList($request);
         $this->renderFooter();
@@ -130,7 +128,8 @@ class ClientAdminController
      * @param $clientId
      * @param $request
      */
-    public function editAction($clientId, $request) {
+    public function editAction($clientId, $request)
+    {
         $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {
             $this->notFoundAction($request);
@@ -147,7 +146,8 @@ class ClientAdminController
      * @param $clientId
      * @param $request
      */
-    public function disableAction($clientId, $request) {
+    public function disableAction($clientId, $request)
+    {
         $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {
             $this->notFoundAction($request);
@@ -167,7 +167,8 @@ class ClientAdminController
      * @param $clientId
      * @param $request
      */
-    public function enableAction($clientId, $request) {
+    public function enableAction($clientId, $request)
+    {
         $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {
             $this->notFoundAction($request);
@@ -182,7 +183,8 @@ class ClientAdminController
      * Handles any action that the system doesn't currently know how to address.
      * @param $request
      */
-    public function notFoundAction($request) {
+    public function notFoundAction($request)
+    {
         http_response_code(404);
         $this->renderHeader();
         ?><h1>404 <?php echo xlt("Page not found"); ?></h1><?php
@@ -198,19 +200,21 @@ class ClientAdminController
      * @param $isEnabled
      * @param $successMessage
      */
-    private function handleEnabledAction(ClientEntity $client, $isEnabled, $successMessage) {
+    private function handleEnabledAction(ClientEntity $client, $isEnabled, $successMessage)
+    {
         $client->setIsEnabled($isEnabled);
         try {
             $this->clientRepo->saveIsEnabled($client, $isEnabled);
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $successMessage]]);
             header("Location: " . $url);
-        }
-        catch (\Exception $ex) {
-            $this->logger->error("Failed to save client",
+        } catch (\Exception $ex) {
+            $this->logger->error(
+                "Failed to save client",
                 [
                     "exception" => $ex->getMessage(), "trace" => $ex->getTraceAsString()
                     , 'client' => $client->getIdentifier()
-                ]);
+                ]
+            );
 
             $message = xlt('Client failed to save.  Check system logs');
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
@@ -222,7 +226,8 @@ class ClientAdminController
      * Renders a list of the system oauth2 clients to the screen.
      * @param $request
      */
-    private function renderList($request) {
+    private function renderList($request)
+    {
         $clients = $this->clientRepo->listClientEntities();
         ?>
         <div class="table-responsive">
@@ -232,7 +237,7 @@ class ClientAdminController
                     <th>
                         Edit
                     </th>
-                    <th><?php echo xlt('Client Name'); ?></th>
+                    <th><?php echo xlt('Client Name / Client ID'); ?></th>
                     <th><?php echo xlt('Enabled'); ?></th>
                     <th><?php echo xlt('Client Type'); ?></th>
                     <th><?php echo xlt('Scopes Requested'); ?></th>
@@ -250,7 +255,11 @@ class ClientAdminController
                         <td>
                             <a class="btn btn-primary btn-sm" href="<?php echo $this->getActionUrl(['edit', $client->getIdentifier()]); ?>">Edit</a>
                         </td>
-                        <td><?php echo text($client->getName()); ?></td>
+                        <td>
+                            <?php echo text($client->getName()); ?>
+                            <br />
+                            <em><?php echo text($client->getIdentifier()); ?></em>
+                        </td>
                         <td><?php echo $client->isEnabled() ? xlt("Enabled") : xlt("Disabled"); ?></td>
                         <td><?php echo $client->isConfidential() ? xlt("Confidential") : xlt("Public"); ?></td>
                         <td>
@@ -269,7 +278,8 @@ class ClientAdminController
      * @param ClientEntity $client
      * @param $request
      */
-    private function renderEdit(ClientEntity $client, $request) {
+    private function renderEdit(ClientEntity $client, $request)
+    {
         $listAction = $this->getActionUrl(['list']);
         $disableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable']);
         $enableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable']);
@@ -345,36 +355,17 @@ class ClientAdminController
                             </div>
                         <?php endif; ?>
                         <form>
-                            <?php foreach ($formValues as $key => $setting) : ?>
-                            <div class="form-group">
-<?php switch ($setting['type']): ?>
-<?php case 'text': ?>
-                                <div class="form-group">
-                                    <label for="<?php echo attr($key); ?>"><?php echo $setting['label']; ?></label>
-                                    <input type="text" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
-                                           class="form-control" value="<?php echo attr($setting['value']); ?>" readonly disabled />
-                                </div>
-<?php break; ?>
-<?php case 'textarea': ?>
-                                <div class="form-group">
-                                    <label for="<?php echo attr($key); ?>"><?php echo $setting['label']; ?></label>
-                                    <textarea id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>" readonly
-                                              class="form-control" rows="10" disabled><?php echo attr($setting['value']); ?></textarea>
-                                </div>
-<?php break; ?>
-<?php case 'checkbox': ?>
-                                <div class="form-check form-check-inline">
-                                    <input type="checkbox" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
-                                           class="form-check-input" value="<?php echo attr($setting['value']); ?>" readonly
-                                        <?php echo ($setting['checked'] ? "checked='checked'" : ""); ?> />
-                                    <label for="<?php echo attr($key); ?>" class="form-check-label">
-                                        <?php echo $setting['label']; ?>
-                                    </label>
-                                </div>
-<?php break; ?>
-<?php endswitch; ?>
-                            </div>
-                        <?php endforeach; ?>
+                            <?php foreach ($formValues as $key => $setting) {
+                                switch ($setting['type']) {
+                                    case 'text':
+                                        $this->renderTextInput($key, $setting);
+                                        break;
+                                    case 'textarea':
+                                        break;
+                                    case 'checkbox':
+                                        break;
+                                }
+                            } ?>
                         </form>
                     </div>
                     <div class="col-6">
@@ -384,6 +375,42 @@ class ClientAdminController
                 </div>
             </div>
             <!-- List client information below -->
+        </div>
+        <?php
+    }
+
+    private function renderCheckbox($key, $setting)
+    {
+        ?>
+        <div class="form-check form-check-inline">
+            <input type="checkbox" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
+                   class="form-check-input" value="<?php echo attr($setting['value']); ?>" readonly
+                <?php echo ($setting['checked'] ? "checked='checked'" : ""); ?> />
+            <label for="<?php echo attr($key); ?>" class="form-check-label">
+                <?php echo $setting['label']; ?>
+            </label>
+        </div>
+        <?php
+    }
+
+    private function renderTextarea($key, $setting)
+    {
+        ?>
+        <div class="form-group">
+            <label for="<?php echo attr($key); ?>"><?php echo $setting['label']; ?></label>
+            <textarea id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>" readonly
+                      class="form-control" rows="10" disabled><?php echo attr($setting['value']); ?></textarea>
+        </div>
+        <?php
+    }
+
+    private function renderTextInput($key, $setting)
+    {
+        ?>
+        <div class="form-group">
+            <label for="<?php echo attr($key); ?>"><?php echo $setting['label']; ?></label>
+            <input type="text" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
+                   class="form-control" value="<?php echo attr($setting['value']); ?>" readonly disabled />
         </div>
         <?php
     }
@@ -412,7 +439,8 @@ class ClientAdminController
      * @param $request
      * @return bool True if CSRF is required, false otherwise.
      */
-    private function shouldCheckCSRFTokenForRequest($request) {
+    private function shouldCheckCSRFTokenForRequest($request)
+    {
         // we don't check CSRF for a basic get and list action
         // anything else requires the CSRF token
         if ($request['action'] === '/list') {
@@ -425,7 +453,8 @@ class ClientAdminController
      * Retrieves the CSRF token string to use
      * @return bool|string
      */
-    private function getCSRFToken() {
+    private function getCSRFToken()
+    {
         return CsrfUtils::collectCsrfToken(self::CSRF_TOKEN_NAME);
     }
 
@@ -437,7 +466,8 @@ class ClientAdminController
      * @param array $options
      * @return string
      */
-    private function getActionUrl($action, $options = array()) {
+    private function getActionUrl($action, $options = array())
+    {
         if (\is_array($action)) {
             $action = implode("/", $action);
         }
@@ -457,7 +487,8 @@ class ClientAdminController
      * @param ClientEntity $client
      * @param bool $preview
      */
-    private function renderScopeList(ClientEntity $client, $preview = false) {
+    private function renderScopeList(ClientEntity $client, $preview = false)
+    {
        // TODO: adunsulag we can in the future can group these and make this list easier to navigate.
         $scopeList = $client->getScopes();
         if (empty($scopeList)) {
@@ -475,7 +506,7 @@ class ClientAdminController
             <?php endforeach; ?>
             <?php if ($preview && $count > self::SCOPE_PREVIEW_DISPLAY) : ?>
                 <li>
-                    <em><?php echo ($count - self::SCOPE_PREVIEW_DISPLAY) . " " . xlt( "additional scopes"); ?></em>...
+                    <em><?php echo ($count - self::SCOPE_PREVIEW_DISPLAY) . " " . xlt("additional scopes"); ?></em>...
                 </li>
             <?php endif; ?>
         </ul>
@@ -485,7 +516,8 @@ class ClientAdminController
     /**
      * Renders out the header that each controller action will use.
      */
-    private function renderHeader() {
+    private function renderHeader()
+    {
         $title = xlt('Client Registrations');
         ?>
 <html>
@@ -512,7 +544,8 @@ class ClientAdminController
     /**
      * Renders the footer html to the screen.
      */
-    private function renderFooter() {
+    private function renderFooter()
+    {
         ?>
         <div class="row mt-5">
             <div class="col alert alert-info">

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CsrfInvalidException.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Common\Csrf;
-
 
 use Throwable;
 

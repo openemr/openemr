@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AccessDeniedException represents a system exception that access was denied due to a ACL Violation
  * @package openemr
@@ -10,12 +11,11 @@
 
 namespace OpenEMR\Common\Acl;
 
-
 use Throwable;
 
 class AccessDeniedException extends \Exception
 {
-    public function __construct($requiredSection, $subCategory='', $message = "", $code = 0, Throwable $previous = null)
+    public function __construct($requiredSection, $subCategory = '', $message = "", $code = 0, Throwable $previous = null)
     {
         if (empty($message)) {
             $message = xlt('ACL check failed');
