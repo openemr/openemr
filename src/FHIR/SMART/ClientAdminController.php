@@ -253,7 +253,7 @@ class ClientAdminController
                 <?php foreach ($clients as $client) : ?>
                     <tr>
                         <td>
-                            <a class="btn btn-primary btn-sm" href="<?php echo $this->getActionUrl(['edit', $client->getIdentifier()]); ?>">Edit</a>
+                            <a class="btn btn-primary btn-sm" href="<?php echo $this->getActionUrl(['edit', $client->getIdentifier()]); ?>" onclick="top.restoreSession()">Edit</a>
                         </td>
                         <td>
                             <?php echo text($client->getName()); ?>
@@ -326,7 +326,7 @@ class ClientAdminController
         ];
 
         ?>
-        <a href="<?php echo attr($listAction); ?>" class="btn btn-sm btn-secondary">&lt; <?php echo xlt("Back to Client List"); ?></a>
+        <a href="<?php echo attr($listAction); ?>" class="btn btn-sm btn-secondary" onclick="top.restoreSession()">&lt; <?php echo xlt("Back to Client List"); ?></a>
 
         <div class="card mt-3">
             <div class="card-header">
@@ -334,9 +334,9 @@ class ClientAdminController
                     Edit <em><?php echo $client->getName(); ?></em>
                     <div class="float-right">
                         <?php if ($isEnabled) : ?>
-                        <a href="<?php echo attr($disableClientLink); ?>" class="btn btn-sm btn-primary">Disable Client</a>
+                        <a href="<?php echo attr($disableClientLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()">Disable Client</a>
                         <?php else : ?>
-                        <a href="<?php echo attr($enableClientLink); ?>" class="btn btn-sm btn-primary">Enable Client</a>
+                        <a href="<?php echo attr($enableClientLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()">Enable Client</a>
                         <?php endif; ?>
                     </div>
                 </h2>
