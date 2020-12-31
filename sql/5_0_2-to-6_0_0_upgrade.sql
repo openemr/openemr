@@ -2423,3 +2423,7 @@ ALTER TABLE `oauth_clients` ADD `endorsements` TEXT;
 ALTER TABLE `oauth_clients` ADD `policy_uri` TEXT;
 ALTER TABLE `oauth_clients` ADD `tos_uri` TEXT;
 #EndIf
+
+#IfMissingColumn oauth_clients is_enabled
+ALTER TABLE `oauth_clients` ADD `is_enabled` tinyint(1) NOT NULL DEFAULT '0';
+#EndIf

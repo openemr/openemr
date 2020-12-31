@@ -117,6 +117,7 @@ class ClientRepository implements ClientRepositoryInterface
         // launch uri is the same as the initiate_login_uri SMART uses launchUri
         // so we will refer to it that way.
         $client->setLaunchUri($client_record['initiate_login_uri']);
+        $client->setIsEnabled($client_record['is_enabled'] === "1");
         return $client;
     }
 }

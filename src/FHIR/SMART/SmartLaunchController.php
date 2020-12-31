@@ -13,6 +13,7 @@
 namespace OpenEMR\FHIR\SMART;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\RestControllers\AuthorizationController;
@@ -29,6 +30,7 @@ require_once(__DIR__ . '/../../../_rest_config.php');
  */
 class SmartLaunchController
 {
+    const CLIENT_APP_REQUIRED_LAUNCH_SCOPE = 'launch';
     /**
      * @var EventDispatcher
      */
@@ -151,8 +153,17 @@ class SmartLaunchController
             // launchable inside EHR launch scope.
             // TODO: adunsulag should these scopes be against a class constant? if we pull them from a db that won't
             // work...
-            if ($client->hasScope("launch")) {
+            if ($client->isEnabled() && $client->hasScope(self::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)) {
                 $smartList[] = $client;
+            } else {
+                SystemLogger::instance()->debug(
+                    "Skipping over client ",
+                    [
+                        "clientId" => $client->getIdentifier()
+                        , "enabled" => $client->isEnabled()
+                        , "hasLaunchScope" => $client->hasScope(self::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)
+                    ]
+                );
             }
         }
         return $smartList;
