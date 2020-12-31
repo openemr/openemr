@@ -67,7 +67,7 @@ if ($action == 'set_lang') {
         echo xlt("This account already exists.") . "\r\n\r\n" .
             xlt("We are sorry you are having troubles with your account.") . "\r\n" .
             xlt("Please contact your provider.") . "\r\n" .
-            xlt("Reference this Account Number ") . $rtn;
+            xlt("Reference this Account Number") . " " . $rtn;
         exit();
     }
     $rtn = getNewPid();

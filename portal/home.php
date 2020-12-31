@@ -358,7 +358,7 @@ foreach ($msgs as $i) {
                         <a href="#" class="nav-link dropdown-toggle" id="newmsgs" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="true"> <i class="fa fa-envelope"></i>
                             <span class="badge badge-pill badge-success"><?php echo text($newcnt); ?></span></a>
                         <div class="dropdown-menu dropdown-menu-md-right" aria-labelledby="newmsgs">
-                            <h6 class="dropdown-header"><?php echo xlt('You have '); ?><?php echo text($newcnt); ?><?php echo xlt(' new messages'); ?></h6>
+                            <h6 class="dropdown-header"><?php echo xlt('You have'); ?> <?php echo text($newcnt); ?> <?php echo xlt('new messages'); ?></h6>
                             <!-- inner menu: contains the actual data -->
                             <?php
                             foreach ($msgs as $i) {

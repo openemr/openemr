@@ -977,7 +977,7 @@ class C_Document extends Controller
         } elseif ($current_hash != $d->get_hash()) {
             $messages .= xl('Hash does not match. Data integrity has been compromised.');
         } else {
-            $messages = xl('Document passed integrity check. | ') . $messages;
+            $messages = xl('Document passed integrity check.') . ' | ' . $messages;
         }
         $this->_state = false;
         $this->assign("messages", $messages);

@@ -20,6 +20,8 @@ class ApiTestClientTest extends TestCase
 {
     const EXAMPLE_API_ENDPOINT = "/apis/default/api/facility";
     const EXAMPLE_API_ENDPOINT_INVALID_SITE = "/apis/baddefault/api/facility";
+    const EXAMPLE_API_ENDPOINT_SCOPE = "user/facility.read";
+    const API_ROUTE_SCOPE = "api:oemr";
 
     private $client;
 
@@ -172,7 +174,6 @@ class ApiTestClientTest extends TestCase
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
-            "scope" => ApiTestClient::ALL_SCOPES,
             "refresh_token" => $this->client->getRefreshToken()
         ];
         $this->client->setHeaders(
@@ -225,7 +226,6 @@ class ApiTestClientTest extends TestCase
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
-            "scope" => ApiTestClient::ALL_SCOPES,
             "refresh_token" => ApiTestClient::BOGUS_REFRESH_TOKEN
         ];
         $this->client->setHeaders(
@@ -290,7 +290,6 @@ class ApiTestClientTest extends TestCase
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
-            "scope" => ApiTestClient::ALL_SCOPES,
             "refresh_token" => $this->client->getRefreshToken()
         ];
         $this->client->setHeaders(
@@ -316,6 +315,122 @@ class ApiTestClientTest extends TestCase
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
+        $this->client->removeAuthToken();
+        $actualHeaders = $this->client->getConfig("headers");
+        $this->assertArrayNotHasKey("Authorization", $actualHeaders);
+
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
+    }
+
+    /**
+     * Tests OpenEMR API Example Endpoint After Getting Auth for the REST and FHIR APIs (also does a
+     *  token refresh and use with new token) with missing route scope
+     */
+    public function testApiAuthExampleUseThenRefreshThenUseWithMissingRouteScope()
+    {
+        $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->assertEquals(200, $actualValue->getStatusCode());
+        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+
+        $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
+        $this->assertEquals(200, $actualResponse->getStatusCode());
+        $this->client->removeAuthToken();
+        $actualHeaders = $this->client->getConfig("headers");
+        $this->assertArrayNotHasKey("Authorization", $actualHeaders);
+
+        // remove the route scope
+        $scopeCustom = str_replace(self::API_ROUTE_SCOPE, '', ApiTestClient::ALL_SCOPES);
+
+        $refreshBody = [
+            "grant_type" => "refresh_token",
+            "client_id" => $this->client->getClientId(),
+            "scope" => $scopeCustom,
+            "refresh_token" => $this->client->getRefreshToken()
+        ];
+        $this->client->setHeaders(
+            [
+                "Accept" => "application/json",
+                "Content-Type" => "application/x-www-form-urlencoded"
+            ]
+        );
+        $authResponse = $this->client->post(ApiTestClient::OAUTH_TOKEN_ENDPOINT, $refreshBody, false);
+        // set headers back to default
+        $this->client->setHeaders(
+            [
+                "Accept" => "application/json",
+                "Content-Type" => "application/json"
+            ]
+        );
+        $this->assertEquals(200, $authResponse->getStatusCode());
+        $responseBody = json_decode($authResponse->getBody());
+        $this->assertGreaterThan(10, strlen($responseBody->id_token));
+        $this->assertGreaterThan(10, strlen($responseBody->access_token));
+        $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
+        $this->client->setBearer($responseBody->access_token);
+
+        $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
+        $this->assertEquals(401, $actualResponse->getStatusCode());
+        $this->client->removeAuthToken();
+        $actualHeaders = $this->client->getConfig("headers");
+        $this->assertArrayNotHasKey("Authorization", $actualHeaders);
+
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
+    }
+
+    /**
+     * Tests OpenEMR API Example Endpoint After Getting Auth for the REST and FHIR APIs (also does a
+     *  token refresh and use with new token) with missing endpoint scope
+     */
+    public function testApiAuthExampleUseThenRefreshThenUseWithMissingEndpointScope()
+    {
+        $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->assertEquals(200, $actualValue->getStatusCode());
+        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+
+        $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
+        $this->assertEquals(200, $actualResponse->getStatusCode());
+        $this->client->removeAuthToken();
+        $actualHeaders = $this->client->getConfig("headers");
+        $this->assertArrayNotHasKey("Authorization", $actualHeaders);
+
+        // remove the endpoint scope
+        $scopeCustom = str_replace(self::EXAMPLE_API_ENDPOINT_SCOPE, '', ApiTestClient::ALL_SCOPES);
+
+        $refreshBody = [
+            "grant_type" => "refresh_token",
+            "client_id" => $this->client->getClientId(),
+            "scope" => $scopeCustom,
+            "refresh_token" => $this->client->getRefreshToken()
+        ];
+        $this->client->setHeaders(
+            [
+                "Accept" => "application/json",
+                "Content-Type" => "application/x-www-form-urlencoded"
+            ]
+        );
+        $authResponse = $this->client->post(ApiTestClient::OAUTH_TOKEN_ENDPOINT, $refreshBody, false);
+        // set headers back to default
+        $this->client->setHeaders(
+            [
+                "Accept" => "application/json",
+                "Content-Type" => "application/json"
+            ]
+        );
+        $this->assertEquals(200, $authResponse->getStatusCode());
+        $responseBody = json_decode($authResponse->getBody());
+        $this->assertGreaterThan(10, strlen($responseBody->id_token));
+        $this->assertGreaterThan(10, strlen($responseBody->access_token));
+        $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
+        $this->client->setBearer($responseBody->access_token);
+
+        $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
+        $this->assertEquals(401, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);

@@ -66,6 +66,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     // collect site
     $site = '';
     $scopes = $attributes['oauth_scopes'];
+    $logger->debug("Parsed oauth_scopes in AccessToken", ["scopes" => $scopes]);
     foreach ($scopes as $attr) {
         if (stripos($attr, 'site:') !== false) {
             $site = str_replace('site:', '', $attr);
@@ -312,12 +313,20 @@ if ($isLocalApi) {
     session_write_close();
 }
 
-// dispatch $routes called by ref.
+// dispatch $routes called by ref (note storing the output in a variable to allow option
+//  to destroy the session/cookie before sending the output back)
+ob_start();
 $hasRoute = HttpRestRouteHandler::dispatch($routes, $resource, $_SERVER["REQUEST_METHOD"]);
+$apiCallOutput = ob_get_clean();
 // Tear down session for security.
 if (!$isLocalApi) {
     $gbl::destroySession();
 }
+// Send the output if not empty
+if (!empty($apiCallOutput)) {
+    echo $apiCallOutput;
+}
+
 // prevent 200 if route doesn't exist
 if (!$hasRoute) {
     $logger->debug("dispatch.php no route found for resource", ['resource' => $resource]);

@@ -30,7 +30,7 @@
     <div>
         <div data-bind="text:title" class = "feesheet-title"></div>
         <div data-bind="foreach:codes">
-            <div class='code-choice'>
+            <div class='code-choice' data-bind="click: toggle_code">
                 <input type="checkbox" data-bind="checked: selected"/>
                 <span data-bind="text:description,click: toggle_code"></span>
             </div>

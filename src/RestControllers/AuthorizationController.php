@@ -37,6 +37,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomPasswordGrant;
+use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomRefreshTokenGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AuthCodeRepository;
@@ -236,7 +237,7 @@ class AuthorizationController
                 'default_max_age' => null,
                 'require_auth_time' => null,
                 'default_acr_values' => null,
-                'initiate_login_uri' => null,
+                'initiate_login_uri' => null, // for anything with a SMART 'launch/ehr' context we need to know how to initiate the login
                 'request_uris' => null,
                 'response_types' => null,
                 'grant_types' => null,
@@ -319,8 +320,8 @@ class AuthorizationController
             $body = $response->getBody();
             $body->write(json_encode(array_merge($client_json, $params)));
 
-            $this->emitResponse($response->withStatus(200)->withBody($body));
             SessionUtil::oauthSessionCookieDestroy();
+            $this->emitResponse($response->withStatus(200)->withBody($body));
         } catch (OAuthServerException $exception) {
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
@@ -362,6 +363,7 @@ class AuthorizationController
         $private = empty($info['client_secret']) ? 0 : 1;
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
+        $launch_uri = $info['launch_uri'];
         $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
         $info['client_secret'] = $info['client_secret'] ?? null; // just to be sure empty is null;
         // set our list of default scopes for the registration if our scope is empty
@@ -464,8 +466,8 @@ class AuthorizationController
             $body = $response->getBody();
             $body->write(json_encode($params));
 
-            $this->emitResponse($response->withStatus(200)->withBody($body));
             SessionUtil::oauthSessionCookieDestroy();
+            $this->emitResponse($response->withStatus(200)->withBody($body));
         } catch (OAuthServerException $exception) {
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
@@ -584,7 +586,7 @@ class AuthorizationController
             );
         }
         if ($this->grantType === 'refresh_token') {
-            $grant = new RefreshTokenGrant(new refreshTokenRepository());
+            $grant = new CustomRefreshTokenGrant(new refreshTokenRepository());
             $grant->setRefreshTokenTTL(new \DateInterval('P3M'));
             $authServer->enableGrantType(
                 $grant,
@@ -648,6 +650,8 @@ class AuthorizationController
     public function userLogin(): void
     {
         $response = $this->createServerResponse();
+
+        $patientRoleSupport = (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_portal_fhir_api']));
 
         if (empty($_POST['username']) && empty($_POST['password'])) {
             $this->logger->debug("AuthorizationController->userLogin() presenting blank login form");
@@ -809,8 +813,8 @@ class AuthorizationController
             }
             // Return the HTTP redirect response. Redirect is to client callback.
             $this->logger->debug("AuthorizationController->authorizeUser() sending server response");
-            $this->emitResponse($result);
             SessionUtil::oauthSessionCookieDestroy();
+            $this->emitResponse($result);
             exit;
         } catch (Exception $exception) {
             $this->logger->error("AuthorizationController->authorizeUser() Exception thrown", ["message" => $exception->getMessage()]);
@@ -873,14 +877,6 @@ class AuthorizationController
             $_SESSION = json_decode($ssbc['session_cache'], true);
         }
         if ($this->grantType === 'refresh_token') {
-            // Adding site to POSTs scope then re-init PSR request to include.
-            // This is usually done in ScopeRepository finalizeScopes() method!
-            // which is not called for a refresh/access token swap.
-            if (!empty($_POST['scope'])) {
-                $_POST['scope'] .= (" site:" . $_SESSION['site_id']);
-            } else {
-                $_POST['scope'] = (" site:" . $_SESSION['site_id']);
-            }
             $request = $this->createServerRequest();
         }
         // Finally time to init the server.
@@ -891,7 +887,6 @@ class AuthorizationController
                 throw new OAuthServerException('Bad request', 0, 'invalid_request', 400);
             }
             $result = $server->respondToAccessTokenRequest($request, $response);
-            $this->emitResponse($result);
             // save a password trusted user
             if ($this->grantType === 'password') {
                 $body = $result->getBody();
@@ -903,10 +898,11 @@ class AuthorizationController
                 $this->saveTrustedUser($_REQUEST['client_id'], $_SESSION['pass_user_id'], $_REQUEST['scope'], 0, $code, $session_cache, 'password');
             }
             SessionUtil::oauthSessionCookieDestroy();
+            $this->emitResponse($result);
         } catch (OAuthServerException $exception) {
             $this->logger->debug(
                 "AuthorizationController->oauthAuthorizeToken() OAuthServerException occurred",
-                ["message" => $exception->getMessage()]
+                ["message" => $exception->getMessage(), "stack" => $exception->getTraceAsString()]
             );
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
