@@ -19,8 +19,9 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\FHIR\SMART\ClientAdminController;
+use OpenEMR\Common\Logging\SystemLogger;
 
-$router = new ClientAdminController(new ClientRepository(), 'admin-client.php');
+$router = new ClientAdminController(new ClientRepository(), SystemLogger::instance(), 'admin-client.php');
 try {
     $router->dispatch($_REQUEST['action'], $_REQUEST);
 }

@@ -15,6 +15,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;use OpenEMR\Common\A
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use Psr\Log\LoggerInterface;
 
 class ClientAdminController
 {
@@ -25,6 +26,11 @@ class ClientAdminController
      */
     private $clientRepo;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     const CSRF_TOKEN_NAME = 'ClientAdminController';
     const SCOPE_PREVIEW_DISPLAY = 6;
 
@@ -33,9 +39,10 @@ class ClientAdminController
      * @param ClientRepository $repo The repository object that let's us retrieve OAUTH2 EntityClient objects
      * @param $actionURL The URL that we will send requests back to
      */
-    public function __construct(ClientRepository $repo, $actionURL)
+    public function __construct(ClientRepository $repo, LoggerInterface $logger, $actionURL)
     {
         $this->clientRepo = $repo;
+        $this->logger = $logger;
         $this->actionURL = $actionURL;
     }
 
@@ -151,9 +158,7 @@ class ClientAdminController
         // TODO: adunsulag we should also as part of the disabling the app piece revoke every single client token
         // including access tokens and refresh tokens...
         $message = xlt('Disabled Client') . " " . $client->getName();
-
-        $url = $this->getActionUrl(['edit', $clientId], ["queryParams" => ['message' => $message]]);
-        header("Location: " . $url);
+        $this->handleEnabledAction($client, false, $message);
         exit;
     }
 
@@ -168,11 +173,8 @@ class ClientAdminController
             $this->notFoundAction($request);
             return;
         }
-
-        // TODO: adunsulag when PR brought in disable app
         $message = xlt('Enabled Client') . " " . $client->getName();
-        $url = $this->getActionUrl(['edit', $clientId], ["queryParams" => ['message' => $message]]);
-        header("Location: " . $url);
+        $this->handleEnabledAction($client, true, $message);
         exit;
     }
 
@@ -186,6 +188,34 @@ class ClientAdminController
         ?><h1>404 <?php echo xlt("Page not found"); ?></h1><?php
         $this->renderFooter();
         // could return a 404 page here, but for now we will just skip it.
+    }
+
+    /**
+     * Handles the toggling of the Client isEnabled flag.  Saves the client entity and then redirects back to the
+     * edit list displaying the success message passed in.  On error it redirects back to the edit page with the save
+     * error.
+     * @param ClientEntity $client
+     * @param $isEnabled
+     * @param $successMessage
+     */
+    private function handleEnabledAction(ClientEntity $client, $isEnabled, $successMessage) {
+        $client->setIsEnabled($isEnabled);
+        try {
+            $this->clientRepo->saveIsEnabled($client, $isEnabled);
+            $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $successMessage]]);
+            header("Location: " . $url);
+        }
+        catch (\Exception $ex) {
+            $this->logger->error("Failed to save client",
+                [
+                    "exception" => $ex->getMessage(), "trace" => $ex->getTraceAsString()
+                    , 'client' => $client->getIdentifier()
+                ]);
+
+            $message = xlt('Client failed to save.  Check system logs');
+            $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
+            header("Location: " . $url);
+        }
     }
 
     /**
@@ -207,9 +237,6 @@ class ClientAdminController
                     <th><?php echo xlt('Client Type'); ?></th>
                     <th><?php echo xlt('Scopes Requested'); ?></th>
 
-                    <!--                    <th>--><?php //echo xlt('Redirect URI'); ?><!--</th>-->
-                    <!--                    <th>--><?php //echo xlt('SMART Launch URI'); ?><!--</th>-->
-
                 </tr>
                 </thead>
                 <tbody>
@@ -224,14 +251,11 @@ class ClientAdminController
                             <a class="btn btn-primary btn-sm" href="<?php echo $this->getActionUrl(['edit', $client->getIdentifier()]); ?>">Edit</a>
                         </td>
                         <td><?php echo text($client->getName()); ?></td>
-                        <td>Enabled</td> <!-- TODO: adunsulag when other PR brought in set the enabled flag here -->
-                        <td><?php echo $client->isConfidential() ? "Private" : "Public"; ?></td>
+                        <td><?php echo $client->isEnabled() ? xlt("Enabled") : xlt("Disabled"); ?></td>
+                        <td><?php echo $client->isConfidential() ? xlt("Confidential") : xlt("Public"); ?></td>
                         <td>
                             <?php $this->renderScopeList($client, true); ?>
                         </td>
-                        <!--                        <td>--><?php //echo text($client->getRedirectUri()); ?><!--</td>-->
-                        <!--                        <td>--><?php //echo text($client->getLaunchUri()); ?><!--</td>-->
-
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -249,9 +273,8 @@ class ClientAdminController
         $listAction = $this->getActionUrl(['list']);
         $disableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable']);
         $enableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable']);
-        $isEnabled = false;
+        $isEnabled = $client->isEnabled();
         $scopes = $client->getScopes();
-        $scopeString = !empty($scopes) ? implode(" ", $scopes) : "";
 
         $formValues = [
             'id' => [
@@ -290,11 +313,6 @@ class ClientAdminController
                 ,'label' => xlt("Launch URI")
                 ,'value' => $client->getLaunchUri()
             ],
-            'scopes' => [
-                'type' => 'textarea'
-                ,'label' => xlt("Scopes")
-                ,'value' => $scopeString
-            ]
         ];
 
         ?>
@@ -314,48 +332,56 @@ class ClientAdminController
                 </h2>
             </div>
             <div class="card-body">
-                <?php if (!empty($request['message'])) : ?>
-                <div class="alert alert-info">
-                    <?php echo text($request['message']); ?>
-                </div>
-                <?php endif; ?>
-                <?php if (!$isEnabled) : ?>
-                    <div class="alert alert-danger">
-                        <?php echo xlt("This client is currently disabled"); ?>
-                    </div>
-                <?php endif; ?>
-                <form>
-                    <?php foreach ($formValues as $key => $setting) : ?>
-                    <div class="form-group">
+                <div class="row">
+                    <div class="col-6">
+                        <?php if (!empty($request['message'])) : ?>
+                        <div class="alert alert-info">
+                            <?php echo text($request['message']); ?>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!$isEnabled) : ?>
+                            <div class="alert alert-danger">
+                                <?php echo xlt("This client is currently disabled"); ?>
+                            </div>
+                        <?php endif; ?>
+                        <form>
+                            <?php foreach ($formValues as $key => $setting) : ?>
+                            <div class="form-group">
 <?php switch ($setting['type']): ?>
 <?php case 'text': ?>
-                        <div class="form-group">
-                            <label for="<?php echo attr($key); ?>"><?php echo $setting['label']; ?></label>
-                            <input type="text" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
-                                   class="form-control" value="<?php echo attr($setting['value']); ?>" readonly disabled />
-                        </div>
+                                <div class="form-group">
+                                    <label for="<?php echo attr($key); ?>"><?php echo $setting['label']; ?></label>
+                                    <input type="text" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
+                                           class="form-control" value="<?php echo attr($setting['value']); ?>" readonly disabled />
+                                </div>
 <?php break; ?>
 <?php case 'textarea': ?>
-                        <div class="form-group">
-                            <label for="<?php echo attr($key); ?>"><?php echo $setting['label']; ?></label>
-                            <textarea id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>" readonly
-                                      class="form-control" rows="10" disabled><?php echo attr($setting['value']); ?></textarea>
-                        </div>
+                                <div class="form-group">
+                                    <label for="<?php echo attr($key); ?>"><?php echo $setting['label']; ?></label>
+                                    <textarea id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>" readonly
+                                              class="form-control" rows="10" disabled><?php echo attr($setting['value']); ?></textarea>
+                                </div>
 <?php break; ?>
 <?php case 'checkbox': ?>
-                        <div class="form-check form-check-inline">
-                            <input type="checkbox" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
-                                   class="form-check-input" value="<?php echo attr($setting['value']); ?>" readonly
-                                <?php echo ($setting['checked'] ? "checked='checked'" : ""); ?> />
-                            <label for="<?php echo attr($key); ?>" class="form-check-label">
-                                <?php echo $setting['label']; ?>
-                            </label>
-                        </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
+                                           class="form-check-input" value="<?php echo attr($setting['value']); ?>" readonly
+                                        <?php echo ($setting['checked'] ? "checked='checked'" : ""); ?> />
+                                    <label for="<?php echo attr($key); ?>" class="form-check-label">
+                                        <?php echo $setting['label']; ?>
+                                    </label>
+                                </div>
 <?php break; ?>
 <?php endswitch; ?>
+                            </div>
+                        <?php endforeach; ?>
+                        </form>
                     </div>
-                    <?php endforeach; ?>
-                </form>
+                    <div class="col-6">
+                            <label><?php echo xlt("Scopes"); ?></label>
+                            <?php $this->renderScopeList($client); ?>
+                    </div>
+                </div>
             </div>
             <!-- List client information below -->
         </div>
@@ -488,6 +514,17 @@ class ClientAdminController
      */
     private function renderFooter() {
         ?>
+        <div class="row mt-5">
+            <div class="col alert alert-info">
+                <p><?php echo xlt("This administration page is for managing the list of OAUTH2 registered applications that are authorized to use the APIs"); ?></p>
+                <p>
+                    <?php echo xlt("SMART apps that display on the patient demographics page can be enabled or disabled from this screen.  Any OAUTH2 client requesting the 'launch' scope will allow EMR users to launch an app from within the EHR"); ?>
+                </p>
+                <p>
+                    <?php echo xlt("Note it is recommended to avoid approving SMART apps that do not register as a confidential client.  These apps are less insecure and should be highly restricted in the OAUTH2 scopes you allow them to access"); ?>
+                </p>
+            </div>
+        </div>
         </div> <!-- end .container -->
     </body> <!-- end body.body_top -->
 </html>

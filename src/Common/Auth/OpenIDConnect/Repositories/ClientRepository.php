@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
+use http\Exception\RuntimeException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -99,6 +100,27 @@ class ClientRepository implements ClientRepositoryInterface
             // password and refresh grant
             return true;
         }
+    }
+
+    /**
+     * Set a client in the database to be enabled if $isEnabled is true or disabled if $isEnabled is false.
+     * @param ClientEntity $client
+     * @param $isEnabled
+     * @return bool True if it succeeded
+     * @throws \RuntimeException If there is a database error in saving.
+     */
+    public function saveIsEnabled(ClientEntity $client, $isEnabled) {
+        // TODO: adunsulag do we want to eventually just have a save() method.. it would be very handy but not sure
+        // we want any oauth2 values being overwritten.
+        $isEnabledSaveValue = $isEnabled === true ? 1 : 0;
+        $clientId = $client->getIdentifier();
+        $params = [$isEnabledSaveValue, $clientId];
+        $res = sqlStatement("UPDATE oauth_clients SET is_enabled=? WHERE client_id = ?", $params);
+        if ($res === false) {
+            // TODO: adunsulag is there a better exception to throw here in OpenEMR than runtime?
+            throw new \RuntimeException("Failed to save oauth_clients is_enabled flag.  Check logs for sql error");
+        }
+        return true;
     }
 
     /**
