@@ -93,16 +93,11 @@ class ClientAdminController
         } else if ($parts[0] == 'edit' && count($parts) > 1) {
             $clientId = $parts[1];
 
-            // route /edit/:clientId
-            if (count($parts) < 3) {
+            if (count($parts) < 3) { // route /edit/:clientId
                 return $this->editAction($clientId, $request);
-            }
-            // route /edit/:clientId/enable
-            else if ($parts[2] == 'enable') {
+            } else if ($parts[2] == 'enable') { // route /edit/:clientId/enable
                 return $this->enableAction($clientId, $request);
-            }
-            // route /edit/:clientId/disable
-            else if ($parts[2] == 'disable') {
+            } else if ($parts[2] == 'disable') { // route /edit/:clientId/disable
                 return $this->disableAction($clientId, $request);
             } else {
                 return $this->notFoundAction($request);
