@@ -48,7 +48,16 @@ class SmartLaunchController
 
     public function renderPatientSmartLaunchSection(RenderEvent $event)
     {
+        if (empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_fhir_api'])) {
+            // do not show patient summary widget if fhir portal is off
+            return;
+        }
+
         $smartClients = $this->getSMARTClients();
+        if (empty($smartClients)) {
+            // do not show patient summary widget if no available smart clients
+            return;
+        }
         // TODO: adunsulag we would filter the clients based on their smart capability & scopes they could send...
         $pid = $event->getPid();
         $patientService = new PatientService();

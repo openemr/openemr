@@ -213,6 +213,16 @@ Response:
 }
 ```
 
+##### SMART on FHIR Registration
+
+SMART Enabled Apps are supported.
+
+SMART client can be registered at <website>/interface/smart/register-app.php. For example https://localhost:9300/interface/smart/register-app.php
+
+After registering the SMART client, can then Enable it in OpenEMR at Adminsitration->System->API Clients
+
+After it is enabled, the SMART App will then be available to use in the Patient Summary screen (SMART Enabled Apps widget).
+
 #### Authorization Code Grant
 
 This is the recommended standard mechanism to obtain access/refresh tokens. This is done by using an OAuth2 client with provider url of `oauth2/<site>`; an example full path would be `https://localhost:9300/oauth2/default`.

@@ -152,7 +152,7 @@ class ClientAdminController
         // TODO: adunsulag when PR brought in disable app
         // TODO: adunsulag we should also as part of the disabling the app piece revoke every single client token
         // including access tokens and refresh tokens...
-        $message = xlt('Disabled Client') . " " . $client->getName();
+        $message = xl('Disabled Client') . " " . $client->getName();
         $this->handleEnabledAction($client, false, $message);
         exit;
     }
@@ -169,7 +169,7 @@ class ClientAdminController
             $this->notFoundAction($request);
             return;
         }
-        $message = xlt('Enabled Client') . " " . $client->getName();
+        $message = xl('Enabled Client') . " " . $client->getName();
         $this->handleEnabledAction($client, true, $message);
         exit;
     }
@@ -211,7 +211,7 @@ class ClientAdminController
                 ]
             );
 
-            $message = xlt('Client failed to save.  Check system logs');
+            $message = xl('Client failed to save. Check system logs');
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
             header("Location: " . $url);
         }
@@ -230,7 +230,7 @@ class ClientAdminController
                 <thead>
                 <tr>
                     <th>
-                        Edit
+                        <?php echo xlt('Edit'); ?>
                     </th>
                     <th><?php echo xlt('Client Name / Client ID'); ?></th>
                     <th><?php echo xlt('Enabled'); ?></th>
@@ -242,13 +242,13 @@ class ClientAdminController
                 <tbody>
                 <?php if (count($clients) <= 0) : ?>
                     <tr>
-                        <td colspan="7">There are no clients registered in the system</td>
+                        <td colspan="7"><?php echo xlt('There are no clients registered in the system'); ?></td>
                     </tr>
                 <?php endif; ?>
                 <?php foreach ($clients as $client) : ?>
                     <tr>
                         <td>
-                            <a class="btn btn-primary btn-sm" href="<?php echo $this->getActionUrl(['edit', $client->getIdentifier()]); ?>" onclick="top.restoreSession()">Edit</a>
+                            <a class="btn btn-primary btn-sm" href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier()])); ?>" onclick="top.restoreSession()">Edit</a>
                         </td>
                         <td>
                             <?php echo text($client->getName()); ?>
@@ -284,38 +284,38 @@ class ClientAdminController
         $formValues = [
             'id' => [
                 'type' => 'text'
-                ,'label' => xlt("Identifier")
+                ,'label' => xl("Identifier")
                 ,'value' => $client->getIdentifier()
             ],
             'name' => [
                 'type' => 'text'
-                ,'label' => xlt("Name")
+                ,'label' => xl("Name")
                 ,'value' => $client->getName()
             ],
             'confidential' => [
                 'type' => 'checkbox'
-                ,'label' => xlt('Is Confidential')
+                ,'label' => xl('Is Confidential')
                 , 'checked' => $client->isConfidential()
             ],
             'isEnabled' => [
                 'type' => 'checkbox'
-                ,'label' => xlt('Is Enabled')
+                ,'label' => xl('Is Enabled')
                 , 'checked' => $isEnabled
                 , 'value' => 1
             ],
             'role' => [
                 'type' => 'text'
-                ,'label' => xlt("Role")
+                ,'label' => xl("Role")
                 ,'value' => $client->getClientRole()
             ],
             'redirectUri' => [
                 'type' => 'text'
-                ,'label' => xlt("Redirect URI")
+                ,'label' => xl("Redirect URI")
                 ,'value' => $client->getRedirectUri()
             ],
             'launchUri' => [
                 'type' => 'text'
-                ,'label' => xlt("Launch URI")
+                ,'label' => xl("Launch URI")
                 ,'value' => $client->getLaunchUri()
             ],
         ];
@@ -326,12 +326,12 @@ class ClientAdminController
         <div class="card mt-3">
             <div class="card-header">
                 <h2>
-                    Edit <em><?php echo $client->getName(); ?></em>
+                    <?php echo xlt('Edit'); ?> <em><?php echo text($client->getName()); ?></em>
                     <div class="float-right">
                         <?php if ($isEnabled) : ?>
-                        <a href="<?php echo attr($disableClientLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()">Disable Client</a>
+                        <a href="<?php echo attr($disableClientLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Disable Client'); ?></a>
                         <?php else : ?>
-                        <a href="<?php echo attr($enableClientLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()">Enable Client</a>
+                        <a href="<?php echo attr($enableClientLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Enable Client'); ?></a>
                         <?php endif; ?>
                     </div>
                 </h2>
@@ -384,7 +384,7 @@ class ClientAdminController
                    class="form-check-input" value="<?php echo attr($setting['value']); ?>" readonly
                 <?php echo ($setting['checked'] ? "checked='checked'" : ""); ?> />
             <label for="<?php echo attr($key); ?>" class="form-check-label">
-                <?php echo $setting['label']; ?>
+                <?php echo text($setting['label']); ?>
             </label>
         </div>
         <?php
@@ -394,7 +394,7 @@ class ClientAdminController
     {
         ?>
         <div class="form-group">
-            <label for="<?php echo attr($key); ?>"><?php echo $setting['label']; ?></label>
+            <label for="<?php echo attr($key); ?>"><?php echo text($setting['label']); ?></label>
             <textarea id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>" readonly
                       class="form-control" rows="10" disabled><?php echo attr($setting['value']); ?></textarea>
         </div>
@@ -405,7 +405,7 @@ class ClientAdminController
     {
         ?>
         <div class="form-group">
-            <label for="<?php echo attr($key); ?>"><?php echo $setting['label']; ?></label>
+            <label for="<?php echo attr($key); ?>"><?php echo text($setting['label']); ?></label>
             <input type="text" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
                    class="form-control" value="<?php echo attr($setting['value']); ?>" readonly disabled />
         </div>
@@ -489,7 +489,7 @@ class ClientAdminController
        // TODO: adunsulag we can in the future can group these and make this list easier to navigate.
         $scopeList = $client->getScopes();
         if (empty($scopeList)) {
-            echo "No scopes";
+            echo xlt("No scopes");
         }
 
         $count = count($scopeList);
@@ -515,23 +515,21 @@ class ClientAdminController
      */
     private function renderHeader()
     {
-        $title = xlt('Client Registrations');
+        $title = xl('Client Registrations');
         ?>
 <html>
     <head>
-        <title><?php echo $title; ?></title>
+        <title><?php echo text($title); ?></title>
 
-        <?php Header::setupHeader(['common']); ?>
+        <?php Header::setupHeader(); ?>
 
-        <script src="/public/assets/jquery/dist/jquery.min.js?v=61"></script>
-        <script src="/public/assets/bootstrap/dist/js/bootstrap.bundle.min.js?v=61"></script>
     </head>
     <body class="body_top">
         <div class="container">
             <div class="row">
                 <div class="col-12">
                     <div class="page-title">
-                        <h2><?php echo $title; ?></h2>
+                        <h2><?php echo text($title); ?></h2>
                     </div>
                 </div>
             </div>
@@ -546,12 +544,12 @@ class ClientAdminController
         ?>
         <div class="row mt-5">
             <div class="col alert alert-info">
-                <p><?php echo xlt("This administration page is for managing the list of OAUTH2 registered applications that are authorized to use the APIs"); ?></p>
+                <p><?php echo xlt("This administration page is for managing the list of OAUTH2 registered applications that are authorized to use the APIs."); ?></p>
                 <p>
-                    <?php echo xlt("SMART apps that display on the patient demographics page can be enabled or disabled from this screen.  Any OAUTH2 client requesting the 'launch' scope will allow EMR users to launch an app from within the EHR"); ?>
+                    <?php echo xlt("SMART apps that display on the patient summary page can be enabled or disabled from this screen. Any OAUTH2 client requesting the 'launch' scope will allow EMR users to launch an app from within the EHR."); ?>
                 </p>
                 <p>
-                    <?php echo xlt("Note it is recommended to avoid approving SMART apps that do not register as a confidential client.  These apps are less insecure and should be highly restricted in the OAUTH2 scopes you allow them to access"); ?>
+                    <?php echo xlt("Note it is recommended to avoid approving SMART apps that do not register as a confidential client. These apps are less secure and should be highly restricted in the OAUTH2 scopes you allow them to access."); ?>
                 </p>
             </div>
         </div>

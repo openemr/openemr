@@ -13,8 +13,6 @@
 
 // need to make sure our autoloader is present.
 require_once("../globals.php");
-require_once("$srcdir/auth.inc");
-
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
