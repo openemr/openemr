@@ -29,6 +29,11 @@ use OpenEMR\Services\FacilityService;
 $ignoreAuth = true;
 require_once("../globals.php");
 
+// exit if fhir api is not turned on
+if (empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_fhir_api'])) {
+    die(xlt("Not Authorized"));
+}
+
 // This code allows configurable positioning in the login page
 $loginrow = "row login-row align-items-center m-5";
 
@@ -146,7 +151,7 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
             </div>
             <!-- TODO: adunsulag display the list of scopes that can be requested here -->
             <div class="form-group">
-                <input type="button" class="form-control btn btn-primary" id="submit" name="submit" value="Submit" (onClick)="registerApp();" />
+                <input type="button" class="form-control btn btn-primary" id="submit" name="submit" value="<?php echo xla('Submit'); ?>" (onClick)="registerApp();" />
             </div>
             <div class="apiResponse hidden">
                 <div class="form-group">
