@@ -1640,7 +1640,7 @@ FRM;
                                             <button type='submit' value='Continue'><b>Proceed to Step 1</b></button>
                                         </form>
 FRM;
-                            echo $form ."\r\n";                        }
+                            echo $form . "\r\n";                        }
                 }
             }
                         $bot = <<<BOT
