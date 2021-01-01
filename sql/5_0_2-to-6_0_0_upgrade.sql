@@ -1,7 +1,3 @@
--- noinspection SqlNoDataSourceInspectionForFile
-
--- noinspection SqlDialectInspectionForFile
-
 --
 --  Comment Meta Language Constructs:
 --
