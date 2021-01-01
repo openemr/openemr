@@ -21,7 +21,7 @@ class AutoBilling
 
     public function __construct()
     {
-        //do epic stuff...
+        //do epic stuff....
     }
 
     public function generateBilling($event_date, $bInfo, $pid, $userid)

@@ -49,7 +49,6 @@ class ClearingHouse
             $response = 'Caught exception: ' . $e->getMessage();
             return $response;
         }
-
         return "Success";
     }
 }
