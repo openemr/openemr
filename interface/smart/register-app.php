@@ -73,7 +73,7 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                 let appRegister = {
                     "application_type": "private"
                     ,"redirect_uris": []
-                    ,"launch_uri": ""
+                    ,"initiate_login_uri": ""
                     ,"post_logout_redirect_uris": []
                     ,"client_name": ""
                     ,"token_endpoint_auth_method": "client_secret_post"
@@ -85,7 +85,7 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                 appRegister.redirect_uris.push(redirect_uri);
                 // not sure we need logout redirect right now
                 appRegister.post_logout_redirect_uris.push(document.querySelector("#logoutURI").value);
-                appRegister.launch_uri = document.querySelector("#launchUri").value;
+                appRegister.initiate_login_uri = document.querySelector("#launchUri").value;
                 appRegister.contacts.push(document.querySelector("#contactEmail").value);
 
                 fetch(fhirRegistrationURL, {

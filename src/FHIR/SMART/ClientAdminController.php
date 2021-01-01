@@ -381,7 +381,7 @@ class ClientAdminController
         ?>
         <div class="form-check form-check-inline">
             <input type="checkbox" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
-                   class="form-check-input" value="<?php echo attr($setting['value']); ?>" readonly
+                   class="form-check-input" value="<?php echo attr($setting['value'] ?? ''); ?>" readonly
                 <?php echo ($setting['checked'] ? "checked='checked'" : ""); ?> />
             <label for="<?php echo attr($key); ?>" class="form-check-label">
                 <?php echo text($setting['label']); ?>

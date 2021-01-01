@@ -23,7 +23,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 $router = new ClientAdminController(new ClientRepository(), SystemLogger::instance(), 'admin-client.php');
 try {
-    $router->dispatch($_REQUEST['action'], $_REQUEST);
+    $router->dispatch(($_REQUEST['action'] ?? null), $_REQUEST);
 } catch (CsrfInvalidException $exception) {
     CsrfUtils::csrfNotVerified();
 } catch (AccessDeniedException $exception) {
