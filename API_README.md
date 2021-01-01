@@ -219,7 +219,7 @@ SMART Enabled Apps are supported.
 
 SMART client can be registered at <website>/interface/smart/register-app.php. For example https://localhost:9300/interface/smart/register-app.php
 
-After registering the SMART client, can then Enable it in OpenEMR at Adminsitration->System->API Clients
+After registering the SMART client, can then Enable it in OpenEMR at Administration->System->API Clients
 
 After it is enabled, the SMART App will then be available to use in the Patient Summary screen (SMART Enabled Apps widget).
 
