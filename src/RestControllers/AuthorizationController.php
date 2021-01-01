@@ -366,7 +366,6 @@ class AuthorizationController
         $is_client_enabled = $is_confidential_client ? 0 : 1;
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
-        $launch_uri = $info['launch_uri'];
         $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
         $info['client_secret'] = $info['client_secret'] ?? null; // just to be sure empty is null;
         // set our list of default scopes for the registration if our scope is empty
