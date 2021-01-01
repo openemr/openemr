@@ -41,7 +41,7 @@ class LogProperties
     {
         $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/logsync.csv";
     }
-    
+
     /**
      * @return string
      */
@@ -53,14 +53,23 @@ class LogProperties
         $enc_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);  // key pulled from the globals
         $prov_pass =  $provider->getProviderPassword();                // gets the password stored for the
         $md5 = md5($prov_pass);                       // hash the current password
+        $workday = date("l");
+        //This is to cover working on Saturday but not on Sunday.
+        //Checking Saturday for any prescriptions that were written.
+        if ($workday == 'Monday') {
+            $yesterday = date("Y-m-d", strtotime("-2 day"));
+        } else {
+            $yesterday = date("Y-m-d", strtotime("yesterday"));
+        }
 
         $p = [
             "UserEmail" => $email['email'],
             "MD5Password" => $md5,
-            "FromDate" => "2020-01-01",
-            "ToDate" => "2020-12-31",
+            "FromDate" => $yesterday,
+            "ToDate" => $yesterday,
             "ResponseFormat" => "CSV"
         ];
+
         $plaintext = json_encode($p);                //json encode email and password
         $method = "aes-256-cbc";
         $key = substr(hash('sha256', $enc_key, true), 0, 32);
