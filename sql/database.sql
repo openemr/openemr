@@ -12266,6 +12266,7 @@ CREATE TABLE `oauth_clients` (
 `endorsements` text,
 `policy_uri` text,
 `tos_uri` text,
+`is_enabled` tinyint(1) NOT NULL DEFAULT '0',
 PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB;
 

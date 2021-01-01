@@ -52,6 +52,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
@@ -360,10 +361,11 @@ class AuthorizationController
     {
         $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
         $site = $this->siteId;
-        $private = empty($info['client_secret']) ? 0 : 1;
+        $is_confidential_client = empty($info['client_secret']) ? 0 : 1;
+        // we do not allow a confidential app to be enabled by default;
+        $is_client_enabled = $is_confidential_client ? 0 : 1;
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
-        $launch_uri = $info['launch_uri'];
         $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
         $info['client_secret'] = $info['client_secret'] ?? null; // just to be sure empty is null;
         // set our list of default scopes for the registration if our scope is empty
@@ -373,6 +375,13 @@ class AuthorizationController
         // TODO: adunsulag do we need to reject the registration if there are certain scopes here we do not support
         // TODO: adunsulag should we check these scopes against our '$this->supportedScopes'?
         $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port api:pofh';
+
+        // if a public app requests the launch scope we also do not let them through unless they've been manually
+        // authorized by an administrator user.
+        if ($is_client_enabled) {
+            $is_client_enabled = strpos($info['scope'], SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE) !== false ? 0 : 1;
+        }
+
         // encrypt the client secret
         if (!empty($info['client_secret'])) {
             $info['client_secret'] = $this->cryptoGen->encryptStandard($info['client_secret']);
@@ -380,7 +389,7 @@ class AuthorizationController
 
 
         try {
-            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $i_vals = array(
                 $clientId,
                 $info['client_role'],
@@ -393,14 +402,15 @@ class AuthorizationController
                 $info['scope'],
                 $user,
                 $site,
-                $private,
+                $is_confidential_client,
                 $logout_redirect_uris,
                 ($info['jwks_uri'] ?? null),
                 ($info['jwks'] ?? null),
                 ($info['initiate_login_uri'] ?? null),
                 ($info['endorsements'] ?? null),
                 ($info['policy_uri'] ?? null),
-                ($info['tos_uri'] ?? null)
+                ($info['tos_uri'] ?? null),
+                $is_client_enabled
             );
 
             return sqlQueryNoLog($sql, $i_vals);

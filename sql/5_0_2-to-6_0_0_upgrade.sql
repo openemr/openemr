@@ -2439,3 +2439,4 @@ VALUES
 (NULL, "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30 mcg/0.3mL dose", "COVID-19, mRNA, LNP-S, PF, 30 mcg/0.3 mL dose", 208, @codetypeid, '', 0, 0, '', '', '', 1),
 (NULL, "SARS-COV-2 (COVID-19) vaccine, vector non-replicating, recombinant spike protein-ChAdOx1, preservative free, 0.5 mL ", "COVID-19 vaccine, vector-nr, rS-ChAdOx1, PF, 0.5 mL", 210, @codetypeid, '', 0, 0, '', '', '', 1),
 #EndIf
+
