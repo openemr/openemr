@@ -1,3 +1,7 @@
+-- noinspection SqlNoDataSourceInspectionForFile
+
+-- noinspection SqlDialectInspectionForFile
+
 --
 --  Comment Meta Language Constructs:
 --
@@ -2422,4 +2426,16 @@ ALTER TABLE `oauth_clients` ADD `initiate_login_uri` TEXT;
 ALTER TABLE `oauth_clients` ADD `endorsements` TEXT;
 ALTER TABLE `oauth_clients` ADD `policy_uri` TEXT;
 ALTER TABLE `oauth_clients` ADD `tos_uri` TEXT;
+#EndIf
+
+#IfNotRow codes code_text meningococcal polysaccharide (groups A, C, Y, W-135) tetanus toxoid conjugate vaccine .5mL dose, preservative free
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "meningococcal polysaccharide (groups A, C, Y, W-135) tetanus toxoid conjugate vaccine .5mL dose, preservative free", "meningococcal polysaccharide (groups A, C, Y, W-135) TT conjugate", 203, @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "influenza, seasonal vaccine, quadrivalent, adjuvanted, .5mL dose, preservative free", "Influenza vaccine, quadrivalent, adjuvanted", 205, @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "smallpox monkeypox vaccine, live attenuated, preservative free (National Stockpile)", "Smallpox monkeypox vaccine (National Stockpile)", 206, @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 100 mcg/0.5mL dose", "COVID-19, mRNA, LNP-S, PF, 100 mcg/0.5 mL dose", 207, @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30 mcg/0.3mL dose", "COVID-19, mRNA, LNP-S, PF, 30 mcg/0.3 mL dose", 208, @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "SARS-COV-2 (COVID-19) vaccine, vector non-replicating, recombinant spike protein-ChAdOx1, preservative free, 0.5 mL ", "COVID-19 vaccine, vector-nr, rS-ChAdOx1, PF, 0.5 mL", 210, @codetypeid, '', 0, 0, '', '', '', 1),
 #EndIf
