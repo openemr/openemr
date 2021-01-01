@@ -36,7 +36,6 @@ class LogProperties
     public $rxsynclog;
     public $messageid;
 
-
     public function __construct()
     {
         $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/logsync.csv";
@@ -136,6 +135,4 @@ class LogProperties
         $entry = sqlQuery($sql, [$this->messageid]);
         return $entry['count'];
     }
-
-
 }
