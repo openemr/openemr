@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
-use http\Exception\RuntimeException;
+use \RuntimeException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
