@@ -2424,6 +2424,10 @@ ALTER TABLE `oauth_clients` ADD `policy_uri` TEXT;
 ALTER TABLE `oauth_clients` ADD `tos_uri` TEXT;
 #EndIf
 
+#IfMissingColumn oauth_clients is_enabled
+ALTER TABLE `oauth_clients` ADD `is_enabled` tinyint(1) NOT NULL DEFAULT '0';
+#EndIf
+
 #IfNotRow codes code_text meningococcal polysaccharide (groups A, C, Y, W-135) tetanus toxoid conjugate vaccine .5mL dose, preservative free
 SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
 INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
