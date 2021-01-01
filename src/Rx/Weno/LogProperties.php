@@ -57,7 +57,7 @@ class LogProperties
         //This is to cover working on Saturday but not on Sunday.
         //Checking Saturday for any prescriptions that were written.
         if ($workday == 'Monday') {
-            $yesterday = date("Y-m-d", strtotime("-2 day"));
+            $yesterday = date("Y-m-d", strtotime("-2 days"));
         } else {
             $yesterday = date("Y-m-d", strtotime("yesterday"));
         }
