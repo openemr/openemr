@@ -99,7 +99,7 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 
 /*
 * If a session does not yet exist, then will start the core OpenEMR session.
-* If a session already exists, then this means portal (or oauth2) is being used, which
+* If a session already exists, then this means portal or oauth2 or api is being used, which
 *   has already created a portal session/cookie, so will bypass setting of
 *   the core OpenEMR session/cookie.
 * $sessionAllowWrite = 1 | true | string then normal operation
