@@ -10,10 +10,12 @@ FHIR endpoints are defined in the [primary routes file](_rest_routes.inc.php). T
 endpoint to the OpenEMR FHIR controller which handles the request, and also handles the JSON data conversions.
 
 ```php
-"POST /fhir/Patient" => function () {
+"GET /fhir/Patient" => function () {
+    RestConfig::scope_check("user", "Patient", "read");
     RestConfig::authorization_check("patients", "demo");
-    $data = (array)(json_decode(file_get_contents("php://input"), true));
-    return (new FhirPatientRestController())->post($data);
+    $return = (new FhirPatientRestController())->getAll($_GET);
+    RestConfig::apiLog($return);
+    return $return;
 }
 ```
 
@@ -30,7 +32,15 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
 ```
 
 ### Sections
-
+-   [Authorization](API_README.md#authorization)
+    -   [Scopes](API_README.md#scopes)
+    -   [Registration](API_README.md#registration)
+        -   [SMART on FHIR Registration](API_README.md#smart-on-fhir-registration)
+    -   [Authorization Code Grant](API_README.md#authorization-code-grant)
+    -   [Refresh Token Grant](API_README.md#refresh-token-grant)
+    -   [Password Grant](API_README.md#password-grant)
+    -   [Logout](API_README.md#logout)
+    -   [More Details](API_README.md#more-details)
 -   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
     -   [Capability Statement](FHIR_README.md#capability-statement)
     -   [Patient](FHIR_README.md#patient-resource)
@@ -41,7 +51,6 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [AllergyIntolerance](FHIR_README.md#allergyintolerance-resource)
     -   [Organization](FHIR_README.md#organization-resource)
     -   [Observation](FHIR_README.md#observation-resource)
-    -   [QuestionnaireResponse](FHIR_README.md#questionnaireresponse-resource)
     -   [Condition](FHIR_README.md#condition-resource)
     -   [Procedure](FHIR_README.md#procedure-resource)
     -   [MedicationRequest](FHIR_README.md#medicationrequest-resource)
