@@ -11,9 +11,12 @@ endpoint to the OpenEMR controller which handles the request, and also handles t
 
 ```php
 "POST /api/patient" => function () {
+    RestConfig::scope_check("user", "patient", "write");
     RestConfig::authorization_check("patients", "demo");
-    $data = (array)(json_decode(file_get_contents("php://input")));
-    return (new PatientRestController())->post($data);
+    $data = (array) (json_decode(file_get_contents("php://input")));
+    $return = (new PatientRestController())->post($data);
+    RestConfig::apiLog($return, $data);
+    return $return;
 }
 ```
 
@@ -53,6 +56,14 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 ### Sections
 
 -   [Authorization](API_README.md#authorization)
+    -   [Scopes](API_README.md#scopes)
+    -   [Registration](API_README.md#registration)
+        -   [SMART on FHIR Registration](API_README.md#smart-on-fhir-registration)
+    -   [Authorization Code Grant](API_README.md#authorization-code-grant)
+    -   [Refresh Token Grant](API_README.md#refresh-token-grant)
+    -   [Password Grant](API_README.md#password-grant)
+    -   [Logout](API_README.md#logout)
+    -   [More Details](API_README.md#more-details)
 -   [Standard API Endpoints](API_README.md#api-endpoints)
     -   [Facility API](API_README.md#post-apifacility)
     -   [Practitioner API](API_README.md#get-apipractitioner)
@@ -78,7 +89,6 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [FHIR AllergyIntolerance](FHIR_README.md#allergyintolerance-resource)
     -   [FHIR Organization](FHIR_README.md#organization-resource)
     -   [FHIR Observation](FHIR_README.md#observation-resource)
-    -   [FHIR QuestionnaireResponse](FHIR_README.md#questionnaireresponse-resource)
     -   [FHIR Condition](FHIR_README.md#condition-resource)
     -   [FHIR Procedure](FHIR_README.md#procedure-resource)
     -   [FHIR MedicationRequest](FHIR_README.md#medicationrequest-resource)
@@ -89,7 +99,6 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 -   [Patient Portal FHIR API Endpoints](FHIR_README.md#patient-portal-fhir-endpoints)
     -   [Patient Portal FHIR Patient](FHIR_README.md#patient-portal-patient-resource)
 -   [Dev notes](API_README.md#dev-notes)
--   [Todos](API_README.md#project-management)
 
 ### Prerequisite
 
@@ -1707,15 +1716,3 @@ Response:
 -   For business logic, make or use the services [here](src/Services)
 -   For controller logic, make or use the classes [here](src/RestControllers)
 -   For routing declarations, use the class [here](_rest_routes.inc.php).
-
-### Project Management
-
-#### General API
-
--   TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
--   TODO(?): API for fee sheets
--   TODO(?): API for pharmacies
--   TODO(?): API for immunizations
--   TODO(?): API for prescriptions
--   TODO(?): Drug search API
--   TODO(?): API for onotes
