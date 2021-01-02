@@ -238,6 +238,9 @@ require_once("$srcdir/options.js.php");
         return false;
     }
 
+    function getWeno() {
+        location.href = '../../weno/indexrx.php'
+    }
 </script>
 
 <script>

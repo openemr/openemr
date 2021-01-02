@@ -1238,14 +1238,26 @@
             "label":"Weno Management",
             "menu_id":"adm0",
             "target":"adm",
-            "url":"/interface/weno/admin.php",
+            "url":"/interface/weno/facilities.php",
             "children":[],
             "requirement":0,
             "acl_req": [
               "admin",
               "super"
             ]
-          }
+          },
+            {
+                "label":"Prescription Management",
+                "menu_id":"dem1",
+                "target":"pat",
+                "url":"/interface/weno/rxlogmanager.php",
+                "children":[],
+                "requirement":0,
+                "acl_req": [
+                    "patients",
+                    "rx"
+                ]
+            }
         ],
         "requirement": 0,
         "acl_req": [
