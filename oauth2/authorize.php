@@ -10,7 +10,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// below brings in autoloader
 require_once(__DIR__ . "/../_rest_config.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\RestControllers\AuthorizationController;
 
 $gbl = RestConfig::GetInstance();
 if (empty($gbl::$SITE)) {
@@ -18,21 +24,14 @@ if (empty($gbl::$SITE)) {
     exit;
 }
 
-// strange and frustrating that globals session isn't maintained from cross origin
-//  to our endpoint thus, below.
 // Will start the oauth OpenEMR session/cookie.
-require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::oauthSessionStart($gbl::$web_root);
+SessionUtil::oauthSessionStart($gbl::$web_root);
 
 $_GET['site'] = $gbl::$SITE;
 //  No need for sessionAllowWrite since using oauth session
 $ignoreAuth = true;
 require_once __DIR__ . '/../interface/globals.php';
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\RestControllers\AuthorizationController;
 $logger = SystemLogger::instance();
 
 // exit if api is not turned on

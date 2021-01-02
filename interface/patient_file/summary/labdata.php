@@ -376,17 +376,17 @@ function checkAll(bx) {
                             $query  = sqlStatement($spell, array($this_value,$pid));
 
                             while ($myrow = sqlFetchArray($query)) {
-                                $value_matrix[$i][procedure_result_id]  = $myrow['procedure_result_id'];
-                                $value_matrix[$i][result_code]          = $myrow['result_code'];
-                                $value_matrix[$i][result_text]          = $myrow['result_text'];
-                                $value_matrix[$i][result]               = $myrow['result'];
-                                // $value_matrix[$i][units]                 = generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) ;
-                                $value_matrix[$i][units]                = $myrow['units'];
-                                $value_matrix[$i][range]                = $myrow['range'];
-                                $value_matrix[$i][abnormal]             = $myrow['abnormal'];
-                                $value_matrix[$i][review_status]        = $myrow['review_status'];
-                                $value_matrix[$i][encounter_id]         = $myrow['encounter_id'];
-                                $value_matrix[$i][date_collected]       = $myrow['date_collected'];
+                                $value_matrix[$i]['procedure_result_id']  = $myrow['procedure_result_id'];
+                                $value_matrix[$i]['result_code']          = $myrow['result_code'];
+                                $value_matrix[$i]['result_text']          = $myrow['result_text'];
+                                $value_matrix[$i]['result']               = $myrow['result'];
+                                // $value_matrix[$i]['units']                 = generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) ;
+                                $value_matrix[$i]['units']                = $myrow['units'];
+                                $value_matrix[$i]['range']                = $myrow['range'];
+                                $value_matrix[$i]['abnormal']             = $myrow['abnormal'];
+                                $value_matrix[$i]['review_status']        = $myrow['review_status'];
+                                $value_matrix[$i]['encounter_id']         = $myrow['encounter_id'];
+                                $value_matrix[$i]['date_collected']       = $myrow['date_collected'];
                                 $datelist[]                             = $myrow['date_collected'];
                                 $i++;
                             }
