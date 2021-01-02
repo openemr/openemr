@@ -414,7 +414,7 @@ tr.selected {
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Immunization Manufacturer'); ?></label>
-                        <?php echo generate_select_list('manufacturer', 'Immunization_Manufacturer', ($manufacturer ?? ''), 'Select Manufacturer', '');?>
+                        <?php echo generate_select_list('manufacturer', 'Immunization_Manufacturer', ($manufacturer ?? ''), 'Select Manufacturer', ' ');?>
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Immunization Lot Number'); ?></label>
