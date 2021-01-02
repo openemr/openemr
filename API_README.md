@@ -223,6 +223,8 @@ After registering the SMART client, can then Enable it in OpenEMR at Administrat
 
 After it is enabled, the SMART App will then be available to use in the Patient Summary screen (SMART Enabled Apps widget).
 
+See this github issue for an example of a Smart App installation: https://github.com/openemr/openemr/issues/4148
+
 #### Authorization Code Grant
 
 This is the recommended standard mechanism to obtain access/refresh tokens. This is done by using an OAuth2 client with provider url of `oauth2/<site>`; an example full path would be `https://localhost:9300/oauth2/default`.

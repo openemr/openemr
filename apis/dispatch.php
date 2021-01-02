@@ -108,7 +108,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
 }
 
 if (!$isLocalApi) {
-    // Will start the oauth OpenEMR session/cookie.
+    // Will start the api OpenEMR session/cookie.
     SessionUtil::apiSessionStart($gbl::$web_root);
 }
 
