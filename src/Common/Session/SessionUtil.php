@@ -39,8 +39,12 @@
  *     authorization related scripts and in cases of single process use (such as with command line scripts
  *     and non-local api calls) since there is no performance benefit in single process use.
  *  10. For OpenEMR 6.0.0 added a oauth2 session, which requires following settings:
- *      cookie_samesite = Lax (need to accept GET request from outside origin to function)
- *      cookie_secure = true (issuer needs to be https, so makes sense to support this setting)
+ *      cookie_samesite = None (In theory, should just need Lax (since just GET requests), however, need None for Smart Apps used
+ *                              within OpenEMR to work)
+ *      cookie_secure = true (issuer needs to be https, so makes sense to support this setting; also need since
+ *                            cookie_samesite is set to None)
+ *  11. For OpenEMR 6.0.0 added a api session, which requires following settings:
+ *      cookie_secure = true (oauth needs to be https, so makes sense to support this setting)
  *
  *
  * @package   OpenEMR
@@ -125,11 +129,6 @@ class SessionUtil
         self::standardSessionCookieDestroy();
     }
 
-    public static function apiSessionCookieDestroy(): void
-    {
-        self::standardSessionCookieDestroy();
-    }
-
     public static function portalSessionStart(): void
     {
         session_start([
@@ -151,10 +150,32 @@ class SessionUtil
         self::standardSessionCookieDestroy();
     }
 
+    public static function apiSessionStart($web_root): void
+    {
+        session_start([
+            'cookie_samesite' => self::$use_cookie_samesite,
+            'cookie_secure' => true,
+            'name' => 'apiOpenEMR',
+            'cookie_httponly' => self::$use_cookie_httponly,
+            'cookie_path' => ((!empty($web_root)) ? $web_root . '/apis/' : '/apis/'),
+            'gc_maxlifetime' => self::$gc_maxlifetime,
+            'sid_bits_per_character' => self::$sid_bits_per_character,
+            'sid_length' => self::$sid_length,
+            'use_strict_mode' => self::$use_strict_mode,
+            'use_cookies' => self::$use_cookies,
+            'use_only_cookies' => self::$use_only_cookies
+        ]);
+    }
+
+    public static function apiSessionCookieDestroy(): void
+    {
+        self::standardSessionCookieDestroy();
+    }
+
     public static function oauthSessionStart($web_root): void
     {
         session_start([
-            'cookie_samesite' => "Lax",
+            'cookie_samesite' => "None",
             'cookie_secure' => true,
             'name' => 'authserverOpenEMR',
             'cookie_httponly' => self::$use_cookie_httponly,

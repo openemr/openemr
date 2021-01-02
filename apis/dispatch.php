@@ -14,12 +14,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// below brings in autoloader
 require_once("./../_rest_config.php");
 
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use Psr\Http\Message\ResponseInterface;
 
@@ -105,10 +107,15 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     $ignoreAuth = true;
 }
 
+if (!$isLocalApi) {
+    // Will start the oauth OpenEMR session/cookie.
+    SessionUtil::apiSessionStart($gbl::$web_root);
+}
+
 $GLOBALS['is_local_api'] = $isLocalApi;
 
 // Set $sessionAllowWrite to true here for following reasons:
-//  1. !$isLocalApi - in this case setting sessions far downstream and no benefit to set to false since single process
+//  1. !$isLocalApi - not applicable since use the SessionUtil::apiSessionStart session, which was set above
 //  2. $isLocalApi - in this case, basically setting this to true downstream after some session sets via session_write_close() call
 $sessionAllowWrite = true;
 require_once("./../interface/globals.php");
