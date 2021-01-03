@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  @package OpenEMR
  *  @link    http://www.open-emr.org
@@ -8,7 +9,6 @@
  */
 
 namespace OpenEMR\Rx\Weno;
-
 
 /**
  * Class Container
@@ -69,7 +69,4 @@ class Container
         }
         return $this->wenopharmacyimport;
     }
-
-
-
 }

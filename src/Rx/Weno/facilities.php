@@ -63,13 +63,13 @@ $facilities = $data->getFacilities();
         <?php
         $i = 0;
         foreach ($facilities as $facility) {
-          print "<tr>";
-          print "<td><input type='hidden' name='location" . $i . "[]' value='" . $facility['id'] . "'></td>";
-          print "<td>" . $facility["name"] . "</td><td>".$facility['street']
-               . "</td><td>" . $facility['city'] . "</td><td><input type='text' id='weno_id' name='location" . $i
-              . "[]' value='" . $facility['weno_id'] . "'></td>";
-          print "</tr>";
-          ++$i;
+              print "<tr>";
+              print "<td><input type='hidden' name='location" . $i . "[]' value='" . $facility['id'] . "'></td>";
+              print "<td>" . $facility["name"] . "</td><td>" . $facility['street']
+                   . "</td><td>" . $facility['city'] . "</td><td><input type='text' id='weno_id' name='location" . $i
+                  . "[]' value='" . $facility['weno_id'] . "'></td>";
+              print "</tr>";
+              ++$i;
         }
         ?>
     </table>

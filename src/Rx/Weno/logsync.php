@@ -41,13 +41,13 @@ if ($logurlparam == 'error') {
     exit;
 }
 
-$urlOut = $syncLogs.$provider_info['email'] . "&data=" . urlencode($logurlparam);
+$urlOut = $syncLogs . $provider_info['email'] . "&data=" . urlencode($logurlparam);
 
 $ch = curl_init($urlOut);
 curl_setopt($ch, CURLOPT_TIMEOUT, 200);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 $rpt = curl_exec($ch);
-if(curl_errno($ch)){
+if (curl_errno($ch)) {
     throw new Exception(curl_error($ch));
 }
 $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

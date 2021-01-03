@@ -138,14 +138,7 @@ class TransmitProperties
     {
         //get patient data
         $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid = ?", [isset($_SESSION['pid'])]);
-        if (empty($patient['fname']) ||
-            empty($patient['lname']) ||
-            empty($patient['dob']) ||
-            empty($patient['sex']) ||
-            empty($patient['postal_code']) ||
-            empty($patient['street']) ||
-            empty($patient['email'])
-        ) {
+        if (empty($patient['fname']) || empty($patient['lname']) || empty($patient['dob']) || empty($patient['sex']) || empty($patient['postal_code']) || empty($patient['street']) || empty($patient['email'])) {
             echo xlt('Patient data is incomplete phone or ')
                 . ", "
                 . xlt('first last name') . ", "
@@ -188,7 +181,8 @@ class TransmitProperties
         if ($prov_pass['setting_value']) {
             return $cryptoGen->decryptStandard($prov_pass['setting_value']);
         } else {
-            echo xlt('Password is missing'); die;
+            echo xlt('Password is missing');
+            die;
         }
     }
 
