@@ -41,7 +41,7 @@ class LogProperties
     {
         $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/logsync.csv";
     }
-    
+
     /**
      * @return string
      */
@@ -74,7 +74,7 @@ class LogProperties
         $key = substr(hash('sha256', $enc_key, true), 0, 32);
         $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
         if ($enc_key && $md5) {
-            return base64_encode(openssl_encrypt($plaintext, $method, $key, OPENSSL_RAW_DATA, $iv));;
+            return base64_encode(openssl_encrypt($plaintext, $method, $key, OPENSSL_RAW_DATA, $iv));
         } else {
             return "error";
         }
@@ -123,7 +123,7 @@ class LogProperties
     public function doesLogFileExist()
     {
         if (file_exists($this->rxsynclog)) {
-            return date ("F d Y", filemtime($this->rxsynclog));
+            return date("F d Y", filemtime($this->rxsynclog));
         } else {
             return false;
         }

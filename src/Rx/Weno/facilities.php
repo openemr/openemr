@@ -21,7 +21,7 @@ if ($GLOBALS['weno_rx_enable']) {
     $data->ifcolumexist();
 }
 
-if($_POST) {
+if ($_POST) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -61,22 +61,23 @@ $facilities = $data->getFacilities();
             <th><?php print xlt('Weno ID'); ?></th>
         </thead>
         <?php
-        $i=0;
-              foreach ($facilities as $facility) {
-                  print "<tr>";
-                  print "<td><input type='hidden' name='location".$i."[]' value='". $facility['id'] ."'></td>";
-                  print "<td>" . $facility["name"] . "</td><td>".$facility['street']
-                       ."</td><td>" .$facility['city']. "</td><td><input type='text' id='weno_id' name='location".$i."[]' value='". $facility['weno_id'] ."'></td>";
-                  print "</tr>";
-                  ++$i;
-              }
+        $i = 0;
+        foreach ($facilities as $facility) {
+          print "<tr>";
+          print "<td><input type='hidden' name='location" . $i . "[]' value='" . $facility['id'] . "'></td>";
+          print "<td>" . $facility["name"] . "</td><td>".$facility['street']
+               . "</td><td>" . $facility['city'] . "</td><td><input type='text' id='weno_id' name='location" . $i
+              . "[]' value='" . $facility['weno_id'] . "'></td>";
+          print "</tr>";
+          ++$i;
+        }
         ?>
     </table>
         <input type="submit" value="update" id="save_weno_id" class="btn_primary">
     </form>
 
     <div style="padding-top: 20px">
-        <h3><?php echo xlt('Import') ."/". xlt('Update Pharmacies') ?></h3>
+        <h3><?php echo xlt('Import') . "/" . xlt('Update Pharmacies') ?></h3>
             <div id="importstatus" style="padding-top: 15px">
                 <button class="btn btn-primary" id="connected" title="<?php echo xlt("Weno Connected Phamacies Only");?>">
                     <i id="loading" class="fa fa-sync fa-spin hide"></i><?php echo xlt(' Import') . "/" . xlt('Update')?></button>

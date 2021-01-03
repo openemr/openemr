@@ -39,7 +39,6 @@ class TransmitProperties
                  $this->locid = $this->getFacilityInfo();
                $this->payload = $this->createJsonObject();
             $this->subscriber = $this->getSubscriber();
-
     }
 
     /**
@@ -55,7 +54,7 @@ class TransmitProperties
             $mode = 'N';
         }
         $gender = $this->patient['sex'];
-        $heighDate = explode (" ", $this->vitals['date']);
+        $heighDate = explode(" ", $this->vitals['date']);
         if ($this->subscriber == 'self') {
             $relationship = 'Y';
         } else {
@@ -63,38 +62,38 @@ class TransmitProperties
         }
         //create json array
         $wenObj = [
-                  'UserEmail' => $this->provider_email['email'],
-                'MD5Password' => md5($this->provider_pass),
-                  "LocationID" => $this->locid['weno_id'],
-                 "TestPatient" => $mode,
-                 'PatientType' => 'Human',
-                'OrgPatientID' => $this->patient['pid'],
-                    'LastName' => $this->patient['lname'],
-                   'FirstName' => $this->patient['fname'],
-                  'MiddleName' => $this->patient['mname'],
-                      'Prefix' => 'NA',
-                      'Suffix' => 'NA',
-                      "Gender" => $gender[0],
-                 "DateOfBirth" => $this->patient['dob'],
-                "AddressLine1" => $this->patient['street'],
-                "AddressLine2" => "NA",
-                        "City" => $this->patient['city'],
-                       "State" => $this->patient['state'],
-                  "PostalCode" => $this->patient['postal_code'],
-                 "CountryCode" => "US",
-                "PrimaryPhone" => $this->patient['phone_cell'],
-                 "SupportsSMS" => "Y",
-                "PatientEmail" => $this->patient['email'],
-               "PatientHeight" => $this->vitals['height'],
-               "PatientWeight" => $this->vitals['weight'],
- "HeightWeightObservationDate" => $heighDate[0],
-"ResponsiblePartySameAsPatient" => 'Y',
-              "PatientLocation" => "Home",
-         "PrimaryPharmacyNCPCP" => $this->ncpdp,
-     "AlternativePharmacyNCPCP" => $this->ncpdp
+                            'UserEmail' => $this->provider_email['email'],
+                          'MD5Password' => md5($this->provider_pass),
+                           "LocationID" => $this->locid['weno_id'],
+                          "TestPatient" => $mode,
+                          'PatientType' => 'Human',
+                         'OrgPatientID' => $this->patient['pid'],
+                             'LastName' => $this->patient['lname'],
+                            'FirstName' => $this->patient['fname'],
+                           'MiddleName' => $this->patient['mname'],
+                               'Prefix' => 'NA',
+                               'Suffix' => 'NA',
+                               "Gender" => $gender[0],
+                          "DateOfBirth" => $this->patient['dob'],
+                         "AddressLine1" => $this->patient['street'],
+                         "AddressLine2" => "NA",
+                                 "City" => $this->patient['city'],
+                                "State" => $this->patient['state'],
+                           "PostalCode" => $this->patient['postal_code'],
+                          "CountryCode" => "US",
+                         "PrimaryPhone" => $this->patient['phone_cell'],
+                          "SupportsSMS" => "Y",
+                         "PatientEmail" => $this->patient['email'],
+                        "PatientHeight" => $this->vitals['height'],
+                        "PatientWeight" => $this->vitals['weight'],
+          "HeightWeightObservationDate" => $heighDate[0],
+        "ResponsiblePartySameAsPatient" => 'Y',
+                      "PatientLocation" => "Home",
+                 "PrimaryPharmacyNCPCP" => $this->ncpdp,
+             "AlternativePharmacyNCPCP" => $this->ncpdp
         ];
-        $jObj = json_encode($wenObj);
-        return $jObj;
+
+        return json_encode($wenObj);
     }
 
     /**
@@ -138,7 +137,7 @@ class TransmitProperties
     private function getPatientInfo()
     {
         //get patient data
-        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [isset($_SESSION['pid'])]);
+        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid = ?", [isset($_SESSION['pid'])]);
         if (empty($patient['fname']) ||
             empty($patient['lname']) ||
             empty($patient['dob']) ||
@@ -147,7 +146,12 @@ class TransmitProperties
             empty($patient['street']) ||
             empty($patient['email'])
         ) {
-            echo xlt('Patient data is incomplete phone or ') .", " . xlt('first last name') .", " . xlt('gender email').", " . xlt('zip code') .", " . xlt('date of birth or address');
+            echo xlt('Patient data is incomplete phone or ')
+                . ", "
+                . xlt('first last name') . ", "
+                . xlt('gender email') . ", "
+                . xlt('zip code') . ", "
+                . xlt('date of birth or address');
             exit;
         }
         return $patient;
@@ -162,15 +166,12 @@ class TransmitProperties
         $cipher = "aes-256-cbc"; // AES 256 CBC cipher
         $cryptoGen = new Crypto\CryptoGen();
         $enc_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
-        //$enc_key = $GLOBALS['weno_encryption_key']; //version 5.0.x
-        if ($enc_key)
-        {
+        if ($enc_key) {
             $key = substr(hash('sha256', $enc_key, true), 0, 32);
             $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
             $ciphertext = base64_encode(openssl_encrypt($this->payload, $cipher, $key, OPENSSL_RAW_DATA, $iv));
             return $ciphertext;
-        }
-        else {
+        } else {
             return "error";
         }
     }
@@ -186,7 +187,6 @@ class TransmitProperties
         $prov_pass = sqlQuery($sql, [$uid]);
         if ($prov_pass['setting_value']) {
             return $cryptoGen->decryptStandard($prov_pass['setting_value']);
-            //return $prov_pass['setting_value']; version 5.0.x
         } else {
             echo xlt('Password is missing'); die;
         }

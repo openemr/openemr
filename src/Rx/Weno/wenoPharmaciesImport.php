@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  @package OpenEMR
  *  @link    http://www.open-emr.org
@@ -30,10 +31,12 @@ class wenoPharmaciesImport
         $i = 0;
         if (file_exists($this->filename)) {
             $import = fopen($this->filename, "r");
-            while (! feof($import))
-            {
+            while (! feof($import)) {
                 $line = fgetcsv($import);
-                if ($i <= 95) { ++$i; continue; }
+                if ($i <= 95) {
+                    ++$i;
+                    continue;
+                }
                 if ($line[12] === $this->state) {
                     $pharmacy = new Pharmacy();
                     $pharmacy->set_id();

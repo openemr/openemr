@@ -18,7 +18,7 @@ $container = new Container();
 $wenoProperties = $container->getTransmitproperties();
 $provider_info = $wenoProperties->getProviderEmail();
 $urlParam = $wenoProperties->cipherpayload();          //lets encrypt the data
-$newRxUrl = "https://test.wenoexchange.com/en/NewRx/ComposeRx?useremail=";
+$newRxUrl = "https://online.wenoexchange.com/en/NewRx/ComposeRx?useremail=";
 if ($urlParam == 'error') {   //check to make sure there were no errors
     echo xlt("Cipher failure check encryption key");
     exit;
@@ -32,9 +32,9 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
 </head>
 <body >
 <?php
-    $urlOut = $newRxUrl.$provider_info['email']."&data=".urlencode($urlParam);
+    $urlOut = $newRxUrl . $provider_info['email'] . "&data=" . urlencode($urlParam);
     //echo $urlOut; die;  //troubleshooting
-    header("Location: ". $urlOut);
+    header("Location: " . $urlOut);
 
 ?>
 </body>

@@ -10,7 +10,6 @@
 
 namespace OpenEMR\Rx\Weno;
 
-
 class FacilityProperties
 {
     public $facilityupdates;
@@ -50,10 +49,10 @@ class FacilityProperties
      */
     public function ifcolumexist()
     {
-        $sql = "SELECT COLUMN_NAME FROM information_schema.COLUMNS ".
-            "WHERE ".
-            "TABLE_SCHEMA = '" . $GLOBALS['dbase'] . "'".
-            "AND TABLE_NAME = 'facility' ".
+        $sql = "SELECT COLUMN_NAME FROM information_schema.COLUMNS " .
+            "WHERE " .
+            "TABLE_SCHEMA = '" . $GLOBALS['dbase'] . "'" .
+            "AND TABLE_NAME = 'facility' " .
             "AND COLUMN_NAME = 'weno_id'";
         $exist = sqlQuery($sql);
         if (empty($exist)) {
