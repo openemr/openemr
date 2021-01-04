@@ -131,7 +131,7 @@ function navigateTab(url,name,afterLoadFunction,loading_label='')
         if(typeof afterLoadFunction !== 'function'){
             $( "body" ).off( "load", "iframe[name='"+name+"']");
         } else {
-            $("iframe[name='"+name+"']").on('load', function () {
+            $("iframe[name='"+name+"']").one('load', function () {
                 afterLoadFunction();
             });
         }

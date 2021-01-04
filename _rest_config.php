@@ -13,7 +13,6 @@
  */
 
 require_once __DIR__ . '/vendor/autoload.php';
-require_once(__DIR__ . "/src/Common/Session/SessionUtil.php");
 
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -24,6 +23,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -256,7 +256,7 @@ class RestConfig
 
     public static function destroySession(): void
     {
-        OpenEMR\Common\Session\SessionUtil::apiSessionCookieDestroy();
+        SessionUtil::apiSessionCookieDestroy();
     }
 
     public static function getPostData($data)

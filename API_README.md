@@ -11,9 +11,12 @@ endpoint to the OpenEMR controller which handles the request, and also handles t
 
 ```php
 "POST /api/patient" => function () {
+    RestConfig::scope_check("user", "patient", "write");
     RestConfig::authorization_check("patients", "demo");
-    $data = (array)(json_decode(file_get_contents("php://input")));
-    return (new PatientRestController())->post($data);
+    $data = (array) (json_decode(file_get_contents("php://input")));
+    $return = (new PatientRestController())->post($data);
+    RestConfig::apiLog($return, $data);
+    return $return;
 }
 ```
 
@@ -53,6 +56,14 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 ### Sections
 
 -   [Authorization](API_README.md#authorization)
+    -   [Scopes](API_README.md#scopes)
+    -   [Registration](API_README.md#registration)
+        -   [SMART on FHIR Registration](API_README.md#smart-on-fhir-registration)
+    -   [Authorization Code Grant](API_README.md#authorization-code-grant)
+    -   [Refresh Token Grant](API_README.md#refresh-token-grant)
+    -   [Password Grant](API_README.md#password-grant)
+    -   [Logout](API_README.md#logout)
+    -   [More Details](API_README.md#more-details)
 -   [Standard API Endpoints](API_README.md#api-endpoints)
     -   [Facility API](API_README.md#post-apifacility)
     -   [Practitioner API](API_README.md#get-apipractitioner)
@@ -78,7 +89,6 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [FHIR AllergyIntolerance](FHIR_README.md#allergyintolerance-resource)
     -   [FHIR Organization](FHIR_README.md#organization-resource)
     -   [FHIR Observation](FHIR_README.md#observation-resource)
-    -   [FHIR QuestionnaireResponse](FHIR_README.md#questionnaireresponse-resource)
     -   [FHIR Condition](FHIR_README.md#condition-resource)
     -   [FHIR Procedure](FHIR_README.md#procedure-resource)
     -   [FHIR MedicationRequest](FHIR_README.md#medicationrequest-resource)
@@ -89,7 +99,6 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 -   [Patient Portal FHIR API Endpoints](FHIR_README.md#patient-portal-fhir-endpoints)
     -   [Patient Portal FHIR Patient](FHIR_README.md#patient-portal-patient-resource)
 -   [Dev notes](API_README.md#dev-notes)
--   [Todos](API_README.md#project-management)
 
 ### Prerequisite
 
@@ -212,6 +221,18 @@ Response:
     "scope": "openid api:oemr api:fhir api:port api:pofh user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/Encounter.read patient/Patient.read"
 }
 ```
+
+##### SMART on FHIR Registration
+
+SMART Enabled Apps are supported.
+
+SMART client can be registered at <website>/interface/smart/register-app.php. For example https://localhost:9300/interface/smart/register-app.php
+
+After registering the SMART client, can then Enable it in OpenEMR at Administration->System->API Clients
+
+After it is enabled, the SMART App will then be available to use in the Patient Summary screen (SMART Enabled Apps widget).
+
+See this github issue for an example of a Smart App installation: https://github.com/openemr/openemr/issues/4148
 
 #### Authorization Code Grant
 
@@ -1695,15 +1716,3 @@ Response:
 -   For business logic, make or use the services [here](src/Services)
 -   For controller logic, make or use the classes [here](src/RestControllers)
 -   For routing declarations, use the class [here](_rest_routes.inc.php).
-
-### Project Management
-
-#### General API
-
--   TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
--   TODO(?): API for fee sheets
--   TODO(?): API for pharmacies
--   TODO(?): API for immunizations
--   TODO(?): API for prescriptions
--   TODO(?): Drug search API
--   TODO(?): API for onotes

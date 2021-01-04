@@ -200,6 +200,12 @@ VALUES
 (NULL, "influenza, seasonal, Southern Hemisphere, quadrivalent, pediatric 0.25mL dose, preservative free", "influenza, Southern Hemisphere, pediatric, preservative free", 200, 100, '', 0, 0, '', '', '', 1),
 (NULL, "influenza, seasonal, Southern Hemisphere, quadrivalent, 0.5mL dose, no preservative", "influenza, Southern Hemisphere, preservative free", 201, 100, '', 0, 0, '', '', '', 1),
 (NULL, "influenza, seasonal, Southern Hemisphere, quadrivalent, 0.5mL dose, with preservative", "influenza, Southern Hemisphere, quadrivalent, with preservative", 202, 100, '', 0, 0, '', '', '', 1),
+(NULL, "meningococcal polysaccharide (groups A, C, Y, W-135) tetanus toxoid conjugate vaccine .5mL dose, preservative free", "meningococcal polysaccharide (groups A, C, Y, W-135) TT conjugate", 203, 100, '', 0, 0, '', '', '', 1),
+(NULL, "influenza, seasonal vaccine, quadrivalent, adjuvanted, .5mL dose, preservative free", "Influenza vaccine, quadrivalent, adjuvanted", 205, 100, '', 0, 0, '', '', '', 1),
+(NULL, "smallpox monkeypox vaccine, live attenuated, preservative free (National Stockpile)", "Smallpox monkeypox vaccine (National Stockpile)", 206, 100, '', 0, 0, '', '', '', 1),
+(NULL, "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 100 mcg/0.5mL dose", "COVID-19, mRNA, LNP-S, PF, 100 mcg/0.5 mL dose", 207, 100, '', 0, 0, '', '', '', 1),
+(NULL, "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30 mcg/0.3mL dose", "COVID-19, mRNA, LNP-S, PF, 30 mcg/0.3 mL dose", 208, 100, '', 0, 0, '', '', '', 1),
+(NULL, "SARS-COV-2 (COVID-19) vaccine, vector non-replicating, recombinant spike protein-ChAdOx1, preservative free, 0.5 mL ", "COVID-19 vaccine, vector-nr, rS-ChAdOx1, PF, 0.5 mL", 210, 100, '', 0, 0, '', '', '', 1),
 (NULL, "AS03 Adjuvant", "AS03 Adjuvant", 801, 100, '', 0, 0, '', '', '', 1),
 (NULL, "no vaccine administered", "no vaccine administered", 998, 100, '', 0, 0, '', '', '', 1),
 (NULL, "unknown vaccine or immune globulin", "unknown", 999, 100, '', 0, 0, '', '', '', 1);

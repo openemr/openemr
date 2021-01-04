@@ -26,6 +26,13 @@ class ClientEntity implements ClientEntityInterface
     protected $scopes;
     protected $launchUri;
 
+    /**
+     * Confidential apps or apps with a 'launch' scope must be manually authorized by an adminstrator before their
+     * client can be used.
+     * @var bool
+     */
+    protected $isEnabled;
+
     public function __construct()
     {
         $this->scopes = [];
@@ -44,6 +51,16 @@ class ClientEntity implements ClientEntityInterface
     public function setIsConfidential($set): void
     {
         $this->isConfidential = $set;
+    }
+
+    public function setIsEnabled($set): void
+    {
+        $this->isEnabled = $set === 1 || $set === true;
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->isEnabled;
     }
 
     public function setUserId($id): void
