@@ -31,4 +31,3 @@ curl_setopt($ch, CURLOPT_USERPWD, "{$weno_email}:{$pass_hash}");
 curl_exec($ch);
 curl_close($ch);
 fclose($out);
-
