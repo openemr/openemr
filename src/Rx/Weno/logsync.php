@@ -9,7 +9,7 @@
  */
 
 require_once("../../../interface/globals.php");
-require_once($GLOBALS["srcdir"] . "/formatting.inc.php");
+require_once ($GLOBALS["srcdir"] . "/formatting.inc.php");
 
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Rx\Weno\Container;
@@ -27,60 +27,58 @@ $logsync = $container->getLogproperties();
  * This should only execute once a day no matter how many times it is called.
  * The idea was to include in the index file to be executed when the prescription called.
  */
-$today = date("F d Y");
+$today = date ("F d Y");
 $filedate = $logsync->doesLogFileExist();
 //die if the dates match or the file does not exist
-if ($today === $filedate) {
-    die;
-}
+if ($today !== $filedate) {
 
-$logurlparam = $logsync->logEcps();
-$syncLogs = "https://test.wenoexchange.com/en/EPCS/DownloadNewRxSyncDataVal?useremail=";
-if ($logurlparam == 'error') {
-    echo xlt("Cipher failure check encryption key");
-    exit;
-}
+    $logurlparam = $logsync->logEcps();
+    $syncLogs = "https://test.wenoexchange.com/en/EPCS/DownloadNewRxSyncDataVal?useremail=";
+    if ($logurlparam == 'error') {
+        echo xlt("Cipher failure check encryption key");
+        exit;
+    }
 
-$urlOut = $syncLogs . $provider_info['email'] . "&data=" . urlencode($logurlparam);
+    $urlOut = $syncLogs.$provider_info['email']."&data=".urlencode($logurlparam);
 
-$ch = curl_init($urlOut);
-curl_setopt($ch, CURLOPT_TIMEOUT, 200);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-$rpt = curl_exec($ch);
-if (curl_errno($ch)) {
-    throw new Exception(curl_error($ch));
-}
-$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-if ($statusCode == 200) {
-    file_put_contents($logsync->rxsynclog, $rpt);
-    $logstring = "prescrition log import initiated successfully";
-    EventAuditLogger::instance()->newEvent("prescritions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$logstring");
-} else {
-    EventAuditLogger::instance()->newEvent("prescritions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$statusCode");
-}
+    $ch = curl_init($urlOut);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 200);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $rpt = curl_exec($ch);
+    if(curl_errno($ch)){
+        throw new Exception(curl_error($ch));
+    }
+    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if($statusCode == 200){
+        file_put_contents($logsync->rxsynclog, $rpt);
+        $logstring = "prescrition log import initiated successfully";
+        EventAuditLogger::instance()->newEvent("prescritions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$logstring");
+    } else {
+        EventAuditLogger::instance()->newEvent("prescritions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$statusCode");
+    }
 
-$l = 0;
-if (file_exists($logsync->rxsynclog)) {
-    $records = fopen($logsync->rxsynclog, "r");
+    $l = 0;
+    if(file_exists($logsync->rxsynclog)) {
+        $records = fopen($logsync->rxsynclog, "r");
 
-    while (! feof($records)) {
-        $line = fgetcsv($records);
+        while (!feof($records)) {
+            $line = fgetcsv($records);
 
-        if ($l <= 2) {
-            $l++;
-            continue;
-        }
-        if (!isset($line[1])) {
-            continue;
-        }
-        if (isset($line[4])) {
-            $logsync->messageid = isset($line[4]) ? $line[4] : null;
-            $is_saved = $logsync->checkMessageId();
-            if ($is_saved > 0) {
+            if ($l <= 2) {
+                $l++;
                 continue;
             }
-        }
+            if (!isset($line[1])) {
+                continue;
+            }
+            if (isset($line[4])) {
+                $logsync->messageid = isset($line[4]) ? $line[4] : null;
+                $is_saved = $logsync->checkMessageId();
+                if ($is_saved > 0) {
+                    continue;
+                }
+            }
             $pr = isset($line[2]) ? $line[2] : null;
             $provider = explode(":", $pr);
             $windate = isset($line[16]) ? $line[16] : null;
@@ -113,6 +111,7 @@ if (file_exists($logsync->rxsynclog)) {
             $logsync->insertPrescriptions();
 
             ++$l;
+        }
+        fclose($records);
     }
-    fclose($records);
 }
