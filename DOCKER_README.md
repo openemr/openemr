@@ -1,7 +1,7 @@
 # OpenEMR Docker Documentation
 
 ## Overview
-The OpenEMR community loves Docker. We eat and breath Docker. The OpenEMR dockers can be found on
+The OpenEMR community loves Docker. We eat and breathe Docker. The OpenEMR dockers can be found on
 [dockerhub](https://hub.docker.com/r/openemr/openemr/). There are two main categories of dockers for
 OpenEMR, Production Dockers and Development Dockers. Production dockers are meant for production use
 with tags such as `6.0.0` and `latest`. Development dockers are meant for development and include the
