@@ -461,14 +461,17 @@ if ($form_step == 102) {
                     $cmd .= "echo 'DELETE FROM list_options WHERE list_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
                     $cmd .= "echo 'DELETE FROM list_options WHERE list_id = \"lists\" AND option_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
-                $cmd .= $dumppfx .
-                " --where='list_id = \"lists\" AND option_id = \"" . add_escape_custom($listid) . "\" OR list_id = \"" . add_escape_custom($listid) . "\" " .
-                "ORDER BY list_id != \"lists\", seq, title' " .
-                escapeshellarg($sqlconf["dbase"]) . " list_options";
                 if (IS_WINDOWS) {
-                  # windows uses the & to join statements.
+                    # windows uses the & to join statements.
+                    $cmd .= $dumppfx . " --where=\"list_id = 'lists' AND option_id = '$listid' OR list_id = '$listid' " .
+                        "ORDER BY list_id != 'lists', seq, title\" " .
+                        escapeshellarg($sqlconf["dbase"]) . " list_options";
                     $cmd .=  " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
+                    $cmd .= $dumppfx . " --where='list_id = \"lists\" AND option_id = \"" .
+                        add_escape_custom($listid) . "\" OR list_id = \"" .
+                        add_escape_custom($listid) . "\" " . "ORDER BY list_id != \"lists\", seq, title' " .
+                        escapeshellarg($sqlconf["dbase"]) . " list_options";
                     $cmd .=  " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
             }
