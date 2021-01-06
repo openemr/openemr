@@ -1338,7 +1338,31 @@ class BillingUtilities
         'N809' => 'Alert: The fee schedule amount for this service was adjusted based on prior competitive bidding rates. For more information, contact your local contractor.',
         'N810' => 'Due to federal, state or local disaster declaration, this claim has been processed at the in-network level of benefit. At the conclusion or expiration of the disaster declaration, network payment rules will be reinstated.',
         'N811' => 'Missing Federal Sequestration Reduction from Prior Payer.',
-        'N812' => 'The start service date through end service date cannot span greater than 18 months.'
+        'N812' => 'The start service date through end service date cannot span greater than 18 months.',
+        'N815' => 'Missing/Incomplete/Invalid NDC Unit Count.',
+        'N816' => 'Missing/Incomplete/Invalid NDC Unit of Measure.',
+        'N817' => 'Alert: Applicable laboratories are required to collect and report private payor data and report that data to CMS between January 1, 2020 - March 31, 2020.',
+        'N818' => 'Claims Dates of Service do not match Electronic Visit Verification System.',
+        'N819' => 'Patient not enrolled in Electronic Visit Verification System.',
+        'N820' => 'Electronic Visit Verification System units do not meet requirements of visit.',
+        'N821' => 'Electronic Visit Verification System visit not found.',
+        'N822' => 'Missing procedure modifier(s).',
+        'N823' => 'Incomplete/Invalid procedure modifier(s).',
+        'N824' => 'Electronic Visit Verification (EVV) data must be submitted through EVV Vendor.',
+        'N825' => 'Early intervention guidelines were not met.',
+        'N826' => 'Patient did not meet the inclusion criteria for the Medicare Shared Savings Program.',
+        'N827' => 'Missing/Incomplete/Invalid Federal Information Processing Standard (FIPS) Code.',
+        'N828' => 'Alert: Payment is suppressed due to a contracted funding.',
+        'N829' => 'Missing/incomplete/invalid Diagnostics Exchange Z-Code Identifier.',
+        'N830' => 'Alert: The charge[s] for this service was processed in accordance with Federal/ State Balance/ Surprise Billing regulations. As such, any amount identified with OA, CO, or PI cannot be collected from the member and may be considered provider liability or be billable to a subsequent payer. Any amount the provider collected over the identified PR amount must be refunded to the patient within applicable Federal/ State timeframes. Payment amounts are eligible for dispute following any Federal/ State documented appeal/ grievance/ arbitration process.',
+        'N831' => 'You have not responded to requests to revalidate your provider/supplier enrollment information.',
+        'N832' => 'Duplicate occurrence code/occurrence span code.',
+        'N833' => 'Patient share of cost waived.',
+        'N834' => 'Jurisdiction exempt from sales and health tax charges.',
+        'N835' => 'Unrelated Service/procedure/treatment is reduced. The balance of this charge is the patient\'s responsibility.',
+        'N836' => 'Provider W9 or Payee Registration not on file.',
+        'N837' => 'Alert: Missing modifier was added.',
+        'N838' => 'Alert: Service/procedure postponed due to a federal, state, or local mandate/disaster declaration. Any amounts applied to deductible or member liability will be applied to the prior plan year from which the procedure was cancelled.'
     );
 
     public static function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
