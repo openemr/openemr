@@ -10,7 +10,7 @@
 
 // Weno Pharmacy Directory Download
 // on $url for live data use live.wenoexchange.com instead
-require_once("../../../interface/globals.php");
+require_once("../globals.php");
 
 use OpenEMR\Rx\Weno\TransmitProperties;
 $setting = new TransmitProperties();

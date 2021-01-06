@@ -25,13 +25,15 @@ class TransmitProperties
     private $subscriber;
     private $pid;
     private $ncpdp;
+    private $cryptoGen;
 
     /**
      * AdminProperties constructor.
      */
     public function __construct()
     {
-                   $this->ncpdp = $this->getPharmacy();
+             $this->cryptoGen = new Crypto\CryptoGen();
+                 $this->ncpdp = $this->getPharmacy();
                 $this->vitals = $this->getVitals();
                $this->patient = $this->getPatientInfo();
         $this->provider_email = $this->getProviderEmail();
@@ -115,7 +117,7 @@ class TransmitProperties
      */
     public function getFacilityInfo()
     {
-        $locid = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where id = ?", [isset($_SESSION['facilityId'])]);
+        $locid = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where id = ?", [$_SESSION['facilityId']]);
 
         if (empty($locid['weno_id'])) {
             //if not in an encounter then get the first facility location id as default
@@ -137,7 +139,7 @@ class TransmitProperties
     private function getPatientInfo()
     {
         //get patient data
-        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid = ?", [isset($_SESSION['pid'])]);
+        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid = ?", [$_SESSION['pid']]);
         if (empty($patient['fname']) || empty($patient['lname']) || empty($patient['dob']) || empty($patient['sex']) || empty($patient['postal_code']) || empty($patient['street']) || empty($patient['email'])) {
             echo xlt('Patient data is incomplete phone or ')
                 . ", "
@@ -157,8 +159,7 @@ class TransmitProperties
     public function cipherpayload()
     {
         $cipher = "aes-256-cbc"; // AES 256 CBC cipher
-        $cryptoGen = new Crypto\CryptoGen();
-        $enc_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
+        $enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
         if ($enc_key) {
             $key = substr(hash('sha256', $enc_key, true), 0, 32);
             $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
@@ -174,12 +175,11 @@ class TransmitProperties
      */
     public function getProviderPassword()
     {
-        $cryptoGen = new Crypto\CryptoGen();
         $uid = $_SESSION['authUserID'];
         $sql = "select setting_value from user_settings where setting_user = ? and setting_label = 'global:weno_provider_password'";
         $prov_pass = sqlQuery($sql, [$uid]);
         if ($prov_pass['setting_value']) {
-            return $cryptoGen->decryptStandard($prov_pass['setting_value']);
+            return $this->cryptoGen->decryptStandard($prov_pass['setting_value']);
         } else {
             echo xlt('Password is missing');
             die;
@@ -191,7 +191,7 @@ class TransmitProperties
      */
     private function getVitals()
     {
-        $vitals = sqlQuery("select date, height, weight from form_vitals where pid = ? ORDER BY id DESC", [isset($_SESSION["pid"])]);
+        $vitals = sqlQuery("select date, height, weight from form_vitals where pid = ? ORDER BY id DESC", [$_SESSION["pid"]]);
         return $vitals;
     }
 
