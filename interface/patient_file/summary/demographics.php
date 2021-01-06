@@ -239,7 +239,7 @@ require_once("$srcdir/options.js.php");
     }
 
     function getWeno() {
-        location.href = '../../../src/Rx/Weno/indexRx.php'
+        location.href = '../../weno/indexrx.php'
     }
 </script>
 
