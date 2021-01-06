@@ -135,7 +135,7 @@ class InsuranceService extends BaseService
             $uuidBytes = UuidRegistry::uuidToBytes($search['provider']);
             $search['provider'] = $this->getIdByUuid($uuidBytes, self::INSURANCE_TABLE, "provider");
         }
-        
+
         // Validating and Converting UUID to ID
         if (isset($search['id'])) {
             $isValidcondition = $this->coverageValidator->validateId(

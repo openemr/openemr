@@ -55,7 +55,7 @@ class FhirCoverageService extends FhirServiceBase
         $id->setValue($dataRecord['uuid']);
         $coverageResource->setId($id);
 
-        
+
         if (isset($dataRecord['puuid'])) {
             $patient = new FHIRReference();
             $patient->setReference('Patient/' . $dataRecord['puuid']);
@@ -75,7 +75,7 @@ class FhirCoverageService extends FhirServiceBase
             $coverageResource->setRelationship($relationshipCode);
         }
 
-        
+
 
         if ($encode) {
             return json_encode($coverageResource);
