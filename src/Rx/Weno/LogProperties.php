@@ -35,11 +35,25 @@ class LogProperties
     private $internal_user_id;
     public $rxsynclog;
     public $messageid;
+    private $method;
+    private $key;
+    private $enc_key;
+    private $cryptoGen;
+    private $iv;
+    private $container;
+    private $provider;
 
 
     public function __construct()
     {
+        $this->container = new Container();
+        $this->cryptoGen = new Crypto\CryptoGen();
+        $this->method = "aes-256-cbc";
         $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/logsync.csv";
+        $this->enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
+        $this->key = substr(hash('sha256', $this->enc_key, true), 0, 32);
+        $this->iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
+        $this->provider = $this->container->getTransmitproperties();
     }
 
     /**
@@ -47,11 +61,8 @@ class LogProperties
      */
     public function logEcps()
     {
-        $provider = new TransmitProperties();
-        $email = $provider->getProviderEmail();
-        $cryptoGen = new Crypto\CryptoGen();
-        $enc_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);  // key pulled from the globals
-        $prov_pass =  $provider->getProviderPassword();                // gets the password stored for the
+        $email = $this->provider->getProviderEmail();
+        $prov_pass =  $this->provider->getProviderPassword();                // gets the password stored for the
         $md5 = md5($prov_pass);                       // hash the current password
         $workday = date("l");
         //This is to cover working on Saturday but not on Sunday.
@@ -70,11 +81,29 @@ class LogProperties
             "ResponseFormat" => "CSV"
         ];
         $plaintext = json_encode($p);                //json encode email and password
-        $method = "aes-256-cbc";
-        $key = substr(hash('sha256', $enc_key, true), 0, 32);
-        $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
-        if ($enc_key && $md5) {
-            return base64_encode(openssl_encrypt($plaintext, $method, $key, OPENSSL_RAW_DATA, $iv));
+        if ($this->enc_key && $md5) {
+            return base64_encode(openssl_encrypt($plaintext, $this->method, $this->key, OPENSSL_RAW_DATA, $this->iv));;
+        } else {
+            return "error";
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function logReview()
+    {
+        $email = $this->provider->getProviderEmail();
+        $prov_pass =  $this->provider->getProviderPassword();                // gets the password stored for the
+        $md5 = md5($prov_pass);                       // hash the current password
+        $p = [
+            "UserEmail" => $email['email'],
+            "MD5Password" => $md5
+        ];
+        $plaintext = json_encode($p);                //json encode email and password
+
+        if ($this->enc_key && $md5) {
+            return base64_encode(openssl_encrypt($plaintext, $this->method, $this->key, OPENSSL_RAW_DATA, $this->iv));;
         } else {
             return "error";
         }
