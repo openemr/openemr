@@ -7,8 +7,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\Services\FacilityService;
-use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\OrganizationService;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -31,8 +30,7 @@ class FhirOrganizationService extends FhirServiceBase
     public function __construct()
     {
         parent::__construct();
-        $this->organizationService = new FacilityService();
-        $this->insuranceService = new InsuranceCompanyService();
+        $this->organizationService = new OrganizationService();
     }
 
     /**
@@ -46,12 +44,11 @@ class FhirOrganizationService extends FhirServiceBase
             "email" => ["email"],
             "phone" => ["phone"],
             "telecom" => ["email", "phone",],
-            "address" => ["street", "postal_code", "city", "state", "country_code"],
+            "address" => ["street", "postal_code", "city", "state", "country_code","line1"],
             "address-city" => ["city"],
-            "address-postalcode" => ["postal_code"],
+            "address-postalcode" => ["postal_code","zip"],
             "address-state" => ["state"],
             "name" => ["name"],
-            "active" => ["service_location"]
         ];
     }
 
@@ -90,8 +87,11 @@ class FhirOrganizationService extends FhirServiceBase
         }
 
         $address = new FHIRAddress();
-        if (!empty($dataRecord['street'])) {
-            $address->addLine($dataRecord['street']);
+        if (!empty($dataRecord['line1'])) {
+            $address->addLine($dataRecord['line1']);
+        }
+        if (!empty($dataRecord['line2'])) {
+            $address->addLine($dataRecord['line2']);
         }
         if (!empty($dataRecord['city'])) {
             $address->setCity($dataRecord['city']);
@@ -128,11 +128,17 @@ class FhirOrganizationService extends FhirServiceBase
             );
         }
 
-        if (isset($dataRecord['orgtype'])) {
+        if (isset($dataRecord['orgType'])) {
             $orgType = new FHIRCodeableConcept();
             $type = new FHIRCoding();
             $type->setSystem("http://terminology.hl7.org/CodeSystem/organization-type");
-            $type->setCode($dataRecord['orgtype']);
+            if ($dataRecord['orgType'] == 'facility') {
+                $type->setCode("prov");
+            }
+            if ($dataRecord['orgType'] == 'insurance') {
+                $type->setCode("pay");
+            }
+            
             $orgType->addCoding($type);
             $organizationResource->addType($orgType);
         }
@@ -278,12 +284,7 @@ class FhirOrganizationService extends FhirServiceBase
      */
     public function getOne($fhirResourceId)
     {
-        //Look for Organization in Facilities
-        $facilityProcessingResult = $this->organizationService->getOne($fhirResourceId);
-        //Look for Organization in Insurance Companies
-        $insuranceProcessingResult = $this->insuranceService->getOne($fhirResourceId);
-        $processingResult = new ProcessingResult();
-        $processingResult->setData(array_merge($facilityProcessingResult->getData(), $insuranceProcessingResult->getData()));
+        $processingResult = $this->organizationService->getOne($fhirResourceId);
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];
@@ -303,20 +304,9 @@ class FhirOrganizationService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters)
     {
-        $allRecords = new ProcessingResult();
-        // Get all the Insurance Organizations
-        $insuranceRecords = $this->insuranceService->getall($openEMRSearchParameters, false);
-        foreach ($insuranceRecords->getData() as $index => $oeRecord) {
-            $oeRecord['orgtype'] = "pay";
-            $allRecords->addData($oeRecord);
-        }
-        // Get all the Provider Organizations
-        $facilityRecords = $this->organizationService->getAll($openEMRSearchParameters, false);
-        foreach ($facilityRecords->getData() as $index => $oeRecord) {
-            $oeRecord['orgtype'] = "prov";
-            $allRecords->addData($oeRecord);
-        }
-        return $allRecords;
+        $processingResult = $this->organizationService->getall($openEMRSearchParameters, false);
+        
+        return $processingResult;
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {

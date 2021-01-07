@@ -4,6 +4,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
@@ -74,6 +75,10 @@ class FhirCoverageService extends FhirServiceBase
             $relationshipCode->addCoding($relationship);
             $coverageResource->setRelationship($relationshipCode);
         }
+        //Currently Setting status to active - Change after status logic is confirmed
+        $status = new FHIRCode();
+        $status->setValue("active");
+        $coverageResource->setStatus($status);
 
 
 
