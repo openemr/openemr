@@ -31,7 +31,7 @@ class OrganizationService extends BaseService
 
     public function getOne($uuid)
     {
-        
+
         $facilityResult = $this->facilityService->getOne($uuid);
         $insuranceResult = $this->insuranceService->getOne($uuid);
         return $this->processResults($facilityResult, $insuranceResult);
@@ -79,14 +79,14 @@ class OrganizationService extends BaseService
             $processingResult->setValidationMessages(array_merge($insuranceResult->getValidationMessages(), $facilityResult->getValidationMessages()));
             $processingResult->setInternalErrors(array_merge($insuranceResult->getInternalErrors(), $facilityResult->getInternalErrors()));
         }
-        
-        
+
+
         return $processingResult;
     }
 
     public function getAll($search = array(), $isAndCondition = true)
     {
-        
+
         $facilityResult = $this->facilityService->getAll($search = array(), $isAndCondition = true);
         $insuranceResult = $this->insuranceService->getAll($search = array(), $isAndCondition = true);
         return $this->processResults($facilityResult, $insuranceResult);

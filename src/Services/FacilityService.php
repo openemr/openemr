@@ -353,10 +353,10 @@ class FacilityService extends BaseService
             "limit" => 1
         ));
 
-        
+
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $processingResult->addData($sqlResult);
-        
+
 
         return $processingResult;
     }
