@@ -80,4 +80,61 @@ class OrganizationService extends BaseService
         $processingResult->setData(array_merge($facilityOrgs, $insuranceOrgs));
         return $processingResult;
     }
+
+    /**
+     * Inserts a new Organization Based on Type of Organization record.
+     *
+     * @param $data The facility fields (array) to insert.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function insert($data)
+    {
+        if ($data['orgType'] == 'facility') {
+            $data = $this->prepareFacilitydata($data);
+            return $this->facilityService->insert($data);
+        }
+        if ($data['orgType'] == 'insurance') {
+            $data = $this->prepareInsurancedata($data);
+            return $this->insuranceService->insert($data);
+        }
+    }
+
+    /**
+     * Updates an existing Organization record based on type of Organization.
+     *
+     * @param $uuid - The uuid identifier in string format used for update.
+     * @param $data - The updated Organization data fields
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function update($uuid, $data)
+    {
+        if (empty($data)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages("Invalid Data");
+            return $processingResult;
+        }
+
+        if ($data['orgType'] == 'facility') {
+            $data = $this->prepareFacilitydata($data);
+            return $this->facilityService->update($uuid, $data);
+        }
+        if ($data['orgType'] == 'insurance') {
+            $data = $this->prepareInsurancedata($data);
+            return $this->insuranceService->update($uuid, $data);
+        }
+    }
+
+    private function prepareFacilitydata($data)
+    {
+        //For now return the data -- make modification based on how the Organization data is structured
+        return $data;
+    }
+
+    private function prepareInsurancedata($data)
+    {
+    //For now return the data -- make modification based on how the Organization data is structured
+        return $data;
+    }
 }
