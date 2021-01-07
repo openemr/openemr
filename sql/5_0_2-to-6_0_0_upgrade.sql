@@ -513,6 +513,14 @@ UPDATE `insurance_data` SET `date` = NULL WHERE `date` = '0000-00-00';
 SET sql_mode = @currentSQLMode;
 #EndIf
 
+#IfMissingColumn insurance_companies uuid
+ALTER TABLE `insurance_companies` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn insurance_data uuid
+ALTER TABLE `insurance_data` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
 #IfNotColumnTypeDefault onsite_documents patient_signed_time datetime NULL
 ALTER TABLE `onsite_documents` MODIFY `patient_signed_time` datetime NULL;
 SET @currentSQLMode = (SELECT @@sql_mode);
