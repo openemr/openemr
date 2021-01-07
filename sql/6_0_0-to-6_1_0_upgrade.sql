@@ -108,3 +108,10 @@
 --  #IfDocumentNamingNeeded
 --    desc: populate name field with document names.
 --    arguments: none
+#IfMissingColumn insurance_companies uuid
+ALTER TABLE `insurance_companies` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn insurance_data uuid
+ALTER TABLE `insurance_data` ADD `uuid` binary(16) DEFAULT NULL;
+#EndIf
