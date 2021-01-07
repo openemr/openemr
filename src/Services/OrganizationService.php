@@ -37,14 +37,8 @@ class OrganizationService extends BaseService
         $insuranceResult = $this->insuranceService->getOne($uuid);
         $insuranceOrgs = $this->getInsuranceOrg($insuranceResult->getData());
         $processingResult->setData(array_merge($facilityOrgs, $insuranceOrgs));
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
+        $processingResult->setValidationMessages(array_merge($insuranceResult->getValidationMessages(), $facilityResult->getValidationMessages()));
+        $processingResult->setInternalErrors(array_merge($insuranceResult->getInternalErrors(), $facilityResult->getInternalErrors()));
         return $processingResult;
     }
 
@@ -86,6 +80,8 @@ class OrganizationService extends BaseService
         $insuranceResult = $this->insuranceService->getAll($search = array(), $isAndCondition = true);
         $insuranceOrgs = $this->getInsuranceOrg($insuranceResult->getData());
         $processingResult->setData(array_merge($facilityOrgs, $insuranceOrgs));
+        $processingResult->setValidationMessages(array_merge($insuranceResult->getValidationMessages(), $facilityResult->getValidationMessages()));
+        $processingResult->setInternalErrors(array_merge($insuranceResult->getInternalErrors(), $facilityResult->getInternalErrors()));
         return $processingResult;
     }
 
