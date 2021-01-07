@@ -213,10 +213,10 @@ class FhirOrganizationService extends FhirServiceBase
             foreach ($fhirResource['type'] as $orgtype) {
                 foreach ($orgtype['coding'] as $coding) {
                     if ($coding['code'] == 'pay') {
-                        $data['orgType'] = 'insurance'
+                        $data['orgType'] = 'insurance';
                     }
                     if ($coding['code'] == 'prov') {
-                        $data['orgType'] = 'facility'
+                        $data['orgType'] = 'facility';
                     }
                 }
             }
