@@ -129,12 +129,14 @@ class OrganizationService extends BaseService
     private function prepareFacilitydata($data)
     {
         //For now return the data -- make modification based on how the Organization data is structured
+        unset($data['orgType']);
         return $data;
     }
 
     private function prepareInsurancedata($data)
     {
     //For now return the data -- make modification based on how the Organization data is structured
+        unset($data['orgType']);
         return $data;
     }
 }
