@@ -28,7 +28,6 @@ class OrganizationService extends BaseService
         $this->insuranceService = new InsuranceCompanyService();
     }
 
-    
 
     public function getOne($uuid)
     {

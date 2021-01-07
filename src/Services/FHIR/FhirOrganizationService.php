@@ -138,7 +138,6 @@ class FhirOrganizationService extends FhirServiceBase
             if ($dataRecord['orgType'] == 'insurance') {
                 $type->setCode("pay");
             }
-            
             $orgType->addCoding($type);
             $organizationResource->addType($orgType);
         }
@@ -305,7 +304,6 @@ class FhirOrganizationService extends FhirServiceBase
     public function searchForOpenEMRRecords($openEMRSearchParameters)
     {
         $processingResult = $this->organizationService->getall($openEMRSearchParameters, false);
-        
         return $processingResult;
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
