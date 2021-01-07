@@ -207,7 +207,20 @@ class FhirOrganizationService extends FhirServiceBase
                 $data['state'] = $fhirResource['address'][0]['state'];
             }
         }
-
+        //setting default OrgType to facility
+        $data['orgType'] = 'facility';
+        if (isset($fhirResource['type'])) {
+            foreach ($fhirResource['type'] as $orgtype) {
+                foreach ($orgtype['coding'] as $coding) {
+                    if ($coding['code'] == 'pay') {
+                        $data['orgType'] = 'insurance'
+                    }
+                    if ($coding['code'] == 'prov') {
+                        $data['orgType'] = 'facility'
+                    }
+                }
+            }
+        }
         if (isset($fhirResource['telecom'])) {
             foreach ($fhirResource['telecom'] as $telecom) {
                 switch ($telecom['system']) {
