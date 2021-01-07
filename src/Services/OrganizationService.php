@@ -31,15 +31,10 @@ class OrganizationService extends BaseService
 
     public function getOne($uuid)
     {
-        $processingResult = new ProcessingResult();
+        
         $facilityResult = $this->facilityService->getOne($uuid);
-        $facilityOrgs = $this->getFacilityOrg($facilityResult->getData());
         $insuranceResult = $this->insuranceService->getOne($uuid);
-        $insuranceOrgs = $this->getInsuranceOrg($insuranceResult->getData());
-        $processingResult->setData(array_merge($facilityOrgs, $insuranceOrgs));
-        $processingResult->setValidationMessages(array_merge($insuranceResult->getValidationMessages(), $facilityResult->getValidationMessages()));
-        $processingResult->setInternalErrors(array_merge($insuranceResult->getInternalErrors(), $facilityResult->getInternalErrors()));
-        return $processingResult;
+        return $this->processResults($facilityResult, $insuranceResult);
     }
 
     private function getFacilityOrg($facilityRecords)
@@ -72,17 +67,29 @@ class OrganizationService extends BaseService
         return $insuranceOrgs;
     }
 
-    public function getAll($search = array(), $isAndCondition = true)
+    private function processResults($facilityResult, $insuranceResult)
     {
         $processingResult = new ProcessingResult();
-        $facilityResult = $this->facilityService->getAll($search = array(), $isAndCondition = true);
         $facilityOrgs = $this->getFacilityOrg($facilityResult->getData());
-        $insuranceResult = $this->insuranceService->getAll($search = array(), $isAndCondition = true);
         $insuranceOrgs = $this->getInsuranceOrg($insuranceResult->getData());
-        $processingResult->setData(array_merge($facilityOrgs, $insuranceOrgs));
-        $processingResult->setValidationMessages(array_merge($insuranceResult->getValidationMessages(), $facilityResult->getValidationMessages()));
-        $processingResult->setInternalErrors(array_merge($insuranceResult->getInternalErrors(), $facilityResult->getInternalErrors()));
+        $OrgRecords = array_merge($facilityOrgs, $insuranceOrgs);
+        if (count($OrgRecords) > 0) {
+            $processingResult->setData($OrgRecords);
+        } else {
+            $processingResult->setValidationMessages(array_merge($insuranceResult->getValidationMessages(), $facilityResult->getValidationMessages()));
+            $processingResult->setInternalErrors(array_merge($insuranceResult->getInternalErrors(), $facilityResult->getInternalErrors()));
+        }
+        
+        
         return $processingResult;
+    }
+
+    public function getAll($search = array(), $isAndCondition = true)
+    {
+        
+        $facilityResult = $this->facilityService->getAll($search = array(), $isAndCondition = true);
+        $insuranceResult = $this->insuranceService->getAll($search = array(), $isAndCondition = true);
+        return $this->processResults($facilityResult, $insuranceResult);
     }
 
     /**
