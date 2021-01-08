@@ -315,6 +315,25 @@ class RestConfig
         }
     }
 
+    // Function to check if patient needs to be binded
+    public static function is_patient_binded()
+    {
+        $logger = new SystemLogger();
+        if (isset($_SESSION['bind_patient_id']) || isset($GLOBALS['bind_patient_id'])) {
+            $logger->debug("is_patient_binded(): patient is binded to the api call");
+            // ensure the proper parameters are set for patient binding or die
+            if (empty($_SESSION['pid']) || empty($_SESSION['puuid']) || empty($_SESSION['puuid_string'])) {
+                $logger->error("OpenEMR Error: is_patient_binded call failed because critical patient session variables were not set");
+                http_response_code(401);
+                exit;
+            }
+            return true;
+        } else {
+            $logger->debug("is_patient_binded(): patient is not binded to the api call (ie. user or system call with access to all patients)");
+            return false;
+        }
+    }
+
     public static function setLocalCall(): void
     {
         self::$localCall = true;
