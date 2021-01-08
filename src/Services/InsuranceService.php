@@ -83,8 +83,14 @@ class InsuranceService extends BaseService
         return $validator->validate($data);
     }
 
-    public function getOne($uuid)
+    public function getOne($uuid, $type = 'primary')
     {
+        //Handling when pid and type is sent
+        if (gettype($uuid) == "integer") {
+            $sql = "SELECT * FROM insurance_data WHERE pid=? AND type=?";
+            return sqlQuery($sql, array($uuid, $type));
+        }
+
         $processingResult = new ProcessingResult();
         $isValid = $this->coverageValidator->validateId('uuid', self::COVERAGE_TABLE, $uuid, true);
         if ($isValid !== true) {
@@ -100,12 +106,22 @@ class InsuranceService extends BaseService
         } else {
             $processingResult->addInternalError("error processing SQL");
         }
-
         return $processingResult;
     }
 
     public function getAll($search = array(), $isAndCondition = true)
     {
+        //Handling when pid is sent
+        if (gettype($search) == "integer") {
+            $sql = "SELECT * FROM insurance_data WHERE pid=?";
+            $statementResults = sqlStatement($sql, array($search));
+            $results = array();
+            while ($row = sqlFetchArray($statementResults)) {
+                array_push($results, $row);
+            }
+            return $results;
+        }
+
         // Validating and Converting Patient UUID to PID
         // Validating and Converting UUID to ID
         if (isset($search['pid'])) {
