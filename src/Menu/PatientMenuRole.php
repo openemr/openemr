@@ -16,9 +16,16 @@ namespace OpenEMR\Menu;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\UserService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use OpenEMR\Menu\PatientMenuEvent;
 
 class PatientMenuRole extends MenuRole
 {
+    /*
+     * The event dispatcher we create in the constructor so we can let listeners know
+     * when we're rendering the menu.
+     */
+    protected $dispatcher;
 
     /**
      * Constructor
@@ -31,6 +38,7 @@ class PatientMenuRole extends MenuRole
         //   to functions in this class.
         parent::__construct();
         $this->menu_update_map["Modules"] = "updateModulesDemographicsMenu";
+        $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
     }
 
     /**
@@ -68,11 +76,18 @@ class PatientMenuRole extends MenuRole
                 }
             }
         }
+
+        // Parse the menu JSON and build the menu. Also, tell the EventDispatcher about the event
+        // so that 3rd party modules may modify the menu items
         $menu_parsed = json_decode(json_encode($menu_parsed));
         $this->menuUpdateEntries($menu_parsed);
+        $updatedPatientMenuEvent = $this->dispatcher->dispatch(PatientMenuEvent::MENU_UPDATE, new PatientMenuEvent($menu_parsed));
+
         $menu_restrictions = array();
-        $this->menuApplyRestrictions($menu_parsed, $menu_restrictions);
-        return $menu_restrictions;
+        $this->menuApplyRestrictions($updatedPatientMenuEvent->getMenu(), $menu_restrictions);
+        $updatedPatientMenuRestrictions = $this->dispatcher->dispatch(PatientMenuEvent::MENU_RESTRICT, new PatientMenuEvent($menu_restrictions));
+
+        return $updatedPatientMenuRestrictions->getMenu();
     }
 
     /**
