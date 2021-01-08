@@ -111,8 +111,11 @@ abstract class BaseValidator
             "SELECT $field FROM $table WHERE $field = ?",
             array($lookupId)
         );
-
-        return $result[$field] ? true : $validationResult;
+        if ($result[$field] == false) {
+            return $validationResult;
+        } else {
+            return true;
+        }
     }
 
     /**
