@@ -10,19 +10,17 @@ class RestApiCreateEvent extends Event
     private $route_map;
     private $fhir_route_map;
     private $portal_route_map;
-    private $portal_fhir_route_map;
 
     /**
      * RestApiCreateEvent constructor.
      * @param $route_map
      * @param $fhir_route_map
      */
-    public function __construct($route_map, $fhir_route_map, $portal_route_map, $portal_fhir_route_map)
+    public function __construct($route_map, $fhir_route_map, $portal_route_map)
     {
         $this->route_map = $route_map;
         $this->fhir_route_map = $fhir_route_map;
         $this->portal_route_map = $portal_route_map;
-        $this->portal_fhir_route_map = $portal_fhir_route_map;
     }
 
     /**
@@ -50,14 +48,6 @@ class RestApiCreateEvent extends Event
     }
 
     /**
-     * @return mixed
-     */
-    public function getPortalFHIRRouteMap()
-    {
-        return $this->portal_fhir_route_map;
-    }
-
-    /**
      * @param $route
      * @param $action
      */
@@ -82,14 +72,5 @@ class RestApiCreateEvent extends Event
     public function addToPortalRouteMap($route, $action)
     {
         $this->portal_route_map[$route] = $action;
-    }
-
-    /**
-     * @param $route
-     * @param $action
-     */
-    public function addToPortalFHIRRouteMap($route, $action)
-    {
-        $this->portal_fhir_route_map[$route] = $action;
     }
 }

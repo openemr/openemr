@@ -49,7 +49,7 @@ class SmartLaunchController
 
     public function renderPatientSmartLaunchSection(RenderEvent $event)
     {
-        if (empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_fhir_api'])) {
+        if (empty($GLOBALS['rest_fhir_api'])) {
             // do not show patient summary widget if fhir portal is off
             return;
         }
@@ -160,7 +160,7 @@ class SmartLaunchController
             if ($client->isEnabled() && $client->hasScope(self::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)) {
                 $smartList[] = $client;
             } else {
-                SystemLogger::instance()->debug(
+                (new SystemLogger())->debug(
                     "Skipping over client ",
                     [
                         "clientId" => $client->getIdentifier()

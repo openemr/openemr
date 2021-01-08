@@ -40,7 +40,7 @@ class HttpRestRouteHandler
             $matches = array();
             if ($method === $request_method && preg_match($pattern, $route, $matches)) {
                 array_shift($matches);
-                SystemLogger::instance()->debug("HttpRestRouteHandler->dispatch() dispatching route", ["route" => $routePath]);
+                (new SystemLogger())->debug("HttpRestRouteHandler->dispatch() dispatching route", ["route" => $routePath]);
                 $hasRoute = true;
                 $result = call_user_func_array($routeCallback, $matches);
                 if ($return_method === 'standard') {

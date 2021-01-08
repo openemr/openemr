@@ -5,7 +5,6 @@ namespace OpenEMR\Common\Logging;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
-use Waryway\PhpTraitsLibrary\Singleton;
 
 /**
  * Class SystemLogger logs information out to the syslog and is a compatible PSR3 logger.
@@ -19,8 +18,6 @@ use Waryway\PhpTraitsLibrary\Singleton;
  */
 class SystemLogger implements LoggerInterface
 {
-    use Singleton;
-
     /**
      * @var LoggerInterface;
      */
@@ -33,11 +30,18 @@ class SystemLogger implements LoggerInterface
          */
         $this->logger = new Logger('OpenEMR');
 
-        // Set log level per global setting (if set)
-        if (!empty($GLOBALS['system_error_logging']) && ($GLOBALS['system_error_logging'] == "DEBUG")) {
-            $logLevel = Logger::DEBUG;
-        } else {
-            $logLevel = Logger::WARNING;
+        // Override switch (this allows hard-coded setting of log level since there are several
+        //  cases that are outside of the globals context if the developer needs to turn on
+        //  DEBUG for them)
+        // $logLevel = Logger::DEBUG;
+
+        // Set log level per global setting (if set) if not hardcoded above
+        if (empty($logLevel)) {
+            if (!empty($GLOBALS['system_error_logging']) && ($GLOBALS['system_error_logging'] == "DEBUG")) {
+                $logLevel = Logger::DEBUG;
+            } else {
+                $logLevel = Logger::WARNING;
+            }
         }
 
 //        $facility = LOG_SYSLOG; // @see syslog constants https://www.php.net/manual/en/network.constants.php

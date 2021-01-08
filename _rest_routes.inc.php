@@ -19,7 +19,6 @@
 
 // Lets keep our controller classes with the routes.
 //
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\VersionRestController;
@@ -673,6 +672,9 @@ use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 
+// Note that the fhir route includes both user role and patient role
+//  (there is a mechanism in place to ensure patient role is binded
+//   to only see the data of the one patient)
 RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/metadata" => function () {
         $return = (new FhirMetaDataRestController())->getMetaData();
@@ -686,6 +688,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "POST /fhir/Patient" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Patient", "write");
         RestConfig::authorization_check("patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -694,6 +701,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "PUT /fhir/Patient/:id" => function ($id) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Patient", "write");
         RestConfig::authorization_check("patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -702,34 +714,67 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Patient" => function () {
-        RestConfig::scope_check("user", "Patient", "read");
-        RestConfig::authorization_check("patients", "demo");
-        $return = (new FhirPatientRestController())->getAll($_GET);
+        if (RestConfig::is_patient_binded()) {
+            // only allow access to data of binded patient
+            RestConfig::scope_check("patient", "Patient", "read");
+            $return = (new FhirPatientRestController())->getOne($_SESSION['puuid_string']);
+        } else {
+            RestConfig::scope_check("user", "Patient", "read");
+            RestConfig::authorization_check("patients", "demo");
+            $return = (new FhirPatientRestController())->getAll($_GET);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Patient/:id" => function ($id) {
-        RestConfig::scope_check("user", "Patient", "read");
-        RestConfig::authorization_check("patients", "demo");
+        if (RestConfig::is_patient_binded()) {
+            // only allow access to data of binded patient
+            RestConfig::scope_check("patient", "Patient", "read");
+            if (empty($id) || ($id != $_SESSION['puuid_string'])) {
+                http_response_code(401);
+                exit;
+            }
+            $id = $_SESSION['puuid_string'];
+        } else {
+            RestConfig::scope_check("user", "Patient", "read");
+            RestConfig::authorization_check("patients", "demo");
+        }
         $return = (new FhirPatientRestController())->getOne($id);
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Encounter" => function () {
-        RestConfig::scope_check("user", "Encounter", "read");
-        RestConfig::authorization_check("encounters", "auth_a");
+        if (RestConfig::is_patient_binded()) {
+            // only allow access to data of binded patient
+            RestConfig::scope_check("patient", "Encounter", "read");
+            $_GET['patient'] = $_SESSION['puuid_string'];
+        } else {
+            RestConfig::scope_check("user", "Encounter", "read");
+            RestConfig::authorization_check("encounters", "auth_a");
+        }
         $return = (new FhirEncounterRestController(null))->getAll($_GET);
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Encounter/:id" => function ($id) {
-        RestConfig::scope_check("user", "Encounter", "read");
-        RestConfig::authorization_check("encounters", "auth_a");
-        $return = (new FhirEncounterRestController())->getOne($id);
+        if (RestConfig::is_patient_binded()) {
+            // only allow access to data of binded patient
+            RestConfig::scope_check("patient", "Encounter", "read");
+            $return = (new FhirEncounterRestController(null))->getAll(['_id' => $id, 'patient' => $_SESSION['puuid_string']]);
+        } else {
+            RestConfig::scope_check("user", "Encounter", "read");
+            RestConfig::authorization_check("encounters", "auth_a");
+            $return = (new FhirEncounterRestController())->getOne($id);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Practitioner" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Practitioner", "read");
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirPractitionerRestController())->getAll($_GET);
@@ -737,6 +782,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Practitioner/:id" => function ($id) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Practitioner", "read");
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirPractitionerRestController())->getOne($id);
@@ -744,6 +794,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "POST /fhir/Practitioner" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Practitioner", "write");
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -752,6 +807,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "PUT /fhir/Practitioner/:id" => function ($id) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Practitioner", "write");
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -760,6 +820,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Organization" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Organization", "read");
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirOrganizationRestController())->getAll($_GET);
@@ -767,6 +832,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Organization/:id" => function ($id) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Organization", "read");
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirOrganizationRestController())->getOne($id);
@@ -774,6 +844,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "POST /fhir/Organization" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Organization", "write");
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -782,6 +857,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "PUT /fhir/Organization/:id" => function ($id) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Organization", "write");
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -790,6 +870,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/PractitionerRole" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "PractitionerRole", "read");
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirPractitionerRoleRestController())->getAll($_GET);
@@ -797,6 +882,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/PractitionerRole/:id" => function ($id) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "PractitionerRole", "read");
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirPractitionerRoleRestController())->getOne($id);
@@ -804,20 +894,37 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/AllergyIntolerance" => function () {
-        RestConfig::scope_check("user", "AllergyIntolerance", "read");
-        RestConfig::authorization_check("patients", "med");
+        if (RestConfig::is_patient_binded()) {
+            // only allow access to data of binded patient
+            RestConfig::scope_check("patient", "AllergyIntolerance", "read");
+            $_GET['patient'] = $_SESSION['puuid_string'];
+        } else {
+            RestConfig::scope_check("user", "AllergyIntolerance", "read");
+            RestConfig::authorization_check("patients", "med");
+        }
         $return = (new FhirAllergyIntoleranceRestController(null))->getAll($_GET);
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/AllergyIntolerance/:id" => function ($id) {
-        RestConfig::scope_check("user", "AllergyIntolerance", "read");
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirAllergyIntoleranceRestController(null))->getOne($id);
+        if (RestConfig::is_patient_binded()) {
+            // only allow access to data of binded patient
+            RestConfig::scope_check("patient", "AllergyIntolerance", "read");
+            $return = (new FhirAllergyIntoleranceRestController(null))->getAll(['_id' => $id, 'patient' => $_SESSION['puuid_string']]);
+        } else {
+            RestConfig::scope_check("user", "AllergyIntolerance", "read");
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirAllergyIntoleranceRestController(null))->getOne($id);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Observation" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Observation", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirObservationRestController())->getAll($_GET);
@@ -825,6 +932,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Observation/:uuid" => function ($uuid) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Observation", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirObservationRestController())->getOne($uuid);
@@ -832,6 +944,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Immunization" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Immunization", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirImmunizationRestController())->getAll($_GET);
@@ -839,6 +956,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Immunization/:id" => function ($id) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Immunization", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirImmunizationRestController())->getOne($id);
@@ -846,6 +968,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Condition" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Condition", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirConditionRestController())->getAll($_GET);
@@ -853,6 +980,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Condition/:id" => function ($uuid) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Condition", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirConditionRestController())->getOne($uuid);
@@ -860,6 +992,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Procedure" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Procedure", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirProcedureRestController())->getAll($_GET);
@@ -867,6 +1004,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Procedure/:uuid" => function ($uuid) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Procedure", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirProcedureRestController())->getOne($uuid);
@@ -874,6 +1016,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/MedicationRequest" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "MedicationRequest", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirMedicationRequestRestController())->getAll($_GET);
@@ -881,6 +1028,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/MedicationRequest/:uuid" => function ($uuid) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "MedicationRequest", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirMedicationRequestRestController())->getOne($uuid);
@@ -888,6 +1040,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Medication" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Medication", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirMedicationRestController())->getAll($_GET);
@@ -895,6 +1052,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Medication/:uuid" => function ($uuid) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Medication", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirMedicationRestController())->getOne($uuid);
@@ -902,6 +1064,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Location" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Location", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirLocationRestController())->getAll($_GET);
@@ -909,6 +1076,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Location/:uuid" => function ($uuid) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "Location", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirLocationRestController())->getOne($uuid);
@@ -916,6 +1088,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/CareTeam" => function () {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "CareTeam", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirCareTeamRestController())->getAll($_GET);
@@ -923,6 +1100,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/CareTeam/:uuid" => function ($uuid) {
+        if (RestConfig::is_patient_binded()) {
+            // patient binded endpoint not supported yet
+            http_response_code(404);
+            exit;
+        }
         RestConfig::scope_check("user", "CareTeam", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirCareTeamRestController())->getOne($uuid);
@@ -965,41 +1147,19 @@ RestConfig::$FHIR_ROUTE_MAP = array(
 RestConfig::$PORTAL_ROUTE_MAP = array(
     "GET /portal/patient" => function () {
         RestConfig::scope_check("patient", "patient", "read");
-        $return = (new PatientRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']));
+        $return = (new PatientRestController())->getOne($_SESSION['puuid_string']);
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /portal/patient/encounter" => function () {
         RestConfig::scope_check("patient", "encounter", "read");
-        $return = (new EncounterRestController())->getAll(UuidRegistry::uuidToString($_SESSION['puuid']));
+        $return = (new EncounterRestController())->getAll($_SESSION['puuid_string']);
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /portal/patient/encounter/:euuid" => function ($euuid) {
         RestConfig::scope_check("patient", "encounter", "read");
-        $return = (new EncounterRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']), $euuid);
-        RestConfig::apiLog($return);
-        return $return;
-    }
-);
-
-// Patient portal fhir api routes
-RestConfig::$PORTAL_FHIR_ROUTE_MAP = array(
-    "GET /portalfhir/Patient" => function () {
-        RestConfig::scope_check("patient", "Patient", "read");
-        $return = (new FhirPatientRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']));
-        RestConfig::apiLog($return);
-        return $return;
-    },
-    "GET /portalfhir/Encounter" => function () {
-        RestConfig::scope_check("patient", "Encounter", "read");
-        $return = (new FhirEncounterRestController(null))->getAll(['patient' => UuidRegistry::uuidToString($_SESSION['puuid'])]);
-        RestConfig::apiLog($return);
-        return $return;
-    },
-    "GET /portalfhir/Encounter/:id" => function ($id) {
-        RestConfig::scope_check("patient", "Encounter", "read");
-        $return = (new FhirEncounterRestController(null))->getAll(['_id' => $id, 'patient' => UuidRegistry::uuidToString($_SESSION['puuid'])]);
+        $return = (new EncounterRestController())->getOne($_SESSION['puuid_string'], $euuid);
         RestConfig::apiLog($return);
         return $return;
     }

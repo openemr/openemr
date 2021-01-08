@@ -92,7 +92,7 @@ class AuthorizationController
     public function __construct($providerForm = true)
     {
         $gbl = \RestConfig::GetInstance();
-        $this->logger = SystemLogger::instance();
+        $this->logger = new SystemLogger();
 
         $this->siteId = $_SESSION['site_id'] ?? $gbl::$SITE;
         $this->authBaseUrl = $GLOBALS['webroot'] . '/oauth2/' . $this->siteId;
@@ -384,7 +384,7 @@ class AuthorizationController
         // per RFC 7591 @see https://tools.ietf.org/html/rfc7591#section-2
         // TODO: adunsulag do we need to reject the registration if there are certain scopes here we do not support
         // TODO: adunsulag should we check these scopes against our '$this->supportedScopes'?
-        $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port api:pofh';
+        $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port';
 
         // if a public app requests the launch scope we also do not let them through unless they've been manually
         // authorized by an administrator user.
@@ -672,7 +672,7 @@ class AuthorizationController
     {
         $response = $this->createServerResponse();
 
-        $patientRoleSupport = (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_portal_fhir_api']));
+        $patientRoleSupport = (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_fhir_api']));
 
         if (empty($_POST['username']) && empty($_POST['password'])) {
             $this->logger->debug("AuthorizationController->userLogin() presenting blank login form");

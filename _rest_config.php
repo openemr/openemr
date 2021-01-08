@@ -42,9 +42,6 @@ class RestConfig
     /** @var portal routemap is an  of patterns and routes */
     public static $PORTAL_ROUTE_MAP;
 
-    /** @var portal fhir routemap is an  of patterns and routes */
-    public static $PORTAL_FHIR_ROUTE_MAP;
-
     /** @var app root is the root directory of the application */
     public static $APP_ROOT;
 
@@ -195,7 +192,7 @@ class RestConfig
 
     public static function verifyAccessToken()
     {
-        $logger = SystemLogger::instance();
+        $logger = new SystemLogger();
         $response = self::createServerResponse();
         $request = self::createServerRequest();
         $server = new ResourceServer(
@@ -313,6 +310,25 @@ class RestConfig
         }
     }
 
+    // Function to check if patient needs to be binded
+    public static function is_patient_binded()
+    {
+        $logger = new SystemLogger();
+        if (isset($_SESSION['bind_patient_id']) || isset($GLOBALS['bind_patient_id'])) {
+            $logger->debug("is_patient_binded(): patient is binded to the api call");
+            // ensure the proper parameters are set for patient binding or die
+            if (empty($_SESSION['pid']) || empty($_SESSION['puuid']) || empty($_SESSION['puuid_string'])) {
+                $logger->error("OpenEMR Error: is_patient_binded call failed because critical patient session variables were not set");
+                http_response_code(401);
+                exit;
+            }
+            return true;
+        } else {
+            $logger->debug("is_patient_binded(): patient is not binded to the api call (ie. user or system call with access to all patients)");
+            return false;
+        }
+    }
+
     public static function setLocalCall(): void
     {
         self::$localCall = true;
@@ -331,11 +347,6 @@ class RestConfig
     public static function is_portal_request($resource): bool
     {
         return stripos(strtolower($resource), "/portal/") !== false;
-    }
-
-    public static function is_portal_fhir_request($resource): bool
-    {
-        return stripos(strtolower($resource), "/portalfhir/") !== false;
     }
 
     public static function is_api_request($resource): bool

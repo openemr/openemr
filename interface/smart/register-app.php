@@ -32,7 +32,7 @@ require_once("../globals.php");
 require_once("./../../_rest_config.php");
 
 // exit if fhir api is not turned on
-if (empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_fhir_api'])) {
+if (empty($GLOBALS['rest_fhir_api'])) {
     die(xlt("Not Authorized"));
 }
 
