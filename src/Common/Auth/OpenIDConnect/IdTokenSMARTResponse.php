@@ -37,7 +37,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
         IdentityProviderInterface $identityProvider,
         ClaimExtractor $claimExtractor
     ) {
-        $this->logger = SystemLogger::instance();
+        $this->logger = new SystemLogger();
         parent::__construct($identityProvider, $claimExtractor);
     }
 

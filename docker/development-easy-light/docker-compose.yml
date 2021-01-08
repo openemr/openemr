@@ -50,7 +50,6 @@ services:
       OPENEMR_SETTING_rest_api: 1
       OPENEMR_SETTING_rest_fhir_api: 1
       OPENEMR_SETTING_rest_portal_api: 1
-      OPENEMR_SETTING_rest_portal_fhir_api: 1
       OPENEMR_SETTING_portal_onsite_two_enable: 1
       OPENEMR_SETTING_ccda_alt_service_enable: 3
     depends_on:

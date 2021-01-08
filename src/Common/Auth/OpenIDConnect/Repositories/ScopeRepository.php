@@ -37,7 +37,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     public function __construct()
     {
-        $this->logger = SystemLogger::instance();
+        $this->logger = new SystemLogger();
         $this->requestScopes = isset($_REQUEST['scope']) ? $_REQUEST['scope'] : null;
     }
 
@@ -98,7 +98,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     public function setRequestScopes($scopes)
     {
         if (!is_string($scopes)) {
-            SystemLogger::instance()->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
+            (new SystemLogger())->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
             throw new \InvalidArgumentException("Invalid scope parameter set");
         }
 
@@ -127,7 +127,6 @@ class ScopeRepository implements ScopeRepositoryInterface
             "api:oemr",
             "api:fhir",
             "api:port",
-            "api:pofh",
             "aud", //client_id
             "iat", // token create time
             "iss", // token issuer(https://domain)
@@ -153,8 +152,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "offline_access",
             "api:oemr",
             "api:fhir",
-            "api:port",
-            "api:pofh"
+            "api:port"
         ];
     }
 
@@ -169,8 +167,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "launch/patient",
             "api:oemr",
             "api:fhir",
-            "api:port",
-            "api:pofh"
+            "api:port"
         ];
     }
 
@@ -499,7 +496,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getCurrentSmartScopes(): array
     {
-        SystemLogger::instance()->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
+        (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
         $gbl = \RestConfig::GetInstance();
         $restHelper = new RestControllerHelper();
         // Collect all currently enabled FHIR resources.
@@ -516,15 +513,18 @@ class ScopeRepository implements ScopeRepositoryInterface
                         $scopeWrite = $resourceType . ".write";
                         switch ($interaction['code']) {
                             case 'read':
+                                $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
                                 $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
                                 $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
                                 break;
                             case 'search-type':
+                                $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
                                 $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
                                 $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
                                 break;
                             case 'insert':
                             case 'update':
+                                $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
                                 $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
                                 $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
                                 break;
@@ -533,35 +533,6 @@ class ScopeRepository implements ScopeRepositoryInterface
                 }
             }
         }
-        $scopes_api_portal = [];
-        if (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_portal_fhir_api'])) {
-            $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$PORTAL_FHIR_ROUTE_MAP);
-            foreach ($restAPIs as $resources) {
-                if (!empty($resources) && is_array($resources)) {
-                    foreach ($resources as $resource) {
-                        $interactions = $resource['interaction'];
-                        $resourceType = $resource['type'];
-                        foreach ($interactions as $interaction) {
-                            $scopeRead = $resourceType . ".read";
-                            $scopeWrite = $resourceType . ".write";
-                            switch ($interaction['code']) {
-                                case 'read':
-                                    $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                                    break;
-                                case 'search-type':
-                                    $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                                    break;
-                                case 'insert':
-                                case 'update':
-                                    $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        $scopes_api = array_merge($scopes_api, $scopes_api_portal);
 
         $scopesSupported = $this->fhirScopes();
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
@@ -579,14 +550,14 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         asort($scopesSupported);
         $scopesSupported = array_keys(array_merge($fhir, $oidc, $serverScopes, $scopesSupported));
-        SystemLogger::instance()->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
+        (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
 
         return $scopesSupported;
     }
 
     public function getCurrentStandardScopes(): array
     {
-        SystemLogger::instance()->debug("ScopeRepository->getCurrentSmartScopes() setting up standard api scopes");
+        (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() setting up standard api scopes");
         $gbl = \RestConfig::GetInstance();
         $restHelper = new RestControllerHelper();
         // Collect all currently enabled resources.
@@ -622,7 +593,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             }
         }
         $scopes_api_portal = [];
-        if (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_portal_fhir_api'])) {
+        if (!empty($GLOBALS['rest_portal_api'])) {
             $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$PORTAL_ROUTE_MAP, "OpenEMR\\Services");
             foreach ($restAPIs as $resources) {
                 if (!empty($resources) && is_array($resources)) {
@@ -671,9 +642,9 @@ class ScopeRepository implements ScopeRepositoryInterface
     public function buildScopeValidatorArray(): array
     {
         $requestScopeString = $this->getRequestScopes();
-        SystemLogger::instance()->debug("ScopeRepository->buildScopeValidatorArray() ", ["requestScopeString" => $requestScopeString]);
-        $isFhir = preg_match('(fhirUser|api:fhir|api:pofh)', $requestScopeString)
-            || preg_match('(fhirUser|api:fhir|api:pofh)', $_SESSION['scopes']);
+        (new SystemLogger())->debug("ScopeRepository->buildScopeValidatorArray() ", ["requestScopeString" => $requestScopeString]);
+        $isFhir = preg_match('(fhirUser|api:fhir)', $requestScopeString)
+            || preg_match('(fhirUser|api:fhir)', $_SESSION['scopes']);
         $isApi = preg_match('(api:oemr|api:port)', $requestScopeString)
             || preg_match('(api:oemr|api:port)', $_SESSION['scopes']);
 

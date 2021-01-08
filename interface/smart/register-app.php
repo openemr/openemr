@@ -30,7 +30,7 @@ $ignoreAuth = true;
 require_once("../globals.php");
 
 // exit if fhir api is not turned on
-if (empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_fhir_api'])) {
+if (empty($GLOBALS['rest_fhir_api'])) {
     die(xlt("Not Authorized"));
 }
 
@@ -78,7 +78,7 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                     ,"client_name": ""
                     ,"token_endpoint_auth_method": "client_secret_post"
                     ,"contacts": []
-                    ,"scope": "openid email phone address api:oemr api:fhir api:port api:pofh launch"
+                    ,"scope": "openid email phone address api:oemr api:fhir api:port launch"
                 };
                 appRegister.client_name = document.querySelector('#appName').value;
                 let redirect_uri = document.querySelector("#redirectUri").value;

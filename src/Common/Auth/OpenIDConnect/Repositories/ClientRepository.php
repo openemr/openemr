@@ -27,7 +27,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function __construct()
     {
-        $this->logger = SystemLogger::instance();
+        $this->logger = new SystemLogger();
     }
 
     /**

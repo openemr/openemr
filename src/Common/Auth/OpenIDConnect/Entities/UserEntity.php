@@ -43,10 +43,10 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             } else if ($userRole == 'patients') {
                 $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Patient/" . $this->identifier;
             } else {
-                SystemLogger::instance()->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
+                (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
             }
 
-            SystemLogger::instance()->debug("fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
+            (new SystemLogger())->debug("fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
 
             $user = $uuidToUser->getUserAccount();
             if (empty($user)) {
@@ -77,7 +77,6 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 'api:fhir' => true,
                 'api:oemr' => true,
                 'api:port' => true,
-                'api:pofh' => true,
             ];
         }
         if ($claimsType === 'client') {
@@ -86,7 +85,6 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 'api:fhir' => true,
                 'api:oemr' => true,
                 'api:port' => true,
-                'api:pofh' => true,
             ];
         }
         if (!empty($_SESSION['nonce'])) {
