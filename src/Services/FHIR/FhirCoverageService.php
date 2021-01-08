@@ -12,6 +12,17 @@ use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Validators\ProcessingResult;
 
+/**
+ * FHIR Coverage Service
+ *
+ * @coversDefaultClass OpenEMR\Services\FHIR\FhirCoverageService
+ * @package            OpenEMR
+ * @link               http://www.open-emr.org
+ * @author             Vishnu Yarmaneni <vardhanvishnu@gmail.com>
+ * @copyright          Copyright (c) 2021 Vishnu Yarmaneni <vardhanvishnu@gmail.com>
+ * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 class FhirCoverageService extends FhirServiceBase
 {
     /**

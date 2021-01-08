@@ -6,15 +6,16 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Vishnu Yarmaneni <vardhanvishnu@gmail.com>
+ * @copyright Copyright (c) 2021 Vishnu Yarmaneni <vardhanvishnu@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Validators\ProcessingResult;
 
 class OrganizationService extends BaseService
 {

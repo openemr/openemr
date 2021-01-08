@@ -15,8 +15,8 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Services\AddressService;
+use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Validators\CoverageValidator;
 use Particle\Validator\Validator;
 
@@ -26,7 +26,6 @@ class InsuranceService extends BaseService
     private const COVERAGE_TABLE = "insurance_data";
     private const PATIENT_TABLE = "patient_data";
     private const INSURANCE_TABLE = "insurance_companies";
-    private $uuidRegistry;
     private $coverageValidator;
     private $addressService = null;
 
@@ -37,12 +36,9 @@ class InsuranceService extends BaseService
     public function __construct()
     {
         $this->addressService = new AddressService();
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::COVERAGE_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::COVERAGE_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        $this->uuidRegistry->createMissingUuids();
         (new UuidRegistry(['table_name' => self::INSURANCE_TABLE]))->createMissingUuids();
-        $this->uuidRegistry->createMissingUuids();
         $this->coverageValidator = new CoverageValidator();
     }
 

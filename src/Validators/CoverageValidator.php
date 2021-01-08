@@ -3,9 +3,6 @@
 namespace OpenEMR\Validators;
 
 use Particle\Validator\Validator;
-use Particle\Validator\Exception\InvalidValueException;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 /**
  * Supports Insurance Coverage Record Validation.
@@ -13,6 +10,7 @@ use Ramsey\Uuid\Exception\InvalidUuidStringException;
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Vishnu Yarmaneni <vardhanvishnu@gmail.com>
+ * @copyright Copyright (c) 2021 Vishnu Yarmaneni <vardhanvishnu@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class CoverageValidator extends BaseValidator
