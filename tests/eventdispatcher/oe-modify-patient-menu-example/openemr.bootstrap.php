@@ -1,6 +1,11 @@
 <?php
+
 /**
- * Bootstrap custom Patient Privacy module.
+ * Bootstrap custom Patient Menu Module
+ *
+ * This is the main file for the example module that demonstrates the ability
+ * to modify the patient menu tabs on the demographics dashboard using a
+ * module and the EventDispatcher.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -20,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 function oe_module_custom_patient_menu(PatientMenuEvent $menuEvent)
 {
-    $menu = file_get_contents(__DIR__.'/custom_patient_menu.json');
+    $menu = file_get_contents(__DIR__ . '/custom_patient_menu.json');
     $menu_parsed = json_decode($menu);
     $menuEvent->setMenu($menu_parsed);
     return $menuEvent;
@@ -29,5 +34,3 @@ function oe_module_custom_patient_menu(PatientMenuEvent $menuEvent)
 // Listen for the menu update event so we can dynamically add our patient privacy menu item
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 $eventDispatcher->addListener(PatientMenuEvent::MENU_UPDATE, 'oe_module_custom_patient_menu');
-
-
