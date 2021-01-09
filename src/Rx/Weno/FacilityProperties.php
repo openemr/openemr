@@ -56,7 +56,7 @@ class FacilityProperties
             "AND COLUMN_NAME = 'weno_id'";
         $exist = sqlQuery($sql);
         if (empty($exist)) {
-            sqlStatement("ALTER TABLE `facility` ADD `weno_id` VARCHAR(10) NULL DEFAULT NULL AFTER `oid`;");
+            sqlStatement("ALTER TABLE `facility` ADD `weno_id` VARCHAR(10) NULL DEFAULT NULL;");
         }
     }
 }

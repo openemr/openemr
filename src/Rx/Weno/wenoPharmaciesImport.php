@@ -19,7 +19,7 @@ class wenoPharmaciesImport
 
     public function __construct()
     {
-        $this->filename = "../../../contrib/weno/WenoPharmacyDirectory2020-12-13.csv";
+        $this->filename = $GLOBALS['fileroot'] . "/contrib/weno/WenoPharmacyDirectory2020-12-13.csv";
         $this->state = $this->getState();
     }
 

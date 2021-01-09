@@ -248,7 +248,7 @@ class Pharmacy extends ORDataObject
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
             "INNER JOIN addresses AS a ON p.id = a.foreign_id " . $city . " " . add_escape_custom($sort) .
-            " WHERE state = " . $this->state;
+            " WHERE state = " . add_escape_custom($this->state);
 
         //echo $sql . "<bR />";
         $results = sqlQ($sql);
@@ -287,7 +287,7 @@ class Pharmacy extends ORDataObject
 
     function totalPages()
     {
-        $sql = "select count(*) AS numberof from " . $this->_table;
+        $sql = "select count(*) AS numberof from " . escape_table_name($this->_table);
         $count = sqlQuery($sql);
         return $count['numberof'];
     }
