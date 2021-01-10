@@ -101,7 +101,7 @@ class InsuranceCompanyService extends BaseService
         $sql = "SELECT * FROM insurance_companies WHERE id=?";
         return sqlQuery($sql, array($id));
     }
-    
+
     public function getOne($uuid)
     {
         $processingResult = new ProcessingResult();
