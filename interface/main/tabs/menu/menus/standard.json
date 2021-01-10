@@ -1244,18 +1244,24 @@
             "acl_req": [
               "admin",
               "super"
-            ]
+            ],
+              "global_req": [
+                  "weno_rx_enable"
+              ]
           },
             {
                 "label":"Prescription Management",
-                "menu_id":"dem1",
-                "target":"pat",
+                "menu_id":"adm0",
+                "target":"adm",
                 "url":"/interface/weno/rxlogmanager.php",
                 "children":[],
                 "requirement":0,
                 "acl_req": [
-                    "patients",
+                    "super",
                     "rx"
+                ],
+                "global_req": [
+                    "weno_rx_enable"
                 ]
             }
         ],

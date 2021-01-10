@@ -9,7 +9,6 @@
  */
 
 require_once("../globals.php");
-require_once($GLOBALS["srcdir"] . "/formatting.inc.php");
 
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Rx\Weno\Container;

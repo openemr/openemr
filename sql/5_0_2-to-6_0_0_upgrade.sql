@@ -2440,3 +2440,6 @@ VALUES
 (NULL, "SARS-COV-2 (COVID-19) vaccine, vector non-replicating, recombinant spike protein-ChAdOx1, preservative free, 0.5 mL ", "COVID-19 vaccine, vector-nr, rS-ChAdOx1, PF, 0.5 mL", 210, @codetypeid, '', 0, 0, '', '', '', 1);
 #EndIf
 
+#IfNotColumnType facility weno_id
+ALTER TABLE `facility` ADD `weno_id` VARCHAR(10) NULL DEFAULT NULL
+#EndIf

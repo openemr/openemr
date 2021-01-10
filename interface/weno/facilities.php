@@ -14,11 +14,13 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\FacilityProperties;
 
-$data = new FacilityProperties();
-
-if ($GLOBALS['weno_rx_enable']) {
-    $data->ifcolumexist();
+//ensure user has proper access
+if (!AclMain::aclCheckCore('admin', 'acl')) {
+    echo xlt('ACL Administration Not Authorized');
+    exit;
 }
+
+$data = new FacilityProperties();
 
 if ($_POST) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"])) {
@@ -33,10 +35,6 @@ $facilities = $data->getFacilities();
 ?>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><?php echo xlt('Weno Admin'); ?></title>
     <?php Header::setupHeader(); ?>
     <style>
@@ -49,7 +47,7 @@ $facilities = $data->getFacilities();
 <div class="container"><br><br>
     <h1><?php print xlt("Facility ID's") ?></h1>
 
-    <form name="wenofacilityinfo" method="post" action="facilities.php" onsubmit="return top.restoreSession()>
+    <form name="wenofacilityinfo" method="post" action="facilities.php" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
     <table class="table">
         <thead>
@@ -64,7 +62,7 @@ $facilities = $data->getFacilities();
         foreach ($facilities as $facility) {
               print "<tr>";
               print "<td><input type='hidden' name='location" . $i . "[]' value='" . text($facility['id']) . "'></td>";
-              print "<td>" . text($facility["name"]) . "</td><td>" . text($facility['street'])
+              print "<td>" . text($facility["name"]) . "</td><td>" . attr($facility['street'])
                    . "</td><td>" . text($facility['city']) . "</td><td><input type='text' id='weno_id' name='location" . $i
                   . "[]' value='" . text($facility['weno_id']) . "'></td>";
               print "</tr>";
@@ -72,14 +70,14 @@ $facilities = $data->getFacilities();
         }
         ?>
     </table>
-        <input type="<?php echo xlt('submit'); ?>" value="update" id="save_weno_id" class="btn_primary">
+        <input type="<?php echo xla('Submit'); ?>" value="update" id="save_weno_id" class="btn_primary">
     </form>
 
     <div style="padding-top: 20px">
         <h3><?php echo xlt('Import/Update Pharmacies') ?></h3>
             <div id="importstatus" style="padding-top: 15px">
                 <button class="btn btn-primary" id="connected" title="<?php echo xla("Weno Connected Phamacies Only");?>">
-                    <i id="loading" class="fa fa-sync fa-spin hide"></i><?php echo xlt(' Import/Update')?></button>
+                    <i id="loading" class="fa fa-sync fa-spin hide"></i><?php echo xlt('Import/Update')?></button>
             </div>
     </div>
 

@@ -13,6 +13,12 @@ require_once("logsync.php");
 
 use OpenEMR\Rx\Weno\Container;
 
+//ensure user has proper access
+if (!AclMain::aclCheckCore('patient', 'rx')) {
+    echo xlt('ACL Administration Not Authorized');
+    exit;
+}
+
 $container = new Container();
 
 $wenoProperties = $container->getTransmitproperties();

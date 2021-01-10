@@ -32,7 +32,7 @@ class TransmitProperties
      */
     public function __construct()
     {
-             $this->cryptoGen = new Crypto\CryptoGen();
+             $this->cryptoGen = new CryptoGen();
                  $this->ncpdp = $this->getPharmacy();
                 $this->vitals = $this->getVitals();
                $this->patient = $this->getPatientInfo();
@@ -178,7 +178,7 @@ class TransmitProperties
         $uid = $_SESSION['authUserID'];
         $sql = "select setting_value from user_settings where setting_user = ? and setting_label = 'global:weno_provider_password'";
         $prov_pass = sqlQuery($sql, [$uid]);
-        if ($prov_pass['setting_value']) {
+        if (!empty($prov_pass['setting_value'])) {
             return $this->cryptoGen->decryptStandard($prov_pass['setting_value']);
         } else {
             echo xlt('Password is missing');

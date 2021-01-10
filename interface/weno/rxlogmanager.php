@@ -12,6 +12,12 @@ require_once("../globals.php");
 
 use OpenEMR\Rx\Weno\Container;
 
+//ensure user has proper access
+if (!AclMain::aclCheckCore('patient', 'rx')) {
+    echo xlt('ACL Administration Not Authorized');
+    exit;
+}
+
 $container = new Container();
 $log_review = $container->getLogproperties();
 $wenoProperties = $container->getTransmitproperties();
