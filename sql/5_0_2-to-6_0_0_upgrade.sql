@@ -2441,5 +2441,5 @@ VALUES
 #EndIf
 
 #IfNotColumnType facility weno_id
-ALTER TABLE `facility` ADD `weno_id` VARCHAR(10) NULL DEFAULT NULL
+ALTER TABLE `facility` ADD `weno_id` VARCHAR(10) DEFAULT NULL;
 #EndIf

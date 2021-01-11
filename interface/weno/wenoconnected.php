@@ -10,6 +10,8 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
+
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'super')) {
     echo xlt('ACL Administration Not Authorized');

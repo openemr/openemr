@@ -1653,7 +1653,7 @@ CREATE TABLE `facility` (
   `oid` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted',
   `iban` varchar(50) default NULL,
   `info` TEXT,
-  `weno_id` VARCHAR(10) NULL DEFAULT NULL,
+  `weno_id` VARCHAR(10) DEFAULT NULL,
   UNIQUE KEY `uuid` (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4;

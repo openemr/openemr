@@ -9,12 +9,12 @@
  */
 
 require_once("../globals.php");
-require_once("logsync.php");
 
 use OpenEMR\Rx\Weno\Container;
+use OpenEMR\Common\Acl\AclMain;
 
 //ensure user has proper access
-if (!AclMain::aclCheckCore('patient', 'rx')) {
+if (!AclMain::aclCheckCore('patients', 'rx')) {
     echo xlt('ACL Administration Not Authorized');
     exit;
 }
@@ -24,6 +24,8 @@ $container = new Container();
 $wenoProperties = $container->getTransmitproperties();
 $provider_info = $wenoProperties->getProviderEmail();
 $urlParam = $wenoProperties->cipherpayload();          //lets encrypt the data
+$logsync = $container->getLogproperties();
+$logsync->logSync();
 $newRxUrl = "https://online.wenoexchange.com/en/NewRx/ComposeRx?useremail=";
 if ($urlParam == 'error') {   //check to make sure there were no errors
     echo xlt("Cipher failure check encryption key");
@@ -38,6 +40,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
 </head>
 <body >
 <?php
+    //**warning** do not add urlencode to  $provider_info['email']
     $urlOut = $newRxUrl . $provider_info['email'] . "&data=" . urlencode($urlParam);
     //echo $urlOut; die;  //troubleshooting
     header("Location: " . $urlOut);

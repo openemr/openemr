@@ -1230,8 +1230,7 @@
               "super"
             ],
             "global_req": [
-              "erx_enable",
-              "newcrop_user_role"
+              "erx_enable"
             ]
           },
           {
@@ -1243,7 +1242,7 @@
             "requirement":0,
             "acl_req": [
               "admin",
-              "super"
+              "patients"
             ],
               "global_req": [
                   "weno_rx_enable"
@@ -1257,7 +1256,7 @@
                 "children":[],
                 "requirement":0,
                 "acl_req": [
-                    "super",
+                    "patients",
                     "rx"
                 ],
                 "global_req": [

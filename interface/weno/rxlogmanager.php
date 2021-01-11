@@ -11,9 +11,10 @@
 require_once("../globals.php");
 
 use OpenEMR\Rx\Weno\Container;
+use OpenEMR\Common\Acl\AclMain;
 
 //ensure user has proper access
-if (!AclMain::aclCheckCore('patient', 'rx')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     echo xlt('ACL Administration Not Authorized');
     exit;
 }
