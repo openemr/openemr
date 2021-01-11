@@ -82,7 +82,7 @@ class LogProperties
         ];
         $plaintext = json_encode($p);                //json encode email and password
         if ($this->enc_key && $md5) {
-            return base64_encode(openssl_encrypt($plaintext, $this->method, $this->key, OPENSSL_RAW_DATA, $this->iv));;
+            return base64_encode(openssl_encrypt($plaintext, $this->method, $this->key, OPENSSL_RAW_DATA, $this->iv));
         } else {
             return "error";
         }
@@ -103,7 +103,7 @@ class LogProperties
         ];
         $plaintext = json_encode($p);                //json encode email and password
         if ($this->enc_key && $md5) {
-            return base64_encode(openssl_encrypt($plaintext, $this->method, $this->key, OPENSSL_RAW_DATA, $this->iv));;
+            return base64_encode(openssl_encrypt($plaintext, $this->method, $this->key, OPENSSL_RAW_DATA, $this->iv));
         } else {
             return "error";
         }
@@ -152,7 +152,7 @@ class LogProperties
     public function doesLogFileExist()
     {
         if (file_exists($this->rxsynclog)) {
-            return date ("F d Y", filemtime($this->rxsynclog));
+            return date("F d Y", filemtime($this->rxsynclog));
         } else {
             return false;
         }
@@ -266,4 +266,3 @@ class LogProperties
         }
     }
 }
-
