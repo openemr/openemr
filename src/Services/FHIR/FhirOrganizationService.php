@@ -160,6 +160,14 @@ class FhirOrganizationService extends FhirServiceBase
             $organizationResource->addIdentifier($fhirIdentifier);
         }
 
+        if (isset($dataRecord['cms_id'])) {
+            $fhirIdentifier = [
+                'system' => "http://hl7.org/fhir/v2/0203",
+                'value' => $dataRecord['cms_id']
+            ];
+            $organizationResource->addIdentifier($fhirIdentifier);
+        }
+
         if (isset($dataRecord['domain_identifier'])) {
             $fhirIdentifier = [
                 'system' => "urn:oid:2.16.840.1.113883.4.7",
