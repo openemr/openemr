@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
+
 class UserService
 {
     /**
@@ -29,6 +31,14 @@ class UserService
     public function getUser($userId)
     {
         return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$userId]);
+    }
+
+    /**
+     * @return array hydrated user object
+     */
+    public function getUserByUsername($username)
+    {
+        return sqlQuery("SELECT * FROM `users` WHERE `username` = ?", [$username]);
     }
 
     /**
@@ -50,5 +60,17 @@ class UserService
     public function getCurrentlyLoggedInUser()
     {
         return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$_SESSION['authUserID']]);
+    }
+
+    /**
+     * Returns a user by the given UUID.  Can take a byte string or a UUID in string format.
+     * @param $userId string
+     */
+    public function getUserByUUID($uuid) {
+        if (is_string($uuid)) {
+            $uuid = UuidRegistry::uuidToBytes($uuid);
+        }
+
+        return sqlQuery("SELECT * FROM `users` WHERE `uuid` = ?", [$uuid]);
     }
 }

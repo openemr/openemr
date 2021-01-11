@@ -124,6 +124,15 @@ class AclMain
     }
 
     /**
+     * Clear the GACL Cache.  We use this in Unit Tests, but this function should be avoided to prevent smashing
+     * the database.
+     */
+    public static function clearGaclCache() {
+        $object = self::collectGaclObject();
+        $object->clear_cache();
+    }
+
+    /**
      * Check if a user has a given type or types of access to an access control object.
      *
      * This function will check for access to the given ACO.

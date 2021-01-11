@@ -27,7 +27,6 @@ use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
-use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
@@ -53,6 +52,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
+use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
@@ -78,6 +78,11 @@ class AuthorizationController
     private $userId;
 
     /**
+     * @var SMARTAuthorizationController
+     */
+    private $smartAuthController;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -100,6 +105,9 @@ class AuthorizationController
         $this->configKeyPairs();
         // true will display client/user server sign in. false, not.
         $this->providerForm = $providerForm;
+
+        $this->smartAuthController = new SMARTAuthorizationController($this->logger, $this->authBaseFullUrl
+            , $this->authBaseUrl . "/device/code", __DIR__ . "/../../oauth2/");
     }
 
     private function configKeyPairs(): void
@@ -538,7 +546,8 @@ class AuthorizationController
                 exit;
             }
         } catch (OAuthServerException $exception) {
-            $this->logger->error("AuthorizationController->oauthAuthorizationFlow() OAuthServerException", ["message" => $exception->getMessage()]);
+            $this->logger->error("AuthorizationController->oauthAuthorizationFlow() OAuthServerException",
+                ["message" => $exception->getMessage(), 'hint' => $exception->getHint()]);
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
@@ -735,9 +744,43 @@ class AuthorizationController
         $user->setIdentifier($_SESSION['user_id']);
         $_SESSION['claims'] = $user->getClaims();
         $oauthLogin = true;
-        $redirect = $this->authBaseUrl . "/device/code";
+        // need to redirect to patient select if we have a launch context && this isn't a patient login
         $authorize = 'authorize';
-        require_once(__DIR__ . "/../../oauth2/provider/login.php");
+
+        // if we need to authorize any smart context as part of our OAUTH handler we do that here
+        // otherwise we send on to our scope authorization confirm.
+        if ($this->smartAuthController->needSmartAuthorization()) {
+            $redirect = $this->authBaseFullUrl . $this->smartAuthController->getSmartAuthorizationPath();
+        } else {
+            $redirect = $this->authBaseFullUrl . "/scope-authorize-confirm";
+        }
+
+        header("Location: $redirect");
+        exit;
+    }
+
+    public function scopeAuthorizeConfirm() {
+
+        // show our scope auth piece
+        $redirect = $this->authBaseUrl . "/device/code";
+        require_once(__DIR__ . "/../../oauth2/provider/scope-authorize.php");
+    }
+
+    /**
+     * Checks if we are in a SMART authorization endpoint
+     * @param $end_point
+     * @return bool
+     */
+    public function isSMARTAuthorizationEndPoint($end_point) {
+        return $this->smartAuthController->isValidRoute($end_point);
+    }
+
+    /**
+     * Route handler for any SMART authorization contexts that we need for OpenEMR
+     * @param $end_point
+     */
+    public function dispatchSMARTAuthorizationEndpoint($end_point) {
+        return $this->smartAuthController->dispatchRoute($end_point);
     }
 
     private function verifyLogin($username, $password, $email = '', $type = 'api'): bool

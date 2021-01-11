@@ -104,6 +104,15 @@ if (false !== stripos($end_point, '/login')) {
     $authServer->userLogin();
     exit;
 }
+if ($authServer->isSMARTAuthorizationEndPoint($end_point)) {
+    $authServer->dispatchSMARTAuthorizationEndpoint($end_point);
+}
+
+if (false !== stripos($end_point, '/scope-authorize-confirm')) {
+    // session is maintained
+    $authServer->scopeAuthorizeConfirm();
+    exit;
+}
 
 if (false !== stripos($end_point, '/registration')) {
     // session is destroyed within below function
