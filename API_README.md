@@ -82,6 +82,7 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 -   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
     -   [FHIR Capability Statement](FHIR_README.md#capability-statement)
     -   [FHIR Patient](FHIR_README.md#patient-resource)
+    -   [FHIR Coverage](FHIR_README.md#coverage-resource)
     -   [FHIR Encounter](FHIR_README.md#encounter-resource)
     -   [FHIR Practitioner](FHIR_README.md#practitioner-resource)
     -   [FHIR PractitionerRole](FHIR_README.md#practitionerrole-resource)
