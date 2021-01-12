@@ -2970,6 +2970,7 @@ CREATE TABLE `immunizations` (
 DROP TABLE IF EXISTS `insurance_companies`;
 CREATE TABLE `insurance_companies` (
   `id` int(11) NOT NULL default '0',
+  `uuid` binary(16)   DEFAULT NULL,
   `name` varchar(255) default NULL,
   `attn` varchar(255) default NULL,
   `cms_id` varchar(15) default NULL,
@@ -2980,7 +2981,8 @@ CREATE TABLE `insurance_companies` (
   `inactive` int(1) NOT NULL DEFAULT '0',
   `eligibility_id` VARCHAR(32) default NULL,
   `x12_default_eligibility_id` INT(11) default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -2992,6 +2994,7 @@ CREATE TABLE `insurance_companies` (
 DROP TABLE IF EXISTS `insurance_data`;
 CREATE TABLE `insurance_data` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16)   DEFAULT NULL,
   `type` enum('primary','secondary','tertiary') default NULL,
   `provider` varchar(255) default NULL,
   `plan_name` varchar(255) default NULL,
@@ -3022,6 +3025,7 @@ CREATE TABLE `insurance_data` (
   `accept_assignment` varchar(5) NOT NULL DEFAULT 'TRUE',
   `policy_type` varchar(25) NOT NULL default '',
   PRIMARY KEY  (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 

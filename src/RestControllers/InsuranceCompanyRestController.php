@@ -35,7 +35,7 @@ class InsuranceCompanyRestController
 
     public function getOne($iid)
     {
-        $serviceResult = $this->insuranceCompanyService->getOne($iid);
+        $serviceResult = $this->insuranceCompanyService->getOneById($iid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 

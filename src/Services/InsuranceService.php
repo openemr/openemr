@@ -14,13 +14,32 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\AddressService;
+use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Validators\CoverageValidator;
 use Particle\Validator\Validator;
 
-class InsuranceService
+class InsuranceService extends BaseService
 {
 
+    private const COVERAGE_TABLE = "insurance_data";
+    private const PATIENT_TABLE = "patient_data";
+    private const INSURANCE_TABLE = "insurance_companies";
+    private $coverageValidator;
+    private $addressService = null;
+
+
+    /**
+     * Default constructor.
+     */
     public function __construct()
     {
+        $this->addressService = new AddressService();
+        (new UuidRegistry(['table_name' => self::COVERAGE_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::INSURANCE_TABLE]))->createMissingUuids();
+        $this->coverageValidator = new CoverageValidator();
     }
 
     public function validate($data)
@@ -60,25 +79,107 @@ class InsuranceService
         return $validator->validate($data);
     }
 
-    public function getOne($pid, $type)
+    public function getOneByPid($id, $type)
     {
         $sql = "SELECT * FROM insurance_data WHERE pid=? AND type=?";
-
-        return sqlQuery($sql, array($pid, $type));
+            return sqlQuery($sql, array($id, $type));
     }
 
-    public function getAll($pid)
+    public function getOne($uuid)
     {
-        $sql = "SELECT * FROM insurance_data WHERE pid=?";
 
-        $statementResults = sqlStatement($sql, array($pid));
+        $processingResult = new ProcessingResult();
+        $isValid = $this->coverageValidator->validateId('uuid', self::COVERAGE_TABLE, $uuid, true);
+        if ($isValid !== true) {
+            return $isValid;
+        }
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $sql = "SELECT * FROM insurance_data WHERE uuid=? ";
 
-        $results = array();
-        while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
+        $sqlResult = sqlQuery($sql, array($uuidBytes));
+        if ($sqlResult) {
+            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
+            $processingResult->addData($sqlResult);
+        } else {
+            $processingResult->addInternalError("error processing SQL");
+        }
+        return $processingResult;
+    }
+
+    public function getAll($search = array(), $isAndCondition = true)
+    {
+
+        // Validating and Converting Patient UUID to PID
+        // Validating and Converting UUID to ID
+        if (isset($search['pid'])) {
+            $isValidcondition = $this->coverageValidator->validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $search['pid'],
+                true
+            );
+            if ($isValidcondition !== true) {
+                return $isValidcondition;
+            }
+            $puuidBytes = UuidRegistry::uuidToBytes($search['pid']);
+            $search['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        }
+        // Validating and Converting Payor UUID to provider
+        if (isset($search['provider'])) {
+            $isValidcondition = $this->coverageValidator->validateId(
+                'uuid',
+                self::INSURANCE_TABLE,
+                $search['provider'],
+                true
+            );
+            if ($isValidcondition !== true) {
+                return $isValidcondition;
+            }
+            $uuidBytes = UuidRegistry::uuidToBytes($search['provider']);
+            $search['provider'] = $this->getIdByUuid($uuidBytes, self::INSURANCE_TABLE, "provider");
         }
 
-        return $results;
+        // Validating and Converting UUID to ID
+        if (isset($search['id'])) {
+            $isValidcondition = $this->coverageValidator->validateId(
+                'uuid',
+                self::COVERAGE_TABLE,
+                $search['id'],
+                true
+            );
+            if ($isValidcondition !== true) {
+                return $isValidcondition;
+            }
+            $uuidBytes = UuidRegistry::uuidToBytes($search['id']);
+            $search['id'] = $this->getIdByUuid($uuidBytes, self::COVERAGE_TABLE, "id");
+        }
+        $sqlBindArray = array();
+        $sql = "SELECT * FROM insurance_data ";
+        if (!empty($search)) {
+            $sql .= ' WHERE ';
+            $whereClauses = array();
+            foreach ($search as $fieldName => $fieldValue) {
+                array_push($whereClauses, $fieldName . ' = ?');
+                array_push($sqlBindArray, $fieldValue);
+            }
+            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
+            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
+        }
+        $statementResults = sqlStatement($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $patientuuidBytes = $this->getUuidById($row['pid'], self::PATIENT_TABLE, "id");
+            $row['puuid'] = UuidRegistry::uuidToString($patientuuidBytes);
+            $insureruuidBytes = $this->getUuidById($row['provider'], self::INSURANCE_TABLE, "id");
+            //When No provider data is available
+            if (strlen($insureruuidBytes) > 0) {
+                $row['insureruuid'] = UuidRegistry::uuidToString($insureruuidBytes);
+                $processingResult->addData($row);
+            }
+        }
+        return $processingResult;
     }
 
     public function doesInsuranceTypeHaveEntry($pid, $type)
