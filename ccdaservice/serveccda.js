@@ -753,6 +753,7 @@ function populateProcedure(pd) {
         "procedure": {
             "name": pd.description,
             "code": pd.code,
+            "code_system": "2.16.840.1.113883.6.12",
             "code_system_name": "CPT4"
         },
         "identifiers": [{
