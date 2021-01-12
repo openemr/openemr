@@ -163,8 +163,8 @@ This is a listing of scopes:
 - `api:fhir` (user fhir which are the /fhir/ endpoints)
   - `user/AllergyIntolerance.read`
   - `user/CareTeam.read`
-  - `user/Coverage.read`
   - `user/Condition.read`
+  - `user/Coverage.read`
   - `user/Encounter.read`
   - `user/Immunization.read`
   - `user/Location.read`
