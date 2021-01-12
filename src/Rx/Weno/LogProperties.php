@@ -52,7 +52,7 @@ class LogProperties
         $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/logsync.csv";
         $this->enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
         $this->key = substr(hash('sha256', $this->enc_key, true), 0, 32);
-        $this->iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
+        $this->iv = chr(0x1) . chr(0x2) . chr(0x3) . chr(0x5) . chr(0x7) . chr(0x9) . chr(0x0) . chr(0x1) . chr(0x2) . chr(0x3) . chr(0x5) . chr(0x7) . chr(0x9) . chr(0x0) . chr(0x1) . chr(0x2);
         $this->provider = $this->container->getTransmitproperties();
     }
 

@@ -162,7 +162,7 @@ class TransmitProperties
         $enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
         if ($enc_key) {
             $key = substr(hash('sha256', $enc_key, true), 0, 32);
-            $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
+            $iv = chr(0x1) . chr(0x2) . chr(0x3) . chr(0x5) . chr(0x7) . chr(0x9) . chr(0x0) . chr(0x1) . chr(0x2) . chr(0x3) . chr(0x5) . chr(0x7) . chr(0x9) . chr(0x0) . chr(0x1) . chr(0x2);
             $ciphertext = base64_encode(openssl_encrypt($this->payload, $cipher, $key, OPENSSL_RAW_DATA, $iv));
             return $ciphertext;
         } else {
