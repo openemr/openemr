@@ -64,6 +64,8 @@ class AuthorizationController
 {
     use CryptTrait;
 
+    const ENDPOINT_SCOPE_AUTHORIZE_CONFIRM = "/scope-authorize-confirm";
+
     public $authBaseUrl;
     public $authBaseFullUrl;
     public $siteId;
@@ -107,7 +109,7 @@ class AuthorizationController
         $this->providerForm = $providerForm;
 
         $this->smartAuthController = new SMARTAuthorizationController($this->logger, $this->authBaseFullUrl
-            , $this->authBaseUrl . "/device/code", __DIR__ . "/../../oauth2/");
+            , $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM, __DIR__ . "/../../oauth2/");
     }
 
     private function configKeyPairs(): void
@@ -752,7 +754,7 @@ class AuthorizationController
         if ($this->smartAuthController->needSmartAuthorization()) {
             $redirect = $this->authBaseFullUrl . $this->smartAuthController->getSmartAuthorizationPath();
         } else {
-            $redirect = $this->authBaseFullUrl . "/scope-authorize-confirm";
+            $redirect = $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM;
         }
 
         header("Location: $redirect");
@@ -762,6 +764,7 @@ class AuthorizationController
     public function scopeAuthorizeConfirm() {
 
         // show our scope auth piece
+        $oauthLogin = true;
         $redirect = $this->authBaseUrl . "/device/code";
         require_once(__DIR__ . "/../../oauth2/provider/scope-authorize.php");
     }

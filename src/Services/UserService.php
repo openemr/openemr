@@ -71,6 +71,80 @@ class UserService
             $uuid = UuidRegistry::uuidToBytes($uuid);
         }
 
-        return sqlQuery("SELECT * FROM `users` WHERE `uuid` = ?", [$uuid]);
+        $user = sqlQuery("SELECT * FROM `users` WHERE `uuid` = ?", [$uuid]);
+        // this is very annoying...
+        if (!empty($user)) {
+            $user['uuid'] = UuidRegistry::uuidToString($user['uuid']);
+        }
+        return $user;
+    }
+
+    /**
+     * Returns a list of users matching optional search criteria.
+     * Search criteria is conveyed by array where key = field/column name, value = field value.
+     * If no search criteria is provided, all records are returned.
+     *
+     * @param  $search search array parameters
+     * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @return array of users that matched the results.
+     */
+    public function getAll($search = array(), $isAndCondition = true)
+    {
+        $sqlBindArray = array();
+
+        $sql = "SELECT  id,
+                        uuid,
+                        users.title as title,
+                        fname,
+                        lname,
+                        mname,
+                        federaltaxid,
+                        federaldrugid,
+                        upin,
+                        facility_id,
+                        facility,
+                        npi,
+                        email,
+                        active,
+                        specialty,
+                        billname,
+                        url,
+                        assistant,
+                        organization,
+                        valedictory,
+                        street,
+                        streetb,
+                        city,
+                        state,
+                        zip,
+                        phone,
+                        fax,
+                        phonew1,
+                        phonecell,
+                        users.notes,
+                        state_license_number,
+                        abook.title as abook_title,
+                FROM  users
+                LEFT JOIN list_options as abook ON abook.option_id = users.abook_type";
+
+        if (!empty($search)) {
+            $sql .= ' AND ';
+            $whereClauses = array();
+            foreach ($search as $fieldName => $fieldValue) {
+                array_push($whereClauses, $fieldName . ' = ?');
+                array_push($sqlBindArray, $fieldValue);
+            }
+            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
+            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
+        }
+
+        $statementResults = sqlStatement($sql, $sqlBindArray);
+        $results = [];
+        while ($row = sqlFetchArray($statementResults)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $results[] = $row;
+        }
+
+        return $results;
     }
 }

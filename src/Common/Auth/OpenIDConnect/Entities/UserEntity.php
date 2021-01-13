@@ -35,11 +35,9 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             $fhirUser = '';
             $userRole = $uuidToUser->getUserRole();
             if ($userRole == 'users') {
-                // TODO: adunsulag check with brady/sjpadget on whether this should be Practioner or Person, it has to
-                // be one of those resource types and you have to be able to retrieve it via a FHIR endpoint but I'm not
-                // sure a site admin is classified as a 'practioner'.
-                // TODO: adunsulag we should see if there is a better way like FHIRRouteResolver for a given resource endpoint...
-                $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Practitioner/" . $this->identifier;
+                // Jerry Padget indicated Person was the best resource to use for people who are not patients
+                // at some future point we may want to differentiate practioners vs persons, but this is fine for now.
+                $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Person/" . $this->identifier;
             } else if ($userRole == 'patients') {
                 $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Patient/" . $this->identifier;
             } else {

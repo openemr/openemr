@@ -56,6 +56,8 @@
 
 namespace OpenEMR\Common\Session;
 
+use OpenEMR\Common\Logging\SystemLogger;
+
 class SessionUtil
 {
     private static $gc_maxlifetime = 14400;
@@ -174,6 +176,9 @@ class SessionUtil
 
     public static function oauthSessionStart($web_root): void
     {
+        // we need to track some of our cookie sessions here
+        SystemLogger::instance()->debug("Creating oauthSessionStart cookie",
+            ['cookie.name' => 'authserverOpenEMR']);
         session_start([
             'cookie_samesite' => "None",
             'cookie_secure' => true,
@@ -196,8 +201,12 @@ class SessionUtil
 
     private static function standardSessionCookieDestroy(): void
     {
+
         // Destroy the cookie
         $params = session_get_cookie_params();
+        // we need to track some of our cookie sessions here
+        SystemLogger::instance()->debug("Destroying session cookie",
+            ['name' => session_name(), 'cookieParams' => $params]);
         setcookie(
             session_name(),
             '',

@@ -667,6 +667,7 @@ use OpenEMR\RestControllers\FHIR\FhirMedicationRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationRequestRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
+use OpenEMR\RestControllers\FHIR\FhirPersonRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
@@ -939,6 +940,22 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::scope_check("user", "Coverage", "read");
         RestConfig::authorization_check("admin", "super");
         $return = (new FhirCoverageRestController())->getOne($uuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    "GET /fhir/Person" => function () {
+        RestConfig::scope_check("user", "Person", "read");
+        RestConfig::authorization_check("admin", "users");
+
+        $return = (new FhirPersonRestController())->getAll($_GET);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    "GET /fhir/Person/:uuid" => function ($uuid) {
+        RestConfig::scope_check("user", "Person", "read");
+        RestConfig::authorization_check("admin", "users");
+
+        $return = (new FhirPersonRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
     }
