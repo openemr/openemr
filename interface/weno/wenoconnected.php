@@ -11,14 +11,13 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Rx\Weno\wenoPharmaciesImport;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'super')) {
     echo xlt('ACL Administration Not Authorized');
     exit;
 }
-
-use OpenEMR\Rx\Weno\wenoPharmaciesImport;
 
 $phIN = new wenoPharmaciesImport();
 
