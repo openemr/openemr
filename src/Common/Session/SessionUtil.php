@@ -177,7 +177,7 @@ class SessionUtil
     public static function oauthSessionStart($web_root): void
     {
         // we need to track some of our cookie sessions here
-        SystemLogger::instance()->debug("Creating oauthSessionStart cookie",
+        (new SystemLogger())->debug("Creating oauthSessionStart cookie",
             ['cookie.name' => 'authserverOpenEMR']);
         session_start([
             'cookie_samesite' => "None",
@@ -205,7 +205,7 @@ class SessionUtil
         // Destroy the cookie
         $params = session_get_cookie_params();
         // we need to track some of our cookie sessions here
-        SystemLogger::instance()->debug("Destroying session cookie",
+        (new SystemLogger())->debug("Destroying session cookie",
             ['name' => session_name(), 'cookieParams' => $params]);
         setcookie(
             session_name(),

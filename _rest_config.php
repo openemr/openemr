@@ -21,6 +21,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
@@ -286,6 +287,28 @@ class RestConfig
         }
     }
 
+    /**
+     * Checks to make sure the resource the user agent is requesting actually has the right scopes for the api request
+     * scopes are compared against the user's AccessToken scopes.
+     * @param HttpRestRequest $request
+     */
+    public static function scope_check_request(HttpRestRequest $request) {
+        $scopeType = $request->isPatientRequest() ? "patient" : "user";
+        $permission = $request->getRequestMethod() == "GET" ? "write" : "read";
+        $resource = $request->getResource();
+
+        if (!$request->isFhir()) {
+            $resource = strtolower($resource);
+        }
+        // Resource scope check
+        $scope = $scopeType . '/' . $resource . '.' . $permission;
+
+        if (!in_array($scope, $request->getAccessTokenScopes())) {
+            (new SystemLogger())->debug("RestConfig::scope_check_request scope not in access token", ['scope' => $scope]);
+            throw new \OpenEMR\Common\Acl\AccessDeniedException($scopeType, $resource, "scope not in access token");
+        }
+    }
+
     // Main function to check scope
     //  Use cases:
     //     Only sending $scopeType would be for something like 'openid'
@@ -303,7 +326,7 @@ class RestConfig
                 $scope = $scopeType . '/' . $resource . '.' . $permission;
             }
             if (!in_array($scope, $GLOBALS['oauth_scopes'])) {
-                SystemLogger::instance()->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope]);
+                (new SystemLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope]);
                 http_response_code(401);
                 exit;
             }

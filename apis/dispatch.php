@@ -20,6 +20,7 @@ require_once("./../_rest_config.php");
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -27,6 +28,7 @@ use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use Psr\Http\Message\ResponseInterface;
 
 $gbl = RestConfig::GetInstance();
+$restRequest = new HttpRestRequest($gbl, $_SERVER);
 $routes = array();
 
 // Parse needed information from Redirect or REQUEST_URI
@@ -77,6 +79,9 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
             $resource = str_replace('/' . $site, '', $resource);
         }
     }
+    // set our scopes and updated resources as needed
+    $restRequest->setAccessTokenScopes($scopes);
+
     // ensure 1) sane site 2) site from gbl and access token are the same and 3) ensure the site exists on filesystem
     if (empty($site) || empty($gbl::$SITE) || preg_match('/[^A-Za-z0-9\\-.]/', $gbl::$SITE) || ($site !== $gbl::$SITE) || !file_exists(__DIR__ . '/../sites/' . $gbl::$SITE)) {
         $logger->error("OpenEMR Error - api site error, so forced exit");
@@ -101,6 +106,8 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
         http_response_code(400);
         exit();
     }
+    $restRequest->setClientId($clientId);
+    $restRequest->setAccessTokenId($tokenId);
 
     // Get a site id from initial login authentication.
     $isLocalApi = false;
@@ -108,12 +115,16 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     $ignoreAuth = true;
 }
 
+// set the route as well as the resource information.  Note $resource is actually the route and not the resource name.
+$restRequest->setRoute($resource);
+
 if (!$isLocalApi) {
     // Will start the api OpenEMR session/cookie.
     SessionUtil::apiSessionStart($gbl::$web_root);
 }
 
 $GLOBALS['is_local_api'] = $isLocalApi;
+$restRequest->setIsLocalApi($isLocalApi);
 
 // Set $sessionAllowWrite to true here for following reasons:
 //  1. !$isLocalApi - not applicable since use the SessionUtil::apiSessionStart session, which was set above
@@ -190,6 +201,8 @@ if ($isLocalApi) {
         http_response_code(400);
         exit();
     }
+    $restRequest->setRequestUser($userId, $user);
+    $restRequest->setRequestUserRole($userRole);
     // verify that the scope covers the route
     if (
         ($gbl::is_api_request($resource) && !in_array('api:oemr', $GLOBALS['oauth_scopes'])) ||
@@ -254,11 +267,12 @@ if ($isLocalApi) {
 }
 
 //Extend API using RestApiCreateEvent
-$restApiCreateEvent = new RestApiCreateEvent($gbl::$ROUTE_MAP, $gbl::$FHIR_ROUTE_MAP, $gbl::$PORTAL_ROUTE_MAP);
+$restApiCreateEvent = new RestApiCreateEvent($gbl::$ROUTE_MAP, $gbl::$FHIR_ROUTE_MAP, $gbl::$PORTAL_ROUTE_MAP, $restRequest);
 $restApiCreateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiCreateEvent::EVENT_HANDLE, $restApiCreateEvent, 10);
 $gbl::$ROUTE_MAP = $restApiCreateEvent->getRouteMap();
 $gbl::$FHIR_ROUTE_MAP = $restApiCreateEvent->getFHIRRouteMap();
 $gbl::$PORTAL_ROUTE_MAP = $restApiCreateEvent->getPortalRouteMap();
+$restRequest = $restApiCreateEvent->getRestRequest();
 
 // api flag must be four chars
 // Pass only routes for current api.
@@ -307,6 +321,8 @@ if ($gbl::is_fhir_request($resource)) {
     exit();
 }
 
+$restRequest->setApiType($_SESSION['api']);
+
 if ($isLocalApi) {
     // Ensure that a local process does not hold up other processes
     //  Note can not do this for !$isLocalApi since need to be able to set
@@ -317,7 +333,7 @@ if ($isLocalApi) {
 // dispatch $routes called by ref (note storing the output in a variable to allow option
 //  to destroy the session/cookie before sending the output back)
 ob_start();
-$hasRoute = HttpRestRouteHandler::dispatch($routes, $resource, $_SERVER["REQUEST_METHOD"]);
+$hasRoute = HttpRestRouteHandler::dispatch($routes, $restRequest);
 $apiCallOutput = ob_get_clean();
 // Tear down session for security.
 if (!$isLocalApi) {

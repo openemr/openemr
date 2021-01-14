@@ -92,13 +92,17 @@ use OpenEMR\Common\Http\HttpRestRouteHandler;
 require_once(__DIR__ . "/../../_rest_config.php");
 $gbl = RestConfig::GetInstance();
 $gbl::setNotRestCall();
+$restRequest = new HttpRestRouteHandler($gbl, $_SERVER);
+$restRequest->setRequestMethod("GET");
+$restRequest->setRequestResource("/api/facility");
 // below will return as json
 echo "<b>api via route handler call returning json:</b><br />";
-echo HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, '/api/facility', "GET", 'direct-json');
+echo HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, $restRequest, 'direct-json');
 echo "<br /><br />";
+
 // below will return as php array
 echo "<b>api via route handler call returning php array:</b><br />";
-echo print_r(HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, '/api/facility', "GET", 'direct'));
+echo print_r(HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, $restRequest, 'direct'));
 echo "<br /><br />";
 
 

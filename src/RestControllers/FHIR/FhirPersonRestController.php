@@ -50,7 +50,7 @@ class FhirPersonRestController
 
     public function __construct()
     {
-        $this->logger = SystemLogger::instance();
+        $this->logger = new SystemLogger();
         $this->fhirService = new FhirResourcesService();
         $this->fhirPersonService = new FhirPersonService();
         $this->fhirValidate = new FhirValidationService();
