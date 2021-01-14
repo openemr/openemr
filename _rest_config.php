@@ -287,6 +287,28 @@ class RestConfig
         }
     }
 
+    /**
+     * Checks to make sure the resource the user agent is requesting actually has the right scopes for the api request
+     * scopes are compared against the user's AccessToken scopes.
+     * @param HttpRestRequest $request
+     */
+    public static function scope_check_request(HttpRestRequest $request) {
+        $scopeType = $request->isPatientRequest() ? "patient" : "user";
+        $permission = $request->getRequestMethod() == "GET" ? "write" : "read";
+        $resource = $request->getResource();
+
+        if (!$request->isFhir()) {
+            $resource = strtolower($resource);
+        }
+        // Resource scope check
+        $scope = $scopeType . '/' . $resource . '.' . $permission;
+
+        if (!in_array($scope, $request->getAccessTokenScopes())) {
+            (new SystemLogger())->debug("RestConfig::scope_check_request scope not in access token", ['scope' => $scope]);
+            throw new \OpenEMR\Common\Acl\AccessDeniedException($scopeType, $resource, "scope not in access token");
+        }
+    }
+
     // Main function to check scope
     //  Use cases:
     //     Only sending $scopeType would be for something like 'openid'
