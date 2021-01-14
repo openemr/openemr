@@ -17,6 +17,8 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\Patient\PatientCreatedEvent;
+use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -113,8 +115,14 @@ class PatientService extends BaseService
         $freshPid = $this->getFreshPid();
         $data['pid'] = $freshPid;
         $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
+
+        // The 'date' is the updated-date, and 'regdate' is the created-date
+        // so set both to the current datetime.
         $data['date'] = date("Y-m-d H:i:s");
         $data['regdate'] = date("Y-m-d H:i:s");
+        if (empty($data['pubpid'])) {
+            $data['pubpid'] = $freshPid;
+        }
 
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO patient_data SET ";
@@ -130,6 +138,9 @@ class PatientService extends BaseService
                 'pid' => $freshPid,
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
             ));
+            // Tell subscribers that a new patient has been created
+            $patientCreatedEvent = new PatientCreatedEvent($processingResult->getData());
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientCreatedEvent::EVENT_HANDLE, $patientCreatedEvent, 10);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }
@@ -152,6 +163,11 @@ class PatientService extends BaseService
         if (!$processingResult->isValid()) {
             return $processingResult;
         }
+
+        // Get the data before update to send to the event listener
+        $dataBeforeUpdate = $this->getOne($puuidString);
+
+        // The `date` column is treated as an updated_date
         $data['date'] = date("Y-m-d H:i:s");
 
         $query = $this->buildUpdateColumns($data);
@@ -167,6 +183,9 @@ class PatientService extends BaseService
             $processingResult->addErrorMessage("error processing SQL Update");
         } else {
             $processingResult = $this->getOne($puuidString);
+            // Tell subscribers that a new patient has been updated
+            $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $processingResult->getData());
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientUpdatedEvent::EVENT_HANDLE, $patientUpdatedEvent, 10);
         }
         return $processingResult;
     }

@@ -1044,61 +1044,38 @@ function pdValueOrNull($key, $value)
     }
 }
 
-// Create or update patient data from an array.
-//
+/**
+ * Create or update patient data from an array.
+ *
+ * This is a wrapper function for the PatientService which is now the single point
+ * of patient creation and update.
+ *
+ * If successful, returns the pid of the patient
+ *
+ * @param $pid
+ * @param $new
+ * @param false $create
+ * @return mixed
+ */
 function updatePatientData($pid, $new, $create = false)
 {
-  /*******************************************************************
-    $real = getPatientData($pid);
-    foreach ($new as $key => $value)
-        $real[$key] = $value;
-    $real['date'] = "'+NOW()+'";
-    $real['id'] = "";
-    $sql = "insert into patient_data set ";
-    foreach ($real as $key => $value)
-        $sql .= $key." = '$value', ";
-    $sql = substr($sql, 0, -2);
-    return sqlInsert($sql);
-  *******************************************************************/
-
-  // The above was broken, though seems intent to insert a new patient_data
-  // row for each update.  A good idea, but nothing is doing that yet so
-  // the code below does not yet attempt it.
-
-    if ($create) {
-        $sql = "INSERT INTO patient_data SET pid = '" . add_escape_custom($pid) . "', date = NOW()";
-        foreach ($new as $key => $value) {
-            if ($key == 'id') {
-                continue;
-            }
-
-            $sql .= ", `$key` = " . pdValueOrNull($key, $value);
-        }
-
-        // add a uuid for the new patient
-        $sql .= ", `uuid` ='" . add_escape_custom((new UuidRegistry(['table_name' => 'patient_data']))->createUuid()) . "'";
-
-        $db_id = sqlInsert($sql);
+    // Create instance of patient service
+    $patientService = new \OpenEMR\Services\PatientService();
+    if ($create === true ||
+        $pid === null) {
+        $result = $patientService->insert($new);
     } else {
-        $db_id = $new['id'];
-        $rez = sqlQuery("SELECT pid FROM patient_data WHERE id = '" . add_escape_custom($db_id) . "'");
-        // Check for brain damage:
-        if ($pid != $rez['pid']) {
-            $errmsg = "Internal error: Attempt to change patient data with pid = '" .
-            text($rez['pid']) . "' when current pid is '" . text($pid) . "' for id '" . text($db_id) . "'";
-            die($errmsg);
-        }
-
-        $sql = "UPDATE patient_data SET date = NOW()";
-        foreach ($new as $key => $value) {
-            $sql .= ", `$key` = " . pdValueOrNull($key, $value);
-        }
-
-        $sql .= " WHERE id = '" . add_escape_custom($db_id) . "'";
-        sqlStatement($sql);
+        $uuid = $patientService->getUuid($pid);
+        $uuidString = UuidRegistry::uuidToString($uuid);
+        $result = $patientService->update($uuidString, $new);
     }
 
-    return $db_id;
+    // From the returned ProcessingResult (contains data and error messages)
+    // retrieve the data and return the pid
+    $data = $result->getData();
+    $pid = $data['pid'];
+
+    return $pid;
 }
 
 function newEmployerData(

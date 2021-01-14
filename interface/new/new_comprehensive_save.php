@@ -36,29 +36,11 @@ require_once("$srcdir/pid.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
-// here, we lock the patient data table while we find the most recent max PID
-// other interfaces can still read the data during this lock, however
-// sqlStatement("lock tables patient_data read");
-
-$result = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
-
-$newpid = 1;
-
-if ($result['pid'] > 1) {
-    $newpid = $result['pid'];
-}
-
-setpid($newpid);
-
-if (empty($pid)) {
-  // sqlStatement("unlock tables");
-    die("Internal error: setpid(" . text($newpid) . ") failed!");
-}
-
 // Update patient_data and employer_data:
-//
+// First, we prepare the data for insert into DB by querying the layout
+// fields to see what valid fields we have to insert from the post we are receiving
 $newdata = array();
-$newdata['patient_data' ] = array();
+$newdata['patient_data'] = array();
 $newdata['employer_data'] = array();
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND (uor > 0 OR field_id = 'pubpid') AND field_id != '' " .
@@ -85,14 +67,17 @@ while ($frow = sqlFetchArray($fres)) {
     }
 }
 
-updatePatientData($pid, $newdata['patient_data'], true);
+// Use the global helper to use the PatientService to create a new patient
+// The result contains the pid, so use that to set the global session pid
+$pid = updatePatientData(null, $newdata['patient_data'], true);
+if (empty($pid)) {
+    die("Internal error: setpid(" . text($pid) . ") failed!");
+}
+setpid($pid);
 updateEmployerData($pid, $newdata['employer_data'], true);
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
-
-// sqlStatement("unlock tables");
-// end table lock
 
 newHistoryData($pid);
 newInsuranceData(

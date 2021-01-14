@@ -82,12 +82,19 @@ class ProcessingResult
     }
 
     /**
-     * Appends a new data item to the current instance.
-     * @param $newData The new data item.
+     * Appends a new data item to the current instance,
+     * or if the newData is an array, merge the new with the
+     * already existing data attribute.
+     *
+     * @param $newData The new data item or array.
      */
     public function addData($newData)
     {
-        array_push($this->data, $newData);
+        if (is_array($newData)) {
+            $this->data = array_merge($this->data, $newData);
+        } else {
+            array_push($this->data, $newData);
+        }
     }
 
     /**
