@@ -1256,8 +1256,8 @@
                 "children":[],
                 "requirement":0,
                 "acl_req": [
-                    "patients",
-                    "rx"
+                    "admin",
+                    "super"
                 ],
                 "global_req": [
                     "weno_rx_enable"
