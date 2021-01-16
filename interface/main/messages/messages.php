@@ -621,6 +621,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                           <th align='center' width='25'><input type='checkbox' id='checkAll' onclick='selectAll()'></th>
                                                           <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
                                                           <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
+                                                          <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('Chart') . "</th>
                                                           <th class='font-weight-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
                                                           <th width='15%' class='font-weight-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
                                                           <th width='15%' class='font-weight-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
@@ -636,6 +637,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                     $name .= ", " . $myrow['users_fname'];
                                 }
                                 $patient = $myrow['pid'];
+                                $pid = $myrow['pid'];
                                 if ($patient > 0) {
                                     $patient = $myrow['patient_data_lname'];
                                     if ($myrow['patient_data_fname']) {
@@ -661,9 +663,14 @@ if (!empty($_REQUEST['go'])) { ?>
                                         <td>
                                             <div>" .
                                                 xlt($myrow['title']) . "</div>
+                                        </td>
+                                        <td>
+                                            <div><a href='../../patient_file/summary/demographics.php?set_pid=$pid' onclick=\"top.restoreSession()\"><i id=\"just-mine-tooltip\" class=\"fa fa-user fa-lg text-body\" aria-hidden=\"true\" title=\"\" data-toggle=\"tooltip\" data-placement=\"bottom\" data-original-title=\"Click open patient's chart\"></i></a></div>
+                                        </td>
                                         <td>
                                             <div>" . text(oeFormatShortDate(substr($myrow['date'], 0, strpos($myrow['date'], " ")))) . "</div>
                                         </td>
+
                                         <td>
                                             <div>" . text(getListItemTitle('message_status', $myrow['message_status'])) . "</div>
                                         </td>
