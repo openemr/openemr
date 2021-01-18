@@ -73,6 +73,10 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
     {
+        $this->logger->debug(
+            "ClientRepository->validateClient() checking client validation",
+            ["client" => $clientIdentifier, "grantType" => $grantType]
+        );
         if ($grantType == 'authorization_code') {
             $client = sqlQueryNoLog("SELECT `client_secret`, `is_confidential` FROM `oauth_clients` WHERE `client_id` = ?", [$clientIdentifier]);
 
@@ -91,7 +95,14 @@ class ClientRepository implements ClientRepositoryInterface
                 if (empty($secret)) {
                     return false;
                 }
-                return hash_equals($clientSecret, $secret);
+                $secretMatches = hash_equals($clientSecret, $secret);
+                if (!$secretMatches) {
+                    $this->logger->error(
+                        "ClientRepository->validateClient() Confidential client sent invalid client secret.  Validation failed",
+                        ["client" => $clientIdentifier, "grantType" => $grantType]
+                    );
+                }
+                return $secretMatches;
             }
 
             return true;
