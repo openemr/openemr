@@ -549,7 +549,7 @@ class AuthorizationController
             }
         } catch (OAuthServerException $exception) {
             $this->logger->error("AuthorizationController->oauthAuthorizationFlow() OAuthServerException",
-                ["message" => $exception->getMessage(), 'hint' => $exception->getHint()]);
+                ["hint" => $exception->getHint(), "message" => $exception->getMessage(), 'hint' => $exception->getHint(), 'trace' => $exception->getTraceAsString()]);
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
@@ -602,6 +602,12 @@ class AuthorizationController
                 new RefreshTokenRepository(),
                 new \DateInterval('PT1M') // auth code. should be short turn around.
             );
+
+            // ONC Inferno does not support the code challenge PKCE standard right now so we disable it in the grant.
+            // Smart V2 http://build.fhir.org/ig/HL7/smart-app-launch/ will require PKCE with the code_challenge_method
+            // Note: this was true as of January 18th 2021
+            $grant->disableRequireCodeChallengeForPublicClients();
+
             $grant->setRefreshTokenTTL(new \DateInterval('P3M')); // minimum per ONC
             $authServer->enableGrantType(
                 $grant,

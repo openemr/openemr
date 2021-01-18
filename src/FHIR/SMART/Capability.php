@@ -26,7 +26,8 @@ class Capability
      */
     const SUPPORTED_CAPABILITIES = [self::LAUNCH_EHR, self::CONTEXT_BANNER, self::CONTEXT_EHR_PATIENT
         , self::CONTEXT_STYLE, self::SSO_OPENID_CONNECTION, self::CLIENT_CONFIDENTIAL_SYMMETRIC, self::PERMISSION_USER
-        , self::CONTEXT_STANDALONE_PATIENT, self::LAUNCH_STANDALONE, self::PERMISSION_PATIENT];
+        , self::CONTEXT_STANDALONE_PATIENT, self::LAUNCH_STANDALONE, self::PERMISSION_PATIENT
+        , self::PERMISSION_OFFLINE, self::CLIENT_PUBLIC];
 
     // support for SMART’s EHR Launch mode
     const LAUNCH_EHR = 'launch-ehr';
