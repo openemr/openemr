@@ -717,7 +717,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/Patient/:id" => function ($id, HttpRestRequest $request) {
         // only allow access to data of binded patient
         if ($request->isPatientRequest()) {
-            if (empty($id) || ($id != $request->getRequestUserUUIDString())) {
+            if (empty($id) || ($id != $request->getPatientUUIDString())) {
                 throw new AccessDeniedException("patients", "demo", "patient id invalid");
             }
             $id = $request->getPatientUUIDString();
@@ -745,7 +745,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $getParams['patient'] = $request->getRequestUserUUIDString();
-            $return = (new FhirEncounterRestController(null))->getAll(['_id' => $id, 'patient' => $_SESSION['puuid_string']]);
+            $return = (new FhirEncounterRestController(null))->getAll(['_id' => $id, 'patient' => $request->getPatientUUIDString()]);
         } else {
             RestConfig::authorization_check("encounters", "auth_a");
             $return = (new FhirEncounterRestController())->getOne($id);
@@ -853,14 +853,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Immunization" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirImmunizationRestController())->getAll($_GET);
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirAllergyIntoleranceRestController(null))->getAll(['patient' => $request->getPatientUUIDString()]);
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirImmunizationRestController())->getAll($_GET);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Immunization/:id" => function ($id, HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirImmunizationRestController())->getOne($id);
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirAllergyIntoleranceRestController(null))->getAll(['_id' => $id, 'patient' => $request->getPatientUUIDString()]);
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirImmunizationRestController())->getOne($id);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
