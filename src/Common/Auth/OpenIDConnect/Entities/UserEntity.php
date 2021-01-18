@@ -34,11 +34,11 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             $uuidToUser = new UuidUserAccount($this->identifier);
             $fhirUser = '';
             $userRole = $uuidToUser->getUserRole();
-            if ($userRole == 'users') {
+            if ($userRole == UuidUserAccount::USER_ROLE_USERS) {
                 // Jerry Padget indicated Person was the best resource to use for people who are not patients
                 // at some future point we may want to differentiate practioners vs persons, but this is fine for now.
                 $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Person/" . $this->identifier;
-            } else if ($userRole == 'patients') {
+            } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
                 $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Patient/" . $this->identifier;
             } else {
                 (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
@@ -107,7 +107,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
     protected function getAccountByPassword($userrole, $username, $password, $email = ''): bool
     {
-        if (($userrole == "users") && (($GLOBALS['oauth_password_grant'] == 1) || ($GLOBALS['oauth_password_grant'] == 3))) {
+        if (($userrole == UuidUserAccount::USER_ROLE_USERS) && (($GLOBALS['oauth_password_grant'] == 1) || ($GLOBALS['oauth_password_grant'] == 3))) {
             $auth = new AuthUtils('api');
             if ($auth->confirmPassword($username, $password)) {
                 $id = $auth->getUserId();
@@ -149,7 +149,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
                 return true;
             }
-        } elseif (($userrole == "patient") && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
+        } elseif (($userrole == UuidUserAccount::USER_ROLE_PATIENT) && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
             $auth = new AuthUtils('portal-api');
             if ($auth->confirmPassword($username, $password, $email)) {
                 $id = $auth->getPatientId();

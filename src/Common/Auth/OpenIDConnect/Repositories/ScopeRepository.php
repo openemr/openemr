@@ -54,7 +54,9 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
 
         if (array_key_exists($identifier, $this->validationScopes) === false && stripos($identifier, 'site:') === false) {
-            $this->logger->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", ["scope" => $identifier]);
+            $this->logger->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", [
+                "scope" => $identifier
+                , 'validationScopes' => $this->validationScopes]);
             return null;
         }
 
@@ -654,8 +656,11 @@ class ScopeRepository implements ScopeRepositoryInterface
         $isApi = preg_match('(api:oemr|api:port)', $requestScopeString)
             || preg_match('(api:oemr|api:port)', $_SESSION['scopes']);
 
+        // TODO: adunsulag check with @bradymiller and @sjpadgett on defaulting api to $isFhir not all SMART apps request
+        // fhirUser and if we want to support the larger ecosystem of apps we need to not require api:fhir or fhirUser
+
         $scopesFhir = [];
-        if (!empty($isFhir)) {
+        if (empty($isApi) || !empty($isFhir)) {
             $scopesFhir = $this->getCurrentSmartScopes();
         }
         $scopesApi = [];
