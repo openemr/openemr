@@ -1,6 +1,6 @@
 <?php
 /**
- * HttpRestRequest.php
+ * HttpRestRequest represents the current OpenEMR api request
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -88,7 +88,7 @@ class HttpRestRequest
     /**
      * @var string
      */
-    private $route;
+    private $requestPath;
 
     public function __construct($restConfig, $server) {
         $this->restConfig = $restConfig;
@@ -308,23 +308,11 @@ class HttpRestRequest
         return $this->isFhir() && $this->isPatientRequest() && $this->getRequestMethod != 'GET';
     }
 
-    public function setRoute(string $route) {
-        $this->route = $route;
-        $this->resource = $this->getResourceFromRoute($route);
+    public function setRequestPath(string $requestPath) {
+        $this->requestPath = $requestPath;
     }
 
-    public function getRoute() : ?string {
-        return $this->route;
-    }
-
-    protected function getResourceFromRoute($route) {
-        $parts = explode("/", $route);
-        $finalArg = end($parts);
-        if (strpos($finalArg, ':') !== false) {
-            array_pop($parts);
-            $finalArg = end($parts);
-        }
-        // set our resource value here
-        $this->setResource($finalArg);
+    public function getRequestPath() : ?string {
+        return $this->requestPath;
     }
 }

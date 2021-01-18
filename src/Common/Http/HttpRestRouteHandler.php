@@ -27,9 +27,11 @@ class HttpRestRouteHandler
         (new SystemLogger())->debug("HttpRestRouteHandler::dispatch() start request",
             ['resource' => $restRequest->getResource(), 'method' => $restRequest->getRequestMethod()
                 , 'user' => $restRequest->getRequestUserUUID(), 'role' => $restRequest->getRequestUserRole()
-                , 'client' => $restRequest->getClientId(), 'apiType' => $restRequest->getApiType()]);
+                , 'client' => $restRequest->getClientId(), 'apiType' => $restRequest->getApiType()
+                , 'route' => $restRequest->getRequestPath()
+            ]);
 
-        $route = $dispatchRestRequest->getRoute();
+        $route = $dispatchRestRequest->getRequestPath();
         $request_method = $dispatchRestRequest->getRequestMethod();
 
         // this is already handled somewhere else.
@@ -43,24 +45,24 @@ class HttpRestRouteHandler
         }
 
         try {
-            // make sure our scopes pass the security checks
-            self::checkSecurity($restRequest);
-
             // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
             $hasRoute = false;
             foreach ($routes as $routePath => $routeCallback) {
-                $routePieces = explode(" ", $routePath);
-                $method = $routePieces[0];
-                $path = $routePieces[1];
-                $pattern = "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_\$]+)', preg_quote($path)) . "$@D";
-                $matches = array();
-                if ($method === $request_method && preg_match($pattern, $route, $matches)) {
-                    array_shift($matches);
-                    $matches[] = $dispatchRestRequest;
+                $parsedRoute = new HttpRestParsedRoute($dispatchRestRequest->getRequestMethod(), $dispatchRestRequest->getRequestPath(), $routePath);
+                if ($parsedRoute->isValid()) {
+                    $dispatchRestRequest->setResource($parsedRoute->getResource());
+
+                    // make sure our scopes pass the security checks
+                    self::checkSecurity($dispatchRestRequest);
                     (new SystemLogger())->debug("HttpRestRouteHandler->dispatch() dispatching route", ["route" => $routePath,]);
                     $hasRoute = true;
+
+                    // now grab our url parameters and issue the controller callback for the route
+                    $routeControllerParameters = $parsedRoute->getRouteParams();
+                    $routeControllerParameters[] = $dispatchRestRequest; // add in the request object to everything
                     // call the function and use array unpacking to make this faster
-                    $result = $routeCallback(...$matches);
+                    $result = $routeCallback(...$routeControllerParameters);
+
                     if ($return_method === 'standard') {
                         header('Content-Type: application/json');
                         echo json_encode($result);
@@ -95,7 +97,7 @@ class HttpRestRouteHandler
      */
     private static function checkSecurity(HttpRestRequest $restRequest) {
         $scopeType = $restRequest->isPatientRequest() ? "patient" : "user";
-        $permission = $restRequest->getRequestMethod() == "GET" ? "write" : "read";
+        $permission = $restRequest->getRequestMethod() === "GET" ? "read" : "write";
         $resource = $restRequest->getResource();
 
         if ($restRequest->isFhir()) {

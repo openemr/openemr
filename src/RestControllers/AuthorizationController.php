@@ -595,6 +595,8 @@ class AuthorizationController
         }
         $this->logger->debug("AuthorizationController->getAuthorizationServer() grantType is " . $this->grantType);
         if ($this->grantType === 'authorization_code') {
+            $responseType->markIsAuthorizationGrant(); // we have specific SMART responses for an authorization grant.
+
             $grant = new AuthCodeGrant(
                 new AuthCodeRepository(),
                 new RefreshTokenRepository(),
@@ -756,6 +758,8 @@ class AuthorizationController
         } else {
             $redirect = $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM;
         }
+        $this->logger->debug("AuthorizationController->userLogin() complete redirecting", ["scopes" => $_SESSION['scopes']
+            , 'claims' => $_SESSION['claims'], 'redirect' => $redirect]);
 
         header("Location: $redirect");
         exit;

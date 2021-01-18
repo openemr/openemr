@@ -116,7 +116,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
 }
 
 // set the route as well as the resource information.  Note $resource is actually the route and not the resource name.
-$restRequest->setRoute($resource);
+$restRequest->setRequestPath($resource);
 
 if (!$isLocalApi) {
     // Will start the api OpenEMR session/cookie.

@@ -33,12 +33,22 @@ class IdTokenSMARTResponse extends IdTokenResponse
      */
     private $logger;
 
+    /**
+     * @var boolean
+     */
+    private $isAuthorizationGrant;
+
     public function __construct(
         IdentityProviderInterface $identityProvider,
         ClaimExtractor $claimExtractor
     ) {
+        $this->isAuthorizationGrant = false;
         $this->logger = new SystemLogger();
         parent::__construct($identityProvider, $claimExtractor);
+    }
+
+    public function markIsAuthorizationGrant() {
+        $this->isAuthorizationGrant = true;
     }
 
     protected function getExtraParams(AccessTokenEntityInterface $accessToken)
@@ -114,6 +124,11 @@ class IdTokenSMARTResponse extends IdTokenResponse
      */
     private function isLaunchRequest($scopes)
     {
+        // if we are not in an authorization grant context we don't support SMART launch context params
+        if (!$this->isAuthorizationGrant) {
+            return false;
+        }
+
         return $this->hasScope($scopes, 'launch');
     }
 
@@ -123,6 +138,10 @@ class IdTokenSMARTResponse extends IdTokenResponse
      */
     private function isStandaloneLaunchPatientRequest($scopes)
     {
+        // if we are not in an authorization grant context we don't support SMART launch context params
+        if (!$this->isAuthorizationGrant) {
+            return false;
+        }
         return $this->hasScope($scopes, 'launch/patient');
     }
 
