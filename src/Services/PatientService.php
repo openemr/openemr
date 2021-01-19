@@ -157,11 +157,11 @@ class PatientService extends BaseService
             return $processingResult;
         }
 
-        $pid = $this->databseInsert($data);
+        $data = $this->databseInsert($data);
 
-        if (false !== $pid) {
+        if (false !== $data['pid']) {
             $processingResult->addData(array(
-                'pid' => $pid,
+                'pid' => $data['pid'],
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
             ));
 
