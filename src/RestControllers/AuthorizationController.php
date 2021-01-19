@@ -588,6 +588,16 @@ class AuthorizationController
         $this->logger->debug("AuthorizationController->getAuthorizationServer() creating server");
         $responseType = new IdTokenSMARTResponse(new IdentityRepository(), new ClaimExtractor($customClaim));
 
+        if (empty($this->grantType)) {
+            $this->grantType = 'authorization_code';
+        }
+
+        // responseType is cloned inside the league auth server so we have to handle changes here before we send
+        // into the $authServer the $responseType
+        if ($this->grantType === 'authorization_code') {
+            $responseType->markIsAuthorizationGrant(); // we have specific SMART responses for an authorization grant.
+        }
+
         $authServer = new AuthorizationServer(
             new ClientRepository(),
             new AccessTokenRepository(),
@@ -596,13 +606,9 @@ class AuthorizationController
             $this->oaEncryptionKey,
             $responseType
         );
-        if (empty($this->grantType)) {
-            $this->grantType = 'authorization_code';
-        }
+
         $this->logger->debug("AuthorizationController->getAuthorizationServer() grantType is " . $this->grantType);
         if ($this->grantType === 'authorization_code') {
-            $responseType->markIsAuthorizationGrant(); // we have specific SMART responses for an authorization grant.
-
             $grant = new AuthCodeGrant(
                 new AuthCodeRepository(),
                 new RefreshTokenRepository(),
