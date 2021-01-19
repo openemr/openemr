@@ -907,7 +907,8 @@ class AuthorizationController
         }
     }
 
-    private function updateAuthRequestWithUserApprovedScopes(AuthorizationRequest $request, $approvedScopes) {
+    private function updateAuthRequestWithUserApprovedScopes(AuthorizationRequest $request, $approvedScopes)
+    {
         $requestScopes = $request->getScopes();
         $scopeUpdates = [];
         // we only allow scopes from the original session request, if user approved scope it will show up here.
@@ -916,8 +917,10 @@ class AuthorizationController
                 $scopeUpdates[] = $scope;
             }
         }
-        $this->logger->debug("AuthorizationController->updateAuthRequestWithUserApprovedScopes() replaced request scopes with user approved scopes",
-            ['updatedScopes' => $scopeUpdates]);
+        $this->logger->debug(
+            "AuthorizationController->updateAuthRequestWithUserApprovedScopes() replaced request scopes with user approved scopes",
+            ['updatedScopes' => $scopeUpdates]
+        );
 
         $request->setScopes($scopeUpdates);
         return $request;
