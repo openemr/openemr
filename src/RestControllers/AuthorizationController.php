@@ -860,6 +860,7 @@ class AuthorizationController
         $response = $this->createServerResponse();
         $authRequest = $this->deserializeUserSession();
         try {
+            $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $_POST['scope']);
             $server = $this->getAuthorizationServer();
             $user = new UserEntity();
             $user->setIdentifier($_SESSION['user_id']);
@@ -906,6 +907,22 @@ class AuthorizationController
         }
     }
 
+    private function updateAuthRequestWithUserApprovedScopes(AuthorizationRequest $request, $approvedScopes) {
+        $requestScopes = $request->getScopes();
+        $scopeUpdates = [];
+        // we only allow scopes from the original session request, if user approved scope it will show up here.
+        foreach ($requestScopes as $scope) {
+            if (isset($approvedScopes[$scope->getIdentifier()])) {
+                $scopeUpdates[] = $scope;
+            }
+        }
+        $this->logger->debug("AuthorizationController->updateAuthRequestWithUserApprovedScopes() replaced request scopes with user approved scopes",
+            ['updatedScopes' => $scopeUpdates]);
+
+        $request->setScopes($scopeUpdates);
+        return $request;
+    }
+
     private function deserializeUserSession(): AuthorizationRequest
     {
         $authRequest = new AuthorizationRequest();
@@ -935,6 +952,7 @@ class AuthorizationController
             $authRequest->setCodeChallenge($outer['codeChallenge']);
             $authRequest->setCodeChallengeMethod($outer['codeChallengeMethod']);
         } catch (Exception $e) {
+            // TODO: @adunsulag check with @sjpadgett was just echoing the exception what you wanted to happen here?
             echo $e;
         }
 
