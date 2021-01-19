@@ -609,8 +609,6 @@ class AuthorizationController
 
         $this->logger->debug("AuthorizationController->getAuthorizationServer() grantType is " . $this->grantType);
         if ($this->grantType === 'authorization_code') {
-            $responseType->markIsAuthorizationGrant(); // we have specific SMART responses for an authorization grant.
-
             $grant = new AuthCodeGrant(
                 new AuthCodeRepository(),
                 new RefreshTokenRepository(),
