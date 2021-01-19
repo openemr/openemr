@@ -29,10 +29,13 @@ class PatientCreatedEvent extends Event
     private $patientData;
 
     /**
-     * PatientUpdatedEvent constructor.
-     * @param $patientData
+     * PatientUpdatedEvent constructor takes an array
+     * of key/value pairs that represent fields of the patient_data
+     * table
+     *
+     * @param array $patientData
      */
-    public function __construct($patientData)
+    public function __construct(array $patientData)
     {
         $this->patientData = $patientData;
     }
@@ -48,7 +51,7 @@ class PatientCreatedEvent extends Event
     /**
      * @param mixed $patientData
      */
-    public function setPatientData($patientData): void
+    public function setPatientData(array $patientData): void
     {
         $this->patientData = $patientData;
     }

@@ -1063,17 +1063,15 @@ function updatePatientData($pid, $new, $create = false)
     $patientService = new \OpenEMR\Services\PatientService();
     if ($create === true ||
         $pid === null) {
-        $result = $patientService->insert($new);
+        $result = $patientService->databseInsert($new);
     } else {
-        $uuid = $patientService->getUuid($pid);
-        $uuidString = UuidRegistry::uuidToString($uuid);
-        $result = $patientService->update($uuidString, $new);
+        $new['pid'] = $pid;
+        $result = $patientService->databaseUpdate($new);
     }
 
-    // From the returned ProcessingResult (contains data and error messages)
+    // From the returned patient data array
     // retrieve the data and return the pid
-    $data = $result->getData();
-    $pid = $data['pid'];
+    $pid = $result['pid'];
 
     return $pid;
 }
