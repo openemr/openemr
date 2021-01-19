@@ -109,6 +109,3 @@
 --    desc: populate name field with document names.
 --    arguments: none
 
-#IfNotColumnType facility weno_id
-ALTER TABLE `facility` ADD `weno_id` VARCHAR(10) DEFAULT NULL;
-#EndIf
