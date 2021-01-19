@@ -106,7 +106,7 @@ class PatientService extends BaseService
      * @param $data
      * @return false|int
      */
-    public function databseInsert($data)
+    public function databaseInsert($data)
     {
         $freshPid = $this->getFreshPid();
         $data['pid'] = $freshPid;
@@ -157,7 +157,7 @@ class PatientService extends BaseService
             return $processingResult;
         }
 
-        $data = $this->databseInsert($data);
+        $data = $this->databaseInsert($data);
 
         if (false !== $data['pid']) {
             $processingResult->addData(array(
