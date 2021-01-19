@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PatientContextSearchController.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\RestControllers\SMART;
-
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
@@ -42,7 +42,8 @@ class PatientContextSearchController
      * @return array
      * @throws AccessDeniedException
      */
-    public function getPatientForUser($patientUUID, $userUUID) {
+    public function getPatientForUser($patientUUID, $userUUID)
+    {
         if (empty($patientUUID)) {
             throw new \InvalidArgumentException("patient uuid cannot be empty");
         }
@@ -60,7 +61,8 @@ class PatientContextSearchController
      * @return array
      * @throws AccessDeniedException
      */
-    public function searchPatients($searchParams, $userUUID) {
+    public function searchPatients($searchParams, $userUUID)
+    {
 
         // our ACL's rely on a username which seems silly, but we'll convert from UUID to username here so we can
         // check the  ACL
@@ -88,9 +90,10 @@ class PatientContextSearchController
      * @param $user
      * @throws AccessDeniedException If the user fails to have permissions to patient data
      */
-    private function checkUserAccessPatientData($user) {
+    private function checkUserAccessPatientData($user)
+    {
         if (empty($user) || AclMain::aclCheckCore('patients', 'demo', $user['username']) !== true) {
-            throw new AccessDeniedException('patients', 'demo', "Illegal access to patients requested",);
+            throw new AccessDeniedException('patients', 'demo', "Illegal access to patients requested");
         }
     }
 }

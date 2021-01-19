@@ -1,4 +1,5 @@
 <?php
+
 /**
  * HttpRestParsedRoute represents a parsed http rest api request.  It splits apart an OpenEMR route definition and
  * parses the provided http request against that route definition.  Validates the route definition and extracts the
@@ -11,7 +12,6 @@
  */
 
 namespace OpenEMR\Common\Http;
-
 
 use OpenEMR\Common\Logging\SystemLogger;
 
@@ -68,8 +68,7 @@ class HttpRestParsedRoute
             (new SystemLogger())->debug("HttpRestParsedRoute->__construct() ", ['routePath' => $routeDefinition,
                 'requestPath' => $requestRoute
                 ,'method' => $requestMethod, 'routeParams' => $this->routeParams, 'resource' => $this->getResource()]);
-        }
-        else {
+        } else {
             $this->isValid = false;
         }
     }
@@ -79,7 +78,8 @@ class HttpRestParsedRoute
      *
      * @return boolean
      */
-    public function isValid() {
+    public function isValid()
+    {
         return $this->isValid;
     }
 
@@ -120,13 +120,15 @@ class HttpRestParsedRoute
      * @param $path
      * @return string
      */
-    private function getRouteMatchExpression($path) {
+    private function getRouteMatchExpression($path)
+    {
         // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
         return "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_\$]+)', preg_quote($path)) . "$@D";
     }
 
 
-    private function getResourceForRoute($routePath) {
+    private function getResourceForRoute($routePath)
+    {
         $parts = explode("/", $routePath);
         $finalArg = end($parts);
         if (strpos($finalArg, ':') !== false) {

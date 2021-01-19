@@ -1,4 +1,5 @@
 <?php
+
 /**
  * HttpRestRequest represents the current OpenEMR api request
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Common\Http;
-
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
@@ -90,7 +90,8 @@ class HttpRestRequest
      */
     private $requestPath;
 
-    public function __construct($restConfig, $server) {
+    public function __construct($restConfig, $server)
+    {
         $this->restConfig = $restConfig;
         $this->requestSite = $restConfig::$SITE;
 
@@ -257,7 +258,8 @@ class HttpRestRequest
         return $this->requestUserUUIDString;
     }
 
-    public function getPatientUUIDString() {
+    public function getPatientUUIDString()
+    {
         // we may change how this is set, it will depend on if a 'user' role type can still have
         // patient/<resource>.* requests.  IE patient/Patient.read
         return $this->requestUserUUIDString;
@@ -296,7 +298,8 @@ class HttpRestRequest
         return $this->requestUserRole === 'patient';
     }
 
-    public function isFhir() {
+    public function isFhir()
+    {
         return $this->getApiType() === 'fhir';
     }
 
@@ -304,15 +307,18 @@ class HttpRestRequest
      * If this is a patient context request for write/modify of patient context resources
      * @return bool
      */
-    public function isPatientWriteRequest() {
+    public function isPatientWriteRequest()
+    {
         return $this->isFhir() && $this->isPatientRequest() && $this->getRequestMethod != 'GET';
     }
 
-    public function setRequestPath(string $requestPath) {
+    public function setRequestPath(string $requestPath)
+    {
         $this->requestPath = $requestPath;
     }
 
-    public function getRequestPath() : ?string {
+    public function getRequestPath(): ?string
+    {
         return $this->requestPath;
     }
 }

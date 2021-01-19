@@ -66,7 +66,8 @@ class UserService
      * Returns a user by the given UUID.  Can take a byte string or a UUID in string format.
      * @param $userId string
      */
-    public function getUserByUUID($uuid) {
+    public function getUserByUUID($uuid)
+    {
         if (is_string($uuid)) {
             $uuid = UuidRegistry::uuidToBytes($uuid);
         }

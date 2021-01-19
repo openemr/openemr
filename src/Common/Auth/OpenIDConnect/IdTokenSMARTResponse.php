@@ -53,7 +53,8 @@ class IdTokenSMARTResponse extends IdTokenResponse
         parent::__construct($identityProvider, $claimExtractor);
     }
 
-    public function markIsAuthorizationGrant() {
+    public function markIsAuthorizationGrant()
+    {
         $this->isAuthorizationGrant = true;
     }
 

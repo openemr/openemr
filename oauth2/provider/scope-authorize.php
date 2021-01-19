@@ -44,9 +44,9 @@ use OpenEMR\Core\Header;
                         <ul class="pl-2 mt-1">
                             <?php {
                                 $scopes = explode(' ', $_SESSION['scopes']);
-                                foreach ($scopes as $key) {
-                                    echo "<li class='col-text'><strong>" . text($key) . "</strong>  " . "</li>";
-                                }
+                            foreach ($scopes as $key) {
+                                echo "<li class='col-text'><strong>" . text($key) . "</strong>  " . "</li>";
+                            }
                             } ?>
                         </ul>
                     </div>
@@ -58,17 +58,17 @@ use OpenEMR\Core\Header;
                         <h5 class="card-title text-sm-center"><?php echo xlt("Claims"); ?><hr /></h5>
                         <ul class="pl-2 mt-1">
                             <?php {
-                                foreach ($_SESSION['claims'] as $key => $value) {
-                                    $key_n = explode('_', $key);
-                                    if (stripos($_SESSION['scopes'], $key_n[0]) === false) {
-                                        continue;
-                                    }
-                                    if ((int)$value === 1) {
-                                        $value = 'True';
-                                    }
-                                    $key = ucwords(str_replace("_", " ", $key));
-                                    echo "<li class='col-text'><strong>" . text($key) . ":</strong>  " . text($value) . "</li>";
+                            foreach ($_SESSION['claims'] as $key => $value) {
+                                $key_n = explode('_', $key);
+                                if (stripos($_SESSION['scopes'], $key_n[0]) === false) {
+                                    continue;
                                 }
+                                if ((int)$value === 1) {
+                                    $value = 'True';
+                                }
+                                $key = ucwords(str_replace("_", " ", $key));
+                                echo "<li class='col-text'><strong>" . text($key) . ":</strong>  " . text($value) . "</li>";
+                            }
                             } ?>
                         </ul>
                     </div>

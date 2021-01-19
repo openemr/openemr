@@ -1,4 +1,5 @@
 <?php
+
 /**
  * patient-select.php
  * @package openemr
@@ -56,7 +57,6 @@ $hasMore = $hasMore ?? false;
                 <?php if (count($patients) < 0) : ?>
                     <p class="alert alert-info"><?php echo xlt("No patients to select"); ?></p>
                 <?php else : ?>
-
                 <form action="<?php echo $searchAction; ?>" method="GET">
                     <input class="w-25" name="search[fname]" type="text" class="form-control form-input" placeholder="<?php echo xlt("First Name"); ?>"
                            value="<?php echo attr($fname); ?>" />
@@ -66,7 +66,7 @@ $hasMore = $hasMore ?? false;
                            value="<?php echo attr($lname); ?>" />
                     <input type="submit" value="Search" />
                 </form>
-                <?php if ($hasMore) : ?>
+                    <?php if ($hasMore) : ?>
                 <p class="alert alert-info"><?php echo xlt("Too many search results found.  Displaying a limited set of patients.  Narrow your search results through the filters above."); ?></p>
                 <?php endif; ?>
             </div>
@@ -89,7 +89,7 @@ $hasMore = $hasMore ?? false;
                         <tr>
                             <td>
                                 <?php if ($patient['mname']) : ?>
-                                <?php echo sprintf("%s %s %s", $patient['fname'], $patient['mname'], $patient['lname']); ?>
+                                    <?php echo sprintf("%s %s %s", $patient['fname'], $patient['mname'], $patient['lname']); ?>
                                 <?php else : ?>
                                     <?php echo sprintf("%s %s", $patient['fname'], $patient['lname']); ?>
                                 <?php endif; ?>

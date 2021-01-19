@@ -108,8 +108,12 @@ class AuthorizationController
         // true will display client/user server sign in. false, not.
         $this->providerForm = $providerForm;
 
-        $this->smartAuthController = new SMARTAuthorizationController($this->logger, $this->authBaseFullUrl
-            , $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM, __DIR__ . "/../../oauth2/");
+        $this->smartAuthController = new SMARTAuthorizationController(
+            $this->logger,
+            $this->authBaseFullUrl,
+            $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
+            __DIR__ . "/../../oauth2/"
+        );
     }
 
     private function configKeyPairs(): void
@@ -548,8 +552,10 @@ class AuthorizationController
                 exit;
             }
         } catch (OAuthServerException $exception) {
-            $this->logger->error("AuthorizationController->oauthAuthorizationFlow() OAuthServerException",
-                ["hint" => $exception->getHint(), "message" => $exception->getMessage(), 'hint' => $exception->getHint(), 'trace' => $exception->getTraceAsString()]);
+            $this->logger->error(
+                "AuthorizationController->oauthAuthorizationFlow() OAuthServerException",
+                ["hint" => $exception->getHint(), "message" => $exception->getMessage(), 'hint' => $exception->getHint(), 'trace' => $exception->getTraceAsString()]
+            );
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
@@ -771,7 +777,8 @@ class AuthorizationController
         exit;
     }
 
-    public function scopeAuthorizeConfirm() {
+    public function scopeAuthorizeConfirm()
+    {
 
         // show our scope auth piece
         $oauthLogin = true;
@@ -784,7 +791,8 @@ class AuthorizationController
      * @param $end_point
      * @return bool
      */
-    public function isSMARTAuthorizationEndPoint($end_point) {
+    public function isSMARTAuthorizationEndPoint($end_point)
+    {
         return $this->smartAuthController->isValidRoute($end_point);
     }
 
@@ -792,7 +800,8 @@ class AuthorizationController
      * Route handler for any SMART authorization contexts that we need for OpenEMR
      * @param $end_point
      */
-    public function dispatchSMARTAuthorizationEndpoint($end_point) {
+    public function dispatchSMARTAuthorizationEndpoint($end_point)
+    {
         return $this->smartAuthController->dispatchRoute($end_point);
     }
 

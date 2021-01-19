@@ -127,7 +127,8 @@ class AclMain
      * Clear the GACL Cache.  We use this in Unit Tests, but this function should be avoided to prevent smashing
      * the database.
      */
-    public static function clearGaclCache() {
+    public static function clearGaclCache()
+    {
         $object = self::collectGaclObject();
         $object->clear_cache();
     }

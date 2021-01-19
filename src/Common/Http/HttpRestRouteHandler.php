@@ -24,12 +24,14 @@ class HttpRestRouteHandler
     {
         $dispatchRestRequest = clone $restRequest; // don't want to mess with the original request properties.
 
-        (new SystemLogger())->debug("HttpRestRouteHandler::dispatch() start request",
+        (new SystemLogger())->debug(
+            "HttpRestRouteHandler::dispatch() start request",
             ['resource' => $restRequest->getResource(), 'method' => $restRequest->getRequestMethod()
                 , 'user' => $restRequest->getRequestUserUUID(), 'role' => $restRequest->getRequestUserRole()
                 , 'client' => $restRequest->getClientId(), 'apiType' => $restRequest->getApiType()
                 , 'route' => $restRequest->getRequestPath()
-            ]);
+            ]
+        );
 
         $route = $dispatchRestRequest->getRequestPath();
         $request_method = $dispatchRestRequest->getRequestMethod();
@@ -76,15 +78,16 @@ class HttpRestRouteHandler
                 }
             }
             return $hasRoute;
-        }
-        catch (AccessDeniedException $exception) {
-            (new SystemLogger())->error("HttpRestRouteHandler::dispatch() " . $exception->getMessage(),
+        } catch (AccessDeniedException $exception) {
+            (new SystemLogger())->error(
+                "HttpRestRouteHandler::dispatch() " . $exception->getMessage(),
                 [
                     'section' => $exception->getRequiredSection(), 'subCategory' => $exception->getRequiredSection()
                     , 'clientId' => $restRequest->getClientId()
                     , 'userUUID' => $restRequest->getRequestUserUUIDString()
                     , 'userType' => $restRequest->getRequestUserRole()
-                ]);
+                ]
+            );
             http_response_code(401);
             exit;
         }
@@ -95,15 +98,18 @@ class HttpRestRouteHandler
      * @param HttpRestRequest $restRequest
      * @throws AccessDeniedException If the security check fails
      */
-    private static function checkSecurity(HttpRestRequest $restRequest) {
+    private static function checkSecurity(HttpRestRequest $restRequest)
+    {
         $scopeType = $restRequest->isPatientRequest() ? "patient" : "user";
         $permission = $restRequest->getRequestMethod() === "GET" ? "read" : "write";
         $resource = $restRequest->getResource();
 
         if ($restRequest->isFhir()) {
             // don't do any checks on our open resources
-            if ($restRequest->getResource() == 'metadata'
-                || $restRequest->getResource() == 'smart-configuration') {
+            if (
+                $restRequest->getResource() == 'metadata'
+                || $restRequest->getResource() == 'smart-configuration'
+            ) {
                 return;
             }
             if ($restRequest->isPatientWriteRequest()) {

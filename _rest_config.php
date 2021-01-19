@@ -292,7 +292,8 @@ class RestConfig
      * scopes are compared against the user's AccessToken scopes.
      * @param HttpRestRequest $request
      */
-    public static function scope_check_request(HttpRestRequest $request) {
+    public static function scope_check_request(HttpRestRequest $request)
+    {
         $scopeType = $request->isPatientRequest() ? "patient" : "user";
         $permission = $request->getRequestMethod() == "GET" ? "write" : "read";
         $resource = $request->getResource();
