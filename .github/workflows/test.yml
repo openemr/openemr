@@ -15,6 +15,7 @@ jobs:
       DOCKER_DIR: apache_73_105
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+      GIT_TOKEN_COMPOSER: ${{ secrets.GIT_TOKEN_COMPOSER }}
     steps:
       - uses: actions/checkout@v2
 
@@ -107,6 +108,7 @@ jobs:
       DOCKER_DIR: apache_73_104
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+      GIT_TOKEN_COMPOSER: ${{ secrets.GIT_TOKEN_COMPOSER }}
     steps:
       - uses: actions/checkout@v2
 
@@ -199,6 +201,7 @@ jobs:
       DOCKER_DIR: apache_73_103
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+      GIT_TOKEN_COMPOSER: ${{ secrets.GIT_TOKEN_COMPOSER }}
     steps:
       - uses: actions/checkout@v2
 
@@ -291,6 +294,7 @@ jobs:
       DOCKER_DIR: apache_73_102
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+      GIT_TOKEN_COMPOSER: ${{ secrets.GIT_TOKEN_COMPOSER }}
     steps:
       - uses: actions/checkout@v2
 
@@ -383,6 +387,7 @@ jobs:
       DOCKER_DIR: apache_73_8
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+      GIT_TOKEN_COMPOSER: ${{ secrets.GIT_TOKEN_COMPOSER }}
     steps:
       - uses: actions/checkout@v2
 
@@ -475,6 +480,7 @@ jobs:
       DOCKER_DIR: apache_73_57
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+      GIT_TOKEN_COMPOSER: ${{ secrets.GIT_TOKEN_COMPOSER }}
     steps:
       - uses: actions/checkout@v2
 
@@ -567,6 +573,7 @@ jobs:
       DOCKER_DIR: nginx_73
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
+      GIT_TOKEN_COMPOSER: ${{ secrets.GIT_TOKEN_COMPOSER }}
     steps:
       - uses: actions/checkout@v2
 
@@ -658,6 +665,7 @@ jobs:
       DOCKER_DIR: nginx_74
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
+      GIT_TOKEN_COMPOSER: ${{ secrets.GIT_TOKEN_COMPOSER }}
     steps:
       - uses: actions/checkout@v2
 
@@ -750,6 +758,7 @@ jobs:
       DOCKER_DIR: nginx_80
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
+      GIT_TOKEN_COMPOSER: ${{ secrets.GIT_TOKEN_COMPOSER }}
     steps:
       - uses: actions/checkout@v2
 
