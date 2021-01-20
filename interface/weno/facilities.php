@@ -10,10 +10,10 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\FacilityProperties;
-use OpenEMR\Common\Acl\AclMain;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -62,7 +62,7 @@ $facilities = $data->getFacilities();
         $i = 0;
         foreach ($facilities as $facility) {
               print "<tr>";
-              print "<td><input type='hidden' name='location" . $i . "[]' value='" . text($facility['id']) . "'></td>";
+              print "<td><input type='hidden' name='location" . $i . "[]' value='" . attr($facility['id']) . "'></td>";
               print "<td>" . text($facility["name"]) . "</td><td>" . text($facility['street'])
                    . "</td><td>" . text($facility['city']) . "</td><td><input type='text' id='weno_id' name='location" . $i
                   . "[]' value='" . text($facility['weno_id']) . "'></td>";

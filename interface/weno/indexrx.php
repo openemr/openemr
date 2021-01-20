@@ -10,8 +10,8 @@
 
 require_once("../globals.php");
 
-use OpenEMR\Rx\Weno\Container;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Rx\Weno\Container;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patients', 'rx')) {

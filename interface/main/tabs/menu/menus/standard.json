@@ -1242,27 +1242,27 @@
             "requirement":0,
             "acl_req": [
               "admin",
-              "patients"
+              "super"
             ],
               "global_req": [
                   "weno_rx_enable"
               ]
           },
-            {
-                "label":"Prescription Management",
-                "menu_id":"adm0",
-                "target":"adm",
-                "url":"/interface/weno/rxlogmanager.php",
-                "children":[],
-                "requirement":0,
-                "acl_req": [
-                    "admin",
-                    "super"
-                ],
-                "global_req": [
-                    "weno_rx_enable"
-                ]
-            }
+          {
+            "label":"Prescription Management",
+            "menu_id":"adm0",
+            "target":"adm",
+            "url":"/interface/weno/rxlogmanager.php",
+            "children":[],
+            "requirement":0,
+            "acl_req": [
+              "admin",
+              "super"
+            ],
+            "global_req": [
+              "weno_rx_enable"
+            ]
+          }
         ],
         "requirement": 0,
         "acl_req": [
