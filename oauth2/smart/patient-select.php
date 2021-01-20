@@ -34,13 +34,7 @@ $hasMore = $hasMore ?? false;
 <html>
 <head>
     <title><?php echo xlt("OpenEMR Authorization"); ?></title>
-    <?php Header::setupHeader('opener'); ?>
-    <script>
-        (function(window) {
-            window.opener = null;
-        })(window || {});
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
-    </script>
+    <?php Header::setupHeader(); ?>
 </head>
 <body class="container-fluid bg-dark">
 <div class="row h-100 w-100 justify-content-center align-items-center">
@@ -64,10 +58,10 @@ $hasMore = $hasMore ?? false;
                            value="<?php echo attr($mname); ?>" />
                     <input class="w-25" name="search[lname]" type="text" class="form-control form-input" placeholder="<?php echo xlt("Last Name"); ?>"
                            value="<?php echo attr($lname); ?>" />
-                    <input type="submit" value="Search" />
+                    <input type="submit" value="<?php echo xla("Search"); ?>" />
                 </form>
                     <?php if ($hasMore) : ?>
-                <p class="alert alert-info"><?php echo xlt("Too many search results found.  Displaying a limited set of patients.  Narrow your search results through the filters above."); ?></p>
+                <p class="alert alert-info"><?php echo xlt("Too many search results found. Displaying a limited set of patients. Narrow your search results through the filters above."); ?></p>
                 <?php endif; ?>
             </div>
         </div>
@@ -89,22 +83,22 @@ $hasMore = $hasMore ?? false;
                         <tr>
                             <td>
                                 <?php if ($patient['mname']) : ?>
-                                    <?php echo sprintf("%s %s %s", $patient['fname'], $patient['mname'], $patient['lname']); ?>
+                                    <?php echo text(sprintf("%s %s %s", $patient['fname'], $patient['mname'], $patient['lname'])); ?>
                                 <?php else : ?>
-                                    <?php echo sprintf("%s %s", $patient['fname'], $patient['lname']); ?>
+                                    <?php echo text(sprintf("%s %s", $patient['fname'], $patient['lname'])); ?>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php echo $patient['DOB']; ?>
+                                <?php echo text($patient['DOB']); ?>
                             </td>
                             <td>
-                                <?php echo $patient['sex']; ?>
+                                <?php echo text($patient['sex']); ?>
                             </td>
                             <td>
-                                <?php echo $patient['email']; ?>
+                                <?php echo text($patient['email']); ?>
                             </td>
                             <td>
-                                <button data-patient-id="<?php echo $patient['uuid']; ?>" class="btn btn-primary patient-btn">Select patient</button>
+                                <button data-patient-id="<?php echo attr($patient['uuid']); ?>" class="btn btn-primary patient-btn"><?php echo xlt("Select patient"); ?></button>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -117,18 +111,6 @@ $hasMore = $hasMore ?? false;
         <form method="post" name="patientForm" id="patientForm" action="<?php echo $redirect ?>">
             <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken('oauth2')); ?>" />
             <input id="patient_id" type="hidden" name="patient_id" value="" />
-            <hr />
-<!--            <div class="row">-->
-<!--                <div class="col-md-12">-->
-<!--                    <div class="btn-group">-->
-<!--                        <button type="submit" name="proceed" value="1" class="btn btn-primary">--><?php //echo xlt("Complete Authorization"); ?><!--</button>-->
-<!--                    </div>-->
-<!--                    <div class="form-check-inline float-right">-->
-<!--                        <input class="form-check-input" type="checkbox" name="persist_login" id="persist_login" value="1">-->
-<!--                        <label for="persist_login" class="form-check-label">--><?php //echo xlt("Remember Me"); ?><!--</label>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
         </form>
     </div>
 </div>
@@ -139,12 +121,12 @@ $hasMore = $hasMore ?? false;
             var target = evt.target;
             var patientId = target.dataset.patientId || undefined;
             if (!patientId) {
-                console.error("<?php echo xlt("Developer error. Patient id is missing from dataset");?>)");
+                console.error(<?php echo xlj("Developer error. Patient id is missing from dataset");?>);
                 return;
             }
             var patientInput = document.getElementById('patient_id');
             if (!patientInput) {
-                console.error("<?php echo xlt("Developer error missing hidden form element 'selectedPatient'");?>)");
+                console.error(<?php echo xlj("Developer error missing hidden form element 'selectedPatient'");?>);
                 return;
             }
             patientInput.value = patientId;
@@ -152,7 +134,7 @@ $hasMore = $hasMore ?? false;
             // now submit our form.
             let form = document.getElementById('patientForm');
             if (!form) {
-                console.error("<?php echo xlt("Developer error missing form 'patientForm'");?>)");
+                console.error(<?php echo xlj("Developer error missing form 'patientForm'");?>);
                 return;
             }
             form.submit();

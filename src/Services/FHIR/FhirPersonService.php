@@ -21,18 +21,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
-/**
- * FHIR Practitioner Service
- *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPractitionerService
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @author    Yash Bothra <yashrajbothra786@gmail.com>
- * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
- */
 class FhirPersonService extends FhirServiceBase
 {
     const RESOURCE_NAME = 'Person';

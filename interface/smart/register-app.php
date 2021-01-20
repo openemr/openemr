@@ -232,7 +232,7 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                 <!-- TODO: adunsulag display the list of scopes that can be requested here -->
 
                 <div class="form-group">
-                    Scopes Requested:
+                    <?php echo xlt("Scopes Requested"); ?>:
                     <input type="button" class="select-all-toggle toggle-on btn btn-secondary d-none" value="<?php echo xlt('Select all'); ?>" />
                     <input type="button" class="select-all-toggle toggle-off btn btn-secondary" value="<?php echo xlt('Unselect all'); ?>" />
                     <div class="list-group">
