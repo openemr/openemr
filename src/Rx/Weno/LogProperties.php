@@ -11,7 +11,7 @@
 namespace OpenEMR\Rx\Weno;
 
 use Exception;
-use OpenEMR\Common\Crypto;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 class LogProperties
@@ -47,7 +47,7 @@ class LogProperties
     public function __construct()
     {
         $this->container = new Container();
-        $this->cryptoGen = new Crypto\CryptoGen();
+        $this->cryptoGen = new CryptoGen();
         $this->method = "aes-256-cbc";
         $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/logsync.csv";
         $this->enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);

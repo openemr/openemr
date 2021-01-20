@@ -141,12 +141,7 @@ class TransmitProperties
         //get patient data
         $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid = ?", [$_SESSION['pid']]);
         if (empty($patient['fname']) || empty($patient['lname']) || empty($patient['dob']) || empty($patient['sex']) || empty($patient['postal_code']) || empty($patient['street']) || empty($patient['email'])) {
-            echo xlt('Patient data is incomplete phone or ')
-                . ", "
-                . xlt('first last name') . ", "
-                . xlt('gender email') . ", "
-                . xlt('zip code') . ", "
-                . xlt('date of birth or address');
+            echo xlt('Patient data is incomplete phone, first name, last name, gender, email, zip code, date of birth or address');
             exit;
         }
         return $patient;
