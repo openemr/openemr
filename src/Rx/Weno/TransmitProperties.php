@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Rx\Weno;
 
-use OpenEMR\Common\Crypto;
+use OpenEMR\Common\Crypto\CryptoGen;
 
 class TransmitProperties
 {

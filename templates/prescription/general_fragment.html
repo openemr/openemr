@@ -14,24 +14,25 @@
     <tr class='text'>
         <td>&nbsp;&nbsp;{xlt t='None'}</td>
     </tr>
+    {else}
+        <tr>
+            <th>{xlt t='Drug'}</th>
+            <th>&nbsp;&nbsp;&nbsp;</th>
+            <th>{xlt t='Qty'}</th>
+            <th>{xlt t='Refills'}</th>
+            <th>{xlt t='Filled'}</th>
+        </tr>
+        {foreach from=$prescriptions item=prescription}
+        {if $prescription->get_active() > 0}
+        <tr class='text'>
+            <td>{$prescription->drug|text}&nbsp;</td>
+            <td>{$prescription->get_size()|text}{$prescription->get_unit_display()|text}&nbsp;
+                {$prescription->get_dosage_display()|text}</td>
+            <td>{$prescription->get_quantity()|text}</td>
+            <td>{$prescription->get_refills()|text}</td>
+            <td>{$prescription->get_date_added()|text}</td>
+        </tr>
+        {/if}
+        {/foreach}
     {/if}
-    <tr>
-        <th>{xlt t='Drug'}</th>
-        <th>&nbsp;&nbsp;&nbsp;</th>
-        <th>{xlt t='Qty'}</th>
-        <th>{xlt t='Refills'}</th>
-        <th>{xlt t='Filled'}</th>
-    </tr>
-    {foreach from=$prescriptions item=prescription}
-    {if $prescription->get_active() > 0}
-    <tr class='text'>
-        <td>{$prescription->drug|text}&nbsp;</td>
-        <td>{$prescription->get_size()|text}{$prescription->get_unit_display()|text}&nbsp;
-            {$prescription->get_dosage_display()|text}</td>
-        <td>{$prescription->get_quantity()|text}</td>
-        <td>{$prescription->get_refills()|text}</td>
-        <td>{$prescription->get_date_added()|text}</td>
-    </tr>
-    {/if}
-    {/foreach}
 </table>
