@@ -14,6 +14,7 @@
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\PatientService;
 
 $facilityService = new FacilityService();
 
@@ -1060,10 +1061,10 @@ function pdValueOrNull($key, $value)
 function updatePatientData($pid, $new, $create = false)
 {
     // Create instance of patient service
-    $patientService = new \OpenEMR\Services\PatientService();
+    $patientService = new PatientService();
     if ($create === true ||
         $pid === null) {
-        $result = $patientService->databseInsert($new);
+        $result = $patientService->databaseInsert($new);
     } else {
         $new['pid'] = $pid;
         $result = $patientService->databaseUpdate($new);
