@@ -12,6 +12,10 @@
 
 composer_github_auth() {
     githubTokenRateLimitRequest=`curl -H "Authorization: token ${GIT_TOKEN_COMPOSER}" https://api.github.com/rate_limit`
+
+    echo ${GIT_TOKEN_COMPOSER};
+    echo $githubTokenRateLimitRequest;
+
     githubTokenRateLimit=`echo $githubTokenRateLimitRequest | jq '.rate.remaining'`
     echo "Number of github api requests remaining is $githubTokenRateLimit"
     if [ "$githubTokenRateLimit" -gt 500 ]; then
