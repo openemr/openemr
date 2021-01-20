@@ -37,16 +37,18 @@ $query .= " ORDER BY pp.name";
 $res = sqlStatement($query);
 
 ?>
-<!DOCTYPE html>
 <html>
 <head>
+
 <?php Header::setupHeader(); ?>
 
 <title><?php echo xlt('Procedure Providers'); ?></title>
 
 <script>
+
 // Callback from popups to refresh this display.
 function refreshme() {
+    // location.reload();
     document.forms[0].submit();
 }
 
@@ -66,7 +68,9 @@ function doedclick_edit(ppid) {
     dlgopen(scriptTitle, '_blank', 800, 750, false, editTitle);
 }
 </script>
+
 </head>
+
 <body>
     <?php
     if ($GLOBALS['enable_help'] == 1) {
@@ -80,9 +84,9 @@ function doedclick_edit(ppid) {
     <div class="container mt-3">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-title">
-                    <h2><?php echo xlt('Procedure Providers');?><?php echo $help_icon; ?></h2>
-                </div>
+                    <div class="page-title">
+                        <h2><?php echo xlt('Procedure Providers');?><?php echo $help_icon; ?></h2>
+                    </div>
             </div>
         </div>
         <div class="row">
@@ -92,15 +96,17 @@ function doedclick_edit(ppid) {
                 </div>
             </div>
         </div>
+
         <div class="row">
             <div class="col-sm-12">
-                <form method='post' action='procedure_provider_list.php'>
-                    <div class="form-check-inline mt-3">
-                        <input type='checkbox' class="form-check-input mr-2 " id="form_inactive" name='form_inactive'
-                            value='1' onclick='submit()' <?php echo ($form_inactive) ? 'checked ' : ''; ?>>
-                        <label class="form-check-label bold" for="form_inactive" ><?php echo xlt('Include Inactive Providers'); ?></label>
+                    <form method='post' action='procedure_provider_list.php'>
+                    <div class="checkbox mt-3">
+                        <label for="form_inactive">
+                            <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php echo ($form_inactive) ? 'checked ' : ''; ?>>
+                            <?php echo xlt('Include inactive'); ?>
+                        </label>
                     </div>
-                    <div class="table-responsive mt-2">
+                    <div class="table-responsive mt-3">
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>

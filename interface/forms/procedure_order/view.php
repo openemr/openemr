@@ -10,6 +10,4 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$mode = 'update';
-$viewmode = true;
-require("common.php");
+require_once("new.php");
