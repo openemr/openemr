@@ -151,6 +151,8 @@ class ClientRepository implements ClientRepositoryInterface
         // so we will refer to it that way.
         $client->setLaunchUri($client_record['initiate_login_uri']);
         $client->setIsEnabled($client_record['is_enabled'] === "1");
+        $client->setJwks($client_record['jwks']);
+        $client->setJwksUri($client_record['jwks_uri']);
         return $client;
     }
 }

@@ -26,6 +26,10 @@ class ClientEntity implements ClientEntityInterface
     protected $scopes;
     protected $launchUri;
 
+    protected $jwks;
+
+    protected $jwksUri;
+
     /**
      * Confidential apps or apps with a 'launch' scope must be manually authorized by an adminstrator before their
      * client can be used.
@@ -129,4 +133,40 @@ class ClientEntity implements ClientEntityInterface
     {
         $this->launchUri = $uri;
     }
+
+    /**
+     * @return string
+     */
+    public function getJwks()
+    {
+        return $this->jwks;
+    }
+
+    /**
+     * @return string
+     */
+    public function getJwksUri()
+    {
+        return $this->jwksUri;
+    }
+
+    /**
+     * @param string $jwks
+     */
+    public function setJwks($jwks): void
+    {
+        $this->jwks = $jwks;
+    }
+
+    /**
+     * @param string $jwksUri
+     */
+    public function setJwksUri($jwksUri): void
+    {
+        $this->jwksUri = $jwksUri;
+    }
+
+
+
+
 }

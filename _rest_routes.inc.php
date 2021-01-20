@@ -632,6 +632,17 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+    'GET /fhir/Patient/$export' => function (HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            $return = (new FhirPatientRestController())->getOne($request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "demo");
+            $return = (new FhirPatientRestController())->getAll($_GET);
+        }
+
+        RestConfig::apiLog($return);
+        return $return;
+    },
     "GET /fhir/Patient/:id" => function ($id, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -757,14 +768,30 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Observation" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirObservationRestController())->getAll($_GET);
+        if ($request->isPatientRequest()) {
+            $getParams = $_GET;
+            // TODO: need to verify that observation rest controller supports search by patient.
+            $getParams['patient'] = $request->getPatientUUIDString();
+            $return = (new FhirObservationRestController())->getAll($getParams);
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirObservationRestController())->getAll($_GET);
+        }
+
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Observation/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirObservationRestController())->getOne($uuid);
+        if ($request->isPatientRequest()) {
+            $getParams = $_GET;
+            $getParams['_id'] = $uuid;
+            $getParams['patient'] = $request->getPatientUUIDString();
+            $return = (new FhirObservationRestController())->getAll($getParams);
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirObservationRestController())->getOne($uuid);
+        }
+
         RestConfig::apiLog($return);
         return $return;
     },

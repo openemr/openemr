@@ -71,7 +71,9 @@ $discovery = <<<TEMPLATE
     "client_secret_post"
 ],
 "token_endpoint_auth_signing_alg_values_supported": [
-    "RS256"
+    "RS256",
+    "RS384",
+    "ES384"
 ],
 "claims_locales_supported": [
     "en-US"

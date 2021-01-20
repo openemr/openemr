@@ -18,6 +18,7 @@ require_once(__DIR__ . "/../Common/Session/SessionUtil.php");
 
 use DateInterval;
 use Exception;
+use GuzzleHttp\Client;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\ValidationData;
@@ -35,6 +36,7 @@ use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomPasswordGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomRefreshTokenGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
@@ -648,8 +650,11 @@ class AuthorizationController
         }
         if ($this->grantType === 'client_credentials') {
             // Enable the client credentials grant on the server
+            $client_credentials = new CustomClientCredentialsGrant();
+            $client_credentials->setLogger($this->logger);
+            $client_credentials->setHttpClient(new Client()); // set our guzzle client here
             $authServer->enableGrantType(
-                new ClientCredentialsGrant(),
+                $client_credentials,
                 new \DateInterval('PT300S')
             );
         }
@@ -1004,7 +1009,7 @@ class AuthorizationController
         } catch (OAuthServerException $exception) {
             $this->logger->debug(
                 "AuthorizationController->oauthAuthorizeToken() OAuthServerException occurred",
-                ["message" => $exception->getMessage(), "stack" => $exception->getTraceAsString()]
+                ["hint" => $exception->getHint(), "message" => $exception->getMessage(), "stack" => $exception->getTraceAsString()]
             );
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
