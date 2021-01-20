@@ -44,6 +44,7 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
 -   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
     -   [Capability Statement](FHIR_README.md#capability-statement)
     -   [Patient](FHIR_README.md#patient-resource)
+    -   [Coverage](FHIR_README.md#coverage-resource)
     -   [Encounter](FHIR_README.md#encounter-resource)
     -   [Practitioner](FHIR_README.md#practitioner-resource)
     -   [PractitionerRole](FHIR_README.md#practitionerrole-resource)
@@ -206,6 +207,32 @@ curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis
  }
 ]'
 ```
+
+---
+
+### Coverage Resource
+
+#### GET fhir/Coverage
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/default/fhir/Coverage'
+```
+
+#### GET fhir/Coverage[id]
+
+Request:
+
+```sh
+curl -X GET 'http://localhost:8300/apis/default/fhir/Coverage/926c051b-9eaf-4753-b5d3-65c3f329e656'
+```
+
+-   Supported Search Parameters
+    -   \_id
+    -   patient
+    -   payor
+
 
 ---
 

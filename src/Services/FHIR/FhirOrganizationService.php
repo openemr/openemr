@@ -4,19 +4,21 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\OrganizationService;
+use OpenEMR\Validators\ProcessingResult;
 
 /**
  * FHIR Organization Service
  *
  * @coversDefaultClass OpenEMR\Services\FHIR\FhirOrganizationService
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Yash Bothra <yashrajbothra786@gmail.com>
- * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
+ * @package            OpenEMR
+ * @link               http://www.open-emr.org
+ * @author             Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class FhirOrganizationService extends FhirServiceBase
 {
@@ -28,11 +30,12 @@ class FhirOrganizationService extends FhirServiceBase
     public function __construct()
     {
         parent::__construct();
-        $this->organizationService = new FacilityService();
+        $this->organizationService = new OrganizationService();
     }
 
     /**
      * Returns an array mapping FHIR Organization Resource search parameters to OpenEMR Organization search parameters
+     *
      * @return array The search parameters
      */
     protected function loadSearchParameters()
@@ -41,20 +44,19 @@ class FhirOrganizationService extends FhirServiceBase
             "email" => ["email"],
             "phone" => ["phone"],
             "telecom" => ["email", "phone",],
-            "address" => ["street", "postal_code", "city", "state", "country_code"],
+            "address" => ["street", "postal_code", "city", "state", "country_code","line1"],
             "address-city" => ["city"],
-            "address-postalcode" => ["postal_code"],
+            "address-postalcode" => ["postal_code","zip"],
             "address-state" => ["state"],
             "name" => ["name"],
-            "active" => ["service_location"]
         ];
     }
 
     /**
      * Parses an OpenEMR organization record, returning the equivalent FHIR Organization Resource
      *
-     * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param  array   $dataRecord The source OpenEMR data record
+     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIROrganization
      */
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
@@ -85,8 +87,11 @@ class FhirOrganizationService extends FhirServiceBase
         }
 
         $address = new FHIRAddress();
-        if (!empty($dataRecord['street'])) {
-            $address->addLine($dataRecord['street']);
+        if (!empty($dataRecord['line1'])) {
+            $address->addLine($dataRecord['line1']);
+        }
+        if (!empty($dataRecord['line2'])) {
+            $address->addLine($dataRecord['line2']);
         }
         if (!empty($dataRecord['city'])) {
             $address->setCity($dataRecord['city']);
@@ -104,33 +109,61 @@ class FhirOrganizationService extends FhirServiceBase
         $organizationResource->addAddress($address);
 
         if (!empty($dataRecord['phone'])) {
-            $organizationResource->addTelecom(array(
+            $organizationResource->addTelecom(
+                array(
                 'system' => 'phone',
                 'value' => $dataRecord['phone'],
                 'use' => 'work'
-            ));
+                )
+            );
         }
 
         if (isset($dataRecord['email'])) {
-            $organizationResource->addTelecom(array(
+            $organizationResource->addTelecom(
+                array(
                 'system' => 'email',
                 'value' => $dataRecord['email'],
                 'use' => 'work'
-            ));
+                )
+            );
+        }
+
+        if (isset($dataRecord['orgType'])) {
+            $orgType = new FHIRCodeableConcept();
+            $type = new FHIRCoding();
+            $type->setSystem("http://terminology.hl7.org/CodeSystem/organization-type");
+            if ($dataRecord['orgType'] == 'facility') {
+                $type->setCode("prov");
+            }
+            if ($dataRecord['orgType'] == 'insurance') {
+                $type->setCode("pay");
+            }
+            $orgType->addCoding($type);
+            $organizationResource->addType($orgType);
         }
 
         if (isset($dataRecord['fax'])) {
-            $organizationResource->addTelecom(array(
+            $organizationResource->addTelecom(
+                array(
                 'system' => 'fax',
                 'value' => $dataRecord['fax'],
                 'use' => 'work'
-            ));
+                )
+            );
         }
 
         if (isset($dataRecord['facility_npi'])) {
             $fhirIdentifier = [
                 'system' => "http://hl7.org/fhir/sid/us-npi",
                 'value' => $dataRecord['facility_npi']
+            ];
+            $organizationResource->addIdentifier($fhirIdentifier);
+        }
+
+        if (isset($dataRecord['cms_id'])) {
+            $fhirIdentifier = [
+                'system' => "http://hl7.org/fhir/v2/0203",
+                'value' => $dataRecord['cms_id']
             ];
             $organizationResource->addIdentifier($fhirIdentifier);
         }
@@ -153,7 +186,7 @@ class FhirOrganizationService extends FhirServiceBase
     /**
      * Parses a FHIR Organization Resource, returning the equivalent OpenEMR organization record.
      *
-     * @param array $fhirResource The source FHIR resource
+     * @param  array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
     public function parseFhirResource($fhirResource = array())
@@ -182,7 +215,20 @@ class FhirOrganizationService extends FhirServiceBase
                 $data['state'] = $fhirResource['address'][0]['state'];
             }
         }
-
+        //setting default OrgType to facility
+        $data['orgType'] = 'facility';
+        if (isset($fhirResource['type'])) {
+            foreach ($fhirResource['type'] as $orgtype) {
+                foreach ($orgtype['coding'] as $coding) {
+                    if ($coding['code'] == 'pay') {
+                        $data['orgType'] = 'insurance';
+                    }
+                    if ($coding['code'] == 'prov') {
+                        $data['orgType'] = 'facility';
+                    }
+                }
+            }
+        }
         if (isset($fhirResource['telecom'])) {
             foreach ($fhirResource['telecom'] as $telecom) {
                 switch ($telecom['system']) {
@@ -229,7 +275,7 @@ class FhirOrganizationService extends FhirServiceBase
     /**
      * Inserts an OpenEMR record into the sytem.
      *
-     * @param array $openEmrRecord OpenEMR organization record
+     * @param  array $openEmrRecord OpenEMR organization record
      * @return ProcessingResult
      */
     public function insertOpenEMRRecord($openEmrRecord)
@@ -241,8 +287,8 @@ class FhirOrganizationService extends FhirServiceBase
     /**
      * Updates an existing OpenEMR record.
      *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
+     * @param  $fhirResourceId       //The OpenEMR record's FHIR Resource ID.
+     * @param  $updatedOpenEMRRecord //The "updated" OpenEMR record.
      * @return ProcessingResult
      */
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
@@ -253,6 +299,7 @@ class FhirOrganizationService extends FhirServiceBase
 
     /**
      * Performs a FHIR Organization Resource lookup by FHIR Resource ID
+     *
      * @param $fhirResourceId //The OpenEMR record's FHIR Organization Resource ID.
      */
     public function getOne($fhirResourceId)
@@ -272,12 +319,13 @@ class FhirOrganizationService extends FhirServiceBase
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param array openEMRSearchParameters OpenEMR search fields
+     * @param  array openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters)
     {
-        return $this->organizationService->getAll($openEMRSearchParameters, false);
+        $processingResult = $this->organizationService->getall($openEMRSearchParameters, false);
+        return $processingResult;
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
