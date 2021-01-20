@@ -109,6 +109,7 @@
 --    desc: populate name field with document names.
 --    arguments: none
 
+
 #IfMissingColumn insurance_companies uuid
 ALTER TABLE `insurance_companies` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
@@ -134,3 +135,4 @@ CREATE UNIQUE INDEX `uuid` ON `insurance_data` (`uuid`);
 #IfNotColumnType facility weno_id
 ALTER TABLE `facility` ADD `weno_id` VARCHAR(10) DEFAULT NULL;
 #EndIf
+

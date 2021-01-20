@@ -36,8 +36,8 @@ class BaseHarness extends PHPUnit_Framework_TestCase
         $_SESSION['authUser']  = 'tester';
         $_SESSION['authProvider'] = 'testgroup';
 
-        $GLOBALS = array( 'enable_auditlog' => '0',
-                          );
+        $GLOBALS['enable_auditlog'] = 0;
+
         $_SERVER['REQUEST_URI'] = '';
         $_SERVER['SERVER_NAME'] = '';
         $_SERVER['HTTP_HOST']   = 'default';

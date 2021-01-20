@@ -14,36 +14,50 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Services\AddressService;
-use Particle\Validator\Validator;
+use OpenEMR\Validators\InsuranceValidator;
 
-class InsuranceCompanyService
+class InsuranceCompanyService extends BaseService
 {
+    private const INSURANCE_TABLE = "insurance_companies";
+    private const ADDRESS_TABLE = "addresses";
+    private $uuidRegistry;
+    private $insuranceValidator;
     private $addressService = null;
 
+
+    /**
+     * Default constructor.
+     */
     public function __construct()
     {
         $this->addressService = new AddressService();
+        $this->uuidRegistry = new UuidRegistry(['table_name' => self::INSURANCE_TABLE]);
+        $this->uuidRegistry->createMissingUuids();
+        $this->insuranceValidator = new InsuranceValidator();
     }
 
-    public function validate($insuranceCompany)
+    public function getAll($search = array(), $isAndCondition = true)
     {
-        $validator = new Validator();
-
-        $validator->required('name')->lengthBetween(2, 255);
-        $validator->optional('attn')->lengthBetween(2, 255);
-        $validator->optional('cms_id')->lengthBetween(2, 15);
-        $validator->optional('alt_cms_id')->lengthBetween(2, 15);
-        $validator->optional('ins_type_code')->numeric();
-        $validator->optional('x12_receiver_id')->lengthBetween(2, 25);
-        $validator->optional('x12_default_partner_id')->numeric();
-
-        return $validator->validate($insuranceCompany);
-    }
-
-    public function getAll()
-    {
+        // Validating and Converting UUID to ID
+        if (isset($search['id'])) {
+            $isValidcondition = $this->insuranceValidator->validateId(
+                'uuid',
+                self::INSURANCE_TABLE,
+                $search['id'],
+                true
+            );
+            if ($isValidcondition !== true) {
+                return $isValidcondition;
+            }
+            $uuidBytes = UuidRegistry::uuidToBytes($search['id']);
+            $search['id'] = $this->getIdByUuid($uuidBytes, self::INSURANCE_TABLE, "id");
+        }
+        $sqlBindArray = array();
         $sql  = " SELECT i.id,";
+        $sql .= "        i.uuid,";
         $sql .= "        i.name,";
         $sql .= "        i.attn,";
         $sql .= "        i.cms_id,";
@@ -61,21 +75,70 @@ class InsuranceCompanyService
         $sql .= " FROM insurance_companies i";
         $sql .= " JOIN addresses a ON i.id = a.foreign_id";
 
-        $statementResults = sqlStatement($sql);
-
-        $results = array();
-        while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
+        if (!empty($search)) {
+            $sql .= ' AND ';
+            $whereClauses = array();
+            foreach ($search as $fieldName => $fieldValue) {
+                array_push($whereClauses, $fieldName . ' = ?');
+                array_push($sqlBindArray, $fieldValue);
+            }
+            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
+            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
         }
 
-        return $results;
+        $statementResults = sqlStatement($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $processingResult->addData($row);
+        }
+        return $processingResult;
     }
 
-    public function getOne($id)
+    public function getOneById($id)
     {
         $sql = "SELECT * FROM insurance_companies WHERE id=?";
-
         return sqlQuery($sql, array($id));
+    }
+
+    public function getOne($uuid)
+    {
+        $processingResult = new ProcessingResult();
+        $isValid = $this->insuranceValidator->validateId('uuid', self::INSURANCE_TABLE, $uuid, true);
+        if ($isValid !== true) {
+            return $isValid;
+        }
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $sql  = " SELECT i.id,";
+        $sql .= "        i.uuid,";
+        $sql .= "        i.name,";
+        $sql .= "        i.attn,";
+        $sql .= "        i.cms_id,";
+        $sql .= "        i.ins_type_code,";
+        $sql .= "        i.x12_receiver_id,";
+        $sql .= "        i.x12_default_partner_id,";
+        $sql .= "        i.alt_cms_id,";
+        $sql .= "        i.inactive,";
+        $sql .= "        a.line1,";
+        $sql .= "        a.line2,";
+        $sql .= "        a.city,";
+        $sql .= "        a.state,";
+        $sql .= "        a.zip,";
+        $sql .= "        a.country";
+        $sql .= " FROM insurance_companies i";
+        $sql .= " JOIN addresses a ON i.id = a.foreign_id";
+        $sql .= " WHERE i.uuid = ?";
+
+        $sqlResult = sqlQuery($sql, array($uuidBytes));
+        if ($sqlResult) {
+            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
+            $processingResult->addData($sqlResult);
+        } else {
+            $processingResult->addInternalError("error processing SQL");
+        }
+
+        return $processingResult;
     }
 
     public function getInsuranceTypes()
@@ -110,16 +173,10 @@ class InsuranceCompanyService
         );
     }
 
-    public function getFreshId()
-    {
-        $id = sqlQuery("SELECT MAX(id)+1 AS id FROM insurance_companies");
-
-        return $id['id'];
-    }
 
     public function insert($data)
     {
-        $freshId = $this->getFreshId();
+        $freshId = $this->getFreshId("id", "insurance_companies");
 
         $sql  = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";

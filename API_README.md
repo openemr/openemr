@@ -11,9 +11,12 @@ endpoint to the OpenEMR controller which handles the request, and also handles t
 
 ```php
 "POST /api/patient" => function () {
+    RestConfig::scope_check("user", "patient", "write");
     RestConfig::authorization_check("patients", "demo");
-    $data = (array)(json_decode(file_get_contents("php://input")));
-    return (new PatientRestController())->post($data);
+    $data = (array) (json_decode(file_get_contents("php://input")));
+    $return = (new PatientRestController())->post($data);
+    RestConfig::apiLog($return, $data);
+    return $return;
 }
 ```
 
@@ -53,6 +56,14 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 ### Sections
 
 -   [Authorization](API_README.md#authorization)
+    -   [Scopes](API_README.md#scopes)
+    -   [Registration](API_README.md#registration)
+        -   [SMART on FHIR Registration](API_README.md#smart-on-fhir-registration)
+    -   [Authorization Code Grant](API_README.md#authorization-code-grant)
+    -   [Refresh Token Grant](API_README.md#refresh-token-grant)
+    -   [Password Grant](API_README.md#password-grant)
+    -   [Logout](API_README.md#logout)
+    -   [More Details](API_README.md#more-details)
 -   [Standard API Endpoints](API_README.md#api-endpoints)
     -   [Facility API](API_README.md#post-apifacility)
     -   [Practitioner API](API_README.md#get-apipractitioner)
@@ -71,6 +82,7 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 -   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
     -   [FHIR Capability Statement](FHIR_README.md#capability-statement)
     -   [FHIR Patient](FHIR_README.md#patient-resource)
+    -   [FHIR Coverage](FHIR_README.md#coverage-resource)
     -   [FHIR Encounter](FHIR_README.md#encounter-resource)
     -   [FHIR Practitioner](FHIR_README.md#practitioner-resource)
     -   [FHIR PractitionerRole](FHIR_README.md#practitionerrole-resource)
@@ -78,7 +90,6 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [FHIR AllergyIntolerance](FHIR_README.md#allergyintolerance-resource)
     -   [FHIR Organization](FHIR_README.md#organization-resource)
     -   [FHIR Observation](FHIR_README.md#observation-resource)
-    -   [FHIR QuestionnaireResponse](FHIR_README.md#questionnaireresponse-resource)
     -   [FHIR Condition](FHIR_README.md#condition-resource)
     -   [FHIR Procedure](FHIR_README.md#procedure-resource)
     -   [FHIR MedicationRequest](FHIR_README.md#medicationrequest-resource)
@@ -89,7 +100,6 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 -   [Patient Portal FHIR API Endpoints](FHIR_README.md#patient-portal-fhir-endpoints)
     -   [Patient Portal FHIR Patient](FHIR_README.md#patient-portal-patient-resource)
 -   [Dev notes](API_README.md#dev-notes)
--   [Todos](API_README.md#project-management)
 
 ### Prerequisite
 
@@ -154,6 +164,7 @@ This is a listing of scopes:
   - `user/AllergyIntolerance.read`
   - `user/CareTeam.read`
   - `user/Condition.read`
+  - `user/Coverage.read`
   - `user/Encounter.read`
   - `user/Immunization.read`
   - `user/Location.read`
@@ -191,7 +202,7 @@ curl -X POST -k -H 'Content-Type: application/json' -i https://localhost:9300/oa
    "client_name": "A Private App",
    "token_endpoint_auth_method": "client_secret_post",
    "contacts": ["me@example.org", "them@example.org"],
-   "scope": "openid api:oemr api:fhir api:port api:pofh user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/Encounter.read patient/Patient.read"
+   "scope": "openid api:oemr api:fhir api:port api:pofh user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/Encounter.read patient/Patient.read"
   }'
 ```
 
@@ -209,7 +220,7 @@ Response:
     "client_name": "A Private App",
     "redirect_uris": ["https:\/\/client.example.org\/callback"],
     "token_endpoint_auth_method": "client_secret_post",
-    "scope": "openid api:oemr api:fhir api:port api:pofh user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/Encounter.read patient/Patient.read"
+    "scope": "openid api:oemr api:fhir api:port api:pofh user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/Encounter.read patient/Patient.read"
 }
 ```
 
@@ -265,7 +276,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=password
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
-&scope=openid%20api%3Aoemr%20api%3Afhir%20user%2Fallergy.read%20user%2Fallergy.write%20user%2Fappointment.read%20user%2Fappointment.write%20user%2Fdental_issue.read%20user%2Fdental_issue.write%20user%2Fdocument.read%20user%2Fdocument.write%20user%2Fdrug.read%20user%2Fencounter.read%20user%2Fencounter.write%20user%2Ffacility.read%20user%2Ffacility.write%20user%2Fimmunization.read%20user%2Finsurance.read%20user%2Finsurance.write%20user%2Finsurance_company.read%20user%2Finsurance_company.write%20user%2Finsurance_type.read%20user%2Flist.read%20user%2Fmedical_problem.read%20user%2Fmedical_problem.write%20user%2Fmedication.read%20user%2Fmedication.write%20user%2Fmessage.write%20user%2Fpatient.read%20user%2Fpatient.write%20user%2Fpractitioner.read%20user%2Fpractitioner.write%20user%2Fprescription.read%20user%2Fprocedure.read%20user%2Fsoap_note.read%20user%2Fsoap_note.write%20user%2Fsurgery.read%20user%2Fsurgery.write%20user%2Fvital.read%20user%2Fvital.write%20user%2FAllergyIntolerance.read%20user%2FCareTeam.read%20user%2FCondition.read%20user%2FEncounter.read%20user%2FImmunization.read%20user%2FLocation.read%20user%2FMedication.read%20user%2FMedicationRequest.read%20user%2FObservation.read%20user%2FOrganization.read%20user%2FOrganization.write%20user%2FPatient.read%20user%2FPatient.write%20user%2FPractitioner.read%20user%2FPractitioner.write%20user%2FPractitionerRole.read%20user%2FProcedure.read
+&scope=openid%20api%3Aoemr%20api%3Afhir%20user%2Fallergy.read%20user%2Fallergy.write%20user%2Fappointment.read%20user%2Fappointment.write%20user%2Fdental_issue.read%20user%2Fdental_issue.write%20user%2Fdocument.read%20user%2Fdocument.write%20user%2Fdrug.read%20user%2Fencounter.read%20user%2Fencounter.write%20user%2Ffacility.read%20user%2Ffacility.write%20user%2Fimmunization.read%20user%2Finsurance.read%20user%2Finsurance.write%20user%2Finsurance_company.read%20user%2Finsurance_company.write%20user%2Finsurance_type.read%20user%2Flist.read%20user%2Fmedical_problem.read%20user%2Fmedical_problem.write%20user%2Fmedication.read%20user%2Fmedication.write%20user%2Fmessage.write%20user%2Fpatient.read%20user%2Fpatient.write%20user%2Fpractitioner.read%20user%2Fpractitioner.write%20user%2Fprescription.read%20user%2Fprocedure.read%20user%2Fsoap_note.read%20user%2Fsoap_note.write%20user%2Fsurgery.read%20user%2Fsurgery.write%20user%2Fvital.read%20user%2Fvital.write%20user%2FAllergyIntolerance.read%20user%2FCareTeam.read%20user%2FCondition.read%20user%2FCoverage.read%20user%2FEncounter.read%20user%2FImmunization.read%20user%2FLocation.read%20user%2FMedication.read%20user%2FMedicationRequest.read%20user%2FObservation.read%20user%2FOrganization.read%20user%2FOrganization.write%20user%2FPatient.read%20user%2FPatient.write%20user%2FPractitioner.read%20user%2FPractitioner.write%20user%2FPractitionerRole.read%20user%2FProcedure.read
 &user_role=users
 &username=admin
 &password=pass'
@@ -1707,15 +1718,3 @@ Response:
 -   For business logic, make or use the services [here](src/Services)
 -   For controller logic, make or use the classes [here](src/RestControllers)
 -   For routing declarations, use the class [here](_rest_routes.inc.php).
-
-### Project Management
-
-#### General API
-
--   TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
--   TODO(?): API for fee sheets
--   TODO(?): API for pharmacies
--   TODO(?): API for immunizations
--   TODO(?): API for prescriptions
--   TODO(?): Drug search API
--   TODO(?): API for onotes
