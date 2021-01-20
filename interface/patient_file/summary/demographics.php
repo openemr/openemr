@@ -238,6 +238,10 @@ require_once("$srcdir/options.js.php");
         return false;
     }
 
+    function getWeno() {
+        top.restoreSession();
+        location.href = '../../weno/indexrx.php'
+    }
 </script>
 
 <script>
