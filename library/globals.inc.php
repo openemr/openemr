@@ -140,7 +140,8 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'checkout_roll_off',
     'patient_birthday_alert',
     'patient_birthday_alert_manual_off',
-    'erx_import_status_message');
+    'erx_import_status_message',
+    'weno_provider_password');
 
 // Gets array of time zones supported by PHP.
 //
@@ -3130,28 +3131,28 @@ $GLOBALS_METADATA = array(
             xl('Enable Weno eRx Service'),
             'bool',
             '0',
-            xl('Enable Weno eRx Service') . ' ' . xl('Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.')
+            xl('Enable Weno eRx Service') . ' ' . xl('Contact https://online.wenoexchange.com to sign up for Weno Free eRx service.')
         ),
 
-        'weno_account_id' => array(
-            xl('Weno eRx Account Id'),
-            'text',
-            '137',
-            xl('Account Id issued for Weno eRx service.')
+        'weno_rx_enable_test' => array(
+            xl('Enable Weno eRx Service Test mode'),
+            'bool',
+            '1',
+            xl('Enable Weno eRx Service Test mode')
         ),
 
-        'weno_account_pass' => array(
-            xl('Weno eRx Account Pass'),
+        'weno_encryption_key' => array(
+            xl('Weno Encryption Key'),
             'encrypted',                      // data type
-            '7C84773D5063B20BC9E41636A091C6F17E9C1E34',
-            xl('Account Id issued for Weno eRx service.')
+            '',
+            xl('Encryption key issued by Weno eRx service.')
         ),
 
-        'weno_provider_id' => array(
-            xl('Weno eRx Clinic ID'),
-            'text',
-            'C36275',
-            xl('Account Id issued for Your clinics eRx service.')
+        'weno_provider_password' => array(
+            xl('Weno Provider Account Password'),
+            'encrypted',                      // data type
+            '',
+            xl('Each provider needs to set this under user settings. This should be blank')
         ),
 
         'ccda_alt_service_enable' => array(
