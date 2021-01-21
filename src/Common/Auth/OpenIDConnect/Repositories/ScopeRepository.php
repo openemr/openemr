@@ -209,7 +209,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "patient/Encounter.read",
 //            "patient/Encounter.write",
 //            "patient/Goal.read",
-//            "patient/Immunization.read",
+            "patient/Immunization.read",
 //            "patient/Immunization.write",
 //            "patient/Location.read",
 //            "patient/Medication.read",
@@ -532,7 +532,7 @@ class ScopeRepository implements ScopeRepositoryInterface
                                 break;
                             case 'insert':
                             case 'update':
-                                $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                                $scopes_api['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
                                 $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
                                 $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
                                 break;

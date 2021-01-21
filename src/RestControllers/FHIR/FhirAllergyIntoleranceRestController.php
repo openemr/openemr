@@ -31,11 +31,12 @@ class FhirAllergyIntoleranceRestController
     /**
      * Queries for a single FHIR allergyIntolerance resource by FHIR id
      * @param $fhirId The FHIR allergyIntolerance resource id (uuid)
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = $this->fhirAllergyIntoleranceService->getOne($fhirId);
+        $processingResult = $this->fhirAllergyIntoleranceService->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -43,11 +44,12 @@ class FhirAllergyIntoleranceRestController
      * Queries for FHIR allergyIntolerance resources using various search parameters.
      * Search parameters include:
      * - patient (puuid)
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return FHIR bundle with query results, if found
      */
-    public function getAll($searchParams)
+    public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = $this->fhirAllergyIntoleranceService->getAll($searchParams);
+        $processingResult = $this->fhirAllergyIntoleranceService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [
