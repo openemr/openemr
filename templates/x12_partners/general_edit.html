@@ -6,12 +6,21 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * Modified by Daniel Pflieger at GrowlingFlea Software to handle submitters
  *}
 <form name="x12_partner" method="post" action="{$FORM_ACTION}" class='form-horizontal' onsubmit="return top.restoreSession()">
     <div class="form-row my-sm-2">
         <label for="name" class="col-form-label col-sm-2">{xlt t='Partner Name'}</label>
         <div class="col-sm-8">
             <input type="text" id="name" name="name" class="form-control" value="{$partner->get_name()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <!--        //***MI2 Add -->
+    <div class="form-row my-sm-2">
+        <label for="name" class="col-form-label col-sm-2">{xl t='Submitter Name (3rd Party Submitter Only)'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="x12_submitter_name" name="x12_submitter_name" class="form-control" value="{$partner->get_x12_submitter_name()|escape:'html'}" onKeyDown="PreventIt(event)">
+            <!--        //***MS Add end-->
         </div>
     </div>
     <div class="form-row my-sm-2">
@@ -130,6 +139,43 @@
             <input type="text" maxlength="15" id="x12_gs03" name="x12_gs03" class="form-control" value="{$partner->get_x12_gs03()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_login" class="col-form-label col-sm-2">{xlt t='SFTP Login Credentials'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="45" id="x12_sftp_login" name="x12_sftp_login" class="form-control" value="{$partner->get_x12_sftp_login()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_pass" class="col-form-label col-sm-2">{xlt t='SFTP Pass Credentials'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="45" id="x12_sftp_pass" name="x12_sftp_pass" class="form-control" value="{$partner->get_x12_sftp_pass()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_host" class="col-form-label col-sm-2">{xlt t='SFTP Host'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="15" id="x12_sftp_host" name="x12_sftp_host" class="form-control" value="{$partner->get_x12_sftp_host()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_port" class="col-form-label col-sm-2">{xlt t='SFTP Port'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="5" id="x12_sftp_port" name="x12_sftp_port" class="form-control" value="{$partner->get_x12_sftp_port()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_local_dir" class="col-form-label col-sm-2">{xlt t='SFTP Local Directory'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_sftp_local_dir" name="x12_sftp_local_dir" class="form-control" value="{$partner->get_x12_sftp_local_dir()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_remote_dir" class="col-form-label col-sm-2">{xlt t='SFTP Remote Directory'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_sftp_remote_dir" name="x12_sftp_remote_dir" class="form-control" value="{$partner->get_x12_sftp_remote_dir()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
     <div class="btn-group offset-sm-2">
         <a href="javascript:add_x12();" class="btn btn-secondary btn-save" onclick="top.restoreSession()">
             {xlt t='Save'}

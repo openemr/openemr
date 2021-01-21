@@ -501,6 +501,27 @@
           "eob"
         ],
         "global_req": "enable_edihistory_in_left_menu"
+      },
+      {
+        "label": "Claim File Tracker",
+        "menu_id": "biltrk0",
+        "target": "biltrk",
+        "url": "/interface/billing/billing_tracker.php",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+            [
+                "acct",
+                "eob",
+                "write"
+            ],
+            [
+                "acct",
+                "bill",
+                "write"
+            ]
+        ],
+        "global_req": "auto_sftp_claims_to_x12_partner"
       }
     ],
     "requirement": 0,

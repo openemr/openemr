@@ -12,6 +12,7 @@ class X12Partner extends ORDataObject
 
     var $id;
     var $name;
+    var $x12_submitter_name; //***MI2 Add
     var $id_number;
     var $x12_isa01; //
     var $x12_isa02; //
@@ -30,6 +31,14 @@ class X12Partner extends ORDataObject
     var $processing_format;
     var $processing_format_array;
     var $x12_gs03; // Application Sender's Code. If this isn't set then we will use the $x12_receiver_id(ISA08).
+
+    //for submitting claims via sftp
+    var $x12_sftp_login;
+    var $x12_sftp_pass;
+    var $x12_sftp_host;
+    var $x12_sftp_port;
+    var $x12_sftp_local_dir;
+    var $x12_sftp_remote_dir;
 
     /**
      * Constructor sets all Insurance attributes to their default value
@@ -52,6 +61,15 @@ class X12Partner extends ORDataObject
         if ($id != "") {
             $this->populate();
         }
+        //***MI2 Add - make sure that we have this column in the table
+        $result = sqlQuery("SHOW COLUMNS FROM `x12_partners` LIKE 'x12_submitter_name'");
+
+        if(($result) == 0) {
+            // do your stuff
+            sqlQuery("alter table x12_partners add x12_submitter_name VARCHAR(255) ");
+        }
+
+
     }
 
     function x12_partner_factory()
@@ -83,6 +101,76 @@ class X12Partner extends ORDataObject
     function get_name()
     {
         return $this->name;
+    }
+
+    function get_x12_submitter_name() //***MI2 Add
+    {
+        return $this->x12_submitter_name;
+    }
+
+    function set_x12_submitter_name($string) //***MI2 Add
+    {
+        $this->x12_submitter_name = $string;
+    }
+//***    SFTP Creds
+    function set_x12_sftp_login($string) //***MI2 Add
+    {
+        $this->x12_sftp_login = $string;
+    }
+
+    function get_x12_sftp_login() //***MI2 Add
+    {
+        return $this->x12_sftp_login;
+    }
+
+    function set_x12_sftp_pass($string) //***MI2 Add
+    {
+        $this->x12_sftp_pass = $string;
+    }
+
+    function get_x12_sftp_pass() //***MI2 Add
+    {
+        return $this->x12_sftp_pass;
+    }
+
+    function set_x12_sftp_host($string) //***MI2 Add
+    {
+        $this->x12_sftp_host = $string;
+    }
+
+    function get_x12_sftp_host() //***MI2 Add
+    {
+        return $this->x12_sftp_host;
+    }
+
+    function set_x12_sftp_port($string) //***MI2 Add
+    {
+        $this->x12_sftp_port = $string;
+    }
+
+    function get_x12_sftp_port() //***MI2 Add
+    {
+        return $this->x12_sftp_port;
+    }
+
+    function set_x12_sftp_local_dir($string) //***MI2 Add
+    {
+        $this->x12_sftp_local_dir = $string;
+    }
+
+    function get_x12_sftp_local_dir() //***MI2 Add
+    {
+        return $this->x12_sftp_local_dir;
+    }
+
+    function set_x12_sftp_remote_dir($string) //***MI2 Add
+    {
+        $this->x12_sftp_remote_dir = $string;
+    }
+
+    function get_x12_sftp_remote_dir() //***MI2 Add
+    {
+        return $this->x12_sftp_remote_dir;
     }
 
     function set_name($string)

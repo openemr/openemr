@@ -136,3 +136,20 @@ CREATE UNIQUE INDEX `uuid` ON `insurance_data` (`uuid`);
 ALTER TABLE `facility` ADD `weno_id` VARCHAR(10) DEFAULT NULL;
 #EndIf
 
+#IfNotRow background_services name X12_SFTP
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('X12_SFTP', 'SFTP Claims to X12 Partner Service', 1, 0, '2021-01-18 11:25:10', 1, 'start_X12_SFTP', '/library/billing_sftp_service.php', 100);
+#EndIf
+
+#IfNotTable x12_remote_tracker
+CREATE TABLE `x12_remote_tracker` (
+`id` bigint(20) NOT NULL,
+`x12_partner_id` int(11) NOT NULL,
+`x12_filename` varchar(255) NOT NULL,
+`status` varchar(255) NOT NULL,
+`claims` json DEFAULT NULL,
+`messages` json DEFAULT NULL,
+`created_at` datetime NOT NULL,
+`updated_at` datetime NOT NULL
+) ENGINE=InnoDB;
+#EndIf

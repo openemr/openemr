@@ -20,18 +20,62 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 }
 
 $content_type = "text/plain";
-$claim_file_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/";
 
+// The key contains the filename
 $fname = $_GET['key'];
-$fname = preg_replace("[/]", "", $fname);
-$fname = preg_replace("[\.\.]", "", $fname);
-$fname = preg_replace("[\\\\]", "", $fname);
+
+// Because of the way the billing tables are constructed (as of 2021)
+// We may not know exactly where the file is, so we need to try a couple
+// different places. This is mainly because the full path is not stored
+// in the database. Also, the file could have been generated with the
+// 'gen_x12_based_on_ins_co' global set to 'on' but if it was turned off,
+// we still want to be able to download the file. So, we have to do a bit
+// of searching.
+// The edi directory is the default location.
+
+// the loc, if set, may tell us where the file is
+$location = $_GET['location'];
+$claim_file_found = false;
+if ($location === 'tmp') {
+    $claim_file_dir = rtrim($GLOBALS['temporary_files_dir'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    if (file_exists($claim_file_dir . $fname)) {
+        $claim_file_found = true;
+    }
+}
+
+// See if the file exists in the x-12 partner's SFTP directory
+// If it's not there, try the edi directory
+if (false === $claim_file_found &&
+    isset($_GET['partner'])) {
+    $x12_partner_id = $_GET['partner'];
+    // First look in the database for the file so we know
+    // which partner directory to check
+    $sql = "SELECT `X`.`id`, `X`.`x12_sftp_local_dir`
+        FROM `x12_partners` `X`
+        WHERE `X`.`id` = ?
+        LIMIT 1";
+    $row = sqlQuery($sql, [$x12_partner_id]);
+    if ($row) {
+        $claim_file_dir = $row['x12_sftp_local_dir'];
+    }
+
+    if (file_exists($claim_file_dir . $fname)) {
+        $claim_file_found = true;
+    }
+}
+
+if ($claim_file_found === false) {
+    $claim_file_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/";
+    $fname = preg_replace("[/]", "", $fname);
+    $fname = preg_replace("[\.\.]", "", $fname);
+    $fname = preg_replace("[\\\\]", "", $fname);
+}
+
+$fname = $claim_file_dir . $fname;
 
 if (strtolower(substr($fname, (strlen($fname) - 4))) == ".pdf") {
     $content_type = "application/pdf";
 }
-
-$fname = $claim_file_dir . $fname;
 
 if (!file_exists($fname)) {
     echo xlt("The claim file: ") . text($_GET['key']) . xlt(" could not be accessed.");
@@ -47,6 +91,14 @@ if (!file_exists($fname)) {
 
     // dump the picture and stop the script
     fpassthru($fp);
+
+    // If the caller sets the delete flag, delete the file when we're done serving it
+    // This is the common case of a temporary file when validation-only is performed
+    // by the BillingProcessor
+    if (isset($_GET['delete']) &&
+        $_GET['delete'] == 1) {
+        unlink($fname);
+    }
 }
 
 exit;
