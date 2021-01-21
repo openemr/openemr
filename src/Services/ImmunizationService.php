@@ -43,10 +43,11 @@ class ImmunizationService extends BaseService
      *
      * @param  $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
         $sqlBindArray = array();
 
@@ -61,6 +62,19 @@ class ImmunizationService extends BaseService
                 return $isValidEncounter;
             }
             $search['patient.uuid'] = UuidRegistry::uuidToBytes($search['patient.uuid']);
+        }
+
+        if (!empty($puuidBind)) {
+            // code to support patient binding
+            $isValidEncounter = $this->immunizationValidator->validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $puuidBind,
+                true
+            );
+            if ($isValidEncounter !== true) {
+                return $isValidEncounter;
+            }
         }
 
         $sql = "SELECT immunizations.id,
@@ -94,9 +108,9 @@ class ImmunizationService extends BaseService
                         FALSE
                     ) OR
                     IF(
-                        information_source = 'other_provider' OR 
-                        information_source = 'birth_certificate' OR 
-                        information_source = 'school_record' OR 
+                        information_source = 'other_provider' OR
+                        information_source = 'birth_certificate' OR
+                        information_source = 'school_record' OR
                         information_source = 'public_agency',
                         TRUE,
                         FALSE
@@ -111,6 +125,10 @@ class ImmunizationService extends BaseService
 
         if (!empty($search)) {
             $sql .= ' WHERE ';
+            if (!empty($puuidBind)) {
+                // code to support patient binding
+                $sql .= '(';
+            }
             $whereClauses = array();
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
@@ -118,6 +136,15 @@ class ImmunizationService extends BaseService
             }
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
             $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
+            if (!empty($puuidBind)) {
+                // code to support patient binding
+                $sql .= ") AND `patient`.`uuid` = ?";
+                $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
+            }
+        } elseif (!empty($puuidBind)) {
+            // code to support patient binding
+            $sql .= " WHERE `patient`.`uuid` = ?";
+            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }
 
         $statementResults = sqlStatement($sql, $sqlBindArray);
@@ -135,10 +162,11 @@ class ImmunizationService extends BaseService
     /**
      * Returns a single immunization record by id.
      * @param $uuid - The immunization uuid identifier in string format.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getOne($uuid)
+    public function getOne($uuid, $puuidBind = null)
     {
         $processingResult = new ProcessingResult();
 
@@ -149,6 +177,17 @@ class ImmunizationService extends BaseService
             ];
             $processingResult->setValidationMessages($validationMessages);
             return $processingResult;
+        }
+
+        if (!empty($puuidBind)) {
+            $isValid = $this->immunizationValidator->validateId("uuid", "patient_data", $puuidBind, true);
+            if ($isValid !== true) {
+                $validationMessages = [
+                    'puuid' => ["invalid or nonexisting value" => " value " . $puuidBind]
+                ];
+                $processingResult->setValidationMessages($validationMessages);
+                return $processingResult;
+            }
         }
 
         $sql = "SELECT immunizations.id,
@@ -182,9 +221,9 @@ class ImmunizationService extends BaseService
                                 FALSE
                             ) OR
                             IF(
-                                information_source = 'other_provider' OR 
-                                information_source = 'birth_certificate' OR 
-                                information_source = 'school_record' OR 
+                                information_source = 'other_provider' OR
+                                information_source = 'birth_certificate' OR
+                                information_source = 'school_record' OR
                                 information_source = 'public_agency',
                                 TRUE,
                                 FALSE
@@ -199,10 +238,19 @@ class ImmunizationService extends BaseService
                         WHERE immunizations.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
-        $sqlResult = sqlQuery($sql, [$uuidBinary]);
-        $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-        $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
-        $processingResult->addData($sqlResult);
+        $sqlBindArray = [$uuidBinary];
+
+        if (!empty($puuidBind)) {
+            $sql .= " AND `patient`.`uuid` = ?";
+            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
+        }
+
+        $sqlResult = sqlQuery($sql, $sqlBindArray);
+        if (!empty($sqlResult)) {
+            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
+            $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
+            $processingResult->addData($sqlResult);
+        }
         return $processingResult;
     }
 

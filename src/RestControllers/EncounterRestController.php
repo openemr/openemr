@@ -59,13 +59,13 @@ class EncounterRestController
 
     /**
      * Fetches a single encounter resource by pid and eid.
-     * @param $puuid The patient identifier used to lookup the existing record.
      * @param $euuid The encounter identifier to fetch.
+     * @param $puuid The patient identifier used to lookup the existing record.
      * @return a 200/Ok status code and the encounter resource.
      */
     public function getOne($puuid, $euuid)
     {
-        $processingResult = $this->encounterService->getEncounterForPatient($puuid, $euuid);
+        $processingResult = $this->encounterService->getEncounter($euuid, $puuid);
 
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
             return RestControllerHelper::handleProcessingResult($processingResult, 404);
@@ -81,7 +81,7 @@ class EncounterRestController
      */
     public function getAll($puuid)
     {
-        $processingResult = $this->encounterService->getEncountersForPatient($puuid);
+        $processingResult = $this->encounterService->getEncountersBySearch([], true, $puuid);
 
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
             return RestControllerHelper::handleProcessingResult($processingResult, 404);

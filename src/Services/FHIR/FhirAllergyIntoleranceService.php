@@ -213,10 +213,11 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
     /**
      * Performs a FHIR AllergyIntolerance Resource lookup by FHIR Resource ID
      * @param $fhirResourceId //The OpenEMR record's FHIR AllergyIntolerance Resource ID.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = null)
     {
-        $processingResult = $this->allergyIntoleranceService->getOne($fhirResourceId);
+        $processingResult = $this->allergyIntoleranceService->getOne($fhirResourceId, $puuidBind);
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];
@@ -232,11 +233,12 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array openEMRSearchParameters OpenEMR search fields
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters)
+    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        return $this->allergyIntoleranceService->getAll($openEMRSearchParameters, false);
+        return $this->allergyIntoleranceService->getAll($openEMRSearchParameters, false, $puuidBind);
     }
 
     public function parseFhirResource($fhirResource = array())
