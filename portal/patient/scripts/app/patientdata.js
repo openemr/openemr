@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 var page = {
@@ -105,6 +105,16 @@ var page = {
                     scrollMonth: datepicker_scrollMonth,
                     timepicker: false
                 });
+                // listen for a submit request.
+                window.addEventListener("message", (e) => {
+                    if (e.origin !== window.location.origin) {
+                        signerAlertMsg("Unauthorized! Request is not same origin!", 15000);
+                        return false;
+                    }
+                    if (e.data.submitForm === true) {
+                        page.updateModel(1);
+                    }
+                });
             });
             // initialize any special controls
             // populate the dropdown options for provider and referer
@@ -194,12 +204,14 @@ var page = {
                     timepicker: true
                 });
                 // hide excluded from layouts
-                exclude.forEach(id => {
-                    let elHide = document.getElementById(id) ?? '';
-                    if (elHide) {
-                        elHide.style.display = "none";
-                    }
-                });
+                if (typeof exclude !== 'undefined') {
+                    exclude.forEach(id => {
+                        let elHide = document.getElementById(id) ?? '';
+                        if (elHide) {
+                            elHide.style.display = "none";
+                        }
+                    });
+                }
 
                 $("#dob").on('blur', function () {
                     let bday = $(this).val() ?? '';
