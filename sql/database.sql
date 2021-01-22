@@ -8503,14 +8503,14 @@ CREATE TABLE `x12_partners` (
   `x12_gs02`  varchar(15) NOT NULL DEFAULT '',
   `x12_per06` varchar(80) NOT NULL DEFAULT '',
   `x12_dtp03` char(1)     NOT NULL DEFAULT 'A',
-  `x12_partners` ADD COLUMN `x12_gs03` varchar(15) DEFAULT NULL,
-  `x12_partners` ADD COLUMN `x12_submitter_name` varchar(256) DEFAULT NULL,
-  `x12_partners` ADD COLUMN `x12_sftp_login` varchar(256) DEFAULT NULL,
-  `x12_partners` ADD COLUMN `x12_sftp_pass` varchar(256) DEFAULT NULL,
-  `x12_partners` ADD COLUMN `x12_sftp_host` varchar(256) DEFAULT NULL,
-  `x12_partners` ADD COLUMN `x12_sftp_port` varchar(15) DEFAULT NULL,
-  `x12_partners` ADD COLUMN `x12_sftp_local_dir` varchar(256) DEFAULT NULL,
-  `x12_partners` ADD COLUMN `x12_sftp_remote_dir` varchar(256) DEFAULT NULL,
+  `x12_gs03` varchar(15) DEFAULT NULL,
+  `x12_submitter_name` varchar(256) DEFAULT NULL,
+  `x12_sftp_login` varchar(256) DEFAULT NULL,
+  `x12_sftp_pass` varchar(256) DEFAULT NULL,
+  `x12_sftp_host` varchar(256) DEFAULT NULL,
+  `x12_sftp_port` varchar(15) DEFAULT NULL,
+  `x12_sftp_local_dir` varchar(256) DEFAULT NULL,
+  `x12_sftp_remote_dir` varchar(256) DEFAULT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
