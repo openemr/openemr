@@ -17,6 +17,8 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\Patient\PatientCreatedEvent;
+use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -96,6 +98,51 @@ class PatientService extends BaseService
     }
 
     /**
+     * Insert a patient record into the database
+     *
+     * returns the newly-created patient data array, or false in the case of
+     * an error with the sql insert
+     *
+     * @param $data
+     * @return false|int
+     */
+    public function databaseInsert($data)
+    {
+        $freshPid = $this->getFreshPid();
+        $data['pid'] = $freshPid;
+        $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
+
+        // The 'date' is the updated-date, and 'regdate' is the created-date
+        // so set both to the current datetime.
+        $data['date'] = date("Y-m-d H:i:s");
+        $data['regdate'] = date("Y-m-d H:i:s");
+        if (empty($data['pubpid'])) {
+            $data['pubpid'] = $freshPid;
+        }
+
+        $query = $this->buildInsertColumns($data);
+        $sql = " INSERT INTO patient_data SET ";
+        $sql .= $query['set'];
+
+        $results = sqlInsert(
+            $sql,
+            $query['bind']
+        );
+
+        // Tell subscribers that a new patient has been created
+        $patientCreatedEvent = new PatientCreatedEvent($data);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientCreatedEvent::EVENT_HANDLE, $patientCreatedEvent, 10);
+
+        // If we have a result-set from our insert, return the PID,
+        // otherwise return false
+        if ($results) {
+            return $data;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Inserts a new patient record.
      *
      * @param $data The patient fields (array) to insert.
@@ -110,31 +157,56 @@ class PatientService extends BaseService
             return $processingResult;
         }
 
-        $freshPid = $this->getFreshPid();
-        $data['pid'] = $freshPid;
-        $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
-        $data['date'] = date("Y-m-d H:i:s");
-        $data['regdate'] = date("Y-m-d H:i:s");
+        $data = $this->databaseInsert($data);
 
-        $query = $this->buildInsertColumns($data);
-        $sql = " INSERT INTO patient_data SET ";
-        $sql .= $query['set'];
-
-        $results = sqlInsert(
-            $sql,
-            $query['bind']
-        );
-
-        if ($results) {
+        if (false !== $data['pid']) {
             $processingResult->addData(array(
-                'pid' => $freshPid,
+                'pid' => $data['pid'],
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
             ));
+
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }
 
         return $processingResult;
+    }
+
+    /**
+     * Do a database update using the pid from the input
+     * array
+     *
+     * Return the data that was updated into the database,
+     * or false if there was an error with the update
+     *
+     * @param array $data
+     * @return mixed
+     */
+    public function databaseUpdate($data)
+    {
+        // Get the data before update to send to the event listener
+        $dataBeforeUpdate = $this->findByPid($data['pid']);
+
+        // The `date` column is treated as an updated_date
+        $data['date'] = date("Y-m-d H:i:s");
+        $table = PatientService::TABLE_NAME;
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE $table SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE `pid` = ?";
+
+        array_push($query['bind'], $data['pid']);
+        $sqlResult = sqlStatement($sql, $query['bind']);
+
+        if ($sqlResult) {
+            // Tell subscribers that a new patient has been updated
+            $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientUpdatedEvent::EVENT_HANDLE, $patientUpdatedEvent, 10);
+
+            return $data;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -152,6 +224,11 @@ class PatientService extends BaseService
         if (!$processingResult->isValid()) {
             return $processingResult;
         }
+
+        // Get the data before update to send to the event listener
+        $dataBeforeUpdate = $this->getOne($puuidString);
+
+        // The `date` column is treated as an updated_date
         $data['date'] = date("Y-m-d H:i:s");
 
         $query = $this->buildUpdateColumns($data);
@@ -167,6 +244,11 @@ class PatientService extends BaseService
             $processingResult->addErrorMessage("error processing SQL Update");
         } else {
             $processingResult = $this->getOne($puuidString);
+            // Tell subscribers that a new patient has been updated
+            // We have to do this here and in the databaseUpdate() because this lookup is
+            // by uuid where the databseUpdate updates by pid.
+            $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $processingResult->getData());
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientUpdatedEvent::EVENT_HANDLE, $patientUpdatedEvent, 10);
         }
         return $processingResult;
     }
@@ -304,6 +386,23 @@ class PatientService extends BaseService
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $processingResult->addData($sqlResult);
         return $processingResult;
+    }
+
+    /**
+     * Given a pid, find the patient record
+     *
+     * @param $pid
+     */
+    public function findByPid($pid)
+    {
+        $table = PatientService::TABLE_NAME;
+        $patientRow = self::selectHelper("SELECT * FROM `$table`", [
+            'where' => 'WHERE pid = ?',
+            'limit' => 1,
+            'data' => [$pid]
+        ]);
+
+        return $patientRow;
     }
 
     /**
