@@ -107,7 +107,7 @@ GlobalConfig::$ROUTE_MAP = array(
     'POST:api/patient' => array(
         'route' => 'Patient.Create',
         'p_acl' => 'p_none',
-        'p_reg' => false
+        'p_reg' => true
     ),
     'GET:api/patient/(:num)' => array(
         'route' => 'Patient.Read',

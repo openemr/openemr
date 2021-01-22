@@ -36,9 +36,6 @@ class PatientController extends AppBaseController
     protected function Init()
     {
         parent::Init();
-// require_once ( '../lib/appsql.class.php' );
-
-        // $this->RequirePermission(SecureApp::$PERMISSION_USER,'SecureApp.LoginForm');
     }
 
     /**
@@ -90,7 +87,7 @@ class PatientController extends AppBaseController
             $trow[lcfirst($key)] = $v;
         }
         $this->Assign('trow', $trow);
-// seek and qualify excluded edits
+        // seek and qualify excluded edits
         $exclude = [];
         $q = sqlStatement("SELECT `field_id`, `uor`, `edit_options` FROM `layout_options` " .
             "WHERE `form_id` = 'DEM' AND (`uor` = 0 || `edit_options` > '')" .
@@ -118,7 +115,7 @@ class PatientController extends AppBaseController
             $recnum = (int) $pid;
             $criteria->Pid_Equals = $recnum;
             $output = new stdClass();
-// return row
+            // return row
             $patientdata = $this->Phreezer->Query('PatientReporter', $criteria);
             $output->rows = $patientdata->ToObjectArray(false, $this->SimpleObjectParams());
             $output->totalResults = count($output->rows);
@@ -146,7 +143,7 @@ class PatientController extends AppBaseController
 
             $criteria->Pid_Equals = $pid;
             $output = new stdClass();
-// if a sort order was specified then specify in the criteria
+            // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
             if ($output->orderBy) {
@@ -154,7 +151,7 @@ class PatientController extends AppBaseController
             }
 
             $page = RequestUtil::Get('page');
-// return all results
+            // return all results
             $patientdata = $this->Phreezer->Query('Patient', $criteria);
             $output->rows = $patientdata->ToObjectArray(true, $this->SimpleObjectParams());
             $output->totalResults = count($output->rows);
@@ -188,14 +185,13 @@ class PatientController extends AppBaseController
     {
         try {
             $json = json_decode(RequestUtil::GetBody());
-            if (! $json) {
+            if (empty($json)) {
                 throw new Exception('The request body does not contain valid JSON');
             }
-
+            if ($_SESSION['pid'] !== true && $_SESSION['register'] !== true) {
+                throw new Exception('Unauthorized');
+            }
             $patient = new Patient($this->Phreezer);
-// this is an auto-increment. uncomment if updating is allowed
-            // $patient->Id = $this->SafeGetVal($json, 'id');
-
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
             $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
             $patient->Financial = $this->SafeGetVal($json, 'financial', $patient->Financial);
