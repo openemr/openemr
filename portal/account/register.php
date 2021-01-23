@@ -91,6 +91,7 @@ if ($GLOBALS['language_menu_login']) {
 
     <script>
         var webRoot = <?php echo js_escape($GLOBALS['web_root']); ?>;
+        top.webroot_url = webRoot;
         var newPid = 0;
         var curPid = 0;
         var provider = 0;
