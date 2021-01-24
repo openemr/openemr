@@ -117,71 +117,28 @@ var page = {
                 });
             });
             // initialize any special controls
-            // populate the dropdown options for provider and referer
-            var examinerIdValues = new model.UserCollection();
-            examinerIdValues.fetch({
-                success: function (c) {
-                    var dd = $('#providerid');
-                    var ddd = $('#careTeam');
-                    var dddd = $('#refProviderid');
-                    dd.append('<option value="0">Unassigned</option>');
-                    ddd.append('<option value="0">Unassigned</option>');
-                    dddd.append('<option value="0">Unassigned</option>');
-                    c.forEach(function (item, index) {
-                        if (item.get('authorized') != '1' && item.get('portalUser') != '1') return;
-                        var uid = item.get('id')
-                        var tname = item.get('title') ? item.get('title') + ' ' : '';
-                        var sname = item.get('specialty') ? ',' + item.get('specialty') : '';
-                        var uname = tname + item.get('fname') + ' ' + item.get('lname') + sname;
-                        dd.append(app.getOptionHtml(
-                            uid,
-                            uname,
-                            page.patient.get('providerid') == item.get('id')
-                        ));
-                        ddd.append(app.getOptionHtml(
-                            uid,
-                            uname,
-                            page.patient.get('careTeam') == item.get('id')
-                        ));
-                        dddd.append(app.getOptionHtml(
-                            uid,
-                            uname,
-                            page.patient.get('refProviderid') == item.get('id')
-                        ));/**/
-                    });
-                    if (page.portalpatient) {
-                        if (page.portalpatient.get('pid')) {
-                            $("#replaceAllButton").show();
-                            page.isEdited = true;
-                            $.each(page.portalpatient.attributes, function (key, value) {
-                                if (value != page.patient.get(key)) {
-                                    if (key == 'providerid' || key == 'refProviderid' || key == 'careTeam') {
-                                        var os = 0 + value - 1;
-                                        if (os > -1) {
-                                            var em = examinerIdValues.at(os)
-                                            value = em.get('title') + ' ' + em.get('fname') + ' ' + em.get('lname')
-                                        } else
-                                            value = 'Unassigned'
-                                    }
-
-                                    if (($("input[name=" + key + "]").attr('type') == 'radio' || $('#' + key).is('select')) && value == "")
-                                        value = 'Unassigned';
-                                    $('#' + key + 'InputContainer span.help-inline').html(
-									'<a class="editval text-primary" onclick="page.toggleVal(this); return false;" data-tstate=new data-id="'+key+'">'+value+'</a>');
-                                    $('#' + key + 'InputContainer span.help-inline').show();
+            $(function () {
+                if (page.portalpatient) {
+                    if (page.portalpatient.get('pid')) {
+                        $("#replaceAllButton").show();
+                        page.isEdited = true;
+                        $.each(page.portalpatient.attributes, function (key, value) {
+                            if (value != page.patient.get(key)) {
+                                if (($("input[name=" + key + "]").attr('type') === 'radio' || $('#' + key).is('select')) && value == "") {
+                                    value = 'Unassigned';
                                 }
-                            });
-                        }
+                                $('#' + key + 'InputContainer span.help-inline').html(
+                                '<a class="editval text-primary" onclick="page.toggleVal(this); return false;" data-tstate=new data-id="'+key+'">'+value+'</a>');
+                                $('#' + key + 'InputContainer span.help-inline').show();
+                            }
+                        });
                     }
-                    page.replaceAll();
-                    $('form :input').on("change", function () {
-                        $("#donePatientButton").show();
-                        $('#savePatientButton').show();
-                    });
-                },
-                error: function (collection, response, scope) {
-                    app.appendAlert(app.getErrorMessage(response), 'alert-danger', 0, 'modelAlert');
                 }
+                page.replaceAll();
+                $('form :input').on("change", function () {
+                    $("#donePatientButton").show();
+                    $('#savePatientButton').show();
+                });
             });
 
             $(".controls .inline-inputs").find(':input:checked').parent('.btn').addClass('active');
@@ -203,7 +160,7 @@ var page = {
                     scrollMonth: datepicker_scrollMonth,
                     timepicker: true
                 });
-                // hide excluded from layouts
+                // hide excluded from view. from layout edit option 'Exclude in Portal'
                 if (typeof exclude !== 'undefined') {
                     exclude.forEach(id => {
                         let elHide = document.getElementById(id) ?? '';
@@ -219,7 +176,7 @@ var page = {
                     age = Math.round(age / 1000 / 60 / 60 / 24);
                     // need to be at least 30 days old otherwise likely an error.
                     if (age < 30) {
-                        let msg = "Invalid Date format or value! Type date as YYYY-MM-DD or use the calendar.";
+                        let msg = xl("Invalid Date format or value! Type date as YYYY-MM-DD or use the calendar.");
                         $(this).val('');
                         $(this).prop('placeholder', 'Invalid Date');
                         alert(msg);
@@ -230,7 +187,7 @@ var page = {
                 $("#ss").on('blur', function () {
                     let el = this;
                     let numbers = el.value.replace(/[^0-9]/g, '');
-                    if (numbers.length == 9) {
+                    if (numbers.length === 9) {
                         el.value = numbers.substr(0, 3) + '-' + numbers.substr(3, 2) + '-' + numbers.substr(5, 4);
                     }
                 });
@@ -306,7 +263,6 @@ var page = {
         $('.editval').each(function () {
             page.replaceVal(this);
         });
-        //$("#replaceAllButton").hide();
     },
     revertAll: function () {
         $('.editval').each(function () {
@@ -316,8 +272,8 @@ var page = {
     },
     /**
      * Fetch the collection data from the server
-     * @param object params passed through to collection.fetch
-     * @param bool true to hide the loading animation
+     * @param params
+     * @param hideLoader
      */
     fetchPatientData: function (params, hideLoader) {
         // persist the params so that paging/sorting/filtering will play together nicely
@@ -350,13 +306,13 @@ var page = {
 
     /**
      * show the form for editing a model
-     * @param model
+     * @param m
      */
     showDetailForm: function (m) {
         page.patient = m ? m : new model.PatientModel();
         page.modelView.model = page.patient;
-        if (page.patient.id == null || page.patient.id == '') {
-            page.renderModelView(false);
+        if (page.patient.id == null || page.patient.id === '') {
+            page.renderModelView();
             app.hideProgress('modelLoader');
         } else {
             app.showProgress('modelLoader');
@@ -375,7 +331,7 @@ var page = {
     },
     /**
      * get edited from audit table if any
-     * @param model
+     * @param m
      */
     getEditedPatient: function (m) {
         page.portalpatient = m ? m : new model.PortalPatientModel();
@@ -384,12 +340,12 @@ var page = {
             data: {'patientId': cpid},
             success: function () {
                 // audit profile data returned. render needs to be here due to chaining
-                page.renderModelView(false);
+                page.renderModelView();
                 return true;
             },
             error: function (m, r) {
                 // still have to render live data even if no changes pending
-                page.renderModelView(false);
+                page.renderModelView();
                 return false;
             }
         });
@@ -398,7 +354,7 @@ var page = {
      * Render the model template in the popup
      * @param bool show the delete button
      */
-    renderModelView: function (showDeleteButton) {
+    renderModelView: function () {
         page.modelView.render();
         app.hideProgress('modelLoader');
     },
@@ -406,7 +362,7 @@ var page = {
     /**
      * update the model that is currently displayed in the dialog
      */
-    updateModel: function (live) {
+    updateModel: function (live = 0) {
         // reset any previous errors
         $('#modelAlert').html('');
         $('.form-group').removeClass('error');
@@ -417,7 +373,7 @@ var page = {
 
         app.showProgress('modelLoader');
 
-        if (live != 1)
+        if (live !== 1)
             page.patient.urlRoot = 'api/portalpatient';
 
         page.patient.save({
@@ -504,7 +460,7 @@ var page = {
                 }
                 app.hideProgress('modelLoader');
                 if (isNew) {
-                    page.renderModelView(false);
+                    page.renderModelView();
                 }
                 if (model.reloadCollectionOnModelUpdate) {
                     // re-fetch and render the collection after the model has been updated

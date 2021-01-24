@@ -75,23 +75,23 @@ class PatientController extends AppBaseController
             $pid = 0;
             $register = true;
         }
-
         $this->Assign('recid', $rid);
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $user);
         $this->Assign('encounter', $encounter);
         $this->Assign('register', $register);
+
         $trow = array();
         $ptdata = $this->startupQuery($pid);
         foreach ($ptdata[0] as $key => $v) {
             $trow[lcfirst($key)] = $v;
         }
         $this->Assign('trow', $trow);
+
         // seek and qualify excluded edits
         $exclude = [];
         $q = sqlStatement("SELECT `field_id`, `uor`, `edit_options` FROM `layout_options` " .
-            "WHERE `form_id` = 'DEM' AND (`uor` = 0 || `edit_options` > '')" .
-            "ORDER BY `group_id`, `seq`");
+            "WHERE `form_id` = 'DEM' AND (`uor` = 0 || `edit_options` > '') ORDER BY `group_id`, `seq`");
         while ($key = sqlFetchArray($q)) {
             if ((int)$key['uor'] === 0 || strpos($key['edit_options'], "EP") !== false) {
                 $key['field_id'] = strtolower($key['field_id']);
@@ -103,6 +103,16 @@ class PatientController extends AppBaseController
             }
         }
         $this->Assign('exclude', $exclude);
+
+        // Get providers list delimit by if is authorized portal user.
+        $user_list_rst = sqlStatement("SELECT `id`, `username`, `fname`, `lname` FROM `users` " .
+            "WHERE `authorized` = 1 AND `active` = 1 AND `portal_user` = 1 ORDER BY `lname`, `fname`");
+        while ($row = sqlFetchArray($user_list_rst)) {
+            $user_list[] = $row;
+        }
+        $this->Assign('users_list', $user_list);
+
+        // finally render the template.
         $this->Render();
     }
     /**
@@ -112,17 +122,17 @@ class PatientController extends AppBaseController
     {
         try {
             $criteria = new PatientCriteria();
-            $recnum = (int) $pid;
+            $recnum = (int)$pid;
             $criteria->Pid_Equals = $recnum;
             $output = new stdClass();
             // return row
             $patientdata = $this->Phreezer->Query('PatientReporter', $criteria);
             $output->rows = $patientdata->ToObjectArray(false, $this->SimpleObjectParams());
             $output->totalResults = count($output->rows);
-            return $output->rows;
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
+        return $output->rows;
     }
     /**
      * API Method queries for Patient records and render as JSON
@@ -293,7 +303,7 @@ class PatientController extends AppBaseController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
-// this is a primary key. uncomment if updating is allowed
+            // this is a primary key. uncomment if updating is allowed
             // $patient->Id = $this->SafeGetVal($json, 'id', $patient->Id);
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
             $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
@@ -366,7 +376,7 @@ class PatientController extends AppBaseController
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
             } else {
                 $patient->Save();
-                self::CloseAudit($patient);
+                $this->CloseAudit($patient);
                 $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
         } catch (Exception $ex) {
@@ -379,7 +389,6 @@ class PatientController extends AppBaseController
         $ja = $p->GetArray();
         try {
             $audit = array ();
-        // date("Y-m-d H:i:s");
             $audit['patient_id'] = $ja['pid'];
             $audit['activity'] = "profile";
             $audit['require_audit'] = "1";
@@ -392,7 +401,7 @@ class PatientController extends AppBaseController
             $audit['action_user'] = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "0";
             $audit['action_taken_time'] = date("Y-m-d H:i:s");
             $audit['checksum'] = "0";
-        // returns false for new audit
+            // returns false for new audit
             $edata = $appsql->getPortalAudit($ja['pid'], 'review');
             if ($edata) {
                 if (empty($edata['id'])) {
@@ -411,8 +420,6 @@ class PatientController extends AppBaseController
     public function Delete()
     {
         try {
-// TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
-
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
             $patient->Delete();
