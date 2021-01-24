@@ -111,23 +111,23 @@ if (typeof isModule === 'undefined') {
 }
 
 function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
-    $('#alert_box').remove();
+    $('#signerAlertBox').remove();
     size = (size == 'lg') ? 'left:25%;width:50%;' : 'left:35%;width:30%;';
     let style = "position:fixed;top:25%;" + size + " bottom:0;z-index:1020;";
-    $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
-    let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
+    $("body").prepend("<div class='container text-center' id='signerAlertBox' style='" + style + "'></div>");
+    let mHtml = '<div id="alertMessage" class="alert alert-' + type + ' alert-dismissable">' +
         '<button type="button" class="close btn btn-link btn-cancel" data-dismiss="alert" aria-hidden="true">&times;</button>' +
         '<h5 class="alert-heading text-center">Alert!</h5><hr>' +
         '<p>' + message + '</p>' +
         '</div>';
-    $('#alert_box').append(mHtml);
-    $('#alertmsg').on('closed.bs.alert', function () {
+    $('#signerAlertBox').append(mHtml);
+    $('#alertMessage').on('closed.bs.alert', function () {
         clearTimeout(AlertMsg);
-        $('#alert_box').remove();
+        $('#signerAlertBox').remove();
     });
     let AlertMsg = setTimeout(function () {
-        $('#alertmsg').fadeOut(800, function () {
-            $('#alert_box').remove();
+        $('#alertMessage').fadeOut(800, function () {
+            $('#signerAlertBox').remove();
         });
     }, timer);
 }
@@ -575,15 +575,6 @@ function initSignerApi() {
             }
         });
 
-        $(openPatientButton).on("click", function (e) {
-            placeSignatureButton.setAttribute('data-type', 'patient-signature');
-            $(wrapper).modal({backdrop: "static"});
-        });
-        $(openAdminButton).on("click", function (e) {
-            placeSignatureButton.setAttribute('data-type', 'admin-signature');
-            $(wrapper).modal({backdrop: "static"});
-        });
-
         $("#openSignModal .close").on("click", function (e) {
             signaturePad.clear();
         });
@@ -598,11 +589,11 @@ function initSignerApi() {
             if (type) {
                 if (type === "admin-signature") {
                     $("#isAdmin").prop('checked', true);
-                    placeSignatureButton.setAttribute("type", type);
+                    placeSignatureButton.setAttribute("data-type", type);
                     isAdmin = true;
                 } else {
                     $("#isAdmin").prop('checked', false);
-                    placeSignatureButton.setAttribute("type", type);
+                    placeSignatureButton.setAttribute("data-type", type);
                     isAdmin = false;
                 }
                 $('#signatureModal').data('type', type);
