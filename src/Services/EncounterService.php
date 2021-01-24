@@ -149,7 +149,7 @@ class EncounterService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getEncountersBySearch($search = array(), $isAndCondition = true, $puuidBind)
+    public function getEncountersBySearch($search = array(), $isAndCondition = true, $puuidBind = true)
     {
         $sqlBindArray = array();
         $processingResult = new ProcessingResult();

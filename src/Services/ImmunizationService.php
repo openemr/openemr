@@ -180,6 +180,7 @@ class ImmunizationService extends BaseService
         }
 
         if (!empty($puuidBind)) {
+            // code to support patient binding
             $isValid = $this->immunizationValidator->validateId("uuid", "patient_data", $puuidBind, true);
             if ($isValid !== true) {
                 $validationMessages = [
@@ -241,6 +242,7 @@ class ImmunizationService extends BaseService
         $sqlBindArray = [$uuidBinary];
 
         if (!empty($puuidBind)) {
+            // code to support patient binding
             $sql .= " AND `patient`.`uuid` = ?";
             $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }

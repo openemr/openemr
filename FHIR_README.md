@@ -11,7 +11,6 @@ endpoint to the OpenEMR FHIR controller which handles the request, and also hand
 
 ```php
 "GET /fhir/Patient" => function () {
-    RestConfig::scope_check("user", "Patient", "read");
     RestConfig::authorization_check("patients", "demo");
     $return = (new FhirPatientRestController())->getAll($_GET);
     RestConfig::apiLog($return);
