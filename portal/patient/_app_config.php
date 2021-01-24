@@ -107,7 +107,7 @@ GlobalConfig::$ROUTE_MAP = array(
     'POST:api/patient' => array(
         'route' => 'Patient.Create',
         'p_acl' => 'p_none',
-        'p_reg' => false
+        'p_reg' => true
     ),
     'GET:api/patient/(:num)' => array(
         'route' => 'Patient.Read',
@@ -260,8 +260,8 @@ GlobalConfig::$ROUTE_MAP = array(
         'p_reg' => false
     ),
 
-    // User
-    'GET:users' => array(
+    // User no route no problem. leaving for now. 01/23/21
+    /*'GET:users' => array(
         'route' => 'User.ListView',
         'p_acl' => 'p_none',
         'p_reg' => false
@@ -278,7 +278,7 @@ GlobalConfig::$ROUTE_MAP = array(
         ),
         'p_acl' => 'p_none',
         'p_reg' => false
-    ),
+    ),*/
 
     // catch any broken API urls
     'GET:api/(:any)' => array(
