@@ -11,7 +11,6 @@ endpoint to the OpenEMR controller which handles the request, and also handles t
 
 ```php
 "POST /api/patient" => function () {
-    RestConfig::scope_check("user", "patient", "write");
     RestConfig::authorization_check("patients", "demo");
     $data = (array) (json_decode(file_get_contents("php://input")));
     $return = (new PatientRestController())->post($data);

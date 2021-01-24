@@ -152,7 +152,7 @@ class FhirEncounterService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($searchParam, $puuidBind = null)
     {
-        return $this->encounterService->getEncountersBySearch($searchParam, $puuidBind);
+        return $this->encounterService->getEncountersBySearch($searchParam, true, $puuidBind);
     }
 
     public function parseFhirResource($fhirResource = array())

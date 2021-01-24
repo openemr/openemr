@@ -59,8 +59,8 @@ class EncounterRestController
 
     /**
      * Fetches a single encounter resource by pid and eid.
-     * @param $euuid The encounter identifier to fetch.
      * @param $puuid The patient identifier used to lookup the existing record.
+     * @param $euuid The encounter identifier to fetch.
      * @return a 200/Ok status code and the encounter resource.
      */
     public function getOne($puuid, $euuid)
