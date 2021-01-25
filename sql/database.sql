@@ -12300,7 +12300,7 @@ KEY `accounts_id` (`user_id`),
 KEY `clients_id` (`client_id`)
 ) ENGINE=InnoDB;
 
-DROP TABLE IF EXISTS `x12_remote_tracker`
+DROP TABLE IF EXISTS `x12_remote_tracker`;
 CREATE TABLE `x12_remote_tracker` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
 `x12_partner_id` int(11) NOT NULL,
@@ -12309,5 +12309,6 @@ CREATE TABLE `x12_remote_tracker` (
 `claims` text DEFAULT NULL,
 `messages` text DEFAULT NULL,
 `created_at` datetime DEFAULT NULL,
-`updated_at` datetime DEFAULT NULL
+`updated_at` datetime DEFAULT NULL,
+PRIMARY KEY (`id`),
 ) ENGINE=InnoDB;

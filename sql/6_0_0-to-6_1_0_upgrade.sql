@@ -183,6 +183,7 @@ CREATE TABLE `x12_remote_tracker` (
 `claims` text DEFAULT NULL,
 `messages` text DEFAULT NULL,
 `created_at` datetime DEFAULT NULL,
-`updated_at` datetime DEFAULT NULL
+`updated_at` datetime DEFAULT NULL,
+PRIMARY KEY (`id`),
 ) ENGINE=InnoDB;
 #EndIf
