@@ -826,9 +826,7 @@ function send_hl7_order($ppid, $out)
         } else {
             return xl('Cannot create file') . ' "' . "$filename" . '"';
         }
-    } // TBD: Insert "elseif ($protocol == '???') {...}" to support other protocols.
-
-    else {
+    } else {
         return xl('This protocol is not implemented') . ": '$protocol'";
     }
 

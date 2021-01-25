@@ -27,6 +27,7 @@ require_once($GLOBALS['srcdir'] . "/forms.inc");
 require_once($GLOBALS['srcdir'] . "/pnotes.inc");
 
 use OpenEMR\Common\Logging\EventAuditLogger;
+use phpseclib\Net\SFTP;
 
 $rhl7_return = array();
 
@@ -57,8 +58,8 @@ function parseZPS($segment)
         $__garbage,
         $zps[$pos]['lab_clia']
     ] = $composites;
-    $labdir = $zps[0]['lab_director'][0] . " " . $zps[0]['lab_director'][1] . ", " .  $zps[0]['lab_director'][2];
-    $address = $zps[0]['lab_address'][0] . "\n" . $zps[0]['lab_address'][2] . " " .  $zps[0]['lab_address'][3] . " " . $zps[0]['lab_address'][4];
+    $labdir = $zps[0]['lab_director'][0] . " " . $zps[0]['lab_director'][1] . ", " . $zps[0]['lab_director'][2];
+    $address = $zps[0]['lab_address'][0] . "\n" . $zps[0]['lab_address'][2] . " " . $zps[0]['lab_address'][3] . " " . $zps[0]['lab_address'][4];
     $r = $zps[0]['lab_name'] . "\n" . $address . "\n" . $zps[0]['lab_phone'] . "\n" . $labdir . "\n";
     return $r;
 }
@@ -277,7 +278,7 @@ function rhl7ReportStatus($s)
  * the HL7 2.3 standard does not help with. Don't be surprised when we have to
  * adapt to conventions of various other labs.
  *
- * @param  string $fileext The lower case extension.
+ * @param string $fileext The lower case extension.
  * @return string            MIME type.
  */
 function rhl7MimeType($fileext)
@@ -308,8 +309,8 @@ function rhl7MimeType($fileext)
 /**
  * Extract encapsulated document data according to its encoding type.
  *
- * @param  string $enctype Encoding type from OBX[5][3].
- * @param  string &$src Encoded data  from OBX[5][4].
+ * @param string  $enctype Encoding type from OBX[5][3].
+ * @param string &$src     Encoded data  from OBX[5][4].
  * @return string            Decoded data, or FALSE if error.
  */
 function rhl7DecodeData($enctype, &$src)
@@ -357,7 +358,7 @@ function rhl7CWE($s, $componentdelimiter)
 /**
  * Parse the SPM segment and get the specimen display name and update the table.
  *
- * @param  string $specimen Encoding type from SPM.
+ * @param string $specimen Encoding type from SPM.
  */
 function rhl7UpdateReportWithSpecimen(&$amain, $specimen, $d2)
 {
@@ -385,10 +386,10 @@ function rhl7UpdateReportWithSpecimen(&$amain, $specimen, $d2)
 /**
  * Get the Performing Lab Details from the OBX segment. Mandatory for MU2.
  *
- * @param  string $obx23 Encoding type from OBX23.
- * @param  string $obx23 Encoding type from OBX24.
- * @param  string $obx23 Encoding type from OBX25.
- * @param  string $obx23 New line character.
+ * @param string $obx23 Encoding type from OBX23.
+ * @param string $obx23 Encoding type from OBX24.
+ * @param string $obx23 Encoding type from OBX25.
+ * @param string $obx23 New line character.
  */
 function getPerformingOrganizationDetails($obx23, $obx24, $obx25, $componentdelimiter, $commentdelim)
 {
@@ -461,7 +462,7 @@ function match_patient($ptarr)
     if (sqlNumRows($res) > 1) {
         // Multiple matches, so ambiguous.
         $patient_id = -1;
-    } else if (sqlNumRows($res) == 1) {
+    } elseif (sqlNumRows($res) == 1) {
         // Got exactly one match, so use it.
         $tmp = sqlFetchArray($res);
         $patient_id = intval($tmp['pid']);
@@ -487,7 +488,7 @@ function match_patient($ptarr)
 /**
  * Look for a lab matching the given XCN field from some segment.
  *
- * @param  array $seg MSH seg identifying a provider.
+ * @param array $seg MSH seg identifying a provider.
  * @return mixed        TRUE, or FALSE if no match.
  */
 function match_lab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = '')
@@ -558,7 +559,7 @@ function create_encounter($pid, $provider_id = '', $order_date, $lab_name)
             "referral_source = '', " .
             "pid = ?, " .
             "encounter = ?, " .
-            "provider_id = ?", array(date('Y-m-d H:i:s', strtotime($order_date)), $pid, $encounter,$provider_id)),
+            "provider_id = ?", array(date('Y-m-d H:i:s', strtotime($order_date)), $pid, $encounter, $provider_id)),
         "newpatient",
         $pid,
         0,
@@ -603,7 +604,7 @@ function labNotice($pid, $newtext, $assigned_to = 'admin', $datetime = '', $labn
 /**
  * Look for a local provider matching the given XCN field from some segment.
  *
- * @param  array $arr array(NPI, lastname, firstname) identifying a provider.
+ * @param array $arr array(NPI, lastname, firstname) identifying a provider.
  * @return mixed        Array(id, username), or FALSE if no match.
  */
 function match_provider($arr)
@@ -686,12 +687,12 @@ function create_skeleton_patient($patient_data)
 /**
  * Parse and save.
  *
- * @param  string &$hl7 The input HL7 text
- * @param  string &$matchreq Array of shared patient matching requests
- * @param  int $lab_id Lab ID
- * @param  char $direction B=Bidirectional, R=Results-only
- * @param  bool $dryrun True = do not update anything, just report errors
- * @param  array $matchresp Array of responses to match requests; key is relative segment number,
+ * @param string &$hl7        The input HL7 text
+ * @param string &$matchreq   Array of shared patient matching requests
+ * @param int     $lab_id     Lab ID
+ * @param char    $direction  B=Bidirectional, R=Results-only
+ * @param bool    $dryrun     True = do not update anything, just report errors
+ * @param array   $matchresp  Array of responses to match requests; key is relative segment number,
  *                            value is an existing pid or 0 to specify creating a patient
  * @return array              Array of errors and match requests, if any
  */
@@ -841,7 +842,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
 
             $in_message_id = $a[9];
             $in_message_lab_name = rhl7Text($a[3]);
-        } else if ($a[0] == 'PID') {
+        } elseif ($a[0] == 'PID') {
             $context = $a[0];
 
             if ('MDM' == $msgtype && !$dryrun) {
@@ -937,16 +938,16 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $patient_id = 0;
                 }
             } // end results-only/MDM logic
-        } else if ('PD1' == $a[0]) {
+        } elseif ('PD1' == $a[0]) {
             // TBD: Save primary care provider name ($a[4]) somewhere?
-        } else if ('PV1' == $a[0]) {
+        } elseif ('PV1' == $a[0]) {
             if ('ORU' == $msgtype) {
                 // Save placer encounter number if present.
                 if ($direction != 'R' && !empty($a[19])) {
                     $tmp = explode($d2, $a[19]);
                     $in_encounter = intval($tmp[0]);
                 }
-            } else if ('MDM' == $msgtype) {
+            } elseif ('MDM' == $msgtype) {
                 // For documents we want the ordering provider.
                 // Try Referring Provider first.
                 $oprow = match_provider(explode($d2, $a[8]));
@@ -955,7 +956,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $oprow = match_provider(explode($d2, $a[52]));
                 }
             }
-        } else if ('ORC' == $a[0] && 'ORU' == $msgtype) {
+        } elseif ('ORC' == $a[0] && 'ORU' == $msgtype) {
             $context = $a[0];
             $arep = array();
             $porow = false;
@@ -963,13 +964,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             if ($direction != 'R' && $a[2]) {
                 $in_orderid = intval($a[2]);
             }
-        } else if ('TXA' == $a[0] && 'MDM' == $msgtype) {
+        } elseif ('TXA' == $a[0] && 'MDM' == $msgtype) {
             $context = $a[0];
             $mdm_datetime = rhl7DateTime($a[4]);
             $mdm_docname = rhl7Text($a[12]);
-        } else if ($a[0] == 'NTE' && ($context == 'ORC' || $context == 'TXA')) {
+        } elseif ($a[0] == 'NTE' && ($context == 'ORC' || $context == 'TXA')) {
             // Is this ever used?
-        } else if ('OBR' == $a[0] && 'ORU' == $msgtype) {
+        } elseif ('OBR' == $a[0] && 'ORU' == $msgtype) {
             $context = $a[0];
             $arep = array();
             if ($direction != 'R' && $a[2]) {
@@ -1227,10 +1228,10 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $amain[$i]['rep'] = $arep;
             $amain[$i]['fid'] = $in_filler_id;
             $amain[$i]['res'] = array();
-        } else if ($a[0] == 'NTE' && $context == 'OBR') {
+        } elseif ($a[0] == 'NTE' && $context == 'OBR') {
             // Append this note to those for the most recent report.
             $amain[count($amain) - 1]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
-        } else if ('OBX' == $a[0] && 'ORU' == $msgtype) {
+        } elseif ('OBX' == $a[0] && 'ORU' == $msgtype) {
             $tmp = explode($d2, $a[3]);
             $result_code = rhl7Text($tmp[0]);
             $result_text = rhl7Text($tmp[1]);
@@ -1294,11 +1295,11 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 // Append this result to those for the most recent report.
                 // Note the 'procedure_report_id' item is not yet present.
                 //$amain[count($amain) - 1]['res'][] = $ares;
-            } else if ($a[2] == 'CWE') {
+            } elseif ($a[2] == 'CWE') {
                 $ares['result'] = rhl7CWE($a[5], $d2);
-            } else if ($a[2] == 'SN') {
+            } elseif ($a[2] == 'SN') {
                 $ares['result'] = trim(str_replace($d2, ' ', $a[5]));
-            } else if ($a[2] == 'TX' || strlen($a[5]) > 200) {
+            } elseif ($a[2] == 'TX' || strlen($a[5]) > 200) {
                 // OBX-5 can be a very long string of text with "~" as line separators.
                 // The first line of comments is reserved for such things.
                 $ares['result_data_type'] = 'L';
@@ -1347,7 +1348,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             // Append this result to those for the most recent report.
             // Note the 'procedure_report_id' item is not yet present.
             $amain[count($amain) - 1]['res'][] = $ares;
-        } else if ('OBX' == $a[0] && 'MDM' == $msgtype) {
+        } elseif ('OBX' == $a[0] && 'MDM' == $msgtype) {
             $context = $a[0];
             if ($a[2] == 'TX') {
                 if ($mdm_text !== '') {
@@ -1358,7 +1359,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             } else {
                 return rhl7LogMsg(xl('Unsupported MDM OBX result type') . ': ' . $a[2]);
             }
-        } else if ('ZEF' == $a[0] && 'ORU' == $msgtype) {
+        } elseif ('ZEF' == $a[0] && 'ORU' == $msgtype) {
             // ZEF segment is treated like an OBX with an embedded Base64-encoded PDF.
             $context = 'OBX';
             $ares = array();
@@ -1392,24 +1393,23 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             // Append this result to those for the most recent report.
             // Note the 'procedure_report_id' item is not yet present.
             $amain[count($amain) - 1]['res'][] = $ares;
-        } else if ('NTE' == $a[0] && 'OBX' == $context && 'ORU' == $msgtype) {
+        } elseif ('NTE' == $a[0] && 'OBX' == $context && 'ORU' == $msgtype) {
             // Append this note to the most recent result item's comments.
             $alast = count($amain) - 1;
             $rlast = count($amain[$alast]['res']) - 1;
             $amain[$alast]['res'][$rlast]['comments'] .= rhl7Text($a[3], true) . $commentdelim;
-        } // Ensoftek: Get data from SPM segment for specimen.
-        // SPM segment always occurs after the OBX segment.
-        else if ('SPM' == $a[0] && 'ORU' == $msgtype) {
+            // Ensoftek: Get data from SPM segment for specimen.
+            // SPM segment always occurs after the OBX segment.
+        } elseif ('SPM' == $a[0] && 'ORU' == $msgtype) {
             rhl7UpdateReportWithSpecimen($amain, $a, $d2);
-        } // Add code here for any other segment types that may be present.
-
-        // Ensoftek: Get data from SPM segment for specimen. Comes in with MU2 samples, but can be ignored.
-        else if ('TQ1' == $a[0] && 'ORU' == $msgtype) {
+            // Add code here for any other segment types that may be present.
+            // Ensoftek: Get data from SPM segment for specimen. Comes in with MU2 samples, but can be ignored.
+        } elseif ('TQ1' == $a[0] && 'ORU' == $msgtype) {
             // Ignore and do nothing.
-        } else if ($a[0] == 'NTE' && 'PID' == $context) {
+        } elseif ($a[0] == 'NTE' && 'PID' == $context) {
             // will get orderid on save.
             $amain[0]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
-        } else if ('ZPS' == $a[0] && 'ORU' == $msgtype) {
+        } elseif ('ZPS' == $a[0] && 'ORU' == $msgtype) {
             //global $ares;
             $performingOrganization = parseZPS($a);
             if (!empty($performingOrganization)) {
@@ -1448,22 +1448,22 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
 /**
  * Poll all eligible labs for new results and store them in the database.
  *
- * @param  array &$info Conveys information to and from the caller:
- * FROM THE CALLER:
- * $info["$ppid/$filename"]['delete'] = a non-empty value if file deletion is requested.
- * $info['select'] = array of patient matching responses where key is serialized patient
- *   attributes and value is selected pid for this patient, or 0 to create the patient.
- * TO THE CALLER:
- * $info["$ppid/$filename"]['mssgs'] = array of messages from this function.
- * $info['match'] = array of patient matching requests where key is serialized patient
- *   attributes (ss, fname, lname, DOB) and value is TRUE (irrelevant).
+ * @param array &$info Conveys information to and from the caller:
+ *                     FROM THE CALLER:
+ *                     $info["$ppid/$filename"]['delete'] = a non-empty value if file deletion is requested.
+ *                     $info['select'] = array of patient matching responses where key is serialized patient
+ *                     attributes and value is selected pid for this patient, or 0 to create the patient.
+ *                     TO THE CALLER:
+ *                     $info["$ppid/$filename"]['mssgs'] = array of messages from this function.
+ *                     $info['match'] = array of patient matching requests where key is serialized patient
+ *                     attributes (ss, fname, lname, DOB) and value is TRUE (irrelevant).
  *
  * @return string  Error text, or empty if no errors.
  */
 function poll_hl7_results(&$info, $labs = 0)
 {
     global $srcdir, $orphanLog, $lab_npi;
-    $labs = (int) $labs + 0;
+    $labs = (int)$labs + 0;
     // echo "<!-- post: "; print_r($_POST); echo " -->\n"; // debugging
     // echo "<!-- in:   "; print_r($info); echo " -->\n"; // debugging
 
@@ -1521,7 +1521,7 @@ function poll_hl7_results(&$info, $labs = 0)
             }
 
             // Connect to the server and enumerate files to process.
-            $sftp = new \phpseclib\Net\SFTP($remote_host, $remote_port);
+            $sftp = new SFTP($remote_host, $remote_port);
             if (!$sftp->login($pprow['login'], $pprow['password'])) {
                 return xl('Login to remote host') . " '$remote_host' " . xl('failed');
             }
@@ -1540,14 +1540,14 @@ function poll_hl7_results(&$info, $labs = 0)
                 $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
                 if (!file_exists($prpath)) {
                     if (!mkdir($prpath, 0755, true) && !is_dir($prpath)) {
-                        throw new \RuntimeException(sprintf('Directory "%s" was not created', $prpath));
+                        throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
                     }
                 }
 
                 $prpath .= '/' . $pprow['ppid'] . '-' . $pprow['npi'];
                 if (!file_exists($prpath)) {
                     if (!mkdir($prpath, 0755, true) && !is_dir($prpath)) {
-                        throw new \RuntimeException(sprintf('Directory "%s" was not created', $prpath));
+                        throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
                     }
                 }
 
@@ -1625,7 +1625,7 @@ function poll_hl7_results(&$info, $labs = 0)
             } // end of this file
             if (!file_exists($logpath)) {
                 if (!mkdir($logpath, 0755, true) && !is_dir($logpath)) {
-                    throw new \RuntimeException(sprintf('Directory "%s" was not created', $logpath));
+                    throw new RuntimeException(sprintf('Directory "%s" was not created', $logpath));
                 }
             }
             $logfile = "batchrun_" . date("m-d-y_His") . ".log";
@@ -1636,8 +1636,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 fwrite($fh, $log);
                 fclose($fh);
             }
-        } // end SFTP
-        else if ($protocol == 'FS') {
+        } elseif ($protocol == 'FS') {
             // Filesystem directory containing results files.
             $pathname = $pprow['results_path'];
             if (!($dh = opendir($pathname))) {
@@ -1665,12 +1664,12 @@ function poll_hl7_results(&$info, $labs = 0)
                 // Ensure that archive directory exists.
                 $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
                 if (!file_exists($prpath) && !mkdir($prpath, 0755, true) && !is_dir($prpath)) {
-                    throw new \RuntimeException(sprintf('Directory "%s" was not created', $prpath));
+                    throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
                 }
 
                 $prpath .= '/' . $pprow['ppid'] . '-' . $pprow['npi'];
                 if (!file_exists($prpath) && !mkdir($prpath, 0755, true) && !is_dir($prpath)) {
-                    throw new \RuntimeException(sprintf('Directory "%s" was not created', $prpath));
+                    throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
                 }
 
                 // Get file contents.
@@ -1740,7 +1739,7 @@ function poll_hl7_results(&$info, $labs = 0)
             } // end of this file
             if (!file_exists($logpath)) {
                 if (!mkdir($logpath, 0755, true) && !is_dir($logpath)) {
-                    throw new \RuntimeException(sprintf('Directory "%s" was not created', $logpath));
+                    throw new RuntimeException(sprintf('Directory "%s" was not created', $logpath));
                 }
             }
             $logfile = "batchrun_" . date("m-d-y_His") . ".log";
@@ -1751,8 +1750,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 fwrite($fh, $log);
                 fclose($fh);
             }
-        } // end FS protocol
-        else if ($protocol == 'WS' && strtoupper($lab_npi) == 'QUEST') {
+        } elseif ($protocol == 'WS' && strtoupper($lab_npi) == 'QUEST') {
             if ($debug) {
                 continue;
             }
@@ -1787,14 +1785,14 @@ function poll_hl7_results(&$info, $labs = 0)
                 $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
                 if (!file_exists($prpath)) {
                     if (!mkdir($prpath, 0755, true) && !is_dir($prpath)) {
-                        throw new \RuntimeException(sprintf('Directory "%s" was not created', $prpath));
+                        throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
                     }
                 }
 
                 $prpath .= '/' . $pprow['ppid'] . '-' . $pprow['npi'];
                 if (!file_exists($prpath)) {
                     if (!mkdir($prpath, 0755, true) && !is_dir($prpath)) {
-                        throw new \RuntimeException(sprintf('Directory "%s" was not created', $prpath));
+                        throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
                     }
                 }
 
