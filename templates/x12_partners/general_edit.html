@@ -15,12 +15,10 @@
             <input type="text" id="name" name="name" class="form-control" value="{$partner->get_name()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
-    <!--        //***MI2 Add -->
     <div class="form-row my-sm-2">
-        <label for="name" class="col-form-label col-sm-2">{xl t='Submitter Name (3rd Party Submitter Only)'|escape:'html'}</label>
+        <label for="name" class="col-form-label col-sm-2">{xlt t='Submitter Name (3rd Party Submitter Only)'|escape:'html'}</label>
         <div class="col-sm-8">
-            <input type="text" id="x12_submitter_name" name="x12_submitter_name" class="form-control" value="{$partner->get_x12_submitter_name()|escape:'html'}" onKeyDown="PreventIt(event)">
-            <!--        //***MS Add end-->
+            <input type="text" id="x12_submitter_name" name="x12_submitter_name" class="form-control" value="{$partner->get_x12_submitter_name()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
     <div class="form-row my-sm-2">
@@ -148,7 +146,7 @@
     <div class="form-row my-sm-2">
         <label for="x12_sftp_pass" class="col-form-label col-sm-2">{xlt t='SFTP Pass Credentials'}</label>
         <div class="col-sm-8">
-            <input type="text" maxlength="45" id="x12_sftp_pass" name="x12_sftp_pass" class="form-control" value="{$partner->get_x12_sftp_pass()|attr}" onKeyDown="PreventIt(event)">
+            <input type="password" maxlength="45" id="x12_sftp_pass" name="x12_sftp_pass" class="form-control" value="{$partner->get_x12_sftp_pass()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
     <div class="form-row my-sm-2">

@@ -8504,13 +8504,13 @@ CREATE TABLE `x12_partners` (
   `x12_per06` varchar(80) NOT NULL DEFAULT '',
   `x12_dtp03` char(1)     NOT NULL DEFAULT 'A',
   `x12_gs03` varchar(15) DEFAULT NULL,
-  `x12_submitter_name` varchar(256) DEFAULT NULL,
-  `x12_sftp_login` varchar(256) DEFAULT NULL,
-  `x12_sftp_pass` varchar(256) DEFAULT NULL,
-  `x12_sftp_host` varchar(256) DEFAULT NULL,
-  `x12_sftp_port` varchar(15) DEFAULT NULL,
-  `x12_sftp_local_dir` varchar(256) DEFAULT NULL,
-  `x12_sftp_remote_dir` varchar(256) DEFAULT NULL,
+  `x12_submitter_name` varchar(255) DEFAULT NULL,
+  `x12_sftp_login` varchar(255) DEFAULT NULL,
+  `x12_sftp_pass` varchar(255) DEFAULT NULL,
+  `x12_sftp_host` varchar(255) DEFAULT NULL,
+  `x12_sftp_port` varchar(255) DEFAULT NULL,
+  `x12_sftp_local_dir` varchar(255) DEFAULT NULL,
+  `x12_sftp_remote_dir` varchar(255) DEFAULT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
@@ -12302,12 +12302,12 @@ KEY `clients_id` (`client_id`)
 
 DROP TABLE IF EXISTS `x12_remote_tracker`
 CREATE TABLE `x12_remote_tracker` (
-`id` bigint(20) NOT NULL,
+`id` bigint(20) NOT NULL AUTO_INCREMENT,
 `x12_partner_id` int(11) NOT NULL,
 `x12_filename` varchar(255) NOT NULL,
 `status` varchar(255) NOT NULL,
-`claims` json DEFAULT NULL,
-`messages` json DEFAULT NULL,
-`created_at` datetime NOT NULL,
-`updated_at` datetime NOT NULL
+`claims` text DEFAULT NULL,
+`messages` text DEFAULT NULL,
+`created_at` datetime DEFAULT NULL,
+`updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB;

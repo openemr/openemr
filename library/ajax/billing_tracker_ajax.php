@@ -13,6 +13,7 @@
 
 require_once __DIR__ . "/../../interface/globals.php";
 
+use OpenEMR\Billing\BillingProcessor\X12RemoteTracker;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // verify csrf
@@ -20,7 +21,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$remoteTracker = new \OpenEMR\Billing\BillingProcessor\X12RemoteTracker();
+$remoteTracker = new X12RemoteTracker();
 $claim_files = $remoteTracker->fetchAll();
 $response = new stdClass();
 $response->data = [];

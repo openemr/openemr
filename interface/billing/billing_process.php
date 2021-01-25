@@ -20,6 +20,7 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Billing\BillingProcessor\BillingProcessor;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -28,7 +29,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 }
 
 // Initialize billing processor with the post variables from the billing manager form
-$billingProcessor = new \OpenEMR\Billing\BillingProcessor\BillingProcessor($_POST);
+$billingProcessor = new BillingProcessor($_POST);
 $logger = $billingProcessor->execute();
 ?>
 <html>
@@ -54,11 +55,6 @@ $logger = $billingProcessor->execute();
                         </li>
                     <?php } ?>
                 </ul>
-<!--                --><?php //if ($logger->showCloseButton()) { ?>
-<!--                <button class="btn btn-secondary btn-sm btn-cancel" id="close-link">-->
-<!--                    --><?php //echo xlt('Close'); ?>
-<!--                </button>-->
-<!--                --><?php //} ?>
             </div>
         </div>
     </div>

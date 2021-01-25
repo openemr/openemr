@@ -9,7 +9,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
- * @copyright Copyright (c) 2020 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -60,14 +60,15 @@ use OpenEMR\OeUI\OemrUI;
                     },
                     {
                         "data": "status",
-                        "render": function(data, type, row, meta){
-                            if(type === 'display'){
+                        "render": function(data, type, row, meta) {
+                            // Format the status with a nice looking badge
+                            if (type === 'display') {
                                 if (data == 'success') {
-                                    data = '<span class="badge badge-success">' + data + '</span>';
+                                    data = '<span class="badge badge-success">' + jsText(data) + '</span>';
                                 } else if (data == 'waiting') {
-                                    data = '<span class="badge badge-info">' + data + '</span>';
+                                    data = '<span class="badge badge-info">' + jsText(data) + '</span>';
                                 } else {
-                                    data = '<span class="badge badge-warning">' + data + '</span>';
+                                    data = '<span class="badge badge-warning">' + jsText(data) + '</span>';
                                 }
                             }
 
@@ -77,12 +78,14 @@ use OpenEMR\OeUI\OemrUI;
                     { "data": "x12_partner_name" },
                     {
                         "data": "x12_filename",
-                        "render": function(data, type, row, meta){
-                            if(type === 'display'){
-                                const url = '<?php echo $GLOBALS['webroot']; ?>/interface/billing/get_claim_file.php?key=' +
-                                    data + '&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(); ?>' +
-                                    '&partner=' + row.x12_partner_id;
-                                data = '<a href="' + url + '">' + data + '</a>';
+                        "render": function(data, type, row, meta) {
+                            // Build the URL so the user can download the claim batch file
+                            if (type === 'display') {
+                                const url = '<?php echo $GLOBALS['webroot']; ?>/interface/billing/get_claim_file.php?' +
+                                    'key=' + encodeURIComponent(data) +
+                                    '&csrf_token_form=<?php echo js_url(CsrfUtils::collectCsrfToken()); ?>' +
+                                    '&partner=' + encodeURIComponent(row.x12_partner_id);
+                                data = '<a href="' + jsAttr(url) + '">' + jsText(data) + '</a>';
                             }
 
                             return data;
@@ -106,7 +109,7 @@ use OpenEMR\OeUI\OemrUI;
                 let output = '';
                 if (d.messages !== null) {
                     d.messages.forEach(message => {
-                        output += '<div class="alert alert-info">' + message + '</div>';
+                        output += '<div class="alert alert-info">' + jsText(message) + '</div>';
                     });
                 }
 
@@ -115,18 +118,18 @@ use OpenEMR\OeUI\OemrUI;
                 output +=
                     '<thead>' +
                         '<tr>' +
-                            '<th><?php echo xl('Patient ID'); ?></th>' +
-                            '<th><?php echo xl('Encounter ID'); ?></th>' +
-                            '<th><?php echo xl('Payor ID'); ?></th>' +
+                            '<th>' + jsText(<?php echo xlj('Patient ID'); ?>) + '</th>' +
+                            '<th>' + jsText(<?php echo xlj('Encounter ID'); ?>) + '</th>' +
+                            '<th>' + jsText(<?php echo xlj('Payor ID'); ?>) + '</th>' +
                         '</tr>' +
                     '</thead>';
                 output += '<tbody>';
                 d.claims.forEach(claim => {
                     output +=
                         '<tr>' +
-                            '<td>' + claim.pid + '</td>' +
-                            '<td>' + claim.encounter + '</td>' +
-                            '<td>' + claim.payor_id + '</td>' +
+                            '<td>' + jsText(claim.pid) + '</td>' +
+                            '<td>' + jsText(claim.encounter) + '</td>' +
+                            '<td>' + jsText(claim.payor_id) + '</td>' +
                         '</tr>';
                 });
                 output += '</tbody>';
@@ -161,21 +164,21 @@ use OpenEMR\OeUI\OemrUI;
                  <thead>
                  <tr>
                      <th>&nbsp;</th>
-                     <th><?php echo xl('Status') ?></th>
-                     <th><?php echo xl('X-12 Partner') ?></th>
-                     <th><?php echo xl('File') ?></th>
-                     <th><?php echo xl('Date Created') ?></th>
-                     <th><?php echo xl('Date Updated') ?></th>
+                     <th><?php echo xlt('Status') ?></th>
+                     <th><?php echo xlt('X-12 Partner') ?></th>
+                     <th><?php echo xlt('File') ?></th>
+                     <th><?php echo xlt('Date Created') ?></th>
+                     <th><?php echo xlt('Date Updated') ?></th>
                  </tr>
                  </thead>
                  <tfoot>
                  <tr>
                      <th>&nbsp;</th>
-                     <th><?php echo xl('Status') ?></th>
-                     <th><?php echo xl('X-12 Partner') ?></th>
-                     <th><?php echo xl('File') ?></th>
-                     <th><?php echo xl('Date Created') ?></th>
-                     <th><?php echo xl('Date Updated') ?></th>
+                     <th><?php echo xlt('Status') ?></th>
+                     <th><?php echo xlt('X-12 Partner') ?></th>
+                     <th><?php echo xlt('File') ?></th>
+                     <th><?php echo xlt('Date Created') ?></th>
+                     <th><?php echo xlt('Date Updated') ?></th>
                  </tr>
                  </tfoot>
              </table>

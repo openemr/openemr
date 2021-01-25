@@ -2408,38 +2408,6 @@ ALTER TABLE `oauth_clients` ADD `logout_redirect_uris` text;
 #IfMissingColumn oauth_trusted_user grant_type
 ALTER TABLE `oauth_trusted_user` ADD COLUMN `grant_type` varchar(32) DEFAULT NULL;
 
-#IfMissingColumn x12_partners x12_gs03
-ALTER TABLE `x12_partners` ADD COLUMN `x12_gs03` varchar(15) DEFAULT NULL;
-#EndIf
-
-#IfMissingColumn x12_partners x12_submitter_name
-ALTER TABLE `x12_partners` ADD COLUMN `x12_submitter_name` varchar(256) DEFAULT NULL;
-#EndIf
-
-#IfMissingColumn x12_partners x12_sftp_login
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_login` varchar(256) DEFAULT NULL;
-#EndIf
-
-#IfMissingColumn x12_partners x12_sftp_pass
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_pass` varchar(256) DEFAULT NULL;
-#EndIf
-
-#IfMissingColumn x12_partners x12_sftp_host
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_host` varchar(256) DEFAULT NULL;
-#EndIf
-
-#IfMissingColumn x12_partners x12_sftp_port
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_port` varchar(15) DEFAULT NULL;
-#EndIf
-
-#IfMissingColumn x12_partners x12_sftp_local_dir
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_local_dir` varchar(256) DEFAULT NULL;
-#EndIf
-
-#IfMissingColumn x12_partners x12_sftp_remote_dir
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_remote_dir` varchar(256) DEFAULT NULL;
-#EndIf
-
 #IfNotColumnType layout_options title text
 ALTER TABLE `layout_options` CHANGE `title` `title` TEXT;
 #EndIf

@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\BaseService;
 use phpseclib\Net\SFTP;
 
@@ -55,6 +56,7 @@ class X12RemoteTracker extends BaseService
         $remoteTracker = new X12RemoteTracker();
         $x12_remotes = $remoteTracker->fetchByStatus(self::STATUS_WAITING);
         $x12_remote['messages'] = [];
+        $cryptoGen = new CryptoGen();
         foreach ($x12_remotes as $x12_remote) {
 
             // Make sure required parameters are filled in on the X12 partner form, otherwise, log a message
@@ -83,7 +85,8 @@ class X12RemoteTracker extends BaseService
 
             // Attempt to login
             $sftp = new SFTP($x12_remote['x12_sftp_host'], $x12_remote['x12_sftp_port']);
-            if (false === $sftp->login($x12_remote['x12_sftp_login'], $x12_remote['x12_sftp_pass'])) {
+            $decrypted_password = $cryptoGen->decryptStandard($x12_remote['x12_sftp_pass']);
+            if (false === $sftp->login($x12_remote['x12_sftp_login'], $decrypted_password)) {
                 $x12_remote['status'] = self::STATUS_LOGIN_ERROR;
                 $x12_remote['messages'][]= "Invalid Username or Password.";
                 $x12_remote['messages'] = array_merge($x12_remote['messages'], $sftp->getSFTPErrors());

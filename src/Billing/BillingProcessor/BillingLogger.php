@@ -54,16 +54,12 @@ class BillingLogger
     protected $hlog;
 
     /**
+     * Callback function that is executed after the billing_process.php page
+     * has rendered.
+     *
      * @var callable
      */
     protected $onLogCompleteCallback;
-
-    /**
-     * Show/Hide the 'Close' button that is printed in billing_process.php
-     *
-     * @var bool
-     */
-    protected $showCloseButton = true;
 
     public function __construct()
     {
@@ -119,21 +115,5 @@ class BillingLogger
     public function hlog()
     {
         return $this->hlog;
-    }
-
-    /**
-     * @return bool
-     */
-    public function showCloseButton(): bool
-    {
-        return $this->showCloseButton;
-    }
-
-    /**
-     * @param bool $showCloseButton
-     */
-    public function setShowCloseButton(bool $showCloseButton): void
-    {
-        $this->showCloseButton = $showCloseButton;
     }
 }

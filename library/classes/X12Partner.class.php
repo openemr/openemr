@@ -3,6 +3,13 @@
 /**
  * class X12Partner
  *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
@@ -12,7 +19,7 @@ class X12Partner extends ORDataObject
 
     var $id;
     var $name;
-    var $x12_submitter_name; //***MI2 Add
+    var $x12_submitter_name; // Submitter name for TPA
     var $id_number;
     var $x12_isa01; //
     var $x12_isa02; //
@@ -61,14 +68,6 @@ class X12Partner extends ORDataObject
         if ($id != "") {
             $this->populate();
         }
-        //***MI2 Add - make sure that we have this column in the table
-        $result = sqlQuery("SHOW COLUMNS FROM `x12_partners` LIKE 'x12_submitter_name'");
-
-        if(($result) == 0) {
-            // do your stuff
-            sqlQuery("alter table x12_partners add x12_submitter_name VARCHAR(255) ");
-        }
-
 
     }
 
@@ -103,72 +102,77 @@ class X12Partner extends ORDataObject
         return $this->name;
     }
 
-    function get_x12_submitter_name() //***MI2 Add
+    function get_x12_submitter_name()
     {
         return $this->x12_submitter_name;
     }
 
-    function set_x12_submitter_name($string) //***MI2 Add
+    function set_x12_submitter_name($string)
     {
         $this->x12_submitter_name = $string;
     }
-//***    SFTP Creds
-    function set_x12_sftp_login($string) //***MI2 Add
+
+    /**
+     * SFTP credentials for direct submit to x-12 partners.
+     *
+     * @param $string
+     */
+    function set_x12_sftp_login($string)
     {
         $this->x12_sftp_login = $string;
     }
 
-    function get_x12_sftp_login() //***MI2 Add
+    function get_x12_sftp_login()
     {
         return $this->x12_sftp_login;
     }
 
-    function set_x12_sftp_pass($string) //***MI2 Add
+    function set_x12_sftp_pass($string)
     {
         $this->x12_sftp_pass = $string;
     }
 
-    function get_x12_sftp_pass() //***MI2 Add
+    function get_x12_sftp_pass()
     {
         return $this->x12_sftp_pass;
     }
 
-    function set_x12_sftp_host($string) //***MI2 Add
+    function set_x12_sftp_host($string)
     {
         $this->x12_sftp_host = $string;
     }
 
-    function get_x12_sftp_host() //***MI2 Add
+    function get_x12_sftp_host()
     {
         return $this->x12_sftp_host;
     }
 
-    function set_x12_sftp_port($string) //***MI2 Add
+    function set_x12_sftp_port($string)
     {
         $this->x12_sftp_port = $string;
     }
 
-    function get_x12_sftp_port() //***MI2 Add
+    function get_x12_sftp_port()
     {
         return $this->x12_sftp_port;
     }
 
-    function set_x12_sftp_local_dir($string) //***MI2 Add
+    function set_x12_sftp_local_dir($string)
     {
         $this->x12_sftp_local_dir = $string;
     }
 
-    function get_x12_sftp_local_dir() //***MI2 Add
+    function get_x12_sftp_local_dir()
     {
         return $this->x12_sftp_local_dir;
     }
 
-    function set_x12_sftp_remote_dir($string) //***MI2 Add
+    function set_x12_sftp_remote_dir($string)
     {
         $this->x12_sftp_remote_dir = $string;
     }
 
-    function get_x12_sftp_remote_dir() //***MI2 Add
+    function get_x12_sftp_remote_dir()
     {
         return $this->x12_sftp_remote_dir;
     }
