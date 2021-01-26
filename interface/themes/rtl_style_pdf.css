@@ -1926,11 +1926,6 @@ form#pattrk #inanewwindow > span {
   float: right;
 }
 
-##fff-list,
-##000-list {
-  direction: ltr;
-}
-
 div.formname {
   float: right !important;
   padding-left: 10px !important;
