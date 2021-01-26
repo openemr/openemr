@@ -180,8 +180,8 @@ CREATE TABLE `x12_remote_tracker` (
 `x12_partner_id` int(11) NOT NULL,
 `x12_filename` varchar(255) NOT NULL,
 `status` varchar(255) NOT NULL,
-`claims` text DEFAULT NULL,
-`messages` text DEFAULT NULL,
+`claims` text,
+`messages` text,
 `created_at` datetime DEFAULT NULL,
 `updated_at` datetime DEFAULT NULL,
 PRIMARY KEY (`id`)
