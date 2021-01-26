@@ -83,7 +83,7 @@ use OpenEMR\OeUI\OemrUI;
                             if (type === 'display') {
                                 const url = '<?php echo $GLOBALS['webroot']; ?>/interface/billing/get_claim_file.php?' +
                                     'key=' + encodeURIComponent(data) +
-                                    '&csrf_token_form=<?php echo js_url(CsrfUtils::collectCsrfToken()); ?>' +
+                                    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?> +
                                     '&partner=' + encodeURIComponent(row.x12_partner_id);
                                 data = '<a href="' + jsAttr(url) + '">' + jsText(data) + '</a>';
                             }
