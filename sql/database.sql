@@ -12310,5 +12310,5 @@ CREATE TABLE `x12_remote_tracker` (
 `messages` text DEFAULT NULL,
 `created_at` datetime DEFAULT NULL,
 `updated_at` datetime DEFAULT NULL,
-PRIMARY KEY (`id`),
+PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
