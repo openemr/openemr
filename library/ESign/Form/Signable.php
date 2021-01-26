@@ -118,6 +118,11 @@ class Form_Signable extends DbRow_Signable implements SignableIF
         }
 
         $tbl = (isset($excp->tbl) ? $excp->tbl : "form_" . $this->_formDir);
+        // Either change here or revise eye form code to use
+        // table form_eye_mag instead of form_eye_base
+        // Could be as simple as a sed function but for now, do this:
+        if ($tbl =='form_eye_mag') { $tbl = 'form_eye_base'; }
+        
         $id = (isset($excp->id) ? $excp->id : 'id');
         $limit = (isset($excp->limit) ? $excp->limit : 1);
 
