@@ -142,19 +142,19 @@ ALTER TABLE `x12_partners` ADD COLUMN `x12_gs03` varchar(15) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn x12_partners x12_submitter_name
-ALTER TABLE `x12_partners` ADD COLUMN `x12_submitter_name` varchar(256) DEFAULT NULL;
+ALTER TABLE `x12_partners` ADD COLUMN `x12_submitter_name` varchar(255) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn x12_partners x12_sftp_login
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_login` varchar(256) DEFAULT NULL;
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_login` varchar(255) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn x12_partners x12_sftp_pass
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_pass` varchar(256) DEFAULT NULL;
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_pass` varchar(255) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn x12_partners x12_sftp_host
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_host` varchar(256) DEFAULT NULL;
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_host` varchar(255) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn x12_partners x12_sftp_port
@@ -162,11 +162,11 @@ ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_port` varchar(15) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn x12_partners x12_sftp_local_dir
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_local_dir` varchar(256) DEFAULT NULL;
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_local_dir` varchar(255) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn x12_partners x12_sftp_remote_dir
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_remote_dir` varchar(256) DEFAULT NULL;
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_remote_dir` varchar(255) DEFAULT NULL;
 #EndIf
 
 #IfNotRow background_services name X12_SFTP
