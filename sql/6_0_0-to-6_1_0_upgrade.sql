@@ -132,10 +132,9 @@ ALTER TABLE `insurance_data` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `insurance_data` (`uuid`);
 #EndIf
 
-#IfNotColumnType facility weno_id
+#IfMissingColumn facility weno_id
 ALTER TABLE `facility` ADD `weno_id` VARCHAR(10) DEFAULT NULL;
 #EndIf
-
 
 #IfMissingColumn x12_partners x12_gs03
 ALTER TABLE `x12_partners` ADD COLUMN `x12_gs03` varchar(15) DEFAULT NULL;
@@ -186,4 +185,66 @@ CREATE TABLE `x12_remote_tracker` (
 `updated_at` datetime DEFAULT NULL,
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
+
+#IfNotRow2D list_options list_id lists option_id Procedure_Billing
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','Procedure_Billing','Procedure Billing',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('Procedure_Billing','T','Third-Party',10,1,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('Procedure_Billing','P','Self Pay',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('Procedure_Billing','C','Bill Clinic',30,0,1);
+#EndIf
+
+#IfMissingColumn procedure_order billing_type
+ALTER TABLE `procedure_order` ADD `billing_type` VARCHAR(4) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_order specimen_fasting
+ALTER TABLE `procedure_order` ADD `specimen_fasting` VARCHAR(31) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_order order_psc
+ALTER TABLE `procedure_order` ADD `order_psc` TINYINT(4) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_order order_abn
+ALTER TABLE `procedure_order` ADD `order_abn` VARCHAR(31) NOT NULL DEFAULT 'not_required';
+#EndIf
+
+#IfMissingColumn procedure_order collector_id
+ALTER TABLE `procedure_order` ADD `collector_id` BIGINT(11) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfMissingColumn procedure_order account
+ALTER TABLE `procedure_order` ADD `account` VARCHAR(60) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_order account_facility
+ALTER TABLE `procedure_order` ADD `account_facility` int(11) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_order provider_number
+ALTER TABLE `procedure_order` ADD `provider_number` VARCHAR(30) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_order procedure_order_type
+ALTER TABLE `procedure_order` ADD `procedure_order_type` varchar(32) NOT NULL DEFAULT 'laboratory_test';
+#EndIf
+
+#IfMissingColumn procedure_order_code procedure_type
+ALTER TABLE `procedure_order_code` ADD `procedure_type` VARCHAR(31) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_order_code transport
+ALTER TABLE `procedure_order_code` ADD `transport` VARCHAR(31) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_type transport
+ALTER TABLE `procedure_type` ADD `transport` VARCHAR(31) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_providers type
+ALTER TABLE `procedure_providers` ADD `type` VARCHAR(31) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_answers procedure_code
+ALTER TABLE `procedure_answers` ADD `procedure_code` VARCHAR(31) DEFAULT NULL;
 #EndIf
