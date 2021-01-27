@@ -25,7 +25,7 @@ require_once("verysimple/Authentication/IAuthenticatable.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 3.1
  */
-abstract class Controller
+abstract class PortalController
 {
     protected $Phreezer;
     protected $RenderEngine;
