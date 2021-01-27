@@ -163,10 +163,6 @@ ALTER TABLE `procedure_order` ADD `order_abn` VARCHAR(31) NOT NULL DEFAULT 'not_
 ALTER TABLE `procedure_order` ADD `collector_id` BIGINT(11) NOT NULL DEFAULT '0';
 #EndIf
 
-#IfMissingColumn procedure_order order_diagnosis
-ALTER TABLE `procedure_order` ADD `order_diagnosis` VARCHAR(255) DEFAULT NULL;
-#EndIf
-
 #IfMissingColumn procedure_order account
 ALTER TABLE `procedure_order` ADD `account` VARCHAR(60) DEFAULT NULL;
 #EndIf
