@@ -303,6 +303,7 @@ class BaseService
      */
     public static function getUuidById($id, $table, $field)
     {
+        $table = escape_table_name($table);
         $sql = "SELECT uuid from $table WHERE $field = ?";
         $result = sqlQuery($sql, array($id));
         return $result['uuid'] ?? false;

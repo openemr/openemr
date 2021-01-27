@@ -4055,6 +4055,11 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','fgp','Custom Favorite Group' ,50,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','for','Custom Favorite Item' ,60,0);
 
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value) VALUES ('lists','Procedure_Billing','Procedure Billing',0, 1, 0);
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity) VALUES ('Procedure_Billing','T','Third-Party',10,1,1);
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity) VALUES ('Procedure_Billing','P','Self Pay',20,0,1);
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity) VALUES ('Procedure_Billing','C','Bill Clinic',30,0,1);
+
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_body_site','Procedure Body Sites', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_body_site','arm'    ,'Arm'    ,10,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_body_site','buttock','Buttock',20,0);
@@ -8747,8 +8752,9 @@ CREATE TABLE `procedure_providers` (
   `orders_path`  varchar(255) NOT NULL DEFAULT '',
   `results_path` varchar(255) NOT NULL DEFAULT '',
   `notes`        text,
-  `lab_director` bigint(20) NOT NULL DEFAULT '0',
-  `active`       tinyint(1) NOT NULL DEFAULT '1',
+  `lab_director` bigint(20)   NOT NULL DEFAULT '0',
+  `active`       tinyint(1)   NOT NULL DEFAULT '1',
+  `type`         varchar(31)  DEFAULT NULL,
   PRIMARY KEY (`ppid`)
 ) ENGINE=InnoDB;
 
@@ -8778,6 +8784,7 @@ CREATE TABLE `procedure_type` (
   `seq`                 int(11)      NOT NULL default 0  COMMENT 'sequence number for ordering',
   `activity`            tinyint(1)   NOT NULL default 1  COMMENT '1=active, 0=inactive',
   `notes`               varchar(255) NOT NULL default '' COMMENT 'additional notes to enhance description',
+  `transport`           varchar(31)  DEFAULT NULL,
   PRIMARY KEY (`procedure_type_id`),
   KEY parent (parent)
 ) ENGINE=InnoDB;
@@ -8812,27 +8819,36 @@ CREATE TABLE `procedure_questions` (
 
 DROP TABLE IF EXISTS `procedure_order`;
 CREATE TABLE `procedure_order` (
-  `procedure_order_id`     bigint(20)   NOT NULL AUTO_INCREMENT,
-  `uuid`                   binary(16)   DEFAULT NULL,
-  `provider_id`            bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references users.id, the ordering provider',
-  `patient_id`             bigint(20)   NOT NULL            COMMENT 'references patient_data.pid',
-  `encounter_id`           bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
-  `date_collected`         datetime     DEFAULT NULL        COMMENT 'time specimen collected',
-  `date_ordered`           date         DEFAULT NULL,
-  `order_priority`         varchar(31)  NOT NULL DEFAULT '',
-  `order_status`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
+  `procedure_order_id`     bigint(20)       NOT NULL AUTO_INCREMENT,
+  `uuid`                   binary(16)       DEFAULT NULL,
+  `provider_id`            bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references users.id, the ordering provider',
+  `patient_id`             bigint(20)       NOT NULL            COMMENT 'references patient_data.pid',
+  `encounter_id`           bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
+  `date_collected`         datetime         DEFAULT NULL        COMMENT 'time specimen collected',
+  `date_ordered`           date             DEFAULT NULL,
+  `order_priority`         varchar(31)      NOT NULL DEFAULT '',
+  `order_status`           varchar(31)      NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
   `patient_instructions`   text,
-  `activity`               tinyint(1)   NOT NULL DEFAULT 1  COMMENT '0 if deleted',
-  `control_id`             varchar(255) NOT NULL DEFAULT '' COMMENT 'This is the CONTROL ID that is sent back from lab',
-  `lab_id`                 bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid',
-  `specimen_type`          varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Type list',
-  `specimen_location`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Location list',
-  `specimen_volume`        varchar(30)  NOT NULL DEFAULT '' COMMENT 'from a text input field',
-  `date_transmitted`       datetime     DEFAULT NULL        COMMENT 'time of order transmission, null if unsent',
-  `clinical_hx`            varchar(255) NOT NULL DEFAULT '' COMMENT 'clinical history text that may be relevant to the order',
-  `external_id`            varchar(20) DEFAULT NULL,
-  `history_order`          enum('0','1') DEFAULT '0' COMMENT 'references order is added for history purpose only.',
-  `order_diagnosis`        varchar(255) DEFAULT '' COMMENT 'primary order diagnosis',
+  `activity`               tinyint(1)       NOT NULL DEFAULT 1  COMMENT '0 if deleted',
+  `control_id`             varchar(255)     NOT NULL DEFAULT '' COMMENT 'This is the CONTROL ID that is sent back from lab',
+  `lab_id`                 bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid',
+  `specimen_type`          varchar(31)      NOT NULL DEFAULT '' COMMENT 'from the Specimen_Type list',
+  `specimen_location`      varchar(31)      NOT NULL DEFAULT '' COMMENT 'from the Specimen_Location list',
+  `specimen_volume`        varchar(30)      NOT NULL DEFAULT '' COMMENT 'from a text input field',
+  `date_transmitted`       datetime         DEFAULT NULL        COMMENT 'time of order transmission, null if unsent',
+  `clinical_hx`            varchar(255)     NOT NULL DEFAULT '' COMMENT 'clinical history text that may be relevant to the order',
+  `external_id`            varchar(20)      DEFAULT NULL,
+  `history_order`          enum('0','1')    DEFAULT '0'         COMMENT 'references order is added for history purpose only.',
+  `order_diagnosis`        varchar(255)     DEFAULT ''          COMMENT 'primary order diagnosis',
+  `billing_type`           varchar(4)       DEFAULT NULL,
+  `specimen_fasting`       varchar(31)      DEFAULT NULL,
+  `order_psc`              tinyint(4)       DEFAULT NULL,
+  `order_abn`              varchar(31)      NOT NULL DEFAULT 'not_required',
+  `collector_id`           bigint(11)       NOT NULL DEFAULT 0,
+  `account`                varchar(60)      DEFAULT NULL,
+  `account_facility`       int(11)          DEFAULT NULL,
+  `provider_number`        varchar(30)      DEFAULT NULL,
+  `procedure_order_type`   varchar(32)      NOT NULL DEFAULT 'laboratory_test',
   PRIMARY KEY (`procedure_order_id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY datepid (date_ordered, patient_id),
@@ -8847,14 +8863,16 @@ CREATE TABLE `procedure_order` (
 
 DROP TABLE IF EXISTS `procedure_order_code`;
 CREATE TABLE `procedure_order_code` (
-  `procedure_order_id`  bigint(20)  NOT NULL                COMMENT 'references procedure_order.procedure_order_id',
-  `procedure_order_seq` int(11)     NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq, incremented in code',
-  `procedure_code`      varchar(31) NOT NULL DEFAULT ''     COMMENT 'like procedure_type.procedure_code',
-  `procedure_name`      varchar(255) NOT NULL DEFAULT ''    COMMENT 'descriptive name of the procedure code',
-  `procedure_source`    char(1)     NOT NULL DEFAULT '1'    COMMENT '1=original order, 2=added after order sent',
-  `diagnoses`           text                                COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)',
-  `do_not_send`         tinyint(1)  NOT NULL DEFAULT '0'    COMMENT '0 = normal, 1 = do not transmit to lab',
-  `procedure_order_title` varchar( 255 ) NULL DEFAULT NULL,
+  `procedure_order_id`      bigint(20)  NOT NULL                COMMENT 'references procedure_order.procedure_order_id',
+  `procedure_order_seq`     int(11)     NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq, incremented in code',
+  `procedure_code`          varchar(31) NOT NULL DEFAULT ''     COMMENT 'like procedure_type.procedure_code',
+  `procedure_name`          varchar(255) NOT NULL DEFAULT ''    COMMENT 'descriptive name of the procedure code',
+  `procedure_source`        char(1)     NOT NULL DEFAULT '1'    COMMENT '1=original order, 2=added after order sent',
+  `diagnoses`               text                                COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)',
+  `do_not_send`             tinyint(1)  NOT NULL DEFAULT '0'    COMMENT '0 = normal, 1 = do not transmit to lab',
+  `procedure_order_title`   varchar( 255 ) NULL DEFAULT NULL,
+  `procedure_type`          varchar(31) DEFAULT NULL,
+  `transport`               varchar(31) DEFAULT NULL,
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
 ) ENGINE=InnoDB;
 
@@ -8871,6 +8889,7 @@ CREATE TABLE `procedure_answers` (
   `question_code`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'references procedure_questions.question_code',
   `answer_seq`          int(11)      NOT NULL COMMENT 'supports multiple-choice questions. answer_seq, incremented in code',
   `answer`              varchar(255) NOT NULL DEFAULT '' COMMENT 'answer data',
+  `procedure_code`      varchar(31)  DEFAULT NULL,
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`, `question_code`, `answer_seq`)
 ) ENGINE=InnoDB;
 
