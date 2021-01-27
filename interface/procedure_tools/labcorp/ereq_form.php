@@ -749,12 +749,16 @@ STYLES;
         $DOCUMENT_CATEGORY = $category['id'];
 
         $d = new Document();
-        $docid = $d->createDocument($pid, $DOCUMENT_CATEGORY, $filename, "application/pdf", $mpdfData);
+        $good = $d->createDocument($pid, $DOCUMENT_CATEGORY, $filename, "application/pdf", $mpdfData);
+        if (!empty($good)) {
+            echo $good;
+            exit;
+        }
         $unique = date('y-m-d-H:i:s', time());
         $documentationOf = "$unique";
         sqlStatement(
-            "UPDATE documents SET documentationOf = ? WHERE id = ?",
-            array($documentationOf, $docid)
+            "UPDATE documents SET documentationOf = ?, list_id = ? WHERE id = ?",
+            array($documentationOf, $form_id, $d->id)
         );
     } catch (Exception $e) {
         echo "Message: " . $e->getMessage();
