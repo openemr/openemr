@@ -232,7 +232,7 @@ function doWait(e){
                         style="max-width:75px;margin-left:20px;"
                         type="number" title="<?php echo xla('Max number of results to process at a time per Lab') ?>"
                         step="1" min="0" max="50"
-                        value="<?php echo $_REQUEST['form_max_results'] ?: 10; ?>" />
+                        value="<?php echo attr($_REQUEST['form_max_results'] ?: 10); ?>" />
                         <span class="input-group-text"><?php echo xlt('Results Per Lab'); ?></span>
                     </div>
                     <div class="form-check form-check-inline ml-2">
@@ -437,7 +437,7 @@ function doWait(e){
         </div>
         <div class="col-md">
             <select name='form_lab_search' id='form_lab_search' class='form-control'>
-                <option value="0">All Labs</option>
+                <option value="0"><?php echo xlt('All Labs'); ?></option>
                 <?php
                 $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers ORDER BY name, ppid");
                 while ($pprow = sqlFetchArray($ppres)) {

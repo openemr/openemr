@@ -144,15 +144,15 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 #EndIf
 
 #IfMissingColumn procedure_order billing_type
-ALTER TABLE `procedure_order` ADD `billing_type` VARCHAR(4) NULL DEFAULT NULL;
+ALTER TABLE `procedure_order` ADD `billing_type` VARCHAR(4) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn procedure_order specimen_fasting
-ALTER TABLE `procedure_order` ADD `specimen_fasting` VARCHAR(31) NULL DEFAULT NULL;
+ALTER TABLE `procedure_order` ADD `specimen_fasting` VARCHAR(31) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn procedure_order order_psc
-ALTER TABLE `procedure_order` ADD `order_psc` TINYINT(4) NULL DEFAULT NULL;
+ALTER TABLE `procedure_order` ADD `order_psc` TINYINT(4) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn procedure_order order_abn
@@ -164,15 +164,19 @@ ALTER TABLE `procedure_order` ADD `collector_id` BIGINT(11) NOT NULL DEFAULT '0'
 #EndIf
 
 #IfMissingColumn procedure_order order_diagnosis
-ALTER TABLE `procedure_order` ADD `order_diagnosis` VARCHAR(255) NULL DEFAULT NULL;
+ALTER TABLE `procedure_order` ADD `order_diagnosis` VARCHAR(255) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn procedure_order account
-ALTER TABLE `procedure_order` ADD `account` VARCHAR(60) NULL DEFAULT NULL;
+ALTER TABLE `procedure_order` ADD `account` VARCHAR(60) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn procedure_order account_facility
-ALTER TABLE `procedure_order` ADD `account_facility` int(11) NULL DEFAULT NULL;
+ALTER TABLE `procedure_order` ADD `account_facility` int(11) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_order provider_number
+ALTER TABLE `procedure_order` ADD `provider_number` VARCHAR(30) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn procedure_order procedure_order_type
@@ -180,22 +184,22 @@ ALTER TABLE `procedure_order` ADD `procedure_order_type` varchar(32) NOT NULL DE
 #EndIf
 
 #IfMissingColumn procedure_order_code procedure_type
-ALTER TABLE `procedure_order_code` ADD `procedure_type` VARCHAR(31) NULL DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `procedure_type` VARCHAR(31) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn procedure_order_code transport
-ALTER TABLE `procedure_order_code` ADD `transport` VARCHAR(31) NULL DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `transport` VARCHAR(31) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn procedure_type transport
-ALTER TABLE `procedure_type` ADD `transport` VARCHAR(31) NULL DEFAULT NULL;
+ALTER TABLE `procedure_type` ADD `transport` VARCHAR(31) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn procedure_providers type
-ALTER TABLE `procedure_providers` ADD `type` VARCHAR(31) NULL DEFAULT NULL;
+ALTER TABLE `procedure_providers` ADD `type` VARCHAR(31) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn procedure_answers procedure_code
-ALTER TABLE `procedure_answers` ADD `procedure_code` VARCHAR(31) NULL DEFAULT NULL;
+ALTER TABLE `procedure_answers` ADD `procedure_code` VARCHAR(31) DEFAULT NULL;
 #EndIf
 

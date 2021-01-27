@@ -554,12 +554,12 @@ function create_encounter($pid, $provider_id = '', $order_date, $lab_name)
         sqlInsert("INSERT INTO form_encounter SET " .
             "date = ?, " .
             "onset_date = '', " .
-            "reason = 'Generated encounter for " . strtoupper($lab_name) . " result', " .
+            "reason = ?, " .
             "sensitivity = 'normal', " .
             "referral_source = '', " .
             "pid = ?, " .
             "encounter = ?, " .
-            "provider_id = ?", array(date('Y-m-d H:i:s', strtotime($order_date)), $pid, $encounter, $provider_id)),
+            "provider_id = ?", array(date('Y-m-d H:i:s', strtotime($order_date)), "Generated encounter for " . strtoupper($lab_name) . " result", $pid, $encounter, $provider_id)),
         "newpatient",
         $pid,
         0,

@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * ereq_form.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once(__DIR__ . "/../../globals.php");
 require_once(__DIR__ . "/../../../library/patient.inc");
 // 2d bar patched out until tcpdf gets upto PHP8
@@ -43,9 +53,9 @@ STYLES;
         $pdfContent .= '<td style="border:0px;text-align:right;padding-right:20px;"><b>Page 1 of 2</b></td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '</table>';
-        $procedure = sqlQuery("SELECT * FROM procedure_order WHERE procedure_order_id='$form_id'");
+        $procedure = sqlQuery("SELECT * FROM procedure_order WHERE procedure_order_id=?", [$form_id]);
         $account_facility = $procedure['account_facility'];
-        $facility = sqlQuery("SELECT * FROM facility f WHERE f.id='$account_facility'");
+        $facility = sqlQuery("SELECT * FROM facility f WHERE f.id=?", [$account_facility]);
         $location = sqlQueryNoLog("SELECT f.facility_code FROM users as u " .
             "INNER JOIN facility as f ON u.facility_id = f.id WHERE u.id = ?", array($procedure['provider_id']));
 
@@ -99,7 +109,7 @@ STYLES;
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width50">';
         $pdfContent .= '<table>';
-        $provider = sqlQuery("SELECT concat(lname,', ', fname) as name, npi, upin, id FROM users WHERE id='" . $procedure['provider_id'] . "'");
+        $provider = sqlQuery("SELECT concat(lname,', ', fname) as name, npi, upin, id FROM users WHERE id=?", [$procedure['provider_id']]);
         $pdfContent .= '<tr><td style="text-align:right;width:36%;">Ordering Physician:</td><td style="width:64%;padding-left:8px;">' . $provider['name'] . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Physician Degree:</td><td style="padding-left:8px;">&nbsp;</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">NPI:</td><td style="padding-left:8px;">' . $provider['npi'] . '</td></tr>';
@@ -114,7 +124,7 @@ STYLES;
         $pdfContent .= '<table class="cor-edi-main-table" style="margin-bottom:6px;">';
         $pdfContent .= '<tbody>';
         $pdfContent .= '<tr>';
-        $patient = sqlQuery("SELECT * FROM patient_data WHERE pid='" . $pid . "'");
+        $patient = sqlQuery("SELECT * FROM patient_data WHERE pid=?", [$pid]);
         $pdfContent .= '<td style="padding-left:8px;" colspan="2"><b>Patient Information:</b></td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
@@ -145,7 +155,7 @@ STYLES;
         $pdfContent .= '</table>';
 
         $pdfContent .= '<table class="cor-edi-main-table" style="margin-bottom:6px;">';
-        $proc_sql = sqlStatement("SELECT procedure_code, procedure_name, diagnoses, procedure_order_seq FROM procedure_order_code WHERE procedure_order_id='$form_id'");
+        $proc_sql = sqlStatement("SELECT procedure_code, procedure_name, diagnoses, procedure_order_seq FROM procedure_order_code WHERE procedure_order_id=?", [$form_id]);
         $proc_order = sqlNumRows($proc_sql);
         $procedure_right = floor($proc_order / 2);
         $procedure_left = $proc_order - $procedure_right;
@@ -209,7 +219,7 @@ STYLES;
         $pdfContent .= '</tbody>';
         $pdfContent .= '</table>';
 
-        $vitals = sqlQuery("SELECT height, weight FROM form_vitals v join forms f on f.form_id=v.id WHERE f.pid='$pid' and f.encounter='$encounter' ORDER BY v.date DESC LIMIT 1");
+        $vitals = sqlQuery("SELECT height, weight FROM form_vitals v join forms f on f.form_id=v.id WHERE f.pid=? and f.encounter=? ORDER BY v.date DESC LIMIT 1", [$pid, $encounter]);
         $i = 0;
         $aoe_pap = '';
         $allspecs = [];
@@ -377,7 +387,7 @@ STYLES;
             $pdfContent .= '</tr>';
         }
 
-        $primary = sqlQuery("SELECT i.*,ic.name,ic.id FROM insurance_data i join insurance_companies ic ON i.provider=ic.id WHERE i.pid='$pid' and i.type='primary' ORDER BY i.date DESC LIMIT 1");
+        $primary = sqlQuery("SELECT i.*,ic.name,ic.id FROM insurance_data i join insurance_companies ic ON i.provider=ic.id WHERE i.pid=? and i.type='primary' ORDER BY i.date DESC LIMIT 1", [$pid]);
         $billtype = "Unknown";
         switch (trim($procedure['billing_type'])) {
             case 'T':
@@ -603,7 +613,7 @@ STYLES;
         $pdfContent .= '<table>';
         $pdfContent .= '<tr><td style="width:36%;text-align:right;">LCA Ins Code:</td><td style="width:64%;padding-left:8px;">&nbsp;</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Ins Co Name:</td><td style="padding-left:8px;">' . $primary['name'] . '</td></tr>';
-        $paddress = sqlQuery("SELECT * FROM addresses WHERE foreign_id='" . $primary['id'] . "'");
+        $paddress = sqlQuery("SELECT * FROM addresses WHERE foreign_id=?", [$primary['id']]);
         $pdfContent .= '<tr><td style="text-align:right;">Ins Address 1:</td><td style="padding-left:8px;">' . $paddress['line1'] . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Ins Address 2:</td><td style="padding-left:8px;">' . $paddress['line2'] . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Ins City, State Zip:</td><td style="padding-left:8px;">' . $paddress['city'] . ', ' . $paddress['state'] . ' ' . $paddress['zip'] . '</td></tr>';
@@ -618,9 +628,9 @@ STYLES;
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width50">';
         $pdfContent .= '<table>';
-        $secondary = sqlQuery("SELECT i.*, ic.name, ic.id FROM insurance_data i join insurance_companies ic ON i.provider=ic.id WHERE i.pid='$pid' and i.type='secondary' ORDER BY i.date DESC LIMIT 1");
+        $secondary = sqlQuery("SELECT i.*, ic.name, ic.id FROM insurance_data i join insurance_companies ic ON i.provider=ic.id WHERE i.pid=? and i.type='secondary' ORDER BY i.date DESC LIMIT 1", [$pid]);
         $pdfContent .= '<tr><td style="width:36%;text-align:right;">LCA Ins Code:</td><td style="width:64%;padding-left:8px;">&nbsp;</td></tr>';
-        $saddress = sqlQuery("SELECT * FROM addresses WHERE foreign_id='" . $secondary['id'] . "'");
+        $saddress = sqlQuery("SELECT * FROM addresses WHERE foreign_id=?", [$secondary['id']]);
         $pdfContent .= '<tr><td style="text-align:right;">Ins Co Name:</td><td style="padding-left:8px;">' . $secondary['name'] . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Ins Address 1:</td><td style="padding-left:8px;">' . $saddress['line1'] . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Ins Address 2:</td><td style="padding-left:8px;">' . $saddress['line2'] . '</td></tr>';
@@ -721,21 +731,21 @@ STYLES;
         $mpdf->WriteHTML($styleSheet, 1);
         $mpdf->WriteHTML($pdfContent, 2);
 
-        $directory = $GLOBALS["OE_SITE_DIR"] . "/documents/ereq/" . $pid . "/";
-        if (!is_dir($directory)) {
-            if (!mkdir($directory, 0755, true) && !is_dir($directory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $directory));
-            }
-        }
         $unique = date('y-m-d-His', time());
         $filename = "ereq_" . $unique . "_order_" . $form_id . ".pdf";
+
 //-----------patch in exclude dodoc
         if ($_REQUEST['debug'] || !$doDoc) {
-            $mpdf->Output($directory . $filename, "I");
+            $mpdf->Output($filename, "I");
             return;
         }
-
-        $mpdf->Output($directory . $filename, "F");
+        // trickery to create and then remove the temporary file
+        //  (so can then create it anew via mPDF)
+        $tmpFile = tempnam($GLOBALS['temporary_files_dir'], "ereq");
+        unlink($tmpFile);
+        $mpdf->Output($tmpFile, "F");
+        $mpdfData = file_get_contents($tmpFile);
+        unlink($tmpFile);
 
 // register the new document
         $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("LabCorp"));
@@ -745,28 +755,13 @@ STYLES;
         $DOCUMENT_CATEGORY = $category['id'];
 
         $d = new Document();
-        $d->name = $filename;
-        $d->storagemethod = 0;
-        $d->url = "file://" . $directory . $filename;
-        $d->mimetype = "application/pdf";
-        $d->size = filesize($directory . $filename);
-        $d->owner = $_SESSION['authUserID'];
-        $d->hash = sha1_file($directory . $filename);
-        $d->type = $d->type_array['file_url'];
-        $d->list_id = (int)$form_id;
-        $d->set_foreign_id($pid);
-        $d->persist();
-        $d->populate();
-        $docid = $d->get_id();
+        $docid = $d->createDocument($pid, $DOCUMENT_CATEGORY, $filename, "application/pdf", $mpdfData);
         $unique = date('y-m-d-H:i:s', time());
         $documentationOf = "$unique";
         sqlStatement(
             "UPDATE documents SET documentationOf = ? WHERE id = ?",
             array($documentationOf, $docid)
         );
-        // update cross reference
-        $query = "REPLACE INTO categories_to_documents set category_id = ?, document_id = ?";
-        sqlStatement($query, array($DOCUMENT_CATEGORY, $docid));
     } catch (Exception $e) {
         echo "Message: " . $e->getMessage();
         echo "";

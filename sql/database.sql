@@ -8835,6 +8835,7 @@ CREATE TABLE `procedure_order` (
   `specimen_fasting`       varchar(31)      DEFAULT NULL,
   `order_psc`              tinyint(4)       DEFAULT NULL,
   `order_abn`              varchar(31)      NOT NULL DEFAULT 'not_required',
+  `order_diagnosis`        varchar(255)     DEFAULT NULL,
   `collector_id`           bigint(11)       NOT NULL DEFAULT 0,
   `account`                varchar(60)      DEFAULT NULL,
   `account_facility`       int(11)          DEFAULT NULL,

@@ -273,7 +273,7 @@ function gen_hl7_order($orderid, &$out)
 
     // NTE segment(s).
     //$msql = sqlStatement("SELECT title FROM lists WHERE type='medication' AND pid='".$porow['pid']."'");
-    $msql = sqlStatement("SELECT drug FROM prescriptions WHERE active=1 AND patient_id='" . $porow['pid'] . "'");
+    $msql = sqlStatement("SELECT drug FROM prescriptions WHERE active=1 AND patient_id=?", [$porow['pid']]);
     $drugs = array();
     while ($mres = sqlFetchArray($msql)) {
         $drugs[] = trim($mres['drug']);

@@ -64,7 +64,7 @@ function oresRawData($name, $index)
 function oresData($name, $index)
 {
     $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
-    return add_escape_custom(trim($s, true));
+    return add_escape_custom(trim($s));
 }
 
 function QuotedOrNull($fld)

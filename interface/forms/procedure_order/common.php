@@ -114,8 +114,8 @@ function getListOptions($list_id, $fieldnames = array('option_id', 'title', 'seq
 // do not change from $_REQUEST.
 $formid = (int)($_REQUEST['id'] ?? 0);
 
-$reload_url = $rootdir . '/patient_file/encounter/view_form.php?formname=procedure_order&id=' . attr($formid);
-$req_url = $GLOBALS['web_root'] . '/controller.php?document&retrieve&patient_id=' . $pid . '&document_id=';
+$reload_url = $rootdir . '/patient_file/encounter/view_form.php?formname=procedure_order&id=' . urlencode($formid);
+$req_url = $GLOBALS['web_root'] . '/controller.php?document&retrieve&patient_id=' . urlencode($pid) . '&document_id=';
 $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
@@ -200,7 +200,7 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
         $viewmode = true;
     }
 
-    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/$ppid/orders/$formid" . "_order_log.log";
+    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($ppid) . "/orders/" . check_file_dir_name($formid) . "_order_log.log";
     $order_log = $_POST['order_log'] ?? '';
     if ($order_log) {
         file_put_contents($log_file, $order_log);
@@ -301,8 +301,8 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
     if (isset($_POST['bn_save_exit'])) {
         formHeader("Redirecting....");
         if ($alertmsg) {
-            $msg = xlj('Transmit failed') . ': ' . $alertmsg;
-            echo "\n<script>alert('$msg')</script>\n";
+            $msg = xl('Transmit failed') . ': ' . $alertmsg;
+            echo "\n<script>alert("  . js_escape($msg) . ")</script>\n";
         }
         formJump();
         formFooter();
@@ -437,14 +437,14 @@ $account = $location['facility_code'];
 $account_name = $location['name'];
 $account_facility = $location['id'];
 
-$log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . $row['lab_id'] . "/orders/";
+$log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($row['lab_id']) . "/orders/";
 
 if (!is_dir($log_file)) {
     if (!mkdir($log_file, 0755, true) && !is_dir($log_file)) {
         throw new \RuntimeException(sprintf('Directory "%s" was not created', $log_file));
     }
 }
-$log_file .= $formid . '_order_log.log';
+$log_file .= check_file_dir_name($formid) . '_order_log.log';
 if (file_exists($log_file)) {
     $order_log = file_get_contents($log_file);
 }
@@ -457,11 +457,11 @@ if (file_exists($log_file)) {
 <script>
 // Some JS Globals that will be useful.
 var gbl_formseq;
-var currentLabId = '<?php echo $row['lab_id'] ?>';
-var currentLab = '<?php echo $gbl_lab ?>';
-var currentLabTitle = '<?php echo $gbl_lab_title ?>';
+var currentLabId = <?php echo js_escape($row['lab_id']); ?>;
+var currentLab = <?php echo js_escape($gbl_lab); ?>;
+var currentLabTitle = <?php echo js_escape($gbl_lab_title); ?>;
 var viewmode = <?php echo !empty($viewmode) ? 1 : 0 ?>;
-var refreshForm = '<?php echo $reload_url ?>';
+var refreshForm = <?php echo js_escape($reload_url); ?>;
 
 function processSubmit(od) { // not used yet
     $("#form_order_abn").val(od.order_abn);
@@ -497,7 +497,7 @@ function deleteRow(event) {
     let target = $(event.currentTarget).closest('tr').find("input[name^='form_proc_type_desc']").val();
     let yn = true;
     if (target)
-        yn = confirm('<?php echo xlt("Confirm to remove item") ?>' + "\n" + target);
+        yn = confirm(<?php echo xlj("Confirm to remove item") ?> + "\n" + target);
     if (yn)
         $(event.currentTarget).closest(".proc-table").remove();
 }
@@ -627,9 +627,9 @@ function current_diagnoses(whereElement) {
     let title = <?php echo xlj("Diagnosis Codes History"); ?>;
     dlgopen('find_code_history.php', 'dxDialog', 'modal-mlg', 450, '', title, {
         buttons: [
-            {text: '<?php echo xlt('Save'); ?>', id: 'saveDx', style: 'primary btn-save'},
-            {text: '<?php echo xlt('Help'); ?>', id: 'showTips', style: 'primary btn-show'},
-            {text: '<?php echo xlt('Cancel'); ?>', close: true, style: 'secondary btn-cancel'},
+            {text: '<?php echo xla('Save'); ?>', id: 'saveDx', style: 'primary btn-save'},
+            {text: '<?php echo xla('Help'); ?>', id: 'showTips', style: 'primary btn-show'},
+            {text: '<?php echo xla('Cancel'); ?>', close: true, style: 'secondary btn-cancel'},
         ],
         type: 'iframe'
     });
@@ -677,8 +677,8 @@ var transmitting = false;
 function validate(f, e) {
     <?php if (!empty($row['date_transmitted'])) { ?>
     if (transmitting) {
-    if (!confirm(<?php echo xlj('This order was already transmitted on') ?> +' ' +
-        <?php echo js_escape($row['date_transmitted']) ?> +'. ' +
+    if (!confirm(<?php echo xlj('This order was already transmitted on') ?> + ' ' +
+        <?php echo js_escape($row['date_transmitted']) ?> + '. ' +
         <?php echo xlj('Are you sure you want to transmit it again?'); ?>)) {
             return false;
         }
@@ -733,7 +733,7 @@ function getDetails(e, id) {
     let title = <?php echo xlj("Test") ?> + ": " + code + " " + f[codetitle].value;
     dlgopen(url, 'details', 'modal-md', 200, '', title, {
         buttons: [
-            {text: '<?php echo xlt('Got It'); ?>', close: true, style: 'secondary btn-sm'}
+            {text: '<?php echo xla('Got It'); ?>', close: true, style: 'secondary btn-sm'}
         ]
     });
 }
@@ -763,8 +763,8 @@ function initForm(reload = false) {
 
 function createLabels(e) {
     e.preventDefault();
-    let prmt = <?php echo js_escape(xlt("How many sets of specimen labels to create?") .
-        "\n" . xlt("Each test in order gets a label.")); ?>;
+    let prmt = <?php echo js_escape(xla("How many sets of specimen labels to create?") .
+        "\n" . xla("Each test in order gets a label.")); ?>;
     let count = prompt(prmt, '1');
     if (!count) return false;
     let tarray = "";
@@ -777,14 +777,14 @@ function createLabels(e) {
         tarray += transport + ";";
     }
     let printer = 'file';
-    let acctid = '<?php echo $gbl_client_acct ?>';
+    let acctid = <?php echo js_escape($gbl_client_acct); ?>;
     let order = f.id.value;
-    let patient = "<?php echo $patient['lname'] . ', ' . $patient['fname'] . ' ' . $patient['mname'] ?>";
-    let pid = "<?php echo $patient['pid']  ?>";
+    let patient = <?php echo js_escape($patient['lname'] . ', ' . $patient['fname'] . ' ' . $patient['mname']); ?>;
+    let pid = <?php echo js_escape($patient['pid']);  ?>;
     let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
     // this escapes above
-    let uri = encodeURI("?action=print_labels&count=" + count + "&order=" + order + "&pid=" + pid +
-        "&acctid=" + acctid + "&patient=" + patient + "&specimen=" + tarray) +
+    let uri = "?action=print_labels&count=" + encodeURIComponent(count) + "&order=" + encodeURIComponent(order) + "&pid=" + encodeURIComponent(pid) +
+        "&acctid=" + encodeURIComponent(acctid) + "&patient=" + encodeURIComponent(patient) + "&specimen=" + encodeURIComponent(tarray) +
         "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
 
     // retrieve the labels
@@ -852,27 +852,27 @@ $title = array(xl('Order for'), $name, $date);
         <div class="col-md-12">
             <form class="form form-horizontal" method="post" action="" onsubmit="return validate(this,event)">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <input type='hidden' name='id' value='<?php echo $formid ?>' />
+                <input type='hidden' name='id' value='<?php echo attr($formid) ?>' />
                 <fieldset class="row">
                     <legend data-toggle="collapse" data-target="#orderOptions">
                         <i class="fa fa-plus"></i>
-                        <?php echo xlt('Select Options for Current Order Id ') . (text($formid) ? text($formid) : 'New Order') ?>
+                        <?php echo xlt('Select Options for Current Order Id') . ' ' . (text($formid) ? text($formid) : 'New Order') ?>
                     </legend>
                     <div class="col-md-12 collapse show" id="orderOptions">
                         <div class="form-group form-row">
-                            <label for="provider_id" class="col-form-label col-md-2"><?php xl('Ordering Provider', 'e'); ?></label>
+                            <label for="provider_id" class="col-form-label col-md-2"><?php echo xlt('Ordering Provider'); ?></label>
                             <div class="col-md-2">
                                 <?php generate_form_field(array('data_type' => 10, 'field_id' => 'provider_id'), $row['provider_id']); ?>
                             </div>
-                            <label for="form_date_ordered" class="col-form-label col-md-2"><?php xl('Order Date', 'e'); ?></label>
+                            <label for="form_date_ordered" class="col-form-label col-md-2"><?php echo xlt('Order Date'); ?></label>
                             <div class="col-md-2">
                                 <input type='text' class='datepicker form-control'
                                     name='form_date_ordered'
                                     id='form_date_ordered'
-                                    value="<?php echo $row['date_ordered']; ?>"
-                                    title="<?php xl('Date of this order', 'e'); ?>" />
+                                    value="<?php echo attr($row['date_ordered']); ?>"
+                                    title="<?php echo xla('Date of this order'); ?>" />
                             </div>
-                            <label for="lab_id" class="col-form-label col-md-2"><?php xl('Sending To', 'e'); ?></label>
+                            <label for="lab_id" class="col-form-label col-md-2"><?php echo xlt('Sending To'); ?></label>
                             <div class="col-md-2">
                                 <select name='form_lab_id' id='form_lab_id' onchange='lab_id_changed(this)' class='form-control'>
                                     <?php
@@ -891,7 +891,7 @@ $title = array(xl('Order for'), $name, $date);
                             <div class="clearfix"></div>
                         </div>
                         <div class="form-group form-row">
-                            <label for="form_order_psc" class="col-form-label col-md-2">PSC Hold Order</label>
+                            <label for="form_order_psc" class="col-form-label col-md-2"><?php echo xlt('PSC Hold Order'); ?></label>
                             <div class="col-md-2">
                                 <?php
                                 $pscOrderOpts = array(
@@ -902,19 +902,19 @@ $title = array(xl('Order for'), $name, $date);
                                 generate_form_field($pscOrderOpts, $row['order_psc']);
                                 ?>
                             </div>
-                            <label for="form_date_collected" class="col-form-label col-md-2"><?php xl('Time Collected', 'e'); ?></label>
+                            <label for="form_date_collected" class="col-form-label col-md-2"><?php echo xlt('Time Collected'); ?></label>
                             <div class="col-md-2">
                                 <input class='datetimepicker form-control'
                                     type='text'
                                     name='form_date_collected'
                                     id='form_date_collected'
-                                    value="<?php echo substr($row['date_collected'], 0, 16); ?>"
-                                    title="<?php xl('Date and time that the sample was collected', 'e'); ?>" />
+                                    value="<?php echo attr(substr($row['date_collected'], 0, 16)); ?>"
+                                    title="<?php echo xla('Date and time that the sample was collected'); ?>" />
                             </div>
-                            <label for="form_account_facility" class="col-form-label col-md-2 labcorp"><?php xl('Sending From', 'e'); ?></label>
+                            <label for="form_account_facility" class="col-form-label col-md-2 labcorp"><?php echo xlt('Sending From'); ?></label>
                             <div class="col-md-2 labcorp">
                                 <select name='form_account_facility' id='form_account_facility' class='form-control'>
-                                    <option value="">Select Location</option>
+                                    <option value=""><?php echo xlt('Select Location'); ?></option>
                                     <?php
                                     $ppres = sqlStatement("SELECT id, name, facility_code FROM facility WHERE facility_code > '' ORDER BY name, id");
                                     while ($facrow = sqlFetchArray($ppres)) {
@@ -934,36 +934,36 @@ $title = array(xl('Order for'), $name, $date);
                                     }
                                     ?>
                                 </select>
-                                <input readonly type='hidden' class="input-sm" name="form_account" value="<?php echo $account ?>">
+                                <input readonly type='hidden' class="input-sm" name="form_account" value="<?php echo attr($account); ?>">
                             </div>
                             <div class="clearfix"></div>
                         </div>
                         <!--------------------Collections--------------------------->
                         <div class="form-group form-row">
-                            <label for="form_specimen_fasting" class="col-form-label col-md-2">Fasting</label>
+                            <label for="form_specimen_fasting" class="col-form-label col-md-2"><?php echo xlt('Fasting'); ?></label>
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'specimen_fasting',
                                     'list_id' => 'yesno'), $row['specimen_fasting']);
                                 ?>
                             </div>
-                            <label for="collector_id" class="col-form-label col-md-2"><?php xl('Collected By', 'e'); ?></label>
+                            <label for="collector_id" class="col-form-label col-md-2"><?php echo xlt('Collected By'); ?></label>
                             <div class="col-md-2">
                                 <?php generate_form_field(array('data_type' => 10, 'field_id' => 'collector_id'), $row['collector_id']); ?>
                             </div>
-                            <label for='form_order_abn' class="col-form-label col-md-2">ABN Status</label>
+                            <label for='form_order_abn' class="col-form-label col-md-2"><?php echo xlt('ABN Status'); ?></label>
                             <div class="col-md-2">
                                 <select name='form_order_abn' id='form_order_abn' class='form-control'>
-                                    <option value="not_required" <?php echo $row['order_abn'] === 'not_required' ? ' selected' : '' ?>>Not Required</option>
-                                    <option value="required" <?php echo $row['order_abn'] === 'required' ? ' selected' : '' ?>>Required</option>
-                                    <option value="signed" <?php echo $row['order_abn'] === 'signed' ? ' selected' : '' ?>>Signed</option>
+                                    <option value="not_required" <?php echo $row['order_abn'] === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
+                                    <option value="required" <?php echo $row['order_abn'] === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
+                                    <option value="signed" <?php echo $row['order_abn'] === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
                                 </select>
                             </div>
                             <div class="clearfix"></div>
                         </div>
                         <div class="form-group form-row">
                             <label for="form_order_priority"
-                                class="col-form-label col-md-2"><?php xl('Priority', 'e'); ?></label>
+                                class="col-form-label col-md-2"><?php echo xlt('Priority'); ?></label>
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'order_priority',
@@ -971,7 +971,7 @@ $title = array(xl('Order for'), $name, $date);
                                 ?>
                             </div>
                             <label for="form_order_status"
-                                class="col-form-label col-md-2"><?php xl('Status', 'e'); ?></label>
+                                class="col-form-label col-md-2"><?php echo xlt('Status'); ?></label>
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'order_status',
@@ -979,7 +979,7 @@ $title = array(xl('Order for'), $name, $date);
                                 ?>
                             </div>
                             <label for="form_billing_type"
-                                class="col-form-label col-md-2"><?php xl('Billing', 'e'); ?></label>
+                                class="col-form-label col-md-2"><?php echo xlt('Billing'); ?></label>
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'billing_type',
@@ -990,7 +990,7 @@ $title = array(xl('Order for'), $name, $date);
                         </div>
                         <div class="form-group form-row">
                             <label for="form_history_order"
-                                class="col-form-label col-md-2"><?php xl('History Order', 'e'); ?></label>
+                                class="col-form-label col-md-2"><?php echo xlt('History Order'); ?></label>
                             <div class="col-md-2">
                                 <?php
                                 $historyOrderOpts = array(
@@ -1011,7 +1011,7 @@ $title = array(xl('Order for'), $name, $date);
                             <label for="form_data_ordered" class="col-form-label col-md-1"><?php echo xlt('Patient Instructions'); ?></label>
                             <div class="col-md-5">
                             <textarea rows='2' cols="60" wrap="hard" id='form_patient_instructions'
-                                name='form_patient_instructions' class='text'><?php echo attr($row['patient_instructions']) ?></textarea>
+                                name='form_patient_instructions' class='text'><?php echo text($row['patient_instructions']) ?></textarea>
                             </div>
                         </div>
                     </div>
@@ -1019,7 +1019,7 @@ $title = array(xl('Order for'), $name, $date);
                 <fieldset class="row">
                      <legend><?php $t = "<span>" .
                         ($gbl_lab === "labcorp" ? "Location Account: $account_name $account" : "") . "</span>";
-                        echo xlt('Procedure Order Details') . " $gbl_lab_title " . $t ?>
+                        echo xlt('Procedure Order Details') . " " . text($gbl_lab_title) . " " . text($t); ?>
                     </legend>
                     <?php if ($order_data) { ?>
                         <div id="errorAlerts" class="alert alert-danger alert-dismissible col-6 offset-3" role="alert">
@@ -1032,7 +1032,7 @@ $title = array(xl('Order for'), $name, $date);
                     <?php } ?>
                     <div class="col-md-12 procedure-order-container table-responsive">
                         <div class="form-group form-row bg-dark text-light my-2 py-1">
-                            <label for="form_order_diagnosis" class="col-form-label col-md-2"><?php xl('Primary Diagnosis', 'e'); ?></label>
+                            <label for="form_order_diagnosis" class="col-form-label col-md-2"><?php echo xlt('Primary Diagnosis'); ?></label>
                             <div class="col-md-4">
                                 <?php
                                 if (!$formid) {
@@ -1169,7 +1169,7 @@ $title = array(xl('Order for'), $name, $date);
                                             title='<?php echo xla('Click to select the desired procedure'); ?>'
                                             placeholder='<?php echo xla('Click to select the desired procedure'); ?>'
                                             class='form-control c-hand' readonly />
-                                        <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='<?php echo $ptid ?>' />
+                                        <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='<?php echo attr($ptid); ?>' />
                                     </td>
                                     <td class='diagnosis-div input-group'>
                                         <div class='input-group-prepend'>
@@ -1223,7 +1223,7 @@ $title = array(xl('Order for'), $name, $date);
                                     foreach ($req as $reqdoc) {
                                         $title = $reqdoc['name'];
                                         $rpath = $reqdoc['url']; ?>
-                                        <a class="btn btn-outline-primary" href="<?php echo $rpath ?>"><?php echo text($title) ?></a>
+                                        <a class="btn btn-outline-primary" href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
                                     <?php } ?>
                                     <a class='btn btn-success ml-1' href='#'
                                         onclick="createLabels(event, this)"><?php echo xlt('Labels'); ?></a>
@@ -1234,7 +1234,7 @@ $title = array(xl('Order for'), $name, $date);
                                         onclick='transmitting = false;'><?php echo xlt('Manual eREQ'); ?>
                                     </button>
                                     <?php } elseif ($gbl_lab === 'clarity') {
-                                        echo "<a class='btn btn-outline-primary' target='_blank' href='$rootdir/procedure_tools/clarity/ereq_form.php?debug=1&formid=$formid'>" . xlt("Manual eREQ") . "</a>";
+                                        echo "<a class='btn btn-outline-primary' target='_blank' href='$rootdir/procedure_tools/clarity/ereq_form.php?debug=1&formid=" . attr_url($formid) . "'>" . xlt("Manual eREQ") . "</a>";
                                     }
                                     ?>
                                 </div>
@@ -1245,9 +1245,9 @@ $title = array(xl('Order for'), $name, $date);
                             <div class="jumbotron m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height:500px;">
                                 <?php
                                 if (!empty($order_log)) {
-                                    $alertmsg = text($order_log);
+                                    $alertmsg = $order_log;
                                 } else {
-                                    $order_log = text($alertmsg);
+                                    $order_log = $alertmsg;
                                 }
                                 if (!empty($alertmsg)) {
                                     echo nl2br(text($alertmsg));
@@ -1274,7 +1274,7 @@ $title = array(xl('Order for'), $name, $date);
                                 onclick='transmitting = true;'><?php echo xlt('Transmit Order'); ?>
                             </button>
                             <button type="button" class="btn btn-secondary btn-cancel"
-                                onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xla('Cancel/Exit'); ?>
+                                onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel/Exit'); ?>
                             </button>
                         </div>
                         <span class="wait fa fa-cog fa-spin fa-2x ml-2 d-none"></span>

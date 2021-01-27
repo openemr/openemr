@@ -348,7 +348,8 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
     );
 
     $vitals = sqlQuery(
-        "SELECT * FROM form_vitals v join forms f on f.form_id=v.id WHERE f.pid='" . $porow['pid'] . "' and f.encounter='" . $porow['encounter'] . "' ORDER BY v.date DESC LIMIT 1"
+        "SELECT * FROM form_vitals v join forms f on f.form_id=v.id WHERE f.pid=? and f.encounter=? ORDER BY v.date DESC LIMIT 1",
+        [$porow['pid'], $porow['encounter']]
     );
     $P[68] = $vitals['weight'];
     $P[70] = $vitals['height'];
@@ -638,7 +639,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
             $d0;
 
         // Observation Request.
-        $specprocedure = sqlQuery("SELECT specimen FROM procedure_type WHERE procedure_code='" . $pcrow['procedure_code'] . "'");
+        $specprocedure = sqlQuery("SELECT specimen FROM procedure_type WHERE procedure_code=?", [$pcrow['procedure_code']]);
         $out .= "OBR" .
             $d1 . ++$setid .                              // Set ID
             $d1 . $orderid .                              // Placer Order Number

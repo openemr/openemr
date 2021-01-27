@@ -57,7 +57,7 @@ if (isset($_GET['typeid'])) {
             $t = 0;
             do {
                 if (!isset($grporders[$i]['procedure_type_id'])) {
-                    echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", '$codes', '$transport', '$testid', '0');\n";
+                    echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", " . js_escape($codes) . ", " . js_escape($transport) . ", " . js_escape($testid) . ", '0');\n";
                 } else {
                     $t = count($grporders) - $i;
                     $typeid = $grporders[$i]['procedure_type_id'] + 0;

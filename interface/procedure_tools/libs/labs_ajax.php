@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * labs_ajax.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once(__DIR__ . "/../../../interface/globals.php");
 
 use Mpdf\Mpdf;
@@ -18,9 +28,9 @@ if ($action === 'code_detail') {
 
     $query = "SELECT detail.name, ord.procedure_code AS code, detail.name AS title, detail.description, detail.notes FROM procedure_type det ";
     $query .= "LEFT JOIN procedure_type ord ON ord.procedure_type_id = detail.parent ";
-    $query .= "WHERE ord.activity = 1 AND detail.procedure_type = 'det' AND ord.procedure_code  = '" . $code . "' ";
+    $query .= "WHERE ord.activity = 1 AND detail.procedure_type = 'det' AND ord.procedure_code  = ? ";
     $query .= "ORDER BY detail.seq ";
-    $result = sqlStatement($query);
+    $result = sqlStatement($query, [$code]);
     echo "<html><head>";
     Header::setupHeader();
     echo "</head><body style='overflow-x: hidden;'>";
@@ -32,8 +42,8 @@ if ($action === 'code_detail') {
             continue;
         }
         $none = false;
-        echo "<div><b><h5 style='margin-bottom:0'>" . $data['name'] . "</h5></b>\n";
-        echo "<span class='col-12'>" . nl2br($data['notes']) . "</span>\n";
+        echo "<div><b><h5 style='margin-bottom:0'>" . text($data['name']) . "</h5></b>\n";
+        echo "<span class='col-12'>" . nl2br(text($data['notes'])) . "</span>\n";
         echo "</div>\n";
     }
     if ($none) {
