@@ -132,7 +132,7 @@ ALTER TABLE `insurance_data` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `insurance_data` (`uuid`);
 #EndIf
 
-#IfNotColumnType facility weno_id
+#IfMissingColumn facility weno_id
 ALTER TABLE `facility` ADD `weno_id` VARCHAR(10) DEFAULT NULL;
 #EndIf
 
