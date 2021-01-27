@@ -739,13 +739,7 @@ STYLES;
             $mpdf->Output($filename, "I");
             return;
         }
-        // trickery to create and then remove the temporary file
-        //  (so can then create it anew via mPDF)
-        $tmpFile = tempnam($GLOBALS['temporary_files_dir'], "ereq");
-        unlink($tmpFile);
-        $mpdf->Output($tmpFile, "F");
-        $mpdfData = file_get_contents($tmpFile);
-        unlink($tmpFile);
+        $mpdfData = $mpdf->Output($filename, "S");
 
 // register the new document
         $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("LabCorp"));
