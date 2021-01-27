@@ -51,7 +51,7 @@ $logger = $billingProcessor->execute();
                 <ul>
                     <?php  foreach ($logger->bill_info() as $infoline) { ?>
                         <li>
-                            <?php echo nl2br($infoline); ?>
+                            <?php echo nl2br(text($infoline)); ?>
                         </li>
                     <?php } ?>
                 </ul>
