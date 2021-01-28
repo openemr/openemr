@@ -117,9 +117,10 @@ abstract class FhirServiceBase
     /**
      * Executes a FHIR Resource search given a set of parameters.
      * @param $fhirSearchParameters The FHIR resource search parameters
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return processing result
      */
-    public function getAll($fhirSearchParameters)
+    public function getAll($fhirSearchParameters, $puuidBind = null)
     {
         $oeSearchParameters = array();
         $provenanceRequest = false;
@@ -138,7 +139,7 @@ abstract class FhirServiceBase
             }
         }
 
-        $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters);
+        $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters, $puuidBind);
 
         $fhirSearchResult = new ProcessingResult();
         $fhirSearchResult->setInternalErrors($oeSearchResult->getInternalErrors());
@@ -162,9 +163,10 @@ abstract class FhirServiceBase
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      * @param openEMRSearchParameters OpenEMR search fields
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return OpenEMR records
      */
-    abstract protected function searchForOpenEMRRecords($openEMRSearchParameters);
+    abstract protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null);
 
     /**
      * Creates the Provenance resource  for the equivalent FHIR Resource

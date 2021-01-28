@@ -127,10 +127,11 @@ class FhirEncounterService extends FhirServiceBase
     /**
      * Performs a FHIR Encounter Resource lookup by FHIR Resource ID
      * @param $fhirResourceId //The OpenEMR record's FHIR Encounter Resource ID.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = null)
     {
-        $processingResult = $this->encounterService->getEncounter($fhirResourceId);
+        $processingResult = $this->encounterService->getEncounter($fhirResourceId, $puuidBind);
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];
@@ -146,11 +147,12 @@ class FhirEncounterService extends FhirServiceBase
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array openEMRSearchParameters OpenEMR search fields
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($searchParam)
+    public function searchForOpenEMRRecords($searchParam, $puuidBind = null)
     {
-        return $this->encounterService->getEncountersBySearch($searchParam);
+        return $this->encounterService->getEncountersBySearch($searchParam, true, $puuidBind);
     }
 
     public function parseFhirResource($fhirResource = array())

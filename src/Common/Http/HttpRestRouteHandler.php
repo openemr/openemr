@@ -104,8 +104,21 @@ class HttpRestRouteHandler
         $permission = $restRequest->getRequestMethod() === "GET" ? "read" : "write";
         $resource = $restRequest->getResource();
 
+        $config = $restRequest->getRestConfig();
+
+        if ($restRequest->isPatientRequest()) {
+            (new SystemLogger())->debug("checkSecurity() - patient specific request, so only allowing access to records to that one patient");
+            if (empty($restRequest->getPatientUUIDString()) || ($restRequest->getRequestUserRole() !== 'patient') || ($scopeType !== 'patient')) {
+                // need to fail here since this means the downstream patient binding mechanism will be broken
+                (new SystemLogger())->error("checkSecurity() - exited since patient binding mechanism broken");
+                http_response_code(401);
+                $config::destroySession();
+                exit;
+            }
+        }
+
         if ($restRequest->isFhir()) {
-            // don't do any checks on our open resources
+            // don't do any checks on our open fhir resources
             if (
                 $restRequest->getResource() == 'metadata'
                 || $restRequest->getResource() == 'smart-configuration'
@@ -113,15 +126,42 @@ class HttpRestRouteHandler
                 return;
             }
             if ($restRequest->isPatientWriteRequest()) {
+                // not allowing patient userrole write for fhir
+                (new SystemLogger())->debug("checkSecurity() - not allowing patient role write for fhir");
                 http_response_code(401);
+                $config::destroySession();
+                exit;
             }
+        } elseif (($restRequest->getApiType() === 'oemr') || ($restRequest->getApiType() === 'port')) {
+            // don't do any checks on our open non-fhir resources
+            if (
+                $restRequest->getResource() == 'version'
+                || $restRequest->getResource() == 'product'
+            ) {
+                return;
+            }
+            // ensure correct user role type for the non-fhir routes
+            if (($restRequest->getApiType() === 'oemr') && (($restRequest->getRequestUserRole() !== 'users') || ($scopeType !== 'user'))) {
+                (new SystemLogger())->debug("checkSecurity() - not allowing patient role to access oemr api");
+                http_response_code(401);
+                $config::destroySession();
+                exit;
+            }
+            if (($restRequest->getApiType() === 'port') && (($restRequest->getRequestUserRole() !== 'patient') || ($scopeType !== 'patient'))) {
+                (new SystemLogger())->debug("checkSecurity() - not allowing users role to access port api");
+                http_response_code(401);
+                $config::destroySession();
+                exit;
+            }
+        } else {
+            // should never be here
+            (new SystemLogger())->error("checkSecurity() - illegal api type");
+            http_response_code(401);
+            $config::destroySession();
+            exit;
         }
 
         // handle our scope checks
-        $config = $restRequest->getRestConfig();
-        // TODO: adunsulag if this is working nicely we can open it up for the standard API
-        if ($restRequest->isFhir()) {
-            $config::scope_check($scopeType, $resource, $permission);
-        }
+        $config::scope_check($scopeType, $resource, $permission);
     }
 }

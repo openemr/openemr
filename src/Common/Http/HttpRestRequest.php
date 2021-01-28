@@ -309,7 +309,7 @@ class HttpRestRequest
      */
     public function isPatientWriteRequest()
     {
-        return $this->isFhir() && $this->isPatientRequest() && $this->getRequestMethod != 'GET';
+        return $this->isFhir() && $this->isPatientRequest() && $this->getRequestMethod() != 'GET';
     }
 
     public function setRequestPath(string $requestPath)

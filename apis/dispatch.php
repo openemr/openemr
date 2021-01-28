@@ -243,14 +243,10 @@ if ($isLocalApi) {
             exit();
         }
     } elseif ($userRole == 'patient') {
-        // The following bind_patient_id variables are used in fhir api to ensure patient's only
-        //  have access to their own data.
-        $GLOBALS['bind_patient_id'] = true;
-        $_SESSION['bind_patient_id'] = true;
         $_SESSION['pid'] = $user['pid'] ?? null;
-        $_SESSION['puuid'] = $user['uuid'] ?? null;
-        $_SESSION['puuid_string'] = UuidRegistry::uuidToString($_SESSION['puuid']) ?? null;
-        if (empty($_SESSION['pid']) || empty($_SESSION['puuid']) || empty($_SESSION['puuid_string'])) {
+        $puuidCheck = $user['uuid'] ?? null;
+        $puuidStringCheck = UuidRegistry::uuidToString($puuidCheck) ?? null;
+        if (empty($_SESSION['pid']) || empty($puuidCheck) || empty($puuidStringCheck)) {
             // this should never happen
             $logger->error("OpenEMR Error: api failed because unable to set critical patient session variables");
             $gbl::destroySession();
