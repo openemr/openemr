@@ -913,7 +913,22 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $return = (new FhirPersonRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
-    }
+    },
+    // Bulk FHIR api endpoints
+    'GET /fhir/Group/$export' => function (HttpRestRequest $request) {
+        $outputFormat = $_GET['_outputFormat'] ?? 'ndjson';
+        $since = $_GET['_since'] ?? time(0); // since epoch time
+        $type = $_GET['type'] ?? '';
+
+        // only allow admin's this type of action.
+        RestConfig::authorization_check("admin", "users");
+        (new \OpenEMR\Common\Logging\SystemLogger())->debug("Group export call made", [
+            '_outputFormat' => $outputFormat,
+            '_since' => $since,
+            '_type' => $type
+        ]);
+        return null;
+    },
 );
 
 // Note that the portal (api) route is only for patient role

@@ -510,34 +510,31 @@ class ScopeRepository implements ScopeRepositoryInterface
         // Collect all currently enabled FHIR resources.
         // Then assign all permissions the resource is capable.
         $scopes_api = [];
-        $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$FHIR_ROUTE_MAP);
-        foreach ($restAPIs as $resources) {
-            if (!empty($resources) && is_array($resources)) {
-                foreach ($resources as $resource) {
-                    $interactions = $resource['interaction'];
-                    $resourceType = $resource['type'];
-                    foreach ($interactions as $interaction) {
-                        $scopeRead = $resourceType . ".read";
-                        $scopeWrite = $resourceType . ".write";
-                        switch ($interaction['code']) {
-                            case 'read':
-                                $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                                $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                                $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                                break;
-                            case 'search-type':
-                                $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                                $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                                $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                                break;
-                            case 'insert':
-                            case 'update':
-                                $scopes_api['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
-                                $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
-                                $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
-                                break;
-                        }
-                    }
+        $restAPIs = $restHelper->getCapabilityRESTObject($gbl::$FHIR_ROUTE_MAP);
+        foreach ($restAPIs->getResource() as $resource) {
+            $resourceType = $resource->getType()->getValue();
+            $interactions = $resource->getInteraction();
+            foreach ($interactions as $interaction) {
+                $scopeRead =  $resourceType . ".read";
+                $scopeWrite = $resourceType . ".write";
+                $interactionCode = $interaction->getCode()->getValue();
+                switch ($interactionCode) {
+                    case 'read':
+                        $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                        $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
+                        $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
+                        break;
+                    case 'search-type':
+                        $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                        $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
+                        $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
+                        break;
+                    case 'insert':
+                    case 'update':
+                        $scopes_api['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
+                        $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
+                        $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
+                        break;
                 }
             }
         }
@@ -571,60 +568,54 @@ class ScopeRepository implements ScopeRepositoryInterface
         // Collect all currently enabled resources.
         // Then assign all permissions the resource is capable.
         $scopes_api = [];
-        $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$ROUTE_MAP, "OpenEMR\\Services");
-        foreach ($restAPIs as $resources) {
-            if (!empty($resources) && is_array($resources)) {
-                foreach ($resources as $resource) {
-                    $interactions = $resource['interaction'];
-                    $resourceType = $resource['type'];
-                    foreach ($interactions as $interaction) {
-                        $scopeRead = $resourceType . ".read";
-                        $scopeWrite = $resourceType . ".write";
-                        switch ($interaction['code']) {
-                            case 'read':
-                                $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                                $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                                break;
-                            case 'search-type':
-                                $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
-                                $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
-                                break;
-                            case 'put':
-                            case 'insert':
-                            case 'update':
-                                $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
-                                $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
-                                break;
-                        }
-                    }
+        $restAPIs = $restHelper->getCapabilityRESTObject($gbl::$ROUTE_MAP, "OpenEMR\\Services");
+        foreach ($restAPIs->getResource() as $resource) {
+            $resourceType = $resource->getType()->getValue();
+            $interactions = $resource->getInteraction();
+            foreach ($interactions as $interaction) {
+                $scopeRead =  $resourceType . ".read";
+                $scopeWrite = $resourceType . ".write";
+                $interactionCode = $interaction->getCode()->getValue();
+                switch ($interactionCode) {
+                    case 'read':
+                        $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
+                        $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
+                        break;
+                    case 'search-type':
+                        $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
+                        $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
+                        break;
+                    case 'put':
+                    case 'insert':
+                    case 'update':
+                        $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
+                        $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
+                        break;
                 }
             }
         }
         $scopes_api_portal = [];
         if (!empty($GLOBALS['rest_portal_api'])) {
-            $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$PORTAL_ROUTE_MAP, "OpenEMR\\Services");
-            foreach ($restAPIs as $resources) {
-                if (!empty($resources) && is_array($resources)) {
-                    foreach ($resources as $resource) {
-                        $interactions = $resource['interaction'];
-                        $resourceType = $resource['type'];
-                        foreach ($interactions as $interaction) {
-                            $scopeRead = $resourceType . ".read";
-                            $scopeWrite = $resourceType . ".write";
-                            switch ($interaction['code']) {
-                                case 'read':
-                                    $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                                    break;
-                                case 'search-type':
-                                    $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                                    break;
-                                case 'put':
-                                case 'insert':
-                                case 'update':
-                                    $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
-                                    break;
-                            }
-                        }
+            $restAPIs = $restHelper->getCapabilityRESTObject($gbl::$PORTAL_ROUTE_MAP, "OpenEMR\\Services");
+            foreach ($restAPIs->getResource() as $resource) {
+                $resourceType = $resource->getType()->getValue();
+                $interactions = $resource->getInteraction();
+                foreach ($interactions as $interaction) {
+                    $scopeRead =  $resourceType . ".read";
+                    $scopeWrite = $resourceType . ".write";
+                    $interactionCode = $interaction->getCode()->getValue();
+                    switch ($interactionCode) {
+                        case 'read':
+                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                            break;
+                        case 'search-type':
+                            $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
+                            break;
+                        case 'put':
+                        case 'insert':
+                        case 'update':
+                            $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
+                            break;
                     }
                 }
             }
