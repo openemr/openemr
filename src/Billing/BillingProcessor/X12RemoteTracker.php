@@ -167,7 +167,7 @@ class X12RemoteTracker extends BaseService
         $sql = "UPDATE x12_remote_tracker SET ";
         $sql .= $query['set'];
         $sql .= "WHERE id = ?";
-        array_push( $query['bind'], $fields['id']);
+        array_push($query['bind'], $fields['id']);
         $results = sqlStatement($sql, $query['bind']);
         return $results;
     }
