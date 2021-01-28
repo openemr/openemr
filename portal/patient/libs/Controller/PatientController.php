@@ -13,7 +13,7 @@
 /**
  * import supporting libraries
  */
-require_once("AppBaseController.php");
+require_once("AppBasePortalController.php");
 require_once("Model/Patient.php");
 /**
  * PatientController is the controller class for the Patient object.
@@ -25,7 +25,7 @@ require_once("Model/Patient.php");
  * @author ClassBuilder
  * @version 1.0
  */
-class PatientController extends AppBaseController
+class PatientController extends AppBasePortalController
 {
 
     /**
