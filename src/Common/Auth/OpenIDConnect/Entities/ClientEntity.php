@@ -165,8 +165,4 @@ class ClientEntity implements ClientEntityInterface
     {
         $this->jwksUri = $jwksUri;
     }
-
-
-
-
 }

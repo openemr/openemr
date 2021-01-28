@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CustomClientCredentialsGrant.php
  * @package openemr
@@ -20,18 +21,16 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Grant;
 
-use DateTimeZone;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Encoding\CannotDecodeContent;
-use Lcobucci\JWT\Signer\Ecdsa\Sha384;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Key\LocalFileReference;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Signer\Rsa\Sha384;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\UnsupportedHeaderFound;
+use Lcobucci\JWT\Validation\Constraint\IssuedBy;
+use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Constraint\ValidAt;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
@@ -40,6 +39,8 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\RequestEvent;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
+use OpenEMR\Common\Auth\OpenIDConnect\JWT\RsaSha384Signer;
 use OpenEMR\Common\Logging\SystemLogger;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -58,15 +59,19 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
      */
     private $httpClient;
 
+    private $authTokenUrl;
+
     const OAUTH_JWT_CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 
-    public function __construct()
+    public function __construct($authTokenUrl)
     {
         $this->logger = new SystemLogger(); // default if we don't have one.
+        // not sure the symmetric signer we even need for anything here...
         $this->jwtConfiguration = Configuration::forSymmetricSigner(
             new Sha384(),
             InMemory::plainText('')
         );
+        $this->authTokenUrl = $authTokenUrl;
     }
 
     /**
@@ -85,11 +90,13 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         $this->logger = $logger;
     }
 
-    public function setHttpClient(ClientInterface $client) {
+    public function setHttpClient(ClientInterface $client)
+    {
         $this->httpClient = $client;
     }
 
-    public function getHttpClient() : ClientInterface {
+    public function getHttpClient(): ClientInterface
+    {
         return $this->httpClient;
     }
 
@@ -106,8 +113,7 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         $this->logger->debug("CustomClientCredentialsGrant->getClientCredentials() inside request");
         // @see https://tools.ietf.org/html/rfc7523#section-2.2
         $assertionType = $this->getRequestParameter('client_assertion_type', $request, null);
-        if ($assertionType === 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer')
-        {
+        if ($assertionType === 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer') {
             $this->logger->debug("CustomClientCredentialsGrant->getClientCredentials() client_assertion_type of jwt-bearer.  Attempting to retrieve client id");
             $jwtToken = $this->getJWTFromRequest($request);
             // see if we can grab the client from here.
@@ -123,15 +129,19 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
 
                 assert($token instanceof Plain);
                 $claims = $token->claims(); // Retrieves the token claims
-                if ($claims->has('sub')) {
+                if ($claims->has('sub')) { // no subject means invalid client...
                     $this->logger->debug("CustomClientCredentialsGrant->getClientCredentials() jwt token parsed.  Client id is ", [$claims->get('sub')]);
                     return [$claims->get('sub')];
                 }
             } catch (CannotDecodeContent | InvalidTokenStructure | UnsupportedHeaderFound $exception) {
-                $this->logger->error("CustomClientCredentialsGrant->getClientCredentials() failed to parse token",
-                    ['exceptionMessage' => $exception->getMessage()]);
+                $this->logger->error(
+                    "CustomClientCredentialsGrant->getClientCredentials() failed to parse token",
+                    ['exceptionMessage' => $exception->getMessage()]
+                );
                 throw OAuthServerException::invalidClient($request);
             }
+        } else {
+            throw OAuthServerException::invalidRequest("client_assertion_type", "assertion type is not supported");
         }
         return null;
     }
@@ -158,8 +168,7 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         // are type checking it against ClientEntity.  Currently all the JWK validation stuff is centralized in this
         // grant... but knowledge of the client entity is inside the ClientRepository, either way I don't like the
         // class cohesion problems this creates.
-        if (!($client instanceof ClientEntity) )
-        {
+        if (!($client instanceof ClientEntity)) {
             $this->logger->error("CustomClientCredentialsGrant->validateClient() client returned was not a valid ClientEntity ", ['client' => $clientId]);
             throw OAuthServerException::invalidClient($request);
         }
@@ -188,36 +197,56 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         // information
 
         try {
-            // get our JWK (either from the client's remote URL, or from the stored JWKS in the db).
-            $jwk = $this->getJWKForRequest($client, $request);
+            // http client required for fetching jwks from the jwks uri and makes unit testing easier
+            $jsonWebKeySet = new JsonWebKeySet($this->getHttpClient(), $client->getJwksUri(), $client->getJwks());
 
-            $configuration = $this->jwtConfiguration;
+
+            $configuration = Configuration::forUnsecuredSigner();
             $configuration->setValidationConstraints(
-                new ValidAt(new SystemClock(new DateTimeZone(\date_default_timezone_get()))),
-                new SignedWith(new Sha384(), InMemory::plainText($jwk))
+                // we only allow 1 minute drift
+                new ValidAt(new SystemClock(new \DateTimeZone(\date_default_timezone_get())), new \DateInterval('P1M')),
+                new SignedWith(new RsaSha384Signer(), $jsonWebKeySet),
+                new IssuedBy($client->getIdentifier()),
+                new PermittedFor($this->authTokenUrl) // allowed audience
             );
 
             // Attempt to parse and validate the JWT
             $jwt = $this->getJWTFromRequest($request);
+            // issuer = issue URI of sender application so redirectUri
+            // subject claim
             $token = $configuration->parser()->parse($jwt);
+            $this->logger->debug("Token parsed", ['claims' => $token->claims()->all(), 'headers' => $token->headers()->all(), 'signature' => $token->signature()->toString()]);
+//
 
             $constraints = $configuration->validationConstraints();
 
             try {
                 $configuration->validator()->assert($token, ...$constraints);
             } catch (RequiredConstraintsViolated $exception) {
-                $this->logger->error("CustomClientCredentialsGrant->validateClient() jwt failed required constraints",
-                    ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]);
-                throw OAuthServerException::invalidClient($request);
+                $this->logger->error(
+                    "CustomClientCredentialsGrant->validateClient() jwt failed required constraints",
+                    ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]
+                );
+                // ONC Inferno server refuses to allow a 401 HTTP status code to pass their test suite and requires
+                // a 400 HTTP status code, despite the SMART spec specifically stating that invalid_client w/ 401 is
+                // the response https://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification
+                // so we force this to be a 400 exception
+                // TODO: @adunsulag is there an update to inferno that fixes this issue?
+                $exception = new OAuthServerException('Client authentication failed', 4, 'invalid_client', 400);
+                $exception->setServerRequest($request);
+                throw $exception;
             }
         } catch (CannotDecodeContent | InvalidTokenStructure | UnsupportedHeaderFound $exception) {
-            $this->logger->error("CustomClientCredentialsGrant->validateClient() failed to parse token",
-                ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]);
+            $this->logger->error(
+                "CustomClientCredentialsGrant->validateClient() failed to parse token",
+                ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]
+            );
             throw OAuthServerException::invalidClient($request);
-        }
-        catch (\InvalidArgumentException $exception) {
-            $this->logger->error("CustomClientCredentialsGrant->validateClient() failed to retrieve jwk for client",
-                ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]);
+        } catch (\InvalidArgumentException $exception) {
+            $this->logger->error(
+                "CustomClientCredentialsGrant->validateClient() failed to retrieve jwk for client",
+                ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]
+            );
             throw OAuthServerException::invalidClient($request);
         }
 
@@ -237,34 +266,8 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         return $client;
     }
 
-    private function getJWKForRequest(ClientEntity $client, ServerRequestInterface $request) {
-        $jwk_uri = $client->getJwksUri();
-        // TODO: @adunsulag we need to verify if we go directly from a JWK Set to a JSON Web Key
-        if (!empty($jwk_uri)) {
-            $jwk = $this->getJWKFromUri($jwk_uri);
-        } else {
-            $jwk = $client->getJwks();
-        }
-        if (empty($jwk)) {
-            throw new \InvalidArgumentException("Invalid JWK for client");
-        }
-    }
-
-    private function getJWKFromUri(ClientEntity $entity, $jwk_uri) {
-        try {
-            $request = new \GuzzleHttp\Psr7\Request('GET', $jwk_uri);
-            $body = $this->httpClient->sendRequest($request)->getBody();
-            $json = $body->getContents();
-            return json_decode($json);
-        }
-        catch (RequestException $exception) {
-            $this->logger->error("CustomClientCredentialsGrant->validateClient() failed to parse jwk from jwk_uri for client",
-                ['client' => $entity->getIdentifier(), 'uri' => $jwk_uri, 'exceptionMessage' => $exception->getMessage()]);
-        }
-        return null;
-    }
-
-    private function getJWTFromRequest(ServerRequestInterface $request) {
+    private function getJWTFromRequest(ServerRequestInterface $request)
+    {
         return $this->getRequestParameter('client_assertion', $request, null);
     }
 }

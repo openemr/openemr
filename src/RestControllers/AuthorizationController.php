@@ -650,11 +650,12 @@ class AuthorizationController
         }
         if ($this->grantType === 'client_credentials') {
             // Enable the client credentials grant on the server
-            $client_credentials = new CustomClientCredentialsGrant();
+            $client_credentials = new CustomClientCredentialsGrant(AuthorizationController::getAuthBaseFullURL() . AuthorizationController::getTokenPath());
             $client_credentials->setLogger($this->logger);
             $client_credentials->setHttpClient(new Client()); // set our guzzle client here
             $authServer->enableGrantType(
                 $client_credentials,
+                // https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens Spec states 5 min max
                 new \DateInterval('PT300S')
             );
         }
@@ -1016,7 +1017,7 @@ class AuthorizationController
         } catch (Exception $exception) {
             $this->logger->error(
                 "AuthorizationController->oauthAuthorizeToken() Exception occurred",
-                ["message" => $exception->getMessage()]
+                ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
             );
             SessionUtil::oauthSessionCookieDestroy();
             $body = $response->getBody();

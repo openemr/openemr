@@ -25,6 +25,10 @@ $scopes_array = array_merge($scopes_array_smart, $scopes_array);
 
 $scopes = json_encode($scopes_array, JSON_PRETTY_PRINT);
 
+// Note: for token_endpoint_auth_signing_alg_values_supported we only support RS384 to be spec compliant
+// @see http://hl7.org/fhir/uv/bulkdata/authorization/index.html#registering-a-smart-backend-service-communicating-public-keys
+//  We can't support ES384 right now because lobucci/jwt does not support that.
+
 $discovery = <<<TEMPLATE
 {
 "issuer": "$base_url",
@@ -72,8 +76,7 @@ $discovery = <<<TEMPLATE
 ],
 "token_endpoint_auth_signing_alg_values_supported": [
     "RS256",
-    "RS384",
-    "ES384"
+    "RS384"
 ],
 "claims_locales_supported": [
     "en-US"
