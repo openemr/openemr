@@ -37,7 +37,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     public function __construct()
     {
-        $this->logger = SystemLogger::instance();
+        $this->logger = new SystemLogger();
         $this->requestScopes = isset($_REQUEST['scope']) ? $_REQUEST['scope'] : null;
     }
 
@@ -54,7 +54,9 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
 
         if (array_key_exists($identifier, $this->validationScopes) === false && stripos($identifier, 'site:') === false) {
-            $this->logger->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", ["scope" => $identifier]);
+            $this->logger->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", [
+                "scope" => $identifier
+                , 'validationScopes' => $this->validationScopes]);
             return null;
         }
 
@@ -98,7 +100,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     public function setRequestScopes($scopes)
     {
         if (!is_string($scopes)) {
-            SystemLogger::instance()->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
+            (new SystemLogger())->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
             throw new \InvalidArgumentException("Invalid scope parameter set");
         }
 
@@ -127,7 +129,6 @@ class ScopeRepository implements ScopeRepositoryInterface
             "api:oemr",
             "api:fhir",
             "api:port",
-            "api:pofh",
             "aud", //client_id
             "iat", // token create time
             "iss", // token issuer(https://domain)
@@ -153,8 +154,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "offline_access",
             "api:oemr",
             "api:fhir",
-            "api:port",
-            "api:pofh"
+            "api:port"
         ];
     }
 
@@ -169,8 +169,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "launch/patient",
             "api:oemr",
             "api:fhir",
-            "api:port",
-            "api:pofh"
+            "api:port"
         ];
     }
 
@@ -185,51 +184,57 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function fhirScopes(): array
     {
+        // Note: we only allow patient/read access for FHIR apps right now, if someone wants write access they have to
+        // have a user/<resource>.write permission as the security context for patient only rights has too much risk
+        // for problems.
+
+        // we've restricted our patient scopes just to what we have in portal.  We will slowly open them up as we
+        // verify the access rights on them.
         $permitted = [
-            "patient/Account.read",
+//            "patient/Account.read",
             "patient/AllergyIntolerance.read",
-            "patient/AllergyIntolerance.write",
-            "patient/Appointment.read",
-            "patient/Appointment.write",
-            "patient/CarePlan.read",
-            "patient/CareTeam.read",
-            "patient/Condition.read",
-            "patient/Condition.write",
-            "patient/Consent.read",
-            "patient/Coverage.read",
-            "patient/Coverage.write",
-            "patient/Device.read",
-            "patient/DocumentReference.read",
-            "patient/DocumentReference.write",
+//            "patient/AllergyIntolerance.write",
+//            "patient/Appointment.read",
+//            "patient/Appointment.write",
+//            "patient/CarePlan.read",
+//            "patient/CareTeam.read",
+//            "patient/Condition.read",
+//            "patient/Condition.write",
+//            "patient/Consent.read",
+//            "patient/Coverage.read",
+//            "patient/Coverage.write",
+//            "patient/Device.read",
+//            "patient/DocumentReference.read",
+//            "patient/DocumentReference.write",
             "patient/Encounter.read",
-            "patient/Encounter.write",
-            "patient/Goal.read",
-            "patient/Immunization.read",
-            "patient/Immunization.write",
-            "patient/Location.read",
-            "patient/Medication.read",
-            "patient/MedicationRequest.read",
-            "patient/MedicationRequest.write",
-            "patient/NutritionOrder.read",
-            "patient/Observation.read",
-            "patient/Observation.write",
-            "patient/Organization.read",
-            "patient/Organization.write",
+//            "patient/Encounter.write",
+//            "patient/Goal.read",
+//            "patient/Immunization.read",
+//            "patient/Immunization.write",
+//            "patient/Location.read",
+//            "patient/Medication.read",
+//            "patient/MedicationRequest.read",
+//            "patient/MedicationRequest.write",
+//            "patient/NutritionOrder.read",
+//            "patient/Observation.read",
+//            "patient/Observation.write",
+//            "patient/Organization.read",
+//            "patient/Organization.write",
             "patient/Patient.read",
-            "patient/Patient.write",
-            "patient/Person.read",
-            "patient/Practitioner.read",
-            "patient/Practitioner.write",
-            "patient/PractitionerRole.read",
-            "patient/PractitionerRole.write",
-            "patient/Procedure.read",
-            "patient/Procedure.write",
-            "patient/Provenance.read",
-            "patient/Provenance.write",
-            "patient/RelatedPerson.read",
-            "patient/RelatedPerson.write",
-            "patient/Schedule.read",
-            "patient/ServiceRequest.read",
+//            "patient/Patient.write",
+//            "patient/Person.read",
+//            "patient/Practitioner.read",
+//            "patient/Practitioner.write",
+//            "patient/PractitionerRole.read",
+//            "patient/PractitionerRole.write",
+//            "patient/Procedure.read",
+//            "patient/Procedure.write",
+//            "patient/Provenance.read",
+//            "patient/Provenance.write",
+//            "patient/RelatedPerson.read",
+//            "patient/RelatedPerson.write",
+//            "patient/Schedule.read",
+//            "patient/ServiceRequest.read",
             "user/Account.read",
             "user/AllergyIntolerance.read",
             "user/AllergyIntolerance.write",
@@ -499,7 +504,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getCurrentSmartScopes(): array
     {
-        SystemLogger::instance()->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
+        (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
         $gbl = \RestConfig::GetInstance();
         $restHelper = new RestControllerHelper();
         // Collect all currently enabled FHIR resources.
@@ -516,15 +521,18 @@ class ScopeRepository implements ScopeRepositoryInterface
                         $scopeWrite = $resourceType . ".write";
                         switch ($interaction['code']) {
                             case 'read':
+                                $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
                                 $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
                                 $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
                                 break;
                             case 'search-type':
+                                $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
                                 $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
                                 $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
                                 break;
                             case 'insert':
                             case 'update':
+                                $scopes_api['patient/' . $scopeRead] = 'patient/' . $scopeRead;
                                 $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
                                 $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
                                 break;
@@ -533,35 +541,6 @@ class ScopeRepository implements ScopeRepositoryInterface
                 }
             }
         }
-        $scopes_api_portal = [];
-        if (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_portal_fhir_api'])) {
-            $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$PORTAL_FHIR_ROUTE_MAP);
-            foreach ($restAPIs as $resources) {
-                if (!empty($resources) && is_array($resources)) {
-                    foreach ($resources as $resource) {
-                        $interactions = $resource['interaction'];
-                        $resourceType = $resource['type'];
-                        foreach ($interactions as $interaction) {
-                            $scopeRead = $resourceType . ".read";
-                            $scopeWrite = $resourceType . ".write";
-                            switch ($interaction['code']) {
-                                case 'read':
-                                    $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                                    break;
-                                case 'search-type':
-                                    $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
-                                    break;
-                                case 'insert':
-                                case 'update':
-                                    $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        $scopes_api = array_merge($scopes_api, $scopes_api_portal);
 
         $scopesSupported = $this->fhirScopes();
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
@@ -579,14 +558,14 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         asort($scopesSupported);
         $scopesSupported = array_keys(array_merge($fhir, $oidc, $serverScopes, $scopesSupported));
-        SystemLogger::instance()->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
+        (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
 
         return $scopesSupported;
     }
 
     public function getCurrentStandardScopes(): array
     {
-        SystemLogger::instance()->debug("ScopeRepository->getCurrentSmartScopes() setting up standard api scopes");
+        (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() setting up standard api scopes");
         $gbl = \RestConfig::GetInstance();
         $restHelper = new RestControllerHelper();
         // Collect all currently enabled resources.
@@ -622,7 +601,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             }
         }
         $scopes_api_portal = [];
-        if (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_portal_fhir_api'])) {
+        if (!empty($GLOBALS['rest_portal_api'])) {
             $restAPIs = $restHelper->getCapabilityRESTJSON($gbl::$PORTAL_ROUTE_MAP, "OpenEMR\\Services");
             foreach ($restAPIs as $resources) {
                 if (!empty($resources) && is_array($resources)) {
@@ -671,14 +650,17 @@ class ScopeRepository implements ScopeRepositoryInterface
     public function buildScopeValidatorArray(): array
     {
         $requestScopeString = $this->getRequestScopes();
-        SystemLogger::instance()->debug("ScopeRepository->buildScopeValidatorArray() ", ["requestScopeString" => $requestScopeString]);
-        $isFhir = preg_match('(fhirUser|api:fhir|api:pofh)', $requestScopeString)
-            || preg_match('(fhirUser|api:fhir|api:pofh)', $_SESSION['scopes']);
+        (new SystemLogger())->debug("ScopeRepository->buildScopeValidatorArray() ", ["requestScopeString" => $requestScopeString]);
+        $isFhir = preg_match('(fhirUser|api:fhir)', $requestScopeString)
+            || preg_match('(fhirUser|api:fhir)', $_SESSION['scopes']);
         $isApi = preg_match('(api:oemr|api:port)', $requestScopeString)
             || preg_match('(api:oemr|api:port)', $_SESSION['scopes']);
 
+        // TODO: adunsulag check with @bradymiller and @sjpadgett on defaulting api to $isFhir not all SMART apps request
+        // fhirUser and if we want to support the larger ecosystem of apps we need to not require api:fhir or fhirUser
+
         $scopesFhir = [];
-        if (!empty($isFhir)) {
+        if (empty($isApi) || !empty($isFhir)) {
             $scopesFhir = $this->getCurrentSmartScopes();
         }
         $scopesApi = [];

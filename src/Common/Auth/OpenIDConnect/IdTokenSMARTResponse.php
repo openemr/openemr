@@ -15,8 +15,10 @@ namespace OpenEMR\Common\Auth\OpenIDConnect;
 
 use Lcobucci\JWT\Builder;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
+use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use LogicException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
@@ -24,29 +26,88 @@ use OpenEMR\Services\PatientService;
 use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\IdTokenResponse;
 use OpenIDConnectServer\Repositories\IdentityProviderInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 class IdTokenSMARTResponse extends IdTokenResponse
 {
+    const SCOPE_SMART_LAUNCH = 'launch';
+    const SCOPE_OFFLINE_ACCESS = 'offline_access';
+    const SCOPE_SMART_LAUNCH_PATIENT = 'launch/patient';
     /**
      * @var LoggerInterface
      */
     private $logger;
 
+    /**
+     * @var boolean
+     */
+    private $isAuthorizationGrant;
+
     public function __construct(
         IdentityProviderInterface $identityProvider,
         ClaimExtractor $claimExtractor
     ) {
-        $this->logger = SystemLogger::instance();
+        $this->isAuthorizationGrant = false;
+        $this->logger = new SystemLogger();
         parent::__construct($identityProvider, $claimExtractor);
+    }
+
+    public function markIsAuthorizationGrant()
+    {
+        $this->isAuthorizationGrant = true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function generateHttpResponse(ResponseInterface $response)
+    {
+        // if we have offline_access then we allow the refresh token and everything to proceed as normal
+        // if we don't have offline access we need to remove the refresh token
+        // offline_access should only be granted to confidential clients (that can keep a secret) so we don't need
+        // to check the client type here.
+        // unfortunately League right now isn't supporting offline_access so we have to duplicate this code here
+        // @see https://github.com/thephpleague/oauth2-server/issues/1005 for the oauth2 discussion on why they are
+        // not handling oauth2 offline_access with refresh_tokens.
+        if ($this->hasScope($this->accessToken->getScopes(), self::SCOPE_OFFLINE_ACCESS)) {
+            return parent::generateHttpResponse($response);
+        }
+
+        $expireDateTime = $this->accessToken->getExpiryDateTime()->getTimestamp();
+
+        $responseParams = [
+            'token_type'   => 'Bearer',
+            'expires_in'   => $expireDateTime - \time(),
+            'access_token' => (string) $this->accessToken,
+        ];
+
+        // we don't allow the refresh token if we don't have the offline capability
+        $responseParams = \json_encode(\array_merge($this->getExtraParams($this->accessToken), $responseParams));
+
+        if ($responseParams === false) {
+            throw new LogicException('Error encountered JSON encoding response parameters');
+        }
+
+        $response = $response
+            ->withStatus(200)
+            ->withHeader('pragma', 'no-cache')
+            ->withHeader('cache-control', 'no-store')
+            ->withHeader('content-type', 'application/json; charset=UTF-8');
+
+        $response->getBody()->write($responseParams);
+
+        return $response;
     }
 
     protected function getExtraParams(AccessTokenEntityInterface $accessToken)
     {
         $extraParams = parent::getExtraParams($accessToken);
+
+        $scopes = $accessToken->getScopes();
         $this->logger->debug("IdTokenSMARTResponse->getExtraParams() params from parent ", ["params" => $extraParams]);
 
-        if ($this->isStandaloneLaunchPatientRequest($accessToken->getScopes())) {
+        if ($this->isStandaloneLaunchPatientRequest($scopes)) {
             // patient id that is currently selected in the session.
             if (!empty($_SESSION['pid'])) {
                 $extraParams['patient'] = $_SESSION['pid'];
@@ -55,7 +116,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
             } else {
                 throw new OAuthServerException("launch/patient scope requested but patient 'pid' was not present in session", 0, 'invalid_patient_context');
             }
-        } else if ($this->isLaunchRequest($accessToken->getScopes())) {
+        } else if ($this->isLaunchRequest($scopes)) {
             $this->logger->debug("launch scope requested");
             if (!empty($_SESSION['launch'])) {
                 $this->logger->debug("IdTokenSMARTResponse->getExtraParams() launch set in session", ['launch' => $_SESSION['launch']]);
@@ -114,6 +175,11 @@ class IdTokenSMARTResponse extends IdTokenResponse
      */
     private function isLaunchRequest($scopes)
     {
+        // if we are not in an authorization grant context we don't support SMART launch context params
+        if (!$this->isAuthorizationGrant) {
+            return false;
+        }
+
         return $this->hasScope($scopes, 'launch');
     }
 
@@ -123,6 +189,10 @@ class IdTokenSMARTResponse extends IdTokenResponse
      */
     private function isStandaloneLaunchPatientRequest($scopes)
     {
+        // if we are not in an authorization grant context we don't support SMART launch context params
+        if (!$this->isAuthorizationGrant) {
+            return false;
+        }
         return $this->hasScope($scopes, 'launch/patient');
     }
 

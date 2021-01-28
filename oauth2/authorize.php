@@ -32,10 +32,10 @@ $_GET['site'] = $gbl::$SITE;
 $ignoreAuth = true;
 require_once __DIR__ . '/../interface/globals.php';
 
-$logger = SystemLogger::instance();
+$logger = new SystemLogger();
 
 // exit if api is not turned on
-if (empty($GLOBALS['rest_api']) && empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_api']) && empty($GLOBALS['rest_portal_fhir_api'])) {
+if (empty($GLOBALS['rest_api']) && empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_api'])) {
     $logger->debug("api disabled exiting call");
     SessionUtil::oauthSessionCookieDestroy();
     http_response_code(404);
@@ -102,6 +102,15 @@ if (false !== stripos($end_point, '/jwk')) {
 if (false !== stripos($end_point, '/login')) {
     // session is maintained
     $authServer->userLogin();
+    exit;
+}
+if ($authServer->isSMARTAuthorizationEndPoint($end_point)) {
+    $authServer->dispatchSMARTAuthorizationEndpoint($end_point);
+}
+
+if (false !== stripos($end_point, '/scope-authorize-confirm')) {
+    // session is maintained
+    $authServer->scopeAuthorizeConfirm();
     exit;
 }
 

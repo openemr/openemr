@@ -37,7 +37,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
     ) {
         $client = $this->validateClient($request);
         $oldRefreshToken = $this->validateOldRefreshToken($request, $client->getIdentifier());
-        SystemLogger::instance()->debug("CustomRefreshTokenGrant->respondToAccessTokenRequest() scope info", [
+        (new SystemLogger())->debug("CustomRefreshTokenGrant->respondToAccessTokenRequest() scope info", [
             "oldRefreshToken['scopes']" => $oldRefreshToken['scopes'],
             "requestParameter['scopes']" => $this->getRequestParameter('scope', $request, null),
             "_REQUEST['scope']" => $_REQUEST['scope']
@@ -86,7 +86,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
      */
     public function validateScopes($scopes, $redirectUri = null)
     {
-        SystemLogger::instance()->debug("CustomRefreshTokenGrant->validateScopes() Attempting to validateScopes", ["scopes" => $scopes]);
+        (new SystemLogger())->debug("CustomRefreshTokenGrant->validateScopes() Attempting to validateScopes", ["scopes" => $scopes]);
         $scopeRepo = $this->scopeRepository;
         if (\is_array($scopes)) {
             $scopes = $this->convertScopesArrayToQueryString($scopes);
@@ -100,7 +100,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
             $scopeRepo->setRequestScopes($scopes);
         }
         $validScopes = parent::validateScopes($scopes, $redirectUri);
-        SystemLogger::instance()->debug("CustomRefreshTokenGrant->validateScopes() scopes validated", ["scopes" => json_encode($validScopes)]);
+        (new SystemLogger())->debug("CustomRefreshTokenGrant->validateScopes() scopes validated", ["scopes" => json_encode($validScopes)]);
         return $validScopes;
     }
 

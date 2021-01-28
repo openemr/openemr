@@ -709,5 +709,12 @@ class Gacl {
 
 		return false;
 	}
+
+	function clear_cache() {
+		if ( $this->_caching == TRUE ) {
+			$this->debug_text("clear_cache(): Clearing cache");
+			$this->Cache_Lite->clean();
+		}
+	}
 }
 ?>
