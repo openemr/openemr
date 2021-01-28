@@ -2958,6 +2958,13 @@ $GLOBALS_METADATA = array(
             xl('Enable OAuth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
         ),
 
+        'cc_front_payments' => array(
+            xl('Accept Credit Card transactions from Front Payments'),
+            'bool',
+            '0',
+            xl('Allow manual entry and authorise credit card payments. Ensure a gateway is enabled.')
+        ),
+
         'payment_gateway' => array(
             xl('Select Credit Card Payment Gateway'),
             array(
