@@ -605,7 +605,9 @@ class X125010837P
             "*" . "D8" .
             "*" . $claim->onsetDate() .
             "~\n";
-        } elseif ($claim->miscOnsetDate() && ($claim->miscOnsetDate() !== $claim->serviceDate())
+        } elseif (
+            $claim->miscOnsetDate() &&
+            $claim->miscOnsetDate() !== $claim->serviceDate()
             && ($claim->box14Qualifier()) && ($claim->miscOnsetDateValid())
         ) {
             ++$edicount;
@@ -1544,8 +1546,7 @@ class X125010837P
             "~\n";
 
         //we only want one transaction set for medi-cal
-        if($HLcount == 0) { //***TR3 brackets close at 2000B
-
+        if ($HLcount == 0) { //***TR3 brackets close at 2000B
             ++$edicount;
             $out .= "ST" .
                 "*" . "837" .
@@ -1626,7 +1627,6 @@ class X125010837P
             // if HL count = 1
 
             if ($HLcount == 1) { //***TR3 Add (this is where we do the HL loop
-
                 ++$edicount;
                 $out .= "HL" . // Loop 2000A Billing/Pay-To Provider HL Loop
                 "*" . $HLcount .
@@ -1791,7 +1791,6 @@ class X125010837P
                 }
 
             } //***MS Add (end HL Loop)
-
 
             // Loop 2010AC Pay-To Plan Name omitted.  Includes:
             // NM1*PE, N3, N4, REF*2U, REF*EI
@@ -2092,15 +2091,22 @@ class X125010837P
         // Segment DTP*431 (Onset of Current Symptoms or Illness)
         // Segment DTP*484 (Last Menstrual Period Date)
 
-        if ($claim->onsetDate() && ($claim->onsetDate() !== $claim->serviceDate()) && ($claim->onsetDateValid())) {
+        if (
+            $claim->onsetDate()
+            && $claim->onsetDate() !== $claim->serviceDate()
+            && $claim->onsetDateValid()
+        ) {
             ++$edicount;
             $out .= "DTP" .       // Date of Onset
                 "*" . "431" .
                 "*" . "D8" .
                 "*" . $claim->onsetDate() .
                 "~\n";
-        } else if ($claim->miscOnsetDate() && ($claim->miscOnsetDate() !== $claim->serviceDate())
-            && ($claim->box14Qualifier()) && ($claim->miscOnsetDateValid())
+        } else if (
+            $claim->miscOnsetDate()
+            && $claim->miscOnsetDate() !== $claim->serviceDate()
+            && $claim->box14Qualifier())
+            && $claim->miscOnsetDateValid()
         ) {
             ++$edicount;
             $out .= "DTP" .
@@ -2953,9 +2959,7 @@ class X125010837P
             } // end loop 2430
         } // end this procedure
 
-
-        if($SEFLAG == true) { //***TR3 Add
-
+        if ($SEFLAG == true) { //***TR3 Add
             ++$edicount; //todo: This might have to fo into the SE flag spot //***MS Modify
 
             $out .= "SE" .        // SE Trailer
@@ -2963,7 +2967,7 @@ class X125010837P
             "*" . "0021" .
             "~\n";
 
-        }//***TR3 Add
+        } //***TR3 Add
 
         $out .= "GE" .        // GE Trailer
             "*" . "1" .
