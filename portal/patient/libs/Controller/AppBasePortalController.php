@@ -3,7 +3,7 @@
 /** @package    Patient Portal::Controller */
 
 /** import supporting libraries */
-require_once("verysimple/Phreeze/Controller.php");
+require_once("verysimple/Phreeze/PortalController.php");
 require_once(dirname(__FILE__) . "/../../../lib/appsql.class.php");
 /**
  * AppBaseController is a base class Controller class from which
@@ -18,7 +18,7 @@ require_once(dirname(__FILE__) . "/../../../lib/appsql.class.php");
  * @author ClassBuilder
  * @version 1.0
  */
-class AppBaseController extends Controller
+class AppBasePortalController extends PortalController
 {
 
     static $DEFAULT_PAGE_SIZE = 20;

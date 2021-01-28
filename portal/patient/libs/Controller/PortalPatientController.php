@@ -13,7 +13,7 @@
 /**
  * import supporting libraries
  */
-require_once("AppBaseController.php");
+require_once("AppBasePortalController.php");
 require_once("Model/Patient.php");
 
 /**
@@ -26,7 +26,7 @@ require_once("Model/Patient.php");
  * @author ClassBuilder
  * @version 1.0
  */
-class PortalPatientController extends AppBaseController
+class PortalPatientController extends AppBasePortalController
 {
 
     /**
