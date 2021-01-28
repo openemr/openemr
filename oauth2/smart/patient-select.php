@@ -52,11 +52,11 @@ $hasMore = $hasMore ?? false;
                     <p class="alert alert-info"><?php echo xlt("No patients to select"); ?></p>
                 <?php else : ?>
                 <form action="<?php echo $searchAction; ?>" method="GET">
-                    <input class="w-25" name="search[fname]" type="text" class="form-control form-input" placeholder="<?php echo xlt("First Name"); ?>"
+                    <input class="w-25" name="search[fname]" type="text" class="form-control form-input" placeholder="<?php echo xla("First Name"); ?>"
                            value="<?php echo attr($fname); ?>" />
-                    <input class="w-25" name="search[mname]" type="text" class="form-control form-input" placeholder="<?php echo xlt("Middle Name"); ?>"
+                    <input class="w-25" name="search[mname]" type="text" class="form-control form-input" placeholder="<?php echo xla("Middle Name"); ?>"
                            value="<?php echo attr($mname); ?>" />
-                    <input class="w-25" name="search[lname]" type="text" class="form-control form-input" placeholder="<?php echo xlt("Last Name"); ?>"
+                    <input class="w-25" name="search[lname]" type="text" class="form-control form-input" placeholder="<?php echo xla("Last Name"); ?>"
                            value="<?php echo attr($lname); ?>" />
                     <input type="submit" value="<?php echo xla("Search"); ?>" />
                 </form>
