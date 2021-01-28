@@ -58,7 +58,6 @@ class X12RemoteTracker extends BaseService
         $x12_remote['messages'] = [];
         $cryptoGen = new CryptoGen();
         foreach ($x12_remotes as $x12_remote) {
-
             // Make sure required parameters are filled in on the X12 partner form, otherwise, log a message
             if (false === $remoteTracker->validateSFTPCredentials($x12_remote)) {
                 // there was a problem, get messages, log them and continue
@@ -78,7 +77,7 @@ class X12RemoteTracker extends BaseService
             $claim_file_contents = file_get_contents($claim_file);
             if (false === $claim_file_contents) {
                 $x12_remote['status'] = self::STATUS_CLAIM_FILE_ERROR;
-                $x12_remote['messages'][]= "Could not open local claim file: `$claim_file`";
+                $x12_remote['messages'][] = "Could not open local claim file: `$claim_file`";
                 $remoteTracker->update($x12_remote);
                 continue;
             }
@@ -88,7 +87,7 @@ class X12RemoteTracker extends BaseService
             $decrypted_password = $cryptoGen->decryptStandard($x12_remote['x12_sftp_pass']);
             if (false === $sftp->login($x12_remote['x12_sftp_login'], $decrypted_password)) {
                 $x12_remote['status'] = self::STATUS_LOGIN_ERROR;
-                $x12_remote['messages'][]= "Invalid Username or Password.";
+                $x12_remote['messages'][] = "Invalid Username or Password.";
                 $x12_remote['messages'] = array_merge($x12_remote['messages'], $sftp->getSFTPErrors());
                 $remoteTracker->update($x12_remote);
                 continue;
@@ -96,7 +95,7 @@ class X12RemoteTracker extends BaseService
 
             if (false === $sftp->chdir($x12_remote['x12_sftp_remote_dir'])) {
                 $x12_remote['status'] = self::STATUS_CHDIR_ERROR;
-                $x12_remote['messages'][]= "Could not change to SFTP remote DIR.";
+                $x12_remote['messages'][] = "Could not change to SFTP remote DIR.";
                 $x12_remote['messages'] = array_merge($x12_remote['messages'], $sftp->getSFTPErrors());
                 $remoteTracker->update($x12_remote);
                 continue;
@@ -109,7 +108,7 @@ class X12RemoteTracker extends BaseService
             // Upload the file
             if (false === $sftp->put($x12_remote['x12_filename'], $claim_file_contents)) {
                 $x12_remote['status'] = self::STATUS_UPLOAD_ERRROR;
-                $x12_remote['messages'][]= "Could not upload file.";
+                $x12_remote['messages'][] = "Could not upload file.";
                 $x12_remote['messages'] = array_merge($x12_remote['messages'], $sftp->getSFTPErrors());
                 $remoteTracker->update($x12_remote);
             }
@@ -123,7 +122,8 @@ class X12RemoteTracker extends BaseService
         }
     }
 
-    protected function validateSFTPCredentials($credentials) {
+    protected function validateSFTPCredentials($credentials)
+    {
         $this->validationMessages = [];
         $valid = true;
         foreach (self::$x12_partner_field_keys as $key => $label) {
@@ -168,9 +168,7 @@ class X12RemoteTracker extends BaseService
         $sql .= $query['set'];
         $sql .= "WHERE id = ?";
         array_push( $query['bind'], $fields['id']);
-
         $results = sqlStatement($sql, $query['bind']);
-
         return $results;
     }
 

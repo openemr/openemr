@@ -45,8 +45,10 @@ if ($location === 'tmp') {
 
 // See if the file exists in the x-12 partner's SFTP directory
 // If it's not there, try the edi directory
-if (false === $claim_file_found &&
-    isset($_GET['partner'])) {
+if (
+    false === $claim_file_found &&
+    isset($_GET['partner'])
+) {
     $x12_partner_id = $_GET['partner'];
     // First look in the database for the file so we know
     // which partner directory to check
@@ -95,8 +97,10 @@ if (!file_exists($fname)) {
     // If the caller sets the delete flag, delete the file when we're done serving it
     // This is the common case of a temporary file when validation-only is performed
     // by the BillingProcessor
-    if (isset($_GET['delete']) &&
-        $_GET['delete'] == 1) {
+    if (
+        isset($_GET['delete']) &&
+        $_GET['delete'] == 1
+    ) {
         unlink($fname);
     }
 }

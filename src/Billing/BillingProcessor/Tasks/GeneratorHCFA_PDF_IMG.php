@@ -18,7 +18,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
@@ -59,6 +58,4 @@ class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements GeneratorInterf
             ));
         }
     }
-
-
 }

@@ -83,8 +83,10 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 // Local Directory not set
                 $has_dir = false;
                 $this->printToScreen(xl("No directory for X12 partner " . $row['name']));
-            } else if (isset($row['x12_sftp_local_dir']) &&
-                !is_dir($row['x12_sftp_local_dir'])) {
+            } else if (
+                isset($row['x12_sftp_local_dir']) &&
+                !is_dir($row['x12_sftp_local_dir'])
+            ) {
                 // If the local directory doesn't exist, attempt to create it
                 $has_dir = mkdir($row['x12_sftp_local_dir'], '644', true);
                 if (false === $has_dir) {
@@ -94,7 +96,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
 
             $batch = new BillingClaimBatch();
             $filename = $batch->getBatFilename();
-            $filename = str_replace('batch', 'batch-p'.$row['id'], $filename);
+            $filename = str_replace('batch', 'batch-p' . $row['id'], $filename);
             $batch->setBatFilename($filename);
 
             // Only set the batch file directory if we have a valid directory
@@ -212,7 +214,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     public function completeToFile(array $context)
     {
-        $this->finish($context, function ($context)   {
+        $this->finish($context, function ($context) {
 
             // Get the created_batches from the finish method
             $created_batches = $context['created_batches'];
@@ -286,10 +288,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // and depending on the action we're running, either write the final claim
         // to disk, or format the content for printing to the screen.
         foreach ($this->x12_partner_batches as $x12_partner_id => $x12_partner_batch) {
-
+            // If we didn't write any claims for this X12 partner
+            // don't append the closing lines or write the claim file or do anything else
             if (empty($x12_partner_batch->getBatContent())) {
-                // If we didn't write any claims for this X12 partner
-                // don't append the closing lines or write the claim file or do anything else
                 continue;
             }
 
@@ -300,7 +301,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
 
             // Store all the batches we create with the x12-partner ID as index
             // so we can pass them to the callback
-            $created_batches[$x12_partner_id]= $x12_partner_batch;
+            $created_batches[$x12_partner_id] = $x12_partner_batch;
         }
 
         // Call the callback with new context

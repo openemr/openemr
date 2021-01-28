@@ -71,8 +71,10 @@ abstract class AbstractGenerator extends AbstractProcessingTask
             }
         }
 
-        if ($this->getAction() === BillingProcessor::NORMAL ||
-            $this->getAction() === null) {
+        if (
+            $this->getAction() === BillingProcessor::NORMAL ||
+            $this->getAction() === null
+        ) {
             $this->generate($claim);
         }
     }
@@ -94,14 +96,18 @@ abstract class AbstractGenerator extends AbstractProcessingTask
     public function complete(array $context)
     {
         if ($this instanceof GeneratorCanValidateInterface) {
-            if ($this->getAction() === BillingProcessor::VALIDATE_ONLY ||
-                $this->getAction() === BillingProcessor::VALIDATE_AND_CLEAR) {
+            if (
+                $this->getAction() === BillingProcessor::VALIDATE_ONLY ||
+                $this->getAction() === BillingProcessor::VALIDATE_AND_CLEAR
+            ) {
                 $this->completeToScreen($context);
             }
         }
 
-        if ($this->getAction() === BillingProcessor::NORMAL ||
-            $this->getAction() === null) {
+        if (
+            $this->getAction() === BillingProcessor::NORMAL ||
+            $this->getAction() === null
+        ) {
             $this->completeToFile($context);
         }
     }

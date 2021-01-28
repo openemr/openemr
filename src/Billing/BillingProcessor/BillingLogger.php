@@ -99,7 +99,7 @@ class BillingLogger
 
     public function printToScreen($message)
     {
-        $this->bill_info[]= $message;
+        $this->bill_info[] = $message;
     }
 
     public function bill_info()

@@ -68,7 +68,6 @@ class X12Partner extends ORDataObject
         if ($id != "") {
             $this->populate();
         }
-
     }
 
     function x12_partner_factory()

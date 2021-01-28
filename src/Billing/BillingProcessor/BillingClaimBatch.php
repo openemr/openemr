@@ -85,7 +85,7 @@ class BillingClaimBatch
      */
     public function addClaim($claim): void
     {
-        $this->claims []= $claim;
+        $this->claims[] = $claim;
     }
 
     /**
@@ -157,12 +157,14 @@ class BillingClaimBatch
 
         // If we are automatically uploading claims to X12 partners, do that here right after we
         // write the 'official' batch file
-        if (true === $success &&
-            $GLOBALS['auto_sftp_claims_to_x12_partner']) {
+        if (
+            true === $success &&
+            $GLOBALS['auto_sftp_claims_to_x12_partner']
+        ) {
             $unique_x12_partners = $this->extractUniqueX12PartnersFromClaims($this->claims);
             if (is_array($unique_x12_partners)) {
                 // If this is an array, queue the batchfile to send to all x-12 partners
-                foreach( $unique_x12_partners as $x12_partner_id) {
+                foreach ($unique_x12_partners as $x12_partner_id) {
                     X12RemoteTracker::create([
                         'x12_partner_id' => $x12_partner_id,
                         'x12_filename' => $this->bat_filename,
@@ -181,7 +183,7 @@ class BillingClaimBatch
         $unique_x12_partners = [];
         foreach ($claims as $claim) {
             if (!in_array($claim->getPartner(), $unique_x12_partners)) {
-                $unique_x12_partners[]= $claim->getPartner();
+                $unique_x12_partners[] = $claim->getPartner();
             }
         }
         return $unique_x12_partners;

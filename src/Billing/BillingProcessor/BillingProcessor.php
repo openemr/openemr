@@ -99,7 +99,7 @@ class BillingProcessor
                 // Since the format is cryptic, we use the BillingClaim constructor to parse that into meaningful
                 // attributes
                 $billingClaim = new BillingClaim($claimId, $partner_and_payor);
-                $claims[]= $billingClaim;
+                $claims[] = $billingClaim;
             }
         }
 
@@ -117,7 +117,6 @@ class BillingProcessor
 
         // Go through each claim and process it while organizing them into batches
         foreach ($claims as $claim) {
-
             // Call the execute method on the task we created below based on user input
             // If the task is generating a file, one of the Generator* file's execute methods is called
             $processingTask->execute($claim);

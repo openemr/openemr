@@ -25,4 +25,3 @@ function start_X12_SFTP()
         X12RemoteTracker::sftpSendWaitingFiles();
     }
 }
-

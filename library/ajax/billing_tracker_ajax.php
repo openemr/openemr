@@ -35,7 +35,7 @@ foreach ($claim_files as $claim_file) {
     $element->updated_at = oeFormatDateTime($claim_file['updated_at']);
     $element->claims = json_decode($claim_file['claims']);
     $element->messages = json_decode($claim_file['messages']);
-    $response->data []= $element;
+    $response->data[] = $element;
 }
 
 echo json_encode($response);
