@@ -2105,7 +2105,7 @@ class X125010837P
         } else if (
             $claim->miscOnsetDate()
             && $claim->miscOnsetDate() !== $claim->serviceDate()
-            && $claim->box14Qualifier())
+            && $claim->box14Qualifier()
             && $claim->miscOnsetDateValid()
         ) {
             ++$edicount;
