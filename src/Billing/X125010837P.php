@@ -606,9 +606,10 @@ class X125010837P
             "*" . $claim->onsetDate() .
             "~\n";
         } elseif (
-            $claim->miscOnsetDate() &&
-            $claim->miscOnsetDate() !== $claim->serviceDate()
-            && ($claim->box14Qualifier()) && ($claim->miscOnsetDateValid())
+            $claim->miscOnsetDate()
+            && $claim->miscOnsetDate() !== $claim->serviceDate()
+            && ($claim->box14Qualifier())
+            && ($claim->miscOnsetDateValid())
         ) {
             ++$edicount;
             $out .= "DTP" .
@@ -1789,7 +1790,6 @@ class X125010837P
                     }
                     $out .= "~\n";
                 }
-
             } //***MS Add (end HL Loop)
 
             // Loop 2010AC Pay-To Plan Name omitted.  Includes:
@@ -2966,7 +2966,6 @@ class X125010837P
             "*" . $edicount .
             "*" . "0021" .
             "~\n";
-
         } //***TR3 Add
 
         $out .= "GE" .        // GE Trailer
