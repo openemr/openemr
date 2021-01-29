@@ -50,6 +50,7 @@ class RsaSha384Signer implements Signer
     public function __construct()
     {
         $this->logger = new SystemLogger();
+        $this->headers = [];
     }
 
     /**
@@ -102,8 +103,9 @@ class RsaSha384Signer implements Signer
         }
 
         if ($key instanceof JsonWebKeySet) {
+            $kid = $this->headers['kid'] ?? null;
             $this->logger->debug("RsaSha384Signer->verify() attempting to retrieve jwk");
-            $jwk = $key->getJSONWebKey($this->headers['kid'], $this->getAlgorithmId());
+            $jwk = $key->getJSONWebKey($kid, $this->getAlgorithmId());
         } else {
             $key = $key instanceof Key ? $key->contents() : $key;
             try {
