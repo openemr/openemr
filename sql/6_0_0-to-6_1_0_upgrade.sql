@@ -157,7 +157,7 @@ ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_host` varchar(255) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn x12_partners x12_sftp_port
-ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_port` varchar(15) DEFAULT NULL;
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_port` varchar(255) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn x12_partners x12_sftp_local_dir
