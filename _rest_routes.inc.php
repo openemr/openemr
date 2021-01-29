@@ -39,6 +39,7 @@ use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
+use OpenEMR\RestControllers\SurgeryRestController;
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -649,6 +650,20 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::scope_check("user", "prescription", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new PrescriptionRestController())->getOne($uuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    "GET /api/surgery" => function () {
+        RestConfig::scope_check("user", "prescription", "read");
+        RestConfig::authorization_check("patients", "med");
+        $return = (new SurgeryRestController())->getAll();
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    "GET /api/surgery/:uuid" => function ($uuid) {
+        RestConfig::scope_check("user", "prescription", "read");
+        RestConfig::authorization_check("patients", "med");
+        $return = (new SurgeryRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
     },
