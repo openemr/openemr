@@ -25,6 +25,9 @@ class SystemLogger implements LoggerInterface
 
     public function __construct()
     {
+        // default to debug, otherwise it's undefined and it stops logging.
+        $logLevel = Logger::DEBUG;
+
         /**
          * We use mono
          */

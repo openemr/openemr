@@ -100,7 +100,18 @@ class HttpRestRouteHandler
      */
     private static function checkSecurity(HttpRestRequest $restRequest)
     {
-        $scopeType = $restRequest->isPatientRequest() ? "patient" : "user";
+        $scopeType = 'patient';
+        switch ($restRequest->getRequestUserRole()) {
+            case 'users':
+                $scopeType = 'user';
+                break;
+            case 'patient':
+                $scopeType = 'patient';
+                break;
+            case 'system':
+                $scopeType = 'system';
+                break;
+        }
         $permission = $restRequest->getRequestMethod() === "GET" ? "read" : "write";
         $resource = $restRequest->getResource();
 

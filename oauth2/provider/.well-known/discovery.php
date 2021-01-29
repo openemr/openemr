@@ -15,7 +15,7 @@ if (!empty($GLOBALS['oauth_password_grant'])) {
     $passwordGrantString = '"password",';
 }
 // PHP is a fickle beast!
-$scopeRepository = new ScopeRepository();
+$scopeRepository = new ScopeRepository(RestConfig::GetInstance());
 $claims_array = $scopeRepository->getSupportedClaims();
 $claims = json_encode($claims_array, JSON_PRETTY_PRINT);
 

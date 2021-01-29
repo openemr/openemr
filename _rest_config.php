@@ -216,20 +216,19 @@ class RestConfig
 
     public static function isTrustedUser($clientId, $userId)
     {
+        $trustedUserService = new \OpenEMR\Services\TrustedUserService();
         $response = self::createServerResponse();
         try {
-            $trusted = sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ?", array($clientId, $userId));
-            if (empty($trusted['session_cache'])) {
+            if (!$trustedUserService->isTrustedUser($clientId, $userId)) {
                 throw new OAuthServerException('Refresh Token revoked or logged out', 0, 'invalid _request', 400);
             }
+            return $trustedUserService->getTrustedUser($clientId, $userId);
         } catch (OAuthServerException $exception) {
             return $exception->generateHttpResponse($response);
         } catch (\Exception $exception) {
             return (new OAuthServerException($exception->getMessage(), 0, 'unknown_error', 500))
                 ->generateHttpResponse($response);
         }
-
-        return $trusted;
     }
 
     public static function createServerResponse(): ResponseInterface
@@ -276,9 +275,9 @@ class RestConfig
         return null;
     }
 
-    public static function authorization_check($section, $value): void
+    public static function authorization_check($section, $value, $user = ''): void
     {
-        $result = AclMain::aclCheckCore($section, $value);
+        $result = AclMain::aclCheckCore($section, $value, $user);
         if (!$result) {
             if (!self::$notRestCall) {
                 http_response_code(401);

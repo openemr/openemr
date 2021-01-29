@@ -55,6 +55,7 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
+use OpenEMR\Services\TrustedUserService;
 use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
@@ -67,6 +68,9 @@ class AuthorizationController
     use CryptTrait;
 
     const ENDPOINT_SCOPE_AUTHORIZE_CONFIRM = "/scope-authorize-confirm";
+
+    const GRANT_TYPE_PASSWORD = 'password';
+    const GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials';
 
     public $authBaseUrl;
     public $authBaseFullUrl;
@@ -91,9 +95,21 @@ class AuthorizationController
      */
     private $logger;
 
+    /**
+     * Handles CRUD operations for OAUTH2 Trusted Users
+     * @var TrustedUserService
+     */
+    private $trustedUserService;
+
+    /**
+     * @var \RestConfig
+     */
+    private $restConfig;
+
     public function __construct($providerForm = true)
     {
         $gbl = \RestConfig::GetInstance();
+        $this->restConfig = $gbl;
         $this->logger = new SystemLogger();
 
         $this->siteId = $_SESSION['site_id'] ?? $gbl::$SITE;
@@ -116,6 +132,8 @@ class AuthorizationController
             $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
             __DIR__ . "/../../oauth2/"
         );
+
+        $this->trustedUserService = new TrustedUserService();
     }
 
     private function configKeyPairs(): void
@@ -572,7 +590,7 @@ class AuthorizationController
     public function getAuthorizationServer(): AuthorizationServer
     {
         $protectedClaims = ['profile', 'email', 'address', 'phone'];
-        $scopeRepository = new ScopeRepository();
+        $scopeRepository = new ScopeRepository($this->restConfig);
         $claims = $scopeRepository->getSupportedClaims();
         $customClaim = [];
         foreach ($claims as $claim) {
@@ -603,7 +621,7 @@ class AuthorizationController
         $authServer = new AuthorizationServer(
             new ClientRepository(),
             new AccessTokenRepository(),
-            new ScopeRepository(),
+            new ScopeRepository($this->restConfig),
             new CryptKey($this->privateKey, $this->passphrase),
             $this->oaEncryptionKey,
             $responseType
@@ -637,7 +655,7 @@ class AuthorizationController
             );
         }
         // TODO: break this up - throw exception for not turned on.
-        if (!empty($GLOBALS['oauth_password_grant']) && ($this->grantType === 'password')) {
+        if (!empty($GLOBALS['oauth_password_grant']) && ($this->grantType === self::GRANT_TYPE_PASSWORD)) {
             $grant = new CustomPasswordGrant(
                 new UserRepository(),
                 new RefreshTokenRepository()
@@ -648,7 +666,7 @@ class AuthorizationController
                 new \DateInterval('PT1H') // access token
             );
         }
-        if ($this->grantType === 'client_credentials') {
+        if ($this->grantType === self::GRANT_TYPE_CLIENT_CREDENTIALS) {
             // Enable the client credentials grant on the server
             $client_credentials = new CustomClientCredentialsGrant(AuthorizationController::getAuthBaseFullURL() . AuthorizationController::getTokenPath());
             $client_credentials->setLogger($this->logger);
@@ -984,6 +1002,7 @@ class AuthorizationController
             $ssbc = $this->sessionUserByCode($code);
             $_SESSION = json_decode($ssbc['session_cache'], true);
         }
+        // TODO: explore why we create the request again...
         if ($this->grantType === 'refresh_token') {
             $request = $this->createServerRequest();
         }
@@ -996,14 +1015,8 @@ class AuthorizationController
             }
             $result = $server->respondToAccessTokenRequest($request, $response);
             // save a password trusted user
-            if ($this->grantType === 'password') {
-                $body = $result->getBody();
-                $body->rewind();
-                // yep, even password grant gets one. could be useful.
-                $code = json_decode($body->getContents(), true, 512, JSON_THROW_ON_ERROR)['id_token'];
-                unset($_SESSION['csrf_private_key']); // gotta remove since binary and will break json_encode (not used for password granttype, so ok to remove)
-                $session_cache = json_encode($_SESSION, JSON_THROW_ON_ERROR);
-                $this->saveTrustedUser($_REQUEST['client_id'], $_SESSION['pass_user_id'], $_REQUEST['scope'], 0, $code, $session_cache, 'password');
+            if ($this->grantType === self::GRANT_TYPE_PASSWORD) {
+                $this->saveTrustedUserForPasswordGrant($result);
             }
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($result);
@@ -1028,20 +1041,17 @@ class AuthorizationController
 
     public function trustedUser($clientId, $userId)
     {
-        return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ?", array($clientId, $userId));
+        return $this->trustedUserService->getTrustedUser($clientId, $userId);
     }
 
     public function sessionUserByCode($code)
     {
-        return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `code`= ?", array($code));
+        return $this->trustedUserService->getTrustedUserByCode($code);
     }
 
     public function saveTrustedUser($clientId, $userId, $scope, $persist, $code = '', $session = '', $grant = 'authorization_code')
     {
-        $id = $this->trustedUser($clientId, $userId)['id'] ?? '';
-        $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache, `grant_type`) VALUES (?, ?, ?, ?, ?, Now(), ?, ?, ?)";
-
-        return sqlQueryNoLog($sql, array($id, $userId, $clientId, $scope, $persist, $code, $session, $grant));
+        return $this->trustedUserService->saveTrustedUser($clientId, $userId, $scope, $persist, $code, $session, $grant);
     }
 
     public function decodeToken($token)
@@ -1085,7 +1095,7 @@ class AuthorizationController
                 throw new OAuthServerException('Id token not issued from this server', 0, 'invalid _request', 400);
             }
             // clear the users session
-            $rtn = sqlQueryNoLog("DELETE FROM `oauth_trusted_user` WHERE `oauth_trusted_user`.`id` = ?", array($trustedUser['id']));
+            $rtn = $this->trustedUserService->deleteTrustedUserById($trustedUser['id']);
             $client = sqlQueryNoLog("SELECT logout_redirect_uris as valid FROM `oauth_clients` WHERE `client_id` = ? AND `logout_redirect_uris` = ?", array($client_id, $post_logout_url));
             if (!empty($post_logout_url) && !empty($client['valid'])) {
                 SessionUtil::oauthSessionCookieDestroy();
@@ -1339,5 +1349,21 @@ class AuthorizationController
         // collect full url and issuing url by using 'site_addr_oath' global
         $authBaseFullURL = $GLOBALS['site_addr_oath'] . $baseUrl;
         return $authBaseFullURL;
+    }
+
+    /**
+     * Given a password grant response, save the trusted user information to the database so password grant users
+     * can proceed.
+     * @param ServerResponseInterface $result
+     */
+    private function saveTrustedUserForPasswordGrant(ResponseInterface $result)
+    {
+        $body = $result->getBody();
+        $body->rewind();
+        // yep, even password grant gets one. could be useful.
+        $code = json_decode($body->getContents(), true, 512, JSON_THROW_ON_ERROR)['id_token'];
+        unset($_SESSION['csrf_private_key']); // gotta remove since binary and will break json_encode (not used for password granttype, so ok to remove)
+        $session_cache = json_encode($_SESSION, JSON_THROW_ON_ERROR);
+        $this->saveTrustedUser($_REQUEST['client_id'], $_SESSION['pass_user_id'], $_REQUEST['scope'], 0, $code, $session_cache, self::GRANT_TYPE_PASSWORD);
     }
 }

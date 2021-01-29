@@ -54,7 +54,7 @@ if ($GLOBALS['login_page_layout'] == 'left') {
 // TODO: adunsulag find out where our openemr name comes from
 $openemr_name = $openemr_name ?? '';
 
-$scopeRepo = new ScopeRepository();
+$scopeRepo = new ScopeRepository(RestConfig::GetInstance());
 $scopes = $scopeRepo->getCurrentSmartScopes();
 // TODO: adunsulag there's gotta be a better way for this url...
 $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . AuthorizationController::getRegistrationPath();

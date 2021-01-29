@@ -170,7 +170,8 @@ class RestControllerHelper
         }
     }
 
-    public function addOperations($resource, $items, FHIRCapabilityStatementResource $capResource) {
+    public function addOperations($resource, $items, FHIRCapabilityStatementResource $capResource)
+    {
         $operation = end($items);
         // we want to skip over anything that's not a resource $operation
         if ($operation === '$export') {
@@ -202,7 +203,6 @@ class RestControllerHelper
 
         // now setup our interaction types
         if (strcmp($reqMethod, "GET") == 0) {
-
             if (!empty(preg_match('/:/', $items[$numberItems - 1]))) {
                 $code = "read";
             } else {

@@ -591,6 +591,7 @@ use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
+use OpenEMR\Services\FHIR\FhirExportRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -915,20 +916,30 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     // Bulk FHIR api endpoints
-    'GET /fhir/Group/$export' => function (HttpRestRequest $request) {
-        $outputFormat = $_GET['_outputFormat'] ?? 'ndjson';
-        $since = $_GET['_since'] ?? time(0); // since epoch time
-        $type = $_GET['type'] ?? '';
-
-        // only allow admin's this type of action.
+    'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        (new \OpenEMR\Common\Logging\SystemLogger())->debug("Group export call made", [
-            '_outputFormat' => $outputFormat,
-            '_since' => $since,
-            '_type' => $type
-        ]);
-        return null;
+        $fhirExportService = new FhirExportRestController();
+        $fhirExportService->sendExportHeaders();
+        $return = $fhirExportService->processExport($_GET, 'Group');
+        RestConfig::apiLog($return);
+        return $return;
     },
+    'GET /fhir/Patient/$export' => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "users");
+        $fhirExportService = new FhirExportRestController();
+        $fhirExportService->sendExportHeaders();
+        $return = $fhirExportService->processExport($_GET, 'Patient');
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    'GET /fhir/$export' => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "users");
+        $fhirExportService = new FhirExportRestController();
+        $fhirExportService->sendExportHeaders();
+        $return = $fhirExportService->processExport($_GET, 'System');
+        RestConfig::apiLog($return);
+        return $return;
+    }
 );
 
 // Note that the portal (api) route is only for patient role

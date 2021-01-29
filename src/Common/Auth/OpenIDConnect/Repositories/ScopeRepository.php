@@ -35,10 +35,95 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     private $requestScopes;
 
-    public function __construct()
+    /**
+     * Session string containing the scopes populated in the current session.
+     * @var string
+     */
+    private $sessionScopes;
+
+    private $restConfig;
+
+    /**
+     * Array(string => callback) Where the string is the route and the callback is the route handler
+     * @var array
+     */
+    private $fhirRouteMap = [];
+
+    /**
+     * Array(string => callback) Where the string is the route and the callback is the route handler
+     * @var array
+     */
+    private $routeMap = [];
+
+    /**
+     * Array(string => callback) Where the string is the route and the callback is the route handler
+     * @var array
+     */
+    private $portalRouteMap = [];
+
+    /**
+     * ScopeRepository constructor.
+     * @param $restConfig \RestConfig normally we would typesafe this, but RestConfig isn't in the autoloader so we leave it out so we can unit test this class better
+     */
+    public function __construct($restConfig = null)
     {
         $this->logger = new SystemLogger();
         $this->requestScopes = isset($_REQUEST['scope']) ? $_REQUEST['scope'] : null;
+        $this->sessionScopes = $_SESSION['scopes'] ?? '';
+        $this->restConfig = $restConfig;
+        if (!empty($restConfig)) {
+            $this->fhirRouteMap = $restConfig::$FHIR_ROUTE_MAP ?? [];
+            $this->routeMap = $restConfig::$ROUTE_MAP ?? [];
+            $this->portalRouteMap = $restConfig::$PORTAL_ROUTE_MAP ?? [];
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getFhirRouteMap(): array
+    {
+        return $this->fhirRouteMap;
+    }
+
+    /**
+     * @param array $fhirRouteMap
+     */
+    public function setFhirRouteMap(array $fhirRouteMap): void
+    {
+        $this->fhirRouteMap = $fhirRouteMap;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStandardRouteMap(): array
+    {
+        return $this->routeMap;
+    }
+
+    /**
+     * @param array $routeMap
+     */
+    public function setStandardRouteMap(array $routeMap): void
+    {
+        $this->routeMap = $routeMap;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPortalRouteMap(): array
+    {
+        return $this->portalRouteMap;
+    }
+
+    /**
+     * @param array $portalRouteMap
+     */
+    public function setPortalRouteMap(array $portalRouteMap): void
+    {
+        $this->portalRouteMap = $portalRouteMap;
     }
 
     /**
@@ -110,6 +195,11 @@ class ScopeRepository implements ScopeRepositoryInterface
     public function getRequestScopes()
     {
         return $this->requestScopes;
+    }
+
+    public function getSessionScopes()
+    {
+        return $this->sessionScopes;
     }
 
     // nonce claim and nonce scope is handled by server logic.
@@ -505,12 +595,12 @@ class ScopeRepository implements ScopeRepositoryInterface
     public function getCurrentSmartScopes(): array
     {
         (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
-        $gbl = \RestConfig::GetInstance();
+        $gbl = $this->restConfig;
         $restHelper = new RestControllerHelper();
         // Collect all currently enabled FHIR resources.
         // Then assign all permissions the resource is capable.
         $scopes_api = [];
-        $restAPIs = $restHelper->getCapabilityRESTObject($gbl::$FHIR_ROUTE_MAP);
+        $restAPIs = $restHelper->getCapabilityRESTObject($this->getFhirRouteMap());
         foreach ($restAPIs->getResource() as $resource) {
             $resourceType = $resource->getType()->getValue();
             $interactions = $resource->getInteraction();
@@ -562,13 +652,12 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     public function getCurrentStandardScopes(): array
     {
-        (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() setting up standard api scopes");
-        $gbl = \RestConfig::GetInstance();
+        (new SystemLogger())->debug("ScopeRepository->getCurrentStandardScopes() setting up standard api scopes");
         $restHelper = new RestControllerHelper();
         // Collect all currently enabled resources.
         // Then assign all permissions the resource is capable.
         $scopes_api = [];
-        $restAPIs = $restHelper->getCapabilityRESTObject($gbl::$ROUTE_MAP, "OpenEMR\\Services");
+        $restAPIs = $restHelper->getCapabilityRESTObject($this->getStandardRouteMap(), "OpenEMR\\Services");
         foreach ($restAPIs->getResource() as $resource) {
             $resourceType = $resource->getType()->getValue();
             $interactions = $resource->getInteraction();
@@ -595,8 +684,9 @@ class ScopeRepository implements ScopeRepositoryInterface
             }
         }
         $scopes_api_portal = [];
+        // TODO: should we put this into the constructor? makes it hard to unit test this...
         if (!empty($GLOBALS['rest_portal_api'])) {
-            $restAPIs = $restHelper->getCapabilityRESTObject($gbl::$PORTAL_ROUTE_MAP, "OpenEMR\\Services");
+            $restAPIs = $restHelper->getCapabilityRESTObject($this->getPortalRouteMap(), "OpenEMR\\Services");
             foreach ($restAPIs->getResource() as $resource) {
                 $resourceType = $resource->getType()->getValue();
                 $interactions = $resource->getInteraction();
@@ -637,30 +727,60 @@ class ScopeRepository implements ScopeRepositoryInterface
         return array_keys($scopesSupported);
     }
 
+    /**
+     * Returns true if the session or request has a fhir api scope in it
+     * @return bool
+     */
+    public function hasFhirApiScopes()
+    {
+        $requestScopeString = $this->getRequestScopes();
+        $sessionScopeString = $this->getSessionScopes();
+
+        $isFhir = preg_match('(fhirUser|api:fhir)', $requestScopeString)
+            || preg_match('(fhirUser|api:fhir)', $sessionScopeString);
+        return $isFhir !== false;
+    }
+
+    /**
+     * Returns true if the session or request has a standard or portal api scope in it
+     * @return bool
+     */
+    public function hasStandardApiScopes()
+    {
+        $requestScopeString = $this->getRequestScopes();
+        $sessionScopeString = $this->getSessionScopes();
+        $isApi = preg_match('(api:oemr|api:port)', $requestScopeString)
+            || preg_match('(api:oemr|api:port)', $sessionScopeString);
+
+        return $isApi !== false;
+    }
+
     // made public for now!
     public function buildScopeValidatorArray(): array
     {
         $requestScopeString = $this->getRequestScopes();
-        (new SystemLogger())->debug("ScopeRepository->buildScopeValidatorArray() ", ["requestScopeString" => $requestScopeString]);
-        $isFhir = preg_match('(fhirUser|api:fhir)', $requestScopeString)
-            || preg_match('(fhirUser|api:fhir)', $_SESSION['scopes']);
-        $isApi = preg_match('(api:oemr|api:port)', $requestScopeString)
-            || preg_match('(api:oemr|api:port)', $_SESSION['scopes']);
+        $isFhir = $this->hasFhirApiScopes();
+        $isApi = $this->hasStandardApiScopes();
+        (new SystemLogger())->debug(
+            "ScopeRepository->buildScopeValidatorArray() ",
+            ["requestScopeString" => $requestScopeString, 'isStandardApi' => $isApi, 'isFhirApi' => $isFhir]
+        );
 
         // TODO: adunsulag check with @bradymiller and @sjpadgett on defaulting api to $isFhir not all SMART apps request
         // fhirUser and if we want to support the larger ecosystem of apps we need to not require api:fhir or fhirUser
 
         $scopesFhir = [];
-        if (empty($isApi) || !empty($isFhir)) {
+        if ($isFhir || !$isApi) {
             $scopesFhir = $this->getCurrentSmartScopes();
         }
         $scopesApi = [];
-        if (!empty($isApi)) {
+        if ($isApi) {
             $scopesApi = $this->getCurrentStandardScopes();
         }
-        $scopes = array_merge($scopesFhir, $scopesApi);
+        $mergedScopes = array_merge($scopesFhir, $scopesApi);
+        $scopes = [];
 
-        foreach ($scopes as $scope) {
+        foreach ($mergedScopes as $scope) {
             $scopes[$scope] = ['description' => 'OpenId Connect'];
         }
 

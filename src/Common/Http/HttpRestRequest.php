@@ -242,7 +242,7 @@ class HttpRestRequest
      */
     public function setRequestUserRole($requestUserRole): void
     {
-        if (!in_array($requestUserRole, ['patient', 'users'])) {
+        if (!in_array($requestUserRole, ['patient', 'users', 'system'])) {
             throw new \InvalidArgumentException("invalid user role found");
         }
         $this->requestUserRole = $requestUserRole;

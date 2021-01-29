@@ -101,8 +101,8 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     // collect token id
     $tokenId = $attributes['oauth_access_token_id'];
     // ensure user uuid and token id are populated
-    if (empty($userId) || empty($tokenId)) {
-        $logger->error("OpenEMR Error - userid or tokenid not available, so forced exit");
+    if (empty($tokenId)) {
+        $logger->error("OpenEMR Error - tokenid not available, so forced exit", ['attributes' => $attributes]);
         http_response_code(400);
         exit();
     }
@@ -183,16 +183,21 @@ if ($isLocalApi) {
         http_response_code(401);
         exit();
     }
-    // collect user information and user role
-    $uuidToUser = new UuidUserAccount($userId);
-    $user = $uuidToUser->getUserAccount();
-    $userRole = $uuidToUser->getUserRole();
-    if (empty($user)) {
-        // unable to identify the users user role
-        $logger->error("OpenEMR Error - api user account could not be identified, so forced exit");
-        $gbl::destroySession();
-        http_response_code(400);
-        exit();
+    // if we have no user id but we have a valid token it's because this is a client credentials system request.
+    if (empty($userId)) {
+        $userRole = "system";
+    } else {
+        // collect user information and user role
+        $uuidToUser = new UuidUserAccount($userId);
+        $user = $uuidToUser->getUserAccount();
+        $userRole = $uuidToUser->getUserRole();
+        if (empty($user)) {
+            // unable to identify the users user role
+            $logger->error("OpenEMR Error - api user account could not be identified, so forced exit");
+            $gbl::destroySession();
+            http_response_code(400);
+            exit();
+        }
     }
     if (empty($userRole)) {
         // unable to identify the users user role
@@ -201,7 +206,7 @@ if ($isLocalApi) {
         http_response_code(400);
         exit();
     }
-    $restRequest->setRequestUser($userId, $user);
+
     $restRequest->setRequestUserRole($userRole);
     // verify that the scope covers the route
     if (
@@ -253,6 +258,9 @@ if ($isLocalApi) {
             http_response_code(401);
             exit();
         }
+    } else if ($userRole === 'system') {
+        // we set our authUserID to be our client id so we can check against the ACLs for that client...
+        $_SESSION['authUserID'] = $restRequest->getClientId();
     } else {
         // this user role is not supported
         $logger->error("OpenEMR Error - api user role that was provided is not supported, so forced exit");
