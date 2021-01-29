@@ -7,6 +7,7 @@
       <thead>
       <tr>
           <th>{xlt t='Name'}</th>
+          <th>{xlt t='Submitter Name (If applicable)'}</th>
           <th>{xlt t='Sender ID'}</th>
           <th>{xlt t='Receiver ID'}</th>
           <th>{xlt t='Version'}</th>
@@ -19,6 +20,7 @@
                   {$partner->get_name()|text}&nbsp;
               </a>
           </td>
+          <td>{$partner->get_x12_submitter_name()|text}&nbsp;</td>
           <td>{$partner->get_x12_sender_id()|text}&nbsp;</td>
           <td>{$partner->get_x12_receiver_id()|text}&nbsp;</td>
           <td>{$partner->get_x12_version()|text}&nbsp;</td>

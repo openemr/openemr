@@ -17,44 +17,46 @@ use OpenEMR\Billing\Claim;
 use OpenEMR\Billing\X125010837I;
 use OpenEMR\Pdf\PdfCreator;
 
-$dispose = isset($_POST['handler']) ? $_POST['handler'] : $_GET['handler'];
+function ub04_dispose()
+{
+    $dispose = isset($_POST['handler']) ? $_POST['handler'] : $_GET['handler'];
+    if ($dispose) {
+        if ($dispose == "edit_save") {
+            $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
+            $pid = isset($_POST['pid']) ? $_POST['pid'] : $_GET['pid'];
+            $encounter = isset($_POST['encounter']) ? $_POST['encounter'] : $_GET['encounter'];
+            $action = $_REQUEST['action'];
+            $ub04id = json_decode($ub04id, true);
+            saveTemplate($encounter, $pid, $ub04id, $action);
+            exit();
+        } elseif ($dispose == "payer_save") {
+            $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
+            $payerid = isset($_POST['payerid']) ? $_POST['payerid'] : $_GET['payerid'];
+            savePayerTemplate($payerid, $ub04id);
+            exit("done");
+        } elseif ($dispose == "batch_save") {
+            $pid = isset($_POST['pid']) ? $_POST['pid'] : $_GET['pid'];
+            $encounter = isset($_POST['encounter']) ? $_POST['encounter'] : $_GET['encounter'];
+            $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
+            saveTemplate($encounter, $pid, $ub04id, $dispose);
+            exit("done");
+        } elseif ($dispose == "reset_claim") {
+            $pid = isset($_POST['pid']) ? $_POST['pid'] : $_GET['pid'];
+            $encounter = isset($_POST['encounter']) ? $_POST['encounter'] : $_GET['encounter'];
+            // clear claim first otherwise get ub04 returns cuurent version.
+            //
+            $flg = exist_ub04_claim($pid, $encounter, true);
+            if ($flg === true) {
+                BillingUtilities::updateClaim(false, $pid, $encounter, -1, -1, -1, -1, '', 'ub04', -1, 0, "");
+            }
+            $ub04id = get_ub04_array($pid, $encounter);
+            $ub04id = json_encode($ub04id);
 
-if ($dispose) {
-    if ($dispose == "edit_save") {
-        $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
-        $pid = isset($_POST['pid']) ? $_POST['pid'] : $_GET['pid'];
-        $encounter = isset($_POST['encounter']) ? $_POST['encounter'] : $_GET['encounter'];
-        $action = $_REQUEST['action'];
-        $ub04id = json_decode($ub04id, true);
-        saveTemplate($encounter, $pid, $ub04id, $action);
-        exit();
-    } elseif ($dispose == "payer_save") {
-        $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
-        $payerid = isset($_POST['payerid']) ? $_POST['payerid'] : $_GET['payerid'];
-        savePayerTemplate($payerid, $ub04id);
-        exit("done");
-    } elseif ($dispose == "batch_save") {
-        $pid = isset($_POST['pid']) ? $_POST['pid'] : $_GET['pid'];
-        $encounter = isset($_POST['encounter']) ? $_POST['encounter'] : $_GET['encounter'];
-        $ub04id = isset($_POST['ub04id']) ? $_POST['ub04id'] : $_GET['ub04id'];
-        saveTemplate($encounter, $pid, $ub04id, $dispose);
-        exit("done");
-    } elseif ($dispose == "reset_claim") {
-        $pid = isset($_POST['pid']) ? $_POST['pid'] : $_GET['pid'];
-        $encounter = isset($_POST['encounter']) ? $_POST['encounter'] : $_GET['encounter'];
-        // clear claim first otherwise get ub04 returns cuurent version.
-        //
-        $flg = exist_ub04_claim($pid, $encounter, true);
-        if ($flg === true) {
-            BillingUtilities::updateClaim(false, $pid, $encounter, - 1, - 1, - 1, - 1, '', 'ub04', - 1, 0, "");
+            echo $ub04id;
+            exit();
         }
-        $ub04id = get_ub04_array($pid, $encounter);
-        $ub04id = json_encode($ub04id);
-
-        echo $ub04id;
-        exit();
+        die(xlt('Do not know what to do!'));
     }
-    die(xlt('Do not know what to do!'));
 }
 
 function get_payer_defaults($payerid)
@@ -78,6 +80,7 @@ function savePayerTemplate($payerid, $ubo4id)
 
 function saveTemplate($encounter, $pid, $ub04id, $action = 'form')
 {
+    global $isAuthorized;
     if ($action != 'batch_save') {
         $ub04id = json_encode($ub04id);
         $isAuthorized = true;
@@ -97,6 +100,8 @@ function saveTemplate($encounter, $pid, $ub04id, $action = 'form')
 
 function buildTemplate(string $pid = null, string $encounter = null, $htmlin, string $action = null, &$log)
 {
+    global $srcdir, $isAuthorized;
+
     if (!$action) {
         $action = 'form';
     }
@@ -106,7 +111,7 @@ function buildTemplate(string $pid = null, string $encounter = null, $htmlin, st
 
     $isAuthorized = true;
     ob_start();
-    require(dirname(__file__) . "/ub04_form.php");
+    require $srcdir . "/../interface/billing/ub04_form.php";
     $htmlin = ob_get_clean();
     $isAuthorized = false;
 
