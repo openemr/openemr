@@ -19,7 +19,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect\Entities;
+namespace OpenEMR\Tests\Unit\Common\Acl;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
