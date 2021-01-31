@@ -180,8 +180,8 @@ assets:
             - css/select2.min.css
             # BS4 theme moved to main theme assets to allow fluidity
     jscolor:
-        basePath: '%assets_static_relative%/jscolor/'
-        script: jscolor.js
+        basePath: '%assets_static_relative%/@eastdesire/jscolor/'
+        script: jscolor.min.js
     esign:
         basePath: '%webroot%/library/ESign/'
         script: js/jquery.esign.js
