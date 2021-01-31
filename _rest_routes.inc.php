@@ -757,14 +757,25 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Observation" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirObservationRestController())->getAll($_GET);
+        $getParams = $_GET;
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirObservationRestController())->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirObservationRestController())->getAll($getParams);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Observation/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirObservationRestController())->getOne($uuid);
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirObservationRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirObservationRestController())->getOne($uuid);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
