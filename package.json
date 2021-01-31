@@ -86,7 +86,7 @@
     "interactjs": "1.9.22",
     "jquery": "3.5.1",
     "jquery-datetimepicker": "2.5.21",
-    "jquery-validation": "1.19.2",
+    "jquery-validation": "1.19.3",
     "@eastdesire/jscolor": "2.4.5",
     "jspdf": "2.1.1",
     "jszip": "3.5.0",
