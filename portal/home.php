@@ -106,7 +106,7 @@ foreach ($msgs as $i) {
              });
            }
             $("#profilereport").load("get_profile.php", {}, function () {
-                $("table").addClass("table");
+                $("table").addClass("table table-sm");
                 $(".demographics td").removeClass("label");
                 $(".demographics td").addClass("bold");
                 $(".insurance table").addClass("table-sm table-striped");
@@ -187,9 +187,9 @@ foreach ($msgs as $i) {
                     $("[data-toggle='offcanvas']").click();
                 }
             });
-            $('#popwait').hide();
+            $('#popwait').addClass('d-none');
             $('#callccda').click(function () {
-              $('#popwait').show();
+                $('#popwait').removeClass('d-none');
             });
           });
         function editAppointment(mode, deid) {
@@ -396,19 +396,19 @@ foreach ($msgs as $i) {
     </header>
     <div class="wrapper d-flex">
         <!-- Left side column. contains the logo and sidebar -->
-        <aside class="fixed-top left-side sidebar-offcanvas collapse collapse-md mt-5" id="left-collapse">
+        <aside class="left-side sidebar-offcanvas collapse collapse-md mt-3" id="left-collapse">
             <nav class="sidebar">
                 <!-- Sidebar user panel -->
-                <div class="user-panel">
-                    <div class="float-left image">
-                        <i class="fa fa-user"></i>
+                <ul class="nav nav-pills flex-column sticky-top text-dark">
+                    <div class="user-panel">
+                        <div class="float-left image">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <div class="float-left info">
+                            <p><?php echo xlt('Welcome') . ' ' . text($result['fname'] . " " . $result['lname']); ?></p>
+                            <a href="#"><i class="fa fa-circle text-success"></i> <?php echo xlt('Online'); ?></a>
+                        </div>
                     </div>
-                    <div class="float-left info">
-                        <p><?php echo xlt('Welcome') . ' ' . text($result['fname'] . " " . $result['lname']); ?></p>
-                        <a href="#"><i class="fa fa-circle text-success"></i> <?php echo xlt('Online'); ?></a>
-                    </div>
-                </div>
-                <ul class="nav nav-pills flex-column text-dark">
                     <!-- css class was sidebar-menu -->
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-id-card"></i> <?php echo xlt('Profile'); ?></a></li>
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#lists" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-list"></i> <?php echo xlt('Lists'); ?></a></li>
@@ -458,8 +458,8 @@ foreach ($msgs as $i) {
         <!-- Right side column. Contains content of the page -->
         <aside class="right-side mt-3">
             <!-- Main content -->
-            <section class="container" id="cardgroup">
-                <div id="popwait" class="alert alert-warning"><strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
+            <section class="flex-column" id="cardgroup">
+                <div id="popwait" class="alert alert-warning d-none"><strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
                 <div class="collapse" id="lists">
                     <div class="card">
                         <header class="card-header bg-primary text-light"><?php echo xlt('Medications'); ?> </header>
